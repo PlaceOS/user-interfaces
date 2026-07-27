@@ -3,11 +3,12 @@ import {
   buildDisplayScheduleAssignments,
   buildScheduleBlocks,
   buildZoneScheduleAssignments
-} from "./chunk-LMUWE5SJ.js";
+} from "./chunk-IWF6CRWN.js";
 import {
+  GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-EZB5K4JH.js";
+} from "./chunk-2YE535VN.js";
 import {
   ActivatedRoute,
   Component,
@@ -70,7 +71,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-ZQUI6GD6.js";
+} from "./chunk-W36T2HDV.js";
 import "./chunk-653SOEEV.js";
 
 // libs/components/src/lib/date-from.pipe.ts
@@ -766,12 +767,12 @@ ${i18n("SIGNAGE_MANAGER.TOOLTIP_TIME", {
 })();
 
 // apps/signage-manager/src/app/schedules/schedules.component.ts
-function SchedulesSectionComponent_Conditional_56_Template(rf, ctx) {
+function SchedulesSectionComponent_Conditional_54_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 26);
+    \u0275\u0275elementStart(0, "button", 25);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function SchedulesSectionComponent_Conditional_56_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function SchedulesSectionComponent_Conditional_54_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.clearSearch());
@@ -784,12 +785,12 @@ function SchedulesSectionComponent_Conditional_56_Template(rf, ctx) {
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 1, "SIGNAGE_MANAGER.CLEAR_SCHEDULE_SEARCH"));
   }
 }
-function SchedulesSectionComponent_Conditional_59_Template(rf, ctx) {
+function SchedulesSectionComponent_Conditional_57_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 24)(1, "icon", 27);
+    \u0275\u0275elementStart(0, "div", 23)(1, "icon", 26);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 28);
+    \u0275\u0275elementStart(3, "p", 27);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -802,9 +803,9 @@ function SchedulesSectionComponent_Conditional_59_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 2, ctx_r1.search_term() ? "SIGNAGE_MANAGER.NO_SCHEDULES_MATCH" : ctx_r1.view_tab() === "displays" ? "SIGNAGE_MANAGER.NO_DISPLAYS_AVAILABLE" : "SIGNAGE_MANAGER.NO_ZONES_AVAILABLE"), " ");
   }
 }
-function SchedulesSectionComponent_Conditional_60_Template(rf, ctx) {
+function SchedulesSectionComponent_Conditional_58_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "schedule-timeline", 25);
+    \u0275\u0275element(0, "schedule-timeline", 24);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -1024,7 +1025,7 @@ var SchedulesSectionComponent = class _SchedulesSectionComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SchedulesSectionComponent, selectors: [["schedules-section"]], inputs: { tab: [1, "tab"] }, decls: 62, vars: 70, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col", "overflow-hidden"], [1, "bg-base-100", "border-base-300", "relative", "z-10", "border-b", "px-4", "py-3"], [1, "flex", "flex-col", "gap-3", "sm:flex-row", "sm:items-center"], [1, "min-w-0", "flex-1"], [1, "text-lg", "font-semibold"], [1, "text-base-content/50", "text-xs"], ["role", "tablist", 1, "bg-base-content/5", "flex", "max-w-52", "overflow-hidden", "rounded-lg", "p-1"], ["type", "button", "role", "tab", 1, "flex", "rounded-md", "p-2", "font-medium", "transition-all", "duration-150", 3, "click"], [1, "px-1"], [1, "bg-base-content/5", "h-6", "min-w-6", "rounded-full", "p-1", "text-xs", "opacity-60"], [1, "mt-2.5", "flex", "flex-col", "gap-2", "md:flex-row", "md:items-center", "md:justify-between"], [1, "flex", "items-center", "gap-0.5"], ["icon", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "ml-1.5"], [1, "text-sm", "leading-tight", "font-medium"], [1, "text-base-content/45", "text-[11px]"], ["appearance", "outline", 1, "no-subscript", "min-w-1/2"], ["matPrefix", "", 1, "text-2xl"], ["matInput", "", "type", "search", 3, "input", "value", "placeholder"], ["icon", "", "matSuffix", "", "type", "button", "matRipple", ""], [1, "min-h-0", "flex-1", "p-2"], [1, "bg-base-100", "border-base-300", "flex", "h-full", "min-h-0", "flex-col", "overflow-hidden", "rounded-lg", "border"], [1, "text-base-content/40", "flex", "flex-1", "flex-col", "items-center", "justify-center", "gap-3"], [3, "rows", "view_tab", "selected_date", "current_minutes", "show_current_time", "playlist_approval_status"], ["icon", "", "matSuffix", "", "type", "button", "matRipple", "", 3, "click"], [1, "text-4xl"], [1, "text-sm"]], template: function SchedulesSectionComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SchedulesSectionComponent, selectors: [["schedules-section"]], inputs: { tab: [1, "tab"] }, decls: 60, vars: 67, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col", "overflow-hidden"], [1, "bg-base-100", "border-base-300", "relative", "z-10", "border-b", "px-4", "py-3"], [1, "flex", "flex-col", "gap-3", "sm:flex-row", "sm:items-center"], [1, "min-w-0", "flex-1"], [1, "text-lg", "font-semibold"], ["role", "tablist", 1, "bg-base-content/5", "flex", "max-w-52", "overflow-hidden", "rounded-lg", "p-1"], ["type", "button", "role", "tab", 1, "flex", "rounded-md", "p-2", "font-medium", "transition-all", "duration-150", 3, "click"], [1, "px-1"], [1, "bg-base-content/5", "h-6", "min-w-6", "rounded-full", "p-1", "text-xs", "opacity-60"], [1, "mt-2.5", "flex", "flex-col", "gap-2", "md:flex-row", "md:items-center", "md:justify-between"], [1, "flex", "items-center", "gap-0.5"], ["icon", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "ml-1.5"], [1, "text-sm", "leading-tight", "font-medium"], [1, "text-base-content/45", "text-[11px]"], ["appearance", "outline", 1, "no-subscript", "min-w-1/2"], ["matPrefix", "", 1, "text-2xl"], ["matInput", "", "type", "search", 3, "input", "value", "placeholder"], ["icon", "", "matSuffix", "", "type", "button", "matRipple", ""], [1, "min-h-0", "flex-1", "p-2"], [1, "bg-base-100", "border-base-300", "flex", "h-full", "min-h-0", "flex-col", "overflow-hidden", "rounded-lg", "border"], [1, "text-base-content/40", "flex", "flex-1", "flex-col", "items-center", "justify-center", "gap-3"], [3, "rows", "view_tab", "selected_date", "current_minutes", "show_current_time", "playlist_approval_status"], ["icon", "", "matSuffix", "", "type", "button", "matRipple", "", 3, "click"], [1, "text-4xl"], [1, "text-sm"]], template: function SchedulesSectionComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0);
         \u0275\u0275element(1, "nav-sidebar", 1);
@@ -1032,128 +1033,124 @@ var SchedulesSectionComponent = class _SchedulesSectionComponent {
         \u0275\u0275text(7);
         \u0275\u0275pipe(8, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(9, "p", 7);
-        \u0275\u0275text(10);
+        \u0275\u0275element(9, "group-breadcrumbs");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(10, "div", 7);
         \u0275\u0275pipe(11, "translate");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(12, "div", 8);
-        \u0275\u0275pipe(13, "translate");
-        \u0275\u0275elementStart(14, "button", 9);
-        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_14_listener() {
+        \u0275\u0275elementStart(12, "button", 8);
+        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_12_listener() {
           return ctx.setViewTab("displays");
         });
-        \u0275\u0275elementStart(15, "div", 10);
-        \u0275\u0275text(16);
-        \u0275\u0275pipe(17, "translate");
+        \u0275\u0275elementStart(13, "div", 9);
+        \u0275\u0275text(14);
+        \u0275\u0275pipe(15, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(18, "div", 11);
-        \u0275\u0275text(19);
+        \u0275\u0275elementStart(16, "div", 10);
+        \u0275\u0275text(17);
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(20, "button", 9);
-        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_20_listener() {
+        \u0275\u0275elementStart(18, "button", 8);
+        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_18_listener() {
           return ctx.setViewTab("zones");
         });
-        \u0275\u0275elementStart(21, "div", 10);
-        \u0275\u0275text(22);
-        \u0275\u0275pipe(23, "translate");
+        \u0275\u0275elementStart(19, "div", 9);
+        \u0275\u0275text(20);
+        \u0275\u0275pipe(21, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(24, "div", 11);
-        \u0275\u0275text(25);
+        \u0275\u0275elementStart(22, "div", 10);
+        \u0275\u0275text(23);
         \u0275\u0275elementEnd()()()();
-        \u0275\u0275elementStart(26, "div", 12)(27, "div", 13)(28, "button", 14);
-        \u0275\u0275pipe(29, "translate");
-        \u0275\u0275pipe(30, "translate");
-        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_28_listener() {
+        \u0275\u0275elementStart(24, "div", 11)(25, "div", 12)(26, "button", 13);
+        \u0275\u0275pipe(27, "translate");
+        \u0275\u0275pipe(28, "translate");
+        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_26_listener() {
           return ctx.previousDay();
         });
-        \u0275\u0275elementStart(31, "icon");
-        \u0275\u0275text(32, "chevron_left");
+        \u0275\u0275elementStart(29, "icon");
+        \u0275\u0275text(30, "chevron_left");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(33, "button", 14);
-        \u0275\u0275pipe(34, "translate");
-        \u0275\u0275pipe(35, "translate");
-        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_33_listener() {
+        \u0275\u0275elementStart(31, "button", 13);
+        \u0275\u0275pipe(32, "translate");
+        \u0275\u0275pipe(33, "translate");
+        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_31_listener() {
           return ctx.goToToday();
         });
-        \u0275\u0275elementStart(36, "icon");
-        \u0275\u0275text(37, "today");
+        \u0275\u0275elementStart(34, "icon");
+        \u0275\u0275text(35, "today");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(38, "button", 14);
-        \u0275\u0275pipe(39, "translate");
-        \u0275\u0275pipe(40, "translate");
-        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_38_listener() {
+        \u0275\u0275elementStart(36, "button", 13);
+        \u0275\u0275pipe(37, "translate");
+        \u0275\u0275pipe(38, "translate");
+        \u0275\u0275listener("click", function SchedulesSectionComponent_Template_button_click_36_listener() {
           return ctx.nextDay();
         });
-        \u0275\u0275elementStart(41, "icon");
-        \u0275\u0275text(42, "chevron_right");
+        \u0275\u0275elementStart(39, "icon");
+        \u0275\u0275text(40, "chevron_right");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(43, "div", 15)(44, "div", 16);
-        \u0275\u0275text(45);
-        \u0275\u0275pipe(46, "date");
+        \u0275\u0275elementStart(41, "div", 14)(42, "div", 15);
+        \u0275\u0275text(43);
+        \u0275\u0275pipe(44, "date");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(47, "div", 17);
-        \u0275\u0275text(48);
-        \u0275\u0275pipe(49, "date");
+        \u0275\u0275elementStart(45, "div", 16);
+        \u0275\u0275text(46);
+        \u0275\u0275pipe(47, "date");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(50, "mat-form-field", 18)(51, "icon", 19);
-        \u0275\u0275text(52, "search");
+        \u0275\u0275elementStart(48, "mat-form-field", 17)(49, "icon", 18);
+        \u0275\u0275text(50, "search");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(53, "input", 20);
-        \u0275\u0275pipe(54, "translate");
-        \u0275\u0275pipe(55, "translate");
-        \u0275\u0275listener("input", function SchedulesSectionComponent_Template_input_input_53_listener($event) {
+        \u0275\u0275elementStart(51, "input", 19);
+        \u0275\u0275pipe(52, "translate");
+        \u0275\u0275pipe(53, "translate");
+        \u0275\u0275listener("input", function SchedulesSectionComponent_Template_input_input_51_listener($event) {
           return ctx.setSearch($event);
         });
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(56, SchedulesSectionComponent_Conditional_56_Template, 4, 3, "button", 21);
+        \u0275\u0275conditionalCreate(54, SchedulesSectionComponent_Conditional_54_Template, 4, 3, "button", 20);
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(57, "div", 22)(58, "div", 23);
-        \u0275\u0275conditionalCreate(59, SchedulesSectionComponent_Conditional_59_Template, 6, 4, "div", 24)(60, SchedulesSectionComponent_Conditional_60_Template, 1, 6, "schedule-timeline", 25);
+        \u0275\u0275elementStart(55, "div", 21)(56, "div", 22);
+        \u0275\u0275conditionalCreate(57, SchedulesSectionComponent_Conditional_57_Template, 6, 4, "div", 23)(58, SchedulesSectionComponent_Conditional_58_Template, 1, 6, "schedule-timeline", 24);
         \u0275\u0275elementEnd()()();
-        \u0275\u0275element(61, "nav-footer");
+        \u0275\u0275element(59, "nav-footer");
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
         \u0275\u0275advance(7);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 38, "SIGNAGE_MANAGER.NAV_SCHEDULES"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 37, "SIGNAGE_MANAGER.NAV_SCHEDULES"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 40, "SIGNAGE_MANAGER.SCHEDULES_SUBTITLE"), " ");
-        \u0275\u0275advance(2);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(13, 42, "SIGNAGE_MANAGER.SCHEDULE_TYPES"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(11, 39, "SIGNAGE_MANAGER.SCHEDULE_TYPES"));
         \u0275\u0275advance(2);
         \u0275\u0275classProp("bg-base-100", ctx.view_tab() === "displays")("shadow-sm", ctx.view_tab() === "displays")("text-primary", ctx.view_tab() === "displays")("opacity-50", ctx.view_tab() !== "displays");
         \u0275\u0275attribute("aria-selected", ctx.view_tab() === "displays");
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(17, 44, "SIGNAGE_MANAGER.NAV_DISPLAYS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(15, 41, "SIGNAGE_MANAGER.NAV_DISPLAYS"), " ");
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", ctx.display_total(), " ");
         \u0275\u0275advance();
         \u0275\u0275classProp("bg-base-100", ctx.view_tab() === "zones")("shadow-sm", ctx.view_tab() === "zones")("text-primary", ctx.view_tab() === "zones")("opacity-50", ctx.view_tab() !== "zones");
         \u0275\u0275attribute("aria-selected", ctx.view_tab() === "zones");
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(23, 46, "SIGNAGE_MANAGER.NAV_ZONES"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 43, "SIGNAGE_MANAGER.NAV_ZONES"), " ");
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", ctx.zone_total(), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(29, 48, "SIGNAGE_MANAGER.PREVIOUS_DAY"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(30, 50, "SIGNAGE_MANAGER.SHOW_PREVIOUS_DAY"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(27, 45, "SIGNAGE_MANAGER.PREVIOUS_DAY"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(28, 47, "SIGNAGE_MANAGER.SHOW_PREVIOUS_DAY"));
         \u0275\u0275advance(5);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(34, 52, "COMMON.TODAY"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(35, 54, "SIGNAGE_MANAGER.SHOW_TODAY"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(32, 49, "COMMON.TODAY"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(33, 51, "SIGNAGE_MANAGER.SHOW_TODAY"));
         \u0275\u0275advance(5);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(39, 56, "SIGNAGE_MANAGER.NEXT_DAY"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(40, 58, "SIGNAGE_MANAGER.SHOW_NEXT_DAY"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(37, 53, "SIGNAGE_MANAGER.NEXT_DAY"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(38, 55, "SIGNAGE_MANAGER.SHOW_NEXT_DAY"));
         \u0275\u0275advance(7);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(46, 60, ctx.selected_date(), "EEEE, d MMMM yyyy"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(44, 57, ctx.selected_date(), "EEEE, d MMMM yyyy"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(49, 63, ctx.selected_date(), "EEE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(47, 60, ctx.selected_date(), "EEE"), " ");
         \u0275\u0275advance(5);
-        \u0275\u0275property("value", ctx.search_term())("placeholder", \u0275\u0275pipeBind1(54, 66, ctx.search_placeholder()));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(55, 68, ctx.search_placeholder()));
+        \u0275\u0275property("value", ctx.search_term())("placeholder", \u0275\u0275pipeBind1(52, 63, ctx.search_placeholder()));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(53, 65, ctx.search_placeholder()));
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.search_term() ? 56 : -1);
+        \u0275\u0275conditional(ctx.search_term() ? 54 : -1);
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.rows().length === 0 ? 59 : 60);
+        \u0275\u0275conditional(ctx.rows().length === 0 ? 57 : 58);
       }
     }, dependencies: [
       MatRippleModule,
@@ -1163,6 +1160,7 @@ var SchedulesSectionComponent = class _SchedulesSectionComponent {
       IconComponent,
       NavSidebarComponent,
       NavFooterComponent,
+      GroupBreadcrumbsComponent,
       ScheduleTimelineComponent,
       MatFormFieldModule,
       MatFormField,
@@ -1194,12 +1192,7 @@ var SchedulesSectionComponent = class _SchedulesSectionComponent {
                                     'SIGNAGE_MANAGER.NAV_SCHEDULES' | translate
                                 }}
                             </h2>
-                            <p class="text-base-content/50 text-xs">
-                                {{
-                                    'SIGNAGE_MANAGER.SCHEDULES_SUBTITLE'
-                                        | translate
-                                }}
-                            </p>
+                            <group-breadcrumbs />
                         </div>
                         <div
                             class="bg-base-content/5 flex max-w-52 overflow-hidden rounded-lg p-1"
@@ -1396,6 +1389,7 @@ var SchedulesSectionComponent = class _SchedulesSectionComponent {
       IconComponent,
       NavSidebarComponent,
       NavFooterComponent,
+      GroupBreadcrumbsComponent,
       ScheduleTimelineComponent,
       MatFormFieldModule,
       MatInputModule,
@@ -1404,9 +1398,9 @@ var SchedulesSectionComponent = class _SchedulesSectionComponent {
   }], () => [], { tab: [{ type: Input, args: [{ isSignal: true, alias: "tab", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SchedulesSectionComponent, { className: "SchedulesSectionComponent", filePath: "apps/signage-manager/src/app/schedules/schedules.component.ts", lineNumber: 272 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SchedulesSectionComponent, { className: "SchedulesSectionComponent", filePath: "apps/signage-manager/src/app/schedules/schedules.component.ts", lineNumber: 269 });
 })();
 export {
   SchedulesSectionComponent
 };
-//# sourceMappingURL=schedules.component-ZNCJ3SY2.js.map
+//# sourceMappingURL=schedules.component-N5WKCYU6.js.map

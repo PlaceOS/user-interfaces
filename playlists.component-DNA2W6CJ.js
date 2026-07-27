@@ -8,14 +8,15 @@ import {
   MatTabLabel,
   MatTabsModule,
   moveItemInArray
-} from "./chunk-3ZXEN5NZ.js";
+} from "./chunk-KE4BJD6X.js";
 import {
   IntersectDirective
-} from "./chunk-QIKFLUNO.js";
+} from "./chunk-WNTSOZB4.js";
 import {
+  GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-EZB5K4JH.js";
+} from "./chunk-2YE535VN.js";
 import {
   ActivatedRoute,
   AuthenticatedImageDirective,
@@ -49,6 +50,7 @@ import {
   TranslatePipe,
   computed,
   effect,
+  fromUnixTime,
   i18n,
   inject,
   input,
@@ -94,7 +96,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-ZQUI6GD6.js";
+} from "./chunk-W36T2HDV.js";
 import {
   __spreadProps,
   __spreadValues
@@ -102,17 +104,17 @@ import {
 
 // apps/signage-manager/src/app/playlists/playlist-header.component.ts
 var _c0 = (a0) => ({ count: a0 });
-function PlaylistHeaderComponent_Conditional_9_Template(rf, ctx) {
+function PlaylistHeaderComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 6);
+    \u0275\u0275elementStart(0, "button", 7);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function PlaylistHeaderComponent_Conditional_9_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function PlaylistHeaderComponent_Conditional_11_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.addPlaylist());
     });
-    \u0275\u0275elementStart(2, "icon", 7);
+    \u0275\u0275elementStart(2, "icon", 8);
     \u0275\u0275text(3, "add");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -147,29 +149,37 @@ var PlaylistHeaderComponent = class _PlaylistHeaderComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistHeaderComponent, selectors: [["playlist-header"]], decls: 10, vars: 10, consts: [[1, "bg-base-100", "border-base-300", "sticky", "top-0", "flex", "flex-wrap", "items-center", "gap-2", "border-b", "px-4", "py-2", "shadow", "sm:flex-nowrap"], [1, "py-2"], [1, "text-2xl", "font-medium"], [1, "text-sm", "opacity-60"], [1, "w-px", "flex-1"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "h-12", "shrink-0", "rounded-lg", "px-4"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "h-12", "shrink-0", "rounded-lg", "px-4", 3, "click"], [1, "mr-2", "text-2xl"]], template: function PlaylistHeaderComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistHeaderComponent, selectors: [["playlist-header"]], decls: 12, vars: 10, consts: [[1, "bg-base-100", "border-base-300", "sticky", "top-0", "flex", "flex-wrap", "items-center", "gap-2", "border-b", "px-4", "py-2", "shadow", "sm:flex-nowrap"], [1, "py-2"], [1, "text-2xl", "font-medium"], [1, "flex", "flex-wrap", "items-center", "gap-2"], [1, "text-sm", "opacity-60"], [1, "w-px", "flex-1"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "h-12", "shrink-0", "rounded-lg", "px-4"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "h-12", "shrink-0", "rounded-lg", "px-4", 3, "click"], [1, "mr-2", "text-2xl"]], template: function PlaylistHeaderComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h3", 2);
         \u0275\u0275text(3);
         \u0275\u0275pipe(4, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(5, "div", 3);
-        \u0275\u0275text(6);
-        \u0275\u0275pipe(7, "translate");
+        \u0275\u0275elementStart(5, "div", 3)(6, "div", 4);
+        \u0275\u0275text(7);
+        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275element(9, "group-breadcrumbs");
         \u0275\u0275elementEnd()();
-        \u0275\u0275element(8, "div", 4);
-        \u0275\u0275conditionalCreate(9, PlaylistHeaderComponent_Conditional_9_Template, 7, 6, "button", 5);
+        \u0275\u0275element(10, "div", 5);
+        \u0275\u0275conditionalCreate(11, PlaylistHeaderComponent_Conditional_11_Template, 7, 6, "button", 6);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 3, "SIGNAGE_MANAGER.PLAYLISTS_PAGE_TITLE"), " ");
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(7, 5, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(8, _c0, ctx.total_count())), " ");
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.can_create() ? 9 : -1);
+        \u0275\u0275advance(4);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 5, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(8, _c0, ctx.total_count())), " ");
+        \u0275\u0275advance(4);
+        \u0275\u0275conditional(ctx.can_create() ? 11 : -1);
       }
-    }, dependencies: [MatRippleModule, MatRipple, IconComponent, TranslatePipe], encapsulation: 2 });
+    }, dependencies: [
+      MatRippleModule,
+      MatRipple,
+      IconComponent,
+      GroupBreadcrumbsComponent,
+      TranslatePipe
+    ], encapsulation: 2 });
   }
 };
 (() => {
@@ -185,11 +195,14 @@ var PlaylistHeaderComponent = class _PlaylistHeaderComponent {
                 <h3 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.PLAYLISTS_PAGE_TITLE' | translate }}
                 </h3>
-                <div class="text-sm opacity-60">
-                    {{
-                        'COMMON.ITEM_COUNT'
-                            | translate: { count: total_count() }
-                    }}
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="text-sm opacity-60">
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate: { count: total_count() }
+                        }}
+                    </div>
+                    <group-breadcrumbs />
                 </div>
             </div>
             <div class="w-px flex-1"></div>
@@ -210,19 +223,24 @@ var PlaylistHeaderComponent = class _PlaylistHeaderComponent {
             }
         </div>
     `,
-      imports: [MatRippleModule, IconComponent, TranslatePipe]
+      imports: [
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        GroupBreadcrumbsComponent
+      ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistHeaderComponent, { className: "PlaylistHeaderComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-header.component.ts", lineNumber: 43 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistHeaderComponent, { className: "PlaylistHeaderComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-header.component.ts", lineNumber: 52 });
 })();
 
 // apps/signage-manager/src/app/playlists/playlist-item-details.component.ts
 var _c02 = (a0) => ({ count: a0 });
-var _c1 = (a0) => ["/displays", a0];
+var _c1 = (a0) => ["/zones", a0];
 var _c2 = (a0) => ({ name: a0 });
-var _c3 = (a0) => ["/zones", a0];
+var _c3 = (a0) => ["/displays", a0];
 var _forTrack0 = ($index, $item) => $item.id;
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
@@ -413,7 +431,7 @@ function PlaylistItemDetailsComponent_Conditional_0_ng_template_52_Template(rf, 
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(1, 1, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(5, _c02, ctx_r1.playlist_displays().length), ctx_r1.playlist_displays().length), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(1, 1, "SIGNAGE_MANAGER.ZONES_COUNT", \u0275\u0275pureFunction1(5, _c02, ctx_r1.playlist_zones().length), ctx_r1.playlist_zones().length), " ");
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_60_Template(rf, ctx) {
@@ -424,123 +442,6 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_60_Template(rf, 
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_60_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r5);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.addDisplay());
-    });
-    \u0275\u0275elementStart(3, "icon");
-    \u0275\u0275text(4, "add");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.ADD_DISPLAY_TOOLTIP"));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.ADD_DISPLAY_TO_PLAYLIST_ARIA"));
-  }
-}
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 34);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const display_r6 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", display_r6.description, " ");
-  }
-}
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_9_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 36);
-    \u0275\u0275pipe(1, "translate");
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_9_Template_button_click_0_listener($event) {
-      \u0275\u0275restoreView(_r7);
-      const display_r6 = \u0275\u0275nextContext().$implicit;
-      const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.removeDisplay($event, display_r6));
-    });
-    \u0275\u0275elementStart(3, "icon");
-    \u0275\u0275text(4, "close");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const display_r6 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.REMOVE_DISPLAY"));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_DISPLAY_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, display_r6.display_name || display_r6.name)));
-  }
-}
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 29)(1, "a", 30);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementStart(3, "icon", 31);
-    \u0275\u0275text(4, "tv");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 32)(6, "div", 33);
-    \u0275\u0275text(7);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_8_Template, 2, 1, "div", 34);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_9_Template, 5, 9, "button", 35);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const display_r6 = ctx.$implicit;
-    const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275advance();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c1, display_r6.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 5, "SIGNAGE_MANAGER.OPEN_DISPLAY", \u0275\u0275pureFunction1(10, _c2, display_r6.display_name || display_r6.name)));
-    \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", display_r6.display_name || display_r6.name, " ");
-    \u0275\u0275advance();
-    \u0275\u0275conditional(display_r6.description ? 8 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.can_update() ? 9 : -1);
-  }
-}
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Template, 10, 12, "div", 29, _forTrack0);
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275repeater(ctx_r1.playlist_displays());
-  }
-}
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_63_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20)(1, "icon", 37);
-    \u0275\u0275text(2, "tv_off");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 11);
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 1, "SIGNAGE_MANAGER.NO_DISPLAYS_USE_PLAYLIST"), " ");
-  }
-}
-function PlaylistItemDetailsComponent_Conditional_0_ng_template_65_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275text(0);
-    \u0275\u0275pipe(1, "translate");
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(1, 1, "SIGNAGE_MANAGER.ZONES_COUNT", \u0275\u0275pureFunction1(5, _c02, ctx_r1.playlist_zones().length), ctx_r1.playlist_zones().length), " ");
-  }
-}
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_73_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 28);
-    \u0275\u0275pipe(1, "translate");
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_73_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.addZone());
     });
@@ -553,41 +454,41 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_73_Template(rf, 
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.ADD_ZONE_TO_PLAYLIST_ARIA"));
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_8_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 34);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const zone_r9 = \u0275\u0275nextContext().$implicit;
+    const zone_r6 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", zone_r9.description, " ");
+    \u0275\u0275textInterpolate1(" ", zone_r6.description, " ");
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_9_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    const _r10 = \u0275\u0275getCurrentView();
+    const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 36);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_9_Template_button_click_0_listener($event) {
-      \u0275\u0275restoreView(_r10);
-      const zone_r9 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_9_Template_button_click_0_listener($event) {
+      \u0275\u0275restoreView(_r7);
+      const zone_r6 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.removeZone($event, zone_r9));
+      return \u0275\u0275resetView(ctx_r1.removeZone($event, zone_r6));
     });
     \u0275\u0275elementStart(3, "icon");
     \u0275\u0275text(4, "close");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const zone_r9 = \u0275\u0275nextContext().$implicit;
+    const zone_r6 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.REMOVE_ZONE"));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, zone_r9.display_name || zone_r9.name)));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, zone_r6.display_name || zone_r6.name)));
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 29)(1, "a", 30);
     \u0275\u0275pipe(2, "translate");
@@ -597,35 +498,35 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Templat
     \u0275\u0275elementStart(5, "div", 32)(6, "div", 33);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_8_Template, 2, 1, "div", 34);
+    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_8_Template, 2, 1, "div", 34);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_9_Template, 5, 9, "button", 35);
+    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Conditional_9_Template, 5, 9, "button", 35);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const zone_r9 = ctx.$implicit;
+    const zone_r6 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275advance();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c3, zone_r9.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 5, "SIGNAGE_MANAGER.OPEN_ZONE", \u0275\u0275pureFunction1(10, _c2, zone_r9.display_name || zone_r9.name)));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c1, zone_r6.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 5, "SIGNAGE_MANAGER.OPEN_ZONE", \u0275\u0275pureFunction1(10, _c2, zone_r6.display_name || zone_r6.name)));
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", zone_r9.display_name || zone_r9.name, " ");
+    \u0275\u0275textInterpolate1(" ", zone_r6.display_name || zone_r6.name, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(zone_r9.description ? 8 : -1);
+    \u0275\u0275conditional(zone_r6.description ? 8 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_update() ? 9 : -1);
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_62_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Template, 10, 12, "div", 29, _forTrack0);
+    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_62_For_1_Template, 10, 12, "div", 29, _forTrack0);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275repeater(ctx_r1.playlist_zones());
   }
 }
-function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_Template(rf, ctx) {
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_63_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 20)(1, "icon", 37);
     \u0275\u0275text(2, "location_off");
@@ -638,6 +539,123 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_Template(rf, 
   if (rf & 2) {
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 1, "SIGNAGE_MANAGER.NO_ZONES_USE_PLAYLIST"), " ");
+  }
+}
+function PlaylistItemDetailsComponent_Conditional_0_ng_template_65_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275text(0);
+    \u0275\u0275pipe(1, "translate");
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(1, 1, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(5, _c02, ctx_r1.playlist_displays().length), ctx_r1.playlist_displays().length), " ");
+  }
+}
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_73_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 28);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_73_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r8);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.addDisplay());
+    });
+    \u0275\u0275elementStart(3, "icon");
+    \u0275\u0275text(4, "add");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.ADD_DISPLAY_TOOLTIP"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.ADD_DISPLAY_TO_PLAYLIST_ARIA"));
+  }
+}
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_8_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 34);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const display_r9 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", display_r9.description, " ");
+  }
+}
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 36);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_9_Template_button_click_0_listener($event) {
+      \u0275\u0275restoreView(_r10);
+      const display_r9 = \u0275\u0275nextContext().$implicit;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.removeDisplay($event, display_r9));
+    });
+    \u0275\u0275elementStart(3, "icon");
+    \u0275\u0275text(4, "close");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const display_r9 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.REMOVE_DISPLAY"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_DISPLAY_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, display_r9.display_name || display_r9.name)));
+  }
+}
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 29)(1, "a", 30);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementStart(3, "icon", 31);
+    \u0275\u0275text(4, "tv");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(5, "div", 32)(6, "div", 33);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_8_Template, 2, 1, "div", 34);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Conditional_9_Template, 5, 9, "button", 35);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const display_r9 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c3, display_r9.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 5, "SIGNAGE_MANAGER.OPEN_DISPLAY", \u0275\u0275pureFunction1(10, _c2, display_r9.display_name || display_r9.name)));
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate1(" ", display_r9.display_name || display_r9.name, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(display_r9.description ? 8 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.can_update() ? 9 : -1);
+  }
+}
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_75_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_75_For_1_Template, 10, 12, "div", 29, _forTrack0);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275repeater(ctx_r1.playlist_displays());
+  }
+}
+function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 20)(1, "icon", 37);
+    \u0275\u0275text(2, "tv_off");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "p", 11);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 1, "SIGNAGE_MANAGER.NO_DISPLAYS_USE_PLAYLIST"), " ");
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Template(rf, ctx) {
@@ -705,7 +723,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275elementStart(51, "mat-tab");
     \u0275\u0275template(52, PlaylistItemDetailsComponent_Conditional_0_ng_template_52_Template, 2, 7, "ng-template", 13);
     \u0275\u0275elementStart(53, "div", 14)(54, "div", 15)(55, "h5", 16)(56, "icon", 17);
-    \u0275\u0275text(57, "tv");
+    \u0275\u0275text(57, "layers");
     \u0275\u0275elementEnd();
     \u0275\u0275text(58);
     \u0275\u0275pipe(59, "translate");
@@ -718,7 +736,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275elementStart(64, "mat-tab");
     \u0275\u0275template(65, PlaylistItemDetailsComponent_Conditional_0_ng_template_65_Template, 2, 7, "ng-template", 13);
     \u0275\u0275elementStart(66, "div", 14)(67, "div", 15)(68, "h5", 16)(69, "icon", 17);
-    \u0275\u0275text(70, "layers");
+    \u0275\u0275text(70, "tv");
     \u0275\u0275elementEnd();
     \u0275\u0275text(71);
     \u0275\u0275pipe(72, "translate");
@@ -772,17 +790,17 @@ function PlaylistItemDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.playlist().play_count ? 50 : -1);
     \u0275\u0275advance(8);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(59, 46, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(54, _c02, ctx_r1.playlist_displays().length), ctx_r1.playlist_displays().length), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(59, 46, "SIGNAGE_MANAGER.ZONES_COUNT", \u0275\u0275pureFunction1(54, _c02, ctx_r1.playlist_zones().length), ctx_r1.playlist_zones().length), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.can_update() ? 60 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.playlist_displays().length > 0 ? 62 : 63);
+    \u0275\u0275conditional(ctx_r1.playlist_zones().length > 0 ? 62 : 63);
     \u0275\u0275advance(9);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(72, 50, "SIGNAGE_MANAGER.ZONES_COUNT", \u0275\u0275pureFunction1(56, _c02, ctx_r1.playlist_zones().length), ctx_r1.playlist_zones().length), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(72, 50, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(56, _c02, ctx_r1.playlist_displays().length), ctx_r1.playlist_displays().length), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.can_update() ? 73 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.playlist_zones().length > 0 ? 75 : 76);
+    \u0275\u0275conditional(ctx_r1.playlist_displays().length > 0 ? 75 : 76);
   }
 }
 function PlaylistItemDetailsComponent_Conditional_1_Template(rf, ctx) {
@@ -1040,7 +1058,7 @@ function schedulePeriod(schedule) {
 function scheduleLabel(schedule) {
   const period = schedulePeriod(schedule);
   if (schedule.play_at) {
-    const date = new Date(schedule.play_at > 1e12 ? schedule.play_at : schedule.play_at * 1e3);
+    const date = fromUnixTime(schedule.play_at);
     return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
   }
   return `${humanizeCronSchedule(schedule.play_cron || "0 0 * * *", period)}${schedule.play_takeover ? " \xB7 takeover" : ""}`;
@@ -1048,7 +1066,7 @@ function scheduleLabel(schedule) {
 function nextSchedulePlaySessions(schedule, count) {
   const period = schedulePeriod(schedule);
   if (schedule.play_at) {
-    const start = new Date(schedule.play_at > 1e12 ? schedule.play_at : schedule.play_at * 1e3);
+    const start = fromUnixTime(schedule.play_at);
     const end = new Date(start);
     end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
     if (period > 0)
@@ -1213,7 +1231,7 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemDetailsComponent, selectors: [["playlist-item-details"]], decls: 2, vars: 1, consts: [[1, "border-base-300", "flex", "h-full", "min-w-60", "lg:w-84", "flex-col", "overflow-hidden", "border-l"], [1, "border-base-300", "text-base-content/70", "flex", "min-w-60", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "border-l", "p-8"], [1, "flex-1", "overflow-hidden", 3, "selectedIndexChange", "selectedIndex"], [3, "label"], [1, "h-full", "overflow-auto"], [1, "flex", "flex-col", "gap-2", "p-4", "w-full"], [1, "w-full"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "text-sm", "font-medium"], [1, "bg-success", "text-success-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "text-sm"], [1, "font-mono", "text-sm"], ["mat-tab-label", ""], [1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "min-h-0", "flex-1", "gap-2", "overflow-auto", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-sm", "capitalize"], [1, "space-y-1", "text-sm"], [1, "mt-2"], [1, "text-base-content/60", "mb-1", "text-xs", "font-medium", "tracking-wide", "uppercase"], [1, "text-base-content/80", "space-y-0.5", "font-mono", "text-xs", "leading-tight"], [1, "truncate"], [1, "text-base-content/60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "text-base-content/70", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "click", "matTooltip"], [1, "text-4xl"], [1, "text-6xl"]], template: function PlaylistItemDetailsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemDetailsComponent, selectors: [["playlist-item-details"]], decls: 2, vars: 1, consts: [[1, "border-base-300", "flex", "h-full", "min-w-60", "flex-col", "overflow-hidden", "border-l", "lg:w-84"], [1, "border-base-300", "text-base-content/70", "flex", "min-w-60", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "border-l", "p-8"], [1, "flex-1", "overflow-hidden", 3, "selectedIndexChange", "selectedIndex"], [3, "label"], [1, "h-full", "overflow-auto"], [1, "flex", "w-full", "flex-col", "gap-2", "p-4"], [1, "w-full"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "text-sm", "font-medium"], [1, "bg-success", "text-success-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "text-sm"], [1, "font-mono", "text-sm"], ["mat-tab-label", ""], [1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "min-h-0", "flex-1", "gap-2", "overflow-auto", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-sm", "capitalize"], [1, "space-y-1", "text-sm"], [1, "mt-2"], [1, "text-base-content/60", "mb-1", "text-xs", "font-medium", "tracking-wide", "uppercase"], [1, "text-base-content/80", "space-y-0.5", "font-mono", "text-xs", "leading-tight"], [1, "truncate"], [1, "text-base-content/60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "text-base-content/70", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "click", "matTooltip"], [1, "text-4xl"], [1, "text-6xl"]], template: function PlaylistItemDetailsComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, PlaylistItemDetailsComponent_Conditional_0_Template, 77, 58, "div", 0)(1, PlaylistItemDetailsComponent_Conditional_1_Template, 6, 3, "div", 1);
       }
@@ -1243,7 +1261,7 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
     args: [{ selector: "playlist-item-details", template: `
         @if (playlist()) {
             <div
-                class="border-base-300 flex h-full min-w-60 lg:w-84 flex-col overflow-hidden border-l"
+                class="border-base-300 flex h-full min-w-60 flex-col overflow-hidden border-l lg:w-84"
             >
                 <mat-tab-group
                     class="flex-1 overflow-hidden"
@@ -1252,7 +1270,7 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
                 >
                     <mat-tab [label]="'COMMON.DETAILS' | translate">
                         <div class="h-full overflow-auto">
-                            <div class="flex flex-col gap-2 p-4 w-full">
+                            <div class="flex w-full flex-col gap-2 p-4">
                                 <div class="w-full">
                                     <div
                                         class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
@@ -1479,6 +1497,151 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
                     <mat-tab>
                         <ng-template mat-tab-label>
                             {{
+                                'SIGNAGE_MANAGER.ZONES_COUNT'
+                                    | translate
+                                        : { count: playlist_zones().length }
+                                        : playlist_zones().length
+                            }}
+                        </ng-template>
+                        <div class="flex h-full flex-col overflow-hidden">
+                            <div
+                                class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
+                            >
+                                <h5
+                                    class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">layers</icon>
+                                    {{
+                                        'SIGNAGE_MANAGER.ZONES_COUNT'
+                                            | translate
+                                                : {
+                                                      count: playlist_zones()
+                                                          .length,
+                                                  }
+                                                : playlist_zones().length
+                                    }}
+                                </h5>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="addZone()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.ADD_ZONE_TO_PLAYLIST_ARIA'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>add</icon>
+                                    </button>
+                                }
+                            </div>
+                            <div class="min-h-0 flex-1 gap-2 overflow-auto p-2">
+                                @if (playlist_zones().length > 0) {
+                                    @for (
+                                        zone of playlist_zones();
+                                        track zone.id
+                                    ) {
+                                        <div
+                                            class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
+                                        >
+                                            <a
+                                                matRipple
+                                                class="hover:bg-base-200 flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 no-underline transition-colors"
+                                                [routerLink]="[
+                                                    '/zones',
+                                                    zone.id,
+                                                ]"
+                                                [attr.aria-label]="
+                                                    'SIGNAGE_MANAGER.OPEN_ZONE'
+                                                        | translate
+                                                            : {
+                                                                  name:
+                                                                      zone.display_name ||
+                                                                      zone.name,
+                                                              }
+                                                "
+                                            >
+                                                <icon
+                                                    class="shrink-0 text-xl opacity-60"
+                                                    >location_on</icon
+                                                >
+                                                <div class="min-w-0 flex-1">
+                                                    <div
+                                                        class="truncate text-sm font-medium"
+                                                    >
+                                                        {{
+                                                            zone.display_name ||
+                                                                zone.name
+                                                        }}
+                                                    </div>
+                                                    @if (zone.description) {
+                                                        <div
+                                                            class="text-base-content/70 truncate text-xs"
+                                                        >
+                                                            {{
+                                                                zone.description
+                                                            }}
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </a>
+                                            @if (can_update()) {
+                                                <button
+                                                    icon
+                                                    default
+                                                    error
+                                                    type="button"
+                                                    class="m-1 text-sm"
+                                                    matRipple
+                                                    [matTooltip]="
+                                                        'SIGNAGE_MANAGER.REMOVE_ZONE'
+                                                            | translate
+                                                    "
+                                                    (click)="
+                                                        removeZone($event, zone)
+                                                    "
+                                                    [attr.aria-label]="
+                                                        'SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST'
+                                                            | translate
+                                                                : {
+                                                                      name:
+                                                                          zone.display_name ||
+                                                                          zone.name,
+                                                                  }
+                                                    "
+                                                >
+                                                    <icon>close</icon>
+                                                </button>
+                                            }
+                                        </div>
+                                    }
+                                } @else {
+                                    <div
+                                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
+                                    >
+                                        <icon class="text-4xl"
+                                            >location_off</icon
+                                        >
+                                        <p class="text-sm">
+                                            {{
+                                                'SIGNAGE_MANAGER.NO_ZONES_USE_PLAYLIST'
+                                                    | translate
+                                            }}
+                                        </p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab>
+                        <ng-template mat-tab-label>
+                            {{
                                 'SIGNAGE_MANAGER.DISPLAYS_COUNT'
                                     | translate
                                         : { count: playlist_displays().length }
@@ -1622,151 +1785,6 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
                             </div>
                         </div>
                     </mat-tab>
-                    <mat-tab>
-                        <ng-template mat-tab-label>
-                            {{
-                                'SIGNAGE_MANAGER.ZONES_COUNT'
-                                    | translate
-                                        : { count: playlist_zones().length }
-                                        : playlist_zones().length
-                            }}
-                        </ng-template>
-                        <div class="flex h-full flex-col overflow-hidden">
-                            <div
-                                class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
-                            >
-                                <h5
-                                    class="text-base-content/80 flex flex-1 items-center gap-2 font-medium tracking-wider uppercase"
-                                >
-                                    <icon class="text-lg">layers</icon>
-                                    {{
-                                        'SIGNAGE_MANAGER.ZONES_COUNT'
-                                            | translate
-                                                : {
-                                                      count: playlist_zones()
-                                                          .length,
-                                                  }
-                                                : playlist_zones().length
-                                    }}
-                                </h5>
-                                @if (can_update()) {
-                                    <button
-                                        icon
-                                        default
-                                        type="button"
-                                        matRipple
-                                        [matTooltip]="
-                                            'SIGNAGE_MANAGER.ADD_ZONE_TOOLTIP'
-                                                | translate
-                                        "
-                                        (click)="addZone()"
-                                        [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.ADD_ZONE_TO_PLAYLIST_ARIA'
-                                                | translate
-                                        "
-                                    >
-                                        <icon>add</icon>
-                                    </button>
-                                }
-                            </div>
-                            <div class="min-h-0 flex-1 gap-2 overflow-auto p-2">
-                                @if (playlist_zones().length > 0) {
-                                    @for (
-                                        zone of playlist_zones();
-                                        track zone.id
-                                    ) {
-                                        <div
-                                            class="border-base-300 bg-base-100 mb-2 flex items-center gap-3 rounded-lg border p-0.5 pl-1"
-                                        >
-                                            <a
-                                                matRipple
-                                                class="hover:bg-base-200 flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 no-underline transition-colors"
-                                                [routerLink]="[
-                                                    '/zones',
-                                                    zone.id,
-                                                ]"
-                                                [attr.aria-label]="
-                                                    'SIGNAGE_MANAGER.OPEN_ZONE'
-                                                        | translate
-                                                            : {
-                                                                  name:
-                                                                      zone.display_name ||
-                                                                      zone.name,
-                                                              }
-                                                "
-                                            >
-                                                <icon
-                                                    class="shrink-0 text-xl opacity-60"
-                                                    >location_on</icon
-                                                >
-                                                <div class="min-w-0 flex-1">
-                                                    <div
-                                                        class="truncate text-sm font-medium"
-                                                    >
-                                                        {{
-                                                            zone.display_name ||
-                                                                zone.name
-                                                        }}
-                                                    </div>
-                                                    @if (zone.description) {
-                                                        <div
-                                                            class="text-base-content/70 truncate text-xs"
-                                                        >
-                                                            {{
-                                                                zone.description
-                                                            }}
-                                                        </div>
-                                                    }
-                                                </div>
-                                            </a>
-                                            @if (can_update()) {
-                                                <button
-                                                    icon
-                                                    default
-                                                    error
-                                                    type="button"
-                                                    class="m-1 text-sm"
-                                                    matRipple
-                                                    [matTooltip]="
-                                                        'SIGNAGE_MANAGER.REMOVE_ZONE'
-                                                            | translate
-                                                    "
-                                                    (click)="
-                                                        removeZone($event, zone)
-                                                    "
-                                                    [attr.aria-label]="
-                                                        'SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST'
-                                                            | translate
-                                                                : {
-                                                                      name:
-                                                                          zone.display_name ||
-                                                                          zone.name,
-                                                                  }
-                                                    "
-                                                >
-                                                    <icon>close</icon>
-                                                </button>
-                                            }
-                                        </div>
-                                    }
-                                } @else {
-                                    <div
-                                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
-                                    >
-                                        <icon class="text-4xl"
-                                            >location_off</icon
-                                        >
-                                        <p class="text-sm">
-                                            {{
-                                                'SIGNAGE_MANAGER.NO_ZONES_USE_PLAYLIST'
-                                                    | translate
-                                            }}
-                                        </p>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    </mat-tab>
                 </mat-tab-group>
             </div>
         } @else {
@@ -1792,7 +1810,7 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemDetailsComponent, { className: "PlaylistItemDetailsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-item-details.component.ts", lineNumber: 875 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemDetailsComponent, { className: "PlaylistItemDetailsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-item-details.component.ts", lineNumber: 868 });
 })();
 
 // apps/signage-manager/src/app/playlists/playlist-items.component.ts
@@ -2557,7 +2575,9 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     const playlist = this.selected_playlist();
     if (!playlist?.id || !item?.id)
       return;
-    await this._service.removeMediaFromPlaylist(playlist.id, item.id, item_index);
+    const schedule = playlist.distribution ? this.itemSchedule(item, item_index) : null;
+    const playlist_item_id = schedule?.id || schedule?.item_id || item.id;
+    await this._service.removeMediaFromPlaylist(playlist.id, playlist_item_id, item_index);
     if (this.isItemSelected(item, item_index)) {
       this._service.selected_playlist_item.set(null);
       this._service.selected_playlist_item_index.set(null);
@@ -4315,4 +4335,4 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-ORUZLHYR.js.map
+//# sourceMappingURL=playlists.component-DNA2W6CJ.js.map
