@@ -28,7 +28,6 @@ import {
     notifySuccess,
     onFieldChange,
     OrganisationService,
-    randomString,
     settingSignal,
     SettingsService,
     User,
@@ -621,16 +620,18 @@ export class VisitorInviteFormComponent
                 visitor_details,
             ]);
         }
+        // The group flow clears the form on success, so grab the count first.
+        const count = this.multiple() ? assets?.length || 0 : 1;
         await (this.multiple() ? this._bookForMany() : this._bookForOne());
         notifySuccess(
             i18n(
                 this.multiple()
                     ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
                     : 'BOOKINGS.VISITOR_SENT_SINGLE',
-                { name: asset_name, count: this.model().attendees?.length },
+                { name: asset_name, count },
             ),
         );
-        this.done.emit(this.model().attendees?.length || 1);
+        this.done.emit(count);
     }
 
     private async initFormZone() {
@@ -703,35 +704,28 @@ export class VisitorInviteFormComponent
     }
 
     private async _bookForMany() {
-        const group = `grp-${randomString(8)}`;
-        const value = this.model();
-        const assets = value.assets;
-        for (const user of assets) {
-            if (!user.email) continue;
-            this.model.update((m) => ({
-                ...m,
-                ...value,
-                booking_type: 'visitor',
-                asset_id: user.email,
-                asset_name: user.name,
-                international: this.getVisitorInternational(user),
-                description: group,
-                name: user.name,
-                assets: [],
-                attendees: [
+        // Use the shared group flow so the bookings are linked to a group
+        // container. Without that link the group can't be loaded (or edited)
+        // as a group later on.
+        const members = (this.model().assets || [])
+            .filter((_) => !!_.email)
+            .map(
+                (user) =>
                     new User({
-                        name: user.name,
-                        email: user.email,
-                        organisation: user.company || user.organisation,
-                        phone: user.phone,
-                    }),
-                ],
-            }));
-            await this._service.postForm().catch((e) => {
-                notifyError(e);
-                throw e;
-            });
-        }
+                        ...user,
+                        name: user.name || user.email,
+                        international: this.getVisitorInternational(user),
+                        extension_data: {
+                            ...(user.extension_data || {}),
+                            international: this.getVisitorInternational(user),
+                        },
+                    } as any),
+            );
+        this._service.setOptions({ type: 'visitor', group: true, members });
+        await this._service.postFormForVisitorGroup().catch((e) => {
+            notifyError(e);
+            throw e;
+        });
     }
 
     private syncVisitorInternational(assets: User[] = []) {

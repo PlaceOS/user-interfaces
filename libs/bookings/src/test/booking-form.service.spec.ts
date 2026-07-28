@@ -2334,4 +2334,49 @@ describe('BookingFormService', () => {
         expect(saved_forms[0].zones).toEqual(['org-1', 'bld-1']);
         expect(saved_forms[1].location).toBe('Main Lobby');
     });
+
+    it('should load unlinked visitor group siblings by their `grp-` description', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'booking-one',
+                type: 'visitor',
+                description: 'grp-abc12345',
+                asset_id: 'visitor.one@example.com',
+            },
+            {
+                id: 'booking-two',
+                type: 'visitor',
+                description: 'grp-abc12345',
+                asset_id: 'visitor.two@example.com',
+            },
+            {
+                id: 'booking-other',
+                type: 'visitor',
+                description: 'grp-zzz99999',
+                asset_id: 'visitor.three@example.com',
+            },
+            {
+                id: 'booking-single',
+                type: 'visitor',
+                description: 'Vendor Visit',
+                asset_id: 'visitor.four@example.com',
+            },
+        ] as any);
+        spectator.service.setOptions({ type: 'visitor' });
+
+        const siblings = await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: 'booking-one',
+                booking_type: 'visitor',
+                description: 'grp-abc12345',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }),
+        );
+
+        expect(siblings.map((_) => _.id)).toEqual([
+            'booking-one',
+            'booking-two',
+        ]);
+    });
 });
