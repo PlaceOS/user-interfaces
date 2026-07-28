@@ -55752,15 +55752,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "4315d92",
-  "hash": "4315d92",
+  "raw": "675fd61",
+  "hash": "675fd61",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "4315d92",
+  "suffix": "675fd61",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785149890282
+  "time": 1785211769385
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -129778,13 +129778,14 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!booking?.id)
       return [];
     const parent_id = booking.parent_id || booking.id;
+    const legacy_group = `${booking.description || ""}`.startsWith("grp-") ? booking.description : "";
     const { type: type2 } = this._options();
     const list2 = await queryBookings({
       period_start: getUnixTime(booking.date),
       period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
       type: type2
     });
-    return list2.filter((b2) => b2.id === parent_id || b2.parent_id === parent_id);
+    return list2.filter((b2) => b2.id === parent_id || b2.parent_id === parent_id || !!legacy_group && b2.description === legacy_group);
   }
   async loadGroupMembersForBooking(booking) {
     if (!booking?.id)
