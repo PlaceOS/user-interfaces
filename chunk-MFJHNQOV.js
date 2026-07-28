@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-433C7JNF.js";
+} from "./chunk-JUZYBP3X.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -330,7 +330,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-DABQDWGV.js";
+} from "./chunk-NIHNULYE.js";
 import {
   __objRest,
   __spreadProps,
@@ -10950,13 +10950,14 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!booking?.id)
       return [];
     const parent_id = booking.parent_id || booking.id;
+    const legacy_group = `${booking.description || ""}`.startsWith("grp-") ? booking.description : "";
     const { type } = this._options();
     const list = await queryBookings({
       period_start: getUnixTime(booking.date),
       period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
       type
     });
-    return list.filter((b) => b.id === parent_id || b.parent_id === parent_id);
+    return list.filter((b) => b.id === parent_id || b.parent_id === parent_id || !!legacy_group && b.description === legacy_group);
   }
   async loadGroupMembersForBooking(booking) {
     if (!booking?.id)
@@ -12268,4 +12269,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-DPK3WZHC.js.map
+//# sourceMappingURL=chunk-MFJHNQOV.js.map
