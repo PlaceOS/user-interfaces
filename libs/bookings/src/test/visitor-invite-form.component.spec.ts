@@ -40,6 +40,9 @@ describe('VisitorInviteFormComponent', () => {
                         setOptions: vi.fn(),
                         newForm: vi.fn(),
                         postForm: vi.fn(async () => new Booking()),
+                        postFormForVisitorGroup: vi.fn(
+                            async () => new Booking(),
+                        ),
                     });
                 },
             },
@@ -153,5 +156,43 @@ describe('VisitorInviteFormComponent', () => {
             },
         ]);
         expect(spectator.inject(BookingFormService).model().title).toBe('Visit');
+    });
+
+    it('should book multiple visitors as a linked group', async () => {
+        const service = spectator.inject(BookingFormService);
+        const done = vi.fn();
+        spectator.component.done.subscribe(done);
+        spectator.component.multiple.set(true);
+        await spectator.component.ngOnInit();
+        service.model.update((m) => ({
+            ...m,
+            asset_id: 'multiple@place.tech',
+            asset_name: 'Multiple Visitors',
+            assets: [
+                new User({
+                    name: 'Visitor One',
+                    email: 'visitor.one@example.com',
+                }),
+                new User({
+                    name: 'Visitor Two',
+                    email: 'visitor.two@example.com',
+                }),
+            ],
+        }));
+
+        await spectator.component.sendInvite();
+
+        expect(service.postForm).not.toHaveBeenCalled();
+        expect(service.postFormForVisitorGroup).toHaveBeenCalledTimes(1);
+        expect(service.setOptions).toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'visitor', group: true }),
+        );
+        const { members } = (service.setOptions as Mock).mock.calls.at(-1)[0];
+        expect(members.map((_) => _.email)).toEqual([
+            'visitor.one@example.com',
+            'visitor.two@example.com',
+        ]);
+        expect(done).toHaveBeenCalledWith(2);
+        spectator.component.multiple.set(false);
     });
 });

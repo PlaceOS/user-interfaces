@@ -1739,6 +1739,11 @@ export class BookingFormService extends AsyncHandler {
     public async loadGroupSiblings(booking: Booking): Promise<Booking[]> {
         if (!booking?.id) return [];
         const parent_id = booking.parent_id || booking.id;
+        // Visitor groups made before group containers existed have no parent
+        // link — their only shared marker is the generated `grp-*` description.
+        const legacy_group = `${booking.description || ''}`.startsWith('grp-')
+            ? booking.description
+            : '';
         const { type } = this._options();
         const list = await queryBookings({
             period_start: getUnixTime(booking.date),
@@ -1746,7 +1751,10 @@ export class BookingFormService extends AsyncHandler {
             type,
         });
         return list.filter(
-            (b) => b.id === parent_id || b.parent_id === parent_id,
+            (b) =>
+                b.id === parent_id ||
+                b.parent_id === parent_id ||
+                (!!legacy_group && b.description === legacy_group),
         );
     }
 
