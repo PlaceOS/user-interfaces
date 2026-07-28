@@ -205,10 +205,19 @@ describe('EventFormService', () => {
         }));
         expect(service.can_notify_new_attendees_only()).toBe(true);
 
+        // Removing an existing attendee doesn't hide the option, the new attendee is still new
         service.model.update((model) => ({
             ...model,
             attendees: model.attendees.filter(
                 (_) => _.email !== 'existing@test.com',
+            ),
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        service.model.update((model) => ({
+            ...model,
+            attendees: model.attendees.filter(
+                (_) => _.email !== 'new.attendee@test.com',
             ),
         }));
         expect(service.can_notify_new_attendees_only()).toBe(false);
