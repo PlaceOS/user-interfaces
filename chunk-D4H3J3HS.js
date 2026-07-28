@@ -54523,15 +54523,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "4315d92",
-  "hash": "4315d92",
+  "raw": "675fd61",
+  "hash": "675fd61",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "4315d92",
+  "suffix": "675fd61",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785149885304
+  "time": 1785211769706
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -109124,7 +109124,42 @@ var SignageService = class _SignageService {
   static {
     this.PAGE_SIZE = 200;
   }
+  static {
+    this.MAX_MEDIA_PAGES = 50;
+  }
+  /**
+   * TEMPORARY: walk every page of the media library in one go. See the note
+   * on the media fields above for how to revert this.
+   */
+  async _fetchAllMediaPages(query, token) {
+    this._media_loading_all = true;
+    try {
+      await this._fetchMediaPage(query, token);
+      for (let page = 1; page < _SignageService.MAX_MEDIA_PAGES; page++) {
+        if (token !== this._media_token)
+          return;
+        if (!this._media_has_more())
+          return;
+        const next = this._media_next?.();
+        if (!next)
+          break;
+        const count_before = this._media_items().length;
+        await this._fetchMediaPage(next, token);
+        if (this._media_items().length === count_before)
+          break;
+      }
+      if (token === this._media_token)
+        this._media_has_more.set(false);
+    } finally {
+      if (token === this._media_token) {
+        this._media_loading_all = false;
+        this._media_loading.set(false);
+      }
+    }
+  }
   loadMoreMedia() {
+    if (this._media_loading_all)
+      return;
     if (this._media_loading() || !this._media_has_more())
       return;
     const next = this._media_next?.();
@@ -109141,7 +109176,12 @@ var SignageService = class _SignageService {
       if (token !== this._media_token)
         return;
       const items = (page.data || []).map(decodeEntityNames);
-      this._media_items.update((list) => [...list, ...items].sort((a, b2) => b2.created_at - a.created_at));
+      this._media_items.update((list) => {
+        const by_id = new Map(list.map((item) => [item.id, item]));
+        for (const item of items)
+          by_id.set(item.id, item);
+        return [...by_id.values()].sort((a, b2) => b2.created_at - a.created_at);
+      });
       this._media_next = page.next;
       this._media_has_more.set(this._media_items().length < page.total);
     } catch {
@@ -109642,6 +109682,7 @@ var SignageService = class _SignageService {
     );
     this._media_next = null;
     this._media_token = 0;
+    this._media_loading_all = false;
     this.media = this._media_items.asReadonly();
     this.media_loading = this._media_loading.asReadonly();
     this.media_has_more = this._media_has_more.asReadonly();
@@ -109658,7 +109699,7 @@ var SignageService = class _SignageService {
           this._media_has_more.set(false);
           if (!initialised || !can_query)
             return;
-          this._fetchMediaPage(rh(this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE }, group_id)), token);
+          this._fetchAllMediaPages(rh(this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE }, group_id)), token);
         });
       },
       ...ngDevMode ? [{ debugName: "_reload_media" }] : (
@@ -111948,4 +111989,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-W36T2HDV.js.map
+//# sourceMappingURL=chunk-D4H3J3HS.js.map
