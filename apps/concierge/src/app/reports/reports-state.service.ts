@@ -526,7 +526,7 @@ export class ReportsStateService extends AsyncHandler {
             `report+${options.type}+${format(
                 options.start,
                 'yyyy-MM-dd',
-            )}+${format(options.end, 'yyyy-MM-dd')}.tsv`,
+            )}+${format(options.end, 'yyyy-MM-dd')}.csv`,
             jsonToCsv(
                 bookings.map((bkn) => {
                     const details = bkn.toJSON();
@@ -540,10 +540,19 @@ export class ReportsStateService extends AsyncHandler {
                         'MMM d, y, h:mm a',
                         'en',
                     );
+                    // Always set so the column exists even when the first
+                    // booking was never checked in
+                    details.checked_in_time = details.checked_in_at
+                        ? formatDate(
+                              details.checked_in_at * 1000,
+                              'MMM d, y, h:mm a',
+                              'en',
+                          )
+                        : '';
+                    delete details.checked_in_at;
                     for (const key of REMOVE_KEYS) delete details[key];
                     return details;
                 }),
-                '\t',
             ),
         );
     }
