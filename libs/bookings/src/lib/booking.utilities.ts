@@ -481,7 +481,13 @@ export function generateBookingForm(
     onFieldChange(
         model,
         (v) => v.resources,
-        (resources) => setBookingAsset(model, (resources || [])[0]),
+        (resources) => {
+            // Visitor bookings store the visitor email in `asset_id`; they do
+            // not select a booking resource. Form resets replace `resources`
+            // with a new empty array, which must not clear that email on edit.
+            if (untracked(model).booking_type === 'visitor') return;
+            setBookingAsset(model, (resources || [])[0]);
+        },
         injector,
     );
     // Keep booked_by synced to the current user

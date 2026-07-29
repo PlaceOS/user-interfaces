@@ -337,6 +337,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             </mat-form-field>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                                 [matTooltip]="

@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import {
     createServiceFactory,
@@ -29,6 +30,7 @@ describe('AuthorisedUserGuard', () => {
         app_name: 'workplace',
         get: vi.fn((key: string): any => []),
     };
+    const wait_until_initialised = vi.fn().mockResolvedValue(undefined);
 
     const createService = createServiceFactory({
         service: AuthorisedUserGuard,
@@ -42,7 +44,10 @@ describe('AuthorisedUserGuard', () => {
                 provide: SettingsService,
                 useValue: settings_mock,
             },
-            MockProvider(OrganisationService, { initialised: signal(true) }),
+            MockProvider(OrganisationService, {
+                initialised: signal(true),
+                waitUntilInitialised: wait_until_initialised,
+            }),
         ],
     });
 
@@ -58,6 +63,7 @@ describe('AuthorisedUserGuard', () => {
         vi.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
         common_lib.user_groups.set([]);
         common_lib.user_groups_loaded.set(true);
+        wait_until_initialised.mockResolvedValue(undefined);
         spectator = createService();
     });
 
@@ -85,6 +91,32 @@ describe('AuthorisedUserGuard', () => {
 
         // Reset
         access_mock.group = '';
+    });
+
+    it('waits for user groups and app settings to load', async () => {
+        common_lib.user_groups_loaded.set(false);
+        let resolve_settings: () => void;
+        wait_until_initialised.mockImplementationOnce(
+            () =>
+                new Promise<void>((resolve) => {
+                    resolve_settings = resolve;
+                }),
+        );
+
+        const guard_result = spectator.service.canActivate();
+        let resolved = false;
+        guard_result.then(() => (resolved = true));
+
+        await Promise.resolve();
+        expect(resolved).toBe(false);
+
+        common_lib.user_groups_loaded.set(true);
+        TestBed.flushEffects();
+        await Promise.resolve();
+        expect(resolved).toBe(false);
+
+        resolve_settings!();
+        await expect(guard_result).resolves.toBe(true);
     });
 
     it('should check if logged in user can load a route', async () => {
