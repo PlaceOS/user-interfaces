@@ -1,20 +1,26 @@
-import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DisplaySelectModalComponent } from '../../app/shared/display-select-modal.component';
 import { SignageService } from '../../app/signage.service';
 
 describe('DisplaySelectModalComponent', () => {
-    const displays = signal<any[]>([]);
-    const service = { displays };
+    const pageOf = (ids: string[], total = ids.length, next: any = null) => ({
+        data: ids.map((id) => ({ id, name: id, signage: true })),
+        total,
+        next: next ? () => Promise.resolve(next) : null,
+    });
+
+    const queryDisplays = vi.fn();
+    const service = { queryDisplays };
+
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
 
     beforeEach(async () => {
         vi.clearAllMocks();
-        displays.set([
-            { id: 'd1', name: 'Lobby', display_name: 'Lobby Screen' },
-            { id: 'd2', name: 'Cafe', description: 'Ground floor' },
-            { id: 'd3', name: 'Boardroom' },
-        ]);
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        queryDisplays.mockReturnValue(
+            Promise.resolve(pageOf(['lobby', 'cafe'])),
+        );
         await TestBed.configureTestingModule({
             imports: [DisplaySelectModalComponent],
             providers: [
@@ -28,37 +34,79 @@ describe('DisplaySelectModalComponent', () => {
             .compileComponents();
     });
 
-    it('returns every display when no search term is entered', () => {
+    afterEach(() => vi.useRealTimers());
+
+    const create = async () => {
         const fixture = TestBed.createComponent(DisplaySelectModalComponent);
-        expect(fixture.componentInstance.filtered_displays().length).toBe(3);
+        fixture.detectChanges();
+        await flush();
+        return fixture.componentInstance;
+    };
+
+    it('loads the first page of displays on open', async () => {
+        const component = await create();
+
+        expect(queryDisplays).toHaveBeenCalledWith('');
+        expect(component.displays().map((_) => _.id)).toEqual([
+            'cafe',
+            'lobby',
+        ]);
+        expect(component.has_more()).toBe(false);
     });
 
-    it('matches the display_name ahead of the raw name', () => {
-        const fixture = TestBed.createComponent(DisplaySelectModalComponent);
-        const component = fixture.componentInstance;
+    it('sends the search term to the backend and replaces the results', async () => {
+        const component = await create();
+        queryDisplays.mockReturnValue(Promise.resolve(pageOf(['lobby'], 1)));
 
-        component.search.set('screen');
+        component.search.set('lobby');
+        await vi.advanceTimersByTimeAsync(500);
+        await flush();
 
-        expect(component.filtered_displays().map((_) => _.id)).toEqual(['d1']);
+        expect(queryDisplays).toHaveBeenLastCalledWith('lobby');
+        expect(component.displays().map((_) => _.id)).toEqual(['lobby']);
     });
 
-    it('falls back to name when there is no display_name', () => {
-        const fixture = TestBed.createComponent(DisplaySelectModalComponent);
-        const component = fixture.componentInstance;
+    it('pages the results as the list is scrolled', async () => {
+        queryDisplays.mockReturnValue(
+            Promise.resolve(pageOf(['lobby-1'], 2, pageOf(['lobby-2'], 2))),
+        );
+        const component = await create();
+        expect(component.has_more()).toBe(true);
 
-        component.search.set('board');
+        component.loadMore();
+        await flush();
 
-        expect(component.filtered_displays().map((_) => _.id)).toEqual(['d3']);
+        expect(component.displays().map((_) => _.id)).toEqual([
+            'lobby-1',
+            'lobby-2',
+        ]);
+        expect(component.has_more()).toBe(false);
     });
 
-    it('filters case-insensitively and reacts to updated display state', () => {
-        const fixture = TestBed.createComponent(DisplaySelectModalComponent);
-        const component = fixture.componentInstance;
+    it('ignores pages returned after the search moved on', async () => {
+        const component = await create();
+        let resolve_stale: (value: any) => void = () => {};
+        queryDisplays.mockReturnValueOnce(
+            new Promise((resolve) => (resolve_stale = resolve)),
+        );
 
-        component.search.set('CAFE');
-        expect(component.filtered_displays().map((_) => _.id)).toEqual(['d2']);
+        component.search.set('stale');
+        await vi.advanceTimersByTimeAsync(500);
+        queryDisplays.mockReturnValue(Promise.resolve(pageOf(['fresh'], 1)));
+        component.search.set('fresh');
+        await vi.advanceTimersByTimeAsync(500);
+        await flush();
+        resolve_stale(pageOf(['stale'], 1));
+        await flush();
 
-        displays.set([{ id: 'd9', name: 'Cafeteria' }]);
-        expect(component.filtered_displays().map((_) => _.id)).toEqual(['d9']);
+        expect(component.displays().map((_) => _.id)).toEqual(['fresh']);
+    });
+
+    it('shows nothing when the user may not query displays', async () => {
+        queryDisplays.mockReturnValue(null);
+        const component = await create();
+
+        expect(component.displays()).toEqual([]);
+        expect(component.loading()).toBe(false);
     });
 });

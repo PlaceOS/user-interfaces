@@ -60,6 +60,7 @@ import {
     scheduleSignagePlaylistMedia,
     shareSignageMedia,
     shareSignagePlaylists,
+    showSystem,
     SignageMedia,
     SignagePlaylist,
     type SignagePlaylistApprover,
@@ -883,14 +884,30 @@ export class SignageService {
     }
 
     // --- Displays (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list; filtering the loaded pages would only ever search the displays
+    // that happened to be fetched already.
+    public readonly display_search_term = signal('');
+    private readonly _display_search_debounced = debounced(
+        this.display_search_term,
+        400,
+    );
     private readonly _display_items = signal<any[]>([]);
+    // Every display seen since the group last changed, keyed by id. Zone,
+    // schedule and playlist views resolve displays by id, so they need the
+    // whole set rather than whatever the current search narrowed it to.
+    private readonly _display_cache = signal<Record<string, any>>({});
+    private _display_cache_group: string | null = null;
     private readonly _displays_loading = signal(false);
     private readonly _displays_has_more = signal(false);
     private _displays_next: (() => QueryResponse<any> | null) | null = null;
     private _displays_token = 0;
 
     public readonly displays = computed(() =>
-        this._mergeItems(this._display_items(), this._display_overrides()),
+        this._mergeItems(
+            Object.values(this._display_cache()),
+            this._display_overrides(),
+        ),
     );
     public readonly displays_loading = this._displays_loading.asReadonly();
     public readonly displays_has_more = this._displays_has_more.asReadonly();
@@ -899,23 +916,47 @@ export class SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
+        const search = this._display_search_debounced.value().trim();
         this._change();
         untracked(() => {
             const token = ++this._displays_token;
             this._display_items.set([]);
             this._displays_next = null;
             this._displays_has_more.set(false);
+            // Only drop the id cache when the source of the data changes, a
+            // new search term still needs the displays other views look up.
+            if (group_id !== this._display_cache_group) {
+                this._display_cache_group = group_id;
+                this._display_cache.set({});
+            }
             if (!initialised || !can_query) return;
             this._fetchDisplayPage(
                 querySystems({
                     ...this._orgZoneQueryParams({}, group_id),
                     limit: SignageService.PAGE_SIZE,
                     signage: true,
+                    ...(search ? { q: search } : {}),
                 } as any),
                 token,
             );
         });
     });
+
+    /**
+     * Paged display query for pickers that search on their own, without
+     * disturbing the display list. Null when the user may not query displays.
+     */
+    public queryDisplays(search = ''): QueryResponse<any> | null {
+        if (!this._org.initialised() || !this._can_query_group_data())
+            return null;
+        const term = search.trim();
+        return querySystems({
+            ...this._orgZoneQueryParams({}),
+            limit: SignageService.PAGE_SIZE,
+            signage: true,
+            ...(term ? { q: term } : {}),
+        } as any);
+    }
 
     public loadMoreDisplays() {
         if (this._displays_loading() || !this._displays_has_more()) return;
@@ -936,6 +977,11 @@ export class SignageService {
                 .filter((item) => item.signage)
                 .map(decodeEntityNames);
             this._display_items.update((list) => [...list, ...items]);
+            this._display_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            });
             this._displays_next = page.next;
             this._displays_has_more.set(
                 this._display_items().length < page.total,
@@ -1089,7 +1135,6 @@ export class SignageService {
     >({});
 
     public readonly selected_display = signal<any>(null);
-    public readonly display_search_term = signal('');
     private readonly _playlist_meta_state = signal<
         Record<string, PlaylistMetaState>
     >(loadPlaylistMetaSessionCache());
@@ -1154,11 +1199,18 @@ export class SignageService {
         );
     });
 
+    // The listing itself, which is whatever page(s) of the (possibly
+    // searched) query have been loaded so far. Local edits are applied over
+    // the loaded items, but never add a display the query didn't return.
     public readonly filtered_displays = computed(() => {
-        const term = this.display_search_term().toLowerCase();
-        return this.displays().filter((d) =>
-            (d.display_name || d.name).toLowerCase().includes(term),
-        );
+        const overrides = this._display_overrides();
+        return this._display_items()
+            .map((display) => overrides[display.id] || display)
+            .sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            );
     });
 
     private readonly _playlist_change = signal(Date.now());
@@ -2779,8 +2831,11 @@ export class SignageService {
         });
         const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this.displays();
-        const display = displays.find((d: any) => d.id === display_id);
+        // The picker searches the backend, so the choice may be a display the
+        // list never loaded.
+        const display =
+            this.displays().find((d: any) => d.id === display_id) ||
+            (await showSystem(display_id).catch(() => null));
         if (!display) return;
         if (display.zones?.includes(zone.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_IN_ZONE'));
