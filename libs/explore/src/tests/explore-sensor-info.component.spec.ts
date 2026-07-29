@@ -70,4 +70,24 @@ describe('ExploreSensorInfoComponent', () => {
         expect(spectator.component.show()).toBe(true);
         vi.useRealTimers();
     });
+
+    it('does not propagate map interactions from the sensor button', () => {
+        spectator = createComponent();
+        const parent = spectator.element.parentElement;
+        const pointer_down = vi.fn();
+        const pointer_up = vi.fn();
+        const click = vi.fn();
+        parent.addEventListener('pointerdown', pointer_down);
+        parent.addEventListener('pointerup', pointer_up);
+        parent.addEventListener('click', click);
+        const button = spectator.query('button');
+
+        button.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+        button.dispatchEvent(new Event('pointerup', { bubbles: true }));
+        button.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+        expect(pointer_down).not.toHaveBeenCalled();
+        expect(pointer_up).not.toHaveBeenCalled();
+        expect(click).not.toHaveBeenCalled();
+    });
 });
