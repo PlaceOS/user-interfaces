@@ -402,6 +402,12 @@ describe('BookingFormService', () => {
         // desk-1 is booked in the first-instance window, desk-2 clashes with a
         // later recurrence instance. Enabling recurrence must exclude both, not
         // replace the window-booked query and let desk-1 re-appear.
+        const get = spectator.inject(SettingsService).get as Mock;
+        get.mockImplementation((key: string) =>
+            key === 'app.desks.use_building_timezone' ? true : undefined,
+        );
+        (spectator.inject(OrganisationService).building as any).timezone =
+            'America/New_York';
         booked_result = ['desk-1'];
         clash_result = ['desk-2'];
         const desks = ['desk-1', 'desk-2', 'desk-3'].map((id) => ({
@@ -417,6 +423,7 @@ describe('BookingFormService', () => {
             ...m,
             date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
             duration: 60,
+            timezone: 'Australia/Sydney',
             recurrence_type: 'daily',
             recurrence_interval: 1,
             recurrence_end: Math.floor(
@@ -433,6 +440,7 @@ describe('BookingFormService', () => {
             {
                 date: new Date(2028, 5, 15, 15, 0, 0).valueOf(),
                 duration: 60,
+                timezone: 'Australia/Sydney',
                 recurrence_type: 'daily',
                 recurrence_interval: 1,
                 recurrence_end: Math.floor(
@@ -449,6 +457,7 @@ describe('BookingFormService', () => {
         const clash_booking = clashBookings()[0];
         expect(clash_booking.asset_ids).toEqual(['desk-1', 'desk-2', 'desk-3']);
         expect(clash_booking.recurrence_type).toBe('daily');
+        expect(clash_booking.timezone).toBe('America/New_York');
         expect(available.map((_: any) => _.id)).toEqual(['desk-3']);
     });
 
@@ -1440,6 +1449,53 @@ describe('BookingFormService', () => {
         } finally {
             vi.useRealTimers();
         }
+    });
+
+    it('should use the building timezone for recurring clash checks and saving', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        get.mockImplementation((key: string) =>
+            key === 'app.desks.use_building_timezone' ? true : undefined,
+        );
+        (spectator.inject(OrganisationService).building as any).timezone =
+            'America/New_York';
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        const date = Date.now() + 24 * 60 * 60 * 1000;
+        const desk = {
+            id: 'desk-1',
+            name: 'Desk 1',
+            zone: { id: 'lvl-1', parent_id: 'bld-1' },
+            features: [],
+        };
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date,
+                duration: 60,
+                asset_id: desk.id,
+                timezone: 'Australia/Sydney',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: desk.id,
+            asset_name: desk.name,
+            resources: [desk],
+            recurrence_type: 'daily',
+            recurrence_interval: 1,
+            recurrence_end: Math.floor((date + 7 * 24 * 60 * 60 * 1000) / 1000),
+        }));
+        vi.spyOn(
+            spectator.service as any,
+            '_checkResourceRules',
+        ).mockResolvedValue(true);
+
+        await spectator.service.postForm(false, false);
+
+        expect(clashBookings()).toHaveLength(1);
+        expect(clashBookings()[0].timezone).toBe('America/New_York');
+        expect(savedBookings()).toHaveLength(1);
+        expect(savedBookings()[0].timezone).toBe('America/New_York');
     });
 
     it('should assign unique desks when posting desk group bookings', async () => {

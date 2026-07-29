@@ -684,7 +684,11 @@ export class BookingFormService extends AsyncHandler {
                 raw.recurrence_type !== 'none'
             ) {
                 const recurring_clashes =
-                    await this._recurringBookedResourceList(resources, zones);
+                    await this._recurringBookedResourceList(
+                        resources,
+                        zones,
+                        raw,
+                    );
                 booked_ids = unique([...booked_ids, ...recurring_clashes]);
             }
         }
@@ -1162,6 +1166,7 @@ export class BookingFormService extends AsyncHandler {
             booking_type: this.model().booking_type || this._options().type,
         });
         const value = this.model() as any;
+        const effective_timezone = this.timezone || value.timezone;
         const booking = this._booking() || new Booking();
         const all_day_period = value.all_day
             ? this._allDayTimeRange(value.date)
@@ -1175,7 +1180,7 @@ export class BookingFormService extends AsyncHandler {
             !isWithinBookableHours(
                 value.date,
                 bookable_hours,
-                this.timezone || value.timezone,
+                effective_timezone,
             )
         ) {
             throw i18n('FORM.BOOKABLE_HOURS_ERROR');
@@ -1210,6 +1215,7 @@ export class BookingFormService extends AsyncHandler {
                     duration: all_day_period.duration,
                     date_end: all_day_period.date_end,
                     user_email: host,
+                    timezone: effective_timezone,
                 },
                 this._options().type,
             );
@@ -1239,7 +1245,7 @@ export class BookingFormService extends AsyncHandler {
         );
         this._loading.set('Saving booking');
         delete value.booking_asset;
-        value.timezone = this.timezone || value.timezone;
+        value.timezone = effective_timezone;
         if (value.all_day) {
             value.date = all_day_period.date;
             value.duration = all_day_period.duration;
@@ -2340,17 +2346,20 @@ export class BookingFormService extends AsyncHandler {
     private async _recurringBookedResourceList(
         resources: BookingAsset[],
         zones: string,
+        value: Record<string, any>,
     ): Promise<string[]> {
-        const value = this.model() as any;
+        const effective_timezone = this.timezone || value.timezone;
         const booking = new Booking({
             ...value,
             booking_type: 'desk',
             zones: [zones],
             asset_ids: resources.map((_) => _.id),
+            timezone: effective_timezone,
         });
         const key = JSON.stringify({
             date: booking.date,
             duration: booking.duration,
+            timezone: effective_timezone,
             recurrence_type: (booking as any).recurrence_type,
             recurrence_end: (booking as any).recurrence_end,
             zones,
