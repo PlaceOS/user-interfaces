@@ -45006,6 +45006,9 @@ function nn(t) {
 function Ka(t = {}) {
   return $({ query_params: t, fn: nn, path: de });
 }
+function Ja(t, e = {}) {
+  return g({ id: t, query_params: e, fn: nn, path: de });
+}
 function Ya(t, e, n = "patch") {
   return I({
     id: t,
@@ -54523,15 +54526,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "675fd61",
-  "hash": "675fd61",
+  "raw": "7825b76",
+  "hash": "7825b76",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "675fd61",
+  "suffix": "7825b76",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785211769706
+  "time": 1785305365741
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -92509,7 +92512,7 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], confirm_hotkey: [1, "confirm_hotkey"], confirm_disabled: [1, "confirm_disabled"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], hide_close: [1, "hide_close"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c015, decls: 10, vars: 14, consts: [[1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "flex", "items-center", "text-xl", "font-medium", "capitalize", 3, "innerHTML"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-24", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "click", "disabled"], [1, "border-base-300", "bg-base-100", "text-base-content", "rounded", "border", "px-2", "py-1", "text-xs", "leading-none", "shadow-sm"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], confirm_hotkey: [1, "confirm_hotkey"], confirm_disabled: [1, "confirm_disabled"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], hide_close: [1, "hide_close"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c015, decls: 10, vars: 14, consts: [["cdkScrollable", "", 1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "flex", "items-center", "text-xl", "font-medium", "capitalize", 3, "innerHTML"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-24", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "click", "disabled"], [1, "border-base-300", "bg-base-100", "text-base-content", "rounded", "border", "px-2", "py-1", "text-xs", "leading-none", "shadow-sm"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 0);
@@ -92542,6 +92545,7 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
         \u0275\u0275conditional(!ctx.loading() && !ctx.hide_confirm() ? 9 : -1);
       }
     }, dependencies: [
+      CdkScrollable,
       MatProgressSpinnerModule,
       MatProgressSpinner,
       IconComponent,
@@ -92561,6 +92565,7 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
     type: Component,
     args: [{ selector: "fullscreen-modal-shell,[fs-modal-shell]", template: `
         <div
+            cdkScrollable
             class="bg-base-200 fixed inset-0 flex flex-col items-center overflow-auto px-2"
         >
             <div
@@ -92632,6 +92637,7 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
             }
         </div>
     `, imports: [
+      CdkScrollable,
       TranslatePipe,
       MatProgressSpinnerModule,
       IconComponent,
@@ -92643,7 +92649,7 @@ var FullscreenModalShellComponent = class _FullscreenModalShellComponent {
   }], null, { loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: false }] }], confirm_text: [{ type: Input, args: [{ isSignal: true, alias: "confirm_text", required: false }] }], confirm_hotkey: [{ type: Input, args: [{ isSignal: true, alias: "confirm_hotkey", required: false }] }], confirm_disabled: [{ type: Input, args: [{ isSignal: true, alias: "confirm_disabled", required: false }] }], close: [{ type: Input, args: [{ isSignal: true, alias: "close", required: false }] }], hide_confirm: [{ type: Input, args: [{ isSignal: true, alias: "hide_confirm", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], full_width: [{ type: Input, args: [{ isSignal: true, alias: "full_width", required: false }] }], confirm: [{ type: Output, args: ["confirm"] }], closed: [{ type: Output, args: ["closed"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 102 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 105 });
 })();
 
 // libs/components/src/lib/confirm-modal.component.ts
@@ -99632,11 +99638,134 @@ function decodeEntityNames(item) {
   return copy;
 }
 
+// apps/signage-manager/src/app/shared/intersect.directive.ts
+var IntersectDirective = class _IntersectDirective {
+  constructor() {
+    this._el = inject2(ElementRef);
+    this.intersect = output();
+  }
+  ngAfterViewInit() {
+    this._observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) {
+        this.intersect.emit();
+      }
+    }, { rootMargin: "300px" });
+    this._observer.observe(this._el.nativeElement);
+  }
+  ngOnDestroy() {
+    this._observer?.disconnect();
+  }
+  static {
+    this.\u0275fac = function IntersectDirective_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _IntersectDirective)();
+    };
+  }
+  static {
+    this.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({ type: _IntersectDirective, selectors: [["", "intersect", ""]], outputs: { intersect: "intersect" } });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(IntersectDirective, [{
+    type: Directive,
+    args: [{
+      selector: "[intersect]"
+    }]
+  }], null, { intersect: [{ type: Output, args: ["intersect"] }] });
+})();
+
+// apps/signage-manager/src/app/shared/paged-search.ts
+var PagedSearch = class {
+  constructor(_query, _sort, debounce_ms = 400) {
+    this._query = _query;
+    this._sort = _sort;
+    this.search = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "search" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.items = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "items" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.has_more = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "has_more" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._next = null;
+    this._token = 0;
+    const search_debounced = debounced(this.search, debounce_ms);
+    effect(() => {
+      const term = search_debounced.value();
+      untracked2(() => {
+        const token = ++this._token;
+        this.items.set([]);
+        this._next = null;
+        this.has_more.set(false);
+        const query = this._query(term);
+        if (query)
+          this._fetchPage(query, token);
+      });
+    });
+  }
+  loadMore() {
+    if (this.loading() || !this.has_more())
+      return;
+    const next = this._next?.();
+    if (!next) {
+      this.has_more.set(false);
+      return;
+    }
+    this._fetchPage(next, this._token);
+  }
+  async _fetchPage(query, token) {
+    this.loading.set(true);
+    try {
+      const page = await query;
+      if (token !== this._token)
+        return;
+      const items = (page.data || []).map(decodeEntityNames);
+      this.items.update((list) => {
+        const merged = [...list, ...items];
+        return this._sort ? merged.sort(this._sort) : merged;
+      });
+      this._next = page.next;
+      this.has_more.set(this.items().length < page.total);
+    } catch {
+      if (token === this._token)
+        this.has_more.set(false);
+    } finally {
+      if (token === this._token)
+        this.loading.set(false);
+    }
+  }
+};
+function byDisplayName(a, b2) {
+  return (a.display_name || a.name).localeCompare(b2.display_name || b2.name);
+}
+function byName(a, b2) {
+  return a.name.localeCompare(b2.name);
+}
+
 // apps/signage-manager/src/app/shared/display-select-modal.component.ts
 var _forTrack04 = ($index, $item) => $item.id;
 function DisplaySelectModalComponent_Conditional_13_For_1_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275elementStart(0, "div", 13);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -99648,13 +99777,13 @@ function DisplaySelectModalComponent_Conditional_13_For_1_Conditional_6_Template
 }
 function DisplaySelectModalComponent_Conditional_13_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 7)(1, "icon", 8);
+    \u0275\u0275elementStart(0, "button", 8)(1, "icon", 10);
     \u0275\u0275text(2, "tv");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 9)(4, "div", 10);
+    \u0275\u0275elementStart(3, "div", 11)(4, "div", 12);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(6, DisplaySelectModalComponent_Conditional_13_For_1_Conditional_6_Template, 2, 1, "div", 11);
+    \u0275\u0275conditionalCreate(6, DisplaySelectModalComponent_Conditional_13_For_1_Conditional_6_Template, 2, 1, "div", 13);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -99666,21 +99795,48 @@ function DisplaySelectModalComponent_Conditional_13_For_1_Template(rf, ctx) {
     \u0275\u0275conditional(display_r1.description ? 6 : -1);
   }
 }
+function DisplaySelectModalComponent_Conditional_13_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 14);
+    \u0275\u0275listener("intersect", function DisplaySelectModalComponent_Conditional_13_Conditional_2_Template_div_intersect_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.list.loadMore());
+    });
+    \u0275\u0275elementEnd();
+  }
+}
 function DisplaySelectModalComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, DisplaySelectModalComponent_Conditional_13_For_1_Template, 7, 3, "button", 7, _forTrack04);
+    \u0275\u0275repeaterCreate(0, DisplaySelectModalComponent_Conditional_13_For_1_Template, 7, 3, "button", 8, _forTrack04);
+    \u0275\u0275conditionalCreate(2, DisplaySelectModalComponent_Conditional_13_Conditional_2_Template, 1, 0, "div", 9);
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275repeater(ctx_r1.filtered_displays());
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275repeater(ctx_r2.list.items());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r2.list.has_more() ? 2 : -1);
   }
 }
 function DisplaySelectModalComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "icon", 12);
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 15);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.LOADING"), " ");
+  }
+}
+function DisplaySelectModalComponent_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7)(1, "icon", 16);
     \u0275\u0275text(2, "tv");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 13);
+    \u0275\u0275elementStart(3, "div", 15);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -99694,25 +99850,7 @@ var DisplaySelectModalComponent = class _DisplaySelectModalComponent {
   constructor() {
     this._data = inject2(MAT_DIALOG_DATA);
     this._service = inject2(SignageService);
-    this._displays = this._service.displays;
-    this.search = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "search" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.filtered_displays = computed(
-      () => {
-        const term = this.search().toLowerCase();
-        const list = this._displays();
-        return list.filter((_3) => (_3.display_name || _3.name).toLowerCase().includes(term));
-      },
-      ...ngDevMode ? [{ debugName: "filtered_displays" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this.list = new PagedSearch((search) => this._service.queryDisplays(search), byDisplayName);
   }
   static {
     this.\u0275fac = function DisplaySelectModalComponent_Factory(__ngFactoryType__) {
@@ -99720,7 +99858,7 @@ var DisplaySelectModalComponent = class _DisplaySelectModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplaySelectModalComponent, selectors: [["display-select-modal"]], decls: 15, vars: 14, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "h-[65vh]", "max-w-lg", "min-w-lg", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "text-center", "max-md:h-auto", "max-md:max-w-none", "max-md:min-w-0", "max-md:flex-1"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-lg", "p-16"], ["type", "button", "matRipple", "", 1, "border-base-300", "hover:bg-base-200", "z-0", "flex", "h-16", "w-full", "items-center", "space-x-2", "rounded-sm", "border", "p-2", "text-left", 3, "mat-dialog-close"], [1, "text-base-content/60", "shrink-0", "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate"], [1, "text-base-content/70", "truncate", "text-xs"], [1, "text-base-content/70", "text-8xl"], [1, "text-base-content/70"]], template: function DisplaySelectModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplaySelectModalComponent, selectors: [["display-select-modal"]], decls: 16, vars: 14, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "h-[65vh]", "max-w-lg", "min-w-lg", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "text-center", "max-md:h-auto", "max-md:max-w-none", "max-md:min-w-0", "max-md:flex-1"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "rounded-lg", "p-16"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-lg", "p-16"], ["type", "button", "matRipple", "", 1, "border-base-300", "hover:bg-base-200", "z-0", "flex", "h-16", "w-full", "items-center", "space-x-2", "rounded-sm", "border", "p-2", "text-left", 3, "mat-dialog-close"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/60", "shrink-0", "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate"], [1, "text-base-content/70", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-base-content/70"], [1, "text-base-content/70", "text-8xl"]], template: function DisplaySelectModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2);
@@ -99735,12 +99873,12 @@ var DisplaySelectModalComponent = class _DisplaySelectModalComponent {
         \u0275\u0275pipe(11, "translate");
         \u0275\u0275pipe(12, "translate");
         \u0275\u0275listener("ngModelChange", function DisplaySelectModalComponent_Template_input_ngModelChange_10_listener($event) {
-          return ctx.search.set($event);
+          return ctx.list.search.set($event);
         });
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(13, DisplaySelectModalComponent_Conditional_13_Template, 2, 0)(14, DisplaySelectModalComponent_Conditional_14_Template, 6, 3, "div", 6);
+        \u0275\u0275conditionalCreate(13, DisplaySelectModalComponent_Conditional_13_Template, 3, 1)(14, DisplaySelectModalComponent_Conditional_14_Template, 4, 3, "div", 6)(15, DisplaySelectModalComponent_Conditional_15_Template, 6, 3, "div", 7);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -99749,11 +99887,11 @@ var DisplaySelectModalComponent = class _DisplaySelectModalComponent {
         \u0275\u0275advance(2);
         \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 8, "SIGNAGE_MANAGER.CLOSE_ADD_DISPLAY"));
         \u0275\u0275advance(6);
-        \u0275\u0275property("ngModel", ctx.search())("placeholder", \u0275\u0275pipeBind1(11, 10, "SIGNAGE_MANAGER.SEARCH_DISPLAYS"));
+        \u0275\u0275property("ngModel", ctx.list.search())("placeholder", \u0275\u0275pipeBind1(11, 10, "SIGNAGE_MANAGER.SEARCH_DISPLAYS"));
         \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 12, "SIGNAGE_MANAGER.SEARCH_DISPLAYS"));
         \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.filtered_displays()?.length > 0 ? 13 : 14);
+        \u0275\u0275conditional(ctx.list.items().length > 0 ? 13 : ctx.list.loading() ? 14 : 15);
       }
     }, dependencies: [
       FormsModule,
@@ -99769,6 +99907,7 @@ var DisplaySelectModalComponent = class _DisplaySelectModalComponent {
       MatInputModule,
       MatInput,
       IconComponent,
+      IntersectDirective,
       TranslatePipe
     ], encapsulation: 2 });
   }
@@ -99806,8 +99945,8 @@ var DisplaySelectModalComponent = class _DisplaySelectModalComponent {
             >
                 <input
                     matInput
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [ngModel]="list.search()"
+                    (ngModelChange)="list.search.set($event)"
                     [placeholder]="
                         'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
                     "
@@ -99816,8 +99955,8 @@ var DisplaySelectModalComponent = class _DisplaySelectModalComponent {
                     "
                 />
             </mat-form-field>
-            @if (filtered_displays()?.length > 0) {
-                @for (display of filtered_displays(); track display.id) {
+            @if (list.items().length > 0) {
+                @for (display of list.items(); track display.id) {
                     <button
                         type="button"
                         matRipple
@@ -99841,6 +99980,21 @@ var DisplaySelectModalComponent = class _DisplaySelectModalComponent {
                         </div>
                     </button>
                 }
+                @if (list.has_more()) {
+                    <div
+                        class="h-px w-full"
+                        intersect
+                        (intersect)="list.loadMore()"
+                    ></div>
+                }
+            } @else if (list.loading()) {
+                <div
+                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
+                >
+                    <div class="text-base-content/70">
+                        {{ 'COMMON.LOADING' | translate }}
+                    </div>
+                </div>
             } @else {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
@@ -99860,13 +100014,14 @@ var DisplaySelectModalComponent = class _DisplaySelectModalComponent {
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
-        TranslatePipe
+        TranslatePipe,
+        IntersectDirective
       ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplaySelectModalComponent, { className: "DisplaySelectModalComponent", filePath: "apps/signage-manager/src/app/shared/display-select-modal.component.ts", lineNumber: 97 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplaySelectModalComponent, { className: "DisplaySelectModalComponent", filePath: "apps/signage-manager/src/app/shared/display-select-modal.component.ts", lineNumber: 115 });
 })();
 
 // apps/signage-manager/src/app/shared/group-select-modal.component.ts
@@ -104848,6 +105003,121 @@ var MediaTagsModalComponent = class _MediaTagsModalComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaTagsModalComponent, { className: "MediaTagsModalComponent", filePath: "apps/signage-manager/src/app/shared/media-tags-modal.component.ts", lineNumber: 60 });
 })();
 
+// apps/signage-manager/src/app/shared/media-thumbnail.component.ts
+function MediaThumbnailComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 2);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275classProp("object-cover", ctx_r0.cover())("object-contain", !ctx_r0.cover());
+    \u0275\u0275property("source", ctx_r0.thumbnail_url())("alt", ctx_r0.item().name + " thumbnail");
+  }
+}
+function MediaThumbnailComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 3);
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r0.media_icon());
+  }
+}
+var MediaThumbnailComponent = class _MediaThumbnailComponent {
+  constructor() {
+    this._element = inject2(ElementRef);
+    this.item = input.required(
+      ...ngDevMode ? [{ debugName: "item" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.cover = input(
+      false,
+      ...ngDevMode ? [{ debugName: "cover" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.in_view = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "in_view" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.thumbnail_url = computed(
+      () => playlistMediaThumbnailUrl(this.item()),
+      ...ngDevMode ? [{ debugName: "thumbnail_url" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.media_icon = computed(
+      () => playlistMediaIcon(this.item()),
+      ...ngDevMode ? [{ debugName: "media_icon" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  ngAfterViewInit() {
+    if (typeof IntersectionObserver === "undefined") {
+      this.in_view.set(true);
+      return;
+    }
+    this._observer = new IntersectionObserver((entries) => {
+      this.in_view.set(entries.some((entry) => entry.isIntersecting));
+    });
+    this._observer.observe(this._element.nativeElement);
+  }
+  ngOnDestroy() {
+    this._observer?.disconnect();
+  }
+  static {
+    this.\u0275fac = function MediaThumbnailComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _MediaThumbnailComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaThumbnailComponent, selectors: [["media-thumbnail"]], inputs: { item: [1, "item"], cover: [1, "cover"] }, decls: 2, vars: 1, consts: [["auth", "", 1, "h-full", "w-full", "text-xs", "flex", "items-center", "justify-center", 3, "source", "alt", "object-cover", "object-contain"], [1, "flex", "h-full", "w-full", "items-center", "justify-center"], ["auth", "", 1, "h-full", "w-full", "text-xs", "flex", "items-center", "justify-center", 3, "source", "alt"], [1, "text-4xl", "opacity-30"]], template: function MediaThumbnailComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, MediaThumbnailComponent_Conditional_0_Template, 1, 6, "img", 0)(1, MediaThumbnailComponent_Conditional_1_Template, 3, 1, "div", 1);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.in_view() && ctx.thumbnail_url() ? 0 : 1);
+      }
+    }, dependencies: [AuthenticatedImageDirective, IconComponent], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n}\n/*# sourceMappingURL=media-thumbnail.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MediaThumbnailComponent, [{
+    type: Component,
+    args: [{ selector: "media-thumbnail", template: `
+        @if (in_view() && thumbnail_url()) {
+            <img
+                auth
+                [source]="thumbnail_url()"
+                [alt]="item().name + ' thumbnail'"
+                class="h-full w-full text-xs flex items-center justify-center"
+                [class.object-cover]="cover()"
+                [class.object-contain]="!cover()"
+            />
+        } @else {
+            <div class="flex h-full w-full items-center justify-center">
+                <icon class="text-4xl opacity-30">{{ media_icon() }}</icon>
+            </div>
+        }
+    `, imports: [AuthenticatedImageDirective, IconComponent], styles: ["/* angular:styles/component:css;add3d5834f4f18c74379fdaa6a5f175ffb708afdb369283d1bbbc3bc1d735ebe;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/shared/media-thumbnail.component.ts */\n:host {\n  display: block;\n}\n/*# sourceMappingURL=media-thumbnail.component.css.map */\n"] }]
+  }], null, { item: [{ type: Input, args: [{ isSignal: true, alias: "item", required: true }] }], cover: [{ type: Input, args: [{ isSignal: true, alias: "cover", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaThumbnailComponent, { className: "MediaThumbnailComponent", filePath: "apps/signage-manager/src/app/shared/media-thumbnail.component.ts", lineNumber: 46 });
+})();
+
 // apps/signage-manager/src/app/shared/playlist-approval-preview.component.ts
 var _c026 = () => [];
 var _c114 = (a0) => ({ count: a0 });
@@ -104898,28 +105168,9 @@ function PlaylistApprovalPreviewComponent_ForEmpty_30_Template(rf, ctx) {
 }
 function PlaylistApprovalPreviewComponent_ng_template_31_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 15);
-    \u0275\u0275elementStart(1, "div", 16)(2, "icon", 17);
-    \u0275\u0275text(3, "expand_content");
+    \u0275\u0275elementStart(0, "div", 14)(1, "icon", 16);
+    \u0275\u0275text(2, "expand_content");
     \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const item_r6 = \u0275\u0275nextContext().item;
-    const thumbnail_url_r8 = \u0275\u0275readContextLet(3);
-    \u0275\u0275property("source", thumbnail_url_r8)("alt", item_r6.name + " thumbnail");
-  }
-}
-function PlaylistApprovalPreviewComponent_ng_template_31_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 13)(1, "icon", 18);
-    \u0275\u0275text(2);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const item_r6 = \u0275\u0275nextContext().item;
-    const ctx_r6 = \u0275\u0275nextContext();
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r6.mediaIcon(item_r6));
   }
 }
 function PlaylistApprovalPreviewComponent_ng_template_31_Template(rf, ctx) {
@@ -104932,31 +105183,32 @@ function PlaylistApprovalPreviewComponent_ng_template_31_Template(rf, ctx) {
       const ctx_r6 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r6.preview.emit(item_r6));
     });
-    \u0275\u0275declareLet(3);
-    \u0275\u0275conditionalCreate(4, PlaylistApprovalPreviewComponent_ng_template_31_Conditional_4_Template, 4, 2)(5, PlaylistApprovalPreviewComponent_ng_template_31_Conditional_5_Template, 3, 1, "div", 13);
+    \u0275\u0275element(3, "media-thumbnail", 13);
+    \u0275\u0275conditionalCreate(4, PlaylistApprovalPreviewComponent_ng_template_31_Conditional_4_Template, 3, 0, "div", 14);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "span", 14);
-    \u0275\u0275text(7);
+    \u0275\u0275elementStart(5, "span", 15);
+    \u0275\u0275text(6);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const item_r6 = ctx.item;
+    const ctx_r6 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 3, "SIGNAGE_MANAGER.PREVIEW_MEDIA", \u0275\u0275pureFunction1(7, _c36, item_r6.name)));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.PREVIEW_MEDIA", \u0275\u0275pureFunction1(7, _c36, item_r6.name)));
     \u0275\u0275advance(2);
-    const thumbnail_url_r9 = \u0275\u0275storeLet(\u0275\u0275nextContext().thumbnailUrl(item_r6));
+    \u0275\u0275property("item", item_r6);
     \u0275\u0275advance();
-    \u0275\u0275conditional(thumbnail_url_r9 ? 4 : 5);
-    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx_r6.thumbnailUrl(item_r6) ? 4 : -1);
+    \u0275\u0275advance(2);
     \u0275\u0275textInterpolate(item_r6.name);
   }
 }
 function PlaylistApprovalPreviewComponent_ng_template_33_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19)(1, "icon", 20);
+    \u0275\u0275elementStart(0, "div", 17)(1, "icon", 18);
     \u0275\u0275text(2, "hide_image");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 21);
+    \u0275\u0275elementStart(3, "p", 19);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -104987,16 +105239,13 @@ var PlaylistApprovalPreviewComponent = class _PlaylistApprovalPreviewComponent {
   thumbnailUrl(item) {
     return playlistMediaThumbnailUrl(item);
   }
-  mediaIcon(item) {
-    return playlistMediaIcon(item);
-  }
   static {
     this.\u0275fac = function PlaylistApprovalPreviewComponent_Factory(__ngFactoryType__) {
       return new (__ngFactoryType__ || _PlaylistApprovalPreviewComponent)();
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistApprovalPreviewComponent, selectors: [["playlist-approval-preview"]], inputs: { versions: [1, "versions"], media: [1, "media"] }, outputs: { preview: "preview" }, decls: 35, vars: 36, consts: [["media_item", ""], ["empty_state", ""], [1, "flex", "gap-2", "max-md:flex-col"], [1, "border-base-300", "bg-success-light", "min-w-0", "flex-1", "rounded-sm", "border"], [1, "border-base-300", "bg-base-200", "flex", "items-center", "justify-between", "gap-2", "rounded-sm", "border-b", "px-4", "py-2"], [1, "text-base-content/70", "font-mono", "text-xs"], [1, "space-y-2", "p-2"], [1, "px-2", "text-sm"], [3, "ngTemplateOutlet", "ngTemplateOutletContext"], [3, "ngTemplateOutlet"], [1, "border-base-300", "bg-error-light", "min-w-0", "flex-1", "rounded-sm", "border"], [1, "border-base-300", "bg-base-100", "flex", "items-center", "space-x-2", "rounded-sm", "border", "p-2"], ["type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-10", "w-10", "shrink-0", "overflow-hidden", "rounded-sm", 3, "click"], [1, "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "truncate"], ["auth", "", 1, "h-full", "w-full", "object-contain", "text-xs", 3, "source", "alt"], [1, "absolute", "inset-0", "flex", "items-end", "justify-end", "p-1", "opacity-0", "transition-opacity", "duration-200", "hover:opacity-100"], [1, "text-lg"], [1, "text-3xl", "opacity-30"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "p-8"], [1, "text-4xl"], [1, "text-sm"]], template: function PlaylistApprovalPreviewComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistApprovalPreviewComponent, selectors: [["playlist-approval-preview"]], inputs: { versions: [1, "versions"], media: [1, "media"] }, outputs: { preview: "preview" }, decls: 35, vars: 36, consts: [["media_item", ""], ["empty_state", ""], [1, "flex", "gap-2", "max-md:flex-col"], [1, "border-base-300", "bg-success-light", "min-w-0", "flex-1", "rounded-sm", "border"], [1, "border-base-300", "bg-base-200", "flex", "items-center", "justify-between", "gap-2", "rounded-sm", "border-b", "px-4", "py-2"], [1, "text-base-content/70", "font-mono", "text-xs"], [1, "space-y-2", "p-2"], [1, "px-2", "text-sm"], [3, "ngTemplateOutlet", "ngTemplateOutletContext"], [3, "ngTemplateOutlet"], [1, "border-base-300", "bg-error-light", "min-w-0", "flex-1", "rounded-sm", "border"], [1, "border-base-300", "bg-base-100", "flex", "items-center", "space-x-2", "rounded-sm", "border", "p-2"], ["type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-10", "w-10", "shrink-0", "overflow-hidden", "rounded-sm", 3, "click"], [1, "h-full", "w-full", 3, "item"], [1, "absolute", "inset-0", "flex", "items-end", "justify-end", "p-1", "opacity-0", "transition-opacity", "duration-200", "hover:opacity-100"], [1, "truncate"], [1, "text-lg"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "p-8"], [1, "text-4xl"], [1, "text-sm"]], template: function PlaylistApprovalPreviewComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 2)(1, "div", 3)(2, "div", 4)(3, "h3");
         \u0275\u0275text(4);
@@ -105026,29 +105275,29 @@ var PlaylistApprovalPreviewComponent = class _PlaylistApprovalPreviewComponent {
         \u0275\u0275elementEnd();
         \u0275\u0275repeaterCreate(28, PlaylistApprovalPreviewComponent_For_29_Template, 1, 4, "ng-container", 8, _forTrack09, false, PlaylistApprovalPreviewComponent_ForEmpty_30_Template, 1, 1, "ng-container", 9);
         \u0275\u0275elementEnd()()();
-        \u0275\u0275template(31, PlaylistApprovalPreviewComponent_ng_template_31_Template, 8, 9, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(33, PlaylistApprovalPreviewComponent_ng_template_33_Template, 6, 3, "ng-template", null, 1, \u0275\u0275templateRefExtractor);
+        \u0275\u0275template(31, PlaylistApprovalPreviewComponent_ng_template_31_Template, 7, 9, "ng-template", null, 0, \u0275\u0275templateRefExtractor)(33, PlaylistApprovalPreviewComponent_ng_template_33_Template, 6, 3, "ng-template", null, 1, \u0275\u0275templateRefExtractor);
       }
       if (rf & 2) {
-        const current_version_r10 = ctx.versions()?.[0];
-        const current_media_r11 = ctx.media()?.[0] || \u0275\u0275pureFunction0(26, _c026);
+        const current_version_r8 = ctx.versions()?.[0];
+        const current_media_r9 = ctx.media()?.[0] || \u0275\u0275pureFunction0(26, _c026);
         \u0275\u0275advance(4);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 8, "SIGNAGE_MANAGER.VERSION_TO_APPROVE"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 10, current_version_r10?.updated_at * 1e3, "dd MMM, HH:mm"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(8, 10, current_version_r8?.updated_at * 1e3, "dd MMM, HH:mm"), " ");
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(12, 13, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(28, _c114, (current_version_r10?.items || \u0275\u0275pureFunction0(27, _c026)).length), (current_version_r10?.items || \u0275\u0275pureFunction0(30, _c026)).length), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(12, 13, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(28, _c114, (current_version_r8?.items || \u0275\u0275pureFunction0(27, _c026)).length), (current_version_r8?.items || \u0275\u0275pureFunction0(30, _c026)).length), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275repeater(current_media_r11);
-        const previous_version_r12 = ctx.versions()?.[1];
-        const previous_media_r13 = ctx.media()?.[1] || \u0275\u0275pureFunction0(31, _c026);
+        \u0275\u0275repeater(current_media_r9);
+        const previous_version_r10 = ctx.versions()?.[1];
+        const previous_media_r11 = ctx.media()?.[1] || \u0275\u0275pureFunction0(31, _c026);
         \u0275\u0275advance(6);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(20, 17, "SIGNAGE_MANAGER.PREVIOUS_VERSION"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(23, 19, previous_version_r12?.updated_at * 1e3, "dd MMM, HH:mm"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(23, 19, previous_version_r10?.updated_at * 1e3, "dd MMM, HH:mm"), " ");
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(27, 22, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(33, _c114, (previous_version_r12?.items || \u0275\u0275pureFunction0(32, _c026)).length), (previous_version_r12?.items || \u0275\u0275pureFunction0(35, _c026)).length), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(27, 22, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(33, _c114, (previous_version_r10?.items || \u0275\u0275pureFunction0(32, _c026)).length), (previous_version_r10?.items || \u0275\u0275pureFunction0(35, _c026)).length), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275repeater(previous_media_r13);
+        \u0275\u0275repeater(previous_media_r11);
       }
     }, dependencies: [
       CommonModule,
@@ -105056,7 +105305,7 @@ var PlaylistApprovalPreviewComponent = class _PlaylistApprovalPreviewComponent {
       IconComponent,
       MatRippleModule,
       MatRipple,
-      AuthenticatedImageDirective,
+      MediaThumbnailComponent,
       DatePipe,
       TranslatePipe
     ], encapsulation: 2 });
@@ -105165,26 +105414,12 @@ var PlaylistApprovalPreviewComponent = class _PlaylistApprovalPreviewComponent {
                             | translate: { name: item.name }
                     "
                 >
-                    @let thumbnail_url = thumbnailUrl(item);
-                    @if (thumbnail_url) {
-                        <img
-                            auth
-                            [source]="thumbnail_url"
-                            [alt]="item.name + ' thumbnail'"
-                            class="h-full w-full object-contain text-xs"
-                        />
+                    <media-thumbnail [item]="item" class="h-full w-full" />
+                    @if (thumbnailUrl(item)) {
                         <div
                             class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
                         >
                             <icon class="text-lg">expand_content</icon>
-                        </div>
-                    } @else {
-                        <div
-                            class="flex h-full w-full items-center justify-center"
-                        >
-                            <icon class="text-3xl opacity-30">{{
-                                mediaIcon(item)
-                            }}</icon>
                         </div>
                     }
                 </button>
@@ -105207,14 +105442,14 @@ var PlaylistApprovalPreviewComponent = class _PlaylistApprovalPreviewComponent {
         CommonModule,
         IconComponent,
         MatRippleModule,
-        AuthenticatedImageDirective,
-        TranslatePipe
+        TranslatePipe,
+        MediaThumbnailComponent
       ]
     }]
   }], null, { versions: [{ type: Input, args: [{ isSignal: true, alias: "versions", required: false }] }], media: [{ type: Input, args: [{ isSignal: true, alias: "media", required: false }] }], preview: [{ type: Output, args: ["preview"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistApprovalPreviewComponent, { className: "PlaylistApprovalPreviewComponent", filePath: "apps/signage-manager/src/app/shared/playlist-approval-preview.component.ts", lineNumber: 161 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistApprovalPreviewComponent, { className: "PlaylistApprovalPreviewComponent", filePath: "apps/signage-manager/src/app/shared/playlist-approval-preview.component.ts", lineNumber: 141 });
 })();
 
 // apps/signage-manager/src/app/shared/playlist-approve-modal.component.ts
@@ -108489,7 +108724,7 @@ var PlaylistRequestApprovalModalComponent = class _PlaylistRequestApprovalModalC
 var _forTrack012 = ($index, $item) => $item.id;
 function PlaylistSelectModalComponent_Conditional_13_For_1_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275elementStart(0, "div", 13);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -108501,13 +108736,13 @@ function PlaylistSelectModalComponent_Conditional_13_For_1_Conditional_6_Templat
 }
 function PlaylistSelectModalComponent_Conditional_13_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 7)(1, "icon", 8);
+    \u0275\u0275elementStart(0, "button", 8)(1, "icon", 10);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 9)(4, "div", 10);
+    \u0275\u0275elementStart(3, "div", 11)(4, "div", 12);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(6, PlaylistSelectModalComponent_Conditional_13_For_1_Conditional_6_Template, 2, 1, "div", 11);
+    \u0275\u0275conditionalCreate(6, PlaylistSelectModalComponent_Conditional_13_For_1_Conditional_6_Template, 2, 1, "div", 13);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -108519,21 +108754,48 @@ function PlaylistSelectModalComponent_Conditional_13_For_1_Template(rf, ctx) {
     \u0275\u0275conditional(playlist_r1.description ? 6 : -1);
   }
 }
+function PlaylistSelectModalComponent_Conditional_13_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 14);
+    \u0275\u0275listener("intersect", function PlaylistSelectModalComponent_Conditional_13_Conditional_2_Template_div_intersect_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.list.loadMore());
+    });
+    \u0275\u0275elementEnd();
+  }
+}
 function PlaylistSelectModalComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistSelectModalComponent_Conditional_13_For_1_Template, 7, 3, "button", 7, _forTrack012);
+    \u0275\u0275repeaterCreate(0, PlaylistSelectModalComponent_Conditional_13_For_1_Template, 7, 3, "button", 8, _forTrack012);
+    \u0275\u0275conditionalCreate(2, PlaylistSelectModalComponent_Conditional_13_Conditional_2_Template, 1, 0, "div", 9);
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275repeater(ctx_r1.filtered_playlists());
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275repeater(ctx_r2.list.items());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r2.list.has_more() ? 2 : -1);
   }
 }
 function PlaylistSelectModalComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "icon", 12);
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 15);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.LOADING"), " ");
+  }
+}
+function PlaylistSelectModalComponent_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7)(1, "icon", 16);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 13);
+    \u0275\u0275elementStart(3, "div", 15);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -108547,25 +108809,7 @@ var PlaylistSelectModalComponent = class _PlaylistSelectModalComponent {
   constructor() {
     this._data = inject2(MAT_DIALOG_DATA);
     this._service = inject2(SignageService);
-    this._playlists = this._service.playlists;
-    this.search = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "search" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.filtered_playlists = computed(
-      () => {
-        const term = this.search().toLowerCase();
-        const list = this._playlists();
-        return list.filter((_3) => _3.name.toLowerCase().includes(term));
-      },
-      ...ngDevMode ? [{ debugName: "filtered_playlists" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this.list = new PagedSearch((search) => this._service.queryPlaylists(search), byName);
   }
   static {
     this.\u0275fac = function PlaylistSelectModalComponent_Factory(__ngFactoryType__) {
@@ -108573,7 +108817,7 @@ var PlaylistSelectModalComponent = class _PlaylistSelectModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistSelectModalComponent, selectors: [["playlist-select-modal"]], decls: 15, vars: 14, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "h-[65vh]", "max-w-lg", "min-w-lg", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "text-center", "max-md:h-auto", "max-md:max-w-none", "max-md:min-w-0", "max-md:flex-1"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-lg", "p-16"], ["type", "button", "matRipple", "", 1, "border-base-300", "hover:bg-base-200", "z-0", "flex", "h-16", "w-full", "items-center", "space-x-2", "rounded-sm", "border", "p-2", "text-left", 3, "mat-dialog-close"], [1, "text-base-content/60", "shrink-0", "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate"], [1, "text-base-content/70", "truncate", "text-xs"], [1, "text-base-content/70", "text-8xl"], [1, "text-base-content/70"]], template: function PlaylistSelectModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistSelectModalComponent, selectors: [["playlist-select-modal"]], decls: 16, vars: 14, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "h-[65vh]", "max-w-lg", "min-w-lg", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "text-center", "max-md:h-auto", "max-md:max-w-none", "max-md:min-w-0", "max-md:flex-1"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "rounded-lg", "p-16"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-lg", "p-16"], ["type", "button", "matRipple", "", 1, "border-base-300", "hover:bg-base-200", "z-0", "flex", "h-16", "w-full", "items-center", "space-x-2", "rounded-sm", "border", "p-2", "text-left", 3, "mat-dialog-close"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/60", "shrink-0", "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate"], [1, "text-base-content/70", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-base-content/70"], [1, "text-base-content/70", "text-8xl"]], template: function PlaylistSelectModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2);
@@ -108588,12 +108832,12 @@ var PlaylistSelectModalComponent = class _PlaylistSelectModalComponent {
         \u0275\u0275pipe(11, "translate");
         \u0275\u0275pipe(12, "translate");
         \u0275\u0275listener("ngModelChange", function PlaylistSelectModalComponent_Template_input_ngModelChange_10_listener($event) {
-          return ctx.search.set($event);
+          return ctx.list.search.set($event);
         });
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(13, PlaylistSelectModalComponent_Conditional_13_Template, 2, 0)(14, PlaylistSelectModalComponent_Conditional_14_Template, 6, 3, "div", 6);
+        \u0275\u0275conditionalCreate(13, PlaylistSelectModalComponent_Conditional_13_Template, 3, 1)(14, PlaylistSelectModalComponent_Conditional_14_Template, 4, 3, "div", 6)(15, PlaylistSelectModalComponent_Conditional_15_Template, 6, 3, "div", 7);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -108602,11 +108846,11 @@ var PlaylistSelectModalComponent = class _PlaylistSelectModalComponent {
         \u0275\u0275advance(2);
         \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 8, "SIGNAGE_MANAGER.CLOSE_ADD_PLAYLIST"));
         \u0275\u0275advance(6);
-        \u0275\u0275property("ngModel", ctx.search())("placeholder", \u0275\u0275pipeBind1(11, 10, "SIGNAGE_MANAGER.SEARCH_PLAYLISTS"));
+        \u0275\u0275property("ngModel", ctx.list.search())("placeholder", \u0275\u0275pipeBind1(11, 10, "SIGNAGE_MANAGER.SEARCH_PLAYLISTS"));
         \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 12, "SIGNAGE_MANAGER.SEARCH_PLAYLISTS"));
         \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.filtered_playlists()?.length > 0 ? 13 : 14);
+        \u0275\u0275conditional(ctx.list.items().length > 0 ? 13 : ctx.list.loading() ? 14 : 15);
       }
     }, dependencies: [
       FormsModule,
@@ -108622,6 +108866,7 @@ var PlaylistSelectModalComponent = class _PlaylistSelectModalComponent {
       MatInputModule,
       MatInput,
       IconComponent,
+      IntersectDirective,
       TranslatePipe
     ], encapsulation: 2 });
   }
@@ -108659,8 +108904,8 @@ var PlaylistSelectModalComponent = class _PlaylistSelectModalComponent {
             >
                 <input
                     matInput
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [ngModel]="list.search()"
+                    (ngModelChange)="list.search.set($event)"
                     [placeholder]="
                         'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                     "
@@ -108669,8 +108914,8 @@ var PlaylistSelectModalComponent = class _PlaylistSelectModalComponent {
                     "
                 />
             </mat-form-field>
-            @if (filtered_playlists()?.length > 0) {
-                @for (playlist of filtered_playlists(); track playlist.id) {
+            @if (list.items().length > 0) {
+                @for (playlist of list.items(); track playlist.id) {
                     <button
                         type="button"
                         matRipple
@@ -108694,6 +108939,21 @@ var PlaylistSelectModalComponent = class _PlaylistSelectModalComponent {
                         </div>
                     </button>
                 }
+                @if (list.has_more()) {
+                    <div
+                        class="h-px w-full"
+                        intersect
+                        (intersect)="list.loadMore()"
+                    ></div>
+                }
+            } @else if (list.loading()) {
+                <div
+                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
+                >
+                    <div class="text-base-content/70">
+                        {{ 'COMMON.LOADING' | translate }}
+                    </div>
+                </div>
             } @else {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
@@ -108715,20 +108975,21 @@ var PlaylistSelectModalComponent = class _PlaylistSelectModalComponent {
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
-        TranslatePipe
+        TranslatePipe,
+        IntersectDirective
       ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistSelectModalComponent, { className: "PlaylistSelectModalComponent", filePath: "apps/signage-manager/src/app/shared/playlist-select-modal.component.ts", lineNumber: 99 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistSelectModalComponent, { className: "PlaylistSelectModalComponent", filePath: "apps/signage-manager/src/app/shared/playlist-select-modal.component.ts", lineNumber: 117 });
 })();
 
 // apps/signage-manager/src/app/shared/zone-select-modal.component.ts
 var _forTrack013 = ($index, $item) => $item.id;
 function ZoneSelectModalComponent_Conditional_13_For_1_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275elementStart(0, "div", 13);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -108740,13 +109001,13 @@ function ZoneSelectModalComponent_Conditional_13_For_1_Conditional_6_Template(rf
 }
 function ZoneSelectModalComponent_Conditional_13_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 7)(1, "icon", 8);
+    \u0275\u0275elementStart(0, "button", 8)(1, "icon", 10);
     \u0275\u0275text(2, "layers");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 9)(4, "div", 10);
+    \u0275\u0275elementStart(3, "div", 11)(4, "div", 12);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(6, ZoneSelectModalComponent_Conditional_13_For_1_Conditional_6_Template, 2, 1, "div", 11);
+    \u0275\u0275conditionalCreate(6, ZoneSelectModalComponent_Conditional_13_For_1_Conditional_6_Template, 2, 1, "div", 13);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -108758,21 +109019,48 @@ function ZoneSelectModalComponent_Conditional_13_For_1_Template(rf, ctx) {
     \u0275\u0275conditional(zone_r1.description ? 6 : -1);
   }
 }
+function ZoneSelectModalComponent_Conditional_13_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 14);
+    \u0275\u0275listener("intersect", function ZoneSelectModalComponent_Conditional_13_Conditional_2_Template_div_intersect_0_listener() {
+      \u0275\u0275restoreView(_r2);
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.list.loadMore());
+    });
+    \u0275\u0275elementEnd();
+  }
+}
 function ZoneSelectModalComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, ZoneSelectModalComponent_Conditional_13_For_1_Template, 7, 3, "button", 7, _forTrack013);
+    \u0275\u0275repeaterCreate(0, ZoneSelectModalComponent_Conditional_13_For_1_Template, 7, 3, "button", 8, _forTrack013);
+    \u0275\u0275conditionalCreate(2, ZoneSelectModalComponent_Conditional_13_Conditional_2_Template, 1, 0, "div", 9);
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275repeater(ctx_r1.filtered_zones());
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275repeater(ctx_r2.list.items());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r2.list.has_more() ? 2 : -1);
   }
 }
 function ZoneSelectModalComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "icon", 12);
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 15);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.LOADING"), " ");
+  }
+}
+function ZoneSelectModalComponent_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7)(1, "icon", 16);
     \u0275\u0275text(2, "layers");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 13);
+    \u0275\u0275elementStart(3, "div", 15);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -108785,25 +109073,7 @@ function ZoneSelectModalComponent_Conditional_14_Template(rf, ctx) {
 var ZoneSelectModalComponent = class _ZoneSelectModalComponent {
   constructor() {
     this._service = inject2(SignageService);
-    this._zones = this._service.zones;
-    this.search = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "search" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.filtered_zones = computed(
-      () => {
-        const term = this.search().toLowerCase();
-        const list = this._zones();
-        return list.filter((_3) => (_3.display_name || _3.name).toLowerCase().includes(term));
-      },
-      ...ngDevMode ? [{ debugName: "filtered_zones" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this.list = new PagedSearch((search) => this._service.querySignageZones(search), byDisplayName);
   }
   static {
     this.\u0275fac = function ZoneSelectModalComponent_Factory(__ngFactoryType__) {
@@ -108811,7 +109081,7 @@ var ZoneSelectModalComponent = class _ZoneSelectModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZoneSelectModalComponent, selectors: [["zone-select-modal"]], decls: 15, vars: 14, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "h-[65vh]", "max-w-lg", "min-w-lg", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "text-center", "max-md:h-auto", "max-md:max-w-none", "max-md:min-w-0", "max-md:flex-1"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-lg", "p-16"], ["type", "button", "matRipple", "", 1, "border-base-300", "hover:bg-base-200", "z-0", "flex", "h-16", "w-full", "items-center", "space-x-2", "rounded-sm", "border", "p-2", "text-left", 3, "mat-dialog-close"], [1, "text-base-content/60", "shrink-0", "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate"], [1, "text-base-content/70", "truncate", "text-xs"], [1, "text-base-content/70", "text-8xl"], [1, "text-base-content/70"]], template: function ZoneSelectModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZoneSelectModalComponent, selectors: [["zone-select-modal"]], decls: 16, vars: 14, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "h-[65vh]", "max-w-lg", "min-w-lg", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "text-center", "max-md:h-auto", "max-md:max-w-none", "max-md:min-w-0", "max-md:flex-1"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "rounded-lg", "p-16"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-lg", "p-16"], ["type", "button", "matRipple", "", 1, "border-base-300", "hover:bg-base-200", "z-0", "flex", "h-16", "w-full", "items-center", "space-x-2", "rounded-sm", "border", "p-2", "text-left", 3, "mat-dialog-close"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/60", "shrink-0", "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate"], [1, "text-base-content/70", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-base-content/70"], [1, "text-base-content/70", "text-8xl"]], template: function ZoneSelectModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2);
@@ -108826,12 +109096,12 @@ var ZoneSelectModalComponent = class _ZoneSelectModalComponent {
         \u0275\u0275pipe(11, "translate");
         \u0275\u0275pipe(12, "translate");
         \u0275\u0275listener("ngModelChange", function ZoneSelectModalComponent_Template_input_ngModelChange_10_listener($event) {
-          return ctx.search.set($event);
+          return ctx.list.search.set($event);
         });
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(13, ZoneSelectModalComponent_Conditional_13_Template, 2, 0)(14, ZoneSelectModalComponent_Conditional_14_Template, 6, 3, "div", 6);
+        \u0275\u0275conditionalCreate(13, ZoneSelectModalComponent_Conditional_13_Template, 3, 1)(14, ZoneSelectModalComponent_Conditional_14_Template, 4, 3, "div", 6)(15, ZoneSelectModalComponent_Conditional_15_Template, 6, 3, "div", 7);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -108840,11 +109110,11 @@ var ZoneSelectModalComponent = class _ZoneSelectModalComponent {
         \u0275\u0275advance(2);
         \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 8, "SIGNAGE_MANAGER.CLOSE_ADD_ZONE"));
         \u0275\u0275advance(6);
-        \u0275\u0275property("ngModel", ctx.search())("placeholder", \u0275\u0275pipeBind1(11, 10, "SIGNAGE_MANAGER.SEARCH_ZONES"));
+        \u0275\u0275property("ngModel", ctx.list.search())("placeholder", \u0275\u0275pipeBind1(11, 10, "SIGNAGE_MANAGER.SEARCH_ZONES"));
         \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 12, "SIGNAGE_MANAGER.SEARCH_ZONES"));
         \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.filtered_zones()?.length > 0 ? 13 : 14);
+        \u0275\u0275conditional(ctx.list.items().length > 0 ? 13 : ctx.list.loading() ? 14 : 15);
       }
     }, dependencies: [
       FormsModule,
@@ -108860,6 +109130,7 @@ var ZoneSelectModalComponent = class _ZoneSelectModalComponent {
       MatInputModule,
       MatInput,
       IconComponent,
+      IntersectDirective,
       TranslatePipe
     ], encapsulation: 2 });
   }
@@ -108895,16 +109166,16 @@ var ZoneSelectModalComponent = class _ZoneSelectModalComponent {
             >
                 <input
                     matInput
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [ngModel]="list.search()"
+                    (ngModelChange)="list.search.set($event)"
                     [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
                     "
                 />
             </mat-form-field>
-            @if (filtered_zones()?.length > 0) {
-                @for (zone of filtered_zones(); track zone.id) {
+            @if (list.items().length > 0) {
+                @for (zone of list.items(); track zone.id) {
                     <button
                         type="button"
                         matRipple
@@ -108928,6 +109199,21 @@ var ZoneSelectModalComponent = class _ZoneSelectModalComponent {
                         </div>
                     </button>
                 }
+                @if (list.has_more()) {
+                    <div
+                        class="h-px w-full"
+                        intersect
+                        (intersect)="list.loadMore()"
+                    ></div>
+                }
+            } @else if (list.loading()) {
+                <div
+                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
+                >
+                    <div class="text-base-content/70">
+                        {{ 'COMMON.LOADING' | translate }}
+                    </div>
+                </div>
             } @else {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
@@ -108947,13 +109233,14 @@ var ZoneSelectModalComponent = class _ZoneSelectModalComponent {
         MatFormFieldModule,
         MatInputModule,
         IconComponent,
-        TranslatePipe
+        TranslatePipe,
+        IntersectDirective
       ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ZoneSelectModalComponent, { className: "ZoneSelectModalComponent", filePath: "apps/signage-manager/src/app/shared/zone-select-modal.component.ts", lineNumber: 93 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ZoneSelectModalComponent, { className: "ZoneSelectModalComponent", filePath: "apps/signage-manager/src/app/shared/zone-select-modal.component.ts", lineNumber: 111 });
 })();
 
 // apps/signage-manager/src/app/signage.service.ts
@@ -109209,7 +109496,18 @@ var SignageService = class _SignageService {
       if (token !== this._playlists_token)
         return;
       const items = (page.data || []).map(decodeEntityNames);
-      this._playlist_items.update((list) => [...list, ...items].sort((a, b2) => a.name.localeCompare(b2.name)));
+      this._playlist_items.update((list) => {
+        const by_id = new Map(list.map((item) => [item.id, item]));
+        for (const item of items)
+          by_id.set(item.id, item);
+        return [...by_id.values()].sort((a, b2) => a.name.localeCompare(b2.name));
+      });
+      this._playlist_cache.update((cache) => {
+        const next = __spreadValues({}, cache);
+        for (const item of items)
+          next[item.id] = item;
+        return next;
+      });
       this._playlists_next = page.next;
       this._playlists_has_more.set(this._playlist_items().length < page.total);
     } catch {
@@ -109219,6 +109517,46 @@ var SignageService = class _SignageService {
       if (token === this._playlists_token)
         this._playlists_loading.set(false);
     }
+  }
+  /**
+   * Paged queries for the picker modals, which search on their own without
+   * disturbing the lists behind them. Null when the user may not query.
+   */
+  queryDisplays(search = "") {
+    if (!this._canQueryLists())
+      return null;
+    return ia(__spreadValues(__spreadProps(__spreadValues({}, this._orgZoneQueryParams({})), {
+      limit: _SignageService.PAGE_SIZE,
+      signage: true
+    }), this._searchParam(search)));
+  }
+  queryPlaylists(search = "") {
+    if (!this._canQueryLists())
+      return null;
+    return fh(__spreadValues(__spreadValues({}, this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE })), this._searchParam(search)));
+  }
+  querySignageZones(search = "") {
+    if (!this._canQueryLists())
+      return null;
+    const group_id = this._api_group_id();
+    return Ka(__spreadValues(__spreadValues({
+      limit: _SignageService.PAGE_SIZE,
+      tags: "signage"
+    }, group_id ? { group_id } : {}), this._searchParam(search)));
+  }
+  /** Zones a managed group can be given access to, not just signage ones */
+  queryGroupZones(search = "") {
+    const group = this.managed_group();
+    return Ka(__spreadValues(__spreadValues({
+      limit: _SignageService.PAGE_SIZE
+    }, group?.authority_id ? { authority_id: group.authority_id } : {}), this._searchParam(search)));
+  }
+  _canQueryLists() {
+    return this._org.initialised() && this._can_query_group_data();
+  }
+  _searchParam(search) {
+    const term = search.trim();
+    return term ? { q: term } : {};
   }
   loadMoreDisplays() {
     if (this._displays_loading() || !this._displays_has_more())
@@ -109238,6 +109576,12 @@ var SignageService = class _SignageService {
         return;
       const items = (page.data || []).filter((item) => item.signage).map(decodeEntityNames);
       this._display_items.update((list) => [...list, ...items]);
+      this._display_cache.update((cache) => {
+        const next = __spreadValues({}, cache);
+        for (const item of items)
+          next[item.id] = item;
+        return next;
+      });
       this._displays_next = page.next;
       this._displays_has_more.set(this._display_items().length < page.total);
     } catch {
@@ -109748,6 +110092,14 @@ var SignageService = class _SignageService {
         []
       )
     );
+    this.playlist_search_term = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "playlist_search_term" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._playlist_search_debounced = debounced(this.playlist_search_term, 400);
     this._playlist_items = signal(
       [],
       ...ngDevMode ? [{ debugName: "_playlist_items" }] : (
@@ -109755,6 +110107,15 @@ var SignageService = class _SignageService {
         []
       )
     );
+    this._playlist_cache = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "_playlist_cache" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._playlist_cache_group = null;
+    this._playlist_cache_change = null;
     this._playlists_loading = signal(
       false,
       ...ngDevMode ? [{ debugName: "_playlists_loading" }] : (
@@ -109771,7 +110132,13 @@ var SignageService = class _SignageService {
     );
     this._playlists_next = null;
     this._playlists_token = 0;
-    this.playlists = this._playlist_items.asReadonly();
+    this.playlists = computed(
+      () => Object.values(this._playlist_cache()).sort((a, b2) => a.name.localeCompare(b2.name)),
+      ...ngDevMode ? [{ debugName: "playlists" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.playlists_loading = this._playlists_loading.asReadonly();
     this.playlists_has_more = this._playlists_has_more.asReadonly();
     this._reload_playlists = effect(
@@ -109779,15 +110146,23 @@ var SignageService = class _SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
-        this._change();
+        const search = this._playlist_search_debounced.value().trim();
+        const change = this._change();
         untracked2(() => {
           const token = ++this._playlists_token;
           this._playlist_items.set([]);
           this._playlists_next = null;
           this._playlists_has_more.set(false);
+          if (group_id !== this._playlist_cache_group || change !== this._playlist_cache_change) {
+            this._playlist_cache_group = group_id;
+            this._playlist_cache_change = change;
+            this._playlist_cache.set({});
+          }
           if (!initialised || !can_query)
             return;
-          this._fetchPlaylistPage(fh(this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE }, group_id)), token);
+          this._fetchPlaylistPage(fh(this._orgZoneQueryParams(__spreadValues({
+            limit: _SignageService.PAGE_SIZE
+          }, search ? { q: search } : {}), group_id)), token);
         });
       },
       ...ngDevMode ? [{ debugName: "_reload_playlists" }] : (
@@ -109795,6 +110170,14 @@ var SignageService = class _SignageService {
         []
       )
     );
+    this.display_search_term = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "display_search_term" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._display_search_debounced = debounced(this.display_search_term, 400);
     this._display_items = signal(
       [],
       ...ngDevMode ? [{ debugName: "_display_items" }] : (
@@ -109802,6 +110185,14 @@ var SignageService = class _SignageService {
         []
       )
     );
+    this._display_cache = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "_display_cache" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._display_cache_group = null;
     this._displays_loading = signal(
       false,
       ...ngDevMode ? [{ debugName: "_displays_loading" }] : (
@@ -109819,7 +110210,7 @@ var SignageService = class _SignageService {
     this._displays_next = null;
     this._displays_token = 0;
     this.displays = computed(
-      () => this._mergeItems(this._display_items(), this._display_overrides()),
+      () => this._mergeItems(Object.values(this._display_cache()), this._display_overrides()),
       ...ngDevMode ? [{ debugName: "displays" }] : (
         /* istanbul ignore next */
         []
@@ -109832,18 +110223,23 @@ var SignageService = class _SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
+        const search = this._display_search_debounced.value().trim();
         this._change();
         untracked2(() => {
           const token = ++this._displays_token;
           this._display_items.set([]);
           this._displays_next = null;
           this._displays_has_more.set(false);
+          if (group_id !== this._display_cache_group) {
+            this._display_cache_group = group_id;
+            this._display_cache.set({});
+          }
           if (!initialised || !can_query)
             return;
-          this._fetchDisplayPage(ia(__spreadProps(__spreadValues({}, this._orgZoneQueryParams({}, group_id)), {
+          this._fetchDisplayPage(ia(__spreadValues(__spreadProps(__spreadValues({}, this._orgZoneQueryParams({}, group_id)), {
             limit: _SignageService.PAGE_SIZE,
             signage: true
-          })), token);
+          }), search ? { q: search } : {})), token);
         });
       },
       ...ngDevMode ? [{ debugName: "_reload_displays" }] : (
@@ -109991,13 +110387,6 @@ var SignageService = class _SignageService {
         []
       )
     );
-    this.playlist_search_term = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "playlist_search_term" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this.selected_zone = signal(
       null,
       ...ngDevMode ? [{ debugName: "selected_zone" }] : (
@@ -110033,13 +110422,6 @@ var SignageService = class _SignageService {
         []
       )
     );
-    this.display_search_term = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "display_search_term" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
     this._playlist_meta_state = signal(
       loadPlaylistMetaSessionCache(),
       ...ngDevMode ? [{ debugName: "_playlist_meta_state" }] : (
@@ -110058,8 +110440,7 @@ var SignageService = class _SignageService {
     this._playlist_meta_processing = false;
     this.filtered_playlists = computed(
       () => {
-        const term = this.playlist_search_term().toLowerCase();
-        return this.playlists().filter((p2) => p2.name.toLowerCase().includes(term));
+        return this._playlist_items();
       },
       ...ngDevMode ? [{ debugName: "filtered_playlists" }] : (
         /* istanbul ignore next */
@@ -110141,8 +110522,8 @@ var SignageService = class _SignageService {
     );
     this.filtered_displays = computed(
       () => {
-        const term = this.display_search_term().toLowerCase();
-        return this.displays().filter((d) => (d.display_name || d.name).toLowerCase().includes(term));
+        const overrides = this._display_overrides();
+        return this._display_items().map((display) => overrides[display.id] || display).sort((a, b2) => (a.display_name || a.name).localeCompare(b2.display_name || b2.name));
       },
       ...ngDevMode ? [{ debugName: "filtered_displays" }] : (
         /* istanbul ignore next */
@@ -110426,10 +110807,14 @@ var SignageService = class _SignageService {
           item_id: media_id,
           media
         }),
-        save: (item_id, schedules) => xh(playlist_id, {
-          item_id,
-          schedules
-        })
+        save: async (item_id, schedules) => {
+          const media_list = await xh(playlist_id, {
+            item_id,
+            schedules
+          });
+          this._setPlaylistMediaState(playlist_id, media_list.items || [], false, media_list.schedules);
+          return media_list;
+        }
       },
       panelClass: "mobile-fullscreen"
     });
@@ -110437,7 +110822,6 @@ var SignageService = class _SignageService {
     if (!result)
       return false;
     this._playlist_change.set(Date.now());
-    this.changed();
     return true;
   }
   changed() {
@@ -110497,14 +110881,6 @@ var SignageService = class _SignageService {
   async searchGroupUsers(search = "") {
     const group = this.managed_group();
     const { data } = await Ma(__spreadValues({
-      q: search,
-      limit: 20
-    }, group?.authority_id ? { authority_id: group.authority_id } : {}));
-    return data;
-  }
-  async searchGroupZones(search = "") {
-    const group = this.managed_group();
-    const { data } = await Ka(__spreadValues({
       q: search,
       limit: 20
     }, group?.authority_id ? { authority_id: group.authority_id } : {}));
@@ -110758,7 +111134,6 @@ var SignageService = class _SignageService {
     this._setPlaylistMediaState(playlist_id, list, false);
     notifySuccess(i18n("SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED"));
     this._playlist_change.set(Date.now());
-    this.changed();
   }
   async addMediaToPlaylist(playlist_id, media_id) {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS")))
@@ -111309,8 +111684,7 @@ var SignageService = class _SignageService {
     const display_id = await dialogClosed(ref);
     if (!display_id)
       return;
-    const displays = this.displays();
-    const display = displays.find((d) => d.id === display_id);
+    const display = this.displays().find((d) => d.id === display_id) || await oa(display_id).catch(() => null);
     if (!display)
       return;
     if (display.zones?.includes(zone.id)) {
@@ -111367,8 +111741,7 @@ var SignageService = class _SignageService {
     const display_id = await dialogClosed(ref);
     if (!display_id)
       return;
-    const displays = this.displays();
-    const display = displays.find((d) => d.id === display_id);
+    const display = this.displays().find((d) => d.id === display_id) || await oa(display_id).catch(() => null);
     if (!display)
       return;
     if (display.playlists?.includes(playlist.id)) {
@@ -111394,8 +111767,7 @@ var SignageService = class _SignageService {
     const zone_id = await dialogClosed(ref);
     if (!zone_id)
       return;
-    const zones = this.zones();
-    const zone = zones.find((z2) => z2.id === zone_id);
+    const zone = this.zones().find((z2) => z2.id === zone_id) || await Ja(zone_id).catch(() => null);
     if (!zone)
       return;
     if (zone.playlists?.includes(playlist.id)) {
@@ -111818,7 +112190,6 @@ export {
   booleanAttribute,
   numberAttribute,
   debounced,
-  NgTemplateOutlet,
   DatePipe,
   bootstrapApplication,
   ActivatedRoute,
@@ -111871,6 +112242,7 @@ export {
   i18n,
   LocaleService,
   notifyError,
+  log,
   unique,
   randomInt,
   padString,
@@ -111896,6 +112268,7 @@ export {
   setNativeApiKey,
   normaliseNativeDomain,
   lookupNativeDomainByEmail,
+  firstValueWhere,
   registerActiveLocale,
   Clipboard,
   isFakeMousedownFromScreenReader,
@@ -111981,12 +112354,15 @@ export {
   FullscreenModalShellComponent,
   CustomTooltipComponent,
   MediaDurationPipe,
+  IntersectDirective,
+  PagedSearch,
+  byDisplayName,
   GroupSelectModalComponent,
   playlistMediaThumbnailUrl,
-  playlistMediaIcon,
   playlistScheduleLabel,
   playlistScheduleNextPlayLabels,
+  MediaThumbnailComponent,
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-D4H3J3HS.js.map
+//# sourceMappingURL=chunk-3UAHLDER.js.map

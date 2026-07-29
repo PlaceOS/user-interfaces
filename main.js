@@ -20,6 +20,7 @@ import {
   IconComponent,
   Injectable,
   InjectionToken,
+  Injector,
   Input,
   LOCALE_ID,
   LocaleService,
@@ -71,6 +72,7 @@ import {
   differenceInMinutes,
   effect,
   firstTruthyValueFrom,
+  firstValueWhere,
   getLoadingMessage,
   getNativeApiKey,
   getNativeDomain,
@@ -80,6 +82,7 @@ import {
   inject,
   input,
   isBefore,
+  log,
   lookupNativeDomainByEmail,
   nativeDomainError,
   needsNativeDomain,
@@ -163,7 +166,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-D4H3J3HS.js";
+} from "./chunk-3UAHLDER.js";
 import {
   __export,
   __spreadProps,
@@ -3833,6 +3836,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     this._router = inject(Router);
     this._settings = inject(SettingsService);
     this._org = inject(OrganisationService);
+    this._injector = inject(Injector);
     this._access = inject(PLACEOS_APP_ACCESS, { optional: true });
   }
   async canActivate(next, state) {
@@ -3845,20 +3849,26 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
+    await Promise.all([
+      this._org.waitUntilInitialised(),
+      firstValueWhere(user_groups_loaded, Boolean, this._injector)
+    ]);
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
       await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
-      can_activate = await this.checkSubsystemAccess(user);
+      can_activate = this.checkSubsystemAccess(user);
+      log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
+      log("ACCESS", "No access groups", can_activate);
     } else {
       await oi(Lr(), Boolean);
-      await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
+      log("ACCESS", "Checking access groups", can_activate);
     }
     if (!can_activate) {
       this._router.navigate(["/unauthorised"]);
@@ -3869,22 +3879,14 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const value = Rt()?.config?.["use_group_subsystem_access"];
     return value === true || value === "true";
   }
-  async checkSubsystemAccess(user) {
+  checkSubsystemAccess(user) {
     if (!user)
       return false;
     const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
     const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
-    await this.waitForUserGroups();
     return hasPermission(app_name, GroupPermission.Read);
-  }
-  async waitForUserGroups() {
-    for (let i = 0; i < 50; i++) {
-      if (user_groups_loaded())
-        return;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
   }
   static {
     this.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
@@ -12005,22 +12007,16 @@ var environment = {
 function canAccessSignageApp(can_manage_all_groups, group_count, groups_failed = false) {
   return can_manage_all_groups || group_count > 0 || groups_failed;
 }
-function waitForSignageGroups(service) {
-  return new Promise((resolve) => {
-    const check = () => {
-      if (service.signage_groups_loaded()) {
-        resolve();
-      } else {
-        setTimeout(check, 50);
-      }
-    };
-    check();
-  });
-}
 var signageAccessGuard = async () => {
   const service = inject(SignageService);
   const router = inject(Router);
-  await waitForSignageGroups(service);
+  const org = inject(OrganisationService);
+  const injector = inject(Injector);
+  await Promise.all([
+    org.waitUntilInitialised(),
+    firstValueWhere(user_groups_loaded, Boolean, injector),
+    firstValueWhere(service.signage_groups_loaded, Boolean, injector)
+  ]);
   return canAccessSignageApp(service.can_manage_all_groups(), service.signage_groups().length, service.signage_groups_failed()) ? true : router.parseUrl("/unauthorised");
 };
 
@@ -12037,39 +12033,39 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-BPUIN2D5.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-GKKXWI63.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-MEGRZKC6.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-T6JSM572.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-MEGRZKC6.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-T6JSM572.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-BLMYTNTS.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-J73KGK64.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-4MY7DU5O.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-O4PAZAZO.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-4MY7DU5O.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-O4PAZAZO.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-CWOHGEMA.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-FF5TQJB4.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-PHSN4ZWK.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-UUQCGA5T.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-PHSN4ZWK.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-UUQCGA5T.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
