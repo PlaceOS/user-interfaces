@@ -696,6 +696,46 @@ describe('BookingFormService', () => {
         expect((savedBookings()[0] as Booking).user_name).toBe('Host User');
     });
 
+    it('should update the host identity when editing a delegated visitor booking', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'bkn-1',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'visitor@example.com',
+                asset_name: 'Visitor One',
+                user_id: 'old-host',
+                user_email: 'old.host@example.com',
+                user_name: 'Old Host',
+                booked_by_id: 'current-user',
+                booked_by_email: 'current.user@example.com',
+                booked_by_name: 'Current User',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: new User({
+                id: 'new-host',
+                email: 'new.host@example.com',
+                name: 'New Host',
+            }),
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect(savedBookings()[0]).toEqual(
+            expect.objectContaining({
+                user_id: 'new-host',
+                user_email: 'new.host@example.com',
+                user_name: 'New Host',
+            }),
+        );
+    });
+
     it('should store the parking request user groups in extension data', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         spectator.service.newForm(

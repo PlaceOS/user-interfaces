@@ -1305,6 +1305,7 @@ export class BookingFormService extends AsyncHandler {
                     value.booking_type === 'visitor'
                         ? value.description || value.title || value.asset_name
                         : value.asset_name || value.description,
+                user_id: value.user?.id ?? value.user_id,
                 user_name: value.user?.name || value.user_name,
                 user_email: value.user?.email || value.user_email,
                 extension_data: buildBookingExtensionData(value, group_members),
