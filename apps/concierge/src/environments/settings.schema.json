@@ -325,6 +325,10 @@
                     "type": "boolean",
                     "description": "Whether waitlisted parking bookings are shown in parking lists. Defaults to `true`"
                 },
+                "waitlist_week_start": {
+                    "$ref": "#/$defs/weekly_boundary",
+                    "description": "Day and time at which the active parking waitlist week starts. Defaults to Friday at 18:00"
+                },
                 "show_requests": {
                     "type": "boolean",
                     "description": "Whether parking requests are shown in the parking section. Access can be restricted via the `parking-requests` feature group."
@@ -591,6 +595,39 @@
         }
     },
     "$defs": {
+        "weekly_boundary": {
+            "type": "object",
+            "description": "A weekly day and wall-clock time boundary",
+            "required": ["day", "hour", "minute"],
+            "properties": {
+                "day": {
+                    "type": "number",
+                    "enum": [0, 1, 2, 3, 4, 5, 6],
+                    "enumNames": [
+                        "Sunday",
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                        "Saturday"
+                    ],
+                    "description": "Day of the week. `0` is Sunday through `6` for Saturday"
+                },
+                "hour": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 23,
+                    "description": "Hour of the day in 24-hour time"
+                },
+                "minute": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 59,
+                    "description": "Minute of the hour"
+                }
+            }
+        },
         "bookable_hours": {
             "type": "object",
             "description": "Bookable time window as hours of the day (0-24). For example, `8` is 8:00 AM and `19` is 7:00 PM.",
