@@ -19,8 +19,8 @@ import {
     BookingClash,
     BookingRuleset,
     BookingType,
-    currentUserIsLoaded,
     currentUser,
+    currentUserIsLoaded,
     currentUserLoaded,
     Desk,
     firstValueWhere,
@@ -53,8 +53,8 @@ import { BookingLinkModalComponent } from './booking-link-modal.component';
 import {
     bookingAttachments,
     bookingFormValue,
-    bookingHostUser,
     type BookingFormValue,
+    bookingHostUser,
     findNearbyFeature,
     generateBookingForm,
     loadLockerResources,
@@ -208,7 +208,9 @@ function formBookingData(value: Record<string, any>) {
 /** Whether a booking carries edit state from a different booking type, i.e. an
  * existing booking being opened in the wrong type's form. */
 function isCrossTypeEdit(booking: Booking, type: BookingType) {
-    return !!booking?.id && !!booking.booking_type && booking.booking_type !== type;
+    return (
+        !!booking?.id && !!booking.booking_type && booking.booking_type !== type
+    );
 }
 
 /** Build the `extension_data` payload saved with a booking. Only fields that

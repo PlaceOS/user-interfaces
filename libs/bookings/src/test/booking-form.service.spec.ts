@@ -1,11 +1,14 @@
-import type { Mock, MockedFunction } from 'vitest';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { PaymentsService } from '@placeos/payments';
 import { of, Subject } from 'rxjs';
+import type { Mock, MockedFunction } from 'vitest';
 
 import {
     Booking,
@@ -150,7 +153,10 @@ describe('BookingFormService', () => {
                     total: booked_result.length,
                 }) as any,
         );
-        vi.mocked(ts_client.post).mockImplementation((async (url: string, body: any) => {
+        vi.mocked(ts_client.post).mockImplementation((async (
+            url: string,
+            body: any,
+        ) => {
             if (url.includes('/clashing-assets')) return [...clash_result];
             // Emulate the backend assigning an id to a newly-created group
             // container so children can reference it as their parent_id.
@@ -663,8 +669,7 @@ describe('BookingFormService', () => {
 
         expect(savedBookings().length).toBe(1);
         expect(
-            (savedBookings()[0] as Booking).extension_data
-                .visitor_name,
+            (savedBookings()[0] as Booking).extension_data.visitor_name,
         ).toBe('Visitor One');
         expect((savedBookings()[0] as Booking).description).toBe(
             'Vendor Interview',
@@ -773,8 +778,7 @@ describe('BookingFormService', () => {
 
         expect(savedBookings().length).toBe(1);
         expect(
-            (savedBookings()[0] as Booking).extension_data
-                .user_groups,
+            (savedBookings()[0] as Booking).extension_data.user_groups,
         ).toEqual(['PlaceOS P1 Parking', 'After Hours Parking']);
     });
 
@@ -823,8 +827,7 @@ describe('BookingFormService', () => {
 
         await spectator.service.postForm(true);
 
-        const extension_data = (savedBookings()[0] as Booking)
-            .extension_data;
+        const extension_data = (savedBookings()[0] as Booking).extension_data;
         expect(savedBookings().length).toBe(1);
         expect(extension_data.notes).toBe('Needs access');
         expect(extension_data.attachments).toEqual([
@@ -1269,7 +1272,9 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        expect(spectator.service.assignedResourceBooking('desk')).toBe('other_only');
+        expect(spectator.service.assignedResourceBooking('desk')).toBe(
+            'other_only',
+        );
     });
 
     it('should resolve assigned-resource booking independently for each resource type', () => {
@@ -1280,15 +1285,15 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        expect(
-            spectator.service.assignedResourceBooking('parking'),
-        ).toBe('deny');
-        expect(
-            spectator.service.assignedResourceBooking('desk'),
-        ).toBe('other_only');
-        expect(
-            spectator.service.assignedResourceBooking('locker'),
-        ).toBe('other_only');
+        expect(spectator.service.assignedResourceBooking('parking')).toBe(
+            'deny',
+        );
+        expect(spectator.service.assignedResourceBooking('desk')).toBe(
+            'other_only',
+        );
+        expect(spectator.service.assignedResourceBooking('locker')).toBe(
+            'other_only',
+        );
     });
 
     it('should fall back to booking-level assigned-resource settings for any resource type', () => {
@@ -1299,15 +1304,13 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        expect(
-            spectator.service.assignedResourceBooking('desk'),
-        ).toBe('deny');
-        expect(
-            spectator.service.assignedResourceBooking('parking'),
-        ).toBe('deny');
-        expect(
-            spectator.service.assignedResourceBooking('locker'),
-        ).toBe('deny');
+        expect(spectator.service.assignedResourceBooking('desk')).toBe('deny');
+        expect(spectator.service.assignedResourceBooking('parking')).toBe(
+            'deny',
+        );
+        expect(spectator.service.assignedResourceBooking('locker')).toBe(
+            'deny',
+        );
     });
 
     it('should allow desk bookings for others when self-booking is prevented for reserved-desk users', async () => {
@@ -1525,21 +1528,19 @@ describe('BookingFormService', () => {
         vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
         vi.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        vi.spyOn(spectator.service as any, '_getNearbyResources').mockResolvedValue([
-            desk_list[1],
-            desk_list[2],
-        ]);
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1], desk_list[2]]);
         vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const saved_desks: string[] = [];
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
                 const value = spectator.service.model();
                 saved_desks.push(value.asset_id);
                 return new Booking({
@@ -1547,8 +1548,7 @@ describe('BookingFormService', () => {
                     user_email: value.user_email,
                     asset_id: value.asset_id,
                 });
-            },
-        );
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1610,13 +1610,13 @@ describe('BookingFormService', () => {
         vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
         vi.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        vi.spyOn(spectator.service as any, '_getNearbyResources').mockResolvedValue([
-            desk_list[1],
-        ]);
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1]]);
         vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
@@ -1626,8 +1626,7 @@ describe('BookingFormService', () => {
             resource_id: string;
             extension_name: string;
         }[] = [];
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
                 const value = spectator.service.model();
                 saved_forms.push({
                     asset_id: value.asset_id,
@@ -1639,8 +1638,7 @@ describe('BookingFormService', () => {
                     user_email: value.user_email,
                     asset_id: value.asset_id,
                 });
-            },
-        );
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1710,20 +1708,19 @@ describe('BookingFormService', () => {
         vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
         vi.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        vi.spyOn(spectator.service as any, '_getNearbyResources').mockResolvedValue([
-            desk_list[1],
-        ]);
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1]]);
         vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const child_parent_ids: string[] = [];
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
                 const value = spectator.service.model();
                 child_parent_ids.push(value.parent_id);
                 return new Booking({
@@ -1732,8 +1729,7 @@ describe('BookingFormService', () => {
                     user_email: value.user_email,
                     asset_id: value.asset_id,
                 });
-            },
-        );
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1776,8 +1772,7 @@ describe('BookingFormService', () => {
             }),
         );
         expect(
-            (savedBookings()[0] as Booking).extension_data
-                .group_resource_type,
+            (savedBookings()[0] as Booking).extension_data.group_resource_type,
         ).toBe('desk');
         expect(child_parent_ids).toEqual(['booking-group', 'booking-group']);
     });
@@ -1814,21 +1809,19 @@ describe('BookingFormService', () => {
         vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
         vi.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        vi.spyOn(spectator.service as any, '_getNearbyResources').mockResolvedValue([
-            desk_list[1],
-            desk_list[2],
-        ]);
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1], desk_list[2]]);
         vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const saved_users: string[] = [];
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
                 const value = spectator.service.model();
                 saved_users.push(value.user_email);
                 if (value.user_email === 'member.one@example.com') {
@@ -1840,8 +1833,7 @@ describe('BookingFormService', () => {
                     user_email: value.user_email,
                     asset_id: value.asset_id,
                 });
-            },
-        );
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1933,21 +1925,19 @@ describe('BookingFormService', () => {
         vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
         vi.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        vi.spyOn(spectator.service as any, '_getNearbyResources').mockResolvedValue([
-            desk_list[1],
-            desk_list[2],
-        ]);
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1], desk_list[2]]);
         vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const saved_names: string[] = [];
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
                 const value = spectator.service.model();
                 saved_names.push(value.asset_name);
                 return new Booking({
@@ -1955,8 +1945,7 @@ describe('BookingFormService', () => {
                     user_email: value.user_email,
                     asset_id: value.asset_id,
                 });
-            },
-        );
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2025,14 +2014,15 @@ describe('BookingFormService', () => {
         vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             all_desks,
         );
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            [all_desks[1], all_desks[2]],
+        );
         vi.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue([all_desks[1], all_desks[2]]);
-        vi.spyOn(spectator.service as any, '_getNearbyResources').mockResolvedValue([all_desks[2]]);
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([all_desks[2]]);
         const saved_forms: { user_email: string; asset_id: string }[] = [];
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
                 const value = spectator.service.model();
                 saved_forms.push({
                     user_email: value.user_email,
@@ -2043,8 +2033,7 @@ describe('BookingFormService', () => {
                     user_email: value.user_email,
                     asset_id: value.asset_id,
                 });
-            },
-        );
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2132,16 +2121,15 @@ describe('BookingFormService', () => {
         vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             all_desks,
         );
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            [all_desks[1]],
+        );
         vi.spyOn(
-            spectator.service,
-            'listAvailableResources',
+            spectator.service as any,
+            '_getNearbyResources',
         ).mockResolvedValue([all_desks[1]]);
-        vi.spyOn(spectator.service as any, '_getNearbyResources').mockResolvedValue([
-            all_desks[1],
-        ]);
         const saved_forms: { id: string; parent_id: string }[] = [];
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
                 const value = spectator.service.model();
                 saved_forms.push({ id: value.id, parent_id: value.parent_id });
                 return new Booking({
@@ -2150,8 +2138,7 @@ describe('BookingFormService', () => {
                     user_email: value.user_email,
                     asset_id: value.asset_id,
                 });
-            },
-        );
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2215,8 +2202,7 @@ describe('BookingFormService', () => {
             }),
         );
         expect(
-            (savedBookings()[0] as Booking).extension_data
-                .group_members,
+            (savedBookings()[0] as Booking).extension_data.group_members,
         ).toHaveLength(2);
         expect(saved_forms).toEqual([
             { id: 'booking-current-child', parent_id: 'booking-group' },
@@ -2251,14 +2237,13 @@ describe('BookingFormService', () => {
         vi.spyOn(spectator.service, 'listResources').mockResolvedValue(
             desk_list,
         );
+        vi.spyOn(spectator.service, 'listAvailableResources').mockResolvedValue(
+            desk_list,
+        );
         vi.spyOn(
-            spectator.service,
-            'listAvailableResources',
-        ).mockResolvedValue(desk_list);
-        vi.spyOn(spectator.service as any, '_getNearbyResources').mockResolvedValue([
-            desk_list[1],
-            desk_list[2],
-        ]);
+            spectator.service as any,
+            '_getNearbyResources',
+        ).mockResolvedValue([desk_list[1], desk_list[2]]);
         vi.spyOn(
             spectator.service as any,
             '_checkResourceAvailable',
@@ -2290,8 +2275,7 @@ describe('BookingFormService', () => {
             },
         ];
         let booking_count = 0;
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(
-            async () => {
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
                 const value = spectator.service.model();
                 booking_count++;
                 return new Booking({
@@ -2300,8 +2284,7 @@ describe('BookingFormService', () => {
                     asset_id: value.asset_id,
                     extension_data: { group_members: group_members_payload },
                 });
-            },
-        );
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
