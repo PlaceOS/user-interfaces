@@ -670,7 +670,21 @@ export class DesksStateService extends AsyncHandler {
         });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_SUCCESS'));
         result.close();
-        this.setFilters({});
+        this._bookings_state.update((state) => ({
+            ...state,
+            list: state.list.map((item) => {
+                const is_deleted = series
+                    ? item.id === booking_id || item.parent_id === booking_id
+                    : this._bookingKey(item) === this._bookingKey(booking);
+                return is_deleted
+                    ? new Booking({
+                          ...item,
+                          deleted: true,
+                          status: 'cancelled',
+                      })
+                    : item;
+            }),
+        }));
     }
 
     public viewBookingHistory(booking: Booking) {
