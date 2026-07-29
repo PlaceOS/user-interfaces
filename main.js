@@ -55772,15 +55772,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "675fd61",
-  "hash": "675fd61",
+  "raw": "7825b76",
+  "hash": "7825b76",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "675fd61",
+  "suffix": "7825b76",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785211702666
+  "time": 1785305472765
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -101228,6 +101228,7 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
     this._router = inject2(Router);
     this._settings = inject2(SettingsService);
     this._org = inject2(OrganisationService);
+    this._injector = inject2(Injector);
     this._access = inject2(PLACEOS_APP_ACCESS, { optional: true });
   }
   async canActivate(next, state2) {
@@ -101241,20 +101242,26 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   async checkUser() {
     var _a11;
+    await Promise.all([
+      this._org.waitUntilInitialised(),
+      firstValueWhere(user_groups_loaded, Boolean, this._injector)
+    ]);
     const groups = ((_a11 = this._access) == null ? void 0 : _a11.group) ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
       await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
-      can_activate = await this.checkSubsystemAccess(user);
+      can_activate = this.checkSubsystemAccess(user);
+      log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
+      log("ACCESS", "No access groups", can_activate);
     } else {
       await oi(Lr(), Boolean);
-      await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
+      log("ACCESS", "Checking access groups", can_activate);
     }
     if (!can_activate) {
       this._router.navigate(["/unauthorised"]);
@@ -101266,22 +101273,14 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
     const value = (_b4 = (_a11 = Rt()) == null ? void 0 : _a11.config) == null ? void 0 : _b4["use_group_subsystem_access"];
     return value === true || value === "true";
   }
-  async checkSubsystemAccess(user) {
+  checkSubsystemAccess(user) {
     if (!user)
       return false;
     const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
     const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
-    await this.waitForUserGroups();
     return hasPermission(app_name, GroupPermission.Read);
-  }
-  async waitForUserGroups() {
-    for (let i = 0; i < 50; i++) {
-      if (user_groups_loaded())
-        return;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
   }
 };
 _AuthorisedUserGuard.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
