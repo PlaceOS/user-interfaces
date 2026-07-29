@@ -2997,9 +2997,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bg-\[\#0008\] {
   background-color: #0008;
 }
-#placeos .bg-\[\#212121\] {
-  background-color: #212121;
-}
 #placeos .bg-\[\#424242\] {
   background-color: #424242;
 }
