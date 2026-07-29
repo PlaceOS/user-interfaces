@@ -55752,15 +55752,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "675fd61",
-  "hash": "675fd61",
+  "raw": "7825b76",
+  "hash": "7825b76",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "675fd61",
+  "suffix": "7825b76",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785211769385
+  "time": 1785305471133
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -106377,6 +106377,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     this._router = inject2(Router);
     this._settings = inject2(SettingsService);
     this._org = inject2(OrganisationService);
+    this._injector = inject2(Injector);
     this._access = inject2(PLACEOS_APP_ACCESS, { optional: true });
   }
   async canActivate(next, state2) {
@@ -106389,20 +106390,26 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
+    await Promise.all([
+      this._org.waitUntilInitialised(),
+      firstValueWhere(user_groups_loaded, Boolean, this._injector)
+    ]);
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
       await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
-      can_activate = await this.checkSubsystemAccess(user);
+      can_activate = this.checkSubsystemAccess(user);
+      log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
+      log("ACCESS", "No access groups", can_activate);
     } else {
       await oi(Lr(), Boolean);
-      await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
+      log("ACCESS", "Checking access groups", can_activate);
     }
     if (!can_activate) {
       this._router.navigate(["/unauthorised"]);
@@ -106413,22 +106420,14 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const value = Rt()?.config?.["use_group_subsystem_access"];
     return value === true || value === "true";
   }
-  async checkSubsystemAccess(user) {
+  checkSubsystemAccess(user) {
     if (!user)
       return false;
     const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
     const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
-    await this.waitForUserGroups();
     return hasPermission(app_name, GroupPermission.Read);
-  }
-  async waitForUserGroups() {
-    for (let i = 0; i < 50; i++) {
-      if (user_groups_loaded())
-        return;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
   }
   static {
     this.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
@@ -113422,7 +113421,11 @@ function generateBookingForm(booking = new Booking(), injector) {
       user_name: user?.name ?? ""
     }));
   }, injector);
-  onFieldChange(model2, (v) => v.resources, (resources) => setBookingAsset(model2, (resources || [])[0]), injector);
+  onFieldChange(model2, (v) => v.resources, (resources) => {
+    if (untracked2(model2).booking_type === "visitor")
+      return;
+    setBookingAsset(model2, (resources || [])[0]);
+  }, injector);
   current_user.subscribe((user) => {
     if (!user)
       return;
@@ -128826,7 +128829,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         zones
       }, resources.length);
       if (options2.type === "desk" && raw.recurrence_type && raw.recurrence_type !== "none") {
-        const recurring_clashes = await this._recurringBookedResourceList(resources, zones);
+        const recurring_clashes = await this._recurringBookedResourceList(resources, zones, raw);
         booked_ids = unique([...booked_ids, ...recurring_clashes]);
       }
     }
@@ -129399,6 +129402,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     });
     localStorage.removeItem("PLACEOS.last_group_booking_ids");
     const value = this.model();
+    const effective_timezone = this.timezone || value.timezone;
     const booking = this._booking() || new Booking();
     const all_day_period = value.all_day ? this._allDayTimeRange(value.date) : {
       date: value.date,
@@ -129406,7 +129410,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       date_end: value.date_end
     };
     const bookable_hours = this.setting("bookable_hours");
-    if (!isWithinBookableHours(value.date, bookable_hours, this.timezone || value.timezone)) {
+    if (!isWithinBookableHours(value.date, bookable_hours, effective_timezone)) {
       throw i18n("FORM.BOOKABLE_HOURS_ERROR");
     }
     const host = value.user?.email || value.user_email || currentUser()?.email;
@@ -129424,7 +129428,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
-        user_email: host
+        user_email: host,
+        timezone: effective_timezone
       }), selected_booking_type);
     }
     if (this._payments.enabled) {
@@ -129449,7 +129454,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     value.zones = unique(selected_zones.length ? selected_zones : [...this._booking()?.zones || []]);
     this._loading.set("Saving booking");
     delete value.booking_asset;
-    value.timezone = this.timezone || value.timezone;
+    value.timezone = effective_timezone;
     if (value.all_day) {
       value.date = all_day_period.date;
       value.duration = all_day_period.duration;
@@ -129483,6 +129488,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       type: this._options().type
     }, formBookingData(value)), {
       description: value.booking_type === "visitor" ? value.description || value.title || value.asset_name : value.asset_name || value.description,
+      user_id: value.user?.id ?? value.user_id,
       user_name: value.user?.name || value.user_name,
       user_email: value.user?.email || value.user_email,
       extension_data: buildBookingExtensionData(value, group_members),
@@ -129783,7 +129789,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const list2 = await queryBookings({
       period_start: getUnixTime(booking.date),
       period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
-      type: type2
+      type: type2,
+      include_booked_by: true
     });
     return list2.filter((b2) => b2.id === parent_id || b2.parent_id === parent_id || !!legacy_group && b2.description === legacy_group);
   }
@@ -129804,9 +129811,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       throw i18n("BOOKINGS.GROUP_NO_MEMBERS");
     const form2 = this.model();
     const base_form = __spreadProps(__spreadValues({}, form2), { id: "" });
-    const parent_id = form2.parent_id || form2.id;
+    let parent_id = form2.parent_id || form2.id;
     const group_name = this._groupName(form2.group);
     const is_visitor = type2 === "visitor";
+    const needs_group_container_parent = is_visitor && !form2.parent_id;
     const has_group_container_parent = !!form2.parent_id && !existing_siblings.some((s) => s.id === form2.parent_id);
     const sibling_map = {};
     for (const s of existing_siblings) {
@@ -129825,12 +129833,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     ]) : [];
     let first_result = null;
     try {
-      const zones = unique([
-        this._org.organisation?.id,
-        this._org.region.id,
-        ...base_form.zones
-      ].filter((_2) => _2));
-      if (has_group_container_parent) {
+      if (needs_group_container_parent) {
+        const group_booking = await this.createGroupContainerBooking(form2, group_name, members, type2);
+        parent_id = group_booking.id;
+      } else if (has_group_container_parent) {
         await this.saveGroupContainerBooking(form2, group_name, members, type2, parent_id);
       }
       for (let index = 0; index < members.length; index++) {
@@ -130216,16 +130222,18 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     return true;
   }
-  async _recurringBookedResourceList(resources, zones) {
-    const value = this.model();
+  async _recurringBookedResourceList(resources, zones, value) {
+    const effective_timezone = this.timezone || value.timezone;
     const booking = new Booking(__spreadProps(__spreadValues({}, value), {
       booking_type: "desk",
       zones: [zones],
-      asset_ids: resources.map((_2) => _2.id)
+      asset_ids: resources.map((_2) => _2.id),
+      timezone: effective_timezone
     }));
     const key = JSON.stringify({
       date: booking.date,
       duration: booking.duration,
+      timezone: effective_timezone,
       recurrence_type: booking.recurrence_type,
       recurrence_end: booking.recurrence_end,
       zones,
@@ -132995,9 +133003,17 @@ var ExploreSensorInfoComponent = class _ExploreSensorInfoComponent extends Async
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSensorInfoComponent, selectors: [["explore-sensor-info"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 1, consts: [["stats", ""], ["icon", "", "matRipple", "", "customTooltip", "", "yPosition", "center", "xPosition", "center", 1, "bg-base-100", "pointer-events-auto", "absolute", "top-1/2", "left-1/2", "h-7", "w-7", "min-w-0", "-translate-x-1/2", "-translate-y-1/2", "shadow-sm", 3, "content"], [1, "border-base-200", "bg-base-100", "absolute", "top-1/2", "left-1/2", "-translate-x-1/2", "-translate-y-1/2", "rounded-lg", "border", "p-2", "text-xl"], [1, "flex", "items-center", "space-x-2", "pr-2", "whitespace-nowrap"], [1, "border-base-200", "bg-base-100", "absolute", "top-0", "right-0", "translate-x-1/2", "-translate-y-1/2", "rounded-full", "border"], [1, ""], [1, "text-error", "text-xl"]], template: function ExploreSensorInfoComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSensorInfoComponent, selectors: [["explore-sensor-info"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 1, consts: [["stats", ""], ["icon", "", "matRipple", "", "customTooltip", "", "yPosition", "center", "xPosition", "center", 1, "bg-base-100", "pointer-events-auto", "absolute", "top-1/2", "left-1/2", "h-7", "w-7", "min-w-0", "-translate-x-1/2", "-translate-y-1/2", "shadow-sm", 3, "pointerdown", "pointerup", "click", "content"], [1, "border-base-200", "bg-base-100", "absolute", "top-1/2", "left-1/2", "-translate-x-1/2", "-translate-y-1/2", "rounded-lg", "border", "p-2", "text-xl"], [1, "flex", "items-center", "space-x-2", "pr-2", "whitespace-nowrap"], [1, "border-base-200", "bg-base-100", "absolute", "top-0", "right-0", "translate-x-1/2", "-translate-y-1/2", "rounded-full", "border"], [1, ""], [1, "text-error", "text-xl"]], template: function ExploreSensorInfoComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "button", 1)(1, "icon");
+        \u0275\u0275elementStart(0, "button", 1);
+        \u0275\u0275listener("pointerdown", function ExploreSensorInfoComponent_Template_button_pointerdown_0_listener($event) {
+          return $event.stopPropagation();
+        })("pointerup", function ExploreSensorInfoComponent_Template_button_pointerup_0_listener($event) {
+          return $event.stopPropagation();
+        })("click", function ExploreSensorInfoComponent_Template_button_click_0_listener($event) {
+          return $event.stopPropagation();
+        });
+        \u0275\u0275elementStart(1, "icon");
         \u0275\u0275text(2, " visibility ");
         \u0275\u0275elementEnd()();
         \u0275\u0275template(3, ExploreSensorInfoComponent_ng_template_3_Template, 4, 3, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
@@ -133021,6 +133037,9 @@ var ExploreSensorInfoComponent = class _ExploreSensorInfoComponent extends Async
             yPosition="center"
             xPosition="center"
             class="bg-base-100 pointer-events-auto absolute top-1/2 left-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 shadow-sm"
+            (pointerdown)="$event.stopPropagation()"
+            (pointerup)="$event.stopPropagation()"
+            (click)="$event.stopPropagation()"
         >
             <icon> visibility </icon>
         </button>
@@ -133057,7 +133076,7 @@ var ExploreSensorInfoComponent = class _ExploreSensorInfoComponent extends Async
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreSensorInfoComponent, { className: "ExploreSensorInfoComponent", filePath: "libs/explore/src/lib/explore-sensor-info.component.ts", lineNumber: 63 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreSensorInfoComponent, { className: "ExploreSensorInfoComponent", filePath: "libs/explore/src/lib/explore-sensor-info.component.ts", lineNumber: 66 });
 })();
 
 // libs/explore/src/lib/explore-zones.service.ts
@@ -133106,6 +133125,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     effect(() => {
       this._area_data();
       this._zone_data();
+      this._state.spaces();
       this.timeout("parse_data", () => this._parseBindingData(), 100);
     });
     this.init();
@@ -133179,12 +133199,16 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     const count_key = this._settings.get("app.explore.area_count_key") || "count";
     const show_zone_labels = this._settings.get("app.explore.show_zone_labels");
     const show_sensor_info = this._settings.get("app.explore.show_zone_sensor_info");
+    const room_ids = new Set(this._state.spaces().flatMap((space) => [space.id, space.map_id]).filter((id) => !!id));
     for (const zone of value) {
       const id = zone.map_id || zone.area_id;
+      const has_room = room_ids.has(zone.area_id) || !!zone.map_id && room_ids.has(zone.map_id);
       const capacity = zone.capacity || this._capacity[id] || 100;
       const count = Number(zone[this._count_key[id] || count_key] ?? 0);
       const filled = count / capacity;
-      statuses[id] = zone.at_location ? "busy" : filled < 0.4 ? "free" : filled < 0.75 ? "pending" : "busy";
+      if (!has_room) {
+        statuses[id] = zone.at_location ? "busy" : filled < 0.4 ? "free" : filled < 0.75 ? "pending" : "busy";
+      }
       if (!this._location[id])
         continue;
       let content = "";
@@ -133216,14 +133240,14 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
           value: `${zone.counter}
 `
         });
-      if (this._label_location[id] && show_zone_labels) {
+      if (!has_room && this._label_location[id] && show_zone_labels) {
         labels.push({
           location: this._label_location[id],
           content,
           z_index: 100
         });
       }
-      if (show_sensor_info && (zone.temperature != null || zone.humidity != null)) {
+      if (has_room && show_sensor_info && (zone.temperature != null || zone.humidity != null)) {
         features.push({
           track_id: `sensors:${id}`,
           location: this._location[id],
@@ -133234,7 +133258,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
             temp_unit,
             humidity: zone.humidity ?? 10
           },
-          z_index: 98
+          z_index: 100
         });
       }
     }
