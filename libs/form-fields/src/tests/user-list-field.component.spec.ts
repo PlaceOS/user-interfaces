@@ -132,6 +132,25 @@ describe('UserListFieldComponent', () => {
         expect(spectator.component.active_list().length).toBe(0);
     });
 
+    it('should only remove the selected user when users have no IDs', () => {
+        const users = [
+            {
+                name: 'Visitor One',
+                email: 'visitor.one@example.com',
+            },
+            {
+                name: 'Visitor Two',
+                email: 'visitor.two@example.com',
+            },
+        ] as User[];
+        spectator.component.writeValue(users);
+        spectator.detectChanges();
+
+        spectator.click('[user] [remove]');
+
+        expect(spectator.component.active_list()).toEqual([users[1]]);
+    });
+
     it('should be able to hide user actions', () => {
         expect('[actions] button').toHaveLength(3);
         spectator.setInput({ hide_actions: true });

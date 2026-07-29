@@ -72,25 +72,37 @@ const DENIED_FILE_TYPES = [
                     #origin="matAutocompleteOrigin"
                 >
                     <mat-chip-grid #chipList aria-label="User Seleciom">
-                        @for (item of active_list(); track item.id) {
+                        @for (
+                            item of active_list();
+                            track item.id || item.email
+                        ) {
                             <mat-chip-row
                                 user
-
                                 [class.bg-base-200]="!item.is_external"
                                 [class.bg-warning]="item.is_external"
                                 (removed)="removeUser(item)"
                                 [matTooltip]="item.email"
                             >
-                                <div class="flex items-center space-x-2"
-                                    [class.text-base-content!]="!item.is_external"
-                                    [class.text-warning-content!]="item.is_external">
+                                <div
+                                    class="flex items-center space-x-2"
+                                    [class.text-base-content!]="
+                                        !item.is_external
+                                    "
+                                    [class.text-warning-content!]="
+                                        item.is_external
+                                    "
+                                >
                                     <div>{{ item.name || item.email }}</div>
                                 </div>
                                 <button
                                     matChipRemove
                                     remove
-                                    [class.text-base-content!]="!item.is_external"
-                                    [class.text-warning-content!]="item.is_external"
+                                    [class.text-base-content!]="
+                                        !item.is_external
+                                    "
+                                    [class.text-warning-content!]="
+                                        item.is_external
+                                    "
                                     [attr.aria-label]="
                                         'COMMON.REMOVE_ITEM'
                                             | translate
@@ -383,7 +395,10 @@ export class UserListFieldComponent
      * @param user
      */
     public addUser(user: User) {
-        const list = this.active_list().filter((_) => _.id !== user.id);
+        const user_id = user.id || user.email;
+        const list = this.active_list().filter(
+            (_) => (_.id || _.email) !== user_id,
+        );
         this.setValue([
             ...list,
             new User({
@@ -410,8 +425,9 @@ export class UserListFieldComponent
      * @param user
      */
     public removeUser(user: User) {
+        const user_id = user.id || user.email;
         const list = this.active_list().filter(
-            (a_user) => a_user.id !== user.id,
+            (a_user) => (a_user.id || a_user.email) !== user_id,
         );
         this.setValue(list);
     }
