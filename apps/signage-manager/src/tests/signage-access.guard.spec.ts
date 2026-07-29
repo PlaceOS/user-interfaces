@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, UrlTree } from '@angular/router';
+import { OrganisationService, user_groups_loaded } from '@placeos/common';
 import {
     canAccessSignageApp,
     signageAccessGuard,
@@ -30,6 +31,7 @@ describe('signageAccessGuard', () => {
     const can_manage_all_groups = signal(false);
     const signage_groups = signal<any[]>([]);
     const signage_groups_failed = signal(false);
+    const wait_until_initialised = vi.fn().mockResolvedValue(undefined);
 
     function runGuard() {
         return TestBed.runInInjectionContext(
@@ -45,10 +47,18 @@ describe('signageAccessGuard', () => {
         can_manage_all_groups.set(false);
         signage_groups.set([]);
         signage_groups_failed.set(false);
+        user_groups_loaded.set(true);
+        wait_until_initialised.mockResolvedValue(undefined);
 
         TestBed.configureTestingModule({
             providers: [
                 provideRouter([]),
+                {
+                    provide: OrganisationService,
+                    useValue: {
+                        waitUntilInitialised: wait_until_initialised,
+                    },
+                },
                 {
                     provide: SignageService,
                     useValue: {
@@ -73,8 +83,38 @@ describe('signageAccessGuard', () => {
         expect(resolved).toBe(false);
 
         loaded.set(true);
+        TestBed.flushEffects();
 
         await expect(guard_result).resolves.toBe(true);
+    });
+
+    it('waits for user groups and app settings to load', async () => {
+        user_groups_loaded.set(false);
+        loaded.set(true);
+        let resolve_settings: () => void;
+        wait_until_initialised.mockImplementationOnce(
+            () =>
+                new Promise<void>((resolve) => {
+                    resolve_settings = resolve;
+                }),
+        );
+
+        const guard_result = runGuard();
+        let resolved = false;
+        guard_result.then(() => (resolved = true));
+
+        await Promise.resolve();
+        expect(resolved).toBe(false);
+
+        user_groups_loaded.set(true);
+        TestBed.flushEffects();
+        await Promise.resolve();
+        expect(resolved).toBe(false);
+
+        resolve_settings!();
+        const result = await guard_result;
+        const router = TestBed.inject(Router);
+        expect(router.serializeUrl(result as UrlTree)).toBe('/unauthorised');
     });
 
     it('allows users with signage group permissions', async () => {

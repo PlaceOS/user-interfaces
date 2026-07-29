@@ -1,5 +1,10 @@
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { CanActivateChildFn, Router } from '@angular/router';
+import {
+    firstValueWhere,
+    OrganisationService,
+    user_groups_loaded,
+} from '@placeos/common';
 import { SignageService } from './signage.service';
 
 export function canAccessSignageApp(
@@ -12,24 +17,17 @@ export function canAccessSignageApp(
     return can_manage_all_groups || group_count > 0 || groups_failed;
 }
 
-function waitForSignageGroups(service: SignageService) {
-    return new Promise<void>((resolve) => {
-        const check = () => {
-            if (service.signage_groups_loaded()) {
-                resolve();
-            } else {
-                setTimeout(check, 50);
-            }
-        };
-        check();
-    });
-}
-
 export const signageAccessGuard: CanActivateChildFn = async () => {
     const service = inject(SignageService);
     const router = inject(Router);
+    const org = inject(OrganisationService);
+    const injector = inject(Injector);
 
-    await waitForSignageGroups(service);
+    await Promise.all([
+        org.waitUntilInitialised(),
+        firstValueWhere(user_groups_loaded, Boolean, injector),
+        firstValueWhere(service.signage_groups_loaded, Boolean, injector),
+    ]);
     return canAccessSignageApp(
         service.can_manage_all_groups(),
         service.signage_groups().length,
