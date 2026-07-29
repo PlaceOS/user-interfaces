@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["media-thumbnail.component.ts"],
+  "sourcesContent": ["\n        :host {\n            display: block;\n        }\n    "],
+  "mappings": ";AACQ;AACI,WAAA;AACJ;",
+  "names": []
+}

@@ -1,24 +1,24 @@
 import {
-  IntersectDirective
-} from "./chunk-YNR6FWZ5.js";
-import {
   DAY_COUNT,
   buildScheduleBlocks
-} from "./chunk-XNMNFOAX.js";
+} from "./chunk-MKCZTVAM.js";
+import {
+  PlaylistThumbnailComponent
+} from "./chunk-DP4HMQLN.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-GI6RDJ3X.js";
+} from "./chunk-DUWVLDZQ.js";
 import {
   ActivatedRoute,
-  AuthenticatedImageDirective,
   Component,
   DatePipe,
   DefaultValueAccessor,
   FormsModule,
   IconComponent,
   Input,
+  IntersectDirective,
   MatFormField,
   MatFormFieldModule,
   MatInput,
@@ -75,7 +75,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-D4H3J3HS.js";
+} from "./chunk-3UAHLDER.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/displays/display-schedule.component.ts
@@ -724,38 +724,9 @@ function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_7_Templ
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.ADD_PLAYLIST_TO_DISPLAY_ARIA"));
   }
 }
-function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_4_For_1_Template(rf, ctx) {
+function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 27);
-  }
-  if (rf & 2) {
-    const media_r3 = ctx.$implicit;
-    const \u0275$index_43_r4 = ctx.$index;
-    const \u0275$count_43_r5 = ctx.$count;
-    \u0275\u0275styleProp("top", 0.3 - (\u0275$count_43_r5 - 1) * 0.125 + (\u0275$count_43_r5 - 1 - \u0275$index_43_r4) * 0.25 + "rem")("left", 0.3 - (\u0275$count_43_r5 - 1) * 0.125 + (\u0275$count_43_r5 - 1 - \u0275$index_43_r4) * 0.25 + "rem")("z-index", \u0275$index_43_r4);
-    \u0275\u0275property("source", media_r3);
-  }
-}
-function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_4_For_1_Template, 1, 7, "img", 26, \u0275\u0275repeaterTrackByIdentity);
-  }
-  if (rf & 2) {
-    const playlist_r6 = \u0275\u0275nextContext().$implicit;
-    const ctx_r1 = \u0275\u0275nextContext(4);
-    \u0275\u0275repeater(ctx_r1.playlist_thumbnail_media()[playlist_r6.id]);
-  }
-}
-function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 16)(1, "icon", 28);
-    \u0275\u0275text(2, " playlist_play ");
-    \u0275\u0275elementEnd()();
-  }
-}
-function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 20);
+    \u0275\u0275elementStart(0, "span", 19);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -765,9 +736,9 @@ function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.DISABLED"), " ");
   }
 }
-function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_11_Template(rf, ctx) {
+function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 21);
+    \u0275\u0275elementStart(0, "span", 20);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -777,9 +748,9 @@ function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.STATUS_EXPIRED"), " ");
   }
 }
-function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_12_Template(rf, ctx) {
+function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 22);
+    \u0275\u0275elementStart(0, "span", 21);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -789,9 +760,9 @@ function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.PENDING"), " ");
   }
 }
-function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_13_Template(rf, ctx) {
+function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 23);
+    \u0275\u0275elementStart(0, "span", 22);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -801,83 +772,81 @@ function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.STATUS_AWAITING_APPROVAL"), " ");
   }
 }
-function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_14_Template(rf, ctx) {
+function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 24);
+    \u0275\u0275elementStart(0, "div", 23);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const playlist_r6 = \u0275\u0275nextContext().$implicit;
+    const playlist_r3 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", playlist_r6.description, " ");
+    \u0275\u0275textInterpolate1(" ", playlist_r3.description, " ");
   }
 }
-function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_15_Template(rf, ctx) {
+function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 25);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_15_Template_button_click_0_listener($event) {
-      \u0275\u0275restoreView(_r7);
-      const playlist_r6 = \u0275\u0275nextContext().$implicit;
+    \u0275\u0275listener("click", function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_13_Template_button_click_0_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const playlist_r3 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(4);
-      return \u0275\u0275resetView(ctx_r1.removePlaylist($event, playlist_r6.id));
+      return \u0275\u0275resetView(ctx_r1.removePlaylist($event, playlist_r3.id));
     });
     \u0275\u0275elementStart(3, "icon");
     \u0275\u0275text(4, "close");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const playlist_r6 = \u0275\u0275nextContext().$implicit;
+    const playlist_r3 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.REMOVE_PLAYLIST_TOOLTIP"));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_PLAYLIST_FROM_DISPLAY", \u0275\u0275pureFunction1(7, _c2, playlist_r6.name)));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_PLAYLIST_FROM_DISPLAY", \u0275\u0275pureFunction1(7, _c2, playlist_r3.name)));
   }
 }
 function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 13)(1, "a", 14);
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementStart(3, "div", 15);
-    \u0275\u0275conditionalCreate(4, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_4_Template, 2, 0)(5, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_5_Template, 3, 0, "div", 16);
+    \u0275\u0275element(3, "playlist-thumbnail", 15);
+    \u0275\u0275elementStart(4, "div", 16)(5, "div", 17);
+    \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 17)(7, "div", 18);
-    \u0275\u0275text(8);
+    \u0275\u0275elementStart(7, "div", 18);
+    \u0275\u0275conditionalCreate(8, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_8_Template, 3, 3, "span", 19);
+    \u0275\u0275conditionalCreate(9, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_9_Template, 3, 3, "span", 20)(10, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_10_Template, 3, 3, "span", 21)(11, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_11_Template, 3, 3, "span", 22);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "div", 19);
-    \u0275\u0275conditionalCreate(10, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_10_Template, 3, 3, "span", 20);
-    \u0275\u0275conditionalCreate(11, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_11_Template, 3, 3, "span", 21)(12, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_12_Template, 3, 3, "span", 22)(13, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Case_13_Template, 3, 3, "span", 23);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(14, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_14_Template, 2, 1, "div", 24);
+    \u0275\u0275conditionalCreate(12, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_12_Template, 2, 1, "div", 23);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(15, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_15_Template, 5, 9, "button", 25);
+    \u0275\u0275conditionalCreate(13, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Conditional_13_Template, 5, 9, "button", 24);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     let tmp_18_0;
-    const playlist_r6 = ctx.$implicit;
+    const playlist_r3 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(4);
     \u0275\u0275advance();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(11, _c1, playlist_r6.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 8, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(13, _c2, playlist_r6.name)));
-    \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r1.playlist_thumbnail_media()[playlist_r6.id]?.length ? 4 : 5);
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", playlist_r6.name, " ");
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(11, _c1, playlist_r3.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 8, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(13, _c2, playlist_r3.name)));
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(!playlist_r6.enabled ? 10 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_18_0 = ctx_r1.getStatus(playlist_r6)) === "expired" ? 11 : tmp_18_0 === "pending" ? 12 : tmp_18_0 === "awaiting_approval" ? 13 : -1);
+    \u0275\u0275property("playlist", playlist_r3);
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(playlist_r6.description ? 14 : -1);
+    \u0275\u0275textInterpolate1(" ", playlist_r3.name, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!playlist_r3.enabled ? 8 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.can_update() ? 15 : -1);
+    \u0275\u0275conditional((tmp_18_0 = ctx_r1.getStatus(playlist_r3)) === "expired" ? 9 : tmp_18_0 === "pending" ? 10 : tmp_18_0 === "awaiting_approval" ? 11 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(playlist_r3.description ? 12 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.can_update() ? 13 : -1);
   }
 }
 function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Template, 16, 15, "div", 13, _forTrack02);
+    \u0275\u0275repeaterCreate(0, DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_For_1_Template, 14, 15, "div", 13, _forTrack02);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(3);
@@ -886,10 +855,10 @@ function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_9_Templ
 }
 function DisplayContentComponent_Conditional_0_Conditional_3_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "icon", 30);
+    \u0275\u0275elementStart(0, "div", 11)(1, "icon", 26);
     \u0275\u0275text(2, "playlist_remove");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 31);
+    \u0275\u0275elementStart(3, "p", 27);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -925,42 +894,42 @@ function DisplayContentComponent_Conditional_0_Conditional_3_Template(rf, ctx) {
 }
 function DisplayContentComponent_Conditional_0_Conditional_4_Conditional_8_For_1_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 34);
+    \u0275\u0275elementStart(0, "div", 30);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const zone_r8 = \u0275\u0275nextContext().$implicit;
+    const zone_r5 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", zone_r8.description, " ");
+    \u0275\u0275textInterpolate1(" ", zone_r5.description, " ");
   }
 }
 function DisplayContentComponent_Conditional_0_Conditional_4_Conditional_8_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 32);
+    \u0275\u0275elementStart(0, "a", 28);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275elementStart(2, "icon", 33);
+    \u0275\u0275elementStart(2, "icon", 29);
     \u0275\u0275text(3, "layers");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 17)(5, "div", 18);
+    \u0275\u0275elementStart(4, "div", 16)(5, "div", 17);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(7, DisplayContentComponent_Conditional_0_Conditional_4_Conditional_8_For_1_Conditional_7_Template, 2, 1, "div", 34);
+    \u0275\u0275conditionalCreate(7, DisplayContentComponent_Conditional_0_Conditional_4_Conditional_8_For_1_Conditional_7_Template, 2, 1, "div", 30);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const zone_r8 = ctx.$implicit;
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(7, _c3, zone_r8.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 4, "SIGNAGE_MANAGER.OPEN_ZONE", \u0275\u0275pureFunction1(9, _c2, zone_r8.display_name || zone_r8.name)));
+    const zone_r5 = ctx.$implicit;
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(7, _c3, zone_r5.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 4, "SIGNAGE_MANAGER.OPEN_ZONE", \u0275\u0275pureFunction1(9, _c2, zone_r5.display_name || zone_r5.name)));
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", zone_r8.display_name || zone_r8.name, " ");
+    \u0275\u0275textInterpolate1(" ", zone_r5.display_name || zone_r5.name, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(zone_r8.description ? 7 : -1);
+    \u0275\u0275conditional(zone_r5.description ? 7 : -1);
   }
 }
 function DisplayContentComponent_Conditional_0_Conditional_4_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, DisplayContentComponent_Conditional_0_Conditional_4_Conditional_8_For_1_Template, 8, 11, "a", 32, _forTrack02);
+    \u0275\u0275repeaterCreate(0, DisplayContentComponent_Conditional_0_Conditional_4_Conditional_8_For_1_Template, 8, 11, "a", 28, _forTrack02);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(3);
@@ -969,10 +938,10 @@ function DisplayContentComponent_Conditional_0_Conditional_4_Conditional_8_Templ
 }
 function DisplayContentComponent_Conditional_0_Conditional_4_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "icon", 30);
+    \u0275\u0275elementStart(0, "div", 11)(1, "icon", 26);
     \u0275\u0275text(2, "layers_clear");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 31);
+    \u0275\u0275elementStart(3, "p", 27);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -1022,7 +991,7 @@ function DisplayContentComponent_Conditional_0_Template(rf, ctx) {
 }
 function DisplayContentComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 35);
+    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 31);
     \u0275\u0275text(2, "tv");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -1046,7 +1015,6 @@ var DisplayContentComponent = class _DisplayContentComponent {
       )
     );
     this.selected_display = this._service.selected_display;
-    this.playlist_thumbnail_media = this._service.playlist_thumbnail_media;
     this.playlist_approval_status = this._service.playlist_approval_status;
     this.can_update = this._service.can_update;
     this._playlists = this._service.playlists;
@@ -1075,9 +1043,6 @@ var DisplayContentComponent = class _DisplayContentComponent {
         []
       )
     );
-    effect(() => {
-      this._service.queuePlaylistMeta(this.display_playlists());
-    });
   }
   addPlaylist() {
     const display = this.selected_display();
@@ -1108,7 +1073,7 @@ var DisplayContentComponent = class _DisplayContentComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplayContentComponent, selectors: [["display-content"]], inputs: { activeTab: [1, "activeTab"] }, decls: 2, vars: 1, consts: [[1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "flex", "min-h-0", "flex-1", "flex-col", "gap-3", "p-3"], ["id", "display-schedule-panel", "role", "tabpanel", "aria-labelledby", "display-schedule-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-hidden", "rounded-lg", "border"], ["id", "display-playlists-panel", "role", "tabpanel", "aria-labelledby", "display-playlists-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-auto", "rounded-lg", "border"], ["id", "display-zones-panel", "role", "tabpanel", "aria-labelledby", "display-zones-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-auto", "rounded-lg", "border"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "gap-2", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-6"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "border-base-200", "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md", "border"], [1, "text-base-content/35", "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "mt-1", "flex", "flex-wrap", "gap-1"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-secondary", "text-secondary-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "text-base-content/70", "mt-0.5", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source", "top", "left", "z-index"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source"], [1, "text-2xl"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-4xl"], [1, "text-sm"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "hover:bg-base-200", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "px-4", "py-3", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "text-base-content/70", "truncate", "text-xs"], [1, "text-6xl"]], template: function DisplayContentComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplayContentComponent, selectors: [["display-content"]], inputs: { activeTab: [1, "activeTab"] }, decls: 2, vars: 1, consts: [[1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "flex", "min-h-0", "flex-1", "flex-col", "gap-3", "p-3"], ["id", "display-schedule-panel", "role", "tabpanel", "aria-labelledby", "display-schedule-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-hidden", "rounded-lg", "border"], ["id", "display-playlists-panel", "role", "tabpanel", "aria-labelledby", "display-playlists-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-auto", "rounded-lg", "border"], ["id", "display-zones-panel", "role", "tabpanel", "aria-labelledby", "display-zones-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-auto", "rounded-lg", "border"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "gap-2", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-6"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "border-base-200", "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md", "border", 3, "playlist"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "mt-1", "flex", "flex-wrap", "gap-1"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-secondary", "text-secondary-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "text-base-content/70", "mt-0.5", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-4xl"], [1, "text-sm"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "hover:bg-base-200", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "px-4", "py-3", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "text-base-content/70", "truncate", "text-xs"], [1, "text-6xl"]], template: function DisplayContentComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, DisplayContentComponent_Conditional_0_Template, 5, 3, "div", 0)(1, DisplayContentComponent_Conditional_1_Template, 6, 3, "div", 1);
       }
@@ -1121,9 +1086,9 @@ var DisplayContentComponent = class _DisplayContentComponent {
       MatTooltipModule,
       MatTooltip,
       RouterLink,
-      AuthenticatedImageDirective,
       IconComponent,
       DisplayScheduleComponent,
+      PlaylistThumbnailComponent,
       TranslatePipe
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n/*# sourceMappingURL=display-content.component.css.map */"] });
   }
@@ -1216,64 +1181,10 @@ var DisplayContentComponent = class _DisplayContentComponent {
                                                               }
                                                 "
                                             >
-                                                <div
+                                                <playlist-thumbnail
+                                                    [playlist]="playlist"
                                                     class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
-                                                >
-                                                    @if (
-                                                        playlist_thumbnail_media()[
-                                                            playlist.id
-                                                        ]?.length
-                                                    ) {
-                                                        @for (
-                                                            media of playlist_thumbnail_media()[
-                                                                playlist.id
-                                                            ];
-                                                            track media;
-                                                            let i = $index;
-                                                            let len = $count
-                                                        ) {
-                                                            <img
-                                                                auth
-                                                                [source]="media"
-                                                                alt=""
-                                                                class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
-                                                                [style.top]="
-                                                                    0.3 -
-                                                                    (len - 1) *
-                                                                        0.125 +
-                                                                    (len -
-                                                                        1 -
-                                                                        i) *
-                                                                        0.25 +
-                                                                    'rem'
-                                                                "
-                                                                [style.left]="
-                                                                    0.3 -
-                                                                    (len - 1) *
-                                                                        0.125 +
-                                                                    (len -
-                                                                        1 -
-                                                                        i) *
-                                                                        0.25 +
-                                                                    'rem'
-                                                                "
-                                                                [style.z-index]="
-                                                                    i
-                                                                "
-                                                            />
-                                                        }
-                                                    } @else {
-                                                        <div
-                                                            class="text-base-content/35 flex h-full w-full items-center justify-center"
-                                                        >
-                                                            <icon
-                                                                class="text-2xl"
-                                                            >
-                                                                playlist_play
-                                                            </icon>
-                                                        </div>
-                                                    }
-                                                </div>
+                                                />
                                                 <div class="min-w-0 flex-1">
                                                     <div
                                                         class="truncate text-sm font-medium"
@@ -1493,15 +1404,15 @@ var DisplayContentComponent = class _DisplayContentComponent {
       MatRippleModule,
       MatTooltipModule,
       RouterLink,
-      AuthenticatedImageDirective,
       IconComponent,
       DisplayScheduleComponent,
-      TranslatePipe
+      TranslatePipe,
+      PlaylistThumbnailComponent
     ], styles: ["/* angular:styles/component:css;62f1948e80f1d37fbfc7dd0fe5a3ff76993e7e5f074002a0c62e64986fc743cb;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/displays/display-content.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n/*# sourceMappingURL=display-content.component.css.map */\n"] }]
-  }], () => [], { activeTab: [{ type: Input, args: [{ isSignal: true, alias: "activeTab", required: false }] }] });
+  }], null, { activeTab: [{ type: Input, args: [{ isSignal: true, alias: "activeTab", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayContentComponent, { className: "DisplayContentComponent", filePath: "apps/signage-manager/src/app/displays/display-content.component.ts", lineNumber: 396 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayContentComponent, { className: "DisplayContentComponent", filePath: "apps/signage-manager/src/app/displays/display-content.component.ts", lineNumber: 339 });
 })();
 
 // apps/signage-manager/src/app/displays/display-header.component.ts
@@ -2289,4 +2200,4 @@ var DisplaysSectionComponent = class _DisplaysSectionComponent {
 export {
   DisplaysSectionComponent
 };
-//# sourceMappingURL=displays.component-4MY7DU5O.js.map
+//# sourceMappingURL=displays.component-O4PAZAZO.js.map
