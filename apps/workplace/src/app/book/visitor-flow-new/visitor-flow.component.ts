@@ -156,6 +156,9 @@ export class VisitorFlowNewComponent extends AsyncHandler implements OnInit {
     );
 
     public ngOnInit() {
+        const { id, booking_type } = this._model();
+        if (!id || booking_type !== 'visitor')
+            this._booking_form.newForm('visitor');
         this._model.update((m) => ({ ...m, booking_type: 'visitor' }));
         this._booking_form.setOptions({ type: 'visitor' });
         this.subscription(

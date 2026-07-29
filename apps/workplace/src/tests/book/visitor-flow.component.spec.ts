@@ -26,6 +26,7 @@ describe('VisitorFlowNewComponent', () => {
     let clear_form: any;
     let dialog_open: any;
     let dialog_close: any;
+    let new_form: any;
 
     const createComponent = createRoutingFactory({
         component: VisitorFlowNewComponent,
@@ -61,6 +62,7 @@ describe('VisitorFlowNewComponent', () => {
                         last_count: 0,
                         setOptions: vi.fn(),
                         setView: vi.fn(),
+                        newForm: (...args: any[]) => new_form(...args),
                         clearForm: (...args: any[]) => clear_form(...args),
                         loadGroupSiblings: vi.fn(async () => []),
                     };
@@ -102,7 +104,48 @@ describe('VisitorFlowNewComponent', () => {
             afterClosed: () => NEVER,
             close: dialog_close,
         }));
+        new_form = vi.fn(() =>
+            model.update((m) => ({
+                ...m,
+                id: '',
+                booking_type: 'visitor',
+                asset_id: '',
+                asset_name: '',
+                assets: [],
+            })),
+        );
         spectator = createComponent({ detectChanges: false });
+    });
+
+    it('should clear desk details when starting a visitor invite', () => {
+        model.update((m) => ({
+            ...m,
+            booking_type: 'desk',
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+        }));
+
+        spectator.component.ngOnInit();
+
+        expect(new_form).toHaveBeenCalledWith('visitor');
+        expect(model().asset_id).toBe('');
+        expect(model().asset_name).toBe('');
+    });
+
+    it('should preserve visitor details when editing a visitor invite', () => {
+        model.update((m) => ({
+            ...m,
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor One',
+        }));
+
+        spectator.component.ngOnInit();
+
+        expect(new_form).not.toHaveBeenCalled();
+        expect(model().asset_id).toBe('visitor@example.com');
+        expect(model().asset_name).toBe('Visitor One');
     });
 
     it('should show visit details heading when creating a booking', () => {
