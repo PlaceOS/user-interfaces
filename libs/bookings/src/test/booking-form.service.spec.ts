@@ -13,6 +13,7 @@ import {
     OrganisationService,
     setCurrentUser,
     StaffUser,
+    User,
 } from '@placeos/common';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -2333,6 +2334,103 @@ describe('BookingFormService', () => {
         expect(clear_form).toHaveBeenCalledTimes(1);
         expect(saved_forms[0].zones).toEqual(['org-1', 'bld-1']);
         expect(saved_forms[1].location).toBe('Main Lobby');
+    });
+
+    it('should add a container when editing a legacy visitor group', async () => {
+        const saved_forms: {
+            id: string;
+            parent_id: string;
+            asset_id: string;
+            asset_name: string;
+        }[] = [];
+        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
+            const value = spectator.service.model();
+            saved_forms.push({
+                id: value.id,
+                parent_id: value.parent_id,
+                asset_id: value.asset_id,
+                asset_name: value.asset_name,
+            });
+            return new Booking({
+                ...value,
+                id: value.id || 'booking-new',
+            } as any);
+        });
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'booking-removed',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'removed@example.com',
+                asset_name: 'Removed Visitor',
+            }),
+        );
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [
+                new User({
+                    name: 'Retained Visitor',
+                    email: 'retained@example.com',
+                }),
+                new User({
+                    name: 'New Visitor',
+                    email: 'new@example.com',
+                }),
+            ],
+        });
+
+        await spectator.service.editFormForGroup([
+            new Booking({
+                id: 'booking-removed',
+                booking_type: 'visitor',
+                asset_id: 'removed@example.com',
+                asset_name: 'Removed Visitor',
+            }),
+            new Booking({
+                id: 'booking-retained',
+                booking_type: 'visitor',
+                asset_id: 'retained@example.com',
+                asset_name: 'Retained Visitor',
+            }),
+        ]);
+
+        expect(savedBookings()).toHaveLength(1);
+        expect(savedBookings()[0]).toEqual(
+            expect.objectContaining({
+                booking_type: 'group',
+                asset_name: 'Group Booking',
+                type: 'group',
+            }),
+        );
+        expect(
+            (savedBookings()[0] as Booking).extension_data.group_resource_type,
+        ).toBe('visitor');
+        expect(
+            (savedBookings()[0] as Booking).extension_data.group_members.map(
+                (member) => member.email,
+            ),
+        ).toEqual(['retained@example.com', 'new@example.com']);
+        expect(saved_forms).toEqual([
+            {
+                id: 'booking-retained',
+                parent_id: 'booking-group',
+                asset_id: 'retained@example.com',
+                asset_name: 'Retained Visitor',
+            },
+            {
+                id: '',
+                parent_id: 'booking-group',
+                asset_id: 'new@example.com',
+                asset_name: 'New Visitor',
+            },
+        ]);
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/booking-removed?'),
+            expect.anything(),
+        );
     });
 
     it('should load unlinked visitor group siblings by their `grp-` description', async () => {

@@ -1690,9 +1690,10 @@ export class BookingFormService extends AsyncHandler {
         if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
         const form = this.model() as any;
         const base_form = { ...form, id: '' };
-        const parent_id = form.parent_id || form.id;
+        let parent_id = form.parent_id || form.id;
         const group_name = this._groupName(form.group);
         const is_visitor = type === 'visitor';
+        const needs_group_container_parent = is_visitor && !form.parent_id;
         const has_group_container_parent =
             !!form.parent_id &&
             !existing_siblings.some((s) => s.id === form.parent_id);
@@ -1717,7 +1718,15 @@ export class BookingFormService extends AsyncHandler {
                 : [];
         let first_result: Booking = null;
         try {
-            if (has_group_container_parent) {
+            if (needs_group_container_parent) {
+                const group_booking = await this.createGroupContainerBooking(
+                    form,
+                    group_name,
+                    members,
+                    type,
+                );
+                parent_id = group_booking.id;
+            } else if (has_group_container_parent) {
                 await this.saveGroupContainerBooking(
                     form,
                     group_name,
