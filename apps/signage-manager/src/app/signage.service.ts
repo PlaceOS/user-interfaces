@@ -812,7 +812,22 @@ export class SignageService {
     public readonly media_tags = computed(() => this._media_tags.value() || []);
 
     // --- Playlists (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list; filtering the loaded pages would only search playlists that have
+    // already been fetched.
+    public readonly playlist_search_term = signal('');
+    private readonly _playlist_search_debounced = debounced(
+        this.playlist_search_term,
+        400,
+    );
     private readonly _playlist_items = signal<SignagePlaylist[]>([]);
+    // Keep playlists seen outside the current search available to display,
+    // zone and schedule views, which resolve their playlist ids from this list.
+    private readonly _playlist_cache = signal<Record<string, SignagePlaylist>>(
+        {},
+    );
+    private _playlist_cache_group: string | null = null;
+    private _playlist_cache_change: number | null = null;
     private readonly _playlists_loading = signal(false);
     private readonly _playlists_has_more = signal(false);
     private _playlists_next:
@@ -820,7 +835,11 @@ export class SignageService {
         | null = null;
     private _playlists_token = 0;
 
-    public readonly playlists = this._playlist_items.asReadonly();
+    public readonly playlists = computed(() =>
+        Object.values(this._playlist_cache()).sort((a, b) =>
+            a.name.localeCompare(b.name),
+        ),
+    );
     public readonly playlists_loading = this._playlists_loading.asReadonly();
     public readonly playlists_has_more = this._playlists_has_more.asReadonly();
 
@@ -828,17 +847,29 @@ export class SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
-        this._change();
+        const search = this._playlist_search_debounced.value().trim();
+        const change = this._change();
         untracked(() => {
             const token = ++this._playlists_token;
             this._playlist_items.set([]);
             this._playlists_next = null;
             this._playlists_has_more.set(false);
+            if (
+                group_id !== this._playlist_cache_group ||
+                change !== this._playlist_cache_change
+            ) {
+                this._playlist_cache_group = group_id;
+                this._playlist_cache_change = change;
+                this._playlist_cache.set({});
+            }
             if (!initialised || !can_query) return;
             this._fetchPlaylistPage(
                 querySignagePlaylists(
                     this._orgZoneQueryParams(
-                        { limit: SignageService.PAGE_SIZE },
+                        {
+                            limit: SignageService.PAGE_SIZE,
+                            ...(search ? { q: search } : {}),
+                        },
                         group_id,
                     ),
                 ),
@@ -866,11 +897,18 @@ export class SignageService {
             const page = await query;
             if (token !== this._playlists_token) return;
             const items = (page.data || []).map(decodeEntityNames);
-            this._playlist_items.update((list) =>
-                [...list, ...items].sort((a, b) =>
+            this._playlist_items.update((list) => {
+                const by_id = new Map(list.map((item) => [item.id, item]));
+                for (const item of items) by_id.set(item.id, item);
+                return [...by_id.values()].sort((a, b) =>
                     a.name.localeCompare(b.name),
-                ),
-            );
+                );
+            });
+            this._playlist_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            });
             this._playlists_next = page.next;
             this._playlists_has_more.set(
                 this._playlist_items().length < page.total,
@@ -1164,8 +1202,6 @@ export class SignageService {
     );
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
     public readonly selected_playlist_item_index = signal<number | null>(null);
-    public readonly playlist_search_term = signal('');
-
     public readonly selected_zone = signal<any>(null);
     public readonly zone_search_term = signal('');
     public readonly zone_tree_expanded = signal<Record<string, boolean>>({});
@@ -1184,10 +1220,7 @@ export class SignageService {
     private _playlist_meta_processing = false;
 
     public readonly filtered_playlists = computed(() => {
-        const term = this.playlist_search_term().toLowerCase();
-        return this.playlists().filter((p) =>
-            p.name.toLowerCase().includes(term),
-        );
+        return this._playlist_items();
     });
 
     public readonly selected_playlist_requires_approval = computed(() => {
