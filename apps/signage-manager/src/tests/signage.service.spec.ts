@@ -125,6 +125,29 @@ describe('SignageService media uploads', () => {
         );
     });
 
+    it('keeps the loaded playlist list after adding media', async () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        TestBed.flushEffects();
+        test_service['_change'].set(0);
+        TestBed.flushEffects();
+        const loaded_playlists = Array.from(
+            { length: 250 },
+            (_, index) =>
+                new SignagePlaylist({
+                    id: `playlist-${index}`,
+                    name: `Playlist ${index}`,
+                }),
+        );
+        test_service['_playlist_items'].set(loaded_playlists);
+        (updateSignagePlaylistMedia as any).mockResolvedValue({});
+
+        await service.addMediaToPlaylist('playlist-200', 'media-1');
+        TestBed.flushEffects();
+
+        expect(service.filtered_playlists()).toHaveLength(250);
+    });
+
     it('updates distribution playlist item schedules by schedule id', async () => {
         const service = createService();
         service.selected_playlist.set(

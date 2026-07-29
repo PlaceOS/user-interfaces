@@ -1621,18 +1621,28 @@ export class SignageService {
                     item_id: media_id,
                     media,
                 }),
-                save: (item_id, schedules) =>
-                    scheduleSignagePlaylistMedia(playlist_id, {
-                        item_id,
-                        schedules,
-                    }),
+                save: async (item_id, schedules) => {
+                    const media_list = await scheduleSignagePlaylistMedia(
+                        playlist_id,
+                        {
+                            item_id,
+                            schedules,
+                        },
+                    );
+                    this._setPlaylistMediaState(
+                        playlist_id,
+                        media_list.items || [],
+                        false,
+                        media_list.schedules,
+                    );
+                    return media_list;
+                },
             },
             panelClass: 'mobile-fullscreen',
         });
         const result = await dialogClosed(ref);
         if (!result) return false;
         this._playlist_change.set(Date.now());
-        this.changed();
         return true;
     }
 
@@ -2041,7 +2051,6 @@ export class SignageService {
         this._setPlaylistMediaState(playlist_id, list, false);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED'));
         this._playlist_change.set(Date.now());
-        this.changed();
     }
 
     public async addMediaToPlaylist(playlist_id: string, media_id: string) {
