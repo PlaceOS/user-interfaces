@@ -7,17 +7,16 @@ import {
   MatTabNav,
   MatTabNavPanel,
   MatTabsModule
-} from "./chunk-32YUWII6.js";
+} from "./chunk-W3TDQE4T.js";
 import {
-  IntersectDirective
-} from "./chunk-YNR6FWZ5.js";
+  PlaylistThumbnailComponent
+} from "./chunk-DP4HMQLN.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-GI6RDJ3X.js";
+} from "./chunk-DUWVLDZQ.js";
 import {
-  AuthenticatedImageDirective,
   Component,
   CustomTooltipComponent,
   DefaultValueAccessor,
@@ -26,6 +25,7 @@ import {
   FullscreenModalShellComponent,
   IconComponent,
   Input,
+  IntersectDirective,
   MAT_DIALOG_DATA,
   MatCheckbox,
   MatCheckboxModule,
@@ -50,9 +50,9 @@ import {
   MatTooltip,
   MatTooltipModule,
   MediaDurationPipe,
+  MediaThumbnailComponent,
   NgControlStatus,
   NgModel,
-  NgTemplateOutlet,
   RouterLink,
   SignageService,
   TranslatePipe,
@@ -76,7 +76,6 @@ import {
   ɵɵcontrolCreate,
   ɵɵdefineComponent,
   ɵɵelement,
-  ɵɵelementContainer,
   ɵɵelementEnd,
   ɵɵelementStart,
   ɵɵgetCurrentView,
@@ -95,7 +94,6 @@ import {
   ɵɵresetView,
   ɵɵresolveWindow,
   ɵɵrestoreView,
-  ɵɵstyleProp,
   ɵɵtemplate,
   ɵɵtemplateRefExtractor,
   ɵɵtext,
@@ -104,7 +102,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-D4H3J3HS.js";
+} from "./chunk-3UAHLDER.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/shared/media-add-modal.component.ts
@@ -1113,7 +1111,7 @@ var _forTrack12 = ($index, $item) => $item.id;
 function MediaListComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 7);
+    \u0275\u0275elementStart(0, "button", 6);
     \u0275\u0275listener("click", function MediaListComponent_Conditional_0_Conditional_2_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -1133,7 +1131,7 @@ function MediaListComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
 function MediaListComponent_Conditional_0_For_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 7);
+    \u0275\u0275elementStart(0, "button", 6);
     \u0275\u0275listener("click", function MediaListComponent_Conditional_0_For_4_Template_button_click_0_listener() {
       const item_r4 = \u0275\u0275restoreView(_r3).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -1152,12 +1150,12 @@ function MediaListComponent_Conditional_0_For_4_Template(rf, ctx) {
 }
 function MediaListComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "nav", 5);
+    \u0275\u0275elementStart(0, "nav", 4);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275conditionalCreate(2, MediaListComponent_Conditional_0_Conditional_2_Template, 3, 4, "button", 6);
-    \u0275\u0275repeaterCreate(3, MediaListComponent_Conditional_0_For_4_Template, 2, 2, "button", 6, _forTrack03);
+    \u0275\u0275conditionalCreate(2, MediaListComponent_Conditional_0_Conditional_2_Template, 3, 4, "button", 5);
+    \u0275\u0275repeaterCreate(3, MediaListComponent_Conditional_0_For_4_Template, 2, 2, "button", 5, _forTrack03);
     \u0275\u0275elementEnd();
-    \u0275\u0275element(5, "mat-tab-nav-panel", null, 2);
+    \u0275\u0275element(5, "mat-tab-nav-panel", null, 1);
   }
   if (rf & 2) {
     const group_tabs_panel_r5 = \u0275\u0275reference(6);
@@ -1191,20 +1189,20 @@ function MediaListComponent_Conditional_1_Conditional_0_For_2_Conditional_6_Temp
 function MediaListComponent_Conditional_1_Conditional_0_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 12);
+    \u0275\u0275elementStart(0, "button", 11);
     \u0275\u0275listener("click", function MediaListComponent_Conditional_1_Conditional_0_For_2_Template_button_click_0_listener() {
       const folder_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.openFolder(folder_r7.id));
     });
-    \u0275\u0275elementStart(1, "icon", 13);
+    \u0275\u0275elementStart(1, "icon", 12);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 14);
+    \u0275\u0275elementStart(3, "div", 13);
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275conditionalCreate(5, MediaListComponent_Conditional_1_Conditional_0_For_2_Conditional_5_Template, 2, 3)(6, MediaListComponent_Conditional_1_Conditional_0_For_2_Conditional_6_Template, 1, 1);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "div", 15);
+    \u0275\u0275elementStart(7, "div", 14);
     \u0275\u0275text(8);
     \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd()();
@@ -1223,8 +1221,8 @@ function MediaListComponent_Conditional_1_Conditional_0_For_2_Template(rf, ctx) 
 }
 function MediaListComponent_Conditional_1_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 8);
-    \u0275\u0275repeaterCreate(1, MediaListComponent_Conditional_1_Conditional_0_For_2_Template, 10, 11, "button", 11, _forTrack12);
+    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275repeaterCreate(1, MediaListComponent_Conditional_1_Conditional_0_For_2_Template, 10, 11, "button", 10, _forTrack12);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1235,14 +1233,14 @@ function MediaListComponent_Conditional_1_Conditional_0_Template(rf, ctx) {
 }
 function MediaListComponent_Conditional_1_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9);
-    \u0275\u0275element(1, "mat-spinner", 16);
+    \u0275\u0275elementStart(0, "div", 8);
+    \u0275\u0275element(1, "mat-spinner", 15);
     \u0275\u0275elementEnd();
   }
 }
 function MediaListComponent_Conditional_1_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 10)(1, "icon", 17);
+    \u0275\u0275elementStart(0, "div", 9)(1, "icon", 16);
     \u0275\u0275text(2, "folder_off");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -1257,7 +1255,7 @@ function MediaListComponent_Conditional_1_Conditional_2_Template(rf, ctx) {
 }
 function MediaListComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, MediaListComponent_Conditional_1_Conditional_0_Template, 3, 0, "div", 8)(1, MediaListComponent_Conditional_1_Conditional_1_Template, 2, 0, "div", 9)(2, MediaListComponent_Conditional_1_Conditional_2_Template, 6, 3, "div", 10);
+    \u0275\u0275conditionalCreate(0, MediaListComponent_Conditional_1_Conditional_0_Template, 3, 0, "div", 7)(1, MediaListComponent_Conditional_1_Conditional_1_Template, 2, 0, "div", 8)(2, MediaListComponent_Conditional_1_Conditional_2_Template, 6, 3, "div", 9);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -1285,7 +1283,7 @@ function MediaListComponent_Conditional_2_Conditional_0_Conditional_9_Template(r
 function MediaListComponent_Conditional_2_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 20)(1, "div", 21)(2, "button", 22);
+    \u0275\u0275elementStart(0, "div", 19)(1, "div", 20)(2, "button", 21);
     \u0275\u0275listener("click", function MediaListComponent_Conditional_2_Conditional_0_Template_button_click_2_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -1294,10 +1292,10 @@ function MediaListComponent_Conditional_2_Conditional_0_Template(rf, ctx) {
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "icon", 23);
+    \u0275\u0275elementStart(5, "icon", 22);
     \u0275\u0275text(6, "chevron_right");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "span", 24);
+    \u0275\u0275elementStart(7, "span", 23);
     \u0275\u0275conditionalCreate(8, MediaListComponent_Conditional_2_Conditional_0_Conditional_8_Template, 2, 3)(9, MediaListComponent_Conditional_2_Conditional_0_Conditional_9_Template, 1, 1);
     \u0275\u0275elementEnd()()();
   }
@@ -1312,14 +1310,14 @@ function MediaListComponent_Conditional_2_Conditional_0_Template(rf, ctx) {
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 43)(1, "icon", 44);
+    \u0275\u0275elementStart(0, "div", 42)(1, "icon", 43);
     \u0275\u0275text(2, "add");
     \u0275\u0275elementEnd()();
   }
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 39);
+    \u0275\u0275elementStart(0, "span", 38);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -1331,7 +1329,7 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Cond
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 40);
+    \u0275\u0275elementStart(0, "span", 39);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "mediaDuration");
     \u0275\u0275elementEnd();
@@ -1344,7 +1342,7 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Cond
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_16_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 45);
+    \u0275\u0275elementStart(0, "span", 44);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1356,7 +1354,7 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Cond
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_16_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 46);
+    \u0275\u0275elementStart(0, "span", 45);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1370,9 +1368,9 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Cond
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 41);
-    \u0275\u0275repeaterCreate(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_16_For_2_Template, 2, 1, "span", 45, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275conditionalCreate(3, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_16_Conditional_3_Template, 2, 2, "span", 46);
+    \u0275\u0275elementStart(0, "div", 40);
+    \u0275\u0275repeaterCreate(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_16_For_2_Template, 2, 1, "span", 44, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275conditionalCreate(3, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_16_Conditional_3_Template, 2, 2, "span", 45);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1387,9 +1385,9 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Cond
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 30);
-    \u0275\u0275template(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_div_1_Template, 3, 0, "div", 31);
-    \u0275\u0275elementStart(2, "mat-checkbox", 32);
+    \u0275\u0275elementStart(0, "div", 29);
+    \u0275\u0275template(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_div_1_Template, 3, 0, "div", 30);
+    \u0275\u0275elementStart(2, "mat-checkbox", 31);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275listener("click", function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Template_mat_checkbox_click_2_listener($event) {
       return $event.stopPropagation();
@@ -1400,7 +1398,7 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Temp
       return \u0275\u0275resetView(ctx_r1.toggleSelection(media_item_r11.id));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "button", 33);
+    \u0275\u0275elementStart(4, "button", 32);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275listener("click", function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Template_button_click_4_listener() {
       \u0275\u0275restoreView(_r10);
@@ -1408,9 +1406,9 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Temp
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.previewItem(media_item_r11));
     });
-    \u0275\u0275elementContainer(6, 34);
+    \u0275\u0275element(6, "media-thumbnail", 33);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "div", 35)(8, "button", 36);
+    \u0275\u0275elementStart(7, "div", 34)(8, "button", 35);
     \u0275\u0275listener("click", function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Template_button_click_8_listener() {
       \u0275\u0275restoreView(_r10);
       const media_item_r11 = \u0275\u0275nextContext().$implicit;
@@ -1419,15 +1417,15 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Temp
     });
     \u0275\u0275text(9);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "div", 37)(11, "span", 38);
+    \u0275\u0275elementStart(10, "div", 36)(11, "span", 37);
     \u0275\u0275text(12);
     \u0275\u0275pipe(13, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(14, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_14_Template, 3, 3, "span", 39);
-    \u0275\u0275conditionalCreate(15, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_15_Template, 3, 3, "span", 40);
-    \u0275\u0275conditionalCreate(16, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_16_Template, 4, 1, "div", 41);
+    \u0275\u0275conditionalCreate(14, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_14_Template, 3, 3, "span", 38);
+    \u0275\u0275conditionalCreate(15, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_15_Template, 3, 3, "span", 39);
+    \u0275\u0275conditionalCreate(16, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Conditional_16_Template, 4, 1, "div", 40);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(17, "button", 42);
+    \u0275\u0275elementStart(17, "button", 41);
     \u0275\u0275pipe(18, "translate");
     \u0275\u0275elementStart(19, "icon");
     \u0275\u0275text(20, "more_vert");
@@ -1437,15 +1435,14 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Temp
     const media_item_r11 = \u0275\u0275nextContext().$implicit;
     const ctx_r1 = \u0275\u0275nextContext(3);
     const menu_r13 = \u0275\u0275reference(4);
-    const thumb_r14 = \u0275\u0275reference(7);
     \u0275\u0275classProp("opacity-60", ctx_r1.isExpired(media_item_r11))("ring-2", ctx_r1.isSelected(media_item_r11.id))("ring-primary", ctx_r1.isSelected(media_item_r11.id));
     \u0275\u0275advance(2);
     \u0275\u0275property("checked", ctx_r1.isSelected(media_item_r11.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(3, 22, "SIGNAGE_MANAGER.SELECT_MEDIA", \u0275\u0275pureFunction1(32, _c1, media_item_r11.name)));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(3, 21, "SIGNAGE_MANAGER.SELECT_MEDIA", \u0275\u0275pureFunction1(31, _c1, media_item_r11.name)));
     \u0275\u0275advance(2);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 25, "SIGNAGE_MANAGER.PREVIEW_MEDIA", \u0275\u0275pureFunction1(34, _c1, media_item_r11.name)));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 24, "SIGNAGE_MANAGER.PREVIEW_MEDIA", \u0275\u0275pureFunction1(33, _c1, media_item_r11.name)));
     \u0275\u0275advance(2);
-    \u0275\u0275property("ngTemplateOutlet", thumb_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(36, _c2, media_item_r11));
+    \u0275\u0275property("item", media_item_r11);
     \u0275\u0275advance(2);
     \u0275\u0275property("matTooltip", media_item_r11.name);
     \u0275\u0275advance();
@@ -1453,7 +1450,7 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Temp
     \u0275\u0275advance(2);
     \u0275\u0275classMap(ctx_r1.typeBadgeClass(media_item_r11));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 28, ctx_r1.typeLabelKey(media_item_r11)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 27, ctx_r1.typeLabelKey(media_item_r11)), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.isExpired(media_item_r11) ? 14 : -1);
     \u0275\u0275advance();
@@ -1461,20 +1458,20 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Temp
     \u0275\u0275advance();
     \u0275\u0275conditional(media_item_r11.tags?.length ? 16 : -1);
     \u0275\u0275advance();
-    \u0275\u0275property("matMenuTriggerFor", menu_r13)("matMenuTriggerData", \u0275\u0275pureFunction1(38, _c2, media_item_r11));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(18, 30, "SIGNAGE_MANAGER.MEDIA_ACTIONS"));
+    \u0275\u0275property("matMenuTriggerFor", menu_r13)("matMenuTriggerData", \u0275\u0275pureFunction1(35, _c2, media_item_r11));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(18, 29, "SIGNAGE_MANAGER.MEDIA_ACTIONS"));
   }
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_div_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 43)(1, "icon", 44);
+    \u0275\u0275elementStart(0, "div", 42)(1, "icon", 43);
     \u0275\u0275text(2, "add");
     \u0275\u0275elementEnd()();
   }
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 50);
+    \u0275\u0275elementStart(0, "div", 49);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -1486,14 +1483,14 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Cond
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 51)(1, "icon", 58);
+    \u0275\u0275elementStart(0, "div", 50)(1, "icon", 57);
     \u0275\u0275text(2, "expand_content");
     \u0275\u0275elementEnd()();
   }
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 53);
+    \u0275\u0275elementStart(0, "div", 52);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "mediaDuration");
     \u0275\u0275elementEnd();
@@ -1506,19 +1503,19 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Cond
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_20_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 59);
+    \u0275\u0275elementStart(0, "span", 58);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const tag_r16 = ctx.$implicit;
+    const tag_r15 = ctx.$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", tag_r16, " ");
+    \u0275\u0275textInterpolate1(" ", tag_r15, " ");
   }
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_20_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 60);
+    \u0275\u0275elementStart(0, "span", 59);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1532,9 +1529,9 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Cond
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 57);
-    \u0275\u0275repeaterCreate(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_20_For_2_Template, 2, 1, "span", 59, \u0275\u0275repeaterTrackByIdentity);
-    \u0275\u0275conditionalCreate(3, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_20_Conditional_3_Template, 2, 2, "span", 60);
+    \u0275\u0275elementStart(0, "div", 56);
+    \u0275\u0275repeaterCreate(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_20_For_2_Template, 2, 1, "span", 58, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275conditionalCreate(3, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_20_Conditional_3_Template, 2, 2, "span", 59);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1548,75 +1545,74 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Cond
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r15 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 47);
-    \u0275\u0275template(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_div_1_Template, 3, 0, "div", 31);
-    \u0275\u0275elementStart(2, "mat-checkbox", 48);
+    const _r14 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 46);
+    \u0275\u0275template(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_div_1_Template, 3, 0, "div", 30);
+    \u0275\u0275elementStart(2, "mat-checkbox", 47);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275listener("click", function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Template_mat_checkbox_click_2_listener($event) {
       return $event.stopPropagation();
     })("change", function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Template_mat_checkbox_change_2_listener() {
-      \u0275\u0275restoreView(_r15);
+      \u0275\u0275restoreView(_r14);
       const media_item_r11 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.toggleSelection(media_item_r11.id));
     });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "button", 49);
+    \u0275\u0275elementStart(4, "button", 48);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275listener("click", function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Template_button_click_4_listener() {
-      \u0275\u0275restoreView(_r15);
+      \u0275\u0275restoreView(_r14);
       const media_item_r11 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.previewItem(media_item_r11));
     });
-    \u0275\u0275conditionalCreate(6, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_6_Template, 3, 3, "div", 50);
-    \u0275\u0275elementContainer(7, 34);
-    \u0275\u0275conditionalCreate(8, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_8_Template, 3, 0, "div", 51);
-    \u0275\u0275elementStart(9, "div", 52);
+    \u0275\u0275conditionalCreate(6, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_6_Template, 3, 3, "div", 49);
+    \u0275\u0275element(7, "media-thumbnail", 33);
+    \u0275\u0275conditionalCreate(8, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_8_Template, 3, 0, "div", 50);
+    \u0275\u0275elementStart(9, "div", 51);
     \u0275\u0275text(10);
     \u0275\u0275pipe(11, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(12, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_12_Template, 3, 3, "div", 53);
+    \u0275\u0275conditionalCreate(12, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_12_Template, 3, 3, "div", 52);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "div", 54)(14, "button", 55);
+    \u0275\u0275elementStart(13, "div", 53)(14, "button", 54);
     \u0275\u0275listener("click", function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Template_button_click_14_listener() {
-      \u0275\u0275restoreView(_r15);
+      \u0275\u0275restoreView(_r14);
       const media_item_r11 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.toggleSelection(media_item_r11.id));
     });
     \u0275\u0275text(15);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(16, "button", 56);
+    \u0275\u0275elementStart(16, "button", 55);
     \u0275\u0275pipe(17, "translate");
     \u0275\u0275elementStart(18, "icon");
     \u0275\u0275text(19, "more_vert");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(20, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_20_Template, 4, 1, "div", 57);
+    \u0275\u0275conditionalCreate(20, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Conditional_20_Template, 4, 1, "div", 56);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const media_item_r11 = \u0275\u0275nextContext().$implicit;
     const ctx_r1 = \u0275\u0275nextContext(3);
     const menu_r13 = \u0275\u0275reference(4);
-    const thumb_r14 = \u0275\u0275reference(7);
     \u0275\u0275classProp("opacity-60", ctx_r1.isExpired(media_item_r11))("ring-2", ctx_r1.isSelected(media_item_r11.id))("ring-primary", ctx_r1.isSelected(media_item_r11.id));
     \u0275\u0275advance(2);
     \u0275\u0275property("checked", ctx_r1.isSelected(media_item_r11.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(3, 23, "SIGNAGE_MANAGER.SELECT_MEDIA", \u0275\u0275pureFunction1(33, _c1, media_item_r11.name)));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(3, 22, "SIGNAGE_MANAGER.SELECT_MEDIA", \u0275\u0275pureFunction1(32, _c1, media_item_r11.name)));
     \u0275\u0275advance(2);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 26, "SIGNAGE_MANAGER.PREVIEW_MEDIA", \u0275\u0275pureFunction1(35, _c1, media_item_r11.name)));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 25, "SIGNAGE_MANAGER.PREVIEW_MEDIA", \u0275\u0275pureFunction1(34, _c1, media_item_r11.name)));
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.isExpired(media_item_r11) ? 6 : -1);
     \u0275\u0275advance();
-    \u0275\u0275property("ngTemplateOutlet", thumb_r14)("ngTemplateOutletContext", \u0275\u0275pureFunction1(37, _c2, media_item_r11));
+    \u0275\u0275property("item", media_item_r11);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.thumbnailUrl(media_item_r11) ? 8 : -1);
     \u0275\u0275advance();
     \u0275\u0275classMap(ctx_r1.typeBadgeClass(media_item_r11));
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 29, ctx_r1.typeLabelKey(media_item_r11)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 28, ctx_r1.typeLabelKey(media_item_r11)), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(media_item_r11.play_time ? 12 : -1);
     \u0275\u0275advance(2);
@@ -1624,15 +1620,15 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Temp
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", media_item_r11.name, " ");
     \u0275\u0275advance();
-    \u0275\u0275property("matMenuTriggerFor", menu_r13)("matMenuTriggerData", \u0275\u0275pureFunction1(39, _c2, media_item_r11));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(17, 31, "SIGNAGE_MANAGER.MEDIA_ACTIONS"));
+    \u0275\u0275property("matMenuTriggerFor", menu_r13)("matMenuTriggerData", \u0275\u0275pureFunction1(36, _c2, media_item_r11));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(17, 30, "SIGNAGE_MANAGER.MEDIA_ACTIONS"));
     \u0275\u0275advance(4);
     \u0275\u0275conditional(media_item_r11.tags?.length ? 20 : -1);
   }
 }
 function MediaListComponent_Conditional_2_Conditional_1_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Template, 21, 40, "div", 28)(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Template, 21, 41, "div", 29);
+    \u0275\u0275conditionalCreate(0, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_0_Template, 21, 37, "div", 27)(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Conditional_1_Template, 21, 38, "div", 28);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(3);
@@ -1641,10 +1637,10 @@ function MediaListComponent_Conditional_2_Conditional_1_For_2_Template(rf, ctx) 
 }
 function MediaListComponent_Conditional_2_Conditional_1_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    const _r17 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 61);
+    const _r16 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 60);
     \u0275\u0275listener("intersect", function MediaListComponent_Conditional_2_Conditional_1_Conditional_3_Template_div_intersect_0_listener() {
-      \u0275\u0275restoreView(_r17);
+      \u0275\u0275restoreView(_r16);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.loadMore());
     });
@@ -1653,7 +1649,7 @@ function MediaListComponent_Conditional_2_Conditional_1_Conditional_3_Template(r
 }
 function MediaListComponent_Conditional_2_Conditional_1_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 27);
+    \u0275\u0275elementStart(0, "div", 26);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -1666,14 +1662,14 @@ function MediaListComponent_Conditional_2_Conditional_1_Conditional_4_Template(r
 function MediaListComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 25);
+    \u0275\u0275elementStart(0, "div", 24);
     \u0275\u0275listener("cdkDropListDropped", function MediaListComponent_Conditional_2_Conditional_1_Template_div_cdkDropListDropped_0_listener($event) {
       \u0275\u0275restoreView(_r9);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.drop($event));
     });
     \u0275\u0275repeaterCreate(1, MediaListComponent_Conditional_2_Conditional_1_For_2_Template, 2, 1, null, null, _forTrack12);
-    \u0275\u0275conditionalCreate(3, MediaListComponent_Conditional_2_Conditional_1_Conditional_3_Template, 1, 0, "div", 26)(4, MediaListComponent_Conditional_2_Conditional_1_Conditional_4_Template, 3, 3, "div", 27);
+    \u0275\u0275conditionalCreate(3, MediaListComponent_Conditional_2_Conditional_1_Conditional_3_Template, 1, 0, "div", 25)(4, MediaListComponent_Conditional_2_Conditional_1_Conditional_4_Template, 3, 3, "div", 26);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1688,14 +1684,14 @@ function MediaListComponent_Conditional_2_Conditional_1_Template(rf, ctx) {
 }
 function MediaListComponent_Conditional_2_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9);
-    \u0275\u0275element(1, "mat-spinner", 16);
+    \u0275\u0275elementStart(0, "div", 8);
+    \u0275\u0275element(1, "mat-spinner", 15);
     \u0275\u0275elementEnd();
   }
 }
 function MediaListComponent_Conditional_2_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 10)(1, "icon", 17);
+    \u0275\u0275elementStart(0, "div", 9)(1, "icon", 16);
     \u0275\u0275text(2, "hide_image");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -1710,8 +1706,8 @@ function MediaListComponent_Conditional_2_Conditional_3_Template(rf, ctx) {
 }
 function MediaListComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, MediaListComponent_Conditional_2_Conditional_0_Template, 10, 8, "div", 18);
-    \u0275\u0275conditionalCreate(1, MediaListComponent_Conditional_2_Conditional_1_Template, 5, 5, "div", 19)(2, MediaListComponent_Conditional_2_Conditional_2_Template, 2, 0, "div", 9)(3, MediaListComponent_Conditional_2_Conditional_3_Template, 6, 3, "div", 10);
+    \u0275\u0275conditionalCreate(0, MediaListComponent_Conditional_2_Conditional_0_Template, 10, 8, "div", 17);
+    \u0275\u0275conditionalCreate(1, MediaListComponent_Conditional_2_Conditional_1_Template, 5, 5, "div", 18)(2, MediaListComponent_Conditional_2_Conditional_2_Template, 2, 0, "div", 8)(3, MediaListComponent_Conditional_2_Conditional_3_Template, 6, 3, "div", 9);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -1722,18 +1718,18 @@ function MediaListComponent_Conditional_2_Template(rf, ctx) {
 }
 function MediaListComponent_ng_template_5_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    const _r19 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 63);
+    const _r18 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 62);
     \u0275\u0275listener("click", function MediaListComponent_ng_template_5_Conditional_0_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r19);
-      const media_item_r20 = \u0275\u0275nextContext().item;
+      \u0275\u0275restoreView(_r18);
+      const media_item_r19 = \u0275\u0275nextContext().item;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.editItem(media_item_r20));
+      return \u0275\u0275resetView(ctx_r1.editItem(media_item_r19));
     });
-    \u0275\u0275elementStart(1, "div", 64)(2, "icon", 58);
+    \u0275\u0275elementStart(1, "div", 63)(2, "icon", 57);
     \u0275\u0275text(3, "edit");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 65);
+    \u0275\u0275elementStart(4, "div", 64);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
@@ -1745,18 +1741,18 @@ function MediaListComponent_ng_template_5_Conditional_0_Template(rf, ctx) {
 }
 function MediaListComponent_ng_template_5_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r21 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 63);
+    const _r20 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 62);
     \u0275\u0275listener("click", function MediaListComponent_ng_template_5_Conditional_1_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r21);
-      const media_item_r20 = \u0275\u0275nextContext().item;
+      \u0275\u0275restoreView(_r20);
+      const media_item_r19 = \u0275\u0275nextContext().item;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.addToPlaylist(media_item_r20.id));
+      return \u0275\u0275resetView(ctx_r1.addToPlaylist(media_item_r19.id));
     });
-    \u0275\u0275elementStart(1, "div", 64)(2, "icon", 58);
+    \u0275\u0275elementStart(1, "div", 63)(2, "icon", 57);
     \u0275\u0275text(3, "add");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 65);
+    \u0275\u0275elementStart(4, "div", 64);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
@@ -1768,18 +1764,18 @@ function MediaListComponent_ng_template_5_Conditional_1_Template(rf, ctx) {
 }
 function MediaListComponent_ng_template_5_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    const _r22 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 63);
+    const _r21 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 62);
     \u0275\u0275listener("click", function MediaListComponent_ng_template_5_Conditional_2_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r22);
-      const media_item_r20 = \u0275\u0275nextContext().item;
+      \u0275\u0275restoreView(_r21);
+      const media_item_r19 = \u0275\u0275nextContext().item;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.shareItem(media_item_r20));
+      return \u0275\u0275resetView(ctx_r1.shareItem(media_item_r19));
     });
-    \u0275\u0275elementStart(1, "div", 64)(2, "icon", 58);
+    \u0275\u0275elementStart(1, "div", 63)(2, "icon", 57);
     \u0275\u0275text(3, "ios_share");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 65);
+    \u0275\u0275elementStart(4, "div", 64);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
@@ -1791,18 +1787,18 @@ function MediaListComponent_ng_template_5_Conditional_2_Template(rf, ctx) {
 }
 function MediaListComponent_ng_template_5_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    const _r23 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 63);
+    const _r22 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 62);
     \u0275\u0275listener("click", function MediaListComponent_ng_template_5_Conditional_10_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r23);
-      const media_item_r20 = \u0275\u0275nextContext().item;
+      \u0275\u0275restoreView(_r22);
+      const media_item_r19 = \u0275\u0275nextContext().item;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.removeItem(media_item_r20));
+      return \u0275\u0275resetView(ctx_r1.removeItem(media_item_r19));
     });
-    \u0275\u0275elementStart(1, "div", 64)(2, "icon", 66);
+    \u0275\u0275elementStart(1, "div", 63)(2, "icon", 65);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 65);
+    \u0275\u0275elementStart(4, "div", 64);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
@@ -1814,24 +1810,24 @@ function MediaListComponent_ng_template_5_Conditional_10_Template(rf, ctx) {
 }
 function MediaListComponent_ng_template_5_Template(rf, ctx) {
   if (rf & 1) {
-    const _r18 = \u0275\u0275getCurrentView();
-    \u0275\u0275conditionalCreate(0, MediaListComponent_ng_template_5_Conditional_0_Template, 7, 3, "button", 62);
-    \u0275\u0275conditionalCreate(1, MediaListComponent_ng_template_5_Conditional_1_Template, 7, 3, "button", 62);
-    \u0275\u0275conditionalCreate(2, MediaListComponent_ng_template_5_Conditional_2_Template, 7, 3, "button", 62);
-    \u0275\u0275elementStart(3, "button", 63);
+    const _r17 = \u0275\u0275getCurrentView();
+    \u0275\u0275conditionalCreate(0, MediaListComponent_ng_template_5_Conditional_0_Template, 7, 3, "button", 61);
+    \u0275\u0275conditionalCreate(1, MediaListComponent_ng_template_5_Conditional_1_Template, 7, 3, "button", 61);
+    \u0275\u0275conditionalCreate(2, MediaListComponent_ng_template_5_Conditional_2_Template, 7, 3, "button", 61);
+    \u0275\u0275elementStart(3, "button", 62);
     \u0275\u0275listener("click", function MediaListComponent_ng_template_5_Template_button_click_3_listener() {
-      const media_item_r20 = \u0275\u0275restoreView(_r18).item;
+      const media_item_r19 = \u0275\u0275restoreView(_r17).item;
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.previewItem(media_item_r20));
+      return \u0275\u0275resetView(ctx_r1.previewItem(media_item_r19));
     });
-    \u0275\u0275elementStart(4, "div", 64)(5, "icon", 58);
+    \u0275\u0275elementStart(4, "div", 63)(5, "icon", 57);
     \u0275\u0275text(6, "visibility");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "div", 65);
+    \u0275\u0275elementStart(7, "div", 64);
     \u0275\u0275text(8);
     \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(10, MediaListComponent_ng_template_5_Conditional_10_Template, 7, 3, "button", 62);
+    \u0275\u0275conditionalCreate(10, MediaListComponent_ng_template_5_Conditional_10_Template, 7, 3, "button", 61);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -1846,60 +1842,14 @@ function MediaListComponent_ng_template_5_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.can_delete() ? 10 : -1);
   }
 }
-function MediaListComponent_ng_template_6_Conditional_0_Template(rf, ctx) {
+function MediaListComponent_Conditional_6_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 67)(1, "icon", 69);
-    \u0275\u0275text(2, "http");
-    \u0275\u0275elementEnd()();
-  }
-}
-function MediaListComponent_ng_template_6_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 67)(1, "icon", 69);
-    \u0275\u0275text(2, "extension");
-    \u0275\u0275elementEnd()();
-  }
-}
-function MediaListComponent_ng_template_6_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "img", 68);
-  }
-  if (rf & 2) {
-    const item_r24 = \u0275\u0275nextContext().item;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("source", ctx_r1.thumbnailUrl(item_r24))("alt", item_r24.name + " thumbnail");
-  }
-}
-function MediaListComponent_ng_template_6_Conditional_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 67)(1, "icon", 69);
-    \u0275\u0275text(2);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const item_r24 = \u0275\u0275nextContext().item;
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(item_r24.media_type === "video" ? "video_library" : "image");
-  }
-}
-function MediaListComponent_ng_template_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, MediaListComponent_ng_template_6_Conditional_0_Template, 3, 0, "div", 67)(1, MediaListComponent_ng_template_6_Conditional_1_Template, 3, 0, "div", 67)(2, MediaListComponent_ng_template_6_Conditional_2_Template, 1, 2, "img", 68)(3, MediaListComponent_ng_template_6_Conditional_3_Template, 3, 1, "div", 67);
-  }
-  if (rf & 2) {
-    const item_r24 = ctx.item;
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(item_r24.media_type === "webpage" && !ctx_r1.thumbnailUrl(item_r24) ? 0 : item_r24.media_type === "plugin" && !ctx_r1.thumbnailUrl(item_r24) ? 1 : ctx_r1.thumbnailUrl(item_r24) ? 2 : 3);
-  }
-}
-function MediaListComponent_Conditional_8_Conditional_11_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r26 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 76);
+    const _r24 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 72);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_11_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r26);
+    \u0275\u0275listener("click", function MediaListComponent_Conditional_6_Conditional_11_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r24);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.addTagsToSelected());
     });
@@ -1912,13 +1862,13 @@ function MediaListComponent_Conditional_8_Conditional_11_Template(rf, ctx) {
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "COMMON.TAGS"));
   }
 }
-function MediaListComponent_Conditional_8_Conditional_12_Template(rf, ctx) {
+function MediaListComponent_Conditional_6_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    const _r27 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 77);
+    const _r25 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 73);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_12_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r27);
+    \u0275\u0275listener("click", function MediaListComponent_Conditional_6_Conditional_12_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r25);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.deleteSelected());
     });
@@ -1930,13 +1880,13 @@ function MediaListComponent_Conditional_8_Conditional_12_Template(rf, ctx) {
     \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 1, "COMMON.DELETE"));
   }
 }
-function MediaListComponent_Conditional_8_Conditional_13_Template(rf, ctx) {
+function MediaListComponent_Conditional_6_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    const _r28 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 76);
+    const _r26 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 72);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_13_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r28);
+    \u0275\u0275listener("click", function MediaListComponent_Conditional_6_Conditional_13_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r26);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.addSelectedToPlaylist());
     });
@@ -1948,13 +1898,13 @@ function MediaListComponent_Conditional_8_Conditional_13_Template(rf, ctx) {
     \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 1, "SIGNAGE_MANAGER.ADD_TO_PLAYLIST"));
   }
 }
-function MediaListComponent_Conditional_8_Conditional_14_Template(rf, ctx) {
+function MediaListComponent_Conditional_6_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    const _r29 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 76);
+    const _r27 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 72);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Conditional_14_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r29);
+    \u0275\u0275listener("click", function MediaListComponent_Conditional_6_Conditional_14_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r27);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.shareSelected());
     });
@@ -1966,29 +1916,29 @@ function MediaListComponent_Conditional_8_Conditional_14_Template(rf, ctx) {
     \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 1, "SIGNAGE_MANAGER.SHARE"));
   }
 }
-function MediaListComponent_Conditional_8_Template(rf, ctx) {
+function MediaListComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    const _r25 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "footer", 4)(1, "div", 70)(2, "button", 71);
+    const _r23 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "footer", 3)(1, "div", 66)(2, "button", 67);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275pipe(4, "translate");
-    \u0275\u0275listener("click", function MediaListComponent_Conditional_8_Template_button_click_2_listener() {
-      \u0275\u0275restoreView(_r25);
+    \u0275\u0275listener("click", function MediaListComponent_Conditional_6_Template_button_click_2_listener() {
+      \u0275\u0275restoreView(_r23);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.clearSelection());
     });
     \u0275\u0275elementStart(5, "icon");
     \u0275\u0275text(6, "close");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 72);
+    \u0275\u0275elementStart(7, "div", 68);
     \u0275\u0275text(8);
     \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "div", 73);
-    \u0275\u0275conditionalCreate(11, MediaListComponent_Conditional_8_Conditional_11_Template, 5, 6, "button", 74);
-    \u0275\u0275conditionalCreate(12, MediaListComponent_Conditional_8_Conditional_12_Template, 4, 3, "button", 75);
-    \u0275\u0275conditionalCreate(13, MediaListComponent_Conditional_8_Conditional_13_Template, 4, 3, "button", 74);
-    \u0275\u0275conditionalCreate(14, MediaListComponent_Conditional_8_Conditional_14_Template, 4, 3, "button", 74);
+    \u0275\u0275elementStart(10, "div", 69);
+    \u0275\u0275conditionalCreate(11, MediaListComponent_Conditional_6_Conditional_11_Template, 5, 6, "button", 70);
+    \u0275\u0275conditionalCreate(12, MediaListComponent_Conditional_6_Conditional_12_Template, 4, 3, "button", 71);
+    \u0275\u0275conditionalCreate(13, MediaListComponent_Conditional_6_Conditional_13_Template, 4, 3, "button", 70);
+    \u0275\u0275conditionalCreate(14, MediaListComponent_Conditional_6_Conditional_14_Template, 4, 3, "button", 70);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -2245,29 +2195,27 @@ var MediaListComponent = class _MediaListComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaListComponent, selectors: [["media-list"]], inputs: { playlist_count: [1, "playlist_count"] }, decls: 9, vars: 3, consts: [["menu", "matMenu"], ["thumb", ""], ["group_tabs_panel", ""], ["matMenuContent", ""], ["aria-live", "polite", 1, "bg-base-100", "border-base-300", "sticky", "bottom-2", "z-20", "mx-2", "mt-2", "flex", "items-center", "justify-between", "gap-2", "rounded-xl", "border", "p-2", "shadow-lg"], ["mat-tab-nav-bar", "", 1, "bg-base-100/95", "border-base-300", "sticky", "top-2", "z-30", "mx-2", "rounded-xl", "border", 3, "tabPanel"], ["mat-tab-link", "", "type", "button", 3, "active"], ["mat-tab-link", "", "type", "button", 3, "click", "active"], ["role", "list", 1, "grid", "w-full", "grid-cols-2", "gap-4", "p-4", "sm:grid-cols-3", "lg:grid-cols-4", "xl:grid-cols-6"], [1, "mx-auto", "flex", "flex-1", "flex-col", "items-center", "justify-center", "p-8"], [1, "text-base-content/70", "mx-auto", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["type", "button", "role", "listitem", "matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-4", "hover:shadow-xl"], ["type", "button", "role", "listitem", "matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-4", "hover:shadow-xl", 3, "click"], [1, "text-warning", "-my-2", "text-8xl"], [1, "text-base-content", "w-full", "truncate", "text-center", "font-medium", 3, "matTooltip"], [1, "text-base-content/60", "text-xs"], ["diameter", "32"], [1, "text-6xl"], [1, "text-base-content/80", "sticky", "z-30", "mx-2", "mt-4", "items-center", "gap-1", "px-2", "text-sm", 3, "top-2", "top-16"], ["cdkDropList", "", "id", "media-list", "role", "list", 3, "class", "cdkDropListData", "cdkDropListConnectedTo"], [1, "text-base-content/80", "sticky", "z-30", "mx-2", "mt-4", "items-center", "gap-1", "px-2", "text-sm"], [1, "bg-base-100", "border-base-300", "inline-flex", "items-center", "rounded-xl", "border", "p-1"], ["type", "button", "matRipple", "", 1, "hover:text-base-content", "flex", "items-center", "gap-1", "rounded-lg", "px-4", "py-2", "underline", 3, "click"], [1, "text-base-content/60", "text-xl"], [1, "text-base-content", "px-4", "font-medium"], ["cdkDropList", "", "id", "media-list", "role", "list", 3, "cdkDropListDropped", "cdkDropListData", "cdkDropListConnectedTo"], ["intersect", "", 1, "col-span-full", "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "rounded-lg", "p-2", "text-center", "text-xs"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-2", "hover:shadow-md", 3, "opacity-60", "ring-2", "ring-primary"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-3", "hover:opacity-80", "hover:shadow-xl", 3, "opacity-60", "ring-2", "ring-primary"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-2", "hover:shadow-md"], ["class", "border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30", 4, "cdkDragPlaceholder"], [3, "click", "change", "checked"], ["preview", "", "type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-14", "w-20", "flex-none", "overflow-hidden", "rounded", 3, "click"], [3, "ngTemplateOutlet", "ngTemplateOutletContext"], [1, "flex", "w-px", "flex-1", "flex-col"], [1, "text-base-content", "w-full", "truncate", "text-left", 3, "click", "matTooltip"], [1, "flex", "items-center", "gap-2"], [1, "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "bg-error", "text-error-content", "rounded", "px-2", "py-1", "text-xs", "font-bold"], [1, "text-base-content/70", "hidden", "font-mono", "text-xs", "sm:block"], [1, "hidden", "items-center", "gap-1", "lg:flex"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matMenuTriggerFor", "matMenuTriggerData"], [1, "border-base-400", "bg-base-300", "flex", "min-h-10", "min-w-10", "items-center", "justify-center", "rounded-2xl", "border-4", "border-dashed", "opacity-30"], [1, "text-base-100", "text-2xl"], [1, "bg-info-light", "text-info", "max-w-32", "truncate", "rounded-full", "px-2", "py-1", "text-[0.625rem]", "font-medium"], [1, "bg-info-light", "text-info", "rounded-full", "px-2", "py-1", "text-[0.625rem]", "font-medium", 3, "matTooltip"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-3", "hover:opacity-80", "hover:shadow-xl"], [1, "absolute", "top-4", "right-4", "z-20", "rounded", 3, "click", "change", "checked"], ["preview", "", "type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-36", "w-full", "overflow-hidden", "rounded-lg", 3, "click"], [1, "bg-error", "text-error-content", "absolute", "inset-x-0", "top-1/2", "z-10", "-translate-y-1/2", "py-1", "text-center", "text-xs", "font-bold", "tracking-wide"], [1, "absolute", "inset-0", "flex", "items-end", "justify-end", "p-1", "opacity-0", "transition-opacity", "duration-200", "hover:opacity-100"], [1, "absolute", "top-1", "left-1", "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "bg-info", "text-info-content", "absolute", "right-1", "bottom-1", "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "relative", "top-1", "flex", "w-full", "items-center", "justify-between"], [1, "text-base-content", "w-1/2", "flex-1", "truncate", "text-left", 3, "click", "matTooltip"], ["icon", "", "type", "button", "matRipple", "", 3, "matMenuTriggerFor", "matMenuTriggerData"], [1, "flex", "min-h-6", "w-full", "items-center", "gap-1", "overflow-hidden"], [1, "text-2xl"], [1, "bg-info-light", "text-info", "max-w-[45%]", "truncate", "rounded-full", "px-2", "py-1", "text-xs", "font-medium"], [1, "bg-info-light", "text-info", "rounded-full", "px-2", "py-1", "text-xs", "font-medium", 3, "matTooltip"], ["intersect", "", 1, "col-span-full", "h-px", "w-full", 3, "intersect"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "pr-2"], [1, "text-error", "text-2xl"], [1, "flex", "h-full", "w-full", "items-center", "justify-center"], ["auth", "", 1, "absolute", "-inset-px", "flex", "h-full", "w-full", "items-center", "justify-center", "rounded-lg", "object-contain", "object-center", 3, "source", "alt"], [1, "text-8xl", "opacity-30"], [1, "flex", "items-center", "gap-3"], ["icon", "", "matRipple", "", 1, "hover:bg-base-200", "rounded-xl", 3, "click", "matTooltip"], [1, "font-medium"], [1, "flex", "flex-wrap", "items-center", "gap-2"], ["icon", "", "default", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "matRipple", "", "error", "", 3, "matTooltip"], ["icon", "", "default", "", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "default", "", "matRipple", "", "error", "", 3, "click", "matTooltip"]], template: function MediaListComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaListComponent, selectors: [["media-list"]], inputs: { playlist_count: [1, "playlist_count"] }, decls: 7, vars: 3, consts: [["menu", "matMenu"], ["group_tabs_panel", ""], ["matMenuContent", ""], ["aria-live", "polite", 1, "bg-base-100", "border-base-300", "sticky", "bottom-2", "z-20", "mx-2", "mt-2", "flex", "items-center", "justify-between", "gap-2", "rounded-xl", "border", "p-2", "shadow-lg"], ["mat-tab-nav-bar", "", 1, "bg-base-100/95", "border-base-300", "sticky", "top-2", "z-30", "mx-2", "rounded-xl", "border", 3, "tabPanel"], ["mat-tab-link", "", "type", "button", 3, "active"], ["mat-tab-link", "", "type", "button", 3, "click", "active"], ["role", "list", 1, "grid", "w-full", "grid-cols-2", "gap-4", "p-4", "sm:grid-cols-3", "lg:grid-cols-4", "xl:grid-cols-6"], [1, "mx-auto", "flex", "flex-1", "flex-col", "items-center", "justify-center", "p-8"], [1, "text-base-content/70", "mx-auto", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["type", "button", "role", "listitem", "matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-4", "hover:shadow-xl"], ["type", "button", "role", "listitem", "matRipple", "", 1, "border-base-300", "bg-base-100", "hover:border-info", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-4", "hover:shadow-xl", 3, "click"], [1, "text-warning", "-my-2", "text-8xl"], [1, "text-base-content", "w-full", "truncate", "text-center", "font-medium", 3, "matTooltip"], [1, "text-base-content/60", "text-xs"], ["diameter", "32"], [1, "text-6xl"], [1, "text-base-content/80", "sticky", "z-30", "mx-2", "mt-4", "items-center", "gap-1", "px-2", "text-sm", 3, "top-2", "top-16"], ["cdkDropList", "", "id", "media-list", "role", "list", 3, "class", "cdkDropListData", "cdkDropListConnectedTo"], [1, "text-base-content/80", "sticky", "z-30", "mx-2", "mt-4", "items-center", "gap-1", "px-2", "text-sm"], [1, "bg-base-100", "border-base-300", "inline-flex", "items-center", "rounded-xl", "border", "p-1"], ["type", "button", "matRipple", "", 1, "hover:text-base-content", "flex", "items-center", "gap-1", "rounded-lg", "px-4", "py-2", "underline", 3, "click"], [1, "text-base-content/60", "text-xl"], [1, "text-base-content", "px-4", "font-medium"], ["cdkDropList", "", "id", "media-list", "role", "list", 3, "cdkDropListDropped", "cdkDropListData", "cdkDropListConnectedTo"], ["intersect", "", 1, "col-span-full", "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "rounded-lg", "p-2", "text-center", "text-xs"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-2", "hover:shadow-md", 3, "opacity-60", "ring-2", "ring-primary"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-3", "hover:opacity-80", "hover:shadow-xl", 3, "opacity-60", "ring-2", "ring-primary"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-2", "hover:shadow-md"], ["class", "border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30", 4, "cdkDragPlaceholder"], [3, "click", "change", "checked"], ["preview", "", "type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-14", "w-20", "flex-none", "overflow-hidden", "rounded", 3, "click"], [1, "h-full", "w-full", 3, "item"], [1, "flex", "w-px", "flex-1", "flex-col"], [1, "text-base-content", "w-full", "truncate", "text-left", 3, "click", "matTooltip"], [1, "flex", "items-center", "gap-2"], [1, "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "bg-error", "text-error-content", "rounded", "px-2", "py-1", "text-xs", "font-bold"], [1, "text-base-content/70", "hidden", "font-mono", "text-xs", "sm:block"], [1, "hidden", "items-center", "gap-1", "lg:flex"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matMenuTriggerFor", "matMenuTriggerData"], [1, "border-base-400", "bg-base-300", "flex", "min-h-10", "min-w-10", "items-center", "justify-center", "rounded-2xl", "border-4", "border-dashed", "opacity-30"], [1, "text-base-100", "text-2xl"], [1, "bg-info-light", "text-info", "max-w-32", "truncate", "rounded-full", "px-2", "py-1", "text-[0.625rem]", "font-medium"], [1, "bg-info-light", "text-info", "rounded-full", "px-2", "py-1", "text-[0.625rem]", "font-medium", 3, "matTooltip"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "hover:border-info", "relative", "flex", "flex-col", "items-center", "justify-center", "rounded-lg", "border", "p-3", "hover:opacity-80", "hover:shadow-xl"], [1, "absolute", "top-4", "right-4", "z-20", "rounded", 3, "click", "change", "checked"], ["preview", "", "type", "button", "matRipple", "", 1, "bg-base-200", "relative", "h-36", "w-full", "overflow-hidden", "rounded-lg", 3, "click"], [1, "bg-error", "text-error-content", "absolute", "inset-x-0", "top-1/2", "z-10", "-translate-y-1/2", "py-1", "text-center", "text-xs", "font-bold", "tracking-wide"], [1, "absolute", "inset-0", "flex", "items-end", "justify-end", "p-1", "opacity-0", "transition-opacity", "duration-200", "hover:opacity-100"], [1, "absolute", "top-1", "left-1", "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "bg-info", "text-info-content", "absolute", "right-1", "bottom-1", "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "relative", "top-1", "flex", "w-full", "items-center", "justify-between"], [1, "text-base-content", "w-1/2", "flex-1", "truncate", "text-left", 3, "click", "matTooltip"], ["icon", "", "type", "button", "matRipple", "", 3, "matMenuTriggerFor", "matMenuTriggerData"], [1, "flex", "min-h-6", "w-full", "items-center", "gap-1", "overflow-hidden"], [1, "text-2xl"], [1, "bg-info-light", "text-info", "max-w-[45%]", "truncate", "rounded-full", "px-2", "py-1", "text-xs", "font-medium"], [1, "bg-info-light", "text-info", "rounded-full", "px-2", "py-1", "text-xs", "font-medium", 3, "matTooltip"], ["intersect", "", 1, "col-span-full", "h-px", "w-full", 3, "intersect"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "pr-2"], [1, "text-error", "text-2xl"], [1, "flex", "items-center", "gap-3"], ["icon", "", "matRipple", "", 1, "hover:bg-base-200", "rounded-xl", 3, "click", "matTooltip"], [1, "font-medium"], [1, "flex", "flex-wrap", "items-center", "gap-2"], ["icon", "", "default", "", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "matRipple", "", "error", "", 3, "matTooltip"], ["icon", "", "default", "", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "default", "", "matRipple", "", "error", "", 3, "click", "matTooltip"]], template: function MediaListComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, MediaListComponent_Conditional_0_Template, 7, 5);
         \u0275\u0275conditionalCreate(1, MediaListComponent_Conditional_1_Template, 3, 1)(2, MediaListComponent_Conditional_2_Template, 4, 2);
         \u0275\u0275elementStart(3, "mat-menu", null, 0);
-        \u0275\u0275template(5, MediaListComponent_ng_template_5_Template, 11, 7, "ng-template", 3);
+        \u0275\u0275template(5, MediaListComponent_ng_template_5_Template, 11, 7, "ng-template", 2);
         \u0275\u0275elementEnd();
-        \u0275\u0275template(6, MediaListComponent_ng_template_6_Template, 4, 1, "ng-template", null, 1, \u0275\u0275templateRefExtractor);
-        \u0275\u0275conditionalCreate(8, MediaListComponent_Conditional_8_Template, 15, 16, "footer", 4);
+        \u0275\u0275conditionalCreate(6, MediaListComponent_Conditional_6_Template, 15, 16, "footer", 3);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.can_switch_groups() ? 0 : -1);
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.view_mode() === "folder" && ctx.selected_folder() === null ? 1 : 2);
-        \u0275\u0275advance(7);
-        \u0275\u0275conditional(ctx.selected_count() > 0 ? 8 : -1);
+        \u0275\u0275advance(5);
+        \u0275\u0275conditional(ctx.selected_count() > 0 ? 6 : -1);
       }
     }, dependencies: [
       DragDropModule,
       CdkDropList,
       CdkDrag,
       CdkDragPlaceholder,
-      NgTemplateOutlet,
       MatCheckboxModule,
       MatCheckbox,
       MatRippleModule,
@@ -2286,8 +2234,8 @@ var MediaListComponent = class _MediaListComponent {
       MatTooltipModule,
       MatTooltip,
       IconComponent,
-      AuthenticatedImageDirective,
       IntersectDirective,
+      MediaThumbnailComponent,
       MediaDurationPipe,
       TranslatePipe
     ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  min-height: 100%;\n}\n  .cdk-drag-preview {\n  opacity: 0.6;\n}\n/*# sourceMappingURL=media-list.component.css.map */"] });
@@ -2474,11 +2422,9 @@ var MediaListComponent = class _MediaListComponent {
                                                 : { name: media_item.name }
                                     "
                                 >
-                                    <ng-container
-                                        [ngTemplateOutlet]="thumb"
-                                        [ngTemplateOutletContext]="{
-                                            item: media_item,
-                                        }"
+                                    <media-thumbnail
+                                        [item]="media_item"
+                                        class="h-full w-full"
                                     />
                                 </button>
                                 <div class="flex w-px flex-1 flex-col">
@@ -2625,11 +2571,9 @@ var MediaListComponent = class _MediaListComponent {
                                             }}
                                         </div>
                                     }
-                                    <ng-container
-                                        [ngTemplateOutlet]="thumb"
-                                        [ngTemplateOutletContext]="{
-                                            item: media_item,
-                                        }"
+                                    <media-thumbnail
+                                        [item]="media_item"
+                                        class="h-full w-full"
                                     />
                                     @if (thumbnailUrl(media_item)) {
                                         <div
@@ -2829,32 +2773,6 @@ var MediaListComponent = class _MediaListComponent {
             </ng-template>
         </mat-menu>
 
-        <!-- Shared thumbnail visual (fills its container) -->
-        <ng-template #thumb let-item="item">
-            @if (item.media_type === 'webpage' && !thumbnailUrl(item)) {
-                <div class="flex h-full w-full items-center justify-center">
-                    <icon class="text-8xl opacity-30">http</icon>
-                </div>
-            } @else if (item.media_type === 'plugin' && !thumbnailUrl(item)) {
-                <div class="flex h-full w-full items-center justify-center">
-                    <icon class="text-8xl opacity-30">extension</icon>
-                </div>
-            } @else if (thumbnailUrl(item)) {
-                <img
-                    auth
-                    [source]="thumbnailUrl(item)"
-                    [alt]="item.name + ' thumbnail'"
-                    class="absolute -inset-px flex h-full w-full items-center justify-center rounded-lg object-contain object-center"
-                />
-            } @else {
-                <div class="flex h-full w-full items-center justify-center">
-                    <icon class="text-8xl opacity-30">{{
-                        item.media_type === 'video' ? 'video_library' : 'image'
-                    }}</icon>
-                </div>
-            }
-        </ng-template>
-
         @if (selected_count() > 0) {
             <footer
                 class="bg-base-100 border-base-300 sticky bottom-2 z-20 mx-2 mt-2 flex items-center justify-between gap-2 rounded-xl border p-2 shadow-lg"
@@ -2936,7 +2854,6 @@ var MediaListComponent = class _MediaListComponent {
         }
     `, imports: [
       DragDropModule,
-      NgTemplateOutlet,
       MatCheckboxModule,
       MatRippleModule,
       MatMenuModule,
@@ -2944,15 +2861,15 @@ var MediaListComponent = class _MediaListComponent {
       MatTabsModule,
       MatTooltipModule,
       IconComponent,
-      AuthenticatedImageDirective,
       MediaDurationPipe,
       TranslatePipe,
-      IntersectDirective
+      IntersectDirective,
+      MediaThumbnailComponent
     ], styles: ["/* angular:styles/component:css;10dcc9facf87b8d75511c5e27303f91f43b86c54c7ba8a51e597baef06da70e7;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/media/media-list.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  min-height: 100%;\n}\n::ng-deep .cdk-drag-preview {\n  opacity: 0.6;\n}\n/*# sourceMappingURL=media-list.component.css.map */\n"] }]
   }], () => [], { playlist_count: [{ type: Input, args: [{ isSignal: true, alias: "playlist_count", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaListComponent, { className: "MediaListComponent", filePath: "apps/signage-manager/src/app/media/media-list.component.ts", lineNumber: 704 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaListComponent, { className: "MediaListComponent", filePath: "apps/signage-manager/src/app/media/media-list.component.ts", lineNumber: 672 });
 })();
 
 // apps/signage-manager/src/app/media/playlist-sidebar.component.ts
@@ -2980,38 +2897,9 @@ function PlaylistSidebarComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.CREATE_NEW_PLAYLIST"));
   }
 }
-function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_For_1_Template(rf, ctx) {
+function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 30);
-  }
-  if (rf & 2) {
-    const media_r5 = ctx.$implicit;
-    const \u0275$index_43_r6 = ctx.$index;
-    const \u0275$count_43_r7 = ctx.$count;
-    \u0275\u0275styleProp("top", 0.3 - (\u0275$count_43_r7 - 1) * 0.125 + (\u0275$count_43_r7 - 1 - \u0275$index_43_r6) * 0.25 + "rem")("left", 0.3 - (\u0275$count_43_r7 - 1) * 0.125 + (\u0275$count_43_r7 - 1 - \u0275$index_43_r6) * 0.25 + "rem")("z-index", \u0275$index_43_r6);
-    \u0275\u0275property("source", media_r5);
-  }
-}
-function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_For_1_Template, 1, 7, "img", 29, \u0275\u0275repeaterTrackByIdentity);
-  }
-  if (rf & 2) {
-    const playlist_r4 = \u0275\u0275nextContext().$implicit;
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275repeater(ctx_r1.playlist_thumbnail_media()[playlist_r4.id]);
-  }
-}
-function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 18)(1, "icon", 31);
-    \u0275\u0275text(2, " playlist_play ");
-    \u0275\u0275elementEnd()();
-  }
-}
-function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 22);
+    \u0275\u0275elementStart(0, "span", 21);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -3021,9 +2909,9 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_10_Template(r
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.DISABLED"), " ");
   }
 }
-function PlaylistSidebarComponent_Conditional_16_For_1_Case_11_Template(rf, ctx) {
+function PlaylistSidebarComponent_Conditional_16_For_1_Case_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 23);
+    \u0275\u0275elementStart(0, "span", 22);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -3033,9 +2921,9 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Case_11_Template(rf, ctx)
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.STATUS_EXPIRED"), " ");
   }
 }
-function PlaylistSidebarComponent_Conditional_16_For_1_Case_12_Template(rf, ctx) {
+function PlaylistSidebarComponent_Conditional_16_For_1_Case_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 24);
+    \u0275\u0275elementStart(0, "span", 23);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -3045,9 +2933,9 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Case_12_Template(rf, ctx)
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.PENDING"), " ");
   }
 }
-function PlaylistSidebarComponent_Conditional_16_For_1_Case_13_Template(rf, ctx) {
+function PlaylistSidebarComponent_Conditional_16_For_1_Case_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 25);
+    \u0275\u0275elementStart(0, "span", 24);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -3057,9 +2945,9 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Case_13_Template(rf, ctx)
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW"), " ");
   }
 }
-function PlaylistSidebarComponent_Conditional_16_For_1_Case_14_Template(rf, ctx) {
+function PlaylistSidebarComponent_Conditional_16_For_1_Case_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 26);
+    \u0275\u0275elementStart(0, "span", 25);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -3069,9 +2957,9 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Case_14_Template(rf, ctx)
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.APPROVAL_REQUIRED"), " ");
   }
 }
-function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_15_Template(rf, ctx) {
+function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 27);
+    \u0275\u0275elementStart(0, "div", 26);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -3081,9 +2969,9 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_15_Template(r
     \u0275\u0275textInterpolate1(" ", playlist_r4.description, " ");
   }
 }
-function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_16_Template(rf, ctx) {
+function PlaylistSidebarComponent_Conditional_16_For_1_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 28);
+    \u0275\u0275elementStart(0, "icon", 27);
     \u0275\u0275text(1, "p2p");
     \u0275\u0275elementEnd();
   }
@@ -3099,50 +2987,48 @@ function PlaylistSidebarComponent_Conditional_16_For_1_Template(rf, ctx) {
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onDrop(playlist_r4, $event));
     });
-    \u0275\u0275elementStart(3, "div", 17);
-    \u0275\u0275conditionalCreate(4, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_4_Template, 2, 0)(5, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_5_Template, 3, 0, "div", 18);
+    \u0275\u0275element(3, "playlist-thumbnail", 17);
+    \u0275\u0275elementStart(4, "div", 18)(5, "div", 19);
+    \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 19)(7, "div", 20);
-    \u0275\u0275text(8);
+    \u0275\u0275elementStart(7, "div", 20);
+    \u0275\u0275conditionalCreate(8, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_8_Template, 3, 3, "span", 21);
+    \u0275\u0275conditionalCreate(9, PlaylistSidebarComponent_Conditional_16_For_1_Case_9_Template, 3, 3, "span", 22)(10, PlaylistSidebarComponent_Conditional_16_For_1_Case_10_Template, 3, 3, "span", 23)(11, PlaylistSidebarComponent_Conditional_16_For_1_Case_11_Template, 3, 3, "span", 24)(12, PlaylistSidebarComponent_Conditional_16_For_1_Case_12_Template, 3, 3, "span", 25);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "div", 21);
-    \u0275\u0275conditionalCreate(10, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_10_Template, 3, 3, "span", 22);
-    \u0275\u0275conditionalCreate(11, PlaylistSidebarComponent_Conditional_16_For_1_Case_11_Template, 3, 3, "span", 23)(12, PlaylistSidebarComponent_Conditional_16_For_1_Case_12_Template, 3, 3, "span", 24)(13, PlaylistSidebarComponent_Conditional_16_For_1_Case_13_Template, 3, 3, "span", 25)(14, PlaylistSidebarComponent_Conditional_16_For_1_Case_14_Template, 3, 3, "span", 26);
+    \u0275\u0275conditionalCreate(13, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_13_Template, 2, 1, "div", 26);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(15, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_15_Template, 2, 1, "div", 27);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(16, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_16_Template, 2, 0, "icon", 28);
+    \u0275\u0275conditionalCreate(14, PlaylistSidebarComponent_Conditional_16_For_1_Conditional_14_Template, 2, 0, "icon", 27);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     let tmp_19_0;
     const playlist_r4 = ctx.$implicit;
-    const $index_r8 = ctx.$index;
+    const $index_r5 = ctx.$index;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(14, _c03, playlist_r4.id));
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 11, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(16, _c12, playlist_r4.name)));
     \u0275\u0275advance(2);
-    \u0275\u0275property("id", "playlist-" + $index_r8)("cdkDropListConnectedTo", \u0275\u0275pureFunction0(18, _c22))("cdkDropListData", playlist_r4);
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.playlist_thumbnail_media()[playlist_r4.id]?.length ? 4 : 5);
-    \u0275\u0275advance(4);
+    \u0275\u0275property("id", "playlist-" + $index_r5)("cdkDropListConnectedTo", \u0275\u0275pureFunction0(18, _c22))("cdkDropListData", playlist_r4);
+    \u0275\u0275advance();
+    \u0275\u0275property("playlist", playlist_r4);
+    \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", playlist_r4.name, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(!playlist_r4.enabled ? 10 : -1);
+    \u0275\u0275conditional(!playlist_r4.enabled ? 8 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_19_0 = ctx_r1.getStatus(playlist_r4)) === "expired" ? 11 : tmp_19_0 === "pending" ? 12 : tmp_19_0 === "awaiting_review" ? 13 : tmp_19_0 === "awaiting_approval" ? 14 : -1);
+    \u0275\u0275conditional((tmp_19_0 = ctx_r1.getStatus(playlist_r4)) === "expired" ? 9 : tmp_19_0 === "pending" ? 10 : tmp_19_0 === "awaiting_review" ? 11 : tmp_19_0 === "awaiting_approval" ? 12 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275conditional(playlist_r4.description ? 15 : -1);
+    \u0275\u0275conditional(playlist_r4.description ? 13 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(playlist_r4.distribution ? 16 : -1);
+    \u0275\u0275conditional(playlist_r4.distribution ? 14 : -1);
   }
 }
 function PlaylistSidebarComponent_Conditional_16_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 32);
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 28);
     \u0275\u0275listener("intersect", function PlaylistSidebarComponent_Conditional_16_Conditional_2_Template_div_intersect_0_listener() {
-      \u0275\u0275restoreView(_r9);
+      \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.loadMore());
     });
@@ -3163,7 +3049,7 @@ function PlaylistSidebarComponent_Conditional_16_Conditional_3_Template(rf, ctx)
 }
 function PlaylistSidebarComponent_Conditional_16_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistSidebarComponent_Conditional_16_For_1_Template, 17, 19, "a", 13, _forTrack04);
+    \u0275\u0275repeaterCreate(0, PlaylistSidebarComponent_Conditional_16_For_1_Template, 15, 19, "a", 13, _forTrack04);
     \u0275\u0275conditionalCreate(2, PlaylistSidebarComponent_Conditional_16_Conditional_2_Template, 1, 0, "div", 14)(3, PlaylistSidebarComponent_Conditional_16_Conditional_3_Template, 3, 3, "div", 15);
   }
   if (rf & 2) {
@@ -3176,16 +3062,16 @@ function PlaylistSidebarComponent_Conditional_16_Template(rf, ctx) {
 function PlaylistSidebarComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 10);
-    \u0275\u0275element(1, "mat-spinner", 33);
+    \u0275\u0275element(1, "mat-spinner", 29);
     \u0275\u0275elementEnd();
   }
 }
 function PlaylistSidebarComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "icon", 34);
+    \u0275\u0275elementStart(0, "div", 11)(1, "icon", 30);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 35);
+    \u0275\u0275elementStart(3, "p", 31);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -3198,42 +3084,13 @@ function PlaylistSidebarComponent_Conditional_18_Template(rf, ctx) {
 var PlaylistSidebarComponent = class _PlaylistSidebarComponent {
   constructor() {
     this._service = inject(SignageService);
-    this._playlists = this._service.playlists;
     this.can_create = this._service.can_create;
     this.loading = this._service.playlists_loading;
-    this.search = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "search" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.playlist_thumbnail_media = this._service.playlist_thumbnail_media;
+    this.search = this._service.playlist_search_term;
     this.playlist_approval_status = this._service.playlist_approval_status;
     this.playlist_approval_requested_status = this._service.playlist_approval_requested_status;
-    this.filtered_playlists = computed(
-      () => {
-        const term = this.search().toLowerCase();
-        const list = this._playlists();
-        if (!term)
-          return list;
-        return list.filter((p) => p.name.toLowerCase().includes(term));
-      },
-      ...ngDevMode ? [{ debugName: "filtered_playlists" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this.filtered_playlists = this._service.filtered_playlists;
     this.has_more = this._service.playlists_has_more;
-    this._load_playlist_thumbnails = effect(
-      () => {
-        this._service.queuePlaylistMeta(this.filtered_playlists());
-      },
-      ...ngDevMode ? [{ debugName: "_load_playlist_thumbnails" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
   }
   loadMore() {
     this._service.loadMorePlaylists();
@@ -3267,7 +3124,7 @@ var PlaylistSidebarComponent = class _PlaylistSidebarComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistSidebarComponent, selectors: [["playlist-sidebar"]], decls: 19, vars: 15, consts: [[1, "border-base-300", "bg-base-100", "rounded-ld", "m-2", "hidden", "h-[calc(100%-1rem)]", "w-72", "shrink-0", "flex-col", "rounded-lg", "border", "md:flex"], [1, "border-base-300", "border-b", "p-2"], [1, "flex", "justify-between"], [1, "px-2"], [1, "text-lg", "font-medium"], [1, "mb-2", "text-xs", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "right", 3, "matTooltip"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "flex-1", "overflow-auto", "p-2"], [1, "flex", "items-center", "justify-center", "p-8"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "p-8"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "right", 3, "click", "matTooltip"], [3, "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "rounded-lg", "p-2", "text-center", "text-xs"], ["cdkDropList", "", "matRipple", "", 1, "border-base-300", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "transition-colors", 3, "cdkDropListDropped", "id", "cdkDropListConnectedTo", "cdkDropListData"], [1, "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md"], [1, "text-base-content/35", "flex", "h-full", "w-full", "items-center", "justify-center"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]"], [1, "bg-base-200", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "text-base-content/70", "mt-0.5", "truncate", "text-xs"], [1, "mx-2"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source", "top", "left", "z-index"], ["auth", "", "alt", "", 1, "border-base-300", "bg-base-200", "absolute", "h-9", "w-9", "rounded-sm", "border", "object-cover", "shadow", 3, "source"], [1, "text-2xl"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], ["diameter", "32"], [1, "text-4xl"], [1, "mt-2", "text-sm"]], template: function PlaylistSidebarComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistSidebarComponent, selectors: [["playlist-sidebar"]], decls: 19, vars: 15, consts: [[1, "border-base-300", "bg-base-100", "rounded-ld", "m-2", "hidden", "h-[calc(100%-1rem)]", "w-72", "shrink-0", "flex-col", "rounded-lg", "border", "md:flex"], [1, "border-base-300", "border-b", "p-2"], [1, "flex", "justify-between"], [1, "px-2"], [1, "text-lg", "font-medium"], [1, "mb-2", "text-xs", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "right", 3, "matTooltip"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "flex-1", "overflow-auto", "p-2"], [1, "flex", "items-center", "justify-center", "p-8"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "p-8"], ["icon", "", "default", "", "type", "button", "matRipple", "", "matTooltipPosition", "right", 3, "click", "matTooltip"], [3, "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "rounded-lg", "p-2", "text-center", "text-xs"], ["cdkDropList", "", "matRipple", "", 1, "border-base-300", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "transition-colors", 3, "cdkDropListDropped", "id", "cdkDropListConnectedTo", "cdkDropListData"], [1, "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md", 3, "playlist"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]"], [1, "bg-base-200", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "font-bold", "uppercase"], [1, "text-base-content/70", "mt-0.5", "truncate", "text-xs"], [1, "mx-2"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], ["diameter", "32"], [1, "text-4xl"], [1, "mt-2", "text-sm"]], template: function PlaylistSidebarComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2)(3, "div", 3)(4, "h4", 4);
         \u0275\u0275text(5);
@@ -3319,7 +3176,6 @@ var PlaylistSidebarComponent = class _PlaylistSidebarComponent {
       MatInput,
       MatProgressSpinnerModule,
       MatProgressSpinner,
-      AuthenticatedImageDirective,
       IconComponent,
       RouterLink,
       MatRippleModule,
@@ -3327,6 +3183,7 @@ var PlaylistSidebarComponent = class _PlaylistSidebarComponent {
       MatTooltipModule,
       MatTooltip,
       IntersectDirective,
+      PlaylistThumbnailComponent,
       TranslatePipe
     ], styles: ["\n[_nghost-%COMP%] {\n  display: contents;\n}\n.cdk-drop-list-dragging[_ngcontent-%COMP%], \n.cdk-drop-list-receiving[_ngcontent-%COMP%] {\n  border-color: var(--color-primary) !important;\n  background-color: color-mix(in srgb, var(--color-primary) 10%, transparent) !important;\n}\n/*# sourceMappingURL=playlist-sidebar.component.css.map */"] });
   }
@@ -3404,51 +3261,10 @@ var PlaylistSidebarComponent = class _PlaylistSidebarComponent {
                                 class="border-base-300 mb-2 flex items-center gap-3 rounded-lg border p-0.5 transition-colors"
                                 matRipple
                             >
-                                <div
+                                <playlist-thumbnail
+                                    [playlist]="playlist"
                                     class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"
-                                >
-                                    @if (
-                                        playlist_thumbnail_media()[playlist.id]
-                                            ?.length
-                                    ) {
-                                        @for (
-                                            media of playlist_thumbnail_media()[
-                                                playlist.id
-                                            ];
-                                            track media;
-                                            let i = $index;
-                                            let len = $count
-                                        ) {
-                                            <img
-                                                auth
-                                                [source]="media"
-                                                alt=""
-                                                class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
-                                                [style.top]="
-                                                    0.3 -
-                                                    (len - 1) * 0.125 +
-                                                    (len - 1 - i) * 0.25 +
-                                                    'rem'
-                                                "
-                                                [style.left]="
-                                                    0.3 -
-                                                    (len - 1) * 0.125 +
-                                                    (len - 1 - i) * 0.25 +
-                                                    'rem'
-                                                "
-                                                [style.z-index]="i"
-                                            />
-                                        }
-                                    } @else {
-                                        <div
-                                            class="text-base-content/35 flex h-full w-full items-center justify-center"
-                                        >
-                                            <icon class="text-2xl">
-                                                playlist_play
-                                            </icon>
-                                        </div>
-                                    }
-                                </div>
+                                />
                                 <div class="min-w-0 flex-1">
                                     <div class="truncate text-sm font-medium">
                                         {{ playlist.name }}
@@ -3560,18 +3376,18 @@ var PlaylistSidebarComponent = class _PlaylistSidebarComponent {
       MatFormFieldModule,
       MatInputModule,
       MatProgressSpinnerModule,
-      AuthenticatedImageDirective,
       IconComponent,
       RouterLink,
       MatRippleModule,
       TranslatePipe,
       MatTooltipModule,
-      IntersectDirective
+      IntersectDirective,
+      PlaylistThumbnailComponent
     ], styles: ["/* angular:styles/component:css;e2669eb1b5922b8b28c48c8c324de76906a4299d14ec550eb44187ae60bc18d2;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/media/playlist-sidebar.component.ts */\n:host {\n  display: contents;\n}\n.cdk-drop-list-dragging,\n.cdk-drop-list-receiving {\n  border-color: var(--color-primary) !important;\n  background-color: color-mix(in srgb, var(--color-primary) 10%, transparent) !important;\n}\n/*# sourceMappingURL=playlist-sidebar.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistSidebarComponent, { className: "PlaylistSidebarComponent", filePath: "apps/signage-manager/src/app/media/playlist-sidebar.component.ts", lineNumber: 281 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistSidebarComponent, { className: "PlaylistSidebarComponent", filePath: "apps/signage-manager/src/app/media/playlist-sidebar.component.ts", lineNumber: 237 });
 })();
 
 // apps/signage-manager/src/app/media/media.component.ts
@@ -3777,4 +3593,4 @@ var MediaSectionComponent = class _MediaSectionComponent {
 export {
   MediaSectionComponent
 };
-//# sourceMappingURL=media.component-BPUIN2D5.js.map
+//# sourceMappingURL=media.component-GKKXWI63.js.map
