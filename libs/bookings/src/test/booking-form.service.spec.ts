@@ -710,6 +710,25 @@ describe('BookingFormService', () => {
         expect((savedBookings()[0] as Booking).user_name).toBe('Host User');
     });
 
+    it('should keep the visitor email after edit form effects settle', () => {
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'visitor-booking',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'visitor@example.com',
+                asset_name: 'Visitor One',
+            }),
+        );
+
+        TestBed.flushEffects();
+
+        expect(spectator.service.model().asset_id).toBe('visitor@example.com');
+        expect(spectator.service.form.asset_id().valid()).toBe(true);
+    });
+
     it('should update the host identity when editing a delegated visitor booking', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         spectator.service.newForm(
