@@ -274,31 +274,68 @@ describe('DesksStateService', () => {
 
     it('should cancel only one recurring booking instance', async () => {
         mockConfirm();
-        const booking = {
+        const booking = new Booking({
             id: 'booking-1',
             parent_id: 'booking-parent',
             instance: 1_740_000_000,
-        } as any;
+        });
+        const other_instance = new Booking({
+            id: 'booking-1',
+            parent_id: 'booking-parent',
+            instance: 1_740_086_400,
+        });
+        (spectator.service as any)._bookings_state.set({
+            list: [booking, other_instance],
+            total: 2,
+            has_next: false,
+        });
 
         await spectator.service.cancelBooking(booking);
 
         expect(del_urls()).toEqual([
             expect.stringContaining('/booking-1/instance/1740000000'),
         ]);
+        expect(spectator.service.bookings()).toEqual([
+            expect.objectContaining({
+                instance: 1_740_000_000,
+                deleted: true,
+                status: 'cancelled',
+            }),
+            expect.objectContaining({
+                instance: 1_740_086_400,
+                deleted: false,
+            }),
+        ]);
     });
 
-    it('should delete recurring booking series by parent booking id', async () => {
+    it('should delete recurring booking series and update every instance', async () => {
         mockConfirm();
-        const booking = {
+        const booking = new Booking({
             id: 'booking-1',
             parent_id: 'booking-parent',
             instance: 1_740_000_000,
-        } as any;
+        });
+        const other_instance = new Booking({
+            id: 'booking-2',
+            parent_id: 'booking-parent',
+            instance: 1_740_086_400,
+        });
+        const unrelated_booking = new Booking({ id: 'booking-3' });
+        (spectator.service as any)._bookings_state.set({
+            list: [booking, other_instance, unrelated_booking],
+            total: 3,
+            has_next: false,
+        });
 
         await spectator.service.cancelBooking(booking, true);
 
         expect(del_urls()).toEqual([
             expect.stringMatching(/\/bookings\/booking-parent\?utm_source=/),
+        ]);
+        expect(spectator.service.bookings()).toEqual([
+            expect.objectContaining({ deleted: true, status: 'cancelled' }),
+            expect.objectContaining({ deleted: true, status: 'cancelled' }),
+            expect.objectContaining({ id: 'booking-3', deleted: false }),
         ]);
     });
 
