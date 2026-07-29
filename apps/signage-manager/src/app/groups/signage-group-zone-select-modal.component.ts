@@ -1,17 +1,12 @@
-import {
-    Component,
-    computed,
-    debounced,
-    inject,
-    resource,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { IntersectDirective } from '../shared/intersect.directive';
+import { byDisplayName, PagedSearch } from '../shared/paged-search';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -42,7 +37,7 @@ import { SignageService } from '../signage.service';
             >
                 <input
                     matInput
-                    [(ngModel)]="search"
+                    [(ngModel)]="list.search"
                     [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
@@ -74,6 +69,21 @@ import { SignageService } from '../signage.service';
                         </div>
                     </button>
                 }
+                @if (list.has_more()) {
+                    <div
+                        class="h-px w-full"
+                        intersect
+                        (intersect)="list.loadMore()"
+                    ></div>
+                }
+            } @else if (list.loading()) {
+                <div
+                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
+                >
+                    <div class="text-base-content/70">
+                        {{ 'COMMON.LOADING' | translate }}
+                    </div>
+                </div>
             } @else {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
@@ -96,6 +106,7 @@ import { SignageService } from '../signage.service';
         MatInputModule,
         IconComponent,
         TranslatePipe,
+        IntersectDirective,
     ],
 })
 export class SignageGroupZoneSelectModalComponent {
@@ -104,16 +115,13 @@ export class SignageGroupZoneSelectModalComponent {
         MAT_DIALOG_DATA,
     );
 
-    public readonly search = signal('');
-    private readonly _search_debounced = debounced(this.search, 300);
-    private readonly _zones = resource({
-        params: () => this._search_debounced.value() ?? '',
-        loader: ({ params }) => this._service.searchGroupZones(params),
-    });
+    public readonly list = new PagedSearch<any>(
+        (search) => this._service.queryGroupZones(search),
+        byDisplayName,
+        300,
+    );
     public readonly zones = computed(() => {
         const exclude_ids = new Set(this._data.exclude_ids || []);
-        return (this._zones.value() || []).filter(
-            (zone) => !exclude_ids.has(zone.id),
-        );
+        return this.list.items().filter((zone) => !exclude_ids.has(zone.id));
     });
 }

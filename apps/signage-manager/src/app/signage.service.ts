@@ -61,6 +61,7 @@ import {
     shareSignageMedia,
     shareSignagePlaylists,
     showSystem,
+    showZone,
     SignageMedia,
     SignagePlaylist,
     type SignagePlaylistApprover,
@@ -943,19 +944,57 @@ export class SignageService {
     });
 
     /**
-     * Paged display query for pickers that search on their own, without
-     * disturbing the display list. Null when the user may not query displays.
+     * Paged queries for the picker modals, which search on their own without
+     * disturbing the lists behind them. Null when the user may not query.
      */
     public queryDisplays(search = ''): QueryResponse<any> | null {
-        if (!this._org.initialised() || !this._can_query_group_data())
-            return null;
-        const term = search.trim();
+        if (!this._canQueryLists()) return null;
         return querySystems({
             ...this._orgZoneQueryParams({}),
             limit: SignageService.PAGE_SIZE,
             signage: true,
-            ...(term ? { q: term } : {}),
+            ...this._searchParam(search),
         } as any);
+    }
+
+    public queryPlaylists(search = ''): QueryResponse<SignagePlaylist> | null {
+        if (!this._canQueryLists()) return null;
+        return querySignagePlaylists({
+            ...this._orgZoneQueryParams({ limit: SignageService.PAGE_SIZE }),
+            ...this._searchParam(search),
+        });
+    }
+
+    public querySignageZones(search = ''): QueryResponse<PlaceZone> | null {
+        if (!this._canQueryLists()) return null;
+        const group_id = this._api_group_id();
+        return queryZones({
+            limit: SignageService.PAGE_SIZE,
+            tags: 'signage',
+            ...(group_id ? { group_id } : {}),
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    /** Zones a managed group can be given access to, not just signage ones */
+    public queryGroupZones(search = ''): QueryResponse<PlaceZone> | null {
+        const group = this.managed_group();
+        return queryZones({
+            limit: SignageService.PAGE_SIZE,
+            ...(group?.authority_id
+                ? { authority_id: group.authority_id }
+                : {}),
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    private _canQueryLists() {
+        return this._org.initialised() && this._can_query_group_data();
+    }
+
+    private _searchParam(search: string) {
+        const term = search.trim();
+        return term ? { q: term } : {};
     }
 
     public loadMoreDisplays() {
@@ -1642,18 +1681,6 @@ export class SignageService {
                 ? { authority_id: group.authority_id }
                 : {}),
         });
-        return data;
-    }
-
-    public async searchGroupZones(search = '') {
-        const group = this.managed_group();
-        const { data } = await queryZones({
-            q: search,
-            limit: 20,
-            ...(group?.authority_id
-                ? { authority_id: group.authority_id }
-                : {}),
-        } as Record<string, unknown>);
         return data;
     }
 
@@ -2920,8 +2947,11 @@ export class SignageService {
         });
         const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this.displays();
-        const display = displays.find((d: any) => d.id === display_id);
+        // The picker searches the backend, so the choice may be a display the
+        // list never loaded.
+        const display =
+            this.displays().find((d: any) => d.id === display_id) ||
+            (await showSystem(display_id).catch(() => null));
         if (!display) return;
         if (display.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
@@ -2955,8 +2985,10 @@ export class SignageService {
         });
         const zone_id = await dialogClosed(ref);
         if (!zone_id) return;
-        const zones = this.zones();
-        const zone = zones.find((z: any) => z.id === zone_id);
+        // Likewise the zone picker, which may return a zone outside the list
+        const zone =
+            this.zones().find((z: any) => z.id === zone_id) ||
+            (await showZone(zone_id).catch(() => null));
         if (!zone) return;
         if (zone.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));

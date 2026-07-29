@@ -1,21 +1,13 @@
-import {
-    Component,
-    debounced,
-    effect,
-    inject,
-    signal,
-    untracked,
-} from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { QueryResponse } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
-import { decodeEntityNames } from './decode-entity-names.util';
 import { IntersectDirective } from './intersect.directive';
+import { byDisplayName, PagedSearch } from './paged-search';
 
 @Component({
     selector: 'display-select-modal',
@@ -47,8 +39,8 @@ import { IntersectDirective } from './intersect.directive';
             >
                 <input
                     matInput
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [ngModel]="list.search()"
+                    (ngModelChange)="list.search.set($event)"
                     [placeholder]="
                         'SIGNAGE_MANAGER.SEARCH_DISPLAYS' | translate
                     "
@@ -57,8 +49,8 @@ import { IntersectDirective } from './intersect.directive';
                     "
                 />
             </mat-form-field>
-            @if (displays().length > 0) {
-                @for (display of displays(); track display.id) {
+            @if (list.items().length > 0) {
+                @for (display of list.items(); track display.id) {
                     <button
                         type="button"
                         matRipple
@@ -82,14 +74,14 @@ import { IntersectDirective } from './intersect.directive';
                         </div>
                     </button>
                 }
-                @if (has_more()) {
+                @if (list.has_more()) {
                     <div
                         class="h-px w-full"
                         intersect
-                        (intersect)="loadMore()"
+                        (intersect)="list.loadMore()"
                     ></div>
                 }
-            } @else if (loading()) {
+            } @else if (list.loading()) {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
                 >
@@ -124,64 +116,8 @@ export class DisplaySelectModalComponent {
     private readonly _data: { zone_id: string } = inject(MAT_DIALOG_DATA);
     private readonly _service = inject(SignageService);
 
-    public readonly search = signal('');
-    // Searching runs on the backend so results page like the display list;
-    // filtering a loaded set would only ever find the displays already here.
-    private readonly _search_debounced = debounced(this.search, 400);
-
-    private readonly _items = signal<any[]>([]);
-    public readonly displays = this._items.asReadonly();
-    public readonly loading = signal(false);
-    public readonly has_more = signal(false);
-    private _next: (() => QueryResponse<any> | null) | null = null;
-    // Bumped on every new search so pages from a stale query are discarded.
-    private _token = 0;
-
-    constructor() {
-        effect(() => {
-            const term = this._search_debounced.value();
-            untracked(() => {
-                const token = ++this._token;
-                this._items.set([]);
-                this._next = null;
-                this.has_more.set(false);
-                const query = this._service.queryDisplays(term);
-                if (query) this._fetchPage(query, token);
-            });
-        });
-    }
-
-    public loadMore() {
-        if (this.loading() || !this.has_more()) return;
-        const next = this._next?.();
-        if (!next) {
-            this.has_more.set(false);
-            return;
-        }
-        this._fetchPage(next, this._token);
-    }
-
-    private async _fetchPage(query: QueryResponse<any>, token: number) {
-        this.loading.set(true);
-        try {
-            const page = await query;
-            if (token !== this._token) return;
-            const items = (page.data || [])
-                .filter((item: any) => item.signage)
-                .map(decodeEntityNames);
-            this._items.update((list) =>
-                [...list, ...items].sort((a, b) =>
-                    (a.display_name || a.name).localeCompare(
-                        b.display_name || b.name,
-                    ),
-                ),
-            );
-            this._next = page.next;
-            this.has_more.set(this._items().length < page.total);
-        } catch {
-            if (token === this._token) this.has_more.set(false);
-        } finally {
-            if (token === this._token) this.loading.set(false);
-        }
-    }
+    public readonly list = new PagedSearch<any>(
+        (search) => this._service.queryDisplays(search),
+        byDisplayName,
+    );
 }
