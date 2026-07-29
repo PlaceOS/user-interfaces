@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -24,7 +25,10 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
 @Component({
     selector: 'parking-request-form',
     template: `
-        <div class="bg-base-200 h-full w-full overflow-auto p-2 sm:p-4">
+        <div
+            cdkScrollable
+            class="bg-base-200 h-full w-full overflow-auto p-2 sm:p-4"
+        >
             <div
                 class="bg-base-100 border-base-300 mx-auto flex w-3xl max-w-full flex-col gap-2 rounded-xl border p-2 sm:gap-4 sm:p-4"
             >
@@ -121,6 +125,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
     `,
     styles: [``],
     imports: [
+        CdkScrollable,
         MatRippleModule,
         TranslatePipe,
         SanitizePipe,

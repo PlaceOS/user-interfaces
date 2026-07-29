@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -11,6 +12,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'fullscreen-modal-shell,[fs-modal-shell]',
     template: `
         <div
+            cdkScrollable
             class="bg-base-200 fixed inset-0 flex flex-col items-center overflow-auto px-2"
         >
             <div
@@ -90,6 +92,7 @@ import { TranslatePipe } from './translate.pipe';
         `,
     ],
     imports: [
+        CdkScrollable,
         TranslatePipe,
         MatProgressSpinnerModule,
         IconComponent,
