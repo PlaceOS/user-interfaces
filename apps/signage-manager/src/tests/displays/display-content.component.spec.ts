@@ -12,7 +12,6 @@ describe('DisplayContentComponent', () => {
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
-    const queue_meta = vi.fn();
     const add_playlist = vi.fn();
     const remove_playlist = vi.fn();
     const service_stub = {
@@ -22,7 +21,6 @@ describe('DisplayContentComponent', () => {
         playlist_approval_status,
         playlist_thumbnail_media,
         can_update,
-        queuePlaylistMeta: queue_meta,
         addPlaylistToDisplay: add_playlist,
         removePlaylistFromDisplay: remove_playlist,
     };
@@ -129,14 +127,5 @@ describe('DisplayContentComponent', () => {
         expect(event.preventDefault).toHaveBeenCalled();
         expect(event.stopPropagation).toHaveBeenCalled();
         expect(remove_playlist).toHaveBeenCalledWith(display, 'p1');
-    });
-
-    it('queues playlist metadata for the assigned playlists', async () => {
-        playlists.set([{ id: 'p1' }]);
-        selected_display.set({ id: 'd1', playlists: ['p1'] });
-        await make();
-        TestBed.flushEffects();
-
-        expect(queue_meta).toHaveBeenCalledWith([{ id: 'p1' }]);
     });
 });

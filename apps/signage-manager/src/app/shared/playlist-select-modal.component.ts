@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -6,6 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageService } from '../signage.service';
+import { IntersectDirective } from './intersect.directive';
+import { byName, PagedSearch } from './paged-search';
 
 @Component({
     selector: 'playlist-select-modal',
@@ -37,8 +39,8 @@ import { SignageService } from '../signage.service';
             >
                 <input
                     matInput
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
+                    [ngModel]="list.search()"
+                    (ngModelChange)="list.search.set($event)"
                     [placeholder]="
                         'SIGNAGE_MANAGER.SEARCH_PLAYLISTS' | translate
                     "
@@ -47,8 +49,8 @@ import { SignageService } from '../signage.service';
                     "
                 />
             </mat-form-field>
-            @if (filtered_playlists()?.length > 0) {
-                @for (playlist of filtered_playlists(); track playlist.id) {
+            @if (list.items().length > 0) {
+                @for (playlist of list.items(); track playlist.id) {
                     <button
                         type="button"
                         matRipple
@@ -72,6 +74,21 @@ import { SignageService } from '../signage.service';
                         </div>
                     </button>
                 }
+                @if (list.has_more()) {
+                    <div
+                        class="h-px w-full"
+                        intersect
+                        (intersect)="list.loadMore()"
+                    ></div>
+                }
+            } @else if (list.loading()) {
+                <div
+                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
+                >
+                    <div class="text-base-content/70">
+                        {{ 'COMMON.LOADING' | translate }}
+                    </div>
+                </div>
             } @else {
                 <div
                     class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
@@ -94,19 +111,15 @@ import { SignageService } from '../signage.service';
         MatInputModule,
         IconComponent,
         TranslatePipe,
+        IntersectDirective,
     ],
 })
 export class PlaylistSelectModalComponent {
     private readonly _data: { media_id: string } = inject(MAT_DIALOG_DATA);
     private readonly _service = inject(SignageService);
 
-    private readonly _playlists = this._service.playlists;
-
-    public readonly search = signal('');
-
-    public readonly filtered_playlists = computed(() => {
-        const term = this.search().toLowerCase();
-        const list = this._playlists();
-        return list.filter((_) => _.name.toLowerCase().includes(term));
-    });
+    public readonly list = new PagedSearch<any>(
+        (search) => this._service.queryPlaylists(search),
+        byName,
+    );
 }

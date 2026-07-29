@@ -1,17 +1,14 @@
-import { Component, effect, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { RouterLink } from '@angular/router';
-import {
-    AuthenticatedImageDirective,
-    IconComponent,
-    TranslatePipe,
-} from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
+import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { SignageService } from '../signage.service';
 
 type PlaylistStatus =
@@ -66,48 +63,10 @@ type PlaylistStatus =
                                 | translate: { name: playlist.name }
                         "
                     >
-                        <div
+                        <playlist-thumbnail
+                            [playlist]="playlist"
                             class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"
-                        >
-                            @if (
-                                playlist_thumbnail_media()[playlist.id]?.length
-                            ) {
-                                @for (
-                                    media of playlist_thumbnail_media()[
-                                        playlist.id
-                                    ];
-                                    track media;
-                                    let i = $index;
-                                    let len = $count
-                                ) {
-                                    <img
-                                        auth
-                                        [source]="media"
-                                        alt=""
-                                        class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
-                                        [style.top]="
-                                            0.3 -
-                                            (len - 1) * 0.125 +
-                                            (len - 1 - i) * 0.25 +
-                                            'rem'
-                                        "
-                                        [style.left]="
-                                            0.3 -
-                                            (len - 1) * 0.125 +
-                                            (len - 1 - i) * 0.25 +
-                                            'rem'
-                                        "
-                                        [style.z-index]="i"
-                                    />
-                                }
-                            } @else {
-                                <div
-                                    class="text-base-content/35 flex h-full w-full items-center justify-center"
-                                >
-                                    <icon class="text-2xl">playlist_play</icon>
-                                </div>
-                            }
-                        </div>
+                        />
                         <div class="min-w-0 flex-1 pr-2">
                             <div
                                 class="flex items-center gap-2 truncate font-medium"
@@ -222,10 +181,10 @@ type PlaylistStatus =
         MatFormFieldModule,
         MatInputModule,
         MatMenuModule,
-        AuthenticatedImageDirective,
         IconComponent,
         TranslatePipe,
         IntersectDirective,
+        PlaylistThumbnailComponent,
     ],
 })
 export class PlaylistListComponent {
@@ -234,8 +193,6 @@ export class PlaylistListComponent {
     public readonly search = this._service.playlist_search_term;
     public readonly playlists = this._service.filtered_playlists;
     public readonly selected = this._service.selected_playlist;
-    public readonly playlist_thumbnail_media =
-        this._service.playlist_thumbnail_media;
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;
     public readonly playlist_approval_requested_status =
@@ -245,12 +202,6 @@ export class PlaylistListComponent {
     public readonly has_more = this._service.playlists_has_more;
     public loadMore() {
         this._service.loadMorePlaylists();
-    }
-
-    constructor() {
-        effect(() => {
-            this._service.queuePlaylistMeta(this.playlists());
-        });
     }
 
     public getStatus(playlist: SignagePlaylist): PlaylistStatus {

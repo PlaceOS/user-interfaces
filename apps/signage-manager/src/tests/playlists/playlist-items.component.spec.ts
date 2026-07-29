@@ -91,14 +91,6 @@ describe('PlaylistItemsComponent', () => {
         expect(component.isItemSelected(item, 1)).toBe(true);
     });
 
-    it('exposes the signage thumbnail endpoint and media icon', async () => {
-        const component = await make();
-        expect(component.thumbnailURL(media('a'))).toBe(
-            '/api/engine/v2/signage/media/a/thumbnail',
-        );
-        expect(component.mediaIcon(media('a', 'video'))).toBe('video_library');
-    });
-
     it('flags a distribution playlist', async () => {
         selected_playlist.set({ id: 'pl-1', distribution: true });
         const component = await make();

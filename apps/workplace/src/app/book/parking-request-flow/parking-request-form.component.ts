@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 
@@ -25,6 +26,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
     selector: 'parking-request-form',
     template: `
         <div
+            cdkScrollable
             class="bg-base-200 relative z-0 flex h-full w-full flex-col overflow-auto"
         >
             <div
@@ -218,6 +220,7 @@ import { ParkingRequestFormDetailsComponent } from './parking-request-form-detai
         `,
     ],
     imports: [
+        CdkScrollable,
         MatRippleModule,
         TranslatePipe,
         SanitizePipe,

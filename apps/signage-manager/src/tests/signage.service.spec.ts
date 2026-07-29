@@ -93,12 +93,12 @@ describe('SignageService media uploads', () => {
     it('requires schedules before adding media to distribution playlists', async () => {
         const service = createService();
         const test_service = service as unknown as SignageServiceTestAccess;
-        test_service['_playlist_items'].set([
-            new SignagePlaylist({
+        test_service['_playlist_cache'].set({
+            'playlist-1': new SignagePlaylist({
                 id: 'playlist-1',
                 distribution: true,
             }),
-        ]);
+        });
 
         await service.addMediaToPlaylist('playlist-1', 'media-1');
 

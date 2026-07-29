@@ -50,7 +50,7 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
 @Component({
     selector: 'media-player',
     template: `
-        <div class="absolute inset-0 bg-[#212121]">
+        <div class="absolute inset-0" [class.bg-black]="!controls()" [style.background]="controls() ? '#212121' : ''">
             <div
                 #media_container_0
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"

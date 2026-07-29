@@ -12,6 +12,7 @@ import {
     firstTruthyValueFrom,
     GroupPermission,
     hasPermission,
+    log,
     user_groups_loaded,
 } from '@placeos/common';
 import { authority, onlineState, waitForSignal } from '@placeos/ts-client';
@@ -63,8 +64,10 @@ export class AuthorisedUserGuard {
             await waitForSignal(onlineState(), Boolean);
             const user = await firstTruthyValueFrom(current_user);
             can_activate = await this.checkSubsystemAccess(user);
+            log('ACCESS', 'Checking subsystem access', can_activate);
         } else if (!groups.length) {
             can_activate = true;
+            log('ACCESS', 'No access groups', can_activate);
         } else {
             await waitForSignal(onlineState(), Boolean);
             await this._org.waitUntilInitialised();
@@ -72,6 +75,7 @@ export class AuthorisedUserGuard {
             can_activate = !!(
                 user && groups.find((_) => user.groups.includes(_))
             );
+            log('ACCESS', 'Checking access groups', can_activate);
         }
         if (!can_activate) {
             this._router.navigate(['/unauthorised']);

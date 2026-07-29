@@ -1,4 +1,6 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatDialogRef } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 import {
     SpectatorRouting,
     createRoutingFactory,
@@ -28,6 +30,12 @@ describe('FullscreenModalShellComponent', () => {
         spectator.setInput({ heading: 'Test Modal' });
         spectator.detectChanges();
         expect('header h2').toContainText('Test Modal');
+    });
+
+    it('should register the modal scroll container for overlay repositioning', () => {
+        expect(
+            spectator.fixture.debugElement.query(By.directive(CdkScrollable)),
+        ).toBeTruthy();
     });
 
     it('should show a loading state instead of content and actions', () => {

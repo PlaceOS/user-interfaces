@@ -1359,6 +1359,7 @@ export class BookingFormService extends AsyncHandler {
                     value.booking_type === 'visitor'
                         ? value.description || value.title || value.asset_name
                         : value.asset_name || value.description,
+                user_id: value.user?.id ?? value.user_id,
                 user_name: value.user?.name || value.user_name,
                 user_email: value.user?.email || value.user_email,
                 extension_data: buildBookingExtensionData(value, group_members),
@@ -1749,6 +1750,7 @@ export class BookingFormService extends AsyncHandler {
             period_start: getUnixTime(booking.date),
             period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
             type,
+            include_booked_by: true,
         });
         return list.filter(
             (b) =>
@@ -1779,9 +1781,10 @@ export class BookingFormService extends AsyncHandler {
         if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
         const form = this.model() as any;
         const base_form = { ...form, id: '' };
-        const parent_id = form.parent_id || form.id;
+        let parent_id = form.parent_id || form.id;
         const group_name = this._groupName(form.group);
         const is_visitor = type === 'visitor';
+        const needs_group_container_parent = is_visitor && !form.parent_id;
         const has_group_container_parent =
             !!form.parent_id &&
             !existing_siblings.some((s) => s.id === form.parent_id);
@@ -1806,14 +1809,15 @@ export class BookingFormService extends AsyncHandler {
                 : [];
         let first_result: Booking = null;
         try {
-            const zones = unique(
-                [
-                    this._org.organisation?.id,
-                    this._org.region.id,
-                    ...base_form.zones,
-                ].filter((_) => _),
-            );
-            if (has_group_container_parent) {
+            if (needs_group_container_parent) {
+                const group_booking = await this.createGroupContainerBooking(
+                    form,
+                    group_name,
+                    members,
+                    type,
+                );
+                parent_id = group_booking.id;
+            } else if (has_group_container_parent) {
                 await this.saveGroupContainerBooking(
                     form,
                     group_name,

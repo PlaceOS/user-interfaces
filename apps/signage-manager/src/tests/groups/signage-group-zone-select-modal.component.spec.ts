@@ -4,11 +4,12 @@ import { SignageGroupZoneSelectModalComponent } from '../../app/groups/signage-g
 import { SignageService } from '../../app/signage.service';
 
 describe('SignageGroupZoneSelectModalComponent', () => {
-    const search_group_zones = vi.fn();
-    const service_stub = { searchGroupZones: search_group_zones };
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
+    const queryGroupZones = vi.fn();
+    const service_stub = { queryGroupZones };
     let modal_data: { exclude_ids?: string[] };
 
-    function make() {
+    function build() {
         TestBed.configureTestingModule({
             providers: [
                 { provide: SignageService, useValue: service_stub },
@@ -17,41 +18,56 @@ describe('SignageGroupZoneSelectModalComponent', () => {
         }).overrideComponent(SignageGroupZoneSelectModalComponent, {
             set: { template: '', imports: [] },
         });
-        return TestBed.createComponent(SignageGroupZoneSelectModalComponent)
-            .componentInstance;
+        const fixture = TestBed.createComponent(
+            SignageGroupZoneSelectModalComponent,
+        );
+        fixture.detectChanges();
+        return fixture.componentInstance;
     }
+
+    const make = async () => {
+        const component = build();
+        await flush();
+        return component;
+    };
 
     beforeEach(() => {
         vi.clearAllMocks();
-        search_group_zones.mockResolvedValue([]);
+        queryGroupZones.mockReturnValue(
+            Promise.resolve({
+                data: [
+                    { id: 'zone-1', name: 'Zone 1' },
+                    { id: 'zone-2', name: 'Zone 2' },
+                ],
+                total: 2,
+                next: null,
+            }),
+        );
         modal_data = {};
     });
 
-    it('shows no zones before the search resource has loaded', () => {
-        const component = make();
-        expect(component.zones()).toEqual([]);
+    it('lists the zones the group can be given', async () => {
+        const component = await make();
+
+        expect(queryGroupZones).toHaveBeenCalledWith('');
+        expect(component.zones().map((zone: any) => zone.id)).toEqual([
+            'zone-1',
+            'zone-2',
+        ]);
     });
 
-    it('filters out zones whose id is excluded', () => {
+    it('filters out zones whose id is excluded', async () => {
         modal_data = { exclude_ids: ['zone-1'] };
-        const component = make();
-        (component as any)._zones.value.set([
-            { id: 'zone-1', name: 'Zone 1' },
-            { id: 'zone-2', name: 'Zone 2' },
-        ]);
+        const component = await make();
 
         expect(component.zones().map((zone: any) => zone.id)).toEqual([
             'zone-2',
         ]);
     });
 
-    it('returns every loaded zone when nothing is excluded', () => {
-        const component = make();
-        (component as any)._zones.value.set([
-            { id: 'zone-1', name: 'Zone 1' },
-            { id: 'zone-2', name: 'Zone 2' },
-        ]);
+    it('shows no zones before the first page has loaded', () => {
+        const component = build();
 
-        expect(component.zones().length).toBe(2);
+        expect(component.zones()).toEqual([]);
     });
 });

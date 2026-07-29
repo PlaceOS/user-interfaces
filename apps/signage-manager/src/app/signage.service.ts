@@ -60,6 +60,8 @@ import {
     scheduleSignagePlaylistMedia,
     shareSignageMedia,
     shareSignagePlaylists,
+    showSystem,
+    showZone,
     SignageMedia,
     SignagePlaylist,
     type SignagePlaylistApprover,
@@ -810,7 +812,22 @@ export class SignageService {
     public readonly media_tags = computed(() => this._media_tags.value() || []);
 
     // --- Playlists (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list; filtering the loaded pages would only search playlists that have
+    // already been fetched.
+    public readonly playlist_search_term = signal('');
+    private readonly _playlist_search_debounced = debounced(
+        this.playlist_search_term,
+        400,
+    );
     private readonly _playlist_items = signal<SignagePlaylist[]>([]);
+    // Keep playlists seen outside the current search available to display,
+    // zone and schedule views, which resolve their playlist ids from this list.
+    private readonly _playlist_cache = signal<Record<string, SignagePlaylist>>(
+        {},
+    );
+    private _playlist_cache_group: string | null = null;
+    private _playlist_cache_change: number | null = null;
     private readonly _playlists_loading = signal(false);
     private readonly _playlists_has_more = signal(false);
     private _playlists_next:
@@ -818,7 +835,11 @@ export class SignageService {
         | null = null;
     private _playlists_token = 0;
 
-    public readonly playlists = this._playlist_items.asReadonly();
+    public readonly playlists = computed(() =>
+        Object.values(this._playlist_cache()).sort((a, b) =>
+            a.name.localeCompare(b.name),
+        ),
+    );
     public readonly playlists_loading = this._playlists_loading.asReadonly();
     public readonly playlists_has_more = this._playlists_has_more.asReadonly();
 
@@ -826,17 +847,29 @@ export class SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
-        this._change();
+        const search = this._playlist_search_debounced.value().trim();
+        const change = this._change();
         untracked(() => {
             const token = ++this._playlists_token;
             this._playlist_items.set([]);
             this._playlists_next = null;
             this._playlists_has_more.set(false);
+            if (
+                group_id !== this._playlist_cache_group ||
+                change !== this._playlist_cache_change
+            ) {
+                this._playlist_cache_group = group_id;
+                this._playlist_cache_change = change;
+                this._playlist_cache.set({});
+            }
             if (!initialised || !can_query) return;
             this._fetchPlaylistPage(
                 querySignagePlaylists(
                     this._orgZoneQueryParams(
-                        { limit: SignageService.PAGE_SIZE },
+                        {
+                            limit: SignageService.PAGE_SIZE,
+                            ...(search ? { q: search } : {}),
+                        },
                         group_id,
                     ),
                 ),
@@ -864,11 +897,18 @@ export class SignageService {
             const page = await query;
             if (token !== this._playlists_token) return;
             const items = (page.data || []).map(decodeEntityNames);
-            this._playlist_items.update((list) =>
-                [...list, ...items].sort((a, b) =>
+            this._playlist_items.update((list) => {
+                const by_id = new Map(list.map((item) => [item.id, item]));
+                for (const item of items) by_id.set(item.id, item);
+                return [...by_id.values()].sort((a, b) =>
                     a.name.localeCompare(b.name),
-                ),
-            );
+                );
+            });
+            this._playlist_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            });
             this._playlists_next = page.next;
             this._playlists_has_more.set(
                 this._playlist_items().length < page.total,
@@ -883,14 +923,30 @@ export class SignageService {
     }
 
     // --- Displays (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list; filtering the loaded pages would only ever search the displays
+    // that happened to be fetched already.
+    public readonly display_search_term = signal('');
+    private readonly _display_search_debounced = debounced(
+        this.display_search_term,
+        400,
+    );
     private readonly _display_items = signal<any[]>([]);
+    // Every display seen since the group last changed, keyed by id. Zone,
+    // schedule and playlist views resolve displays by id, so they need the
+    // whole set rather than whatever the current search narrowed it to.
+    private readonly _display_cache = signal<Record<string, any>>({});
+    private _display_cache_group: string | null = null;
     private readonly _displays_loading = signal(false);
     private readonly _displays_has_more = signal(false);
     private _displays_next: (() => QueryResponse<any> | null) | null = null;
     private _displays_token = 0;
 
     public readonly displays = computed(() =>
-        this._mergeItems(this._display_items(), this._display_overrides()),
+        this._mergeItems(
+            Object.values(this._display_cache()),
+            this._display_overrides(),
+        ),
     );
     public readonly displays_loading = this._displays_loading.asReadonly();
     public readonly displays_has_more = this._displays_has_more.asReadonly();
@@ -899,23 +955,85 @@ export class SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
+        const search = this._display_search_debounced.value().trim();
         this._change();
         untracked(() => {
             const token = ++this._displays_token;
             this._display_items.set([]);
             this._displays_next = null;
             this._displays_has_more.set(false);
+            // Only drop the id cache when the source of the data changes, a
+            // new search term still needs the displays other views look up.
+            if (group_id !== this._display_cache_group) {
+                this._display_cache_group = group_id;
+                this._display_cache.set({});
+            }
             if (!initialised || !can_query) return;
             this._fetchDisplayPage(
                 querySystems({
                     ...this._orgZoneQueryParams({}, group_id),
                     limit: SignageService.PAGE_SIZE,
                     signage: true,
+                    ...(search ? { q: search } : {}),
                 } as any),
                 token,
             );
         });
     });
+
+    /**
+     * Paged queries for the picker modals, which search on their own without
+     * disturbing the lists behind them. Null when the user may not query.
+     */
+    public queryDisplays(search = ''): QueryResponse<any> | null {
+        if (!this._canQueryLists()) return null;
+        return querySystems({
+            ...this._orgZoneQueryParams({}),
+            limit: SignageService.PAGE_SIZE,
+            signage: true,
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    public queryPlaylists(search = ''): QueryResponse<SignagePlaylist> | null {
+        if (!this._canQueryLists()) return null;
+        return querySignagePlaylists({
+            ...this._orgZoneQueryParams({ limit: SignageService.PAGE_SIZE }),
+            ...this._searchParam(search),
+        });
+    }
+
+    public querySignageZones(search = ''): QueryResponse<PlaceZone> | null {
+        if (!this._canQueryLists()) return null;
+        const group_id = this._api_group_id();
+        return queryZones({
+            limit: SignageService.PAGE_SIZE,
+            tags: 'signage',
+            ...(group_id ? { group_id } : {}),
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    /** Zones a managed group can be given access to, not just signage ones */
+    public queryGroupZones(search = ''): QueryResponse<PlaceZone> | null {
+        const group = this.managed_group();
+        return queryZones({
+            limit: SignageService.PAGE_SIZE,
+            ...(group?.authority_id
+                ? { authority_id: group.authority_id }
+                : {}),
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    private _canQueryLists() {
+        return this._org.initialised() && this._can_query_group_data();
+    }
+
+    private _searchParam(search: string) {
+        const term = search.trim();
+        return term ? { q: term } : {};
+    }
 
     public loadMoreDisplays() {
         if (this._displays_loading() || !this._displays_has_more()) return;
@@ -936,6 +1054,11 @@ export class SignageService {
                 .filter((item) => item.signage)
                 .map(decodeEntityNames);
             this._display_items.update((list) => [...list, ...items]);
+            this._display_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            });
             this._displays_next = page.next;
             this._displays_has_more.set(
                 this._display_items().length < page.total,
@@ -1079,8 +1202,6 @@ export class SignageService {
     );
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
     public readonly selected_playlist_item_index = signal<number | null>(null);
-    public readonly playlist_search_term = signal('');
-
     public readonly selected_zone = signal<any>(null);
     public readonly zone_search_term = signal('');
     public readonly zone_tree_expanded = signal<Record<string, boolean>>({});
@@ -1089,7 +1210,6 @@ export class SignageService {
     >({});
 
     public readonly selected_display = signal<any>(null);
-    public readonly display_search_term = signal('');
     private readonly _playlist_meta_state = signal<
         Record<string, PlaylistMetaState>
     >(loadPlaylistMetaSessionCache());
@@ -1100,10 +1220,7 @@ export class SignageService {
     private _playlist_meta_processing = false;
 
     public readonly filtered_playlists = computed(() => {
-        const term = this.playlist_search_term().toLowerCase();
-        return this.playlists().filter((p) =>
-            p.name.toLowerCase().includes(term),
-        );
+        return this._playlist_items();
     });
 
     public readonly selected_playlist_requires_approval = computed(() => {
@@ -1154,11 +1271,18 @@ export class SignageService {
         );
     });
 
+    // The listing itself, which is whatever page(s) of the (possibly
+    // searched) query have been loaded so far. Local edits are applied over
+    // the loaded items, but never add a display the query didn't return.
     public readonly filtered_displays = computed(() => {
-        const term = this.display_search_term().toLowerCase();
-        return this.displays().filter((d) =>
-            (d.display_name || d.name).toLowerCase().includes(term),
-        );
+        const overrides = this._display_overrides();
+        return this._display_items()
+            .map((display) => overrides[display.id] || display)
+            .sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            );
     });
 
     private readonly _playlist_change = signal(Date.now());
@@ -1590,18 +1714,6 @@ export class SignageService {
                 ? { authority_id: group.authority_id }
                 : {}),
         });
-        return data;
-    }
-
-    public async searchGroupZones(search = '') {
-        const group = this.managed_group();
-        const { data } = await queryZones({
-            q: search,
-            limit: 20,
-            ...(group?.authority_id
-                ? { authority_id: group.authority_id }
-                : {}),
-        } as Record<string, unknown>);
         return data;
     }
 
@@ -2779,8 +2891,11 @@ export class SignageService {
         });
         const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this.displays();
-        const display = displays.find((d: any) => d.id === display_id);
+        // The picker searches the backend, so the choice may be a display the
+        // list never loaded.
+        const display =
+            this.displays().find((d: any) => d.id === display_id) ||
+            (await showSystem(display_id).catch(() => null));
         if (!display) return;
         if (display.zones?.includes(zone.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_IN_ZONE'));
@@ -2865,8 +2980,11 @@ export class SignageService {
         });
         const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this.displays();
-        const display = displays.find((d: any) => d.id === display_id);
+        // The picker searches the backend, so the choice may be a display the
+        // list never loaded.
+        const display =
+            this.displays().find((d: any) => d.id === display_id) ||
+            (await showSystem(display_id).catch(() => null));
         if (!display) return;
         if (display.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
@@ -2900,8 +3018,10 @@ export class SignageService {
         });
         const zone_id = await dialogClosed(ref);
         if (!zone_id) return;
-        const zones = this.zones();
-        const zone = zones.find((z: any) => z.id === zone_id);
+        // Likewise the zone picker, which may return a zone outside the list
+        const zone =
+            this.zones().find((z: any) => z.id === zone_id) ||
+            (await showZone(zone_id).catch(() => null));
         if (!zone) return;
         if (zone.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));

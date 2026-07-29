@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ZoneContentComponent } from '../../app/zones/zone-content.component';
 import { SignageService } from '../../app/signage.service';
+import { ZoneContentComponent } from '../../app/zones/zone-content.component';
 
 const NOW_S = Math.floor(Date.now() / 1000);
 
@@ -12,7 +12,6 @@ describe('ZoneContentComponent', () => {
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
-    const queue_meta = vi.fn();
     const add_playlist = vi.fn();
     const remove_playlist = vi.fn();
     const add_display = vi.fn();
@@ -23,7 +22,6 @@ describe('ZoneContentComponent', () => {
         playlist_approval_status,
         playlist_thumbnail_media,
         can_update,
-        queuePlaylistMeta: queue_meta,
         addPlaylistToZone: add_playlist,
         removePlaylistFromZone: remove_playlist,
         addDisplayToZone: add_display,
@@ -103,14 +101,5 @@ describe('ZoneContentComponent', () => {
         expect(add_display).toHaveBeenCalledWith(zone);
         expect(remove_playlist).toHaveBeenCalledWith(zone, 'p1');
         expect(event.preventDefault).toHaveBeenCalled();
-    });
-
-    it('queues playlist metadata for the zone playlists', async () => {
-        playlists.set([{ id: 'p1' }]);
-        selected_zone.set({ id: 'z1', playlists: ['p1'] });
-        await make();
-        TestBed.flushEffects();
-
-        expect(queue_meta).toHaveBeenCalledWith([{ id: 'p1' }]);
     });
 });
