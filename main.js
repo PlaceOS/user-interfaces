@@ -7,29 +7,29 @@ import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-4GZCSMZ5.js";
+} from "./chunk-WRJREFHZ.js";
 import {
   subMinutes
 } from "./chunk-JZB7MS4C.js";
-import "./chunk-3GVN3SRV.js";
-import "./chunk-6P23I325.js";
-import "./chunk-PPDUKJDA.js";
-import "./chunk-G26ZPPTY.js";
-import "./chunk-HXYKLH6Y.js";
+import "./chunk-ZKLDSDVV.js";
+import "./chunk-KOVVZKBC.js";
+import "./chunk-PWNONECW.js";
+import "./chunk-7XWVUTAA.js";
+import "./chunk-3EZVRQS4.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-Z4XHVJCT.js";
-import "./chunk-LHGJYJXF.js";
-import "./chunk-KQA26GCM.js";
-import "./chunk-IU2HDTBW.js";
-import "./chunk-UBBP5RSL.js";
+} from "./chunk-FZICXWWW.js";
+import "./chunk-MH6UEF3P.js";
+import "./chunk-BY4UTPYY.js";
+import "./chunk-4HCSXBSB.js";
+import "./chunk-MJHGNHWH.js";
 import {
   CustomTooltipComponent,
   MatTooltip,
   MatTooltipModule
-} from "./chunk-EAFNATU6.js";
-import "./chunk-IMKOGBT6.js";
+} from "./chunk-G26NEACM.js";
+import "./chunk-L33DDP5A.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -61,6 +61,7 @@ import {
   createErrorHandler,
   currentUser,
   current_user,
+  firstValueWhere,
   getLoadingMessage,
   getNativeApiKey,
   getNativeDomain,
@@ -87,7 +88,7 @@ import {
   style,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-KOONX7IH.js";
+} from "./chunk-VHBBINQM.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -104,6 +105,7 @@ import {
   Fr,
   Inject,
   Injectable,
+  Injector,
   Input,
   LOCALE_ID,
   LocaleService,
@@ -4483,6 +4485,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     this._router = inject(Router);
     this._settings = inject(SettingsService);
     this._org = inject(OrganisationService);
+    this._injector = inject(Injector);
     this._access = inject(PLACEOS_APP_ACCESS, { optional: true });
   }
   async canActivate(next, state) {
@@ -4495,20 +4498,26 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
+    await Promise.all([
+      this._org.waitUntilInitialised(),
+      firstValueWhere(user_groups_loaded, Boolean, this._injector)
+    ]);
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
       await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
-      can_activate = await this.checkSubsystemAccess(user);
+      can_activate = this.checkSubsystemAccess(user);
+      log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
+      log("ACCESS", "No access groups", can_activate);
     } else {
       await oi(Lr(), Boolean);
-      await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
+      log("ACCESS", "Checking access groups", can_activate);
     }
     if (!can_activate) {
       this._router.navigate(["/unauthorised"]);
@@ -4519,22 +4528,14 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const value = Rt()?.config?.["use_group_subsystem_access"];
     return value === true || value === "true";
   }
-  async checkSubsystemAccess(user) {
+  checkSubsystemAccess(user) {
     if (!user)
       return false;
     const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
     const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
-    await this.waitForUserGroups();
     return hasPermission(app_name, GroupPermission.Read);
-  }
-  async waitForUserGroups() {
-    for (let i = 0; i < 50; i++) {
-      if (user_groups_loaded())
-        return;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
   }
   static {
     this.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
@@ -18002,62 +18003,62 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-VQQZHEIN.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-YXFN2PSL.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-4OWXZCPJ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-IWAQDLIV.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-SHUNIGWM.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-RW6S7NOY.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-XBHVAE6I.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-VFRFB5RF.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-NLSH4PFE.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-V6FIJ455.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-M57GF6YY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-3JX3QPW6.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-QXGILB5R.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-CBXUEP7B.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-GB7XLQSG.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-ZTCTGUNR.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-XJIN2LG7.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-ZGO6XFTD.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
