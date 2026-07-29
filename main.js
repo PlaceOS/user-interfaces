@@ -67919,15 +67919,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "675fd61",
-  "hash": "675fd61",
+  "raw": "7825b76",
+  "hash": "7825b76",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "675fd61",
+  "suffix": "7825b76",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785211533922
+  "time": 1785305367965
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -108211,6 +108211,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     this._router = inject2(Router);
     this._settings = inject2(SettingsService);
     this._org = inject2(OrganisationService);
+    this._injector = inject2(Injector);
     this._access = inject2(PLACEOS_APP_ACCESS, { optional: true });
   }
   async canActivate(next, state2) {
@@ -108223,20 +108224,26 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
+    await Promise.all([
+      this._org.waitUntilInitialised(),
+      firstValueWhere(user_groups_loaded, Boolean, this._injector)
+    ]);
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
       await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
-      can_activate = await this.checkSubsystemAccess(user);
+      can_activate = this.checkSubsystemAccess(user);
+      log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
+      log("ACCESS", "No access groups", can_activate);
     } else {
       await oi(Lr(), Boolean);
-      await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_3) => user.groups.includes(_3)));
+      log("ACCESS", "Checking access groups", can_activate);
     }
     if (!can_activate) {
       this._router.navigate(["/unauthorised"]);
@@ -108247,22 +108254,14 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const value = Rt()?.config?.["use_group_subsystem_access"];
     return value === true || value === "true";
   }
-  async checkSubsystemAccess(user) {
+  checkSubsystemAccess(user) {
     if (!user)
       return false;
     const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
     const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
-    await this.waitForUserGroups();
     return hasPermission(app_name, GroupPermission.Read);
-  }
-  async waitForUserGroups() {
-    for (let i = 0; i < 50; i++) {
-      if (user_groups_loaded())
-        return;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
   }
   static {
     this.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
@@ -122714,7 +122713,11 @@ function generateBookingForm(booking = new Booking(), injector) {
       user_name: user?.name ?? ""
     }));
   }, injector);
-  onFieldChange(model2, (v2) => v2.resources, (resources) => setBookingAsset(model2, (resources || [])[0]), injector);
+  onFieldChange(model2, (v2) => v2.resources, (resources) => {
+    if (untracked2(model2).booking_type === "visitor")
+      return;
+    setBookingAsset(model2, (resources || [])[0]);
+  }, injector);
   current_user.subscribe((user) => {
     if (!user)
       return;
@@ -127486,7 +127489,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         zones
       }, resources.length);
       if (options.type === "desk" && raw.recurrence_type && raw.recurrence_type !== "none") {
-        const recurring_clashes = await this._recurringBookedResourceList(resources, zones);
+        const recurring_clashes = await this._recurringBookedResourceList(resources, zones, raw);
         booked_ids = unique([...booked_ids, ...recurring_clashes]);
       }
     }
@@ -128059,6 +128062,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     });
     localStorage.removeItem("PLACEOS.last_group_booking_ids");
     const value = this.model();
+    const effective_timezone = this.timezone || value.timezone;
     const booking = this._booking() || new Booking();
     const all_day_period = value.all_day ? this._allDayTimeRange(value.date) : {
       date: value.date,
@@ -128066,7 +128070,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       date_end: value.date_end
     };
     const bookable_hours = this.setting("bookable_hours");
-    if (!isWithinBookableHours(value.date, bookable_hours, this.timezone || value.timezone)) {
+    if (!isWithinBookableHours(value.date, bookable_hours, effective_timezone)) {
       throw i18n("FORM.BOOKABLE_HOURS_ERROR");
     }
     const host = value.user?.email || value.user_email || currentUser()?.email;
@@ -128084,7 +128088,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
-        user_email: host
+        user_email: host,
+        timezone: effective_timezone
       }), selected_booking_type);
     }
     if (this._payments.enabled) {
@@ -128109,7 +128114,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     value.zones = unique(selected_zones.length ? selected_zones : [...this._booking()?.zones || []]);
     this._loading.set("Saving booking");
     delete value.booking_asset;
-    value.timezone = this.timezone || value.timezone;
+    value.timezone = effective_timezone;
     if (value.all_day) {
       value.date = all_day_period.date;
       value.duration = all_day_period.duration;
@@ -128143,6 +128148,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       type: this._options().type
     }, formBookingData(value)), {
       description: value.booking_type === "visitor" ? value.description || value.title || value.asset_name : value.asset_name || value.description,
+      user_id: value.user?.id ?? value.user_id,
       user_name: value.user?.name || value.user_name,
       user_email: value.user?.email || value.user_email,
       extension_data: buildBookingExtensionData(value, group_members),
@@ -128443,7 +128449,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const list = await queryBookings({
       period_start: getUnixTime(booking.date),
       period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
-      type
+      type,
+      include_booked_by: true
     });
     return list.filter((b2) => b2.id === parent_id || b2.parent_id === parent_id || !!legacy_group && b2.description === legacy_group);
   }
@@ -128464,9 +128471,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       throw i18n("BOOKINGS.GROUP_NO_MEMBERS");
     const form2 = this.model();
     const base_form = __spreadProps(__spreadValues({}, form2), { id: "" });
-    const parent_id = form2.parent_id || form2.id;
+    let parent_id = form2.parent_id || form2.id;
     const group_name = this._groupName(form2.group);
     const is_visitor = type === "visitor";
+    const needs_group_container_parent = is_visitor && !form2.parent_id;
     const has_group_container_parent = !!form2.parent_id && !existing_siblings.some((s) => s.id === form2.parent_id);
     const sibling_map = {};
     for (const s of existing_siblings) {
@@ -128485,12 +128493,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     ]) : [];
     let first_result = null;
     try {
-      const zones = unique([
-        this._org.organisation?.id,
-        this._org.region.id,
-        ...base_form.zones
-      ].filter((_3) => _3));
-      if (has_group_container_parent) {
+      if (needs_group_container_parent) {
+        const group_booking = await this.createGroupContainerBooking(form2, group_name, members, type);
+        parent_id = group_booking.id;
+      } else if (has_group_container_parent) {
         await this.saveGroupContainerBooking(form2, group_name, members, type, parent_id);
       }
       for (let index = 0; index < members.length; index++) {
@@ -128876,16 +128882,18 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     return true;
   }
-  async _recurringBookedResourceList(resources, zones) {
-    const value = this.model();
+  async _recurringBookedResourceList(resources, zones, value) {
+    const effective_timezone = this.timezone || value.timezone;
     const booking = new Booking(__spreadProps(__spreadValues({}, value), {
       booking_type: "desk",
       zones: [zones],
-      asset_ids: resources.map((_3) => _3.id)
+      asset_ids: resources.map((_3) => _3.id),
+      timezone: effective_timezone
     }));
     const key = JSON.stringify({
       date: booking.date,
       duration: booking.duration,
+      timezone: effective_timezone,
       recurrence_type: booking.recurrence_type,
       recurrence_end: booking.recurrence_end,
       zones,
@@ -135034,7 +135042,7 @@ var _c048 = ["search_field"];
 var _c124 = ["*"];
 var _c212 = (a0) => ({ name: a0 });
 var _c36 = (a0) => ({ email: a0 });
-var _forTrack07 = ($index, $item) => $item.id;
+var _forTrack07 = ($index, $item) => $item.id || $item.email;
 function UserListFieldComponent_For_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -135385,7 +135393,8 @@ var UserListFieldComponent = class _UserListFieldComponent extends AsyncHandler 
    * @param user
    */
   addUser(user) {
-    const list = this.active_list().filter((_3) => _3.id !== user.id);
+    const user_id = user.id || user.email;
+    const list = this.active_list().filter((_3) => (_3.id || _3.email) !== user_id);
     this.setValue([
       ...list,
       new User(__spreadProps(__spreadValues({}, user), {
@@ -135403,7 +135412,8 @@ var UserListFieldComponent = class _UserListFieldComponent extends AsyncHandler 
    * @param user
    */
   removeUser(user) {
-    const list = this.active_list().filter((a_user) => a_user.id !== user.id);
+    const user_id = user.id || user.email;
+    const list = this.active_list().filter((a_user) => (a_user.id || a_user.email) !== user_id);
     this.setValue(list);
   }
   /**
@@ -135616,25 +135626,37 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
                     #origin="matAutocompleteOrigin"
                 >
                     <mat-chip-grid #chipList aria-label="User Seleciom">
-                        @for (item of active_list(); track item.id) {
+                        @for (
+                            item of active_list();
+                            track item.id || item.email
+                        ) {
                             <mat-chip-row
                                 user
-
                                 [class.bg-base-200]="!item.is_external"
                                 [class.bg-warning]="item.is_external"
                                 (removed)="removeUser(item)"
                                 [matTooltip]="item.email"
                             >
-                                <div class="flex items-center space-x-2"
-                                    [class.text-base-content!]="!item.is_external"
-                                    [class.text-warning-content!]="item.is_external">
+                                <div
+                                    class="flex items-center space-x-2"
+                                    [class.text-base-content!]="
+                                        !item.is_external
+                                    "
+                                    [class.text-warning-content!]="
+                                        item.is_external
+                                    "
+                                >
                                     <div>{{ item.name || item.email }}</div>
                                 </div>
                                 <button
                                     matChipRemove
                                     remove
-                                    [class.text-base-content!]="!item.is_external"
-                                    [class.text-warning-content!]="item.is_external"
+                                    [class.text-base-content!]="
+                                        !item.is_external
+                                    "
+                                    [class.text-warning-content!]="
+                                        item.is_external
+                                    "
                                     [attr.aria-label]="
                                         'COMMON.REMOVE_ITEM'
                                             | translate
@@ -135789,7 +135811,7 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
   }], () => [], { time: [{ type: Input, args: [{ isSignal: true, alias: "time", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], limit: [{ type: Input, args: [{ isSignal: true, alias: "limit", required: false }] }], guests: [{ type: Input, args: [{ isSignal: true, alias: "guests", required: false }] }], guests_only: [{ type: Input, args: [{ isSignal: true, alias: "guests_only", required: false }] }], hide_actions: [{ type: Input, args: [{ isSignal: true, alias: "hide_actions", required: false }] }], custom_template: [{ type: Input, args: [{ isSignal: true, alias: "custom_template", required: false }] }], filter: [{ type: Input, args: [{ isSignal: true, alias: "filter", required: false }] }], new_user: [{ type: Output, args: ["new_user"] }], download: [{ type: Output, args: ["download"] }], _search_el: [{ type: ViewChild, args: ["search_field", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 249 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 261 });
 })();
 
 // libs/events/src/lib/spaces.service.ts
