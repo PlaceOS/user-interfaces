@@ -54090,15 +54090,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "675fd61",
-  "hash": "675fd61",
+  "raw": "7825b76",
+  "hash": "7825b76",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "675fd61",
+  "suffix": "7825b76",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785211621576
+  "time": 1785305474082
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -87682,6 +87682,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     this._router = inject2(Router);
     this._settings = inject2(SettingsService);
     this._org = inject2(OrganisationService);
+    this._injector = inject2(Injector);
     this._access = inject2(PLACEOS_APP_ACCESS, { optional: true });
   }
   async canActivate(next, state) {
@@ -87694,20 +87695,26 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
+    await Promise.all([
+      this._org.waitUntilInitialised(),
+      firstValueWhere(user_groups_loaded, Boolean, this._injector)
+    ]);
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
       await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
-      can_activate = await this.checkSubsystemAccess(user);
+      can_activate = this.checkSubsystemAccess(user);
+      log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
+      log("ACCESS", "No access groups", can_activate);
     } else {
       await oi(Lr(), Boolean);
-      await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
+      log("ACCESS", "Checking access groups", can_activate);
     }
     if (!can_activate) {
       this._router.navigate(["/unauthorised"]);
@@ -87718,22 +87725,14 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const value = Rt()?.config?.["use_group_subsystem_access"];
     return value === true || value === "true";
   }
-  async checkSubsystemAccess(user) {
+  checkSubsystemAccess(user) {
     if (!user)
       return false;
     const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
     const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
-    await this.waitForUserGroups();
     return hasPermission(app_name, GroupPermission.Read);
-  }
-  async waitForUserGroups() {
-    for (let i = 0; i < 50; i++) {
-      if (user_groups_loaded())
-        return;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
   }
   static {
     this.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
@@ -99946,7 +99945,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275queryAdvance(8);
       }
-    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", stateChange: "stateChange", indexChange: "indexChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 19, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0", "bg-[#212121]"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "statusChange", "plugin_interaction", "plugin_error", "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "z-20", "p-4"], [1, "absolute", "bottom-0", "left-1/2", "z-20", "-translate-x-1/2"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], [1, "absolute", "top-0", "left-1/2", "z-20", "-translate-x-1/2", "p-2"], [1, "absolute", "top-0", "right-0", "z-20", "p-4"], ["icon", "", "default", "", "matRipple", "", 1, "absolute", "top-6", "right-6", "z-20", 3, "click"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"], [3, "selected", "index", "playlist"]], template: function MediaPlayerComponent_Template(rf, ctx) {
+    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", stateChange: "stateChange", indexChange: "indexChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 23, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "statusChange", "plugin_interaction", "plugin_error", "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "z-20", "p-4"], [1, "absolute", "bottom-0", "left-1/2", "z-20", "-translate-x-1/2"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], [1, "absolute", "top-0", "left-1/2", "z-20", "-translate-x-1/2", "p-2"], [1, "absolute", "top-0", "right-0", "z-20", "p-4"], ["icon", "", "default", "", "matRipple", "", 1, "absolute", "top-6", "right-6", "z-20", 3, "click"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"], [3, "selected", "index", "playlist"]], template: function MediaPlayerComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 8)(1, "div", 9, 0)(3, "img", 10, 1);
         \u0275\u0275listener("load", function MediaPlayerComponent_Template_img_load_3_listener() {
@@ -99994,6 +99993,8 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
+        \u0275\u0275styleProp("background", ctx.controls() ? "#212121" : "");
+        \u0275\u0275classProp("bg-black", !ctx.controls());
         \u0275\u0275advance();
         \u0275\u0275classProp("invisible", !ctx.in_animation() && (ctx.active_output() !== 0 || ctx.defer_reveal() && ctx.pending_output() === 0))("z-10", ctx.active_output() === 0)("z-0", ctx.active_output() !== 0)("opacity-0", ctx.active_output() !== 0 || ctx.defer_reveal() && ctx.pending_output() === 0);
         \u0275\u0275advance(8);
@@ -100020,7 +100021,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MediaPlayerComponent, [{
     type: Component,
     args: [{ selector: "media-player", template: `
-        <div class="absolute inset-0 bg-[#212121]">
+        <div class="absolute inset-0" [class.bg-black]="!controls()" [style.background]="controls() ? '#212121' : ''">
             <div
                 #media_container_0
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"
