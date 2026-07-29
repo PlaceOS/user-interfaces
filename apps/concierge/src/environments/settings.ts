@@ -45,6 +45,7 @@ const app = {
     reports: { attendance_include_weekends: false },
     parking: {
         show_waitlist: false,
+        waitlist_week_start: { day: 5, hour: 18, minute: 0 },
         disable_styles: false,
         hide_bay_number: false,
         hide_level_selector_on_booking_list: false,

@@ -549,6 +549,70 @@ describe('ParkingStateService', () => {
         );
     });
 
+    it('should keep next-week requests pending before the default Friday cutoff', () => {
+        settings_map['app.parking.show_requests'] = true;
+        vi.spyOn(Date, 'now').mockReturnValue(
+            new Date('2026-07-31T17:59:00+10:00').valueOf(),
+        );
+        const request = {
+            id: 'next-week-request',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            date: new Date('2026-08-03T08:00:00+10:00').valueOf(),
+            date_end: new Date('2026-08-03T17:00:00+10:00').valueOf(),
+            extension_data: {},
+        } as any;
+
+        expect(spectator.service.isWaitlisted(request)).toBe(false);
+        expect(
+            spectator.service.filterEventList([request], 'waitlist'),
+        ).toEqual([]);
+        expect(spectator.service.filterEventList([request], 'pending')).toEqual(
+            [request],
+        );
+    });
+
+    it('should waitlist requests when the default Friday cutoff is reached', () => {
+        vi.spyOn(Date, 'now').mockReturnValue(
+            new Date('2026-07-31T18:00:00+10:00').valueOf(),
+        );
+        const request = {
+            id: 'active-week-request',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            date: new Date('2026-08-03T08:00:00+10:00').valueOf(),
+            extension_data: {},
+        } as any;
+
+        expect(spectator.service.isWaitlisted(request)).toBe(true);
+    });
+
+    it('should use the configured waitlist week boundary', () => {
+        settings_map['app.parking.waitlist_week_start'] = {
+            day: 3,
+            hour: 9,
+            minute: 30,
+        };
+        const now_spy = vi.spyOn(Date, 'now');
+        const request = {
+            id: 'custom-boundary-request',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            date: new Date('2026-07-30T08:00:00+10:00').valueOf(),
+            extension_data: {},
+        } as any;
+
+        now_spy.mockReturnValue(
+            new Date('2026-07-29T09:29:00+10:00').valueOf(),
+        );
+        expect(spectator.service.isWaitlisted(request)).toBe(false);
+
+        now_spy.mockReturnValue(
+            new Date('2026-07-29T09:30:00+10:00').valueOf(),
+        );
+        expect(spectator.service.isWaitlisted(request)).toBe(true);
+    });
+
     it('should only allow approval for matching approver groups', () => {
         const restricted_request = {
             asset_id: 'unallocated-1',
