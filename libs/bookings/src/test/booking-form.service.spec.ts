@@ -2379,4 +2379,23 @@ describe('BookingFormService', () => {
             'booking-two',
         ]);
     });
+
+    it('should include bookings made by the current user when loading group siblings', async () => {
+        spectator.service.setOptions({ type: 'visitor' });
+
+        await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: 'booking-one',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                user_email: 'host@example.com',
+                booked_by_email: 'current.user@example.com',
+            }),
+        );
+
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining('include_booked_by=true'),
+        );
+    });
 });

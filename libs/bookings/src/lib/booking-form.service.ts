@@ -1659,6 +1659,7 @@ export class BookingFormService extends AsyncHandler {
             period_start: getUnixTime(booking.date),
             period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
             type,
+            include_booked_by: true,
         });
         return list.filter(
             (b) =>
