@@ -42,7 +42,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-MFJHNQOV.js";
+} from "./chunk-EBIBC2NL.js";
 import {
   FormField,
   MatCheckbox,
@@ -53,7 +53,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-JUZYBP3X.js";
+} from "./chunk-Y57PAS53.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -307,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-NIHNULYE.js";
+} from "./chunk-PXLNDWGU.js";
 import {
   __spreadProps,
   __spreadValues
@@ -9337,9 +9337,17 @@ var ExploreSensorInfoComponent = class _ExploreSensorInfoComponent extends Async
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSensorInfoComponent, selectors: [["explore-sensor-info"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 1, consts: [["stats", ""], ["icon", "", "matRipple", "", "customTooltip", "", "yPosition", "center", "xPosition", "center", 1, "bg-base-100", "pointer-events-auto", "absolute", "top-1/2", "left-1/2", "h-7", "w-7", "min-w-0", "-translate-x-1/2", "-translate-y-1/2", "shadow-sm", 3, "content"], [1, "border-base-200", "bg-base-100", "absolute", "top-1/2", "left-1/2", "-translate-x-1/2", "-translate-y-1/2", "rounded-lg", "border", "p-2", "text-xl"], [1, "flex", "items-center", "space-x-2", "pr-2", "whitespace-nowrap"], [1, "border-base-200", "bg-base-100", "absolute", "top-0", "right-0", "translate-x-1/2", "-translate-y-1/2", "rounded-full", "border"], [1, ""], [1, "text-error", "text-xl"]], template: function ExploreSensorInfoComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreSensorInfoComponent, selectors: [["explore-sensor-info"]], features: [\u0275\u0275InheritDefinitionFeature], decls: 5, vars: 1, consts: [["stats", ""], ["icon", "", "matRipple", "", "customTooltip", "", "yPosition", "center", "xPosition", "center", 1, "bg-base-100", "pointer-events-auto", "absolute", "top-1/2", "left-1/2", "h-7", "w-7", "min-w-0", "-translate-x-1/2", "-translate-y-1/2", "shadow-sm", 3, "pointerdown", "pointerup", "click", "content"], [1, "border-base-200", "bg-base-100", "absolute", "top-1/2", "left-1/2", "-translate-x-1/2", "-translate-y-1/2", "rounded-lg", "border", "p-2", "text-xl"], [1, "flex", "items-center", "space-x-2", "pr-2", "whitespace-nowrap"], [1, "border-base-200", "bg-base-100", "absolute", "top-0", "right-0", "translate-x-1/2", "-translate-y-1/2", "rounded-full", "border"], [1, ""], [1, "text-error", "text-xl"]], template: function ExploreSensorInfoComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "button", 1)(1, "icon");
+        \u0275\u0275elementStart(0, "button", 1);
+        \u0275\u0275listener("pointerdown", function ExploreSensorInfoComponent_Template_button_pointerdown_0_listener($event) {
+          return $event.stopPropagation();
+        })("pointerup", function ExploreSensorInfoComponent_Template_button_pointerup_0_listener($event) {
+          return $event.stopPropagation();
+        })("click", function ExploreSensorInfoComponent_Template_button_click_0_listener($event) {
+          return $event.stopPropagation();
+        });
+        \u0275\u0275elementStart(1, "icon");
         \u0275\u0275text(2, " visibility ");
         \u0275\u0275elementEnd()();
         \u0275\u0275template(3, ExploreSensorInfoComponent_ng_template_3_Template, 4, 3, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
@@ -9363,6 +9371,9 @@ var ExploreSensorInfoComponent = class _ExploreSensorInfoComponent extends Async
             yPosition="center"
             xPosition="center"
             class="bg-base-100 pointer-events-auto absolute top-1/2 left-1/2 h-7 w-7 min-w-0 -translate-x-1/2 -translate-y-1/2 shadow-sm"
+            (pointerdown)="$event.stopPropagation()"
+            (pointerup)="$event.stopPropagation()"
+            (click)="$event.stopPropagation()"
         >
             <icon> visibility </icon>
         </button>
@@ -9399,7 +9410,7 @@ var ExploreSensorInfoComponent = class _ExploreSensorInfoComponent extends Async
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreSensorInfoComponent, { className: "ExploreSensorInfoComponent", filePath: "libs/explore/src/lib/explore-sensor-info.component.ts", lineNumber: 63 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreSensorInfoComponent, { className: "ExploreSensorInfoComponent", filePath: "libs/explore/src/lib/explore-sensor-info.component.ts", lineNumber: 66 });
 })();
 
 // libs/explore/src/lib/explore-zones.service.ts
@@ -9448,6 +9459,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     effect(() => {
       this._area_data();
       this._zone_data();
+      this._state.spaces();
       this.timeout("parse_data", () => this._parseBindingData(), 100);
     });
     this.init();
@@ -9521,12 +9533,16 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     const count_key = this._settings.get("app.explore.area_count_key") || "count";
     const show_zone_labels = this._settings.get("app.explore.show_zone_labels");
     const show_sensor_info = this._settings.get("app.explore.show_zone_sensor_info");
+    const room_ids = new Set(this._state.spaces().flatMap((space) => [space.id, space.map_id]).filter((id) => !!id));
     for (const zone of value) {
       const id = zone.map_id || zone.area_id;
+      const has_room = room_ids.has(zone.area_id) || !!zone.map_id && room_ids.has(zone.map_id);
       const capacity = zone.capacity || this._capacity[id] || 100;
       const count = Number(zone[this._count_key[id] || count_key] ?? 0);
       const filled = count / capacity;
-      statuses[id] = zone.at_location ? "busy" : filled < 0.4 ? "free" : filled < 0.75 ? "pending" : "busy";
+      if (!has_room) {
+        statuses[id] = zone.at_location ? "busy" : filled < 0.4 ? "free" : filled < 0.75 ? "pending" : "busy";
+      }
       if (!this._location[id])
         continue;
       let content = "";
@@ -9558,14 +9574,14 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
           value: `${zone.counter}
 `
         });
-      if (this._label_location[id] && show_zone_labels) {
+      if (!has_room && this._label_location[id] && show_zone_labels) {
         labels.push({
           location: this._label_location[id],
           content,
           z_index: 100
         });
       }
-      if (show_sensor_info && (zone.temperature != null || zone.humidity != null)) {
+      if (has_room && show_sensor_info && (zone.temperature != null || zone.humidity != null)) {
         features.push({
           track_id: `sensors:${id}`,
           location: this._location[id],
@@ -9576,7 +9592,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
             temp_unit,
             humidity: zone.humidity ?? 10
           },
-          z_index: 98
+          z_index: 100
         });
       }
     }
@@ -11889,4 +11905,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-JZAWQYR4.js.map
+//# sourceMappingURL=explore.routes-73KSZZHB.js.map
