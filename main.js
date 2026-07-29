@@ -70066,15 +70066,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "675fd61",
-  "hash": "675fd61",
+  "raw": "7825b76",
+  "hash": "7825b76",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "675fd61",
+  "suffix": "7825b76",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785211676092
+  "time": 1785305464254
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -94930,7 +94930,7 @@ var _FullscreenModalShellComponent = class _FullscreenModalShellComponent {
 _FullscreenModalShellComponent.\u0275fac = function FullscreenModalShellComponent_Factory(__ngFactoryType__) {
   return new (__ngFactoryType__ || _FullscreenModalShellComponent)();
 };
-_FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], confirm_hotkey: [1, "confirm_hotkey"], confirm_disabled: [1, "confirm_disabled"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], hide_close: [1, "hide_close"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c015, decls: 10, vars: 14, consts: [[1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "flex", "items-center", "text-xl", "font-medium", "capitalize", 3, "innerHTML"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-24", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "click", "disabled"], [1, "border-base-300", "bg-base-100", "text-base-content", "rounded", "border", "px-2", "py-1", "text-xs", "leading-none", "shadow-sm"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
+_FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _FullscreenModalShellComponent, selectors: [["fullscreen-modal-shell"], ["", "fs-modal-shell", ""]], inputs: { loading: [1, "loading"], heading: [1, "heading"], confirm_text: [1, "confirm_text"], confirm_hotkey: [1, "confirm_hotkey"], confirm_disabled: [1, "confirm_disabled"], close: [1, "close"], hide_confirm: [1, "hide_confirm"], hide_close: [1, "hide_close"], full_width: [1, "full_width"] }, outputs: { confirm: "confirm", closed: "closed" }, ngContentSelectors: _c015, decls: 10, vars: 14, consts: [["cdkScrollable", "", 1, "bg-base-200", "fixed", "inset-0", "flex", "flex-col", "items-center", "overflow-auto", "px-2"], [1, "border-base-300", "bg-base-100", "fixed", "top-0", "mx-auto", "h-screen", "max-w-full", "border-x"], [1, "bg-base-200", "sticky", "top-0", "z-10", "mx-auto", "my-2", "flex", "h-14", "w-full", "items-center", "justify-between", "rounded-sm", "border-none", "px-4", "py-2"], [1, "flex", "items-center", "text-xl", "font-medium", "capitalize", 3, "innerHTML"], [1, "z-0", "mx-auto", "h-1/2", "w-full", "flex-1", "space-y-8", "p-2"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4", "p-12"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2", 3, "max-w-156"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["icon", "", "matRipple", "", 3, "routerLink"], [1, "h-24", "w-full"], [3, "diameter"], [1, "text-center", "opacity-50"], [1, "bg-base-200", "fixed", "bottom-0", "left-1/2", "z-10", "mx-auto", "my-2", "flex", "w-full", "-translate-x-1/2", "items-center", "justify-end", "rounded-sm", "border-none", "px-4", "py-2"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "click", "disabled"], [1, "border-base-300", "bg-base-100", "text-base-content", "rounded", "border", "px-2", "py-1", "text-xs", "leading-none", "shadow-sm"]], template: function FullscreenModalShellComponent_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275projectionDef();
     \u0275\u0275elementStart(0, "div", 0);
@@ -94963,6 +94963,7 @@ _FullscreenModalShellComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCom
     \u0275\u0275conditional(!ctx.loading() && !ctx.hide_confirm() ? 9 : -1);
   }
 }, dependencies: [
+  CdkScrollable,
   MatProgressSpinnerModule,
   MatProgressSpinner,
   IconComponent,
@@ -94981,6 +94982,7 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
     type: Component,
     args: [{ selector: "fullscreen-modal-shell,[fs-modal-shell]", template: `
         <div
+            cdkScrollable
             class="bg-base-200 fixed inset-0 flex flex-col items-center overflow-auto px-2"
         >
             <div
@@ -95052,6 +95054,7 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
             }
         </div>
     `, imports: [
+      CdkScrollable,
       TranslatePipe,
       MatProgressSpinnerModule,
       IconComponent,
@@ -95063,7 +95066,7 @@ var FullscreenModalShellComponent = _FullscreenModalShellComponent;
   }], null, { loading: [{ type: Input, args: [{ isSignal: true, alias: "loading", required: false }] }], heading: [{ type: Input, args: [{ isSignal: true, alias: "heading", required: false }] }], confirm_text: [{ type: Input, args: [{ isSignal: true, alias: "confirm_text", required: false }] }], confirm_hotkey: [{ type: Input, args: [{ isSignal: true, alias: "confirm_hotkey", required: false }] }], confirm_disabled: [{ type: Input, args: [{ isSignal: true, alias: "confirm_disabled", required: false }] }], close: [{ type: Input, args: [{ isSignal: true, alias: "close", required: false }] }], hide_confirm: [{ type: Input, args: [{ isSignal: true, alias: "hide_confirm", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], full_width: [{ type: Input, args: [{ isSignal: true, alias: "full_width", required: false }] }], confirm: [{ type: Output, args: ["confirm"] }], closed: [{ type: Output, args: ["closed"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 102 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(FullscreenModalShellComponent, { className: "FullscreenModalShellComponent", filePath: "libs/components/src/lib/fullscreen-modal-shell.component.ts", lineNumber: 105 });
 })();
 
 // libs/components/src/lib/changelog-modal.component.ts
@@ -98827,6 +98830,7 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
     this._router = inject2(Router);
     this._settings = inject2(SettingsService);
     this._org = inject2(OrganisationService);
+    this._injector = inject2(Injector);
     this._access = inject2(PLACEOS_APP_ACCESS, { optional: true });
   }
   async canActivate(next, state) {
@@ -98840,20 +98844,26 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   async checkUser() {
     var _a10;
+    await Promise.all([
+      this._org.waitUntilInitialised(),
+      firstValueWhere(user_groups_loaded, Boolean, this._injector)
+    ]);
     const groups = ((_a10 = this._access) == null ? void 0 : _a10.group) ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
       await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
-      can_activate = await this.checkSubsystemAccess(user);
+      can_activate = this.checkSubsystemAccess(user);
+      log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
+      log("ACCESS", "No access groups", can_activate);
     } else {
       await oi(Lr(), Boolean);
-      await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
+      log("ACCESS", "Checking access groups", can_activate);
     }
     if (!can_activate) {
       this._router.navigate(["/unauthorised"]);
@@ -98865,22 +98875,14 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
     const value = (_b4 = (_a10 = Rt()) == null ? void 0 : _a10.config) == null ? void 0 : _b4["use_group_subsystem_access"];
     return value === true || value === "true";
   }
-  async checkSubsystemAccess(user) {
+  checkSubsystemAccess(user) {
     if (!user)
       return false;
     const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
     const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
-    await this.waitForUserGroups();
     return hasPermission(app_name, GroupPermission.Read);
-  }
-  async waitForUserGroups() {
-    for (let i = 0; i < 50; i++) {
-      if (user_groups_loaded())
-        return;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
   }
 };
 _AuthorisedUserGuard.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
