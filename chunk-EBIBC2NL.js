@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-JUZYBP3X.js";
+} from "./chunk-Y57PAS53.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -330,7 +330,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-NIHNULYE.js";
+} from "./chunk-PXLNDWGU.js";
 import {
   __objRest,
   __spreadProps,
@@ -8560,7 +8560,11 @@ function generateBookingForm(booking = new Booking(), injector) {
       user_name: user?.name ?? ""
     }));
   }, injector);
-  onFieldChange(model2, (v) => v.resources, (resources) => setBookingAsset(model2, (resources || [])[0]), injector);
+  onFieldChange(model2, (v) => v.resources, (resources) => {
+    if (untracked(model2).booking_type === "visitor")
+      return;
+    setBookingAsset(model2, (resources || [])[0]);
+  }, injector);
   current_user.subscribe((user) => {
     if (!user)
       return;
@@ -9998,7 +10002,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         zones
       }, resources.length);
       if (options.type === "desk" && raw.recurrence_type && raw.recurrence_type !== "none") {
-        const recurring_clashes = await this._recurringBookedResourceList(resources, zones);
+        const recurring_clashes = await this._recurringBookedResourceList(resources, zones, raw);
         booked_ids = unique([...booked_ids, ...recurring_clashes]);
       }
     }
@@ -10571,6 +10575,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     });
     localStorage.removeItem("PLACEOS.last_group_booking_ids");
     const value = this.model();
+    const effective_timezone = this.timezone || value.timezone;
     const booking = this._booking() || new Booking();
     const all_day_period = value.all_day ? this._allDayTimeRange(value.date) : {
       date: value.date,
@@ -10578,7 +10583,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       date_end: value.date_end
     };
     const bookable_hours = this.setting("bookable_hours");
-    if (!isWithinBookableHours(value.date, bookable_hours, this.timezone || value.timezone)) {
+    if (!isWithinBookableHours(value.date, bookable_hours, effective_timezone)) {
       throw i18n("FORM.BOOKABLE_HOURS_ERROR");
     }
     const host = value.user?.email || value.user_email || currentUser()?.email;
@@ -10596,7 +10601,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
-        user_email: host
+        user_email: host,
+        timezone: effective_timezone
       }), selected_booking_type);
     }
     if (this._payments.enabled) {
@@ -10621,7 +10627,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     value.zones = unique(selected_zones.length ? selected_zones : [...this._booking()?.zones || []]);
     this._loading.set("Saving booking");
     delete value.booking_asset;
-    value.timezone = this.timezone || value.timezone;
+    value.timezone = effective_timezone;
     if (value.all_day) {
       value.date = all_day_period.date;
       value.duration = all_day_period.duration;
@@ -10655,6 +10661,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       type: this._options().type
     }, formBookingData(value)), {
       description: value.booking_type === "visitor" ? value.description || value.title || value.asset_name : value.asset_name || value.description,
+      user_id: value.user?.id ?? value.user_id,
       user_name: value.user?.name || value.user_name,
       user_email: value.user?.email || value.user_email,
       extension_data: buildBookingExtensionData(value, group_members),
@@ -10955,7 +10962,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const list = await queryBookings({
       period_start: getUnixTime(booking.date),
       period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
-      type
+      type,
+      include_booked_by: true
     });
     return list.filter((b) => b.id === parent_id || b.parent_id === parent_id || !!legacy_group && b.description === legacy_group);
   }
@@ -10976,9 +10984,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       throw i18n("BOOKINGS.GROUP_NO_MEMBERS");
     const form2 = this.model();
     const base_form = __spreadProps(__spreadValues({}, form2), { id: "" });
-    const parent_id = form2.parent_id || form2.id;
+    let parent_id = form2.parent_id || form2.id;
     const group_name = this._groupName(form2.group);
     const is_visitor = type === "visitor";
+    const needs_group_container_parent = is_visitor && !form2.parent_id;
     const has_group_container_parent = !!form2.parent_id && !existing_siblings.some((s) => s.id === form2.parent_id);
     const sibling_map = {};
     for (const s of existing_siblings) {
@@ -10997,12 +11006,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     ]) : [];
     let first_result = null;
     try {
-      const zones = unique([
-        this._org.organisation?.id,
-        this._org.region.id,
-        ...base_form.zones
-      ].filter((_) => _));
-      if (has_group_container_parent) {
+      if (needs_group_container_parent) {
+        const group_booking = await this.createGroupContainerBooking(form2, group_name, members, type);
+        parent_id = group_booking.id;
+      } else if (has_group_container_parent) {
         await this.saveGroupContainerBooking(form2, group_name, members, type, parent_id);
       }
       for (let index = 0; index < members.length; index++) {
@@ -11388,16 +11395,18 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     return true;
   }
-  async _recurringBookedResourceList(resources, zones) {
-    const value = this.model();
+  async _recurringBookedResourceList(resources, zones, value) {
+    const effective_timezone = this.timezone || value.timezone;
     const booking = new Booking(__spreadProps(__spreadValues({}, value), {
       booking_type: "desk",
       zones: [zones],
-      asset_ids: resources.map((_) => _.id)
+      asset_ids: resources.map((_) => _.id),
+      timezone: effective_timezone
     }));
     const key = JSON.stringify({
       date: booking.date,
       duration: booking.duration,
+      timezone: effective_timezone,
       recurrence_type: booking.recurrence_type,
       recurrence_end: booking.recurrence_end,
       zones,
@@ -12269,4 +12278,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-MFJHNQOV.js.map
+//# sourceMappingURL=chunk-EBIBC2NL.js.map

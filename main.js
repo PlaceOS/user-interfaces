@@ -12,7 +12,7 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-MFJHNQOV.js";
+} from "./chunk-EBIBC2NL.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -24,10 +24,10 @@ import {
   MatSelectModule,
   MatSelectTrigger,
   SanitizePipe
-} from "./chunk-JUZYBP3X.js";
+} from "./chunk-Y57PAS53.js";
 import {
   CheckinStateService
-} from "./chunk-ADVWZSIN.js";
+} from "./chunk-ZRCYYAQC.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -62,6 +62,7 @@ import {
   Inject,
   Injectable,
   InjectionToken,
+  Injector,
   Input,
   LOCALE_ID,
   LocaleService,
@@ -128,6 +129,7 @@ import {
   effect,
   enableProdMode,
   firstTruthyValueFrom,
+  firstValueWhere,
   format,
   getInvalidSignalFields,
   getLoadingMessage,
@@ -239,7 +241,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-NIHNULYE.js";
+} from "./chunk-PXLNDWGU.js";
 import {
   __export,
   __objRest,
@@ -6977,6 +6979,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     this._router = inject(Router);
     this._settings = inject(SettingsService);
     this._org = inject(OrganisationService);
+    this._injector = inject(Injector);
     this._access = inject(PLACEOS_APP_ACCESS, { optional: true });
   }
   async canActivate(next, state) {
@@ -6989,20 +6992,26 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
+    await Promise.all([
+      this._org.waitUntilInitialised(),
+      firstValueWhere(user_groups_loaded, Boolean, this._injector)
+    ]);
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
       await oi(Lr(), Boolean);
       const user = await firstTruthyValueFrom(current_user);
-      can_activate = await this.checkSubsystemAccess(user);
+      can_activate = this.checkSubsystemAccess(user);
+      log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
+      log("ACCESS", "No access groups", can_activate);
     } else {
       await oi(Lr(), Boolean);
-      await this._org.waitUntilInitialised();
       const user = await firstTruthyValueFrom(current_user);
       can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
+      log("ACCESS", "Checking access groups", can_activate);
     }
     if (!can_activate) {
       this._router.navigate(["/unauthorised"]);
@@ -7013,22 +7022,14 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     const value = Rt()?.config?.["use_group_subsystem_access"];
     return value === true || value === "true";
   }
-  async checkSubsystemAccess(user) {
+  checkSubsystemAccess(user) {
     if (!user)
       return false;
     const subsystem = `${this._settings.get("app.access_subsystem") || ""}`.trim();
     const app_name = (subsystem || `${this._settings.app_name || ""}`).trim().toLowerCase();
     if (!app_name)
       return false;
-    await this.waitForUserGroups();
     return hasPermission(app_name, GroupPermission.Read);
-  }
-  async waitForUserGroups() {
-    for (let i = 0; i < 50; i++) {
-      if (user_groups_loaded())
-        return;
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
   }
   static {
     this.\u0275fac = function AuthorisedUserGuard_Factory(__ngFactoryType__) {
@@ -21562,17 +21563,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-JZAWQYR4.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-73KSZZHB.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-ECPTJ2S4.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-J3IRK5VX.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-65UY7GGY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-BFZVYHFJ.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
