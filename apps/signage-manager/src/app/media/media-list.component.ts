@@ -1,5 +1,4 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { NgTemplateOutlet } from '@angular/common';
 
 import {
     Component,
@@ -18,13 +17,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    AuthenticatedImageDirective,
     IconComponent,
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
+import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
@@ -211,11 +210,9 @@ const UNTAGGED = '\0untagged';
                                                 : { name: media_item.name }
                                     "
                                 >
-                                    <ng-container
-                                        [ngTemplateOutlet]="thumb"
-                                        [ngTemplateOutletContext]="{
-                                            item: media_item,
-                                        }"
+                                    <media-thumbnail
+                                        [item]="media_item"
+                                        class="h-full w-full"
                                     />
                                 </button>
                                 <div class="flex w-px flex-1 flex-col">
@@ -362,11 +359,9 @@ const UNTAGGED = '\0untagged';
                                             }}
                                         </div>
                                     }
-                                    <ng-container
-                                        [ngTemplateOutlet]="thumb"
-                                        [ngTemplateOutletContext]="{
-                                            item: media_item,
-                                        }"
+                                    <media-thumbnail
+                                        [item]="media_item"
+                                        class="h-full w-full"
                                     />
                                     @if (thumbnailUrl(media_item)) {
                                         <div
@@ -566,32 +561,6 @@ const UNTAGGED = '\0untagged';
             </ng-template>
         </mat-menu>
 
-        <!-- Shared thumbnail visual (fills its container) -->
-        <ng-template #thumb let-item="item">
-            @if (item.media_type === 'webpage' && !thumbnailUrl(item)) {
-                <div class="flex h-full w-full items-center justify-center">
-                    <icon class="text-8xl opacity-30">http</icon>
-                </div>
-            } @else if (item.media_type === 'plugin' && !thumbnailUrl(item)) {
-                <div class="flex h-full w-full items-center justify-center">
-                    <icon class="text-8xl opacity-30">extension</icon>
-                </div>
-            } @else if (thumbnailUrl(item)) {
-                <img
-                    auth
-                    [source]="thumbnailUrl(item)"
-                    [alt]="item.name + ' thumbnail'"
-                    class="absolute -inset-px flex h-full w-full items-center justify-center rounded-lg object-contain object-center"
-                />
-            } @else {
-                <div class="flex h-full w-full items-center justify-center">
-                    <icon class="text-8xl opacity-30">{{
-                        item.media_type === 'video' ? 'video_library' : 'image'
-                    }}</icon>
-                </div>
-            }
-        </ng-template>
-
         @if (selected_count() > 0) {
             <footer
                 class="bg-base-100 border-base-300 sticky bottom-2 z-20 mx-2 mt-2 flex items-center justify-between gap-2 rounded-xl border p-2 shadow-lg"
@@ -687,7 +656,6 @@ const UNTAGGED = '\0untagged';
     ],
     imports: [
         DragDropModule,
-        NgTemplateOutlet,
         MatCheckboxModule,
         MatRippleModule,
         MatMenuModule,
@@ -695,10 +663,10 @@ const UNTAGGED = '\0untagged';
         MatTabsModule,
         MatTooltipModule,
         IconComponent,
-        AuthenticatedImageDirective,
         MediaDurationPipe,
         TranslatePipe,
         IntersectDirective,
+        MediaThumbnailComponent,
     ],
 })
 export class MediaListComponent implements OnInit {

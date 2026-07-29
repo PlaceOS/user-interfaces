@@ -10,7 +10,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n } from '@placeos/common';
 import {
-    AuthenticatedImageDirective,
     IconComponent,
     MediaDurationPipe,
     TranslatePipe,
@@ -20,8 +19,8 @@ import {
     SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
+import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import {
-    playlistMediaIcon,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
@@ -188,33 +187,11 @@ import { SignageService } from '../signage.service';
                                 class="shrink-0 cursor-grab opacity-40"
                                 >drag_indicator</icon
                             >
-                            <div
+                            <media-thumbnail
+                                [item]="item"
+                                [cover]="true"
                                 class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
-                            >
-                                @let url = thumbnailURL(item);
-                                @if (url && item.thumbnail_id) {
-                                    <img
-                                        auth
-                                        [source]="url"
-                                        [alt]="item.name + ' thumbnail'"
-                                        class="h-full w-full object-cover text-xs"
-                                    />
-                                } @else {
-                                    <div
-                                        class="flex h-full w-full items-center justify-center"
-                                    >
-                                        <icon class="text-4xl opacity-30">{{
-                                            item.media_type === 'video'
-                                                ? 'video_library'
-                                                : item.media_type === 'webpage'
-                                                  ? 'http'
-                                                  : item.media_type === 'plugin'
-                                                    ? 'extension'
-                                                    : 'image'
-                                        }}</icon>
-                                    </div>
-                                }
-                            </div>
+                            />
                             <div class="min-w-0 flex-1">
                                 <div class="truncate text-sm font-medium">
                                     {{ item.name }}
@@ -359,27 +336,11 @@ import { SignageService } from '../signage.service';
                             "
                         >
                             <div class="flex items-start gap-3">
-                                <div
+                                <media-thumbnail
+                                    [item]="item"
+                                    [cover]="true"
                                     class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
-                                >
-                                    @let url = thumbnailURL(item);
-                                    @if (url && item.thumbnail_id) {
-                                        <img
-                                            auth
-                                            [source]="url"
-                                            [alt]="item.name + ' thumbnail'"
-                                            class="h-full w-full object-cover text-xs"
-                                        />
-                                    } @else {
-                                        <div
-                                            class="flex h-full w-full items-center justify-center"
-                                        >
-                                            <icon class="text-4xl opacity-30">{{
-                                                mediaIcon(item)
-                                            }}</icon>
-                                        </div>
-                                    }
-                                </div>
+                                />
                                 <div class="min-w-0 flex-1">
                                     <div class="truncate text-sm font-medium">
                                         {{ item.name }}
@@ -603,9 +564,9 @@ import { SignageService } from '../signage.service';
         MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
-        AuthenticatedImageDirective,
         MediaDurationPipe,
         TranslatePipe,
+        MediaThumbnailComponent,
     ],
 })
 export class PlaylistItemsComponent {
@@ -642,14 +603,6 @@ export class PlaylistItemsComponent {
             this.selected_item()?.id === item.id &&
             this.selected_item_index() === index
         );
-    }
-
-    public thumbnailURL(item: SignageMedia) {
-        return `/api/engine/v2/signage/media/${item.id}/thumbnail`;
-    }
-
-    public mediaIcon(item: SignageMedia) {
-        return playlistMediaIcon(item);
     }
 
     public itemSchedule(item: SignageMedia, index = -1) {
