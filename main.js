@@ -1,35 +1,34 @@
 import {
   MatProgressBar,
-  MatProgressBarModule,
-  subDays
-} from "./chunk-LAAZAQGG.js";
+  MatProgressBarModule
+} from "./chunk-NN2UH32G.js";
 import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-WRJREFHZ.js";
+} from "./chunk-IEOLJMW6.js";
 import {
   subMinutes
 } from "./chunk-JZB7MS4C.js";
-import "./chunk-ZKLDSDVV.js";
-import "./chunk-KOVVZKBC.js";
-import "./chunk-PWNONECW.js";
-import "./chunk-7XWVUTAA.js";
-import "./chunk-3EZVRQS4.js";
+import "./chunk-KHS6AETF.js";
+import "./chunk-SNFCTVWR.js";
+import "./chunk-Q4CQXCBL.js";
+import "./chunk-4WZXJP7U.js";
+import "./chunk-CJ4SK62A.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-FZICXWWW.js";
-import "./chunk-MH6UEF3P.js";
-import "./chunk-BY4UTPYY.js";
-import "./chunk-4HCSXBSB.js";
-import "./chunk-MJHGNHWH.js";
+} from "./chunk-H6J6JXKT.js";
+import "./chunk-GDOAVKUG.js";
+import "./chunk-KQZFLD3Y.js";
+import "./chunk-7ELJVX3E.js";
+import "./chunk-7QWGBIEF.js";
 import {
   CustomTooltipComponent,
   MatTooltip,
   MatTooltipModule
-} from "./chunk-G26NEACM.js";
-import "./chunk-L33DDP5A.js";
+} from "./chunk-AVQKJEBX.js";
+import "./chunk-MMD7DVNR.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -86,9 +85,10 @@ import {
   setNativeEmail,
   settingSignal,
   style,
+  subDays,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-VHBBINQM.js";
+} from "./chunk-XA6QWCVD.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -12930,6 +12930,14 @@ var properties = {
         type: "boolean",
         description: "Whether multi-day recurrence options should be available in parking flows"
       },
+      show_waitlist: {
+        type: "boolean",
+        description: "Whether unallocated parking bookings within the active waitlist week are shown as waitlisted. Defaults to `true`"
+      },
+      waitlist_week_start: {
+        $ref: "#/$defs/weekly_boundary",
+        description: "Day and time at which the active parking waitlist week starts. Defaults to Friday at 18:00"
+      },
       request_submission_notes_html: {
         type: "string",
         description: "Optional sanitized HTML content shown in the parking request summary and submission section."
@@ -13457,6 +13465,39 @@ var properties = {
   }
 };
 var $defs = {
+  weekly_boundary: {
+    type: "object",
+    description: "A weekly day and wall-clock time boundary",
+    required: ["day", "hour", "minute"],
+    properties: {
+      day: {
+        type: "number",
+        enum: [0, 1, 2, 3, 4, 5, 6],
+        enumNames: [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        description: "Day of the week. `0` is Sunday through `6` for Saturday"
+      },
+      hour: {
+        type: "number",
+        minimum: 0,
+        maximum: 23,
+        description: "Hour of the day in 24-hour time"
+      },
+      minute: {
+        type: "number",
+        minimum: 0,
+        maximum: 59,
+        description: "Minute of the hour"
+      }
+    }
+  },
   bookable_hours: {
     type: "object",
     description: "Bookable time window as hours of the day (0-24). For example, `8` is 8:00 AM and `19` is 7:00 PM.",
@@ -18003,62 +18044,62 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-YXFN2PSL.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-67BKWK4X.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-IWAQDLIV.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-ILBYSN55.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-RW6S7NOY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-RIEHJ6CX.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-VFRFB5RF.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-XC3FDL36.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-V6FIJ455.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-VCOXF3LC.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-3JX3QPW6.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-26YXZSKR.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-CBXUEP7B.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-646ANEDK.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-ZTCTGUNR.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-F2CWK5KF.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-ZGO6XFTD.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-ESJ53A5S.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
