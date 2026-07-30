@@ -359,6 +359,14 @@ export class VisitorFlowDetailsComponent implements OnInit {
             this.model.update((m) => ({ ...m, zones: default_zones }));
             return;
         }
+        // Editing a booking from another building: match the active building to
+        // it so saving doesn't tag the booking with the previously active one.
+        const building = this._org.buildings.find(
+            (bld) => bld.id === this.selected_building_id(),
+        );
+        if (building && building.id !== this._org.building?.id) {
+            this._org.building = building;
+        }
     }
 
     public setActiveForm(form: VisitorFormType) {
@@ -423,6 +431,11 @@ export class VisitorFlowDetailsComponent implements OnInit {
             return;
         }
         const building = this._org.find(building_id);
+        // Saving merges the active building's zones into the booking, so the
+        // active building has to move too or the booking keeps the old one.
+        if (building && building.id !== this._org.building?.id) {
+            this._org.building = building as any;
+        }
         const zones = [
             this._org.organisation?.id,
             building?.parent_id,

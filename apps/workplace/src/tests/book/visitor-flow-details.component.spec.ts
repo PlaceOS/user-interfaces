@@ -149,6 +149,35 @@ describe('VisitorFlowDetailsComponent', () => {
         expect(spectator.query('a-duration-field')).toExist();
     });
 
+    it('should make the selected building active so saves use its zones', () => {
+        const org = spectator.inject(OrganisationService);
+        model.update((m) => ({
+            ...m,
+            id: 'visitor-booking-4',
+            zones: ['org-1', 'bld-1'],
+        }));
+        spectator.component.ngOnInit();
+
+        spectator.component.setBuilding('bld-2');
+
+        expect(org.building.id).toBe('bld-2');
+        expect(model().zones).toEqual(['bld-2']);
+        expect(spectator.component.selected_building_id()).toBe('bld-2');
+    });
+
+    it('should make the edited booking building active on load', () => {
+        const org = spectator.inject(OrganisationService);
+        model.update((m) => ({
+            ...m,
+            id: 'visitor-booking-5',
+            zones: ['org-1', 'bld-2'],
+        }));
+
+        spectator.component.ngOnInit();
+
+        expect(org.building.id).toBe('bld-2');
+    });
+
     it('should resolve the selected building from a level zone when editing', () => {
         model.update((m) => ({
             ...m,
