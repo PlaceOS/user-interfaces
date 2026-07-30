@@ -46763,6 +46763,11 @@ function isBefore(date, dateToCompare) {
   return +toDate2(date) < +toDate2(dateToCompare);
 }
 
+// node_modules/date-fns/subDays.js
+function subDays(date, amount, options) {
+  return addDays(date, -amount, options);
+}
+
 // node_modules/date-fns/setMonth.js
 function setMonth(date, month, options) {
   const _date = toDate2(date, options?.in);
@@ -49644,15 +49649,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "7825b76",
-  "hash": "7825b76",
+  "raw": "5581e40",
+  "hash": "5581e40",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7825b76",
+  "suffix": "5581e40",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785305372695
+  "time": 1785386015532
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -84315,6 +84320,7 @@ export {
   isAfter,
   isBefore,
   startOfMinute,
+  subDays,
   roundToNearestMinutes,
   setMonth,
   set,
@@ -84599,4 +84605,4 @@ export {
   getGuestCateringItem,
   setGuestCateringItem
 };
-//# sourceMappingURL=chunk-PXLNDWGU.js.map
+//# sourceMappingURL=chunk-DMBIGKNC.js.map
