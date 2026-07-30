@@ -23,6 +23,20 @@ rather than passed, because a spec that only passes on retry is the signal that 
 nightly runs green, every `flaky` occurrence explained, and REG-09 either fixed or
 consciously accepted.
 
+### Track record so far
+
+Honest log, because "it went green once" is not a track record.
+
+| Run | Result | What it taught us |
+|---|---|---|
+| 1 | failed | Elasticsearch would not start. Diagnosed as `memory_lock` — **wrong**, but the fix was harmless. Exposed that log collection used a hand-picked service list which omitted elastic, so the one useful log was the one not captured. |
+| 2 | failed | With diagnostics in place: ES 7.17.6 bundles a JDK with the **cgroup v2** NPE bug and its launcher dies before the JVM starts. GitHub runners use cgroup v2; Docker Desktop does not — unreproducible locally. Fixed by moving to 7.17.28. |
+| 3 | success, **2 flaky** | Both desk specs failed attempt 1 with "the confirm dialog did not open". Root cause: the booking form is rebuilt when async init completes and restores defaults — a **race**, not a step. Mitigated by converging on the form state in a retrying block. |
+| 4 | success, 0 flaky | — |
+| 5 (re-run of 4's commit) | success, 0 flaky | Same code twice with no flakes. |
+
+Two clean runs is a start, not a track record. The nightly is what accumulates one.
+
 ## How this document works
 
 **It is the mechanism that keeps the suite current.** A suite decays the moment nobody
@@ -97,7 +111,8 @@ task that found it, so the row can be traced.
 | REG-06 | P2 | Timezone parsing does not error for a building with an unusual timezone. | "Fix error when parsing timezones" | todo |
 | REG-07 | P2 | Level selection does not persist once the selector is hidden/disabled. | "Fix level selections persisting when selector is disabled/hidden" | todo |
 | REG-08 | P1 | An authority with a **relative** `login_url` still reaches a usable login page. | Found 2026-07-30, this suite | **blocked** — currently worked around in `seed.ts`; ts-client resolves a relative `login_url` against the authority host **without its port**, so any non-443 deployment dead-ends. Needs a ts-client/init fix before a spec can assert the good behaviour. |
-| REG-09 | P1 | Concurrent `POST /bookings` do not 500. | Found 2026-07-30, this suite | **blocked** — staff-api raises `DB::ConnectionLost` under concurrency (~1 in 8 at 4 workers). Currently absorbed by CI retries and reported as `flaky`. Needs a staff-api fix. |
+| REG-09 | P1 | Concurrent `POST /bookings` do not 500. | Found 2026-07-30, this suite | **blocked** — staff-api raises `DB::ConnectionLost` under concurrency. Observed ~1 run in 8 **locally at 4 workers**; **not yet observed in CI**, which runs 2 workers, so halving the concurrency may simply be avoiding it rather than the problem being absent. Needs a staff-api fix; do not treat the quiet CI record as evidence it is gone. |
+| REG-10 | P1 | The booking form does not discard user input while it is still initialising. | Found 2026-07-30, this suite | **blocked** — the form is rebuilt when async init completes and restores defaults (title, All Day, Require locker), silently dropping anything typed before that. A real user can hit this; they would just see their title or options revert. `bookDeskViaUI` converges on the state to work around it, which means **the suite no longer detects it** — hence this row. Needs a fix in the app, then a spec that asserts input survives. |
 
 ## 4. Platform & configuration
 
