@@ -1,0 +1,147 @@
+name: 'E2E (advisory)'
+
+# ADVISORY ONLY — this must NOT gate merges yet.
+#
+# The suite is new. Before it is allowed to block anyone it needs a track record:
+# no false positives, specs reviewed by humans, and a known flake rate. Until then
+# this workflow exists to BUILD that record, not to enforce anything.
+#
+# Concretely, that means: do not add this job to branch protection / required
+# status checks. Nothing in this file can make it required — that is a repository
+# setting — so keeping it advisory is a deliberate human decision, not a default.
+# The job still reports honest pass/fail; it just does not block.
+#
+# The nightly run is the point: it accumulates evidence on a fixed codebase, which
+# is the only way to tell a real regression from an unstable suite.
+#
+# Known instability at time of writing (see E2E_USER_STORIES.md REG-09):
+# staff-api intermittently 500s with `DB::ConnectionLost` on concurrent
+# POST /bookings. Playwright's retries absorb it and mark the spec `flaky` — a
+# flaky-but-passing run is reported in the summary rather than hidden.
+
+on:
+    workflow_dispatch:
+    # Lets this workflow be exercised on its own branch before it lives on
+    # `develop` (where `workflow_dispatch` first becomes available). The prefix is
+    # deliberately outside the `feat/*`, `fix/*`, `custom/*`, `refactor/*` set that
+    # PR Flow watches, so iterating on CI here never triggers a build or a
+    # `build/<branch>/<app>` deploy.
+    push:
+        branches: ['e2e/**']
+    schedule:
+        # 15:10 UTC daily — off-peak for AU-hours contributors, so a nightly
+        # failure is waiting to be read rather than interrupting anyone.
+        - cron: '10 15 * * *'
+    pull_request:
+        branches: [develop]
+
+concurrency:
+    group: e2e-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    workplace:
+        name: 'workplace e2e (local stack)'
+        runs-on: ubuntu-latest
+        timeout-minutes: 45
+        env:
+            E2E_BACKEND_URL: https://localhost:9443
+            # Deliberately lower than the local default of 4.
+            #
+            # A GitHub runner has 4 cores and is simultaneously running ~10
+            # containers, an Angular dev server and the browsers. Fewer workers
+            # means less contention, which means fewer failures that are about the
+            # runner rather than about the code — and avoiding false positives
+            # matters more here than shaving a minute off the run.
+            E2E_WORKERS: '2'
+            TZ: 'Etc/UTC'
+        steps:
+            - uses: actions/checkout@v6
+
+            - name: Cache node modules
+              id: cache
+              uses: actions/cache@v5
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
+                  restore-keys: |
+                      ${{ runner.os }}-build-${{ env.cache-name }}-
+                      ${{ runner.os }}-build-
+                      ${{ runner.os }}-
+
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v6
+              with:
+                  node-version: '24'
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v2
+              with:
+                  bun-version: '1.3.11'
+
+            - name: Install dependencies
+              if: steps.cache.outputs.cache-hit != 'true'
+              run: bun install --frozen-lockfile
+
+            - name: Setup version
+              run: bun run postinstall
+
+            # Elasticsearch refuses to start with the runner's default
+            # vm.max_map_count (65530). Docker Desktop's VM is already above the
+            # threshold, which is why this is only needed in CI.
+            - name: Raise vm.max_map_count for Elasticsearch
+              run: sudo sysctl -w vm.max_map_count=262144
+
+            - name: Install Playwright browser
+              run: bunx playwright install --with-deps chromium
+
+            # Brings up an isolated PlaceOS stack (its own compose project, own
+            # volumes, ports 9443/9080) and seeds it. Needs network access to
+            # GitHub once, to clone PlaceOS/www-core into the www volume — that is
+            # where the platform /login page comes from.
+            - name: Bring up the local PlaceOS stack
+              run: e2e/stack/up.sh
+
+            - name: Run workplace e2e
+              run: bunx playwright test --config apps/workplace/playwright.config.ts
+
+            - name: Summarise results
+              if: ${{ always() }}
+              run: node e2e/stack/ci-summary.mjs >> "$GITHUB_STEP_SUMMARY"
+
+            - name: Collect backend logs
+              if: ${{ failure() }}
+              run: |
+                  mkdir -p e2e-logs
+                  cd e2e/stack
+                  for svc in auth rest-api staff-api nginx frontend-loader search-ingest postgres; do
+                      docker compose -p placeos-e2e logs "$svc" > "../../e2e-logs/$svc.log" 2>&1 || true
+                  done
+
+            - name: Upload Playwright report
+              if: ${{ always() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report-workplace
+                  path: |
+                      reports/e2e/workplace
+                      reports/e2e/workplace-results.json
+                  retention-days: 14
+                  if-no-files-found: warn
+
+            # Traces/videos/screenshots for the failures. Without these a red
+            # nightly run is unactionable the next morning.
+            - name: Upload failure artifacts
+              if: ${{ failure() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-failures-workplace
+                  path: |
+                      dist/.playwright
+                      e2e-logs
+                  retention-days: 14
+                  if-no-files-found: warn
+
+            - name: Tear down the stack
+              if: ${{ always() }}
+              run: e2e/stack/down.sh --volumes

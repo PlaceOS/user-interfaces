@@ -1,0 +1,128 @@
+# PlaceOS E2E — coverage contract
+
+The single source of truth for what the e2e suite covers, what it does not, and why.
+Harness, conventions and gotchas live in [`e2e/README.md`](e2e/README.md).
+
+## CI status: advisory, deliberately
+
+`.github/workflows/e2e-advisory.yml` runs the suite on PRs into `develop`, nightly, and
+on demand. **It must not gate merges yet**, and nothing in the workflow file can make it
+do so — required status checks are a repository setting, so keeping this advisory is an
+explicit human decision rather than a default.
+
+That is on purpose. Before this suite is allowed to block anyone it needs a track record:
+no false positives, specs reviewed by humans, and a known flake rate. The nightly run
+exists to build exactly that — a fixed codebase run repeatedly is the only way to
+separate a real regression from an unstable suite.
+
+The job still reports honest pass/fail and writes a summary that leads on **flaky**
+rather than passed, because a spec that only passes on retry is the signal that says
+"not yet".
+
+**Before proposing this as a required check**, expect to be able to say: N consecutive
+nightly runs green, every `flaky` occurrence explained, and REG-09 either fixed or
+consciously accepted.
+
+## How this document works
+
+**It is the mechanism that keeps the suite current.** A suite decays the moment nobody
+can tell what it covers, so:
+
+- **Every new feature** adds a story here and a spec, in the same PR.
+- **Every bug fix** adds a `REG-*` row citing the ticket or changelog line, plus a spec
+  that fails before the fix and passes after. A regression spec that was never seen red
+  is a guess, not a guard.
+- **Every spec that gets skipped or deleted** updates its row to say so, with a reason.
+- A row without a status is a bug in this document.
+
+Priorities: **P0** = smoke gate, must always pass · **P1** = core regression · **P2** = breadth.
+
+Status: **done** = a green spec exists · **partial** = covered in part, gap named ·
+**todo** = not written · **blocked** = needs data, access or a fix first.
+
+Everything runs against a **local backend only** — see `e2e/README.md`. Rows that would
+require an external service are marked **out of scope (external)** and must never enter
+the PR gate.
+
+---
+
+## 1. Workplace — core flows
+
+| ID | P | Story | Status |
+|----|---|-------|--------|
+| WP-E2E-01 | P0 | An authenticated user lands on the workplace home; the shell renders and org data resolves (**not** `/misconfigured`). | **done** — `local/boot.spec.ts` |
+| WP-E2E-02 | P0 | An unauthenticated visit redirects to the authority's login page, real credentials sign in, and the app loads authenticated. | **done** — `local/login.spec.ts` |
+| WP-E2E-05 | P0 | A **non-admin** books a desk through the full UI; the backend stores it with the right asset, title and zones. | **done** — `local/desk-booking.spec.ts` |
+| WP-E2E-06 | P1 | A deleted booking disappears from the listing (teardown really tears down). | **done** — `local/desk-booking.spec.ts` |
+| WP-E2E-03 | P1 | Building/level selectors are populated from seeded zones, and changing them re-scopes what is bookable. | todo |
+| WP-E2E-07 | P1 | "Your bookings" lists the user's own booking; cancelling it moves it out of the upcoming list. | todo |
+| WP-E2E-08 | P1 | A booking made by one user is **not** visible in another user's "your bookings" (per-user scoping). | todo — see AUTH-E2E-05 |
+| WP-E2E-09 | P1 | Booking a **locker** end to end. Same metadata + per-worker-asset + sweep pattern as desks. | todo |
+| WP-E2E-10 | P1 | Booking a **parking** space end to end. | todo |
+| WP-E2E-11 | P2 | Inviting a **visitor** end to end. | todo |
+| WP-E2E-12 | P2 | Directory / colleagues search returns seeded users. | todo |
+| WP-E2E-13 | P2 | The explore/map view renders for a seeded level and reflects availability. | todo — needs map metadata seeded |
+| WP-E2E-14 | P2 | Search validation and empty states: no blank page, no console error. | todo |
+| WP-E2E-15 | P1 | **Room/meeting** booking end to end. | **out of scope (external)** — the only surface needing a real Microsoft/Google tenant. Opt-in project, never in the PR gate. |
+| WP-E2E-04 | P2 | Mock mode still renders the landing page with no backend at all. | **done** — `landing.spec.ts` (project `mock`) |
+
+## 2. Auth & session
+
+Grounded in the auth.cr work (PPT-2536), where every production failure was an
+environment, data or real-client gap that unit specs could not see.
+
+| ID | P | Story | Status |
+|----|---|-------|--------|
+| AUTH-E2E-01 | P0 | Authorization-code + PKCE exchange in a real browser: no `client_secret` anywhere, `S256` challenge, token is a JWT. | **partial** — `login.spec.ts` asserts the exchange and token shape; the explicit no-secret / challenge-recomputation assertions still live in `tasks/PPT-2536/e2e/backoffice-login.spec.js` and should move here. |
+| AUTH-E2E-02 | P0 | A refreshed token keeps its scope, is rotated, preserves `sub`, and is still accepted by rest-api. | **done** — `login.spec.ts`. This is the exact 2026-07-23 revert (403 on `/oauth_apps` after refresh). |
+| AUTH-E2E-03 | P1 | A refresh chain survives N sequential refreshes without degrading scope or access. | todo — covered API-only by `tasks/PPT-2536/integration/` (RF-03); wanted in-browser. |
+| AUTH-E2E-04 | P1 | A stale/incompatible session cookie from a previous auth implementation does not break sign-in. | todo — verified manually (SC-01); needs automating. |
+| AUTH-E2E-05 | P1 | A non-admin cannot read or mutate another user's bookings; an admin's own listing does not leak others'. | todo — **and it matters**: `GET /bookings` is caller-scoped, which we only learned by getting a leak check wrong. |
+| AUTH-E2E-06 | P2 | Token expiry mid-session recovers without stranding the SPA. | todo |
+| AUTH-E2E-07 | P2 | Malformed and hostile `/auth/*` requests return 4xx, never 5xx and never a backtrace. | todo — covered by auth.cr unit specs (SEC-01); browser-level coverage optional. |
+| AUTH-E2E-08 | P1 | `SameSite` behaviour in a genuine third-party/iframe context. | **blocked** — Playwright Chromium cannot create a true third-party context. Known untested incident class (B.7). |
+
+## 3. Regression coverage
+
+Each row maps to something that actually broke. Citations are the changelog line or the
+task that found it, so the row can be traced.
+
+| ID | P | Story | Source | Status |
+|----|---|-------|--------|--------|
+| REG-01 | P0 | Scope is not lost on token refresh; downstream authorisation still passes. | PPT-2536, 2026-07-23 revert | **done** — AUTH-E2E-02 |
+| REG-02 | P1 | An overlapping desk booking is rejected rather than silently accepted. | `2607.1` "Fix rejecting overlapping bookings on desk assignment" | todo |
+| REG-03 | P1 | A clash check uses the **current** `booking_end`, not a stale one. | `2607.1` "Fix stale booking_end being used for clash check" | todo |
+| REG-04 | P1 | Desk booking status displays correctly in the booking list. | `2606.1` "Fix status display for desk bookings" | todo |
+| REG-05 | P2 | The authorised-user check has no race on boot (no flash of unauthorised). | `2607.1` "Fix race condition for authorised check" | todo |
+| REG-06 | P2 | Timezone parsing does not error for a building with an unusual timezone. | "Fix error when parsing timezones" | todo |
+| REG-07 | P2 | Level selection does not persist once the selector is hidden/disabled. | "Fix level selections persisting when selector is disabled/hidden" | todo |
+| REG-08 | P1 | An authority with a **relative** `login_url` still reaches a usable login page. | Found 2026-07-30, this suite | **blocked** — currently worked around in `seed.ts`; ts-client resolves a relative `login_url` against the authority host **without its port**, so any non-443 deployment dead-ends. Needs a ts-client/init fix before a spec can assert the good behaviour. |
+| REG-09 | P1 | Concurrent `POST /bookings` do not 500. | Found 2026-07-30, this suite | **blocked** — staff-api raises `DB::ConnectionLost` under concurrency (~1 in 8 at 4 workers). Currently absorbed by CI retries and reported as `flaky`. Needs a staff-api fix. |
+
+## 4. Platform & configuration
+
+Config gaps caused several production incidents, and they are invisible to UI specs.
+
+| ID | P | Story | Status |
+|----|---|-------|--------|
+| CFG-01 | P0 | The suite refuses to run against any non-loopback backend. | **done** — `assertLocalOnly`, throws at config load |
+| CFG-02 | P0 | A cold stack seeds to a working state in one command. | **done** — `e2e/stack/up.sh --fresh`, verified from destroyed volumes |
+| CFG-03 | P1 | staff-api has a tenant for the domain, or every `/bookings` call 500s. | **done** — `seed.ts`; asserted implicitly by WP-E2E-05 |
+| CFG-04 | P1 | A missing `org`/parented-`level` zone is caught as `/misconfigured`, not as a blank page. | **partial** — WP-E2E-01 asserts the healthy path; the negative case is unasserted |
+| CFG-05 | P2 | Deployment-shaped run: the app served by nginx at `/workplace/` behind the `verified` cookie gate. | todo — a second project; `mintToken` already captures the cookie |
+
+---
+
+## Notes & blockers
+
+- **Room/calendar events are the only genuinely external surface.** A placeholder tenant
+  unblocks every PlaceOS-native booking type (desks, lockers, parking, visitors) with no
+  outbound call. `/calendars` and `/events` do call Microsoft and fail `AADSTS900023`, so
+  WP-E2E-15 stays opt-in and out of the gate.
+- **Two rows are blocked on product fixes, not on test effort** (REG-08, REG-09). Both were
+  found by this suite. Leaving them visible here is the point — a blocked row is coverage
+  information, a deleted row is not.
+- **AUTH-E2E-08 may never be automatable** with Playwright Chromium. Say so rather than
+  quietly dropping it.
+- The PPT-2536 harnesses (`tasks/PPT-2536/{e2e,integration}`) still hold assertions that
+  belong in this suite. Folding them in is tracked as AUTH-E2E-01 and -03.
