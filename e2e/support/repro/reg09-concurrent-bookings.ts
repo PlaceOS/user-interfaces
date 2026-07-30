@@ -20,7 +20,7 @@
  * occasional 409s across repeated runs are real clashes with leftovers, not the bug.
  */
 import { request } from '@playwright/test';
-import { mintToken } from './e2e/support/auth';
+import { mintToken } from '../auth';
 
 const B = 'https://localhost:9443';
 const CONCURRENCY = Number(process.env.N ?? 6);
