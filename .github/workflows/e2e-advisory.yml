@@ -109,13 +109,19 @@ jobs:
               if: ${{ always() }}
               run: node e2e/stack/ci-summary.mjs >> "$GITHUB_STEP_SUMMARY"
 
+            # Collect EVERY service, not a hand-picked list. The first run failed
+            # in Elasticsearch — which was not on the list — so the log that
+            # explained the failure was the one log not captured.
             - name: Collect backend logs
               if: ${{ failure() }}
               run: |
                   mkdir -p e2e-logs
                   cd e2e/stack
-                  for svc in auth rest-api staff-api nginx frontend-loader search-ingest postgres; do
-                      docker compose -p placeos-e2e logs "$svc" > "../../e2e-logs/$svc.log" 2>&1 || true
+                  docker compose -p placeos-e2e ps --all > ../../e2e-logs/_ps.txt 2>&1 || true
+                  docker compose -p placeos-e2e logs --no-color > ../../e2e-logs/_all.log 2>&1 || true
+                  for svc in $(docker compose -p placeos-e2e config --services 2>/dev/null); do
+                      docker compose -p placeos-e2e logs --no-color "$svc" \
+                          > "../../e2e-logs/$svc.log" 2>&1 || true
                   done
 
             - name: Upload Playwright report

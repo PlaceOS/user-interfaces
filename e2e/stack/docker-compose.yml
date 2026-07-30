@@ -96,8 +96,24 @@ services:
       retries: 20
     volumes:
       - elastic-data:/usr/share/elasticsearch/data
+    # `bootstrap.memory_lock` is OFF deliberately.
+    #
+    # PlaceOS/local enables it, but it requires an unlimited `memlock` rlimit or
+    # Elasticsearch refuses to boot ("memory locking requested ... but memory is
+    # not locked") — the container exits, and `compose --wait` reports it as
+    # unhealthy within seconds rather than after its retry budget. Docker Desktop
+    # grants that rlimit by default, so this only bites in CI: it is what failed
+    # the first GitHub Actions run. Memory locking is production tuning and buys
+    # a throwaway test stack nothing. The ulimits below make it work either way.
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
     environment:
-      bootstrap.memory_lock: 'true'
+      bootstrap.memory_lock: 'false'
       cluster.routing.allocation.disk.threshold_enabled: 'false'
       discovery.type: single-node
       ES_JAVA_OPTS: -Xms512m -Xmx512m

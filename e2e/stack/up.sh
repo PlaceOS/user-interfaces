@@ -8,7 +8,10 @@
 #   ./up.sh              bring up (reuses volumes if present)
 #   ./up.sh --fresh      destroy volumes first — a genuine cold start
 #   ./down.sh            stop
-set -euo pipefail
+# -E (errtrace) is load-bearing: without it the ERR trap below is NOT inherited by
+# shell functions, so a failure inside `dc()` would exit silently and the
+# diagnostics would never run. Verified by breaking a service on purpose.
+set -euEo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
@@ -57,8 +60,28 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Self-diagnose on failure.
+#
+# `compose --wait` reports only "container X is unhealthy" and exits. On a CI
+# runner that is the whole of the evidence unless something dumps more, and the
+# first GitHub Actions run failed with exactly that one line — the reason
+# (Elasticsearch refusing to boot without a memlock rlimit) was in a container log
+# nobody had collected. Print state and logs for EVERY service here, so the step
+# output alone explains the failure.
+diagnose() {
+    echo
+    echo "=== compose ps ==="
+    dc ps --all || true
+    echo
+    echo "=== logs (all services, last 60 lines each) ==="
+    dc logs --tail 60 || true
+}
+trap 'rc=$?; [[ $rc -ne 0 ]] && diagnose; exit $rc' ERR
+
 step "starting services"
-dc up -d --wait postgres elastic redis
+# Bounded so a stuck container fails with a clear message rather than hanging
+# until the job timeout.
+dc up -d --wait --wait-timeout 300 postgres elastic redis
 dc up -d search-ingest frontend-loader auth rest-api staff-api nginx
 
 step "waiting for the API"
