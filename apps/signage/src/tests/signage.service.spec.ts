@@ -868,6 +868,86 @@ describe('SignageService', () => {
         );
     });
 
+    it('should not expire single-pass scheduled media with the trigger window', async () => {
+        const fired_at = new Date('2026-01-01T06:00:00');
+        vi.setSystemTime(fired_at.getTime() + 2000);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 0,
+                                        play_takeover: true,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const [media] = spectator.service.override_playlist().playlist;
+
+        expect(media?.id).toBe('media-3');
+        expect(media.valid_until).toBe(0);
+        expect(spectator.service.override_playlist().ends_at).toBe(0);
+    });
+
+    it('should still expire scheduled media at the end of a play period', async () => {
+        const fired_at = new Date('2026-01-01T06:00:00');
+        vi.setSystemTime(fired_at.getTime() + 2000);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: true,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const [media] = spectator.service.override_playlist().playlist;
+
+        expect(media.valid_until * 1000).toBe(
+            fired_at.getTime() + 12 * 60 * 60 * 1000,
+        );
+    });
+
     it('should not retrigger completed single-pass scheduled overrides', async () => {
         const now = new Date('2026-01-01T10:00:00Z').getTime();
         vi.setSystemTime(now);

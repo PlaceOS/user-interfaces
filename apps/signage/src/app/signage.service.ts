@@ -57,7 +57,10 @@ interface ActivePlaylistSchedule {
     playlist: SignagePlaylist;
     schedule: PlaylistSchedule;
     starts_at: number;
+    /** End of the window in which this run counts as active */
     ends_at: number;
+    /** When the run's media stops being valid; 0 means it never expires */
+    expires_at: number;
     key: string;
 }
 
@@ -126,6 +129,16 @@ function scheduledPlaylistEnd(starts_at: number, period_minutes: number) {
         : starts_at + SINGLE_PASS_TRIGGER_WINDOW_MS;
 }
 
+/**
+ * When the media of a scheduled run stops being valid. Single-pass runs
+ * (period 0) play through once and are ended by the player, so their media
+ * never expires on a timer; the short trigger window used to detect them is
+ * not a playback duration.
+ */
+function scheduledPlaylistExpiry(starts_at: number, period_minutes: number) {
+    return period_minutes ? starts_at + period_minutes * 60 * 1000 : 0;
+}
+
 function scheduledPlaylistWindow(
     schedule: PlaylistSchedule,
     now = time(),
@@ -137,8 +150,9 @@ function scheduledPlaylistWindow(
         const starts_at = parsePlayAtTimestamp(schedule.play_at);
         if (!starts_at) return null;
         const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
+        const expires_at = scheduledPlaylistExpiry(starts_at, period_minutes);
         return now >= starts_at && now <= ends_at
-            ? { starts_at, ends_at }
+            ? { starts_at, ends_at, expires_at }
             : null;
     }
     if (schedule.play_cron?.trim()) {
@@ -154,7 +168,11 @@ function scheduledPlaylistWindow(
             if (!last) return null;
             const starts_at = last * 1000;
             const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-            return now <= ends_at ? { starts_at, ends_at } : null;
+            const expires_at = scheduledPlaylistExpiry(
+                starts_at,
+                period_minutes,
+            );
+            return now <= ends_at ? { starts_at, ends_at, expires_at } : null;
         } catch {
             return null;
         }
@@ -693,7 +711,11 @@ export class SignageService extends AsyncHandler {
         const schedule_start = schedule
             ? Math.floor(schedule.starts_at / 1000)
             : 0;
-        const schedule_end = schedule ? Math.ceil(schedule.ends_at / 1000) : 0;
+        // `expires_at` rather than `ends_at`: a single-pass run's short trigger
+        // window only exists to detect the run, and must not expire its media.
+        const schedule_end = schedule?.expires_at
+            ? Math.ceil(schedule.expires_at / 1000)
+            : 0;
         const valid_from =
             playlist?.valid_from && schedule_start
                 ? Math.max(playlist.valid_from, schedule_start)
