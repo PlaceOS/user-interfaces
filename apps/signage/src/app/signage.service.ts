@@ -17,7 +17,10 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { getLastCronRunTimestampInRange } from './cron-helpers';
+import {
+    getLastCronRunTimestampInRange,
+    getNextCronRunTimestampInRange,
+} from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
 import { mockTimeState, time } from './media-helpers';
 import { MediaPlayerItem } from './types';
@@ -79,6 +82,8 @@ const EMPTY_METRICS = JSON.stringify({
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
+/** How far ahead media for a not-yet-active scheduled playlist is downloaded */
+const MEDIA_CACHE_LOOK_AHEAD_SECONDS = 24 * 60 * 60;
 const log = scoped_log('Signage');
 
 function signageDisplayIDFromURL(url = '') {
@@ -210,6 +215,45 @@ function activePlaylistSchedule(
     trigger_window_seconds = 0,
 ) {
     return activePlaylistSchedules(playlist, now, trigger_window_seconds)[0];
+}
+
+/**
+ * When a schedule next starts, if that is within `horizon_seconds` of now.
+ * Returns 0 when the schedule has no upcoming run inside the horizon.
+ */
+function nextScheduledPlaylistStart(
+    schedule: PlaylistSchedule,
+    now: number,
+    horizon_seconds: number,
+) {
+    if (schedule.play_at) {
+        const starts_at = parsePlayAtTimestamp(schedule.play_at);
+        if (!starts_at || starts_at <= now) return 0;
+        return starts_at <= now + horizon_seconds * 1000 ? starts_at : 0;
+    }
+    if (schedule.play_cron?.trim()) {
+        try {
+            const next = getNextCronRunTimestampInRange(
+                schedule.play_cron,
+                horizon_seconds,
+                now,
+            );
+            return next ? next * 1000 : 0;
+        } catch {
+            return 0;
+        }
+    }
+    return 0;
+}
+
+function playlistStartsWithin(
+    playlist: SignagePlaylist,
+    now: number,
+    horizon_seconds: number,
+) {
+    return playlistSchedules(playlist).some((schedule) =>
+        nextScheduledPlaylistStart(schedule, now, horizon_seconds),
+    );
 }
 
 @Injectable({
@@ -510,6 +554,7 @@ export class SignageService extends AsyncHandler {
         if (!display?.id || !display.playlist_mappings?.[display.id]) {
             return this._cacheableMediaURLs(display);
         }
+        const now = time();
         const playlists = this._mappedPlaylistIds(display);
         const active_media = [
             ...this._getPlaylistMedia(
@@ -518,7 +563,7 @@ export class SignageService extends AsyncHandler {
                 (p) =>
                     p.enabled &&
                     (!playlistSchedules(p).length ||
-                        activePlaylistSchedules(p).some(
+                        activePlaylistSchedules(p, now).some(
                             ({ schedule }) => !schedule.play_takeover,
                         )),
             ),
@@ -527,12 +572,24 @@ export class SignageService extends AsyncHandler {
                 playlists,
                 (p) =>
                     p.enabled &&
-                    activePlaylistSchedules(p).some(
+                    activePlaylistSchedules(p, now).some(
                         ({ schedule }) => schedule.play_takeover,
                     ),
             ),
         ];
-        const urls = active_media
+        // Media for playlists that start later is downloaded ahead of time, so
+        // a display with nothing scheduled overnight still has the morning's
+        // content on disk when its schedule opens.
+        const upcoming_media = this._getPlaylistMedia(
+            display,
+            playlists,
+            (p) =>
+                p.enabled &&
+                playlistStartsWithin(p, now, MEDIA_CACHE_LOOK_AHEAD_SECONDS),
+        );
+        // Active media is listed first so it outranks look-ahead media when the
+        // cache is over budget and has to evict files.
+        const urls = [...active_media, ...upcoming_media]
             .filter(({ type }) => type !== 'webpage' && type !== 'plugin')
             .map(({ url }) => url)
             .filter((_) => !!_) as string[];

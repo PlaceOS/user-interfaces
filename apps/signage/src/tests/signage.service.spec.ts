@@ -195,6 +195,124 @@ describe('SignageService', () => {
         );
     });
 
+    it('should cache media for playlists scheduled later in the day', async () => {
+        vi.setSystemTime(new Date('2026-01-01T22:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['morning-playlist'] },
+                    playlist_config: {
+                        'morning-playlist': [
+                            {
+                                id: 'morning-playlist',
+                                name: 'Morning Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.playlist()).toHaveLength(0);
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call?.[0]).toEqual(['/media-3.jpg']);
+    });
+
+    it('should not cache media for playlists scheduled beyond the look-ahead', async () => {
+        vi.setSystemTime(new Date('2026-01-01T22:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['monthly-playlist'] },
+                    playlist_config: {
+                        'monthly-playlist': [
+                            {
+                                id: 'monthly-playlist',
+                                name: 'Monthly Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 15 * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call).toBeUndefined();
+    });
+
+    it('should rank active media ahead of look-ahead media for cache eviction', async () => {
+        vi.setSystemTime(new Date('2026-01-01T22:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist', 'morning-playlist'],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'morning-playlist': [
+                            {
+                                id: 'morning-playlist',
+                                name: 'Morning Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call?.[0]).toEqual(['/media-1.jpg', '/media-3.jpg']);
+    });
+
     it('should bind trigger playlists when display data is loaded', async () => {
         spectator.service.setDisplay('display-1');
         await flush();
