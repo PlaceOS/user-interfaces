@@ -17,6 +17,42 @@ self-hosted, so a fork PR could execute arbitrary code on a machine on an intern
 network. Every remaining trigger requires write access to this repo. Do not add it back
 without moving the job to `ubuntu-latest` or making the repo private.
 
+### It cannot block or delay builds
+
+Asked for by the frontend team, and true structurally rather than by convention:
+
+- **Different runner pool.** `build.yml` runs on `ubuntu-latest` (GitHub-hosted); this job
+  runs on the self-hosted Mac. They never compete for a runner, so an e2e run cannot
+  delay a build even when both fire on the same push to `develop`.
+- **No dependency, and none possible.** `build.yml`'s jobs only `needs: install_deps`.
+  Actions has no cross-workflow `needs`, so this suite can never gate a build or a deploy.
+- **Not a required check.** Nothing here can make it one; that is a repository setting.
+- The job is named *"workplace e2e (advisory — does not block builds)"* so a red X in the
+  Checks list next to the build jobs cannot be misread as a broken build.
+
+### Trigger rollout, in two stages
+
+**Stage 1 (now):** nightly, `workflow_dispatch`, and pushes to `e2e/**`. Nobody sees a new
+check on their commits, and the nightly starts accumulating the record — which it can only
+do from the default branch, so this is what breaks the chicken-and-egg of "prove it before
+merging it".
+
+**Stage 2 (once the record is good):** add `push: develop`, and `release/**` / `rc/**` to
+match the branch set `build.yml` deploys from. `develop` is the high-value trigger — it
+catches a regression at the moment it lands, when bisecting is cheapest — and with no
+`pull_request` trigger it is also how merges get covered. Deferred because enabling it puts
+a new check on everyone's commits, which should be earned rather than assumed. It is a
+three-line change.
+
+**Never:** feature branches. There is one self-hosted runner and the stack binds fixed host
+ports, so runs serialise; a busy trigger set would build a queue that delays or starves the
+nightly. Use **Run workflow** for a one-off.
+
+No path filters, on purpose: most real changes touch `libs/**` which workplace depends on,
+and the genuinely dangerous ones (`bun.lock`, `tsconfig.base.json`, `config/`) are the
+easiest to leave off an include-list. A filter that is 95% right silently skips the run
+that mattered. Revisit if `develop` volume makes the queue a problem.
+
 Note also that GitHub only runs `schedule` triggers from the **default branch**, so the
 nightly track record does not begin until this workflow is merged to `develop`.
 

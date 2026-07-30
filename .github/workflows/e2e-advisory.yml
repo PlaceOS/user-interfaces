@@ -29,25 +29,54 @@ name: 'E2E (advisory)'
 # to a GitHub-hosted runner (`runs-on: ubuntu-latest`) or making the repo private.
 on:
     workflow_dispatch:
-    # Lets this workflow be exercised on its own branch before it lives on
-    # `develop`. The prefix is deliberately outside the `feat/*`, `fix/*`,
-    # `custom/*`, `refactor/*` set that PR Flow watches, so iterating on CI here
-    # never triggers a build or a `build/<branch>/<app>` deploy.
     push:
-        branches: ['e2e/**']
+        branches:
+            # For iterating on CI itself. Deliberately outside the `feat/*`,
+            # `fix/*`, `custom/*`, `refactor/*` set PR Flow watches, so this never
+            # triggers a build or a `build/<branch>/<app>` deploy.
+            - 'e2e/**'
+            #
+            # STAGE 2 — not yet. Add `develop` (and `release/**`, `rc/**`) once the
+            # nightly has a track record. Deliberately deferred: `develop` is the
+            # high-value trigger — it catches a regression where it lands, when
+            # bisecting is cheapest — but turning it on also puts a new check on
+            # everyone's commits, and that should be earned rather than assumed.
+            # Until then `workflow_dispatch` covers any one-off.
+            #
+            # It cannot block builds when it is enabled (different runner pool, no
+            # cross-workflow `needs`, no required status checks on develop) — see
+            # E2E_USER_STORIES.md. The reason to wait is noise and trust, not risk.
     schedule:
         # 01:10 UTC daily. NB scheduled workflows only run from the DEFAULT branch,
         # so the nightly track record does not start accumulating until this file is
         # merged to `develop`.
         - cron: '10 1 * * *'
 
+# NOT triggered by feature branches, on purpose.
+#
+# There is ONE self-hosted runner and the stack binds fixed host ports
+# (9443/9080/4214), so runs cannot overlap — they serialise. A busy trigger set
+# would not just burn time, it would build a queue that delays or starves the
+# nightly, and the nightly is what produces the confidence record. Anyone who
+# wants the suite against a feature branch can use "Run workflow".
+
+# `github.event_name` is in the group deliberately.
+#
+# A scheduled run and a push run both have `github.ref` = refs/heads/develop, so
+# with a ref-only group plus cancel-in-progress a push to develop would CANCEL an
+# in-flight nightly — destroying the very run the track record depends on. Keying
+# on the event as well keeps the two apart: pushes still supersede each other,
+# nightlies are never collateral.
 concurrency:
-    group: e2e-${{ github.ref }}
+    group: e2e-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
     cancel-in-progress: true
 
 jobs:
     workplace:
-        name: 'workplace e2e (local stack)'
+        # The job name is what appears in the commit's Checks list, next to the
+        # build jobs. Carrying "advisory" there means a red X cannot be misread as
+        # "the build broke" at a glance.
+        name: 'workplace e2e (advisory — does not block builds)'
         # Self-hosted macOS runner, targeted by its custom label rather than by
         # `macOS`/arch labels so the machine can be swapped without editing this.
         # To fall back to GitHub-hosted, set `runs-on: ubuntu-latest` and restore
@@ -68,29 +97,21 @@ jobs:
         steps:
             - uses: actions/checkout@v6
 
-            - name: Cache node modules
-              id: cache
-              uses: actions/cache@v5
-              with:
-                  path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-build-${{ env.cache-name }}-
-                      ${{ runner.os }}-build-
-                      ${{ runner.os }}-
-
-            - name: Setup Node.js environment
-              uses: actions/setup-node@v6
-              with:
-                  node-version: '24'
-
-            - name: Setup Bun
-              uses: oven-sh/setup-bun@v2
-              with:
-                  bun-version: '1.3.11'
-
+            # No actions/cache, no setup-node, no setup-bun — on purpose.
+            #
+            # Those three are the right answer on a GitHub-hosted runner, where every
+            # job starts from a bare VM. Here they were the single biggest cost in
+            # the job: the first self-hosted run spent 9.1 min uploading node_modules
+            # to GitHub's cache and 3.1 min saving the bun cache, out of 19.2 min
+            # total — while the suite itself took 1.0 min. On a persistent machine
+            # the workspace and the toolchain are already there, so shipping them to
+            # a remote cache over a slow uplink buys nothing and costs more than
+            # everything else combined.
+            #
+            # The toolchain is provisioned once on the machine instead:
+            #   brew install colima docker docker-compose oven-sh/bun/bun node@24
+            # See e2e/stack/SELF_HOSTED_RUNNER.md.
             - name: Install dependencies
-              if: steps.cache.outputs.cache-hit != 'true'
               run: bun install --frozen-lockfile
 
             - name: Setup version
