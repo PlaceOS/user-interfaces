@@ -49851,15 +49851,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "48e665b",
-  "hash": "48e665b",
+  "raw": "bf106eb",
+  "hash": "bf106eb",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "48e665b",
+  "suffix": "bf106eb",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784002215017
+  "time": 1785382381582
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -90601,4 +90601,4 @@ export {
   queryGroupAvailability,
   validateAssetRequestsForResource
 };
-//# sourceMappingURL=chunk-PT357WQU.js.map
+//# sourceMappingURL=chunk-H5A42DM3.js.map
