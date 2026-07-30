@@ -85,7 +85,17 @@ services:
       TZ: ${TZ:-UTC}
 
   elastic:
-    image: elasticsearch:7.17.6
+    # A LATE 7.17 patch, not the 7.17.6 that PlaceOS/local pins.
+    #
+    # 7.17.6 bundles a JDK with the cgroup v2 NPE bug: its launcher dies in
+    # `JvmOptionsParser` -> `DefaultSystemMemoryInfo` with "Cannot invoke
+    # CgroupInfo.getMountPoint() because anyController is null" before the JVM even
+    # starts, so no ES_JAVA_OPTS setting can work around it. GitHub runners use
+    # cgroup v2; Docker Desktop's VM does not, which is why this passes locally and
+    # failed the first two CI runs. Staying on the 7.x line keeps client
+    # compatibility with rest-api and search-ingest, which is what PlaceOS/local
+    # exercises.
+    image: elasticsearch:${E2E_ELASTIC_VERSION:-7.17.28}
     hostname: elastic
     restart: always
     <<: *std-logging
