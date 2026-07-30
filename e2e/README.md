@@ -225,7 +225,7 @@ CI-specific choices worth knowing:
 | `E2E_WORKERS: 2` | Lower than the local default of 4. The runner is also hosting ~10 containers, a dev server and browsers. Less contention means fewer failures that are about the machine rather than the code — avoiding false positives matters more than run time here. |
 | No `pull_request` trigger | This repo is public and the runner is self-hosted, so a fork PR could run arbitrary code on an internal machine. Triggers are limited to ones requiring write access. Do not add it back without moving to `ubuntu-latest`. |
 | Reclaim step | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held. |
-| No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS (the value lives in Docker Desktop's VM). Restore it if reverting to `ubuntu-latest`. |
+| No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS — the value lives inside Colima's VM, which already sets it to 1048576. Restore it if reverting to `ubuntu-latest`. |
 | Network access to GitHub | `up.sh` clones `PlaceOS/www-core` into the `www` volume once — that is where the platform `/login` page comes from. |
 
 ## Booking specs: what the backend actually does
