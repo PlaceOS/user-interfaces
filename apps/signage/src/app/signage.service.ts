@@ -271,6 +271,8 @@ export class SignageService extends AsyncHandler {
     /** Counter incremented on the schedule timer to re-evaluate time windows */
     private readonly _tick = signal(0);
     private _display_signature = '';
+    /** Signature of the media set the cache was last synced against */
+    private _media_signature = '';
     private _playlists: SignagePlaylist[] = [];
     private _last_playlist: MediaPlayerItem[] = [];
     private _last_override_playlists: string[] = [];
@@ -434,6 +436,7 @@ export class SignageService extends AsyncHandler {
                         display,
                         this.override_playlists(),
                     );
+                    this._checkMediaCache(display);
                 }
                 this._scheduleTick();
             },
@@ -522,8 +525,24 @@ export class SignageService extends AsyncHandler {
         );
     }
 
+    /**
+     * Re-sync the media cache when the set of media the display needs has
+     * changed. The display payload does not change when a schedule opens or
+     * closes - the clock does - so this runs off the schedule tick.
+     */
+    private _checkMediaCache(display: any) {
+        if (!display?.id) return;
+        if (this._mediaSignature(display) === this._media_signature) return;
+        this._syncMediaCache(display);
+    }
+
+    private _mediaSignature(display: any) {
+        return `${display.id}:${this._activeCacheableMediaURLs(display).join('|')}`;
+    }
+
     private async _syncMediaCache(display: any) {
         if (!display?.id) return;
+        this._media_signature = this._mediaSignature(display);
         const cache_owner = display.id || '';
         const media = this._activeCacheableMediaURLs(display);
         const known_media = this._cacheableMediaURLs(display);
