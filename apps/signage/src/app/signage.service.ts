@@ -734,21 +734,32 @@ export class SignageService extends AsyncHandler {
             .filter((_) => !!_);
     }
 
+    /**
+     * Build the parsed display. Returns a new object rather than mutating the
+     * response: `_display_signature` is taken from the raw response, so parsing
+     * in place would make an unchanged payload compare as changed on the next
+     * poll and force a full reload every time.
+     */
     private _parseDisplay(value: any) {
         log.debug('Display updated.');
-        value = value || {};
+        const source = value || {};
         try {
-            value.playlist_media =
-                value.playlist_media?.map((_) => new SignageMedia(_)) || [];
-            value.plugins =
-                value.plugins?.map((_) => new SignagePlugin(_)) || [];
+            return {
+                ...source,
+                playlist_media:
+                    source.playlist_media?.map((_) => new SignageMedia(_)) ||
+                    [],
+                plugins:
+                    source.plugins?.map((_) => new SignagePlugin(_)) || [],
+            };
         } catch (e) {
             log.error('Failed to parse display media.', e);
-            value = value || {};
-            value.playlist_media = value.playlist_media || [];
-            value.plugins = value.plugins || [];
+            return {
+                ...source,
+                playlist_media: source.playlist_media || [],
+                plugins: source.plugins || [],
+            };
         }
-        return value;
     }
 
     private _resolveDisplayPlugins(display: any) {

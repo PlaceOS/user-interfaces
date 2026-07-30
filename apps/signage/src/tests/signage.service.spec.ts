@@ -171,6 +171,23 @@ describe('SignageService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should not reload the display when the payload is unchanged', async () => {
+        const display = create_display();
+        (ts_client.showSignage as any).mockImplementation(() =>
+            Promise.resolve(display as any),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+        const parse = vi.spyOn(spectator.service as any, '_parseDisplay');
+
+        await (spectator.service as any)._reloadDisplay();
+        await flush();
+
+        expect(parse).not.toHaveBeenCalled();
+        expect(media_cache.requestFilesToCache).not.toHaveBeenCalled();
+    });
+
     it('should map base and zone playlists into the active media playlist', async () => {
         spectator.service.setDisplay('display-1');
         await flush();
