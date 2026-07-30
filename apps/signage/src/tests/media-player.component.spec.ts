@@ -679,7 +679,7 @@ describe('MediaPlayerComponent', () => {
         expect(transition_spy).toHaveBeenCalled();
     });
 
-    it('should not preload the next webpage before the final three seconds', () => {
+    it('should not preload the next webpage before the final ten seconds', () => {
         const items = [
             create_item('webpage-1', {
                 type: 'webpage',
@@ -694,8 +694,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component.active_output.set(0);
         spectator.component.pending_output.set(0);
         spectator.component['_output_items'] = [items[0], null];
-        spectator.component['_item_start'] = Date.now() - 11_000;
-        spectator.component['_item_real_start'] = Date.now() - 11_000;
+        spectator.component['_item_start'] = Date.now() - 4_000;
+        spectator.component['_item_real_start'] = Date.now() - 4_000;
         spectator.component['_item_urls'] = {
             'webpage-1': 'blob:webpage-1' as any,
             'webpage-2': 'blob:webpage-2' as any,
@@ -742,7 +742,7 @@ describe('MediaPlayerComponent', () => {
         ).toBe('');
     });
 
-    it('should preload the next webpage in the final three seconds', () => {
+    it('should preload the next webpage in the final ten seconds', () => {
         const items = [
             create_item('webpage-1', {
                 type: 'webpage',
@@ -757,8 +757,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component.active_output.set(0);
         spectator.component.pending_output.set(0);
         spectator.component['_output_items'] = [items[0], null];
-        spectator.component['_item_start'] = Date.now() - 12_000;
-        spectator.component['_item_real_start'] = Date.now() - 12_000;
+        spectator.component['_item_start'] = Date.now() - 6_000;
+        spectator.component['_item_real_start'] = Date.now() - 6_000;
         spectator.component['_item_urls'] = {
             'webpage-1': 'blob:webpage-1' as any,
             'webpage-2': 'blob:webpage-2' as any,
@@ -788,8 +788,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component.active_output.set(0);
         spectator.component.pending_output.set(0);
         spectator.component['_output_items'] = [items[0], null];
-        spectator.component['_item_start'] = Date.now() - 12_000;
-        spectator.component['_item_real_start'] = Date.now() - 12_000;
+        spectator.component['_item_start'] = Date.now() - 6_000;
+        spectator.component['_item_real_start'] = Date.now() - 6_000;
         spectator.component['_item_urls'] = {
             'webpage-1': 'blob:webpage-1' as any,
             'webpage-2': 'blob:webpage-2' as any,
@@ -806,7 +806,7 @@ describe('MediaPlayerComponent', () => {
         ).toContain('z-0');
     });
 
-    it('should preload the next plugin in the final three seconds', () => {
+    it('should preload the next plugin in the final ten seconds', () => {
         const plugin_1 = {
             id: 'plugin-1',
             name: 'Weather',
@@ -834,8 +834,8 @@ describe('MediaPlayerComponent', () => {
         spectator.component.active_output.set(0);
         spectator.component.pending_output.set(0);
         spectator.component['_output_items'] = [items[0], null];
-        spectator.component['_item_start'] = Date.now() - 12_000;
-        spectator.component['_item_real_start'] = Date.now() - 12_000;
+        spectator.component['_item_start'] = Date.now() - 6_000;
+        spectator.component['_item_real_start'] = Date.now() - 6_000;
 
         spectator.component['_processURLs']();
 
