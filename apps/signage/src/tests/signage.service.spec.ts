@@ -348,6 +348,42 @@ describe('SignageService', () => {
         expect(media_cache.requestFilesToCache).not.toHaveBeenCalled();
     });
 
+    it('should not re-sync the media cache for playlists that play in random order', async () => {
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['random-playlist'] },
+                    playlist_config: {
+                        'random-playlist': [
+                            {
+                                id: 'random-playlist',
+                                name: 'Random Playlist',
+                                enabled: true,
+                                random: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 5000,
+                            },
+                            ['media-1', 'media-2', 'media-5'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+
+        // Three ticks, staying under the one minute display poll so only the
+        // schedule tick can trigger a sync. A stable three item playlist
+        // shuffles back into the same order roughly one time in six.
+        for (let i = 0; i < 3; i++) {
+            vi.advanceTimersByTime(15_000);
+            await flush();
+        }
+
+        expect(media_cache.requestFilesToCache).not.toHaveBeenCalled();
+    });
+
     it('should not cache media for playlists scheduled beyond the look-ahead', async () => {
         vi.setSystemTime(new Date('2026-01-01T22:00:00'));
         (ts_client.showSignage as any).mockReturnValue(

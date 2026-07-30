@@ -275,6 +275,8 @@ export class SignageService extends AsyncHandler {
     private _display_signature = '';
     /** Signature of the media set the cache was last synced against */
     private _media_signature = '';
+    /** Whether a media cache sync is currently running */
+    private _media_sync_in_flight = false;
     /** Wall-clock time of the last recovery download, keyed by media URL */
     private _media_recovery = new Map<string, number>();
     private _playlists: SignagePlaylist[] = [];
@@ -542,41 +544,54 @@ export class SignageService extends AsyncHandler {
      * closes - the clock does - so this runs off the schedule tick.
      */
     private _checkMediaCache(display: any) {
-        if (!display?.id) return;
+        if (!display?.id || this._media_sync_in_flight) return;
         if (this._mediaSignature(display) === this._media_signature) return;
         this._syncMediaCache(display);
     }
 
     private _mediaSignature(display: any) {
-        return `${display.id}:${this._activeCacheableMediaURLs(display).join('|')}`;
+        // Sorted, because a playlist with `random` set returns its media in a
+        // different order on every call. Comparing the raw order would report a
+        // change on every tick and re-run the whole cache sync - which reads
+        // every cached file back out of IndexedDB - fifteen seconds apart.
+        const media = [...this._activeCacheableMediaURLs(display)].sort();
+        return `${display.id}:${media.join('|')}`;
     }
 
     private async _syncMediaCache(display: any) {
         if (!display?.id) return;
         this._media_signature = this._mediaSignature(display);
-        const cache_owner = display.id || '';
-        const media = this._activeCacheableMediaURLs(display);
-        const known_media = this._cacheableMediaURLs(display);
-        const available_media = this._media_cache.availableFiles(cache_owner);
-        const extra_media = available_media.filter(
-            (url) => !known_media.includes(url),
-        );
-        const has_failures = await this._media_cache.requestFilesToCache(
-            media,
-            cache_owner,
-            { prune_other_owners: !this._isNestedPlayerWindow() },
-        );
-        for (const item of extra_media) {
-            this._media_cache.invalidateFile(item, cache_owner);
-        }
-        // Retry caching after a delay so a transient failure can recover without
-        // hammering the network (previously a debounced `_retry` stream).
-        if (has_failures) {
-            this.timeout(
-                'retry_cache',
-                () => this._syncMediaCache(this._display_data()),
-                15 * SECONDS,
+        // Caching staggers its downloads, so a sync can outlive the tick that
+        // started it. Overlapping runs would duplicate that work.
+        this._media_sync_in_flight = true;
+        try {
+            const cache_owner = display.id || '';
+            const media = this._activeCacheableMediaURLs(display);
+            const known_media = this._cacheableMediaURLs(display);
+            const available_media =
+                this._media_cache.availableFiles(cache_owner);
+            const extra_media = available_media.filter(
+                (url) => !known_media.includes(url),
             );
+            const has_failures = await this._media_cache.requestFilesToCache(
+                media,
+                cache_owner,
+                { prune_other_owners: !this._isNestedPlayerWindow() },
+            );
+            for (const item of extra_media) {
+                this._media_cache.invalidateFile(item, cache_owner);
+            }
+            // Retry caching after a delay so a transient failure can recover
+            // without hammering the network.
+            if (has_failures) {
+                this.timeout(
+                    'retry_cache',
+                    () => this._syncMediaCache(this._display_data()),
+                    15 * SECONDS,
+                );
+            }
+        } finally {
+            this._media_sync_in_flight = false;
         }
     }
 
