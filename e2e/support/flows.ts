@@ -58,25 +58,23 @@ export async function bookDeskViaUI(
     const title_input = page.locator('input[name$=".title"]').first();
     await expect(title_input).toBeVisible({ timeout: 30_000 });
 
-    // "Require locker" defaults to CHECKED, and no lockers are seeded, so leaving
-    // it on makes the form unsatisfiable — the confirm dialog simply never opens,
-    // with no error shown.
+    // Set the two controls that gate submission BEFORE picking a desk, so the
+    // availability list is computed against the window we intend to book. They are
+    // re-affirmed after desk selection, because the form can be rebuilt underneath
+    // us — see the converging block below.
     //
-    // ENSURE the state; never blindly toggle. A toggle is only correct if you
-    // already know the starting state, and here it is not guaranteed: toggling a
-    // checkbox that happened to start unchecked switches the requirement back ON
-    // and the flow dead-ends in a way that looks like a selector problem.
+    //  - "Require locker" defaults to CHECKED and no lockers are seeded, so leaving
+    //    it on makes the form unsatisfiable, with no error shown.
+    //  - "All Day" replaces the default slot, which is the next 5-minute boundary.
+    //    That default makes the booking implicitly time-sensitive: a slow run
+    //    crosses the boundary, the start time falls into the past, and the form
+    //    silently becomes invalid. Same reasoning as pinning fixed times rather
+    //    than relative ones anywhere else in a suite.
+    //
+    // ENSURE state; never blindly toggle. Toggling a checkbox that happened to
+    // start in the target state inverts the intent, and the flow then dead-ends in
+    // a way that reads as a selector problem.
     await setCheckbox(page, 'Require locker', false);
-
-    // Book the whole day rather than the form's default slot.
-    //
-    // That default is the next 5-minute boundary, which makes the booking
-    // implicitly time-sensitive: a run slow enough to cross the boundary ends up
-    // with a start time in the past, the form silently becomes invalid, and the
-    // confirm dialog never opens. It reproduced at roughly 1-in-6 and only on the
-    // slow runs. An all-day booking has no rolling window, so the flake cannot
-    // occur at all — the same reasoning as pinning fixed times instead of relative
-    // ones anywhere else in a suite.
     await setCheckbox(page, 'All Day', true);
 
     await page.locator('button[name="add-desk"]').click();
@@ -95,13 +93,32 @@ export async function bookDeskViaUI(
     await expect(confirm_selection).toBeEnabled({ timeout: 10_000 });
     await confirm_selection.click();
 
-    // Type the title LAST, deliberately. Attaching a desk rebuilds the form and
-    // resets the title to its default ("Booking"), so anything typed earlier is
-    // silently discarded — the booking still succeeds, just under the wrong name,
-    // which reads as a passing test unless you assert the value. Setting it after
-    // desk selection sidesteps the rebuild entirely.
-    await title_input.fill(title);
-    await expect(title_input, 'title survived to submission').toHaveValue(title);
+    // Converge on the form state instead of assuming a set sticks.
+    //
+    // The form is rebuilt when its async initialisation (org data, settings,
+    // resource lists) completes, and that rebuild restores defaults — title back
+    // to "Booking", All Day back off, Require locker back on. Crucially it is a
+    // RACE, not a step: on a warm run it lands before we touch anything and
+    // nothing is lost, on a cold one it lands mid-flow and silently discards our
+    // input. Locally that showed up as a booking created under the wrong title; in
+    // CI it showed up as "the confirm dialog did not open", because a reverted
+    // All Day leaves the default slot, which on a slow run has already passed and
+    // makes the form invalid with no visible error.
+    //
+    // Re-applying inside a retrying block converges whenever the rebuild fires,
+    // without needing to know the app's internal ready signal.
+    const all_day = page.locator('mat-checkbox:has-text("All Day") input[type="checkbox"]');
+    const locker_input = page.locator(
+        'mat-checkbox:has-text("Require locker") input[type="checkbox"]',
+    );
+    await expect(async () => {
+        await setCheckbox(page, 'Require locker', false);
+        await setCheckbox(page, 'All Day', true);
+        await title_input.fill(title);
+        expect(await title_input.inputValue()).toBe(title);
+        expect(await all_day.isChecked()).toBe(true);
+        if (await locker_input.count()) expect(await locker_input.isChecked()).toBe(false);
+    }).toPass({ timeout: 30_000 });
 
     await page.locator('button[name="open-desk-confirm"]').click();
 
