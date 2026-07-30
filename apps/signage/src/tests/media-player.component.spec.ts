@@ -1249,4 +1249,56 @@ describe('MediaPlayerComponent', () => {
             expect.any(Number),
         );
     });
+
+    it('should resolve a URL once media missing from the cache arrives', async () => {
+        vi.useFakeTimers();
+        let cached = false;
+        load_playlist([
+            create_item('morning-media', {
+                getURL: async () => (cached ? 'blob:morning-media' : ''),
+                isLoading: () => !cached,
+                isCached: () => cached,
+            }),
+        ]);
+
+        await vi.advanceTimersByTimeAsync(60 * 1000);
+        cached = true;
+        await vi.advanceTimersByTimeAsync(60 * 1000);
+        spectator.detectChanges();
+
+        expect(spectator.component.url('morning-media')?.toString()).toBe(
+            'blob:morning-media',
+        );
+    });
+
+    it('should start playing a single item that follows an empty playlist', async () => {
+        vi.useFakeTimers();
+        load_playlist([]);
+        await vi.advanceTimersByTimeAsync(1000);
+
+        load_playlist([create_item('morning-media')]);
+        await vi.advanceTimersByTimeAsync(1000);
+
+        expect(spectator.component.index()).toBe(0);
+        expect(spectator.component.state()).toBe('PLAYING');
+    });
+
+    it('should start playing an item once it becomes valid', async () => {
+        vi.useFakeTimers();
+        const now = new Date('2026-01-02T05:00:00').getTime();
+        vi.setSystemTime(now);
+        load_playlist([
+            create_item('morning-media', {
+                valid_from: Math.floor((now + 60 * 60 * 1000) / 1000),
+            }),
+        ]);
+        expect(spectator.component.index()).toBe(-1);
+
+        vi.setSystemTime(new Date('2026-01-02T06:00:02'));
+        await vi.advanceTimersByTimeAsync(10_000);
+        spectator.detectChanges();
+
+        expect(spectator.component.index()).toBe(0);
+        expect(spectator.component.state()).toBe('PLAYING');
+    });
 });

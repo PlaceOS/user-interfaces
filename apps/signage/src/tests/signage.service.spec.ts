@@ -427,6 +427,127 @@ describe('SignageService', () => {
         expect(cache_call?.[0]).toEqual(['/media-1.jpg', '/media-3.jpg']);
     });
 
+    it('should request media that is missing from the cache when resolving its URL', async () => {
+        const object_url = vi.fn(() => 'blob:recovered');
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: object_url,
+        });
+        media_cache.getFile
+            .mockRejectedValueOnce(new Error('Unable to find file with URL'))
+            .mockResolvedValueOnce(new File([], 'recovered'));
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+        const [item] = spectator.service.playlist();
+
+        const url = await item.getURL();
+
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledWith(
+            ['/media-1.jpg'],
+            'display-1',
+        );
+        expect(url).toBe('blob:recovered');
+    });
+
+    it('should rate limit recovery downloads for the same media file', async () => {
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: vi.fn(() => 'blob:recovered'),
+        });
+        media_cache.getFile.mockRejectedValue(
+            new Error('Unable to find file with URL'),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+        const [item] = spectator.service.playlist();
+
+        expect(await item.getURL()).toBe('');
+        expect(await item.getURL()).toBe('');
+        expect(await item.getURL()).toBe('');
+
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(1);
+    });
+
+    it('should retry a recovery download after the rate limit has passed', async () => {
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: vi.fn(() => 'blob:recovered'),
+        });
+        media_cache.getFile.mockRejectedValue(
+            new Error('Unable to find file with URL'),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+        const [item] = spectator.service.playlist();
+        await item.getURL();
+
+        vi.advanceTimersByTime(15_000);
+        await item.getURL();
+
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(2);
+    });
+
+    it('should play a playlist scheduled for the morning after an empty night', async () => {
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: vi.fn(() => 'blob:morning'),
+        });
+        vi.setSystemTime(new Date('2026-01-01T22:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['morning-playlist'] },
+                    playlist_config: {
+                        'morning-playlist': [
+                            {
+                                id: 'morning-playlist',
+                                name: 'Morning Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        // Nothing plays overnight, but the morning media is already downloaded
+        expect(spectator.service.playlist()).toHaveLength(0);
+        expect(
+            media_cache.requestFilesToCache.mock.calls.find(
+                ([urls]) => urls.length,
+            )?.[0],
+        ).toEqual(['/media-3.jpg']);
+
+        vi.setSystemTime(new Date('2026-01-02T06:00:02'));
+        vi.advanceTimersByTime(15_000);
+        await flush();
+        const playlist = spectator.service.playlist();
+
+        expect(playlist.map((_) => _.id)).toEqual(['media-3']);
+        expect(playlist[0].valid_from * 1000).toBe(
+            new Date('2026-01-02T06:00:00').getTime(),
+        );
+        expect(playlist[0].valid_until * 1000).toBe(
+            new Date('2026-01-02T18:00:00').getTime(),
+        );
+        await expect(playlist[0].getURL()).resolves.toBe('blob:morning');
+    });
+
     it('should bind trigger playlists when display data is loaded', async () => {
         spectator.service.setDisplay('display-1');
         await flush();

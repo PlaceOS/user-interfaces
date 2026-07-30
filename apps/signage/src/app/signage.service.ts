@@ -84,6 +84,8 @@ const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
 /** How far ahead media for a not-yet-active scheduled playlist is downloaded */
 const MEDIA_CACHE_LOOK_AHEAD_SECONDS = 24 * 60 * 60;
+/** Minimum delay between recovery downloads of a single missing media file */
+const MEDIA_RECOVERY_INTERVAL_MS = 15 * SECONDS;
 const log = scoped_log('Signage');
 
 function signageDisplayIDFromURL(url = '') {
@@ -273,6 +275,8 @@ export class SignageService extends AsyncHandler {
     private _display_signature = '';
     /** Signature of the media set the cache was last synced against */
     private _media_signature = '';
+    /** Wall-clock time of the last recovery download, keyed by media URL */
+    private _media_recovery = new Map<string, number>();
     private _playlists: SignagePlaylist[] = [];
     private _last_playlist: MediaPlayerItem[] = [];
     private _last_override_playlists: string[] = [];
@@ -942,11 +946,37 @@ export class SignageService extends AsyncHandler {
         if (media.media_type === 'webpage' || media.media_type === 'plugin') {
             return media.media_url || plugin?.uri;
         }
-        return await this._media_cache
-            .getFile(media.media_url)
-            .catch((_) => null)
-            .then((_) => (_ ? URL.createObjectURL(_) : ''))
-            .catch((_) => '');
+        const url = media.media_url;
+        let file = await this._media_cache.getFile(url).catch((_) => null);
+        // The cache has no usable copy of this file, so the player would sit on
+        // an unresolvable URL forever. Ask for it now instead of waiting for
+        // the next cache sync, which may never come.
+        if (!file && this._shouldRecoverMedia(url)) {
+            log.warn('Media missing from the cache. Requesting it now.', url);
+            await this._media_cache
+                .requestFilesToCache([url], this._display())
+                .catch((_) => undefined);
+            file = await this._media_cache.getFile(url).catch((_) => null);
+        }
+        try {
+            return file ? URL.createObjectURL(file) : '';
+        } catch {
+            return '';
+        }
+    }
+
+    /**
+     * Rate limits recovery downloads. The player re-resolves the URL of a
+     * failing item every 50ms, which would otherwise hammer the network.
+     * Uses wall-clock time so debug time fast-forwarding cannot shorten it.
+     */
+    private _shouldRecoverMedia(url: string) {
+        if (!url) return false;
+        const now = Date.now();
+        const last_attempt = this._media_recovery.get(url) || 0;
+        if (now - last_attempt < MEDIA_RECOVERY_INTERVAL_MS) return false;
+        this._media_recovery.set(url, now);
+        return true;
     }
 
     private async _handleTrigger(id: string) {
