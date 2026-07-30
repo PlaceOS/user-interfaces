@@ -1,4 +1,10 @@
-import { Component, inject } from '@angular/core';
+import {
+    afterRenderEffect,
+    Component,
+    ElementRef,
+    inject,
+    viewChildren,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -47,6 +53,7 @@ type PlaylistStatus =
             @if (playlists().length > 0) {
                 @for (playlist of playlists(); track playlist.id) {
                     <a
+                        #playlist_item
                         matRipple
                         class="border-base-300 relative z-0 flex w-full cursor-pointer items-center gap-3 border-b px-2 py-1 text-left no-underline transition-colors"
                         [class.bg-primary]="selected()?.id === playlist.id"
@@ -189,6 +196,8 @@ type PlaylistStatus =
 })
 export class PlaylistListComponent {
     private readonly _service = inject(SignageService);
+    private readonly _playlist_items =
+        viewChildren<ElementRef<HTMLAnchorElement>>('playlist_item');
 
     public readonly search = this._service.playlist_search_term;
     public readonly playlists = this._service.filtered_playlists;
@@ -200,6 +209,27 @@ export class PlaylistListComponent {
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._service.playlists_has_more;
+
+    constructor() {
+        afterRenderEffect({
+            earlyRead: () => {
+                const selected_id = this.selected()?.id;
+                if (!selected_id) return;
+                const playlist_index = this.playlists().findIndex(
+                    ({ id }) => id === selected_id,
+                );
+                return this._playlist_items()[playlist_index]?.nativeElement;
+            },
+            write: (selected_item) => {
+                selected_item()?.scrollIntoView?.({
+                    behavior: 'instant',
+                    block: 'nearest',
+                    inline: 'nearest',
+                });
+            },
+        });
+    }
+
     public loadMore() {
         this._service.loadMorePlaylists();
     }

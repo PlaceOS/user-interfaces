@@ -174,7 +174,7 @@ describe('EventFormService', () => {
         expect(service.model().all_day).toBe(true);
     });
 
-    it('should offer attendee-only notifications when adding attendees to a room booking', async () => {
+    it('should offer attendee-only notifications only when adding attendees to a room booking', async () => {
         const event = new CalendarEvent({
             id: 'event-1',
             host: 'host@test.com',
@@ -203,16 +203,21 @@ describe('EventFormService', () => {
             ...model,
             title: 'Normalised team meeting',
         }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+
+        service.model.update((model) => ({
+            ...model,
+            title: 'Team meeting',
+        }));
         expect(service.can_notify_new_attendees_only()).toBe(true);
 
-        // Removing an existing attendee doesn't hide the option, the new attendee is still new
         service.model.update((model) => ({
             ...model,
             attendees: model.attendees.filter(
                 (_) => _.email !== 'existing@test.com',
             ),
         }));
-        expect(service.can_notify_new_attendees_only()).toBe(true);
+        expect(service.can_notify_new_attendees_only()).toBe(false);
 
         service.model.update((model) => ({
             ...model,
@@ -221,6 +226,35 @@ describe('EventFormService', () => {
             ),
         }));
         expect(service.can_notify_new_attendees_only()).toBe(false);
+    });
+
+    it('should preserve attendee-only notification eligibility after reloading the form', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+        service.newForm(event);
+        service.model.update((model) => ({
+            ...model,
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify(service.model()),
+        );
+
+        service.loadForm();
+
+        expect(service.can_notify_new_attendees_only()).toBe(true);
     });
 
     it('should suppress existing attendee notifications for attendee-only edits', async () => {
@@ -255,6 +289,44 @@ describe('EventFormService', () => {
         expect(perform_booking_spy).toHaveBeenCalledWith(
             expect.anything(),
             expect.objectContaining({ notify_existing_attendees: false }),
+        );
+    });
+
+    it('should notify existing attendees when another booking detail changes', async () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            creator: 'host@test.com',
+            title: 'Team meeting',
+            date: new Date(2028, 5, 15, 10).valueOf(),
+            duration: 60,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+        const perform_booking_spy = vi
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(event);
+        service.newForm(event);
+        service.model.update((model) => ({
+            ...model,
+            title: 'Updated team meeting',
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+        service.notify_new_attendees_only.set(true);
+
+        await service.postForm(true);
+
+        expect(perform_booking_spy).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.not.objectContaining({
+                notify_existing_attendees: false,
+            }),
         );
     });
 
