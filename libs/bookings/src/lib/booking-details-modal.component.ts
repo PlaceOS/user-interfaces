@@ -22,7 +22,7 @@ import {
     SettingsService,
     userSignal,
 } from '@placeos/common';
-import { addMinutes, format, isSameWeek } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 
 import { OrganisationService } from '@placeos/common';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
@@ -35,7 +35,11 @@ import { StatusPillComponent } from 'libs/components/src/lib/status-pill.compone
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { visitorDisplayNameFor } from './booking.utilities';
-import { checkinBooking, checkinBookingInstance } from './bookings.fn';
+import {
+    checkinBooking,
+    checkinBookingInstance,
+    isInWaitlistWeek,
+} from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 export function canEditBooking(booking: Booking) {
@@ -618,6 +622,10 @@ export class BookingDetailsModalComponent {
         'parking.show_waitlist',
         true,
     );
+    public readonly waitlist_week_start = this._settings.signal(
+        'parking.waitlist_week_start',
+        { day: 5, hour: 18, minute: 0 },
+    );
     private readonly _hide_selected_parking_space = this._settings.signal(
         'parking.hide_selected_space',
         false,
@@ -741,7 +749,11 @@ export class BookingDetailsModalComponent {
             booking?.status === 'tentative' &&
             booking?.process_state !== 'waiting_approval' &&
             !!booking?.asset_id?.startsWith('unallocated') &&
-            isSameWeek(Date.now(), booking.date)
+            isInWaitlistWeek(
+                booking.date,
+                this._org.building?.timezone,
+                this.waitlist_week_start(),
+            )
         );
     });
 

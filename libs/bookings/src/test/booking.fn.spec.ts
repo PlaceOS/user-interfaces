@@ -4,6 +4,7 @@ import {
     bookedResourceList,
     checkinBooking,
     createBooking,
+    isInWaitlistWeek,
     queryBookings,
     rejectBooking,
     removeBooking,
@@ -226,6 +227,35 @@ describe('[Booking API]', () => {
                 '',
             );
             spy.mockReset();
+        });
+    });
+
+    describe('isInWaitlistWeek', () => {
+        // Local wall-clock dates so the assertions hold in any timezone
+        const friday_17_59 = new Date(2026, 6, 31, 17, 59).valueOf();
+        const friday_18_00 = new Date(2026, 6, 31, 18, 0).valueOf();
+        const next_monday = new Date(2026, 7, 3, 8, 0).valueOf();
+
+        afterEach(() => vi.restoreAllMocks());
+
+        it('should exclude next week before the default Friday 18:00 cutoff', () => {
+            vi.spyOn(Date, 'now').mockReturnValue(friday_17_59);
+            expect(isInWaitlistWeek(next_monday)).toBe(false);
+        });
+
+        it('should include next week once the cutoff is reached', () => {
+            vi.spyOn(Date, 'now').mockReturnValue(friday_18_00);
+            expect(isInWaitlistWeek(next_monday)).toBe(true);
+        });
+
+        it('should use the configured week boundary', () => {
+            const week_start = { day: 3, hour: 9, minute: 30 };
+            const thursday = new Date(2026, 6, 30, 8, 0).valueOf();
+            const now_spy = vi.spyOn(Date, 'now');
+            now_spy.mockReturnValue(new Date(2026, 6, 29, 9, 29).valueOf());
+            expect(isInWaitlistWeek(thursday, '', week_start)).toBe(false);
+            now_spy.mockReturnValue(new Date(2026, 6, 29, 9, 30).valueOf());
+            expect(isInWaitlistWeek(thursday, '', week_start)).toBe(true);
         });
     });
 

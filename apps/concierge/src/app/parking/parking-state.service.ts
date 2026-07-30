@@ -30,6 +30,7 @@ import {
     bookedResourceList,
     checkinBooking,
     checkinBookingInstance,
+    isInWaitlistWeek,
     queryBookings,
     queryPagedBookings,
     rejectBooking,
@@ -62,18 +63,15 @@ import { openConfirmModal } from '@placeos/components';
 import { PlaceAsset, QueryResponse } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import {
-    addDays,
     addHours,
     addMinutes,
     endOfDay,
     endOfWeek,
     getUnixTime,
-    set,
     startOfDay,
     startOfWeek,
     subDays,
 } from 'date-fns';
-import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
@@ -582,36 +580,10 @@ export class ParkingStateService extends AsyncHandler {
         ) {
             return false;
         }
-        const now = Date.now();
-        const week_start =
-            this._settings.get('app.parking.waitlist_week_start') || {};
-        const week_start_day = week_start.day ?? 5;
-        const week_start_hour = week_start.hour ?? 18;
-        const week_start_minute = week_start.minute ?? 0;
-        const timezone = this.timezone;
-        const zoned_now = timezone ? toZonedTime(now, timezone) : new Date(now);
-        let current_week_start = set(
-            startOfWeek(zoned_now, { weekStartsOn: week_start_day }),
-            {
-                hours: week_start_hour,
-                minutes: week_start_minute,
-                seconds: 0,
-                milliseconds: 0,
-            },
-        );
-        if (zoned_now < current_week_start) {
-            current_week_start = subDays(current_week_start, 7);
-        }
-        const next_week_start = addDays(current_week_start, 7);
-        const current_week_start_time = timezone
-            ? fromZonedTime(current_week_start, timezone).valueOf()
-            : current_week_start.valueOf();
-        const next_week_start_time = timezone
-            ? fromZonedTime(next_week_start, timezone).valueOf()
-            : next_week_start.valueOf();
-        return (
-            booking.date >= current_week_start_time &&
-            booking.date < next_week_start_time
+        return isInWaitlistWeek(
+            booking.date,
+            this._org.building?.timezone,
+            this._settings.get('app.parking.waitlist_week_start'),
         );
     }
 

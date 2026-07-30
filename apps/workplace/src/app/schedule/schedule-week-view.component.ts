@@ -14,6 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     BookingDetailsModalComponent,
     bookingLocationString,
+    isInWaitlistWeek,
     visitorDisplayNameFor,
 } from '@placeos/bookings';
 import {
@@ -33,7 +34,6 @@ import {
     format,
     isBefore,
     isSameDay,
-    isSameWeek,
     startOfDay,
     startOfWeek,
 } from 'date-fns';
@@ -309,9 +309,7 @@ export class ScheduleWeekViewComponent {
             status === 'tentative' &&
             booking instanceof Booking &&
             booking.booking_type === 'parking' &&
-            isSameWeek(Date.now(), booking.date, {
-                weekStartsOn: this._state.offset_weekday,
-            })
+            isInWaitlistWeek(booking.date, this._org.building?.timezone)
         ) {
             return 'waitlisted';
         }

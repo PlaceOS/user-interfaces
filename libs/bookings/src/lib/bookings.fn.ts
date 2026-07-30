@@ -30,8 +30,58 @@ import {
     addMinutes,
     endOfDay,
     getUnixTime,
+    set,
     startOfDay,
+    startOfWeek,
+    subDays,
 } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+
+export interface WaitlistWeekStart {
+    /** Day of the week the waitlist week starts on. `0` is Sunday */
+    day?: number;
+    /** Hour of the day the waitlist week starts at */
+    hour?: number;
+    /** Minute of the hour the waitlist week starts at */
+    minute?: number;
+}
+
+/**
+ * Whether a date falls within the currently active parking waitlist week. The
+ * week boundary is a configurable day and wall clock time, defaulting to
+ * Friday at 18:00. The boundary is applied in the building's timezone when
+ * building timezones are enabled, otherwise in the local timezone.
+ */
+export function isInWaitlistWeek(
+    date: number | Date,
+    building_timezone?: string,
+    week_start: WaitlistWeekStart = setting('app.parking.waitlist_week_start'),
+) {
+    const day = week_start?.day ?? 5;
+    const hour = week_start?.hour ?? 18;
+    const minute = week_start?.minute ?? 0;
+    const timezone =
+        setting('app.bookings.use_building_timezone') ||
+        setting('app.parking.use_building_timezone')
+            ? building_timezone
+            : '';
+    const now = Date.now();
+    const zoned_now = timezone ? toZonedTime(now, timezone) : new Date(now);
+    let current_week_start = set(
+        startOfWeek(zoned_now, { weekStartsOn: day as any }),
+        { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 },
+    );
+    if (zoned_now < current_week_start) {
+        current_week_start = subDays(current_week_start, 7);
+    }
+    const next_week_start = addDays(current_week_start, 7);
+    const asUTC = (value: Date) =>
+        timezone ? fromZonedTime(value, timezone).valueOf() : value.valueOf();
+    return (
+        date.valueOf() >= asUTC(current_week_start) &&
+        date.valueOf() < asUTC(next_week_start)
+    );
+}
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */

@@ -14,7 +14,8 @@ import {
     i18n,
     SettingsService,
 } from '@placeos/common';
-import { addMinutes, format, isSameDay, isSameWeek } from 'date-fns';
+import { addMinutes, format, isSameDay } from 'date-fns';
+import { isInWaitlistWeek } from './bookings.fn';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -245,6 +246,10 @@ export class BookingCardComponent {
         'parking.show_waitlist',
         true,
     );
+    public readonly waitlist_week_start = this._settings.signal(
+        'parking.waitlist_week_start',
+        { day: 5, hour: 18, minute: 0 },
+    );
     public readonly hide_selected_parking_space = this._settings.signal(
         'parking.hide_selected_space',
         false,
@@ -258,7 +263,11 @@ export class BookingCardComponent {
             booking?.status === 'tentative' &&
             booking?.process_state !== 'waiting_approval' &&
             !!booking?.asset_id?.startsWith('unallocated') &&
-            isSameWeek(Date.now(), booking.date)
+            isInWaitlistWeek(
+                booking.date,
+                this._org.building?.timezone,
+                this.waitlist_week_start(),
+            )
         );
     });
 
