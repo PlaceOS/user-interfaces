@@ -587,7 +587,7 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.duration()).toBe(10);
     });
 
-    it('should wait for webpages to load and then delay hold timing by two seconds', () => {
+    it('should wait for webpages to load and then delay hold timing by three seconds', () => {
         const items = [
             create_item('webpage-1', {
                 type: 'webpage',
@@ -608,7 +608,7 @@ describe('MediaPlayerComponent', () => {
                 (name: string, fn: () => void, delay: number) => {
                     if (name === 'webpage-hold-delay') {
                         hold_delay_callback = fn;
-                        expect(delay).toBe(2000);
+                        expect(delay).toBe(3000);
                     }
                 },
             );
@@ -621,7 +621,7 @@ describe('MediaPlayerComponent', () => {
         expect(timeout_spy).toHaveBeenCalledWith(
             'webpage-hold-delay',
             expect.any(Function),
-            2000,
+            3000,
         );
         expect(spectator.component['_web_waiting_item_id']).toBe('webpage-1');
 
@@ -668,7 +668,7 @@ describe('MediaPlayerComponent', () => {
         expect(transition_spy).not.toHaveBeenCalled();
 
         spectator.component.onWebpageLoad();
-        vi.advanceTimersByTime(1999);
+        vi.advanceTimersByTime(2999);
         expect(spectator.component.defer_reveal()).toBe(true);
         expect(spectator.component.waiting_for_item()).toBe(true);
         expect(transition_spy).not.toHaveBeenCalled();
@@ -1098,7 +1098,7 @@ describe('MediaPlayerComponent', () => {
 
         spectator.component.setPlaylistItem(0);
         spectator.component.onWebpageLoad(0);
-        vi.advanceTimersByTime(2000);
+        vi.advanceTimersByTime(3000);
         expect(
             spectator.component['_web_element'](0).nativeElement.getAttribute(
                 'src',

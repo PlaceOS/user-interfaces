@@ -44,6 +44,8 @@ const URL_FETCH_TIMEOUT = 30 * 1000;
 const MIN_FAILED_MEDIA_WAIT = 1000;
 /** Lead time for rendering the next webpage/plugin output before it is shown */
 const INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1000;
+/** Time to let a webpage settle after its load event before it is shown */
+const WEBPAGE_REVEAL_DELAY = 3 * 1000;
 /** Max wait for plugin load/ready before continuing playback anyway */
 const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
 
@@ -607,7 +609,7 @@ export class MediaPlayerComponent
                 this._resetPlayback();
                 this._finishDeferredReveal(item, 0);
             },
-            2000,
+            WEBPAGE_REVEAL_DELAY,
         );
     }
 
