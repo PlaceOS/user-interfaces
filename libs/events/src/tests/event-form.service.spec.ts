@@ -228,6 +228,36 @@ describe('EventFormService', () => {
         expect(service.can_notify_new_attendees_only()).toBe(false);
     });
 
+    it('should offer attendee-only notifications after the form syncs a one-off event', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            date: new Date(2028, 5, 15, 10).valueOf(),
+            duration: 60,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+
+        service.newForm(event);
+        // Let the form's field-sync effects run - seeding the date must not
+        // invent a recurrence on a non-recurring event.
+        TestBed.tick();
+        service.model.update((model) => ({
+            ...model,
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+
+        expect(service.model().recurrence).toEqual({});
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+    });
+
     it('should preserve attendee-only notification eligibility after reloading the form', () => {
         const event = new CalendarEvent({
             id: 'event-1',
