@@ -121,6 +121,44 @@ function cronParts(cron_string: string) {
     return parts;
 }
 
+/** Search limit below which a lookup is too cheap and too precise to memoise */
+const MIN_CACHEABLE_SEARCH_LIMIT_SECONDS = 60;
+
+const CRON_LOOKUP_CACHE = new Map<string, number | null>();
+let cron_lookup_second = 0;
+
+/**
+ * Schedule evaluation runs every 15 seconds and asks the same question of the
+ * same schedule several times per pass: filtering playlists, resolving media
+ * validity, detecting takeovers and choosing what to cache ahead. Each of those
+ * walks the schedule a minute at a time, so the results are memoised for the
+ * second they were calculated in.
+ *
+ * Short searches are not memoised. The single-pass trigger window is only 30
+ * seconds wide and its boundary moves within a second, so its results are not
+ * interchangeable across a second - and a search that short costs almost
+ * nothing to repeat.
+ */
+function cachedCronLookup(
+    key: string,
+    now: number,
+    search_limit_in_seconds: number,
+    lookup: () => number | null,
+) {
+    if (search_limit_in_seconds < MIN_CACHEABLE_SEARCH_LIMIT_SECONDS) {
+        return lookup();
+    }
+    const second = Math.floor(now / 1000);
+    if (second !== cron_lookup_second) {
+        CRON_LOOKUP_CACHE.clear();
+        cron_lookup_second = second;
+    }
+    if (CRON_LOOKUP_CACHE.has(key)) return CRON_LOOKUP_CACHE.get(key);
+    const result = lookup();
+    CRON_LOOKUP_CACHE.set(key, result);
+    return result;
+}
+
 /**
  * Calculates the Unix timestamp for the next signage-manager-compatible cron
  * run in the device's local timezone, but only if it occurs within a specified
@@ -138,21 +176,23 @@ export function getNextCronRunTimestampInRange(
     now = Date.now(),
 ): number | null {
     const parts = cronParts(cron_string);
+    const key = `next|${cron_string}|${search_limit_in_seconds}`;
+    return cachedCronLookup(key, now, search_limit_in_seconds, () => {
+        const searchLimitDate = new Date(now + search_limit_in_seconds * 1000);
+        const start_time = new Date(now);
+        start_time.setSeconds(0, 0);
+        start_time.setMinutes(start_time.getMinutes() + 1);
 
-    const searchLimitDate = new Date(now + search_limit_in_seconds * 1000);
-    const start_time = new Date(now);
-    start_time.setSeconds(0, 0);
-    start_time.setMinutes(start_time.getMinutes() + 1);
+        const current_date = new Date(start_time.getTime());
 
-    const current_date = new Date(start_time.getTime());
-
-    while (current_date <= searchLimitDate) {
-        if (doesCronMatchDate(parts, current_date)) {
-            return Math.floor(current_date.getTime() / 1000);
+        while (current_date <= searchLimitDate) {
+            if (doesCronMatchDate(parts, current_date)) {
+                return Math.floor(current_date.getTime() / 1000);
+            }
+            current_date.setMinutes(current_date.getMinutes() + 1);
         }
-        current_date.setMinutes(current_date.getMinutes() + 1);
-    }
-    return null;
+        return null;
+    });
 }
 
 /**
@@ -176,16 +216,20 @@ export function getLastCronRunTimestampInRange(
     now = Date.now(),
 ): number | null {
     const parts = cronParts(cron_string);
+    const key = `last|${cron_string}|${search_limit_in_seconds}`;
+    return cachedCronLookup(key, now, search_limit_in_seconds, () => {
+        const search_limit_date = new Date(
+            now - search_limit_in_seconds * 1000,
+        );
+        const current_date = new Date(now);
+        current_date.setSeconds(0, 0);
 
-    const search_limit_date = new Date(now - search_limit_in_seconds * 1000);
-    const current_date = new Date(now);
-    current_date.setSeconds(0, 0);
-
-    while (current_date >= search_limit_date) {
-        if (doesCronMatchDate(parts, current_date)) {
-            return Math.floor(current_date.getTime() / 1000);
+        while (current_date >= search_limit_date) {
+            if (doesCronMatchDate(parts, current_date)) {
+                return Math.floor(current_date.getTime() / 1000);
+            }
+            current_date.setMinutes(current_date.getMinutes() - 1);
         }
-        current_date.setMinutes(current_date.getMinutes() - 1);
-    }
-    return null;
+        return null;
+    });
 }

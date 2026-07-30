@@ -433,16 +433,23 @@ export class SignageService extends AsyncHandler {
         this.timeout(
             'schedule_tick',
             () => {
-                this._tick.update((_) => _ + 1);
-                const display = this._display_data();
-                if (display) {
-                    this._checkScheduledOverrides(
-                        display,
-                        this.override_playlists(),
-                    );
-                    this._checkMediaCache(display);
+                try {
+                    this._tick.update((_) => _ + 1);
+                    const display = this._display_data();
+                    if (display) {
+                        this._checkScheduledOverrides(
+                            display,
+                            this.override_playlists(),
+                        );
+                        this._checkMediaCache(display);
+                    }
+                } catch (e) {
+                    log.error('Failed to evaluate playlist schedules.', e);
+                } finally {
+                    // Always re-arm; a single bad pass must not stop the player
+                    // evaluating schedules for the rest of its uptime.
+                    this._scheduleTick();
                 }
-                this._scheduleTick();
             },
             delay,
         );

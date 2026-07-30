@@ -142,6 +142,69 @@ describe('cron helpers', () => {
         expectLocalDate(result, localDate(2026, 3, 6, 9, 0));
     });
 
+    it('reuses a long-window result within the same second', () => {
+        // A cron string used by no other test, so the first call cannot be
+        // answered from a lookup cached by an earlier test in this file.
+        const cron = '17 4 * * *';
+        const now = localDate(2026, 3, 3, 7, 31).getTime();
+        const spy = vi.spyOn(Date.prototype, 'getMinutes');
+
+        getLastCronRunTimestampInRange(cron, 12 * 60 * 60, now);
+        const first_pass = spy.mock.calls.length;
+        getLastCronRunTimestampInRange(cron, 12 * 60 * 60, now);
+
+        expect(first_pass).toBeGreaterThan(0);
+        expect(spy.mock.calls.length).toBe(first_pass);
+        spy.mockRestore();
+    });
+
+    it('recalculates a long-window result once the second changes', () => {
+        const now = localDate(2026, 3, 3, 7, 30).getTime();
+
+        expectLocalDate(
+            getLastCronRunTimestampInRange('0 6 * * *', 12 * 60 * 60, now),
+            localDate(2026, 3, 3, 6, 0),
+        );
+        expectLocalDate(
+            getLastCronRunTimestampInRange(
+                '0 6 * * *',
+                12 * 60 * 60,
+                now + 1000,
+            ),
+            localDate(2026, 3, 3, 6, 0),
+        );
+        expect(
+            getLastCronRunTimestampInRange(
+                '0 6 * * *',
+                12 * 60 * 60,
+                localDate(2026, 3, 3, 19, 0).getTime(),
+            ),
+        ).toBeNull();
+    });
+
+    it('does not memoise short trigger-window searches', () => {
+        const in_window = localDate(2026, 3, 3, 6, 0);
+        in_window.setSeconds(20);
+        const past_window = localDate(2026, 3, 3, 6, 0);
+        past_window.setSeconds(45);
+
+        expectLocalDate(
+            getLastCronRunTimestampInRange(
+                '0 6 * * *',
+                30,
+                in_window.getTime(),
+            ),
+            localDate(2026, 3, 3, 6, 0),
+        );
+        expect(
+            getLastCronRunTimestampInRange(
+                '0 6 * * *',
+                30,
+                past_window.getTime(),
+            ),
+        ).toBeNull();
+    });
+
     it('rejects last-run cron strings that are not five fields', () => {
         expect(() =>
             getLastCronRunTimestampInRange(

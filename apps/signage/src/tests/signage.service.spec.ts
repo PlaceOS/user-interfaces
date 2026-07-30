@@ -1343,6 +1343,23 @@ describe('SignageService', () => {
         expect(spectator.service.override_playlist().playlist).toHaveLength(0);
     });
 
+    it('should keep evaluating schedules after a failed tick', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const check_overrides = vi
+            .spyOn(spectator.service as any, '_checkScheduledOverrides')
+            .mockImplementationOnce(() => {
+                throw new Error('schedule evaluation failed');
+            });
+
+        vi.advanceTimersByTime(15_000);
+        await flush();
+        vi.advanceTimersByTime(15_000);
+        await flush();
+
+        expect(check_overrides).toHaveBeenCalledTimes(2);
+    });
+
     it('should store metric events and ignore playlist counts for random playlists', async () => {
         (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(
