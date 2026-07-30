@@ -8,15 +8,15 @@ import {
   MatTabLabel,
   MatTabsModule,
   moveItemInArray
-} from "./chunk-W3TDQE4T.js";
+} from "./chunk-4QDK2FGU.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-DP4HMQLN.js";
+} from "./chunk-E3UZXUJM.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-DUWVLDZQ.js";
+} from "./chunk-TPIOCZMD.js";
 import {
   ActivatedRoute,
   Component,
@@ -49,6 +49,8 @@ import {
   RouterLink,
   SignageService,
   TranslatePipe,
+  ViewChildren,
+  afterRenderEffect,
   computed,
   effect,
   fromUnixTime,
@@ -60,6 +62,7 @@ import {
   rr,
   setClassMetadata,
   signal,
+  viewChildren,
   ɵsetClassDebugInfo,
   ɵɵadvance,
   ɵɵattribute,
@@ -82,6 +85,7 @@ import {
   ɵɵpipeBind3,
   ɵɵproperty,
   ɵɵpureFunction1,
+  ɵɵqueryAdvance,
   ɵɵreadContextLet,
   ɵɵreference,
   ɵɵrepeater,
@@ -94,8 +98,9 @@ import {
   ɵɵtemplate,
   ɵɵtext,
   ɵɵtextInterpolate,
-  ɵɵtextInterpolate1
-} from "./chunk-3UAHLDER.js";
+  ɵɵtextInterpolate1,
+  ɵɵviewQuerySignal
+} from "./chunk-EQFGUZ47.js";
 import {
   __spreadProps,
   __spreadValues
@@ -3096,22 +3101,11 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
 })();
 
 // apps/signage-manager/src/app/playlists/playlist-list.component.ts
-var _c04 = (a0) => ["/playlists", a0];
-var _c12 = (a0) => ({ name: a0 });
+var _c04 = ["playlist_item"];
+var _c12 = (a0) => ["/playlists", a0];
+var _c22 = (a0) => ({ name: a0 });
 var _forTrack03 = ($index, $item) => $item.id;
-function PlaylistListComponent_Conditional_6_For_1_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 13);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.DISABLED"), " ");
-  }
-}
-function PlaylistListComponent_Conditional_6_For_1_Case_8_Template(rf, ctx) {
+function PlaylistListComponent_Conditional_6_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 14);
     \u0275\u0275text(1);
@@ -3120,7 +3114,7 @@ function PlaylistListComponent_Conditional_6_For_1_Case_8_Template(rf, ctx) {
   }
   if (rf & 2) {
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.STATUS_EXPIRED"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.DISABLED"), " ");
   }
 }
 function PlaylistListComponent_Conditional_6_For_1_Case_9_Template(rf, ctx) {
@@ -3132,7 +3126,7 @@ function PlaylistListComponent_Conditional_6_For_1_Case_9_Template(rf, ctx) {
   }
   if (rf & 2) {
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.PENDING"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.STATUS_EXPIRED"), " ");
   }
 }
 function PlaylistListComponent_Conditional_6_For_1_Case_10_Template(rf, ctx) {
@@ -3144,7 +3138,7 @@ function PlaylistListComponent_Conditional_6_For_1_Case_10_Template(rf, ctx) {
   }
   if (rf & 2) {
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.PENDING"), " ");
   }
 }
 function PlaylistListComponent_Conditional_6_For_1_Case_11_Template(rf, ctx) {
@@ -3156,12 +3150,24 @@ function PlaylistListComponent_Conditional_6_For_1_Case_11_Template(rf, ctx) {
   }
   if (rf & 2) {
     \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW"), " ");
+  }
+}
+function PlaylistListComponent_Conditional_6_For_1_Case_12_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 18);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.APPROVAL_REQUIRED"), " ");
   }
 }
-function PlaylistListComponent_Conditional_6_For_1_Conditional_12_Template(rf, ctx) {
+function PlaylistListComponent_Conditional_6_For_1_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -3173,55 +3179,55 @@ function PlaylistListComponent_Conditional_6_For_1_Conditional_12_Template(rf, c
     \u0275\u0275textInterpolate1(" ", playlist_r1.description, " ");
   }
 }
-function PlaylistListComponent_Conditional_6_For_1_Conditional_13_Template(rf, ctx) {
+function PlaylistListComponent_Conditional_6_For_1_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 19);
+    \u0275\u0275elementStart(0, "icon", 20);
     \u0275\u0275text(1, "p2p");
     \u0275\u0275elementEnd();
   }
 }
 function PlaylistListComponent_Conditional_6_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 8);
-    \u0275\u0275pipe(1, "translate");
-    \u0275\u0275element(2, "playlist-thumbnail", 9);
-    \u0275\u0275elementStart(3, "div", 10)(4, "div", 11);
-    \u0275\u0275text(5);
+    \u0275\u0275elementStart(0, "a", 9, 0);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275element(3, "playlist-thumbnail", 10);
+    \u0275\u0275elementStart(4, "div", 11)(5, "div", 12);
+    \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 12);
-    \u0275\u0275conditionalCreate(7, PlaylistListComponent_Conditional_6_For_1_Conditional_7_Template, 3, 3, "span", 13);
-    \u0275\u0275conditionalCreate(8, PlaylistListComponent_Conditional_6_For_1_Case_8_Template, 3, 3, "span", 14)(9, PlaylistListComponent_Conditional_6_For_1_Case_9_Template, 3, 3, "span", 15)(10, PlaylistListComponent_Conditional_6_For_1_Case_10_Template, 3, 3, "span", 16)(11, PlaylistListComponent_Conditional_6_For_1_Case_11_Template, 3, 3, "span", 17);
+    \u0275\u0275elementStart(7, "div", 13);
+    \u0275\u0275conditionalCreate(8, PlaylistListComponent_Conditional_6_For_1_Conditional_8_Template, 3, 3, "span", 14);
+    \u0275\u0275conditionalCreate(9, PlaylistListComponent_Conditional_6_For_1_Case_9_Template, 3, 3, "span", 15)(10, PlaylistListComponent_Conditional_6_For_1_Case_10_Template, 3, 3, "span", 16)(11, PlaylistListComponent_Conditional_6_For_1_Case_11_Template, 3, 3, "span", 17)(12, PlaylistListComponent_Conditional_6_For_1_Case_12_Template, 3, 3, "span", 18);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(12, PlaylistListComponent_Conditional_6_For_1_Conditional_12_Template, 2, 5, "div", 18);
+    \u0275\u0275conditionalCreate(13, PlaylistListComponent_Conditional_6_For_1_Conditional_13_Template, 2, 5, "div", 19);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(13, PlaylistListComponent_Conditional_6_For_1_Conditional_13_Template, 2, 0, "icon", 19);
+    \u0275\u0275conditionalCreate(14, PlaylistListComponent_Conditional_6_For_1_Conditional_14_Template, 2, 0, "icon", 20);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    let tmp_19_0;
+    let tmp_20_0;
     const playlist_r1 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275classProp("bg-primary", ctx_r1.selected()?.id === playlist_r1.id)("text-primary-content", ctx_r1.selected()?.id === playlist_r1.id)("hover:bg-base-200", ctx_r1.selected()?.id !== playlist_r1.id);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(17, _c04, playlist_r1.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 14, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(19, _c12, playlist_r1.name)));
-    \u0275\u0275advance(2);
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(17, _c12, playlist_r1.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 14, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(19, _c22, playlist_r1.name)));
+    \u0275\u0275advance(3);
     \u0275\u0275property("playlist", playlist_r1);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", playlist_r1.name, " ");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(!playlist_r1.enabled ? 7 : -1);
+    \u0275\u0275conditional(!playlist_r1.enabled ? 8 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_19_0 = ctx_r1.getStatus(playlist_r1)) === "expired" ? 8 : tmp_19_0 === "pending" ? 9 : tmp_19_0 === "awaiting_review" ? 10 : tmp_19_0 === "awaiting_approval" ? 11 : -1);
+    \u0275\u0275conditional((tmp_20_0 = ctx_r1.getStatus(playlist_r1)) === "expired" ? 9 : tmp_20_0 === "pending" ? 10 : tmp_20_0 === "awaiting_review" ? 11 : tmp_20_0 === "awaiting_approval" ? 12 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275conditional(playlist_r1.description ? 12 : -1);
+    \u0275\u0275conditional(playlist_r1.description ? 13 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(playlist_r1.distribution ? 13 : -1);
+    \u0275\u0275conditional(playlist_r1.distribution ? 14 : -1);
   }
 }
 function PlaylistListComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 21);
+    \u0275\u0275elementStart(0, "div", 22);
     \u0275\u0275listener("intersect", function PlaylistListComponent_Conditional_6_Conditional_2_Template_div_intersect_0_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -3232,7 +3238,7 @@ function PlaylistListComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
 }
 function PlaylistListComponent_Conditional_6_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275elementStart(0, "div", 8);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -3244,8 +3250,8 @@ function PlaylistListComponent_Conditional_6_Conditional_3_Template(rf, ctx) {
 }
 function PlaylistListComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistListComponent_Conditional_6_For_1_Template, 14, 21, "a", 5, _forTrack03);
-    \u0275\u0275conditionalCreate(2, PlaylistListComponent_Conditional_6_Conditional_2_Template, 1, 0, "div", 6)(3, PlaylistListComponent_Conditional_6_Conditional_3_Template, 3, 3, "div", 7);
+    \u0275\u0275repeaterCreate(0, PlaylistListComponent_Conditional_6_For_1_Template, 15, 21, "a", 6, _forTrack03);
+    \u0275\u0275conditionalCreate(2, PlaylistListComponent_Conditional_6_Conditional_2_Template, 1, 0, "div", 7)(3, PlaylistListComponent_Conditional_6_Conditional_3_Template, 3, 3, "div", 8);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -3256,7 +3262,7 @@ function PlaylistListComponent_Conditional_6_Template(rf, ctx) {
 }
 function PlaylistListComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 4)(1, "icon", 22);
+    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 23);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -3272,12 +3278,35 @@ function PlaylistListComponent_Conditional_7_Template(rf, ctx) {
 var PlaylistListComponent = class _PlaylistListComponent {
   constructor() {
     this._service = inject(SignageService);
+    this._playlist_items = viewChildren(
+      "playlist_item",
+      ...ngDevMode ? [{ debugName: "_playlist_items" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.search = this._service.playlist_search_term;
     this.playlists = this._service.filtered_playlists;
     this.selected = this._service.selected_playlist;
     this.playlist_approval_status = this._service.playlist_approval_status;
     this.playlist_approval_requested_status = this._service.playlist_approval_requested_status;
     this.has_more = this._service.playlists_has_more;
+    afterRenderEffect({
+      earlyRead: () => {
+        const selected_id = this.selected()?.id;
+        if (!selected_id)
+          return;
+        const playlist_index = this.playlists().findIndex(({ id }) => id === selected_id);
+        return this._playlist_items()[playlist_index]?.nativeElement;
+      },
+      write: (selected_item) => {
+        selected_item()?.scrollIntoView?.({
+          behavior: "instant",
+          block: "nearest",
+          inline: "nearest"
+        });
+      }
+    });
   }
   loadMore() {
     this._service.loadMorePlaylists();
@@ -3308,9 +3337,16 @@ var PlaylistListComponent = class _PlaylistListComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistListComponent, selectors: [["playlist-list"]], decls: 8, vars: 8, consts: [[1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-1", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "my-2", "p-2", "text-center", "text-xs"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-1", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md", 3, "playlist"], [1, "min-w-0", "flex-1", "pr-2"], [1, "flex", "items-center", "gap-2", "truncate", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]", "font-medium", "uppercase"], [1, "bg-base-200", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mx-1"], [1, "mt-0.5", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-6xl"]], template: function PlaylistListComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistListComponent, selectors: [["playlist-list"]], viewQuery: function PlaylistListComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "mat-form-field", 2)(3, "input", 3);
+        \u0275\u0275viewQuerySignal(ctx._playlist_items, _c04, 5);
+      }
+      if (rf & 2) {
+        \u0275\u0275queryAdvance();
+      }
+    }, decls: 8, vars: 8, consts: [["playlist_item", ""], [1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-1", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "my-2", "p-2", "text-center", "text-xs"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-1", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md", 3, "playlist"], [1, "min-w-0", "flex-1", "pr-2"], [1, "flex", "items-center", "gap-2", "truncate", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]", "font-medium", "uppercase"], [1, "bg-base-200", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mx-1"], [1, "mt-0.5", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-6xl"]], template: function PlaylistListComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "mat-form-field", 3)(3, "input", 4);
         \u0275\u0275pipe(4, "translate");
         \u0275\u0275pipe(5, "translate");
         \u0275\u0275listener("ngModelChange", function PlaylistListComponent_Template_input_ngModelChange_3_listener($event) {
@@ -3319,7 +3355,7 @@ var PlaylistListComponent = class _PlaylistListComponent {
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(6, PlaylistListComponent_Conditional_6_Template, 4, 1)(7, PlaylistListComponent_Conditional_7_Template, 6, 3, "div", 4);
+        \u0275\u0275conditionalCreate(6, PlaylistListComponent_Conditional_6_Template, 4, 1)(7, PlaylistListComponent_Conditional_7_Template, 6, 3, "div", 5);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -3380,6 +3416,7 @@ var PlaylistListComponent = class _PlaylistListComponent {
             @if (playlists().length > 0) {
                 @for (playlist of playlists(); track playlist.id) {
                     <a
+                        #playlist_item
                         matRipple
                         class="border-base-300 relative z-0 flex w-full cursor-pointer items-center gap-3 border-b px-2 py-1 text-left no-underline transition-colors"
                         [class.bg-primary]="selected()?.id === playlist.id"
@@ -3509,10 +3546,10 @@ var PlaylistListComponent = class _PlaylistListComponent {
       IntersectDirective,
       PlaylistThumbnailComponent
     ], styles: ["/* angular:styles/component:css;62f1948e80f1d37fbfc7dd0fe5a3ff76993e7e5f074002a0c62e64986fc743cb;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/playlists/playlist-list.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n/*# sourceMappingURL=playlist-list.component.css.map */\n"] }]
-  }], null, null);
+  }], () => [], { _playlist_items: [{ type: ViewChildren, args: ["playlist_item", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistListComponent, { className: "PlaylistListComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-list.component.ts", lineNumber: 190 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistListComponent, { className: "PlaylistListComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-list.component.ts", lineNumber: 197 });
 })();
 
 // apps/signage-manager/src/app/playlists/playlists.component.ts
@@ -4163,4 +4200,4 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-T6JSM572.js.map
+//# sourceMappingURL=playlists.component-NO6DVCH6.js.map
