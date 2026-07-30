@@ -54,6 +54,37 @@ Docker Desktop needs the proxy configured separately, in
 
 ---
 
+### Who needs to be on the runner's network? Nobody.
+
+Worth stating plainly, because it is the natural thing to worry about and it is not a
+constraint:
+
+- **Committers do not.** A push from anywhere triggers the workflow on GitHub, which
+  queues a job, which the runner collects over its own outbound connection. Where the
+  author sits is irrelevant.
+- **GitHub does not.** It never initiates a connection to the machine.
+- **You only do** if you want to administer the box directly — install it, read logs,
+  restart the service.
+
+So the runner can live on an internal network that most of the team cannot reach, and
+CI still works for all of them.
+
+### Setting it up over SSH: read this first
+
+macOS ships with Remote Login **off**, so SSH may need enabling
+(System Settings → General → Sharing → Remote Login). But even with SSH working,
+**two of the steps below cannot be completed from an SSH-only session**:
+
+- **Docker Desktop is a GUI app.** `open -a Docker` over SSH only succeeds if that
+  user already has an active GUI session (logged in at the console). Over SSH alone
+  it will not start, and the stack step will fail with the daemon unreachable.
+- **`svc.sh install` creates a launchd *agent***, which belongs to a GUI session. Run
+  from a bare SSH login it may install but not run when you expect.
+
+Practical order: do the GUI-dependent parts once at the machine (enable auto-login,
+set Docker Desktop to start on login, start it), after which SSH is fine for
+everything else — registering the runner, service control, logs.
+
 ## Step 1 — prerequisites
 
 | | |
@@ -208,7 +239,8 @@ Worth doing as defence in depth, in case someone adds it later:
 
 | Symptom | Cause / fix |
 |---|---|
-| Runner shows **Offline** | Service not running (`./svc.sh status`), machine asleep, or outbound 443 blocked — re-run Step 0. |
+| Runner shows **Offline** | Service not running (`./svc.sh status`), machine asleep, or outbound 443 blocked — re-run Step 0. Note this is about the runner's *outbound* connection; whether anyone can reach the machine is unrelated. |
+| Can't ping / SSH the machine from elsewhere on the network | Expected and harmless for CI. macOS has Remote Login off by default and its firewall drops ICMP; some wifi also enforces client isolation. Only affects direct administration. |
 | `docker: command not found` | Service PATH — gotcha 3 above. |
 | Job hangs on **Bring up the local PlaceOS stack** | Docker Desktop not running (no GUI session — gotcha 1), or registry unreachable. `up.sh` prints `compose ps` plus every service's logs on failure, so read the step output first. |
 | `port is already allocated` / webServer port in use | A previous run died. The **Reclaim the machine** step handles this automatically; if it recurs, run `e2e/stack/down.sh --volumes` by hand. |
