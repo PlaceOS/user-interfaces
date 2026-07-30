@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -75,7 +76,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                             {{ 'COMMON.FILTERS' | translate }}
                         </h3>
                     </div>
-                    <div class="flex flex-col overflow-y-auto p-4">
+                    <div cdkScrollable class="flex flex-col overflow-y-auto p-4">
                         <label for="location">{{
                             'COMMON.LOCATION' | translate
                         }}</label>
@@ -397,7 +398,10 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
                         <icon>close</icon>
                     </button>
                 </div>
-                <div class="flex max-h-[60vh] flex-col overflow-y-auto p-4">
+                <div
+                    cdkScrollable
+                    class="flex max-h-[60vh] flex-col overflow-y-auto p-4"
+                >
                     <label for="location">{{
                         'COMMON.LOCATION' | translate
                     }}</label>
@@ -627,6 +631,7 @@ import { MeetingFlowSpaceMapComponent } from './meeting-flow-space-map.component
         `,
     ],
     imports: [
+        CdkScrollable,
         CommonModule,
         MatRippleModule,
         IconComponent,

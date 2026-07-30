@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -27,7 +28,10 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
     selector: 'visitor-flow-new',
     template: `
         @if (view() !== 'success') {
-            <div class="relative z-0 h-full w-full overflow-auto bg-base-200">
+            <div
+                cdkScrollable
+                class="relative z-0 h-full w-full overflow-auto bg-base-200"
+            >
                 <div
                     class="mx-auto flex min-h-full w-[80rem] max-w-full flex-col px-4 pt-4"
                 >
@@ -119,6 +123,7 @@ import { VisitorFlowSuccessComponent } from './visitor-flow-success.component';
         `,
     ],
     imports: [
+        CdkScrollable,
         IconComponent,
         TranslatePipe,
         MatRippleModule,

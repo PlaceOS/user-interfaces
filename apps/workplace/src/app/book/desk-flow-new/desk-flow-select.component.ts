@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -79,7 +80,10 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                             {{ 'COMMON.FILTERS' | translate }}
                         </h3>
                     </div>
-                    <div class="flex flex-col overflow-y-auto px-4 pb-4">
+                    <div
+                        cdkScrollable
+                        class="flex flex-col overflow-y-auto px-4 pb-4"
+                    >
                         <label for="location">{{
                             'COMMON.LOCATION' | translate
                         }}</label>
@@ -366,7 +370,10 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         <icon>close</icon>
                     </button>
                 </div>
-                <div class="flex max-h-[60vh] flex-col overflow-y-auto p-4">
+                <div
+                    cdkScrollable
+                    class="flex max-h-[60vh] flex-col overflow-y-auto p-4"
+                >
                     <label for="location">{{
                         'COMMON.LOCATION' | translate
                     }}</label>
@@ -556,6 +563,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
         `,
     ],
     imports: [
+        CdkScrollable,
         CommonModule,
         MatRippleModule,
         IconComponent,

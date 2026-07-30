@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -13,7 +14,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
     selector: 'meeting-flow-new',
     template: `
         @if (flow_view() !== 'success') {
-            <div class="h-full w-full overflow-auto bg-base-200">
+            <div cdkScrollable class="h-full w-full overflow-auto bg-base-200">
                 <div
                     class="mx-auto min-h-full w-[80rem] max-w-full space-y-4 px-4 pt-4"
                 >
@@ -130,6 +131,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
         `,
     ],
     imports: [
+        CdkScrollable,
         IconComponent,
         MatRippleModule,
         MeetingFlowDetailsComponent,
