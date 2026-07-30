@@ -157,8 +157,8 @@ task that found it, so the row can be traced.
 | REG-06 | P2 | Timezone parsing does not error for a building with an unusual timezone. | "Fix error when parsing timezones" | todo |
 | REG-07 | P2 | Level selection does not persist once the selector is hidden/disabled. | "Fix level selections persisting when selector is disabled/hidden" | todo |
 | REG-08 | P1 | An authority with a **relative** `login_url` still reaches a usable login page. | Found 2026-07-30, this suite | **blocked** — currently worked around in `seed.ts`; ts-client resolves a relative `login_url` against the authority host **without its port**, so any non-443 deployment dead-ends. Needs a ts-client/init fix before a spec can assert the good behaviour. |
-| REG-09 | P1 | Concurrent `POST /bookings` do not 500. | Found 2026-07-30, this suite | **blocked** — staff-api raises `DB::ConnectionLost` under concurrency. Observed ~1 run in 8 **locally at 4 workers**; **not yet observed in CI**, which runs 2 workers, so halving the concurrency may simply be avoiding it rather than the problem being absent. Needs a staff-api fix; do not treat the quiet CI record as evidence it is gone. |
-| REG-10 | P1 | The booking form does not discard user input while it is still initialising. | Found 2026-07-30, this suite | **blocked** — the form is rebuilt when async init completes and restores defaults (title, All Day, Require locker), silently dropping anything typed before that. A real user can hit this; they would just see their title or options revert. `bookDeskViaUI` converges on the state to work around it, which means **the suite no longer detects it** — hence this row. Needs a fix in the app, then a spec that asserts input survives. |
+| REG-09 | P1 | Concurrent `POST /bookings` do not 500. | **[PPT-2642](https://acaprojects.atlassian.net/browse/PPT-2642)** | **blocked** — staff-api raises `DB::ConnectionLost` under concurrency. Observed ~1 run in 8 **locally at 4 workers**; **not yet observed in CI**, which runs 2 workers, so halving the concurrency may simply be avoiding it rather than the problem being absent. Needs a staff-api fix; do not treat the quiet CI record as evidence it is gone. |
+| REG-10 | P1 | The booking form does not discard user input while it is still initialising. | **[PPT-2643](https://acaprojects.atlassian.net/browse/PPT-2643)** | **blocked** — the form is rebuilt when async init completes and restores defaults (title, All Day, Require locker), silently dropping anything typed before that. A real user can hit this; they would just see their title or options revert. `bookDeskViaUI` converges on the state to work around it, which means **the suite no longer detects it** — hence this row. Needs a fix in the app, then a spec that asserts input survives. |
 
 ## 4. Platform & configuration
 
@@ -180,9 +180,15 @@ Config gaps caused several production incidents, and they are invisible to UI sp
   unblocks every PlaceOS-native booking type (desks, lockers, parking, visitors) with no
   outbound call. `/calendars` and `/events` do call Microsoft and fail `AADSTS900023`, so
   WP-E2E-15 stays opt-in and out of the gate.
-- **Two rows are blocked on product fixes, not on test effort** (REG-08, REG-09). Both were
-  found by this suite. Leaving them visible here is the point — a blocked row is coverage
+- **Three rows are blocked on product fixes, not on test effort** (REG-08, REG-09, REG-10). All
+  were found by this suite. Leaving them visible here is the point — a blocked row is coverage
   information, a deleted row is not.
+- **REG-09 is worse than a flake.** Filed as PPT-2642: one burst of concurrent booking POSTs
+  permanently poisons staff-api's connection pool, so booking creation returns 500 for everyone
+  until the service restarts. Reproducer kept at `e2e/support/repro/reg09-concurrent-bookings.ts`.
+- **REG-10 is invisible to this suite by design.** `bookDeskViaUI` works around it, so nothing
+  here will catch it regressing. Filed as PPT-2643; when it is fixed, remove the workaround and
+  replace it with a spec asserting input survives initialisation.
 - **AUTH-E2E-08 may never be automatable** with Playwright Chromium. Say so rather than
   quietly dropping it.
 - The PPT-2536 harnesses (`tasks/PPT-2536/{e2e,integration}`) still hold assertions that
