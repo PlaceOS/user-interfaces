@@ -68115,15 +68115,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "fb05f62",
-  "hash": "fb05f62",
+  "raw": "bf106eb",
+  "hash": "bf106eb",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "fb05f62",
+  "suffix": "bf106eb",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1784086630017
+  "time": 1785382375783
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -105251,6 +105251,12 @@ function TimeFieldComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
+function toHourOfDay(value) {
+  if (value === null || value === void 0 || value === "")
+    return null;
+  const hour = Number(value);
+  return Number.isFinite(hour) ? hour : null;
+}
 var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
@@ -105313,6 +105319,22 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     this.range = input(
       void 0,
       ...ngDevMode ? [{ debugName: "range" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._range = computed(
+      () => {
+        const range2 = this.range();
+        if (!range2)
+          return void 0;
+        const start = toHourOfDay(range2.start);
+        const end = toHourOfDay(range2.end);
+        if (start === null || end === null || end <= start)
+          return void 0;
+        return { start, end };
+      },
+      ...ngDevMode ? [{ debugName: "_range" }] : (
         /* istanbul ignore next */
         []
       )
@@ -105548,7 +105570,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
   generateAvailableTimes(datestamp, show_past, step = 15) {
     const min_date = show_past ? this.from() : Math.max(this.from(), Date.now());
     const blocks = [];
-    const time_range = this.range();
+    const time_range = this._range();
     const tz = this.timezone() || void 0;
     const day_start = tz ? startOfDayInTimezone(datestamp, tz) : startOfDay(datestamp).valueOf();
     const day_end = tz ? endOfDayInTimezone(datestamp, tz) : endOfDay(datestamp).valueOf();
@@ -105576,7 +105598,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     if (isBefore(date, this.from())) {
       return false;
     }
-    const time_range = this.range();
+    const time_range = this._range();
     if (!time_range) {
       return true;
     }
@@ -105769,7 +105791,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
   }], null, { step: [{ type: Input, args: [{ isSignal: true, alias: "step", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], no_past_times: [{ type: Input, args: [{ isSignal: true, alias: "no_past_times", required: false }] }], use_24hr: [{ type: Input, args: [{ isSignal: true, alias: "use_24hr", required: false }] }], force_time: [{ type: Input, args: [{ isSignal: true, alias: "force_time", required: false }] }], no_error: [{ type: Input, args: [{ isSignal: true, alias: "no_error", required: false }] }], extra_info_fn: [{ type: Input, args: [{ isSignal: true, alias: "extra_info_fn", required: false }] }], from: [{ type: Input, args: [{ isSignal: true, alias: "from", required: false }] }], range: [{ type: Input, args: [{ isSignal: true, alias: "range", required: false }] }], min_duration: [{ type: Input, args: [{ isSignal: true, alias: "min_duration", required: false }] }], timezone: [{ type: Input, args: [{ isSignal: true, alias: "timezone", required: false }] }], _menu_trigger: [{ type: ViewChild, args: [forwardRef(() => MatMenuTrigger), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimeFieldComponent, { className: "TimeFieldComponent", filePath: "libs/form-fields/src/lib/time-field.component.ts", lineNumber: 159 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimeFieldComponent, { className: "TimeFieldComponent", filePath: "libs/form-fields/src/lib/time-field.component.ts", lineNumber: 166 });
 })();
 
 // node_modules/@angular/material/fesm2022/slider.mjs
