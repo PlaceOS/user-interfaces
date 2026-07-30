@@ -78,6 +78,7 @@ describe('SignageService display search', () => {
 
         const params = (querySystems as any).mock.calls.at(-1)[0];
         expect(params.q).toBe('lobby');
+        expect(params.fields).toBe('id,name,display_name,description,tags');
         expect(params.limit).toBe(200);
         expect(service.filtered_displays().map((_: any) => _.id)).toEqual([
             'lobby',

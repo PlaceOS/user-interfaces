@@ -82,6 +82,7 @@ describe('SignageService playlist search', () => {
 
         const params = (querySignagePlaylists as any).mock.calls.at(-1)[0];
         expect(params.q).toBe('news');
+        expect(params.fields).toBe('id,name,display_name,description,tags');
         expect(params.limit).toBe(200);
         expect(
             service.filtered_playlists().map((item: any) => item.id),
