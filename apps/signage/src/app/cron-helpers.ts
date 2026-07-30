@@ -113,6 +113,14 @@ function doesCronMatchDate(cron_parts: string[], date: Date) {
     return day_of_month_matches || day_of_week_matches;
 }
 
+function cronParts(cron_string: string) {
+    const parts = cron_string.trim().split(/\s+/);
+    if (parts.length !== 5) {
+        throw new Error('Invalid CRON string: Must have 5 parts.');
+    }
+    return parts;
+}
+
 /**
  * Calculates the Unix timestamp for the next signage-manager-compatible cron
  * run in the device's local timezone, but only if it occurs within a specified
@@ -129,10 +137,7 @@ export function getNextCronRunTimestampInRange(
     search_limit_in_seconds: number,
     now = Date.now(),
 ): number | null {
-    const parts = cron_string.trim().split(/\s+/);
-    if (parts.length !== 5) {
-        throw new Error('Invalid CRON string: Must have 5 parts.');
-    }
+    const parts = cronParts(cron_string);
 
     const searchLimitDate = new Date(now + search_limit_in_seconds * 1000);
     const start_time = new Date(now);
@@ -146,6 +151,41 @@ export function getNextCronRunTimestampInRange(
             return Math.floor(current_date.getTime() / 1000);
         }
         current_date.setMinutes(current_date.getMinutes() + 1);
+    }
+    return null;
+}
+
+/**
+ * Calculates the Unix timestamp for the most recent signage-manager-compatible
+ * cron run at or before `now`, in the device's local timezone, but only if it
+ * occurred within a specified time range.
+ *
+ * A schedule that fires more often than its play period is long has several
+ * runs inside the search window; the run that is currently playing is always
+ * the latest one, so the search walks backwards from `now`.
+ *
+ * @param cron_string The 5-field CRON string (e.g., "* * * * *").
+ * @param search_limit_in_seconds The maximum number of seconds before now to search for a run.
+ * @returns The Unix timestamp (in seconds) for the last run if found within the
+ *          limit, otherwise returns `null`.
+ * @throws An error if the CRON string format is invalid.
+ */
+export function getLastCronRunTimestampInRange(
+    cron_string: string,
+    search_limit_in_seconds: number,
+    now = Date.now(),
+): number | null {
+    const parts = cronParts(cron_string);
+
+    const search_limit_date = new Date(now - search_limit_in_seconds * 1000);
+    const current_date = new Date(now);
+    current_date.setSeconds(0, 0);
+
+    while (current_date >= search_limit_date) {
+        if (doesCronMatchDate(parts, current_date)) {
+            return Math.floor(current_date.getTime() / 1000);
+        }
+        current_date.setMinutes(current_date.getMinutes() - 1);
     }
     return null;
 }

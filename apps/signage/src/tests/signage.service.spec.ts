@@ -828,6 +828,46 @@ describe('SignageService', () => {
         );
     });
 
+    it('should use the most recent cron run when several fall in the play period', async () => {
+        // Fires every 6 hours and each run lasts 12 hours, so at 07:00 the
+        // 06:00 run is the active one and it should end at 18:00.
+        vi.setSystemTime(new Date('2026-01-01T07:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 */6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: true,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.override_playlist().ends_at).toBe(
+            new Date('2026-01-01T18:00:00').getTime(),
+        );
+    });
+
     it('should not retrigger completed single-pass scheduled overrides', async () => {
         const now = new Date('2026-01-01T10:00:00Z').getTime();
         vi.setSystemTime(now);

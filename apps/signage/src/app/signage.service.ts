@@ -17,7 +17,7 @@ import {
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { getNextCronRunTimestampInRange } from './cron-helpers';
+import { getLastCronRunTimestampInRange } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
 import { mockTimeState, time } from './media-helpers';
 import { MediaPlayerItem } from './types';
@@ -143,18 +143,18 @@ function scheduledPlaylistWindow(
     }
     if (schedule.play_cron?.trim()) {
         try {
-            const search_start = now - Math.max(window_seconds, 30) * 1000;
-            const next = getNextCronRunTimestampInRange(
+            // Walk backwards from now so a schedule that fires more often than
+            // its play period is long resolves to the run that is currently
+            // playing, not the oldest run still inside the search window.
+            const last = getLastCronRunTimestampInRange(
                 schedule.play_cron,
                 Math.max(window_seconds, 30),
-                search_start,
+                now,
             );
-            if (!next) return null;
-            const starts_at = next * 1000;
+            if (!last) return null;
+            const starts_at = last * 1000;
             const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-            return starts_at <= now && now <= ends_at
-                ? { starts_at, ends_at }
-                : null;
+            return now <= ends_at ? { starts_at, ends_at } : null;
         } catch {
             return null;
         }

@@ -1,4 +1,7 @@
-import { getNextCronRunTimestampInRange } from '../app/cron-helpers';
+import {
+    getLastCronRunTimestampInRange,
+    getNextCronRunTimestampInRange,
+} from '../app/cron-helpers';
 
 function localDate(
     year: number,
@@ -80,6 +83,68 @@ describe('cron helpers', () => {
     it('rejects cron strings that are not five fields', () => {
         expect(() =>
             getNextCronRunTimestampInRange(
+                '0 9 * *',
+                24 * 60 * 60,
+                localDate(2026, 3, 2, 10, 0).getTime(),
+            ),
+        ).toThrow('Invalid CRON string: Must have 5 parts.');
+    });
+
+    it('finds the last run of a daily schedule', () => {
+        const result = getLastCronRunTimestampInRange(
+            '0 6 * * *',
+            12 * 60 * 60,
+            localDate(2026, 3, 3, 7, 30).getTime(),
+        );
+
+        expectLocalDate(result, localDate(2026, 3, 3, 6, 0));
+    });
+
+    it('returns the most recent run when several fall inside the window', () => {
+        const result = getLastCronRunTimestampInRange(
+            '0 */6 * * *',
+            12 * 60 * 60,
+            localDate(2026, 3, 3, 7, 0).getTime(),
+        );
+
+        expectLocalDate(result, localDate(2026, 3, 3, 6, 0));
+    });
+
+    it('matches a run in the same minute as the search start', () => {
+        const now = localDate(2026, 3, 3, 6, 0);
+        now.setSeconds(20);
+        const result = getLastCronRunTimestampInRange(
+            '0 6 * * *',
+            30,
+            now.getTime(),
+        );
+
+        expectLocalDate(result, localDate(2026, 3, 3, 6, 0));
+    });
+
+    it('returns null when the last run predates the search window', () => {
+        const result = getLastCronRunTimestampInRange(
+            '0 6 * * *',
+            60 * 60,
+            localDate(2026, 3, 3, 8, 0).getTime(),
+        );
+
+        expect(result).toBeNull();
+    });
+
+    it('finds the last weekday run across a weekend', () => {
+        const result = getLastCronRunTimestampInRange(
+            '0 9 * * 1-5',
+            3 * 24 * 60 * 60,
+            localDate(2026, 3, 8, 10, 0).getTime(),
+        );
+
+        expectLocalDate(result, localDate(2026, 3, 6, 9, 0));
+    });
+
+    it('rejects last-run cron strings that are not five fields', () => {
+        expect(() =>
+            getLastCronRunTimestampInRange(
                 '0 9 * *',
                 24 * 60 * 60,
                 localDate(2026, 3, 2, 10, 0).getTime(),
