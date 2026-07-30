@@ -171,6 +171,156 @@ describe('SignageService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should keep polling the display while nothing is scheduled', async () => {
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': [] },
+                    playlist_config: {},
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(spectator.service.playlist()).toHaveLength(0);
+        (ts_client.showSignage as any).mockClear();
+
+        for (let i = 0; i < 3; i++) {
+            vi.advanceTimersByTime(60_000);
+            await flush();
+        }
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(3);
+    });
+
+    it('should keep polling over a long idle period', async () => {
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': [] },
+                    playlist_config: {},
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        (ts_client.showSignage as any).mockClear();
+
+        // Four hours, stepped at the schedule tick interval
+        for (let i = 0; i < 4 * 60 * 4; i++) {
+            vi.advanceTimersByTime(15_000);
+            await Promise.resolve();
+        }
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(4 * 60);
+    });
+
+    it('should keep polling after the display request fails', async () => {
+        (ts_client.showSignage as any).mockImplementation(() =>
+            Promise.reject(new Error('backend unavailable')),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        (ts_client.showSignage as any).mockClear();
+
+        for (let i = 0; i < 3; i++) {
+            vi.advanceTimersByTime(60_000);
+            await flush();
+        }
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(3);
+    });
+
+    it('should abandon a display request that never settles', async () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.display_details.display-1',
+            JSON.stringify(create_display()),
+        );
+        (ts_client.showSignage as any).mockImplementation(
+            () => new Promise(() => undefined),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect((spectator.service as any)._poll_in_flight).toBe(true);
+
+        // Past the fetch timeout, but before the next poll would be due
+        vi.advanceTimersByTime(35_000);
+        await flush();
+
+        expect((spectator.service as any)._poll_in_flight).toBe(false);
+        // The abandoned request falls back to the last known display details
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+    });
+
+    it('should keep polling after the display request never settles', async () => {
+        (ts_client.showSignage as any).mockImplementation(
+            () => new Promise(() => undefined),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        (ts_client.showSignage as any).mockClear();
+
+        for (let i = 0; i < 3; i++) {
+            vi.advanceTimersByTime(60_000);
+            await flush();
+        }
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(3);
+    });
+
+    it('should recover the display once the backend comes back', async () => {
+        (ts_client.showSignage as any).mockImplementationOnce(() =>
+            Promise.reject(new Error('backend unavailable')),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(spectator.service.playlist()).toHaveLength(0);
+
+        vi.advanceTimersByTime(60_000);
+        await flush();
+
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+    });
+
+    it('should rebuild the poll timer if it stops firing', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+        // Simulate the interval being lost without the service knowing
+        (spectator.service as any).clearInterval('poll');
+        (ts_client.showSignage as any).mockClear();
+
+        vi.advanceTimersByTime(4 * 60_000);
+        await flush();
+        (ts_client.showSignage as any).mockClear();
+        vi.advanceTimersByTime(60_000);
+        await flush();
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(1);
+    });
+
+    it('should only ask for a preview when debug is enabled', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            {},
+        );
+
+        spectator.service.debug.set(true);
+        vi.advanceTimersByTime(60_000);
+        await flush();
+
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith('display-1', {
+            preview: true,
+        });
+    });
+
     it('should not reload the display when the payload is unchanged', async () => {
         const display = create_display();
         (ts_client.showSignage as any).mockImplementation(() =>

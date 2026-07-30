@@ -86,6 +86,12 @@ const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
 const MEDIA_CACHE_LOOK_AHEAD_SECONDS = 24 * 60 * 60;
 /** Minimum delay between recovery downloads of a single missing media file */
 const MEDIA_RECOVERY_INTERVAL_MS = 15 * SECONDS;
+/** How often the display details are re-fetched from the backend */
+const POLL_INTERVAL_MS = 1 * MINUTES;
+/** Longest a single display fetch may run before it is abandoned */
+const DISPLAY_FETCH_TIMEOUT_MS = 30 * SECONDS;
+/** How long without a poll attempt before the poll timer is rebuilt */
+const POLL_WATCHDOG_MS = 3 * MINUTES;
 const log = scoped_log('Signage');
 
 function signageDisplayIDFromURL(url = '') {
@@ -277,6 +283,12 @@ export class SignageService extends AsyncHandler {
     private _media_signature = '';
     /** Whether a media cache sync is currently running */
     private _media_sync_in_flight = false;
+    /** Whether a display poll is currently running */
+    private _poll_in_flight = false;
+    /** Wall-clock time the last poll attempt started */
+    private _last_poll_attempt = 0;
+    /** Wall-clock time the last poll completed without throwing */
+    private _last_poll_success = 0;
     /** Wall-clock time of the last recovery download, keyed by media URL */
     private _media_recovery = new Map<string, number>();
     private _playlists: SignagePlaylist[] = [];
@@ -348,7 +360,7 @@ export class SignageService extends AsyncHandler {
 
     public setDisplay(system_id: string) {
         this._display.set(system_id);
-        this._reloadDisplay();
+        this._poll();
         // Re-arm the schedule timer so its cadence reflects the current debug
         // time speed (fast-forwarding shortens the re-evaluation interval).
         this._scheduleTick();
@@ -356,9 +368,76 @@ export class SignageService extends AsyncHandler {
 
     constructor() {
         super();
-        this.interval('poll', () => this._reloadDisplay(), 1 * MINUTES);
+        this._last_poll_attempt = Date.now();
+        this._startPolling();
         this.interval('metrics', () => this._postMetrics(), 10 * MINUTES);
         this._scheduleTick();
+    }
+
+    private _startPolling() {
+        this.interval('poll', () => this._poll(), POLL_INTERVAL_MS);
+    }
+
+    /**
+     * Runs one poll of the display details. Nothing here is allowed to stop
+     * future polls: errors are logged rather than thrown, a single attempt is
+     * bounded by the fetch timeout, and an attempt that somehow outlives that
+     * is abandoned instead of blocking the slot forever.
+     */
+    private async _poll() {
+        const now = Date.now();
+        if (this._poll_in_flight) {
+            if (now - this._last_poll_attempt < DISPLAY_FETCH_TIMEOUT_MS * 2) {
+                return;
+            }
+            log.warn('Previous display poll never finished. Starting another.');
+        }
+        this._poll_in_flight = true;
+        this._last_poll_attempt = now;
+        try {
+            await this._reloadDisplay();
+            this._last_poll_success = Date.now();
+        } catch (e) {
+            log.error('Display poll failed.', e);
+        } finally {
+            this._poll_in_flight = false;
+        }
+    }
+
+    /**
+     * Rebuilds the poll timer if it has stopped firing. Runs from the schedule
+     * tick, which is a separate timer chain, so the two cannot fail together.
+     */
+    private _checkPollHealth() {
+        if (!this._display()) return;
+        if (Date.now() - this._last_poll_attempt < POLL_WATCHDOG_MS) return;
+        log.error('Display polling has stopped. Restarting it.', {
+            last_attempt: this._last_poll_attempt,
+            last_success: this._last_poll_success,
+        });
+        this._poll_in_flight = false;
+        this._startPolling();
+        this._poll();
+    }
+
+    /** Rejects if `promise` has not settled within `timeout_ms` */
+    private _withTimeout<T>(promise: Promise<T>, timeout_ms: number) {
+        return new Promise<T>((resolve, reject) => {
+            const timer = setTimeout(
+                () => reject(new Error('Display request timed out')),
+                timeout_ms,
+            );
+            promise.then(
+                (value) => {
+                    clearTimeout(timer);
+                    resolve(value);
+                },
+                (error) => {
+                    clearTimeout(timer);
+                    reject(error);
+                },
+            );
+        });
     }
 
     /** Re-fetch the active display details and refresh derived player state. */
@@ -383,14 +462,24 @@ export class SignageService extends AsyncHandler {
     }
 
     private async _fetchDisplay(id: string) {
-        let d: any = await showSignage(
-            id,
-            cleanObject({ preview: this.debug(), item_id: this.playing_id() }, [
-                undefined,
-                null,
-                '',
-            ]),
-        ).catch((_) => null);
+        // A request that never settles would otherwise leave the poll waiting
+        // forever, so it is abandoned and retried on the next interval.
+        let d: any = await this._withTimeout(
+            showSignage(
+                id,
+                cleanObject(
+                    {
+                        preview: this.debug() || undefined,
+                        item_id: this.playing_id(),
+                    },
+                    [undefined, null, ''],
+                ),
+            ),
+            DISPLAY_FETCH_TIMEOUT_MS,
+        ).catch((e) => {
+            log.warn('Failed to fetch display details.', e);
+            return null;
+        });
         if (!d) {
             const display_key = displayCacheKey(id);
             d = JSON.parse(
@@ -436,6 +525,7 @@ export class SignageService extends AsyncHandler {
             'schedule_tick',
             () => {
                 try {
+                    this._checkPollHealth();
                     this._tick.update((_) => _ + 1);
                     const display = this._display_data();
                     if (display) {
