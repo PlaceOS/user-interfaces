@@ -54090,15 +54090,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "7825b76",
-  "hash": "7825b76",
+  "raw": "5581e40",
+  "hash": "5581e40",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7825b76",
+  "suffix": "5581e40",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785305474082
+  "time": 1785386024830
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -98651,6 +98651,7 @@ var MAX_URL_WAIT_IDLE = 3 * 1e3;
 var URL_FETCH_TIMEOUT = 30 * 1e3;
 var MIN_FAILED_MEDIA_WAIT = 1e3;
 var INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1e3;
+var WEBPAGE_REVEAL_DELAY = 3 * 1e3;
 var PLUGIN_LOAD_TIMEOUT = 15 * 1e3;
 var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   constructor() {
@@ -99175,7 +99176,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       this._web_waiting_item_id = "";
       this._resetPlayback();
       this._finishDeferredReveal(item, 0);
-    }, 2e3);
+    }, WEBPAGE_REVEAL_DELAY);
   }
   _updateProgress(item = this.active_item, now = time()) {
     const playback_duration = this._effectivePlaybackDuration(item);
@@ -100191,7 +100192,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], stateChange: [{ type: Output, args: ["stateChange"] }], indexChange: [{ type: Output, args: ["indexChange"] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 233 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 235 });
 })();
 
 // apps/signage/src/app/cron-helpers.ts
