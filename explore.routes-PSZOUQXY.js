@@ -42,7 +42,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-EBIBC2NL.js";
+} from "./chunk-U6JAJOCZ.js";
 import {
   FormField,
   MatCheckbox,
@@ -53,7 +53,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-Y57PAS53.js";
+} from "./chunk-GBLYC4WI.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -307,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-PXLNDWGU.js";
+} from "./chunk-DMBIGKNC.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2599,6 +2599,12 @@ function TimeFieldComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275elementEnd();
   }
 }
+function toHourOfDay(value) {
+  if (value === null || value === void 0 || value === "")
+    return null;
+  const hour = Number(value);
+  return Number.isFinite(hour) ? hour : null;
+}
 var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
@@ -2661,6 +2667,22 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     this.range = input(
       void 0,
       ...ngDevMode ? [{ debugName: "range" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._range = computed(
+      () => {
+        const range = this.range();
+        if (!range)
+          return void 0;
+        const start = toHourOfDay(range.start);
+        const end = toHourOfDay(range.end);
+        if (start === null || end === null || end <= start)
+          return void 0;
+        return { start, end };
+      },
+      ...ngDevMode ? [{ debugName: "_range" }] : (
         /* istanbul ignore next */
         []
       )
@@ -2896,7 +2918,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
   generateAvailableTimes(datestamp, show_past, step = 15) {
     const min_date = show_past ? this.from() : Math.max(this.from(), Date.now());
     const blocks = [];
-    const time_range = this.range();
+    const time_range = this._range();
     const tz = this.timezone() || void 0;
     const day_start = tz ? startOfDayInTimezone(datestamp, tz) : startOfDay(datestamp).valueOf();
     const day_end = tz ? endOfDayInTimezone(datestamp, tz) : endOfDay(datestamp).valueOf();
@@ -2924,7 +2946,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
     if (isBefore(date, this.from())) {
       return false;
     }
-    const time_range = this.range();
+    const time_range = this._range();
     if (!time_range) {
       return true;
     }
@@ -3120,7 +3142,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
   }], null, { step: [{ type: Input, args: [{ isSignal: true, alias: "step", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], no_past_times: [{ type: Input, args: [{ isSignal: true, alias: "no_past_times", required: false }] }], use_24hr: [{ type: Input, args: [{ isSignal: true, alias: "use_24hr", required: false }] }], force_time: [{ type: Input, args: [{ isSignal: true, alias: "force_time", required: false }] }], no_error: [{ type: Input, args: [{ isSignal: true, alias: "no_error", required: false }] }], extra_info_fn: [{ type: Input, args: [{ isSignal: true, alias: "extra_info_fn", required: false }] }], from: [{ type: Input, args: [{ isSignal: true, alias: "from", required: false }] }], range: [{ type: Input, args: [{ isSignal: true, alias: "range", required: false }] }], min_duration: [{ type: Input, args: [{ isSignal: true, alias: "min_duration", required: false }] }], timezone: [{ type: Input, args: [{ isSignal: true, alias: "timezone", required: false }] }], _menu_trigger: [{ type: ViewChild, args: [forwardRef(() => MatMenuTrigger), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimeFieldComponent, { className: "TimeFieldComponent", filePath: "libs/form-fields/src/lib/time-field.component.ts", lineNumber: 162 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimeFieldComponent, { className: "TimeFieldComponent", filePath: "libs/form-fields/src/lib/time-field.component.ts", lineNumber: 169 });
 })();
 
 // libs/events/src/lib/events.fn.ts
@@ -4546,6 +4568,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form = this._form_ref.form;
     this._model = this._form_ref.model;
     this._initial_attendees = [];
+    this._initial_event_details = "";
     this._space_pipe = new SpacePipe();
     this.notify_new_attendees_only = signal(
       false,
@@ -4556,10 +4579,11 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     );
     this.can_notify_new_attendees_only = computed(
       () => {
-        if (!this._model().id)
+        const model2 = this._model();
+        if (!model2.id)
           return false;
-        const attendee_emails = this._model().attendees.map((_) => (_.email || _).toLowerCase());
-        return attendee_emails.some((_) => !this._initial_attendees.includes(_));
+        const attendee_emails = model2.attendees.map((_) => (_.email || _).toLowerCase());
+        return this._initial_attendees.every((_) => attendee_emails.includes(_)) && attendee_emails.some((_) => !this._initial_attendees.includes(_)) && this._eventDetails(model2) === this._initial_event_details;
       },
       ...ngDevMode ? [{ debugName: "can_notify_new_attendees_only" }] : (
         /* istanbul ignore next */
@@ -4906,7 +4930,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const value = eventFormValue(event);
     this.notify_new_attendees_only.set(false);
     value.assets = (event.extension_data.assets || []).map((_) => new AssetRequest(__spreadProps(__spreadValues({}, _), { event })));
-    this._setInitialAttendees(value.attendees);
+    this._setInitialEvent(value);
     this._model.set(value);
     this._form().reset();
     this._applyDurationSettings();
@@ -4938,10 +4962,12 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const event_data = JSON.parse(sessionStorage.getItem("PLACEOS.event") || "{}");
     const event = new CalendarEvent(event_data);
     this._event.set(event);
-    this._setInitialAttendees(event.attendees);
+    const initial_value = eventFormValue(event);
+    initial_value.assets = (event.extension_data.assets || []).map((_) => new AssetRequest(__spreadProps(__spreadValues({}, _), { event })));
+    this._setInitialEvent(initial_value);
     this.notify_new_attendees_only.set(false);
     const form_data = JSON.parse(sessionStorage.getItem("PLACEOS.event_form") || "{}");
-    this._model.update((m) => __spreadValues(__spreadValues(__spreadValues({}, m), eventFormValue(event)), form_data));
+    this._model.update((m) => __spreadValues(__spreadValues(__spreadValues({}, m), initial_value), form_data));
   }
   clearForm() {
     sessionStorage.removeItem("PLACEOS.event");
@@ -5270,8 +5296,12 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       status: this._settings.get("app.bookings.no_approval") === true ? "approved" : "tentative"
     }))).then((_) => newCalendarEventFromBooking(_)) : saveEvent(event, query);
   }
-  _setInitialAttendees(attendees) {
-    this._initial_attendees = attendees.map((_) => (_.email || _).toLowerCase());
+  _setInitialEvent(value) {
+    this._initial_attendees = value.attendees.map((_) => (_.email || _).toLowerCase());
+    this._initial_event_details = this._eventDetails(value);
+  }
+  _eventDetails(value) {
+    return JSON.stringify(Object.entries(value).filter(([key]) => key !== "attendees" && key !== "system"));
   }
   async _removeBookingAfterError(is_new, event, assets = false, e) {
     if (is_new) {
@@ -11905,4 +11935,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-73KSZZHB.js.map
+//# sourceMappingURL=explore.routes-PSZOUQXY.js.map

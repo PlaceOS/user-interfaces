@@ -12,7 +12,7 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-EBIBC2NL.js";
+} from "./chunk-U6JAJOCZ.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -24,10 +24,10 @@ import {
   MatSelectModule,
   MatSelectTrigger,
   SanitizePipe
-} from "./chunk-Y57PAS53.js";
+} from "./chunk-GBLYC4WI.js";
 import {
   CheckinStateService
-} from "./chunk-ZRCYYAQC.js";
+} from "./chunk-SLI6FQEB.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -178,6 +178,7 @@ import {
   startOfDay,
   startOfMinute,
   style,
+  subDays,
   timePeriodsIntersect,
   unique,
   untracked,
@@ -241,7 +242,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-PXLNDWGU.js";
+} from "./chunk-DMBIGKNC.js";
 import {
   __export,
   __objRest,
@@ -252,11 +253,6 @@ import {
 // node_modules/date-fns/addSeconds.js
 function addSeconds(date, amount, options2) {
   return addMilliseconds(date, amount * 1e3, options2);
-}
-
-// node_modules/date-fns/subDays.js
-function subDays(date, amount, options2) {
-  return addDays(date, -amount, options2);
 }
 
 // node_modules/date-fns/subMonths.js
@@ -21563,17 +21559,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-73KSZZHB.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-PSZOUQXY.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-J3IRK5VX.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-ZRIVDTBT.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-BFZVYHFJ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-M52BDQIZ.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
