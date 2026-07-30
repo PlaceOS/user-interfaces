@@ -5,10 +5,20 @@ Harness, conventions and gotchas live in [`e2e/README.md`](e2e/README.md).
 
 ## CI status: advisory, deliberately
 
-`.github/workflows/e2e-advisory.yml` runs the suite on PRs into `develop`, nightly, and
-on demand. **It must not gate merges yet**, and nothing in the workflow file can make it
-do so — required status checks are a repository setting, so keeping this advisory is an
-explicit human decision rather than a default.
+`.github/workflows/e2e-advisory.yml` runs the suite nightly, on demand, and on pushes to
+`e2e/**`, on a **self-hosted macOS runner** (see
+[`e2e/stack/SELF_HOSTED_RUNNER.md`](e2e/stack/SELF_HOSTED_RUNNER.md)).
+**It must not gate merges yet**, and nothing in the workflow file can make it do so —
+required status checks are a repository setting, so keeping this advisory is an explicit
+human decision rather than a default.
+
+There is deliberately **no `pull_request` trigger**: this repo is public and the runner is
+self-hosted, so a fork PR could execute arbitrary code on a machine on an internal
+network. Every remaining trigger requires write access to this repo. Do not add it back
+without moving the job to `ubuntu-latest` or making the repo private.
+
+Note also that GitHub only runs `schedule` triggers from the **default branch**, so the
+nightly track record does not begin until this workflow is merged to `develop`.
 
 That is on purpose. Before this suite is allowed to block anyone it needs a track record:
 no false positives, specs reviewed by humans, and a known flake rate. The nightly run

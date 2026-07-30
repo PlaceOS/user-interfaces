@@ -214,13 +214,18 @@ container logs.
 required status checks until the suite has a track record. See the CI section of
 [`../E2E_USER_STORIES.md`](../E2E_USER_STORIES.md) for the bar it needs to clear first.
 
+It runs on a **self-hosted macOS runner** (label `placeos-e2e`). Setup, the network
+requirements, and the macOS-specific gotchas are in
+[`stack/SELF_HOSTED_RUNNER.md`](stack/SELF_HOSTED_RUNNER.md).
+
 CI-specific choices worth knowing:
 
 | | |
 |---|---|
-| `E2E_WORKERS: 2` | Lower than the local default of 4. A runner has 4 cores and is also hosting ~10 containers, a dev server and browsers. Less contention means fewer failures that are about the runner rather than the code — avoiding false positives matters more than run time here. |
-| `sudo sysctl -w vm.max_map_count=262144` | Elasticsearch will not start on a runner's default (65530). Docker Desktop's VM is already above it, which is why this is CI-only. |
-| `bunx playwright install --with-deps chromium` | The workspace's pinned Playwright needs its browser and system libs. |
+| `E2E_WORKERS: 2` | Lower than the local default of 4. The runner is also hosting ~10 containers, a dev server and browsers. Less contention means fewer failures that are about the machine rather than the code — avoiding false positives matters more than run time here. |
+| No `pull_request` trigger | This repo is public and the runner is self-hosted, so a fork PR could run arbitrary code on an internal machine. Triggers are limited to ones requiring write access. Do not add it back without moving to `ubuntu-latest`. |
+| Reclaim step | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held. |
+| No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS (the value lives in Docker Desktop's VM). Restore it if reverting to `ubuntu-latest`. |
 | Network access to GitHub | `up.sh` clones `PlaceOS/www-core` into the `www` volume once — that is where the platform `/login` page comes from. |
 
 ## Booking specs: what the backend actually does

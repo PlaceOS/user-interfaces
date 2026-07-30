@@ -19,21 +19,27 @@ name: 'E2E (advisory)'
 # POST /bookings. Playwright's retries absorb it and mark the spec `flaky` — a
 # flaky-but-passing run is reported in the summary rather than hidden.
 
+# NOTE: there is deliberately NO `pull_request` trigger.
+#
+# This repository is PUBLIC and this job runs on a SELF-HOSTED runner. A
+# `pull_request` trigger would let anyone's fork execute arbitrary code on that
+# machine — which sits on an internal network — so the only triggers here are ones
+# that require write access to this repo: a schedule, a manual dispatch, and pushes
+# to branches that live here. Do not add `pull_request` back without moving the job
+# to a GitHub-hosted runner (`runs-on: ubuntu-latest`) or making the repo private.
 on:
     workflow_dispatch:
     # Lets this workflow be exercised on its own branch before it lives on
-    # `develop` (where `workflow_dispatch` first becomes available). The prefix is
-    # deliberately outside the `feat/*`, `fix/*`, `custom/*`, `refactor/*` set that
-    # PR Flow watches, so iterating on CI here never triggers a build or a
-    # `build/<branch>/<app>` deploy.
+    # `develop`. The prefix is deliberately outside the `feat/*`, `fix/*`,
+    # `custom/*`, `refactor/*` set that PR Flow watches, so iterating on CI here
+    # never triggers a build or a `build/<branch>/<app>` deploy.
     push:
         branches: ['e2e/**']
     schedule:
-        # 15:10 UTC daily — off-peak for AU-hours contributors, so a nightly
-        # failure is waiting to be read rather than interrupting anyone.
-        - cron: '10 15 * * *'
-    pull_request:
-        branches: [develop]
+        # 01:10 UTC daily. NB scheduled workflows only run from the DEFAULT branch,
+        # so the nightly track record does not start accumulating until this file is
+        # merged to `develop`.
+        - cron: '10 1 * * *'
 
 concurrency:
     group: e2e-${{ github.ref }}
@@ -42,7 +48,11 @@ concurrency:
 jobs:
     workplace:
         name: 'workplace e2e (local stack)'
-        runs-on: ubuntu-latest
+        # Self-hosted macOS runner, targeted by its custom label rather than by
+        # `macOS`/arch labels so the machine can be swapped without editing this.
+        # To fall back to GitHub-hosted, set `runs-on: ubuntu-latest` and restore
+        # the `Raise vm.max_map_count` step (see below).
+        runs-on: [self-hosted, placeos-e2e]
         timeout-minutes: 45
         env:
             E2E_BACKEND_URL: https://localhost:9443
@@ -86,11 +96,24 @@ jobs:
             - name: Setup version
               run: bun run postinstall
 
-            # Elasticsearch refuses to start with the runner's default
-            # vm.max_map_count (65530). Docker Desktop's VM is already above the
-            # threshold, which is why this is only needed in CI.
-            - name: Raise vm.max_map_count for Elasticsearch
-              run: sudo sysctl -w vm.max_map_count=262144
+            # A self-hosted machine is NOT a fresh VM. A previous aborted run can
+            # leave the stack up or the dev-server port held, and the failure that
+            # causes ("port already in use", or specs hitting a half-torn-down
+            # stack) looks nothing like its cause. Reclaim both before starting.
+            - name: Reclaim the machine from any previous run
+              run: |
+                  e2e/stack/down.sh --volumes || true
+                  # Playwright refuses to start its webServer if 4214 is held.
+                  lsof -nP -iTCP:4214 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
+                  docker system df || true
+
+            # NOTE: no `sysctl -w vm.max_map_count=262144` here.
+            #
+            # It is required on a GitHub-hosted Linux runner (default 65530 is below
+            # Elasticsearch's threshold) but is meaningless on macOS: the value lives
+            # inside Docker Desktop's VM, not the host, and Docker Desktop already
+            # sets it high enough. Restore that step if this job moves back to
+            # ubuntu-latest.
 
             - name: Install Playwright browser
               run: bunx playwright install --with-deps chromium
