@@ -18,7 +18,7 @@ import { MINUTES, scoped_log, SECONDS } from '@placeos/common';
  * recovering from - a promise that never settles, a timer chain that quietly
  * stopped - raise no error at all, which is exactly the case this exists for.
  */
-export type WatchdogSignal = 'poll' | 'schedule' | 'playback';
+export type WatchdogSignal = 'poll' | 'schedule' | 'playback' | 'visible';
 
 /** How long a signal may go without checking in before it counts as stalled */
 const STALE_AFTER_MS: Record<WatchdogSignal, number> = {
@@ -28,7 +28,16 @@ const STALE_AFTER_MS: Record<WatchdogSignal, number> = {
     schedule: 5 * MINUTES,
     // Runs every 50ms
     playback: 3 * MINUTES,
+    // Checked every second while content is on screen
+    visible: 5 * MINUTES,
 };
+/**
+ * How long after starting the player has to reach a visible, playing state.
+ * Nothing before this point is covered by the stall signals - they only report
+ * once they have checked in at least once - so a boot that never completes
+ * needs its own deadline.
+ */
+const BOOT_TIMEOUT_MS = 5 * MINUTES;
 /** How long the machinery must stay stalled before a reload is attempted */
 const RECOVERY_GRACE_MS = 5 * MINUTES;
 /** How often the watchdog looks */
@@ -62,11 +71,13 @@ const heartbeats: Record<WatchdogSignal, number> = {
     poll: 0,
     schedule: 0,
     playback: 0,
+    visible: 0,
 };
 let _last_error: { at: number; message: string } | null = null;
 let _error_count = 0;
 let _stalled_since = 0;
 let _last_check = 0;
+let _started_at = 0;
 let _timer: ReturnType<typeof setInterval> | undefined;
 let _listening = false;
 let _recovering = false;
@@ -188,7 +199,11 @@ async function clearCachesAndReload(): Promise<boolean> {
     return true;
 }
 
-function check(reload: () => void, hardReload: () => Promise<boolean>) {
+function check(
+    reload: () => void,
+    hardReload: () => Promise<boolean>,
+    expected_to_run: () => boolean,
+) {
     const now = Date.now();
     const since_last_check = _last_check ? now - _last_check : 0;
     _last_check = now;
@@ -203,6 +218,15 @@ function check(reload: () => void, hardReload: () => Promise<boolean>) {
     }
     // A recovery has been asked for; the page is on its way out
     if (_recovering) return;
+    // Boot never completed. Nothing has ever been on screen, so none of the
+    // stall signals apply - this is the only thing watching startup.
+    if (!heartbeats.visible && expected_to_run()) {
+        if (now - _started_at < BOOT_TIMEOUT_MS) return;
+        // A boot that never completes is most often a bad cached build,
+        // especially straight after an update, so skip the plain reloads.
+        recover(now, ['boot'], true, reload, hardReload);
+        return;
+    }
     const stalled = stalledSignals(now);
     if (!stalled.length) {
         _stalled_since = 0;
@@ -214,39 +238,64 @@ function check(reload: () => void, hardReload: () => Promise<boolean>) {
         return;
     }
     if (now - _stalled_since < RECOVERY_GRACE_MS) return;
+    if (!recover(now, stalled, false, reload, hardReload)) _stalled_since = now;
+}
+
+/**
+ * Reload to recover, if one is due. `prefer_hard` skips straight to clearing
+ * the application cache; otherwise that only happens once plain reloads have
+ * been tried and throttled.
+ */
+function recover(
+    now: number,
+    reasons: string[],
+    prefer_hard: boolean,
+    reload: () => void,
+    hardReload: () => Promise<boolean>,
+) {
     const throttled = recoveryHistory(now).throttled;
     if (!claimRecovery(now)) {
-        log.error('Stalled, but a recovery is not due yet.', {
-            stalled,
+        log.error('Recovery needed, but not due yet.', {
+            reasons,
             last_error: _last_error,
         });
-        _stalled_since = now;
-        return;
+        return false;
     }
-    log.error('Reloading to recover from a stall.', {
-        stalled,
+    log.error('Reloading to recover.', {
+        reasons,
         throttled,
+        clearing_cache: prefer_hard || throttled,
         last_error: _last_error,
     });
     _recovering = true;
-    // Plain reloads have already been tried without success, so clear the
-    // application cache too - but only if the server can actually serve a
-    // replacement. Otherwise fall back to a plain reload.
-    if (!throttled) return reload();
+    // Only clear the application cache when the server can serve a
+    // replacement; `hardReload` checks that and reports back.
+    if (!prefer_hard && !throttled) {
+        reload();
+        return true;
+    }
     hardReload().then((cleared) => {
         if (!cleared) reload();
     });
+    return true;
 }
 
 export interface WatchdogActions {
     reload?: () => void;
     hardReload?: () => Promise<boolean>;
+    /**
+     * Whether this device is supposed to be showing content. A player that has
+     * never been bootstrapped is legitimately waiting for someone to pick a
+     * display, and must not be reloaded for never starting.
+     */
+    isExpectedToRun?: () => boolean;
 }
 
 /** Start watching. Returns a callback that stops it again. */
 export function startWatchdog(actions: WatchdogActions = {}) {
     const reload = actions.reload || (() => location.reload());
     const hardReload = actions.hardReload || clearCachesAndReload;
+    const expectedToRun = actions.isExpectedToRun || (() => false);
     stopWatchdog();
     if (!_listening) {
         _listening = true;
@@ -254,7 +303,11 @@ export function startWatchdog(actions: WatchdogActions = {}) {
         window.addEventListener('unhandledrejection', onRejection);
     }
     _last_check = Date.now();
-    _timer = setInterval(() => check(reload, hardReload), CHECK_INTERVAL_MS);
+    _started_at = Date.now();
+    _timer = setInterval(
+        () => check(reload, hardReload, expectedToRun),
+        CHECK_INTERVAL_MS,
+    );
     return () => stopWatchdog();
 }
 
@@ -274,10 +327,12 @@ export function resetWatchdog() {
     heartbeats.poll = 0;
     heartbeats.schedule = 0;
     heartbeats.playback = 0;
+    heartbeats.visible = 0;
     _last_error = null;
     _error_count = 0;
     _stalled_since = 0;
     _last_check = 0;
+    _started_at = 0;
     _recovering = false;
 }
 
@@ -299,10 +354,13 @@ export function watchdogState() {
         ).length,
         recoveries_throttled: history.throttled,
         last_recovery: asTime(history.at[history.at.length - 1] || 0),
+        started_at: asTime(_started_at),
+        booted: !!heartbeats.visible,
         heartbeats: {
             poll: asTime(heartbeats.poll),
             schedule: asTime(heartbeats.schedule),
             playback: asTime(heartbeats.playback),
+            visible: asTime(heartbeats.visible),
         },
     };
 }

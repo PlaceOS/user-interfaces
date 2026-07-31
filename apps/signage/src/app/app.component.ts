@@ -13,6 +13,8 @@ import {
 import { mocksInit } from '@placeos/mocks';
 
 import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
+import { hasBootstrappedDisplay } from './bootstrap-state';
+import { startWatchdog } from './watchdog';
 
 @Component({
     selector: 'app-root',
@@ -48,6 +50,11 @@ export class AppComponent implements OnInit {
     private _org = inject(OrganisationService);
 
     public ngOnInit(): void {
+        // Started before anything else so it covers startup itself. The route
+        // guard, organisation data and settings all sit between here and the
+        // player, and a failure in any of them used to leave a screen with
+        // nothing watching it.
+        startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
         setMocks(mocksInit);
         this._placeos.init();
     }
