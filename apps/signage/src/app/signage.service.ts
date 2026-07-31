@@ -92,6 +92,10 @@ const POLL_INTERVAL_MS = 1 * MINUTES;
 const DISPLAY_FETCH_TIMEOUT_MS = 30 * SECONDS;
 /** How long without a poll attempt before the poll timer is rebuilt */
 const POLL_WATCHDOG_MS = 3 * MINUTES;
+/** First delay before retrying a media cache sync that had failures */
+const CACHE_RETRY_BASE_MS = 15 * SECONDS;
+/** Ceiling for the media cache retry backoff */
+const CACHE_RETRY_MAX_MS = 5 * MINUTES;
 const log = scoped_log('Signage');
 
 /** Render a timestamp for diagnostics output; 0 reads as never */
@@ -305,6 +309,8 @@ export class SignageService extends AsyncHandler {
     private _media_signature = '';
     /** Whether a media cache sync is currently running */
     private _media_sync_in_flight = false;
+    /** Consecutive media cache syncs that reported download failures */
+    private _cache_retry_attempt = 0;
     /** Whether a display poll is currently running */
     private _poll_in_flight = false;
     /** Wall-clock time the last poll attempt started */
@@ -623,7 +629,11 @@ export class SignageService extends AsyncHandler {
             },
             active_media: this.playlist().map(mediaSummary),
             upcoming_schedules: this._upcomingSchedules(display),
-            media_cache: this._media_cache.cacheState(this._display()),
+            media_cache: {
+                ...this._media_cache.cacheState(this._display()),
+                sync_in_flight: this._media_sync_in_flight,
+                failed_sync_attempts: this._cache_retry_attempt,
+            },
             media_signature: this._media_signature,
         };
     }
@@ -808,14 +818,24 @@ export class SignageService extends AsyncHandler {
             for (const item of extra_media) {
                 this._media_cache.invalidateFile(item, cache_owner);
             }
-            // Retry caching after a delay so a transient failure can recover
-            // without hammering the network.
+            // Retry after a delay so a transient failure can recover, backing
+            // off as failures continue. Without this an offline player retried
+            // every download every fifteen seconds for as long as it was
+            // offline, which is the one situation where none of them can work.
             if (has_failures) {
+                this._cache_retry_attempt++;
+                const delay = Math.min(
+                    CACHE_RETRY_BASE_MS * 2 ** (this._cache_retry_attempt - 1),
+                    CACHE_RETRY_MAX_MS,
+                );
+                log.debug(`Retrying media cache in ${delay}ms.`);
                 this.timeout(
                     'retry_cache',
                     () => this._syncMediaCache(this._display_data()),
-                    15 * SECONDS,
+                    delay,
                 );
+            } else {
+                this._cache_retry_attempt = 0;
             }
         } finally {
             this._media_sync_in_flight = false;

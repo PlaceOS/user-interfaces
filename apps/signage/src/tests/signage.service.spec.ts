@@ -291,6 +291,43 @@ describe('SignageService', () => {
         expect(parse).toHaveBeenCalled();
     });
 
+    it('should back off media cache retries while downloads keep failing', async () => {
+        media_cache.requestFilesToCache.mockResolvedValue(true);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const service = spectator.service as any;
+        service._cache_retry_attempt = 0;
+        const timeout = vi.spyOn(service, 'timeout');
+        const delays: number[] = [];
+
+        for (let i = 0; i < 6; i++) {
+            timeout.mockClear();
+            await service._syncMediaCache(spectator.service.display());
+            const call = timeout.mock.calls
+                .filter(([name]) => name === 'retry_cache')
+                .pop();
+            delays.push(call?.[2] as number);
+        }
+
+        expect(delays).toEqual([
+            15_000, 30_000, 60_000, 120_000, 240_000, 300_000,
+        ]);
+    });
+
+    it('should reset the media cache backoff once downloads succeed', async () => {
+        media_cache.requestFilesToCache.mockResolvedValue(true);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect((spectator.service as any)._cache_retry_attempt).toBe(1);
+
+        media_cache.requestFilesToCache.mockResolvedValue(false);
+        await (spectator.service as any)._syncMediaCache(
+            spectator.service.display(),
+        );
+
+        expect((spectator.service as any)._cache_retry_attempt).toBe(0);
+    });
+
     it('should create the service', () => {
         expect(spectator.service).toBeTruthy();
     });
