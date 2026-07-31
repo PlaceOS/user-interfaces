@@ -2011,10 +2011,14 @@ export class BookingFormService extends AsyncHandler {
     }
 
     private mapGroupMembers(type: BookingType, members: User[] = []) {
-        const user_list =
+        // Dedupe visitors too — a duplicated email produces two group members
+        // that the visitor list can't tell apart. (PPT-2634)
+        const user_list = unique(
             type === 'visitor'
-                ? members
-                : unique([currentUser(), ...(members || [])], 'email');
+                ? members || []
+                : [currentUser(), ...(members || [])],
+            'email',
+        );
         return user_list
             .filter((member) => !!member?.email)
             .map((member) => ({

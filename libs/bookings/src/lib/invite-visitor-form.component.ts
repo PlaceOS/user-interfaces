@@ -30,6 +30,7 @@ import {
     notifySuccess,
     onFieldChange,
     SettingsService,
+    unique,
     User,
 } from '@placeos/common';
 
@@ -342,7 +343,7 @@ import { bookingHostUser } from './booking.utilities';
                                         >
                                             @for (
                                                 item of model().assets;
-                                                track item.id || item.email
+                                                track $index
                                             ) {
                                                 <mat-checkbox
                                                     [ngModel]="
@@ -594,6 +595,9 @@ export class InviteVisitorFormComponent {
     private _org = inject(OrganisationService);
     private _injector = inject(Injector);
     private _existing_siblings: Booking[] = [];
+    /** Last visitor list this component wrote into `assets` from booking data.
+     * Used to tell our own writes apart from the user's edits. */
+    private _loaded_visitors: User[] = null;
 
     public readonly date = input<number>(undefined);
     public readonly done = output<void>();
@@ -1007,11 +1011,7 @@ export class InviteVisitorFormComponent {
                     booking_ref?.extension_data?.group_members || [],
                 );
                 if (extension_visitors.length) {
-                    this.model.update((m) => ({
-                        ...m,
-                        assets: extension_visitors,
-                    }));
-                    this.syncVisitorInternational(extension_visitors);
+                    this._setLoadedVisitors(extension_visitors);
                 }
                 this._loadSiblingVisitors(
                     booking_ref?.id
@@ -1022,18 +1022,15 @@ export class InviteVisitorFormComponent {
             if (!this.model().assets?.length) {
                 const attendees = this.model().attendees || [];
                 if (attendees.length) {
-                    this.model.update((m) => ({ ...m, assets: attendees }));
+                    this._setLoadedVisitors(attendees);
                 } else if (this.model().asset_id) {
-                    this.model.update((m) => ({
-                        ...m,
-                        assets: [
-                            new User({
-                                name: m.asset_name,
-                                email: m.asset_id,
-                                organisation: m.company,
-                            }),
-                        ],
-                    }));
+                    this._setLoadedVisitors([
+                        new User({
+                            name: this.model().asset_name,
+                            email: this.model().asset_id,
+                            organisation: this.model().company,
+                        }),
+                    ]);
                 }
             }
             if (!this.multiple() && this.model().assets?.length) {
@@ -1052,6 +1049,15 @@ export class InviteVisitorFormComponent {
                 }
             }
         }
+    }
+
+    /** Seed the visitor list from booking data, recording it so a later load
+     * can tell whether the user has since edited the list. */
+    private _setLoadedVisitors(visitors: User[]) {
+        const list = unique(visitors, 'email') as User[];
+        this._loaded_visitors = list;
+        this.model.update((m) => ({ ...m, assets: list }));
+        this.syncVisitorInternational(list);
     }
 
     private async _loadSiblingVisitors(booking_ref: Booking) {
@@ -1076,8 +1082,12 @@ export class InviteVisitorFormComponent {
                 },
             });
         });
-        this.model.update((m) => ({ ...m, assets: visitors }));
-        this.syncVisitorInternational(visitors);
+        // The lookup is fired without blocking form display, so the user may
+        // have already added or removed a visitor by the time it lands. Only
+        // overwrite the list this component seeded itself. (PPT-2634)
+        const current = this.model().assets as User[];
+        if (this._loaded_visitors && current !== this._loaded_visitors) return;
+        this._setLoadedVisitors(visitors);
     }
 
     private _visitorsFromGroupMembers(members: any[] = []) {

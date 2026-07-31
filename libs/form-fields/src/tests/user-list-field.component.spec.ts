@@ -151,6 +151,43 @@ describe('UserListFieldComponent', () => {
         expect(spectator.component.active_list()).toEqual([users[1]]);
     });
 
+    it('should only remove one entry when list entries share an identity', () => {
+        // Visitor lists built from booking data can carry blank or repeated
+        // ids/emails; removal must stay positional. (PPT-2634)
+        const users = [
+            { name: 'Visitor One', email: '' },
+            { name: 'Visitor Two', email: '' },
+            { name: 'Visitor Three', email: '' },
+        ] as User[];
+        spectator.component.writeValue(users);
+        spectator.detectChanges();
+        expect('[user]').toHaveLength(3);
+
+        spectator.click('[user] [remove]');
+
+        expect(spectator.component.active_list()).toEqual([
+            users[1],
+            users[2],
+        ]);
+    });
+
+    it('should remove the clicked entry rather than the first match', () => {
+        const users = [
+            { name: 'Visitor One', email: 'one@example.com' },
+            { name: 'Visitor Two', email: 'two@example.com' },
+            { name: 'Visitor Three', email: 'three@example.com' },
+        ] as User[];
+        spectator.component.writeValue(users);
+        spectator.detectChanges();
+
+        spectator.component.removeUser(1);
+
+        expect(spectator.component.active_list()).toEqual([
+            users[0],
+            users[2],
+        ]);
+    });
+
     it('should be able to hide user actions', () => {
         expect('[actions] button').toHaveLength(3);
         spectator.setInput({ hide_actions: true });
