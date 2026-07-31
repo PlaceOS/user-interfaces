@@ -33,6 +33,7 @@ questions without needing to reproduce anything.
 | `active_media` | What the background playlist currently resolves to |
 | `upcoming_schedules` | Every scheduled run in the next month, soonest first |
 | `media_cache` | Per file `status`, `size`, `owners`; plus totals, budget, `failed_sync_attempts` |
+| `watchdog` | Heartbeats for `poll` / `schedule` / `playback`, which are `stalled`, the last fatal error and how many automatic recoveries have happened |
 | `players` | Per player: `state`, `item_index`, `progress_percent`, `playing`, `queue`, `mid_play_through` |
 
 Timestamps are ISO strings; `"never"` means it has not happened yet.
@@ -81,6 +82,19 @@ makes the display request use `?preview=true`.
 | Media never appears | `media_cache.files` for that URL — `invalidated` means the download failed; `failed_sync_attempts` shows the backoff |
 | Old version running | `updates.new_version`, `updates.reload_pending` (a reload waits for the network and for play-through content to finish), `updates.last_check` |
 | Blank screen after a reboot | Likely offline boot — check `online`, then whether cached credentials exist |
+| Player reloading itself | `watchdog.recent_reloads` and `watchdog.last_error` — something fatal stalled a core loop |
+
+## Recovery watchdog
+
+The player reloads itself only when a fatal error has been seen **and** one of
+its core loops has stopped checking in — polling, schedule evaluation or
+playback. A stall on its own is not enough, and neither is an error, so an
+error the player shrugs off never causes a reload.
+
+A stall must persist for two minutes before a reload, and at most three
+automatic recoveries are allowed per hour; past that it logs and leaves the
+player as-is rather than looping. `watchdog` in the snapshot shows the current
+heartbeats, what is stalled, the last error and the recovery count.
 
 ## Storage
 
@@ -90,6 +104,7 @@ makes the display request use `?preview=true`.
 | `localStorage["PlaceOS.SIGNAGE.cached_files"]` | Media cache index (urls, sizes, owners) |
 | `localStorage["PlaceOS.SIGNAGE.display"]` | Bootstrapped display id |
 | `localStorage["PLACEOS.org.*"]` | Cached zone data and last known authority |
+| `localStorage["PlaceOS.SIGNAGE.watchdog_reloads"]` | Timestamps of automatic recoveries |
 | `sessionStorage["SIGNAGE.debug"]`, `["SIGNAGE.muted"]` | Debug and mute state |
 | IndexedDB `SignageMedia` → `files` | The cached media files themselves |
 

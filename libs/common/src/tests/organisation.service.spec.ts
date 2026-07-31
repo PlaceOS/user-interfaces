@@ -70,6 +70,31 @@ describe('OrganisationService', () => {
             .toEqual([{ id: 'zone-1' }]);
     });
 
+    it('should keep retrying and initialise once the backend returns', async () => {
+        vi.useFakeTimers();
+        vi.mocked(ts_client.queryZones).mockRejectedValue(
+            new Error('servers unavailable'),
+        );
+        const service = spectator.service as any;
+
+        service.init().catch(() => undefined);
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(spectator.service.initialised()).toBe(false);
+
+        // Still down a minute later, still retrying
+        await vi.advanceTimersByTimeAsync(60_000);
+        expect(spectator.service.initialised()).toBe(false);
+        const attempts = vi.mocked(ts_client.queryZones).mock.calls.length;
+        expect(attempts).toBeGreaterThan(1);
+
+        // Backend comes back; the next retry succeeds without a reload
+        vi.mocked(ts_client.queryZones).mockResolvedValue({ data: [] } as any);
+        await vi.advanceTimersByTimeAsync(30_000);
+
+        expect(spectator.service.initialised()).toBe(true);
+        vi.useRealTimers();
+    });
+
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
     });

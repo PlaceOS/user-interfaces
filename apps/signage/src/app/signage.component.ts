@@ -18,6 +18,7 @@ import {
 } from '@placeos/common';
 import { isOnline } from '@placeos/ts-client';
 import { registerSignageDiagnostics } from './diagnostics';
+import { startWatchdog } from './watchdog';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
@@ -140,6 +141,7 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
             () => !this._players().some((_) => _.isMidPlayThroughItem()),
         );
         this.subscription('reload-gate', () => setAutoReloadGate(null));
+        this.subscription('watchdog', startWatchdog());
         this.subscription(
             'diagnostics',
             registerSignageDiagnostics({

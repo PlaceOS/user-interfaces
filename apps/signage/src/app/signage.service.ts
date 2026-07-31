@@ -24,6 +24,7 @@ import {
 import { MediaCacheService } from './media-cache.service';
 import { mockTimeState, time, validateMedia } from './media-helpers';
 import { MediaPlayerItem } from './types';
+import { recordHeartbeat, watchdogState } from './watchdog';
 
 /** Base interval for re-evaluating time-based playlist schedules */
 const SCHEDULE_TICK_MS = 15 * SECONDS;
@@ -422,6 +423,7 @@ export class SignageService extends AsyncHandler {
         }
         this._poll_in_flight = true;
         this._last_poll_attempt = now;
+        recordHeartbeat('poll');
         try {
             await this._reloadDisplay();
             this._last_poll_success = Date.now();
@@ -568,6 +570,7 @@ export class SignageService extends AsyncHandler {
             'schedule_tick',
             () => {
                 try {
+                    recordHeartbeat('schedule');
                     this._checkPollHealth();
                     this._tick.update((_) => _ + 1);
                     const display = this._display_data();
@@ -635,6 +638,7 @@ export class SignageService extends AsyncHandler {
                 failed_sync_attempts: this._cache_retry_attempt,
             },
             media_signature: this._media_signature,
+            watchdog: watchdogState(),
         };
     }
 

@@ -33,6 +33,7 @@ import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
 import { TimeControlsComponent } from './time-controls.component';
 import { MediaPlayerItem, MediaPlayerState } from './types';
+import { recordHeartbeat } from './watchdog';
 
 /** Max wait for an item whose data is still being downloaded before skipping */
 const MAX_URL_WAIT_LOADING = 30 * 1000;
@@ -401,7 +402,17 @@ export class MediaPlayerComponent
     }
 
     public ngOnInit() {
-        this.interval('playlist_check', () => this._updateItem(), 50);
+        this.interval(
+            'playlist_check',
+            () => {
+                // Checked in from the timer rather than from item changes: a
+                // single interactive item legitimately holds the screen for
+                // hours, so what matters is that the loop is still running.
+                recordHeartbeat('playback');
+                this._updateItem();
+            },
+            50,
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
