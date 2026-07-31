@@ -1,27 +1,27 @@
 import {
   subMinutes
-} from "./chunk-KXQFIJJJ.js";
+} from "./chunk-HT2KZFEX.js";
 import {
   subMonths
-} from "./chunk-CRBSNKUP.js";
+} from "./chunk-EG43PLKO.js";
 import {
   setMinutes
-} from "./chunk-FW4B4B76.js";
+} from "./chunk-HDOPKVMO.js";
 import {
   MatProgressBar,
   MatProgressBarModule
-} from "./chunk-G2BPV3XY.js";
+} from "./chunk-S3GVL6NM.js";
 import {
   setHours
-} from "./chunk-PHJFOEEC.js";
+} from "./chunk-NTLHDSXG.js";
 import {
   generateMockSpace
-} from "./chunk-RKIXRDVS.js";
-import "./chunk-NTQ3A4FY.js";
+} from "./chunk-NQZ4U3KU.js";
+import "./chunk-HEJO3ISP.js";
 import {
   subDays
-} from "./chunk-35TTPI2S.js";
-import "./chunk-OGWG7CBQ.js";
+} from "./chunk-I2AU6DIN.js";
+import "./chunk-4ZLAN7LK.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -219,7 +219,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-UZ4AUCKX.js";
+} from "./chunk-XKGCBFU5.js";
 import {
   __export,
   __objRest,
@@ -4406,6 +4406,26 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
+var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
+function hasCachedCredentials() {
+  try {
+    return !!X();
+  } catch {
+    return false;
+  }
+}
+function resolvedWithin(promise, delay) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), delay);
+    promise.then(() => {
+      clearTimeout(timer);
+      resolve(true);
+    }, () => {
+      clearTimeout(timer);
+      resolve(false);
+    });
+  });
+}
 var PLACEOS_APP_ACCESS = class {
 };
 var AuthorisedUserGuard = class _AuthorisedUserGuard {
@@ -4426,24 +4446,28 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
-    await Promise.all([
+    const state_ready = await resolvedWithin(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]);
+    ]), OFFLINE_FALLBACK_DELAY);
+    if (!state_ready)
+      return this.offlineAccess();
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = this.checkSubsystemAccess(user);
       log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
       log("ACCESS", "No access groups", can_activate);
     } else {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
       log("ACCESS", "Checking access groups", can_activate);
     }
@@ -4451,6 +4475,30 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
       this._router.navigate(["/unauthorised"]);
     }
     return !!can_activate;
+  }
+  /** The active user, or null if the backend could not be reached in time */
+  async waitForUser() {
+    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    if (!online)
+      return null;
+    let user = null;
+    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_) => user = _), OFFLINE_FALLBACK_DELAY);
+    return loaded ? user : null;
+  }
+  /**
+   * Access decision for when the backend cannot be reached. Waiting forever
+   * leaves a fixed device sitting on a loading screen with no way back, so a
+   * device that has authenticated before is allowed through on its cached
+   * session. Every API call it then makes is still checked by the server.
+   */
+  offlineAccess() {
+    if (hasCachedCredentials()) {
+      log("ACCESS", "Backend unreachable. Continuing with cached credentials.");
+      return true;
+    }
+    log("ACCESS", "Backend unreachable and no cached credentials.", void 0, "warn");
+    this._router.navigate(["/unauthorised"]);
+    return false;
   }
   async useGroupSubsystemAccess() {
     const value = Rt()?.config?.["use_group_subsystem_access"];
@@ -12720,10 +12768,6 @@ var properties = {
         type: "boolean",
         description: "Whether waitlisted parking bookings are shown in parking lists. Defaults to `true`"
       },
-      waitlist_week_start: {
-        $ref: "#/$defs/weekly_boundary",
-        description: "Day and time at which the active parking waitlist week starts. Defaults to Friday at 18:00"
-      },
       show_requests: {
         type: "boolean",
         description: "Whether parking requests are shown in the parking section. Access can be restricted via the `parking-requests` feature group."
@@ -12990,39 +13034,6 @@ var properties = {
   }
 };
 var $defs = {
-  weekly_boundary: {
-    type: "object",
-    description: "A weekly day and wall-clock time boundary",
-    required: ["day", "hour", "minute"],
-    properties: {
-      day: {
-        type: "number",
-        enum: [0, 1, 2, 3, 4, 5, 6],
-        enumNames: [
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday"
-        ],
-        description: "Day of the week. `0` is Sunday through `6` for Saturday"
-      },
-      hour: {
-        type: "number",
-        minimum: 0,
-        maximum: 23,
-        description: "Hour of the day in 24-hour time"
-      },
-      minute: {
-        type: "number",
-        minimum: 0,
-        maximum: 59,
-        description: "Minute of the hour"
-      }
-    }
-  },
   bookable_hours: {
     type: "object",
     description: "Bookable time window as hours of the day (0-24). For example, `8` is 8:00 AM and `19` is 7:00 PM.",
@@ -17348,105 +17359,105 @@ var routes = [
   {
     path: "book/rooms",
     title: "Room Bookings",
-    loadChildren: () => import("./day-view.routes-CF6HDAS6.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./day-view.routes-MPTYT4QR.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "facilities",
     title: "Facilities",
-    loadChildren: () => import("./facilities.routes-GYFYBU6Y.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./facilities.routes-5ROPXPNF.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/visitors",
     title: "Visitors",
-    loadChildren: () => import("./visitors.routes-WOGTTW64.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./visitors.routes-KPNU2KLI.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/assets",
     title: "Assets",
-    loadChildren: () => import("./asset-manager.routes-2COXXW4G.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./asset-manager.routes-THC44NAN.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/desks",
     title: "Desk Bookings",
-    loadChildren: () => import("./desks.routes-WCHOB6A3.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./desks.routes-4ZGXNZYP.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/lockers",
     title: "Locker Bookings",
-    loadChildren: () => import("./lockers.routes-JIJ6TDFR.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./lockers.routes-6B5OGGPH.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "reports",
     title: "Reports",
-    loadChildren: () => import("./reports.routes-3S2V6NOY.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./reports.routes-KODLBIS4.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "entertainment/events",
     title: "Events",
-    loadChildren: () => import("./events.routes-4UXUNCKL.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./events.routes-YSISXS5O.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "users/staff",
     title: "Staff",
-    loadChildren: () => import("./staff.routes-YQKL47Q4.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./staff.routes-QKKMAVR7.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/catering",
     title: "Catering",
-    loadChildren: () => import("./catering.routes-WGM6CB65.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./catering.routes-XP2K4EOF.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-management",
     title: "Points Management",
-    loadChildren: () => import("./points.routes-AWTD2BO2.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./points.routes-XTVTCBEJ.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/parking",
     title: "Parking Bookings",
-    loadChildren: () => import("./parking.routes-OHHWSUNC.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./parking.routes-3QGTPY6B.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "surveys",
     title: "Surveys",
-    loadChildren: () => import("./surveys.routes-WY35FEKD.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./surveys.routes-PD5MQNEU.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "room-management",
     title: "Room Management",
-    loadChildren: () => import("./room-manager.routes-7P3IIY43.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./room-manager.routes-HVCVXI7G.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "zone-management",
     title: "Zone Management",
-    loadChildren: () => import("./zone-manager.routes-DPLLQYBQ.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./zone-manager.routes-Z3ECFLX5.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -17465,31 +17476,31 @@ var routes = [
   {
     path: "email-templates",
     title: "Email Templates",
-    loadChildren: () => import("./email-templates.routes-PLNZ66BD.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./email-templates.routes-FORTQU2I.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
-    loadChildren: () => import("./deals.routes-ZP5IKAGQ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-VKUQBDNU.js").then((m) => m.ROUTES)
   },
   {
     path: "points-of-interest",
     title: "Points of Interest",
-    loadChildren: () => import("./poi-manager.routes-ZEXS4GQD.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./poi-manager.routes-UR52764S.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "url-management",
     title: "URL Management",
-    loadChildren: () => import("./url-manager.routes-6DNHROCR.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./url-manager.routes-S5VS4K53.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "signage",
     title: "Signage",
-    loadChildren: () => import("./signage.routes-MNJ5ZGRP.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./signage.routes-O2BKYK3D.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
