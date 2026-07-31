@@ -474,13 +474,28 @@ export class SignageService extends AsyncHandler {
         ) {
             return;
         }
-        this._display_signature = display_signature;
         const display = this._parseDisplay(value);
-        display.plugins = await this._resolveDisplayPlugins(display);
+        display.plugins = await this._withTimeout(
+            this._resolveDisplayPlugins(display),
+            DISPLAY_FETCH_TIMEOUT_MS,
+        ).catch((e) => {
+            log.warn('Failed to resolve display plugins.', e);
+            return display.plugins || [];
+        });
         this._display_data.set(display);
-        this._bindTriggers(display);
+        try {
+            this._bindTriggers(display);
+        } catch (e) {
+            // Trigger binding needs a live connection to the module, so it can
+            // fail independently of everything else here.
+            log.error('Failed to bind display triggers.', e);
+        }
         this._syncMediaCache(display);
         this._checkScheduledOverrides(display, this.override_playlists());
+        // Recorded last. Marking the payload as handled before the work above
+        // completes would make every later poll skip whatever did not finish,
+        // leaving the display stuck until its configuration changed again.
+        this._display_signature = display_signature;
     }
 
     private async _fetchDisplay(id: string) {

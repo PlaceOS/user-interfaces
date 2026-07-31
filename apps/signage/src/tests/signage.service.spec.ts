@@ -255,6 +255,42 @@ describe('SignageService', () => {
         expect(upcoming[1].ends_at).toBe('single pass');
     });
 
+    it('should finish reloading when trigger binding fails', async () => {
+        (ts_client.getModule as any).mockImplementation(() => {
+            throw new Error('module unavailable');
+        });
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+        expect(media_cache.requestFilesToCache).toHaveBeenCalled();
+        expect(
+            spectator.service.override_playlist().playlist.map((_) => _.id),
+        ).toEqual(['media-3']);
+    });
+
+    it('should retry the whole reload after a failure part way through', async () => {
+        vi.spyOn(spectator.service as any, '_syncMediaCache')
+            .mockImplementationOnce(() => {
+                throw new Error('cache sync exploded');
+            });
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const parse = vi.spyOn(spectator.service as any, '_parseDisplay');
+
+        // The payload has not changed, but the failed pass must not be recorded
+        // as handled, so the next poll redoes the work rather than skipping it.
+        vi.advanceTimersByTime(60_000);
+        await flush();
+
+        expect(parse).toHaveBeenCalled();
+    });
+
     it('should create the service', () => {
         expect(spectator.service).toBeTruthy();
     });
