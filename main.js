@@ -6,29 +6,29 @@ import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-IEOLJMW6.js";
+} from "./chunk-TWBK5TNT.js";
 import {
   subMinutes
 } from "./chunk-JZB7MS4C.js";
-import "./chunk-KHS6AETF.js";
-import "./chunk-SNFCTVWR.js";
-import "./chunk-Q4CQXCBL.js";
-import "./chunk-4WZXJP7U.js";
-import "./chunk-CJ4SK62A.js";
+import "./chunk-AUUXIT4T.js";
+import "./chunk-LTLTUGQ6.js";
+import "./chunk-R7LEAH2L.js";
+import "./chunk-CNNYV4DQ.js";
+import "./chunk-72FAZDP5.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-H6J6JXKT.js";
-import "./chunk-GDOAVKUG.js";
-import "./chunk-KQZFLD3Y.js";
-import "./chunk-7ELJVX3E.js";
-import "./chunk-7QWGBIEF.js";
+} from "./chunk-XVSMLXHG.js";
+import "./chunk-DAGANDVM.js";
+import "./chunk-UKYGTMKZ.js";
+import "./chunk-GEZ6QLE7.js";
+import "./chunk-GVVYTJDG.js";
 import {
   CustomTooltipComponent,
   MatTooltip,
   MatTooltipModule
-} from "./chunk-AVQKJEBX.js";
-import "./chunk-MMD7DVNR.js";
+} from "./chunk-RZBFQDUM.js";
+import "./chunk-YIAP225W.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -88,7 +88,7 @@ import {
   subDays,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-XA6QWCVD.js";
+} from "./chunk-A5NMZHR5.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -4478,6 +4478,26 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
+var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
+function hasCachedCredentials() {
+  try {
+    return !!X();
+  } catch {
+    return false;
+  }
+}
+function resolvedWithin(promise, delay) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), delay);
+    promise.then(() => {
+      clearTimeout(timer);
+      resolve(true);
+    }, () => {
+      clearTimeout(timer);
+      resolve(false);
+    });
+  });
+}
 var PLACEOS_APP_ACCESS = class {
 };
 var AuthorisedUserGuard = class _AuthorisedUserGuard {
@@ -4498,24 +4518,28 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
-    await Promise.all([
+    const state_ready = await resolvedWithin(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]);
+    ]), OFFLINE_FALLBACK_DELAY);
+    if (!state_ready)
+      return this.offlineAccess();
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = this.checkSubsystemAccess(user);
       log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
       log("ACCESS", "No access groups", can_activate);
     } else {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
       log("ACCESS", "Checking access groups", can_activate);
     }
@@ -4523,6 +4547,30 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
       this._router.navigate(["/unauthorised"]);
     }
     return !!can_activate;
+  }
+  /** The active user, or null if the backend could not be reached in time */
+  async waitForUser() {
+    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    if (!online)
+      return null;
+    let user = null;
+    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_) => user = _), OFFLINE_FALLBACK_DELAY);
+    return loaded ? user : null;
+  }
+  /**
+   * Access decision for when the backend cannot be reached. Waiting forever
+   * leaves a fixed device sitting on a loading screen with no way back, so a
+   * device that has authenticated before is allowed through on its cached
+   * session. Every API call it then makes is still checked by the server.
+   */
+  offlineAccess() {
+    if (hasCachedCredentials()) {
+      log("ACCESS", "Backend unreachable. Continuing with cached credentials.");
+      return true;
+    }
+    log("ACCESS", "Backend unreachable and no cached credentials.", void 0, "warn");
+    this._router.navigate(["/unauthorised"]);
+    return false;
   }
   async useGroupSubsystemAccess() {
     const value = Rt()?.config?.["use_group_subsystem_access"];
@@ -18044,62 +18092,62 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-67BKWK4X.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-JDK4KCW7.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-ILBYSN55.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-FAJQMBYP.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-RIEHJ6CX.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-3G6CVX45.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-XC3FDL36.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-6CPTMXSW.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-VCOXF3LC.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-TFWH5ERP.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-26YXZSKR.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-LNBFBIXN.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-646ANEDK.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-NGWL6WV4.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-F2CWK5KF.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-QIOALLXF.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-ESJ53A5S.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-AGTHCI2P.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
