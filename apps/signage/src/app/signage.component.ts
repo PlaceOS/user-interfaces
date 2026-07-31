@@ -9,11 +9,15 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
+    hasNewVersion,
     log,
     setAutoReloadGate,
     SettingsService,
+    updateCheckState,
     VERSION,
 } from '@placeos/common';
+import { isOnline } from '@placeos/ts-client';
+import { registerSignageDiagnostics } from './diagnostics';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
@@ -136,6 +140,13 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
             () => !this._players().some((_) => _.isMidPlayThroughItem()),
         );
         this.subscription('reload-gate', () => setAutoReloadGate(null));
+        this.subscription(
+            'diagnostics',
+            registerSignageDiagnostics({
+                getState: () => this.diagnosticState(),
+                poll: () => this._signage.refresh(),
+            }),
+        );
         window.addEventListener('message', this._remote_message_handler);
         this.subscription('remote-message', () =>
             window.removeEventListener('message', this._remote_message_handler),
@@ -185,6 +196,37 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
                 this._signage.clearPlaylistOverride();
             }
         });
+    }
+
+    /** Everything worth knowing about this player, for console diagnostics */
+    public diagnosticState() {
+        return {
+            version: {
+                hash: VERSION.hash,
+                built: new Date(VERSION.time).toISOString(),
+            },
+            online: isOnline(),
+            updates: { ...updateCheckState(), new_version: hasNewVersion() },
+            ...this._signage.diagnostics(),
+            players: this._players().map((player, index) => ({
+                role: index === 0 ? 'background' : 'takeover',
+                state: player.state(),
+                item_index: player.index(),
+                progress_percent: Math.round(player.progress()),
+                elapsed_s: player.duration(),
+                waiting_for_item: player.waiting_for_item(),
+                mid_play_through: player.isMidPlayThroughItem(),
+                playing: player.active_item
+                    ? {
+                          id: player.active_item.id,
+                          name: player.active_item.name,
+                          type: player.active_item.type,
+                          playlist: player.active_item.playlist_name,
+                      }
+                    : null,
+                queue: player.playlist_items.map((_) => _.id),
+            })),
+        };
     }
 
     public handlePlayerEvent(e: MediaEvent, overridden = false) {

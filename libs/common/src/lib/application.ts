@@ -15,6 +15,8 @@ let _auto_reload = false;
 let _reload_gate: (() => boolean) | null = null;
 let _reload_timer: ReturnType<typeof setTimeout> | undefined;
 let _reload_deferred_since = 0;
+let _last_update_check = 0;
+let _update_interval = 0;
 
 /** How often a deferred automatic reload re-checks whether it can proceed */
 const RELOAD_RETRY_MS = 5 * SECONDS;
@@ -87,6 +89,22 @@ export function reloadPending() {
     return !!_reload_timer;
 }
 
+/** Snapshot of the application update state, for diagnostics */
+export function updateCheckState() {
+    return {
+        checking: !!_timer || !!_initial_check,
+        auto_reload: _auto_reload,
+        interval_ms: _update_interval,
+        last_check: _last_update_check || 0,
+        next_check:
+            _last_update_check && _update_interval && _timer
+                ? _last_update_check + _update_interval
+                : 0,
+        new_version: _new_version,
+        reload_pending: !!_reload_timer,
+    };
+}
+
 /** Stop the periodic and initial update checks. */
 function stopUpdateChecks() {
     if (_timer) clearInterval(_timer);
@@ -124,6 +142,7 @@ export function setupCache(
     const { auto_reload = false, interval = 5 * MINUTES } =
         cacheOptions(options);
     _auto_reload = auto_reload;
+    _update_interval = Math.max(interval, 1 * MINUTES);
     if (cache.isEnabled) {
         if (!_version_subscription) {
             _version_subscription = cache.versionUpdates.subscribe((event) => {
@@ -179,6 +198,8 @@ export function clearCacheCheck() {
     _reload_timer = undefined;
     _reload_deferred_since = 0;
     _reload_gate = null;
+    _last_update_check = 0;
+    _update_interval = 0;
     _version_subscription?.unsubscribe();
     _unrecoverable_subscription?.unsubscribe();
     _version_subscription = undefined;
@@ -193,6 +214,7 @@ export function clearCacheCheck() {
  *
  */
 async function checkForUpdate(cache: SwUpdate) {
+    _last_update_check = Date.now();
     try {
         if (cache.isEnabled && (await cache.checkForUpdate())) {
             log('CACHE', `Application update detected.`);

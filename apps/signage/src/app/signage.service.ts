@@ -22,7 +22,7 @@ import {
     getNextCronRunTimestampInRange,
 } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
-import { mockTimeState, time } from './media-helpers';
+import { mockTimeState, time, validateMedia } from './media-helpers';
 import { MediaPlayerItem } from './types';
 
 /** Base interval for re-evaluating time-based playlist schedules */
@@ -93,6 +93,28 @@ const DISPLAY_FETCH_TIMEOUT_MS = 30 * SECONDS;
 /** How long without a poll attempt before the poll timer is rebuilt */
 const POLL_WATCHDOG_MS = 3 * MINUTES;
 const log = scoped_log('Signage');
+
+/** Render a timestamp for diagnostics output; 0 reads as never */
+function asTime(value: number) {
+    return value ? new Date(value).toISOString() : 'never';
+}
+
+function mediaSummary(item: MediaPlayerItem) {
+    return {
+        id: item.id,
+        name: item.name,
+        type: item.type,
+        playlist: item.playlist_name || item.playlist,
+        duration_ms: item.duration,
+        url: item.url,
+        cached: item.isCached ? item.isCached() : null,
+        loading: item.isLoading ? item.isLoading() : null,
+        valid_from: asTime((item.valid_from || 0) * 1000),
+        valid_until: asTime((item.valid_until || 0) * 1000),
+        validity: item.validity,
+        invalid_reason: validateMedia(item) || null,
+    };
+}
 
 function signageDisplayIDFromURL(url = '') {
     if (!url) return '';
@@ -545,6 +567,106 @@ export class SignageService extends AsyncHandler {
             },
             delay,
         );
+    }
+
+    /** Force an immediate display refresh. Exposed for diagnostics. */
+    public refresh() {
+        return this._poll();
+    }
+
+    /** Snapshot of the player's scheduling and caching state, for diagnostics */
+    public diagnostics() {
+        const display = this._display_data();
+        const override = this.override_playlist();
+        return {
+            display_id: this._display(),
+            display_name: display?.name || '',
+            debug: this.debug(),
+            playing_id: this.playing_id(),
+            poll: {
+                interval_ms: POLL_INTERVAL_MS,
+                in_flight: this._poll_in_flight,
+                last_attempt: asTime(this._last_poll_attempt),
+                last_success: asTime(this._last_poll_success),
+                next_due: asTime(this._last_poll_attempt + POLL_INTERVAL_MS),
+            },
+            schedule: {
+                tick_interval_ms: SCHEDULE_TICK_MS,
+                mock_time: mockTimeState(),
+                now: asTime(time()),
+            },
+            playlists: {
+                mapped: display?.playlist_mappings?.[display?.id]
+                    ? this._mappedPlaylistIds(display)
+                    : [],
+                active: this._activePlaylistSummary(display),
+                takeover: {
+                    ends_at: asTime(override.ends_at),
+                    schedule_keys: override.schedule_keys || [],
+                    media: override.playlist.map(mediaSummary),
+                },
+            },
+            active_media: this.playlist().map(mediaSummary),
+            upcoming_schedules: this._upcomingSchedules(display),
+            media_cache: this._media_cache.cacheState(this._display()),
+            media_signature: this._media_signature,
+        };
+    }
+
+    private _activePlaylistSummary(display: any) {
+        if (!display?.playlist_mappings?.[display.id]) return [];
+        const now = time();
+        return this._mappedPlaylistIds(display)
+            .map((id) => this._playlistConfig(display, id)?.[0])
+            .filter((_) => !!_)
+            .map((playlist) => {
+                const active = activePlaylistSchedules(playlist, now)[0];
+                return {
+                    id: playlist.id,
+                    name: playlist.name,
+                    enabled: !!playlist.enabled,
+                    scheduled: !!playlistSchedules(playlist).length,
+                    active: !playlistSchedules(playlist).length || !!active,
+                    takeover: !!active?.schedule?.play_takeover,
+                    started_at: asTime(active?.starts_at || 0),
+                    expires_at: asTime(active?.expires_at || 0),
+                };
+            });
+    }
+
+    /** Every upcoming scheduled run within the next month, soonest first */
+    private _upcomingSchedules(display: any) {
+        if (!display?.playlist_mappings?.[display.id]) return [];
+        const now = time();
+        const horizon = 31 * 24 * 60 * 60;
+        const entries = [];
+        for (const id of this._mappedPlaylistIds(display)) {
+            const playlist = this._playlistConfig(display, id)?.[0];
+            if (!playlist?.enabled) continue;
+            playlistSchedules(playlist).forEach((schedule, index) => {
+                const starts_at = nextScheduledPlaylistStart(
+                    schedule,
+                    now,
+                    horizon,
+                );
+                if (!starts_at) return;
+                const period = playlistPlayPeriodMinutes(schedule);
+                entries.push({
+                    playlist_id: playlist.id,
+                    playlist_name: playlist.name,
+                    schedule_index: index,
+                    takeover: !!schedule.play_takeover,
+                    play_cron: schedule.play_cron || '',
+                    play_at: asTime(parsePlayAtTimestamp(schedule.play_at || 0)),
+                    period_minutes: period,
+                    starts_at: asTime(starts_at),
+                    ends_at: period
+                        ? asTime(starts_at + period * 60 * 1000)
+                        : 'single pass',
+                });
+            });
+        }
+        return entries.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
     }
 
     public setPlaylistOverride(media: MediaPlayerItem[], ends_at = 0) {

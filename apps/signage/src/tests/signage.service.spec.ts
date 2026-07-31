@@ -141,6 +141,13 @@ describe('SignageService', () => {
             requestFilesToCache: vi.fn(() => Promise.resolve(false)),
             invalidateFile: vi.fn(),
             getFile: vi.fn(() => Promise.resolve(new File([], 'cached'))),
+            cacheState: vi.fn(() => ({
+                file_count: 2,
+                cached_count: 1,
+                total_bytes: 10,
+                limit_bytes: 100,
+                files: [],
+            })),
         };
         (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(create_display() as any),
@@ -165,6 +172,87 @@ describe('SignageService', () => {
         setMockTime(0);
         vi.useRealTimers();
         vi.restoreAllMocks();
+    });
+
+    it('should report scheduling and cache state for diagnostics', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        const state = spectator.service.diagnostics();
+
+        expect(state.display_id).toBe('display-1');
+        expect(state.poll.interval_ms).toBe(60_000);
+        expect(state.poll.last_success).not.toBe('never');
+        expect(state.poll.next_due).not.toBe('never');
+        expect(state.active_media.map((_) => _.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+        expect(state.playlists.mapped).toContain('base-playlist');
+        expect(state.playlists.takeover.media.map((_) => _.id)).toEqual([
+            'media-3',
+        ]);
+        expect(state.media_cache.file_count).toBe(2);
+    });
+
+    it('should list upcoming schedules in playback order', async () => {
+        vi.setSystemTime(new Date('2026-01-01T10:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['evening', 'morning'] },
+                    playlist_config: {
+                        evening: [
+                            {
+                                id: 'evening',
+                                name: 'Evening',
+                                enabled: true,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 18 * * *',
+                                        play_period: 60,
+                                    },
+                                ],
+                            },
+                            ['media-1'],
+                        ],
+                        morning: [
+                            {
+                                id: 'morning',
+                                name: 'Morning',
+                                enabled: true,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 0,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        const upcoming = spectator.service.diagnostics().upcoming_schedules;
+
+        // 18:00 today comes before 06:00 tomorrow
+        expect(upcoming.map((_) => _.playlist_id)).toEqual([
+            'evening',
+            'morning',
+        ]);
+        expect(upcoming[0].starts_at).toBe(
+            new Date('2026-01-01T18:00:00').toISOString(),
+        );
+        expect(upcoming[1].starts_at).toBe(
+            new Date('2026-01-02T06:00:00').toISOString(),
+        );
+        expect(upcoming[1].ends_at).toBe('single pass');
     });
 
     it('should create the service', () => {

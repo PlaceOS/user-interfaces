@@ -209,6 +209,25 @@ export class MediaCacheService extends AsyncHandler {
         }
     }
 
+    /** Snapshot of what the cache is holding, for diagnostics */
+    public cacheState(owner = '') {
+        const files = this._cache_index
+            .filter((_) => !owner || cacheOwners(_).includes(owner))
+            .map((_) => ({
+                url: _.url,
+                status: _.status,
+                size: _.size || 0,
+                owners: cacheOwners(_),
+            }));
+        return {
+            file_count: files.length,
+            cached_count: files.filter((_) => _.status === 'cached').length,
+            total_bytes: files.reduce((total, _) => total + _.size, 0),
+            limit_bytes: DEFAULT_OWNER_CACHE_LIMIT_BYTES,
+            files,
+        };
+    }
+
     public availableFiles(owner = '') {
         return this._cache_index
             .filter(
