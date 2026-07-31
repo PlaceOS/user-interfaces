@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-GBLYC4WI.js";
+} from "./chunk-TOWPQD5J.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -330,7 +330,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-DMBIGKNC.js";
+} from "./chunk-UUKFONAH.js";
 import {
   __objRest,
   __spreadProps,
@@ -9839,7 +9839,13 @@ function formBookingData(value) {
   for (const key in value) {
     if (key === "extension_data") {
       data.extension_data = formExtensionData(value.extension_data);
-    } else if (!BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) && (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))) {
+    } else if (
+      // `asset_ids` is spread into the form model from the booking being
+      // edited and never updated when `asset_id` changes, so sending it
+      // back would overwrite the new resource with the old one. The
+      // `Booking` constructor rebuilds it from `asset_id`.
+      key !== "asset_ids" && !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) && (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))
+    ) {
       data[key] = value[key];
     }
   }
@@ -10957,6 +10963,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!booking?.id)
       return [];
     const parent_id = booking.parent_id || booking.id;
+    const group_ref = `${booking.group || ""}`.trim();
     const legacy_group = `${booking.description || ""}`.startsWith("grp-") ? booking.description : "";
     const { type } = this._options();
     const list = await queryBookings({
@@ -10965,7 +10972,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       type,
       include_booked_by: true
     });
-    return list.filter((b) => b.id === parent_id || b.parent_id === parent_id || !!legacy_group && b.description === legacy_group);
+    return list.filter((b) => b.id === parent_id || b.parent_id === parent_id || !!group_ref && `${b.group || ""}`.trim() === group_ref || !!legacy_group && b.description === legacy_group);
   }
   async loadGroupMembersForBooking(booking) {
     if (!booking?.id)
@@ -11199,7 +11206,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
   }
   mapGroupMembers(type, members = []) {
-    const user_list = type === "visitor" ? members : unique([currentUser(), ...members || []], "email");
+    const user_list = unique(type === "visitor" ? members || [] : [currentUser(), ...members || []], "email");
     return user_list.filter((member) => !!member?.email).map((member) => ({
       id: member.id || "",
       name: member.name || member.email,
@@ -11315,6 +11322,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const active_bookings = bookings.filter((_) => _.status !== "declined" && _.status !== "cancelled" && !_.rejected);
     if (active_bookings.find((_) => _.asset_id === asset_id && id !== _.id)) {
       throw i18n(asset_id.includes("@") ? "BOOKINGS.VISITOR_BOOKED" : "BOOKINGS.RESOURCE_BOOKED", { name: asset_id });
+    }
+    const is_self = user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
+    if (this.assignedResourceBooking(type) !== "allow" && active_bookings.some((_) => _.id !== id && _.extension_data?.is_assigned)) {
+      throw `${is_self ? "You have" : "This user has"} an assigned ${type} and cannot book another ${type}.`;
     }
     const allowed_bookings = this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
     if (allowed_bookings > 0 && active_bookings.filter((_) => _.user_email.toLowerCase() === (user_email || currentUser()?.email || "").toLowerCase() && _.id !== id).length >= allowed_bookings) {
@@ -12278,4 +12289,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-U6JAJOCZ.js.map
+//# sourceMappingURL=chunk-G25JCP3R.js.map

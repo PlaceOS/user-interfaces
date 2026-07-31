@@ -42,7 +42,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-U6JAJOCZ.js";
+} from "./chunk-G25JCP3R.js";
 import {
   FormField,
   MatCheckbox,
@@ -53,7 +53,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-GBLYC4WI.js";
+} from "./chunk-TOWPQD5J.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -307,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-DMBIGKNC.js";
+} from "./chunk-UUKFONAH.js";
 import {
   __spreadProps,
   __spreadValues
@@ -3307,7 +3307,9 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
   })), injector);
   onFieldChange(model2, (v) => v.date, (date) => {
     const recurrence = model2().recurrence;
-    if (recurrence?._pattern !== "custom_display" && recurrence?._pattern !== "none") {
+    if (!recurrence?.pattern)
+      return;
+    if (recurrence._pattern !== "custom_display" && recurrence._pattern !== "none") {
       model2.update((m) => __spreadProps(__spreadValues({}, m), {
         recurrence: __spreadProps(__spreadValues({}, m.recurrence), {
           days_of_week: [new Date(date).getDay()]
@@ -4456,6 +4458,13 @@ var BOOKING_URLS = [
   "upcoming"
 ];
 var PERSISTED_EVENT_CONTEXT_URLS = ["landing"];
+var IGNORED_DETAIL_FIELDS = [
+  "attendees",
+  "system",
+  "date_end",
+  "organiser",
+  "resources"
+];
 var Tags;
 (function(Tags2) {
   Tags2["Availability"] = "AVAILABILITY";
@@ -4930,10 +4939,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const value = eventFormValue(event);
     this.notify_new_attendees_only.set(false);
     value.assets = (event.extension_data.assets || []).map((_) => new AssetRequest(__spreadProps(__spreadValues({}, _), { event })));
-    this._setInitialEvent(value);
     this._model.set(value);
     this._form().reset();
     this._applyDurationSettings();
+    this._setInitialEvent(this._model());
     if (!event.id)
       return;
     sessionStorage.setItem("PLACEOS.event", JSON.stringify(event?.toJSON() || {}));
@@ -5301,7 +5310,14 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._initial_event_details = this._eventDetails(value);
   }
   _eventDetails(value) {
-    return JSON.stringify(Object.entries(value).filter(([key]) => key !== "attendees" && key !== "system"));
+    const details = Object.entries(value).filter(([key]) => !IGNORED_DETAIL_FIELDS.includes(key));
+    details.push(["host_email", value.organiser?.email || ""]);
+    details.push([
+      "space_ids",
+      (value.resources || []).map((_) => _.id || _.email || "")
+    ]);
+    details.sort(([a], [b]) => a > b ? 1 : -1);
+    return JSON.stringify(details);
   }
   async _removeBookingAfterError(is_new, event, assets = false, e) {
     if (is_new) {
@@ -11935,4 +11951,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-PSZOUQXY.js.map
+//# sourceMappingURL=explore.routes-B745J5RT.js.map
