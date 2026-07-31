@@ -290,6 +290,83 @@ describe('recovery watchdog', () => {
         expect(watchdogState().recoveries_throttled).toBe(true);
     });
 
+    it('should persist why it recovered across the reload it causes', async () => {
+        recordFatalError('boom');
+        beat();
+        for (let i = 0; i < 40; i++) {
+            recordHeartbeat('poll');
+            recordHeartbeat('schedule');
+            recordHeartbeat('playback');
+            await vi.advanceTimersByTimeAsync(30 * 1000);
+        }
+        expect(reload).toHaveBeenCalledTimes(1);
+
+        // The reload wipes everything held in memory
+        resetWatchdog();
+        start();
+        const detail = watchdogState().last_recovery_detail;
+
+        expect(watchdogState().last_error).toBeNull();
+        expect(detail?.reasons).toEqual(['visible']);
+        expect(detail?.error?.message).toBe('boom');
+        expect(detail?.cache_clear_attempted).toBe(false);
+        expect(detail?.at).not.toBe('never');
+    });
+
+    it('should record a failed boot and that it cleared the cache', async () => {
+        await vi.advanceTimersByTimeAsync(6 * MINUTE);
+
+        resetWatchdog();
+        start();
+        const detail = watchdogState().last_recovery_detail;
+
+        expect(detail?.reasons).toEqual(['boot']);
+        expect(detail?.cache_clear_attempted).toBe(true);
+        expect(detail?.error).toBeNull();
+    });
+
+    it('should record a directly requested recovery', () => {
+        requestRecovery('init-error');
+
+        resetWatchdog();
+        start();
+
+        expect(watchdogState().last_recovery_detail?.reasons).toEqual([
+            'init-error',
+        ]);
+    });
+
+    it('should not overwrite the recovery detail when an attempt is refused', async () => {
+        // Use up the allowance so the next attempt is refused
+        for (let attempt = 0; attempt < 3; attempt++) {
+            resetWatchdog();
+            start();
+            requestRecovery('init-error');
+            await vi.advanceTimersByTimeAsync(MINUTE);
+        }
+        resetWatchdog();
+        start();
+
+        expect(requestRecovery('a-later-failure')).toBe(false);
+
+        expect(watchdogState().last_recovery_detail?.reasons).toEqual([
+            'init-error',
+        ]);
+    });
+
+    it('should read recovery history written by an earlier build', () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.watchdog_reloads',
+            JSON.stringify([Date.now() - 1000]),
+        );
+
+        const state = watchdogState();
+
+        expect(state.recoveries_in_last_hour).toBe(1);
+        expect(state.recoveries_throttled).toBe(false);
+        expect(state.last_recovery_detail).toBeNull();
+    });
+
     it('should record errors as context without needing them to act', () => {
         recordFatalError('boom');
 
