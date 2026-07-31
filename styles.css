@@ -5204,6 +5204,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-\[hsl\(217\,62\%\,38\%\)\] {
   border-color: hsl(217, 62%, 38%);
 }
+#placeos .border-approval {
+  border-color: var(--approval);
+}
 #placeos .border-base-100 {
   border-color: var(--base-100);
 }
@@ -5340,6 +5343,12 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-\[hsl\(237\,37\%\,10\%\)\] {
   background-color: hsl(237, 37%, 10%);
+}
+#placeos .bg-approval {
+  background-color: var(--approval);
+}
+#placeos .bg-approval-light {
+  background-color: var(--approval-light);
 }
 #placeos .bg-base-100 {
   background-color: var(--base-100);
@@ -6227,6 +6236,12 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .whitespace-pre-wrap {
   white-space: pre-wrap;
+}
+#placeos .text-approval {
+  color: var(--approval);
+}
+#placeos .text-approval-content {
+  color: var(--approval-content);
 }
 #placeos .text-base-100 {
   color: var(--base-100);
@@ -8398,6 +8413,9 @@ body {
   --warn: hsla(45, 100%, 64%, 1);
   --warn-light: rgb(255, 253, 231);
   --warn-content: hsl(0, 0%, 0%);
+  --approval: hsl(24, 95%, 50%);
+  --approval-light: hsl(24, 100%, 92%);
+  --approval-content: hsl(0, 0%, 100%);
   --success: hsla(118, 50%, 43%, 1);
   --success-light: rgb(232, 245, 233);
   --success-content: hsla(152, 81%, 96%, 1);
@@ -8439,6 +8457,9 @@ body {
   --warn: rgb(255, 143, 0);
   --warn-light: rgb(255, 213, 79);
   --warn-content: hsl(0, 0%, 0%);
+  --approval: hsl(24, 90%, 45%);
+  --approval-light: hsl(24, 85%, 60%);
+  --approval-content: hsl(0, 0%, 100%);
   --success: rgb(46, 125, 50);
   --success-light: rgb(102, 187, 106);
   --success-content: hsl(0, 0%, 100%);
