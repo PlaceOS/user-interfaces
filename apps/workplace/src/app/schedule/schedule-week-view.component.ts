@@ -340,7 +340,10 @@ export class ScheduleWeekViewComponent {
     public visitorName(booking: Booking | CalendarEvent): string {
         // Only visitor bookings have a visitor name; for other types this
         // would fall back to the raw `asset_id` (e.g. unallocated parking).
-        if (booking instanceof Booking && booking.booking_type === 'visitor') {
+        if (
+            booking instanceof Booking &&
+            ['visitor', 'vip-visitor'].includes(booking.booking_type)
+        ) {
             return visitorDisplayNameFor(booking);
         }
         return '';

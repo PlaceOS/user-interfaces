@@ -2,6 +2,7 @@ import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Booking, CalendarEvent, WeekOfMonth } from '@placeos/common';
 import {
+    bookingLocationString,
     generateBookingForm,
     newBookingFromCalendarEvent,
 } from '../lib/booking.utilities';
@@ -11,6 +12,70 @@ describe('Booking Utilities', () => {
 
     beforeEach(() => {
         injector = TestBed.inject(Injector);
+    });
+
+    describe('bookingLocationString', () => {
+        const org = {
+            levelWithID: () => null,
+            buildings: [{ id: 'zone-bld', display_name: 'Head Office' }],
+        } as any;
+
+        it('should not use the visitor name as the location for VIP visitors', () => {
+            const location = bookingLocationString(
+                new Booking({
+                    booking_type: 'vip-visitor',
+                    asset_id: 'vip@example.com',
+                    asset_name: 'VIP Visitor',
+                }),
+                org,
+            );
+
+            expect(location).toBe('');
+        });
+
+        it('should use the extension data location for VIP visitors', () => {
+            const location = bookingLocationString(
+                new Booking({
+                    booking_type: 'vip-visitor',
+                    asset_id: 'vip@example.com',
+                    asset_name: 'VIP Visitor',
+                    extension_data: { location: 'Reception' },
+                }),
+                org,
+            );
+
+            expect(location).toBe('Reception');
+        });
+
+        it('should show the building when there is no level zone', () => {
+            const location = bookingLocationString(
+                new Booking({
+                    booking_type: 'vip-visitor',
+                    asset_id: 'vip@example.com',
+                    asset_name: 'VIP Visitor',
+                    zones: ['zone-org', 'zone-bld'],
+                }),
+                org,
+            );
+
+            expect(location).toBe('Head Office');
+        });
+
+        it('should prefer the level over the building', () => {
+            const location = bookingLocationString(
+                new Booking({
+                    booking_type: 'desk',
+                    asset_name: 'Desk 1',
+                    zones: ['zone-bld', 'zone-lvl'],
+                }),
+                {
+                    ...org,
+                    levelWithID: () => ({ display_name: 'Level 2' }),
+                } as any,
+            );
+
+            expect(location).toBe('Desk 1 - Level 2');
+        });
     });
 
     describe('generateBookingForm', () => {

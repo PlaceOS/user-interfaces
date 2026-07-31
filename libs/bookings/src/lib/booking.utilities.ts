@@ -163,9 +163,10 @@ export const visitorDisplayNameFor = (booking: Booking) => {
 };
 
 /**
- * Location text shown for a booking/event: `<resource> - <level>`, falling back
- * to whichever part is available. Shared by the booking card, booking details
- * modal, and workplace schedule week/day views so they all read the same.
+ * Location text shown for a booking/event: `<resource> - <level>`, using the
+ * building name when there is no level zone, and falling back to whichever part
+ * is available. Shared by the booking card, booking details modal, and
+ * workplace schedule week/day views so they all read the same.
  */
 export function bookingLocationString(
     booking: Booking | CalendarEvent,
@@ -173,18 +174,20 @@ export function bookingLocationString(
 ): string {
     let location = '';
     let level_name = '';
+    let zones: string[] = [];
 
     if (booking instanceof Booking) {
-        location =
-            booking.booking_type === 'visitor'
-                ? booking.extension_data?.location || ''
-                : booking.location || booking.asset_name || '';
+        zones = booking.zones || [];
+        location = ['visitor', 'vip-visitor'].includes(booking.booking_type)
+            ? booking.extension_data?.location || ''
+            : booking.location || booking.asset_name || '';
         // Unallocated parking has no space yet; hide the raw `unallocated-*`
         // asset id that the location/asset name can fall back to.
         if (location.startsWith('unallocated')) location = '';
         const level = org.levelWithID(booking.zones);
         level_name = level?.display_name || level?.name || '';
     } else {
+        zones = (booking.system as any)?.zones || [];
         location =
             booking.location ||
             booking.space?.display_name ||
@@ -199,6 +202,15 @@ export function bookingLocationString(
                       ?.display_name ||
                   org.levelWithID((booking.system as any)?.zones || [])?.name
                 : '';
+    }
+
+    // VIP visitor bookings are only tagged with a building zone, so fall back
+    // to the building name when there is no level to show.
+    if (!level_name) {
+        const building = (org.buildings || []).find((bld) =>
+            zones.includes(bld.id),
+        );
+        level_name = building?.display_name || building?.name || '';
     }
 
     if (location && level_name) {
