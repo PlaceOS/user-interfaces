@@ -37,6 +37,8 @@ const log = scoped_log('ORG');
 const ORG_CACHE_PREFIX = 'PLACEOS.org';
 const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 const AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
+/** How long `app.offline_boot` waits to be online before using cached data */
+const OFFLINE_BOOT_DELAY = 10 * 1000;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 /** Cached data older than this is discarded instead of being displayed */
 const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000;
@@ -304,9 +306,20 @@ export class OrganisationService {
     }
 
     constructor() {
-        waitForSignal(onlineState(), (_) => _).then(() =>
-            setTimeout(() => this.init(), 1000),
-        );
+        const online = waitForSignal(onlineState(), (_) => _);
+        // Startup normally waits to be online before loading anything. A fixed
+        // device with no network never gets there, so it never even tries its
+        // cached copy - and everything waiting on `initialised` waits forever.
+        // Where an app opts in, fall back to starting from cache instead.
+        const start = this._service.get('app.offline_boot')
+            ? Promise.race([
+                  online,
+                  new Promise((resolve) =>
+                      setTimeout(resolve, OFFLINE_BOOT_DELAY),
+                  ),
+              ])
+            : online;
+        start.then(() => setTimeout(() => this.init(), 1000));
         effect(() => {
             this._active_region();
             const building = this._active_building();
