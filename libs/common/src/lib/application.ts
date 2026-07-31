@@ -15,6 +15,7 @@ let _auto_reload = false;
 let _reload_gate: (() => boolean) | null = null;
 let _reload_timer: ReturnType<typeof setTimeout> | undefined;
 let _reload_deferred_since = 0;
+let _init_reload: (() => void) | null = null;
 let _last_update_check = 0;
 let _update_interval = 0;
 
@@ -82,6 +83,25 @@ function reloadApp() {
         return;
     }
     _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+
+/**
+ * Replace what happens when initialisation fails badly enough to warrant a
+ * restart. An app that manages its own recovery, and its own limits on how
+ * often it may restart, can route it through that instead of reloading here
+ * where nothing is counting.
+ */
+export function setInitReloadHandler(handler: (() => void) | null) {
+    _init_reload = handler;
+}
+
+/** Restart after a failed initialisation */
+export function requestInitReload() {
+    if (_init_reload) {
+        _init_reload();
+        return;
+    }
+    location.reload();
 }
 
 /** Whether an automatic reload is currently waiting for a safe moment */
@@ -200,6 +220,7 @@ export function clearCacheCheck() {
     _reload_gate = null;
     _last_update_check = 0;
     _update_interval = 0;
+    _init_reload = null;
     _version_subscription?.unsubscribe();
     _unrecoverable_subscription?.unsubscribe();
     _version_subscription = undefined;

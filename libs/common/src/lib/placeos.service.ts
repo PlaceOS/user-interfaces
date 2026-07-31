@@ -18,7 +18,7 @@ import {
 import * as Sentry from '@sentry/angular';
 import { addHours } from 'date-fns';
 
-import { hasNewVersion, setupCache } from './application';
+import { hasNewVersion, requestInitReload, setupCache } from './application';
 import { AsyncHandler } from './async-handler.class';
 import { requestScreenWakeLock } from './fixed-device-helpers';
 import { firstTruthyValueFrom, log, setAppName } from './general';
@@ -501,7 +501,10 @@ export class PlaceOS_Service extends AsyncHandler {
         // Keep a valid token on slow networks — the user fetch timing out
         // doesn't mean the token is bad, so just retry with a reload.
         else if (!token(false)) invalidateToken();
-        location.reload();
+        // Routed rather than reloaded directly: an app that never manages to
+        // load the current user would otherwise restart every thirty seconds
+        // for as long as that keeps failing.
+        requestInitReload();
     }
 
     private _initAnalytics() {

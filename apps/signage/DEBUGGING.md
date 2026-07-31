@@ -96,12 +96,20 @@ The heartbeats measure the player's own machinery, not the backend. The poll
 signal beats when a fetch is _attempted_, so a backend that has been down for
 hours never triggers a recovery.
 
-| Guard                    | Value                                       |
-| ------------------------ | ------------------------------------------- |
-| Stall thresholds         | poll 10 min, schedule 5 min, playback 3 min |
-| Grace before recovering  | 5 min                                       |
-| Recoveries allowed       | 3 per hour, then 1 per hour                 |
-| Back to 3 per hour after | 2 hours with no recovery                    |
+It starts at application bootstrap, before any routing, so a startup that never
+completes is covered too: if nothing has been on screen five minutes after
+start it recovers, going straight to clearing the application cache because a
+boot that never completes is most often a bad cached build. That deadline only
+applies once the device has been bootstrapped to a display — one sitting on the
+picker is waiting for a person, not broken.
+
+| Guard                    | Value                                                      |
+| ------------------------ | ---------------------------------------------------------- |
+| Stall thresholds         | poll 10 min, schedule 5 min, playback 3 min, visible 5 min |
+| Boot deadline            | 5 min from start with nothing on screen                    |
+| Grace before recovering  | 5 min                                                      |
+| Recoveries allowed       | 3 per hour, then 1 per hour                                |
+| Back to 3 per hour after | 2 hours with no recovery                                   |
 
 Once recoveries are throttled the next one clears the application cache first —
 unregistering the service worker and deleting its caches — in case the cached
@@ -113,8 +121,17 @@ A recovery reload does **not** wait for the network, unlike an update reload. A
 stalled player should restart whether or not the backend is up, and it can boot
 from cached credentials and cached content.
 
-`watchdog.recoveries_throttled` and `watchdog.last_recovery` show where in that
-sequence a player is.
+The `visible` signal is separate from `playback` on purpose. The shared loading
+overlay covers the whole screen and, on a degraded startup, never clears — so
+the player underneath can be running perfectly while the screen shows a
+progress bar. `visible` is the one that notices.
+
+Failed initialisation — the app giving up because it cannot load the current
+user — is routed through the same limits, so it cannot restart the player every
+thirty seconds on its own.
+
+`watchdog.booted`, `watchdog.recoveries_throttled` and `watchdog.last_recovery`
+show where in that sequence a player is.
 
 ## Storage
 

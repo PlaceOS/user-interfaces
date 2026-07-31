@@ -81,6 +81,8 @@ let _started_at = 0;
 let _timer: ReturnType<typeof setInterval> | undefined;
 let _listening = false;
 let _recovering = false;
+let _reload: () => void = () => location.reload();
+let _hard_reload: () => Promise<boolean> = () => clearCachesAndReload();
 
 /** Record that a piece of core machinery is still running */
 export function recordHeartbeat(signal: WatchdogSignal) {
@@ -199,11 +201,7 @@ async function clearCachesAndReload(): Promise<boolean> {
     return true;
 }
 
-function check(
-    reload: () => void,
-    hardReload: () => Promise<boolean>,
-    expected_to_run: () => boolean,
-) {
+function check(expected_to_run: () => boolean) {
     const now = Date.now();
     const since_last_check = _last_check ? now - _last_check : 0;
     _last_check = now;
@@ -224,7 +222,7 @@ function check(
         if (now - _started_at < BOOT_TIMEOUT_MS) return;
         // A boot that never completes is most often a bad cached build,
         // especially straight after an update, so skip the plain reloads.
-        recover(now, ['boot'], true, reload, hardReload);
+        recover(now, ['boot'], true);
         return;
     }
     const stalled = stalledSignals(now);
@@ -238,7 +236,7 @@ function check(
         return;
     }
     if (now - _stalled_since < RECOVERY_GRACE_MS) return;
-    if (!recover(now, stalled, false, reload, hardReload)) _stalled_since = now;
+    if (!recover(now, stalled, false)) _stalled_since = now;
 }
 
 /**
@@ -246,13 +244,7 @@ function check(
  * the application cache; otherwise that only happens once plain reloads have
  * been tried and throttled.
  */
-function recover(
-    now: number,
-    reasons: string[],
-    prefer_hard: boolean,
-    reload: () => void,
-    hardReload: () => Promise<boolean>,
-) {
+function recover(now: number, reasons: string[], prefer_hard: boolean) {
     const throttled = recoveryHistory(now).throttled;
     if (!claimRecovery(now)) {
         log.error('Recovery needed, but not due yet.', {
@@ -271,13 +263,23 @@ function recover(
     // Only clear the application cache when the server can serve a
     // replacement; `hardReload` checks that and reports back.
     if (!prefer_hard && !throttled) {
-        reload();
+        _reload();
         return true;
     }
-    hardReload().then((cleared) => {
-        if (!cleared) reload();
+    _hard_reload().then((cleared) => {
+        if (!cleared) _reload();
     });
     return true;
+}
+
+/**
+ * Ask for a recovery from outside the stall checks, for a failure the caller
+ * has already decided is fatal. Subject to the same limits, so a caller that
+ * keeps asking cannot restart the player faster than the watchdog would.
+ */
+export function requestRecovery(reason: string, prefer_hard = false) {
+    if (_recovering) return false;
+    return recover(Date.now(), [reason], prefer_hard);
 }
 
 export interface WatchdogActions {
@@ -293,8 +295,8 @@ export interface WatchdogActions {
 
 /** Start watching. Returns a callback that stops it again. */
 export function startWatchdog(actions: WatchdogActions = {}) {
-    const reload = actions.reload || (() => location.reload());
-    const hardReload = actions.hardReload || clearCachesAndReload;
+    _reload = actions.reload || (() => location.reload());
+    _hard_reload = actions.hardReload || clearCachesAndReload;
     const expectedToRun = actions.isExpectedToRun || (() => false);
     stopWatchdog();
     if (!_listening) {
@@ -304,10 +306,7 @@ export function startWatchdog(actions: WatchdogActions = {}) {
     }
     _last_check = Date.now();
     _started_at = Date.now();
-    _timer = setInterval(
-        () => check(reload, hardReload, expectedToRun),
-        CHECK_INTERVAL_MS,
-    );
+    _timer = setInterval(() => check(expectedToRun), CHECK_INTERVAL_MS);
     return () => stopWatchdog();
 }
 

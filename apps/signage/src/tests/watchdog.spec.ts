@@ -1,6 +1,7 @@
 import {
     recordFatalError,
     recordHeartbeat,
+    requestRecovery,
     resetWatchdog,
     stalledSignals,
     startWatchdog,
@@ -267,6 +268,26 @@ describe('recovery watchdog', () => {
         // Back to plain reloads rather than cache clearing
         expect(reload).toHaveBeenCalledTimes(4);
         expect(hard_reload).not.toHaveBeenCalled();
+    });
+
+    it('should allow a recovery to be requested directly', () => {
+        expect(requestRecovery('init-error')).toBe(true);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(watchdogState().recoveries_in_last_hour).toBe(1);
+    });
+
+    it('should hold a repeatedly requested recovery to the same limits', async () => {
+        for (let attempt = 0; attempt < 6; attempt++) {
+            resetWatchdog();
+            start();
+            requestRecovery('init-error');
+            await vi.advanceTimersByTimeAsync(MINUTE);
+        }
+
+        // Three in the hour, then throttled to one an hour
+        expect(reload).toHaveBeenCalledTimes(3);
+        expect(watchdogState().recoveries_throttled).toBe(true);
     });
 
     it('should record errors as context without needing them to act', () => {
