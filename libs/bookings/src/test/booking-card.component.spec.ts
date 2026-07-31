@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { addHours, set } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -143,7 +146,7 @@ describe('BookingCardComponent', () => {
         expect(spectator.component.booked_for_label()).toBe('James McMillan');
     });
 
-    it('should show waitlisted status for current week parking requests when enabled', () => {
+    it('should show waitlisted status for unapproved parking requests when enabled', () => {
         spectator.setInput({
             booking: new Booking({
                 booking_type: 'parking',
@@ -151,6 +154,7 @@ describe('BookingCardComponent', () => {
                 asset_id: 'unallocated-1',
                 date: Date.now(),
                 status: 'tentative',
+                process_state: 'unapproved',
             } as any),
         });
 
@@ -183,6 +187,7 @@ describe('BookingCardComponent', () => {
                 asset_id: 'unallocated-1',
                 date: Date.now(),
                 status: 'tentative',
+                process_state: 'unapproved',
             } as any),
         });
 

@@ -443,12 +443,13 @@ describe('ParkingBookingsListComponent', () => {
         spectator = createComponent();
 
         expect(
-            spectator.component.isVisibleWaitlisted({
+            spectator.component.statusTone({
                 id: 'waitlisted',
                 asset_id: 'unallocated-1',
                 status: 'tentative',
+                process_state: 'unapproved',
             } as any),
-        ).toBe(false);
+        ).toBe('warning');
     });
 
     it('should map bookings to sortable vehicle type values', () => {

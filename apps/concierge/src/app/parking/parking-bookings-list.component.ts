@@ -26,7 +26,11 @@ import {
 } from '@placeos/components';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingStateService } from './parking-state.service';
-import { isParkingAllDayBooking } from './parking.utilities';
+import {
+    isParkingAllDayBooking,
+    parkingRequestStatusLabel,
+    parkingRequestStatusTone,
+} from './parking.utilities';
 
 interface ParkingBookingExtensionColumn {
     field: string;
@@ -345,29 +349,17 @@ interface ParkingBookingColumnTemplates {
                                 !isCancelledBooking(row)
                             "
                             [class.text-warning-content]="
-                                row?.status === 'tentative' &&
-                                !isAssignedBooking(row) &&
-                                !isCancelledBooking(row) &&
-                                !isVisibleWaitlisted(row)
+                                statusTone(row) === 'warning'
                             "
-                            [class.bg-warning]="
-                                row?.status === 'tentative' &&
-                                !isAssignedBooking(row) &&
-                                !isCancelledBooking(row) &&
-                                !isVisibleWaitlisted(row)
+                            [class.bg-warning]="statusTone(row) === 'warning'"
+                            [class.text-approval-content]="
+                                statusTone(row) === 'approval'
                             "
+                            [class.bg-approval]="statusTone(row) === 'approval'"
                             [class.text-info-content]="
-                                row?.status === 'tentative' &&
-                                !isAssignedBooking(row) &&
-                                !isCancelledBooking(row) &&
-                                isVisibleWaitlisted(row)
+                                statusTone(row) === 'info'
                             "
-                            [class.bg-info]="
-                                row?.status === 'tentative' &&
-                                !isAssignedBooking(row) &&
-                                !isCancelledBooking(row) &&
-                                isVisibleWaitlisted(row)
-                            "
+                            [class.bg-info]="statusTone(row) === 'info'"
                             [matMenuTriggerFor]="menu"
                             [disabled]="isStatusActionDisabled(row)"
                         >
@@ -647,7 +639,6 @@ export class ParkingBookingsListComponent
         this._state.viewBookingHistory(e);
     public readonly isRequest = (e) => this._state.isRequest(e);
     public readonly isManualRequest = (e) => this._state.isManualRequest(e);
-    public readonly isWaitlisted = (e) => this._state.isWaitlisted(e);
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
     public readonly isStatusActionDisabled = (e: Booking) =>
@@ -735,8 +726,16 @@ export class ParkingBookingsListComponent
             : undefined;
     }
 
-    public isVisibleWaitlisted(booking: Booking) {
-        return this.show_waitlist && this.isWaitlisted(booking);
+    /** Status colour tone for tentative bookings, empty for any other status */
+    public statusTone(booking: Booking): string {
+        if (
+            booking?.status !== 'tentative' ||
+            this.isAssignedBooking(booking) ||
+            this.isCancelledBooking(booking)
+        ) {
+            return '';
+        }
+        return parkingRequestStatusTone(booking, this.show_waitlist);
     }
 
     public isRequestFilter(filter_type?: string) {
@@ -788,9 +787,7 @@ export class ParkingBookingsListComponent
                     ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                     : booking?.status === 'declined'
                       ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                      : this.isVisibleWaitlisted(booking)
-                        ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+                      : parkingRequestStatusLabel(booking, this.show_waitlist);
     }
 
     public bookingColumns(

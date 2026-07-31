@@ -549,21 +549,18 @@ describe('ParkingStateService', () => {
         );
     });
 
-    it('should keep next-week requests pending before the default Friday cutoff', () => {
+    it('should keep requests without a process state pending', () => {
         settings_map['app.parking.show_requests'] = true;
-        vi.spyOn(Date, 'now').mockReturnValue(
-            new Date('2026-07-31T17:59:00+10:00').valueOf(),
-        );
         const request = {
-            id: 'next-week-request',
+            id: 'new-request',
             asset_id: 'unallocated-1',
             status: 'tentative',
-            date: new Date('2026-08-03T08:00:00+10:00').valueOf(),
-            date_end: new Date('2026-08-03T17:00:00+10:00').valueOf(),
+            date: Date.now(),
             extension_data: {},
         } as any;
 
         expect(spectator.service.isWaitlisted(request)).toBe(false);
+        expect(spectator.service.isManualRequest(request)).toBe(false);
         expect(
             spectator.service.filterEventList([request], 'waitlist'),
         ).toEqual([]);
@@ -572,45 +569,43 @@ describe('ParkingStateService', () => {
         );
     });
 
-    it('should waitlist requests when the default Friday cutoff is reached', () => {
-        vi.spyOn(Date, 'now').mockReturnValue(
-            new Date('2026-07-31T18:00:00+10:00').valueOf(),
-        );
+    it('should waitlist unapproved requests that do not need manual approval', () => {
+        settings_map['app.parking.show_requests'] = true;
         const request = {
-            id: 'active-week-request',
+            id: 'waitlisted-request',
             asset_id: 'unallocated-1',
             status: 'tentative',
-            date: new Date('2026-08-03T08:00:00+10:00').valueOf(),
-            extension_data: {},
+            process_state: 'unapproved',
+            date: Date.now(),
+            extension_data: { requires_manual_approval: false },
         } as any;
 
         expect(spectator.service.isWaitlisted(request)).toBe(true);
+        expect(spectator.service.isManualRequest(request)).toBe(false);
+        expect(
+            spectator.service.filterEventList([request], 'waitlist'),
+        ).toEqual([request]);
+        expect(spectator.service.filterEventList([request], 'pending')).toEqual(
+            [],
+        );
     });
 
-    it('should use the configured waitlist week boundary', () => {
-        settings_map['app.parking.waitlist_week_start'] = {
-            day: 3,
-            hour: 9,
-            minute: 30,
-        };
-        const now_spy = vi.spyOn(Date, 'now');
+    it('should require approval for unapproved manual approval requests', () => {
+        settings_map['app.parking.show_requests'] = true;
         const request = {
-            id: 'custom-boundary-request',
+            id: 'manual-request',
             asset_id: 'unallocated-1',
             status: 'tentative',
-            date: new Date('2026-07-30T08:00:00+10:00').valueOf(),
-            extension_data: {},
+            process_state: 'unapproved',
+            date: Date.now(),
+            extension_data: { requires_manual_approval: true },
         } as any;
 
-        now_spy.mockReturnValue(
-            new Date('2026-07-29T09:29:00+10:00').valueOf(),
-        );
+        expect(spectator.service.isManualRequest(request)).toBe(true);
         expect(spectator.service.isWaitlisted(request)).toBe(false);
-
-        now_spy.mockReturnValue(
-            new Date('2026-07-29T09:30:00+10:00').valueOf(),
-        );
-        expect(spectator.service.isWaitlisted(request)).toBe(true);
+        expect(spectator.service.filterEventList([request], 'manual')).toEqual([
+            request,
+        ]);
     });
 
     it('should only allow approval for matching approver groups', () => {
@@ -655,13 +650,21 @@ describe('ParkingStateService', () => {
             id: 'request-1',
             asset_id: 'unallocated-1',
             status: 'tentative',
-            extension_data: { approver_group: 'parking-team' },
+            process_state: 'unapproved',
+            extension_data: {
+                approver_group: 'parking-team',
+                requires_manual_approval: true,
+            },
         } as any;
         const declined_request = {
             id: 'request-2',
             asset_id: 'unallocated-2',
             status: 'declined',
-            extension_data: { approver_group: 'parking-team' },
+            process_state: 'unapproved',
+            extension_data: {
+                approver_group: 'parking-team',
+                requires_manual_approval: true,
+            },
         } as any;
 
         expect(
@@ -678,13 +681,20 @@ describe('ParkingStateService', () => {
             id: 'request-1',
             asset_id: 'unallocated-1',
             status: 'tentative',
-            extension_data: { approver_group: 'parking-team' },
+            process_state: 'unapproved',
+            extension_data: {
+                approver_group: 'parking-team',
+                requires_manual_approval: true,
+            },
         } as any;
         const approved_request = {
             id: 'request-2',
             asset_id: 'unallocated-2',
             status: 'approved',
-            extension_data: { approver_group: 'parking-team' },
+            extension_data: {
+                approver_group: 'parking-team',
+                requires_manual_approval: true,
+            },
         } as any;
         const allocated_request = {
             id: 'request-3',
@@ -707,6 +717,7 @@ describe('ParkingStateService', () => {
             id: 'booking-1',
             asset_id: 'space-1',
             status: 'tentative',
+            process_state: 'unapproved',
             extension_data: { requires_manual_approval: true },
         } as any;
         const regular_booking = {
