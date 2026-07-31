@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -144,9 +147,7 @@ describe('SignagePanelComponent', () => {
             spectator.component.version_hash,
         );
         expect(spectator.element.textContent).toContain(
-            new Date(spectator.component.version_date)
-                .getFullYear()
-                .toString(),
+            new Date(spectator.component.version_date).getFullYear().toString(),
         );
     });
 

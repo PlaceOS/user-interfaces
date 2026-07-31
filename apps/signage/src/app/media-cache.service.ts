@@ -302,10 +302,7 @@ export class MediaCacheService extends AsyncHandler {
                     owners,
                     size: item.size || 0,
                     priority: priority_urls.indexOf(item.url),
-                    owner_priority:
-                        !owner || owners.includes(owner)
-                            ? 1
-                            : 0,
+                    owner_priority: !owner || owners.includes(owner) ? 1 : 0,
                 };
             })
             .filter((_) => _.size > 0);
@@ -386,7 +383,9 @@ export class MediaCacheService extends AsyncHandler {
                 cache_item.owner = remaining_owners[0] || '';
                 cache_item.owners = remaining_owners;
                 this._file_cache_index.set([...this._cache_index]);
-                this._updateStoredOwners(cache_item).then(resolve).catch(reject);
+                this._updateStoredOwners(cache_item)
+                    .then(resolve)
+                    .catch(reject);
                 return;
             }
             this._cache_db_ready

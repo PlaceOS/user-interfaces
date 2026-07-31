@@ -98,9 +98,9 @@ describe('MediaPlayerComponent', () => {
         spectator.setInput('controls', true);
         spectator.detectChanges();
 
-        expect(spectator.query('time-controls')?.parentElement?.classList).toContain(
-            'z-20',
-        );
+        expect(
+            spectator.query('time-controls')?.parentElement?.classList,
+        ).toContain('z-20');
         expect(
             spectator.query('media-controls')?.parentElement?.classList,
         ).toContain('z-20');
@@ -704,9 +704,9 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_processURLs']();
 
         expect(spectator.component['_output_items'][1]).toBeNull();
-        expect(
-            spectator.component['_web_element'](1).nativeElement.src,
-        ).toBe('');
+        expect(spectator.component['_web_element'](1).nativeElement.src).toBe(
+            '',
+        );
     });
 
     it('should not preload upcoming interactive media early when debug time is fast', () => {
@@ -737,9 +737,9 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_processURLs']();
 
         expect(spectator.component['_output_items'][1]).toBeNull();
-        expect(
-            spectator.component['_web_element'](1).nativeElement.src,
-        ).toBe('');
+        expect(spectator.component['_web_element'](1).nativeElement.src).toBe(
+            '',
+        );
     });
 
     it('should preload the next webpage in the final ten seconds', () => {
@@ -767,9 +767,9 @@ describe('MediaPlayerComponent', () => {
         spectator.component['_processURLs']();
 
         expect(spectator.component['_output_items'][1].id).toBe('webpage-2');
-        expect(
-            spectator.component['_web_element'](1).nativeElement.src,
-        ).toBe('blob:webpage-2');
+        expect(spectator.component['_web_element'](1).nativeElement.src).toBe(
+            'blob:webpage-2',
+        );
         expect(spectator.component.output_plugins()[1]).toBeNull();
     });
 

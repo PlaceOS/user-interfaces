@@ -68,9 +68,9 @@ describe('PlaylistDisplayComponent', () => {
                 create_item('cached-media', { isCached: () => true }),
             ),
         ).toBe('Cached');
-        expect(spectator.component.cacheStatus(create_item('remote-media'))).toBe(
-            'Not cached',
-        );
+        expect(
+            spectator.component.cacheStatus(create_item('remote-media')),
+        ).toBe('Not cached');
     });
 
     it('should emit the selected playlist index', () => {

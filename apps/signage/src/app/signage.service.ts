@@ -649,7 +649,7 @@ export class SignageService extends AsyncHandler {
             .map((id) => this._playlistConfig(display, id)?.[0])
             .filter((_) => !!_)
             .map((playlist) => {
-                const active = activePlaylistSchedules(playlist, now)[0];
+                const active = activePlaylistSchedule(playlist, now);
                 return {
                     id: playlist.id,
                     name: playlist.name,
@@ -686,7 +686,9 @@ export class SignageService extends AsyncHandler {
                     schedule_index: index,
                     takeover: !!schedule.play_takeover,
                     play_cron: schedule.play_cron || '',
-                    play_at: asTime(parsePlayAtTimestamp(schedule.play_at || 0)),
+                    play_at: asTime(
+                        parsePlayAtTimestamp(schedule.play_at || 0),
+                    ),
                     period_minutes: period,
                     starts_at: asTime(starts_at),
                     ends_at: period
@@ -932,15 +934,19 @@ export class SignageService extends AsyncHandler {
 
     private _activeOverrideSchedules(display: any, playlist_ids: string[]) {
         const now = time();
-        return playlist_ids
-            .map((id) => this._playlistConfig(display, id)?.[0])
-            .filter((_) => !!_)
-            // Detect across each schedule's full play period (like `play_at` and
-            // the background playlist) so an in-progress cron takeover is picked
-            // up even if the display booted/ticked after it fired. Single-pass
-            // (period 0) schedules still resolve to a short ~30s window.
-            .flatMap((playlist) => activePlaylistSchedules(playlist, now))
-            .filter(({ key }) => !this._completed_schedule_overrides.has(key));
+        return (
+            playlist_ids
+                .map((id) => this._playlistConfig(display, id)?.[0])
+                .filter((_) => !!_)
+                // Detect across each schedule's full play period (like `play_at` and
+                // the background playlist) so an in-progress cron takeover is picked
+                // up even if the display booted/ticked after it fired. Single-pass
+                // (period 0) schedules still resolve to a short ~30s window.
+                .flatMap((playlist) => activePlaylistSchedules(playlist, now))
+                .filter(
+                    ({ key }) => !this._completed_schedule_overrides.has(key),
+                )
+        );
     }
 
     private _hasCurrentOverrideFor(schedules: ActivePlaylistSchedule[]) {
@@ -1000,8 +1006,7 @@ export class SignageService extends AsyncHandler {
                 playlist_media:
                     source.playlist_media?.map((_) => new SignageMedia(_)) ||
                     [],
-                plugins:
-                    source.plugins?.map((_) => new SignagePlugin(_)) || [],
+                plugins: source.plugins?.map((_) => new SignagePlugin(_)) || [],
             };
         } catch (e) {
             log.error('Failed to parse display media.', e);

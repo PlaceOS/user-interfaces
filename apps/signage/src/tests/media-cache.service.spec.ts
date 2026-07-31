@@ -1,4 +1,7 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { Subject } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
@@ -295,9 +298,9 @@ describe('MediaCacheService', () => {
         await expect(
             spectator.service.invalidateFile('/outer.png', 'embedded-display'),
         ).rejects.toBe('Cached item with URL not found');
-        await expect(
-            spectator.service.getFile('/outer.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/outer.png')).resolves.toEqual(
+            expect.any(File),
+        );
     });
 
     it('should share one cached file between multiple owners', async () => {
@@ -360,9 +363,9 @@ describe('MediaCacheService', () => {
         expect(spectator.service.availableFiles('embedded-display')).toEqual([
             '/shared.png',
         ]);
-        await expect(
-            spectator.service.getFile('/shared.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/shared.png')).resolves.toEqual(
+            expect.any(File),
+        );
         expect([...stored_files.values()][0].owners).toEqual([
             'embedded-display',
         ]);
@@ -427,9 +430,9 @@ describe('MediaCacheService', () => {
         expect(spectator.service.availableFiles('display-1')).toEqual([
             '/stale.png',
         ]);
-        await expect(
-            spectator.service.getFile('/stale.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/stale.png')).resolves.toEqual(
+            expect.any(File),
+        );
     });
 
     it('should load cache metadata from IndexedDB records', async () => {
@@ -445,9 +448,9 @@ describe('MediaCacheService', () => {
         expect(spectator.service.availableFiles('display-1')).toEqual([
             '/stored.png',
         ]);
-        await expect(
-            spectator.service.getFile('/stored.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/stored.png')).resolves.toEqual(
+            expect.any(File),
+        );
     });
 
     it('should re-download cached metadata when the backing file is blank', async () => {
@@ -483,9 +486,9 @@ describe('MediaCacheService', () => {
 
         expect(has_failures).toBe(false);
         expect(fetch_spy).toHaveBeenCalledWith('/blank.png');
-        await expect(
-            spectator.service.getFile('/blank.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/blank.png')).resolves.toEqual(
+            expect.any(File),
+        );
     });
 
     it('should reject empty downloads instead of storing blank files', async () => {
@@ -532,7 +535,9 @@ describe('MediaCacheService', () => {
         await Promise.resolve();
 
         expect(fetch_spy).toHaveBeenCalledWith('/waiting.png');
-        expect(spectator.service['_cache_db'].transaction).not.toHaveBeenCalled();
+        expect(
+            spectator.service['_cache_db'].transaction,
+        ).not.toHaveBeenCalled();
 
         resolve_ready();
         await cache_promise;

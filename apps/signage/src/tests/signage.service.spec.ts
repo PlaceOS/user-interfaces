@@ -1,4 +1,7 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import * as ts_client from '@placeos/ts-client';
 import { MediaAnimation } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -274,10 +277,12 @@ describe('SignageService', () => {
     });
 
     it('should retry the whole reload after a failure part way through', async () => {
-        vi.spyOn(spectator.service as any, '_syncMediaCache')
-            .mockImplementationOnce(() => {
-                throw new Error('cache sync exploded');
-            });
+        vi.spyOn(
+            spectator.service as any,
+            '_syncMediaCache',
+        ).mockImplementationOnce(() => {
+            throw new Error('cache sync exploded');
+        });
 
         spectator.service.setDisplay('display-1');
         await flush();
@@ -468,10 +473,7 @@ describe('SignageService', () => {
     it('should only ask for a preview when debug is enabled', async () => {
         spectator.service.setDisplay('display-1');
         await flush();
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
-            'display-1',
-            {},
-        );
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith('display-1', {});
 
         spectator.service.debug.set(true);
         vi.advanceTimersByTime(60_000);

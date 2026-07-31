@@ -1,15 +1,8 @@
 import { DatePipe } from '@angular/common';
-import {
-    Component,
-    inject,
-    OnInit,
-    signal,
-    viewChildren,
-} from '@angular/core';
+import { Component, inject, OnInit, signal, viewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
-    hasNewVersion,
     log,
     setAutoReloadGate,
     SettingsService,
@@ -18,10 +11,10 @@ import {
 } from '@placeos/common';
 import { isOnline } from '@placeos/ts-client';
 import { registerSignageDiagnostics } from './diagnostics';
-import { startWatchdog } from './watchdog';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
+import { startWatchdog } from './watchdog';
 
 /** PostMessage types accepted from a parent frame (e.g. wayfinder shell) */
 const REMOTE_PAUSE = 'signage:pause';
@@ -63,14 +56,18 @@ function isDebugEnabled(value: string | null) {
         @if (debug()) {
             <div
                 stroke
-                class="text-base-100/60 absolute bottom-1 left-1 font-mono text-[0.625rem] px-2 rounded py-1 bg-base-content/40">
+                class="text-base-100/60 bg-base-content/40 absolute bottom-1 left-1 rounded px-2 py-1 font-mono text-[0.625rem]"
+            >
                 {{ version_date | date: 'mediumDate' }} &ndash;
                 {{ version_date | date: 'shortTime' }}
-                <span class="opacity-50">|</span>&nbsp;<span class="select-all">{{version_hash}}</span>
+                <span class="opacity-50">|</span>&nbsp;<span
+                    class="select-all"
+                    >{{ version_hash }}</span
+                >
             </div>
             <div
                 stroke
-                class="text-base-100/60 absolute bottom-1 right-1 font-mono text-[0.625rem] bg-base-content/40 rounded px-2 py-1"
+                class="text-base-100/60 bg-base-content/40 absolute right-1 bottom-1 rounded px-2 py-1 font-mono text-[0.625rem]"
             >
                 {{ playing_id() }}
                 @if (!playing_id()) {
@@ -208,7 +205,7 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
                 built: new Date(VERSION.time).toISOString(),
             },
             online: isOnline(),
-            updates: { ...updateCheckState(), new_version: hasNewVersion() },
+            updates: updateCheckState(),
             ...this._signage.diagnostics(),
             players: this._players().map((player, index) => ({
                 role: index === 0 ? 'background' : 'takeover',
