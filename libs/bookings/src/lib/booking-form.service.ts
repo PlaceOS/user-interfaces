@@ -2197,6 +2197,20 @@ export class BookingFormService extends AsyncHandler {
                 { name: asset_id },
             );
         }
+        // A permanent allocation is stored as a booking tagged `is_assigned`
+        // (see the concierge assignment flows). It always consumes the user's
+        // allowance, so booking on top of it double-books them even when the
+        // daily limit is higher than one. `allow` opts out of the restriction.
+        const is_self =
+            user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
+        if (
+            this.assignedResourceBooking(type) !== 'allow' &&
+            active_bookings.some(
+                (_) => _.id !== id && (_.extension_data as any)?.is_assigned,
+            )
+        ) {
+            throw `${is_self ? 'You have' : 'This user has'} an assigned ${type} and cannot book another ${type}.`;
+        }
         const allowed_bookings =
             this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
         if (
