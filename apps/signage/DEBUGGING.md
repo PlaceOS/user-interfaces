@@ -33,7 +33,7 @@ questions without needing to reproduce anything.
 | `active_media` | What the background playlist currently resolves to |
 | `upcoming_schedules` | Every scheduled run in the next month, soonest first |
 | `media_cache` | Per file `status`, `size`, `owners`; plus totals, budget, `failed_sync_attempts` |
-| `watchdog` | Heartbeats for `poll` / `schedule` / `playback`, which are `stalled`, the last fatal error and how many automatic recoveries have happened |
+| `watchdog` | Heartbeats for `poll` / `schedule` / `playback`, which are `stalled`, the last fatal error, and the recovery count and throttle state |
 | `players` | Per player: `state`, `item_index`, `progress_percent`, `playing`, `queue`, `mid_play_through` |
 
 Timestamps are ISO strings; `"never"` means it has not happened yet.
@@ -86,15 +86,35 @@ makes the display request use `?preview=true`.
 
 ## Recovery watchdog
 
-The player reloads itself only when a fatal error has been seen **and** one of
-its core loops has stopped checking in — polling, schedule evaluation or
-playback. A stall on its own is not enough, and neither is an error, so an
-error the player shrugs off never causes a reload.
+The player reloads itself when one of its core loops stops checking in:
+polling, schedule evaluation or playback. Each beats far more often than its
+stall threshold, so a stalled signal means that timer chain is dead rather than
+idle. No error is required — most stalls worth recovering from raise none — but
+any fatal error is recorded and reported alongside the stall.
 
-A stall must persist for two minutes before a reload, and at most three
-automatic recoveries are allowed per hour; past that it logs and leaves the
-player as-is rather than looping. `watchdog` in the snapshot shows the current
-heartbeats, what is stalled, the last error and the recovery count.
+The heartbeats measure the player's own machinery, not the backend. The poll
+signal beats when a fetch is *attempted*, so a backend that has been down for
+hours never triggers a recovery.
+
+| Guard | Value |
+| --- | --- |
+| Stall thresholds | poll 10 min, schedule 5 min, playback 3 min |
+| Grace before recovering | 5 min |
+| Recoveries allowed | 3 per hour, then 1 per hour |
+| Back to 3 per hour after | 2 hours with no recovery |
+
+Once recoveries are throttled the next one clears the application cache first —
+unregistering the service worker and deleting its caches — in case the cached
+build is what is wrong. That only happens if `location.href` returns a 200, so a
+player is never left with no cached application and no way to fetch a new one;
+if the server cannot be reached it falls back to a plain reload.
+
+A recovery reload does **not** wait for the network, unlike an update reload. A
+stalled player should restart whether or not the backend is up, and it can boot
+from cached credentials and cached content.
+
+`watchdog.recoveries_throttled` and `watchdog.last_recovery` show where in that
+sequence a player is.
 
 ## Storage
 
