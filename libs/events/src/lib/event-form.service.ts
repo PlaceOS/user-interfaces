@@ -75,6 +75,22 @@ const BOOKING_URLS = [
     'upcoming',
 ];
 
+/**
+ * Form fields that change without the user editing them, so they can't be used
+ * to work out whether a booking has details other than its attendees changed.
+ * `attendees` is compared on its own, and the remaining fields are either
+ * derived (`date_end`), re-normalised on load (`system`) or re-hydrated with
+ * extra detail from the API (`organiser`, `resources`) — the identity of those
+ * last two is compared separately.
+ */
+const IGNORED_DETAIL_FIELDS = [
+    'attendees',
+    'system',
+    'date_end',
+    'organiser',
+    'resources',
+];
+
 enum Tags {
     Availability = 'AVAILABILITY',
     BookingRules = 'BOOKING_RULES',
@@ -642,10 +658,12 @@ export class EventFormService extends AsyncHandler {
         value.assets = (event.extension_data.assets || []).map(
             (_) => new AssetRequest({ ..._, event }),
         );
-        this._setInitialEvent(value);
         this._model.set(value);
         this._form().reset();
         this._applyDurationSettings();
+        // snapshot after the duration settings are applied, as they clamp the
+        // event times to the building's booking rules without any user input
+        this._setInitialEvent(this._model());
         if (!event.id) return;
         sessionStorage.setItem(
             'PLACEOS.event',
@@ -1297,11 +1315,16 @@ export class EventFormService extends AsyncHandler {
     }
 
     private _eventDetails(value: EventFormValue) {
-        return JSON.stringify(
-            Object.entries(value).filter(
-                ([key]) => key !== 'attendees' && key !== 'system',
-            ),
+        const details = Object.entries(value).filter(
+            ([key]) => !IGNORED_DETAIL_FIELDS.includes(key),
         );
+        details.push(['host_email', (value.organiser as any)?.email || '']);
+        details.push([
+            'space_ids',
+            (value.resources || []).map((_: any) => _.id || _.email || ''),
+        ]);
+        details.sort(([a], [b]) => (a > b ? 1 : -1));
+        return JSON.stringify(details);
     }
 
     private async _removeBookingAfterError(
