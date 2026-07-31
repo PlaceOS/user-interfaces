@@ -55752,15 +55752,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "5581e40",
-  "hash": "5581e40",
+  "raw": "fcedce6",
+  "hash": "fcedce6",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5581e40",
+  "suffix": "fcedce6",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785386083301
+  "time": 1785485886271
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -56741,6 +56741,14 @@ var _version_subscription;
 var _unrecoverable_subscription;
 var _new_version = false;
 var _auto_reload = false;
+var _reload_gate = null;
+var _reload_timer;
+var _reload_deferred_since = 0;
+var _init_reload = null;
+var _last_update_check = 0;
+var _update_interval = 0;
+var RELOAD_RETRY_MS = 5 * SECONDS;
+var MAX_RELOAD_DEFERRAL_MS = 10 * MINUTES;
 var SERVICE_WORKER_UPDATE = signal(
   null,
   ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
@@ -56754,7 +56762,37 @@ function hasNewVersion() {
 function serviceWorkerUpdate() {
   return SERVICE_WORKER_UPDATE.asReadonly();
 }
+function canReloadNow() {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return false;
+  }
+  if (!Fr())
+    return false;
+  try {
+    return _reload_gate ? _reload_gate() : true;
+  } catch (error2) {
+    log("CACHE", "Reload gate failed.", error2, "warn");
+    return true;
+  }
+}
 function reloadApp() {
+  if (_reload_timer)
+    clearTimeout(_reload_timer);
+  _reload_timer = void 0;
+  if (!_reload_deferred_since)
+    _reload_deferred_since = Date.now();
+  const waited = Date.now() - _reload_deferred_since;
+  if (canReloadNow() || waited >= MAX_RELOAD_DEFERRAL_MS) {
+    location.reload();
+    return;
+  }
+  _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+function requestInitReload() {
+  if (_init_reload) {
+    _init_reload();
+    return;
+  }
   location.reload();
 }
 function stopUpdateChecks() {
@@ -56784,6 +56822,7 @@ function handleNewVersion() {
 function setupCache(cache, options2 = {}) {
   const { auto_reload = false, interval: interval2 = 5 * MINUTES } = cacheOptions(options2);
   _auto_reload = auto_reload;
+  _update_interval = Math.max(interval2, 1 * MINUTES);
   if (cache.isEnabled) {
     if (!_version_subscription) {
       _version_subscription = cache.versionUpdates.subscribe((event) => {
@@ -56824,6 +56863,7 @@ function setupCache(cache, options2 = {}) {
   }
 }
 async function checkForUpdate(cache) {
+  _last_update_check = Date.now();
   try {
     if (cache.isEnabled && await cache.checkForUpdate()) {
       log("CACHE", `Application update detected.`);
@@ -78380,7 +78420,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       qn();
     } else if (!X(false))
       qn();
-    location.reload();
+    requestInitReload();
   }
   _initAnalytics() {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
@@ -78492,8 +78532,28 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
 var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
+var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
+function cachedAuthority() {
+  const auth = Rt();
+  if (auth?.id) {
+    const details = {
+      id: auth.id,
+      metadata_cache_id: `${auth.config?.["metadata_cache_id"] || ""}`
+    };
+    try {
+      localStorage.setItem(AUTHORITY_CACHE_KEY, JSON.stringify(details));
+    } catch {
+    }
+    return details;
+  }
+  try {
+    return JSON.parse(localStorage.getItem(AUTHORITY_CACHE_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
 var OrganisationService = class _OrganisationService {
   /** Whether cached data is being replaced with the latest from the API */
   get _refreshing() {
@@ -79211,12 +79271,12 @@ var OrganisationService = class _OrganisationService {
     return zones;
   }
   _metadataCacheKey(name, ids) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const parent_ids = ids.filter(Boolean).sort().join(",");
     return `${METADATA_CACHE_PREFIX}.${auth?.id || "default"}.${name}.${parent_ids}`;
   }
   _zoneCacheKey(params) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const sorted_params = Object.keys(params).sort().reduce((cache_params, key) => {
       cache_params[key] = params[key];
       return cache_params;
@@ -79259,7 +79319,7 @@ var OrganisationService = class _OrganisationService {
     }
   }
   _metadataCacheID() {
-    return `${Rt()?.config?.["metadata_cache_id"] || ""}`;
+    return `${cachedAuthority()?.metadata_cache_id || ""}`;
   }
   _clearCache() {
     for (const store2 of [localStorage, sessionStorage]) {
@@ -106392,6 +106452,26 @@ var VirtualKeyboardComponent = class _VirtualKeyboardComponent extends AsyncHand
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
+var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
+function hasCachedCredentials() {
+  try {
+    return !!X();
+  } catch {
+    return false;
+  }
+}
+function resolvedWithin(promise, delay2) {
+  return new Promise((resolve) => {
+    const timer2 = setTimeout(() => resolve(false), delay2);
+    promise.then(() => {
+      clearTimeout(timer2);
+      resolve(true);
+    }, () => {
+      clearTimeout(timer2);
+      resolve(false);
+    });
+  });
+}
 var PLACEOS_APP_ACCESS = class {
 };
 var AuthorisedUserGuard = class _AuthorisedUserGuard {
@@ -106412,24 +106492,28 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
-    await Promise.all([
+    const state_ready = await resolvedWithin(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]);
+    ]), OFFLINE_FALLBACK_DELAY);
+    if (!state_ready)
+      return this.offlineAccess();
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = this.checkSubsystemAccess(user);
       log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
       log("ACCESS", "No access groups", can_activate);
     } else {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
       log("ACCESS", "Checking access groups", can_activate);
     }
@@ -106437,6 +106521,30 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
       this._router.navigate(["/unauthorised"]);
     }
     return !!can_activate;
+  }
+  /** The active user, or null if the backend could not be reached in time */
+  async waitForUser() {
+    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    if (!online)
+      return null;
+    let user = null;
+    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_2) => user = _2), OFFLINE_FALLBACK_DELAY);
+    return loaded ? user : null;
+  }
+  /**
+   * Access decision for when the backend cannot be reached. Waiting forever
+   * leaves a fixed device sitting on a loading screen with no way back, so a
+   * device that has authenticated before is allowed through on its cached
+   * session. Every API call it then makes is still checked by the server.
+   */
+  offlineAccess() {
+    if (hasCachedCredentials()) {
+      log("ACCESS", "Backend unreachable. Continuing with cached credentials.");
+      return true;
+    }
+    log("ACCESS", "Backend unreachable and no cached credentials.", void 0, "warn");
+    this._router.navigate(["/unauthorised"]);
+    return false;
   }
   async useGroupSubsystemAccess() {
     const value = Rt()?.config?.["use_group_subsystem_access"];
@@ -108993,7 +109101,9 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
   })), injector);
   onFieldChange(model2, (v) => v.date, (date) => {
     const recurrence = model2().recurrence;
-    if (recurrence?._pattern !== "custom_display" && recurrence?._pattern !== "none") {
+    if (!recurrence?.pattern)
+      return;
+    if (recurrence._pattern !== "custom_display" && recurrence._pattern !== "none") {
       model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
         recurrence: __spreadProps(__spreadValues({}, m2.recurrence), {
           days_of_week: [new Date(date).getDay()]
@@ -114127,6 +114237,13 @@ var BOOKING_URLS = [
   "upcoming"
 ];
 var PERSISTED_EVENT_CONTEXT_URLS = ["landing"];
+var IGNORED_DETAIL_FIELDS = [
+  "attendees",
+  "system",
+  "date_end",
+  "organiser",
+  "resources"
+];
 var Tags;
 (function(Tags2) {
   Tags2["Availability"] = "AVAILABILITY";
@@ -114601,10 +114718,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const value = eventFormValue(event);
     this.notify_new_attendees_only.set(false);
     value.assets = (event.extension_data.assets || []).map((_2) => new AssetRequest(__spreadProps(__spreadValues({}, _2), { event })));
-    this._setInitialEvent(value);
     this._model.set(value);
     this._form().reset();
     this._applyDurationSettings();
+    this._setInitialEvent(this._model());
     if (!event.id)
       return;
     sessionStorage.setItem("PLACEOS.event", JSON.stringify(event?.toJSON() || {}));
@@ -114972,7 +115089,14 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._initial_event_details = this._eventDetails(value);
   }
   _eventDetails(value) {
-    return JSON.stringify(Object.entries(value).filter(([key]) => key !== "attendees" && key !== "system"));
+    const details = Object.entries(value).filter(([key]) => !IGNORED_DETAIL_FIELDS.includes(key));
+    details.push(["host_email", value.organiser?.email || ""]);
+    details.push([
+      "space_ids",
+      (value.resources || []).map((_2) => _2.id || _2.email || "")
+    ]);
+    details.sort(([a], [b2]) => a > b2 ? 1 : -1);
+    return JSON.stringify(details);
   }
   async _removeBookingAfterError(is_new, event, assets = false, e) {
     if (is_new) {
@@ -128696,7 +128820,13 @@ function formBookingData(value) {
   for (const key in value) {
     if (key === "extension_data") {
       data.extension_data = formExtensionData(value.extension_data);
-    } else if (!BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) && (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))) {
+    } else if (
+      // `asset_ids` is spread into the form model from the booking being
+      // edited and never updated when `asset_id` changes, so sending it
+      // back would overwrite the new resource with the old one. The
+      // `Booking` constructor rebuilds it from `asset_id`.
+      key !== "asset_ids" && !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) && (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))
+    ) {
       data[key] = value[key];
     }
   }
@@ -129814,6 +129944,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!booking?.id)
       return [];
     const parent_id = booking.parent_id || booking.id;
+    const group_ref = `${booking.group || ""}`.trim();
     const legacy_group = `${booking.description || ""}`.startsWith("grp-") ? booking.description : "";
     const { type: type2 } = this._options();
     const list2 = await queryBookings({
@@ -129822,7 +129953,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       type: type2,
       include_booked_by: true
     });
-    return list2.filter((b2) => b2.id === parent_id || b2.parent_id === parent_id || !!legacy_group && b2.description === legacy_group);
+    return list2.filter((b2) => b2.id === parent_id || b2.parent_id === parent_id || !!group_ref && `${b2.group || ""}`.trim() === group_ref || !!legacy_group && b2.description === legacy_group);
   }
   async loadGroupMembersForBooking(booking) {
     if (!booking?.id)
@@ -130056,7 +130187,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
   }
   mapGroupMembers(type2, members = []) {
-    const user_list = type2 === "visitor" ? members : unique([currentUser(), ...members || []], "email");
+    const user_list = unique(type2 === "visitor" ? members || [] : [currentUser(), ...members || []], "email");
     return user_list.filter((member) => !!member?.email).map((member) => ({
       id: member.id || "",
       name: member.name || member.email,
@@ -130172,6 +130303,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const active_bookings = bookings.filter((_2) => _2.status !== "declined" && _2.status !== "cancelled" && !_2.rejected);
     if (active_bookings.find((_2) => _2.asset_id === asset_id && id !== _2.id)) {
       throw i18n(asset_id.includes("@") ? "BOOKINGS.VISITOR_BOOKED" : "BOOKINGS.RESOURCE_BOOKED", { name: asset_id });
+    }
+    const is_self = user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
+    if (this.assignedResourceBooking(type2) !== "allow" && active_bookings.some((_2) => _2.id !== id && _2.extension_data?.is_assigned)) {
+      throw `${is_self ? "You have" : "This user has"} an assigned ${type2} and cannot book another ${type2}.`;
     }
     const allowed_bookings = this._settings.get(`app.bookings.allowed_daily_${type2}_count`) ?? 1;
     if (allowed_bookings > 0 && active_bookings.filter((_2) => _2.user_email.toLowerCase() === (user_email || currentUser()?.email || "").toLowerCase() && _2.id !== id).length >= allowed_bookings) {
