@@ -166,7 +166,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-EQFGUZ47.js";
+} from "./chunk-37TZYTLG.js";
 import {
   __export,
   __spreadProps,
@@ -3829,6 +3829,26 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
+var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
+function hasCachedCredentials() {
+  try {
+    return !!X();
+  } catch {
+    return false;
+  }
+}
+function resolvedWithin(promise, delay) {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), delay);
+    promise.then(() => {
+      clearTimeout(timer);
+      resolve(true);
+    }, () => {
+      clearTimeout(timer);
+      resolve(false);
+    });
+  });
+}
 var PLACEOS_APP_ACCESS = class {
 };
 var AuthorisedUserGuard = class _AuthorisedUserGuard {
@@ -3849,24 +3869,28 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
-    await Promise.all([
+    const state_ready = await resolvedWithin(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]);
+    ]), OFFLINE_FALLBACK_DELAY);
+    if (!state_ready)
+      return this.offlineAccess();
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = this.checkSubsystemAccess(user);
       log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
       log("ACCESS", "No access groups", can_activate);
     } else {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = !!(user && groups.find((_) => user.groups.includes(_)));
       log("ACCESS", "Checking access groups", can_activate);
     }
@@ -3874,6 +3898,30 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
       this._router.navigate(["/unauthorised"]);
     }
     return !!can_activate;
+  }
+  /** The active user, or null if the backend could not be reached in time */
+  async waitForUser() {
+    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    if (!online)
+      return null;
+    let user = null;
+    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_) => user = _), OFFLINE_FALLBACK_DELAY);
+    return loaded ? user : null;
+  }
+  /**
+   * Access decision for when the backend cannot be reached. Waiting forever
+   * leaves a fixed device sitting on a loading screen with no way back, so a
+   * device that has authenticated before is allowed through on its cached
+   * session. Every API call it then makes is still checked by the server.
+   */
+  offlineAccess() {
+    if (hasCachedCredentials()) {
+      log("ACCESS", "Backend unreachable. Continuing with cached credentials.");
+      return true;
+    }
+    log("ACCESS", "Backend unreachable and no cached credentials.", void 0, "warn");
+    this._router.navigate(["/unauthorised"]);
+    return false;
   }
   async useGroupSubsystemAccess() {
     const value = Rt()?.config?.["use_group_subsystem_access"];
@@ -12033,39 +12081,39 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-MSCCSCNY.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-6T6ZMHGB.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-NO6DVCH6.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-37J43E4Z.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-NO6DVCH6.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-37J43E4Z.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-OAM76NR4.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-ZQ2DTJLG.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-6CDCHMHQ.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-VC2JD7MJ.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-6CDCHMHQ.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-VC2JD7MJ.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-2KC2M6UM.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-7W5OTX57.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-H72RMBPJ.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-64MOJAK5.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-H72RMBPJ.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-64MOJAK5.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
