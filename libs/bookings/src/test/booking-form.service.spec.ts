@@ -2594,4 +2594,92 @@ describe('BookingFormService', () => {
             expect.stringContaining('include_booked_by=true'),
         );
     });
+
+    it('should save each visitor against their own asset on group edit', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'booking-one',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                title: 'Vendor Visit',
+                asset_id: 'visitor.one@example.com',
+                asset_name: 'Visitor One',
+                zones: ['org-1', 'bld-1'],
+                extension_data: { visitor_name: 'Visitor One' },
+            }),
+        );
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [
+                new User({
+                    name: 'Visitor One',
+                    email: 'visitor.one@example.com',
+                }),
+                new User({
+                    name: 'Visitor Two',
+                    email: 'visitor.two@example.com',
+                }),
+            ],
+        });
+
+        await spectator.service.editFormForGroup([
+            new Booking({
+                id: 'booking-one',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                asset_id: 'visitor.one@example.com',
+                asset_name: 'Visitor One',
+            }),
+            new Booking({
+                id: 'booking-two',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                asset_id: 'visitor.two@example.com',
+                asset_name: 'Visitor Two',
+            }),
+        ]);
+
+        // `asset_ids` is what the API stores the visitor against. Carrying the
+        // edited booking's stale value onto every sibling made all of them
+        // resolve to the first visitor's name in the bookings list.
+        const visitor_bookings = savedBookings().filter(
+            (_: any) => _.booking_type === 'visitor',
+        );
+        expect(
+            visitor_bookings.map((_: any) => [_.asset_id, _.asset_ids]),
+        ).toEqual([
+            ['visitor.one@example.com', ['visitor.one@example.com']],
+            ['visitor.two@example.com', ['visitor.two@example.com']],
+        ]);
+    });
+
+    it('should not save a stale asset_ids when the booked resource changes', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                id: 'booking-desk',
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-2',
+            asset_name: 'Desk 2',
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).asset_ids).toEqual(['desk-2']);
+    });
 });

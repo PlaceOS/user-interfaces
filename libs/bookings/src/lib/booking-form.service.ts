@@ -196,6 +196,11 @@ function formBookingData(value: Record<string, any>) {
         if (key === 'extension_data') {
             data.extension_data = formExtensionData(value.extension_data);
         } else if (
+            // `asset_ids` is spread into the form model from the booking being
+            // edited and never updated when `asset_id` changes, so sending it
+            // back would overwrite the new resource with the old one. The
+            // `Booking` constructor rebuilds it from `asset_id`.
+            key !== 'asset_ids' &&
             !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) &&
             (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))
         ) {
