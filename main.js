@@ -36500,13 +36500,13 @@ function checkGuards(forwardEvent) {
   });
 }
 function runCanDeactivateChecks(checks, futureRSS, currRSS) {
-  return from(checks).pipe(mergeMap((check) => runCanDeactivate(check.component, check.route, currRSS, futureRSS)), first((result) => {
+  return from(checks).pipe(mergeMap((check2) => runCanDeactivate(check2.component, check2.route, currRSS, futureRSS)), first((result) => {
     return result !== true;
   }, true));
 }
 function runCanActivateChecks(futureSnapshot, checks, forwardEvent) {
-  return from(checks).pipe(concatMap((check) => {
-    return concat(fireChildActivationStart(check.route.parent, forwardEvent), fireActivationStart(check.route, forwardEvent), runCanActivateChild(futureSnapshot, check.path), runCanActivate(futureSnapshot, check.route));
+  return from(checks).pipe(concatMap((check2) => {
+    return concat(fireChildActivationStart(check2.route.parent, forwardEvent), fireActivationStart(check2.route, forwardEvent), runCanActivateChild(futureSnapshot, check2.path), runCanActivate(futureSnapshot, check2.route));
   }), first((result) => {
     return result !== true;
   }, true));
@@ -37236,7 +37236,7 @@ function resolveData(paramsInheritanceStrategy) {
     if (!canActivateChecks.length) {
       return of(t);
     }
-    const routesWithResolversToRun = new Set(canActivateChecks.map((check) => check.route));
+    const routesWithResolversToRun = new Set(canActivateChecks.map((check2) => check2.route));
     const routesNeedingDataUpdates = /* @__PURE__ */ new Set();
     for (const route of routesWithResolversToRun) {
       if (routesNeedingDataUpdates.has(route)) {
@@ -54090,15 +54090,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "5581e40",
-  "hash": "5581e40",
+  "raw": "fcedce6",
+  "hash": "fcedce6",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5581e40",
+  "suffix": "fcedce6",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785386024830
+  "time": 1785485782794
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -54406,13 +54406,13 @@ var SettingsService = class _SettingsService extends AsyncHandler {
   }
   _currentUser() {
     return new Promise((resolve) => {
-      const check = () => {
+      const check2 = () => {
         const user = currentUser();
         if (user?.id)
           return resolve(user);
-        this.timeout("current_user", check, 100);
+        this.timeout("current_user", check2, 100);
       };
-      check();
+      check2();
     });
   }
   static {
@@ -54583,6 +54583,14 @@ var _version_subscription;
 var _unrecoverable_subscription;
 var _new_version = false;
 var _auto_reload = false;
+var _reload_gate = null;
+var _reload_timer;
+var _reload_deferred_since = 0;
+var _init_reload = null;
+var _last_update_check = 0;
+var _update_interval = 0;
+var RELOAD_RETRY_MS = 5 * SECONDS;
+var MAX_RELOAD_DEFERRAL_MS = 10 * MINUTES;
 var SERVICE_WORKER_UPDATE = signal(
   null,
   ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
@@ -54596,8 +54604,55 @@ function hasNewVersion() {
 function serviceWorkerUpdate() {
   return SERVICE_WORKER_UPDATE.asReadonly();
 }
+function setAutoReloadGate(gate) {
+  _reload_gate = gate;
+}
+function canReloadNow() {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return false;
+  }
+  if (!Fr())
+    return false;
+  try {
+    return _reload_gate ? _reload_gate() : true;
+  } catch (error2) {
+    log("CACHE", "Reload gate failed.", error2, "warn");
+    return true;
+  }
+}
 function reloadApp() {
+  if (_reload_timer)
+    clearTimeout(_reload_timer);
+  _reload_timer = void 0;
+  if (!_reload_deferred_since)
+    _reload_deferred_since = Date.now();
+  const waited = Date.now() - _reload_deferred_since;
+  if (canReloadNow() || waited >= MAX_RELOAD_DEFERRAL_MS) {
+    location.reload();
+    return;
+  }
+  _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+function setInitReloadHandler(handler) {
+  _init_reload = handler;
+}
+function requestInitReload() {
+  if (_init_reload) {
+    _init_reload();
+    return;
+  }
   location.reload();
+}
+function updateCheckState() {
+  return {
+    checking: !!_timer || !!_initial_check,
+    auto_reload: _auto_reload,
+    interval_ms: _update_interval,
+    last_check: _last_update_check || 0,
+    next_check: _last_update_check && _update_interval && _timer ? _last_update_check + _update_interval : 0,
+    new_version: _new_version,
+    reload_pending: !!_reload_timer
+  };
 }
 function stopUpdateChecks() {
   if (_timer)
@@ -54626,6 +54681,7 @@ function handleNewVersion() {
 function setupCache(cache, options = {}) {
   const { auto_reload = false, interval: interval2 = 5 * MINUTES } = cacheOptions(options);
   _auto_reload = auto_reload;
+  _update_interval = Math.max(interval2, 1 * MINUTES);
   if (cache.isEnabled) {
     if (!_version_subscription) {
       _version_subscription = cache.versionUpdates.subscribe((event) => {
@@ -54666,6 +54722,7 @@ function setupCache(cache, options = {}) {
   }
 }
 async function checkForUpdate(cache) {
+  _last_update_check = Date.now();
   try {
     if (cache.isEnabled && await cache.checkForUpdate()) {
       log("CACHE", `Application update detected.`);
@@ -70086,12 +70143,12 @@ function estimateMetricSizeInBytes(metric) {
   weight += 8;
   return weight + estimateAttributesSizeInBytes(metric.attributes);
 }
-function estimateLogSizeInBytes(log6) {
+function estimateLogSizeInBytes(log7) {
   let weight = 0;
-  if (log6.message) {
-    weight += log6.message.length * 2;
+  if (log7.message) {
+    weight += log7.message.length * 2;
   }
-  return weight + estimateAttributesSizeInBytes(log6.attributes);
+  return weight + estimateAttributesSizeInBytes(log7.attributes);
 }
 function estimateAttributesSizeInBytes(attributes) {
   if (!attributes) {
@@ -70615,8 +70672,8 @@ function instrumentConsole() {
       originalConsoleMethods[level] = originalConsoleMethod;
       return function(...args) {
         triggerHandlers("console", { args, level });
-        const log6 = originalConsoleMethods[level];
-        log6?.apply(GLOBAL_OBJ.console, args);
+        const log7 = originalConsoleMethods[level];
+        log7?.apply(GLOBAL_OBJ.console, args);
       };
     });
   });
@@ -76222,7 +76279,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       qn();
     } else if (!X(false))
       qn();
-    location.reload();
+    requestInitReload();
   }
   _initAnalytics() {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
@@ -76301,12 +76358,12 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _waitFor(condition) {
     return new Promise((resolve) => {
-      const check = () => {
+      const check2 = () => {
         if (condition())
           return resolve();
-        this.timeout(`wait-${Math.random()}`, check, 100);
+        this.timeout(`wait-${Math.random()}`, check2, 100);
       };
-      check();
+      check2();
     });
   }
   static {
@@ -76334,8 +76391,28 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
 var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
+var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
+function cachedAuthority() {
+  const auth = Rt();
+  if (auth?.id) {
+    const details = {
+      id: auth.id,
+      metadata_cache_id: `${auth.config?.["metadata_cache_id"] || ""}`
+    };
+    try {
+      localStorage.setItem(AUTHORITY_CACHE_KEY, JSON.stringify(details));
+    } catch {
+    }
+    return details;
+  }
+  try {
+    return JSON.parse(localStorage.getItem(AUTHORITY_CACHE_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
 var OrganisationService = class _OrganisationService {
   /** Whether cached data is being replaced with the latest from the API */
   get _refreshing() {
@@ -77053,12 +77130,12 @@ var OrganisationService = class _OrganisationService {
     return zones;
   }
   _metadataCacheKey(name, ids) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const parent_ids = ids.filter(Boolean).sort().join(",");
     return `${METADATA_CACHE_PREFIX}.${auth?.id || "default"}.${name}.${parent_ids}`;
   }
   _zoneCacheKey(params) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const sorted_params = Object.keys(params).sort().reduce((cache_params, key) => {
       cache_params[key] = params[key];
       return cache_params;
@@ -77101,7 +77178,7 @@ var OrganisationService = class _OrganisationService {
     }
   }
   _metadataCacheID() {
-    return `${Rt()?.config?.["metadata_cache_id"] || ""}`;
+    return `${cachedAuthority()?.metadata_cache_id || ""}`;
   }
   _clearCache() {
     for (const store2 of [localStorage, sessionStorage]) {
@@ -87675,6 +87752,26 @@ var MediaDurationPipe = class _MediaDurationPipe {
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
+var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
+function hasCachedCredentials() {
+  try {
+    return !!X();
+  } catch {
+    return false;
+  }
+}
+function resolvedWithin(promise, delay) {
+  return new Promise((resolve) => {
+    const timer2 = setTimeout(() => resolve(false), delay);
+    promise.then(() => {
+      clearTimeout(timer2);
+      resolve(true);
+    }, () => {
+      clearTimeout(timer2);
+      resolve(false);
+    });
+  });
+}
 var PLACEOS_APP_ACCESS = class {
 };
 var AuthorisedUserGuard = class _AuthorisedUserGuard {
@@ -87695,24 +87792,28 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
-    await Promise.all([
+    const state_ready = await resolvedWithin(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]);
+    ]), OFFLINE_FALLBACK_DELAY);
+    if (!state_ready)
+      return this.offlineAccess();
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = this.checkSubsystemAccess(user);
       log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
       log("ACCESS", "No access groups", can_activate);
     } else {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
       log("ACCESS", "Checking access groups", can_activate);
     }
@@ -87720,6 +87821,30 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
       this._router.navigate(["/unauthorised"]);
     }
     return !!can_activate;
+  }
+  /** The active user, or null if the backend could not be reached in time */
+  async waitForUser() {
+    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    if (!online)
+      return null;
+    let user = null;
+    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_2) => user = _2), OFFLINE_FALLBACK_DELAY);
+    return loaded ? user : null;
+  }
+  /**
+   * Access decision for when the backend cannot be reached. Waiting forever
+   * leaves a fixed device sitting on a loading screen with no way back, so a
+   * device that has authenticated before is allowed through on its cached
+   * session. Every API call it then makes is still checked by the server.
+   */
+  offlineAccess() {
+    if (hasCachedCredentials()) {
+      log("ACCESS", "Backend unreachable. Continuing with cached credentials.");
+      return true;
+    }
+    log("ACCESS", "Backend unreachable and no cached credentials.", void 0, "warn");
+    this._router.navigate(["/unauthorised"]);
+    return false;
   }
   async useGroupSubsystemAccess() {
     const value = Rt()?.config?.["use_group_subsystem_access"];
@@ -96541,6 +96666,268 @@ var settings_schema_default = {
   properties
 };
 
+// apps/signage/src/app/bootstrap-state.ts
+var STORE_DISPLAY_KEY = "PlaceOS.SIGNAGE.display";
+function hasBootstrappedDisplay() {
+  try {
+    return !!localStorage.getItem(STORE_DISPLAY_KEY);
+  } catch {
+    return false;
+  }
+}
+
+// apps/signage/src/app/watchdog.ts
+var STALE_AFTER_MS = {
+  // Polls every minute
+  poll: 10 * MINUTES,
+  // Ticks every 15 seconds
+  schedule: 5 * MINUTES,
+  // Runs every 50ms
+  playback: 3 * MINUTES,
+  // Checked every second while content is on screen
+  visible: 5 * MINUTES
+};
+var BOOT_TIMEOUT_MS = 5 * MINUTES;
+var RECOVERY_GRACE_MS = 5 * MINUTES;
+var CHECK_INTERVAL_MS = 30 * SECONDS;
+var CLOCK_JUMP_MS = 3 * CHECK_INTERVAL_MS;
+var RECOVERY_WINDOW_MS = 60 * MINUTES;
+var MAX_RECOVERIES_PER_WINDOW = 3;
+var RECOVERY_THROTTLE_MS = 60 * MINUTES;
+var RECOVERY_RESET_MS = 2 * 60 * MINUTES;
+var RECOVERY_KEY = "PlaceOS.SIGNAGE.watchdog_reloads";
+var log4 = scoped_log("Watchdog");
+var heartbeats = {
+  poll: 0,
+  schedule: 0,
+  playback: 0,
+  visible: 0
+};
+var _last_error = null;
+var _error_count = 0;
+var _stalled_since = 0;
+var _last_check = 0;
+var _started_at = 0;
+var _timer2;
+var _listening = false;
+var _recovering = false;
+var _reload = () => location.reload();
+var _hard_reload = () => clearCachesAndReload();
+function recordHeartbeat(signal2) {
+  heartbeats[signal2] = Date.now();
+}
+function recordFatalError(message2) {
+  _error_count++;
+  _last_error = { at: Date.now(), message: `${message2}`.slice(0, 500) };
+}
+function stalledSignals(now = Date.now()) {
+  return Object.keys(heartbeats).filter((signal2) => {
+    const last3 = heartbeats[signal2];
+    if (!last3)
+      return false;
+    return now - last3 > STALE_AFTER_MS[signal2];
+  });
+}
+function readHistory() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(RECOVERY_KEY) || "null");
+    if (stored instanceof Array)
+      return { at: stored, throttled: false };
+    return {
+      at: stored?.at instanceof Array ? stored.at : [],
+      throttled: !!stored?.throttled
+    };
+  } catch {
+    return { at: [], throttled: false };
+  }
+}
+function writeHistory(history) {
+  try {
+    localStorage.setItem(RECOVERY_KEY, JSON.stringify(history));
+  } catch {
+  }
+}
+function recoveryHistory(now) {
+  const history = readHistory();
+  const last3 = history.at[history.at.length - 1] || 0;
+  if (last3 && now - last3 >= RECOVERY_RESET_MS) {
+    const reset = { at: [], throttled: false };
+    writeHistory(reset);
+    return reset;
+  }
+  return history;
+}
+function claimRecovery(now) {
+  const history = recoveryHistory(now);
+  const last3 = history.at[history.at.length - 1] || 0;
+  if (history.throttled) {
+    if (last3 && now - last3 < RECOVERY_THROTTLE_MS)
+      return false;
+    writeHistory({ at: [...history.at.slice(-9), now], throttled: true });
+    return true;
+  }
+  const in_window = history.at.filter((at2) => now - at2 < RECOVERY_WINDOW_MS);
+  if (in_window.length >= MAX_RECOVERIES_PER_WINDOW) {
+    log4.warn("Recovery limit reached; spacing further attempts an hour.");
+    writeHistory(__spreadProps(__spreadValues({}, history), { throttled: true }));
+    return false;
+  }
+  writeHistory({ at: [...history.at.slice(-9), now], throttled: false });
+  return true;
+}
+function resetHeartbeats(now) {
+  for (const signal2 of Object.keys(heartbeats)) {
+    if (heartbeats[signal2])
+      heartbeats[signal2] = now;
+  }
+}
+async function clearCachesAndReload() {
+  let reachable = false;
+  try {
+    const response = await fetch(location.href, { cache: "reload" });
+    reachable = response.ok;
+  } catch {
+    reachable = false;
+  }
+  if (!reachable) {
+    log4.warn("Server unreachable; not clearing the application cache.");
+    return false;
+  }
+  try {
+    const registrations = await navigator.serviceWorker?.getRegistrations?.() || [];
+    await Promise.all(registrations.map((_2) => _2.unregister().catch(() => false)));
+    const keys = await caches?.keys?.() || [];
+    await Promise.all(keys.map((_2) => caches.delete(_2).catch(() => false)));
+    log4.warn("Cleared the application cache.");
+  } catch (error2) {
+    log4.warn("Failed to clear the application cache.", error2);
+  }
+  location.href = `${location.origin}${location.pathname}`;
+  return true;
+}
+function check(expected_to_run) {
+  const now = Date.now();
+  const since_last_check = _last_check ? now - _last_check : 0;
+  _last_check = now;
+  if (since_last_check > CLOCK_JUMP_MS) {
+    log4.warn("Watchdog was delayed; assuming the device was suspended.", {
+      delayed_by_ms: since_last_check
+    });
+    resetHeartbeats(now);
+    _stalled_since = 0;
+    return;
+  }
+  if (_recovering)
+    return;
+  if (!heartbeats.visible && expected_to_run()) {
+    if (now - _started_at < BOOT_TIMEOUT_MS)
+      return;
+    recover(now, ["boot"], true);
+    return;
+  }
+  const stalled = stalledSignals(now);
+  if (!stalled.length) {
+    _stalled_since = 0;
+    return;
+  }
+  if (!_stalled_since) {
+    _stalled_since = now;
+    log4.warn("Core machinery has stalled.", stalled);
+    return;
+  }
+  if (now - _stalled_since < RECOVERY_GRACE_MS)
+    return;
+  if (!recover(now, stalled, false))
+    _stalled_since = now;
+}
+function recover(now, reasons, prefer_hard) {
+  const throttled = recoveryHistory(now).throttled;
+  if (!claimRecovery(now)) {
+    log4.error("Recovery needed, but not due yet.", {
+      reasons,
+      last_error: _last_error
+    });
+    return false;
+  }
+  log4.error("Reloading to recover.", {
+    reasons,
+    throttled,
+    clearing_cache: prefer_hard || throttled,
+    last_error: _last_error
+  });
+  _recovering = true;
+  if (!prefer_hard && !throttled) {
+    _reload();
+    return true;
+  }
+  _hard_reload().then((cleared) => {
+    if (!cleared)
+      _reload();
+  });
+  return true;
+}
+function requestRecovery(reason, prefer_hard = false) {
+  if (_recovering)
+    return false;
+  return recover(Date.now(), [reason], prefer_hard);
+}
+function startWatchdog(actions = {}) {
+  _reload = actions.reload || (() => location.reload());
+  _hard_reload = actions.hardReload || clearCachesAndReload;
+  const expectedToRun = actions.isExpectedToRun || (() => false);
+  stopWatchdog();
+  if (!_listening) {
+    _listening = true;
+    window.addEventListener("error", onWindowError);
+    window.addEventListener("unhandledrejection", onRejection);
+  }
+  _last_check = Date.now();
+  _started_at = Date.now();
+  _timer2 = setInterval(() => check(expectedToRun), CHECK_INTERVAL_MS);
+  return () => stopWatchdog();
+}
+function stopWatchdog() {
+  if (_timer2)
+    clearInterval(_timer2);
+  _timer2 = void 0;
+  if (_listening) {
+    _listening = false;
+    window.removeEventListener("error", onWindowError);
+    window.removeEventListener("unhandledrejection", onRejection);
+  }
+}
+function watchdogState() {
+  const now = Date.now();
+  const history = readHistory();
+  const asTime2 = (value) => value ? new Date(value).toISOString() : "never";
+  return {
+    running: !!_timer2,
+    recovering: _recovering,
+    error_count: _error_count,
+    last_error: _last_error,
+    stalled: stalledSignals(now),
+    stalled_since: asTime2(_stalled_since),
+    recoveries_in_last_hour: history.at.filter((at2) => now - at2 < RECOVERY_WINDOW_MS).length,
+    recoveries_throttled: history.throttled,
+    last_recovery: asTime2(history.at[history.at.length - 1] || 0),
+    started_at: asTime2(_started_at),
+    booted: !!heartbeats.visible,
+    heartbeats: {
+      poll: asTime2(heartbeats.poll),
+      schedule: asTime2(heartbeats.schedule),
+      playback: asTime2(heartbeats.playback),
+      visible: asTime2(heartbeats.visible)
+    }
+  };
+}
+function onWindowError(event) {
+  recordFatalError(event.message || "Unhandled error");
+}
+function onRejection(event) {
+  const reason = event.reason;
+  recordFatalError(reason?.message || reason || "Unhandled rejection");
+}
+
 // apps/signage/src/app/app.component.ts
 var AppComponent = class _AppComponent {
   constructor() {
@@ -96549,6 +96936,8 @@ var AppComponent = class _AppComponent {
     this._org = inject2(OrganisationService);
   }
   ngOnInit() {
+    startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
+    setInitReloadHandler(() => requestRecovery("init-error"));
     setMocks(mocksInit);
     this._placeos.init();
   }
@@ -96597,7 +96986,7 @@ var AppComponent = class _AppComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 44 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 47 });
 })();
 
 // apps/signage/src/environments/environment.ts
@@ -96687,7 +97076,7 @@ function BootstrapComponent_Conditional_6_Template(rf, ctx) {
   }
 }
 var STORE_PREFIX = "PlaceOS.SIGNAGE";
-var STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
+var STORE_DISPLAY_KEY2 = `${STORE_PREFIX}.display`;
 var STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
   constructor() {
@@ -96750,7 +97139,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
     this.subscription("route.query", this._route.queryParamMap.subscribe((params) => {
       if (params.has("clear") && params.get("clear") === "true") {
         log("BOOTSTRAP", "Bootstrapped data clear");
-        localStorage.removeItem(STORE_DISPLAY_KEY);
+        localStorage.removeItem(STORE_DISPLAY_KEY2);
         localStorage.removeItem(STORE_BUILDING_KEY);
       }
       if (params.has("display")) {
@@ -96759,8 +97148,8 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
         this.bootstrapPanel();
       }
     }));
-    await this._org.waitUntilInitialised();
     this.timeout("check", () => this.checkBootstrap(), 1e3);
+    await this._org.waitUntilInitialised();
   }
   /**
    * Store bootstrapped values and navigate to the main page
@@ -96773,7 +97162,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       this.loading.set("");
       return;
     }
-    localStorage.setItem(STORE_DISPLAY_KEY, active_display);
+    localStorage.setItem(STORE_DISPLAY_KEY2, active_display);
     log("BOOTSTRAP", `Bootstrapped panel to display ${active_display}`);
     this._router.navigate(["/signage", active_display]);
     this.loading.set("");
@@ -96783,7 +97172,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
    */
   checkBootstrap() {
     this.loading.set(i18n("APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK"));
-    const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
+    const display_id = localStorage?.getItem(STORE_DISPLAY_KEY2);
     if (display_id) {
       log("BOOTSTRAP", `Application already bootstrapped to display ${display_id}`);
       this._router.navigate(["/signage", display_id]);
@@ -96945,8 +97334,41 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/signage/src/app/bootstrap.component.ts", lineNumber: 138 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/signage/src/app/bootstrap.component.ts", lineNumber: 139 });
 })();
+
+// apps/signage/src/app/diagnostics.ts
+function registerSignageDiagnostics(actions) {
+  const api = {
+    state: () => {
+      const state = actions.getState();
+      logState(state);
+      return state;
+    },
+    json: () => JSON.stringify(actions.getState(), null, 2),
+    poll: () => actions.poll(),
+    reload: () => (actions.reload || (() => location.reload()))()
+  };
+  window.signage = api;
+  return () => {
+    if (window.signage === api)
+      delete window.signage;
+  };
+}
+function logState(state) {
+  console.groupCollapsed(`%cPlaceOS Signage%c ${state.display_id || "no display"}`, "font-weight:bold", "font-weight:normal;opacity:0.6");
+  for (const [key, value] of Object.entries(state)) {
+    const is_row_list = Array.isArray(value) && value.length > 0 && typeof value[0] === "object";
+    if (is_row_list) {
+      console.groupCollapsed(`${key} (${value.length})`);
+      console.table(value);
+      console.groupEnd();
+    } else {
+      console.log(`${key}:`, value);
+    }
+  }
+  console.groupEnd();
+}
 
 // apps/signage/src/app/media-helpers.ts
 var _time_override = 0;
@@ -98650,7 +99072,7 @@ var MAX_URL_WAIT_LOADING = 30 * 1e3;
 var MAX_URL_WAIT_IDLE = 3 * 1e3;
 var URL_FETCH_TIMEOUT = 30 * 1e3;
 var MIN_FAILED_MEDIA_WAIT = 1e3;
-var INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1e3;
+var INTERACTIVE_PRELOAD_LEAD_TIME = 10 * 1e3;
 var WEBPAGE_REVEAL_DELAY = 3 * 1e3;
 var PLUGIN_LOAD_TIMEOUT = 15 * 1e3;
 var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
@@ -98995,7 +99417,10 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     return `${output2}:${item?.id || ""}`;
   }
   ngOnInit() {
-    this.interval("playlist_check", () => this._updateItem(), 50);
+    this.interval("playlist_check", () => {
+      recordHeartbeat("playback");
+      this._updateItem();
+    }, 50);
   }
   ngOnChanges(changes) {
     if (changes.playlist) {
@@ -99117,6 +99542,24 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }
   isValidMedia(item) {
     return validateMedia(item) === "";
+  }
+  /**
+   * Whether the item on screen plays to completion, so interrupting it now
+   * would be noticed. Images and webpages hold a static frame and can be
+   * replaced without anyone seeing a difference; videos and plugins that
+   * report when they finish cannot.
+   */
+  isMidPlayThroughItem() {
+    const item = this.active_item;
+    if (!item || this.state() !== "PLAYING")
+      return false;
+    if (item.type === "video")
+      return true;
+    if (item.type === "plugin") {
+      const playback = item.plugin?.playback_type;
+      return playback === "playsthrough" || playback === "interactive";
+    }
+    return false;
   }
   toggleLoop() {
     const loop = this.loop();
@@ -100022,7 +100465,11 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MediaPlayerComponent, [{
     type: Component,
     args: [{ selector: "media-player", template: `
-        <div class="absolute inset-0" [class.bg-black]="!controls()" [style.background]="controls() ? '#212121' : ''">
+        <div
+            class="absolute inset-0"
+            [class.bg-black]="!controls()"
+            [style.background]="controls() ? '#212121' : ''"
+        >
             <div
                 #media_container_0
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"
@@ -100192,7 +100639,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], stateChange: [{ type: Output, args: ["stateChange"] }], indexChange: [{ type: Output, args: ["indexChange"] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 235 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 240 });
 })();
 
 // apps/signage/src/app/cron-helpers.ts
@@ -100300,30 +100747,71 @@ function doesCronMatchDate(cron_parts, date) {
   }
   return day_of_month_matches || day_of_week_matches;
 }
-function getNextCronRunTimestampInRange(cron_string, search_limit_in_seconds, now = Date.now()) {
+function cronParts(cron_string) {
   const parts = cron_string.trim().split(/\s+/);
   if (parts.length !== 5) {
     throw new Error("Invalid CRON string: Must have 5 parts.");
   }
-  const searchLimitDate = new Date(now + search_limit_in_seconds * 1e3);
-  const start_time = new Date(now);
-  start_time.setSeconds(0, 0);
-  start_time.setMinutes(start_time.getMinutes() + 1);
-  const current_date = new Date(start_time.getTime());
-  while (current_date <= searchLimitDate) {
-    if (doesCronMatchDate(parts, current_date)) {
-      return Math.floor(current_date.getTime() / 1e3);
-    }
-    current_date.setMinutes(current_date.getMinutes() + 1);
+  return parts;
+}
+var MIN_CACHEABLE_SEARCH_LIMIT_SECONDS = 60;
+var CRON_LOOKUP_CACHE = /* @__PURE__ */ new Map();
+var cron_lookup_second = 0;
+function cachedCronLookup(key, now, search_limit_in_seconds, lookup) {
+  if (search_limit_in_seconds < MIN_CACHEABLE_SEARCH_LIMIT_SECONDS) {
+    return lookup();
   }
-  return null;
+  const second = Math.floor(now / 1e3);
+  if (second !== cron_lookup_second) {
+    CRON_LOOKUP_CACHE.clear();
+    cron_lookup_second = second;
+  }
+  if (CRON_LOOKUP_CACHE.has(key))
+    return CRON_LOOKUP_CACHE.get(key);
+  const result = lookup();
+  CRON_LOOKUP_CACHE.set(key, result);
+  return result;
+}
+function getNextCronRunTimestampInRange(cron_string, search_limit_in_seconds, now = Date.now()) {
+  const parts = cronParts(cron_string);
+  const key = `next|${cron_string}|${search_limit_in_seconds}`;
+  return cachedCronLookup(key, now, search_limit_in_seconds, () => {
+    const searchLimitDate = new Date(now + search_limit_in_seconds * 1e3);
+    const start_time = new Date(now);
+    start_time.setSeconds(0, 0);
+    start_time.setMinutes(start_time.getMinutes() + 1);
+    const current_date = new Date(start_time.getTime());
+    while (current_date <= searchLimitDate) {
+      if (doesCronMatchDate(parts, current_date)) {
+        return Math.floor(current_date.getTime() / 1e3);
+      }
+      current_date.setMinutes(current_date.getMinutes() + 1);
+    }
+    return null;
+  });
+}
+function getLastCronRunTimestampInRange(cron_string, search_limit_in_seconds, now = Date.now()) {
+  const parts = cronParts(cron_string);
+  const key = `last|${cron_string}|${search_limit_in_seconds}`;
+  return cachedCronLookup(key, now, search_limit_in_seconds, () => {
+    const search_limit_date = new Date(now - search_limit_in_seconds * 1e3);
+    const current_date = new Date(now);
+    current_date.setSeconds(0, 0);
+    while (current_date >= search_limit_date) {
+      if (doesCronMatchDate(parts, current_date)) {
+        return Math.floor(current_date.getTime() / 1e3);
+      }
+      current_date.setMinutes(current_date.getMinutes() - 1);
+    }
+    return null;
+  });
 }
 
 // apps/signage/src/app/media-cache.service.ts
 var STORE_KEY2 = "PlaceOS.SIGNAGE.cached_files";
 var STAGGER_DELAY_MS = 500;
 var DEFAULT_OWNER_CACHE_LIMIT_BYTES = 512 * 1024 * 1024;
-var log4 = scoped_log("MediaCache");
+var log5 = scoped_log("MediaCache");
 function isLoadingStatus(status) {
   return status === "preparing" || status === "downloading" || status === "storing";
 }
@@ -100350,12 +100838,12 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
     const request = indexedDB.open("SignageMedia", 1);
     this._cache_db_ready = new Promise((resolve, reject) => {
       request.onerror = (event) => {
-        log4.error(`DB Error: ${event.target.error}.`);
+        log5.error(`DB Error: ${event.target.error}.`);
         reject(event.target.error);
       };
       request.onsuccess = (event) => {
         this._cache_db = event.target.result;
-        log4.debug(`Connected to database successfully.`);
+        log5.debug(`Connected to database successfully.`);
         resolve();
       };
     });
@@ -100364,7 +100852,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       const objectStore = this._cache_db.createObjectStore("files", {
         keyPath: "name"
       });
-      log4.debug(`Object store created successfully.`);
+      log5.debug(`Object store created successfully.`);
     };
     this._loadCacheMetadata();
     this._cache_db_ready.then(() => this._loadCacheMetadataFromStore()).catch(() => void 0);
@@ -100423,26 +100911,43 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       }
       const response = await fetch(url);
       if (!response.ok) {
-        log4.error(`Error fetching resource. ${response.status}`, url);
+        log5.error(`Error fetching resource. ${response.status}`, url);
         throw new Error();
       }
       const blob = await response.blob();
       if (blob.size <= 0) {
-        log4.error(`Downloaded resource is empty.`, url);
+        log5.error(`Downloaded resource is empty.`, url);
         throw new Error("Downloaded media file is empty");
       }
       cacheStatus(cache_item, "storing");
       const file = new File([blob], cache_item.id, { type: blob.type });
       await this._storeFile(cache_item, file, url);
-      log4.debug(`Cached resource.`, [cache_item.id, url]);
+      cache_item.size = file.size;
+      log5.debug(`Cached resource.`, [cache_item.id, url]);
       cacheStatus(cache_item, "cached");
     } catch (e) {
-      log4.error(`Error downloading resource.`, url, e);
+      log5.error(`Error downloading resource.`, url, e);
       if (cache_item.status !== "invalidated") {
         cacheStatus(cache_item, "invalidated");
       }
       throw e;
     }
+  }
+  /** Snapshot of what the cache is holding, for diagnostics */
+  cacheState(owner = "") {
+    const files = this._cache_index.filter((_2) => !owner || cacheOwners(_2).includes(owner)).map((_2) => ({
+      url: _2.url,
+      status: _2.status,
+      size: _2.size || 0,
+      owners: cacheOwners(_2)
+    }));
+    return {
+      file_count: files.length,
+      cached_count: files.filter((_2) => _2.status === "cached").length,
+      total_bytes: files.reduce((total, _2) => total + _2.size, 0),
+      limit_bytes: DEFAULT_OWNER_CACHE_LIMIT_BYTES,
+      files
+    };
   }
   availableFiles(owner = "") {
     return this._cache_index.filter((_2) => _2.status === "cached" && (!owner || cacheOwners(_2).includes(owner))).map((_2) => _2.url);
@@ -100478,15 +100983,16 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
   async pruneCache(owner = "", priority_urls = [], max_size = DEFAULT_OWNER_CACHE_LIMIT_BYTES, prune_other_owners = false) {
     if (!this._cache_db_ready || max_size <= 0)
       return;
-    await this._cache_db_ready;
-    const records = await this._storedFileRecords().catch(() => []);
-    const owner_items = this._cache_index.filter((item) => item.status === "cached" && (!owner || cacheOwners(item).includes(owner) || prune_other_owners)).map((item) => {
-      const record = records.find((_2) => _2.name === item.id);
+    const candidates = this._cache_index.filter((item) => item.status === "cached" && (!owner || cacheOwners(item).includes(owner) || prune_other_owners));
+    if (candidates.some((item) => !(item.size > 0))) {
+      await this._recoverCachedSizes();
+    }
+    const owner_items = candidates.map((item) => {
       const owners = cacheOwners(item);
       return {
         item,
         owners,
-        size: record?.file?.size || 0,
+        size: item.size || 0,
         priority: priority_urls.indexOf(item.url),
         owner_priority: !owner || owners.includes(owner) ? 1 : 0
       };
@@ -100494,6 +101000,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
     let total_size = owner_items.reduce((total, item) => total + item.size, 0);
     if (total_size <= max_size)
       return;
+    await this._cache_db_ready;
     const eviction_list = owner_items.sort((a, b2) => {
       const a_priority = a.priority >= 0 ? a.priority : Number.MAX_SAFE_INTEGER;
       const b_priority = b2.priority >= 0 ? b2.priority : Number.MAX_SAFE_INTEGER;
@@ -100521,13 +101028,13 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
         const objectStore = transaction.objectStore("files");
         const request = objectStore.clear();
         request.onerror = (event) => {
-          log4.error(`Error clearing all cached resources. ${event.target.error}`);
+          log5.error(`Error clearing all cached resources. ${event.target.error}`);
           reject(event.target.error);
         };
         transaction.onerror = (event) => reject(event.target.error);
         transaction.onabort = (event) => reject(event.target.error);
         transaction.oncomplete = (_2) => {
-          log4.debug(`Cleared all cached resources.`);
+          log5.debug(`Cleared all cached resources.`);
           this._file_cache_index.set([]);
           resolve();
         };
@@ -100557,13 +101064,13 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
         const objectStore = transaction.objectStore("files");
         const request = objectStore.delete(cache_item.id);
         request.onerror = (event) => {
-          log4.error(`Error removing cached resource. ${event.target.error}`, url);
+          log5.error(`Error removing cached resource. ${event.target.error}`, url);
           reject(event.target.error);
         };
         transaction.onerror = (event) => reject(event.target.error);
         transaction.onabort = (event) => reject(event.target.error);
         transaction.oncomplete = (event) => {
-          log4.debug(`Removed resource.`, cache_item.id, url);
+          log5.debug(`Removed resource.`, cache_item.id, url);
           this._file_cache_index.set(this._cache_index.filter((_2) => _2.id !== cache_item.id));
           resolve();
         };
@@ -100589,7 +101096,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
         file
       });
       const fail = (event) => {
-        log4.error(`Error caching resource. ${event.target.error}`, url);
+        log5.error(`Error caching resource. ${event.target.error}`, url);
         cacheStatus(cache_item, "invalidated");
         reject(event.target.error);
       };
@@ -100599,8 +101106,59 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       transaction.oncomplete = () => resolve();
     });
   }
-  _hasStoredFile(cache_item, url) {
-    return this._storedFile(cache_item, url).then((_2) => !!_2);
+  /**
+   * Whether the file behind a cache entry is still in the store. Uses a key
+   * count rather than reading the record, so confirming a cached playlist
+   * does not pull every one of its files into memory.
+   */
+  async _hasStoredFile(cache_item, url) {
+    if (!(cache_item.size > 0)) {
+      const file = await this._storedFile(cache_item, url);
+      if (file)
+        this._setCachedSize(cache_item, file.size);
+      return !!file;
+    }
+    const exists = await this._storedFileExists(cache_item.id).catch(() => false);
+    if (!exists) {
+      log5.error(`Unable to find cached resource.`, url);
+      this._markInvalidated(cache_item);
+    }
+    return exists;
+  }
+  async _storedFileExists(id) {
+    await this._cache_db_ready;
+    return new Promise((resolve, reject) => {
+      const transaction = this._cache_db.transaction(["files"], "readonly");
+      const objectStore = transaction.objectStore("files");
+      const request = objectStore.count(id);
+      request.onerror = (event) => reject(event.target.error);
+      request.onsuccess = () => resolve((request.result || 0) > 0);
+    });
+  }
+  _setCachedSize(cache_item, size) {
+    if (cache_item.size === size)
+      return;
+    cache_item.size = size;
+    this._file_cache_index.set([...this._cache_index]);
+  }
+  /** Fill in sizes for entries whose metadata predates size tracking */
+  async _recoverCachedSizes() {
+    await this._cache_db_ready;
+    const records = await this._storedFileRecords().catch(() => []);
+    if (!records.length)
+      return;
+    let changed = false;
+    for (const item of this._cache_index) {
+      if (item.size > 0)
+        continue;
+      const record = records.find((_2) => _2.name === item.id);
+      if (!record?.file?.size)
+        continue;
+      item.size = record.file.size;
+      changed = true;
+    }
+    if (changed)
+      this._file_cache_index.set([...this._cache_index]);
   }
   async _storedFile(cache_item, url) {
     await this._cache_db_ready;
@@ -100609,7 +101167,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       const objectStore = transaction.objectStore("files");
       const request = objectStore.get(cache_item.id);
       request.onerror = (event) => {
-        log4.error(`Error retrieving cached resource. ${event.target.error}`, url);
+        log5.error(`Error retrieving cached resource. ${event.target.error}`, url);
         reject(event.target.error);
       };
       request.onsuccess = (event) => {
@@ -100620,11 +101178,11 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
             resolve(file);
             return;
           }
-          log4.error(`Cached resource is empty.`, url);
+          log5.error(`Cached resource is empty.`, url);
           this._markInvalidated(cache_item);
           resolve(null);
         } else {
-          log4.error(`Unable to find cached resource.`, url);
+          log5.error(`Unable to find cached resource.`, url);
           this._markInvalidated(cache_item);
           resolve(null);
         }
@@ -100640,6 +101198,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       url: record.url,
       owner: record.owner || "",
       owners: cacheOwners(record),
+      size: record.file.size,
       status: "cached",
       on_change: new Subject()
     }));
@@ -100655,7 +101214,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
       const objectStore = transaction.objectStore("files");
       const request = objectStore.getAll();
       request.onerror = (event) => {
-        log4.error(`Error retrieving cached resources. ${event.target.error}`);
+        log5.error(`Error retrieving cached resources. ${event.target.error}`);
         reject(event.target.error);
       };
       request.onsuccess = () => resolve(request.result || []);
@@ -100666,7 +101225,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
     this._file_cache_index.set([...this._cache_index]);
   }
   _loadCacheMetadata() {
-    log4.debug("Loading cache metadata...");
+    log5.debug("Loading cache metadata...");
     const metadata_string = localStorage.getItem(STORE_KEY2) || "[]";
     try {
       const metadata = JSON.parse(metadata_string);
@@ -100676,6 +101235,7 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
           url: _2.url,
           owner: _2.owner || "",
           owners: _2.owners || (_2.owner ? [_2.owner] : []),
+          size: _2.size || 0,
           status: "cached",
           on_change: new Subject()
         })));
@@ -100685,12 +101245,13 @@ var MediaCacheService = class _MediaCacheService extends AsyncHandler {
   }
   _saveCacheMetadata() {
     this.timeout("save_metadata", () => {
-      log4.debug("Saving cache metadata...");
+      log5.debug("Saving cache metadata...");
       const metadata = this._cache_index.filter((_2) => _2.status === "cached").map((_2) => ({
         id: _2.id,
         url: _2.url,
         owner: cacheOwners(_2)[0] || "",
-        owners: cacheOwners(_2)
+        owners: cacheOwners(_2),
+        size: _2.size || 0
       }));
       localStorage.setItem(STORE_KEY2, JSON.stringify(metadata));
     });
@@ -100766,7 +101327,33 @@ var EMPTY_METRICS = JSON.stringify({
 });
 var DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 var SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1e3;
-var log5 = scoped_log("Signage");
+var MEDIA_CACHE_LOOK_AHEAD_SECONDS = 24 * 60 * 60;
+var MEDIA_RECOVERY_INTERVAL_MS = 15 * SECONDS;
+var POLL_INTERVAL_MS = 1 * MINUTES;
+var DISPLAY_FETCH_TIMEOUT_MS = 30 * SECONDS;
+var POLL_WATCHDOG_MS = 3 * MINUTES;
+var CACHE_RETRY_BASE_MS = 15 * SECONDS;
+var CACHE_RETRY_MAX_MS = 5 * MINUTES;
+var log6 = scoped_log("Signage");
+function asTime(value) {
+  return value ? new Date(value).toISOString() : "never";
+}
+function mediaSummary(item) {
+  return {
+    id: item.id,
+    name: item.name,
+    type: item.type,
+    playlist: item.playlist_name || item.playlist,
+    duration_ms: item.duration,
+    url: item.url,
+    cached: item.isCached ? item.isCached() : null,
+    loading: item.isLoading ? item.isLoading() : null,
+    valid_from: asTime((item.valid_from || 0) * 1e3),
+    valid_until: asTime((item.valid_until || 0) * 1e3),
+    validity: item.validity,
+    invalid_reason: validateMedia(item) || null
+  };
+}
 function signageDisplayIDFromURL(url = "") {
   if (!url)
     return "";
@@ -100803,6 +101390,9 @@ function parsePlayAtTimestamp(value) {
 function scheduledPlaylistEnd(starts_at, period_minutes) {
   return period_minutes ? starts_at + period_minutes * 60 * 1e3 : starts_at + SINGLE_PASS_TRIGGER_WINDOW_MS;
 }
+function scheduledPlaylistExpiry(starts_at, period_minutes) {
+  return period_minutes ? starts_at + period_minutes * 60 * 1e3 : 0;
+}
 function scheduledPlaylistWindow(schedule, now = time(), trigger_window_seconds = 0) {
   const period_minutes = playlistPlayPeriodMinutes(schedule);
   const window_seconds = trigger_window_seconds || period_minutes * 60;
@@ -100811,17 +101401,18 @@ function scheduledPlaylistWindow(schedule, now = time(), trigger_window_seconds 
     if (!starts_at)
       return null;
     const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-    return now >= starts_at && now <= ends_at ? { starts_at, ends_at } : null;
+    const expires_at = scheduledPlaylistExpiry(starts_at, period_minutes);
+    return now >= starts_at && now <= ends_at ? { starts_at, ends_at, expires_at } : null;
   }
   if (schedule.play_cron?.trim()) {
     try {
-      const search_start = now - Math.max(window_seconds, 30) * 1e3;
-      const next = getNextCronRunTimestampInRange(schedule.play_cron, Math.max(window_seconds, 30), search_start);
-      if (!next)
+      const last3 = getLastCronRunTimestampInRange(schedule.play_cron, Math.max(window_seconds, 30), now);
+      if (!last3)
         return null;
-      const starts_at = next * 1e3;
+      const starts_at = last3 * 1e3;
       const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-      return starts_at <= now && now <= ends_at ? { starts_at, ends_at } : null;
+      const expires_at = scheduledPlaylistExpiry(starts_at, period_minutes);
+      return now <= ends_at ? { starts_at, ends_at, expires_at } : null;
     } catch {
       return null;
     }
@@ -100842,10 +101433,30 @@ function activePlaylistSchedules(playlist, now = time(), trigger_window_seconds 
 function activePlaylistSchedule(playlist, now = time(), trigger_window_seconds = 0) {
   return activePlaylistSchedules(playlist, now, trigger_window_seconds)[0];
 }
+function nextScheduledPlaylistStart(schedule, now, horizon_seconds) {
+  if (schedule.play_at) {
+    const starts_at = parsePlayAtTimestamp(schedule.play_at);
+    if (!starts_at || starts_at <= now)
+      return 0;
+    return starts_at <= now + horizon_seconds * 1e3 ? starts_at : 0;
+  }
+  if (schedule.play_cron?.trim()) {
+    try {
+      const next = getNextCronRunTimestampInRange(schedule.play_cron, horizon_seconds, now);
+      return next ? next * 1e3 : 0;
+    } catch {
+      return 0;
+    }
+  }
+  return 0;
+}
+function playlistStartsWithin(playlist, now, horizon_seconds) {
+  return playlistSchedules(playlist).some((schedule) => nextScheduledPlaylistStart(schedule, now, horizon_seconds));
+}
 var SignageService = class _SignageService extends AsyncHandler {
   setDisplay(system_id) {
     this._display.set(system_id);
-    this._reloadDisplay();
+    this._poll();
     this._scheduleTick();
   }
   constructor() {
@@ -100887,6 +101498,13 @@ var SignageService = class _SignageService extends AsyncHandler {
       )
     );
     this._display_signature = "";
+    this._media_signature = "";
+    this._media_sync_in_flight = false;
+    this._cache_retry_attempt = 0;
+    this._poll_in_flight = false;
+    this._last_poll_attempt = 0;
+    this._last_poll_success = 0;
+    this._media_recovery = /* @__PURE__ */ new Map();
     this._playlists = [];
     this._last_playlist = [];
     this._last_override_playlists = [];
@@ -100921,7 +101539,7 @@ var SignageService = class _SignageService extends AsyncHandler {
           this._last_playlist = media;
           return media;
         } catch (e) {
-          log5.error("Failed to build playlist; keeping last known playlist.", e);
+          log6.error("Failed to build playlist; keeping last known playlist.", e);
           return this._last_playlist;
         }
       },
@@ -100943,7 +101561,7 @@ var SignageService = class _SignageService extends AsyncHandler {
           this._last_override_playlists = filtered;
           return filtered;
         } catch (e) {
-          log5.error("Failed to build override playlists.", e);
+          log6.error("Failed to build override playlists.", e);
           return this._last_override_playlists;
         }
       },
@@ -100952,9 +101570,69 @@ var SignageService = class _SignageService extends AsyncHandler {
         []
       )
     );
-    this.interval("poll", () => this._reloadDisplay(), 1 * MINUTES);
+    this._last_poll_attempt = Date.now();
+    this._startPolling();
     this.interval("metrics", () => this._postMetrics(), 10 * MINUTES);
     this._scheduleTick();
+  }
+  _startPolling() {
+    this.interval("poll", () => this._poll(), POLL_INTERVAL_MS);
+  }
+  /**
+   * Runs one poll of the display details. Nothing here is allowed to stop
+   * future polls: errors are logged rather than thrown, a single attempt is
+   * bounded by the fetch timeout, and an attempt that somehow outlives that
+   * is abandoned instead of blocking the slot forever.
+   */
+  async _poll() {
+    const now = Date.now();
+    if (this._poll_in_flight) {
+      if (now - this._last_poll_attempt < DISPLAY_FETCH_TIMEOUT_MS * 2) {
+        return;
+      }
+      log6.warn("Previous display poll never finished. Starting another.");
+    }
+    this._poll_in_flight = true;
+    this._last_poll_attempt = now;
+    recordHeartbeat("poll");
+    try {
+      await this._reloadDisplay();
+      this._last_poll_success = Date.now();
+    } catch (e) {
+      log6.error("Display poll failed.", e);
+    } finally {
+      this._poll_in_flight = false;
+    }
+  }
+  /**
+   * Rebuilds the poll timer if it has stopped firing. Runs from the schedule
+   * tick, which is a separate timer chain, so the two cannot fail together.
+   */
+  _checkPollHealth() {
+    if (!this._display())
+      return;
+    if (Date.now() - this._last_poll_attempt < POLL_WATCHDOG_MS)
+      return;
+    log6.error("Display polling has stopped. Restarting it.", {
+      last_attempt: this._last_poll_attempt,
+      last_success: this._last_poll_success
+    });
+    this._poll_in_flight = false;
+    this._startPolling();
+    this._poll();
+  }
+  /** Rejects if `promise` has not settled within `timeout_ms` */
+  _withTimeout(promise, timeout_ms) {
+    return new Promise((resolve, reject) => {
+      const timer2 = setTimeout(() => reject(new Error("Display request timed out")), timeout_ms);
+      promise.then((value) => {
+        clearTimeout(timer2);
+        resolve(value);
+      }, (error2) => {
+        clearTimeout(timer2);
+        reject(error2);
+      });
+    });
   }
   /** Re-fetch the active display details and refresh derived player state. */
   async _reloadDisplay() {
@@ -100966,20 +101644,29 @@ var SignageService = class _SignageService extends AsyncHandler {
     if (display_signature === this._display_signature && this._display_data()) {
       return;
     }
-    this._display_signature = display_signature;
     const display = this._parseDisplay(value);
-    display.plugins = await this._resolveDisplayPlugins(display);
+    display.plugins = await this._withTimeout(this._resolveDisplayPlugins(display), DISPLAY_FETCH_TIMEOUT_MS).catch((e) => {
+      log6.warn("Failed to resolve display plugins.", e);
+      return display.plugins || [];
+    });
     this._display_data.set(display);
-    this._bindTriggers(display);
+    try {
+      this._bindTriggers(display);
+    } catch (e) {
+      log6.error("Failed to bind display triggers.", e);
+    }
     this._syncMediaCache(display);
     this._checkScheduledOverrides(display, this.override_playlists());
+    this._display_signature = display_signature;
   }
   async _fetchDisplay(id) {
-    let d = await sh(id, Vs({ preview: this.debug(), item_id: this.playing_id() }, [
-      void 0,
-      null,
-      ""
-    ])).catch((_2) => null);
+    let d = await this._withTimeout(sh(id, Vs({
+      preview: this.debug() || void 0,
+      item_id: this.playing_id()
+    }, [void 0, null, ""])), DISPLAY_FETCH_TIMEOUT_MS).catch((e) => {
+      log6.warn("Failed to fetch display details.", e);
+      return null;
+    });
     if (!d) {
       const display_key = displayCacheKey(id);
       d = JSON.parse(localStorage.getItem(display_key) || localStorage.getItem(DISPLAY_KEY) || "{}");
@@ -101009,13 +101696,114 @@ var SignageService = class _SignageService extends AsyncHandler {
     const effective_speed = active && speed > 1 ? speed : 1;
     const delay = Math.max(MIN_SCHEDULE_TICK_MS, Math.min(SCHEDULE_TICK_MS, SCHEDULE_TICK_MS / effective_speed));
     this.timeout("schedule_tick", () => {
-      this._tick.update((_2) => _2 + 1);
-      const display = this._display_data();
-      if (display) {
-        this._checkScheduledOverrides(display, this.override_playlists());
+      try {
+        recordHeartbeat("schedule");
+        this._checkPollHealth();
+        this._tick.update((_2) => _2 + 1);
+        const display = this._display_data();
+        if (display) {
+          this._checkScheduledOverrides(display, this.override_playlists());
+          this._checkMediaCache(display);
+        }
+      } catch (e) {
+        log6.error("Failed to evaluate playlist schedules.", e);
+      } finally {
+        this._scheduleTick();
       }
-      this._scheduleTick();
     }, delay);
+  }
+  /** Force an immediate display refresh. Exposed for diagnostics. */
+  refresh() {
+    return this._poll();
+  }
+  /** Snapshot of the player's scheduling and caching state, for diagnostics */
+  diagnostics() {
+    const display = this._display_data();
+    const override = this.override_playlist();
+    return {
+      display_id: this._display(),
+      display_name: display?.name || "",
+      debug: this.debug(),
+      playing_id: this.playing_id(),
+      poll: {
+        interval_ms: POLL_INTERVAL_MS,
+        in_flight: this._poll_in_flight,
+        last_attempt: asTime(this._last_poll_attempt),
+        last_success: asTime(this._last_poll_success),
+        next_due: asTime(this._last_poll_attempt + POLL_INTERVAL_MS)
+      },
+      schedule: {
+        tick_interval_ms: SCHEDULE_TICK_MS,
+        mock_time: mockTimeState(),
+        now: asTime(time())
+      },
+      playlists: {
+        mapped: display?.playlist_mappings?.[display?.id] ? this._mappedPlaylistIds(display) : [],
+        active: this._activePlaylistSummary(display),
+        takeover: {
+          ends_at: asTime(override.ends_at),
+          schedule_keys: override.schedule_keys || [],
+          media: override.playlist.map(mediaSummary)
+        }
+      },
+      active_media: this.playlist().map(mediaSummary),
+      upcoming_schedules: this._upcomingSchedules(display),
+      media_cache: __spreadProps(__spreadValues({}, this._media_cache.cacheState(this._display())), {
+        sync_in_flight: this._media_sync_in_flight,
+        failed_sync_attempts: this._cache_retry_attempt
+      }),
+      media_signature: this._media_signature,
+      watchdog: watchdogState()
+    };
+  }
+  _activePlaylistSummary(display) {
+    if (!display?.playlist_mappings?.[display.id])
+      return [];
+    const now = time();
+    return this._mappedPlaylistIds(display).map((id) => this._playlistConfig(display, id)?.[0]).filter((_2) => !!_2).map((playlist) => {
+      const active = activePlaylistSchedule(playlist, now);
+      return {
+        id: playlist.id,
+        name: playlist.name,
+        enabled: !!playlist.enabled,
+        scheduled: !!playlistSchedules(playlist).length,
+        active: !playlistSchedules(playlist).length || !!active,
+        takeover: !!active?.schedule?.play_takeover,
+        started_at: asTime(active?.starts_at || 0),
+        expires_at: asTime(active?.expires_at || 0)
+      };
+    });
+  }
+  /** Every upcoming scheduled run within the next month, soonest first */
+  _upcomingSchedules(display) {
+    if (!display?.playlist_mappings?.[display.id])
+      return [];
+    const now = time();
+    const horizon = 31 * 24 * 60 * 60;
+    const entries = [];
+    for (const id of this._mappedPlaylistIds(display)) {
+      const playlist = this._playlistConfig(display, id)?.[0];
+      if (!playlist?.enabled)
+        continue;
+      playlistSchedules(playlist).forEach((schedule, index) => {
+        const starts_at = nextScheduledPlaylistStart(schedule, now, horizon);
+        if (!starts_at)
+          return;
+        const period = playlistPlayPeriodMinutes(schedule);
+        entries.push({
+          playlist_id: playlist.id,
+          playlist_name: playlist.name,
+          schedule_index: index,
+          takeover: !!schedule.play_takeover,
+          play_cron: schedule.play_cron || "",
+          play_at: asTime(parsePlayAtTimestamp(schedule.play_at || 0)),
+          period_minutes: period,
+          starts_at: asTime(starts_at),
+          ends_at: period ? asTime(starts_at + period * 60 * 1e3) : "single pass"
+        });
+      });
+    }
+    return entries.sort((a, b2) => a.starts_at.localeCompare(b2.starts_at));
   }
   setPlaylistOverride(media, ends_at = 0) {
     this.override_playlist.set({ playlist: media, ends_at });
@@ -101047,7 +101835,7 @@ var SignageService = class _SignageService extends AsyncHandler {
         return;
       const display_id = this._display();
       await S(`/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`, this._metrics);
-      log5.debug("Posted metrics:", this._metrics);
+      log6.debug("Posted metrics:", this._metrics);
       this._metrics = {
         play_through_counts: {},
         playlist_counts: {},
@@ -101071,32 +101859,61 @@ var SignageService = class _SignageService extends AsyncHandler {
     const playlist = this._playlistConfig(display, id)?.[0];
     return playlist?.enabled && playlistSchedules(playlist).some((schedule) => schedule.play_takeover);
   }
+  /**
+   * Re-sync the media cache when the set of media the display needs has
+   * changed. The display payload does not change when a schedule opens or
+   * closes - the clock does - so this runs off the schedule tick.
+   */
+  _checkMediaCache(display) {
+    if (!display?.id || this._media_sync_in_flight)
+      return;
+    if (this._mediaSignature(display) === this._media_signature)
+      return;
+    this._syncMediaCache(display);
+  }
+  _mediaSignature(display) {
+    const media = [...this._activeCacheableMediaURLs(display)].sort();
+    return `${display.id}:${media.join("|")}`;
+  }
   async _syncMediaCache(display) {
     if (!display?.id)
       return;
-    const cache_owner = display.id || "";
-    const media = this._activeCacheableMediaURLs(display);
-    const known_media = this._cacheableMediaURLs(display);
-    const available_media = this._media_cache.availableFiles(cache_owner);
-    const extra_media = available_media.filter((url) => !known_media.includes(url));
-    const has_failures = await this._media_cache.requestFilesToCache(media, cache_owner, { prune_other_owners: !this._isNestedPlayerWindow() });
-    for (const item of extra_media) {
-      this._media_cache.invalidateFile(item, cache_owner);
-    }
-    if (has_failures) {
-      this.timeout("retry_cache", () => this._syncMediaCache(this._display_data()), 15 * SECONDS);
+    this._media_signature = this._mediaSignature(display);
+    this._media_sync_in_flight = true;
+    try {
+      const cache_owner = display.id || "";
+      const media = this._activeCacheableMediaURLs(display);
+      const known_media = this._cacheableMediaURLs(display);
+      const available_media = this._media_cache.availableFiles(cache_owner);
+      const extra_media = available_media.filter((url) => !known_media.includes(url));
+      const has_failures = await this._media_cache.requestFilesToCache(media, cache_owner, { prune_other_owners: !this._isNestedPlayerWindow() });
+      for (const item of extra_media) {
+        this._media_cache.invalidateFile(item, cache_owner);
+      }
+      if (has_failures) {
+        this._cache_retry_attempt++;
+        const delay = Math.min(CACHE_RETRY_BASE_MS * 2 ** (this._cache_retry_attempt - 1), CACHE_RETRY_MAX_MS);
+        log6.debug(`Retrying media cache in ${delay}ms.`);
+        this.timeout("retry_cache", () => this._syncMediaCache(this._display_data()), delay);
+      } else {
+        this._cache_retry_attempt = 0;
+      }
+    } finally {
+      this._media_sync_in_flight = false;
     }
   }
   _activeCacheableMediaURLs(display) {
     if (!display?.id || !display.playlist_mappings?.[display.id]) {
       return this._cacheableMediaURLs(display);
     }
+    const now = time();
     const playlists = this._mappedPlaylistIds(display);
     const active_media = [
-      ...this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && (!playlistSchedules(p2).length || activePlaylistSchedules(p2).some(({ schedule }) => !schedule.play_takeover))),
-      ...this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && activePlaylistSchedules(p2).some(({ schedule }) => schedule.play_takeover))
+      ...this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && (!playlistSchedules(p2).length || activePlaylistSchedules(p2, now).some(({ schedule }) => !schedule.play_takeover))),
+      ...this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && activePlaylistSchedules(p2, now).some(({ schedule }) => schedule.play_takeover))
     ];
-    const urls = active_media.filter(({ type: type2 }) => type2 !== "webpage" && type2 !== "plugin").map(({ url }) => url).filter((_2) => !!_2);
+    const upcoming_media = this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && playlistStartsWithin(p2, now, MEDIA_CACHE_LOOK_AHEAD_SECONDS));
+    const urls = [...active_media, ...upcoming_media].filter(({ type: type2 }) => type2 !== "webpage" && type2 !== "plugin").map(({ url }) => url).filter((_2) => !!_2);
     return [...new Set(urls)];
   }
   _cacheableMediaURLs(display) {
@@ -101118,7 +101935,7 @@ var SignageService = class _SignageService extends AsyncHandler {
       return;
     const media = this._getPlaylistMedia(display, active_playlists.map((_2) => _2.id));
     const ends_at = this._scheduledOverrideEnd(active_schedules);
-    log5.debug("Setting override playlist", media, ends_at || 0);
+    log6.debug("Setting override playlist", media, ends_at || 0);
     this.override_playlist.set({
       playlist: media,
       ends_at,
@@ -101146,19 +101963,27 @@ var SignageService = class _SignageService extends AsyncHandler {
     const playlist_media = this._playlistMediaReferences(display, playlists, filter_fn);
     return playlist_media.map((media) => this._createMediaPlayerItem(display, media, plugins)).filter((_2) => !!_2);
   }
+  /**
+   * Build the parsed display. Returns a new object rather than mutating the
+   * response: `_display_signature` is taken from the raw response, so parsing
+   * in place would make an unchanged payload compare as changed on the next
+   * poll and force a full reload every time.
+   */
   _parseDisplay(value) {
-    log5.debug("Display updated.");
-    value = value || {};
+    log6.debug("Display updated.");
+    const source = value || {};
     try {
-      value.playlist_media = value.playlist_media?.map((_2) => new Rs(_2)) || [];
-      value.plugins = value.plugins?.map((_2) => new ur(_2)) || [];
+      return __spreadProps(__spreadValues({}, source), {
+        playlist_media: source.playlist_media?.map((_2) => new Rs(_2)) || [],
+        plugins: source.plugins?.map((_2) => new ur(_2)) || []
+      });
     } catch (e) {
-      log5.error("Failed to parse display media.", e);
-      value = value || {};
-      value.playlist_media = value.playlist_media || [];
-      value.plugins = value.plugins || [];
+      log6.error("Failed to parse display media.", e);
+      return __spreadProps(__spreadValues({}, source), {
+        playlist_media: source.playlist_media || [],
+        plugins: source.plugins || []
+      });
     }
-    return value;
   }
   _resolveDisplayPlugins(display) {
     const display_plugins = display?.plugins || [];
@@ -101203,7 +102028,7 @@ var SignageService = class _SignageService extends AsyncHandler {
   _playlistValidityWindow(playlist) {
     const schedule = activePlaylistSchedule(playlist);
     const schedule_start = schedule ? Math.floor(schedule.starts_at / 1e3) : 0;
-    const schedule_end = schedule ? Math.ceil(schedule.ends_at / 1e3) : 0;
+    const schedule_end = schedule?.expires_at ? Math.ceil(schedule.expires_at / 1e3) : 0;
     const valid_from = playlist?.valid_from && schedule_start ? Math.max(playlist.valid_from, schedule_start) : playlist?.valid_from || schedule_start;
     const valid_until = playlist?.valid_until && schedule_end ? Math.min(playlist.valid_until, schedule_end) : playlist?.valid_until || schedule_end;
     return [valid_from, valid_until];
@@ -101272,11 +102097,11 @@ var SignageService = class _SignageService extends AsyncHandler {
     if (!embedded_display_id)
       return true;
     if (embedded_display_id === display.id) {
-      log5.warn("Skipped signage media embedded with the same display ID.", media.id, embedded_display_id);
+      log6.warn("Skipped signage media embedded with the same display ID.", media.id, embedded_display_id);
       return false;
     }
     if (this._isNestedPlayerWindow()) {
-      log5.warn("Skipped nested signage media inside an embedded player.", media.id, embedded_display_id);
+      log6.warn("Skipped nested signage media inside an embedded player.", media.id, embedded_display_id);
       return false;
     }
     return true;
@@ -101288,7 +102113,33 @@ var SignageService = class _SignageService extends AsyncHandler {
     if (media.media_type === "webpage" || media.media_type === "plugin") {
       return media.media_url || plugin?.uri;
     }
-    return await this._media_cache.getFile(media.media_url).catch((_2) => null).then((_2) => _2 ? URL.createObjectURL(_2) : "").catch((_2) => "");
+    const url = media.media_url;
+    let file = await this._media_cache.getFile(url).catch((_2) => null);
+    if (!file && this._shouldRecoverMedia(url)) {
+      log6.warn("Media missing from the cache. Requesting it now.", url);
+      await this._media_cache.requestFilesToCache([url], this._display()).catch((_2) => void 0);
+      file = await this._media_cache.getFile(url).catch((_2) => null);
+    }
+    try {
+      return file ? URL.createObjectURL(file) : "";
+    } catch {
+      return "";
+    }
+  }
+  /**
+   * Rate limits recovery downloads. The player re-resolves the URL of a
+   * failing item every 50ms, which would otherwise hammer the network.
+   * Uses wall-clock time so debug time fast-forwarding cannot shorten it.
+   */
+  _shouldRecoverMedia(url) {
+    if (!url)
+      return false;
+    const now = Date.now();
+    const last_attempt = this._media_recovery.get(url) || 0;
+    if (now - last_attempt < MEDIA_RECOVERY_INTERVAL_MS)
+      return false;
+    this._media_recovery.set(url, now);
+    return true;
   }
   async _handleTrigger(id) {
     const display = this._display_data();
@@ -101300,7 +102151,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     const media = this._getPlaylistMedia(display, playlists, (p2) => p2.enabled);
     if (media.length <= 0)
       return;
-    log5.debug(`Handled trigger ${id}`, media);
+    log6.debug(`Handled trigger ${id}`, media);
     this.setPlaylistOverride(media);
   }
   static {
@@ -101393,6 +102244,9 @@ var MUTE_STORAGE_KEY = "SIGNAGE.muted";
 function isDebugEnabled(value) {
   return value !== null && value !== "false";
 }
+function isCoveredByLoadingOverlay() {
+  return !!document.querySelector("global-loading [loader]");
+}
 var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
@@ -101445,6 +102299,16 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
     return this._settings.get("app.default_animation_time");
   }
   ngOnInit() {
+    setAutoReloadGate(() => !this._players().some((_2) => _2.isMidPlayThroughItem()));
+    this.subscription("reload-gate", () => setAutoReloadGate(null));
+    this.interval("visible_check", () => {
+      if (!isCoveredByLoadingOverlay())
+        recordHeartbeat("visible");
+    }, 1e3);
+    this.subscription("diagnostics", registerSignageDiagnostics({
+      getState: () => this.diagnosticState(),
+      poll: () => this._signage.refresh()
+    }));
     window.addEventListener("message", this._remote_message_handler);
     this.subscription("remote-message", () => window.removeEventListener("message", this._remote_message_handler));
     this.timeout("not-bootstrapped", () => {
@@ -101478,6 +102342,34 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       }
     });
   }
+  /** Everything worth knowing about this player, for console diagnostics */
+  diagnosticState() {
+    return __spreadProps(__spreadValues({
+      version: {
+        hash: VERSION3.hash,
+        built: new Date(VERSION3.time).toISOString()
+      },
+      online: Fr(),
+      updates: updateCheckState()
+    }, this._signage.diagnostics()), {
+      players: this._players().map((player, index) => ({
+        role: index === 0 ? "background" : "takeover",
+        state: player.state(),
+        item_index: player.index(),
+        progress_percent: Math.round(player.progress()),
+        elapsed_s: player.duration(),
+        waiting_for_item: player.waiting_for_item(),
+        mid_play_through: player.isMidPlayThroughItem(),
+        playing: player.active_item ? {
+          id: player.active_item.id,
+          name: player.active_item.name,
+          type: player.active_item.type,
+          playlist: player.active_item.playlist_name
+        } : null,
+        queue: player.playlist_items.map((_2) => _2.id)
+      }))
+    });
+  }
   handlePlayerEvent(e, overridden = false) {
     if (overridden && e.type === "playlist_through") {
       const { ends_at } = this.override_playlist();
@@ -101502,7 +102394,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 7, consts: [[1, "z-0", 3, "playing_id", "event", "mutedChange", "playlist", "controls", "muted", "override", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playlist", "controls", "can_close", "muted", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "can_close", "muted", "animation_time"], ["stroke", "", 1, "text-base-100/60", "absolute", "bottom-1", "left-1", "font-mono", "text-[0.625rem]", "px-2", "rounded", "py-1", "bg-base-content/40"], [1, "opacity-50"], [1, "select-all"], ["stroke", "", 1, "text-base-100/60", "absolute", "bottom-1", "right-1", "font-mono", "text-[0.625rem]", "bg-base-content/40", "rounded", "px-2", "py-1"]], template: function SignagePanelComponent_Template(rf, ctx) {
+    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 7, consts: [[1, "z-0", 3, "playing_id", "event", "mutedChange", "playlist", "controls", "muted", "override", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playlist", "controls", "can_close", "muted", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "can_close", "muted", "animation_time"], ["stroke", "", 1, "text-base-100/60", "bg-base-content/40", "absolute", "bottom-1", "left-1", "rounded", "px-2", "py-1", "font-mono", "text-[0.625rem]"], [1, "opacity-50"], [1, "select-all"], ["stroke", "", 1, "text-base-100/60", "bg-base-content/40", "absolute", "right-1", "bottom-1", "rounded", "px-2", "py-1", "font-mono", "text-[0.625rem]"]], template: function SignagePanelComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "media-player", 0);
         \u0275\u0275listener("playing_id", function SignagePanelComponent_Template_media_player_playing_id_0_listener($event) {
@@ -101558,14 +102450,18 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         @if (debug()) {
             <div
                 stroke
-                class="text-base-100/60 absolute bottom-1 left-1 font-mono text-[0.625rem] px-2 rounded py-1 bg-base-content/40">
+                class="text-base-100/60 bg-base-content/40 absolute bottom-1 left-1 rounded px-2 py-1 font-mono text-[0.625rem]"
+            >
                 {{ version_date | date: 'mediumDate' }} &ndash;
                 {{ version_date | date: 'shortTime' }}
-                <span class="opacity-50">|</span>&nbsp;<span class="select-all">{{version_hash}}</span>
+                <span class="opacity-50">|</span>&nbsp;<span
+                    class="select-all"
+                    >{{ version_hash }}</span
+                >
             </div>
             <div
                 stroke
-                class="text-base-100/60 absolute bottom-1 right-1 font-mono text-[0.625rem] bg-base-content/40 rounded px-2 py-1"
+                class="text-base-100/60 bg-base-content/40 absolute right-1 bottom-1 rounded px-2 py-1 font-mono text-[0.625rem]"
             >
                 {{ playing_id() }}
                 @if (!playing_id()) {
@@ -101577,7 +102473,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
   }], null, { _players: [{ type: ViewChildren, args: [forwardRef(() => MediaPlayerComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 84 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 102 });
 })();
 
 // apps/signage/src/app/app.routes.ts
@@ -101614,10 +102510,20 @@ var appConfig = {
       enabled: environment.production
     }),
     {
+      // Angular handles errors before they reach `window.onerror`, so
+      // the recovery watchdog is told about them here as well.
       provide: ErrorHandler,
-      useValue: createErrorHandler({
-        showDialog: false
-      })
+      useFactory: () => {
+        const handler = createErrorHandler({
+          showDialog: false
+        });
+        return {
+          handleError: (error2) => {
+            recordFatalError(error2?.message || error2);
+            handler.handleError(error2);
+          }
+        };
+      }
     },
     {
       provide: TraceService,
