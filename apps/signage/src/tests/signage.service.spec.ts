@@ -1,4 +1,7 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import * as ts_client from '@placeos/ts-client';
 import { MediaAnimation } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -141,6 +144,13 @@ describe('SignageService', () => {
             requestFilesToCache: vi.fn(() => Promise.resolve(false)),
             invalidateFile: vi.fn(),
             getFile: vi.fn(() => Promise.resolve(new File([], 'cached'))),
+            cacheState: vi.fn(() => ({
+                file_count: 2,
+                cached_count: 1,
+                total_bytes: 10,
+                limit_bytes: 100,
+                files: [],
+            })),
         };
         (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(create_display() as any),
@@ -167,8 +177,328 @@ describe('SignageService', () => {
         vi.restoreAllMocks();
     });
 
+    it('should report scheduling and cache state for diagnostics', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        const state = spectator.service.diagnostics();
+
+        expect(state.display_id).toBe('display-1');
+        expect(state.poll.interval_ms).toBe(60_000);
+        expect(state.poll.last_success).not.toBe('never');
+        expect(state.poll.next_due).not.toBe('never');
+        expect(state.active_media.map((_) => _.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+        expect(state.playlists.mapped).toContain('base-playlist');
+        expect(state.playlists.takeover.media.map((_) => _.id)).toEqual([
+            'media-3',
+        ]);
+        expect(state.media_cache.file_count).toBe(2);
+    });
+
+    it('should list upcoming schedules in playback order', async () => {
+        vi.setSystemTime(new Date('2026-01-01T10:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['evening', 'morning'] },
+                    playlist_config: {
+                        evening: [
+                            {
+                                id: 'evening',
+                                name: 'Evening',
+                                enabled: true,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 18 * * *',
+                                        play_period: 60,
+                                    },
+                                ],
+                            },
+                            ['media-1'],
+                        ],
+                        morning: [
+                            {
+                                id: 'morning',
+                                name: 'Morning',
+                                enabled: true,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 0,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        const upcoming = spectator.service.diagnostics().upcoming_schedules;
+
+        // 18:00 today comes before 06:00 tomorrow
+        expect(upcoming.map((_) => _.playlist_id)).toEqual([
+            'evening',
+            'morning',
+        ]);
+        expect(upcoming[0].starts_at).toBe(
+            new Date('2026-01-01T18:00:00').toISOString(),
+        );
+        expect(upcoming[1].starts_at).toBe(
+            new Date('2026-01-02T06:00:00').toISOString(),
+        );
+        expect(upcoming[1].ends_at).toBe('single pass');
+    });
+
+    it('should finish reloading when trigger binding fails', async () => {
+        (ts_client.getModule as any).mockImplementation(() => {
+            throw new Error('module unavailable');
+        });
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+        expect(media_cache.requestFilesToCache).toHaveBeenCalled();
+        expect(
+            spectator.service.override_playlist().playlist.map((_) => _.id),
+        ).toEqual(['media-3']);
+    });
+
+    it('should retry the whole reload after a failure part way through', async () => {
+        vi.spyOn(
+            spectator.service as any,
+            '_syncMediaCache',
+        ).mockImplementationOnce(() => {
+            throw new Error('cache sync exploded');
+        });
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const parse = vi.spyOn(spectator.service as any, '_parseDisplay');
+
+        // The payload has not changed, but the failed pass must not be recorded
+        // as handled, so the next poll redoes the work rather than skipping it.
+        vi.advanceTimersByTime(60_000);
+        await flush();
+
+        expect(parse).toHaveBeenCalled();
+    });
+
+    it('should back off media cache retries while downloads keep failing', async () => {
+        media_cache.requestFilesToCache.mockResolvedValue(true);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const service = spectator.service as any;
+        service._cache_retry_attempt = 0;
+        const timeout = vi.spyOn(service, 'timeout');
+        const delays: number[] = [];
+
+        for (let i = 0; i < 6; i++) {
+            timeout.mockClear();
+            await service._syncMediaCache(spectator.service.display());
+            const call = timeout.mock.calls
+                .filter(([name]) => name === 'retry_cache')
+                .pop();
+            delays.push(call?.[2] as number);
+        }
+
+        expect(delays).toEqual([
+            15_000, 30_000, 60_000, 120_000, 240_000, 300_000,
+        ]);
+    });
+
+    it('should reset the media cache backoff once downloads succeed', async () => {
+        media_cache.requestFilesToCache.mockResolvedValue(true);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect((spectator.service as any)._cache_retry_attempt).toBe(1);
+
+        media_cache.requestFilesToCache.mockResolvedValue(false);
+        await (spectator.service as any)._syncMediaCache(
+            spectator.service.display(),
+        );
+
+        expect((spectator.service as any)._cache_retry_attempt).toBe(0);
+    });
+
     it('should create the service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should keep polling the display while nothing is scheduled', async () => {
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': [] },
+                    playlist_config: {},
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(spectator.service.playlist()).toHaveLength(0);
+        (ts_client.showSignage as any).mockClear();
+
+        for (let i = 0; i < 3; i++) {
+            vi.advanceTimersByTime(60_000);
+            await flush();
+        }
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(3);
+    });
+
+    it('should keep polling over a long idle period', async () => {
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': [] },
+                    playlist_config: {},
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        (ts_client.showSignage as any).mockClear();
+
+        // Four hours, stepped at the schedule tick interval
+        for (let i = 0; i < 4 * 60 * 4; i++) {
+            vi.advanceTimersByTime(15_000);
+            await Promise.resolve();
+        }
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(4 * 60);
+    });
+
+    it('should keep polling after the display request fails', async () => {
+        (ts_client.showSignage as any).mockImplementation(() =>
+            Promise.reject(new Error('backend unavailable')),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        (ts_client.showSignage as any).mockClear();
+
+        for (let i = 0; i < 3; i++) {
+            vi.advanceTimersByTime(60_000);
+            await flush();
+        }
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(3);
+    });
+
+    it('should abandon a display request that never settles', async () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.display_details.display-1',
+            JSON.stringify(create_display()),
+        );
+        (ts_client.showSignage as any).mockImplementation(
+            () => new Promise(() => undefined),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect((spectator.service as any)._poll_in_flight).toBe(true);
+
+        // Past the fetch timeout, but before the next poll would be due
+        vi.advanceTimersByTime(35_000);
+        await flush();
+
+        expect((spectator.service as any)._poll_in_flight).toBe(false);
+        // The abandoned request falls back to the last known display details
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+    });
+
+    it('should keep polling after the display request never settles', async () => {
+        (ts_client.showSignage as any).mockImplementation(
+            () => new Promise(() => undefined),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        (ts_client.showSignage as any).mockClear();
+
+        for (let i = 0; i < 3; i++) {
+            vi.advanceTimersByTime(60_000);
+            await flush();
+        }
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(3);
+    });
+
+    it('should recover the display once the backend comes back', async () => {
+        (ts_client.showSignage as any).mockImplementationOnce(() =>
+            Promise.reject(new Error('backend unavailable')),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(spectator.service.playlist()).toHaveLength(0);
+
+        vi.advanceTimersByTime(60_000);
+        await flush();
+
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+    });
+
+    it('should rebuild the poll timer if it stops firing', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+        // Simulate the interval being lost without the service knowing
+        (spectator.service as any).clearInterval('poll');
+        (ts_client.showSignage as any).mockClear();
+
+        vi.advanceTimersByTime(4 * 60_000);
+        await flush();
+        (ts_client.showSignage as any).mockClear();
+        vi.advanceTimersByTime(60_000);
+        await flush();
+
+        expect((ts_client.showSignage as any).mock.calls.length).toBe(1);
+    });
+
+    it('should only ask for a preview when debug is enabled', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith('display-1', {});
+
+        spectator.service.debug.set(true);
+        vi.advanceTimersByTime(60_000);
+        await flush();
+
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith('display-1', {
+            preview: true,
+        });
+    });
+
+    it('should not reload the display when the payload is unchanged', async () => {
+        const display = create_display();
+        (ts_client.showSignage as any).mockImplementation(() =>
+            Promise.resolve(display as any),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+        const parse = vi.spyOn(spectator.service as any, '_parseDisplay');
+
+        await (spectator.service as any)._reloadDisplay();
+        await flush();
+
+        expect(parse).not.toHaveBeenCalled();
+        expect(media_cache.requestFilesToCache).not.toHaveBeenCalled();
     });
 
     it('should map base and zone playlists into the active media playlist', async () => {
@@ -193,6 +523,395 @@ describe('SignageService', () => {
             '/stale-file.jpg',
             'display-1',
         );
+    });
+
+    it('should cache media for playlists scheduled later in the day', async () => {
+        vi.setSystemTime(new Date('2026-01-01T22:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['morning-playlist'] },
+                    playlist_config: {
+                        'morning-playlist': [
+                            {
+                                id: 'morning-playlist',
+                                name: 'Morning Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.playlist()).toHaveLength(0);
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call?.[0]).toEqual(['/media-3.jpg']);
+    });
+
+    it('should cache media once a schedule comes into look-ahead range', async () => {
+        vi.setSystemTime(new Date('2026-01-01T00:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['monthly-playlist'] },
+                    playlist_config: {
+                        'monthly-playlist': [
+                            {
+                                id: 'monthly-playlist',
+                                name: 'Monthly Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 3 * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        // Over 24 hours out, so nothing is downloaded yet
+        expect(
+            media_cache.requestFilesToCache.mock.calls.find(
+                ([urls]) => urls.length,
+            ),
+        ).toBeUndefined();
+
+        // Move to within the look-ahead window and let the schedule tick run
+        vi.setSystemTime(new Date('2026-01-02T12:00:00'));
+        vi.advanceTimersByTime(15_000);
+        await flush();
+
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call?.[0]).toEqual(['/media-3.jpg']);
+    });
+
+    it('should release cached media once a schedule has finished', async () => {
+        const now = new Date('2026-01-01T10:00:00');
+        vi.setSystemTime(now);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist', 'one-off-playlist'],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'one-off-playlist': [
+                            {
+                                id: 'one-off-playlist',
+                                name: 'One Off Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: Math.floor(
+                                            now.getTime() / 1000,
+                                        ),
+                                        play_cron: '',
+                                        play_period: 1,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(
+            media_cache.requestFilesToCache.mock.calls.find(
+                ([urls]) => urls.length,
+            )?.[0],
+        ).toEqual(['/media-1.jpg', '/media-3.jpg']);
+        media_cache.requestFilesToCache.mockClear();
+
+        vi.setSystemTime(new Date('2026-01-01T10:02:00'));
+        vi.advanceTimersByTime(15_000);
+        await flush();
+
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call?.[0]).toEqual(['/media-1.jpg']);
+    });
+
+    it('should not re-sync the media cache while the media set is unchanged', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+
+        vi.advanceTimersByTime(15_000);
+        await flush();
+
+        expect(media_cache.requestFilesToCache).not.toHaveBeenCalled();
+    });
+
+    it('should not re-sync the media cache for playlists that play in random order', async () => {
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['random-playlist'] },
+                    playlist_config: {
+                        'random-playlist': [
+                            {
+                                id: 'random-playlist',
+                                name: 'Random Playlist',
+                                enabled: true,
+                                random: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 5000,
+                            },
+                            ['media-1', 'media-2', 'media-5'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+
+        // Three ticks, staying under the one minute display poll so only the
+        // schedule tick can trigger a sync. A stable three item playlist
+        // shuffles back into the same order roughly one time in six.
+        for (let i = 0; i < 3; i++) {
+            vi.advanceTimersByTime(15_000);
+            await flush();
+        }
+
+        expect(media_cache.requestFilesToCache).not.toHaveBeenCalled();
+    });
+
+    it('should not cache media for playlists scheduled beyond the look-ahead', async () => {
+        vi.setSystemTime(new Date('2026-01-01T22:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['monthly-playlist'] },
+                    playlist_config: {
+                        'monthly-playlist': [
+                            {
+                                id: 'monthly-playlist',
+                                name: 'Monthly Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 15 * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call).toBeUndefined();
+    });
+
+    it('should rank active media ahead of look-ahead media for cache eviction', async () => {
+        vi.setSystemTime(new Date('2026-01-01T22:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist', 'morning-playlist'],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'morning-playlist': [
+                            {
+                                id: 'morning-playlist',
+                                name: 'Morning Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        const cache_call = media_cache.requestFilesToCache.mock.calls.find(
+            ([urls]) => urls.length,
+        );
+        expect(cache_call?.[0]).toEqual(['/media-1.jpg', '/media-3.jpg']);
+    });
+
+    it('should request media that is missing from the cache when resolving its URL', async () => {
+        const object_url = vi.fn(() => 'blob:recovered');
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: object_url,
+        });
+        media_cache.getFile
+            .mockRejectedValueOnce(new Error('Unable to find file with URL'))
+            .mockResolvedValueOnce(new File([], 'recovered'));
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+        const [item] = spectator.service.playlist();
+
+        const url = await item.getURL();
+
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledWith(
+            ['/media-1.jpg'],
+            'display-1',
+        );
+        expect(url).toBe('blob:recovered');
+    });
+
+    it('should rate limit recovery downloads for the same media file', async () => {
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: vi.fn(() => 'blob:recovered'),
+        });
+        media_cache.getFile.mockRejectedValue(
+            new Error('Unable to find file with URL'),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+        const [item] = spectator.service.playlist();
+
+        expect(await item.getURL()).toBe('');
+        expect(await item.getURL()).toBe('');
+        expect(await item.getURL()).toBe('');
+
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(1);
+    });
+
+    it('should retry a recovery download after the rate limit has passed', async () => {
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: vi.fn(() => 'blob:recovered'),
+        });
+        media_cache.getFile.mockRejectedValue(
+            new Error('Unable to find file with URL'),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        media_cache.requestFilesToCache.mockClear();
+        const [item] = spectator.service.playlist();
+        await item.getURL();
+
+        vi.advanceTimersByTime(15_000);
+        await item.getURL();
+
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(2);
+    });
+
+    it('should play a playlist scheduled for the morning after an empty night', async () => {
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: vi.fn(() => 'blob:morning'),
+        });
+        vi.setSystemTime(new Date('2026-01-01T22:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: { 'display-1': ['morning-playlist'] },
+                    playlist_config: {
+                        'morning-playlist': [
+                            {
+                                id: 'morning-playlist',
+                                name: 'Morning Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 15000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: false,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        // Nothing plays overnight, but the morning media is already downloaded
+        expect(spectator.service.playlist()).toHaveLength(0);
+        expect(
+            media_cache.requestFilesToCache.mock.calls.find(
+                ([urls]) => urls.length,
+            )?.[0],
+        ).toEqual(['/media-3.jpg']);
+
+        vi.setSystemTime(new Date('2026-01-02T06:00:02'));
+        vi.advanceTimersByTime(15_000);
+        await flush();
+        const playlist = spectator.service.playlist();
+
+        expect(playlist.map((_) => _.id)).toEqual(['media-3']);
+        expect(playlist[0].valid_from * 1000).toBe(
+            new Date('2026-01-02T06:00:00').getTime(),
+        );
+        expect(playlist[0].valid_until * 1000).toBe(
+            new Date('2026-01-02T18:00:00').getTime(),
+        );
+        await expect(playlist[0].getURL()).resolves.toBe('blob:morning');
     });
 
     it('should bind trigger playlists when display data is loaded', async () => {
@@ -828,6 +1547,126 @@ describe('SignageService', () => {
         );
     });
 
+    it('should use the most recent cron run when several fall in the play period', async () => {
+        // Fires every 6 hours and each run lasts 12 hours, so at 07:00 the
+        // 06:00 run is the active one and it should end at 18:00.
+        vi.setSystemTime(new Date('2026-01-01T07:00:00'));
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 */6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: true,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.override_playlist().ends_at).toBe(
+            new Date('2026-01-01T18:00:00').getTime(),
+        );
+    });
+
+    it('should not expire single-pass scheduled media with the trigger window', async () => {
+        const fired_at = new Date('2026-01-01T06:00:00');
+        vi.setSystemTime(fired_at.getTime() + 2000);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 0,
+                                        play_takeover: true,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const [media] = spectator.service.override_playlist().playlist;
+
+        expect(media?.id).toBe('media-3');
+        expect(media.valid_until).toBe(0);
+        expect(spectator.service.override_playlist().ends_at).toBe(0);
+    });
+
+    it('should still expire scheduled media at the end of a play period', async () => {
+        const fired_at = new Date('2026-01-01T06:00:00');
+        vi.setSystemTime(fired_at.getTime() + 2000);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_animation: MediaAnimation.Cut,
+                                default_duration: 10000,
+                                schedules: [
+                                    {
+                                        play_at: 0,
+                                        play_cron: '0 6 * * *',
+                                        play_period: 12 * 60,
+                                        play_takeover: true,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const [media] = spectator.service.override_playlist().playlist;
+
+        expect(media.valid_until * 1000).toBe(
+            fired_at.getTime() + 12 * 60 * 60 * 1000,
+        );
+    });
+
     it('should not retrigger completed single-pass scheduled overrides', async () => {
         const now = new Date('2026-01-01T10:00:00Z').getTime();
         vi.setSystemTime(now);
@@ -868,6 +1707,23 @@ describe('SignageService', () => {
         await flush();
 
         expect(spectator.service.override_playlist().playlist).toHaveLength(0);
+    });
+
+    it('should keep evaluating schedules after a failed tick', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const check_overrides = vi
+            .spyOn(spectator.service as any, '_checkScheduledOverrides')
+            .mockImplementationOnce(() => {
+                throw new Error('schedule evaluation failed');
+            });
+
+        vi.advanceTimersByTime(15_000);
+        await flush();
+        vi.advanceTimersByTime(15_000);
+        await flush();
+
+        expect(check_overrides).toHaveBeenCalledTimes(2);
     });
 
     it('should store metric events and ignore playlist counts for random playlists', async () => {

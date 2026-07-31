@@ -1,11 +1,16 @@
 import { Subject } from 'rxjs';
 
+import * as ts_client from '@placeos/ts-client';
+
 import * as app from '../lib/application';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('application cache handling', () => {
     let version_updates: Subject<any>;
     let unrecoverable: Subject<any>;
     let cache: any;
+    let reload: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
         vi.useFakeTimers();
@@ -20,11 +25,80 @@ describe('application cache handling', () => {
             unrecoverable: unrecoverable.asObservable(),
             checkForUpdate: vi.fn(async () => false),
         };
+        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        Object.defineProperty(globalThis.navigator, 'onLine', {
+            configurable: true,
+            value: true,
+        });
+        reload = vi.fn();
+        Object.defineProperty(globalThis, 'location', {
+            configurable: true,
+            value: { reload },
+        });
     });
 
     afterEach(() => {
         app.clearCacheCheck();
         vi.useRealTimers();
+    });
+
+    it('should reload immediately when a new version is ready and nothing blocks it', () => {
+        app.setupCache(cache, { auto_reload: true });
+        version_updates.next({ type: 'VERSION_READY' });
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should wait for the network before reloading', () => {
+        vi.mocked(ts_client.isOnline).mockReturnValue(false);
+        app.setupCache(cache, { auto_reload: true });
+        version_updates.next({ type: 'VERSION_READY' });
+        expect(reload).not.toHaveBeenCalled();
+        expect(app.reloadPending()).toBe(true);
+
+        vi.advanceTimersByTime(30_000);
+        expect(reload).not.toHaveBeenCalled();
+
+        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        vi.advanceTimersByTime(5_000);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should wait for the reload gate to allow it', () => {
+        let safe = false;
+        app.setAutoReloadGate(() => safe);
+        app.setupCache(cache, { auto_reload: true });
+        version_updates.next({ type: 'VERSION_READY' });
+        expect(reload).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(60_000);
+        expect(reload).not.toHaveBeenCalled();
+
+        safe = true;
+        vi.advanceTimersByTime(5_000);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reload anyway once the deferral limit is reached', () => {
+        app.setAutoReloadGate(() => false);
+        app.setupCache(cache, { auto_reload: true });
+        version_updates.next({ type: 'VERSION_READY' });
+
+        vi.advanceTimersByTime(10 * 60 * 1000 + 5_000);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reload despite a reload gate that throws', () => {
+        app.setAutoReloadGate(() => {
+            throw new Error('gate failed');
+        });
+        app.setupCache(cache, { auto_reload: true });
+        version_updates.next({ type: 'VERSION_READY' });
+
+        expect(reload).toHaveBeenCalledTimes(1);
     });
 
     it('should have no new version by default', () => {

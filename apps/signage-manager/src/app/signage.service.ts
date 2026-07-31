@@ -189,6 +189,15 @@ const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
 type MediaViewMode = 'grid' | 'list' | 'folder';
+// Fields the backend matches a search term against. Names that don't exist on
+// a given resource are ignored, so the one list works for every search.
+const SEARCH_FIELDS = [
+    'id',
+    'name',
+    'display_name',
+    'description',
+    'tags',
+].join(',');
 const SIGNAGE_GROUP_FIELDS = [
     'id',
     'name',
@@ -868,7 +877,7 @@ export class SignageService {
                     this._orgZoneQueryParams(
                         {
                             limit: SignageService.PAGE_SIZE,
-                            ...(search ? { q: search } : {}),
+                            ...this._searchParam(search),
                         },
                         group_id,
                     ),
@@ -974,7 +983,7 @@ export class SignageService {
                     ...this._orgZoneQueryParams({}, group_id),
                     limit: SignageService.PAGE_SIZE,
                     signage: true,
-                    ...(search ? { q: search } : {}),
+                    ...this._searchParam(search),
                 } as any),
                 token,
             );
@@ -1032,7 +1041,7 @@ export class SignageService {
 
     private _searchParam(search: string) {
         const term = search.trim();
-        return term ? { q: term } : {};
+        return term ? { q: term, fields: SEARCH_FIELDS } : {};
     }
 
     public loadMoreDisplays() {

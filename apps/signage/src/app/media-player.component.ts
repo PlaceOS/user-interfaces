@@ -33,6 +33,7 @@ import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
 import { TimeControlsComponent } from './time-controls.component';
 import { MediaPlayerItem, MediaPlayerState } from './types';
+import { recordHeartbeat } from './watchdog';
 
 /** Max wait for an item whose data is still being downloaded before skipping */
 const MAX_URL_WAIT_LOADING = 30 * 1000;
@@ -43,7 +44,7 @@ const URL_FETCH_TIMEOUT = 30 * 1000;
 /** Minimum time to wait on a media item before skipping a load failure */
 const MIN_FAILED_MEDIA_WAIT = 1000;
 /** Lead time for rendering the next webpage/plugin output before it is shown */
-const INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1000;
+const INTERACTIVE_PRELOAD_LEAD_TIME = 10 * 1000;
 /** Time to let a webpage settle after its load event before it is shown */
 const WEBPAGE_REVEAL_DELAY = 3 * 1000;
 /** Max wait for plugin load/ready before continuing playback anyway */
@@ -52,7 +53,11 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
 @Component({
     selector: 'media-player',
     template: `
-        <div class="absolute inset-0" [class.bg-black]="!controls()" [style.background]="controls() ? '#212121' : ''">
+        <div
+            class="absolute inset-0"
+            [class.bg-black]="!controls()"
+            [style.background]="controls() ? '#212121' : ''"
+        >
             <div
                 #media_container_0
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"
@@ -401,7 +406,17 @@ export class MediaPlayerComponent
     }
 
     public ngOnInit() {
-        this.interval('playlist_check', () => this._updateItem(), 50);
+        this.interval(
+            'playlist_check',
+            () => {
+                // Checked in from the timer rather than from item changes: a
+                // single interactive item legitimately holds the screen for
+                // hours, so what matters is that the loop is still running.
+                recordHeartbeat('playback');
+                this._updateItem();
+            },
+            50,
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -539,6 +554,23 @@ export class MediaPlayerComponent
 
     public isValidMedia(item: MediaPlayerItem): boolean {
         return validateMedia(item) === '';
+    }
+
+    /**
+     * Whether the item on screen plays to completion, so interrupting it now
+     * would be noticed. Images and webpages hold a static frame and can be
+     * replaced without anyone seeing a difference; videos and plugins that
+     * report when they finish cannot.
+     */
+    public isMidPlayThroughItem() {
+        const item = this.active_item;
+        if (!item || this.state() !== 'PLAYING') return false;
+        if (item.type === 'video') return true;
+        if (item.type === 'plugin') {
+            const playback = item.plugin?.playback_type;
+            return playback === 'playsthrough' || playback === 'interactive';
+        }
+        return false;
     }
 
     public toggleLoop() {

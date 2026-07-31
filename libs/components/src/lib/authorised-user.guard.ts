@@ -17,9 +17,43 @@ import {
     OrganisationService,
     user_groups_loaded,
 } from '@placeos/common';
-import { authority, onlineState, waitForSignal } from '@placeos/ts-client';
+import {
+    authority,
+    onlineState,
+    token,
+    waitForSignal,
+} from '@placeos/ts-client';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
+
+/** How long to wait on backend-dependent state before falling back */
+const OFFLINE_FALLBACK_DELAY = 20 * 1000;
+
+/** Whether this device holds credentials from a previous successful session */
+function hasCachedCredentials() {
+    try {
+        return !!token();
+    } catch {
+        return false;
+    }
+}
+
+/** Resolves true if `promise` settles successfully within `delay` */
+function resolvedWithin(promise: Promise<unknown>, delay: number) {
+    return new Promise<boolean>((resolve) => {
+        const timer = setTimeout(() => resolve(false), delay);
+        promise.then(
+            () => {
+                clearTimeout(timer);
+                resolve(true);
+            },
+            () => {
+                clearTimeout(timer);
+                resolve(false);
+            },
+        );
+    });
+}
 
 export abstract class PLACEOS_APP_ACCESS {
     public readonly group: string;
@@ -57,26 +91,30 @@ export class AuthorisedUserGuard {
     }
 
     private async checkUser() {
-        await Promise.all([
-            this._org.waitUntilInitialised(),
-            firstValueWhere(user_groups_loaded, Boolean, this._injector),
-        ]);
+        const state_ready = await resolvedWithin(
+            Promise.all([
+                this._org.waitUntilInitialised(),
+                firstValueWhere(user_groups_loaded, Boolean, this._injector),
+            ]),
+            OFFLINE_FALLBACK_DELAY,
+        );
+        if (!state_ready) return this.offlineAccess();
         const groups = this._access?.group
             ? [this._access.group]
             : this._settings.get('app.allow_access_groups') || [];
         const use_group_subsystem_access = await this.useGroupSubsystemAccess();
         let can_activate = false;
         if (use_group_subsystem_access) {
-            await waitForSignal(onlineState(), Boolean);
-            const user = await firstTruthyValueFrom(current_user);
+            const user = await this.waitForUser();
+            if (!user) return this.offlineAccess();
             can_activate = this.checkSubsystemAccess(user);
             log('ACCESS', 'Checking subsystem access', can_activate);
         } else if (!groups.length) {
             can_activate = true;
             log('ACCESS', 'No access groups', can_activate);
         } else {
-            await waitForSignal(onlineState(), Boolean);
-            const user = await firstTruthyValueFrom(current_user);
+            const user = await this.waitForUser();
+            if (!user) return this.offlineAccess();
             can_activate = !!(
                 user && groups.find((_) => user.groups.includes(_))
             );
@@ -86,6 +124,45 @@ export class AuthorisedUserGuard {
             this._router.navigate(['/unauthorised']);
         }
         return !!can_activate;
+    }
+
+    /** The active user, or null if the backend could not be reached in time */
+    private async waitForUser() {
+        const online = await resolvedWithin(
+            waitForSignal(onlineState(), Boolean),
+            OFFLINE_FALLBACK_DELAY,
+        );
+        if (!online) return null;
+        let user: any = null;
+        const loaded = await resolvedWithin(
+            firstTruthyValueFrom(current_user).then((_) => (user = _)),
+            OFFLINE_FALLBACK_DELAY,
+        );
+        return loaded ? user : null;
+    }
+
+    /**
+     * Access decision for when the backend cannot be reached. Waiting forever
+     * leaves a fixed device sitting on a loading screen with no way back, so a
+     * device that has authenticated before is allowed through on its cached
+     * session. Every API call it then makes is still checked by the server.
+     */
+    private offlineAccess() {
+        if (hasCachedCredentials()) {
+            log(
+                'ACCESS',
+                'Backend unreachable. Continuing with cached credentials.',
+            );
+            return true;
+        }
+        log(
+            'ACCESS',
+            'Backend unreachable and no cached credentials.',
+            undefined,
+            'warn',
+        );
+        this._router.navigate(['/unauthorised']);
+        return false;
     }
 
     private async useGroupSubsystemAccess() {

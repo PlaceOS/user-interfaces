@@ -205,6 +205,11 @@ function formBookingData(value: Record<string, any>) {
         if (key === 'extension_data') {
             data.extension_data = formExtensionData(value.extension_data);
         } else if (
+            // `asset_ids` is spread into the form model from the booking being
+            // edited and never updated when `asset_id` changes, so sending it
+            // back would overwrite the new resource with the old one. The
+            // `Booking` constructor rebuilds it from `asset_id`.
+            key !== 'asset_ids' &&
             !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) &&
             (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))
         ) {
@@ -1748,8 +1753,17 @@ export class BookingFormService extends AsyncHandler {
     public async loadGroupSiblings(booking: Booking): Promise<Booking[]> {
         if (!booking?.id) return [];
         const parent_id = booking.parent_id || booking.id;
-        // Visitor groups made before group containers existed have no parent
-        // link — their only shared marker is the generated `grp-*` description.
+        // Groups made before group containers existed have no parent link. Every
+        // member still carries the same generated group reference
+        // (`host@email[yyyy-MM-dd]`) in `extension_data.group`, so match on that
+        // too — without it only the opened booking is found, and editing the
+        // group leaves the other members behind (removed members survive,
+        // retained members get duplicated). The query is already bounded to this
+        // booking's exact period, so a same-host/same-day group at another time
+        // cannot be pulled in.
+        const group_ref = `${booking.group || ''}`.trim();
+        // Older groups again: some only ever shared a generated `grp-*`
+        // description.
         const legacy_group = `${booking.description || ''}`.startsWith('grp-')
             ? booking.description
             : '';
@@ -1764,6 +1778,7 @@ export class BookingFormService extends AsyncHandler {
             (b) =>
                 b.id === parent_id ||
                 b.parent_id === parent_id ||
+                (!!group_ref && `${b.group || ''}`.trim() === group_ref) ||
                 (!!legacy_group && b.description === legacy_group),
         );
     }
@@ -2092,10 +2107,14 @@ export class BookingFormService extends AsyncHandler {
     }
 
     private mapGroupMembers(type: BookingType, members: User[] = []) {
-        const user_list =
+        // Dedupe visitors too — a duplicated email produces two group members
+        // that the visitor list can't tell apart. (PPT-2634)
+        const user_list = unique(
             type === 'visitor'
-                ? members
-                : unique([currentUser(), ...(members || [])], 'email');
+                ? members || []
+                : [currentUser(), ...(members || [])],
+            'email',
+        );
         return user_list
             .filter((member) => !!member?.email)
             .map((member) => ({
@@ -2287,6 +2306,20 @@ export class BookingFormService extends AsyncHandler {
                     : 'BOOKINGS.RESOURCE_BOOKED',
                 { name: asset_id },
             );
+        }
+        // A permanent allocation is stored as a booking tagged `is_assigned`
+        // (see the concierge assignment flows). It always consumes the user's
+        // allowance, so booking on top of it double-books them even when the
+        // daily limit is higher than one. `allow` opts out of the restriction.
+        const is_self =
+            user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
+        if (
+            this.assignedResourceBooking(type) !== 'allow' &&
+            active_bookings.some(
+                (_) => _.id !== id && (_.extension_data as any)?.is_assigned,
+            )
+        ) {
+            throw `${is_self ? 'You have' : 'This user has'} an assigned ${type} and cannot book another ${type}.`;
         }
         const allowed_bookings =
             this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;

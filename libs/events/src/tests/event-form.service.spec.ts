@@ -228,6 +228,36 @@ describe('EventFormService', () => {
         expect(service.can_notify_new_attendees_only()).toBe(false);
     });
 
+    it('should offer attendee-only notifications after the form syncs a one-off event', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            date: new Date(2028, 5, 15, 10).valueOf(),
+            duration: 60,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+
+        service.newForm(event);
+        // Let the form's field-sync effects run - seeding the date must not
+        // invent a recurrence on a non-recurring event.
+        TestBed.tick();
+        service.model.update((model) => ({
+            ...model,
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+
+        expect(service.model().recurrence).toEqual({});
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+    });
+
     it('should preserve attendee-only notification eligibility after reloading the form', () => {
         const event = new CalendarEvent({
             id: 'event-1',
@@ -255,6 +285,49 @@ describe('EventFormService', () => {
         service.loadForm();
 
         expect(service.can_notify_new_attendees_only()).toBe(true);
+    });
+
+    it('should ignore derived and re-hydrated fields when checking for other changes', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            date: new Date(2028, 5, 15, 10, 14, 0, 0).valueOf(),
+            duration: 60,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                { id: 'space-1', email: 'space-1@test.com', zones: [] } as any,
+            ],
+        });
+        service.newForm(event);
+
+        // The form rounds the derived end time up and the space list is
+        // re-hydrated with the full space details, neither of which is a
+        // booking detail the user changed.
+        service.model.update((model) => ({
+            ...model,
+            date_end: model.date_end + 60 * 1000,
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    name: 'Space 1',
+                    capacity: 8,
+                    zones: ['zone-1'],
+                } as any,
+            ],
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        // Swapping the booked room is a change to the booking though.
+        service.model.update((model) => ({
+            ...model,
+            resources: [
+                { id: 'space-2', email: 'space-2@test.com', zones: [] } as any,
+            ],
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
     });
 
     it('should suppress existing attendee notifications for attendee-only edits', async () => {

@@ -1332,6 +1332,163 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should block desk bookings for another user that has an assigned desk', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
+            }
+            return undefined;
+        });
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: {
+                    desks: {
+                        details: [
+                            {
+                                id: 'assigned-desk',
+                                assigned_to: 'other.user@example.com',
+                            },
+                        ],
+                    },
+                },
+                zone: { id: 'lvl-1' },
+            },
+        ] as any);
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            } as any,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        }));
+
+        await expect(spectator.service.postForm()).rejects.toBeTruthy();
+        expect(savedBookings().length).toBe(0);
+    });
+
+    it('should block bookings for a user with an assigned booking even when the daily limit is higher', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') {
+                return 'other_only';
+            }
+            if (key === 'app.bookings.allowed_daily_desk_count') return 3;
+            return undefined;
+        });
+        // Permanent allocations are stored as bookings tagged `is_assigned`,
+        // and can exist without a matching `assigned_to` in desk metadata.
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'assigned-booking',
+                type: 'desk',
+                asset_id: 'assigned-desk',
+                user_email: 'other.user@example.com',
+                extension_data: { is_assigned: true },
+            },
+        ] as any);
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            } as any,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [
+                {
+                    id: 'desk-1',
+                    name: 'Desk 1',
+                    zone: { id: 'lvl-1', parent_id: 'bld-1' },
+                    features: [],
+                },
+            ],
+        }));
+
+        await expect(spectator.service.postForm()).rejects.toBe(
+            'This user has an assigned desk and cannot book another desk.',
+        );
+        expect(savedBookings().length).toBe(0);
+    });
+
+    it('should allow bookings alongside an assigned booking when assigned resource booking is allowed', async () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        get.mockImplementation((key: string) => {
+            if (key === 'app.desks.assigned_resource_booking') return 'allow';
+            if (key === 'app.bookings.allowed_daily_desk_count') return 3;
+            return undefined;
+        });
+        vi.mocked(ts_client.showUser).mockReturnValue(
+            Promise.resolve({ email: 'other.user@example.com' }) as any,
+        );
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'assigned-booking',
+                type: 'desk',
+                asset_id: 'assigned-desk',
+                user_email: 'other.user@example.com',
+                extension_data: { is_assigned: true },
+            },
+        ] as any);
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            user: {
+                email: 'other.user@example.com',
+                name: 'Other User',
+                id: 'other-user',
+            } as any,
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+            resources: [],
+        }));
+
+        await spectator.service.postForm();
+
+        expect(savedBookings().length).toBe(1);
+    });
+
     it('should allow desk bookings for others when self-booking is prevented for reserved-desk users', async () => {
         const get = spectator.inject(SettingsService).get as Mock;
         (spectator.inject(PaymentsService) as any).enabled = false;
@@ -2576,6 +2733,50 @@ describe('BookingFormService', () => {
         ]);
     });
 
+    it('should load unlinked visitor group siblings by their shared group reference', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'booking-one',
+                type: 'visitor',
+                asset_id: 'visitor.one@example.com',
+                extension_data: { group: 'host@example.com[2026-07-28]' },
+            },
+            {
+                id: 'booking-two',
+                type: 'visitor',
+                asset_id: 'visitor.two@example.com',
+                extension_data: { group: 'host@example.com[2026-07-28]' },
+            },
+            {
+                id: 'booking-other-group',
+                type: 'visitor',
+                asset_id: 'visitor.three@example.com',
+                extension_data: { group: 'host@example.com[2026-07-29]' },
+            },
+            {
+                id: 'booking-ungrouped',
+                type: 'visitor',
+                asset_id: 'visitor.four@example.com',
+            },
+        ] as any);
+        spectator.service.setOptions({ type: 'visitor' });
+
+        const siblings = await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: 'booking-one',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: { group: 'host@example.com[2026-07-28]' },
+            }),
+        );
+
+        expect(siblings.map((_) => _.id)).toEqual([
+            'booking-one',
+            'booking-two',
+        ]);
+    });
+
     it('should include bookings made by the current user when loading group siblings', async () => {
         spectator.service.setOptions({ type: 'visitor' });
 
@@ -2593,5 +2794,93 @@ describe('BookingFormService', () => {
         expect(ts_client.get).toHaveBeenCalledWith(
             expect.stringContaining('include_booked_by=true'),
         );
+    });
+
+    it('should save each visitor against their own asset on group edit', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'visitor',
+            new Booking({
+                id: 'booking-one',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                title: 'Vendor Visit',
+                asset_id: 'visitor.one@example.com',
+                asset_name: 'Visitor One',
+                zones: ['org-1', 'bld-1'],
+                extension_data: { visitor_name: 'Visitor One' },
+            }),
+        );
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [
+                new User({
+                    name: 'Visitor One',
+                    email: 'visitor.one@example.com',
+                }),
+                new User({
+                    name: 'Visitor Two',
+                    email: 'visitor.two@example.com',
+                }),
+            ],
+        });
+
+        await spectator.service.editFormForGroup([
+            new Booking({
+                id: 'booking-one',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                asset_id: 'visitor.one@example.com',
+                asset_name: 'Visitor One',
+            }),
+            new Booking({
+                id: 'booking-two',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                asset_id: 'visitor.two@example.com',
+                asset_name: 'Visitor Two',
+            }),
+        ]);
+
+        // `asset_ids` is what the API stores the visitor against. Carrying the
+        // edited booking's stale value onto every sibling made all of them
+        // resolve to the first visitor's name in the bookings list.
+        const visitor_bookings = savedBookings().filter(
+            (_: any) => _.booking_type === 'visitor',
+        );
+        expect(
+            visitor_bookings.map((_: any) => [_.asset_id, _.asset_ids]),
+        ).toEqual([
+            ['visitor.one@example.com', ['visitor.one@example.com']],
+            ['visitor.two@example.com', ['visitor.two@example.com']],
+        ]);
+    });
+
+    it('should not save a stale asset_ids when the booked resource changes', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                id: 'booking-desk',
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+            }),
+        );
+        spectator.service.model.update((m) => ({
+            ...m,
+            asset_id: 'desk-2',
+            asset_name: 'Desk 2',
+        }));
+
+        await spectator.service.postForm(true);
+
+        expect(savedBookings().length).toBe(1);
+        expect((savedBookings()[0] as Booking).asset_ids).toEqual(['desk-2']);
     });
 });

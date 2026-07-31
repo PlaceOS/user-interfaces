@@ -72,15 +72,12 @@ const DENIED_FILE_TYPES = [
                     #origin="matAutocompleteOrigin"
                 >
                     <mat-chip-grid #chipList aria-label="User Seleciom">
-                        @for (
-                            item of active_list();
-                            track item.id || item.email
-                        ) {
+                        @for (item of active_list(); track $index) {
                             <mat-chip-row
                                 user
                                 [class.bg-base-200]="!item.is_external"
                                 [class.bg-warning]="item.is_external"
-                                (removed)="removeUser(item)"
+                                (removed)="removeUser($index)"
                                 [matTooltip]="item.email"
                             >
                                 <div
@@ -422,14 +419,18 @@ export class UserListFieldComponent
     }
 
     /**
-     * Remove user from the user list
-     * @param user
+     * Remove the user at the given position in the list.
+     *
+     * Removal is positional rather than identity based. Visitor lists are built
+     * from booking data where `id`/`email` can be blank or shared between
+     * entries, and an identity filter then drops every matching row instead of
+     * the one the user clicked. (PPT-2634)
+     * @param index Index of the user in `active_list`
      */
-    public removeUser(user: User) {
-        const user_id = user.id || user.email;
-        const list = this.active_list().filter(
-            (a_user) => (a_user.id || a_user.email) !== user_id,
-        );
+    public removeUser(index: number) {
+        const list = [...this.active_list()];
+        if (index < 0 || index >= list.length) return;
+        list.splice(index, 1);
         this.setValue(list);
     }
 

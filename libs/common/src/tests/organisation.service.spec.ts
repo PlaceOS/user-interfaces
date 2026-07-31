@@ -40,6 +40,61 @@ describe('OrganisationService', () => {
         spectator = createService();
     });
 
+    it('should keep cache keys stable when the authority is unavailable', () => {
+        vi.mocked(ts_client.authority).mockReturnValue({
+            id: 'auth-1',
+            config: { metadata_cache_id: 'meta-7' },
+        } as any);
+        const service = spectator.service as any;
+        const params = { tags: 'org' };
+        const online_zone_key = service._zoneCacheKey(params);
+        const online_metadata_id = service._metadataCacheID();
+
+        // Offline cold boot: /auth/authority cannot be fetched
+        vi.mocked(ts_client.authority).mockReturnValue(undefined as any);
+
+        expect(service._zoneCacheKey(params)).toBe(online_zone_key);
+        expect(service._metadataCacheID()).toBe(online_metadata_id);
+        expect(online_zone_key).toContain('auth-1');
+        expect(online_metadata_id).toBe('meta-7');
+    });
+
+    it('should read back org data cached while online after the authority is lost', () => {
+        const service = spectator.service as any;
+        const key = service._zoneCacheKey({ tags: 'org' });
+        service._setCachedItem(key, [{ id: 'zone-1' }]);
+
+        vi.mocked(ts_client.authority).mockReturnValue(undefined as any);
+
+        expect(service._getCachedItem(service._zoneCacheKey({ tags: 'org' })))
+            .toEqual([{ id: 'zone-1' }]);
+    });
+
+    it('should keep retrying and initialise once the backend returns', async () => {
+        vi.useFakeTimers();
+        vi.mocked(ts_client.queryZones).mockRejectedValue(
+            new Error('servers unavailable'),
+        );
+        const service = spectator.service as any;
+
+        service.init().catch(() => undefined);
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(spectator.service.initialised()).toBe(false);
+
+        // Still down a minute later, still retrying
+        await vi.advanceTimersByTimeAsync(60_000);
+        expect(spectator.service.initialised()).toBe(false);
+        const attempts = vi.mocked(ts_client.queryZones).mock.calls.length;
+        expect(attempts).toBeGreaterThan(1);
+
+        // Backend comes back; the next retry succeeds without a reload
+        vi.mocked(ts_client.queryZones).mockResolvedValue({ data: [] } as any);
+        await vi.advanceTimersByTimeAsync(30_000);
+
+        expect(spectator.service.initialised()).toBe(true);
+        vi.useRealTimers();
+    });
+
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
     });

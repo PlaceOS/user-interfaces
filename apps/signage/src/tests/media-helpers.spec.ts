@@ -95,7 +95,6 @@ describe('time helpers', () => {
         expect(mockTimeState().active).toBe(true);
         expect(mockTimeState().speed).toBe(0.5);
     });
-
 });
 
 describe('validateMedia', () => {
@@ -177,6 +176,8 @@ describe('validateMedia', () => {
         expect(validateMedia(null as any)).toBe(
             'Invalid media: missing media data.',
         );
-        expect(validateMedia({} as any)).toBe('Invalid media: missing media ID.');
+        expect(validateMedia({} as any)).toBe(
+            'Invalid media: missing media ID.',
+        );
     });
 });

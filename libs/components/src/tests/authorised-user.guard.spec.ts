@@ -67,6 +67,52 @@ describe('AuthorisedUserGuard', () => {
         spectator = createService();
     });
 
+    it('should allow access on cached credentials when the backend is unreachable', async () => {
+        vi.useFakeTimers();
+        // Organisation data never initialises, as on an offline cold boot
+        wait_until_initialised.mockImplementation(
+            () => new Promise(() => undefined),
+        );
+        vi.mocked(ts_client.token).mockReturnValue('cached-token');
+
+        const result = spectator.service.canActivate();
+        await vi.advanceTimersByTimeAsync(21_000);
+
+        await expect(result).resolves.toBe(true);
+        vi.useRealTimers();
+    });
+
+    it('should refuse access when the backend is unreachable and there are no cached credentials', async () => {
+        vi.useFakeTimers();
+        wait_until_initialised.mockImplementation(
+            () => new Promise(() => undefined),
+        );
+        vi.mocked(ts_client.token).mockReturnValue('');
+        const router = spectator.inject(Router);
+
+        const result = spectator.service.canActivate();
+        await vi.advanceTimersByTimeAsync(21_000);
+
+        await expect(result).resolves.toBe(false);
+        expect(router.navigate).toHaveBeenCalledWith(['/unauthorised']);
+        vi.useRealTimers();
+    });
+
+    it('should allow access on cached credentials when the online check stalls', async () => {
+        vi.useFakeTimers();
+        settings_mock.get.mockReturnValue(['signage-users']);
+        vi.mocked(ts_client.waitForSignal).mockImplementation(
+            () => new Promise(() => undefined) as any,
+        );
+        vi.mocked(ts_client.token).mockReturnValue('cached-token');
+
+        const result = spectator.service.canActivate();
+        await vi.advanceTimersByTimeAsync(21_000);
+
+        await expect(result).resolves.toBe(true);
+        vi.useRealTimers();
+    });
+
     it('should create the service', () => {
         expect(spectator.service).toBeTruthy();
     });

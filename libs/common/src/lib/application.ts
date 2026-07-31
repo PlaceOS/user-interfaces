@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { SwUpdate } from '@angular/service-worker';
+import { isOnline } from '@placeos/ts-client';
 import { Subscription } from 'rxjs';
 
 import { MINUTES, SECONDS } from './constants';
@@ -11,6 +12,16 @@ let _version_subscription: Subscription | undefined;
 let _unrecoverable_subscription: Subscription | undefined;
 let _new_version = false;
 let _auto_reload = false;
+let _reload_gate: (() => boolean) | null = null;
+let _reload_timer: ReturnType<typeof setTimeout> | undefined;
+let _reload_deferred_since = 0;
+let _last_update_check = 0;
+let _update_interval = 0;
+
+/** How often a deferred automatic reload re-checks whether it can proceed */
+const RELOAD_RETRY_MS = 5 * SECONDS;
+/** Longest an automatic reload is held back before it happens regardless */
+const MAX_RELOAD_DEFERRAL_MS = 10 * MINUTES;
 const SERVICE_WORKER_UPDATE = signal<ServiceWorkerUpdateState | null>(null);
 
 export interface ServiceWorkerUpdateState {
@@ -37,8 +48,61 @@ export function serviceWorkerUpdate() {
     return SERVICE_WORKER_UPDATE.asReadonly();
 }
 
+/**
+ * Register a check that must pass before an automatic reload happens. Lets an
+ * app hold a reload back while it is showing something that would be visibly
+ * interrupted, such as a video part way through.
+ */
+export function setAutoReloadGate(gate: (() => boolean) | null) {
+    _reload_gate = gate;
+}
+
+function canReloadNow() {
+    // Reloading while the backend is unreachable strands the app on its
+    // loading screen with no way back, so wait for the network to return.
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        return false;
+    }
+    if (!isOnline()) return false;
+    try {
+        return _reload_gate ? _reload_gate() : true;
+    } catch (error) {
+        log('CACHE', 'Reload gate failed.', error, 'warn');
+        return true;
+    }
+}
+
 function reloadApp() {
-    location.reload();
+    if (_reload_timer) clearTimeout(_reload_timer);
+    _reload_timer = undefined;
+    if (!_reload_deferred_since) _reload_deferred_since = Date.now();
+    const waited = Date.now() - _reload_deferred_since;
+    if (canReloadNow() || waited >= MAX_RELOAD_DEFERRAL_MS) {
+        location.reload();
+        return;
+    }
+    _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+
+/** Whether an automatic reload is currently waiting for a safe moment */
+export function reloadPending() {
+    return !!_reload_timer;
+}
+
+/** Snapshot of the application update state, for diagnostics */
+export function updateCheckState() {
+    return {
+        checking: !!_timer || !!_initial_check,
+        auto_reload: _auto_reload,
+        interval_ms: _update_interval,
+        last_check: _last_update_check || 0,
+        next_check:
+            _last_update_check && _update_interval && _timer
+                ? _last_update_check + _update_interval
+                : 0,
+        new_version: _new_version,
+        reload_pending: !!_reload_timer,
+    };
 }
 
 /** Stop the periodic and initial update checks. */
@@ -78,6 +142,7 @@ export function setupCache(
     const { auto_reload = false, interval = 5 * MINUTES } =
         cacheOptions(options);
     _auto_reload = auto_reload;
+    _update_interval = Math.max(interval, 1 * MINUTES);
     if (cache.isEnabled) {
         if (!_version_subscription) {
             _version_subscription = cache.versionUpdates.subscribe((event) => {
@@ -129,6 +194,12 @@ export function setupCache(
 
 export function clearCacheCheck() {
     stopUpdateChecks();
+    if (_reload_timer) clearTimeout(_reload_timer);
+    _reload_timer = undefined;
+    _reload_deferred_since = 0;
+    _reload_gate = null;
+    _last_update_check = 0;
+    _update_interval = 0;
     _version_subscription?.unsubscribe();
     _unrecoverable_subscription?.unsubscribe();
     _version_subscription = undefined;
@@ -143,6 +214,7 @@ export function clearCacheCheck() {
  *
  */
 async function checkForUpdate(cache: SwUpdate) {
+    _last_update_check = Date.now();
     try {
         if (cache.isEnabled && (await cache.checkForUpdate())) {
             log('CACHE', `Application update detected.`);
