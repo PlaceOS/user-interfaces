@@ -541,6 +541,23 @@ export class MediaPlayerComponent
         return validateMedia(item) === '';
     }
 
+    /**
+     * Whether the item on screen plays to completion, so interrupting it now
+     * would be noticed. Images and webpages hold a static frame and can be
+     * replaced without anyone seeing a difference; videos and plugins that
+     * report when they finish cannot.
+     */
+    public isMidPlayThroughItem() {
+        const item = this.active_item;
+        if (!item || this.state() !== 'PLAYING') return false;
+        if (item.type === 'video') return true;
+        if (item.type === 'plugin') {
+            const playback = item.plugin?.playback_type;
+            return playback === 'playsthrough' || playback === 'interactive';
+        }
+        return false;
+    }
+
     public toggleLoop() {
         const loop = this.loop();
         if (loop === 'ALL') this.loop.set('ONE');

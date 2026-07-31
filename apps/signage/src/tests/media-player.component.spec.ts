@@ -1301,4 +1301,52 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.index()).toBe(0);
         expect(spectator.component.state()).toBe('PLAYING');
     });
+
+    it('should report a playing video as mid play-through', () => {
+        load_playlist([create_item('a', { type: 'video' })]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PLAYING');
+
+        expect(spectator.component.isMidPlayThroughItem()).toBe(true);
+    });
+
+    it('should not report images or webpages as mid play-through', () => {
+        load_playlist([
+            create_item('a', { type: 'image' }),
+            create_item('b', { type: 'webpage' }),
+        ]);
+        spectator.component.state.set('PLAYING');
+
+        spectator.component.index.set(0);
+        expect(spectator.component.isMidPlayThroughItem()).toBe(false);
+        spectator.component.index.set(1);
+        expect(spectator.component.isMidPlayThroughItem()).toBe(false);
+    });
+
+    it('should report plugins that signal completion as mid play-through', () => {
+        load_playlist([
+            create_item('a', {
+                type: 'plugin',
+                plugin: { playback_type: 'playsthrough' } as any,
+            }),
+            create_item('b', {
+                type: 'plugin',
+                plugin: { playback_type: 'static' } as any,
+            }),
+        ]);
+        spectator.component.state.set('PLAYING');
+
+        spectator.component.index.set(0);
+        expect(spectator.component.isMidPlayThroughItem()).toBe(true);
+        spectator.component.index.set(1);
+        expect(spectator.component.isMidPlayThroughItem()).toBe(false);
+    });
+
+    it('should not report a paused player as mid play-through', () => {
+        load_playlist([create_item('a', { type: 'video' })]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PAUSED');
+
+        expect(spectator.component.isMidPlayThroughItem()).toBe(false);
+    });
 });

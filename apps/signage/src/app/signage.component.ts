@@ -7,7 +7,13 @@ import {
     viewChildren,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, log, SettingsService, VERSION } from '@placeos/common';
+import {
+    AsyncHandler,
+    log,
+    setAutoReloadGate,
+    SettingsService,
+    VERSION,
+} from '@placeos/common';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
@@ -123,6 +129,13 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        // Hold application reloads back while content that plays to completion
+        // is on screen, so an update lands between items instead of cutting a
+        // video short.
+        setAutoReloadGate(
+            () => !this._players().some((_) => _.isMidPlayThroughItem()),
+        );
+        this.subscription('reload-gate', () => setAutoReloadGate(null));
         window.addEventListener('message', this._remote_message_handler);
         this.subscription('remote-message', () =>
             window.removeEventListener('message', this._remote_message_handler),
