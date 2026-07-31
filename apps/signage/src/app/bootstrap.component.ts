@@ -199,8 +199,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        await this._org.waitUntilInitialised();
+        // The bootstrapped display is held in local storage, so the redirect
+        // back to it must not wait on organisation data that needs the
+        // backend. Otherwise an offline player never reaches the content it
+        // already has cached.
         this.timeout('check', () => this.checkBootstrap(), 1000);
+        await this._org.waitUntilInitialised();
     }
 
     /**

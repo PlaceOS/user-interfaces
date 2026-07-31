@@ -36,9 +36,42 @@ const log = scoped_log('ORG');
 
 const ORG_CACHE_PREFIX = 'PLACEOS.org';
 const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
+const AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 /** Cached data older than this is discarded instead of being displayed */
 const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000;
+interface CachedAuthority {
+    id: string;
+    metadata_cache_id: string;
+}
+
+/**
+ * The authority is fetched from the backend, so it is not available on an
+ * offline boot. Cached org data is namespaced by it, so the last known values
+ * are remembered here - without them the cache written while online can never
+ * be read back at the one moment it is actually needed.
+ */
+function cachedAuthority(): CachedAuthority | null {
+    const auth = authority();
+    if (auth?.id) {
+        const details = {
+            id: auth.id,
+            metadata_cache_id: `${auth.config?.['metadata_cache_id'] || ''}`,
+        };
+        try {
+            localStorage.setItem(AUTHORITY_CACHE_KEY, JSON.stringify(details));
+        } catch {
+            // Ignore quota and privacy-mode failures.
+        }
+        return details;
+    }
+    try {
+        return JSON.parse(localStorage.getItem(AUTHORITY_CACHE_KEY) || 'null');
+    } catch {
+        return null;
+    }
+}
+
 type ZoneQueryParams = Parameters<typeof queryZones>[0];
 type MetadataMap = Record<string, Record<string, any>>;
 interface CacheItem<T> {
@@ -935,13 +968,13 @@ export class OrganisationService {
     }
 
     private _metadataCacheKey(name: string, ids: string[]): string {
-        const auth = authority();
+        const auth = cachedAuthority();
         const parent_ids = ids.filter(Boolean).sort().join(',');
         return `${METADATA_CACHE_PREFIX}.${auth?.id || 'default'}.${name}.${parent_ids}`;
     }
 
     private _zoneCacheKey(params: ZoneQueryParams): string {
-        const auth = authority();
+        const auth = cachedAuthority();
         const sorted_params = Object.keys(params)
             .sort()
             .reduce(
@@ -1001,7 +1034,7 @@ export class OrganisationService {
     }
 
     private _metadataCacheID(): string {
-        return `${authority()?.config?.['metadata_cache_id'] || ''}`;
+        return `${cachedAuthority()?.metadata_cache_id || ''}`;
     }
 
     private _clearCache() {
