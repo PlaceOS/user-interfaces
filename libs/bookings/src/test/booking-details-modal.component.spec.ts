@@ -235,7 +235,7 @@ describe('BookingDetailsModalComponent', () => {
         expect(close).toHaveBeenCalled();
     });
 
-    it('should show waitlisted status for current week parking requests when enabled', () => {
+    it('should show waitlisted status for unapproved parking requests when enabled', () => {
         (spectator.component as any).booking.set(
             new Booking({
                 booking_type: 'parking',
@@ -243,6 +243,7 @@ describe('BookingDetailsModalComponent', () => {
                 asset_id: 'unallocated-1',
                 date: Date.now(),
                 status: 'tentative',
+                process_state: 'unapproved',
             } as any),
         );
 
@@ -277,6 +278,7 @@ describe('BookingDetailsModalComponent', () => {
                 asset_id: 'unallocated-1',
                 date: Date.now(),
                 status: 'tentative',
+                process_state: 'unapproved',
             } as any),
         );
 

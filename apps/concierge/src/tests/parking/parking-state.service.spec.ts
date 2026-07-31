@@ -549,6 +549,65 @@ describe('ParkingStateService', () => {
         );
     });
 
+    it('should keep requests without a process state pending', () => {
+        settings_map['app.parking.show_requests'] = true;
+        const request = {
+            id: 'new-request',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            date: Date.now(),
+            extension_data: {},
+        } as any;
+
+        expect(spectator.service.isWaitlisted(request)).toBe(false);
+        expect(spectator.service.isManualRequest(request)).toBe(false);
+        expect(
+            spectator.service.filterEventList([request], 'waitlist'),
+        ).toEqual([]);
+        expect(spectator.service.filterEventList([request], 'pending')).toEqual(
+            [request],
+        );
+    });
+
+    it('should waitlist unapproved requests that do not need manual approval', () => {
+        settings_map['app.parking.show_requests'] = true;
+        const request = {
+            id: 'waitlisted-request',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            process_state: 'unapproved',
+            date: Date.now(),
+            extension_data: { requires_manual_approval: false },
+        } as any;
+
+        expect(spectator.service.isWaitlisted(request)).toBe(true);
+        expect(spectator.service.isManualRequest(request)).toBe(false);
+        expect(
+            spectator.service.filterEventList([request], 'waitlist'),
+        ).toEqual([request]);
+        expect(spectator.service.filterEventList([request], 'pending')).toEqual(
+            [],
+        );
+    });
+
+    it('should require approval for unapproved manual approval requests', () => {
+        settings_map['app.parking.show_requests'] = true;
+        const request = {
+            id: 'manual-request',
+            asset_id: 'unallocated-1',
+            status: 'tentative',
+            process_state: 'unapproved',
+            date: Date.now(),
+            extension_data: { requires_manual_approval: true },
+        } as any;
+
+        expect(spectator.service.isManualRequest(request)).toBe(true);
+        expect(spectator.service.isWaitlisted(request)).toBe(false);
+        expect(spectator.service.filterEventList([request], 'manual')).toEqual([
+            request,
+        ]);
+    });
+
     it('should only allow approval for matching approver groups', () => {
         const restricted_request = {
             asset_id: 'unallocated-1',
@@ -591,13 +650,21 @@ describe('ParkingStateService', () => {
             id: 'request-1',
             asset_id: 'unallocated-1',
             status: 'tentative',
-            extension_data: { approver_group: 'parking-team' },
+            process_state: 'unapproved',
+            extension_data: {
+                approver_group: 'parking-team',
+                requires_manual_approval: true,
+            },
         } as any;
         const declined_request = {
             id: 'request-2',
             asset_id: 'unallocated-2',
             status: 'declined',
-            extension_data: { approver_group: 'parking-team' },
+            process_state: 'unapproved',
+            extension_data: {
+                approver_group: 'parking-team',
+                requires_manual_approval: true,
+            },
         } as any;
 
         expect(
@@ -614,13 +681,20 @@ describe('ParkingStateService', () => {
             id: 'request-1',
             asset_id: 'unallocated-1',
             status: 'tentative',
-            extension_data: { approver_group: 'parking-team' },
+            process_state: 'unapproved',
+            extension_data: {
+                approver_group: 'parking-team',
+                requires_manual_approval: true,
+            },
         } as any;
         const approved_request = {
             id: 'request-2',
             asset_id: 'unallocated-2',
             status: 'approved',
-            extension_data: { approver_group: 'parking-team' },
+            extension_data: {
+                approver_group: 'parking-team',
+                requires_manual_approval: true,
+            },
         } as any;
         const allocated_request = {
             id: 'request-3',
@@ -643,6 +717,7 @@ describe('ParkingStateService', () => {
             id: 'booking-1',
             asset_id: 'space-1',
             status: 'tentative',
+            process_state: 'unapproved',
             extension_data: { requires_manual_approval: true },
         } as any;
         const regular_booking = {
