@@ -8,15 +8,15 @@ import {
   MatTabLabel,
   MatTabsModule,
   moveItemInArray
-} from "./chunk-4QDK2FGU.js";
+} from "./chunk-SH3J7N7M.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-E3UZXUJM.js";
+} from "./chunk-A3SWE7OZ.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-TPIOCZMD.js";
+} from "./chunk-GEA2O543.js";
 import {
   ActivatedRoute,
   Component,
@@ -100,7 +100,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-EQFGUZ47.js";
+} from "./chunk-37TZYTLG.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4200,4 +4200,4 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-NO6DVCH6.js.map
+//# sourceMappingURL=playlists.component-37J43E4Z.js.map
