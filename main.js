@@ -56729,15 +56729,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "5581e40",
-  "hash": "5581e40",
+  "raw": "fcedce6",
+  "hash": "fcedce6",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5581e40",
+  "suffix": "fcedce6",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785386013996
+  "time": 1785485777410
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -57479,6 +57479,14 @@ var _version_subscription;
 var _unrecoverable_subscription;
 var _new_version = false;
 var _auto_reload = false;
+var _reload_gate = null;
+var _reload_timer;
+var _reload_deferred_since = 0;
+var _init_reload = null;
+var _last_update_check = 0;
+var _update_interval = 0;
+var RELOAD_RETRY_MS = 5 * SECONDS;
+var MAX_RELOAD_DEFERRAL_MS = 10 * MINUTES;
 var SERVICE_WORKER_UPDATE = signal(
   null,
   ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
@@ -57492,7 +57500,37 @@ function hasNewVersion() {
 function serviceWorkerUpdate() {
   return SERVICE_WORKER_UPDATE.asReadonly();
 }
+function canReloadNow() {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return false;
+  }
+  if (!Fr())
+    return false;
+  try {
+    return _reload_gate ? _reload_gate() : true;
+  } catch (error2) {
+    log("CACHE", "Reload gate failed.", error2, "warn");
+    return true;
+  }
+}
 function reloadApp() {
+  if (_reload_timer)
+    clearTimeout(_reload_timer);
+  _reload_timer = void 0;
+  if (!_reload_deferred_since)
+    _reload_deferred_since = Date.now();
+  const waited = Date.now() - _reload_deferred_since;
+  if (canReloadNow() || waited >= MAX_RELOAD_DEFERRAL_MS) {
+    location.reload();
+    return;
+  }
+  _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+function requestInitReload() {
+  if (_init_reload) {
+    _init_reload();
+    return;
+  }
   location.reload();
 }
 function stopUpdateChecks() {
@@ -57522,6 +57560,7 @@ function handleNewVersion() {
 function setupCache(cache, options2 = {}) {
   const { auto_reload = false, interval = 5 * MINUTES } = cacheOptions(options2);
   _auto_reload = auto_reload;
+  _update_interval = Math.max(interval, 1 * MINUTES);
   if (cache.isEnabled) {
     if (!_version_subscription) {
       _version_subscription = cache.versionUpdates.subscribe((event) => {
@@ -57562,6 +57601,7 @@ function setupCache(cache, options2 = {}) {
   }
 }
 async function checkForUpdate(cache) {
+  _last_update_check = Date.now();
   try {
     if (cache.isEnabled && await cache.checkForUpdate()) {
       log("CACHE", `Application update detected.`);
@@ -79097,7 +79137,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       qn();
     } else if (!X(false))
       qn();
-    location.reload();
+    requestInitReload();
   }
   _initAnalytics() {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
@@ -79209,8 +79249,28 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
 var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
+var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
+function cachedAuthority() {
+  const auth = Rt();
+  if (auth?.id) {
+    const details = {
+      id: auth.id,
+      metadata_cache_id: `${auth.config?.["metadata_cache_id"] || ""}`
+    };
+    try {
+      localStorage.setItem(AUTHORITY_CACHE_KEY, JSON.stringify(details));
+    } catch {
+    }
+    return details;
+  }
+  try {
+    return JSON.parse(localStorage.getItem(AUTHORITY_CACHE_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
 var OrganisationService = class _OrganisationService {
   /** Whether cached data is being replaced with the latest from the API */
   get _refreshing() {
@@ -79928,12 +79988,12 @@ var OrganisationService = class _OrganisationService {
     return zones;
   }
   _metadataCacheKey(name, ids) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const parent_ids = ids.filter(Boolean).sort().join(",");
     return `${METADATA_CACHE_PREFIX}.${auth?.id || "default"}.${name}.${parent_ids}`;
   }
   _zoneCacheKey(params) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const sorted_params = Object.keys(params).sort().reduce((cache_params, key) => {
       cache_params[key] = params[key];
       return cache_params;
@@ -79976,7 +80036,7 @@ var OrganisationService = class _OrganisationService {
     }
   }
   _metadataCacheID() {
-    return `${Rt()?.config?.["metadata_cache_id"] || ""}`;
+    return `${cachedAuthority()?.metadata_cache_id || ""}`;
   }
   _clearCache() {
     for (const store2 of [localStorage, sessionStorage]) {
@@ -93251,6 +93311,26 @@ var UserAvatarComponent = class _UserAvatarComponent {
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
+var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
+function hasCachedCredentials() {
+  try {
+    return !!X();
+  } catch {
+    return false;
+  }
+}
+function resolvedWithin(promise, delay2) {
+  return new Promise((resolve) => {
+    const timer2 = setTimeout(() => resolve(false), delay2);
+    promise.then(() => {
+      clearTimeout(timer2);
+      resolve(true);
+    }, () => {
+      clearTimeout(timer2);
+      resolve(false);
+    });
+  });
+}
 var PLACEOS_APP_ACCESS = class {
 };
 var AuthorisedUserGuard = class _AuthorisedUserGuard {
@@ -93271,24 +93351,28 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
-    await Promise.all([
+    const state_ready = await resolvedWithin(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]);
+    ]), OFFLINE_FALLBACK_DELAY);
+    if (!state_ready)
+      return this.offlineAccess();
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = this.checkSubsystemAccess(user);
       log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
       log("ACCESS", "No access groups", can_activate);
     } else {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = !!(user && groups.find((_2) => user.groups.includes(_2)));
       log("ACCESS", "Checking access groups", can_activate);
     }
@@ -93296,6 +93380,30 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
       this._router.navigate(["/unauthorised"]);
     }
     return !!can_activate;
+  }
+  /** The active user, or null if the backend could not be reached in time */
+  async waitForUser() {
+    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    if (!online)
+      return null;
+    let user = null;
+    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_2) => user = _2), OFFLINE_FALLBACK_DELAY);
+    return loaded ? user : null;
+  }
+  /**
+   * Access decision for when the backend cannot be reached. Waiting forever
+   * leaves a fixed device sitting on a loading screen with no way back, so a
+   * device that has authenticated before is allowed through on its cached
+   * session. Every API call it then makes is still checked by the server.
+   */
+  offlineAccess() {
+    if (hasCachedCredentials()) {
+      log("ACCESS", "Backend unreachable. Continuing with cached credentials.");
+      return true;
+    }
+    log("ACCESS", "Backend unreachable and no cached credentials.", void 0, "warn");
+    this._router.navigate(["/unauthorised"]);
+    return false;
   }
   async useGroupSubsystemAccess() {
     const value = Rt()?.config?.["use_group_subsystem_access"];
