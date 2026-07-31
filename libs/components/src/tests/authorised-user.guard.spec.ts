@@ -67,6 +67,22 @@ describe('AuthorisedUserGuard', () => {
         spectator = createService();
     });
 
+    it('should treat a stored api key as cached credentials', async () => {
+        vi.useFakeTimers();
+        // ts-client reports an api-key session as the token `x-api-key`; fixed
+        // devices authenticate this way, so offline boot depends on it.
+        vi.mocked(ts_client.token).mockReturnValue('x-api-key');
+        wait_until_initialised.mockImplementation(
+            () => new Promise(() => undefined),
+        );
+
+        const result = spectator.service.canActivate();
+        await vi.advanceTimersByTimeAsync(21_000);
+
+        await expect(result).resolves.toBe(true);
+        vi.useRealTimers();
+    });
+
     it('should allow access on cached credentials when the backend is unreachable', async () => {
         vi.useFakeTimers();
         // Organisation data never initialises, as on an offline cold boot

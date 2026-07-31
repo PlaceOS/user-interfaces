@@ -1,7 +1,13 @@
 import { Component, input } from '@angular/core';
 import { IconComponent } from './icon.component';
 
-export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
+export type StatusValue =
+    | 'success'
+    | 'warning'
+    | 'approval'
+    | 'error'
+    | 'info'
+    | 'neutral';
 
 @Component({
     selector: 'status-pill',
@@ -10,6 +16,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
             class="border-base-200 bg-opacity-30 flex items-center space-x-2 rounded-full border px-2 py-1 text-base font-medium text-black"
             [class.bg-success-light]="status() === 'success'"
             [class.bg-warning-light]="status() === 'warning'"
+            [class.bg-approval-light]="status() === 'approval'"
             [class.bg-error-light]="status() === 'error'"
             [class.bg-info-light]="status() === 'info'"
             [class.bg-base-200]="status() === 'neutral'"
@@ -18,6 +25,7 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
                 class="flex h-5 w-5 items-center justify-center rounded-full"
                 [class.text-success]="status() === 'success'"
                 [class.text-warning]="status() === 'warning'"
+                [class.text-approval]="status() === 'approval'"
                 [class.text-error]="status() === 'error'"
                 [class.text-info]="status() === 'info'"
                 [class.text-base-content]="status() === 'neutral'"
@@ -36,6 +44,9 @@ export type StatusValue = 'success' | 'warning' | 'error' | 'info' | 'neutral';
                         }
                         @case ('info') {
                             info
+                        }
+                        @case ('approval') {
+                            gavel
                         }
                         @default {
                             warning

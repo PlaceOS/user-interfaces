@@ -30,7 +30,7 @@ import {
     bookedResourceList,
     checkinBooking,
     checkinBookingInstance,
-    isInWaitlistWeek,
+    parkingRequestStatus,
     queryBookings,
     queryPagedBookings,
     rejectBooking,
@@ -566,24 +566,15 @@ export class ParkingStateService extends AsyncHandler {
 
     public isManualRequest(booking: Booking) {
         return (
-            !!booking.extension_data?.requires_manual_approval ||
-            (this.isRequest(booking) &&
-                !!booking.extension_data?.approver_group)
+            booking.status === 'tentative' &&
+            parkingRequestStatus(booking) === 'approval_required'
         );
     }
 
     public isWaitlisted(booking: Booking) {
-        if (
-            !this.isRequest(booking) ||
-            booking.status !== 'tentative' ||
-            booking.process_state === 'waiting_approval'
-        ) {
-            return false;
-        }
-        return isInWaitlistWeek(
-            booking.date,
-            this._org.building?.timezone,
-            this._settings.get('app.parking.waitlist_week_start'),
+        return (
+            booking.status === 'tentative' &&
+            parkingRequestStatus(booking) === 'waitlist'
         );
     }
 

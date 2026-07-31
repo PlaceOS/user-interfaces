@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { parkingRequestStatus } from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
-import { isSameDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
 import { ParkingRequestsWeekViewComponent } from '../../app/parking/parking-requests-week-view.component';
@@ -35,11 +35,23 @@ describe('ParkingRequestsWeekViewComponent', () => {
                 editReservation: vi.fn(),
                 assignSpace: vi.fn(),
                 canApproveBooking: vi.fn(() => true),
+                isWaitlisted: vi.fn(
+                    (b: Booking) =>
+                        b.status === 'tentative' &&
+                        parkingRequestStatus(b) === 'waitlist',
+                ),
+                isManualRequest: vi.fn(
+                    (b: Booking) =>
+                        b.status === 'tentative' &&
+                        parkingRequestStatus(b) === 'approval_required',
+                ),
                 timezone: 'Australia/Perth',
             } as any),
             MockProvider(SettingsService as any, {
                 get: vi.fn((name: string) =>
-                    name === 'app.parking.show_waitlist' ? show_waitlist : false,
+                    name === 'app.parking.show_waitlist'
+                        ? show_waitlist
+                        : false,
                 ),
                 time_format: 'h:mm a',
             }),
@@ -85,22 +97,22 @@ describe('ParkingRequestsWeekViewComponent', () => {
         expect(all_ids).not.toContain('booking-1');
     });
 
-    it('should keep only current week tentative requests under the waitlist filter', () => {
+    it('should keep only unapproved requests under the waitlist filter', () => {
         const today = Date.now();
-        const long_ago = today - 60 * 24 * 60 * 60 * 1000;
         options.set({ ...options(), request_filter: 'waitlist' });
         bookings = [
             {
-                id: 'current-week',
+                id: 'waitlisted',
                 asset_id: 'unallocated-1',
                 status: 'tentative',
+                process_state: 'unapproved',
                 date: today,
             } as Booking,
             {
-                id: 'old-request',
+                id: 'new-request',
                 asset_id: 'unallocated-2',
                 status: 'tentative',
-                date: long_ago,
+                date: today,
             } as Booking,
         ];
 
@@ -109,20 +121,19 @@ describe('ParkingRequestsWeekViewComponent', () => {
         const all_ids = Object.values(spectator.component.grouped_requests())
             .flat()
             .map((b) => b.id);
-        expect(all_ids).toContain('current-week');
-        expect(all_ids).not.toContain('old-request');
+        expect(all_ids).toContain('waitlisted');
+        expect(all_ids).not.toContain('new-request');
     });
 
-    it('should surface out-of-week tentative requests under the pending filter', () => {
+    it('should surface requests without a process state under the pending filter', () => {
         const today = Date.now();
-        const long_ago = today - 60 * 24 * 60 * 60 * 1000;
-        options.set({ ...options(), request_filter: 'pending', date: long_ago });
+        options.set({ ...options(), request_filter: 'pending', date: today });
         bookings = [
             {
-                id: 'old-request',
+                id: 'new-request',
                 asset_id: 'unallocated-2',
                 status: 'tentative',
-                date: long_ago,
+                date: today,
             } as Booking,
         ];
 
@@ -131,23 +142,38 @@ describe('ParkingRequestsWeekViewComponent', () => {
         const all_ids = Object.values(spectator.component.grouped_requests())
             .flat()
             .map((b) => b.id);
-        expect(all_ids).toContain('old-request');
+        expect(all_ids).toContain('new-request');
     });
 
-    it('should treat a current week tentative booking as waitlisted', () => {
+    it('should style unapproved requests by their request status', () => {
         spectator = createComponent();
-        const booking = { status: 'tentative', date: Date.now() } as Booking;
+        const waitlisted = {
+            status: 'tentative',
+            process_state: 'unapproved',
+            date: Date.now(),
+        } as Booking;
+        const manual = {
+            status: 'tentative',
+            process_state: 'unapproved',
+            extension_data: { requires_manual_approval: true },
+            date: Date.now(),
+        } as any as Booking;
+        const pending = { status: 'tentative', date: Date.now() } as Booking;
 
-        expect(spectator.component.isWaitlisted(booking)).toBe(true);
-        expect(spectator.component.isVisibleWaitlisted(booking)).toBe(true);
+        expect(spectator.component.statusTone(waitlisted)).toBe('info');
+        expect(spectator.component.statusTone(manual)).toBe('approval');
+        expect(spectator.component.statusTone(pending)).toBe('warning');
     });
 
     it('should hide waitlisted styling when the waitlist display is disabled', () => {
         show_waitlist = false;
         spectator = createComponent();
-        const booking = { status: 'tentative', date: Date.now() } as Booking;
+        const booking = {
+            status: 'tentative',
+            process_state: 'unapproved',
+            date: Date.now(),
+        } as Booking;
 
-        expect(spectator.component.isWaitlisted(booking)).toBe(true);
-        expect(spectator.component.isVisibleWaitlisted(booking)).toBe(false);
+        expect(spectator.component.statusTone(booking)).toBe('warning');
     });
 });

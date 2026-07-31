@@ -52,6 +52,11 @@
     --warn-light: rgb(255, 253, 231);
     --warn-content: hsl(0, 0%, 0%);
 
+    /* Approval */
+    --approval: hsl(24, 95%, 50%);
+    --approval-light: hsl(24, 100%, 92%);
+    --approval-content: hsl(0, 0%, 100%);
+
     /* Success */
     --success: hsla(118, 50%, 43%, 1);
     --success-light: rgb(232, 245, 233);
@@ -114,6 +119,11 @@
     --warn: rgb(255, 143, 0);
     --warn-light: rgb(255, 213, 79);
     --warn-content: hsl(0, 0%, 0%);
+
+    /* Approval */
+    --approval: hsl(24, 90%, 45%);
+    --approval-light: hsl(24, 85%, 60%);
+    --approval-content: hsl(0, 0%, 100%);
 
     /* Success */
     --success: rgb(46, 125, 50);

@@ -101,6 +101,22 @@ describe('application cache handling', () => {
         expect(reload).toHaveBeenCalledTimes(1);
     });
 
+    it('should reload directly when initialisation fails and nothing handles it', () => {
+        app.requestInitReload();
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should hand a failed initialisation to a registered handler instead', () => {
+        const handler = vi.fn();
+        app.setInitReloadHandler(handler);
+
+        app.requestInitReload();
+
+        expect(handler).toHaveBeenCalledTimes(1);
+        expect(reload).not.toHaveBeenCalled();
+    });
+
     it('should have no new version by default', () => {
         expect(app.hasNewVersion()).toBe(false);
         expect(app.serviceWorkerUpdate()()).toBeNull();

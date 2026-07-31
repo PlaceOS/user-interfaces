@@ -14,7 +14,7 @@ import { registerSignageDiagnostics } from './diagnostics';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
-import { startWatchdog } from './watchdog';
+import { recordHeartbeat } from './watchdog';
 
 /** PostMessage types accepted from a parent frame (e.g. wayfinder shell) */
 const REMOTE_PAUSE = 'signage:pause';
@@ -23,6 +23,16 @@ const MUTE_STORAGE_KEY = 'SIGNAGE.muted';
 
 function isDebugEnabled(value: string | null) {
     return value !== null && value !== 'false';
+}
+
+/**
+ * Whether the global loading overlay is on top of the player. Checked from the
+ * DOM rather than by re-deriving its condition, so this cannot drift out of
+ * step with it; if the markup ever changes this reads as "not covered" and the
+ * watchdog simply loses one signal rather than reloading a healthy player.
+ */
+function isCoveredByLoadingOverlay() {
+    return !!document.querySelector('global-loading [loader]');
 }
 
 @Component({
@@ -138,7 +148,16 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
             () => !this._players().some((_) => _.isMidPlayThroughItem()),
         );
         this.subscription('reload-gate', () => setAutoReloadGate(null));
-        this.subscription('watchdog', startWatchdog());
+        // Content is only really on screen when the shared loading overlay is
+        // not covering it. Without this a player stuck behind that overlay
+        // looks healthy: the timers underneath keep running perfectly.
+        this.interval(
+            'visible_check',
+            () => {
+                if (!isCoveredByLoadingOverlay()) recordHeartbeat('visible');
+            },
+            1000,
+        );
         this.subscription(
             'diagnostics',
             registerSignageDiagnostics({

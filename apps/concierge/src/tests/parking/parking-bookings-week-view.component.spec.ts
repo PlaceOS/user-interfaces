@@ -182,13 +182,33 @@ describe('ParkingBookingsWeekViewComponent', () => {
         );
     });
 
-    it('should label a current week tentative request as waitlisted only when waitlist is visible', () => {
+    it('should label unapproved requests as waitlisted or approval required', () => {
         spectator = createComponent();
-        const waitlisted = { id: 'waitlisted', status: 'tentative' } as Booking;
+        const waitlisted = {
+            id: 'waitlisted',
+            status: 'tentative',
+            process_state: 'unapproved',
+            extension_data: {},
+        } as Booking;
+        const manual = {
+            id: 'manual',
+            status: 'tentative',
+            process_state: 'unapproved',
+            extension_data: { requires_manual_approval: true },
+        } as any as Booking;
+        const pending = { id: 'pending', status: 'tentative' } as Booking;
 
-        expect(spectator.component.isVisibleWaitlisted(waitlisted)).toBe(true);
+        expect(spectator.component.statusTone(waitlisted)).toBe('info');
+        expect(spectator.component.statusTone(manual)).toBe('approval');
+        expect(spectator.component.statusTone(pending)).toBe('warning');
         expect(spectator.component.statusLabel(waitlisted)).toBe(
             'APP.CONCIERGE.PARKING_WAITLISTED',
+        );
+        expect(spectator.component.statusLabel(manual)).toBe(
+            'COMMON.APPROVAL_REQUIRED',
+        );
+        expect(spectator.component.statusLabel(pending)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_PENDING',
         );
     });
 

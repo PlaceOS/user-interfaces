@@ -15,7 +15,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { addMinutes, format, isSameDay } from 'date-fns';
-import { isInWaitlistWeek } from './bookings.fn';
 
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -23,7 +22,10 @@ import { StatusPillComponent } from 'libs/components/src/lib/status-pill.compone
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
-import { bookingLocationString } from './booking.utilities';
+import {
+    bookingLocationString,
+    parkingRequestStatus,
+} from './booking.utilities';
 import { ParkingService } from './parking.service';
 
 @Component({
@@ -246,29 +248,18 @@ export class BookingCardComponent {
         'parking.show_waitlist',
         true,
     );
-    public readonly waitlist_week_start = this._settings.signal(
-        'parking.waitlist_week_start',
-        { day: 5, hour: 18, minute: 0 },
-    );
     public readonly hide_selected_parking_space = this._settings.signal(
         'parking.hide_selected_space',
         false,
     );
 
-    private readonly _is_visible_waitlisted = computed(() => {
+    /** Request status of the booking, `pending` for anything but parking requests */
+    private readonly _parking_status = computed(() => {
         const booking = this.booking();
-        return (
-            this.show_waitlist() &&
+        const is_parking_request =
             booking?.booking_type === 'parking' &&
-            booking?.status === 'tentative' &&
-            booking?.process_state !== 'waiting_approval' &&
-            !!booking?.asset_id?.startsWith('unallocated') &&
-            isInWaitlistWeek(
-                booking.date,
-                this._org.building?.timezone,
-                this.waitlist_week_start(),
-            )
-        );
+            booking?.status === 'tentative';
+        return is_parking_request ? parkingRequestStatus(booking) : 'pending';
     });
 
     public readonly time_format = this._settings.time_format_signal;
@@ -280,9 +271,10 @@ export class BookingCardComponent {
         if (booking?.status === 'declined') return 'error';
         if (booking?.status === 'cancelled') return 'error';
         if (booking?.status === 'tentative') {
-            if (this._is_visible_waitlisted()) {
+            if (this._parking_status() === 'waitlist' && this.show_waitlist())
                 return 'info';
-            }
+            if (this._parking_status() === 'approval_required')
+                return 'approval';
             return 'warning';
         }
         return 'warning';

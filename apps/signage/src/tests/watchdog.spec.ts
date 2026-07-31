@@ -1,6 +1,7 @@
 import {
     recordFatalError,
     recordHeartbeat,
+    requestRecovery,
     resetWatchdog,
     stalledSignals,
     startWatchdog,
@@ -14,15 +15,22 @@ describe('recovery watchdog', () => {
     let hard_reload: any;
     let stop: () => void;
 
+    let expected_to_run: boolean;
+
     const start = () => {
         stop?.();
-        stop = startWatchdog({ reload, hardReload: hard_reload });
+        stop = startWatchdog({
+            reload,
+            hardReload: hard_reload,
+            isExpectedToRun: () => expected_to_run,
+        });
     };
 
     const beat = () => {
         recordHeartbeat('poll');
         recordHeartbeat('schedule');
         recordHeartbeat('playback');
+        recordHeartbeat('visible');
     };
 
     /** Keep every signal checking in for `minutes`, a check interval at a time */
@@ -57,6 +65,7 @@ describe('recovery watchdog', () => {
         resetWatchdog();
         reload = vi.fn();
         hard_reload = vi.fn(async () => true);
+        expected_to_run = true;
         stop = () => undefined;
         start();
     });
@@ -65,6 +74,66 @@ describe('recovery watchdog', () => {
         stop();
         resetWatchdog();
         vi.useRealTimers();
+    });
+
+    it('should recover when the player never reaches a visible state', async () => {
+        // Nothing ever checks in: the app never got as far as showing content
+        await vi.advanceTimersByTimeAsync(6 * MINUTE);
+
+        // A failed boot is most often a bad cached build, so it goes straight
+        // to clearing the cache rather than spending plain reloads first
+        expect(hard_reload).toHaveBeenCalledTimes(1);
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('should give the player time to boot before recovering', async () => {
+        await vi.advanceTimersByTimeAsync(4 * MINUTE);
+
+        expect(hard_reload).not.toHaveBeenCalled();
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('should not treat an un-bootstrapped device as a failed boot', async () => {
+        expected_to_run = false;
+
+        await vi.advanceTimersByTimeAsync(60 * MINUTE);
+
+        expect(hard_reload).not.toHaveBeenCalled();
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('should stop watching for a failed boot once content is visible', async () => {
+        await vi.advanceTimersByTimeAsync(2 * MINUTE);
+        recordHeartbeat('visible');
+        expect(watchdogState().booted).toBe(true);
+
+        await vi.advanceTimersByTimeAsync(4 * MINUTE);
+
+        expect(hard_reload).not.toHaveBeenCalled();
+    });
+
+    it('should recover when content stops being visible', async () => {
+        beat();
+        // Everything underneath keeps running; only visibility goes quiet
+        for (let i = 0; i < 40; i++) {
+            recordHeartbeat('poll');
+            recordHeartbeat('schedule');
+            recordHeartbeat('playback');
+            await vi.advanceTimersByTimeAsync(30 * 1000);
+        }
+
+        expect(watchdogState().stalled).toEqual(['visible']);
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should fall back to a plain reload when a failed boot cannot clear the cache', async () => {
+        hard_reload = vi.fn(async () => false);
+        start();
+
+        await vi.advanceTimersByTimeAsync(6 * MINUTE);
+
+        expect(hard_reload).toHaveBeenCalledTimes(1);
+        expect(reload).toHaveBeenCalledTimes(1);
     });
 
     it('should not reload while everything is healthy', async () => {
@@ -199,6 +268,26 @@ describe('recovery watchdog', () => {
         // Back to plain reloads rather than cache clearing
         expect(reload).toHaveBeenCalledTimes(4);
         expect(hard_reload).not.toHaveBeenCalled();
+    });
+
+    it('should allow a recovery to be requested directly', () => {
+        expect(requestRecovery('init-error')).toBe(true);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(watchdogState().recoveries_in_last_hour).toBe(1);
+    });
+
+    it('should hold a repeatedly requested recovery to the same limits', async () => {
+        for (let attempt = 0; attempt < 6; attempt++) {
+            resetWatchdog();
+            start();
+            requestRecovery('init-error');
+            await vi.advanceTimersByTimeAsync(MINUTE);
+        }
+
+        // Three in the hour, then throttled to one an hour
+        expect(reload).toHaveBeenCalledTimes(3);
+        expect(watchdogState().recoveries_throttled).toBe(true);
     });
 
     it('should record errors as context without needing them to act', () => {

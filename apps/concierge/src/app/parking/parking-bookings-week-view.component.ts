@@ -14,7 +14,11 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfWeek } from 'date-fns';
 import { ParkingStateService } from './parking-state.service';
-import { isParkingAllDayBooking } from './parking.utilities';
+import {
+    isParkingAllDayBooking,
+    parkingRequestStatusLabel,
+    parkingRequestStatusTone,
+} from './parking.utilities';
 
 @Component({
     selector: 'parking-bookings-week-view',
@@ -62,16 +66,13 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                     !isAssignedBooking(booking)
                                 "
                                 [class.border-info]="
-                                    booking.status === 'tentative' &&
-                                    isVisibleWaitlisted(booking) &&
-                                    !isAssignedBooking(booking) &&
-                                    !isCancelledBooking(booking)
+                                    statusTone(booking) === 'info'
+                                "
+                                [class.border-approval]="
+                                    statusTone(booking) === 'approval'
                                 "
                                 [class.border-warning]="
-                                    booking.status === 'tentative' &&
-                                    !isVisibleWaitlisted(booking) &&
-                                    !isAssignedBooking(booking) &&
-                                    !isCancelledBooking(booking)
+                                    statusTone(booking) === 'warning'
                                 "
                                 [class.border-base-300]="
                                     booking.status === 'ended' &&
@@ -190,28 +191,22 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                         !isCancelledBooking(booking)
                                     "
                                     [class.text-warning-content]="
-                                        booking.status === 'tentative' &&
-                                        !isVisibleWaitlisted(booking) &&
-                                        !isAssignedBooking(booking) &&
-                                        !isCancelledBooking(booking)
+                                        statusTone(booking) === 'warning'
                                     "
                                     [class.bg-warning]="
-                                        booking.status === 'tentative' &&
-                                        !isVisibleWaitlisted(booking) &&
-                                        !isAssignedBooking(booking) &&
-                                        !isCancelledBooking(booking)
+                                        statusTone(booking) === 'warning'
+                                    "
+                                    [class.text-approval-content]="
+                                        statusTone(booking) === 'approval'
+                                    "
+                                    [class.bg-approval]="
+                                        statusTone(booking) === 'approval'
                                     "
                                     [class.text-info-content]="
-                                        booking.status === 'tentative' &&
-                                        isVisibleWaitlisted(booking) &&
-                                        !isAssignedBooking(booking) &&
-                                        !isCancelledBooking(booking)
+                                        statusTone(booking) === 'info'
                                     "
                                     [class.bg-info]="
-                                        booking.status === 'tentative' &&
-                                        isVisibleWaitlisted(booking) &&
-                                        !isAssignedBooking(booking) &&
-                                        !isCancelledBooking(booking)
+                                        statusTone(booking) === 'info'
                                     "
                                     [class.text-neutral-content]="
                                         booking.status === 'ended' &&
@@ -467,7 +462,6 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
     public readonly removeBooking = (e: Booking) =>
         this._state.removeBooking(e);
     public readonly isRequest = (e: Booking) => this._state.isRequest(e);
-    public readonly isWaitlisted = (e: Booking) => this._state.isWaitlisted(e);
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
     public readonly isStatusActionDisabled = (e: Booking) =>
@@ -521,8 +515,16 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
         return groups.filter((group) => allowed.includes(group)).join(', ');
     }
 
-    public isVisibleWaitlisted(booking: Booking) {
-        return this.show_waitlist && this.isWaitlisted(booking);
+    /** Status colour tone for tentative bookings, empty for any other status */
+    public statusTone(booking: Booking): string {
+        if (
+            booking?.status !== 'tentative' ||
+            this.isAssignedBooking(booking) ||
+            this.isCancelledBooking(booking)
+        ) {
+            return '';
+        }
+        return parkingRequestStatusTone(booking, this.show_waitlist);
     }
 
     public isAssignedBooking(booking: Booking) {
@@ -560,9 +562,7 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
                     ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
                     : booking?.status === 'declined'
                       ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                      : this.isVisibleWaitlisted(booking)
-                        ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+                      : parkingRequestStatusLabel(booking, this.show_waitlist);
     }
 
     public isRequestFilter(filter_type?: string) {

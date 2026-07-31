@@ -26,6 +26,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
 
 const STORE_PREFIX = 'PlaceOS.SIGNAGE';
+/** Keep in step with `bootstrap-state.ts` */
 const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
 const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 

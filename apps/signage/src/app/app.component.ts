@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import {
     OrganisationService,
     PlaceOS_Service,
+    setInitReloadHandler,
     setMocks,
 } from '@placeos/common';
 import {
@@ -13,6 +14,8 @@ import {
 import { mocksInit } from '@placeos/mocks';
 
 import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
+import { hasBootstrappedDisplay } from './bootstrap-state';
+import { requestRecovery, startWatchdog } from './watchdog';
 
 @Component({
     selector: 'app-root',
@@ -48,6 +51,16 @@ export class AppComponent implements OnInit {
     private _org = inject(OrganisationService);
 
     public ngOnInit(): void {
+        // Started before anything else so it covers startup itself. The route
+        // guard, organisation data and settings all sit between here and the
+        // player, and a failure in any of them used to leave a screen with
+        // nothing watching it.
+        startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
+        // Initialisation gives up and restarts if the current user cannot be
+        // loaded. On its own that restarts every thirty seconds for as long as
+        // the failure lasts, so it goes through the same limits as every other
+        // automatic recovery.
+        setInitReloadHandler(() => requestRecovery('init-error'));
         setMocks(mocksInit);
         this._placeos.init();
     }
