@@ -68115,15 +68115,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "bf106eb",
-  "hash": "bf106eb",
+  "raw": "95f2ecc",
+  "hash": "95f2ecc",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "bf106eb",
+  "suffix": "95f2ecc",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785382375783
+  "time": 1785470380002
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -122511,15 +122511,22 @@ var visitorDisplayNameFor = (booking) => {
 function bookingLocationString(booking, org) {
   let location2 = "";
   let level_name = "";
+  let zones = [];
   if (booking instanceof Booking) {
-    location2 = booking.booking_type === "visitor" ? booking.extension_data?.location || "" : booking.location || booking.asset_name || "";
+    zones = booking.zones || [];
+    location2 = ["visitor", "vip-visitor"].includes(booking.booking_type) ? booking.extension_data?.location || "" : booking.location || booking.asset_name || "";
     if (location2.startsWith("unallocated"))
       location2 = "";
     const level = org.levelWithID(booking.zones);
     level_name = level?.display_name || level?.name || "";
   } else {
+    zones = booking.system?.zones || [];
     location2 = booking.location || booking.space?.display_name || booking.space?.name || booking.system?.name || "";
     level_name = booking.space?.level?.display_name || booking.space?.level?.name || booking.system?.zones ? org.levelWithID(booking.system?.zones || [])?.display_name || org.levelWithID(booking.system?.zones || [])?.name : "";
+  }
+  if (!level_name) {
+    const building = (org.buildings || []).find((bld) => zones.includes(bld.id));
+    level_name = building?.display_name || building?.name || "";
   }
   if (location2 && level_name) {
     return `${location2} - ${level_name}`;
