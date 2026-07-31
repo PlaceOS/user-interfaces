@@ -54530,15 +54530,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "5581e40",
-  "hash": "5581e40",
+  "raw": "fcedce6",
+  "hash": "fcedce6",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5581e40",
+  "suffix": "fcedce6",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785386009139
+  "time": 1785485850850
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -58602,6 +58602,14 @@ var _version_subscription;
 var _unrecoverable_subscription;
 var _new_version = false;
 var _auto_reload = false;
+var _reload_gate = null;
+var _reload_timer;
+var _reload_deferred_since = 0;
+var _init_reload = null;
+var _last_update_check = 0;
+var _update_interval = 0;
+var RELOAD_RETRY_MS = 5 * SECONDS;
+var MAX_RELOAD_DEFERRAL_MS = 10 * MINUTES;
 var SERVICE_WORKER_UPDATE = signal(
   null,
   ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
@@ -58615,7 +58623,37 @@ function hasNewVersion() {
 function serviceWorkerUpdate() {
   return SERVICE_WORKER_UPDATE.asReadonly();
 }
+function canReloadNow() {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return false;
+  }
+  if (!Fr())
+    return false;
+  try {
+    return _reload_gate ? _reload_gate() : true;
+  } catch (error2) {
+    log("CACHE", "Reload gate failed.", error2, "warn");
+    return true;
+  }
+}
 function reloadApp() {
+  if (_reload_timer)
+    clearTimeout(_reload_timer);
+  _reload_timer = void 0;
+  if (!_reload_deferred_since)
+    _reload_deferred_since = Date.now();
+  const waited = Date.now() - _reload_deferred_since;
+  if (canReloadNow() || waited >= MAX_RELOAD_DEFERRAL_MS) {
+    location.reload();
+    return;
+  }
+  _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+function requestInitReload() {
+  if (_init_reload) {
+    _init_reload();
+    return;
+  }
   location.reload();
 }
 function stopUpdateChecks() {
@@ -58645,6 +58683,7 @@ function handleNewVersion() {
 function setupCache(cache, options = {}) {
   const { auto_reload = false, interval: interval2 = 5 * MINUTES } = cacheOptions(options);
   _auto_reload = auto_reload;
+  _update_interval = Math.max(interval2, 1 * MINUTES);
   if (cache.isEnabled) {
     if (!_version_subscription) {
       _version_subscription = cache.versionUpdates.subscribe((event) => {
@@ -58685,6 +58724,7 @@ function setupCache(cache, options = {}) {
   }
 }
 async function checkForUpdate(cache) {
+  _last_update_check = Date.now();
   try {
     if (cache.isEnabled && await cache.checkForUpdate()) {
       log("CACHE", `Application update detected.`);
@@ -77089,7 +77129,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       qn();
     } else if (!X(false))
       qn();
-    location.reload();
+    requestInitReload();
   }
   _initAnalytics() {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
@@ -77201,8 +77241,28 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
 var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
+var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
+function cachedAuthority() {
+  const auth = Rt();
+  if (auth?.id) {
+    const details = {
+      id: auth.id,
+      metadata_cache_id: `${auth.config?.["metadata_cache_id"] || ""}`
+    };
+    try {
+      localStorage.setItem(AUTHORITY_CACHE_KEY, JSON.stringify(details));
+    } catch {
+    }
+    return details;
+  }
+  try {
+    return JSON.parse(localStorage.getItem(AUTHORITY_CACHE_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
 var OrganisationService = class _OrganisationService {
   /** Whether cached data is being replaced with the latest from the API */
   get _refreshing() {
@@ -77920,12 +77980,12 @@ var OrganisationService = class _OrganisationService {
     return zones;
   }
   _metadataCacheKey(name, ids) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const parent_ids = ids.filter(Boolean).sort().join(",");
     return `${METADATA_CACHE_PREFIX}.${auth?.id || "default"}.${name}.${parent_ids}`;
   }
   _zoneCacheKey(params) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const sorted_params = Object.keys(params).sort().reduce((cache_params, key) => {
       cache_params[key] = params[key];
       return cache_params;
@@ -77968,7 +78028,7 @@ var OrganisationService = class _OrganisationService {
     }
   }
   _metadataCacheID() {
-    return `${Rt()?.config?.["metadata_cache_id"] || ""}`;
+    return `${cachedAuthority()?.metadata_cache_id || ""}`;
   }
   _clearCache() {
     for (const store2 of [localStorage, sessionStorage]) {
@@ -109308,6 +109368,13 @@ async function retryMediaRequest(request) {
 var PLAYLIST_META_SESSION_KEY = "PlaceOS.SIGNAGE:playlist-meta-cache:v1";
 var SIGNAGE_GROUP_STORAGE_KEY = "PlaceOS.SIGNAGE:selected-group:v1";
 var SIGNAGE_VIEW_MODE_STORAGE_KEY = "PlaceOS.SIGNAGE:media-view-mode:v1";
+var SEARCH_FIELDS = [
+  "id",
+  "name",
+  "display_name",
+  "description",
+  "tags"
+].join(",");
 var SIGNAGE_GROUP_FIELDS = [
   "id",
   "name",
@@ -109582,7 +109649,7 @@ var SignageService = class _SignageService {
   }
   _searchParam(search) {
     const term = search.trim();
-    return term ? { q: term } : {};
+    return term ? { q: term, fields: SEARCH_FIELDS } : {};
   }
   loadMoreDisplays() {
     if (this._displays_loading() || !this._displays_has_more())
@@ -110188,7 +110255,7 @@ var SignageService = class _SignageService {
             return;
           this._fetchPlaylistPage(fh(this._orgZoneQueryParams(__spreadValues({
             limit: _SignageService.PAGE_SIZE
-          }, search ? { q: search } : {}), group_id)), token);
+          }, this._searchParam(search)), group_id)), token);
         });
       },
       ...ngDevMode ? [{ debugName: "_reload_playlists" }] : (
@@ -110265,7 +110332,7 @@ var SignageService = class _SignageService {
           this._fetchDisplayPage(ia(__spreadValues(__spreadProps(__spreadValues({}, this._orgZoneQueryParams({}, group_id)), {
             limit: _SignageService.PAGE_SIZE,
             signage: true
-          }), search ? { q: search } : {})), token);
+          }), this._searchParam(search))), token);
         });
       },
       ...ngDevMode ? [{ debugName: "_reload_displays" }] : (
@@ -112395,4 +112462,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-EQFGUZ47.js.map
+//# sourceMappingURL=chunk-37TZYTLG.js.map
