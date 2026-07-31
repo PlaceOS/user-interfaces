@@ -195,3 +195,19 @@ jobs:
             - name: Tear down the stack
               if: ${{ always() }}
               run: e2e/stack/down.sh --volumes
+
+            # Tell someone. A nightly result nobody sees is not a result.
+            #
+            # Only fires on failure — a green run should be silent, or the signal
+            # gets tuned out within a fortnight. Uses the same chat integration as
+            # PR Flow, so there is nothing new to configure; change the recipient by
+            # repointing the CHAT_URL secret, or swap this step for email/Slack.
+            #
+            # `continue-on-error` so a broken webhook can never turn a green run red.
+            - name: Notify on failure
+              if: ${{ failure() }}
+              uses: fjogeleit/http-request-action@master
+              continue-on-error: true
+              with:
+                  url: ${{ secrets.STATUS_URL }}
+                  data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "e2e (advisory) — FAILED", "branch": "${{ github.ref_name }}", "status": "failure", "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'

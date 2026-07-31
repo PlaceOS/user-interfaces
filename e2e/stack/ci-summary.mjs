@@ -98,6 +98,15 @@ if (failed) {
     line();
 }
 
+// A flaky run is a PASS by conclusion, so nothing notifies. Make it visible in
+// the summary instead — this is the number that says whether the suite can be
+// trusted yet, and it is the easiest one to quietly stop looking at.
+if (flaky && !failed) {
+    line('> **This run passed, but not cleanly.** Someone should look at the flaky');
+    line('> spec above before it becomes background noise.');
+    line();
+}
+
 line('---');
 line();
 line(
