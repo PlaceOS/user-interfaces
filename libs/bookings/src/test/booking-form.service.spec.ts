@@ -2733,6 +2733,50 @@ describe('BookingFormService', () => {
         ]);
     });
 
+    it('should load unlinked visitor group siblings by their shared group reference', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'booking-one',
+                type: 'visitor',
+                asset_id: 'visitor.one@example.com',
+                extension_data: { group: 'host@example.com[2026-07-28]' },
+            },
+            {
+                id: 'booking-two',
+                type: 'visitor',
+                asset_id: 'visitor.two@example.com',
+                extension_data: { group: 'host@example.com[2026-07-28]' },
+            },
+            {
+                id: 'booking-other-group',
+                type: 'visitor',
+                asset_id: 'visitor.three@example.com',
+                extension_data: { group: 'host@example.com[2026-07-29]' },
+            },
+            {
+                id: 'booking-ungrouped',
+                type: 'visitor',
+                asset_id: 'visitor.four@example.com',
+            },
+        ] as any);
+        spectator.service.setOptions({ type: 'visitor' });
+
+        const siblings = await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: 'booking-one',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: { group: 'host@example.com[2026-07-28]' },
+            }),
+        );
+
+        expect(siblings.map((_) => _.id)).toEqual([
+            'booking-one',
+            'booking-two',
+        ]);
+    });
+
     it('should include bookings made by the current user when loading group siblings', async () => {
         spectator.service.setOptions({ type: 'visitor' });
 

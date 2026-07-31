@@ -1143,8 +1143,14 @@ export class InviteVisitorFormComponent {
         if (this.is_edit()) {
             let existing_siblings = this._existing_siblings;
             if (!existing_siblings.length) {
+                // Retry from the loaded booking where possible: rebuilding one
+                // from the form model loses `extension_data.group`, which is the
+                // only link between members of an uncontained group.
+                const booking_ref = this._service.booking;
                 existing_siblings = await this._service.loadGroupSiblings(
-                    new Booking(this.model() as any),
+                    booking_ref?.id
+                        ? booking_ref
+                        : new Booking(this.model() as any),
                 );
             }
             if (!existing_siblings.length) {

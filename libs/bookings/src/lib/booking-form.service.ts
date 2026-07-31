@@ -1663,8 +1663,17 @@ export class BookingFormService extends AsyncHandler {
     public async loadGroupSiblings(booking: Booking): Promise<Booking[]> {
         if (!booking?.id) return [];
         const parent_id = booking.parent_id || booking.id;
-        // Visitor groups made before group containers existed have no parent
-        // link — their only shared marker is the generated `grp-*` description.
+        // Groups made before group containers existed have no parent link. Every
+        // member still carries the same generated group reference
+        // (`host@email[yyyy-MM-dd]`) in `extension_data.group`, so match on that
+        // too — without it only the opened booking is found, and editing the
+        // group leaves the other members behind (removed members survive,
+        // retained members get duplicated). The query is already bounded to this
+        // booking's exact period, so a same-host/same-day group at another time
+        // cannot be pulled in.
+        const group_ref = `${booking.group || ''}`.trim();
+        // Older groups again: some only ever shared a generated `grp-*`
+        // description.
         const legacy_group = `${booking.description || ''}`.startsWith('grp-')
             ? booking.description
             : '';
@@ -1679,6 +1688,7 @@ export class BookingFormService extends AsyncHandler {
             (b) =>
                 b.id === parent_id ||
                 b.parent_id === parent_id ||
+                (!!group_ref && `${b.group || ''}`.trim() === group_ref) ||
                 (!!legacy_group && b.description === legacy_group),
         );
     }
