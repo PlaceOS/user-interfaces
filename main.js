@@ -54079,11 +54079,6 @@ function isSameMonth(laterDate, earlierDate, options) {
   return laterDate_.getFullYear() === earlierDate_.getFullYear() && laterDate_.getMonth() === earlierDate_.getMonth();
 }
 
-// node_modules/date-fns/subDays.js
-function subDays(date, amount, options) {
-  return addDays(date, -amount, options);
-}
-
 // node_modules/date-fns/roundToNearestMinutes.js
 function roundToNearestMinutes(date, options) {
   const nearestTo = options?.nearestTo ?? 1;
@@ -67914,15 +67909,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "5581e40",
-  "hash": "5581e40",
+  "raw": "fcedce6",
+  "hash": "fcedce6",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5581e40",
+  "suffix": "fcedce6",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785386007494
+  "time": 1785485916877
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -68911,6 +68906,14 @@ var _version_subscription;
 var _unrecoverable_subscription;
 var _new_version = false;
 var _auto_reload = false;
+var _reload_gate = null;
+var _reload_timer;
+var _reload_deferred_since = 0;
+var _init_reload = null;
+var _last_update_check = 0;
+var _update_interval = 0;
+var RELOAD_RETRY_MS = 5 * SECONDS;
+var MAX_RELOAD_DEFERRAL_MS = 10 * MINUTES;
 var SERVICE_WORKER_UPDATE = signal(
   null,
   ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
@@ -68924,7 +68927,37 @@ function hasNewVersion() {
 function serviceWorkerUpdate() {
   return SERVICE_WORKER_UPDATE.asReadonly();
 }
+function canReloadNow() {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return false;
+  }
+  if (!Fr())
+    return false;
+  try {
+    return _reload_gate ? _reload_gate() : true;
+  } catch (error2) {
+    log("CACHE", "Reload gate failed.", error2, "warn");
+    return true;
+  }
+}
 function reloadApp() {
+  if (_reload_timer)
+    clearTimeout(_reload_timer);
+  _reload_timer = void 0;
+  if (!_reload_deferred_since)
+    _reload_deferred_since = Date.now();
+  const waited = Date.now() - _reload_deferred_since;
+  if (canReloadNow() || waited >= MAX_RELOAD_DEFERRAL_MS) {
+    location.reload();
+    return;
+  }
+  _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+function requestInitReload() {
+  if (_init_reload) {
+    _init_reload();
+    return;
+  }
   location.reload();
 }
 function stopUpdateChecks() {
@@ -68954,6 +68987,7 @@ function handleNewVersion() {
 function setupCache(cache, options = {}) {
   const { auto_reload = false, interval = 5 * MINUTES } = cacheOptions(options);
   _auto_reload = auto_reload;
+  _update_interval = Math.max(interval, 1 * MINUTES);
   if (cache.isEnabled) {
     if (!_version_subscription) {
       _version_subscription = cache.versionUpdates.subscribe((event) => {
@@ -68994,6 +69028,7 @@ function setupCache(cache, options = {}) {
   }
 }
 async function checkForUpdate(cache) {
+  _last_update_check = Date.now();
   try {
     if (cache.isEnabled && await cache.checkForUpdate()) {
       log("CACHE", `Application update detected.`);
@@ -81243,7 +81278,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       qn();
     } else if (!X2(false))
       qn();
-    location.reload();
+    requestInitReload();
   }
   _initAnalytics() {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
@@ -81355,8 +81390,28 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
 var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
+var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
+function cachedAuthority() {
+  const auth = Rt();
+  if (auth?.id) {
+    const details = {
+      id: auth.id,
+      metadata_cache_id: `${auth.config?.["metadata_cache_id"] || ""}`
+    };
+    try {
+      localStorage.setItem(AUTHORITY_CACHE_KEY, JSON.stringify(details));
+    } catch {
+    }
+    return details;
+  }
+  try {
+    return JSON.parse(localStorage.getItem(AUTHORITY_CACHE_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
 var OrganisationService = class _OrganisationService {
   /** Whether cached data is being replaced with the latest from the API */
   get _refreshing() {
@@ -82074,12 +82129,12 @@ var OrganisationService = class _OrganisationService {
     return zones;
   }
   _metadataCacheKey(name, ids) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const parent_ids = ids.filter(Boolean).sort().join(",");
     return `${METADATA_CACHE_PREFIX}.${auth?.id || "default"}.${name}.${parent_ids}`;
   }
   _zoneCacheKey(params) {
-    const auth = Rt();
+    const auth = cachedAuthority();
     const sorted_params = Object.keys(params).sort().reduce((cache_params, key) => {
       cache_params[key] = params[key];
       return cache_params;
@@ -82122,7 +82177,7 @@ var OrganisationService = class _OrganisationService {
     }
   }
   _metadataCacheID() {
-    return `${Rt()?.config?.["metadata_cache_id"] || ""}`;
+    return `${cachedAuthority()?.metadata_cache_id || ""}`;
   }
   _clearCache() {
     for (const store2 of [localStorage, sessionStorage]) {
@@ -108221,6 +108276,26 @@ var DurationPipe = class _DurationPipe {
 })();
 
 // libs/components/src/lib/authorised-user.guard.ts
+var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
+function hasCachedCredentials() {
+  try {
+    return !!X2();
+  } catch {
+    return false;
+  }
+}
+function resolvedWithin(promise, delay2) {
+  return new Promise((resolve) => {
+    const timer2 = setTimeout(() => resolve(false), delay2);
+    promise.then(() => {
+      clearTimeout(timer2);
+      resolve(true);
+    }, () => {
+      clearTimeout(timer2);
+      resolve(false);
+    });
+  });
+}
 var PLACEOS_APP_ACCESS = class {
 };
 var AuthorisedUserGuard = class _AuthorisedUserGuard {
@@ -108241,24 +108316,28 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
-    await Promise.all([
+    const state_ready = await resolvedWithin(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]);
+    ]), OFFLINE_FALLBACK_DELAY);
+    if (!state_ready)
+      return this.offlineAccess();
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
     const use_group_subsystem_access = await this.useGroupSubsystemAccess();
     let can_activate = false;
     if (use_group_subsystem_access) {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = this.checkSubsystemAccess(user);
       log("ACCESS", "Checking subsystem access", can_activate);
     } else if (!groups.length) {
       can_activate = true;
       log("ACCESS", "No access groups", can_activate);
     } else {
-      await oi(Lr(), Boolean);
-      const user = await firstTruthyValueFrom(current_user);
+      const user = await this.waitForUser();
+      if (!user)
+        return this.offlineAccess();
       can_activate = !!(user && groups.find((_3) => user.groups.includes(_3)));
       log("ACCESS", "Checking access groups", can_activate);
     }
@@ -108266,6 +108345,30 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
       this._router.navigate(["/unauthorised"]);
     }
     return !!can_activate;
+  }
+  /** The active user, or null if the backend could not be reached in time */
+  async waitForUser() {
+    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    if (!online)
+      return null;
+    let user = null;
+    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_3) => user = _3), OFFLINE_FALLBACK_DELAY);
+    return loaded ? user : null;
+  }
+  /**
+   * Access decision for when the backend cannot be reached. Waiting forever
+   * leaves a fixed device sitting on a loading screen with no way back, so a
+   * device that has authenticated before is allowed through on its cached
+   * session. Every API call it then makes is still checked by the server.
+   */
+  offlineAccess() {
+    if (hasCachedCredentials()) {
+      log("ACCESS", "Backend unreachable. Continuing with cached credentials.");
+      return true;
+    }
+    log("ACCESS", "Backend unreachable and no cached credentials.", void 0, "warn");
+    this._router.navigate(["/unauthorised"]);
+    return false;
   }
   async useGroupSubsystemAccess() {
     const value = Rt()?.config?.["use_group_subsystem_access"];
@@ -108455,21 +108558,6 @@ var BindingDirective = class _BindingDirective extends AsyncHandler {
 })();
 
 // libs/bookings/src/lib/bookings.fn.ts
-function isInWaitlistWeek(date, building_timezone, week_start = setting("app.parking.waitlist_week_start")) {
-  const day = week_start?.day ?? 5;
-  const hour = week_start?.hour ?? 18;
-  const minute = week_start?.minute ?? 0;
-  const timezone = setting("app.bookings.use_building_timezone") || setting("app.parking.use_building_timezone") ? building_timezone : "";
-  const now = Date.now();
-  const zoned_now = timezone ? toZonedTime(now, timezone) : new Date(now);
-  let current_week_start = set(startOfWeek(zoned_now, { weekStartsOn: day }), { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 });
-  if (zoned_now < current_week_start) {
-    current_week_start = subDays(current_week_start, 7);
-  }
-  const next_week_start = addDays(current_week_start, 7);
-  const asUTC = (value) => timezone ? fromZonedTime(value, timezone).valueOf() : value.valueOf();
-  return date.valueOf() >= asUTC(current_week_start) && date.valueOf() < asUTC(next_week_start);
-}
 var BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
 var APP_VERSION = VERSION4.raw || VERSION4.version || VERSION4.hash;
 function appName() {
@@ -117108,6 +117196,11 @@ function StatusPillComponent_Case_6_Template(rf, ctx) {
 }
 function StatusPillComponent_Case_7_Template(rf, ctx) {
   if (rf & 1) {
+    \u0275\u0275text(0, " gavel ");
+  }
+}
+function StatusPillComponent_Case_8_Template(rf, ctx) {
+  if (rf & 1) {
     \u0275\u0275text(0, " warning ");
   }
 }
@@ -117127,24 +117220,24 @@ var StatusPillComponent = class _StatusPillComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatusPillComponent, selectors: [["status-pill"]], inputs: { status: [1, "status"] }, ngContentSelectors: _c031, decls: 10, vars: 25, consts: [[1, "border-base-200", "bg-opacity-30", "flex", "items-center", "space-x-2", "rounded-full", "border", "px-2", "py-1", "text-base", "font-medium", "text-black"], [1, "flex", "h-5", "w-5", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"]], template: function StatusPillComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _StatusPillComponent, selectors: [["status-pill"]], inputs: { status: [1, "status"] }, ngContentSelectors: _c031, decls: 11, vars: 29, consts: [[1, "border-base-200", "bg-opacity-30", "flex", "items-center", "space-x-2", "rounded-full", "border", "px-2", "py-1", "text-base", "font-medium", "text-black"], [1, "flex", "h-5", "w-5", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"]], template: function StatusPillComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "icon", 2);
-        \u0275\u0275conditionalCreate(3, StatusPillComponent_Case_3_Template, 1, 0)(4, StatusPillComponent_Case_4_Template, 1, 0)(5, StatusPillComponent_Case_5_Template, 1, 0)(6, StatusPillComponent_Case_6_Template, 1, 0)(7, StatusPillComponent_Case_7_Template, 1, 0);
+        \u0275\u0275conditionalCreate(3, StatusPillComponent_Case_3_Template, 1, 0)(4, StatusPillComponent_Case_4_Template, 1, 0)(5, StatusPillComponent_Case_5_Template, 1, 0)(6, StatusPillComponent_Case_6_Template, 1, 0)(7, StatusPillComponent_Case_7_Template, 1, 0)(8, StatusPillComponent_Case_8_Template, 1, 0);
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(8, "div");
-        \u0275\u0275projection(9);
+        \u0275\u0275elementStart(9, "div");
+        \u0275\u0275projection(10);
         \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
-        let tmp_11_0;
-        \u0275\u0275classProp("bg-success-light", ctx.status() === "success")("bg-warning-light", ctx.status() === "warning")("bg-error-light", ctx.status() === "error")("bg-info-light", ctx.status() === "info")("bg-base-200", ctx.status() === "neutral");
+        let tmp_13_0;
+        \u0275\u0275classProp("bg-success-light", ctx.status() === "success")("bg-warning-light", ctx.status() === "warning")("bg-approval-light", ctx.status() === "approval")("bg-error-light", ctx.status() === "error")("bg-info-light", ctx.status() === "info")("bg-base-200", ctx.status() === "neutral");
         \u0275\u0275advance();
-        \u0275\u0275classProp("text-success", ctx.status() === "success")("text-warning", ctx.status() === "warning")("text-error", ctx.status() === "error")("text-info", ctx.status() === "info")("text-base-content", ctx.status() === "neutral")("opacity-40", ctx.status() === "neutral");
+        \u0275\u0275classProp("text-success", ctx.status() === "success")("text-warning", ctx.status() === "warning")("text-approval", ctx.status() === "approval")("text-error", ctx.status() === "error")("text-info", ctx.status() === "info")("text-base-content", ctx.status() === "neutral")("opacity-40", ctx.status() === "neutral");
         \u0275\u0275advance(2);
-        \u0275\u0275conditional((tmp_11_0 = ctx.status()) === "success" ? 3 : tmp_11_0 === "error" ? 4 : tmp_11_0 === "neutral" ? 5 : tmp_11_0 === "info" ? 6 : 7);
-        \u0275\u0275advance(5);
+        \u0275\u0275conditional((tmp_13_0 = ctx.status()) === "success" ? 3 : tmp_13_0 === "error" ? 4 : tmp_13_0 === "neutral" ? 5 : tmp_13_0 === "info" ? 6 : tmp_13_0 === "approval" ? 7 : 8);
+        \u0275\u0275advance(6);
         \u0275\u0275classProp("opacity-40", ctx.status() === "neutral");
       }
     }, dependencies: [IconComponent], encapsulation: 2 });
@@ -117158,6 +117251,7 @@ var StatusPillComponent = class _StatusPillComponent {
             class="border-base-200 bg-opacity-30 flex items-center space-x-2 rounded-full border px-2 py-1 text-base font-medium text-black"
             [class.bg-success-light]="status() === 'success'"
             [class.bg-warning-light]="status() === 'warning'"
+            [class.bg-approval-light]="status() === 'approval'"
             [class.bg-error-light]="status() === 'error'"
             [class.bg-info-light]="status() === 'info'"
             [class.bg-base-200]="status() === 'neutral'"
@@ -117166,6 +117260,7 @@ var StatusPillComponent = class _StatusPillComponent {
                 class="flex h-5 w-5 items-center justify-center rounded-full"
                 [class.text-success]="status() === 'success'"
                 [class.text-warning]="status() === 'warning'"
+                [class.text-approval]="status() === 'approval'"
                 [class.text-error]="status() === 'error'"
                 [class.text-info]="status() === 'info'"
                 [class.text-base-content]="status() === 'neutral'"
@@ -117185,6 +117280,9 @@ var StatusPillComponent = class _StatusPillComponent {
                         @case ('info') {
                             info
                         }
+                        @case ('approval') {
+                            gavel
+                        }
                         @default {
                             warning
                         }
@@ -117199,7 +117297,7 @@ var StatusPillComponent = class _StatusPillComponent {
   }], null, { status: [{ type: Input, args: [{ isSignal: true, alias: "status", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(StatusPillComponent, { className: "StatusPillComponent", filePath: "libs/components/src/lib/status-pill.component.ts", lineNumber: 54 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(StatusPillComponent, { className: "StatusPillComponent", filePath: "libs/components/src/lib/status-pill.component.ts", lineNumber: 65 });
 })();
 
 // libs/events/src/lib/attendee-list.component.ts
@@ -122510,6 +122608,11 @@ function parseJson(value, fallback) {
     return fallback;
   }
 }
+function parkingRequestStatus(booking) {
+  if (booking?.process_state !== "unapproved")
+    return "pending";
+  return booking.extension_data?.requires_manual_approval ? "approval_required" : "waitlist";
+}
 function lockerBankFromAsset(asset) {
   const data = asset.other_data || {};
   return {
@@ -123784,7 +123887,6 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
     );
     this.auto_checkin = settingSignal(`${this.booking()?.type || "bookings"}.auto_checkin`, false);
     this.show_waitlist = this._settings.signal("parking.show_waitlist", true);
-    this.waitlist_week_start = this._settings.signal("parking.waitlist_week_start", { day: 5, hour: 18, minute: 0 });
     this._hide_selected_parking_space = this._settings.signal("parking.hide_selected_space", false);
     this.hide_selected_parking_space = computed(
       () => this.booking()?.booking_type === "parking" && this._hide_selected_parking_space(),
@@ -123952,12 +124054,13 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
       )
     );
     this.time_format = this._settings.time_format_signal;
-    this._is_visible_waitlisted = computed(
+    this._parking_status = computed(
       () => {
         const booking = this.booking();
-        return this.show_waitlist() && booking?.booking_type === "parking" && booking?.status === "tentative" && booking?.process_state !== "waiting_approval" && !!booking?.asset_id?.startsWith("unallocated") && isInWaitlistWeek(booking.date, this._org.building?.timezone, this.waitlist_week_start());
+        const is_parking_request = booking?.booking_type === "parking" && booking?.status === "tentative";
+        return is_parking_request ? parkingRequestStatus(booking) : "pending";
       },
-      ...ngDevMode ? [{ debugName: "_is_visible_waitlisted" }] : (
+      ...ngDevMode ? [{ debugName: "_parking_status" }] : (
         /* istanbul ignore next */
         []
       )
@@ -123971,8 +124074,10 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         if (this.booking()?.status === "declined")
           return "error";
         if (this.booking()?.status === "tentative") {
-          if (this._is_visible_waitlisted())
+          if (this._parking_status() === "waitlist" && this.show_waitlist())
             return "info";
+          if (this._parking_status() === "approval_required")
+            return "approval";
           return "warning";
         }
         return "warning";
@@ -124687,7 +124792,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 518 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 517 });
 })();
 
 // libs/bookings/src/lib/parking.service.ts
@@ -125209,14 +125314,14 @@ var BookingCardComponent = class _BookingCardComponent {
       )
     );
     this.show_waitlist = this._settings.signal("parking.show_waitlist", true);
-    this.waitlist_week_start = this._settings.signal("parking.waitlist_week_start", { day: 5, hour: 18, minute: 0 });
     this.hide_selected_parking_space = this._settings.signal("parking.hide_selected_space", false);
-    this._is_visible_waitlisted = computed(
+    this._parking_status = computed(
       () => {
         const booking = this.booking();
-        return this.show_waitlist() && booking?.booking_type === "parking" && booking?.status === "tentative" && booking?.process_state !== "waiting_approval" && !!booking?.asset_id?.startsWith("unallocated") && isInWaitlistWeek(booking.date, this._org.building?.timezone, this.waitlist_week_start());
+        const is_parking_request = booking?.booking_type === "parking" && booking?.status === "tentative";
+        return is_parking_request ? parkingRequestStatus(booking) : "pending";
       },
-      ...ngDevMode ? [{ debugName: "_is_visible_waitlisted" }] : (
+      ...ngDevMode ? [{ debugName: "_parking_status" }] : (
         /* istanbul ignore next */
         []
       )
@@ -125234,9 +125339,10 @@ var BookingCardComponent = class _BookingCardComponent {
         if (booking?.status === "cancelled")
           return "error";
         if (booking?.status === "tentative") {
-          if (this._is_visible_waitlisted()) {
+          if (this._parking_status() === "waitlist" && this.show_waitlist())
             return "info";
-          }
+          if (this._parking_status() === "approval_required")
+            return "approval";
           return "warning";
         }
         return "warning";
@@ -125606,7 +125712,7 @@ var BookingCardComponent = class _BookingCardComponent {
   }], () => [], { booking: [{ type: Input, args: [{ isSignal: true, alias: "booking", required: false }] }], show_day: [{ type: Input, args: [{ isSignal: true, alias: "show_day", required: false }] }], edit_fn: [{ type: Input, args: [{ isSignal: true, alias: "edit_fn", required: false }] }], remove_fn: [{ type: Input, args: [{ isSignal: true, alias: "remove_fn", required: false }] }], end_fn: [{ type: Input, args: [{ isSignal: true, alias: "end_fn", required: false }] }], refresh_fn: [{ type: Input, args: [{ isSignal: true, alias: "refresh_fn", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingCardComponent, { className: "BookingCardComponent", filePath: "libs/bookings/src/lib/booking-card.component.ts", lineNumber: 203 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingCardComponent, { className: "BookingCardComponent", filePath: "libs/bookings/src/lib/booking-card.component.ts", lineNumber: 205 });
 })();
 
 // libs/components/src/lib/recurring-clash-modal.component.ts
@@ -127360,7 +127466,13 @@ function formBookingData(value) {
   for (const key in value) {
     if (key === "extension_data") {
       data.extension_data = formExtensionData(value.extension_data);
-    } else if (!BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) && (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))) {
+    } else if (
+      // `asset_ids` is spread into the form model from the booking being
+      // edited and never updated when `asset_id` changes, so sending it
+      // back would overwrite the new resource with the old one. The
+      // `Booking` constructor rebuilds it from `asset_id`.
+      key !== "asset_ids" && !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) && (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))
+    ) {
       data[key] = value[key];
     }
   }
@@ -128478,6 +128590,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!booking?.id)
       return [];
     const parent_id = booking.parent_id || booking.id;
+    const group_ref = `${booking.group || ""}`.trim();
     const legacy_group = `${booking.description || ""}`.startsWith("grp-") ? booking.description : "";
     const { type } = this._options();
     const list = await queryBookings({
@@ -128486,7 +128599,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       type,
       include_booked_by: true
     });
-    return list.filter((b2) => b2.id === parent_id || b2.parent_id === parent_id || !!legacy_group && b2.description === legacy_group);
+    return list.filter((b2) => b2.id === parent_id || b2.parent_id === parent_id || !!group_ref && `${b2.group || ""}`.trim() === group_ref || !!legacy_group && b2.description === legacy_group);
   }
   async loadGroupMembersForBooking(booking) {
     if (!booking?.id)
@@ -128720,7 +128833,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
   }
   mapGroupMembers(type, members = []) {
-    const user_list = type === "visitor" ? members : unique([currentUser(), ...members || []], "email");
+    const user_list = unique(type === "visitor" ? members || [] : [currentUser(), ...members || []], "email");
     return user_list.filter((member) => !!member?.email).map((member) => ({
       id: member.id || "",
       name: member.name || member.email,
@@ -128836,6 +128949,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const active_bookings = bookings.filter((_3) => _3.status !== "declined" && _3.status !== "cancelled" && !_3.rejected);
     if (active_bookings.find((_3) => _3.asset_id === asset_id && id !== _3.id)) {
       throw i18n(asset_id.includes("@") ? "BOOKINGS.VISITOR_BOOKED" : "BOOKINGS.RESOURCE_BOOKED", { name: asset_id });
+    }
+    const is_self = user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
+    if (this.assignedResourceBooking(type) !== "allow" && active_bookings.some((_3) => _3.id !== id && _3.extension_data?.is_assigned)) {
+      throw `${is_self ? "You have" : "This user has"} an assigned ${type} and cannot book another ${type}.`;
     }
     const allowed_bookings = this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
     if (allowed_bookings > 0 && active_bookings.filter((_3) => _3.user_email.toLowerCase() === (user_email || currentUser()?.email || "").toLowerCase() && _3.id !== id).length >= allowed_bookings) {
@@ -131353,7 +131470,9 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
   })), injector);
   onFieldChange(model2, (v2) => v2.date, (date) => {
     const recurrence = model2().recurrence;
-    if (recurrence?._pattern !== "custom_display" && recurrence?._pattern !== "none") {
+    if (!recurrence?.pattern)
+      return;
+    if (recurrence._pattern !== "custom_display" && recurrence._pattern !== "none") {
       model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
         recurrence: __spreadProps(__spreadValues({}, m2.recurrence), {
           days_of_week: [new Date(date).getDay()]
@@ -131416,6 +131535,13 @@ var BOOKING_URLS = [
   "upcoming"
 ];
 var PERSISTED_EVENT_CONTEXT_URLS = ["landing"];
+var IGNORED_DETAIL_FIELDS = [
+  "attendees",
+  "system",
+  "date_end",
+  "organiser",
+  "resources"
+];
 var Tags;
 (function(Tags2) {
   Tags2["Availability"] = "AVAILABILITY";
@@ -131890,10 +132016,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const value = eventFormValue(event);
     this.notify_new_attendees_only.set(false);
     value.assets = (event.extension_data.assets || []).map((_3) => new AssetRequest(__spreadProps(__spreadValues({}, _3), { event })));
-    this._setInitialEvent(value);
     this._model.set(value);
     this._form().reset();
     this._applyDurationSettings();
+    this._setInitialEvent(this._model());
     if (!event.id)
       return;
     sessionStorage.setItem("PLACEOS.event", JSON.stringify(event?.toJSON() || {}));
@@ -132261,7 +132387,14 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._initial_event_details = this._eventDetails(value);
   }
   _eventDetails(value) {
-    return JSON.stringify(Object.entries(value).filter(([key]) => key !== "attendees" && key !== "system"));
+    const details = Object.entries(value).filter(([key]) => !IGNORED_DETAIL_FIELDS.includes(key));
+    details.push(["host_email", value.organiser?.email || ""]);
+    details.push([
+      "space_ids",
+      (value.resources || []).map((_3) => _3.id || _3.email || "")
+    ]);
+    details.sort(([a], [b2]) => a > b2 ? 1 : -1);
+    return JSON.stringify(details);
   }
   async _removeBookingAfterError(is_new, event, assets = false, e) {
     if (is_new) {
@@ -135084,15 +135217,14 @@ var _c048 = ["search_field"];
 var _c124 = ["*"];
 var _c212 = (a0) => ({ name: a0 });
 var _c36 = (a0) => ({ email: a0 });
-var _forTrack07 = ($index, $item) => $item.id || $item.email;
 function UserListFieldComponent_For_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-chip-row", 13);
     \u0275\u0275listener("removed", function UserListFieldComponent_For_7_Template_mat_chip_row_removed_0_listener() {
-      const item_r2 = \u0275\u0275restoreView(_r1).$implicit;
+      const $index_r2 = \u0275\u0275restoreView(_r1).$index;
       const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.removeUser(item_r2));
+      return \u0275\u0275resetView(ctx_r2.removeUser($index_r2));
     });
     \u0275\u0275elementStart(1, "div", 14)(2, "div");
     \u0275\u0275text(3);
@@ -135104,16 +135236,16 @@ function UserListFieldComponent_For_7_Template(rf, ctx) {
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const item_r2 = ctx.$implicit;
-    \u0275\u0275classProp("bg-base-200", !item_r2.is_external)("bg-warning", item_r2.is_external);
-    \u0275\u0275property("matTooltip", item_r2.email);
+    const item_r4 = ctx.$implicit;
+    \u0275\u0275classProp("bg-base-200", !item_r4.is_external)("bg-warning", item_r4.is_external);
+    \u0275\u0275property("matTooltip", item_r4.email);
     \u0275\u0275advance();
-    \u0275\u0275classProp("text-base-content!", !item_r2.is_external)("text-warning-content!", item_r2.is_external);
+    \u0275\u0275classProp("text-base-content!", !item_r4.is_external)("text-warning-content!", item_r4.is_external);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(item_r2.name || item_r2.email);
+    \u0275\u0275textInterpolate(item_r4.name || item_r4.email);
     \u0275\u0275advance();
-    \u0275\u0275classProp("text-base-content!", !item_r2.is_external)("text-warning-content!", item_r2.is_external);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 15, "COMMON.REMOVE_ITEM", \u0275\u0275pureFunction1(18, _c212, item_r2.name || item_r2.email)));
+    \u0275\u0275classProp("text-base-content!", !item_r4.is_external)("text-warning-content!", item_r4.is_external);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 15, "COMMON.REMOVE_ITEM", \u0275\u0275pureFunction1(18, _c212, item_r4.name || item_r4.email)));
   }
 }
 function UserListFieldComponent_Conditional_11_Template(rf, ctx) {
@@ -135123,10 +135255,10 @@ function UserListFieldComponent_Conditional_11_Template(rf, ctx) {
 }
 function UserListFieldComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
+    const _r5 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 16);
     \u0275\u0275listener("click", function UserListFieldComponent_Conditional_14_Template_mat_option_click_0_listener() {
-      \u0275\u0275restoreView(_r4);
+      \u0275\u0275restoreView(_r5);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.addUserFromEmail());
     });
@@ -135149,19 +135281,19 @@ function UserListFieldComponent_For_16_Conditional_8_Template(rf, ctx) {
     \u0275\u0275text(3, ") ");
   }
   if (rf & 2) {
-    const user_r6 = \u0275\u0275nextContext().$implicit;
+    const user_r7 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(user_r6.username);
+    \u0275\u0275textInterpolate(user_r7.username);
   }
 }
 function UserListFieldComponent_For_16_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
+    const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "mat-option", 17);
     \u0275\u0275listener("click", function UserListFieldComponent_For_16_Template_mat_option_click_0_listener() {
-      const user_r6 = \u0275\u0275restoreView(_r5).$implicit;
+      const user_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.addUser(user_r6));
+      return \u0275\u0275resetView(ctx_r2.addUser(user_r7));
     });
     \u0275\u0275elementStart(1, "div", 14);
     \u0275\u0275element(2, "a-user-avatar", 18);
@@ -135174,23 +135306,23 @@ function UserListFieldComponent_For_16_Template(rf, ctx) {
     \u0275\u0275elementEnd()()()();
   }
   if (rf & 2) {
-    const user_r6 = ctx.$implicit;
+    const user_r7 = ctx.$implicit;
     \u0275\u0275advance(2);
-    \u0275\u0275property("user", user_r6);
+    \u0275\u0275property("user", user_r7);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(user_r6.name);
+    \u0275\u0275textInterpolate(user_r7.name);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", user_r6.email, " ");
+    \u0275\u0275textInterpolate1(" ", user_r7.email, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(user_r6.username && user_r6.username !== user_r6.email ? 8 : -1);
+    \u0275\u0275conditional(user_r7.username && user_r7.username !== user_r7.email ? 8 : -1);
   }
 }
 function UserListFieldComponent_Conditional_17_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
+    const _r8 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 12)(1, "button", 21);
     \u0275\u0275listener("click", function UserListFieldComponent_Conditional_17_Template_button_click_1_listener() {
-      \u0275\u0275restoreView(_r7);
+      \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.openNewUserModal());
     });
@@ -135212,14 +135344,14 @@ function UserListFieldComponent_Conditional_17_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(17, "input", 26);
     \u0275\u0275listener("change", function UserListFieldComponent_Conditional_17_Template_input_change_17_listener($event) {
-      \u0275\u0275restoreView(_r7);
+      \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.addUsersFromFile($event));
     });
     \u0275\u0275elementEnd()();
     \u0275\u0275elementStart(18, "button", 27);
     \u0275\u0275listener("click", function UserListFieldComponent_Conditional_17_Template_button_click_18_listener() {
-      \u0275\u0275restoreView(_r7);
+      \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       ctx_r2.downloadCSVTemplate();
       return \u0275\u0275resetView(ctx_r2.download.emit());
@@ -135450,12 +135582,19 @@ var UserListFieldComponent = class _UserListFieldComponent extends AsyncHandler 
     }, 100);
   }
   /**
-   * Remove user from the user list
-   * @param user
+   * Remove the user at the given position in the list.
+   *
+   * Removal is positional rather than identity based. Visitor lists are built
+   * from booking data where `id`/`email` can be blank or shared between
+   * entries, and an identity filter then drops every matching row instead of
+   * the one the user clicked. (PPT-2634)
+   * @param index Index of the user in `active_list`
    */
-  removeUser(user) {
-    const user_id = user.id || user.email;
-    const list = this.active_list().filter((a_user) => (a_user.id || a_user.email) !== user_id);
+  removeUser(index) {
+    const list = [...this.active_list()];
+    if (index < 0 || index >= list.length)
+      return;
+    list.splice(index, 1);
     this.setValue(list);
   }
   /**
@@ -135588,7 +135727,7 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "div", 4)(1, "div", 5)(2, "mat-form-field", 6, 0)(4, "mat-chip-grid", 7, 1);
-        \u0275\u0275repeaterCreate(6, UserListFieldComponent_For_7_Template, 8, 20, "mat-chip-row", 8, _forTrack07);
+        \u0275\u0275repeaterCreate(6, UserListFieldComponent_For_7_Template, 8, 20, "mat-chip-row", 8, \u0275\u0275repeaterTrackByIndex);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(8, "input", 9, 2);
         \u0275\u0275pipe(10, "translate");
@@ -135609,13 +135748,13 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
-        const chipList_r8 = \u0275\u0275reference(5);
-        const auto_r9 = \u0275\u0275reference(13);
+        const chipList_r9 = \u0275\u0275reference(5);
+        const auto_r10 = \u0275\u0275reference(13);
         \u0275\u0275attribute("disabled", ctx.disabled());
         \u0275\u0275advance(6);
         \u0275\u0275repeater(ctx.active_list());
         \u0275\u0275advance(2);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(10, 9, "FORM.USER_LIST_PLACEHOLDER"))("ngModel", ctx.search())("matAutocomplete", auto_r9)("matChipInputFor", chipList_r8)("matChipInputSeparatorKeyCodes", ctx.separatorKeysCodes);
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(10, 9, "FORM.USER_LIST_PLACEHOLDER"))("ngModel", ctx.search())("matAutocomplete", auto_r10)("matChipInputFor", chipList_r9)("matChipInputSeparatorKeyCodes", ctx.separatorKeysCodes);
         \u0275\u0275control();
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.loading() ? 11 : -1);
@@ -135668,15 +135807,12 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
                     #origin="matAutocompleteOrigin"
                 >
                     <mat-chip-grid #chipList aria-label="User Seleciom">
-                        @for (
-                            item of active_list();
-                            track item.id || item.email
-                        ) {
+                        @for (item of active_list(); track $index) {
                             <mat-chip-row
                                 user
                                 [class.bg-base-200]="!item.is_external"
                                 [class.bg-warning]="item.is_external"
-                                (removed)="removeUser(item)"
+                                (removed)="removeUser($index)"
                                 [matTooltip]="item.email"
                             >
                                 <div
@@ -135853,7 +135989,7 @@ Fake Org,John,Smith,john.smith@example.com,01234567898,false,true`;
   }], () => [], { time: [{ type: Input, args: [{ isSignal: true, alias: "time", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], limit: [{ type: Input, args: [{ isSignal: true, alias: "limit", required: false }] }], guests: [{ type: Input, args: [{ isSignal: true, alias: "guests", required: false }] }], guests_only: [{ type: Input, args: [{ isSignal: true, alias: "guests_only", required: false }] }], hide_actions: [{ type: Input, args: [{ isSignal: true, alias: "hide_actions", required: false }] }], custom_template: [{ type: Input, args: [{ isSignal: true, alias: "custom_template", required: false }] }], filter: [{ type: Input, args: [{ isSignal: true, alias: "filter", required: false }] }], new_user: [{ type: Output, args: ["new_user"] }], download: [{ type: Output, args: ["download"] }], _search_el: [{ type: ViewChild, args: ["search_field", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 261 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserListFieldComponent, { className: "UserListFieldComponent", filePath: "libs/form-fields/src/lib/user-list-field.component.ts", lineNumber: 258 });
 })();
 
 // libs/events/src/lib/spaces.service.ts
@@ -137852,7 +137988,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
 var _c050 = () => ["./"];
 var _c126 = (a0) => ({ event: a0 });
 var _c214 = (a0) => ({ count: a0 });
-var _forTrack08 = ($index, $item) => $item.id || $item.email;
+var _forTrack07 = ($index, $item) => $item.id || $item.email;
 function EventCardComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 2);
@@ -137951,7 +138087,7 @@ function EventCardComponent_Conditional_1_Conditional_36_Conditional_4_Template(
 function EventCardComponent_Conditional_1_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 20);
-    \u0275\u0275repeaterCreate(1, EventCardComponent_Conditional_1_Conditional_36_For_2_Template, 2, 1, "div", 21, _forTrack08);
+    \u0275\u0275repeaterCreate(1, EventCardComponent_Conditional_1_Conditional_36_For_2_Template, 2, 1, "div", 21, _forTrack07);
     \u0275\u0275pipe(3, "slice");
     \u0275\u0275conditionalCreate(4, EventCardComponent_Conditional_1_Conditional_36_Conditional_4_Template, 3, 1, "div", 22);
     \u0275\u0275elementEnd();
@@ -145847,7 +145983,7 @@ var CateringSelectModalComponent = class _CateringSelectModalComponent {
 // libs/catering/src/lib/catering-list-field.component.ts
 var _c061 = (a0, a1) => ({ date: a0, time: a1 });
 var _c131 = (a0) => ({ count: a0 });
-var _forTrack09 = ($index, $item) => $item.id;
+var _forTrack08 = ($index, $item) => $item.id;
 var _forTrack12 = ($index, $item) => $item.custom_id;
 function CateringListFieldComponent_Conditional_0_For_2_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
@@ -146054,7 +146190,7 @@ function CateringListFieldComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275repeaterCreate(1, CateringListFieldComponent_Conditional_0_For_2_Template, 25, 39, "div", 1, _forTrack09);
+    \u0275\u0275repeaterCreate(1, CateringListFieldComponent_Conditional_0_For_2_Template, 25, 39, "div", 1, _forTrack08);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "button", 2);
     \u0275\u0275listener("click", function CateringListFieldComponent_Conditional_0_Template_button_click_3_listener() {
@@ -152672,7 +152808,7 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
 })();
 
 // apps/outlook-addin/src/app/rooms/upcoming-bookings.component.ts
-var _forTrack010 = ($index, $item) => $item.id;
+var _forTrack09 = ($index, $item) => $item.id;
 function UpcomingBookingsComponent_Conditional_11_For_1_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "event-card", 9);
@@ -152703,7 +152839,7 @@ function UpcomingBookingsComponent_Conditional_11_For_1_Template(rf, ctx) {
 }
 function UpcomingBookingsComponent_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, UpcomingBookingsComponent_Conditional_11_For_1_Template, 2, 1, null, null, _forTrack010);
+    \u0275\u0275repeaterCreate(0, UpcomingBookingsComponent_Conditional_11_For_1_Template, 2, 1, null, null, _forTrack09);
   }
   if (rf & 2) {
     \u0275\u0275nextContext();
