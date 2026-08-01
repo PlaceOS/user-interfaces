@@ -1,6 +1,6 @@
 {
   "version": 3,
-  "sources": ["new-asset-filters.component.ts"],
+  "sources": ["asset-filters.component.ts"],
   "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                min-width: 16rem;\n            }\n        "],
   "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,UAAA,KACJ",
   "names": []
