@@ -101,6 +101,29 @@ describe('application cache handling', () => {
         expect(reload).toHaveBeenCalledTimes(1);
     });
 
+    it('should reload the current url to pick up a new version', () => {
+        app.reloadForNewVersion();
+
+        expect(reload).toHaveBeenCalledTimes(1);
+        // Navigating instead would drop the hash, and with it the route the
+        // app is on
+        expect((globalThis.location as any).href).toBeUndefined();
+    });
+
+    it('should hold a version reload back for the reload gate', () => {
+        let safe = false;
+        app.setAutoReloadGate(() => safe);
+
+        app.reloadForNewVersion();
+        vi.advanceTimersByTime(60_000);
+        expect(reload).not.toHaveBeenCalled();
+
+        safe = true;
+        vi.advanceTimersByTime(5_000);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
     it('should reload directly when initialisation fails and nothing handles it', () => {
         app.requestInitReload();
 

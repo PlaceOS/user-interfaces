@@ -18,7 +18,12 @@ import {
 import * as Sentry from '@sentry/angular';
 import { addHours } from 'date-fns';
 
-import { hasNewVersion, requestInitReload, setupCache } from './application';
+import {
+    hasNewVersion,
+    reloadForNewVersion,
+    requestInitReload,
+    setupCache,
+} from './application';
 import { AsyncHandler } from './async-handler.class';
 import { requestScreenWakeLock } from './fixed-device-helpers';
 import { firstTruthyValueFrom, log, setAppName } from './general';
@@ -575,12 +580,12 @@ export class PlaceOS_Service extends AsyncHandler {
     private _checkReload() {
         if (!hasNewVersion()) return;
         setLoadingMessage('Checking for updates...');
-
-        location.reload();
-        this.timeout(
-            'reload',
-            () => (location.href = `${location.origin}${location.pathname}`),
-        );
+        // Reloads rather than navigating: on a hash routed app the route is in
+        // the hash, so going to the base path restarts the app somewhere else
+        // entirely - a signage player lands on the display picker instead of
+        // back on its content. Routed through the shared update reload so the
+        // app's reload gate still applies.
+        reloadForNewVersion();
     }
 
     private async _initFixedDevice() {

@@ -86,6 +86,16 @@ function reloadApp() {
 }
 
 /**
+ * Reload to pick up a new version, from outside the service worker events.
+ * Goes through the same deferral as an automatic reload, so a caller polling
+ * for a new build cannot interrupt content the reload gate is holding it back
+ * for, and cannot reload while the backend is unreachable.
+ */
+export function reloadForNewVersion() {
+    reloadApp();
+}
+
+/**
  * Replace what happens when initialisation fails badly enough to warrant a
  * restart. An app that manages its own recovery, and its own limits on how
  * often it may restart, can route it through that instead of reloading here
