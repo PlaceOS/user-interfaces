@@ -1,4 +1,5 @@
 import {
+    clearCachesAndReload,
     recordFatalError,
     recordHeartbeat,
     requestRecovery,
@@ -385,5 +386,87 @@ describe('recovery watchdog', () => {
         expect(state.heartbeats.playback).toBe('never');
         expect(state.recoveries_in_last_hour).toBe(0);
         expect(state.recoveries_throttled).toBe(false);
+    });
+});
+
+describe('cache clearing recovery', () => {
+    let reload: any;
+    let stop: () => void;
+    let unregister: any;
+    let delete_cache: any;
+
+    beforeEach(() => {
+        reload = vi.fn();
+        unregister = vi.fn(async () => true);
+        delete_cache = vi.fn(async () => true);
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async () => ({ ok: true })),
+        );
+        vi.stubGlobal('caches', {
+            keys: async () => ['ngsw:db', 'ngsw:assets'],
+            delete: delete_cache,
+        });
+        Object.defineProperty(navigator, 'serviceWorker', {
+            value: { getRegistrations: async () => [{ unregister }] },
+            configurable: true,
+        });
+        resetWatchdog();
+        stop = startWatchdog({ reload });
+    });
+
+    afterEach(() => {
+        stop();
+        resetWatchdog();
+        vi.unstubAllGlobals();
+    });
+
+    it('should reload the current url, keeping the route it displays', async () => {
+        // The display to show, and whether to show it in debug mode, live in
+        // the hash, so recovering must not navigate to the base path
+        expect(await clearCachesAndReload()).toBe(true);
+
+        expect(unregister).toHaveBeenCalledTimes(1);
+        expect(delete_cache).toHaveBeenCalledTimes(2);
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should still reload when the cache cannot be cleared', async () => {
+        vi.stubGlobal('caches', {
+            keys: async () => {
+                throw new Error('denied');
+            },
+        });
+
+        expect(await clearCachesAndReload()).toBe(true);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not clear the cache when the server cannot be reached', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async () => {
+                throw new Error('offline');
+            }),
+        );
+
+        expect(await clearCachesAndReload()).toBe(false);
+
+        expect(unregister).not.toHaveBeenCalled();
+        expect(delete_cache).not.toHaveBeenCalled();
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('should not clear the cache when the server errors', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async () => ({ ok: false })),
+        );
+
+        expect(await clearCachesAndReload()).toBe(false);
+
+        expect(unregister).not.toHaveBeenCalled();
+        expect(reload).not.toHaveBeenCalled();
     });
 });

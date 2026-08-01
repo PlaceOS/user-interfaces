@@ -203,8 +203,13 @@ function resetHeartbeats(now: number) {
  * failed to shift the problem, in case the cached build is what is wrong.
  * Only clears the cache when the server can be reached, so a player is never
  * left with no cached application and no way to fetch a new one.
+ *
+ * Reloads the current URL rather than navigating to the base path: the route
+ * that says which display to show, and whether to show it in debug mode, is in
+ * the hash. Dropping it leaves the player on the display picker instead of
+ * back on its content.
  */
-async function clearCachesAndReload(): Promise<boolean> {
+export async function clearCachesAndReload(): Promise<boolean> {
     let reachable = false;
     try {
         const response = await fetch(location.href, { cache: 'reload' });
@@ -228,7 +233,7 @@ async function clearCachesAndReload(): Promise<boolean> {
     } catch (error) {
         log.warn('Failed to clear the application cache.', error);
     }
-    location.href = `${location.origin}${location.pathname}`;
+    _reload();
     return true;
 }
 
