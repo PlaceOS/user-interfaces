@@ -22,7 +22,10 @@ import { StatusPillComponent } from 'libs/components/src/lib/status-pill.compone
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { GroupEventDetailsModalComponent } from '../../../events/src/lib/group-event-details-modal.component';
 import { BookingDetailsModalComponent } from './booking-details-modal.component';
-import { parkingRequestStatus } from './booking.utilities';
+import {
+    bookingLocationString,
+    parkingRequestStatus,
+} from './booking.utilities';
 import { ParkingService } from './parking.service';
 
 @Component({

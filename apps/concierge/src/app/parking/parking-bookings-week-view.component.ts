@@ -502,6 +502,19 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
         return this._settings.get('app.parking.show_waitlist') !== false;
     }
 
+    public get show_user_groups(): string[] {
+        const groups = this._settings.get('app.parking.show_user_groups');
+        return Array.isArray(groups) ? groups.filter(Boolean) : [];
+    }
+
+    public matchedUserGroups(booking: Booking): string {
+        const allowed = this.show_user_groups;
+        if (!allowed.length) return '';
+        const groups = booking?.extension_data?.user_groups;
+        if (!Array.isArray(groups)) return '';
+        return groups.filter((group) => allowed.includes(group)).join(', ');
+    }
+
     /** Status colour tone for tentative bookings, empty for any other status */
     public statusTone(booking: Booking): string {
         if (
