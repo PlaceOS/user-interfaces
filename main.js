@@ -68115,15 +68115,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "95f2ecc",
-  "hash": "95f2ecc",
+  "raw": "8d81a66",
+  "hash": "8d81a66",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "95f2ecc",
+  "suffix": "8d81a66",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785470380002
+  "time": 1785725169388
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -123056,7 +123056,7 @@ function BookingDetailsModalComponent_Conditional_2_Template(rf, ctx) {
 function BookingDetailsModalComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 4);
-    \u0275\u0275element(1, "image-carousel", 26);
+    \u0275\u0275element(1, "image-carousel", 25);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -123090,15 +123090,15 @@ function BookingDetailsModalComponent_Conditional_11_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 32);
+    \u0275\u0275elementStart(0, "icon", 31);
     \u0275\u0275text(1, "done");
     \u0275\u0275elementEnd();
   }
 }
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 30);
-    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Conditional_1_Template, 2, 0, "icon", 32);
+    \u0275\u0275elementStart(0, "div", 29);
+    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Conditional_1_Template, 2, 0, "icon", 31);
     \u0275\u0275elementStart(2, "div");
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
@@ -123116,7 +123116,7 @@ function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0
 }
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 31);
+    \u0275\u0275element(0, "mat-spinner", 30);
   }
   if (rf & 2) {
     \u0275\u0275property("diameter", 32);
@@ -123125,13 +123125,13 @@ function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
+    \u0275\u0275elementStart(0, "button", 28);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r0.toggleCheckedIn());
     });
-    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Template, 5, 6, "div", 30)(2, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_2_Template, 1, 1, "mat-spinner", 31);
+    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_1_Template, 5, 6, "div", 29)(2, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Conditional_2_Template, 1, 1, "mat-spinner", 30);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -123144,7 +123144,7 @@ function BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0
 }
 function BookingDetailsModalComponent_Conditional_12_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Template, 3, 6, "button", 28);
+    \u0275\u0275conditionalCreate(0, BookingDetailsModalComponent_Conditional_12_Conditional_1_Conditional_0_Template, 3, 6, "button", 27);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
@@ -123155,13 +123155,13 @@ function BookingDetailsModalComponent_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 11);
     \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_12_Conditional_1_Template, 1, 1);
-    \u0275\u0275elementStart(2, "button", 27)(3, "icon");
+    \u0275\u0275elementStart(2, "button", 26)(3, "icon");
     \u0275\u0275text(4, "more_horiz");
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
-    const menu_r3 = \u0275\u0275reference(50);
+    const menu_r3 = \u0275\u0275reference(46);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r0.can_checkin() ? 1 : -1);
     \u0275\u0275advance();
@@ -123170,7 +123170,7 @@ function BookingDetailsModalComponent_Conditional_12_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_Conditional_33_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 33);
+    \u0275\u0275elementStart(0, "div", 32);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -123185,7 +123185,7 @@ function BookingDetailsModalComponent_Conditional_33_Template(rf, ctx) {
     \u0275\u0275elementStart(0, "div");
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(2, BookingDetailsModalComponent_Conditional_33_Conditional_2_Template, 2, 1, "div", 33);
+    \u0275\u0275conditionalCreate(2, BookingDetailsModalComponent_Conditional_33_Conditional_2_Template, 2, 1, "div", 32);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
@@ -123204,7 +123204,22 @@ function BookingDetailsModalComponent_Conditional_34_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r0.resource_details_label(), " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_40_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_35_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 15)(1, "icon", 33);
+    \u0275\u0275text(2, "place");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div");
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", ctx_r0.location(), " ");
+  }
+}
+function BookingDetailsModalComponent_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 15)(1, "icon", 34);
     \u0275\u0275text(2, "person");
@@ -123221,7 +123236,7 @@ function BookingDetailsModalComponent_Conditional_40_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 3, \u0275\u0275pipeBind1(5, 1, ctx_r0.booking().user_email))?.name || ctx_r0.booking().user_name, " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_41_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 15)(1, "icon", 35);
     \u0275\u0275text(2, "edit_calendar");
@@ -123238,7 +123253,7 @@ function BookingDetailsModalComponent_Conditional_41_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 3, \u0275\u0275pipeBind1(5, 1, ctx_r0.booking().booked_by_email))?.name || ctx_r0.booking().booked_by_name, " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_42_Conditional_9_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_38_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 38)(1, "icon", 40);
     \u0275\u0275text(2, "category");
@@ -123253,7 +123268,7 @@ function BookingDetailsModalComponent_Conditional_42_Conditional_9_Template(rf, 
     \u0275\u0275textInterpolate(group_r4.resource_type);
   }
 }
-function BookingDetailsModalComponent_Conditional_42_Conditional_10_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_38_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 38)(1, "icon", 41);
     \u0275\u0275text(2, "tag");
@@ -123268,9 +123283,9 @@ function BookingDetailsModalComponent_Conditional_42_Conditional_10_Template(rf,
     \u0275\u0275textInterpolate1(" ", group_r4.name, " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_42_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20)(1, "h3", 36);
+    \u0275\u0275elementStart(0, "div", 19)(1, "h3", 36);
     \u0275\u0275text(2, " Group Booking ");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div", 37)(4, "div", 38)(5, "icon", 39);
@@ -123279,8 +123294,8 @@ function BookingDetailsModalComponent_Conditional_42_Template(rf, ctx) {
     \u0275\u0275elementStart(7, "div");
     \u0275\u0275text(8);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, BookingDetailsModalComponent_Conditional_42_Conditional_9_Template, 5, 1, "div", 38);
-    \u0275\u0275conditionalCreate(10, BookingDetailsModalComponent_Conditional_42_Conditional_10_Template, 5, 1, "div", 38);
+    \u0275\u0275conditionalCreate(9, BookingDetailsModalComponent_Conditional_38_Conditional_9_Template, 5, 1, "div", 38);
+    \u0275\u0275conditionalCreate(10, BookingDetailsModalComponent_Conditional_38_Conditional_10_Template, 5, 1, "div", 38);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123293,9 +123308,9 @@ function BookingDetailsModalComponent_Conditional_42_Template(rf, ctx) {
     \u0275\u0275conditional(group_r4.name ? 10 : -1);
   }
 }
-function BookingDetailsModalComponent_Conditional_43_For_6_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_39_For_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "div", 33);
+    \u0275\u0275elementStart(0, "div")(1, "div", 32);
     \u0275\u0275text(2);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div");
@@ -123310,14 +123325,14 @@ function BookingDetailsModalComponent_Conditional_43_For_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate(item_r5.value);
   }
 }
-function BookingDetailsModalComponent_Conditional_43_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_39_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20)(1, "h3", 36);
+    \u0275\u0275elementStart(0, "div", 19)(1, "h3", 36);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 43);
-    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_43_For_6_Template, 5, 2, "div", null, _forTrack06);
+    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_39_For_6_Template, 5, 2, "div", null, _forTrack06);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123328,7 +123343,7 @@ function BookingDetailsModalComponent_Conditional_43_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r0.vip_service_details());
   }
 }
-function BookingDetailsModalComponent_Conditional_44_For_6_For_15_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_40_For_6_For_15_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 53)(1, "div", 54)(2, "span", 48);
     \u0275\u0275text(3);
@@ -123345,11 +123360,11 @@ function BookingDetailsModalComponent_Conditional_44_For_6_For_15_Template(rf, c
     \u0275\u0275textInterpolate1(" x", item_r8.quantity, " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_44_For_6_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_40_For_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 45)(1, "button", 46);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_44_For_6_Template_button_click_1_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_40_For_6_Template_button_click_1_listener() {
       const request_r7 = \u0275\u0275restoreView(_r6).$implicit;
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.toggleRequest(request_r7.id));
@@ -123366,7 +123381,7 @@ function BookingDetailsModalComponent_Conditional_44_For_6_Template(rf, ctx) {
     \u0275\u0275text(12);
     \u0275\u0275elementEnd()()();
     \u0275\u0275elementStart(13, "div", 52);
-    \u0275\u0275repeaterCreate(14, BookingDetailsModalComponent_Conditional_44_For_6_For_15_Template, 6, 2, "div", 53, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(14, BookingDetailsModalComponent_Conditional_40_For_6_For_15_Template, 6, 2, "div", 53, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123387,14 +123402,14 @@ function BookingDetailsModalComponent_Conditional_44_For_6_Template(rf, ctx) {
     \u0275\u0275repeater(request_r7.items);
   }
 }
-function BookingDetailsModalComponent_Conditional_44_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20)(1, "h3", 36);
+    \u0275\u0275elementStart(0, "div", 19)(1, "h3", 36);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 44);
-    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_44_For_6_Template, 16, 25, "div", 45, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_40_For_6_Template, 16, 25, "div", 45, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123405,7 +123420,7 @@ function BookingDetailsModalComponent_Conditional_44_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r0.booking().valid_assets);
   }
 }
-function BookingDetailsModalComponent_Conditional_45_Conditional_1_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_41_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "interactive-map", 57);
   }
@@ -123414,16 +123429,16 @@ function BookingDetailsModalComponent_Conditional_45_Conditional_1_Template(rf, 
     \u0275\u0275property("src", ctx_r0.level()?.map_id)("features", ctx_r0.features())("options", \u0275\u0275pureFunction0(3, _c118));
   }
 }
-function BookingDetailsModalComponent_Conditional_45_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_41_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 56);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_45_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_41_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.viewLocation());
     });
-    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_45_Conditional_1_Template, 1, 4, "interactive-map", 57);
+    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_41_Conditional_1_Template, 1, 4, "interactive-map", 57);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -123432,11 +123447,11 @@ function BookingDetailsModalComponent_Conditional_45_Template(rf, ctx) {
     \u0275\u0275conditional(!ctx_r0.hide_map() ? 1 : -1);
   }
 }
-function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_47_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 58);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_51_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_47_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.edit(ctx_r0.booking()));
@@ -123454,11 +123469,11 @@ function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_EDIT"));
   }
 }
-function BookingDetailsModalComponent_Conditional_52_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_48_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 60);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_52_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_48_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r11);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.setDeskHeight());
@@ -123476,11 +123491,11 @@ function BookingDetailsModalComponent_Conditional_52_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_SET_DESK_HEIGHT"), " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_53_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_49_Template(rf, ctx) {
   if (rf & 1) {
     const _r12 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 60);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_53_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_49_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r12);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.booking(), false));
@@ -123498,11 +123513,11 @@ function BookingDetailsModalComponent_Conditional_53_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_DELETE"));
   }
 }
-function BookingDetailsModalComponent_Conditional_54_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_50_Template(rf, ctx) {
   if (rf & 1) {
     const _r13 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 60);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_54_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_50_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r13);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.group_parent_booking(), false));
@@ -123515,11 +123530,11 @@ function BookingDetailsModalComponent_Conditional_54_Template(rf, ctx) {
     \u0275\u0275elementEnd()()();
   }
 }
-function BookingDetailsModalComponent_Conditional_55_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
   if (rf & 1) {
     const _r14 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 60);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_55_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_51_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.booking(), true));
@@ -123537,11 +123552,11 @@ function BookingDetailsModalComponent_Conditional_55_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 1, "BOOKINGS.ACTION_DELETE_SERIES"), " ");
   }
 }
-function BookingDetailsModalComponent_Conditional_56_Template(rf, ctx) {
+function BookingDetailsModalComponent_Conditional_52_Template(rf, ctx) {
   if (rf & 1) {
     const _r15 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 60);
-    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_56_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_52_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r15);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.end(ctx_r0.booking()));
@@ -124089,7 +124104,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 57, vars: 33, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "px-3", "text-sm", "opacity-70"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-4", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], ["matTooltip", "Location"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "gap-1"], [1, "mx-auto", 3, "diameter"], [1, "text-xl"], [1, "text-xs", "opacity-60"], ["matTooltip", "Host"], ["matTooltip", "Booked By"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-3", "text-sm"], [1, "flex", "items-center", "space-x-2"], ["matTooltip", "Group Size"], ["matTooltip", "Resource Type"], ["matTooltip", "Group Reference"], [1, "break-all"], [1, "flex", "flex-col", "space-y-2", "px-3"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 53, vars: 33, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "px-3", "text-sm", "opacity-70"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-4", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "gap-1"], [1, "mx-auto", 3, "diameter"], [1, "text-xl"], [1, "text-xs", "opacity-60"], ["matTooltip", "Location"], ["matTooltip", "Host"], ["matTooltip", "Booked By"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-3", "text-sm"], [1, "flex", "items-center", "space-x-2"], ["matTooltip", "Group Size"], ["matTooltip", "Resource Type"], ["matTooltip", "Group Reference"], [1, "break-all"], [1, "flex", "flex-col", "space-y-2", "px-3"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2);
         \u0275\u0275conditionalCreate(2, BookingDetailsModalComponent_Conditional_2_Template, 1, 0, "div", 3);
@@ -124128,30 +124143,25 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275elementStart(32, "div");
         \u0275\u0275conditionalCreate(33, BookingDetailsModalComponent_Conditional_33_Template, 3, 2)(34, BookingDetailsModalComponent_Conditional_34_Template, 1, 1);
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(35, "div", 15)(36, "icon", 19);
-        \u0275\u0275text(37, "place");
+        \u0275\u0275conditionalCreate(35, BookingDetailsModalComponent_Conditional_35_Template, 5, 1, "div", 15);
+        \u0275\u0275conditionalCreate(36, BookingDetailsModalComponent_Conditional_36_Template, 7, 5, "div", 15);
+        \u0275\u0275conditionalCreate(37, BookingDetailsModalComponent_Conditional_37_Template, 7, 5, "div", 15);
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(38, "div");
-        \u0275\u0275text(39);
-        \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(40, BookingDetailsModalComponent_Conditional_40_Template, 7, 5, "div", 15);
-        \u0275\u0275conditionalCreate(41, BookingDetailsModalComponent_Conditional_41_Template, 7, 5, "div", 15);
+        \u0275\u0275conditionalCreate(38, BookingDetailsModalComponent_Conditional_38_Template, 11, 3, "div", 19);
+        \u0275\u0275conditionalCreate(39, BookingDetailsModalComponent_Conditional_39_Template, 7, 3, "div", 19);
+        \u0275\u0275conditionalCreate(40, BookingDetailsModalComponent_Conditional_40_Template, 7, 4, "div", 19);
+        \u0275\u0275conditionalCreate(41, BookingDetailsModalComponent_Conditional_41_Template, 2, 1, "button", 20);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(42, BookingDetailsModalComponent_Conditional_42_Template, 11, 3, "div", 20);
-        \u0275\u0275conditionalCreate(43, BookingDetailsModalComponent_Conditional_43_Template, 7, 3, "div", 20);
-        \u0275\u0275conditionalCreate(44, BookingDetailsModalComponent_Conditional_44_Template, 7, 4, "div", 20);
-        \u0275\u0275conditionalCreate(45, BookingDetailsModalComponent_Conditional_45_Template, 2, 1, "button", 21);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(46, "button", 22)(47, "icon");
-        \u0275\u0275text(48, "close");
+        \u0275\u0275elementStart(42, "button", 21)(43, "icon");
+        \u0275\u0275text(44, "close");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(49, "mat-menu", 23, 0);
+        \u0275\u0275elementStart(45, "mat-menu", 22, 0);
+        \u0275\u0275conditionalCreate(47, BookingDetailsModalComponent_Conditional_47_Template, 7, 3, "button", 23);
+        \u0275\u0275conditionalCreate(48, BookingDetailsModalComponent_Conditional_48_Template, 7, 3, "button", 24);
+        \u0275\u0275conditionalCreate(49, BookingDetailsModalComponent_Conditional_49_Template, 7, 3, "button", 24);
+        \u0275\u0275conditionalCreate(50, BookingDetailsModalComponent_Conditional_50_Template, 6, 0, "button", 24);
         \u0275\u0275conditionalCreate(51, BookingDetailsModalComponent_Conditional_51_Template, 7, 3, "button", 24);
-        \u0275\u0275conditionalCreate(52, BookingDetailsModalComponent_Conditional_52_Template, 7, 3, "button", 25);
-        \u0275\u0275conditionalCreate(53, BookingDetailsModalComponent_Conditional_53_Template, 7, 3, "button", 25);
-        \u0275\u0275conditionalCreate(54, BookingDetailsModalComponent_Conditional_54_Template, 6, 0, "button", 25);
-        \u0275\u0275conditionalCreate(55, BookingDetailsModalComponent_Conditional_55_Template, 7, 3, "button", 25);
-        \u0275\u0275conditionalCreate(56, BookingDetailsModalComponent_Conditional_56_Template, 7, 3, "button", 25);
+        \u0275\u0275conditionalCreate(52, BookingDetailsModalComponent_Conditional_52_Template, 7, 3, "button", 24);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -124184,32 +124194,32 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275textInterpolate(ctx.is_visitor() ? "person" : "map");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(ctx.is_visitor() ? 33 : 34);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.location() ? 35 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.current_user()?.email !== ctx.booking().user_email ? 36 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.booking().booked_by_email !== ctx.booking().user_email ? 37 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional((tmp_18_0 = ctx.group_details()) ? 38 : -1, tmp_18_0);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.vip_service_details().length ? 39 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.has_assets() ? 40 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.level()?.map_id && !ctx.hide_selected_parking_space() ? 41 : -1);
         \u0275\u0275advance(6);
-        \u0275\u0275textInterpolate1(" ", ctx.location(), " ");
+        \u0275\u0275conditional(ctx.can_edit() ? 47 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.current_user()?.email !== ctx.booking().user_email ? 40 : -1);
+        \u0275\u0275conditional(ctx.is_checked_in() && ctx.desk_height_enabled() ? 48 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.booking().booked_by_email !== ctx.booking().user_email ? 41 : -1);
+        \u0275\u0275conditional(!ctx.booking().is_done ? 49 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional((tmp_18_0 = ctx.group_details()) ? 42 : -1, tmp_18_0);
+        \u0275\u0275conditional(ctx.can_manage_group() ? 50 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.vip_service_details().length ? 43 : -1);
+        \u0275\u0275conditional(!ctx.booking().is_done && ctx.booking().instance && ctx.allow_series_delete() ? 51 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.has_assets() ? 44 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.level()?.map_id && !ctx.hide_selected_parking_space() ? 45 : -1);
-        \u0275\u0275advance(6);
-        \u0275\u0275conditional(ctx.can_edit() ? 51 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.is_checked_in() && ctx.desk_height_enabled() ? 52 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.booking().is_done ? 53 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.can_manage_group() ? 54 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.booking().is_done && ctx.booking().instance && ctx.allow_series_delete() ? 55 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.is_in_progress() ? 56 : -1);
+        \u0275\u0275conditional(ctx.is_in_progress() ? 52 : -1);
       }
     }, dependencies: [
       CommonModule,
@@ -124386,12 +124396,14 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
                             }
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 px-2">
-                        <icon matTooltip="Location">place</icon>
-                        <div>
-                            {{ location() }}
+                    @if (location()) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Location">place</icon>
+                            <div>
+                                {{ location() }}
+                            </div>
                         </div>
-                    </div>
+                    }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Host">person</icon>
@@ -124706,7 +124718,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 535 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingDetailsModalComponent, { className: "BookingDetailsModalComponent", filePath: "libs/bookings/src/lib/booking-details-modal.component.ts", lineNumber: 537 });
 })();
 
 // libs/bookings/src/lib/parking.service.ts
