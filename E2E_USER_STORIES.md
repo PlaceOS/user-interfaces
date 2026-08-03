@@ -150,7 +150,7 @@ task that found it, so the row can be traced.
 | ID | P | Story | Source | Status |
 |----|---|-------|--------|--------|
 | REG-01 | P0 | Scope is not lost on token refresh; downstream authorisation still passes. | PPT-2536, 2026-07-23 revert | **done** — AUTH-E2E-02 |
-| REG-02 | P1 | An overlapping desk booking is rejected rather than silently accepted. | `2607.1` "Fix rejecting overlapping bookings on desk assignment" | todo |
+| REG-02 | P1 | An overlapping desk booking is rejected rather than silently accepted. | `2607.1` "Fix rejecting overlapping bookings on desk assignment" | **done** — `local/desk-clash.spec.ts`. Identical and partially-overlapping slots both refused (409), attempted as a *second* user so a per-user-only check would fail. Includes a control that a non-overlapping slot is accepted, and that the desk frees up after deletion. Red-checked. |
 | REG-03 | P1 | A clash check uses the **current** `booking_end`, not a stale one. | `2607.1` "Fix stale booking_end being used for clash check" | todo |
 | REG-04 | P1 | Desk booking status displays correctly in the booking list. | `2606.1` "Fix status display for desk bookings" | todo |
 | REG-05 | P2 | The authorised-user check has no race on boot (no flash of unauthorised). | `2607.1` "Fix race condition for authorised check" | todo |
