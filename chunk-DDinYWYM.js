@@ -1,0 +1,1 @@
+import {m,c as cr,e0 as qn}from'./main-H4HLNZM5.js';var f=(()=>{class t{constructor(){this._org=m(cr);}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.\u0275fac=function(n){return new(n||t)};}static{this.\u0275pipe=qn({name:"level",type:t,pure:true});}}return t})();export{f};
