@@ -116,9 +116,9 @@ the PR gate.
 | WP-E2E-06 | P1 | A deleted booking disappears from the listing (teardown really tears down). | **done** — `local/desk-booking.spec.ts` |
 | WP-E2E-03 | P1 | Building/level selectors are populated from seeded zones, and changing them re-scopes what is bookable. | todo |
 | WP-E2E-07 | P1 | "Your bookings" lists the user's own booking; cancelling it moves it out of the upcoming list. | todo |
-| WP-E2E-08 | P1 | A booking made by one user is **not** visible in another user's "your bookings" (per-user scoping). | todo — see AUTH-E2E-05 |
-| WP-E2E-09 | P1 | Booking a **locker** end to end. Same metadata + per-worker-asset + sweep pattern as desks. | todo |
-| WP-E2E-10 | P1 | Booking a **parking** space end to end. | todo |
+| WP-E2E-08 | P1 | A booking made by one user is **not** visible in another user's listing, and cannot be deleted by them. | **done** — `local/booking-scoping.spec.ts`. Red-checked: the other user's listing really is empty while the booking exists. |
+| WP-E2E-09 | P1 | Booking a **locker** end to end. | todo — **more setup than desks**, not the same pattern. Lockers come from locker *banks* then lockers within them (`loadLockerResources`), so seeding is two-level. Budget accordingly. |
+| WP-E2E-10 | P1 | Booking a **parking** space end to end. | todo — **more setup than desks**. Needs a level zone tagged `parking` plus spaces created through the parking API (`queryParkingSpacesForZones`), not Zone metadata. |
 | WP-E2E-11 | P2 | Inviting a **visitor** end to end. | todo |
 | WP-E2E-12 | P2 | Directory / colleagues search returns seeded users. | todo |
 | WP-E2E-13 | P2 | The explore/map view renders for a seeded level and reflects availability. | todo — needs map metadata seeded |
@@ -137,7 +137,7 @@ environment, data or real-client gap that unit specs could not see.
 | AUTH-E2E-02 | P0 | A refreshed token keeps its scope, is rotated, preserves `sub`, and is still accepted by rest-api. | **done** — `login.spec.ts`. This is the exact 2026-07-23 revert (403 on `/oauth_apps` after refresh). |
 | AUTH-E2E-03 | P1 | A refresh chain survives N sequential refreshes without degrading scope or access. | todo — covered API-only by `tasks/PPT-2536/integration/` (RF-03); wanted in-browser. |
 | AUTH-E2E-04 | P1 | A stale/incompatible session cookie from a previous auth implementation does not break sign-in. | todo — verified manually (SC-01); needs automating. |
-| AUTH-E2E-05 | P1 | A non-admin cannot read or mutate another user's bookings; an admin's own listing does not leak others'. | todo — **and it matters**: `GET /bookings` is caller-scoped, which we only learned by getting a leak check wrong. |
+| AUTH-E2E-05 | P1 | A non-admin cannot read or mutate another user's bookings. | **done** — `local/booking-scoping.spec.ts`, same spec as WP-E2E-08. Covers both halves: the listing excludes it, and a delete attempt is rejected. Includes a control asserting you *can* see your own, so "nobody sees anything" can't pass as success. |
 | AUTH-E2E-06 | P2 | Token expiry mid-session recovers without stranding the SPA. | todo |
 | AUTH-E2E-07 | P2 | Malformed and hostile `/auth/*` requests return 4xx, never 5xx and never a backtrace. | todo — covered by auth.cr unit specs (SEC-01); browser-level coverage optional. |
 | AUTH-E2E-08 | P1 | `SameSite` behaviour in a genuine third-party/iframe context. | **blocked** — Playwright Chromium cannot create a true third-party context. Known untested incident class (B.7). |
