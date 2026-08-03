@@ -133,7 +133,7 @@ environment, data or real-client gap that unit specs could not see.
 
 | ID | P | Story | Status |
 |----|---|-------|--------|
-| AUTH-E2E-01 | P0 | Authorization-code + PKCE exchange in a real browser: no `client_secret` anywhere, `S256` challenge, token is a JWT. | **partial** — `login.spec.ts` asserts the exchange and token shape; the explicit no-secret / challenge-recomputation assertions still live in `tasks/PPT-2536/e2e/backoffice-login.spec.js` and should move here. |
+| AUTH-E2E-01 | P0 | Authorization-code + PKCE exchange in a real browser: no `client_secret` anywhere, `S256` challenge, token is a JWT. | **done** — `local/pkce.spec.ts`. Asserts on the wire, not the response: a client that leaked a secret or dropped PKCE would still return a valid-looking token, so the response cannot tell you the handshake was sound. Also checks the password never appears in a URL and only ever reaches `/auth/signin`. Ported from `tasks/PPT-2536/e2e/backoffice-login.spec.js`. |
 | AUTH-E2E-02 | P0 | A refreshed token keeps its scope, is rotated, preserves `sub`, and is still accepted by rest-api. | **done** — `login.spec.ts`. This is the exact 2026-07-23 revert (403 on `/oauth_apps` after refresh). |
 | AUTH-E2E-03 | P1 | A refresh chain survives N sequential refreshes without degrading scope or access. | todo — covered API-only by `tasks/PPT-2536/integration/` (RF-03); wanted in-browser. |
 | AUTH-E2E-04 | P1 | A stale/incompatible session cookie from a previous auth implementation does not break sign-in. | todo — verified manually (SC-01); needs automating. |
