@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1784878718516,
+  "timestamp": 1785753624494,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -20,9 +20,9 @@
         "./chunk-Y4R37YMA.js",
         "./favicon.ico",
         "./index.html",
-        "./main-F2KGAUBU.js",
+        "./main-OETNIOU6.js",
         "./manifest.webmanifest",
-        "./styles-UMW2OAYT.css"
+        "./styles-B6DXJ7OK.css"
       ],
       "patterns": []
     },
@@ -216,10 +216,10 @@
     "./chunk-JAODHKFU.js": "343d60170d3300e18a18901ad9438872649d8a26",
     "./chunk-Y4R37YMA.js": "e9e66716ac39c24be247b6e391868c43816126e9",
     "./favicon.ico": "dfc345494b2f49ee24e0f3d28fdc108fe205c7c3",
-    "./index.html": "ffe8d8eae26ac152ffa38202ab0965e98e984f5a",
-    "./main-F2KGAUBU.js": "2dc0d681aec0ebcc9c6620020b5974b080e55066",
+    "./index.html": "32c1a7c3a7dbd525979e795c59f36e02957a894d",
+    "./main-OETNIOU6.js": "793b96127de81c04816f3f3a59d1777c6889bc99",
     "./manifest.webmanifest": "4dc45db7bd3228ce62839eb66a94fd6986b18a1d",
-    "./styles-UMW2OAYT.css": "c3289398112ce07dad6608b708e6ef41efe808a8"
+    "./styles-B6DXJ7OK.css": "8bd645dc5379dc71c605a1cf27ee003f506b03b3"
   },
   "navigationUrls": [
     {
