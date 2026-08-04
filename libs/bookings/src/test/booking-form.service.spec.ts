@@ -1717,13 +1717,13 @@ describe('BookingFormService', () => {
         ).mockResolvedValue(true);
         const saved_desks: string[] = [];
         vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-                const value = spectator.service.model();
-                saved_desks.push(value.asset_id);
-                return new Booking({
-                    id: `booking-${saved_desks.length}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
+            const value = spectator.service.model();
+            saved_desks.push(value.asset_id);
+            return new Booking({
+                id: `booking-${saved_desks.length}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
         });
         spectator.service.newForm(
             'desk',
@@ -1803,17 +1803,17 @@ describe('BookingFormService', () => {
             extension_name: string;
         }[] = [];
         vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-                const value = spectator.service.model();
-                saved_forms.push({
-                    asset_id: value.asset_id,
-                    resource_id: value.resources?.[0]?.id,
-                    extension_name: value.name,
-                });
-                return new Booking({
-                    id: `booking-${saved_forms.length}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
+            const value = spectator.service.model();
+            saved_forms.push({
+                asset_id: value.asset_id,
+                resource_id: value.resources?.[0]?.id,
+                extension_name: value.name,
+            });
+            return new Booking({
+                id: `booking-${saved_forms.length}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
         });
         spectator.service.newForm(
             'desk',
@@ -1897,14 +1897,14 @@ describe('BookingFormService', () => {
         ).mockResolvedValue(true);
         const child_parent_ids: string[] = [];
         vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-                const value = spectator.service.model();
-                child_parent_ids.push(value.parent_id);
-                return new Booking({
-                    id: `booking-child-${child_parent_ids.length}`,
-                    parent_id: value.parent_id,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
+            const value = spectator.service.model();
+            child_parent_ids.push(value.parent_id);
+            return new Booking({
+                id: `booking-child-${child_parent_ids.length}`,
+                parent_id: value.parent_id,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
         });
         spectator.service.newForm(
             'desk',
@@ -1998,17 +1998,17 @@ describe('BookingFormService', () => {
         ).mockResolvedValue(true);
         const saved_users: string[] = [];
         vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-                const value = spectator.service.model();
-                saved_users.push(value.user_email);
-                if (value.user_email === 'member.one@example.com') {
-                    throw new Error('Save failed');
-                }
-                return new Booking({
-                    id: `booking-child-${saved_users.length}`,
-                    parent_id: value.parent_id,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
+            const value = spectator.service.model();
+            saved_users.push(value.user_email);
+            if (value.user_email === 'member.one@example.com') {
+                throw new Error('Save failed');
+            }
+            return new Booking({
+                id: `booking-child-${saved_users.length}`,
+                parent_id: value.parent_id,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
         });
         spectator.service.newForm(
             'desk',
@@ -2114,13 +2114,13 @@ describe('BookingFormService', () => {
         ).mockResolvedValue(true);
         const saved_names: string[] = [];
         vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-                const value = spectator.service.model();
-                saved_names.push(value.asset_name);
-                return new Booking({
-                    id: `booking-${saved_names.length}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
+            const value = spectator.service.model();
+            saved_names.push(value.asset_name);
+            return new Booking({
+                id: `booking-${saved_names.length}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
         });
         spectator.service.newForm(
             'desk',
@@ -2199,16 +2199,16 @@ describe('BookingFormService', () => {
         ).mockResolvedValue([all_desks[2]]);
         const saved_forms: { user_email: string; asset_id: string }[] = [];
         vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-                const value = spectator.service.model();
-                saved_forms.push({
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
-                return new Booking({
-                    id: `booking-${saved_forms.length}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
+            const value = spectator.service.model();
+            saved_forms.push({
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
+            return new Booking({
+                id: `booking-${saved_forms.length}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
         });
         spectator.service.newForm(
             'desk',
@@ -2306,14 +2306,14 @@ describe('BookingFormService', () => {
         ).mockResolvedValue([all_desks[1]]);
         const saved_forms: { id: string; parent_id: string }[] = [];
         vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-                const value = spectator.service.model();
-                saved_forms.push({ id: value.id, parent_id: value.parent_id });
-                return new Booking({
-                    id: value.id || `booking-child-${saved_forms.length}`,
-                    parent_id: value.parent_id,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                });
+            const value = spectator.service.model();
+            saved_forms.push({ id: value.id, parent_id: value.parent_id });
+            return new Booking({
+                id: value.id || `booking-child-${saved_forms.length}`,
+                parent_id: value.parent_id,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+            });
         });
         spectator.service.newForm(
             'desk',
@@ -2452,14 +2452,14 @@ describe('BookingFormService', () => {
         ];
         let booking_count = 0;
         vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-                const value = spectator.service.model();
-                booking_count++;
-                return new Booking({
-                    id: `booking-${booking_count}`,
-                    user_email: value.user_email,
-                    asset_id: value.asset_id,
-                    extension_data: { group_members: group_members_payload },
-                });
+            const value = spectator.service.model();
+            booking_count++;
+            return new Booking({
+                id: `booking-${booking_count}`,
+                user_email: value.user_email,
+                asset_id: value.asset_id,
+                extension_data: { group_members: group_members_payload },
+            });
         });
         spectator.service.newForm(
             'desk',
@@ -2882,5 +2882,115 @@ describe('BookingFormService', () => {
 
         expect(savedBookings().length).toBe(1);
         expect((savedBookings()[0] as Booking).asset_ids).toEqual(['desk-2']);
+    });
+
+    describe('initialisation while the user is still loading', () => {
+        /**
+         * Put the service into the state `newForm` sees on a slow load: no
+         * current user yet, so it defers and returns while the form is already
+         * rendered and interactive.
+         *
+         * Nothing is mocked. `currentUserIsLoaded()` is real, and it reports
+         * "loaded" whenever it detects a test runtime, so the runtime probe
+         * (`typeof vi`) is what has to be neutralised to reach the branch.
+         * That keeps the real promise plumbing in `currentUserLoaded()` under
+         * test rather than a stub of it.
+         */
+        function deferCurrentUser() {
+            const runtime_vi = (globalThis as any).vi;
+            setCurrentUser(new StaffUser({}));
+            (globalThis as any).vi = undefined;
+            const restore = () => ((globalThis as any).vi = runtime_vi);
+            return {
+                restore,
+                release: async () => {
+                    restore();
+                    setCurrentUser(
+                        new StaffUser({
+                            id: 'current-user',
+                            email: 'current.user@example.com',
+                            name: 'Current User',
+                        }),
+                    );
+                    // let the `.then` re-entry and its patches settle
+                    await Promise.resolve();
+                    await Promise.resolve();
+                    await Promise.resolve();
+                },
+            };
+        }
+
+        /** Type into a field the way the Field directive does. */
+        function userEdits(field: string, value: any) {
+            const node = (spectator.service.form as any)[field]();
+            node.value.set(value);
+            node.markAsDirty();
+        }
+
+        it('keeps input the user entered before initialisation finished', async () => {
+            const deferred = deferCurrentUser();
+            try {
+                spectator.service.newForm('desk');
+
+                userEdits('title', 'Quiet corner desk');
+                userEdits('all_day', true);
+
+                await deferred.release();
+
+                expect(spectator.service.model().title).toBe(
+                    'Quiet corner desk',
+                );
+                expect(spectator.service.model().all_day).toBe(true);
+            } finally {
+                deferred.restore();
+            }
+        });
+
+        it('does not resurrect that input on the next new form', async () => {
+            // The preserved edits are one-shot. If they leaked, opening a
+            // second form would silently inherit the previous booking's title.
+            const deferred = deferCurrentUser();
+            try {
+                spectator.service.newForm('desk');
+                userEdits('title', 'Quiet corner desk');
+                await deferred.release();
+            } finally {
+                deferred.restore();
+            }
+
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.model().title).not.toBe(
+                'Quiet corner desk',
+            );
+        });
+
+        it('leaves untouched fields to the incoming booking', async () => {
+            // Only dirty fields are carried across. A field the user never
+            // touched must still take its value from the booking being opened.
+            const deferred = deferCurrentUser();
+            try {
+                spectator.service.newForm(
+                    'desk',
+                    new Booking({
+                        id: 'bkn-1',
+                        booking_type: 'desk',
+                        title: 'From the booking',
+                        asset_id: 'desk-1',
+                    }),
+                );
+
+                userEdits('all_day', true);
+
+                await deferred.release();
+
+                expect(spectator.service.model().all_day).toBe(true);
+                expect(spectator.service.model().title).toBe(
+                    'From the booking',
+                );
+            } finally {
+                deferred.restore();
+            }
+        });
     });
 });
