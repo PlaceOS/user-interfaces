@@ -194,6 +194,7 @@ nx migrate --run-migrations
 - Only abstract when absolutely nessessary
 - Prefer clear readable procedural code over clean code.
 - When asked to commit, commit to the working branch unless specified otherwise.
+- Comments should only explain hard to understand code not justify implementation
 
 ## Other
 
