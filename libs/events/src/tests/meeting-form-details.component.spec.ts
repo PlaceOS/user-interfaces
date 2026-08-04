@@ -2,9 +2,11 @@ import { Injector, signal, WritableSignal } from '@angular/core';
 import { inject } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
+    CalendarEvent,
     OrganisationService,
     setCurrentUser,
     SettingsService,
+    User,
 } from '@placeos/common';
 import { generateEventForm } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
@@ -19,6 +21,7 @@ describe('MeetingFormDetailsComponent', () => {
     let spectator: Spectator<MeetingFormDetailsComponent>;
     const setting_signals: Record<string, WritableSignal<any>> = {};
     const me = { email: 'me@place.tech', name: 'Me' } as any;
+    let event: CalendarEvent;
 
     const createComponent = createComponentFactory({
         component: MeetingFormDetailsComponent,
@@ -41,6 +44,9 @@ describe('MeetingFormDetailsComponent', () => {
                         inject(Injector),
                     );
                     return {
+                        get event() {
+                            return event;
+                        },
                         model,
                         form,
                         is_multiday: false,
@@ -62,12 +68,70 @@ describe('MeetingFormDetailsComponent', () => {
         vi.clearAllMocks();
         for (const key in setting_signals) delete setting_signals[key];
         setCurrentUser(me);
+        event = new CalendarEvent();
         vi.mocked(ts_client.get).mockResolvedValue({} as any);
         spectator = createComponent();
     });
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
+
+    it('should warn when changing the host of a meeting with visitors', () => {
+        event = new CalendarEvent({
+            id: 'meeting-1',
+            host: 'original.host@place.tech',
+            attendees: [
+                new User({
+                    email: 'visitor@example.com',
+                    name: 'Visitor',
+                }),
+            ],
+        });
+        spectator.component.model.update((model) => ({
+            ...model,
+            id: 'meeting-1',
+            host: 'new.host@place.tech',
+            organiser: { email: 'new.host@place.tech' } as any,
+        }));
+
+        expect(spectator.component.show_host_change_warning()).toBe(true);
+    });
+
+    it('should not warn about a host change when a meeting has no visitors', () => {
+        event = new CalendarEvent({
+            id: 'meeting-1',
+            host: 'original.host@place.tech',
+            attendees: [],
+        });
+        spectator.component.model.update((model) => ({
+            ...model,
+            id: 'meeting-1',
+            host: 'new.host@place.tech',
+            organiser: { email: 'new.host@place.tech' } as any,
+            attendees: [],
+        }));
+
+        expect(spectator.component.show_host_change_warning()).toBe(false);
+    });
+
+    it('should not warn when creating a meeting with visitors', () => {
+        event = new CalendarEvent({
+            host: 'original.host@place.tech',
+            attendees: [
+                new User({
+                    email: 'visitor@example.com',
+                    name: 'Visitor',
+                }),
+            ],
+        });
+        spectator.component.model.update((model) => ({
+            ...model,
+            host: 'new.host@place.tech',
+            organiser: { email: 'new.host@place.tech' } as any,
+        }));
+
+        expect(spectator.component.show_host_change_warning()).toBe(false);
+    });
 
     it('should skip permission checks when booking for anyone is disabled', async () => {
         spectator.component.model.update((m) => ({
