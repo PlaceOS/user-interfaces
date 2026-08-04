@@ -1107,6 +1107,7 @@
         "P2_ATTACH_SUPPORTING_DOCS": "Supporting documents"
     },
     "CALENDAR_EVENT": {
+        "HOST_CHANGE_VISITORS_WARNING": "Changing the host will delete and recreate this event. Visitors may receive cancellation and replacement invitations.",
         "TEAMS_MEETING": "Allow online attendees (Teams)",
         "CATERING_ORDER_AT_DATE": "Order for {{ date }} at {{ time }}",
         "CATERING_ORDER_AT": "Order at {{ time }}",
