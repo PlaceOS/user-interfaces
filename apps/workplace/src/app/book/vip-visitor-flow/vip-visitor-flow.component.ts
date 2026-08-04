@@ -596,6 +596,7 @@ export class VipVisitorFlowComponent extends AsyncHandler implements OnInit {
             const zones = unique([
                 this._org.organisation.id,
                 this._org.region?.id,
+                this._org.building?.id,
                 ...(value.zones || []),
             ]).filter((_) => _);
 
