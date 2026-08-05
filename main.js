@@ -48545,6 +48545,8 @@ var BOOKINGS = {
   VISITOR_RECENT: "Recently Booked Visitors"
 };
 var CALENDAR_EVENT = {
+  HOST_CHANGE_WARNING: "The previous host will remain an attendee after changing the host.",
+  HOST_CHANGE_VISITORS_WARNING: "Changing the host will delete and recreate this event. Visitors may receive cancellation and replacement invitations.",
   TEAMS_MEETING: "Allow online attendees (Teams)",
   CATERING_ORDER_AT_DATE: "Order for {{ date }} at {{ time }}",
   CATERING_ORDER_AT: "Order at {{ time }}",
@@ -53336,7 +53338,9 @@ var app = {
   logo_light: "assets/logo-light.svg",
   logo_dark: "assets/logo-dark.svg",
   diagnostics: true,
-  default_animation_time: 1e3
+  default_animation_time: 1e3,
+  /** Start from cached organisation data when the backend is unreachable */
+  offline_boot: true
 };
 var DEFAULT_SETTINGS = {
   debug: true,
@@ -54090,15 +54094,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "fcedce6",
-  "hash": "fcedce6",
+  "raw": "a4c3ecb",
+  "hash": "a4c3ecb",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "fcedce6",
+  "suffix": "a4c3ecb",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785485782794
+  "time": 1785936061121
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -54632,6 +54636,9 @@ function reloadApp() {
     return;
   }
   _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+function reloadForNewVersion() {
+  reloadApp();
 }
 function setInitReloadHandler(handler) {
   _init_reload = handler;
@@ -75954,6 +75961,7 @@ function getParameterizedRouteFromSnapshot(route) {
 
 // libs/common/src/lib/placeos.service.ts
 var START_QUERY = location.search;
+var AUTHORITY_WAIT_MS = 10 * 1e3;
 var LOADING_MESSAGE = signal(
   "Loading...",
   ...ngDevMode ? [{ debugName: "LOADING_MESSAGE" }] : (
@@ -76242,7 +76250,10 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     }
     if (!isNativeApp()) {
       setLoadingMessage("Authenticating...");
-      await setupPlace(settings).catch((_2) => console.error(_2));
+      await Promise.race([
+        setupPlace(settings).catch((_2) => console.error(_2)),
+        new Promise((resolve) => setTimeout(resolve, AUTHORITY_WAIT_MS))
+      ]);
     }
     if (this._initial_token)
       li(this._initial_token);
@@ -76327,8 +76338,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     if (!hasNewVersion())
       return;
     setLoadingMessage("Checking for updates...");
-    location.reload();
-    this.timeout("reload", () => location.href = `${location.origin}${location.pathname}`);
+    reloadForNewVersion();
   }
   async _initFixedDevice() {
     if (!rs())
@@ -76392,6 +76402,7 @@ var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
+var OFFLINE_BOOT_DELAY = 10 * 1e3;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 function cachedAuthority() {
@@ -76635,7 +76646,12 @@ var OrganisationService = class _OrganisationService {
     this._building_settings = {};
     this._skip_auto_selection = false;
     this._override_timer = null;
-    oi(Lr(), (_2) => _2).then(() => setTimeout(() => this.init(), 1e3));
+    const online = oi(Lr(), (_2) => _2);
+    const start = this._service.get("app.offline_boot") ? Promise.race([
+      online,
+      new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY))
+    ]) : online;
+    start.then(() => setTimeout(() => this.init(), 1e3));
     effect(() => {
       this._active_region();
       const building = this._active_building();
@@ -76734,11 +76750,13 @@ var OrganisationService = class _OrganisationService {
         this._setPublicData();
       });
     } else {
-      await this.load().catch((err) => {
+      try {
+        await this.load();
+      } catch {
         notifyError("Error loading organisation data. Retrying...");
         setTimeout(() => this.init(tries), Math.min(1e4, 300 * ++tries));
-        throw err;
-      });
+        return;
+      }
     }
     if (window.debug) {
       if (!window.app)
@@ -96666,6 +96684,21 @@ var settings_schema_default = {
   properties
 };
 
+// apps/signage/src/app/api-key.ts
+function hasStoredApiKey() {
+  for (const store2 of [localStorage, sessionStorage]) {
+    try {
+      for (const key of Object.keys(store2)) {
+        if (key.endsWith("_x-api-key") && !!store2.getItem(key)) {
+          return true;
+        }
+      }
+    } catch {
+    }
+  }
+  return false;
+}
+
 // apps/signage/src/app/bootstrap-state.ts
 var STORE_DISPLAY_KEY = "PlaceOS.SIGNAGE.display";
 function hasBootstrappedDisplay() {
@@ -96731,14 +96764,16 @@ function stalledSignals(now = Date.now()) {
 function readHistory() {
   try {
     const stored = JSON.parse(localStorage.getItem(RECOVERY_KEY) || "null");
-    if (stored instanceof Array)
-      return { at: stored, throttled: false };
+    if (stored instanceof Array) {
+      return { at: stored, throttled: false, last: null };
+    }
     return {
       at: stored?.at instanceof Array ? stored.at : [],
-      throttled: !!stored?.throttled
+      throttled: !!stored?.throttled,
+      last: stored?.last || null
     };
   } catch {
-    return { at: [], throttled: false };
+    return { at: [], throttled: false, last: null };
   }
 }
 function writeHistory(history) {
@@ -96751,19 +96786,23 @@ function recoveryHistory(now) {
   const history = readHistory();
   const last3 = history.at[history.at.length - 1] || 0;
   if (last3 && now - last3 >= RECOVERY_RESET_MS) {
-    const reset = { at: [], throttled: false };
+    const reset = { at: [], throttled: false, last: history.last };
     writeHistory(reset);
     return reset;
   }
   return history;
 }
-function claimRecovery(now) {
+function claimRecovery(now, record) {
   const history = recoveryHistory(now);
   const last3 = history.at[history.at.length - 1] || 0;
   if (history.throttled) {
     if (last3 && now - last3 < RECOVERY_THROTTLE_MS)
       return false;
-    writeHistory({ at: [...history.at.slice(-9), now], throttled: true });
+    writeHistory({
+      at: [...history.at.slice(-9), now],
+      throttled: true,
+      last: record
+    });
     return true;
   }
   const in_window = history.at.filter((at2) => now - at2 < RECOVERY_WINDOW_MS);
@@ -96772,7 +96811,11 @@ function claimRecovery(now) {
     writeHistory(__spreadProps(__spreadValues({}, history), { throttled: true }));
     return false;
   }
-  writeHistory({ at: [...history.at.slice(-9), now], throttled: false });
+  writeHistory({
+    at: [...history.at.slice(-9), now],
+    throttled: false,
+    last: record
+  });
   return true;
 }
 function resetHeartbeats(now) {
@@ -96802,7 +96845,7 @@ async function clearCachesAndReload() {
   } catch (error2) {
     log4.warn("Failed to clear the application cache.", error2);
   }
-  location.href = `${location.origin}${location.pathname}`;
+  _reload();
   return true;
 }
 function check(expected_to_run) {
@@ -96842,7 +96885,13 @@ function check(expected_to_run) {
 }
 function recover(now, reasons, prefer_hard) {
   const throttled = recoveryHistory(now).throttled;
-  if (!claimRecovery(now)) {
+  const record = {
+    at: now,
+    reasons,
+    cache_clear_attempted: prefer_hard || throttled,
+    error: _last_error
+  };
+  if (!claimRecovery(now, record)) {
     log4.error("Recovery needed, but not due yet.", {
       reasons,
       last_error: _last_error
@@ -96910,6 +96959,14 @@ function watchdogState() {
     recoveries_in_last_hour: history.at.filter((at2) => now - at2 < RECOVERY_WINDOW_MS).length,
     recoveries_throttled: history.throttled,
     last_recovery: asTime2(history.at[history.at.length - 1] || 0),
+    // Survives the reload it caused, unlike `last_error` above, which only
+    // covers errors seen since this page loaded
+    last_recovery_detail: history.last ? __spreadProps(__spreadValues({}, history.last), {
+      at: asTime2(history.last.at),
+      error: history.last.error ? __spreadProps(__spreadValues({}, history.last.error), {
+        at: asTime2(history.last.error.at)
+      }) : null
+    }) : null,
     started_at: asTime2(_started_at),
     booted: !!heartbeats.visible,
     heartbeats: {
@@ -96929,9 +96986,15 @@ function onRejection(event) {
 }
 
 // apps/signage/src/app/app.component.ts
+function AppComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "global-loading");
+  }
+}
 var AppComponent = class _AppComponent {
   constructor() {
     this.settings_schema = settings_schema_exports;
+    this.uses_api_key = hasStoredApiKey();
     this._placeos = inject2(PlaceOS_Service);
     this._org = inject2(OrganisationService);
   }
@@ -96947,16 +97010,19 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 5, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "schema"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 5, vars: 2, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "schema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275element(3, "global-loading")(4, "settings-debug-panel", 1);
+        \u0275\u0275conditionalCreate(3, AppComponent_Conditional_3_Template, 1, 0, "global-loading");
+        \u0275\u0275element(4, "settings-debug-panel", 1);
       }
       if (rf & 2) {
-        \u0275\u0275advance(4);
+        \u0275\u0275advance(3);
+        \u0275\u0275conditional(!ctx.uses_api_key ? 3 : -1);
+        \u0275\u0275advance();
         \u0275\u0275property("schema", ctx.settings_schema);
       }
     }, dependencies: [
@@ -96980,13 +97046,15 @@ var AppComponent = class _AppComponent {
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet></router-outlet>
         </div>
-        <global-loading />
+        @if (!uses_api_key) {
+            <global-loading />
+        }
         <settings-debug-panel [schema]="settings_schema" />
     `, styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 47 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 50 });
 })();
 
 // apps/signage/src/environments/environment.ts
