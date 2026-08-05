@@ -56,13 +56,12 @@ async function json(api: APIRequestContext, path: string, params?: Record<string
 /**
  * The authority (domain) this stack serves.
  *
- * Polls, because `/domains` is SEARCH-backed: on a cold stack the row exists in
- * Postgres the moment `init` finishes, but the API reads it out of Elasticsearch
- * and returns an empty list until search-ingest has indexed it. Failing here
- * immediately is the single most likely way a CI run breaks, and the error looks
- * nothing like the cause.
+ * Still polls briefly: the row is created by `init start`, which may not have
+ * finished on a cold stack. The API reads it straight from Postgres (PPT-2644),
+ * so the first successful response after init completes is authoritative —
+ * there is no search-index lag any more.
  */
-async function authority(api: APIRequestContext, timeoutMs = 90_000) {
+async function authority(api: APIRequestContext, timeoutMs = 30_000) {
     const deadline = Date.now() + timeoutMs;
     let last: unknown[] = [];
     for (;;) {
@@ -72,9 +71,8 @@ async function authority(api: APIRequestContext, timeoutMs = 90_000) {
         if (Date.now() > deadline) {
             throw new Error(
                 `no authority visible via ${ENGINE_API}/domains after ${timeoutMs / 1000}s.\n` +
-                    `The row is created by \`init start\`, but this endpoint is served from ` +
-                    `Elasticsearch — check that search-ingest is running and has built its ` +
-                    `indices (docker compose logs search-ingest).`,
+                    `The row is created by \`init start\` — check that init completed ` +
+                    `successfully (docker compose logs init).`,
             );
         }
         await new Promise((r) => setTimeout(r, 2000));
@@ -104,9 +102,9 @@ async function ensureOAuthApp(api: APIRequestContext, appUrl: string, name: stri
     });
     if (!res.ok()) {
         const body = await res.text();
-        // The existence check above reads from Elasticsearch, so a seed re-run
-        // within a second or two of the first can miss a row that Postgres
-        // already has. A uniqueness rejection means it is there — not an error.
+        // A concurrent seed run may have created the row between our existence
+        // check and this POST. A uniqueness rejection means it is there — not
+        // an error.
         if (alreadyExists(body)) return { uid, redirect_uri, created: false };
         throw new Error(`create oauth_app failed: HTTP ${res.status()} ${body}`);
     }

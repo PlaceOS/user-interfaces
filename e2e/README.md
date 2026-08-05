@@ -49,10 +49,10 @@ e2e/stack/up.sh --fresh      # destroy volumes first — a genuine cold start
 e2e/stack/down.sh            # stop        (--volumes to wipe)
 ```
 
-It is trimmed to what the e2e path exercises: postgres, elasticsearch, redis,
-search-ingest, frontend-loader, auth, rest-api, staff-api, nginx, init. Dropped
-from PlaceOS/local: core, edge, triggers, dispatch, source, influx, chronograf,
-mosquitto, minio and the loki/grafana profile — roughly half the containers.
+It is trimmed to what the e2e path exercises: postgres, redis, frontend-loader,
+auth, rest-api, staff-api, nginx, init. Dropped from PlaceOS/local: core, edge,
+triggers, dispatch, source, influx, chronograf, mosquitto, minio and the
+loki/grafana profile — roughly half the containers.
 
 Two things a cold start taught us that a long-lived stack hides:
 
@@ -178,10 +178,10 @@ at or below it.
 | A **tenant** for the backend domain | staff-api rejects *every* `/bookings` and `/events` call with "domain does not have a tenant configured" until one exists. |
 | One **non-admin** user per worker | Permission gating needs a non-admin; parallel mutation needs distinct identities. |
 
-`seed.ts` polls for the authority rather than reading it once: `/domains` is
-served from Elasticsearch, so on a cold stack the row exists in Postgres before
-the API can see it. Failing fast there is the single most likely way a CI run
-breaks, and the error looks nothing like the cause.
+`seed.ts` polls briefly for the authority rather than reading it once: the row
+is created by `init start`, which may not have finished on a cold stack. (The
+API reads it straight from Postgres since PPT-2644 — the old Elasticsearch
+index lag is gone.)
 
 It bootstraps through the `backoffice` application, which `init` always creates —
 otherwise registering an OAuth app would require a token that requires an OAuth app.
