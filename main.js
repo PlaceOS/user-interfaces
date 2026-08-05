@@ -61044,6 +61044,8 @@ var BOOKINGS = {
   VISITOR_RECENT: "Recently Booked Visitors"
 };
 var CALENDAR_EVENT = {
+  HOST_CHANGE_WARNING: "The previous host will remain an attendee after changing the host.",
+  HOST_CHANGE_VISITORS_WARNING: "Changing the host will delete and recreate this event. Visitors may receive cancellation and replacement invitations.",
   TEAMS_MEETING: "Allow online attendees (Teams)",
   CATERING_ORDER_AT_DATE: "Order for {{ date }} at {{ time }}",
   CATERING_ORDER_AT: "Order at {{ time }}",
@@ -65993,6 +65995,7 @@ function setupFormTimeSync(model2, options = {}, injector) {
     date_end: finiteNumber(snap().date_end),
     all_day: snap().all_day
   };
+  let timed_window;
   const refreshPrev = () => {
     const s = snap();
     prev.date = finiteNumber(s.date);
@@ -66271,8 +66274,17 @@ function setupFormTimeSync(model2, options = {}, injector) {
   fieldEffect((v2) => v2.all_day, () => {
     const all_day = snap().all_day;
     if (all_day) {
+      timed_window = {
+        date: normaliseTimeValue(snap().date),
+        duration: normaliseTimeValue(snap().duration),
+        date_end: normaliseTimeValue(snap().date_end)
+      };
       applyPatch(getAllDayTimeRange(normaliseTimeValue(snap().date), timezone, all_day_start, all_day_end));
+    } else if (timed_window && !isMultiday(timed_window.date, normaliseTimeValue(snap().date))) {
+      applyPatch(timed_window);
+      timed_window = void 0;
     } else {
+      timed_window = void 0;
       const date = normaliseTimeValue(snap().date);
       const duration = normaliseTimeValue(snap().duration);
       const date_end = normaliseTimeValue(snap().date_end);
@@ -67909,15 +67921,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "fcedce6",
-  "hash": "fcedce6",
+  "raw": "a4c3ecb",
+  "hash": "a4c3ecb",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "fcedce6",
+  "suffix": "a4c3ecb",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785485916877
+  "time": 1785936133492
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -68952,6 +68964,9 @@ function reloadApp() {
     return;
   }
   _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+function reloadForNewVersion() {
+  reloadApp();
 }
 function requestInitReload() {
   if (_init_reload) {
@@ -80956,6 +80971,7 @@ function getParameterizedRouteFromSnapshot(route) {
 
 // libs/common/src/lib/placeos.service.ts
 var START_QUERY = location.search;
+var AUTHORITY_WAIT_MS = 10 * 1e3;
 var LOADING_MESSAGE = signal(
   "Loading...",
   ...ngDevMode ? [{ debugName: "LOADING_MESSAGE" }] : (
@@ -81241,7 +81257,10 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     }
     if (!isNativeApp()) {
       setLoadingMessage("Authenticating...");
-      await setupPlace(settings).catch((_3) => console.error(_3));
+      await Promise.race([
+        setupPlace(settings).catch((_3) => console.error(_3)),
+        new Promise((resolve) => setTimeout(resolve, AUTHORITY_WAIT_MS))
+      ]);
     }
     if (this._initial_token)
       li(this._initial_token);
@@ -81326,8 +81345,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     if (!hasNewVersion())
       return;
     setLoadingMessage("Checking for updates...");
-    location.reload();
-    this.timeout("reload", () => location.href = `${location.origin}${location.pathname}`);
+    reloadForNewVersion();
   }
   async _initFixedDevice() {
     if (!rs())
@@ -81391,6 +81409,7 @@ var log3 = scoped_log("ORG");
 var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
+var OFFLINE_BOOT_DELAY = 10 * 1e3;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 function cachedAuthority() {
@@ -81634,7 +81653,12 @@ var OrganisationService = class _OrganisationService {
     this._building_settings = {};
     this._skip_auto_selection = false;
     this._override_timer = null;
-    oi(Lr(), (_3) => _3).then(() => setTimeout(() => this.init(), 1e3));
+    const online = oi(Lr(), (_3) => _3);
+    const start = this._service.get("app.offline_boot") ? Promise.race([
+      online,
+      new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY))
+    ]) : online;
+    start.then(() => setTimeout(() => this.init(), 1e3));
     effect(() => {
       this._active_region();
       const building = this._active_building();
@@ -81733,11 +81757,13 @@ var OrganisationService = class _OrganisationService {
         this._setPublicData();
       });
     } else {
-      await this.load().catch((err) => {
+      try {
+        await this.load();
+      } catch {
         notifyError("Error loading organisation data. Retrying...");
         setTimeout(() => this.init(tries), Math.min(1e4, 300 * ++tries));
-        throw err;
-      });
+        return;
+      }
     }
     if (window.debug) {
       if (!window.app)
@@ -127518,6 +127544,45 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   _patch(value, _opts) {
     this.model.update((m2) => __spreadValues(__spreadValues({}, m2), value));
   }
+  /**
+   * The fields the user has actually edited, with their current values.
+   *
+   * Reads the signal-forms dirty flags rather than diffing against a
+   * default. Programmatic writes (`_patch`, `model.set`) do not mark a field
+   * dirty, so this returns genuine user input and nothing else — which is
+   * what makes it safe to replay over a freshly loaded booking.
+   */
+  _userEditedValues() {
+    const form2 = this.form;
+    if (!form2)
+      return {};
+    const model2 = untracked2(this.model);
+    const edits = {};
+    for (const key of Object.keys(model2 || {})) {
+      const field = form2[key];
+      if (typeof field !== "function")
+        continue;
+      try {
+        if (field()?.dirty?.())
+          edits[key] = model2[key];
+      } catch {
+        continue;
+      }
+    }
+    return edits;
+  }
+  /**
+   * Stash the user's in-progress edits for the reset that is about to run.
+   *
+   * Merges rather than replaces. A flow resets twice in a row — `loadForm`
+   * then `newForm` — and the first `form().reset()` clears the dirty flags
+   * `_userEditedValues` reads, so a plain assignment would overwrite a real
+   * capture with an empty one on the second call.
+   */
+  _captureUserEdits() {
+    const edits = __spreadValues(__spreadValues({}, this._pending_user_edits || {}), this._userEditedValues());
+    this._pending_user_edits = Object.keys(edits).length ? edits : null;
+  }
   _syncAssetOptions() {
     const { date, duration } = untracked2(this.model);
     const next_asset_window = assetWindowKey(date, duration);
@@ -127684,6 +127749,15 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return use_building_timezone ? this._org.building?.timezone || "" : "";
   }
   newForm(type, booking = new Booking({})) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => {
+        this._captureUserEdits();
+        this.newForm(type, booking);
+      });
+      return;
+    }
+    const user_edits = this._pending_user_edits;
+    this._pending_user_edits = null;
     if (isCrossTypeEdit(booking, type))
       booking = new Booking({});
     this._startNetwork();
@@ -127713,6 +127787,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       // delegate booking reassigns the host on save.
       user: bookingHostUser(booking)
     }), [null, void 0, ""]), { emitEvent: false });
+    if (user_edits && Object.keys(user_edits).length) {
+      this._patch(user_edits, { emitEvent: false });
+    }
     this.applyDurationSettings();
     this._syncAssetOptions();
     const form_change = effect(() => {
@@ -127811,6 +127888,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         []
       )
     );
+    this._pending_user_edits = null;
     this._requests_ready = computed(
       () => {
         const region = this._org.active_region();
@@ -128115,6 +128193,13 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     sessionStorage.setItem(STORAGE_KEYS.booking_form_filters, JSON.stringify(this._options() || {}));
   }
   loadForm(expected_type) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.loadForm(expected_type));
+      return;
+    }
+    this._captureUserEdits();
+    const user_edits = this._pending_user_edits;
+    queueMicrotask(() => this._pending_user_edits = null);
     this._startNetwork();
     this._calendar.loadCalendars();
     const data = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.booking_form) || "{}");
@@ -128137,6 +128222,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
     this._patch(booking_data, { emitEvent: false });
+    if (user_edits && Object.keys(user_edits).length) {
+      this._patch(user_edits, { emitEvent: false });
+    }
     this.applyDurationSettings();
     this._form_value.set(this.model());
     this._syncAssetOptions();
@@ -131537,11 +131625,37 @@ var BOOKING_URLS = [
 var PERSISTED_EVENT_CONTEXT_URLS = ["landing"];
 var IGNORED_DETAIL_FIELDS = [
   "attendees",
+  "body",
   "system",
   "date_end",
   "organiser",
+  "recurrence",
   "resources"
 ];
+function normaliseEventBody(body) {
+  const template = document.createElement("template");
+  template.innerHTML = body || "";
+  const serialise = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return (node.textContent || "").replace(/\u200b/g, "");
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE)
+      return "";
+    const element = node;
+    if (element.tagName === "BR")
+      return "\n";
+    const content = [...element.childNodes].map(serialise).join("");
+    if (element.tagName === "DIV" || element.tagName === "P") {
+      return `
+${content}
+`;
+    }
+    const tag = element.tagName.toLowerCase();
+    const attributes = [...element.attributes].sort((a, b2) => a.name.localeCompare(b2.name)).map(({ name, value }) => ` ${name}="${value}"`).join("");
+    return `<${tag}${attributes}>${content}</${tag}>`;
+  };
+  return [...template.content.childNodes].map(serialise).join("").replace(/[ \t]+\n|\n[ \t]+/g, "\n").replace(/\n+/g, "\n").trim();
+}
 var Tags;
 (function(Tags2) {
   Tags2["Availability"] = "AVAILABILITY";
@@ -132388,10 +132502,24 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   }
   _eventDetails(value) {
     const details = Object.entries(value).filter(([key]) => !IGNORED_DETAIL_FIELDS.includes(key));
+    const recurrence = value.recurrence;
+    details.push(["body", normaliseEventBody(value.body)]);
     details.push(["host_email", value.organiser?.email || ""]);
     details.push([
+      "recurrence",
+      recurrence?.pattern && recurrence?._pattern !== "none" ? [
+        recurrence.pattern,
+        recurrence.interval || 1,
+        [...recurrence.days_of_week || []].sort(),
+        recurrence.nth_of_month || null,
+        recurrence.start || null,
+        recurrence.end || null,
+        recurrence.occurrences || null
+      ] : null
+    ]);
+    details.push([
       "space_ids",
-      (value.resources || []).map((_3) => _3.id || _3.email || "")
+      (value.resources || []).map((_3) => (_3.email || _3.id || "").toLowerCase()).sort()
     ]);
     details.sort(([a], [b2]) => a > b2 ? 1 : -1);
     return JSON.stringify(details);
