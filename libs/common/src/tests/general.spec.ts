@@ -659,6 +659,28 @@ describe('General Methods', () => {
 
         // --- all_day ---
 
+        it('should restore the timed window after toggling all_day on and off', () => {
+            const date_end = addMinutes(BASE, 90).valueOf();
+            const form = createForm({
+                date: BASE,
+                duration: 90,
+                date_end,
+            });
+            setupFormTimeSync(form, {}, injector);
+
+            setField(form, { all_day: true });
+            setField(form, { all_day: false });
+
+            expect(form()).toEqual(
+                expect.objectContaining({
+                    date: BASE,
+                    duration: 90,
+                    date_end,
+                    all_day: false,
+                }),
+            );
+        });
+
         it('should reset duration to default_duration when all_day is toggled off', () => {
             const form = createForm({
                 date: BASE,
