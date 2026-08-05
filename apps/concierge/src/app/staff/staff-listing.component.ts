@@ -141,9 +141,14 @@ export class StaffListingComponent extends AsyncHandler {
 
     constructor() {
         super();
-        effect(() => {
+        effect((onCleanup) => {
             this.user_list();
             this.timeout('scroll', () => this.onScroll({}), 30);
+            // `onScroll` reads the document, so the timer must not outlive the
+            // effect. Relying on `ngOnDestroy` alone is not enough: the effect
+            // can flush during teardown and schedule a fresh timer after the
+            // base class has already cleared them.
+            onCleanup(() => this.clearTimeout('scroll'));
         });
     }
 

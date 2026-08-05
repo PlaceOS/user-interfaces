@@ -177,15 +177,21 @@ describe('ParkingBookingsListComponent', () => {
 
     it('should show all day when the booking matches the bookable period', () => {
         bookable_hours = { start: 8, end: 17 };
-        selected_date = new Date(2026, 6, 21, 8).valueOf();
+        // `isParkingAllDayBooking` converts the booking into `timezone`
+        // (Australia/Perth here) before checking that it starts and ends on the
+        // same day. Building these from machine-local hours only holds while
+        // the runner sits near +08:00 — on a UTC runner the end lands on the
+        // following Perth day and the booking stops reading as all-day. So
+        // state the instants in Perth, which is what the assertion is about.
+        selected_date = new Date('2026-07-21T08:00:00+08:00').valueOf();
         bookings = [
             {
                 id: 'booking-1',
                 asset_id: 'bay-1',
                 status: 'approved',
                 all_day: true,
-                date: new Date(2026, 6, 21, 8).valueOf(),
-                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                date: new Date('2026-07-21T08:00:00+08:00').valueOf(),
+                date_end: new Date('2026-07-21T17:00:00+08:00').valueOf(),
                 duration: 9 * 60,
             } as unknown as Booking,
         ];
