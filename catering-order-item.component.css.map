@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["catering-order-item.component.ts"],
+  "sourcesContent": ["\n            :host:last-child > div {\n                border: none !important;\n            }\n        "],
+  "mappings": ";AACY,KAAA,YAAA,EAAA;AACI,UAAA;AACJ;",
+  "names": []
+}

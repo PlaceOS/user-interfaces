@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["catering.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--base-100);\n            }\n\n            a {\n                width: 28rem;\n                height: 16rem;\n                margin-left: 0.5rem;\n                text-decoration: none;\n                transition: background 200ms;\n            }\n\n            a:hover {\n                opacity: 0.8;\n            }\n\n            a:first-child {\n                margin: 0;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,oBAAA,IAAA;AACJ;AAEA;AACI,SAAA;AACA,UAAA;AACA,eAAA;AACA,2BAAA;AAAA,mBAAA;AACA,cAAA,WAAA;AACJ;AAEA,CAAA;AACI,WAAA;AACJ;AAEA,CAAA;AACI,UAAA;AACJ;",
+  "names": []
+}
