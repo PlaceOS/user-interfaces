@@ -66,7 +66,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                             1
                         </div>
                         <div class="text-xl">
-                            {{ 'BOOKINGS.DETAILS' | translate }}
+                            {{ 'COMMON.DETAILS' | translate }}
                         </div>
                         <div class="w-px flex-1"></div>
                         <button
@@ -217,7 +217,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 4
                             </div>
                             <div class="text-xl">
-                                {{ 'CALENDAR_EVENT.CATERING' | translate }}
+                                {{ 'RESOURCE.CATERING' | translate }}
                             </div>
                             <div class="w-px flex-1"></div>
                             <button
@@ -263,8 +263,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                     <mat-select
                                         [formField]="form.catering_charge_code"
                                         [placeholder]="
-                                            'CALENDAR_EVENT.CATERING_CHARGE_CODE'
-                                                | translate
+                                            'CATERING.CHARGE_CODE' | translate
                                         "
                                     >
                                         <input
@@ -392,7 +391,7 @@ import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-de
                                 }}
                             </div>
                             <div class="text-xl">
-                                {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
+                                {{ 'FORM.NOTES' | translate }}
                             </div>
                         </h3>
                         <div class="flex w-full flex-col">
@@ -496,9 +495,7 @@ export class EventBookModalComponent implements OnInit {
     }
 
     public get total_capacity() {
-        return (
-            this.model().resources?.reduce((c, i) => c + i.capacity, 0) || 0
-        );
+        return this.model().resources?.reduce((c, i) => c + i.capacity, 0) || 0;
     }
 
     public get allow_multiday() {

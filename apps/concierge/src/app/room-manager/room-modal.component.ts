@@ -174,14 +174,12 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                     @if (form.display_name) {
                         <div class="flex flex-1 flex-col">
                             <label for="code-name">{{
-                                'APP.CONCIERGE.ROOMS_CODE' | translate
+                                'COMMON.CODE' | translate
                             }}</label>
                             <mat-form-field appearance="outline">
                                 <input
                                     matInput
-                                    [placeholder]="
-                                        'APP.CONCIERGE.ROOMS_CODE' | translate
-                                    "
+                                    [placeholder]="'COMMON.CODE' | translate"
                                     [formField]="form.code"
                                 />
                             </mat-form-field>
@@ -339,6 +337,7 @@ import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.compone
                             </mat-form-field>
                             <button
                                 icon
+                                type="button"
                                 matRipple
                                 class="border-secondary text-secondary h-12 w-12 rounded-sm border"
                                 [matTooltip]="

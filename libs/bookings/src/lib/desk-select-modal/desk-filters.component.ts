@@ -38,7 +38,7 @@ import { BookingFormService } from '../booking-form.service';
         <form class="divide-base-200 relative z-0 w-full divide-y p-2">
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
-                    {{ 'BOOKINGS.DETAILS' | translate }}
+                    {{ 'COMMON.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
                     @if (
@@ -47,7 +47,7 @@ import { BookingFormService } from '../booking-form.service';
                         !(!use_region() && buildings()?.length > 1)
                     ) {
                         <label for="location">
-                            {{ 'BOOKINGS.LOCATION' | translate }}
+                            {{ 'COMMON.LOCATION' | translate }}
                         </label>
                     }
                     @if (use_region() && regions()?.length) {
@@ -159,7 +159,10 @@ import { BookingFormService } from '../booking-form.service';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -282,6 +285,7 @@ export class DeskFiltersComponent {
     private readonly _clear_invalid_level = effect(() => {
         const zone_id = this.options()?.zone_id;
         if (!zone_id) return;
+        if (!this._state.resources().length) return;
         if (!this.levels().some((lvl) => lvl.id === zone_id)) {
             this._state.setOptions({ zone_id: undefined });
         }

@@ -73,13 +73,14 @@ describe('ParkingRequestsListComponent', () => {
         spectator = createComponent();
 
         expect(
-            spectator.component.isVisibleWaitlisted({
+            spectator.component.statusTone({
                 id: 'request-1',
                 asset_id: 'unallocated-1',
                 status: 'tentative',
+                process_state: 'unapproved',
                 date: Date.now(),
             } as Booking),
-        ).toBe(false);
+        ).toBe('warning');
     });
 
     it('should keep current week tentative requests in pending results when waitlist display is disabled', () => {

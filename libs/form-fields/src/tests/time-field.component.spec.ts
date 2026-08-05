@@ -29,6 +29,10 @@ describe('TimeFieldComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
+    it('should not submit a parent form when opened', () => {
+        expect('button[time-field]').toHaveAttribute('type', 'button');
+    });
+
     it('should allow the user to select a time', () => {
         spectator.click('button[time-field]');
         const option_elements = document.querySelectorAll('[mat-menu-item]');
@@ -103,6 +107,24 @@ describe('TimeFieldComponent', () => {
             '01:30',
             '01:45',
         ]);
+    });
+
+    it('should ignore a time range with blank or empty bounds', () => {
+        const date = startOfDay(new Date()).valueOf();
+        for (const range of [
+            { start: null, end: null },
+            { start: '', end: '' },
+            { start: 9, end: 9 },
+            {},
+        ] as any[]) {
+            spectator.setInput({ no_past_times: false, from: date, range });
+            spectator.component.writeValue(date);
+            spectator.detectChanges();
+            const options = spectator.component.time_options();
+            expect(options.length).toBe(96);
+            expect(options[0].id).toBe('00:00');
+            expect(options[options.length - 1].id).toBe('23:45');
+        }
     });
 
     it('should not include custom times outside the time range', () => {

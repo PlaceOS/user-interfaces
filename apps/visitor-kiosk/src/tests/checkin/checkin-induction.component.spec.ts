@@ -48,6 +48,7 @@ describe('CheckinInductionComponent', () => {
                     event: signal<any>({ induction: 'pending' }),
                     declineInduction: vi.fn(async () => null),
                     completeInduction: vi.fn(async () => null),
+                    checkinGuest: vi.fn(async () => null),
                     setError: vi.fn(),
                 },
             },
@@ -59,6 +60,7 @@ describe('CheckinInductionComponent', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
         snackbar = createSnackbarSpy();
         setNotifyOutlet(snackbar as any, true);
         resetSettings();
@@ -183,6 +185,21 @@ describe('CheckinInductionComponent', () => {
                 '/checkin',
                 'results',
             ]);
+        });
+
+        it('accepts the induction before checking in', async () => {
+            settingSignal('induction_after_details', false).set(true);
+            const state = spectator.inject(CheckinStateService);
+
+            await spectator.component.continue();
+
+            expect(state.completeInduction).toHaveBeenCalledTimes(1);
+            expect(state.checkinGuest).toHaveBeenCalledTimes(1);
+            expect(
+                (state.completeInduction as any).mock.invocationCallOrder[0],
+            ).toBeLessThan(
+                (state.checkinGuest as any).mock.invocationCallOrder[0],
+            );
         });
     });
 

@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { HotkeysService } from '@placeos/common';
 import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-edit-modal.component';
 import { SignageService } from '../../app/signage.service';
 
@@ -8,6 +9,8 @@ describe('SignageGroupEditModalComponent', () => {
     const dialog_ref = { close: vi.fn(), disableClose: false };
     const save_signage_group = vi.fn();
     const manageable_signage_groups = signal<any[]>([]);
+    const hotkey_listen = vi.fn();
+    let hotkey_callback: () => void;
     const service_stub = {
         manageable_signage_groups,
         saveSignageGroup: save_signage_group,
@@ -20,6 +23,10 @@ describe('SignageGroupEditModalComponent', () => {
                 { provide: MAT_DIALOG_DATA, useValue: modal_data },
                 { provide: MatDialogRef, useValue: dialog_ref },
                 { provide: SignageService, useValue: service_stub },
+                {
+                    provide: HotkeysService,
+                    useValue: { listen: hotkey_listen },
+                },
             ],
         }).overrideComponent(SignageGroupEditModalComponent, {
             set: { template: '', imports: [] },
@@ -30,6 +37,12 @@ describe('SignageGroupEditModalComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        hotkey_listen.mockImplementation(
+            (_combo: string[], callback: () => void) => {
+                hotkey_callback = callback;
+                return { unsubscribe: vi.fn() };
+            },
+        );
         dialog_ref.disableClose = false;
         save_signage_group.mockResolvedValue({ id: 'group-1' });
         manageable_signage_groups.set([
@@ -59,9 +72,9 @@ describe('SignageGroupEditModalComponent', () => {
     it('excludes the edited group from the parent group options', () => {
         modal_data = { group: { id: 'group-1', name: 'Group 1' } };
         const component = make();
-        expect(component.parent_groups().map((group: any) => group.id)).toEqual([
-            'group-2',
-        ]);
+        expect(component.parent_groups().map((group: any) => group.id)).toEqual(
+            ['group-2'],
+        );
     });
 
     it('saves a valid group and closes with the result', async () => {
@@ -79,6 +92,19 @@ describe('SignageGroupEditModalComponent', () => {
             { name: 'New Group', description: '', parent_id: 'group-1' },
         );
         expect(dialog_ref.close).toHaveBeenCalledWith({ id: 'group-1' });
+    });
+
+    it('saves when the S hotkey is pressed', () => {
+        const component = make();
+        const save = vi.spyOn(component, 'save').mockResolvedValue();
+
+        hotkey_callback();
+
+        expect(hotkey_listen).toHaveBeenCalledWith(
+            ['KeyS'],
+            expect.any(Function),
+        );
+        expect(save).toHaveBeenCalled();
     });
 
     it('does not save a new group when required fields are missing', async () => {

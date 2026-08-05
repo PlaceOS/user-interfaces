@@ -101,6 +101,7 @@ export class ExploreZonesService extends AsyncHandler {
         effect(() => {
             this._area_data();
             this._zone_data();
+            this._state.spaces();
             this.timeout('parse_data', () => this._parseBindingData(), 100);
         });
         this.init();
@@ -213,18 +214,29 @@ export class ExploreZonesService extends AsyncHandler {
         const show_sensor_info = this._settings.get(
             'app.explore.show_zone_sensor_info',
         );
+        const room_ids = new Set(
+            this._state
+                .spaces()
+                .flatMap((space) => [space.id, space.map_id])
+                .filter((id) => !!id),
+        );
         for (const zone of value) {
             const id = zone.map_id || zone.area_id;
+            const has_room =
+                room_ids.has(zone.area_id) ||
+                (!!zone.map_id && room_ids.has(zone.map_id));
             const capacity = zone.capacity || this._capacity[id] || 100;
             const count = Number(zone[this._count_key[id] || count_key] ?? 0);
             const filled = count / capacity;
-            statuses[id] = zone.at_location
-                ? 'busy'
-                : filled < 0.4
-                  ? 'free'
-                  : filled < 0.75
-                    ? 'pending'
-                    : 'busy';
+            if (!has_room) {
+                statuses[id] = zone.at_location
+                    ? 'busy'
+                    : filled < 0.4
+                      ? 'free'
+                      : filled < 0.75
+                        ? 'pending'
+                        : 'busy';
+            }
             if (!this._location[id]) continue;
             let content = '';
             if (zone.count) {
@@ -236,7 +248,7 @@ export class ExploreZonesService extends AsyncHandler {
                     value: `${zone.temperature} °${temp_unit}\n`,
                 });
             if (zone.people_count > 0)
-                content += i18n('EXPLORE.SENSORS_PEOPLE', {
+                content += i18n('COMMON.PEOPLE_COUNT', {
                     count: `${zone.people_count_sum}\n`,
                 });
             if (zone.humidity != null)
@@ -251,7 +263,7 @@ export class ExploreZonesService extends AsyncHandler {
                 content += i18n('EXPLORE.SENSORS_COUNT', {
                     value: `${zone.counter}\n`,
                 });
-            if (this._label_location[id] && show_zone_labels) {
+            if (!has_room && this._label_location[id] && show_zone_labels) {
                 labels.push({
                     location: this._label_location[id],
                     content,
@@ -259,6 +271,7 @@ export class ExploreZonesService extends AsyncHandler {
                 });
             }
             if (
+                has_room &&
                 show_sensor_info &&
                 (zone.temperature != null || zone.humidity != null)
             ) {
@@ -272,7 +285,7 @@ export class ExploreZonesService extends AsyncHandler {
                         temp_unit,
                         humidity: zone.humidity ?? 10,
                     },
-                    z_index: 98,
+                    z_index: 100,
                 });
             }
         }

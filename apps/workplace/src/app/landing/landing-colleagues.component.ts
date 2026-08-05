@@ -192,9 +192,9 @@ import { LandingStateService } from './landing-state.service';
                             <p class="text-center text-sm opacity-60">
                                 {{
                                     !options().search
-                                        ? ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                                        ? ('COMMON.SELECT_USER_EMPTY'
                                           | translate)
-                                        : ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                                        : ('COMMON.SELECT_USER_EMPTY'
                                           | translate
                                               : {
                                                     text: options().search,

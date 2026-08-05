@@ -229,9 +229,13 @@ export function generateEventForm(
         (v) => v.date,
         (date) => {
             const recurrence = model().recurrence;
+            // Non-recurring events have an empty recurrence. Writing
+            // days_of_week into it invents a recurrence and makes the form
+            // look edited when only the date was seeded.
+            if (!recurrence?.pattern) return;
             if (
-                recurrence?._pattern !== 'custom_display' &&
-                recurrence?._pattern !== 'none'
+                recurrence._pattern !== 'custom_display' &&
+                recurrence._pattern !== 'none'
             ) {
                 model.update((m) => ({
                     ...m,

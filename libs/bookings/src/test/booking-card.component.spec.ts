@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { addHours, set } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -11,6 +14,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { Booking, SettingsService } from '@placeos/common';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { BookingCardComponent } from '../lib/booking-card.component';
+import { BookingDetailsModalComponent } from '../lib/booking-details-modal.component';
 
 describe('BookingCardComponent', () => {
     let spectator: SpectatorRouting<BookingCardComponent>;
@@ -71,6 +75,27 @@ describe('BookingCardComponent', () => {
         expect('[checked-in-badge]').toExist();
     });
 
+    it('should pass the refresh callback to booking details', () => {
+        vi.useFakeTimers();
+        const dialog = spectator.inject(MatDialog);
+        const refresh_fn = vi.fn();
+        spectator.setInput({
+            booking: new Booking({ id: 'booking-1' }),
+            refresh_fn,
+        });
+
+        spectator.component.viewDetails();
+        vi.runAllTimers();
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            BookingDetailsModalComponent,
+            expect.objectContaining({
+                data: expect.objectContaining({ refresh_fn }),
+            }),
+        );
+        vi.useRealTimers();
+    });
+
     it('should not show checked-in badge when booking is not checked in', () => {
         const future_date = addHours(new Date(), 1).valueOf();
         spectator.setInput({
@@ -121,7 +146,7 @@ describe('BookingCardComponent', () => {
         expect(spectator.component.booked_for_label()).toBe('James McMillan');
     });
 
-    it('should show waitlisted status for current week parking requests when enabled', () => {
+    it('should show waitlisted status for unapproved parking requests when enabled', () => {
         spectator.setInput({
             booking: new Booking({
                 booking_type: 'parking',
@@ -129,6 +154,7 @@ describe('BookingCardComponent', () => {
                 asset_id: 'unallocated-1',
                 date: Date.now(),
                 status: 'tentative',
+                process_state: 'unapproved',
             } as any),
         });
 
@@ -161,6 +187,7 @@ describe('BookingCardComponent', () => {
                 asset_id: 'unallocated-1',
                 date: Date.now(),
                 status: 'tentative',
+                process_state: 'unapproved',
             } as any),
         });
 

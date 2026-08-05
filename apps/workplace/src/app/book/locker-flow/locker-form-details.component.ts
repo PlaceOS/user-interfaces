@@ -50,7 +50,7 @@ import {
                             1
                         </div>
                         <div class="text-xl">
-                            {{ 'BOOKINGS.DETAILS' | translate }}
+                            {{ 'COMMON.DETAILS' | translate }}
                         </div>
                     </h3>
                     <div class="flex flex-wrap items-center sm:space-x-2">

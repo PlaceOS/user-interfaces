@@ -252,8 +252,8 @@ export class SignageZonesComponent extends AsyncHandler {
         notifySuccess(
             i18n(
                 trigger
-                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_REMOVE'
-                    : 'APP.CONCIERGE.SIGNAGE_ZONES_PLAYLIST_REMOVE',
+                    ? 'APP.CONCIERGE.SIGNAGE_TRIGGERS_PLAYLIST_REMOVED'
+                    : 'APP.CONCIERGE.SIGNAGE_ZONES_PLAYLIST_REMOVED',
             ),
         );
         this._state.changed();

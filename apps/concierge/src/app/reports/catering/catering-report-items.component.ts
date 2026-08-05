@@ -60,9 +60,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     { key: 'name', name: 'FORM.NAME' | translate },
                     {
                         key: 'options',
-                        name:
-                            'APP.CONCIERGE.REPORTS_CATERING_OPTIONS'
-                            | translate,
+                        name: 'COMMON.OPTIONS' | translate,
                         content: option_template,
                     },
                     {
@@ -98,7 +96,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                             [matTooltip]="options(data)"
                         >
                             {{
-                                'APP.CONCIERGE.REPORTS_CATERING_OPTIONS'
+                                'COMMON.OPTIONS'
                                     | translate: { count: data?.length || 0 }
                             }}
                         </span>

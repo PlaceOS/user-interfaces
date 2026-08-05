@@ -52,7 +52,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             [formField]="form.name"
                         />
                         <mat-error>{{
-                            'FORM.NAME_REQUIED' | translate
+                            'FORM.NAME_REQUIRED' | translate
                         }}</mat-error>
                     </mat-form-field>
                 </div>

@@ -26,9 +26,11 @@ import {
     Booking,
     BuildingLevel,
     Desk,
+    downloadFile,
     generateQRCode,
     getTimezoneDifferenceInHours,
     i18n,
+    jsonToCsv,
     nextValueFrom,
     notifyError,
     notifyInfo,
@@ -56,6 +58,7 @@ import {
 } from 'date-fns';
 
 import { openConfirmModal } from '@placeos/components';
+import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { DeskModalComponent } from './desk-modal.component';
 
 function addQRCodeToBooking(booking: Booking): Booking {
@@ -378,6 +381,29 @@ export class DesksStateService extends AsyncHandler {
         this._loadPage(true);
     }
 
+    /** Download the current desk list as a CSV file */
+    public downloadDesksCSV() {
+        const desks = this.desks();
+        const rows = (
+            desks.length
+                ? desks
+                : [
+                      new Desk({
+                          id: 'desk-123',
+                          name: 'Test Desk',
+                          bookable: true,
+                          groups: ['test-desk-group', 'desk-bookers'],
+                          features: ['Standing Desk', 'Dual Monitor'],
+                      }),
+                  ]
+        ).map((desk) => {
+            const row: any = desk.toJSON();
+            delete row.images;
+            return row;
+        });
+        downloadFile('desks.csv', jsonToCsv(rows));
+    }
+
     public async addDesks(list: Desk[]) {
         const selected_zones = this._getSelectedZones();
         const all_zones = this._filters().zones?.includes('All');
@@ -644,7 +670,30 @@ export class DesksStateService extends AsyncHandler {
         });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_SUCCESS'));
         result.close();
-        this.setFilters({});
+        this._bookings_state.update((state) => ({
+            ...state,
+            list: state.list.map((item) => {
+                const is_deleted = series
+                    ? item.id === booking_id || item.parent_id === booking_id
+                    : this._bookingKey(item) === this._bookingKey(booking);
+                return is_deleted
+                    ? new Booking({
+                          ...item,
+                          deleted: true,
+                          status: 'cancelled',
+                      })
+                    : item;
+            }),
+        }));
+    }
+
+    public viewBookingHistory(booking: Booking) {
+        if (!booking) return;
+        this._dialog.open(BookingHistoryModalComponent, {
+            data: { booking },
+            width: '32rem',
+            maxWidth: '100vw',
+        });
     }
 
     public async giveAccess(desk: Booking) {
@@ -752,11 +801,12 @@ export class DesksStateService extends AsyncHandler {
                     item.assigned_to?.toLowerCase() === email,
             ).length;
         if (assigned_count >= max_assigned_count) {
-            const key =
-                max_assigned_count === 1
-                    ? 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_1'
-                    : 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_N';
-            const message = i18n(key, { count: max_assigned_count });
+            const key = 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR';
+            const message = i18n(
+                key,
+                { count: max_assigned_count },
+                max_assigned_count,
+            );
             throw !message || message === key
                 ? `Users can only have ${max_assigned_count} assigned desk${max_assigned_count === 1 ? '' : 's'} at a time.`
                 : message;

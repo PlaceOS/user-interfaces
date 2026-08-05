@@ -60,6 +60,8 @@ import {
     scheduleSignagePlaylistMedia,
     shareSignageMedia,
     shareSignagePlaylists,
+    showSystem,
+    showZone,
     SignageMedia,
     SignagePlaylist,
     type SignagePlaylistApprover,
@@ -86,6 +88,7 @@ import { DisplaySelectModalComponent } from './shared/display-select-modal.compo
 import { GroupSelectModalComponent } from './shared/group-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
+import { MediaTagsModalComponent } from './shared/media-tags-modal.component';
 import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
 import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
 import { PlaylistItemScheduleModalComponent } from './shared/playlist-item-schedule-modal.component';
@@ -122,6 +125,47 @@ function dataURLtoFile(data_url: string, filename: string) {
     return new File([uint8_array], filename, { type: mime_type });
 }
 
+/** Backoff between attempts at creating a media record, in milliseconds */
+const MEDIA_RETRY_DELAYS = [500, 1500, 4500];
+
+/** Point to seek to before capturing a video thumbnail, in seconds */
+const VIDEO_THUMBNAIL_OFFSET = 0.1;
+/** How long to wait for a paintable video frame, in milliseconds */
+const VIDEO_THUMBNAIL_TIMEOUT = 15 * 1000;
+
+/**
+ * A 401 is deliberately absent: the API client already invalidates the token,
+ * re-authorises and replays the request itself, so retrying here as well would
+ * multiply into a long run of auth refreshes.
+ */
+function isRetryableMediaError(error: any) {
+    const status = error?.status;
+    // No status means the request never reached the server
+    if (typeof status !== 'number') return true;
+    return status === 408 || status === 429 || status >= 500;
+}
+
+async function retryMediaRequest<T>(request: () => Promise<T>): Promise<T> {
+    let last_error: unknown;
+    for (let attempt = 0; ; attempt++) {
+        try {
+            return await request();
+        } catch (error) {
+            last_error = error;
+            if (
+                !isRetryableMediaError(error) ||
+                attempt >= MEDIA_RETRY_DELAYS.length
+            ) {
+                break;
+            }
+            await new Promise((resolve) =>
+                setTimeout(resolve, MEDIA_RETRY_DELAYS[attempt]),
+            );
+        }
+    }
+    throw last_error;
+}
+
 interface PreparedUploadMedia {
     file: File;
     media_type: 'image' | 'video';
@@ -145,6 +189,15 @@ const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
 type MediaViewMode = 'grid' | 'list' | 'folder';
+// Fields the backend matches a search term against. Names that don't exist on
+// a given resource are ignored, so the one list works for every search.
+const SEARCH_FIELDS = [
+    'id',
+    'name',
+    'display_name',
+    'description',
+    'tags',
+].join(',');
 const SIGNAGE_GROUP_FIELDS = [
     'id',
     'name',
@@ -232,6 +285,25 @@ function persistSelectedGroupId(group_id: string) {
     }
 }
 
+/** Group and its ancestors, root first. Stops on a repeated group so a broken
+ * parent chain can't loop forever. */
+export function groupHierarchy(
+    selected: PlaceGroup | undefined,
+    all_groups: PlaceGroup[],
+) {
+    if (!selected) return [];
+    const groups = new Map(all_groups.map((item) => [item.id, item]));
+    const hierarchy: PlaceGroup[] = [];
+    const seen = new Set<string>();
+    let group = selected;
+    while (group?.id && !seen.has(group.id)) {
+        hierarchy.unshift(group);
+        seen.add(group.id);
+        group = group.parent_id ? groups.get(group.parent_id) : undefined;
+    }
+    return hierarchy;
+}
+
 export function dialogClosed<T = unknown>(ref: {
     afterClosed: () => {
         subscribe: (handler: (value: T) => void) => { unsubscribe: () => void };
@@ -258,6 +330,18 @@ export class SignageService {
     private readonly _display_overrides = signal<Record<string, any>>({});
     private readonly _zone_overrides = signal<Record<string, any>>({});
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
+
+    /** Whether the navigation offers a group selector. Hiding it leaves the
+     * section header breadcrumbs as the way to change group. */
+    public readonly show_group_selector = this._settings.signal(
+        'show_group_selector',
+        true,
+    );
+    /** Whether the media page offers its group tab bar. */
+    public readonly show_media_group_tabs = this._settings.signal(
+        'show_media_group_tabs',
+        true,
+    );
 
     public readonly search_term = signal('');
     public readonly media_view_mode =
@@ -310,14 +394,19 @@ export class SignageService {
                               }) as PlaceCurrentGroup,
                       )
                     : await this._currentSignageGroups(params.groups_change);
+                this.signage_groups_failed.set(false);
                 return groups
                     .map(decodeEntityNames)
                     .sort((a, b) => a.group.name.localeCompare(b.group.name));
             } catch {
+                this.signage_groups_failed.set(true);
                 return [] as PlaceCurrentGroup[];
             }
         },
     });
+    /** Whether the last signage group request failed, so an empty group list
+     * can't be read as "this user has no access". */
+    public readonly signage_groups_failed = signal(false);
     public readonly signage_groups = computed(
         () => this._signage_groups.value() || [],
     );
@@ -325,6 +414,14 @@ export class SignageService {
         const group_id = this.selected_group_id();
         return this.signage_groups().find((item) => item.group.id === group_id);
     });
+    /** Selected group and its ancestors, root first. Empty when no group is
+     * selected. */
+    public readonly selected_group_hierarchy = computed(() =>
+        groupHierarchy(
+            this.selected_group()?.group,
+            this.signage_groups().map((item) => item.group),
+        ),
+    );
     public readonly is_sys_admin = computed(() => {
         const user = this._current_user() as any as {
             groups?: string[];
@@ -566,7 +663,16 @@ export class SignageService {
     // How many items to request per network page.
     private static readonly PAGE_SIZE = 200;
 
-    // --- Media (paged incrementally as the user scrolls) ---
+    // --- Media ---
+    //
+    // TEMPORARY WORKAROUND: the signage media endpoint paginates unreliably,
+    // so the whole library is pulled up front instead of a page at a time as
+    // the user scrolls.
+    //
+    // TO REVERT once the backend is fixed: call _fetchMediaPage instead of
+    // _fetchAllMediaPages in the reload effect below, then delete
+    // _fetchAllMediaPages, _media_loading_all and MAX_MEDIA_PAGES.
+    // loadMoreMedia() already drives incremental loading and needs no change.
     private readonly _media_items = signal<SignageMedia[]>([]);
     private readonly _media_loading = signal(false);
     private readonly _media_has_more = signal(false);
@@ -574,6 +680,11 @@ export class SignageService {
         null;
     // Bumped on every reset so in-flight pages from a stale query are discarded.
     private _media_token = 0;
+    // Blocks scroll-driven loading while every page is being pulled up front
+    private _media_loading_all = false;
+    // Bounded because the fault being worked around is in the very pagination
+    // this loop follows; without it a repeating cursor would never terminate.
+    private static readonly MAX_MEDIA_PAGES = 50;
 
     public readonly media = this._media_items.asReadonly();
     public readonly media_loading = this._media_loading.asReadonly();
@@ -591,7 +702,7 @@ export class SignageService {
             this._media_next = null;
             this._media_has_more.set(false);
             if (!initialised || !can_query) return;
-            this._fetchMediaPage(
+            this._fetchAllMediaPages(
                 querySignageMedia(
                     this._orgZoneQueryParams(
                         { limit: SignageService.PAGE_SIZE },
@@ -603,7 +714,39 @@ export class SignageService {
         });
     });
 
+    /**
+     * TEMPORARY: walk every page of the media library in one go. See the note
+     * on the media fields above for how to revert this.
+     */
+    private async _fetchAllMediaPages(
+        query: QueryResponse<SignageMedia>,
+        token: number,
+    ) {
+        this._media_loading_all = true;
+        try {
+            await this._fetchMediaPage(query, token);
+            for (let page = 1; page < SignageService.MAX_MEDIA_PAGES; page++) {
+                if (token !== this._media_token) return;
+                if (!this._media_has_more()) return;
+                const next = this._media_next?.();
+                if (!next) break;
+                const count_before = this._media_items().length;
+                await this._fetchMediaPage(next, token);
+                // A page that adds nothing means the cursor is repeating
+                if (this._media_items().length === count_before) break;
+            }
+            if (token === this._media_token) this._media_has_more.set(false);
+        } finally {
+            if (token === this._media_token) {
+                this._media_loading_all = false;
+                this._media_loading.set(false);
+            }
+        }
+    }
+
     public loadMoreMedia() {
+        // Nothing to add while every page is being pulled up front
+        if (this._media_loading_all) return;
         if (this._media_loading() || !this._media_has_more()) return;
         const next = this._media_next?.();
         if (!next) {
@@ -622,9 +765,15 @@ export class SignageService {
             const page = await query;
             if (token !== this._media_token) return;
             const items = (page.data || []).map(decodeEntityNames);
-            this._media_items.update((list) =>
-                [...list, ...items].sort((a, b) => b.created_at - a.created_at),
-            );
+            // Merged by id because a faulty paginator can repeat an item
+            // across pages, which a plain concatenation would duplicate.
+            this._media_items.update((list) => {
+                const by_id = new Map(list.map((item) => [item.id, item]));
+                for (const item of items) by_id.set(item.id, item);
+                return [...by_id.values()].sort(
+                    (a, b) => b.created_at - a.created_at,
+                );
+            });
             this._media_next = page.next;
             this._media_has_more.set(this._media_items().length < page.total);
         } catch {
@@ -672,7 +821,22 @@ export class SignageService {
     public readonly media_tags = computed(() => this._media_tags.value() || []);
 
     // --- Playlists (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list; filtering the loaded pages would only search playlists that have
+    // already been fetched.
+    public readonly playlist_search_term = signal('');
+    private readonly _playlist_search_debounced = debounced(
+        this.playlist_search_term,
+        400,
+    );
     private readonly _playlist_items = signal<SignagePlaylist[]>([]);
+    // Keep playlists seen outside the current search available to display,
+    // zone and schedule views, which resolve their playlist ids from this list.
+    private readonly _playlist_cache = signal<Record<string, SignagePlaylist>>(
+        {},
+    );
+    private _playlist_cache_group: string | null = null;
+    private _playlist_cache_change: number | null = null;
     private readonly _playlists_loading = signal(false);
     private readonly _playlists_has_more = signal(false);
     private _playlists_next:
@@ -680,7 +844,11 @@ export class SignageService {
         | null = null;
     private _playlists_token = 0;
 
-    public readonly playlists = this._playlist_items.asReadonly();
+    public readonly playlists = computed(() =>
+        Object.values(this._playlist_cache()).sort((a, b) =>
+            a.name.localeCompare(b.name),
+        ),
+    );
     public readonly playlists_loading = this._playlists_loading.asReadonly();
     public readonly playlists_has_more = this._playlists_has_more.asReadonly();
 
@@ -688,17 +856,29 @@ export class SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
-        this._change();
+        const search = this._playlist_search_debounced.value().trim();
+        const change = this._change();
         untracked(() => {
             const token = ++this._playlists_token;
             this._playlist_items.set([]);
             this._playlists_next = null;
             this._playlists_has_more.set(false);
+            if (
+                group_id !== this._playlist_cache_group ||
+                change !== this._playlist_cache_change
+            ) {
+                this._playlist_cache_group = group_id;
+                this._playlist_cache_change = change;
+                this._playlist_cache.set({});
+            }
             if (!initialised || !can_query) return;
             this._fetchPlaylistPage(
                 querySignagePlaylists(
                     this._orgZoneQueryParams(
-                        { limit: SignageService.PAGE_SIZE },
+                        {
+                            limit: SignageService.PAGE_SIZE,
+                            ...this._searchParam(search),
+                        },
                         group_id,
                     ),
                 ),
@@ -726,11 +906,18 @@ export class SignageService {
             const page = await query;
             if (token !== this._playlists_token) return;
             const items = (page.data || []).map(decodeEntityNames);
-            this._playlist_items.update((list) =>
-                [...list, ...items].sort((a, b) =>
+            this._playlist_items.update((list) => {
+                const by_id = new Map(list.map((item) => [item.id, item]));
+                for (const item of items) by_id.set(item.id, item);
+                return [...by_id.values()].sort((a, b) =>
                     a.name.localeCompare(b.name),
-                ),
-            );
+                );
+            });
+            this._playlist_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            });
             this._playlists_next = page.next;
             this._playlists_has_more.set(
                 this._playlist_items().length < page.total,
@@ -745,14 +932,30 @@ export class SignageService {
     }
 
     // --- Displays (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list; filtering the loaded pages would only ever search the displays
+    // that happened to be fetched already.
+    public readonly display_search_term = signal('');
+    private readonly _display_search_debounced = debounced(
+        this.display_search_term,
+        400,
+    );
     private readonly _display_items = signal<any[]>([]);
+    // Every display seen since the group last changed, keyed by id. Zone,
+    // schedule and playlist views resolve displays by id, so they need the
+    // whole set rather than whatever the current search narrowed it to.
+    private readonly _display_cache = signal<Record<string, any>>({});
+    private _display_cache_group: string | null = null;
     private readonly _displays_loading = signal(false);
     private readonly _displays_has_more = signal(false);
     private _displays_next: (() => QueryResponse<any> | null) | null = null;
     private _displays_token = 0;
 
     public readonly displays = computed(() =>
-        this._mergeItems(this._display_items(), this._display_overrides()),
+        this._mergeItems(
+            Object.values(this._display_cache()),
+            this._display_overrides(),
+        ),
     );
     public readonly displays_loading = this._displays_loading.asReadonly();
     public readonly displays_has_more = this._displays_has_more.asReadonly();
@@ -761,23 +964,85 @@ export class SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
+        const search = this._display_search_debounced.value().trim();
         this._change();
         untracked(() => {
             const token = ++this._displays_token;
             this._display_items.set([]);
             this._displays_next = null;
             this._displays_has_more.set(false);
+            // Only drop the id cache when the source of the data changes, a
+            // new search term still needs the displays other views look up.
+            if (group_id !== this._display_cache_group) {
+                this._display_cache_group = group_id;
+                this._display_cache.set({});
+            }
             if (!initialised || !can_query) return;
             this._fetchDisplayPage(
                 querySystems({
                     ...this._orgZoneQueryParams({}, group_id),
                     limit: SignageService.PAGE_SIZE,
                     signage: true,
+                    ...this._searchParam(search),
                 } as any),
                 token,
             );
         });
     });
+
+    /**
+     * Paged queries for the picker modals, which search on their own without
+     * disturbing the lists behind them. Null when the user may not query.
+     */
+    public queryDisplays(search = ''): QueryResponse<any> | null {
+        if (!this._canQueryLists()) return null;
+        return querySystems({
+            ...this._orgZoneQueryParams({}),
+            limit: SignageService.PAGE_SIZE,
+            signage: true,
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    public queryPlaylists(search = ''): QueryResponse<SignagePlaylist> | null {
+        if (!this._canQueryLists()) return null;
+        return querySignagePlaylists({
+            ...this._orgZoneQueryParams({ limit: SignageService.PAGE_SIZE }),
+            ...this._searchParam(search),
+        });
+    }
+
+    public querySignageZones(search = ''): QueryResponse<PlaceZone> | null {
+        if (!this._canQueryLists()) return null;
+        const group_id = this._api_group_id();
+        return queryZones({
+            limit: SignageService.PAGE_SIZE,
+            tags: 'signage',
+            ...(group_id ? { group_id } : {}),
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    /** Zones a managed group can be given access to, not just signage ones */
+    public queryGroupZones(search = ''): QueryResponse<PlaceZone> | null {
+        const group = this.managed_group();
+        return queryZones({
+            limit: SignageService.PAGE_SIZE,
+            ...(group?.authority_id
+                ? { authority_id: group.authority_id }
+                : {}),
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    private _canQueryLists() {
+        return this._org.initialised() && this._can_query_group_data();
+    }
+
+    private _searchParam(search: string) {
+        const term = search.trim();
+        return term ? { q: term, fields: SEARCH_FIELDS } : {};
+    }
 
     public loadMoreDisplays() {
         if (this._displays_loading() || !this._displays_has_more()) return;
@@ -798,6 +1063,11 @@ export class SignageService {
                 .filter((item) => item.signage)
                 .map(decodeEntityNames);
             this._display_items.update((list) => [...list, ...items]);
+            this._display_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            });
             this._displays_next = page.next;
             this._displays_has_more.set(
                 this._display_items().length < page.total,
@@ -941,8 +1211,6 @@ export class SignageService {
     );
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
     public readonly selected_playlist_item_index = signal<number | null>(null);
-    public readonly playlist_search_term = signal('');
-
     public readonly selected_zone = signal<any>(null);
     public readonly zone_search_term = signal('');
     public readonly zone_tree_expanded = signal<Record<string, boolean>>({});
@@ -951,7 +1219,6 @@ export class SignageService {
     >({});
 
     public readonly selected_display = signal<any>(null);
-    public readonly display_search_term = signal('');
     private readonly _playlist_meta_state = signal<
         Record<string, PlaylistMetaState>
     >(loadPlaylistMetaSessionCache());
@@ -962,10 +1229,7 @@ export class SignageService {
     private _playlist_meta_processing = false;
 
     public readonly filtered_playlists = computed(() => {
-        const term = this.playlist_search_term().toLowerCase();
-        return this.playlists().filter((p) =>
-            p.name.toLowerCase().includes(term),
-        );
+        return this._playlist_items();
     });
 
     public readonly selected_playlist_requires_approval = computed(() => {
@@ -1016,11 +1280,18 @@ export class SignageService {
         );
     });
 
+    // The listing itself, which is whatever page(s) of the (possibly
+    // searched) query have been loaded so far. Local edits are applied over
+    // the loaded items, but never add a display the query didn't return.
     public readonly filtered_displays = computed(() => {
-        const term = this.display_search_term().toLowerCase();
-        return this.displays().filter((d) =>
-            (d.display_name || d.name).toLowerCase().includes(term),
-        );
+        const overrides = this._display_overrides();
+        return this._display_items()
+            .map((display) => overrides[display.id] || display)
+            .sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            );
     });
 
     private readonly _playlist_change = signal(Date.now());
@@ -1260,7 +1531,7 @@ export class SignageService {
 
     public async removeMediaFromPlaylist(
         playlist_id: string,
-        media_id: string,
+        playlist_item_id: string,
         item_index?: number,
     ) {
         if (
@@ -1274,11 +1545,11 @@ export class SignageService {
         const new_items = [...(media_list.items || [])];
         if (
             typeof item_index === 'number' &&
-            new_items[item_index] === media_id
+            new_items[item_index] === playlist_item_id
         ) {
             new_items.splice(item_index, 1);
         } else {
-            const index = new_items.indexOf(media_id);
+            const index = new_items.indexOf(playlist_item_id);
             if (index < 0) return;
             new_items.splice(index, 1);
         }
@@ -1359,18 +1630,28 @@ export class SignageService {
                     item_id: media_id,
                     media,
                 }),
-                save: (item_id, schedules) =>
-                    scheduleSignagePlaylistMedia(playlist_id, {
-                        item_id,
-                        schedules,
-                    }),
+                save: async (item_id, schedules) => {
+                    const media_list = await scheduleSignagePlaylistMedia(
+                        playlist_id,
+                        {
+                            item_id,
+                            schedules,
+                        },
+                    );
+                    this._setPlaylistMediaState(
+                        playlist_id,
+                        media_list.items || [],
+                        false,
+                        media_list.schedules,
+                    );
+                    return media_list;
+                },
             },
             panelClass: 'mobile-fullscreen',
         });
         const result = await dialogClosed(ref);
         if (!result) return false;
         this._playlist_change.set(Date.now());
-        this.changed();
         return true;
     }
 
@@ -1452,18 +1733,6 @@ export class SignageService {
                 ? { authority_id: group.authority_id }
                 : {}),
         });
-        return data;
-    }
-
-    public async searchGroupZones(search = '') {
-        const group = this.managed_group();
-        const { data } = await queryZones({
-            q: search,
-            limit: 20,
-            ...(group?.authority_id
-                ? { authority_id: group.authority_id }
-                : {}),
-        } as Record<string, unknown>);
         return data;
     }
 
@@ -1640,13 +1909,34 @@ export class SignageService {
         };
     }
 
-    private _addSignageMedia(form_data: Partial<SignageMedia>) {
+    private async _addSignageMedia(form_data: Partial<SignageMedia>) {
         const group_id = this._api_group_id();
-        if (!group_id) return addSignageMedia(form_data);
-        return post(
-            `${apiEndpoint()}/signage/media?group_id=${encodeURIComponent(group_id)}`,
-            form_data,
-        ).then((resp: any) => new SignageMedia(resp));
+        const result = await retryMediaRequest(() =>
+            group_id
+                ? post(
+                      `${apiEndpoint()}/signage/media?group_id=${encodeURIComponent(group_id)}`,
+                      form_data,
+                  ).then((resp: any) => new SignageMedia(resp))
+                : addSignageMedia(form_data),
+        );
+        this._addMediaToList(result);
+        return result;
+    }
+
+    /**
+     * Fold a newly created item into the loaded media list. Refetching instead
+     * loses the item whenever the backend index lags the write, which reads as
+     * a failed upload.
+     */
+    private _addMediaToList(media: SignageMedia) {
+        if (!media?.id) return;
+        const item = decodeEntityNames(media);
+        this._media_items.update((items) =>
+            [item, ...items.filter((existing) => existing.id !== item.id)].sort(
+                (a, b) => b.created_at - a.created_at,
+            ),
+        );
+        this._media_tags.reload();
     }
 
     private _addSignagePlaylist(form_data: Partial<SignagePlaylist>) {
@@ -1770,7 +2060,6 @@ export class SignageService {
         this._setPlaylistMediaState(playlist_id, list, false);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED'));
         this._playlist_change.set(Date.now());
-        this.changed();
     }
 
     public async addMediaToPlaylist(playlist_id: string, media_id: string) {
@@ -2180,14 +2469,6 @@ export class SignageService {
         let file_thumbnail = '';
         if (file) {
             file_thumbnail = await this._generateThumbnail(file, 1024, 720);
-        } else if (
-            media.media_type === 'webpage' &&
-            media.media_uri &&
-            !media.thumbnail_id
-        ) {
-            file_thumbnail = await this.generateUrlThumbnail(
-                media.media_uri,
-            ).catch(() => '');
         }
         const ref = this._dialog.open(MediaEditModalComponent, {
             data: {
@@ -2198,24 +2479,28 @@ export class SignageService {
                 playlist_id,
                 plugin,
                 loadPlugin: load_plugin,
+                generateThumbnail: (f: File) => this.generateThumbnailImage(f),
                 onAdd: (
                     f: File,
                     m: SignageMedia,
                     file_metadata?: SignageMediaMetadata,
+                    thumbnail?: string,
                 ) =>
                     this._addMedia(
                         f,
                         m,
                         playlist_id,
                         file_metadata,
-                        file_thumbnail,
+                        thumbnail || file_thumbnail,
                     ),
-                onEdit: (id: string, data: any) => this._editMedia(id, data),
+                onEdit: async (id: string, data: any) => {
+                    const updated_media = await this._editMedia(id, data);
+                    Object.assign(media, updated_media);
+                },
                 preview: (item) => this.previewMedia(item),
             },
         });
         await dialogClosed(ref);
-        setTimeout(() => this.changed(), 500);
     }
 
     private async _editMedia(id: string, data: any) {
@@ -2226,8 +2511,25 @@ export class SignageService {
             )
         )
             return;
-        await updateSignageMedia(id, data);
-        this.changed();
+        // Webpage and plugin items carry their thumbnail as an image the user
+        // picked in the modal. It has to be uploaded before the item can point
+        // at it.
+        const { thumbnail_image, ...update } = data;
+        if (thumbnail_image) {
+            const thumbnail_id = await this._uploadThumbnailImage(
+                thumbnail_image,
+                update.name,
+            );
+            if (thumbnail_id) update.thumbnail_id = thumbnail_id;
+        }
+        const updated_media = decodeEntityNames(
+            await updateSignageMedia(id, update),
+        );
+        this._media_items.update((items) =>
+            items.map((item) => (item.id === id ? updated_media : item)),
+        );
+        this._media_tags.reload();
+        return updated_media;
     }
 
     private async _resolvePlugin(
@@ -2264,15 +2566,10 @@ export class SignageService {
         } else {
             let thumbnail_id = '';
             if (url_thumbnail) {
-                const name = `thumb+${(media_item.name || 'media').replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
-                thumbnail_id = await this._uploads
-                    .uploadFileToCompletion(dataURLtoFile(url_thumbnail, name))
-                    .catch(() => {
-                        notifyWarn(
-                            i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'),
-                        );
-                        return '';
-                    });
+                thumbnail_id = await this._uploadThumbnailImage(
+                    url_thumbnail,
+                    media_item.name,
+                );
             }
             const data = {
                 ...new SignageMedia({
@@ -2289,8 +2586,10 @@ export class SignageService {
             const media_list = await listSignagePlaylistMedia(playlist_id);
             const new_media_list = [...media_list.items, result.id];
             await this.updatePlaylistMedia(playlist_id, new_media_list);
+            // Only the playlist views need rebuilding; the media list already
+            // holds the item returned by the create call.
+            this.changed();
         }
-        this.changed();
         return result;
     }
 
@@ -2322,33 +2621,17 @@ export class SignageService {
             1280,
             720,
         ).catch(() => null);
+        // Resolves only once the upload is committed. Watching progress reach
+        // 100 is not enough: the last chunk lands before finalisation and the
+        // commit run, so a failure there would otherwise look like success.
         let media_id: string;
         if (upload_options) {
-            const upload = this._uploads.uploadFileWithProgress(
+            media_id = await this._uploads.uploadFileToCompletion(
                 upload_file,
                 false,
                 upload_options.permissions,
+                upload_options.on_progress,
             );
-            const details = await new Promise<ReturnType<typeof upload>>(
-                (resolve, reject) => {
-                    const interval = setInterval(() => {
-                        const state = upload();
-                        upload_options.on_progress?.(state.progress);
-                        if (state.error) {
-                            clearInterval(interval);
-                            reject(state.error);
-                            return;
-                        }
-                        if (state.progress < 100) return;
-                        clearInterval(interval);
-                        resolve(state);
-                    }, 100);
-                },
-            );
-            media_id = details.upload_id || details.upload?.id || details.id;
-            if (!media_id) {
-                throw new Error('Failed to get uploaded file ID');
-            }
         } else {
             media_id =
                 await this._uploads.uploadFileWithPermissionsToCompletion(
@@ -2362,15 +2645,10 @@ export class SignageService {
         if (thumbnail_image) {
             const name_parts = upload_file.name.split('.');
             name_parts.pop();
-            const name = `thumb+${name_parts.join('.')}.jpg`;
-            thumbnail_id = await this._uploads
-                .uploadFileToCompletion(dataURLtoFile(thumbnail_image, name))
-                .catch(() => {
-                    notifyWarn(
-                        i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'),
-                    );
-                    return '';
-                });
+            thumbnail_id = await this._uploadThumbnailImage(
+                thumbnail_image,
+                name_parts.join('.'),
+            );
         }
         const data = {
             ...new SignageMedia({
@@ -2509,6 +2787,42 @@ export class SignageService {
         return this._shareSignageItems('media', media_ids);
     }
 
+    public async addMediaTags(items: SignageMedia[]) {
+        const media_items = items.filter((item) => !!item?.id);
+        if (!media_items.length) return false;
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA'),
+            )
+        )
+            return false;
+        const ref = this._dialog.open(MediaTagsModalComponent, {
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        const tags = await dialogClosed<string[]>(ref);
+        if (!tags?.length) return false;
+        try {
+            await Promise.all(
+                media_items.map((item) =>
+                    updateSignageMedia(item.id, {
+                        tags: [...new Set([...(item.tags || []), ...tags])],
+                    }),
+                ),
+            );
+        } catch (error) {
+            notifyError(
+                i18n('SIGNAGE_MANAGER.MEDIA_SAVE_ERROR', {
+                    error: error instanceof Error ? error.message : `${error}`,
+                }),
+            );
+            return false;
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.MEDIA_SAVE_SUCCESS'));
+        return true;
+    }
+
     public async openPlaylistSelectModal(media_id: string) {
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
             data: { media_id },
@@ -2595,8 +2909,11 @@ export class SignageService {
         });
         const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this.displays();
-        const display = displays.find((d: any) => d.id === display_id);
+        // The picker searches the backend, so the choice may be a display the
+        // list never loaded.
+        const display =
+            this.displays().find((d: any) => d.id === display_id) ||
+            (await showSystem(display_id).catch(() => null));
         if (!display) return;
         if (display.zones?.includes(zone.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_IN_ZONE'));
@@ -2681,8 +2998,11 @@ export class SignageService {
         });
         const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this.displays();
-        const display = displays.find((d: any) => d.id === display_id);
+        // The picker searches the backend, so the choice may be a display the
+        // list never loaded.
+        const display =
+            this.displays().find((d: any) => d.id === display_id) ||
+            (await showSystem(display_id).catch(() => null));
         if (!display) return;
         if (display.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
@@ -2716,8 +3036,10 @@ export class SignageService {
         });
         const zone_id = await dialogClosed(ref);
         if (!zone_id) return;
-        const zones = this.zones();
-        const zone = zones.find((z: any) => z.id === zone_id);
+        // Likewise the zone picker, which may return a zone outside the list
+        const zone =
+            this.zones().find((z: any) => z.id === zone_id) ||
+            (await showZone(zone_id).catch(() => null));
         if (!zone) return;
         if (zone.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));
@@ -2842,6 +3164,36 @@ export class SignageService {
         });
     }
 
+    private _uploadThumbnailImage(data_url: string, name: string) {
+        const file_name = `thumb+${(name || 'media').replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+        return this._uploads
+            .uploadFileToCompletion(dataURLtoFile(data_url, file_name))
+            .catch(() => {
+                notifyWarn(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'));
+                return '';
+            });
+    }
+
+    /**
+     * Scale an image the user picked down to a thumbnail data URL. Webpages
+     * and plugins have no file to capture a frame from, and a cross origin
+     * page cannot be rendered to a canvas, so the image is supplied by hand.
+     */
+    public async generateThumbnailImage(file: File) {
+        if (!file || !isImageSourceFile(file)) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_NOT_IMAGE'));
+            return '';
+        }
+        const image = await this._normalizeImageUpload(file);
+        const thumbnail = await this._generateThumbnail(image, 1280, 720).catch(
+            () => '',
+        );
+        if (!thumbnail) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_FAILED'));
+        }
+        return thumbnail;
+    }
+
     private async _generateThumbnail(
         file: File,
         max_width: number,
@@ -2855,27 +3207,70 @@ export class SignageService {
         return '';
     }
 
-    private _generateImageThumbnail(
+    private async _generateImageThumbnail(
         file: File,
         max_width: number,
         max_height: number,
     ) {
-        return new Promise<string>((resolve, reject) => {
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
-                const image = this._generateThumbnailFromResource(
-                    img,
-                    img.width,
-                    img.height,
-                    max_width,
-                    max_height,
-                );
-                URL.revokeObjectURL(img.src);
-                resolve(image);
-            };
-            img.onerror = reject;
-        });
+        const source = await this._decodeImageSource(file);
+        const { width, height } = this._imageSourceSize(
+            source,
+            max_width,
+            max_height,
+        );
+        try {
+            return this._generateThumbnailFromResource(
+                source,
+                width,
+                height,
+                max_width,
+                max_height,
+            );
+        } finally {
+            if (source instanceof ImageBitmap) source.close();
+        }
+    }
+
+    /**
+     * Decode the file completely before anything paints it. `load` on an
+     * `<img>` only promises the bytes arrived, not that a frame is ready, and
+     * browsers differ on when that becomes true.
+     */
+    private async _decodeImageSource(
+        file: File,
+    ): Promise<ImageBitmap | HTMLImageElement> {
+        if (typeof createImageBitmap === 'function') {
+            try {
+                const bitmap = await createImageBitmap(file);
+                if (bitmap.width > 0 && bitmap.height > 0) return bitmap;
+                bitmap.close();
+            } catch {
+                // Firefox cannot decode SVG through createImageBitmap
+            }
+        }
+        const image = await this._loadImage(file);
+        if (typeof image.decode === 'function') {
+            await image.decode().catch(() => undefined);
+        }
+        return image;
+    }
+
+    /**
+     * An SVG carrying no intrinsic size reports zero dimensions in Firefox
+     * while Chrome substitutes a default, which yields a zero sized canvas and
+     * a blank thumbnail. Fall back to the target box in that case.
+     */
+    private _imageSourceSize(
+        source: ImageBitmap | HTMLImageElement,
+        max_width: number,
+        max_height: number,
+    ) {
+        const width =
+            (source as HTMLImageElement).naturalWidth || source.width || 0;
+        const height =
+            (source as HTMLImageElement).naturalHeight || source.height || 0;
+        if (width > 0 && height > 0) return { width, height };
+        return { width: max_width, height: max_height };
     }
 
     private async _convertImageToWebp(file: File) {
@@ -2933,10 +3328,20 @@ export class SignageService {
     ) {
         return new Promise<string>((resolve, reject) => {
             const video = document.createElement('video');
-            video.autoplay = true;
+            const url = URL.createObjectURL(file);
             video.muted = true;
-            video.src = URL.createObjectURL(file);
-            video.onloadeddata = () => {
+            video.playsInline = true;
+            video.preload = 'auto';
+            let settled = false;
+            const cleanup = () => {
+                clearTimeout(timer);
+                URL.revokeObjectURL(url);
+                video.removeAttribute('src');
+                video.load();
+            };
+            const capture = () => {
+                if (settled) return;
+                settled = true;
                 const image = this._generateThumbnailFromResource(
                     video,
                     video.videoWidth,
@@ -2944,15 +3349,47 @@ export class SignageService {
                     max_width,
                     max_height,
                 );
-                URL.revokeObjectURL(video.src);
+                cleanup();
                 resolve(image);
             };
-            video.onerror = reject;
+            const fail = (error: unknown) => {
+                if (settled) return;
+                settled = true;
+                cleanup();
+                reject(error);
+            };
+            // Never leave the caller waiting on a frame that will not arrive
+            const timer = setTimeout(
+                () => fail(new Error('Timed out generating video thumbnail')),
+                VIDEO_THUMBNAIL_TIMEOUT,
+            );
+            video.onseeked = capture;
+            video.onloadeddata = () => {
+                // `loadeddata` only promises HAVE_CURRENT_DATA, and Firefox
+                // reaches it before a frame can be painted, which renders the
+                // thumbnail black. Seeking and waiting for `seeked` guarantees
+                // a decoded frame is presented.
+                const duration = Number.isFinite(video.duration)
+                    ? video.duration
+                    : 0;
+                const target = duration
+                    ? Math.min(VIDEO_THUMBNAIL_OFFSET, duration / 2)
+                    : VIDEO_THUMBNAIL_OFFSET;
+                if (video.currentTime === target) {
+                    capture();
+                    return;
+                }
+                // A seek to the current position emits no `seeked` event
+                video.currentTime = target;
+            };
+            video.onerror = () =>
+                fail(new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_LOAD_IMAGE')));
+            video.src = url;
         });
     }
 
     private _generateThumbnailFromResource(
-        data: HTMLImageElement | HTMLVideoElement,
+        data: CanvasImageSource,
         source_width: number,
         source_height: number,
         max_width: number,
@@ -2971,97 +3408,16 @@ export class SignageService {
             thumbnail_height = max_height;
             thumbnail_width = thumbnail_height * aspect_ratio;
         }
-        canvas.width = thumbnail_width;
-        canvas.height = thumbnail_height;
-        ctx.drawImage(data, 0, 0, thumbnail_width, thumbnail_height);
+        /* A fractional or zero sized canvas renders nothing at all */
+        const width = Math.max(1, Math.round(thumbnail_width));
+        const height = Math.max(1, Math.round(thumbnail_height));
+        canvas.width = width;
+        canvas.height = height;
+        /* JPEG has no alpha channel, so anything transparent is written out as
+         * black unless the canvas is given a background first. */
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(data, 0, 0, width, height);
         return canvas.toDataURL('image/jpeg');
-    }
-
-    /** Generate a thumbnail by loading a URL in a hidden iframe and capturing its content. */
-    public generateUrlThumbnail(
-        url: string,
-        width = 1280,
-        height = 720,
-        timeout_ms = 8000,
-    ): Promise<string> {
-        return new Promise<string>((resolve) => {
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.left = '-10000px';
-            iframe.style.top = '-10000px';
-            iframe.style.width = `${width}px`;
-            iframe.style.height = `${height}px`;
-            iframe.style.border = 'none';
-            iframe.style.opacity = '0';
-            iframe.style.pointerEvents = 'none';
-            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-            let resolved = false;
-            const cleanup = () => {
-                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-            };
-            const finish = (result: string) => {
-                if (resolved) return;
-                resolved = true;
-                cleanup();
-                resolve(result);
-            };
-            const timer = setTimeout(() => finish(''), timeout_ms);
-            iframe.addEventListener('load', () => {
-                /* Allow the page content time to render after the load event. */
-                setTimeout(() => {
-                    clearTimeout(timer);
-                    try {
-                        const doc = iframe.contentDocument;
-                        if (!doc) {
-                            finish('');
-                            return;
-                        }
-                        const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) {
-                            finish('');
-                            return;
-                        }
-                        /* Fill with a white background to match typical page backgrounds. */
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillRect(0, 0, width, height);
-                        /* Render the foreign object via an SVG wrapper. */
-                        const serializer = new XMLSerializer();
-                        const html = serializer.serializeToString(doc);
-                        const svg_data = `
-                            <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-                                <foreignObject width="100%" height="100%">
-                                    ${html}
-                                </foreignObject>
-                            </svg>`;
-                        const svg_blob = new Blob([svg_data], {
-                            type: 'image/svg+xml;charset=utf-8',
-                        });
-                        const svg_url = URL.createObjectURL(svg_blob);
-                        const img = new Image();
-                        img.onload = () => {
-                            ctx.drawImage(img, 0, 0, width, height);
-                            URL.revokeObjectURL(svg_url);
-                            finish(canvas.toDataURL('image/jpeg', 0.85));
-                        };
-                        img.onerror = () => {
-                            URL.revokeObjectURL(svg_url);
-                            finish('');
-                        };
-                        img.src = svg_url;
-                    } catch {
-                        finish('');
-                    }
-                }, 2000);
-            });
-            iframe.addEventListener('error', () => {
-                clearTimeout(timer);
-                finish('');
-            });
-            document.body.appendChild(iframe);
-            iframe.src = url;
-        });
     }
 }

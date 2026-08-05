@@ -22,6 +22,8 @@ import * as client from '@placeos/ts-client';
 
 describe('CameraTooltipComponent', () => {
     let spectator: Spectator<CameraTooltipComponent>;
+    const available_cameras = signal<any[]>([]);
+    const selected_camera = signal<string | null>(null);
     const createComponent = createComponentFactory({
         component: CameraTooltipComponent,
         declarations: [
@@ -34,8 +36,8 @@ describe('CameraTooltipComponent', () => {
                 provide: ControlStateService,
                 useValue: {
                     id: 'sys-1',
-                    available_cameras: signal([]),
-                    selected_camera: signal(''),
+                    available_cameras,
+                    selected_camera,
                 },
             },
             {
@@ -53,6 +55,8 @@ describe('CameraTooltipComponent', () => {
     });
 
     beforeEach(() => {
+        available_cameras.set([]);
+        selected_camera.set(null);
         (client.getModule as any).mockImplementation(() => ({
             execute: async () => null,
         }));
@@ -61,6 +65,15 @@ describe('CameraTooltipComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should require a camera selection when selected_camera is null', () => {
+        available_cameras.set([
+            { id: 'cam1', name: 'Camera 1', mod: 'Camera_1' },
+            { id: 'cam2', name: 'Camera 2', mod: 'Camera_2' },
+        ]);
+        spectator.detectChanges();
+        expect(spectator.component.active_camera()).toBeUndefined();
     });
 
     it('should allow for user to select a camera', () => {

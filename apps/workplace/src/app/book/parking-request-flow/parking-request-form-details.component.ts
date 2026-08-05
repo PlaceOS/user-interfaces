@@ -14,6 +14,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
@@ -31,12 +32,12 @@ import {
     currentUser,
     getFormTimeSyncHandle,
     getTimeInTimezone,
+    notifyError,
     OrganisationService,
     settingSignal,
     SettingsService,
     startOfDayInTimezone,
     UploadsService,
-    notifyError
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
@@ -659,10 +660,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         <label
                                             class="mb-1 block text-sm font-medium"
                                         >
-                                            {{
-                                                'BOOKINGS.PARKING_START_TIME'
-                                                    | translate
-                                            }}
+                                            {{ 'FORM.TIME_START' | translate }}
                                         </label>
                                         <mat-form-field
                                             appearance="outline"
@@ -694,10 +692,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         <label
                                             class="mb-1 block text-sm font-medium"
                                         >
-                                            {{
-                                                'BOOKINGS.PARKING_END_TIME'
-                                                    | translate
-                                            }}
+                                            {{ 'FORM.TIME_END' | translate }}
                                         </label>
                                         <mat-form-field
                                             appearance="outline"
@@ -814,7 +809,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             >
                                                 @if (availability_loading()) {
                                                     <div
-                                                        class="text-sm font-medium opacity-60"
+                                                        class="p-2 text-sm font-medium opacity-60"
                                                     >
                                                         Checking...
                                                     </div>
@@ -921,7 +916,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 >
                                     @if (availability_loading()) {
                                         <div
-                                            class="text-sm font-medium opacity-60"
+                                            class="pr-2 text-sm font-medium opacity-60"
                                         >
                                             Checking...
                                         </div>
@@ -1001,14 +996,55 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
+                                    autocomplete="off"
                                     [ngModel]="model().plate_number"
                                     [ngModelOptions]="{ standalone: true }"
                                     (ngModelChange)="setPlateNumber($event)"
+                                    [matAutocomplete]="plate_number_auto"
                                     [placeholder]="
                                         'BOOKINGS.PARKING_REGISTRATION_PLACEHOLDER'
                                             | translate
                                     "
                                 />
+                                <mat-autocomplete
+                                    #plate_number_auto="matAutocomplete"
+                                >
+                                    @for (
+                                        plate_number of plate_number_options();
+                                        track plate_number
+                                    ) {
+                                        <mat-option [value]="plate_number">
+                                            <div
+                                                class="flex w-full items-center gap-2"
+                                            >
+                                                <span class="flex-1">{{
+                                                    plate_number
+                                                }}</span>
+                                                <button
+                                                    icon
+                                                    default
+                                                    error
+                                                    type="button"
+                                                    class="text-xs"
+                                                    [attr.aria-label]="
+                                                        'Remove ' + plate_number
+                                                    "
+                                                    (mousedown)="
+                                                        $event.stopPropagation()
+                                                    "
+                                                    (click)="
+                                                        removePlateNumber(
+                                                            $event,
+                                                            plate_number
+                                                        )
+                                                    "
+                                                >
+                                                    <icon>close</icon>
+                                                </button>
+                                            </div>
+                                        </mat-option>
+                                    }
+                                </mat-autocomplete>
                                 @if (showPlateNumberError()) {
                                     <mat-error>
                                         {{
@@ -1099,9 +1135,6 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 "
                                 [formField]="form().space_restrictions"
                             >
-                                <mat-radio-button [value]="false">
-                                    {{ 'COMMON.NONE' | translate }}
-                                </mat-radio-button>
                                 @for (
                                     option of space_restriction_options();
                                     track trackById(option)
@@ -1158,6 +1191,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
         CommonModule,
         FormsModule,
         FormField,
+        MatAutocompleteModule,
         MatFormFieldModule,
         MatInputModule,
         MatRadioModule,
@@ -1178,9 +1212,10 @@ export class ParkingRequestFormDetailsComponent
     private _parking = inject(ParkingService);
     private _injector = inject(Injector);
     private _settings = inject(SettingsService);
-    private _uploads = inject(UploadsService)
+    private _uploads = inject(UploadsService);
     private _org = inject(OrganisationService);
     private _saved_shift_state: ParkingRequestShiftState | null = null;
+    private readonly _removed_plate_numbers = signal<string[]>([]);
     private readonly _selected_shift_duration = signal(0);
     /**
      * Set to `true` once the user has explicitly chosen a shift via the
@@ -1396,7 +1431,7 @@ export class ParkingRequestFormDetailsComponent
     public readonly end_time_mins = signal<number>(1020);
     public readonly custom_start_time_mins = signal<number>(480);
     public readonly custom_end_time_mins = signal<number>(600);
-    public readonly supporting_doc_names = signal<string[]>([])
+    public readonly supporting_doc_names = signal<string[]>([]);
     public readonly shift_options = computed(() => {
         const user_groups = currentUser()?.groups || [];
         return this._normaliseShiftOptions(this.shift_options_setting()).filter(
@@ -1458,6 +1493,31 @@ export class ParkingRequestFormDetailsComponent
     public readonly vehicle_type_options = computed(() =>
         this._normaliseOptions(this.vehicle_type_options_setting()),
     );
+    public readonly plate_number_options = computed(() => {
+        const saved_plate_numbers = this._settings.get('plate_numbers');
+        const preferred_plate_number = this._settings.get('plate_number');
+        const removed_plate_numbers = new Set(this._removed_plate_numbers());
+        const plate_numbers = [
+            ...(typeof preferred_plate_number === 'string'
+                ? [preferred_plate_number]
+                : []),
+            ...(Array.isArray(saved_plate_numbers) ? saved_plate_numbers : []),
+        ];
+        const search = `${this.model?.()?.plate_number || ''}`
+            .trim()
+            .toLowerCase();
+        return plate_numbers
+            .filter((_) => typeof _ === 'string' && _.trim())
+            .map((_) => _.trim())
+            .filter(
+                (plate_number, index, list) =>
+                    list.findIndex(
+                        (_) => _.toLowerCase() === plate_number.toLowerCase(),
+                    ) === index &&
+                    plate_number.toLowerCase().includes(search) &&
+                    !removed_plate_numbers.has(plate_number.toLowerCase()),
+            );
+    });
     public readonly space_restriction_options = computed(() =>
         this._normaliseOptions(this.space_restriction_options_setting()),
     );
@@ -2078,6 +2138,31 @@ export class ParkingRequestFormDetailsComponent
         const model = this.model;
         if (!model || model().plate_number === plate_number) return;
         model.update((m) => ({ ...m, plate_number }));
+    }
+
+    public removePlateNumber(event: Event, plate_number: string) {
+        event.preventDefault();
+        event.stopPropagation();
+        const key = plate_number.trim().toLowerCase();
+        const saved_plate_numbers = this._settings.get('plate_numbers');
+        this._settings.saveUserSetting(
+            'plate_numbers',
+            Array.isArray(saved_plate_numbers)
+                ? saved_plate_numbers.filter(
+                      (_) =>
+                          typeof _ !== 'string' ||
+                          _.trim().toLowerCase() !== key,
+                  )
+                : [],
+        );
+        const preferred_plate_number = this._settings.get('plate_number');
+        if (
+            typeof preferred_plate_number === 'string' &&
+            preferred_plate_number.trim().toLowerCase() === key
+        ) {
+            this._settings.saveUserSetting('plate_number', '');
+        }
+        this._removed_plate_numbers.update((removed) => [...removed, key]);
     }
 
     private _timeSync(model = this.model) {

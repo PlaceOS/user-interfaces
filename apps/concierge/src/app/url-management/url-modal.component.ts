@@ -5,10 +5,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
     AsyncHandler,
-    ShortURL,
     getInvalidSignalFields,
     notifyError,
     saveShortURL,
+    ShortURL,
 } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
@@ -69,7 +69,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
                 <div class="item-center flex space-x-4 py-4">
                     <settings-toggle
                         class="flex-1"
-                        [label]="'APP.CONCIERGE.URLS_ENABLED' | translate"
+                        [label]="'COMMON.ENABLED' | translate"
                         [formField]="form.enabled"
                     >
                     </settings-toggle>
@@ -81,7 +81,7 @@ import { RichTextInputComponent } from '@placeos/form-fields';
           </div>
           <div class="flex flex-col" *ngIf="form.controls.valid_to">
             <label for="uri" >
-              {{'APP.CONCIERGE.VALID_UNTIL' | translate}}<span>*</span>
+              {{'COMMON.VALID_UNTIL' | translate}}<span>*</span>
             </label>
             <a-date-field
               formControlName="valid_until"

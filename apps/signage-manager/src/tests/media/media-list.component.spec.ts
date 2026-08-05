@@ -11,18 +11,23 @@ describe('MediaListComponent folders', () => {
     const filtered_media = signal<any[]>([]);
     const media_tags = signal<string[]>([]);
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
+    const signage_groups = signal<any[]>([]);
+    const is_sys_admin = signal(false);
+    const show_media_group_tabs = signal(true);
     const set_selected_group = vi.fn();
     const service_stub = {
         filtered_media,
         media_tags,
         media_view_mode,
         media_has_more: signal(false),
-        signage_groups: signal([]),
+        signage_groups,
         selected_group_id: signal(''),
-        is_sys_admin: signal(false),
+        is_sys_admin,
+        show_media_group_tabs,
         can_update: signal(true),
         can_delete: signal(true),
         can_share: signal(true),
+        addMediaTags: vi.fn(),
         setSelectedGroup: set_selected_group,
         loadMoreMedia: vi.fn(),
     };
@@ -50,7 +55,24 @@ describe('MediaListComponent folders', () => {
         // Tags come from the media-tags endpoint (pre-sorted by the service).
         media_tags.set(['lobby', 'news']);
         media_view_mode.set('folder');
+        signage_groups.set([]);
+        is_sys_admin.set(false);
+        show_media_group_tabs.set(true);
         set_selected_group.mockReset();
+    });
+
+    it('offers the group tabs only while the media group tabs are enabled', () => {
+        signage_groups.set([
+            { group: { id: 'a', name: 'Alpha' } },
+            { group: { id: 'b', name: 'Beta' } },
+        ]);
+        const component = make();
+
+        expect(component.can_switch_groups()).toBe(true);
+
+        show_media_group_tabs.set(false);
+
+        expect(component.can_switch_groups()).toBe(false);
     });
 
     it('builds one folder per endpoint tag with loaded counts plus an untagged bucket', () => {
@@ -103,5 +125,20 @@ describe('MediaListComponent folders', () => {
         expect(component.selected_folder()).toBeNull();
         // grid/list views always show the full filtered set
         expect(component.display_media().length).toBe(3);
+    });
+
+    it('adds tags to every selected media item and clears the selection', async () => {
+        service_stub.addMediaTags.mockResolvedValue(true);
+        const component = make();
+        component.toggleSelection('a');
+        component.toggleSelection('c');
+
+        await component.addTagsToSelected();
+
+        expect(service_stub.addMediaTags).toHaveBeenCalledWith([
+            expect.objectContaining({ id: 'a' }),
+            expect.objectContaining({ id: 'c' }),
+        ]);
+        expect(component.selected_count()).toBe(0);
     });
 });

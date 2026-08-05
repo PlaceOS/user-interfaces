@@ -226,7 +226,7 @@ import { LockerStateService } from './locker-state.service';
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
-                                    (data ? 'COMMON.TRUE' : 'COMMON.FALSE')
+                                    (data ? 'COMMON.YES' : 'COMMON.NO')
                                         | translate
                                 }}
                             </div>

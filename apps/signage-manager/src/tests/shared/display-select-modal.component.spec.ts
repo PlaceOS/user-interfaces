@@ -1,20 +1,25 @@
-import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DisplaySelectModalComponent } from '../../app/shared/display-select-modal.component';
 import { SignageService } from '../../app/signage.service';
 
 describe('DisplaySelectModalComponent', () => {
-    const displays = signal<any[]>([]);
-    const service = { displays };
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
+    const queryDisplays = vi.fn();
+    const service = { queryDisplays };
 
     beforeEach(async () => {
         vi.clearAllMocks();
-        displays.set([
-            { id: 'd1', name: 'Lobby', display_name: 'Lobby Screen' },
-            { id: 'd2', name: 'Cafe', description: 'Ground floor' },
-            { id: 'd3', name: 'Boardroom' },
-        ]);
+        queryDisplays.mockReturnValue(
+            Promise.resolve({
+                data: [
+                    { id: 'd2', name: 'Cafe' },
+                    { id: 'd1', name: 'lobby', display_name: 'Lobby Screen' },
+                ],
+                total: 2,
+                next: null,
+            }),
+        );
         await TestBed.configureTestingModule({
             imports: [DisplaySelectModalComponent],
             providers: [
@@ -28,37 +33,14 @@ describe('DisplaySelectModalComponent', () => {
             .compileComponents();
     });
 
-    it('returns every display when no search term is entered', () => {
+    it('lists displays from the backend, ordered by the name shown', async () => {
         const fixture = TestBed.createComponent(DisplaySelectModalComponent);
-        expect(fixture.componentInstance.filtered_displays().length).toBe(3);
-    });
+        fixture.detectChanges();
+        await flush();
 
-    it('matches the display_name ahead of the raw name', () => {
-        const fixture = TestBed.createComponent(DisplaySelectModalComponent);
-        const component = fixture.componentInstance;
-
-        component.search.set('screen');
-
-        expect(component.filtered_displays().map((_) => _.id)).toEqual(['d1']);
-    });
-
-    it('falls back to name when there is no display_name', () => {
-        const fixture = TestBed.createComponent(DisplaySelectModalComponent);
-        const component = fixture.componentInstance;
-
-        component.search.set('board');
-
-        expect(component.filtered_displays().map((_) => _.id)).toEqual(['d3']);
-    });
-
-    it('filters case-insensitively and reacts to updated display state', () => {
-        const fixture = TestBed.createComponent(DisplaySelectModalComponent);
-        const component = fixture.componentInstance;
-
-        component.search.set('CAFE');
-        expect(component.filtered_displays().map((_) => _.id)).toEqual(['d2']);
-
-        displays.set([{ id: 'd9', name: 'Cafeteria' }]);
-        expect(component.filtered_displays().map((_) => _.id)).toEqual(['d9']);
+        expect(queryDisplays).toHaveBeenCalledWith('');
+        expect(
+            fixture.componentInstance.list.items().map((_: any) => _.id),
+        ).toEqual(['d2', 'd1']);
     });
 });

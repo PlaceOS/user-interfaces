@@ -168,7 +168,7 @@ export class DeskMapComponent {
                       id: desk.map_id || desk.id,
                       map_id: desk.name,
                       name: desk.name || desk.map_id,
-                      user: this._state.resourceUserName(desk.id),
+                      user: signal(this._state.resourceUserName(desk.id)),
                       status: this.statuses[desk.id],
                   },
                   z_index: 20,

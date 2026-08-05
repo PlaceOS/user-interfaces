@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { setNotifyOutlet } from '@placeos/common';
+import { HotkeysService, setNotifyOutlet } from '@placeos/common';
 import { PlaylistEditModalComponent } from '../../app/shared/playlist-edit-modal.component';
 import {
     createPlaylistScheduleModel,
@@ -20,12 +20,20 @@ describe('PlaylistEditModalComponent', () => {
         disableClose: false,
     };
     const onEdit = vi.fn();
+    const hotkey_listen = vi.fn();
+    let hotkey_callback: () => void;
 
     beforeEach(async () => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         onEdit.mockResolvedValue({ id: 'playlist-1' });
+        hotkey_listen.mockImplementation(
+            (_combo: string[], callback: () => void) => {
+                hotkey_callback = callback;
+                return { unsubscribe: vi.fn() };
+            },
+        );
         await TestBed.configureTestingModule({
             imports: [
                 PlaylistEditModalComponent,
@@ -50,6 +58,10 @@ describe('PlaylistEditModalComponent', () => {
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
+                {
+                    provide: HotkeysService,
+                    useValue: { listen: hotkey_listen },
+                },
             ],
         })
             .overrideComponent(PlaylistEditModalComponent, {
@@ -98,6 +110,20 @@ describe('PlaylistEditModalComponent', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['success'] }),
         );
+    });
+
+    it('saves when the S hotkey is pressed', () => {
+        const fixture = TestBed.createComponent(PlaylistEditModalComponent);
+        const component = fixture.componentInstance;
+        const save = vi.spyOn(component, 'savePlaylist').mockResolvedValue();
+
+        hotkey_callback();
+
+        expect(hotkey_listen).toHaveBeenCalledWith(
+            ['KeyS'],
+            expect.any(Function),
+        );
+        expect(save).toHaveBeenCalled();
     });
 
     it('starts blank validity dates as empty values', () => {
@@ -173,7 +199,7 @@ describe('PlaylistEditModalComponent', () => {
                     },
                     {
                         play_at: Math.floor(play_at / 1000),
-                        play_cron: '',
+                        play_cron: '0 0 * * *',
                         play_period: 45,
                         play_takeover: true,
                     },

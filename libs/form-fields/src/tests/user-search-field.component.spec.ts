@@ -42,6 +42,12 @@ describe('UserSearchFieldComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
+    it('should pass autocomplete mode to the native input', () => {
+        const spec = createComponent({ props: { autocomplete: 'off' } });
+
+        expect(spec.query('input')?.getAttribute('autocomplete')).toBe('off');
+    });
+
     it('should allow searching for users', async () => {
         const user_list = Array(20)
             .fill(1)

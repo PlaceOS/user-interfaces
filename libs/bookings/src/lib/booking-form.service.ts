@@ -19,8 +19,8 @@ import {
     BookingClash,
     BookingRuleset,
     BookingType,
-    currentUserIsLoaded,
     currentUser,
+    currentUserIsLoaded,
     currentUserLoaded,
     Desk,
     firstValueWhere,
@@ -54,6 +54,7 @@ import {
     bookingAttachments,
     bookingFormValue,
     type BookingFormValue,
+    bookingHostUser,
     findNearbyFeature,
     generateBookingForm,
     loadLockerResources,
@@ -195,6 +196,11 @@ function formBookingData(value: Record<string, any>) {
         if (key === 'extension_data') {
             data.extension_data = formExtensionData(value.extension_data);
         } else if (
+            // `asset_ids` is spread into the form model from the booking being
+            // edited and never updated when `asset_id` changes, so sending it
+            // back would overwrite the new resource with the old one. The
+            // `Booking` constructor rebuilds it from `asset_id`.
+            key !== 'asset_ids' &&
             !BOOKING_EXTENSION_FIELD_BLACKLIST.has(key) &&
             (BOOKING_FORM_KEYS.has(key) || BOOKING_MODEL_KEYS.has(key))
         ) {
@@ -207,7 +213,9 @@ function formBookingData(value: Record<string, any>) {
 /** Whether a booking carries edit state from a different booking type, i.e. an
  * existing booking being opened in the wrong type's form. */
 function isCrossTypeEdit(booking: Booking, type: BookingType) {
-    return !!booking?.id && !!booking.booking_type && booking.booking_type !== type;
+    return (
+        !!booking?.id && !!booking.booking_type && booking.booking_type !== type
+    );
 }
 
 /** Build the `extension_data` payload saved with a booking. Only fields that
@@ -306,9 +314,42 @@ export class BookingFormService extends AsyncHandler {
     private _asset_window = '';
     public readonly view = signal<BookingFlowView>('form');
 
+    /**
+     * Edits the user made while `newForm` was waiting on the current user,
+     * carried across the deferred re-entry so the reset does not discard them.
+     */
+    private _pending_user_edits: Partial<BookingFormValue> | null = null;
+
     /** Apply a partial patch to the booking form model. */
     private _patch(value: Partial<BookingFormValue>, _opts?: unknown) {
         this.model.update((m) => ({ ...m, ...value }));
+    }
+
+    /**
+     * The fields the user has actually edited, with their current values.
+     *
+     * Reads the signal-forms dirty flags rather than diffing against a
+     * default. Programmatic writes (`_patch`, `model.set`) do not mark a field
+     * dirty, so this returns genuine user input and nothing else — which is
+     * what makes it safe to replay over a freshly loaded booking.
+     */
+    private _userEditedValues(): Partial<BookingFormValue> {
+        const form = this.form as any;
+        if (!form) return {};
+        const model = untracked(this.model) as Record<string, any>;
+        const edits: Record<string, any> = {};
+        for (const key of Object.keys(model || {})) {
+            const field = form[key];
+            if (typeof field !== 'function') continue;
+            // A field can throw if the tree has no matching sub-field, which
+            // is not worth losing the rest of the user's input over.
+            try {
+                if (field()?.dirty?.()) edits[key] = model[key];
+            } catch {
+                continue;
+            }
+        }
+        return edits;
     }
 
     private _syncAssetOptions() {
@@ -582,10 +623,12 @@ export class BookingFormService extends AsyncHandler {
             });
     }
 
-    private async _computeHasAssignedDesk(): Promise<boolean> {
+    private async _computeHasAssignedDesk(
+        user_email = currentUser()?.email,
+    ): Promise<boolean> {
         const buildings = this._org.building_list();
         if (!(buildings?.length > 0)) return false;
-        const email = currentUser()?.email?.toLowerCase();
+        const email = user_email?.toLowerCase();
         if (!email) return false;
         const map_metadata = (meta) =>
             (meta?.metadata?.desks?.details instanceof Array
@@ -605,15 +648,16 @@ export class BookingFormService extends AsyncHandler {
     }
 
     /**
-     * Whether the current user has a resource of `type` reserved (assigned) to
+     * Whether the given user has a resource of `type` reserved (assigned) to
      * them. Only desk/parking/locker support assignment; any other type resolves
      * to `false` so it is never blocked by the reserved-resource restriction.
      */
     private async _computeHasAssignedResource(
         type: BookingType,
+        user_email = currentUser()?.email,
     ): Promise<boolean> {
-        if (type === 'desk') return this._computeHasAssignedDesk();
-        const email = currentUser()?.email?.toLowerCase();
+        if (type === 'desk') return this._computeHasAssignedDesk(user_email);
+        const email = user_email?.toLowerCase();
         if (!email) return false;
         const resources = await this._loadRawResourcesForType(type).catch(
             () => [] as BookingAsset[],
@@ -680,7 +724,11 @@ export class BookingFormService extends AsyncHandler {
                 raw.recurrence_type !== 'none'
             ) {
                 const recurring_clashes =
-                    await this._recurringBookedResourceList(resources, zones);
+                    await this._recurringBookedResourceList(
+                        resources,
+                        zones,
+                        raw,
+                    );
                 booked_ids = unique([...booked_ids, ...recurring_clashes]);
             }
         }
@@ -768,9 +816,18 @@ export class BookingFormService extends AsyncHandler {
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
         if (!currentUserIsLoaded()) {
-            currentUserLoaded().then(() => this.newForm(type, booking));
+            // The form is already rendered and interactive at this point, so
+            // anything typed or toggled before the user resolves would be
+            // destroyed by the reset below. Capture it on the way back in —
+            // as late as possible, so we take the user's final state.
+            currentUserLoaded().then(() => {
+                this._pending_user_edits = this._userEditedValues();
+                this.newForm(type, booking);
+            });
             return;
         }
+        const user_edits = this._pending_user_edits;
+        this._pending_user_edits = null;
         // Never apply an existing booking's edit state to a different type
         // (e.g. editing parking then opening the desk form).
         if (isCrossTypeEdit(booking, type)) booking = new Booking({});
@@ -797,11 +854,24 @@ export class BookingFormService extends AsyncHandler {
                     ...booking.extension_data,
                     attachments: bookingAttachments(booking),
                     ...booking,
+                    // `Booking` has no `user` object, only the flat `user_*`
+                    // fields, so the host has to be rebuilt from those. Without
+                    // it the form keeps the signed-in user and editing a
+                    // delegate booking reassigns the host on save.
+                    user: bookingHostUser(booking),
                 },
                 [null, undefined, ''],
             ),
             { emitEvent: false },
         );
+        // Re-apply the user's own edits over the incoming booking. Done here,
+        // before `applyDurationSettings`, so a restored `all_day` still drives
+        // the time-sync window; and before `_syncWindowIfUnchanged`, which
+        // compares against `initial_date`/`initial_duration` and so leaves a
+        // user-changed window alone of its own accord.
+        if (user_edits && Object.keys(user_edits).length) {
+            this._patch(user_edits, { emitEvent: false });
+        }
         this.applyDurationSettings();
         this._syncAssetOptions();
         const form_change = effect(
@@ -959,6 +1029,7 @@ export class BookingFormService extends AsyncHandler {
                     ...(booking || {}),
                     ...(booking?.extension_data || {}),
                     attachments: bookingAttachments(booking),
+                    user: bookingHostUser(booking),
                     _in_progress: booking?.state === 'started',
                 },
                 [null, undefined, ''],
@@ -1034,6 +1105,7 @@ export class BookingFormService extends AsyncHandler {
                 ...(booking || {}),
                 ...(booking?.extension_data || {}),
                 attachments: bookingAttachments(booking),
+                user: bookingHostUser(booking),
                 _in_progress: booking?.state === 'started',
             },
             [null, undefined, ''],
@@ -1151,6 +1223,7 @@ export class BookingFormService extends AsyncHandler {
             booking_type: this.model().booking_type || this._options().type,
         });
         const value = this.model() as any;
+        const effective_timezone = this.timezone || value.timezone;
         const booking = this._booking() || new Booking();
         const all_day_period = value.all_day
             ? this._allDayTimeRange(value.date)
@@ -1164,7 +1237,7 @@ export class BookingFormService extends AsyncHandler {
             !isWithinBookableHours(
                 value.date,
                 bookable_hours,
-                this.timezone || value.timezone,
+                effective_timezone,
             )
         ) {
             throw i18n('FORM.BOOKABLE_HOURS_ERROR');
@@ -1199,6 +1272,7 @@ export class BookingFormService extends AsyncHandler {
                     duration: all_day_period.duration,
                     date_end: all_day_period.date_end,
                     user_email: host,
+                    timezone: effective_timezone,
                 },
                 this._options().type,
             );
@@ -1228,7 +1302,7 @@ export class BookingFormService extends AsyncHandler {
         );
         this._loading.set('Saving booking');
         delete value.booking_asset;
-        value.timezone = this.timezone || value.timezone;
+        value.timezone = effective_timezone;
         if (value.all_day) {
             value.date = all_day_period.date;
             value.duration = all_day_period.duration;
@@ -1294,6 +1368,7 @@ export class BookingFormService extends AsyncHandler {
                     value.booking_type === 'visitor'
                         ? value.description || value.title || value.asset_name
                         : value.asset_name || value.description,
+                user_id: value.user?.id ?? value.user_id,
                 user_name: value.user?.name || value.user_name,
                 user_email: value.user?.email || value.user_email,
                 extension_data: buildBookingExtensionData(value, group_members),
@@ -1638,14 +1713,33 @@ export class BookingFormService extends AsyncHandler {
     public async loadGroupSiblings(booking: Booking): Promise<Booking[]> {
         if (!booking?.id) return [];
         const parent_id = booking.parent_id || booking.id;
+        // Groups made before group containers existed have no parent link. Every
+        // member still carries the same generated group reference
+        // (`host@email[yyyy-MM-dd]`) in `extension_data.group`, so match on that
+        // too — without it only the opened booking is found, and editing the
+        // group leaves the other members behind (removed members survive,
+        // retained members get duplicated). The query is already bounded to this
+        // booking's exact period, so a same-host/same-day group at another time
+        // cannot be pulled in.
+        const group_ref = `${booking.group || ''}`.trim();
+        // Older groups again: some only ever shared a generated `grp-*`
+        // description.
+        const legacy_group = `${booking.description || ''}`.startsWith('grp-')
+            ? booking.description
+            : '';
         const { type } = this._options();
         const list = await queryBookings({
             period_start: getUnixTime(booking.date),
             period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
             type,
+            include_booked_by: true,
         });
         return list.filter(
-            (b) => b.id === parent_id || b.parent_id === parent_id,
+            (b) =>
+                b.id === parent_id ||
+                b.parent_id === parent_id ||
+                (!!group_ref && `${b.group || ''}`.trim() === group_ref) ||
+                (!!legacy_group && b.description === legacy_group),
         );
     }
 
@@ -1670,9 +1764,10 @@ export class BookingFormService extends AsyncHandler {
         if (!members?.length) throw i18n('BOOKINGS.GROUP_NO_MEMBERS');
         const form = this.model() as any;
         const base_form = { ...form, id: '' };
-        const parent_id = form.parent_id || form.id;
+        let parent_id = form.parent_id || form.id;
         const group_name = this._groupName(form.group);
         const is_visitor = type === 'visitor';
+        const needs_group_container_parent = is_visitor && !form.parent_id;
         const has_group_container_parent =
             !!form.parent_id &&
             !existing_siblings.some((s) => s.id === form.parent_id);
@@ -1697,7 +1792,15 @@ export class BookingFormService extends AsyncHandler {
                 : [];
         let first_result: Booking = null;
         try {
-            if (has_group_container_parent) {
+            if (needs_group_container_parent) {
+                const group_booking = await this.createGroupContainerBooking(
+                    form,
+                    group_name,
+                    members,
+                    type,
+                );
+                parent_id = group_booking.id;
+            } else if (has_group_container_parent) {
                 await this.saveGroupContainerBooking(
                     form,
                     group_name,
@@ -1807,6 +1910,7 @@ export class BookingFormService extends AsyncHandler {
             booking_asset: asset || null,
             asset_id: asset?.id,
             asset_name: asset?.name || asset?.id,
+            name: asset?.display_name || asset?.name || asset?.id,
             description: asset?.name || asset?.id,
             map_id: asset?.map_id || asset?.id,
             zones: (asset?.zone
@@ -1957,10 +2061,14 @@ export class BookingFormService extends AsyncHandler {
     }
 
     private mapGroupMembers(type: BookingType, members: User[] = []) {
-        const user_list =
+        // Dedupe visitors too — a duplicated email produces two group members
+        // that the visitor list can't tell apart. (PPT-2634)
+        const user_list = unique(
             type === 'visitor'
-                ? members
-                : unique([currentUser(), ...(members || [])], 'email');
+                ? members || []
+                : [currentUser(), ...(members || [])],
+            'email',
+        );
         return user_list
             .filter((member) => !!member?.email)
             .map((member) => ({
@@ -2105,11 +2213,16 @@ export class BookingFormService extends AsyncHandler {
             !user_email ||
             user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
         const setting = this.assignedResourceBooking(type);
-        if (setting === 'allow' || (setting === 'other_only' && !is_self)) {
-            return true;
-        }
-        if (await this._computeHasAssignedResource(type)) {
+        if (setting === 'allow') return true;
+        if (
+            setting === 'deny' &&
+            !is_self &&
+            (await this._computeHasAssignedResource(type))
+        ) {
             throw `You have an assigned ${type} and cannot book another ${type}.`;
+        }
+        if (await this._computeHasAssignedResource(type, user_email)) {
+            throw `${is_self ? 'You have' : 'This user has'} an assigned ${type} and cannot book another ${type}.`;
         }
         return true;
     }
@@ -2147,6 +2260,20 @@ export class BookingFormService extends AsyncHandler {
                     : 'BOOKINGS.RESOURCE_BOOKED',
                 { name: asset_id },
             );
+        }
+        // A permanent allocation is stored as a booking tagged `is_assigned`
+        // (see the concierge assignment flows). It always consumes the user's
+        // allowance, so booking on top of it double-books them even when the
+        // daily limit is higher than one. `allow` opts out of the restriction.
+        const is_self =
+            user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
+        if (
+            this.assignedResourceBooking(type) !== 'allow' &&
+            active_bookings.some(
+                (_) => _.id !== id && (_.extension_data as any)?.is_assigned,
+            )
+        ) {
+            throw `${is_self ? 'You have' : 'This user has'} an assigned ${type} and cannot book another ${type}.`;
         }
         const allowed_bookings =
             this._settings.get(`app.bookings.allowed_daily_${type}_count`) ?? 1;
@@ -2304,17 +2431,20 @@ export class BookingFormService extends AsyncHandler {
     private async _recurringBookedResourceList(
         resources: BookingAsset[],
         zones: string,
+        value: Record<string, any>,
     ): Promise<string[]> {
-        const value = this.model() as any;
+        const effective_timezone = this.timezone || value.timezone;
         const booking = new Booking({
             ...value,
             booking_type: 'desk',
             zones: [zones],
             asset_ids: resources.map((_) => _.id),
+            timezone: effective_timezone,
         });
         const key = JSON.stringify({
             date: booking.date,
             duration: booking.duration,
+            timezone: effective_timezone,
             recurrence_type: (booking as any).recurrence_type,
             recurrence_end: (booking as any).recurrence_end,
             zones,

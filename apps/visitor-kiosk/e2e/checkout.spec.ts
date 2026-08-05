@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import {
-    CHECKIN_SCAN_URL,
+    CHECKOUT_SCAN_URL,
     CHECKOUT_URL,
     navigateWithConfig,
 } from './test-utils';
@@ -11,6 +11,15 @@ import {
  */
 
 test.describe('US-CHECKOUT-001: Initiate Checkout', () => {
+    test('should use the separate checkout scan route', async ({ page }) => {
+        await navigateWithConfig(page, CHECKOUT_SCAN_URL);
+
+        await expect(page).toHaveURL(/.*checkout\/scan/);
+        await expect(page.locator('[checkin-qr-scan] h3')).toContainText(
+            /check-out/i,
+        );
+    });
+
     test('should display checkout component', async ({ page }) => {
         await navigateWithConfig(page, CHECKOUT_URL);
         await page.waitForTimeout(2000);
@@ -20,8 +29,8 @@ test.describe('US-CHECKOUT-001: Initiate Checkout', () => {
         expect(url).toMatch(/checkout|checkin|welcome/);
     });
 
-    test('should be accessible from check-in scan route', async ({ page }) => {
-        await navigateWithConfig(page, CHECKIN_SCAN_URL);
+    test('should be accessible from checkout scan route', async ({ page }) => {
+        await navigateWithConfig(page, CHECKOUT_SCAN_URL);
         await page.waitForTimeout(2000);
 
         // The checkout route should be accessible
@@ -124,7 +133,7 @@ test.describe('US-CHECKOUT-004: Cancel Checkout', () => {
 });
 
 test.describe('Checkout - Layout', () => {
-    test('should display checkout within checkin container', async ({
+    test('should display checkout within the shared kiosk container', async ({
         page,
     }) => {
         await navigateWithConfig(page, CHECKOUT_URL);
@@ -132,7 +141,7 @@ test.describe('Checkout - Layout', () => {
 
         // Checkout may redirect to welcome if no booking
         const url = page.url();
-        expect(url).toMatch(/checkin|welcome/);
+        expect(url).toMatch(/checkout|welcome/);
     });
 });
 

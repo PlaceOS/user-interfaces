@@ -21,6 +21,7 @@ import {
     CalendarEvent,
     downloadFile,
     flatten,
+    getTimezoneDifferenceInHours,
     HashMap,
     i18n,
     jsonToCsv,
@@ -39,6 +40,7 @@ import {
 import { showMetadata } from '@placeos/ts-client';
 import {
     addDays,
+    addMinutes,
     endOfDay,
     format,
     getUnixTime,
@@ -402,8 +404,22 @@ export class ReportsStateService extends AsyncHandler {
             this._active_bookings.set([]);
             return;
         }
-        const start = startOfDay(options.start || Date.now());
-        const end = endOfDay(options.end || start);
+        let start = startOfDay(options.start || Date.now());
+        let end = endOfDay(options.end || start);
+        if (
+            options.type === 'parking' &&
+            (this._settings.get('app.bookings.use_building_timezone') ||
+                this._settings.get('app.parking.use_building_timezone')) &&
+            this._org.building?.timezone
+        ) {
+            const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const offset = getTimezoneDifferenceInHours(
+                current_tz,
+                this._org.building.timezone,
+            );
+            start = addMinutes(start, offset * 60);
+            end = addMinutes(end, offset * 60);
+        }
         let zones = options?.zones
             ? options.zones.filter((z) => z !== 'All').join(',')
             : '';
@@ -526,7 +542,7 @@ export class ReportsStateService extends AsyncHandler {
             `report+${options.type}+${format(
                 options.start,
                 'yyyy-MM-dd',
-            )}+${format(options.end, 'yyyy-MM-dd')}.tsv`,
+            )}+${format(options.end, 'yyyy-MM-dd')}.csv`,
             jsonToCsv(
                 bookings.map((bkn) => {
                     const details = bkn.toJSON();
@@ -540,10 +556,19 @@ export class ReportsStateService extends AsyncHandler {
                         'MMM d, y, h:mm a',
                         'en',
                     );
+                    // Always set so the column exists even when the first
+                    // booking was never checked in
+                    details.checked_in_time = details.checked_in_at
+                        ? formatDate(
+                              details.checked_in_at * 1000,
+                              'MMM d, y, h:mm a',
+                              'en',
+                          )
+                        : '';
+                    delete details.checked_in_at;
                     for (const key of REMOVE_KEYS) delete details[key];
                     return details;
                 }),
-                '\t',
             ),
         );
     }

@@ -360,12 +360,17 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     public readonly hide_user_list_download = settingSignal(
         'desks.hide_user_list_download',
     );
-    /** All levels for the active building or region */
+    /** All levels for the active building or region, parking-only levels last */
     private readonly _all_levels = computed(
         () =>
-            this._settings.get('app.use_region')
+            (this._settings.get('app.use_region')
                 ? this._org.levelsForRegion(this._org.active_region())
-                : this._org.levelsForBuilding(this._org.active_building()),
+                : this._org.levelsForBuilding(this._org.active_building())
+            ).sort(
+                (a, b) =>
+                    +!!a.tags?.includes('parking') -
+                    +!!b.tags?.includes('parking'),
+            ),
         {
             equal: (a, b) =>
                 a.length === b.length &&
@@ -506,16 +511,7 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
     }
 
     public downloadTemplate() {
-        const desk: any = new Desk({
-            id: 'desk-123',
-            name: 'Test Desk',
-            bookable: true,
-            groups: ['test-desk-group', 'desk-bookers'],
-            features: ['Standing Desk', 'Dual Monitor'],
-        }).toJSON();
-        delete desk.images;
-        const data = jsonToCsv([desk]);
-        downloadFile('desk-template.csv', data);
+        this._state.downloadDesksCSV();
     }
 
     public readonly downloadCsv = async () => {

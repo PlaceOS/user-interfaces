@@ -30,4 +30,19 @@ describe('Booking', () => {
         expect(booking.booking_start).toBe(1_700_000_000);
         expect(booking.booking_end).toBe(1_700_003_600);
     });
+
+    it('retains server-provided booking history without serialising it', () => {
+        const booking = new Booking({
+            history: [
+                { state: 'reserved', time: 1_700_000_000, source: 'desktop' },
+                { state: 'checked_in', time: 1_700_000_600 },
+            ],
+        });
+
+        expect(booking.history).toEqual([
+            { state: 'reserved', time: 1_700_000_000, source: 'desktop' },
+            { state: 'checked_in', time: 1_700_000_600 },
+        ]);
+        expect(booking.toJSON()).not.toHaveProperty('history');
+    });
 });

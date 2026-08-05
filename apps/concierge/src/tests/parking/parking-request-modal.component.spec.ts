@@ -7,7 +7,12 @@ import {
     generateBookingForm,
     ParkingService,
 } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    setCurrentUser,
+    SettingsService,
+    StaffUser,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
@@ -18,6 +23,7 @@ describe('ParkingRequestModalComponent', () => {
     let settings: Record<string, unknown>;
     let user_details: any;
     let model: BookingFormService['model'];
+    let settings_service: SettingsService;
     const post_form = vi.fn(async () => ({ id: 'req-1', status: 'approved' }));
     const clear_form = vi.fn();
     const close = vi.fn();
@@ -59,11 +65,18 @@ describe('ParkingRequestModalComponent', () => {
             MockProvider(MatDialogRef, { close } as any),
             MockProvider(SettingsService as any, {
                 get: vi.fn((key: string) => settings[key]),
+                saveUserSetting: vi.fn(),
             }),
         ],
     });
 
     beforeEach(() => {
+        setCurrentUser(
+            new StaffUser({
+                id: 'current-user',
+                email: 'me@example.com',
+            } as any),
+        );
         data = { booking: null };
         settings = {};
         user_details = null;
@@ -101,5 +114,41 @@ describe('ParkingRequestModalComponent', () => {
         expect(post_form).toHaveBeenCalled();
         expect(clear_form).toHaveBeenCalled();
         expect(close).toHaveBeenCalledWith('req-1');
+    });
+
+    it('should save a successful plate number for future requests', async () => {
+        settings = { plate_numbers: ['abc123', 'XYZ789'] };
+        spectator = createComponent();
+        settings_service = spectator.inject(SettingsService);
+        vi.mocked(settings_service.saveUserSetting).mockClear();
+        await spectator.component.ngOnInit();
+        model.update((value) => ({ ...value, plate_number: ' ABC123 ' }));
+
+        await spectator.component.postForm();
+
+        expect(model().plate_number).toBe('ABC123');
+        expect(settings_service.saveUserSetting).toHaveBeenCalledWith(
+            'plate_numbers',
+            ['ABC123', 'XYZ789'],
+        );
+    });
+
+    it('should not save a plate number for another user', async () => {
+        spectator = createComponent();
+        settings_service = spectator.inject(SettingsService);
+        vi.mocked(settings_service.saveUserSetting).mockClear();
+        await spectator.component.ngOnInit();
+        model.update((value) => ({
+            ...value,
+            user: new StaffUser({
+                id: 'another-user',
+                email: 'someone@example.com',
+            } as any),
+            plate_number: 'OTHER123',
+        }));
+
+        await spectator.component.postForm();
+
+        expect(settings_service.saveUserSetting).not.toHaveBeenCalled();
     });
 });

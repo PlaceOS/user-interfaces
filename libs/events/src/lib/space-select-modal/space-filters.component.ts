@@ -46,7 +46,7 @@ import { SpacesService } from '../spaces.service';
         >
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
-                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                    {{ 'COMMON.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
                     @if (
@@ -55,7 +55,7 @@ import { SpacesService } from '../spaces.service';
                         !(!use_region() && buildings()?.length > 1)
                     ) {
                         <label for="location">
-                            {{ 'CALENDAR_EVENT.SPACE_LOCATION' | translate }}
+                            {{ 'COMMON.LOCATION' | translate }}
                         </label>
                     }
                     @if (use_region() && regions()?.length) {
@@ -166,7 +166,7 @@ import { SpacesService } from '../spaces.service';
                                 (ngModelChange)="
                                     model.update((m) => ({
                                         ...m,
-                                        date_end: $event
+                                        date_end: $event,
                                     }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
@@ -206,7 +206,10 @@ import { SpacesService } from '../spaces.service';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -227,7 +230,7 @@ import { SpacesService } from '../spaces.service';
                                     (ngModelChange)="
                                         model.update((m) => ({
                                             ...m,
-                                            date_end: $event
+                                            date_end: $event,
                                         }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"

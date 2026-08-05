@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
@@ -11,6 +12,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'fullscreen-modal-shell,[fs-modal-shell]',
     template: `
         <div
+            cdkScrollable
             class="bg-base-200 fixed inset-0 flex flex-col items-center overflow-auto px-2"
         >
             <div
@@ -66,11 +68,17 @@ import { TranslatePipe } from './translate.pipe';
                     <button
                         btn
                         matRipple
-                        class="min-w-32"
+                        class="flex min-w-32 items-center justify-center gap-2"
                         [disabled]="confirm_disabled()"
                         (click)="confirm.emit()"
                     >
                         {{ confirm_text() || ('COMMON.SAVE' | translate) }}
+                        @if (confirm_hotkey()) {
+                            <kbd
+                                class="border-base-300 bg-base-100 text-base-content rounded border px-2 py-1 text-xs leading-none shadow-sm"
+                                >{{ confirm_hotkey() }}</kbd
+                            >
+                        }
                     </button>
                 </footer>
             }
@@ -84,6 +92,7 @@ import { TranslatePipe } from './translate.pipe';
         `,
     ],
     imports: [
+        CdkScrollable,
         TranslatePipe,
         MatProgressSpinnerModule,
         IconComponent,
@@ -97,6 +106,7 @@ export class FullscreenModalShellComponent {
     public readonly loading = input('');
     public readonly heading = input('Fullscreen Modal');
     public readonly confirm_text = input('');
+    public readonly confirm_hotkey = input('');
     public readonly confirm_disabled = input(false);
     public readonly close = input<string[]>([]);
     public readonly hide_confirm = input(false);

@@ -38,6 +38,7 @@ export interface DurationOption {
     selector: 'a-duration-field,duration-field',
     template: `
         <button
+            type="button"
             duration-field
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
             [disabled]="disabled() || no_options()"
@@ -75,6 +76,7 @@ export interface DurationOption {
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @for (option of duration_options(); track option.id) {
                 <button
+                    type="button"
                     mat-menu-item
                     class="text-left"
                     (click)="setValue(option.id)"

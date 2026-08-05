@@ -36,6 +36,14 @@ test.describe('US-WELCOME-001: View Welcome Screen', () => {
         await expect(checkinButton).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 
+    test('should display a separate check-out button', async ({ page }) => {
+        await navigateWithConfig(page, WELCOME_URL);
+
+        const checkoutButton = page.locator('a[href*="checkout"]');
+        await expect(checkoutButton).toBeVisible({ timeout: ACTION_TIMEOUT });
+        await expect(checkoutButton).toContainText(/check-out/i);
+    });
+
     test('should display building graphic', async ({ page }) => {
         await navigateWithConfig(page, WELCOME_URL);
         await page
@@ -83,6 +91,19 @@ test.describe('US-WELCOME-003: Access Check-In', () => {
         await checkinButton.click();
 
         await expect(page).toHaveURL(/.*checkin/, { timeout: ACTION_TIMEOUT });
+    });
+
+    test('should navigate to the separate checkout flow', async ({ page }) => {
+        await navigateWithConfig(page, WELCOME_URL);
+
+        await page.locator('a[href*="checkout"]').click();
+
+        await expect(page).toHaveURL(/.*checkout\/scan/, {
+            timeout: ACTION_TIMEOUT,
+        });
+        await expect(page.locator('[checkin-qr-scan] h3')).toContainText(
+            /check-out/i,
+        );
     });
 });
 

@@ -90,7 +90,7 @@ const EMPTY = [];
                                 placeholder="e.g. Team Meeting"
                             />
                             <mat-error>
-                                {{ 'FORM.TITLE_ERROR' | translate }}
+                                {{ 'FORM.TITLE_REQUIRED' | translate }}
                             </mat-error>
                         </mat-form-field>
                         <label for="host"

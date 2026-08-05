@@ -78,6 +78,14 @@ describe('ScheduleComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
+    it('should refresh bookings on request', () => {
+        const state = spectator.inject(ScheduleStateService);
+
+        spectator.component.refresh_fn();
+
+        expect(state.triggerPoll).toHaveBeenCalled();
+    });
+
     it('should not patch resources when editing visitor bookings', () => {
         vi.useFakeTimers();
         const booking_form = spectator.inject(BookingFormService);

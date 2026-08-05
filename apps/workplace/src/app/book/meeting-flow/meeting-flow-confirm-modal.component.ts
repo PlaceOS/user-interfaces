@@ -439,7 +439,7 @@ import { SpacePipe } from '@placeos/events';
                         <icon>done</icon>
                     </div>
                     <h3 class="mt-0! text-xl">
-                        {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
+                        {{ 'FORM.NOTES' | translate }}
                     </h3>
                     <div [innerHTML]="event.body | sanitize"></div>
                 </div>

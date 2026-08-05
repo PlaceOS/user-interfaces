@@ -23,7 +23,11 @@ import * as ts_client from '@placeos/ts-client';
 
 describe('ParkingRequestFormDetailsComponent', () => {
     let spectator: Spectator<ParkingRequestFormDetailsComponent>;
+    let settings: SettingsService;
     let now_spy: any | null = null;
+    const getSetting = (key: string) =>
+        key === 'app.bookings.use_building_timezone' ||
+        key === 'app.parking.use_building_timezone';
     const setNow = (time: number) => {
         now_spy?.mockRestore();
         now_spy = vi.spyOn(Date, 'now').mockReturnValue(time);
@@ -90,11 +94,8 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 spaces: signal([]),
             }),
             MockProvider(SettingsService as any, {
-                get: vi.fn(
-                    (key: string) =>
-                        key === 'app.bookings.use_building_timezone' ||
-                        key === 'app.parking.use_building_timezone',
-                ),
+                get: vi.fn(getSetting),
+                saveUserSetting: vi.fn(),
                 time_format: 'h:mm a',
             }),
             MockProvider(OrganisationService as any, {
@@ -108,6 +109,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
     });
 
     afterEach(() => {
+        vi.mocked(settings.get).mockImplementation(getSetting);
         vi.restoreAllMocks();
         (ts_client.get as any).mockReset();
         (ts_client.get as any).mockResolvedValue([]);
@@ -142,6 +144,8 @@ describe('ParkingRequestFormDetailsComponent', () => {
             set: { template: '' },
         });
         spectator = createComponent();
+        settings = spectator.inject(SettingsService);
+        vi.mocked(settings.saveUserSetting).mockReset();
         // Configure the parking settings BEFORE building/attaching the form.
         // `settingSignal` values live in a module-global cache that survives
         // TestBed teardown, so whatever window a previous test wrote (e.g. a
@@ -195,6 +199,47 @@ describe('ParkingRequestFormDetailsComponent', () => {
             date: new Date('2026-04-08T08:00:00.000Z').valueOf(),
             duration: 240,
         });
+    });
+
+    it('should filter and de-duplicate saved plate number suggestions', () => {
+        vi.mocked(settings.get).mockImplementation((key: string) => {
+            if (key === 'plate_number') return 'ABC123';
+            if (key === 'plate_numbers')
+                return ['abc123', 'XYZ789', 'CAR456'];
+            return getSetting(key);
+        });
+        spectator.component.setPlateNumber('7');
+
+        expect(spectator.component.plate_number_options()).toEqual(['XYZ789']);
+    });
+
+    it('should remove a plate number from saved suggestions', () => {
+        vi.mocked(settings.get).mockImplementation((key: string) => {
+            if (key === 'plate_number') return 'ABC123';
+            if (key === 'plate_numbers')
+                return ['abc123', 'XYZ789', 'CAR456'];
+            return getSetting(key);
+        });
+        const event = {
+            preventDefault: vi.fn(),
+            stopPropagation: vi.fn(),
+        } as unknown as Event;
+
+        spectator.component.removePlateNumber(event, 'ABC123');
+
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            'plate_numbers',
+            ['XYZ789', 'CAR456'],
+        );
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            'plate_number',
+            '',
+        );
+        expect(spectator.component.plate_number_options()).not.toContain(
+            'ABC123',
+        );
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(event.stopPropagation).toHaveBeenCalled();
     });
 
     it('should apply shift times even when the start is earlier than now', () => {
@@ -914,7 +959,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(errors.some((e) => e.kind === 'required')).toBe(false);
     });
 
-    it('should default parking restrictions to None', async () => {
+    it('should start with no parking restriction selected', async () => {
         spectator.component.space_restriction_options_setting.set([
             { id: 'oversized', name: 'Oversized' },
         ]);
@@ -929,7 +974,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         expect(spectator.component.model().space_restrictions).toBe(false);
     });
 
-    it('should require a parking restriction other than None when configured', () => {
+    it('should require a parking restriction when configured', () => {
         spectator.component.model.update((m) => ({
             ...m,
             space_restrictions: false,

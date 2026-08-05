@@ -17,8 +17,8 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
-import { MatRippleModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -90,7 +90,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     1
                                 </div>
                                 <div class="text-xl">
-                                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                                    {{ 'COMMON.DETAILS' | translate }}
                                 </div>
                                 <div class="w-px flex-1"></div>
                                 <button
@@ -172,7 +172,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     @if (can_notify_new_attendees_only()) {
                                         <mat-checkbox
                                             name="notify-new-attendees-only"
-                                            [(ngModel)]="notify_new_attendees_only"
+                                            [(ngModel)]="
+                                                notify_new_attendees_only
+                                            "
                                             [ngModelOptions]="{
                                                 standalone: true,
                                             }"
@@ -247,10 +249,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         4
                                     </div>
                                     <div class="text-xl">
-                                        {{
-                                            'CALENDAR_EVENT.CATERING'
-                                                | translate
-                                        }}
+                                        {{ 'RESOURCE.CATERING' | translate }}
                                     </div>
                                     <div class="w-px flex-1"></div>
                                     <button
@@ -300,7 +299,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                                     form.catering_charge_code
                                                 "
                                                 [placeholder]="
-                                                    'CALENDAR_EVENT.CATERING_CHARGE_CODE'
+                                                    'CATERING.CHARGE_CODE'
                                                         | translate
                                                 "
                                             >
@@ -437,10 +436,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         }}
                                     </div>
                                     <div class="text-xl">
-                                        {{
-                                            'CALENDAR_EVENT.NOTES_HEADER'
-                                                | translate
-                                        }}
+                                        {{ 'FORM.NOTES' | translate }}
                                     </div>
                                 </h3>
                                 <div class="flex w-full flex-col">
@@ -471,9 +467,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 class="mb-2 w-full sm:mb-0 sm:w-auto"
                                 (click)="viewConfirm()"
                             >
-                                {{
-                                    'CALENDAR_EVENT.CONFIRM_DETAILS' | translate
-                                }}
+                                {{ 'CALENDAR_EVENT.CONFIRM' | translate }}
                             </button>
                             <button
                                 btn

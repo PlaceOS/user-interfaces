@@ -63,12 +63,12 @@ class RoomModule {
 
     // Camera bindings
     public available_cameras: string[] = [
-        'Camera_1',
-        'Camera_2',
-        'Camera_3',
-        'Camera_4',
+        'Camera1',
+        'Camera2',
+        'Camera3',
+        'Camera4',
     ];
-    public selected_camera: string = 'Camera_1';
+    public selected_camera: string | null = null;
 
     // Microphone bindings
     public microphones: string[] = [
@@ -343,7 +343,7 @@ Plug your laptop into the HDMI to stream it to the screen, or access the CMS to 
     }
 
     /** Select a camera */
-    $select_camera(camera_id: string) {
+    $selected_camera(camera_id: string) {
         if (this.available_cameras.includes(camera_id)) {
             this.selected_camera = camera_id;
         }

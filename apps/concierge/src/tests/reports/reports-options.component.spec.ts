@@ -1,10 +1,14 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { signal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe } from 'ng-mocks';
 
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { BuildingPipe, IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    BuildingPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { ReportsOptionsComponent } from 'apps/concierge/src/app/reports/reports-options.component';
 
@@ -105,6 +109,41 @@ describe('ReportsOptionsComponent', () => {
         spectator.component.setZones([]);
         const call = navigate.mock.calls.at(-1);
         expect(call[1].queryParams.zone_ids).toBeUndefined();
+    });
+
+    it('should keep parking levels selectable when no spaces are returned', async () => {
+        vi.spyOn(
+            spectator.component as any,
+            '_levelResourceZones',
+        ).mockResolvedValue(new Set());
+        const levels = await (spectator.component as any)._levelsWithResources(
+            [
+                { id: 'parking-1', tags: ['parking'] },
+                { id: 'office-1', tags: ['office'] },
+            ],
+            'parking',
+            'bld-1',
+        );
+
+        expect(levels).toEqual([{ id: 'parking-1', tags: ['parking'] }]);
+    });
+
+    it('should show parking levels while spaces are loading', () => {
+        const org = spectator.inject(OrganisationService);
+        (org.levelsForBuilding as any).mockReturnValue([
+            { id: 'parking-1', tags: ['parking'] },
+            { id: 'office-1', tags: ['office'] },
+        ]);
+        vi.spyOn(
+            spectator.component as any,
+            '_levelResourceZones',
+        ).mockReturnValue(new Promise(() => undefined));
+
+        spectator.setInput('resource_type', 'parking');
+
+        expect(spectator.component.levels()).toEqual([
+            { id: 'parking-1', tags: ['parking'] },
+        ]);
     });
 
     it('should read region and week start configuration from settings', () => {

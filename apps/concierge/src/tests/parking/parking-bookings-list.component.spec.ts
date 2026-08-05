@@ -16,6 +16,7 @@ describe('ParkingBookingsListComponent', () => {
     let hide_assign_space = false;
     let show_waitlist = true;
     let custom_booking_columns: any[] = [];
+    let bookable_hours: { start: number; end: number } | undefined;
     let timezone = 'Australia/Perth';
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
 
@@ -44,6 +45,7 @@ describe('ParkingBookingsListComponent', () => {
                 editReservation: vi.fn(),
                 assignSpace: vi.fn(),
                 removeBooking: vi.fn(),
+                viewBookingHistory: vi.fn(),
                 isRequest: vi.fn((booking: Booking) =>
                     booking.asset_id?.startsWith('unallocated'),
                 ),
@@ -71,7 +73,9 @@ describe('ParkingBookingsListComponent', () => {
                               ? hide_assign_space
                               : name === 'app.parking.custom_booking_columns'
                                 ? custom_booking_columns
-                                : false,
+                                : name === 'app.parking.bookable_hours'
+                                  ? bookable_hours
+                                  : false,
                 ),
                 signal: vi.fn((_: string, initial: boolean) => signal(initial)),
                 time_format: 'h:mm a',
@@ -87,6 +91,7 @@ describe('ParkingBookingsListComponent', () => {
         hide_assign_space = false;
         show_waitlist = true;
         custom_booking_columns = [];
+        bookable_hours = undefined;
         timezone = 'Australia/Perth';
         request_filter = 'all';
         settingSignal('parking.allow_editing', true).set(true);
@@ -146,6 +151,46 @@ describe('ParkingBookingsListComponent', () => {
         spectator = createComponent();
 
         expect(spectator.component.timezone).toBe('Australia/Perth');
+    });
+
+    it('should show start and end times for all-day bookings', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: true,
+                date: new Date(2026, 6, 21, 8).valueOf(),
+                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                duration: 9 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        const time = spectator.query('[data-testid="parking-booking-time"]');
+        expect(time).toHaveText('8:00 AM - 5:00 PM');
+        expect(time).not.toHaveText('All Day');
+    });
+
+    it('should show all day when the booking matches the bookable period', () => {
+        bookable_hours = { start: 8, end: 17 };
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: true,
+                date: new Date(2026, 6, 21, 8).valueOf(),
+                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                duration: 9 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.component.isAllDayBooking(bookings[0])).toBe(true);
+        expect(
+            spectator.query('[data-testid="parking-booking-time"]'),
+        ).not.toHaveText(':');
     });
 
     it('should add custom extension data columns', () => {
@@ -248,7 +293,7 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(false);
     });
 
-    it('should hide the actions column when no visible actions are available', () => {
+    it('should keep the history action available when no edit actions are available', () => {
         hide_assign_space = true;
         request_filter = 'bookings';
         bookings = [
@@ -266,9 +311,31 @@ describe('ParkingBookingsListComponent', () => {
         spectator.detectChanges();
 
         const table = spectator.query(SimpleTableComponent);
+        expect(table?.active_columns().map((column) => column.key)).toContain(
+            'actions',
+        );
         expect(
-            table?.active_columns().map((column) => column.key),
-        ).not.toContain('actions');
+            spectator.query('[data-testid="parking-booking-history"]'),
+        ).toExist();
+    });
+
+    it('should open booking history from the day view action', () => {
+        const booking = {
+            id: 'booking-1',
+            asset_id: 'bay-1',
+            status: 'approved',
+            date: Date.now(),
+            date_end: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+        } as unknown as Booking;
+        bookings = [booking];
+        spectator = createComponent();
+
+        spectator.click('[data-testid="parking-booking-history"]');
+
+        expect(
+            spectator.inject(ParkingStateService).viewBookingHistory,
+        ).toHaveBeenCalledWith(expect.objectContaining({ id: booking.id }));
     });
 
     it('should show the delete action when deleting is enabled', () => {
@@ -294,6 +361,45 @@ describe('ParkingBookingsListComponent', () => {
                 .queryAll('icon')
                 .some((icon) => icon.textContent?.includes('delete')),
         ).toBe(true);
+    });
+
+    it('should show cancelled bookings in red and disable their mutating actions', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'unallocated-1',
+                status: 'cancelled',
+                date: Date.now(),
+                date_end: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            } as unknown as Booking,
+        ];
+        settingSignal('parking.allow_deleting', false).set(true);
+        spectator = createComponent();
+
+        const status_button = spectator
+            .queryAll('button')
+            .find(
+                (button) =>
+                    button.classList.contains('w-30') &&
+                    button.classList.contains('rounded-3xl'),
+            );
+        const action_button = (icon_name: string) =>
+            spectator
+                .queryAll('icon')
+                .find((icon) => icon.textContent?.includes(icon_name))
+                ?.closest('button');
+
+        expect(spectator.component.statusLabel(bookings[0])).toBe(
+            'COMMON.TYPE_CANCELLED',
+        );
+        expect(status_button).toBeDisabled();
+        expect(status_button).toHaveClass('bg-error!');
+        expect(status_button).toHaveClass('text-error-content!');
+        expect(action_button('add_location')).toBeDisabled();
+        expect(action_button('edit')).toBeDisabled();
+        expect(action_button('delete')).toBeDisabled();
+        expect(action_button('history')).not.toBeDisabled();
     });
 
     it('should map bookings to the expected vehicle type labels', () => {
@@ -337,12 +443,13 @@ describe('ParkingBookingsListComponent', () => {
         spectator = createComponent();
 
         expect(
-            spectator.component.isVisibleWaitlisted({
+            spectator.component.statusTone({
                 id: 'waitlisted',
                 asset_id: 'unallocated-1',
                 status: 'tentative',
+                process_state: 'unapproved',
             } as any),
-        ).toBe(false);
+        ).toBe('warning');
     });
 
     it('should map bookings to sortable vehicle type values', () => {
@@ -429,7 +536,7 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(false);
     });
 
-    it('should show deleted bookings as deleted and disable status actions', () => {
+    it('should show deleted bookings as cancelled in red and disable status actions', () => {
         bookings = [
             {
                 id: 'booking-1',
@@ -463,8 +570,8 @@ describe('ParkingBookingsListComponent', () => {
         );
         expect(spectator.component.isStatusActionDisabled(booking)).toBe(true);
         expect(status_button).toBeDisabled();
-        expect(status_button).toHaveClass('bg-neutral!');
-        expect(status_button).toHaveClass('text-neutral-content!');
+        expect(status_button).toHaveClass('bg-error!');
+        expect(status_button).toHaveClass('text-error-content!');
         expect(status_button).not.toHaveClass('bg-success');
         expect(status_button).not.toHaveClass('opacity-30');
         expect(

@@ -1,19 +1,32 @@
 import { EventEmitter, WritableSignal, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/vitest';
 import {
+    SpectatorService,
+    createServiceFactory,
+} from '@ngneat/spectator/vitest';
+import {
+    Booking,
+    Desk,
     OrganisationService,
     SettingsService,
     getTimezoneDifferenceInHours,
     setNotifyOutlet,
     setTimeInTimezone,
 } from '@placeos/common';
-import { addHours, addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addHours,
+    addMinutes,
+    endOfDay,
+    getUnixTime,
+    startOfDay,
+} from 'date-fns';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { DesksStateService } from '../../app/desks/desks-state.service';
+import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
+import { captureDownloads } from '../reports/download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -121,6 +134,47 @@ describe('DesksStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should open the booking history modal for a desk booking', () => {
+        const booking = new Booking({ id: 'booking-1' });
+
+        spectator.service.viewBookingHistory(booking);
+
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            BookingHistoryModalComponent,
+            {
+                data: { booking },
+                width: '32rem',
+                maxWidth: '100vw',
+            },
+        );
+    });
+
+    it('should download the current desk list', async () => {
+        Object.defineProperty(spectator.service, 'desks', {
+            value: () => [
+                new Desk({
+                    id: 'desk-1',
+                    name: 'Desk One',
+                    bookable: true,
+                }),
+                new Desk({ id: 'desk-2', name: 'Desk Two' }),
+            ],
+        });
+        const downloads = captureDownloads();
+        try {
+            spectator.service.downloadDesksCSV();
+            const csv = await downloads.text();
+
+            expect(downloads.filename).toBe('desks.csv');
+            expect(csv).toContain('desk-1');
+            expect(csv).toContain('Desk One');
+            expect(csv).toContain('desk-2');
+            expect(csv).not.toContain('Test Desk');
+        } finally {
+            downloads.restore();
+        }
+    });
+
     it('should reload desk bookings when the active building changes', () => {
         expect((spectator.service as any)._currentLevelList()).toEqual([
             { id: 'bld-1-lvl-1' },
@@ -154,9 +208,7 @@ describe('DesksStateService', () => {
             getUnixTime(
                 addMinutes(startOfDay(date), spectator.service.tz_offset * 60),
             ),
-        ).toBe(
-            getUnixTime(addMinutes(startOfDay(date), expected_offset * 60)),
-        );
+        ).toBe(getUnixTime(addMinutes(startOfDay(date), expected_offset * 60)));
         expect(
             getUnixTime(
                 addMinutes(endOfDay(date), spectator.service.tz_offset * 60),
@@ -222,31 +274,68 @@ describe('DesksStateService', () => {
 
     it('should cancel only one recurring booking instance', async () => {
         mockConfirm();
-        const booking = {
+        const booking = new Booking({
             id: 'booking-1',
             parent_id: 'booking-parent',
             instance: 1_740_000_000,
-        } as any;
+        });
+        const other_instance = new Booking({
+            id: 'booking-1',
+            parent_id: 'booking-parent',
+            instance: 1_740_086_400,
+        });
+        (spectator.service as any)._bookings_state.set({
+            list: [booking, other_instance],
+            total: 2,
+            has_next: false,
+        });
 
         await spectator.service.cancelBooking(booking);
 
         expect(del_urls()).toEqual([
             expect.stringContaining('/booking-1/instance/1740000000'),
         ]);
+        expect(spectator.service.bookings()).toEqual([
+            expect.objectContaining({
+                instance: 1_740_000_000,
+                deleted: true,
+                status: 'cancelled',
+            }),
+            expect.objectContaining({
+                instance: 1_740_086_400,
+                deleted: false,
+            }),
+        ]);
     });
 
-    it('should delete recurring booking series by parent booking id', async () => {
+    it('should delete recurring booking series and update every instance', async () => {
         mockConfirm();
-        const booking = {
+        const booking = new Booking({
             id: 'booking-1',
             parent_id: 'booking-parent',
             instance: 1_740_000_000,
-        } as any;
+        });
+        const other_instance = new Booking({
+            id: 'booking-2',
+            parent_id: 'booking-parent',
+            instance: 1_740_086_400,
+        });
+        const unrelated_booking = new Booking({ id: 'booking-3' });
+        (spectator.service as any)._bookings_state.set({
+            list: [booking, other_instance, unrelated_booking],
+            total: 3,
+            has_next: false,
+        });
 
         await spectator.service.cancelBooking(booking, true);
 
         expect(del_urls()).toEqual([
-            expect.stringMatching(/\/bookings\/booking-parent$/),
+            expect.stringMatching(/\/bookings\/booking-parent\?utm_source=/),
+        ]);
+        expect(spectator.service.bookings()).toEqual([
+            expect.objectContaining({ deleted: true, status: 'cancelled' }),
+            expect.objectContaining({ deleted: true, status: 'cancelled' }),
+            expect.objectContaining({ id: 'booking-3', deleted: false }),
         ]);
     });
 
@@ -383,7 +472,7 @@ describe('DesksStateService', () => {
 
         expect(ts_client_mod.updateMetadata).toHaveBeenCalledTimes(2);
         expect(del_urls()).toEqual([
-            expect.stringMatching(/\/bookings\/booking-1$/),
+            expect.stringMatching(/\/bookings\/booking-1\?utm_source=/),
         ]);
         expect(posted_bookings()).toHaveLength(2);
         expect(posted_bookings()[0][1]).toEqual(

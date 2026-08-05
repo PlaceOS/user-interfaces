@@ -8,14 +8,14 @@ describe('LocaleService', () => {
 
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
-    function storeLocale(locale: string, mappings: Record<string, string>) {
+    function storeLocale(
+        locale: string,
+        mappings: Record<string, string>,
+        cached_at = Date.now(),
+    ) {
         localStorage.setItem(
             `APP.locale.${locale}`,
-            JSON.stringify({
-                expiry: Date.now() + 60 * 60 * 1000,
-                locale,
-                mappings,
-            }),
+            JSON.stringify({ cached_at, locale, mappings }),
         );
     }
 
@@ -59,9 +59,44 @@ describe('LocaleService', () => {
     it('should use cached locale mappings from localStorage', async () => {
         storeLocale('fr-FR', { 'COMMON.HELLO': 'Bonjour' });
         spectator.service.setLocale('fr-FR');
-        await flush();
         expect(spectator.service.get('COMMON.HELLO')).toBe('Bonjour');
-        expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it('should discard cached mappings older than the maximum age', async () => {
+        const week_ago = Date.now() - 8 * 24 * 60 * 60 * 1000;
+        storeLocale('fr-FR', { 'COMMON.HELLO': 'Bonjour' }, week_ago);
+        spectator.service.setLocale('fr-FR');
+        await flush();
+        expect(spectator.service.get('COMMON.HELLO')).toBe('COMMON.HELLO');
+        expect(localStorage.getItem('APP.locale.fr-FR')).toBe(null);
+    });
+
+    it('should replace cached mappings with the latest once loaded', async () => {
+        storeLocale('fr-FR', { 'COMMON.HELLO': 'Bonjour' });
+        (global as any).fetch = vi.fn(async () => ({
+            ok: true,
+            json: async () => ({ COMMON: { HELLO: 'Salut' } }),
+        }));
+
+        spectator.service.setLocale('fr-FR');
+        // Cached value is displayed straight away...
+        expect(spectator.service.get('COMMON.HELLO')).toBe('Bonjour');
+        await flush();
+
+        // ...and replaced with the latest, which is cached for the next load.
+        expect(global.fetch).toHaveBeenCalledWith('assets/locale/fr-FR.json');
+        expect(spectator.service.get('COMMON.HELLO')).toBe('Salut');
+        expect(
+            JSON.parse(localStorage.getItem('APP.locale.fr-FR')).mappings,
+        ).toEqual({ 'COMMON.HELLO': 'Salut' });
+    });
+
+    it('should keep cached mappings when the latest fail to load', async () => {
+        storeLocale('fr-FR', { 'COMMON.HELLO': 'Bonjour' });
+        spectator.service.setLocale('fr-FR');
+        await flush();
+        expect(global.fetch).toHaveBeenCalled();
+        expect(spectator.service.get('COMMON.HELLO')).toBe('Bonjour');
     });
 
     it('should fetch locale mappings when not cached', async () => {

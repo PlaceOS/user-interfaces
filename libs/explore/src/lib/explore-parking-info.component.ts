@@ -66,7 +66,7 @@ interface ParkingSpaceExtended extends ParkingSpace {
                         <div
                             class="w-full pt-1 text-center text-[0.625rem] font-medium whitespace-nowrap"
                         >
-                            {{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}
+                            {{ 'BOOKINGS.PARKING_PLATE_NUMBER' | translate }}
                         </div>
                         <div
                             class="w-full pb-1 text-center font-mono uppercase"

@@ -22,14 +22,14 @@ import { TranslatePipe } from './translate.pipe';
             </h3>
             <div class="flex flex-col">
                 <label for="plate-number">{{
-                    'EXPLORE.PARKING_PLATE_NUMBER' | translate
+                    'BOOKINGS.PARKING_PLATE_NUMBER' | translate
                 }}</label>
                 <mat-form-field appearance="outline" class="no-subscript">
                     <input
                         matInput
                         [(ngModel)]="plate_number"
                         [placeholder]="
-                            'EXPLORE.PARKING_PLATE_NUMBER' | translate
+                            'BOOKINGS.PARKING_PLATE_NUMBER' | translate
                         "
                     />
                 </mat-form-field>
