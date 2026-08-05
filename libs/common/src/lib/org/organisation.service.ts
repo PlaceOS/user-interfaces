@@ -463,14 +463,16 @@ export class OrganisationService {
                 this._setPublicData();
             });
         } else {
-            await this.load().catch((err) => {
+            try {
+                await this.load();
+            } catch {
                 notifyError('Error loading organisation data. Retrying...');
                 setTimeout(
                     () => this.init(tries),
                     Math.min(10_000, 300 * ++tries),
                 );
-                throw err;
-            });
+                return;
+            }
         }
         if (window.debug) {
             if (!window.app) window.app = {};
