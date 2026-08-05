@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["embedded-control-modal.component.ts"],
+  "sourcesContent": ["\n            [modal] {\n                height: calc(100vh - 3em);\n                box-sizing: content-box;\n                border: 2px solid #fff;\n                border-top: 1px solid #ccc;\n                transform: translate(-50%, calc(-50% + 1.75em));\n            }\n\n            .overlay {\n                position: absolute;\n                top: 0;\n                right: 0;\n                display: flex;\n                align-items: center;\n                height: 3em;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,UAAA,KAAA,MAAA,EAAA;AACA,cAAA;AACA,UAAA,IAAA,MAAA;AACA,cAAA,IAAA,MAAA;AACA,aAAA,UAAA,IAAA,EAAA,KAAA,KAAA,EAAA;AACJ;AAEA,CAAA;AACI,YAAA;AACA,OAAA;AACA,SAAA;AACA,WAAA;AACA,eAAA;AACA,UAAA;AACJ;",
+  "names": []
+}

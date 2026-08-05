@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["event-panel.component.ts"],
+  "sourcesContent": ["\n            [book-tag] {\n                writing-mode: vertical-rl;\n                text-orientation: upright;\n            }\n\n            [qr-code-out] {\n                transition: width 300ms;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,gBAAA;AACA,oBAAA;AACJ;AAEA,CAAA;AACI,cAAA,MAAA;AACJ;",
+  "names": []
+}
