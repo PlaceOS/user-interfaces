@@ -1,4 +1,4 @@
-import "./chunk-NILDOHVQ.js";
+import "./chunk-653SOEEV.js";
 
 // node_modules/@angular/common/locales/zh.js
 /**
@@ -17,4 +17,4 @@ var zh_default = ["zh", [["\u4E0A\u5348", "\u4E0B\u5348"]], u, [["\u65E5", "\u4E
 export {
   zh_default as default
 };
-//# sourceMappingURL=zh-UGIISXBE.js.map
+//# sourceMappingURL=zh-A5WQQ6XL.js.map

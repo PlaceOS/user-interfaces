@@ -1,4 +1,4 @@
-import "./chunk-NILDOHVQ.js";
+import "./chunk-653SOEEV.js";
 
 // node_modules/squire-rte/dist/squire.mjs
 var at = () => true;
@@ -1848,4 +1848,4 @@ var Zi = ve;
 export {
   Zi as default
 };
-//# sourceMappingURL=squire-WXPDHYQB.js.map
+//# sourceMappingURL=squire-VCCEXQGR.js.map
