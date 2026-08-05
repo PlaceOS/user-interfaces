@@ -3,12 +3,14 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
+import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
 import {
+    getTimezoneDifferenceInHours,
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import * as ts_client_mod from '@placeos/ts-client';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
@@ -32,7 +34,11 @@ describe('ReportsStateService', () => {
                 get: ((name: string) => settings_map[name]) as any,
             } as any),
             MockProvider(OrganisationService, {
-                building: { id: 'bld-1', parent_id: 'region-1' },
+                building: {
+                    id: 'bld-1',
+                    parent_id: 'region-1',
+                    timezone: 'Pacific/Auckland',
+                },
                 region: { id: 'region-1' },
                 levels: [],
                 levelsForBuilding: vi.fn(() => [
@@ -108,7 +114,11 @@ describe('ReportsStateService', () => {
     });
 
     it('should clear a previous "All" selection when zones change', () => {
-        spectator.service.setOptions({ zones: ['All'], start: 1000, end: 2000 });
+        spectator.service.setOptions({
+            zones: ['All'],
+            start: 1000,
+            end: 2000,
+        });
         spectator.service.setOptions({
             zones: ['lvl-1'],
             start: 3000,
@@ -182,6 +192,38 @@ describe('ReportsStateService', () => {
         expect(spectator.service.bookings()).toEqual([booking]);
     });
 
+    it('should query parking bookings in the building timezone', async () => {
+        settings_map['app.bookings.use_building_timezone'] = true;
+        const date = new Date('2026-04-06T12:00:00').valueOf();
+        spectator.service.setOptions({
+            type: 'parking',
+            zones: ['z1'],
+            start: date,
+            end: date,
+        });
+
+        await (spectator.service as any)._loadBookings();
+
+        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const offset = getTimezoneDifferenceInHours(
+            current_tz,
+            'Pacific/Auckland',
+        );
+        expect(ts_client_mod.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({
+                    period_start: getUnixTime(
+                        addMinutes(startOfDay(date), offset * 60),
+                    ),
+                    period_end: getUnixTime(
+                        addMinutes(endOfDay(date), offset * 60),
+                    ),
+                    type: 'parking',
+                }),
+            }),
+        );
+    });
+
     it('should notify when a load returns no bookings', async () => {
         booking_data = [];
         spectator.service.setOptions({
@@ -235,7 +277,9 @@ describe('ReportsStateService', () => {
 
         spectator.service.downloadReport();
 
-        expect(downloads.filename).toMatch(/^report\+desks\+2026-04-06.*\.csv$/);
+        expect(downloads.filename).toMatch(
+            /^report\+desks\+2026-04-06.*\.csv$/,
+        );
         const text = await downloads.text();
         // `keep` survives the export; `zones`/`system` are stripped out.
         expect(text).toContain('keep');

@@ -43,6 +43,7 @@ describe('ParkingReportListComponent', () => {
             {
                 asset_id: 'bay-1',
                 date: early,
+                date_end: early + 60 * 60 * 1000,
                 duration: 60,
                 user_name: 'Jane Doe',
                 user_email: 'jane@x.com',
@@ -60,6 +61,7 @@ describe('ParkingReportListComponent', () => {
         const [first, second] = spectator.component.parking_bookings();
         expect(first.host).toBe('Jane Doe');
         expect(first.plate_number).toBe('ABC123');
+        expect(first.date_end).toBe(early + 60 * 60 * 1000);
         expect(second.host).toBe('no-name@x.com');
         expect(second.plate_number).toBe('');
     });

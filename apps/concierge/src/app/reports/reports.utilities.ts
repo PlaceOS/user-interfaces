@@ -17,6 +17,7 @@ export function activeReportBookings<T extends Booking>(bookings: T[]): T[] {
 export function noShowReportBookings<T extends Booking>(bookings: T[]): T[] {
     return activeReportBookings(bookings).filter(
         (booking) =>
+            !booking.asset_id?.startsWith('unallocated') &&
             !booking.checked_in &&
             !booking.checked_in_at &&
             booking.booking_end * 1000 < Date.now(),
