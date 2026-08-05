@@ -24,6 +24,7 @@ describe('ExploreStateService', () => {
                 level: signal({ id: 'lvl-1' }) as any,
                 options: signal({ is_public: false }) as any,
                 has: vi.fn(() => false),
+                spaces: signal([]) as any,
                 setFeatures: vi.fn(),
                 setLabels: vi.fn(),
                 setStyles: vi.fn(),
@@ -138,6 +139,7 @@ describe('ExploreStateService', () => {
             key === 'app.explore.show_zone_sensor_info' ? true : null,
         );
         (spectator.service as any)._location['zone-1'] = { x: 0.5, y: 0.5 };
+        (state.spaces as any).set([{ id: 'room-1', map_id: 'zone-1' }]);
 
         spectator.service.parseData([
             { area_id: 'zone-1', temperature: 0, humidity: 0 },
@@ -150,9 +152,56 @@ describe('ExploreStateService', () => {
                 expect.objectContaining({
                     track_id: 'sensors:zone-1',
                     data: expect.objectContaining({ temp: 0, humidity: 0 }),
+                    z_index: 100,
                 }),
             ]),
         );
+    });
+
+    it('shows sensor data without an area overlay for room-linked zones', () => {
+        const settings = spectator.inject(SettingsService);
+        const state = spectator.inject(ExploreStateService);
+        vi.mocked(settings.get).mockImplementation((key: string) =>
+            key === 'app.explore.show_zone_sensor_info' ? true : null,
+        );
+        (state.spaces as any).set([{ id: 'room-1', map_id: 'room-map-1' }]);
+        (spectator.service as any)._location['room-map-1'] = {
+            x: 0.5,
+            y: 0.5,
+        };
+
+        spectator.service.parseData([
+            {
+                area_id: 'room-1',
+                map_id: 'room-map-1',
+                temperature: 21,
+            },
+        ]);
+
+        expect(state.setStyles).toHaveBeenLastCalledWith('zones-styles', {});
+        expect(state.setFeatures).toHaveBeenCalledWith('zones', []);
+        expect(state.setFeatures).toHaveBeenLastCalledWith(
+            'sensors',
+            expect.arrayContaining([
+                expect.objectContaining({ track_id: 'sensors:room-map-1' }),
+            ]),
+        );
+    });
+
+    it('shows an area overlay without sensor data for non-room zones', () => {
+        const settings = spectator.inject(SettingsService);
+        const state = spectator.inject(ExploreStateService);
+        vi.mocked(settings.get).mockImplementation((key: string) =>
+            key === 'app.explore.show_zone_sensor_info' ? true : null,
+        );
+        (spectator.service as any)._location['area-1'] = { x: 0.5, y: 0.5 };
+
+        spectator.service.parseData([{ area_id: 'area-1', temperature: 21 }]);
+
+        expect(state.setStyles).toHaveBeenLastCalledWith('zones-styles', {
+            '#area-1': { fill: '#43a047', opacity: 0.6 },
+        });
+        expect(state.setFeatures).toHaveBeenLastCalledWith('sensors', []);
     });
 
     it('shows configured zone labels when enabled', () => {

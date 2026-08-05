@@ -24,9 +24,15 @@ import {
     TableColumn,
     TranslatePipe,
 } from '@placeos/components';
+import { isSameDay } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingStateService } from './parking-state.service';
-import { isParkingAllDayBooking } from './parking.utilities';
+import {
+    isParkingAllDayBooking,
+    parkingRequestStatusLabel,
+    parkingRequestStatusTone,
+} from './parking.utilities';
 
 interface ParkingBookingExtensionColumn {
     field: string;
@@ -113,7 +119,7 @@ interface ParkingBookingColumnTemplates {
                             status_busy_label: 'COMMON.STATUS_BUSY' | translate,
                             type_label:
                                 'BOOKINGS.PARKING_VEHICLE_TYPE' | translate,
-                            time_label: 'FORM.TIME' | translate,
+                            time_label: 'COMMON.TIME' | translate,
                             bay_number_label:
                                 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
                             reserved_for_label:
@@ -122,7 +128,7 @@ interface ParkingBookingColumnTemplates {
                             reserved_by_label:
                                 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
                             plate_number_label:
-                                'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                                'BOOKINGS.PARKING_PLATE_NUMBER' | translate,
                             notes_label: 'FORM.NOTES' | translate,
                             status_label: 'COMMON.STATUS' | translate,
                         })
@@ -137,14 +143,16 @@ interface ParkingBookingColumnTemplates {
                     "
                 />
                 <ng-template #date_template let-row="row">
-                    <div class="px-4 py-2">
-                        {{
-                            isAllDayBooking(row)
-                                ? ('COMMON.ALL_DAY' | translate)
-                                : (row.date | date: time_format : timezone) +
-                                  ' - ' +
-                                  (row.date_end | date: time_format : timezone)
-                        }}
+                    <div class="px-4 py-2" data-testid="parking-booking-time">
+                        @if (isAllDayBooking(row)) {
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        } @else {
+                            {{ row.date | date: time_format : timezone }} -
+                            {{ row.date_end | date: time_format : timezone }}
+                            @if (isNextDay(row)) {
+                                <sup>+1</sup>
+                            }
+                        }
                     </div>
                 </ng-template>
                 <ng-template #person_template let-row="row">
@@ -170,47 +178,58 @@ interface ParkingBookingColumnTemplates {
                     </div>
                 </ng-template>
                 <ng-template #state_template let-row="row">
-                    @if (!row?.checked_in && row.checked_out_at) {
+                    @if (row.deleted) {
                         <div
-                            class="bg-base-300 text-base-100 mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                            [matTooltip]="
-                                'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
-                                    | translate
-                                        : {
-                                              time:
-                                                  (row.checked_out_at * 1000
-                                                  | date
-                                                      : time_format
-                                                      : timezone),
-                                          }
-                            "
+                            class="bg-error text-error-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                            [matTooltip]="'COMMON.TYPE_CANCELLED' | translate"
                             matTooltipPosition="right"
                         >
-                            <icon>done</icon>
+                            <icon>close</icon>
                         </div>
-                    }
-                    @if (!row?.checked_in && !row.checked_out_at) {
-                        <div
-                            class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                            [matTooltip]="
-                                'APP.CONCIERGE.PARKING_NOT_CHECKED_IN'
-                                    | translate
-                            "
-                            matTooltipPosition="right"
-                        >
-                            <icon>question_mark</icon>
-                        </div>
-                    }
-                    @if (row?.checked_in) {
-                        <div
-                            class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                            [matTooltip]="
-                                'APP.CONCIERGE.PARKING_CHECKED_IN' | translate
-                            "
-                            matTooltipPosition="right"
-                        >
-                            <icon>done</icon>
-                        </div>
+                    } @else {
+                        @if (!row?.checked_in && row.checked_out_at) {
+                            <div
+                                class="bg-base-300 text-base-100 mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_CHECKED_OUT_AT'
+                                        | translate
+                                            : {
+                                                  time:
+                                                      (row.checked_out_at * 1000
+                                                      | date
+                                                          : time_format
+                                                          : timezone),
+                                              }
+                                "
+                                matTooltipPosition="right"
+                            >
+                                <icon>done</icon>
+                            </div>
+                        }
+                        @if (!row?.checked_in && !row.checked_out_at) {
+                            <div
+                                class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_NOT_CHECKED_IN'
+                                        | translate
+                                "
+                                matTooltipPosition="right"
+                            >
+                                <icon>question_mark</icon>
+                            </div>
+                        }
+                        @if (row?.checked_in) {
+                            <div
+                                class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                                [matTooltip]="
+                                    'APP.CONCIERGE.PARKING_CHECKED_IN'
+                                        | translate
+                                "
+                                matTooltipPosition="right"
+                            >
+                                <icon>done</icon>
+                            </div>
+                        }
                     }
                 </ng-template>
                 <ng-template #bay_template let-id="data">
@@ -301,59 +320,51 @@ interface ParkingBookingColumnTemplates {
                                 isAssignedBooking(row)
                             "
                             [class.bg-secondary!]="isAssignedBooking(row)"
-                            [class.text-neutral-content!]="
-                                isDeletedBooking(row)
+                            [class.text-error-content!]="
+                                isCancelledBooking(row) &&
+                                !isAssignedBooking(row)
                             "
-                            [class.bg-neutral!]="isDeletedBooking(row)"
+                            [class.bg-error!]="
+                                isCancelledBooking(row) &&
+                                !isAssignedBooking(row)
+                            "
                             [class.text-error-content]="
                                 row?.status === 'declined' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.bg-error]="
                                 row?.status === 'declined' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.text-neutral-content]="
                                 row?.status === 'ended' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.bg-neutral]="
                                 row?.status === 'ended' &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.opacity-30]="
                                 isStatusActionDisabled(row) &&
                                 !isAssignedBooking(row) &&
-                                !isDeletedBooking(row)
+                                !isCancelledBooking(row)
                             "
                             [class.text-warning-content]="
-                                row?.status === 'tentative' &&
-                                !isAssignedBooking(row) &&
-                                !isDeletedBooking(row) &&
-                                !isVisibleWaitlisted(row)
+                                statusTone(row) === 'warning'
                             "
-                            [class.bg-warning]="
-                                row?.status === 'tentative' &&
-                                !isAssignedBooking(row) &&
-                                !isDeletedBooking(row) &&
-                                !isVisibleWaitlisted(row)
+                            [class.bg-warning]="statusTone(row) === 'warning'"
+                            [class.text-approval-content]="
+                                statusTone(row) === 'approval'
                             "
+                            [class.bg-approval]="statusTone(row) === 'approval'"
                             [class.text-info-content]="
-                                row?.status === 'tentative' &&
-                                !isAssignedBooking(row) &&
-                                !isDeletedBooking(row) &&
-                                isVisibleWaitlisted(row)
+                                statusTone(row) === 'info'
                             "
-                            [class.bg-info]="
-                                row?.status === 'tentative' &&
-                                !isAssignedBooking(row) &&
-                                !isDeletedBooking(row) &&
-                                isVisibleWaitlisted(row)
-                            "
+                            [class.bg-info]="statusTone(row) === 'info'"
                             [matMenuTriggerFor]="menu"
                             [disabled]="isStatusActionDisabled(row)"
                         >
@@ -473,6 +484,21 @@ interface ParkingBookingColumnTemplates {
                 </ng-template>
                 <ng-template #action_template let-row="row">
                     <div class="flex w-full items-center justify-end gap-2 p-2">
+                        <button
+                            icon
+                            default
+                            matRipple
+                            data-testid="parking-booking-history"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.BOOKING_VIEW_HISTORY' | translate
+                            "
+                            [matTooltip]="
+                                'APP.CONCIERGE.BOOKING_VIEW_HISTORY' | translate
+                            "
+                            (click)="viewBookingHistory(row)"
+                        >
+                            <icon>history</icon>
+                        </button>
                         @if (isRequest(row) && !hide_assign_space) {
                             <button
                                 icon
@@ -481,7 +507,8 @@ interface ParkingBookingColumnTemplates {
                                 [disabled]="
                                     row.checked_in ||
                                     row.state === 'in_progress' ||
-                                    row.status === 'ended'
+                                    row.status === 'ended' ||
+                                    isCancelledBooking(row)
                                 "
                                 [matTooltip]="
                                     'APP.CONCIERGE.PARKING_ASSIGN_SPACE'
@@ -501,6 +528,7 @@ interface ParkingBookingColumnTemplates {
                                     row.checked_in ||
                                     row.state === 'in_progress' ||
                                     row.status === 'ended' ||
+                                    isCancelledBooking(row) ||
                                     row.instance
                                 "
                                 [matTooltip]="
@@ -520,7 +548,8 @@ interface ParkingBookingColumnTemplates {
                                 [disabled]="
                                     row.checked_in ||
                                     row.state === 'in_progress' ||
-                                    row.status === 'ended'
+                                    row.status === 'ended' ||
+                                    isCancelledBooking(row)
                                 "
                                 [matTooltip]="
                                     'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
@@ -569,7 +598,12 @@ export class ParkingBookingsListComponent
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
 
-    public readonly bookings = this._state.bookings;
+    public readonly bookings = computed(() => {
+        const selected_date = this._state.options().date;
+        return this._state
+            .bookings()
+            .filter((booking) => this._isSameDay(booking.date, selected_date));
+    });
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
     public readonly period = this._state.period;
@@ -597,7 +631,7 @@ export class ParkingBookingsListComponent
     });
 
     public action_count(row) {
-        let count = 0;
+        let count = 1;
         if (this.isRequest(row) && !this.hide_assign_space) count += 1;
         if (this.canEdit(row)) count += 1;
         if (this.can_delete()) count += 1;
@@ -611,15 +645,16 @@ export class ParkingBookingsListComponent
     public readonly editReservation = (e) => this._state.editReservation(e);
     public readonly assignSpace = (e) => this._state.assignSpace(e);
     public readonly removeBooking = (e) => this._state.removeBooking(e);
+    public readonly viewBookingHistory = (e) =>
+        this._state.viewBookingHistory(e);
     public readonly isRequest = (e) => this._state.isRequest(e);
     public readonly isManualRequest = (e) => this._state.isManualRequest(e);
-    public readonly isWaitlisted = (e) => this._state.isWaitlisted(e);
     public readonly canApproveBooking = (e: Booking) =>
         this._state.canApproveBooking(e);
     public readonly isStatusActionDisabled = (e: Booking) =>
         e?.status === 'ended' ||
         this.isAssignedBooking(e) ||
-        this.isDeletedBooking(e) ||
+        this.isCancelledBooking(e) ||
         !this.canApproveBooking(e);
     public readonly hide_bay_number_column = computed(() => {
         const { request_filter } = this.options();
@@ -692,8 +727,25 @@ export class ParkingBookingsListComponent
         return this._state.timezone;
     }
 
-    public isVisibleWaitlisted(booking: Booking) {
-        return this.show_waitlist && this.isWaitlisted(booking);
+    public get bookable_period() {
+        const period =
+            this._settings.get('app.parking.bookable_hours') ||
+            this._settings.get('app.bookings.bookable_hours');
+        return Number.isFinite(period?.start) && Number.isFinite(period?.end)
+            ? (period.end - period.start) * 60
+            : undefined;
+    }
+
+    /** Status colour tone for tentative bookings, empty for any other status */
+    public statusTone(booking: Booking): string {
+        if (
+            booking?.status !== 'tentative' ||
+            this.isAssignedBooking(booking) ||
+            this.isCancelledBooking(booking)
+        ) {
+            return '';
+        }
+        return parkingRequestStatusTone(booking, this.show_waitlist);
     }
 
     public isRequestFilter(filter_type?: string) {
@@ -714,12 +766,34 @@ export class ParkingBookingsListComponent
         return !!booking?.deleted;
     }
 
+    public isCancelledBooking(booking: Booking) {
+        return (
+            this.isDeletedBooking(booking) || booking?.status === 'cancelled'
+        );
+    }
+
     public isRecurringInstance(booking: Booking) {
         return !!booking?.instance;
     }
 
     public isAllDayBooking(booking: Booking) {
-        return isParkingAllDayBooking(booking, this.timezone);
+        return isParkingAllDayBooking(
+            booking,
+            this.timezone,
+            this.bookable_period,
+        );
+    }
+
+    public isNextDay(booking: Booking) {
+        return !this._isSameDay(booking.date, booking.date_end);
+    }
+
+    private _isSameDay(first: number, second: number) {
+        const timezone = this.timezone;
+        return isSameDay(
+            timezone ? toZonedTime(first, timezone) : first,
+            timezone ? toZonedTime(second, timezone) : second,
+        );
     }
 
     public statusLabel(booking: Booking) {
@@ -727,15 +801,15 @@ export class ParkingBookingsListComponent
             ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
             : this.isDeletedBooking(booking)
               ? 'APP.CONCIERGE.BOOKING_STATUS_DELETED'
-              : booking?.status === 'ended'
-                ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                : booking?.status === 'approved'
-                  ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                  : booking?.status === 'declined'
-                    ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                    : this.isVisibleWaitlisted(booking)
-                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+              : booking?.status === 'cancelled'
+                ? 'COMMON.TYPE_CANCELLED'
+                : booking?.status === 'ended'
+                  ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
+                  : booking?.status === 'approved'
+                    ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
+                    : booking?.status === 'declined'
+                      ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
+                      : parkingRequestStatusLabel(booking, this.show_waitlist);
     }
 
     public bookingColumns(

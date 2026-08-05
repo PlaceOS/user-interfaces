@@ -8,10 +8,9 @@ import {
     signal,
     viewChild,
 } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
-    SettingsService,
     notifyError,
     settingSignal,
 } from '@placeos/common';
@@ -36,6 +35,14 @@ import { CheckinStateService } from './checkin-state.service';
             class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             [class.hidden]="checking_code()"
         >
+            <h3 class="mt-2 text-xl">
+                {{
+                    (flow === 'checkout'
+                        ? 'COMMON.CHECK_OUT'
+                        : 'COMMON.CHECK_IN'
+                    ) | translate
+                }}
+            </h3>
             <p class="my-4">
                 {{ 'APP.VISITOR_KIOSK.QR_CODE_MSG' | translate }}
             </p>
@@ -148,7 +155,12 @@ export class CheckinQRScanComponent
 {
     private _checkin = inject(CheckinStateService);
     private _router = inject(Router);
-    private _settings = inject(SettingsService);
+    private _route = inject(ActivatedRoute);
+
+    public readonly flow =
+        this._route.snapshot.data['flow'] === 'checkout'
+            ? 'checkout'
+            : 'checkin';
 
     public readonly checking_code = signal(false);
     public readonly scanner_ready = signal(false);
@@ -221,12 +233,22 @@ export class CheckinQRScanComponent
             this.checking_code.set(false);
             return;
         }
-        if (event.checked_in_at) {
-            this._router.navigate(['/checkin', 'checkout']);
-            return;
-        }
         if (event.checked_out_at) {
             this.handleError('Your meeting has already finished.');
+            this.checking_code.set(false);
+            return;
+        }
+        if (this.flow === 'checkout') {
+            if (!event.checked_in_at) {
+                this.handleError('You have not checked in yet.');
+                this.checking_code.set(false);
+                return;
+            }
+            this._router.navigate(['/checkout', 'confirm']);
+            return;
+        }
+        if (event.checked_in_at) {
+            this.handleError('You are already checked in.');
             this.checking_code.set(false);
             return;
         }
@@ -267,9 +289,19 @@ export class CheckinQRScanComponent
             this.checking_code.set(false);
             return;
         }
-        if (event.checked_in_at) {
+        if (this.flow === 'checkout') {
+            if (!event.checked_in_at) {
+                this.handleError('You have not checked in yet.');
+                this.checking_code.set(false);
+                return;
+            }
             this.checking_code.set(false);
-            this._router.navigate(['/checkin', 'checkout']);
+            this._router.navigate(['/checkout', 'confirm']);
+            return;
+        }
+        if (event.checked_in_at) {
+            this.handleError('You are already checked in.');
+            this.checking_code.set(false);
             return;
         }
         if (
@@ -372,6 +404,6 @@ export class CheckinQRScanComponent
 
     private handleError(message: any) {
         this._checkin.setError(message?.statusText || message);
-        this._router.navigate(['/checkin', 'error']);
+        this._router.navigate([`/${this.flow}`, 'error']);
     }
 }

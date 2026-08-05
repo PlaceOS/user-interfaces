@@ -3,10 +3,14 @@ const app = {
     title: 'PlaceOS',
     description: 'Signage Manager UI',
     short_name: 'Signage Manager',
+    /** Group subsystem this app's permissions are granted through */
+    access_subsystem: 'signage',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
     diagnostics: true,
     show_locale_selector: false,
+    show_group_selector: false,
+    show_media_group_tabs: false,
     default_animation_time: 1000,
     media_allow_extended_video_codecs: false,
 };

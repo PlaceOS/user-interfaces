@@ -101,10 +101,9 @@ describe('LandingStateService', () => {
         spectator = createService();
         await flush();
 
-        // The module-level user bootstrap (skipped under jest, active under
-        // vitest) may rebind once when the current-user signal settles, since
-        // booking rules are user-dependent. Assert stability after settling
-        // instead of an absolute count: a status emission re-triggering the
+        // User-dependent booking rules may rebind when the current-user signal
+        // settles. Assert stability after settling instead of an absolute
+        // count: a status emission re-triggering the
         // binding effect would add calls on every flush round.
         const settled_count = bindThenSubscribe.mock.calls.length;
         expect(settled_count).toBeGreaterThanOrEqual(1);

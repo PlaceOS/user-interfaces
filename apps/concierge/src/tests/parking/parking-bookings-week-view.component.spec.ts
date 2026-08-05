@@ -41,15 +41,15 @@ describe('ParkingBookingsWeekViewComponent', () => {
                 isRequest: vi.fn((b: Booking) =>
                     b.asset_id?.startsWith('unallocated'),
                 ),
-                isWaitlisted: vi.fn(
-                    (b: Booking) => b.id === 'waitlisted',
-                ),
+                isWaitlisted: vi.fn((b: Booking) => b.id === 'waitlisted'),
                 canApproveBooking: vi.fn(() => true),
                 timezone: 'Australia/Perth',
             } as any),
             MockProvider(SettingsService as any, {
                 get: vi.fn((name: string) =>
-                    name === 'app.parking.show_waitlist' ? show_waitlist : false,
+                    name === 'app.parking.show_waitlist'
+                        ? show_waitlist
+                        : false,
                 ),
                 time_format: 'h:mm a',
             }),
@@ -108,6 +108,51 @@ describe('ParkingBookingsWeekViewComponent', () => {
         expect(grouped[today_key!][0].id).toBe('booking-1');
     });
 
+    it('should show start and end times for all-day bookings', () => {
+        options.set({
+            ...options(),
+            date: new Date(2026, 6, 21, 8).valueOf(),
+        });
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: true,
+                date: new Date(2026, 6, 21, 8).valueOf(),
+                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                duration: 9 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        const time = spectator.query('[data-testid="parking-booking-time"]');
+        expect(time).toHaveText('8:00 AM - 5:00 PM');
+        expect(time).not.toHaveText('All Day');
+    });
+
+    it('should show all day for 24-hour bookings starting at midnight', () => {
+        const start = new Date('2026-07-21T00:00:00+08:00').valueOf();
+        options.set({ ...options(), date: start });
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                all_day: false,
+                date: start,
+                date_end: new Date('2026-07-22T00:00:00+08:00').valueOf(),
+                duration: 24 * 60,
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.component.isAllDayBooking(bookings[0])).toBe(true);
+        expect(
+            spectator.query('[data-testid="parking-booking-time"]'),
+        ).not.toHaveText(':');
+    });
+
     it('should resolve the status label from booking state', () => {
         spectator = createComponent();
         const component = spectator.component;
@@ -117,34 +162,57 @@ describe('ParkingBookingsWeekViewComponent', () => {
                 extension_data: { is_assigned: true },
             } as any),
         ).toBe('APP.CONCIERGE.BOOKING_STATUS_ASSIGNED');
-        expect(
-            component.statusLabel({ deleted: true } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_DELETED');
-        expect(
-            component.statusLabel({ status: 'ended' } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_ENDED');
-        expect(
-            component.statusLabel({ status: 'approved' } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_APPROVED');
-        expect(
-            component.statusLabel({ status: 'declined' } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_DECLINED');
-        expect(
-            component.statusLabel({ status: 'tentative' } as Booking),
-        ).toBe('APP.CONCIERGE.BOOKING_STATUS_PENDING');
-    });
-
-    it('should label a current week tentative request as waitlisted only when waitlist is visible', () => {
-        spectator = createComponent();
-        const waitlisted = { id: 'waitlisted', status: 'tentative' } as Booking;
-
-        expect(spectator.component.isVisibleWaitlisted(waitlisted)).toBe(true);
-        expect(spectator.component.statusLabel(waitlisted)).toBe(
-            'APP.CONCIERGE.PARKING_WAITLISTED',
+        expect(component.statusLabel({ deleted: true } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_DELETED',
+        );
+        expect(component.statusLabel({ status: 'cancelled' } as Booking)).toBe(
+            'COMMON.TYPE_CANCELLED',
+        );
+        expect(component.statusLabel({ status: 'ended' } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_ENDED',
+        );
+        expect(component.statusLabel({ status: 'approved' } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_APPROVED',
+        );
+        expect(component.statusLabel({ status: 'declined' } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_DECLINED',
+        );
+        expect(component.statusLabel({ status: 'tentative' } as Booking)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_PENDING',
         );
     });
 
-    it('should disable status actions for ended, assigned, deleted or unapprovable bookings', () => {
+    it('should label unapproved requests as waitlisted or approval required', () => {
+        spectator = createComponent();
+        const waitlisted = {
+            id: 'waitlisted',
+            status: 'tentative',
+            process_state: 'unapproved',
+            extension_data: {},
+        } as Booking;
+        const manual = {
+            id: 'manual',
+            status: 'tentative',
+            process_state: 'unapproved',
+            extension_data: { requires_manual_approval: true },
+        } as any as Booking;
+        const pending = { id: 'pending', status: 'tentative' } as Booking;
+
+        expect(spectator.component.statusTone(waitlisted)).toBe('info');
+        expect(spectator.component.statusTone(manual)).toBe('approval');
+        expect(spectator.component.statusTone(pending)).toBe('warning');
+        expect(spectator.component.statusLabel(waitlisted)).toBe(
+            'APP.CONCIERGE.PARKING_WAITLISTED',
+        );
+        expect(spectator.component.statusLabel(manual)).toBe(
+            'COMMON.APPROVAL_REQUIRED',
+        );
+        expect(spectator.component.statusLabel(pending)).toBe(
+            'APP.CONCIERGE.BOOKING_STATUS_PENDING',
+        );
+    });
+
+    it('should disable status actions for ended, assigned, cancelled, deleted or unapprovable bookings', () => {
         spectator = createComponent();
         const component = spectator.component;
 
@@ -160,8 +228,45 @@ describe('ParkingBookingsWeekViewComponent', () => {
             component.isStatusActionDisabled({ deleted: true } as Booking),
         ).toBe(true);
         expect(
+            component.isStatusActionDisabled({
+                status: 'cancelled',
+            } as Booking),
+        ).toBe(true);
+        expect(
             component.isStatusActionDisabled({ status: 'approved' } as Booking),
         ).toBe(false);
+    });
+
+    it('should show cancelled bookings in red and disable their mutating actions', () => {
+        const date = options().date;
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'unallocated-1',
+                status: 'cancelled',
+                date,
+                date_end: date + 60 * 60 * 1000,
+                duration: 60,
+            } as unknown as Booking,
+        ];
+        settingSignal('parking.allow_deleting', false).set(true);
+        spectator = createComponent();
+
+        const status_button = spectator
+            .queryAll('button')
+            .find((button) => button.classList.contains('rounded-full'));
+        const action_button = (icon_name: string) =>
+            spectator
+                .queryAll('icon')
+                .find((icon) => icon.textContent?.includes(icon_name))
+                ?.closest('button');
+
+        expect(status_button).toBeDisabled();
+        expect(status_button).toHaveClass('bg-error!');
+        expect(status_button).toHaveClass('text-error-content!');
+        expect(action_button('add_location')).toBeDisabled();
+        expect(action_button('edit')).toBeDisabled();
+        expect(action_button('delete')).toBeDisabled();
     });
 
     it('should recognise request-style filter values', () => {

@@ -45,10 +45,18 @@ export interface TimeFieldRange {
     end: number;
 }
 
+/** Coerce a configured hour of the day to a number, or `null` when unusable */
+function toHourOfDay(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') return null;
+    const hour = Number(value);
+    return Number.isFinite(hour) ? hour : null;
+}
+
 @Component({
     selector: 'a-time-field,time-field',
     template: `
         <button
+            type="button"
             time-field
             matRipple
             class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
@@ -75,6 +83,7 @@ export interface TimeFieldRange {
         <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
             @if (force_time()) {
                 <button
+                    type="button"
                     mat-menu-item
                     [value]="force_time()"
                     class="text-left"
@@ -104,6 +113,7 @@ export interface TimeFieldRange {
             }
             @for (option of time_options(); track option.id) {
                 <button
+                    type="button"
                     mat-menu-item
                     [attr.data-time]="option.id"
                     [value]="option.id"
@@ -176,6 +186,20 @@ export class TimeFieldComponent
     public readonly from = input<number>(startOfDay(Date.now()).valueOf());
     /** Limit selectable times by hour of the day (0–24) */
     public readonly range = input<TimeFieldRange>(undefined);
+    /**
+     * The bookable hours settings come from zone metadata, so the bounds can be
+     * blank (`null`/`''`), non-numeric or empty (`end <= start`). Any of those
+     * mean "no restriction" — without this check `null * 60` reads as a
+     * 00:00–00:00 window and the only selectable time becomes midnight.
+     */
+    private readonly _range = computed(() => {
+        const range = this.range();
+        if (!range) return undefined;
+        const start = toHourOfDay(range.start);
+        const end = toHourOfDay(range.end);
+        if (start === null || end === null || end <= start) return undefined;
+        return { start, end };
+    });
     /** Minimum booking duration in minutes. When set together with `range`,
      *  the effective end of the selectable window is reduced by this amount
      *  so that only start times that leave room for at least one minimum-
@@ -467,7 +491,7 @@ export class TimeFieldComponent
             ? this.from()
             : Math.max(this.from(), Date.now());
         const blocks = [];
-        const time_range = this.range();
+        const time_range = this._range();
         const tz = this.timezone() || undefined;
 
         // Use timezone-aware day boundaries when a building timezone is set
@@ -518,7 +542,7 @@ export class TimeFieldComponent
         if (isBefore(date, this.from())) {
             return false;
         }
-        const time_range = this.range();
+        const time_range = this._range();
         if (!time_range) {
             return true;
         }

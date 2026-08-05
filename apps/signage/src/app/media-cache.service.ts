@@ -22,6 +22,8 @@ export interface CacheItem {
     url: string;
     owner?: string;
     owners?: string[];
+    /** Size of the stored file in bytes; 0 when not yet known */
+    size?: number;
     status: CacheItemStatus;
     on_change: Subject<CacheItemStatus>;
 }
@@ -195,6 +197,7 @@ export class MediaCacheService extends AsyncHandler {
             const file = new File([blob], cache_item.id, { type: blob.type });
 
             await this._storeFile(cache_item, file, url);
+            cache_item.size = file.size;
             log.debug(`Cached resource.`, [cache_item.id, url]);
             cacheStatus(cache_item, 'cached');
         } catch (e) {
@@ -204,6 +207,25 @@ export class MediaCacheService extends AsyncHandler {
             }
             throw e;
         }
+    }
+
+    /** Snapshot of what the cache is holding, for diagnostics */
+    public cacheState(owner = '') {
+        const files = this._cache_index
+            .filter((_) => !owner || cacheOwners(_).includes(owner))
+            .map((_) => ({
+                url: _.url,
+                status: _.status,
+                size: _.size || 0,
+                owners: cacheOwners(_),
+            }));
+        return {
+            file_count: files.length,
+            cached_count: files.filter((_) => _.status === 'cached').length,
+            total_bytes: files.reduce((total, _) => total + _.size, 0),
+            limit_bytes: DEFAULT_OWNER_CACHE_LIMIT_BYTES,
+            files,
+        };
     }
 
     public availableFiles(owner = '') {
@@ -257,28 +279,30 @@ export class MediaCacheService extends AsyncHandler {
         prune_other_owners = false,
     ) {
         if (!this._cache_db_ready || max_size <= 0) return;
-        await this._cache_db_ready;
-        const records = await this._storedFileRecords().catch(() => []);
-        const owner_items = this._cache_index
-            .filter(
-                (item) =>
-                    item.status === 'cached' &&
-                    (!owner ||
-                        cacheOwners(item).includes(owner) ||
-                        prune_other_owners),
-            )
+        // Sizes are tracked on the index, so the common case - comfortably
+        // under budget - costs nothing. Reading every record back out of the
+        // store to add up its size would pull every cached video into memory.
+        const candidates = this._cache_index.filter(
+            (item) =>
+                item.status === 'cached' &&
+                (!owner ||
+                    cacheOwners(item).includes(owner) ||
+                    prune_other_owners),
+        );
+        // Metadata written before sizes were recorded needs one pass over the
+        // store to fill them in; after that this stays in memory.
+        if (candidates.some((item) => !(item.size > 0))) {
+            await this._recoverCachedSizes();
+        }
+        const owner_items = candidates
             .map((item) => {
-                const record = records.find((_) => _.name === item.id);
                 const owners = cacheOwners(item);
                 return {
                     item,
                     owners,
-                    size: record?.file?.size || 0,
+                    size: item.size || 0,
                     priority: priority_urls.indexOf(item.url),
-                    owner_priority:
-                        !owner || owners.includes(owner)
-                            ? 1
-                            : 0,
+                    owner_priority: !owner || owners.includes(owner) ? 1 : 0,
                 };
             })
             .filter((_) => _.size > 0);
@@ -287,6 +311,7 @@ export class MediaCacheService extends AsyncHandler {
             0,
         );
         if (total_size <= max_size) return;
+        await this._cache_db_ready;
         const eviction_list = owner_items.sort((a, b) => {
             const a_priority =
                 a.priority >= 0 ? a.priority : Number.MAX_SAFE_INTEGER;
@@ -358,7 +383,9 @@ export class MediaCacheService extends AsyncHandler {
                 cache_item.owner = remaining_owners[0] || '';
                 cache_item.owners = remaining_owners;
                 this._file_cache_index.set([...this._cache_index]);
-                this._updateStoredOwners(cache_item).then(resolve).catch(reject);
+                this._updateStoredOwners(cache_item)
+                    .then(resolve)
+                    .catch(reject);
                 return;
             }
             this._cache_db_ready
@@ -438,8 +465,64 @@ export class MediaCacheService extends AsyncHandler {
         });
     }
 
-    private _hasStoredFile(cache_item: CacheItem, url: string) {
-        return this._storedFile(cache_item, url).then((_) => !!_);
+    /**
+     * Whether the file behind a cache entry is still in the store. Uses a key
+     * count rather than reading the record, so confirming a cached playlist
+     * does not pull every one of its files into memory.
+     */
+    private async _hasStoredFile(cache_item: CacheItem, url: string) {
+        if (!(cache_item.size > 0)) {
+            // Size unknown - metadata written by an older build. Read the
+            // record once to recover it; later checks are cheap.
+            const file = await this._storedFile(cache_item, url);
+            if (file) this._setCachedSize(cache_item, file.size);
+            return !!file;
+        }
+        const exists = await this._storedFileExists(cache_item.id).catch(
+            () => false,
+        );
+        if (!exists) {
+            log.error(`Unable to find cached resource.`, url);
+            this._markInvalidated(cache_item);
+        }
+        return exists;
+    }
+
+    private async _storedFileExists(id: string): Promise<boolean> {
+        await this._cache_db_ready;
+        return new Promise<boolean>((resolve, reject) => {
+            const transaction = this._cache_db.transaction(
+                ['files'],
+                'readonly',
+            );
+            const objectStore = transaction.objectStore('files');
+            const request = objectStore.count(id);
+
+            request.onerror = (event: any) => reject(event.target.error);
+            request.onsuccess = () => resolve((request.result || 0) > 0);
+        });
+    }
+
+    private _setCachedSize(cache_item: CacheItem, size: number) {
+        if (cache_item.size === size) return;
+        cache_item.size = size;
+        this._file_cache_index.set([...this._cache_index]);
+    }
+
+    /** Fill in sizes for entries whose metadata predates size tracking */
+    private async _recoverCachedSizes() {
+        await this._cache_db_ready;
+        const records = await this._storedFileRecords().catch(() => []);
+        if (!records.length) return;
+        let changed = false;
+        for (const item of this._cache_index) {
+            if (item.size > 0) continue;
+            const record = records.find((_) => _.name === item.id);
+            if (!record?.file?.size) continue;
+            item.size = record.file.size;
+            changed = true;
+        }
+        if (changed) this._file_cache_index.set([...this._cache_index]);
     }
 
     private async _storedFile(
@@ -493,6 +576,7 @@ export class MediaCacheService extends AsyncHandler {
                 url: record.url,
                 owner: record.owner || '',
                 owners: cacheOwners(record),
+                size: record.file.size,
                 status: 'cached' as const,
                 on_change: new Subject<CacheItemStatus>(),
             }));
@@ -549,6 +633,7 @@ export class MediaCacheService extends AsyncHandler {
                         url: _.url,
                         owner: _.owner || '',
                         owners: _.owners || (_.owner ? [_.owner] : []),
+                        size: _.size || 0,
                         status: 'cached',
                         on_change: new Subject(),
                     })),
@@ -567,6 +652,7 @@ export class MediaCacheService extends AsyncHandler {
                     url: _.url,
                     owner: cacheOwners(_)[0] || '',
                     owners: cacheOwners(_),
+                    size: _.size || 0,
                 }));
             localStorage.setItem(STORE_KEY, JSON.stringify(metadata));
         });

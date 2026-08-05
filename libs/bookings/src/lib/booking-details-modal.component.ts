@@ -22,9 +22,10 @@ import {
     SettingsService,
     userSignal,
 } from '@placeos/common';
-import { addMinutes, format, isSameWeek } from 'date-fns';
+import { addMinutes, format } from 'date-fns';
 
 import { OrganisationService } from '@placeos/common';
+import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageCarouselComponent } from 'libs/components/src/lib/image-carousel.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
@@ -33,7 +34,10 @@ import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
 import { StatusPillComponent } from 'libs/components/src/lib/status-pill.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
-import { visitorDisplayNameFor } from './booking.utilities';
+import {
+    parkingRequestStatus,
+    visitorDisplayNameFor,
+} from './booking.utilities';
 import { checkinBooking, checkinBookingInstance } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
@@ -157,7 +161,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     class="border-base-200 sm:bg-base-100 min-w-1/3 grow-4 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
                     <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
-                        {{ 'BOOKINGS.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Date">event</icon>
@@ -171,7 +175,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Level and Resource">{{
-                            is_visitor() ? 'person' : 'map'
+                            is_visitor() ? 'person' : 'place'
                         }}</icon>
                         <div>
                             @if (is_visitor()) {
@@ -186,17 +190,21 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                             }
                         </div>
                     </div>
-                    <div class="flex items-center space-x-2 px-2">
-                        <icon matTooltip="Location">place</icon>
-                        <div>
-                            {{ building()?.display_name || building()?.name }}
-                            {{
-                                building()?.address
-                                    ? ', ' + building().address
-                                    : ''
-                            }}
+                    @if (is_visitor()) {
+                        <div class="flex items-center space-x-2 px-2">
+                            <icon matTooltip="Location">place</icon>
+                            <div>
+                                {{
+                                    building()?.display_name || building()?.name
+                                }}
+                                {{
+                                    building()?.address
+                                        ? ', ' + building().address
+                                        : ''
+                                }}
+                            </div>
                         </div>
-                    </div>
+                    }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Host">person</icon>
@@ -728,16 +736,13 @@ export class BookingDetailsModalComponent {
 
     public readonly time_format = this._settings.time_format_signal;
 
-    private readonly _is_visible_waitlisted = computed(() => {
+    /** Request status of the booking, `pending` for anything but parking requests */
+    private readonly _parking_status = computed(() => {
         const booking = this.booking();
-        return (
-            this.show_waitlist() &&
+        const is_parking_request =
             booking?.booking_type === 'parking' &&
-            booking?.status === 'tentative' &&
-            booking?.process_state !== 'waiting_approval' &&
-            !!booking?.asset_id?.startsWith('unallocated') &&
-            isSameWeek(Date.now(), booking.date)
-        );
+            booking?.status === 'tentative';
+        return is_parking_request ? parkingRequestStatus(booking) : 'pending';
     });
 
     public readonly booking_status = computed(() => {
@@ -745,7 +750,10 @@ export class BookingDetailsModalComponent {
         if (this.booking()?.status === 'approved') return 'success';
         if (this.booking()?.status === 'declined') return 'error';
         if (this.booking()?.status === 'tentative') {
-            if (this._is_visible_waitlisted()) return 'info';
+            if (this._parking_status() === 'waitlist' && this.show_waitlist())
+                return 'info';
+            if (this._parking_status() === 'approval_required')
+                return 'approval';
             return 'warning';
         }
         return 'warning';
@@ -780,30 +788,48 @@ export class BookingDetailsModalComponent {
     }
 
     public async toggleCheckedIn() {
-        this.checking_in.set(true);
         const bkn = this.booking();
-        const promise = (
+        if (bkn.checked_in) {
+            const resource_name =
+                bkn.booking_type === 'parking'
+                    ? 'parking space'
+                    : bkn.booking_type;
+            const response = await openConfirmModal(
+                {
+                    title: i18n('COMMON.CHECK_OUT'),
+                    content:
+                        'You are currently checked in.<br/>' +
+                        `Would you like to check out of your ${resource_name} now?<br/>` +
+                        `This will make the ${resource_name} available for others to book.`,
+                    confirm_text: i18n('COMMON.CHECK_OUT'),
+                    icon: { content: 'logout' },
+                },
+                this._dialog,
+            );
+            if (response.reason !== 'done') return;
+            response.close();
+        }
+        this.checking_in.set(true);
+        const updated_booking = await (
             bkn.instance
-                ? checkinBookingInstance(
-                      bkn.id,
-                      bkn.instance,
-                      !this.booking().checked_in,
-                  )
-                : checkinBooking(this.booking().id, !this.booking().checked_in)
+                ? checkinBookingInstance(bkn.id, bkn.instance, !bkn.checked_in)
+                : checkinBooking(bkn.id, !bkn.checked_in)
         ).catch((_) => {
-            notifyError(i18n('BOOKINGS.CHECK_IN_ERROR'));
+            notifyError(
+                i18n(
+                    bkn.checked_in
+                        ? 'BOOKINGS.CHECK_OUT_ERROR'
+                        : 'BOOKINGS.CHECK_IN_ERROR',
+                ),
+            );
             this.checking_in.set(false);
             throw _;
         });
-        await promise;
-        this.booking.update((b) => {
-            (b as any).checked_in = !b.checked_in;
-            return b;
-        });
-        this.checked_out.set(!this.booking().checked_in);
+        this.booking.set(updated_booking);
+        this.checked_out.set(!updated_booking.checked_in);
         notifySuccess(
             i18n(
-                this.booking().checked_in
+                updated_booking.checked_in
                     ? 'BOOKINGS.CHECK_IN_SUCCESS'
                     : 'BOOKINGS.CHECK_OUT_SUCCESS',
             ),

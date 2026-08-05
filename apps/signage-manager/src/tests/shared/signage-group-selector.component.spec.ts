@@ -15,11 +15,15 @@ describe('SignageGroupSelectorComponent', () => {
     const selected_group = signal<any>(null);
     const selected_group_id = signal('');
     const is_sys_admin = signal(false);
+    const selected_group_hierarchy = signal<any[]>([]);
+    const show_group_selector = signal(true);
     const service = {
+        show_group_selector,
         signage_groups,
         selected_group,
         selected_group_id,
         is_sys_admin,
+        selected_group_hierarchy,
         setSelectedGroup,
     };
     const dialog = {
@@ -56,6 +60,8 @@ describe('SignageGroupSelectorComponent', () => {
         selected_group.set(null);
         selected_group_id.set('');
         is_sys_admin.set(false);
+        selected_group_hierarchy.set([]);
+        show_group_selector.set(true);
         TestBed.resetTestingModule();
     });
 
@@ -66,13 +72,18 @@ describe('SignageGroupSelectorComponent', () => {
         expect(component.selected_hierarchy()).toEqual([]);
     });
 
-    it('labels and traces the ancestor chain of the selected group', async () => {
+    it('labels the selected group and shows its hierarchy', async () => {
         signage_groups.set([
             group('a', 'Alpha'),
             group('b', 'Beta', 'a'),
             group('c', 'Gamma', 'b'),
         ]);
         selected_group.set(group('c', 'Gamma', 'b'));
+        selected_group_hierarchy.set([
+            { id: 'a', name: 'Alpha' },
+            { id: 'b', name: 'Beta' },
+            { id: 'c', name: 'Gamma' },
+        ]);
         const component = await createComponent();
 
         expect(component.selected_label()).toBe('Gamma');
@@ -83,17 +94,11 @@ describe('SignageGroupSelectorComponent', () => {
         ]);
     });
 
-    it('stops the hierarchy trace when parents form a cycle', async () => {
-        signage_groups.set([
-            group('a', 'Alpha', 'b'),
-            group('b', 'Beta', 'a'),
-        ]);
-        selected_group.set(group('a', 'Alpha', 'b'));
+    it('follows the setting hiding the group selector', async () => {
+        show_group_selector.set(false);
         const component = await createComponent();
 
-        const ids = component.selected_hierarchy().map((_) => _.id);
-        expect(new Set(ids).size).toBe(ids.length);
-        expect(ids).toContain('a');
+        expect(component.show_selector()).toBe(false);
     });
 
     it('applies the chosen group after the selector closes', async () => {

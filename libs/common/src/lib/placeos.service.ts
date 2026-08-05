@@ -18,7 +18,12 @@ import {
 import * as Sentry from '@sentry/angular';
 import { addHours } from 'date-fns';
 
-import { hasNewVersion, setupCache } from './application';
+import {
+    hasNewVersion,
+    reloadForNewVersion,
+    requestInitReload,
+    setupCache,
+} from './application';
 import { AsyncHandler } from './async-handler.class';
 import { requestScreenWakeLock } from './fixed-device-helpers';
 import { firstTruthyValueFrom, log, setAppName } from './general';
@@ -59,6 +64,8 @@ import { setInternalUserDomain } from './types/user.class';
 import { currentUser } from './user-state';
 
 const START_QUERY = location.search;
+/** Longest startup waits on the authority before continuing without it */
+const AUTHORITY_WAIT_MS = 10 * 1000;
 
 declare global {
     interface Window {
@@ -451,7 +458,18 @@ export class PlaceOS_Service extends AsyncHandler {
         }
         if (!isNativeApp()) {
             setLoadingMessage('Authenticating...');
-            await setupPlace(settings).catch((_) => console.error(_));
+            // `setup` resolves only once the authority has loaded, and it never
+            // rejects - a failure retries in the background forever. Waiting on
+            // it therefore parks startup indefinitely on a device with no
+            // network. Everything needed below it (storage prefix, config,
+            // token) is already set synchronously, and the authority arrives on
+            // its own once the network is back.
+            await Promise.race([
+                setupPlace(settings).catch((_) => console.error(_)),
+                new Promise((resolve) =>
+                    setTimeout(resolve, AUTHORITY_WAIT_MS),
+                ),
+            ]);
         }
         if (this._initial_token) setToken(this._initial_token);
         await this._waitFor(() => this._org.initialised());
@@ -501,20 +519,23 @@ export class PlaceOS_Service extends AsyncHandler {
         // Keep a valid token on slow networks — the user fetch timing out
         // doesn't mean the token is bad, so just retry with a reload.
         else if (!token(false)) invalidateToken();
-        location.reload();
+        // Routed rather than reloaded directly: an app that never manages to
+        // load the current user would otherwise restart every thirty seconds
+        // for as long as that keeps failing.
+        requestInitReload();
     }
 
     private _initAnalytics() {
         const tracking_id = this._settings.get('app.analytics.tracking_id');
         if (!tracking_id) return;
-        setLoadingMessage('Initializing analytics...');
+        setLoadingMessage('Initialising analytics...');
         this._analytics.init(tracking_id);
         this._analytics.load(tracking_id);
         this._analytics.setUser(currentUser().id);
     }
 
     private _initLocale() {
-        setLoadingMessage('Loading locale...');
+        setLoadingMessage('Loading locales...');
         try {
             let locale = localStorage.getItem('PLACEOS.locale');
             const locales = this._settings.get('app.locales') || [];
@@ -559,17 +580,17 @@ export class PlaceOS_Service extends AsyncHandler {
     private _checkReload() {
         if (!hasNewVersion()) return;
         setLoadingMessage('Checking for updates...');
-
-        location.reload();
-        this.timeout(
-            'reload',
-            () => (location.href = `${location.origin}${location.pathname}`),
-        );
+        // Reloads rather than navigating: on a hash routed app the route is in
+        // the hash, so going to the base path restarts the app somewhere else
+        // entirely - a signage player lands on the display picker instead of
+        // back on its content. Routed through the shared update reload so the
+        // app's reload gate still applies.
+        reloadForNewVersion();
     }
 
     private async _initFixedDevice() {
         if (!isFixedDevice()) return;
-        setLoadingMessage('Initializing as fixed device...');
+        setLoadingMessage('Initialising as fixed device...');
         this.interval(
             'auto-update-version',
             () => this._checkReload(),

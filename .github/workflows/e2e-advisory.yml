@@ -71,6 +71,14 @@ concurrency:
     group: e2e-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
     cancel-in-progress: true
 
+# The repository default is `write`. This job only reads the code and uploads
+# artifacts (upload-artifact uses the Actions runtime token, not this one), so
+# it has no reason to hold a token that can push. It matters more here than in
+# the other workflows: this is the only job on a self-hosted machine, and that
+# machine is persistent — a token written to its disk outlives the run.
+permissions:
+    contents: read
+
 jobs:
     workplace:
         # The job name is what appears in the commit's Checks list, next to the
@@ -95,7 +103,11 @@ jobs:
             E2E_WORKERS: '2'
             TZ: 'Etc/UTC'
         steps:
+            # persist-credentials: false — checkout otherwise leaves the token in
+            # .git/config. Nothing here pushes, and this runner is not a fresh VM.
             - uses: actions/checkout@v6
+              with:
+                  persist-credentials: false
 
             # No actions/cache, no setup-node, no setup-bun — on purpose.
             #
@@ -145,6 +157,42 @@ jobs:
             # where the platform /login page comes from.
             - name: Bring up the local PlaceOS stack
               run: e2e/stack/up.sh
+
+            # What backend did this run actually test?
+            #
+            # The PlaceOS services track ${PLACEOS_TAG:-latest} on purpose — an
+            # advisory nightly against current backends is worth having, and
+            # pinning them would make the suite blind to the regressions it is
+            # best placed to catch. The cost is that a result can change with no
+            # frontend commit, so record the inputs: with these IDs a changed
+            # nightly is attributable in seconds instead of guessed at. To pin
+            # deliberately (e.g. while bisecting a frontend regression), set
+            # PLACEOS_TAG in this job's `env` above — it is already threaded
+            # through every service.
+            - name: Record backend inputs
+              run: |
+                  {
+                      echo '### Backend inputs'
+                      echo
+                      echo '| image | id |'
+                      echo '|---|---|'
+                      docker compose -p placeos-e2e -f e2e/stack/docker-compose.yml images \
+                          --format json 2>/dev/null \
+                        | node -e '
+                              let raw = "";
+                              process.stdin.on("data", (d) => (raw += d));
+                              process.stdin.on("end", () => {
+                                  let rows = [];
+                                  try { rows = JSON.parse(raw); } catch { return; }
+                                  for (const r of rows) {
+                                      const tag = `${r.Repository}:${r.Tag}`;
+                                      console.log(`| ${tag} | \`${(r.ID || "").slice(0, 19)}\` |`);
+                                  }
+                              });
+                          '
+                      echo
+                      echo "www-core HEAD: \`$(git ls-remote https://github.com/PlaceOS/www-core HEAD | cut -f1)\`"
+                  } >> "$GITHUB_STEP_SUMMARY"
 
             - name: Run workplace e2e
               run: bunx playwright test --config apps/workplace/playwright.config.ts
@@ -204,10 +252,44 @@ jobs:
             # repointing the CHAT_URL secret, or swap this step for email/Slack.
             #
             # `continue-on-error` so a broken webhook can never turn a green run red.
+            #
+            # Plain curl rather than the `fjogeleit/http-request-action@master`
+            # step the other workflows use. Same request, no third-party code:
+            # a mutable `@master` ref means whatever that repository holds at the
+            # moment the job runs executes here, and unlike build.yml and
+            # pull-request.yml, "here" is a persistent machine on an internal
+            # network. The secrets go through `env` rather than into the command
+            # line so they are not exposed in the process list.
+            #
+            # The other six call sites are the same pattern on GitHub-hosted
+            # runners; worth pinning too, but that is a repo-wide change and does
+            # not belong in this PR.
             - name: Notify on failure
               if: ${{ failure() }}
-              uses: fjogeleit/http-request-action@master
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "e2e (advisory) — FAILED", "branch": "${{ github.ref_name }}", "status": "failure", "url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  CHAT_URL: ${{ secrets.CHAT_URL }}
+                  REPO: ${{ github.repository }}
+                  COMMIT: ${{ github.sha }}
+                  BRANCH: ${{ github.ref_name }}
+                  RUN_ID: ${{ github.run_id }}
+              run: |
+                  # node, not jq — jq is not on a stock macOS runner, node is
+                  # provisioned (see SELF_HOSTED_RUNNER.md).
+                  node -e '
+                      process.stdout.write(JSON.stringify({
+                          chat_url: process.env.CHAT_URL,
+                          name: process.env.REPO,
+                          commit: process.env.COMMIT,
+                          branch: process.env.BRANCH,
+                          url: `https://github.com/${process.env.REPO}/actions/runs/${process.env.RUN_ID}`,
+                          pipeline_name: "e2e (advisory) — FAILED",
+                          status: "failure",
+                      }));
+                  ' \
+                    | curl --silent --show-error --fail \
+                           --max-time 30 \
+                           --header 'Content-Type: application/json' \
+                           --data @- \
+                           "$STATUS_URL"

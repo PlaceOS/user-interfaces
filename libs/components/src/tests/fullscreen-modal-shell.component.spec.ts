@@ -1,5 +1,10 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { MatDialogRef } from '@angular/material/dialog';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
+import { By } from '@angular/platform-browser';
+import {
+    SpectatorRouting,
+    createRoutingFactory,
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { LocaleService } from 'libs/common/src/lib/locale.service';
@@ -27,6 +32,12 @@ describe('FullscreenModalShellComponent', () => {
         expect('header h2').toContainText('Test Modal');
     });
 
+    it('should register the modal scroll container for overlay repositioning', () => {
+        expect(
+            spectator.fixture.debugElement.query(By.directive(CdkScrollable)),
+        ).toBeTruthy();
+    });
+
     it('should show a loading state instead of content and actions', () => {
         expect('mat-spinner').not.toExist();
         expect('footer button').toExist();
@@ -46,6 +57,13 @@ describe('FullscreenModalShellComponent', () => {
         expect('footer button').toContainText('Apply');
         spectator.click('footer button');
         expect(spy).toHaveBeenCalled();
+    });
+
+    it('should show the confirm hotkey when configured', () => {
+        expect('footer kbd').not.toExist();
+        spectator.setInput({ confirm_hotkey: 'S' });
+        spectator.detectChanges();
+        expect('footer kbd').toContainText('S');
     });
 
     it('should allow disabling and hiding the confirm button', () => {

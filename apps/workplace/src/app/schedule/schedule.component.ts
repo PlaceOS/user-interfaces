@@ -144,6 +144,7 @@ import {
                                     [edit_fn]="edit_booking_fn"
                                     [remove_fn]="remove_fn"
                                     [end_fn]="end_fn"
+                                    [refresh_fn]="refresh_fn"
                                 ></booking-card>
                             }
                         }
@@ -254,6 +255,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
     public readonly edit_booking_fn = (i) => this.editBooking(i);
     public readonly remove_fn = (i, t?) => this.remove(i, t);
     public readonly end_fn = (i) => this.end(i);
+    public readonly refresh_fn = () => this._state.triggerPoll();
 
     public ngOnInit() {
         this._state.triggerPoll();

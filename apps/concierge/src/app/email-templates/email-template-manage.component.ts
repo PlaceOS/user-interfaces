@@ -83,6 +83,7 @@ import {
                                 {{ 'COMMON.TRIGGER' | translate }}
                             </label>
                             <button
+                                type="button"
                                 class="inverse border-base-300 flex h-12 w-full items-center justify-between rounded-sm border px-2"
                                 btn
                                 matRipple
@@ -172,6 +173,7 @@ import {
                         </div>
                         <button
                             btn
+                            type="button"
                             matRipple
                             class="mt-5.5 flex-1"
                             matTooltip="Values that get replaced in the email template when sent"
@@ -269,7 +271,8 @@ import {
                     <footer
                         class="bg-base-200 sticky bottom-2 z-20 mx-auto mt-2 flex w-full max-w-160 items-center justify-end rounded-sm border-none px-4 py-2"
                     >
-                        <button btn matRipple class="w-40" (click)="save()">
+                        <button btn
+                            type="button" matRipple class="w-40" (click)="save()">
                             {{
                                 'APP.CONCIERGE.EMAIL_TEMPLATES_SAVE' | translate
                             }}

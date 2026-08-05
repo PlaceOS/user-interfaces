@@ -26,6 +26,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe, VirtualKeyboardComponent } from '@placeos/components';
 
 const STORE_PREFIX = 'PlaceOS.SIGNAGE';
+/** Keep in step with `bootstrap-state.ts` */
 const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
 const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
 
@@ -199,8 +200,12 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                 }
             }),
         );
-        await this._org.waitUntilInitialised();
+        // The bootstrapped display is held in local storage, so the redirect
+        // back to it must not wait on organisation data that needs the
+        // backend. Otherwise an offline player never reaches the content it
+        // already has cached.
         this.timeout('check', () => this.checkBootstrap(), 1000);
+        await this._org.waitUntilInitialised();
     }
 
     /**

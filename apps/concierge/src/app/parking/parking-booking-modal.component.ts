@@ -25,9 +25,9 @@ import {
     currentUser,
     getInvalidSignalFields,
     i18n,
-    onFieldChange,
     notifyError,
     notifySuccess,
+    onFieldChange,
     settingSignal,
     SettingsService,
     User,
@@ -123,7 +123,10 @@ import { addDays, endOfDay } from 'date-fns';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form.date().disabled()"
@@ -157,7 +160,7 @@ import { addDays, endOfDay } from 'date-fns';
                     class="mb-2"
                 ></parking-space-list-field>
                 <label for="plate-number">
-                    {{ 'EXPLORE.PARKING_PLATE_NUMBER' | translate }}
+                    {{ 'BOOKINGS.PARKING_PLATE_NUMBER' | translate }}
                     @if (user) {
                         <span>*</span>
                     }
@@ -167,7 +170,7 @@ import { addDays, endOfDay } from 'date-fns';
                         matInput
                         [formField]="form.plate_number"
                         [placeholder]="
-                            'EXPLORE.PARKING_PLATE_NUMBER' | translate
+                            'BOOKINGS.PARKING_PLATE_NUMBER' | translate
                         "
                     />
                     <mat-error>{{

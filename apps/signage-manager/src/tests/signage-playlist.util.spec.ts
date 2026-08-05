@@ -1,9 +1,10 @@
+import { getUnixTime } from 'date-fns';
 import {
     playlistItemScheduleMap,
     playlistMediaIds,
     playlistMediaItems,
-    playlistScheduleNextPlayLabels,
     playlistScheduleLabel,
+    playlistScheduleNextPlayLabels,
 } from '../app/signage-playlist.util';
 
 describe('signage playlist util', () => {
@@ -63,6 +64,20 @@ describe('signage playlist util', () => {
         expect(
             playlistItemScheduleMap({ schedules: [item] }).get('media-1'),
         ).toBe(item);
+    });
+
+    // play_at arrives from the API as unix seconds, never milliseconds
+    it('labels a one-off schedule at its stored time', () => {
+        const play_at = new Date('2026-03-02T09:30:00');
+
+        const label = playlistScheduleLabel({
+            play_at: getUnixTime(play_at),
+            play_period: 30,
+        });
+
+        expect(label).toContain('Plays once on');
+        expect(label).toContain(play_at.toLocaleString());
+        expect(label).toContain('for 30 minutes');
     });
 
     it('labels cron schedules like playlist details', () => {

@@ -6,12 +6,16 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { addDays, endOfWeek, isSameDay, startOfWeek } from 'date-fns';
+import { addDays, isSameDay, startOfWeek } from 'date-fns';
 import {
     ParkingRequestFilter,
     ParkingStateService,
 } from './parking-state.service';
-import { isParkingAllDayBooking } from './parking.utilities';
+import {
+    isParkingAllDayBooking,
+    parkingRequestStatusLabel,
+    parkingRequestStatusTone,
+} from './parking.utilities';
 
 @Component({
     selector: 'parking-requests-week-view',
@@ -49,12 +53,13 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                     booking.status === 'approved'
                                 "
                                 [class.border-info]="
-                                    booking.status === 'tentative' &&
-                                    isVisibleWaitlisted(booking)
+                                    statusTone(booking) === 'info'
+                                "
+                                [class.border-approval]="
+                                    statusTone(booking) === 'approval'
                                 "
                                 [class.border-warning]="
-                                    booking.status === 'tentative' &&
-                                    !isVisibleWaitlisted(booking)
+                                    statusTone(booking) === 'warning'
                                 "
                                 [class.border-error]="
                                     booking.status === 'declined'
@@ -135,20 +140,22 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                             booking.status === 'declined'
                                         "
                                         [class.text-info-content]="
-                                            booking.status === 'tentative' &&
-                                            isVisibleWaitlisted(booking)
+                                            statusTone(booking) === 'info'
                                         "
                                         [class.bg-info]="
-                                            booking.status === 'tentative' &&
-                                            isVisibleWaitlisted(booking)
+                                            statusTone(booking) === 'info'
+                                        "
+                                        [class.text-approval-content]="
+                                            statusTone(booking) === 'approval'
+                                        "
+                                        [class.bg-approval]="
+                                            statusTone(booking) === 'approval'
                                         "
                                         [class.text-warning-content]="
-                                            booking.status === 'tentative' &&
-                                            !isVisibleWaitlisted(booking)
+                                            statusTone(booking) === 'warning'
                                         "
                                         [class.bg-warning]="
-                                            booking.status === 'tentative' &&
-                                            !isVisibleWaitlisted(booking)
+                                            statusTone(booking) === 'warning'
                                         "
                                         [class.text-neutral-content]="
                                             booking.status === 'ended'
@@ -170,11 +177,9 @@ import { isParkingAllDayBooking } from './parking.utilities';
                                                   : booking.status ===
                                                       'declined'
                                                     ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                                    : isVisibleWaitlisted(
-                                                            booking
-                                                        )
-                                                      ? 'APP.CONCIERGE.PARKING_WAITLISTED'
-                                                      : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
+                                                    : requestStatusLabel(
+                                                          booking
+                                                      )
                                             ) | translate
                                         }}
                                     </button>
@@ -360,30 +365,18 @@ export class ParkingRequestsWeekViewComponent extends AsyncHandler {
         filter_type: ParkingRequestFilter,
     ): Booking[] {
         if (filter_type === 'all') return list;
-        const now = Date.now();
-        const week_start = this._state.week_start;
-        const current_week_start = startOfWeek(now, {
-            weekStartsOn: week_start,
-        }).valueOf();
-        const current_week_end = endOfWeek(now, {
-            weekStartsOn: week_start,
-        }).valueOf();
+        if (filter_type === 'manual') {
+            return list.filter((b) => this._state.isManualRequest(b));
+        }
         if (filter_type === 'waitlist') {
             if (!this.show_waitlist) return list;
-            return list.filter(
-                (b) =>
-                    b.status === 'tentative' &&
-                    b.date >= current_week_start &&
-                    b.date <= current_week_end,
-            );
+            return list.filter((b) => this._state.isWaitlisted(b));
         }
         if (filter_type === 'pending') {
             return list.filter(
                 (b) =>
                     b.status === 'tentative' &&
-                    (!this.show_waitlist ||
-                        b.date < current_week_start ||
-                        b.date > current_week_end),
+                    (!this.show_waitlist || !this._state.isWaitlisted(b)),
             );
         }
         return list;
@@ -405,24 +398,14 @@ export class ParkingRequestsWeekViewComponent extends AsyncHandler {
         return this._settings.get('app.parking.show_waitlist') !== false;
     }
 
-    public isWaitlisted(booking: Booking): boolean {
-        if (booking.status !== 'tentative') return false;
-        const now = Date.now();
-        const week_start = this._state.week_start;
-        const current_week_start = startOfWeek(now, {
-            weekStartsOn: week_start,
-        }).valueOf();
-        const current_week_end = endOfWeek(now, {
-            weekStartsOn: week_start,
-        }).valueOf();
-        return (
-            booking.date >= current_week_start &&
-            booking.date <= current_week_end
-        );
+    /** Status colour tone for tentative requests, empty for any other status */
+    public statusTone(booking: Booking): string {
+        if (booking?.status !== 'tentative') return '';
+        return parkingRequestStatusTone(booking, this.show_waitlist);
     }
 
-    public isVisibleWaitlisted(booking: Booking): boolean {
-        return this.show_waitlist && this.isWaitlisted(booking);
+    public requestStatusLabel(booking: Booking): string {
+        return parkingRequestStatusLabel(booking, this.show_waitlist);
     }
 
     public isAllDayBooking(booking: Booking) {

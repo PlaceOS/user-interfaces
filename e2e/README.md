@@ -82,11 +82,11 @@ e2e/                          shared engine, all apps
     api.ts                      engine/staff-api helpers + asset sweep
     flows.ts                    multi-step UI flows (bookDeskViaUI)
     preflight.ts                "is the stack up?" — fails in 1s, not 90
-    global-setup.ts             runs preflight once per suite
+    preflight.setup.ts          setup project — `local` depends on it, `mock` does not
     seed.ts                     idempotent API-driven seeding
   .env.example                  copy to .env to override anything
 apps/workplace/
-  playwright.config.ts        projects: local, mock
+  playwright.config.ts        projects: preflight, local, mock
   e2e/
     local/*.spec.ts             real-backend specs
     *.spec.ts                   mock-mode specs (no backend)
@@ -205,10 +205,14 @@ depend on an external service, which is the one thing it is designed not to do.
 
 ## CI
 
-`.github/workflows/e2e-advisory.yml` — runs on PRs into `develop`, nightly at 15:10 UTC,
-and via **Run workflow**. It brings up the isolated stack, seeds it, runs the suite, writes
-a step summary, and uploads the HTML report plus (on failure) traces, videos and backend
-container logs.
+`.github/workflows/e2e-advisory.yml` — runs nightly at **01:10 UTC**, on pushes to `e2e/**`,
+and via **Run workflow**. There is deliberately **no `pull_request` trigger** (see the table
+below — it is a security decision, not an oversight). It brings up the isolated stack, seeds
+it, runs the suite, writes a step summary, and uploads the HTML report plus (on failure)
+traces, videos and backend container logs.
+
+`schedule` only fires from the default branch, so the nightly does not start accumulating a
+track record until this lands on `develop`.
 
 **It is advisory and must stay that way for now** — do not add it to branch protection or
 required status checks until the suite has a track record. See the CI section of

@@ -96,6 +96,7 @@ describe('ParkingReportNoShowsComponent', () => {
         expect(list.length).toBe(1);
         expect(list[0].host).toBe('No Show');
         expect(list[0].asset_id).toBe('bay-1');
+        expect(list[0].date_end).toBe(past_end * 1000);
     });
 
     it('should resolve building and level names for the booking zones', () => {

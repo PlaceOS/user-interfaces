@@ -1,16 +1,18 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { SignageGroupHeaderComponent } from '../../app/groups/signage-group-header.component';
 import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-edit-modal.component';
+import { SignageGroupHeaderComponent } from '../../app/groups/signage-group-header.component';
 import { SignageService } from '../../app/signage.service';
 
 describe('SignageGroupHeaderComponent', () => {
     const manageable_signage_groups = signal<any[]>([]);
+    const managed_group_id = signal('');
     const can_manage_all_groups = signal(true);
     const dialog = { open: vi.fn() };
     const service_stub = {
         manageable_signage_groups,
+        managed_group_id,
         can_manage_all_groups,
     };
 
@@ -30,6 +32,7 @@ describe('SignageGroupHeaderComponent', () => {
     beforeEach(() => {
         dialog.open.mockReset();
         manageable_signage_groups.set([]);
+        managed_group_id.set('');
         can_manage_all_groups.set(true);
     });
 
@@ -39,6 +42,13 @@ describe('SignageGroupHeaderComponent', () => {
 
         manageable_signage_groups.set([{ id: 'a' }, { id: 'b' }, { id: 'c' }]);
         expect(component.group_count()).toBe(3);
+    });
+
+    it('allows group admins to add a child group', () => {
+        can_manage_all_groups.set(false);
+        manageable_signage_groups.set([{ id: 'group-1' }]);
+
+        expect(make().can_add_groups()).toBe(true);
     });
 
     it('opens the edit modal to create a new empty group', () => {

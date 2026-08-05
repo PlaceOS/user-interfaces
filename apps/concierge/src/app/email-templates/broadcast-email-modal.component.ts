@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import { form, FormField, required, validate } from '@angular/forms/signals';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -231,7 +238,7 @@ export class BroadcastEmailModalComponent {
         effect(() => {
             this.form.recipient_group().value();
             this.form.recipients().value();
-            this.updateRecipients();
+            untracked(() => this.updateRecipients());
         });
     }
 

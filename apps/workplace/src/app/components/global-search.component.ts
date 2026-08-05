@@ -67,9 +67,7 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                 >
                     @if (!results().length && filter_str()) {
                         <div empty class="w-full p-4 text-center opacity-60">
-                            {{
-                                'APP.WORKPLACE.GLOBAL_SEARCH_EMPTY' | translate
-                            }}
+                            {{ 'COMMON.SEARCH_EMPTY' | translate }}
                         </div>
                     } @else {
                         @if (!results().length) {

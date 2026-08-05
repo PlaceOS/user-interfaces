@@ -1,16 +1,20 @@
 import { DatePipe } from '@angular/common';
-import {
-    Component,
-    inject,
-    OnInit,
-    signal,
-    viewChildren,
-} from '@angular/core';
+import { Component, inject, OnInit, signal, viewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AsyncHandler, log, SettingsService, VERSION } from '@placeos/common';
+import {
+    AsyncHandler,
+    log,
+    setAutoReloadGate,
+    SettingsService,
+    updateCheckState,
+    VERSION,
+} from '@placeos/common';
+import { isOnline } from '@placeos/ts-client';
+import { registerSignageDiagnostics } from './diagnostics';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
 import { MediaEvent, SignageService } from './signage.service';
+import { recordHeartbeat } from './watchdog';
 
 /** PostMessage types accepted from a parent frame (e.g. wayfinder shell) */
 const REMOTE_PAUSE = 'signage:pause';
@@ -19,6 +23,16 @@ const MUTE_STORAGE_KEY = 'SIGNAGE.muted';
 
 function isDebugEnabled(value: string | null) {
     return value !== null && value !== 'false';
+}
+
+/**
+ * Whether the global loading overlay is on top of the player. Checked from the
+ * DOM rather than by re-deriving its condition, so this cannot drift out of
+ * step with it; if the markup ever changes this reads as "not covered" and the
+ * watchdog simply loses one signal rather than reloading a healthy player.
+ */
+function isCoveredByLoadingOverlay() {
+    return !!document.querySelector('global-loading [loader]');
 }
 
 @Component({
@@ -52,14 +66,18 @@ function isDebugEnabled(value: string | null) {
         @if (debug()) {
             <div
                 stroke
-                class="text-base-100/60 absolute bottom-1 left-1 font-mono text-[0.625rem] px-2 rounded py-1 bg-base-content/40">
+                class="text-base-100/60 bg-base-content/40 absolute bottom-1 left-1 rounded px-2 py-1 font-mono text-[0.625rem]"
+            >
                 {{ version_date | date: 'mediumDate' }} &ndash;
                 {{ version_date | date: 'shortTime' }}
-                <span class="opacity-50">|</span>&nbsp;<span class="select-all">{{version_hash}}</span>
+                <span class="opacity-50">|</span>&nbsp;<span
+                    class="select-all"
+                    >{{ version_hash }}</span
+                >
             </div>
             <div
                 stroke
-                class="text-base-100/60 absolute bottom-1 right-1 font-mono text-[0.625rem] bg-base-content/40 rounded px-2 py-1"
+                class="text-base-100/60 bg-base-content/40 absolute right-1 bottom-1 rounded px-2 py-1 font-mono text-[0.625rem]"
             >
                 {{ playing_id() }}
                 @if (!playing_id()) {
@@ -123,6 +141,30 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
+        // Hold application reloads back while content that plays to completion
+        // is on screen, so an update lands between items instead of cutting a
+        // video short.
+        setAutoReloadGate(
+            () => !this._players().some((_) => _.isMidPlayThroughItem()),
+        );
+        this.subscription('reload-gate', () => setAutoReloadGate(null));
+        // Content is only really on screen when the shared loading overlay is
+        // not covering it. Without this a player stuck behind that overlay
+        // looks healthy: the timers underneath keep running perfectly.
+        this.interval(
+            'visible_check',
+            () => {
+                if (!isCoveredByLoadingOverlay()) recordHeartbeat('visible');
+            },
+            1000,
+        );
+        this.subscription(
+            'diagnostics',
+            registerSignageDiagnostics({
+                getState: () => this.diagnosticState(),
+                poll: () => this._signage.refresh(),
+            }),
+        );
         window.addEventListener('message', this._remote_message_handler);
         this.subscription('remote-message', () =>
             window.removeEventListener('message', this._remote_message_handler),
@@ -172,6 +214,37 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
                 this._signage.clearPlaylistOverride();
             }
         });
+    }
+
+    /** Everything worth knowing about this player, for console diagnostics */
+    public diagnosticState() {
+        return {
+            version: {
+                hash: VERSION.hash,
+                built: new Date(VERSION.time).toISOString(),
+            },
+            online: isOnline(),
+            updates: updateCheckState(),
+            ...this._signage.diagnostics(),
+            players: this._players().map((player, index) => ({
+                role: index === 0 ? 'background' : 'takeover',
+                state: player.state(),
+                item_index: player.index(),
+                progress_percent: Math.round(player.progress()),
+                elapsed_s: player.duration(),
+                waiting_for_item: player.waiting_for_item(),
+                mid_play_through: player.isMidPlayThroughItem(),
+                playing: player.active_item
+                    ? {
+                          id: player.active_item.id,
+                          name: player.active_item.name,
+                          type: player.active_item.type,
+                          playlist: player.active_item.playlist_name,
+                      }
+                    : null,
+                queue: player.playlist_items.map((_) => _.id),
+            })),
+        };
     }
 
     public handlePlayerEvent(e: MediaEvent, overridden = false) {

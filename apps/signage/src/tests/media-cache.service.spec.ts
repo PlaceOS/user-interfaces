@@ -1,4 +1,7 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { Subject } from 'rxjs';
 
 import { MediaCacheService } from '../app/media-cache.service';
@@ -20,9 +23,13 @@ describe('MediaCacheService', () => {
         service: MediaCacheService,
     });
 
+    /** Counts of the object store reads that pull file blobs into memory */
+    let store_reads: { get: number; get_all: number; count: number };
+
     beforeEach(() => {
         stored_files.clear();
         localStorage.clear();
+        store_reads = { get: 0, get_all: 0, count: 0 };
         const create_transaction = () => {
             const transaction = {
                 oncomplete: null,
@@ -45,8 +52,17 @@ describe('MediaCacheService', () => {
                         return request;
                     },
                     get: (name: string) => {
+                        store_reads.get++;
                         const request: IDBRequest = {
                             result: stored_files.get(name),
+                        } as IDBRequest;
+                        queueMicrotask(() => request.onsuccess?.({} as Event));
+                        return request;
+                    },
+                    count: (name: string) => {
+                        store_reads.count++;
+                        const request: IDBRequest = {
+                            result: stored_files.has(name) ? 1 : 0,
                         } as IDBRequest;
                         queueMicrotask(() => request.onsuccess?.({} as Event));
                         return request;
@@ -67,6 +83,7 @@ describe('MediaCacheService', () => {
                         return request;
                     },
                     getAll: () => {
+                        store_reads.get_all++;
                         const request: IDBRequest = {
                             result: [...stored_files.values()],
                         } as IDBRequest;
@@ -111,6 +128,113 @@ describe('MediaCacheService', () => {
     afterEach(() => {
         spectator.service.ngOnDestroy();
         vi.restoreAllMocks();
+    });
+
+    it('should not read stored files when re-confirming a cached playlist', async () => {
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: vi.fn().mockResolvedValue({
+                ok: true,
+                blob: () =>
+                    Promise.resolve(new Blob(['image'], { type: 'image/png' })),
+            } as Response),
+        });
+        await spectator.service.requestFilesToCache(
+            ['/a.png', '/b.png'],
+            'display-1',
+        );
+        store_reads = { get: 0, get_all: 0, count: 0 };
+
+        await spectator.service.requestFilesToCache(
+            ['/a.png', '/b.png'],
+            'display-1',
+        );
+
+        // Existence is confirmed with a key count, and staying under budget
+        // must not walk the whole store to add up its size.
+        expect(store_reads.count).toBe(2);
+        expect(store_reads.get).toBe(0);
+        expect(store_reads.get_all).toBe(0);
+    });
+
+    it('should track stored file sizes for pruning', async () => {
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: vi.fn().mockResolvedValue({
+                ok: true,
+                blob: () =>
+                    Promise.resolve(new Blob(['image'], { type: 'image/png' })),
+            } as Response),
+        });
+
+        await spectator.service.requestFilesToCache(['/a.png'], 'display-1');
+
+        const [item] = spectator.service['_cache_index'];
+        expect(item.size).toBe(5);
+    });
+
+    it('should restore tracked sizes from persisted metadata', () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.cached_files',
+            JSON.stringify([
+                {
+                    id: 'a',
+                    url: '/a.png',
+                    owner: 'display-1',
+                    owners: ['display-1'],
+                    size: 1234,
+                },
+            ]),
+        );
+
+        spectator.service['_loadCacheMetadata']();
+
+        expect(spectator.service['_cache_index'][0].size).toBe(1234);
+    });
+
+    it('should evict the largest unneeded file when over budget', async () => {
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: vi.fn().mockResolvedValue({
+                ok: true,
+                blob: () =>
+                    Promise.resolve(
+                        new Blob(['0123456789'], { type: 'image/png' }),
+                    ),
+            } as Response),
+        });
+        await spectator.service.requestFilesToCache(
+            ['/keep.png', '/drop.png'],
+            'display-1',
+        );
+
+        await spectator.service.pruneCache('display-1', ['/keep.png'], 15);
+
+        expect(spectator.service.availableFiles('display-1')).toEqual([
+            '/keep.png',
+        ]);
+    });
+
+    it('should recover a missing size from the store once', async () => {
+        Object.defineProperty(globalThis, 'fetch', {
+            configurable: true,
+            value: vi.fn().mockResolvedValue({
+                ok: true,
+                blob: () =>
+                    Promise.resolve(new Blob(['image'], { type: 'image/png' })),
+            } as Response),
+        });
+        await spectator.service.requestFilesToCache(['/a.png'], 'display-1');
+        // Metadata written by a build that did not record sizes
+        spectator.service['_cache_index'][0].size = 0;
+        store_reads = { get: 0, get_all: 0, count: 0 };
+
+        await spectator.service.requestFilesToCache(['/a.png'], 'display-1');
+        await spectator.service.requestFilesToCache(['/a.png'], 'display-1');
+
+        expect(store_reads.get).toBe(1);
+        expect(store_reads.count).toBe(1);
+        expect(spectator.service['_cache_index'][0].size).toBe(5);
     });
 
     it('should invalidate failed downloads and keep caching following media', async () => {
@@ -174,9 +298,9 @@ describe('MediaCacheService', () => {
         await expect(
             spectator.service.invalidateFile('/outer.png', 'embedded-display'),
         ).rejects.toBe('Cached item with URL not found');
-        await expect(
-            spectator.service.getFile('/outer.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/outer.png')).resolves.toEqual(
+            expect.any(File),
+        );
     });
 
     it('should share one cached file between multiple owners', async () => {
@@ -239,9 +363,9 @@ describe('MediaCacheService', () => {
         expect(spectator.service.availableFiles('embedded-display')).toEqual([
             '/shared.png',
         ]);
-        await expect(
-            spectator.service.getFile('/shared.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/shared.png')).resolves.toEqual(
+            expect.any(File),
+        );
         expect([...stored_files.values()][0].owners).toEqual([
             'embedded-display',
         ]);
@@ -306,9 +430,9 @@ describe('MediaCacheService', () => {
         expect(spectator.service.availableFiles('display-1')).toEqual([
             '/stale.png',
         ]);
-        await expect(
-            spectator.service.getFile('/stale.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/stale.png')).resolves.toEqual(
+            expect.any(File),
+        );
     });
 
     it('should load cache metadata from IndexedDB records', async () => {
@@ -324,9 +448,9 @@ describe('MediaCacheService', () => {
         expect(spectator.service.availableFiles('display-1')).toEqual([
             '/stored.png',
         ]);
-        await expect(
-            spectator.service.getFile('/stored.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/stored.png')).resolves.toEqual(
+            expect.any(File),
+        );
     });
 
     it('should re-download cached metadata when the backing file is blank', async () => {
@@ -362,9 +486,9 @@ describe('MediaCacheService', () => {
 
         expect(has_failures).toBe(false);
         expect(fetch_spy).toHaveBeenCalledWith('/blank.png');
-        await expect(
-            spectator.service.getFile('/blank.png'),
-        ).resolves.toEqual(expect.any(File));
+        await expect(spectator.service.getFile('/blank.png')).resolves.toEqual(
+            expect.any(File),
+        );
     });
 
     it('should reject empty downloads instead of storing blank files', async () => {
@@ -411,7 +535,9 @@ describe('MediaCacheService', () => {
         await Promise.resolve();
 
         expect(fetch_spy).toHaveBeenCalledWith('/waiting.png');
-        expect(spectator.service['_cache_db'].transaction).not.toHaveBeenCalled();
+        expect(
+            spectator.service['_cache_db'].transaction,
+        ).not.toHaveBeenCalled();
 
         resolve_ready();
         await cache_promise;

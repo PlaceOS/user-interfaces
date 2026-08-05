@@ -4,23 +4,18 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { OrganisationService, setCurrentUser } from '@placeos/common';
-import {
-    ChatService,
-    UserAvatarComponent,
-} from '@placeos/components';
+import { ChatService, UserAvatarComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 
 import { PanelViewComponent } from '../app/panel-view.component';
 
-// TensorFlow is only exercised in the webcam/model pipeline which the
+// LiteRT is only exercised in the webcam/model pipeline which the
 // behaviour tests never drive; stub it so the module import stays cheap.
-vi.mock('@tensorflow/tfjs', () => ({
-    setBackend: vi.fn(),
-    loadGraphModel: vi.fn(),
-    tidy: vi.fn(),
-    cast: vi.fn(),
-    scalar: vi.fn(),
-    browser: { fromPixels: vi.fn() },
+vi.mock('@litertjs/core', () => ({
+    loadLiteRt: vi.fn(),
+    loadAndCompile: vi.fn(),
+    isWebGPUSupported: vi.fn(() => false),
+    Tensor: vi.fn(),
 }));
 
 interface MockMessage {
@@ -178,6 +173,26 @@ describe('PanelViewComponent', () => {
         expect(recognition.start).not.toHaveBeenCalled();
     });
 
+    it('should detect a person above the confidence threshold', () => {
+        const predictions = new Float32Array(15);
+        predictions[13] = 0.21;
+
+        expect(
+            (spectator.component as any)._containsPerson(
+                predictions,
+                [1, 84, 3],
+            ),
+        ).toBe(true);
+
+        predictions[13] = 0.19;
+        expect(
+            (spectator.component as any)._containsPerson(
+                predictions,
+                [1, 84, 3],
+            ),
+        ).toBe(false);
+    });
+
     it('should tear down the session and close the chat on endService', () => {
         const recognition = { start: vi.fn(), stop: vi.fn() };
         (spectator.component as any)._recognition = recognition;
@@ -245,7 +260,9 @@ describe('PanelViewComponent', () => {
     it('should show the empty state when there are no messages', () => {
         spectator.detectChanges();
 
-        const placeholder = spectator.query('img[src="assets/icons/no-pending.svg"]');
+        const placeholder = spectator.query(
+            'img[src="assets/icons/no-pending.svg"]',
+        );
         expect(placeholder).toBeTruthy();
     });
 

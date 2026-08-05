@@ -22,7 +22,7 @@ import { Page, expect } from '@playwright/test';
  * hidden native input rather than assuming a default. The visible `mat-checkbox`
  * is the click target; the `input` is where `checked` actually lives.
  */
-async function setCheckbox(page: Page, label: string, want: boolean): Promise<void> {
+export async function setCheckbox(page: Page, label: string, want: boolean): Promise<void> {
     const box = page.locator(`mat-checkbox:has-text("${label}")`);
     if (!(await box.count())) return;
     const input = box.first().locator('input[type="checkbox"]');

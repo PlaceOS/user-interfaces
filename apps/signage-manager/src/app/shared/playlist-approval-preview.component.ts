@@ -1,16 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import {
-    AuthenticatedImageDirective,
-    IconComponent,
-    TranslatePipe,
-} from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageMedia, SignagePlaylistMedia } from '@placeos/ts-client';
-import {
-    playlistMediaIcon,
-    playlistMediaThumbnailUrl,
-} from '../signage-playlist.util';
+import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
+import { MediaThumbnailComponent } from './media-thumbnail.component';
 
 @Component({
     selector: 'playlist-approval-preview',
@@ -112,26 +106,12 @@ import {
                             | translate: { name: item.name }
                     "
                 >
-                    @let thumbnail_url = thumbnailUrl(item);
-                    @if (thumbnail_url) {
-                        <img
-                            auth
-                            [source]="thumbnail_url"
-                            [alt]="item.name + ' thumbnail'"
-                            class="h-full w-full object-contain text-xs"
-                        />
+                    <media-thumbnail [item]="item" class="h-full w-full" />
+                    @if (thumbnailUrl(item)) {
                         <div
                             class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
                         >
                             <icon class="text-lg">expand_content</icon>
-                        </div>
-                    } @else {
-                        <div
-                            class="flex h-full w-full items-center justify-center"
-                        >
-                            <icon class="text-3xl opacity-30">{{
-                                mediaIcon(item)
-                            }}</icon>
                         </div>
                     }
                 </button>
@@ -154,8 +134,8 @@ import {
         CommonModule,
         IconComponent,
         MatRippleModule,
-        AuthenticatedImageDirective,
         TranslatePipe,
+        MediaThumbnailComponent,
     ],
 })
 export class PlaylistApprovalPreviewComponent {
@@ -165,9 +145,5 @@ export class PlaylistApprovalPreviewComponent {
 
     public thumbnailUrl(item: SignageMedia) {
         return playlistMediaThumbnailUrl(item);
-    }
-
-    public mediaIcon(item: SignageMedia) {
-        return playlistMediaIcon(item);
     }
 }

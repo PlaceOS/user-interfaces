@@ -135,12 +135,12 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         class="w-24"
                         (click)="checkInCurrent()"
                     >
-                        {{ 'APP.BOOKING_PANEL.CHECKIN' | translate }}
+                        {{ 'COMMON.CHECK_IN' | translate }}
                     </button>
                 }
                 @if (state() === 'free' && can_book()) {
                     <button btn matRipple class="w-24" (click)="newBooking()">
-                        {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
+                        {{ 'COMMON.BOOK' | translate }}
                     </button>
                 }
             </div>
@@ -154,7 +154,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                 ></div>
                 <div class="flex-1 px-2 text-sm">
                     <div class="text-lg font-medium uppercase">
-                        {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
+                        {{ 'COMMON.NEXT' | translate }}
                     </div>
                     <div class="">
                         {{ event_state()?.next || 'No upcoming event' }}
@@ -167,7 +167,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         class="w-24"
                         (click)="newBooking(start(), true)"
                     >
-                        {{ 'APP.BOOKING_PANEL.BOOK' | translate }}
+                        {{ 'COMMON.BOOK' | translate }}
                     </button>
                 }
             </div>
@@ -185,7 +185,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
         </div>
         @if (false) {
             <h3 class="p-4 text-xl font-medium">
-                {{ 'APP.BOOKING_PANEL.FEATURES' | translate }}
+                {{ 'COMMON.FEATURES' | translate }}
             </h3>
         }
         @if (false) {
@@ -221,7 +221,7 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         <icon>restaurant</icon>
                     </div>
                     <div class="flex-1 px-4 text-left font-medium">
-                        {{ 'APP.BOOKING_PANEL.CATERING' | translate }}
+                        {{ 'RESOURCE.CATERING' | translate }}
                     </div>
                     <icon class="text-2xl opacity-40">chevron_right</icon>
                 </button>
@@ -280,7 +280,8 @@ export class CheckinViewComponent extends AsyncHandler implements OnInit {
     };
     // Timetable emits the absolute start time of the tapped slot; treat any
     // slot past now as a future booking so the chosen time isn't overwritten.
-    public readonly bookSlot = (d: number) => this.newBooking(d, d > Date.now());
+    public readonly bookSlot = (d: number) =>
+        this.newBooking(d, d > Date.now());
 
     public has_user = signal<boolean>(true);
 

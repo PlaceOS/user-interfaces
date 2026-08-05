@@ -1,4 +1,10 @@
-import { Component, inject } from '@angular/core';
+import {
+    afterRenderEffect,
+    Component,
+    ElementRef,
+    inject,
+    viewChildren,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,6 +41,7 @@ import { SignageService } from '../signage.service';
             @if (displays().length > 0) {
                 @for (display of displays(); track display.id) {
                     <a
+                        #display_item
                         matRipple
                         class="border-base-300 flex w-full cursor-pointer items-center gap-3 border-b px-4 py-3 text-left no-underline transition-colors"
                         [class.bg-primary]="selected()?.id === display.id"
@@ -120,6 +127,8 @@ import { SignageService } from '../signage.service';
 })
 export class DisplayListComponent {
     private readonly _service = inject(SignageService);
+    private readonly _display_items =
+        viewChildren<ElementRef<HTMLAnchorElement>>('display_item');
 
     public readonly search = this._service.display_search_term;
     public readonly displays = this._service.filtered_displays;
@@ -127,6 +136,27 @@ export class DisplayListComponent {
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._service.displays_has_more;
+
+    constructor() {
+        afterRenderEffect({
+            earlyRead: () => {
+                const selected_id = this.selected()?.id;
+                if (!selected_id) return;
+                const display_index = this.displays().findIndex(
+                    ({ id }) => id === selected_id,
+                );
+                return this._display_items()[display_index]?.nativeElement;
+            },
+            write: (selected_item) => {
+                selected_item()?.scrollIntoView?.({
+                    behavior: 'instant',
+                    block: 'nearest',
+                    inline: 'nearest',
+                });
+            },
+        });
+    }
+
     public loadMore() {
         this._service.loadMoreDisplays();
     }

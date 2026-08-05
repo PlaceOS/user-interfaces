@@ -46,6 +46,10 @@ describe('WelcomeComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
+    it('shows separate check-in and checkout actions', () => {
+        expect(spectator.queryAll('a[btn]')).toHaveLength(2);
+    });
+
     it('should show public mode blocker when enabled', () => {
         window.PLACEOS_PUBLIC_MODE = true;
         spectator.detectChanges();

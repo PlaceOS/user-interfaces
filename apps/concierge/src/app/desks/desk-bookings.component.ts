@@ -81,8 +81,7 @@ import { DesksStateService } from './desks-state.service';
                         key: 'actions',
                         name: ' ',
                         content: action_template,
-                        size: '3.5rem',
-                        show: can_delete(),
+                        size: can_delete() ? '7rem' : '3.5rem',
                         sortable: false,
                     },
                 ]"
@@ -265,7 +264,7 @@ import { DesksStateService } from './desks-state.service';
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
                                 {{
-                                    (data ? 'COMMON.TRUE' : 'COMMON.FALSE')
+                                    (data ? 'COMMON.YES' : 'COMMON.NO')
                                         | translate
                                 }}
                             </div>
@@ -294,12 +293,27 @@ import { DesksStateService } from './desks-state.service';
                         icon
                         default
                         matRipple
-                        [matMenuTriggerFor]="actionMenu"
+                        data-testid="desk-booking-history"
+                        [attr.aria-label]="
+                            'APP.CONCIERGE.BOOKING_VIEW_HISTORY' | translate
+                        "
+                        [matTooltip]="
+                            'APP.CONCIERGE.BOOKING_VIEW_HISTORY' | translate
+                        "
+                        (click)="viewBookingHistory(row)"
                     >
-                        <icon class="text-2xl">more_vert</icon>
+                        <icon>history</icon>
                     </button>
-                    <mat-menu #actionMenu="matMenu">
-                        @if (can_delete()) {
+                    @if (can_delete()) {
+                        <button
+                            icon
+                            default
+                            matRipple
+                            [matMenuTriggerFor]="actionMenu"
+                        >
+                            <icon class="text-2xl">more_vert</icon>
+                        </button>
+                        <mat-menu #actionMenu="matMenu">
                             <button mat-menu-item (click)="cancel(row)">
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-2xl">event_busy</icon>
@@ -310,23 +324,26 @@ import { DesksStateService } from './desks-state.service';
                                     </div>
                                 </div>
                             </button>
-                        }
-                        @if (row.instance && can_delete()) {
-                            <button mat-menu-item (click)="cancelSeries(row)">
-                                <div class="flex items-center space-x-2">
-                                    <icon class="text-error text-2xl"
-                                        >delete</icon
-                                    >
-                                    <div>
-                                        {{
-                                            'BOOKINGS.ACTION_DELETE_SERIES'
-                                                | translate
-                                        }}
+                            @if (row.instance) {
+                                <button
+                                    mat-menu-item
+                                    (click)="cancelSeries(row)"
+                                >
+                                    <div class="flex items-center space-x-2">
+                                        <icon class="text-error text-2xl"
+                                            >delete</icon
+                                        >
+                                        <div>
+                                            {{
+                                                'BOOKINGS.ACTION_DELETE_SERIES'
+                                                    | translate
+                                            }}
+                                        </div>
                                     </div>
-                                </div>
-                            </button>
-                        }
-                    </mat-menu>
+                                </button>
+                            }
+                        </mat-menu>
+                    }
                 </div>
             </ng-template>
         </div>
@@ -410,6 +427,8 @@ export class DeskBookingsComponent implements OnInit {
     public readonly rejectAll = () => this._state.rejectAllDesks();
     public readonly cancel = (b) => this._state.cancelBooking(b);
     public readonly cancelSeries = (b) => this._state.cancelBooking(b, true);
+    public readonly viewBookingHistory = (b) =>
+        this._state.viewBookingHistory(b);
     public readonly loadMore = () => this._state.nextPage();
     public readonly last_updated = this._state.last_updated;
     public readonly state_loading = this._state.loading;

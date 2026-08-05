@@ -39,7 +39,9 @@ export function parseJWT(token: string) {
 })
 export class EnrolmentStateService {
     private _loading = signal('Loading your details...');
-    private _error = signal('link');
+    // Seeded empty: the event resource skips loading while an error is set, so
+    // a non-empty default would block the meeting details from ever loading.
+    private _error = signal('');
     private _event_id = signal('');
     private _guest_id = signal('');
     private _view = signal<EnrolmentView>('error');

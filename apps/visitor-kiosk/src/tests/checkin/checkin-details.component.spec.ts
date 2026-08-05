@@ -4,12 +4,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 
-import { SettingsService } from '@placeos/common';
+import { settingSignal, SettingsService } from '@placeos/common';
 import { CheckinDetailsComponent } from '../../app/checkin/checkin-details.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
@@ -42,10 +45,27 @@ describe('CheckinDetailsComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        vi.clearAllMocks();
+        settingSignal('induction_enabled', false).set(false);
+        settingSignal('induction_details').set(undefined);
+        settingSignal('induction_after_details', false).set(false);
+        spectator = createComponent();
+    });
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should disable browser autocomplete on every input', () => {
+        const inputs = spectator.queryAll('input');
+
+        expect(inputs.length).toBeGreaterThan(0);
+        expect(
+            inputs.every(
+                (input) => input.getAttribute('autocomplete') === 'off',
+            ),
+        ).toBe(true);
     });
 
     it('should allow updating guest details', async () => {
@@ -60,6 +80,22 @@ describe('CheckinDetailsComponent', () => {
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
             'scan',
+        ]);
+    });
+
+    it('waits for induction acceptance before checking in', async () => {
+        settingSignal('induction_enabled', false).set(true);
+        settingSignal('induction_details').set('Terms and conditions');
+        settingSignal('induction_after_details', false).set(true);
+        const service = spectator.inject(CheckinStateService);
+
+        await spectator.component.updateGuest();
+
+        expect(service.updateGuest).toHaveBeenCalledTimes(1);
+        expect(service.checkinGuest).not.toHaveBeenCalled();
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'induction',
         ]);
     });
 });

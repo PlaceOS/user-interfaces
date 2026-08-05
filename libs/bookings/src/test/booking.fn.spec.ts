@@ -1,4 +1,4 @@
-import { Booking, VERSION } from '@placeos/common';
+import { Booking, setCurrentUser, StaffUser, VERSION } from '@placeos/common';
 import {
     approveBooking,
     bookedResourceList,
@@ -6,6 +6,8 @@ import {
     createBooking,
     queryBookings,
     rejectBooking,
+    removeBooking,
+    removeBookingInstance,
     saveBooking,
     showBooking,
     updateBooking,
@@ -18,8 +20,20 @@ import * as ts_client from '@placeos/ts-client';
 describe('[Booking API]', () => {
     const app_version = VERSION.raw || VERSION.version || VERSION.hash;
     const app_name = 'PlaceOS';
+    const user_email = 'current.user@example.com';
+    const utm_source = `${app_name}_${VERSION.hash}_${user_email}`;
+    const encoded_utm_source = encodeURIComponent(utm_source);
 
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        setCurrentUser(
+            new StaffUser({
+                id: 'current-user',
+                email: user_email,
+                name: 'Current User',
+            }),
+        );
+    });
 
     describe('queryBookings', () => {
         it('should allow calling GET request for listing bookings', async () => {
@@ -96,7 +110,7 @@ describe('[Booking API]', () => {
             const booking = await createBooking({ created_at: 123 });
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings`,
+                `/api/staff/v1/bookings?utm_source=${encoded_utm_source}`,
                 { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
@@ -141,7 +155,7 @@ describe('[Booking API]', () => {
             expect(ts_client.post).not.toHaveBeenCalled();
             await saveBooking({});
             expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings`,
+                `/api/staff/v1/bookings?utm_source=${encoded_utm_source}`,
                 { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
@@ -156,6 +170,32 @@ describe('[Booking API]', () => {
                 { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
+        });
+    });
+
+    describe('removeBooking', () => {
+        it('should include the UTM source in a booking DELETE request', async () => {
+            const spy = vi.spyOn(ts_client, 'del');
+            spy.mockResolvedValue(undefined as any);
+
+            await removeBooking('booking/1');
+
+            expect(spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/booking%2F1?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+        });
+
+        it('should include the UTM source in an instance DELETE request', async () => {
+            const spy = vi.spyOn(ts_client, 'del');
+            spy.mockResolvedValue(undefined as any);
+
+            await removeBookingInstance('booking/1', 123);
+
+            expect(spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/booking%2F1/instance/123?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
         });
     });
 
@@ -197,7 +237,7 @@ describe('[Booking API]', () => {
             const booking = await checkinBooking('1', true);
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings/1/check_in?state=true`,
+                `/api/staff/v1/bookings/1/check_in?state=true&utm_source=${utm_source}`,
                 '',
             );
             spy.mockReset();

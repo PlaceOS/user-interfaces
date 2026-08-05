@@ -1,5 +1,6 @@
 import {
     Component,
+    computed,
     inject,
     input,
     OnInit,
@@ -203,7 +204,16 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
             return this._levelsWithResources(levels, resource_type, scope_id);
         },
     });
-    public readonly levels = this._levels.value;
+    public readonly levels = computed(() => {
+        if (this.resource_type() !== 'parking' || !this._levels.isLoading()) {
+            return this._levels.value();
+        }
+        const use_region = this._settings.get('app.use_region');
+        const levels = use_region
+            ? this._org.levelsForRegion(this._org.active_region())
+            : this._org.levelsForBuilding(this._org.active_building());
+        return this._parkingLevels(levels);
+    });
 
     public readonly setStartDate = (date) => {
         if (date instanceof Date) date = date.valueOf();
@@ -254,13 +264,25 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         scope_id: string,
     ): Promise<BuildingLevel[]> {
         if (!resource_type) return levels;
+        if (resource_type === 'parking') {
+            levels = this._parkingLevels(levels);
+        }
         if (!levels.length || !scope_id) return [];
         const resource_zones = await this._levelResourceZones(
             levels,
             resource_type,
             scope_id,
         );
-        return levels.filter((level) => resource_zones.has(level.id));
+        const filtered_levels = levels.filter((level) =>
+            resource_zones.has(level.id),
+        );
+        return resource_type === 'parking' && !filtered_levels.length
+            ? levels
+            : filtered_levels;
+    }
+
+    private _parkingLevels(levels: BuildingLevel[]) {
+        return levels.filter((level) => level.tags?.includes('parking'));
     }
 
     private _levelResourceZones(

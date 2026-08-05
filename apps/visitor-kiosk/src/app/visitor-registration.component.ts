@@ -1,10 +1,4 @@
-import {
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormField } from '@angular/forms/signals';
 import { Router, RouterModule } from '@angular/router';
 import { startOfMinute } from 'date-fns';
@@ -72,22 +66,19 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </a>
                     </div>
                     <div class="p-4">
-                        <label for="name">
-                            {{ 'APP.VISITOR_KIOSK.NAME' | translate }}</label
-                        >
+                        <label for="name"> {{ 'FORM.NAME' | translate }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.asset_name"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.NAME' | translate
-                                "
+                                [placeholder]="'FORM.NAME' | translate"
                             />
                             <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
                         <label for="email">
-                            {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
+                            {{ 'FORM.EMAIL' | translate }}</label
                         >
                         <mat-form-field
                             appearance="outline"
@@ -96,15 +87,15 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.asset_id"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.EMAIL' | translate
-                                "
+                                [placeholder]="'FORM.EMAIL' | translate"
                             />
                             <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
                         <label for="user">Host</label>
                         <a-user-search-field
+                            autocomplete="off"
                             [ngModel]="host()"
                             (ngModelChange)="setHost($event)"
                             [class.mb-4]="!host()"
@@ -117,6 +108,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 keyboard
                                 matInput
                                 type="tel"
+                                autocomplete="off"
                                 [formField]="form.phone"
                                 [placeholder]="
                                     'APP.VISITOR_KIOSK.PHONE' | translate
@@ -124,17 +116,16 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             />
                         </mat-form-field>
                         <label form="org">
-                            {{
-                                'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                            }}</label
+                            {{ 'COMMON.ORGANISATION' | translate }}</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.company"
                                 [placeholder]="
-                                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                                    'COMMON.ORGANISATION' | translate
                                 "
                             />
                         </mat-form-field>
@@ -148,6 +139,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             <input
                                 keyboard
                                 matInput
+                                autocomplete="off"
                                 [formField]="form.title"
                                 [placeholder]="
                                     'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
@@ -157,7 +149,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </mat-form-field>
                         @if (allow_pass_number()) {
                             <label form="pass">
-                                {{ 'BOOKINGS.VISITOR_PASS' | translate }}
+                                {{ 'BOOKINGS.PASS_NUMBER' | translate }}
                             </label>
                             <mat-form-field
                                 appearance="outline"
@@ -166,6 +158,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 <input
                                     keyboard
                                     matInput
+                                    autocomplete="off"
                                     [formField]="form.pass_number"
                                     [placeholder]="
                                         'BOOKINGS.VISITOR_PASS_PLACEHOLDER'
@@ -352,7 +345,7 @@ export class VisitorRegistrationComponent
         if (!this.host()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: i18n('APP.VISITOR_KIOSK.HOST'),
+                    field_list: i18n('FORM.HOST'),
                 }),
             );
         }

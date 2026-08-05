@@ -13,6 +13,7 @@ describe('NavFooterComponent', () => {
     const selected_group_id = signal('');
     const selected_group = signal<any>(null);
     const is_sys_admin = signal(false);
+    const show_group_selector = signal(true);
     const service = {
         can_manage_all_groups,
         manageable_signage_groups,
@@ -20,6 +21,7 @@ describe('NavFooterComponent', () => {
         selected_group_id,
         selected_group,
         is_sys_admin,
+        show_group_selector,
         setSelectedGroup,
     };
     const dialog = {
@@ -57,13 +59,23 @@ describe('NavFooterComponent', () => {
         selected_group_id.set('');
         selected_group.set(null);
         is_sys_admin.set(false);
+        show_group_selector.set(true);
         TestBed.resetTestingModule();
+    });
+
+    it('follows the setting hiding the group selector', async () => {
+        show_group_selector.set(false);
+        const component = await createComponent();
+
+        expect(component.show_selector()).toBe(false);
     });
 
     it('splits schedules and groups into the overflow menu', async () => {
         const component = await createComponent();
 
-        const primary_routes = component.primary_nav_items().map((_) => _.route);
+        const primary_routes = component
+            .primary_nav_items()
+            .map((_) => _.route);
         const more_routes = component.more_nav_items().map((_) => _.route);
 
         expect(primary_routes).not.toContain('/schedules');

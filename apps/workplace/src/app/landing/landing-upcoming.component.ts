@@ -42,14 +42,14 @@ import { LandingStateService } from './landing-state.service';
                     class="inverse hidden sm:flex"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
+                    {{ 'COMMON.VIEW_ALL' | translate }}
                 </a>
                 <a
                     name="upcoming-view-all-mobile"
                     class="inverse relative top-8 flex text-blue-500 underline sm:hidden"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
+                    {{ 'COMMON.VIEW_ALL' | translate }}
                 </a>
             </div>
             <div class="space-y-4 px-4">
@@ -75,6 +75,7 @@ import { LandingStateService } from './landing-state.service';
                                     [edit_fn]="edit_booking_fn"
                                     [remove_fn]="remove_fn"
                                     [end_fn]="end_fn"
+                                    [refresh_fn]="refresh_fn"
                                 ></booking-card>
                             }
                         }
@@ -131,6 +132,7 @@ export class LandingUpcomingComponent
     public readonly edit_booking_fn = (i) => this.editBooking(i);
     public readonly remove_fn = (i, s?) => this.remove(i, s);
     public readonly end_fn = (i) => this.end(i);
+    public readonly refresh_fn = () => this._state.refreshUpcomingEvents();
 
     public ngOnInit() {
         // this._state.refreshUpcomingEvents();

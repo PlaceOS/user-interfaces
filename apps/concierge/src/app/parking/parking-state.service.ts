@@ -30,6 +30,7 @@ import {
     bookedResourceList,
     checkinBooking,
     checkinBookingInstance,
+    parkingRequestStatus,
     queryBookings,
     queryPagedBookings,
     rejectBooking,
@@ -71,6 +72,7 @@ import {
     startOfWeek,
     subDays,
 } from 'date-fns';
+import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
@@ -416,6 +418,7 @@ export class ParkingStateService extends AsyncHandler {
                 type: 'parking',
                 zones: this._bookingQueryZone(options, bld),
                 include_checked_out: true,
+                include_deleted: true,
                 limit: 500,
             } as any);
     }
@@ -470,6 +473,10 @@ export class ParkingStateService extends AsyncHandler {
                       has_next: !!next,
                   },
         );
+        if (next) {
+            await this._loadPage(false);
+            return;
+        }
         this._bookings_loading.set(false);
         this._last_updated.set(Date.now());
     }
@@ -559,30 +566,15 @@ export class ParkingStateService extends AsyncHandler {
 
     public isManualRequest(booking: Booking) {
         return (
-            !!booking.extension_data?.requires_manual_approval ||
-            (this.isRequest(booking) &&
-                !!booking.extension_data?.approver_group)
+            booking.status === 'tentative' &&
+            parkingRequestStatus(booking) === 'approval_required'
         );
     }
 
     public isWaitlisted(booking: Booking) {
-        if (
-            !this.isRequest(booking) ||
-            booking.status !== 'tentative' ||
-            booking.process_state === 'waiting_approval'
-        ) {
-            return false;
-        }
-        const now = Date.now();
-        const current_week_start = startOfWeek(now, {
-            weekStartsOn: this.week_start,
-        }).valueOf();
-        const current_week_end = endOfWeek(now, {
-            weekStartsOn: this.week_start,
-        }).valueOf();
         return (
-            booking.date >= current_week_start &&
-            booking.date <= current_week_end
+            booking.status === 'tentative' &&
+            parkingRequestStatus(booking) === 'waitlist'
         );
     }
 
@@ -1033,6 +1025,15 @@ export class ParkingStateService extends AsyncHandler {
         });
     }
 
+    public viewBookingHistory(booking: Booking) {
+        if (!booking) return;
+        this._dialog.open(BookingHistoryModalComponent, {
+            data: { booking },
+            width: '32rem',
+            maxWidth: '100vw',
+        });
+    }
+
     public requestParking(date?: number) {
         return new Promise<string>((resolve) => {
             const ref = this._dialog.open(ParkingRequestModalComponent, {
@@ -1249,11 +1250,12 @@ export class ParkingStateService extends AsyncHandler {
                 space.assigned_to?.toLowerCase() === email,
         ).length;
         if (assigned_count >= max_assigned_count) {
-            const key =
-                max_assigned_count === 1
-                    ? 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR_1'
-                    : 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR_N';
-            const message = i18n(key, { count: max_assigned_count });
+            const key = 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR';
+            const message = i18n(
+                key,
+                { count: max_assigned_count },
+                max_assigned_count,
+            );
             throw !message || message === key
                 ? `Users can only have ${max_assigned_count} assigned parking space${max_assigned_count === 1 ? '' : 's'} at a time.`
                 : message;

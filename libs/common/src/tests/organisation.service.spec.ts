@@ -40,6 +40,61 @@ describe('OrganisationService', () => {
         spectator = createService();
     });
 
+    it('should keep cache keys stable when the authority is unavailable', () => {
+        vi.mocked(ts_client.authority).mockReturnValue({
+            id: 'auth-1',
+            config: { metadata_cache_id: 'meta-7' },
+        } as any);
+        const service = spectator.service as any;
+        const params = { tags: 'org' };
+        const online_zone_key = service._zoneCacheKey(params);
+        const online_metadata_id = service._metadataCacheID();
+
+        // Offline cold boot: /auth/authority cannot be fetched
+        vi.mocked(ts_client.authority).mockReturnValue(undefined as any);
+
+        expect(service._zoneCacheKey(params)).toBe(online_zone_key);
+        expect(service._metadataCacheID()).toBe(online_metadata_id);
+        expect(online_zone_key).toContain('auth-1');
+        expect(online_metadata_id).toBe('meta-7');
+    });
+
+    it('should read back org data cached while online after the authority is lost', () => {
+        const service = spectator.service as any;
+        const key = service._zoneCacheKey({ tags: 'org' });
+        service._setCachedItem(key, [{ id: 'zone-1' }]);
+
+        vi.mocked(ts_client.authority).mockReturnValue(undefined as any);
+
+        expect(service._getCachedItem(service._zoneCacheKey({ tags: 'org' })))
+            .toEqual([{ id: 'zone-1' }]);
+    });
+
+    it('should keep retrying and initialise once the backend returns', async () => {
+        vi.useFakeTimers();
+        vi.mocked(ts_client.queryZones).mockRejectedValue(
+            new Error('servers unavailable'),
+        );
+        const service = spectator.service as any;
+
+        service.init().catch(() => undefined);
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(spectator.service.initialised()).toBe(false);
+
+        // Still down a minute later, still retrying
+        await vi.advanceTimersByTimeAsync(60_000);
+        expect(spectator.service.initialised()).toBe(false);
+        const attempts = vi.mocked(ts_client.queryZones).mock.calls.length;
+        expect(attempts).toBeGreaterThan(1);
+
+        // Backend comes back; the next retry succeeds without a reload
+        vi.mocked(ts_client.queryZones).mockResolvedValue({ data: [] } as any);
+        await vi.advanceTimersByTimeAsync(30_000);
+
+        expect(spectator.service.initialised()).toBe(true);
+        vi.useRealTimers();
+    });
+
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
     });
@@ -109,19 +164,50 @@ describe('OrganisationService', () => {
         expect(second_list.map(({ id }) => id)).toEqual(['bld-1']);
     });
 
-    it('should expire cached zone data using the authority config', async () => {
-        vi.mocked(ts_client.authority).mockReturnValue({
-            id: 'auth-1',
-            config: { metadata_cache_duration: 0 },
-        } as any);
+    it('should flag that cached data was used so it can be refreshed', async () => {
         vi.mocked(ts_client.queryZones).mockResolvedValue({
             data: [{ id: 'bld-1', tags: ['building'] }],
         } as any);
 
         await spectator.service.loadBuildings('org-1');
+        expect((spectator.service as any)._served_cache).toBe(false);
+        await spectator.service.loadBuildings('org-1');
+
+        expect((spectator.service as any)._served_cache).toBe(true);
+    });
+
+    it('should skip the cache while refreshing', async () => {
+        vi.mocked(ts_client.queryZones).mockResolvedValue({
+            data: [{ id: 'bld-1', tags: ['building'] }],
+        } as any);
+
+        await spectator.service.loadBuildings('org-1');
+        await (spectator.service as any)._refresh(() =>
+            spectator.service.loadBuildings('org-1'),
+        );
+
+        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+        // The flag is cleared once the refresh completes
+        expect((spectator.service as any)._refreshing).toBe(false);
+    });
+
+    it('should discard cached zone data older than the maximum age', async () => {
+        vi.mocked(ts_client.queryZones).mockResolvedValue({
+            data: [{ id: 'bld-1', tags: ['building'] }],
+        } as any);
+
+        await spectator.service.loadBuildings('org-1');
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+            const key = localStorage.key(i);
+            if (!key?.startsWith('PLACEOS.org')) continue;
+            const item = JSON.parse(localStorage.getItem(key));
+            item.cached_at -= 8 * 24 * 60 * 60 * 1000;
+            localStorage.setItem(key, JSON.stringify(item));
+        }
         await spectator.service.loadBuildings('org-1');
 
         expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+        expect((spectator.service as any)._served_cache).toBe(false);
     });
 
     it('should invalidate cached zone data when metadata cache id changes', async () => {
@@ -145,16 +231,22 @@ describe('OrganisationService', () => {
         expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
     });
 
-    it('should cache bulk metadata for the browser session', async () => {
+    it('should cache bulk metadata across loads', async () => {
         vi.mocked(ts_client.bulkMetadata).mockImplementation((name) =>
             Promise.resolve({ bld_1: { details: { name } } } as any),
         );
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
-        (spectator.service as any)._loaded_data.length = 0;
-        await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
+        (spectator.service as any)._loaded_data = {};
+        const building: any = { id: 'bld_1' };
+        await spectator.service.loadBuildingData(building);
 
-        expect(ts_client.bulkMetadata).toHaveBeenCalledTimes(3);
+        // Cached data is applied to the building...
+        expect(building.bindings).toEqual({ name: 'bindings' });
+        // ...and refreshed from the API in the background.
+        await vi.waitFor(() =>
+            expect(ts_client.bulkMetadata).toHaveBeenCalledTimes(6),
+        );
     });
 
     it('should clear org caches when reloading metadata', async () => {

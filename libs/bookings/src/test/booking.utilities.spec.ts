@@ -1,6 +1,11 @@
 import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Booking, CalendarEvent, WeekOfMonth } from '@placeos/common';
+import {
+    Booking,
+    CalendarEvent,
+    fromBookingRecurrence,
+    WeekOfMonth,
+} from '@placeos/common';
 import {
     generateBookingForm,
     newBookingFromCalendarEvent,
@@ -122,8 +127,31 @@ describe('Booking Utilities', () => {
             expect(model().assets).toEqual([]);
             expect(model().booking_asset).toEqual({});
             expect(model().group).toBe('');
-            expect(model().recurrence_instances).toEqual([]);
+            expect(model().recurrence_instances).toBe(0);
             expect(model().user).toBeDefined();
+        });
+
+        it('should preserve a date-based recurrence when the instance count is cleared', () => {
+            const end_date = new Date(2026, 7, 3).valueOf();
+            const { model } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({ booking_type: 'desk' }),
+                    injector,
+                ),
+            );
+
+            model.update((m) => ({
+                ...m,
+                recurrence_type: 'daily',
+                recurrence_interval: 1,
+                recurrence_end: end_date / 1000,
+                recurrence_instances: undefined as any,
+            }));
+
+            const recurrence = fromBookingRecurrence(model() as any);
+
+            expect(recurrence.end_type).toBe('date');
+            expect(recurrence.end_date).toBe(end_date);
         });
 
         it('should keep the date field disabled state stable (no oscillation)', () => {

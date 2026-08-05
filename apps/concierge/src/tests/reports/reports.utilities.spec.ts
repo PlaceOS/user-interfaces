@@ -2,14 +2,27 @@ import {
     activeReportBookings,
     activeReportEvents,
     generateReportForBookings,
-    reportBookedTimeUtilisationPercent,
+    noShowReportBookings,
     reportBookableMinutes,
+    reportBookedTimeUtilisationPercent,
     reportBookingDuration,
     reportBookingStatusStats,
     reportEventStatusStats,
 } from 'apps/concierge/src/app/reports/reports.utilities';
 
 describe('report utilities', () => {
+    describe('noShowReportBookings', () => {
+        it('should exclude unallocated parking bookings', () => {
+            const booking_end = Math.floor(Date.now() / 1000) - 60;
+            const bookings = [
+                { asset_id: 'bay-1', booking_end },
+                { asset_id: 'unallocated-request-1', booking_end },
+            ] as any[];
+
+            expect(noShowReportBookings(bookings)).toEqual([bookings[0]]);
+        });
+    });
+
     describe('reportBookableMinutes', () => {
         it('should default to 8 hours when bookable hours are not configured', () => {
             expect(reportBookableMinutes()).toBe(480);

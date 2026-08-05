@@ -130,7 +130,16 @@ services:
       TZ: ${TZ:-UTC}
 
   redis:
-    image: eqalpha/keydb
+    # Pinned: keydb is not the system under test, so a moving tag here can only
+    # ever add noise. The PlaceOS services deliberately stay on ${PLACEOS_TAG}
+    # (see up.sh) because catching backend regressions is the point of the
+    # nightly — but that argument does not apply to infrastructure.
+    #
+    # By digest, not tag: upstream publishes only arch-specific version tags
+    # (`x86_64_v6.3.4`, `arm64_v6.3.4`), and pinning one would break either the
+    # Intel runner or an Apple Silicon laptop. This is the multi-arch manifest
+    # list for `latest` as of 2026-08-05 — which upstream last moved in 2023.
+    image: eqalpha/keydb@sha256:6537505c42355ca1f571276bddf83f5b750f760f07b2a185a676481791e388ac
     hostname: redis
     restart: always
     <<: *std-logging

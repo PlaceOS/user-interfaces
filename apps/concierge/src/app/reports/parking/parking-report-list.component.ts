@@ -9,7 +9,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { format } from 'date-fns';
 import { DurationPipe } from 'libs/components/src/lib/duration.pipe';
 import {
     ReportMetricGuideComponent,
@@ -26,8 +25,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
     },
     {
         label: 'Duration',
-        description:
-            'Shows all day when the booking is marked all day or duration is greater than 12 hours; otherwise formats booking minutes.',
+        description: 'Formats the actual booked duration in hours and minutes.',
     },
     {
         label: 'Reserved for',
@@ -101,7 +99,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     },
                     {
                         key: 'plate_number',
-                        name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                        name: 'BOOKINGS.PARKING_PLATE_NUMBER' | translate,
                     },
                     {
                         key: 'checked_in',
@@ -136,13 +134,20 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             </ng-template>
             <ng-template #date_template let-row="row">
                 <div class="p-4">
-                    {{ row.date | date: 'mediumDate' }}
+                    <div>{{ row.date | date: 'mediumDate' : timezone }}</div>
+                    <div class="text-xs opacity-60">
+                        {{ row.date | date: time_format : timezone }} -
+                        {{ row.date_end | date: time_format : timezone }}
+                    </div>
                 </div>
             </ng-template>
             <ng-template #checked_in_at_template let-row="row">
                 <div class="p-4">
                     @if (row.checked_in_at) {
-                        {{ row.checked_in_at * 1000 | date: 'shortTime' }}
+                        {{
+                            row.checked_in_at * 1000
+                                | date: 'shortTime' : timezone
+                        }}
                     } @else {
                         <span class="opacity-30">
                             {{ 'COMMON.EMPTY' | translate }}
@@ -152,11 +157,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
             </ng-template>
             <ng-template #duration_template let-row="row">
                 <div class="p-4">
-                    {{
-                        row.duration > 12 * 60 || row.all_day
-                            ? ('COMMON.ALL_DAY' | translate)
-                            : (row.duration | duration: true)
-                    }}
+                    {{ row.duration | duration: true }}
                 </div>
             </ng-template>
         </div>
@@ -182,18 +183,27 @@ export class ParkingReportListComponent {
     public readonly print = input(false);
     public readonly table_metric_guide = TABLE_METRIC_GUIDE;
 
+    public get timezone() {
+        return this._state.timezone;
+    }
+
+    public get time_format() {
+        return this._state.time_format;
+    }
+
     public readonly parking_bookings = computed(() => {
         const list = [];
         for (const booking of this._bookings()) {
             list.push({
                 asset_id: booking.asset_id,
                 date: booking.date,
+                date_end: booking.date_end || booking.booking_end * 1000,
                 duration: booking.duration,
                 all_day: booking.all_day,
                 host: booking.user_name || booking.user_email,
                 plate_number: booking.extension_data?.plate_number || '',
                 checked_in: i18n(
-                    booking.checked_in ? 'COMMON.TRUE' : 'COMMON.FALSE',
+                    booking.checked_in ? 'COMMON.YES' : 'COMMON.NO',
                 ),
                 checked_in_at: booking.checked_in_at
                     ? booking.checked_in_at
@@ -201,8 +211,8 @@ export class ParkingReportListComponent {
                 status: reportBookingStatus(booking),
                 self_registered: i18n(
                     booking.extension_data?.self_registered
-                        ? 'COMMON.TRUE'
-                        : 'COMMON.FALSE',
+                        ? 'COMMON.YES'
+                        : 'COMMON.NO',
                 ),
             });
         }
@@ -213,9 +223,15 @@ export class ParkingReportListComponent {
     public readonly download = async () => {
         const data = this.parking_bookings();
         for (const bkn of data) {
-            bkn.date = format(bkn.date, 'yyyy-MM-dd HH:mm');
+            bkn.date = this._state.formatBookingDate(
+                bkn.date,
+                'yyyy-MM-dd HH:mm',
+            );
             bkn.checked_in_at = bkn.checked_in_at
-                ? format(bkn.checked_in_at * 1000, 'yyyy-MM-dd HH:mm')
+                ? this._state.formatBookingDate(
+                      bkn.checked_in_at * 1000,
+                      'yyyy-MM-dd HH:mm',
+                  )
                 : '';
         }
         const rows = await Promise.all(

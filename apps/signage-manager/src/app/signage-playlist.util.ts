@@ -3,6 +3,7 @@ import {
     type SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
+import { fromUnixTime } from 'date-fns';
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_NAMES = [
@@ -16,9 +17,12 @@ const WEEKDAY_NAMES = [
 ];
 
 export function playlistMediaThumbnailUrl(item: SignageMedia) {
-    return item?.thumbnail_id
+    // `SignageMedia.thumbnail_url` builds an uploads URL whether or not a
+    // thumbnail exists, so items without one render as a broken image
+    if (!item?.thumbnail_id) return '';
+    return item.id
         ? `/api/engine/v2/signage/media/${item.id}/thumbnail`
-        : item?.thumbnail_url || '';
+        : item.thumbnail_url || '';
 }
 
 export function playlistMediaUrl(item: SignageMedia) {
@@ -232,11 +236,7 @@ export function playlistScheduleLabel(
 ) {
     const period = schedulePeriod(schedule);
     if (schedule.play_at) {
-        const date = new Date(
-            schedule.play_at > 1_000_000_000_000
-                ? schedule.play_at
-                : schedule.play_at * 1000,
-        );
+        const date = fromUnixTime(schedule.play_at);
         return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
     }
     return `${humanizeCronSchedule(schedule.play_cron || '0 0 * * *', period)}${
@@ -329,11 +329,7 @@ export function playlistScheduleNextPlayLabels(
 ) {
     const period = schedulePeriod(schedule);
     if (schedule.play_at) {
-        const start = new Date(
-            schedule.play_at > 1_000_000_000_000
-                ? schedule.play_at
-                : schedule.play_at * 1000,
-        );
+        const start = fromUnixTime(schedule.play_at);
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);

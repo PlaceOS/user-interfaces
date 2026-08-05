@@ -52,6 +52,11 @@
     --warn-light: hsl(60, 100%, 95%);
     --warn-content: hsl(0, 0%, 0%);
 
+    /* Approval */
+    --approval: hsl(24, 95%, 50%);
+    --approval-light: hsl(24, 100%, 92%);
+    --approval-content: hsl(0, 0%, 100%);
+
     /* Success */
     --success: hsl(118, 50%, 43%);
     --success-light: hsl(120, 39%, 94%);
@@ -114,6 +119,11 @@
     --warn: hsl(34, 100%, 50%);
     --warn-light: hsl(44, 100%, 65%);
     --warn-content: hsl(0, 0%, 0%);
+
+    /* Approval */
+    --approval: hsl(24, 90%, 45%);
+    --approval-light: hsl(24, 85%, 60%);
+    --approval-content: hsl(0, 0%, 100%);
 
     /* Success */
     --success: hsl(122, 46%, 34%);

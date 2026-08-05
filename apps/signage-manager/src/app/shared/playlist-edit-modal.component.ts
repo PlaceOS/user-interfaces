@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import {
     form,
     FormField,
@@ -11,7 +11,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
-import { i18n, notifyError, notifySuccess } from '@placeos/common';
+import {
+    HotkeysService,
+    i18n,
+    notifyError,
+    notifySuccess,
+} from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     MediaDurationPipe,
@@ -67,6 +72,7 @@ export interface PlaylistEditFormModel {
                     : 'SIGNAGE_MANAGER.NEW_PLAYLIST'
                 ) | translate
             "
+            confirm_hotkey="S"
             (confirm)="savePlaylist()"
             [loading]="
                 loading() ? ('SIGNAGE_MANAGER.PLAYLIST_SAVING' | translate) : ''
@@ -348,6 +354,10 @@ export class PlaylistEditModalComponent {
     });
 
     constructor() {
+        const save_hotkey = inject(HotkeysService).listen(['KeyS'], () =>
+            this.savePlaylist(),
+        );
+        inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
         if (!this.model().distribution && !this.model().schedules.length) {
             this.addSchedule();
         }

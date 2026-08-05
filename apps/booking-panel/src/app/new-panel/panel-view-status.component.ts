@@ -168,7 +168,7 @@ import { currentPeriod, nextPeriod } from './helpers';
                     [innerHTML]="(!es?.next ? free_svg : in_use_svg) | safe"
                 ></div>
                 <h3 class="text-4xl font-medium uppercase">
-                    {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
+                    {{ 'COMMON.NEXT' | translate }}
                 </h3>
                 <p class="text-2xl font-light">
                     {{

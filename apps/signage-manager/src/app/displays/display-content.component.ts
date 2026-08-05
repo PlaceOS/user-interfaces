@@ -1,13 +1,10 @@
-import { Component, computed, effect, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import {
-    AuthenticatedImageDirective,
-    IconComponent,
-    TranslatePipe,
-} from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { SignageService } from '../signage.service';
 import { DisplayScheduleComponent } from './display-schedule.component';
 
@@ -100,64 +97,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                                                               }
                                                 "
                                             >
-                                                <div
+                                                <playlist-thumbnail
+                                                    [playlist]="playlist"
                                                     class="border-base-200 relative h-12 w-12 shrink-0 overflow-hidden rounded-md border"
-                                                >
-                                                    @if (
-                                                        playlist_thumbnail_media()[
-                                                            playlist.id
-                                                        ]?.length
-                                                    ) {
-                                                        @for (
-                                                            media of playlist_thumbnail_media()[
-                                                                playlist.id
-                                                            ];
-                                                            track media;
-                                                            let i = $index;
-                                                            let len = $count
-                                                        ) {
-                                                            <img
-                                                                auth
-                                                                [source]="media"
-                                                                alt=""
-                                                                class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
-                                                                [style.top]="
-                                                                    0.3 -
-                                                                    (len - 1) *
-                                                                        0.125 +
-                                                                    (len -
-                                                                        1 -
-                                                                        i) *
-                                                                        0.25 +
-                                                                    'rem'
-                                                                "
-                                                                [style.left]="
-                                                                    0.3 -
-                                                                    (len - 1) *
-                                                                        0.125 +
-                                                                    (len -
-                                                                        1 -
-                                                                        i) *
-                                                                        0.25 +
-                                                                    'rem'
-                                                                "
-                                                                [style.z-index]="
-                                                                    i
-                                                                "
-                                                            />
-                                                        }
-                                                    } @else {
-                                                        <div
-                                                            class="text-base-content/35 flex h-full w-full items-center justify-center"
-                                                        >
-                                                            <icon
-                                                                class="text-2xl"
-                                                            >
-                                                                playlist_play
-                                                            </icon>
-                                                        </div>
-                                                    }
-                                                </div>
+                                                />
                                                 <div class="min-w-0 flex-1">
                                                     <div
                                                         class="truncate text-sm font-medium"
@@ -387,10 +330,10 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         MatRippleModule,
         MatTooltipModule,
         RouterLink,
-        AuthenticatedImageDirective,
         IconComponent,
         DisplayScheduleComponent,
         TranslatePipe,
+        PlaylistThumbnailComponent,
     ],
 })
 export class DisplayContentComponent {
@@ -400,8 +343,6 @@ export class DisplayContentComponent {
         'schedule',
     );
     public readonly selected_display = this._service.selected_display;
-    public readonly playlist_thumbnail_media =
-        this._service.playlist_thumbnail_media;
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;
     public readonly can_update = this._service.can_update;
@@ -422,12 +363,6 @@ export class DisplayContentComponent {
         if (!display) return [];
         return this._zones().filter((z) => display.zones?.includes(z.id));
     });
-
-    constructor() {
-        effect(() => {
-            this._service.queuePlaylistMeta(this.display_playlists());
-        });
-    }
 
     public addPlaylist() {
         const display = this.selected_display();

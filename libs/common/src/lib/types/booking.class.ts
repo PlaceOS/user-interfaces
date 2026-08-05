@@ -41,6 +41,22 @@ export interface BookingClash {
     booking_end: number;
 }
 
+export type BookingHistoryState =
+    | 'reserved'
+    | 'checked_in'
+    | 'checked_out'
+    | 'no_show'
+    | 'rejected'
+    | 'cancelled'
+    | 'ended'
+    | 'unknown';
+
+export interface BookingHistory {
+    state: BookingHistoryState;
+    time: number;
+    source?: string;
+}
+
 export enum RecurrenceDays {
     SUNDAY = 1 << 0,
     MONDAY = 1 << 1,
@@ -174,6 +190,8 @@ export class Booking {
     public readonly recurrence_end?: number;
     /** Unix epoch for the booking creation time in seconds */
     public readonly created_at: number;
+    /** Chronological state changes recorded for the booking */
+    public readonly history: BookingHistory[];
 
     public get group() {
         return this.extension_data.group || '';
@@ -307,6 +325,7 @@ export class Booking {
             !!data.all_day || custom_all_day || this.duration >= 24 * 60;
         this.induction = data.induction || undefined;
         this.created_at = data.created_at || Date.now();
+        this.history = data.history || [];
         if (this.all_day) {
             if (!data.duration && !data.date_end && !data.booking_end) {
                 (this as any).date = startOfDayInTimezone(
@@ -393,6 +412,7 @@ export class Booking {
         delete data.date;
         delete data.duration;
         delete data.created_at;
+        delete data.history;
         delete data.process_state;
         removeEmptyFields(data);
         return data;

@@ -77,7 +77,9 @@ export class HostSelectFieldComponent implements ControlValueAccessor {
                     : { id: _.id, email: _.id, name: _.summary || _.id },
             )
             .map((_) => new StaffUser(_));
-        return unique([currentUser(), ...mapped], 'email');
+        return unique([currentUser(), ...mapped], 'email').sort((a, b) =>
+            a.name.localeCompare(b.name),
+        );
     });
     public readonly disabled = signal(false);
 

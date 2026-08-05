@@ -115,9 +115,7 @@ describe('MediaControlsComponent (icons)', () => {
 
     const icon_text = (button_index: number) => {
         const buttons = spectator.queryAll('button') as HTMLButtonElement[];
-        return buttons[button_index]
-            .querySelector('icon')
-            ?.textContent?.trim();
+        return buttons[button_index].querySelector('icon')?.textContent?.trim();
     };
 
     it('should show the pause icon while playing', () => {
@@ -283,9 +281,9 @@ describe('MediaProgressBarComponent', () => {
         spectator.detectChanges();
 
         expect(
-            spectator.query('[role="progressbar"]')?.getAttribute(
-                'aria-valuenow',
-            ),
+            spectator
+                .query('[role="progressbar"]')
+                ?.getAttribute('aria-valuenow'),
         ).toBe('30');
     });
 

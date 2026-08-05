@@ -11,6 +11,29 @@
             "outputs": [
                 "{options.outputFile}"
             ]
+        },
+        "test": {
+            "executor": "@angular/build:unit-test",
+            "outputs": ["{workspaceRoot}/coverage/libs/mocks"],
+            "options": {
+                "tsConfig": "libs/mocks/tsconfig.spec.json",
+                "setupFiles": ["libs/mocks/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "mocks:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/libs/mocks",
+                "browser": "libs/mocks/src/index.ts",
+                "tsConfig": "libs/mocks/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
+            }
         }
     }
 }

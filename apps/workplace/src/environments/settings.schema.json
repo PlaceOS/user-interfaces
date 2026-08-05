@@ -524,7 +524,7 @@
                 },
                 "require_space_restriction": {
                     "type": "boolean",
-                    "description": "Whether users must select a parking space restriction other than None in the parking request flow."
+                    "description": "Whether users must select a parking space restriction in the parking request flow."
                 },
                 "show_status_details": {
                     "type": "boolean",
