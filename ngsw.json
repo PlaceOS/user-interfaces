@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1785816599235,
+  "timestamp": 1785954163779,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,18 +11,18 @@
         "ignoreVary": true
       },
       "urls": [
-        "./ar-AKMAIXIV.js",
-        "./es-3S2KYDHB.js",
+        "./ar-N74WDL7D.js",
+        "./es-FYG5SIKZ.js",
         "./favicon.ico",
-        "./fr-OVUV6Z77.js",
+        "./fr-MX3JKNBO.js",
         "./index.html",
-        "./it-VUH3KL7J.js",
-        "./ja-H7XTH7XL.js",
+        "./it-PSZVI2G5.js",
+        "./ja-QCBHSDFU.js",
         "./main.js",
         "./manifest.webmanifest",
-        "./squire-PAU4G32E.js",
+        "./squire-UEXJSOBZ.js",
         "./styles.css",
-        "./zh-GIX7DQG7.js"
+        "./zh-3TYXFMTP.js"
       ],
       "patterns": []
     },
@@ -86,6 +86,14 @@
         "./assets/icons/user-avatar.jpg",
         "./assets/icons/visa.svg",
         "./assets/icons/visitor-placeholder.svg",
+        "./assets/litert/litert_wasm_compat_internal.js",
+        "./assets/litert/litert_wasm_compat_internal.wasm",
+        "./assets/litert/litert_wasm_internal.js",
+        "./assets/litert/litert_wasm_internal.wasm",
+        "./assets/litert/litert_wasm_jspi_internal.js",
+        "./assets/litert/litert_wasm_jspi_internal.wasm",
+        "./assets/litert/litert_wasm_threaded_internal.js",
+        "./assets/litert/litert_wasm_threaded_internal.wasm",
         "./assets/locale/ar.json",
         "./assets/locale/en-AU.json",
         "./assets/locale/en-GB.json",
@@ -120,12 +128,8 @@
         "./assets/support/opera-logo.svg",
         "./assets/support/safari-logo.svg",
         "./assets/vosk-model-small-en-us-0.15.tar.gz",
-        "./assets/yolov8x_web_model/group1-shard1of4.bin",
-        "./assets/yolov8x_web_model/group1-shard2of4.bin",
-        "./assets/yolov8x_web_model/group1-shard3of4.bin",
-        "./assets/yolov8x_web_model/group1-shard4of4.bin",
-        "./assets/yolov8x_web_model/metadata.yaml",
-        "./assets/yolov8x_web_model/model.json"
+        "./assets/yolov8n_litert_model/metadata.yaml",
+        "./assets/yolov8n_litert_model/model.tflite"
       ],
       "patterns": [
         "https:\\/\\/[^/]*\\.amazonaws\\.com\\/(?:.+\\/)?[^/]*\\.(eot|svg|cur|jpg|png|webp|gif|otf|ttf|woff|woff2|ani)"
@@ -134,7 +138,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./ar-AKMAIXIV.js": "cc6cdc3ee098938f245f195a54c49ccb5c113ef0",
+    "./ar-N74WDL7D.js": "dc59bae5c73de807a0a59fe69ef34bc2e5ffde40",
     "./assets/favicon.svg": "796425d032b57687c752ea41cb46f0ab9410e3a9",
     "./assets/icons/ai-avatar.jpg": "97fe6757d753c8459e5bf3b5bedbea291e435fac",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
@@ -187,8 +191,16 @@
     "./assets/icons/user-avatar.jpg": "f757773a550a69b954c833376a6f1eed8ad4683c",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
     "./assets/icons/visitor-placeholder.svg": "744f6d0a7c3f96db704b4e4cc301aff7bed145d2",
+    "./assets/litert/litert_wasm_compat_internal.js": "c7f0e7b04fa2132131ad3496a97c70cb94766180",
+    "./assets/litert/litert_wasm_compat_internal.wasm": "83f6830dc33f375cb37fa500ade4b1550e0f4aca",
+    "./assets/litert/litert_wasm_internal.js": "7b3b20cce85a106cb3580b2a08d78a499e24f905",
+    "./assets/litert/litert_wasm_internal.wasm": "7d61546b8705a3fc33f1ee9a4c88bf102962f4a4",
+    "./assets/litert/litert_wasm_jspi_internal.js": "079cabdc2876262445479736e1b1ba9a6158bbb5",
+    "./assets/litert/litert_wasm_jspi_internal.wasm": "3a72aff5e0192de0d192fef0d99bb6f1005833b7",
+    "./assets/litert/litert_wasm_threaded_internal.js": "48cad7c6166cd5ea6a7212c9fdd869c3545b77d9",
+    "./assets/litert/litert_wasm_threaded_internal.wasm": "0366b0d431c4382cdb0ec08fe6cfb158a0311330",
     "./assets/locale/ar.json": "3ad6bd9f6b467796e9be457687e8f1e41bd56b52",
-    "./assets/locale/en-AU.json": "275d825ea8677842eb6314c1cee18351b645604b",
+    "./assets/locale/en-AU.json": "23cd8094cc5595fc608dc65ed8f5b1fed7b2c9a1",
     "./assets/locale/en-GB.json": "5c2a2cb73ee477b4b43e2bee3f0dc5f6154c505e",
     "./assets/locale/en-US.json": "424c8d283c11353efc34f119fe0864eea14bfcf9",
     "./assets/locale/es.json": "c1b66e120591896a442cc6f61fc1054c7c5519ac",
@@ -221,23 +233,19 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./assets/vosk-model-small-en-us-0.15.tar.gz": "794444c437006135a4a3eccfcf5ce9bf49782ac2",
-    "./assets/yolov8x_web_model/group1-shard1of4.bin": "695a1188989da92a9b700e222201b986a5961fe2",
-    "./assets/yolov8x_web_model/group1-shard2of4.bin": "bfd3d450b876878d3502bd05373caeddcc440879",
-    "./assets/yolov8x_web_model/group1-shard3of4.bin": "b091f6dfca7e50f286227a2ff9152170a33b0833",
-    "./assets/yolov8x_web_model/group1-shard4of4.bin": "fe9f169f3635233b7fff9dff10587bd191ed1e6b",
-    "./assets/yolov8x_web_model/metadata.yaml": "b1a29dc18ee0c4b5f0f7240d2d92cd8b2fa03318",
-    "./assets/yolov8x_web_model/model.json": "9350bea46c5e709dcd9486a73d93db4b5d59abed",
-    "./es-3S2KYDHB.js": "8c2c6028017e320e120bede25c9fd1758ae611cf",
+    "./assets/yolov8n_litert_model/metadata.yaml": "b1a29dc18ee0c4b5f0f7240d2d92cd8b2fa03318",
+    "./assets/yolov8n_litert_model/model.tflite": "b7dee43b5c9c67ccb12e998261a845fd67dfe91b",
+    "./es-FYG5SIKZ.js": "3e3f67130cac03fc2984bcb2bc7a889a0b63b9c6",
     "./favicon.ico": "4982786b7412938d9aac5f576c2430cd34c6d462",
-    "./fr-OVUV6Z77.js": "489db02b69234b375b619a526690a70d6bbafe7d",
+    "./fr-MX3JKNBO.js": "80cbb64e27a24490c5a96eaddfa78035955e536b",
     "./index.html": "6202a95cc9495b3efde0a6d55c83a59fac325d6f",
-    "./it-VUH3KL7J.js": "9e61deeaf6d9d4248be875953f6c6103ea948402",
-    "./ja-H7XTH7XL.js": "4cace2c1fc78283b6fd07dc4536e9fbdd112b03e",
-    "./main.js": "c581a128f610bee4aa5c0d43a4b070f41b55de49",
+    "./it-PSZVI2G5.js": "314eeb606d4f266c7b7d2df7379e92a729ac8e8d",
+    "./ja-QCBHSDFU.js": "c7aaa38bebad0cbd02c6c971323ba7fc40c44f9c",
+    "./main.js": "db687d8c91b0ad39fdd0800e887e1e27742f68c2",
     "./manifest.webmanifest": "047e55066e03de6e21fc077592da3b119c5ff5c8",
-    "./squire-PAU4G32E.js": "6edd33a25c63473ca2b0af5fff74b373cb57ba6c",
+    "./squire-UEXJSOBZ.js": "ed67433d5f119e0610538bb868bf3543ede4d8b0",
     "./styles.css": "2380986cab81a47f508a96005b91830c60ac215f",
-    "./zh-GIX7DQG7.js": "f947f283f9c83647317a079beeb4523ef1a3919c"
+    "./zh-3TYXFMTP.js": "fedbeb8a31c963cd38f21dfc862e0941f92d6fee"
   },
   "navigationUrls": [
     {
