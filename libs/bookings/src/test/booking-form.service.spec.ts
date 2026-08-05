@@ -2884,6 +2884,50 @@ describe('BookingFormService', () => {
         expect((savedBookings()[0] as Booking).asset_ids).toEqual(['desk-2']);
     });
 
+    describe('initialisation after the user has already loaded', () => {
+        /**
+         * The case the flows actually hit. Every booking flow renders its form
+         * on first paint but initialises it late: `NewDeskFlowComponent.ngOnInit`
+         * awaits org initialisation plus a 300ms settle, then calls `loadForm`
+         * and — for a fresh booking — `newForm`, back to back.
+         *
+         * The current user is restored from the localStorage cache within about
+         * 50ms of bootstrap, long before org data arrives, so `newForm` never
+         * takes its deferred branch here. Nothing is mocked and no runtime probe
+         * is neutralised: this is the ordinary path.
+         */
+        function userEdits(field: string, value: any) {
+            const node = (spectator.service.form as any)[field]();
+            node.value.set(value);
+            node.markAsDirty();
+        }
+
+        it('keeps input entered before the flow initialises the form', () => {
+            userEdits('title', 'Quiet corner desk');
+            userEdits('all_day', true);
+
+            // exactly what desk-flow.component.ts does once org data lands
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+
+            expect(spectator.service.model().title).toBe('Quiet corner desk');
+            expect(spectator.service.model().all_day).toBe(true);
+        });
+
+        it('does not carry those edits into a later unrelated form', () => {
+            userEdits('title', 'Quiet corner desk');
+            spectator.service.loadForm('desk');
+            spectator.service.newForm('desk');
+            expect(spectator.service.model().title).toBe('Quiet corner desk');
+
+            // A form opened later must start clean, not inherit the last one.
+            spectator.service.newForm('desk');
+            expect(spectator.service.model().title).not.toBe(
+                'Quiet corner desk',
+            );
+        });
+    });
+
     describe('initialisation while the user is still loading', () => {
         /**
          * Put the service into the state `newForm` sees on a slow load: no
