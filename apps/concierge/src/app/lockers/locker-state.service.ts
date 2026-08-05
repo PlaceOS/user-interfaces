@@ -138,15 +138,17 @@ export class LockerStateService extends AsyncHandler {
     private _locker_bookings: Booking[] = [];
     private _loading = signal<string>('');
     private _change = signal(0);
-    /** List of available locker levels for the current building */
+    /** List of available locker levels for the current building, parking-only levels last */
     public readonly levels = computed(() => {
         const all = this._org.level_list();
-        if (!this._settings.get('app.use_region')) {
-            const blds = this._org.buildingsForRegion();
-            const bld_ids = blds.map((bld) => bld.id);
-            return all.filter((lvl) => bld_ids.includes(lvl.parent_id));
-        }
-        return all.filter((lvl) => lvl.parent_id === this._org.building?.id);
+        const bld_ids = this._org.buildingsForRegion().map((bld) => bld.id);
+        const levels = !this._settings.get('app.use_region')
+            ? all.filter((lvl) => bld_ids.includes(lvl.parent_id))
+            : all.filter((lvl) => lvl.parent_id === this._org.building?.id);
+        return levels.sort(
+            (a, b) =>
+                +!!a.tags?.includes('parking') - +!!b.tags?.includes('parking'),
+        );
     });
     public readonly loading = this._loading.asReadonly();
 

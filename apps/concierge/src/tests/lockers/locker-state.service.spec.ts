@@ -107,6 +107,8 @@ describe('LockerStateService', () => {
 
     beforeEach(() => {
         vi.useFakeTimers();
+        organisation_service.level_list.set([]);
+        organisation_service.buildingsForRegion.mockImplementation(() => []);
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
         settings_map = {
             'app.use_region': false,
@@ -128,6 +130,22 @@ describe('LockerStateService', () => {
             TestBed.flushEffects();
         }
     }
+
+    it('should list parking-only levels last', () => {
+        spectator = createService();
+        organisation_service.buildingsForRegion.mockReturnValue([
+            { id: 'bld-1' },
+        ]);
+        organisation_service.level_list.set([
+            { id: 'lvl-parking', parent_id: 'bld-1', tags: ['level', 'parking'] },
+            { id: 'lvl-ground', parent_id: 'bld-1', tags: ['level'] },
+        ]);
+
+        expect(spectator.service.levels().map((lvl: any) => lvl.id)).toEqual([
+            'lvl-ground',
+            'lvl-parking',
+        ]);
+    });
 
     it('should apply building timezone to locker booking listing requests', () => {
         const date = new Date('2026-06-15T12:00:00').valueOf();
