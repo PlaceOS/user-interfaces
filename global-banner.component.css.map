@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["global-banner.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                width: 100%;\n            }\n\n            .environment-bar {\n                height: 0.5rem;\n                left: 0;\n                pointer-events: none;\n                position: fixed;\n                width: 100%;\n                z-index: 10000;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,SAAA;AACJ;AAEA,CAAA;AACI,UAAA;AACA,QAAA;AACA,kBAAA;AACA,YAAA;AACA,SAAA;AACA,WAAA;AACJ;",
+  "names": []
+}
