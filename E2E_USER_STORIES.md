@@ -37,12 +37,11 @@ check on their commits, and the nightly starts accumulating the record — which
 do from the default branch, so this is what breaks the chicken-and-egg of "prove it before
 merging it".
 
-**Stage 2 (once the record is good):** add `push: develop`, and `release/**` / `rc/**` to
-match the branch set `build.yml` deploys from. `develop` is the high-value trigger — it
-catches a regression at the moment it lands, when bisecting is cheapest — and with no
-`pull_request` trigger it is also how merges get covered. Deferred because enabling it puts
-a new check on everyone's commits, which should be earned rather than assumed. It is a
-three-line change.
+**Stage 2 (done 2026-08-06):** `push` now covers `develop`, `release/**` and `rc/**` —
+the branch set `build.yml` deploys from. `develop` is the high-value trigger: it catches a
+regression at the moment it lands, when bisecting is cheapest, and with no `pull_request`
+trigger it is also how merges get covered. It still cannot block anything, and the suite had
+run green on every invocation up to that point.
 
 **Never:** feature branches. There is one self-hosted runner and the stack binds fixed host
 ports, so runs serialise; a busy trigger set would build a queue that delays or starves the
