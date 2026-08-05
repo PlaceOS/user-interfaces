@@ -17,13 +17,40 @@ import { APP_URL } from '../../../../e2e/support/env';
 import { clientId, redirectUriFor } from '../../../../e2e/support/auth';
 import { currentUser, zonesWithTag } from '../../../../e2e/support/api';
 
+/**
+ * Boot-time 5xx this suite tolerates, derived from an observed run rather than
+ * from documentation — the CI log for this spec listed exactly one entry.
+ *
+ * `/calendars` (and `/events`, which boot does not currently reach) are the
+ * routes that genuinely call Microsoft/Google. The stack seeds a staff-api
+ * tenant with placeholder credentials, which is what lets every PlaceOS-native
+ * booking route work locally; these two 500 on `AADSTS900023` by design. Making
+ * them real would mean putting live Microsoft credentials in the default suite.
+ *
+ * Add to this list only with the failing URL in hand and a reason next to it.
+ */
+const TOLERATED_5XX = ['/api/staff/v1/calendars', '/api/staff/v1/events'];
+
 test.describe('workplace boots against the local backend', () => {
     test('the seeded token authenticates the SPA and org data resolves', async ({ page }) => {
         const failed_api: string[] = [];
+        const unexpected_5xx: string[] = [];
         page.on('response', (r) => {
-            const url = r.url();
-            if ((url.includes('/api/') || url.includes('/auth/')) && r.status() >= 400) {
-                failed_api.push(`${r.status()} ${r.request().method()} ${new URL(url).pathname}`);
+            const url = new URL(r.url());
+            // Same-origin only. A substring test for `/api/` would also match a
+            // third-party URL that happens to contain that segment.
+            const ours = url.origin === new URL(APP_URL).origin;
+            const backend_path =
+                url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/');
+            if (!ours || !backend_path || r.status() < 400) return;
+
+            const entry = `${r.status()} ${r.request().method()} ${url.pathname}`;
+            failed_api.push(entry);
+            // Only 5xx is asserted on. A 4xx during boot is frequently benign —
+            // probes for optional resources, permission-shaped answers for a
+            // non-admin — whereas a 5xx means a backend route is broken.
+            if (r.status() >= 500 && !TOLERATED_5XX.some((p) => url.pathname.startsWith(p))) {
+                unexpected_5xx.push(entry);
             }
         });
 
@@ -52,6 +79,14 @@ test.describe('workplace boots against the local backend', () => {
         if (failed_api.length) {
             console.log('  4xx/5xx API calls during boot:\n   ', failed_api.join('\n    '));
         }
+
+        // The list above used to be logged and nothing more, so a required
+        // endpoint could start 500ing and this stayed green as long as the shell
+        // still rendered. Anything outside TOLERATED_5XX now fails.
+        expect(
+            unexpected_5xx,
+            'server errors during boot outside the known-tolerated set',
+        ).toEqual([]);
     });
 
     // Deliberately asserted as the NON-admin worker identity: a sys_admin can see

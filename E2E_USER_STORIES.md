@@ -158,7 +158,7 @@ task that found it, so the row can be traced.
 | REG-07 | P2 | Level selection does not persist once the selector is hidden/disabled. | "Fix level selections persisting when selector is disabled/hidden" | todo |
 | REG-08 | P1 | An authority with a **relative** `login_url` still reaches a usable login page. | Found 2026-07-30, this suite | **blocked** — currently worked around in `seed.ts`; ts-client resolves a relative `login_url` against the authority host **without its port**, so any non-443 deployment dead-ends. Needs a ts-client/init fix before a spec can assert the good behaviour. |
 | REG-09 | P1 | Concurrent `POST /bookings` do not 500. | **[PPT-2642](https://acaprojects.atlassian.net/browse/PPT-2642)** | **blocked** — staff-api raises `DB::ConnectionLost` under concurrency. Observed ~1 run in 8 **locally at 4 workers**; **not yet observed in CI**, which runs 2 workers, so halving the concurrency may simply be avoiding it rather than the problem being absent. Needs a staff-api fix; do not treat the quiet CI record as evidence it is gone. |
-| REG-10 | P1 | The booking form does not discard user input while it is still initialising. | **[PPT-2643](https://acaprojects.atlassian.net/browse/PPT-2643)** | **blocked** — the form is rebuilt when async init completes and restores defaults (title, All Day, Require locker), silently dropping anything typed before that. A real user can hit this; they would just see their title or options revert. `bookDeskViaUI` converges on the state to work around it, which means **the suite no longer detects it** — hence this row. Needs a fix in the app, then a spec that asserts input survives. |
+| REG-10 | P1 | The booking form does not discard user input while it is still initialising. | **[PPT-2643](https://acaprojects.atlassian.net/browse/PPT-2643)** | **blocked** — the form is rebuilt when async init completes and restores defaults (title, All Day, Require locker), silently dropping anything typed before that. A real user can hit this; they would just see their title or options revert. `bookDeskViaUI` converges on the state to work around it, which means **the suite no longer detects it** — hence this row. **PPT-2643's fix (#478, `a0360486`) is NOT sufficient for this route.** Measured on 2026-08-05 with that fix present: removing the converging block turns desk-booking RED at `all_day.isChecked()`, the same assertion and the same symptom as before the fix. The same experiment against pre-fix code fails identically, so the flow *is* a genuine detector — the app behaviour simply has not changed on this path. The workaround therefore stays until the remaining path is fixed. |
 
 ## 4. Platform & configuration
 
@@ -186,9 +186,15 @@ Config gaps caused several production incidents, and they are invisible to UI sp
 - **REG-09 is worse than a flake.** Filed as PPT-2642: one burst of concurrent booking POSTs
   permanently poisons staff-api's connection pool, so booking creation returns 500 for everyone
   until the service restarts. Reproducer kept at `e2e/support/repro/reg09-concurrent-bookings.ts`.
-- **REG-10 is invisible to this suite by design.** `bookDeskViaUI` works around it, so nothing
-  here will catch it regressing. Filed as PPT-2643; when it is fixed, remove the workaround and
-  replace it with a spec asserting input survives initialisation.
+- **REG-10 is invisible to this suite by design, and is still not fixed.** `bookDeskViaUI` works
+  around it, so nothing here will catch it regressing. PPT-2643's fix landed in #478 and does not
+  cover the desk-booking route — verified by deleting the workaround with the fix present and
+  watching desk-booking fail on the original symptom (2026-08-05). The removal is a two-line
+  change and the flow is a proven detector, so the moment the app path is genuinely fixed this
+  becomes trivial: delete the converging block, confirm green, delete this note.
+  A synthetic "type during init and assert it survives" spec was tried and deliberately NOT kept —
+  it passed with *and* without the fix, because the rebuild is a race that a warm local run wins.
+  A spec that cannot fail is worse than no spec.
 - **AUTH-E2E-08 may never be automatable** with Playwright Chromium. Say so rather than
   quietly dropping it.
 - The PPT-2536 harnesses (`tasks/PPT-2536/{e2e,integration}`) still hold assertions that

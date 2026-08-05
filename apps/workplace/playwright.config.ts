@@ -16,7 +16,6 @@ const PORT = new URL(APP_URL).port || '4214';
 
 export default defineConfig({
     ...nxE2EPreset(__filename, { testDir: './e2e' }),
-    globalSetup: require.resolve('../../e2e/support/global-setup'),
     timeout: 90_000,
     expect: { timeout: 15_000 },
     // We own the whole stack, so isolation is a seeding problem, not a reason to
@@ -50,18 +49,38 @@ export default defineConfig({
         navigationTimeout: 45_000,
     },
     projects: [
+        // --- preflight: prove the stack is up, for `local` only -------------
+        // A setup project rather than `globalSetup`, which would also run for
+        // `mock` and make a backend-free project need a backend.
+        {
+            name: 'preflight',
+            testDir: '../../e2e/support',
+            testMatch: /preflight\.setup\.ts$/,
+            use: { ...devices['Desktop Chrome'] },
+        },
+
         // --- real local backend, no mocks ----------------------------------
         // Auth comes from the worker-scoped fixtures in e2e/support/fixtures.ts,
-        // so there is no setup project to serialise behind.
+        // so the only thing to wait on is the stack itself.
         {
             name: 'local',
             testDir: './e2e/local',
+            dependencies: ['preflight'],
             use: { ...devices['Desktop Chrome'] },
         },
 
         // --- mock mode: no backend at all, fast render regression ----------
         // Kept deliberately. It costs no infrastructure and catches pure UI
         // breakage, so it stays as its own project rather than being replaced.
+        //
+        // Chromium only. The projects this replaced also listed Firefox and
+        // WebKit, but that was untouched Nx generator scaffold that no script,
+        // workflow or human ever invoked, and landing.spec.ts only asserts that
+        // Angular components instantiate — the same code path in every engine.
+        // Paying two more browser downloads and ~2x runtime on one serialised
+        // self-hosted runner for that is a bad trade. If cross-browser earns its
+        // place later, add `mock-firefox`/`mock-webkit` behind an env flag so the
+        // nightly is unaffected.
         {
             name: 'mock',
             testDir: './e2e',
