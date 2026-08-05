@@ -76,6 +76,12 @@ test.describe('workplace boots against the local backend', () => {
         const stored = await page.evaluate((k) => localStorage.getItem(k), `${cid}_access_token`);
         expect(stored, `localStorage[${cid}_access_token] should hold the bearer`).toBeTruthy();
 
+        // Let in-flight boot requests land before asserting on them — the shell
+        // renders before the org/zone calls finish, so without this a slow 500
+        // could arrive after the check and leave the test green. WebSockets do
+        // not count against networkidle, so the realtime channel cannot hang it.
+        await page.waitForLoadState('networkidle');
+
         if (failed_api.length) {
             console.log('  4xx/5xx API calls during boot:\n   ', failed_api.join('\n    '));
         }

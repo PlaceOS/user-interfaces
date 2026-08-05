@@ -25,7 +25,7 @@ export async function assertStackUp(): Promise<void> {
     } catch (e) {
         throw new Error(
             `Local PlaceOS stack is not reachable at ${BACKEND_URL} (${(e as Error).message}).\n` +
-                `Start it with:  cd local && ./placeos start`,
+                `Start it with:  e2e/stack/up.sh`,
         );
     } finally {
         await ctx.dispose();
