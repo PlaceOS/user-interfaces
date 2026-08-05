@@ -697,9 +697,12 @@ describe('SiteAttendanceReportService', () => {
     });
 
     it('should export report data', () => {
+        // The filename is built with date-fns `format`, which renders in the
+        // machine's timezone, so the range is set the same way. A UTC instant
+        // here names the previous day once the runner is west of Greenwich.
         spectator.service.setOptions({
-            start: new Date('2026-04-06T00:00:00Z').valueOf(),
-            end: new Date('2026-04-06T23:59:59Z').valueOf(),
+            start: new Date(2026, 3, 6).valueOf(),
+            end: new Date(2026, 3, 6, 23, 59, 59).valueOf(),
         });
         (spectator.service as any)._report.set({
             business_days: 1,
