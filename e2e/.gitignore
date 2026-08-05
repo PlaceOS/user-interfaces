@@ -1,0 +1,9 @@
+# Auth artifacts — impersonation-grade bearer tokens. NEVER commit.
+.auth/
+.env
+
+# Playwright outputs
+test-results/
+playwright-report/
+blob-report/
+.secrets/
