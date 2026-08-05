@@ -7,15 +7,15 @@ import {
   MatTabNav,
   MatTabNavPanel,
   MatTabsModule
-} from "./chunk-SH3J7N7M.js";
+} from "./chunk-JWSQS5PJ.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-A3SWE7OZ.js";
+} from "./chunk-A3AP2OYH.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-GEA2O543.js";
+} from "./chunk-ZKHKE7IK.js";
 import {
   Component,
   CustomTooltipComponent,
@@ -102,7 +102,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-37TZYTLG.js";
+} from "./chunk-DBVZ4NUS.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/shared/media-add-modal.component.ts
@@ -3593,4 +3593,4 @@ var MediaSectionComponent = class _MediaSectionComponent {
 export {
   MediaSectionComponent
 };
-//# sourceMappingURL=media.component-6T6ZMHGB.js.map
+//# sourceMappingURL=media.component-D6SGBFUP.js.map
