@@ -205,14 +205,21 @@ depend on an external service, which is the one thing it is designed not to do.
 
 ## CI
 
-`.github/workflows/e2e-advisory.yml` — runs nightly at **01:10 UTC**, on pushes to `e2e/**`,
-and via **Run workflow**. There is deliberately **no `pull_request` trigger** (see the table
-below — it is a security decision, not an oversight). It brings up the isolated stack, seeds
-it, runs the suite, writes a step summary, and uploads the HTML report plus (on failure)
-traces, videos and backend container logs.
+`.github/workflows/e2e-advisory.yml` — runs on pushes to **`develop`, `release/**`, `rc/**`**
+and `e2e/**`, nightly at **01:10 UTC**, and via **Run workflow**. There is deliberately **no
+`pull_request` trigger** (see the table below — it is a security decision, not an oversight),
+so a push is the only thing that covers a merge. It brings up the isolated stack, seeds it,
+runs the suite, writes a step summary, and uploads the HTML report plus (on failure) traces,
+videos and backend container logs.
 
-`schedule` only fires from the default branch, so the nightly does not start accumulating a
-track record until this lands on `develop`.
+There are no path filters, on purpose — most real changes touch `libs/**`, which workplace
+depends on, and the genuinely dangerous ones (`bun.lock`, `tsconfig.base.json`, `config/`) are
+the easiest to leave off an include-list. A filter that is 95% right silently skips the run
+that mattered.
+
+Note the push set deliberately stops short of feature branches: there is one self-hosted
+runner binding fixed host ports, so runs serialise, and a busy trigger set would build a queue
+that starves the nightly.
 
 **It is advisory and must stay that way for now** — do not add it to branch protection or
 required status checks until the suite has a track record. See the CI section of
