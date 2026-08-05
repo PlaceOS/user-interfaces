@@ -1,5 +1,8 @@
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
+import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
 import { MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
@@ -31,6 +34,7 @@ describe('BroadcastEmailModalComponent', () => {
             MockComponent(FullscreenModalShellComponent),
             MockComponent(UserListFieldComponent),
         ],
+        imports: [MatFormFieldModule, MatInputModule, MatSelectModule],
         providers: [
             { provide: ComponentFixtureAutoDetect, useValue: false },
             MockProvider(MatDialogRef, { close: dialog_close } as any),
@@ -101,6 +105,22 @@ describe('BroadcastEmailModalComponent', () => {
             'guest@example.com',
             'host@example.com',
         ]);
+    });
+
+    it('should not re-resolve recipients when the subject changes', () => {
+        TestBed.flushEffects();
+        const update_recipients = vi.spyOn(
+            spectator.component,
+            'updateRecipients',
+        );
+
+        spectator.component.model.update((m) => ({
+            ...m,
+            subject: 'Emergency notice',
+        }));
+        TestBed.flushEffects();
+
+        expect(update_recipients).not.toHaveBeenCalled();
     });
 
     it('should notify an error and skip sending when the mailer is missing', async () => {

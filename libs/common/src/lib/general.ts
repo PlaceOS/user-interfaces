@@ -1168,6 +1168,9 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         date_end: finiteNumber(snap().date_end),
         all_day: snap().all_day,
     };
+    let timed_window:
+        | { date: number; duration: number; date_end: number }
+        | undefined;
     const refreshPrev = () => {
         const s = snap();
         prev.date = finiteNumber(s.date);
@@ -1585,6 +1588,11 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         () => {
             const all_day = snap().all_day;
             if (all_day) {
+                timed_window = {
+                    date: normaliseTimeValue(snap().date),
+                    duration: normaliseTimeValue(snap().duration),
+                    date_end: normaliseTimeValue(snap().date_end),
+                };
                 applyPatch(
                     getAllDayTimeRange(
                         normaliseTimeValue(snap().date),
@@ -1593,7 +1601,14 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                         all_day_end,
                     ) as Partial<T>,
                 );
+            } else if (
+                timed_window &&
+                !isMultiday(timed_window.date, normaliseTimeValue(snap().date))
+            ) {
+                applyPatch(timed_window as Partial<T>);
+                timed_window = undefined;
             } else {
+                timed_window = undefined;
                 const date = normaliseTimeValue(snap().date);
                 const duration = normaliseTimeValue(snap().duration);
                 const date_end = normaliseTimeValue(snap().date_end);

@@ -330,6 +330,103 @@ describe('EventFormService', () => {
         expect(service.can_notify_new_attendees_only()).toBe(false);
     });
 
+    it('should restore attendee-only notification eligibility for equivalent form values', () => {
+        const date = new Date(2028, 5, 15, 10).valueOf();
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            body: 'Original notes',
+            date,
+            duration: 90,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'calendar-resource-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+        service.newForm(event);
+        TestBed.tick();
+        service.model.update((model) => ({
+            ...model,
+            attendees: [...model.attendees, { email: 'new@test.com' }],
+        }));
+
+        service.model.update((model) => ({ ...model, all_day: true }));
+        TestBed.tick();
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+        service.model.update((model) => ({ ...model, all_day: false }));
+        TestBed.tick();
+        expect(service.model()).toEqual(
+            expect.objectContaining({
+                date,
+                duration: 90,
+                date_end: date + 90 * 60 * 1000,
+                all_day: false,
+            }),
+        );
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        service.model.update((model) => ({
+            ...model,
+            recurrence: {
+                pattern: 'daily',
+                _pattern: 'daily',
+                interval: 1,
+                start: date,
+                end: date + 24 * 60 * 60 * 1000,
+            },
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+        service.model.update((model) => ({
+            ...model,
+            recurrence: {
+                pattern: 'daily',
+                _pattern: 'none',
+                interval: 1,
+                days_of_week: [],
+                start: date,
+                end: date,
+            },
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        service.model.update((model) => ({
+            ...model,
+            resources: [
+                {
+                    id: 'placeos-system-2',
+                    email: 'space-2@test.com',
+                } as any,
+            ],
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+        service.model.update((model) => ({
+            ...model,
+            resources: [
+                {
+                    id: 'placeos-system-1',
+                    email: 'space-1@test.com',
+                } as any,
+            ],
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        service.model.update((model) => ({
+            ...model,
+            body: '<div>Changed notes</div>',
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+        service.model.update((model) => ({
+            ...model,
+            body: '<div>Original notes</div>',
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+    });
+
     it('should suppress existing attendee notifications for attendee-only edits', async () => {
         const event = new CalendarEvent({
             id: 'event-1',
