@@ -3,6 +3,7 @@ import {
     Component,
     computed,
     inject,
+    OnDestroy,
     OnInit,
     signal,
 } from '@angular/core';
@@ -277,7 +278,7 @@ interface GroupBookingListItem {
         UserAvatarComponent,
     ],
 })
-export class NewDeskFlowSuccessComponent implements OnInit {
+export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
     private _org = inject(OrganisationService);
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
@@ -369,6 +370,8 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         return this._settings.time_format;
     }
 
+    private _group_bookings_timer?: ReturnType<typeof setTimeout>;
+
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         this.last_event.set(this._state.last_success);
@@ -384,9 +387,16 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         this.building.set(this._building_pipe.transform(event.zones));
 
         // Load group bookings if this is a group booking
-        setTimeout(async () => {
+        this._group_bookings_timer = setTimeout(async () => {
             if (this.is_group()) await this._loadGroupBookings();
         }, 100);
+    }
+
+    public ngOnDestroy() {
+        // The callback reads localStorage and writes to this component's
+        // signals, so leaving it pending past destruction does work on a
+        // component nobody is looking at any more.
+        clearTimeout(this._group_bookings_timer);
     }
 
     private async _loadGroupBookings() {
