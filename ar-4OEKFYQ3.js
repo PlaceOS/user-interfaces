@@ -1,4 +1,4 @@
-import "./chunk-NILDOHVQ.js";
+import "./chunk-653SOEEV.js";
 
 // node_modules/@angular/common/locales/ar.js
 /**
@@ -27,4 +27,4 @@ var ar_default = ["ar", [["\u0635", "\u0645"]], [["\u0635", "\u0645"], u, ["\u06
 export {
   ar_default as default
 };
-//# sourceMappingURL=ar-47VGHPFL.js.map
+//# sourceMappingURL=ar-4OEKFYQ3.js.map

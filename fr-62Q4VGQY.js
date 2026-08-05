@@ -1,4 +1,4 @@
-import "./chunk-NILDOHVQ.js";
+import "./chunk-653SOEEV.js";
 
 // node_modules/@angular/common/locales/fr.js
 /**
@@ -21,4 +21,4 @@ var fr_default = ["fr", [["AM", "PM"]], u, [["D", "L", "M", "M", "J", "V", "S"],
 export {
   fr_default as default
 };
-//# sourceMappingURL=fr-OTGCEZO2.js.map
+//# sourceMappingURL=fr-62Q4VGQY.js.map
