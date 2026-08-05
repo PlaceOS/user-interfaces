@@ -248,9 +248,15 @@ const ALLOWED_CALENDAR_ROLES = [
                         <icon class="text-2xl">warning</icon>
                         <p>
                             {{
-                                'CALENDAR_EVENT.HOST_CHANGE_VISITORS_WARNING'
-                                    | translate
+                                'CALENDAR_EVENT.HOST_CHANGE_WARNING' | translate
                             }}
+                            @if (has_visitors()) {
+                                <br />
+                                {{
+                                    'CALENDAR_EVENT.HOST_CHANGE_VISITORS_WARNING'
+                                        | translate
+                                }}
+                            }
                         </p>
                     </div>
                 }
@@ -422,17 +428,20 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
         const new_host = (model.host || model.organiser?.email || '')
             .trim()
             .toLowerCase();
-        const has_visitors = [
-            ...(event?.attendees || []),
-            ...(model.attendees || []),
-        ].some((user) => user?.is_external);
         return (
             !!event?.id &&
+            (this.can_book_for_anyone() || this.can_book_for_others()) &&
             !!original_host &&
             !!new_host &&
-            original_host !== new_host &&
-            has_visitors
+            original_host !== new_host
         );
+    });
+    public readonly has_visitors = computed(() => {
+        const event = this._event_form.event;
+        return [
+            ...(event?.attendees || []),
+            ...(this.model().attendees || []),
+        ].some((user) => user?.is_external);
     });
 
     constructor() {

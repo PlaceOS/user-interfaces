@@ -77,6 +77,7 @@ describe('MeetingFormDetailsComponent', () => {
         expect(spectator.component).toBeTruthy());
 
     it('should warn when changing the host of a meeting with visitors', () => {
+        setting_signals['events.can_book_for_others'].set(true);
         event = new CalendarEvent({
             id: 'meeting-1',
             host: 'original.host@place.tech',
@@ -97,7 +98,8 @@ describe('MeetingFormDetailsComponent', () => {
         expect(spectator.component.show_host_change_warning()).toBe(true);
     });
 
-    it('should not warn about a host change when a meeting has no visitors', () => {
+    it('should warn about a host change when a meeting has no visitors', () => {
+        setting_signals['events.can_book_for_others'].set(true);
         event = new CalendarEvent({
             id: 'meeting-1',
             host: 'original.host@place.tech',
@@ -111,10 +113,11 @@ describe('MeetingFormDetailsComponent', () => {
             attendees: [],
         }));
 
-        expect(spectator.component.show_host_change_warning()).toBe(false);
+        expect(spectator.component.show_host_change_warning()).toBe(true);
     });
 
     it('should not warn when creating a meeting with visitors', () => {
+        setting_signals['events.can_book_for_others'].set(true);
         event = new CalendarEvent({
             host: 'original.host@place.tech',
             attendees: [
@@ -126,6 +129,21 @@ describe('MeetingFormDetailsComponent', () => {
         });
         spectator.component.model.update((model) => ({
             ...model,
+            host: 'new.host@place.tech',
+            organiser: { email: 'new.host@place.tech' } as any,
+        }));
+
+        expect(spectator.component.show_host_change_warning()).toBe(false);
+    });
+
+    it('should not warn when the host cannot be changed', () => {
+        event = new CalendarEvent({
+            id: 'meeting-1',
+            host: 'original.host@place.tech',
+        });
+        spectator.component.model.update((model) => ({
+            ...model,
+            id: 'meeting-1',
             host: 'new.host@place.tech',
             organiser: { email: 'new.host@place.tech' } as any,
         }));
