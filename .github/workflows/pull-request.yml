@@ -131,22 +131,32 @@ jobs:
               run: bun run postinstall
 
             - name: Initialise Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
 
             - name: Build affected applications
               run: |
                   bunx nx test ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Update Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
               if: ${{ always() }}
 
     build:
@@ -195,11 +205,16 @@ jobs:
               run: bun run postinstall
 
             - name: Initialise Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
 
             - name: Build affected applications
               run: |
@@ -215,9 +230,14 @@ jobs:
                   MESSAGE: 'build(${{ matrix.package }}): ${{env.type}}[${{env.deploy_branch}}][{sha}] CI build' # The commit message
 
             - name: Update Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
               if: ${{ always() }}
