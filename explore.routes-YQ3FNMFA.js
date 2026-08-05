@@ -42,7 +42,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-G25JCP3R.js";
+} from "./chunk-OOZZBJEX.js";
 import {
   FormField,
   MatCheckbox,
@@ -53,7 +53,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-TOWPQD5J.js";
+} from "./chunk-TBCNUAQW.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -307,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-UUKFONAH.js";
+} from "./chunk-CGZLA5VW.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4460,11 +4460,37 @@ var BOOKING_URLS = [
 var PERSISTED_EVENT_CONTEXT_URLS = ["landing"];
 var IGNORED_DETAIL_FIELDS = [
   "attendees",
+  "body",
   "system",
   "date_end",
   "organiser",
+  "recurrence",
   "resources"
 ];
+function normaliseEventBody(body) {
+  const template = document.createElement("template");
+  template.innerHTML = body || "";
+  const serialise = (node) => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return (node.textContent || "").replace(/\u200b/g, "");
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE)
+      return "";
+    const element = node;
+    if (element.tagName === "BR")
+      return "\n";
+    const content = [...element.childNodes].map(serialise).join("");
+    if (element.tagName === "DIV" || element.tagName === "P") {
+      return `
+${content}
+`;
+    }
+    const tag = element.tagName.toLowerCase();
+    const attributes = [...element.attributes].sort((a, b) => a.name.localeCompare(b.name)).map(({ name, value }) => ` ${name}="${value}"`).join("");
+    return `<${tag}${attributes}>${content}</${tag}>`;
+  };
+  return [...template.content.childNodes].map(serialise).join("").replace(/[ \t]+\n|\n[ \t]+/g, "\n").replace(/\n+/g, "\n").trim();
+}
 var Tags;
 (function(Tags2) {
   Tags2["Availability"] = "AVAILABILITY";
@@ -5311,10 +5337,24 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   }
   _eventDetails(value) {
     const details = Object.entries(value).filter(([key]) => !IGNORED_DETAIL_FIELDS.includes(key));
+    const recurrence = value.recurrence;
+    details.push(["body", normaliseEventBody(value.body)]);
     details.push(["host_email", value.organiser?.email || ""]);
     details.push([
+      "recurrence",
+      recurrence?.pattern && recurrence?._pattern !== "none" ? [
+        recurrence.pattern,
+        recurrence.interval || 1,
+        [...recurrence.days_of_week || []].sort(),
+        recurrence.nth_of_month || null,
+        recurrence.start || null,
+        recurrence.end || null,
+        recurrence.occurrences || null
+      ] : null
+    ]);
+    details.push([
       "space_ids",
-      (value.resources || []).map((_) => _.id || _.email || "")
+      (value.resources || []).map((_) => (_.email || _.id || "").toLowerCase()).sort()
     ]);
     details.sort(([a], [b]) => a > b ? 1 : -1);
     return JSON.stringify(details);
@@ -11951,4 +11991,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-B745J5RT.js.map
+//# sourceMappingURL=explore.routes-YQ3FNMFA.js.map
