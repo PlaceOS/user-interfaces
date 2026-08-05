@@ -2914,6 +2914,18 @@ describe('BookingFormService', () => {
             expect(spectator.service.model().all_day).toBe(true);
         });
 
+        it('carries a typed title between booking forms, deliberately', () => {
+            // Switching desk -> parking without leaving the booking area does not
+            // reset the form, so the user's own typing follows them. Pinned
+            // rather than left to chance: only fields they actually edited move,
+            // `isCrossTypeEdit` still discards the previous booking's identity,
+            // and leaving the booking section entirely calls `clearForm()`.
+            userEdits('title', 'Desk title');
+            spectator.service.loadForm('parking');
+            spectator.service.newForm('parking');
+            expect(spectator.service.model().title).toBe('Desk title');
+        });
+
         it('does not carry those edits into a later unrelated form', () => {
             userEdits('title', 'Quiet corner desk');
             spectator.service.loadForm('desk');
