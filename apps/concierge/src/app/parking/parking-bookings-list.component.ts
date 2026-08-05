@@ -24,6 +24,8 @@ import {
     TableColumn,
     TranslatePipe,
 } from '@placeos/components';
+import { isSameDay } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingStateService } from './parking-state.service';
 import {
@@ -147,6 +149,9 @@ interface ParkingBookingColumnTemplates {
                         } @else {
                             {{ row.date | date: time_format : timezone }} -
                             {{ row.date_end | date: time_format : timezone }}
+                            @if (isNextDay(row)) {
+                                <sup>+1</sup>
+                            }
                         }
                     </div>
                 </ng-template>
@@ -593,7 +598,12 @@ export class ParkingBookingsListComponent
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
 
-    public readonly bookings = this._state.bookings;
+    public readonly bookings = computed(() => {
+        const selected_date = this._state.options().date;
+        return this._state
+            .bookings()
+            .filter((booking) => this._isSameDay(booking.date, selected_date));
+    });
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
     public readonly period = this._state.period;
@@ -771,6 +781,18 @@ export class ParkingBookingsListComponent
             booking,
             this.timezone,
             this.bookable_period,
+        );
+    }
+
+    public isNextDay(booking: Booking) {
+        return !this._isSameDay(booking.date, booking.date_end);
+    }
+
+    private _isSameDay(first: number, second: number) {
+        const timezone = this.timezone;
+        return isSameDay(
+            timezone ? toZonedTime(first, timezone) : first,
+            timezone ? toZonedTime(second, timezone) : second,
         );
     }
 
