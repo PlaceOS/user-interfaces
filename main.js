@@ -6,26 +6,26 @@ import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-UXIVAILM.js";
+} from "./chunk-O2JODUUN.js";
 import {
   subMinutes
 } from "./chunk-PRGBS3NG.js";
-import "./chunk-V722CWGQ.js";
-import "./chunk-UWOHO2BE.js";
-import "./chunk-BYZ2E7T2.js";
-import "./chunk-UKJYLCYH.js";
-import "./chunk-NFZ6TFST.js";
+import "./chunk-VW43QZTG.js";
+import "./chunk-MZVEFEGQ.js";
+import "./chunk-TLTH63U5.js";
+import "./chunk-RHCVVWRG.js";
+import "./chunk-5URFXOG6.js";
 import {
   CustomTooltipComponent,
   MatTooltip,
   MatTooltipModule
-} from "./chunk-Y42OYCIX.js";
+} from "./chunk-SUJSAOO4.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-2S2UDS6N.js";
-import "./chunk-5HOTIMGX.js";
-import "./chunk-XGRJVGH2.js";
+} from "./chunk-TGLGBZBE.js";
+import "./chunk-JIBVHYNC.js";
+import "./chunk-A646ZXHH.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -83,7 +83,7 @@ import {
   style,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-TKBUED64.js";
+} from "./chunk-4TCF4KBF.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -18029,56 +18029,56 @@ var routes = [
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./landing.routes-J3OYE2YH.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./landing.routes-VXCS5UR7.js").then((m) => m.ROUTES)
   },
   {
     path: "book",
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-3OP6SRMJ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-YOSGQFCR.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-E6A5TX7Q.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-OWVZOJ2W.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-YY6TBFWW.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-HEB4WCFS.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-YVBSXG37.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-BNQVYD36.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-J6PQV5F6.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-T4BWJ5YL.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-B22JX6L2.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-UQXRHLYO.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-C4VA5ZYL.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-5OA7PR7Y.js").then((m) => m.ROUTES)
   },
   {
     path: "embedded/:id",
