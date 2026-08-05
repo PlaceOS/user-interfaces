@@ -1,4 +1,4 @@
-import "./chunk-NILDOHVQ.js";
+import "./chunk-653SOEEV.js";
 
 // node_modules/@angular/common/locales/ja.js
 /**
@@ -17,4 +17,4 @@ var ja_default = ["ja", [["\u5348\u524D", "\u5348\u5F8C"]], u, [["\u65E5", "\u67
 export {
   ja_default as default
 };
-//# sourceMappingURL=ja-H66BKBOP.js.map
+//# sourceMappingURL=ja-5HQXGIBO.js.map
