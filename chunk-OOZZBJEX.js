@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-TOWPQD5J.js";
+} from "./chunk-TBCNUAQW.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -330,7 +330,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-UUKFONAH.js";
+} from "./chunk-CGZLA5VW.js";
 import {
   __objRest,
   __spreadProps,
@@ -9891,6 +9891,45 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   _patch(value, _opts) {
     this.model.update((m) => __spreadValues(__spreadValues({}, m), value));
   }
+  /**
+   * The fields the user has actually edited, with their current values.
+   *
+   * Reads the signal-forms dirty flags rather than diffing against a
+   * default. Programmatic writes (`_patch`, `model.set`) do not mark a field
+   * dirty, so this returns genuine user input and nothing else — which is
+   * what makes it safe to replay over a freshly loaded booking.
+   */
+  _userEditedValues() {
+    const form2 = this.form;
+    if (!form2)
+      return {};
+    const model2 = untracked(this.model);
+    const edits = {};
+    for (const key of Object.keys(model2 || {})) {
+      const field = form2[key];
+      if (typeof field !== "function")
+        continue;
+      try {
+        if (field()?.dirty?.())
+          edits[key] = model2[key];
+      } catch {
+        continue;
+      }
+    }
+    return edits;
+  }
+  /**
+   * Stash the user's in-progress edits for the reset that is about to run.
+   *
+   * Merges rather than replaces. A flow resets twice in a row — `loadForm`
+   * then `newForm` — and the first `form().reset()` clears the dirty flags
+   * `_userEditedValues` reads, so a plain assignment would overwrite a real
+   * capture with an empty one on the second call.
+   */
+  _captureUserEdits() {
+    const edits = __spreadValues(__spreadValues({}, this._pending_user_edits || {}), this._userEditedValues());
+    this._pending_user_edits = Object.keys(edits).length ? edits : null;
+  }
   _syncAssetOptions() {
     const { date, duration } = untracked(this.model);
     const next_asset_window = assetWindowKey(date, duration);
@@ -10057,6 +10096,15 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     return use_building_timezone ? this._org.building?.timezone || "" : "";
   }
   newForm(type, booking = new Booking({})) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => {
+        this._captureUserEdits();
+        this.newForm(type, booking);
+      });
+      return;
+    }
+    const user_edits = this._pending_user_edits;
+    this._pending_user_edits = null;
     if (isCrossTypeEdit(booking, type))
       booking = new Booking({});
     this._startNetwork();
@@ -10086,6 +10134,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       // delegate booking reassigns the host on save.
       user: bookingHostUser(booking)
     }), [null, void 0, ""]), { emitEvent: false });
+    if (user_edits && Object.keys(user_edits).length) {
+      this._patch(user_edits, { emitEvent: false });
+    }
     this.applyDurationSettings();
     this._syncAssetOptions();
     const form_change = effect(() => {
@@ -10184,6 +10235,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         []
       )
     );
+    this._pending_user_edits = null;
     this._requests_ready = computed(
       () => {
         const region = this._org.active_region();
@@ -10488,6 +10540,13 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     sessionStorage.setItem(STORAGE_KEYS.booking_form_filters, JSON.stringify(this._options() || {}));
   }
   loadForm(expected_type) {
+    if (!currentUserIsLoaded()) {
+      currentUserLoaded().then(() => this.loadForm(expected_type));
+      return;
+    }
+    this._captureUserEdits();
+    const user_edits = this._pending_user_edits;
+    queueMicrotask(() => this._pending_user_edits = null);
     this._startNetwork();
     this._calendar.loadCalendars();
     const data = JSON.parse(sessionStorage.getItem(STORAGE_KEYS.booking_form) || "{}");
@@ -10510,6 +10569,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       _in_progress: booking?.state === "started"
     }), [null, void 0, ""]);
     this._patch(booking_data, { emitEvent: false });
+    if (user_edits && Object.keys(user_edits).length) {
+      this._patch(user_edits, { emitEvent: false });
+    }
     this.applyDurationSettings();
     this._form_value.set(this.model());
     this._syncAssetOptions();
@@ -12289,4 +12351,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-G25JCP3R.js.map
+//# sourceMappingURL=chunk-OOZZBJEX.js.map
