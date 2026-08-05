@@ -146,7 +146,12 @@ describe('ExploreParkingService', () => {
     });
 
     it('should clamp all-day parking queries to bookable hours', async () => {
-        const date = new Date('2026-07-09T13:45:00+10:00').valueOf();
+        // The clamp applies `bookable_hours` with `Date#setHours`, which is the
+        // machine's timezone, so the input and the expectations below are all
+        // built from local components. Writing them as a fixed UTC offset pins
+        // the test to a runner in that zone — on a UTC runner the expected
+        // start came out ten hours adrift.
+        const date = new Date(2026, 6, 9, 13, 45).valueOf();
         const settings = spectator.inject(SettingsService);
         vi.mocked(settings.get).mockImplementation((key) =>
             key === 'app.parking.bookable_hours'
@@ -167,10 +172,10 @@ describe('ExploreParkingService', () => {
             );
         const params = (call[0] as any).query_params;
         expect(params.period_start).toBe(
-            getUnixTime(new Date('2026-07-09T08:00:00+10:00')),
+            getUnixTime(new Date(2026, 6, 9, 8, 0, 0, 0)),
         );
         expect(params.period_end).toBe(
-            getUnixTime(new Date('2026-07-09T18:00:00+10:00')),
+            getUnixTime(new Date(2026, 6, 9, 18, 0, 0, 0)),
         );
     });
 
