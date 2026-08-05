@@ -188,12 +188,10 @@ jobs:
                   bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Deploy the application(${{ matrix.package }})
-              uses: MrYuion/git-publish-subdir-action@develop
+              run: .github/scripts/publish-subdir.sh
               env:
-                  REPO: self
                   BRANCH: build/${{ matrix.package }}/${{ env.deploy_branch }} # The branch name where you want to push the assets
                   FOLDER: dist/apps/${{ matrix.package }}/browser # The directory where your assets are generated
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
                   MESSAGE: 'build(${{ matrix.package }}): [{sha}] CI build' # The commit message
 
             - name: Update Pipeline Chat Status
