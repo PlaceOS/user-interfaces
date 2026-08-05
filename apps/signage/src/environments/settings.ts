@@ -7,6 +7,8 @@ const app = {
     logo_dark: 'assets/logo-dark.svg',
     diagnostics: true,
     default_animation_time: 1000,
+    /** Start from cached organisation data when the backend is unreachable */
+    offline_boot: true,
 };
 
 /**

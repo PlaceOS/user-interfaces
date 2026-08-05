@@ -9,7 +9,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { format } from 'date-fns';
 import { noShowReportBookings } from '../reports.utilities';
 import { ParkingReportService } from './parking-report.service';
 
@@ -68,7 +67,11 @@ import { ParkingReportService } from './parking-report.service';
             ></simple-table>
             <ng-template #date_template let-row="row">
                 <div class="p-4">
-                    {{ row.date | date: 'mediumDate' }}
+                    <div>{{ row.date | date: 'mediumDate' : timezone }}</div>
+                    <div class="text-xs opacity-60">
+                        {{ row.date | date: time_format : timezone }} -
+                        {{ row.date_end | date: time_format : timezone }}
+                    </div>
                 </div>
             </ng-template>
             <ng-template #bay_template let-id="data">
@@ -103,6 +106,14 @@ export class ParkingReportNoShowsComponent {
 
     public readonly print = input(false);
 
+    public get timezone() {
+        return this._state.timezone;
+    }
+
+    public get time_format() {
+        return this._state.time_format;
+    }
+
     public readonly no_shows = computed(() => {
         const list = [];
         for (const booking of noShowReportBookings(this._bookings())) {
@@ -111,6 +122,7 @@ export class ParkingReportNoShowsComponent {
             list.push({
                 host: booking.user_name || booking.user_email,
                 date: booking.date,
+                date_end: booking.date_end || booking.booking_end * 1000,
                 location: [
                     building?.display_name || building?.name,
                     level?.display_name || level?.name,
@@ -128,7 +140,10 @@ export class ParkingReportNoShowsComponent {
         const rows = await Promise.all(
             this.no_shows().map(async (row) => ({
                 host: row.host,
-                date: format(row.date, 'yyyy-MM-dd HH:mm'),
+                date: this._state.formatBookingDate(
+                    row.date,
+                    'yyyy-MM-dd HH:mm',
+                ),
                 location: row.location,
                 bay_number: await this._bayNumber(row.asset_id),
             })),

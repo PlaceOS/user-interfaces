@@ -133,6 +133,14 @@ thirty seconds on its own.
 `watchdog.booted`, `watchdog.recoveries_throttled` and `watchdog.last_recovery`
 show where in that sequence a player is.
 
+Only the recovery ledger is persisted; the heartbeats and `last_error` describe
+the current page load and are gone after a reload. So that a player found
+restarting itself can still say why, `watchdog.last_recovery_detail` is written
+to local storage before each recovery and survives it — the reasons (stalled
+signal names, `boot`, or `init-error`), whether the application cache was
+cleared, and the last error seen beforehand. Start there when a player has
+recovered and you want to know what from.
+
 ## Storage
 
 | Location                                               | Holds                                     |

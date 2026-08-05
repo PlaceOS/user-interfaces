@@ -60,11 +60,28 @@ const RECOVERY_KEY = 'PlaceOS.SIGNAGE.watchdog_reloads';
 
 const log = scoped_log('Watchdog');
 
+interface RecoveryRecord {
+    at: number;
+    /** What triggered it: stalled signal names, `boot`, or a caller's reason */
+    reasons: string[];
+    /** Whether the application cache was cleared as part of it */
+    cache_clear_attempted: boolean;
+    /** The last error seen before it, if there was one */
+    error: { at: number; message: string } | null;
+}
+
 interface RecoveryHistory {
     /** Timestamps of recent automatic recoveries */
     at: number[];
     /** Whether recoveries are currently spaced an hour apart */
     throttled: boolean;
+    /**
+     * Why the most recent recovery happened. Persisted because the reload it
+     * triggers takes the console with it - the one place the reason was
+     * reported - so a player found restarting itself could say that it had,
+     * but not what for.
+     */
+    last: RecoveryRecord | null;
 }
 
 const heartbeats: Record<WatchdogSignal, number> = {
@@ -108,13 +125,17 @@ export function stalledSignals(now = Date.now()): WatchdogSignal[] {
 function readHistory(): RecoveryHistory {
     try {
         const stored = JSON.parse(localStorage.getItem(RECOVERY_KEY) || 'null');
-        if (stored instanceof Array) return { at: stored, throttled: false };
+        // Earlier builds stored a bare list of timestamps
+        if (stored instanceof Array) {
+            return { at: stored, throttled: false, last: null };
+        }
         return {
             at: stored?.at instanceof Array ? stored.at : [],
             throttled: !!stored?.throttled,
+            last: stored?.last || null,
         };
     } catch {
-        return { at: [], throttled: false };
+        return { at: [], throttled: false, last: null };
     }
 }
 
@@ -131,7 +152,9 @@ function recoveryHistory(now: number): RecoveryHistory {
     const history = readHistory();
     const last = history.at[history.at.length - 1] || 0;
     if (last && now - last >= RECOVERY_RESET_MS) {
-        const reset = { at: [], throttled: false };
+        // Only the rate limiting is forgotten; why it last recovered is still
+        // worth knowing when someone finally looks at the player.
+        const reset = { at: [], throttled: false, last: history.last };
         writeHistory(reset);
         return reset;
     }
@@ -143,12 +166,16 @@ function recoveryHistory(now: number): RecoveryHistory {
  * hour; after that they are spaced an hour apart, because reloading has
  * evidently not fixed whatever is wrong and hammering it will not either.
  */
-function claimRecovery(now: number): boolean {
+function claimRecovery(now: number, record: RecoveryRecord): boolean {
     const history = recoveryHistory(now);
     const last = history.at[history.at.length - 1] || 0;
     if (history.throttled) {
         if (last && now - last < RECOVERY_THROTTLE_MS) return false;
-        writeHistory({ at: [...history.at.slice(-9), now], throttled: true });
+        writeHistory({
+            at: [...history.at.slice(-9), now],
+            throttled: true,
+            last: record,
+        });
         return true;
     }
     const in_window = history.at.filter((at) => now - at < RECOVERY_WINDOW_MS);
@@ -157,7 +184,11 @@ function claimRecovery(now: number): boolean {
         writeHistory({ ...history, throttled: true });
         return false;
     }
-    writeHistory({ at: [...history.at.slice(-9), now], throttled: false });
+    writeHistory({
+        at: [...history.at.slice(-9), now],
+        throttled: false,
+        last: record,
+    });
     return true;
 }
 
@@ -172,8 +203,13 @@ function resetHeartbeats(now: number) {
  * failed to shift the problem, in case the cached build is what is wrong.
  * Only clears the cache when the server can be reached, so a player is never
  * left with no cached application and no way to fetch a new one.
+ *
+ * Reloads the current URL rather than navigating to the base path: the route
+ * that says which display to show, and whether to show it in debug mode, is in
+ * the hash. Dropping it leaves the player on the display picker instead of
+ * back on its content.
  */
-async function clearCachesAndReload(): Promise<boolean> {
+export async function clearCachesAndReload(): Promise<boolean> {
     let reachable = false;
     try {
         const response = await fetch(location.href, { cache: 'reload' });
@@ -197,7 +233,7 @@ async function clearCachesAndReload(): Promise<boolean> {
     } catch (error) {
         log.warn('Failed to clear the application cache.', error);
     }
-    location.href = `${location.origin}${location.pathname}`;
+    _reload();
     return true;
 }
 
@@ -246,7 +282,13 @@ function check(expected_to_run: () => boolean) {
  */
 function recover(now: number, reasons: string[], prefer_hard: boolean) {
     const throttled = recoveryHistory(now).throttled;
-    if (!claimRecovery(now)) {
+    const record: RecoveryRecord = {
+        at: now,
+        reasons,
+        cache_clear_attempted: prefer_hard || throttled,
+        error: _last_error,
+    };
+    if (!claimRecovery(now, record)) {
         log.error('Recovery needed, but not due yet.', {
             reasons,
             last_error: _last_error,
@@ -353,6 +395,20 @@ export function watchdogState() {
         ).length,
         recoveries_throttled: history.throttled,
         last_recovery: asTime(history.at[history.at.length - 1] || 0),
+        // Survives the reload it caused, unlike `last_error` above, which only
+        // covers errors seen since this page loaded
+        last_recovery_detail: history.last
+            ? {
+                  ...history.last,
+                  at: asTime(history.last.at),
+                  error: history.last.error
+                      ? {
+                            ...history.last.error,
+                            at: asTime(history.last.error.at),
+                        }
+                      : null,
+              }
+            : null,
         started_at: asTime(_started_at),
         booted: !!heartbeats.visible,
         heartbeats: {

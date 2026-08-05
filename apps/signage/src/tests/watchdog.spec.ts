@@ -1,4 +1,5 @@
 import {
+    clearCachesAndReload,
     recordFatalError,
     recordHeartbeat,
     requestRecovery,
@@ -290,6 +291,83 @@ describe('recovery watchdog', () => {
         expect(watchdogState().recoveries_throttled).toBe(true);
     });
 
+    it('should persist why it recovered across the reload it causes', async () => {
+        recordFatalError('boom');
+        beat();
+        for (let i = 0; i < 40; i++) {
+            recordHeartbeat('poll');
+            recordHeartbeat('schedule');
+            recordHeartbeat('playback');
+            await vi.advanceTimersByTimeAsync(30 * 1000);
+        }
+        expect(reload).toHaveBeenCalledTimes(1);
+
+        // The reload wipes everything held in memory
+        resetWatchdog();
+        start();
+        const detail = watchdogState().last_recovery_detail;
+
+        expect(watchdogState().last_error).toBeNull();
+        expect(detail?.reasons).toEqual(['visible']);
+        expect(detail?.error?.message).toBe('boom');
+        expect(detail?.cache_clear_attempted).toBe(false);
+        expect(detail?.at).not.toBe('never');
+    });
+
+    it('should record a failed boot and that it cleared the cache', async () => {
+        await vi.advanceTimersByTimeAsync(6 * MINUTE);
+
+        resetWatchdog();
+        start();
+        const detail = watchdogState().last_recovery_detail;
+
+        expect(detail?.reasons).toEqual(['boot']);
+        expect(detail?.cache_clear_attempted).toBe(true);
+        expect(detail?.error).toBeNull();
+    });
+
+    it('should record a directly requested recovery', () => {
+        requestRecovery('init-error');
+
+        resetWatchdog();
+        start();
+
+        expect(watchdogState().last_recovery_detail?.reasons).toEqual([
+            'init-error',
+        ]);
+    });
+
+    it('should not overwrite the recovery detail when an attempt is refused', async () => {
+        // Use up the allowance so the next attempt is refused
+        for (let attempt = 0; attempt < 3; attempt++) {
+            resetWatchdog();
+            start();
+            requestRecovery('init-error');
+            await vi.advanceTimersByTimeAsync(MINUTE);
+        }
+        resetWatchdog();
+        start();
+
+        expect(requestRecovery('a-later-failure')).toBe(false);
+
+        expect(watchdogState().last_recovery_detail?.reasons).toEqual([
+            'init-error',
+        ]);
+    });
+
+    it('should read recovery history written by an earlier build', () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.watchdog_reloads',
+            JSON.stringify([Date.now() - 1000]),
+        );
+
+        const state = watchdogState();
+
+        expect(state.recoveries_in_last_hour).toBe(1);
+        expect(state.recoveries_throttled).toBe(false);
+        expect(state.last_recovery_detail).toBeNull();
+    });
+
     it('should record errors as context without needing them to act', () => {
         recordFatalError('boom');
 
@@ -308,5 +386,87 @@ describe('recovery watchdog', () => {
         expect(state.heartbeats.playback).toBe('never');
         expect(state.recoveries_in_last_hour).toBe(0);
         expect(state.recoveries_throttled).toBe(false);
+    });
+});
+
+describe('cache clearing recovery', () => {
+    let reload: any;
+    let stop: () => void;
+    let unregister: any;
+    let delete_cache: any;
+
+    beforeEach(() => {
+        reload = vi.fn();
+        unregister = vi.fn(async () => true);
+        delete_cache = vi.fn(async () => true);
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async () => ({ ok: true })),
+        );
+        vi.stubGlobal('caches', {
+            keys: async () => ['ngsw:db', 'ngsw:assets'],
+            delete: delete_cache,
+        });
+        Object.defineProperty(navigator, 'serviceWorker', {
+            value: { getRegistrations: async () => [{ unregister }] },
+            configurable: true,
+        });
+        resetWatchdog();
+        stop = startWatchdog({ reload });
+    });
+
+    afterEach(() => {
+        stop();
+        resetWatchdog();
+        vi.unstubAllGlobals();
+    });
+
+    it('should reload the current url, keeping the route it displays', async () => {
+        // The display to show, and whether to show it in debug mode, live in
+        // the hash, so recovering must not navigate to the base path
+        expect(await clearCachesAndReload()).toBe(true);
+
+        expect(unregister).toHaveBeenCalledTimes(1);
+        expect(delete_cache).toHaveBeenCalledTimes(2);
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should still reload when the cache cannot be cleared', async () => {
+        vi.stubGlobal('caches', {
+            keys: async () => {
+                throw new Error('denied');
+            },
+        });
+
+        expect(await clearCachesAndReload()).toBe(true);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not clear the cache when the server cannot be reached', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async () => {
+                throw new Error('offline');
+            }),
+        );
+
+        expect(await clearCachesAndReload()).toBe(false);
+
+        expect(unregister).not.toHaveBeenCalled();
+        expect(delete_cache).not.toHaveBeenCalled();
+        expect(reload).not.toHaveBeenCalled();
+    });
+
+    it('should not clear the cache when the server errors', async () => {
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async () => ({ ok: false })),
+        );
+
+        expect(await clearCachesAndReload()).toBe(false);
+
+        expect(unregister).not.toHaveBeenCalled();
+        expect(reload).not.toHaveBeenCalled();
     });
 });

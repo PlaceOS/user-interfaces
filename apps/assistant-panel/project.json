@@ -43,6 +43,11 @@
                         "output": "/assets",
                         "glob": "*worker.js"
                     },
+                    {
+                        "input": "node_modules/@litertjs/core/wasm/",
+                        "output": "/assets/litert",
+                        "glob": "**"
+                    },
                     "apps/assistant-panel/src/manifest.webmanifest"
                 ],
                 "styles": [

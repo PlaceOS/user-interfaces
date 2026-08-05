@@ -20,6 +20,7 @@ describe('ParkingBookingsListComponent', () => {
     let custom_booking_columns: any[] = [];
     let bookable_hours: { start: number; end: number } | undefined;
     let timezone = 'Australia/Perth';
+    let selected_date = Date.now();
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
 
     const createComponent = createComponentFactory({
@@ -28,7 +29,7 @@ describe('ParkingBookingsListComponent', () => {
             MockProvider(ParkingStateService, {
                 bookings: (() => bookings) as any,
                 options: (() => ({
-                    date: Date.now(),
+                    date: selected_date,
                     search: '',
                     zones: [],
                     period: 'day',
@@ -103,6 +104,7 @@ describe('ParkingBookingsListComponent', () => {
         custom_booking_columns = [];
         bookable_hours = undefined;
         timezone = 'Australia/Perth';
+        selected_date = Date.now();
         request_filter = 'all';
         settingSignal('parking.allow_editing', true).set(true);
         settingSignal('parking.allow_deleting', false).set(false);
@@ -185,6 +187,7 @@ describe('ParkingBookingsListComponent', () => {
     });
 
     it('should show start and end times for all-day bookings', () => {
+        selected_date = new Date(2026, 6, 21, 8).valueOf();
         bookings = [
             {
                 id: 'booking-1',
@@ -205,6 +208,7 @@ describe('ParkingBookingsListComponent', () => {
 
     it('should show all day when the booking matches the bookable period', () => {
         bookable_hours = { start: 8, end: 17 };
+        selected_date = new Date(2026, 6, 21, 8).valueOf();
         bookings = [
             {
                 id: 'booking-1',
@@ -222,6 +226,50 @@ describe('ParkingBookingsListComponent', () => {
         expect(
             spectator.query('[data-testid="parking-booking-time"]'),
         ).not.toHaveText(':');
+    });
+
+    it('should only show bookings that start on the selected day', () => {
+        selected_date = new Date('2026-08-03T12:00:00+08:00').valueOf();
+        bookings = [
+            {
+                id: 'previous-day',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: new Date('2026-08-02T17:30:00+08:00').valueOf(),
+                date_end: new Date('2026-08-03T06:30:00+08:00').valueOf(),
+                duration: 13 * 60,
+            },
+            {
+                id: 'selected-day',
+                asset_id: 'bay-2',
+                status: 'approved',
+                date: new Date('2026-08-03T17:30:00+08:00').valueOf(),
+                date_end: new Date('2026-08-04T06:30:00+08:00').valueOf(),
+                duration: 13 * 60,
+            },
+        ] as Booking[];
+        spectator = createComponent();
+
+        expect(
+            spectator.component.filtered_events().map(({ id }) => id),
+        ).toEqual(['selected-day']);
+    });
+
+    it('should mark overnight booking end times as the next day', () => {
+        selected_date = new Date('2026-08-03T12:00:00+08:00').valueOf();
+        bookings = [
+            {
+                id: 'overnight',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: new Date('2026-08-03T17:30:00+08:00').valueOf(),
+                date_end: new Date('2026-08-04T06:30:00+08:00').valueOf(),
+                duration: 13 * 60,
+            } as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.query('sup')).toHaveText('+1');
     });
 
     it('should add custom extension data columns', () => {
@@ -593,6 +641,8 @@ describe('ParkingBookingsListComponent', () => {
         bookings = [
             {
                 asset_id: 'bay-1',
+                date: selected_date,
+                date_end: selected_date + 60 * 60 * 1000,
                 extension_data: { vehicle_type: 'truck' },
             } as unknown as Booking,
         ];

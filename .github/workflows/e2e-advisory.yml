@@ -1,0 +1,295 @@
+name: 'E2E (advisory)'
+
+# ADVISORY ONLY — this must NOT gate merges yet.
+#
+# The suite is new. Before it is allowed to block anyone it needs a track record:
+# no false positives, specs reviewed by humans, and a known flake rate. Until then
+# this workflow exists to BUILD that record, not to enforce anything.
+#
+# Concretely, that means: do not add this job to branch protection / required
+# status checks. Nothing in this file can make it required — that is a repository
+# setting — so keeping it advisory is a deliberate human decision, not a default.
+# The job still reports honest pass/fail; it just does not block.
+#
+# The nightly run is the point: it accumulates evidence on a fixed codebase, which
+# is the only way to tell a real regression from an unstable suite.
+#
+# Known instability at time of writing (see E2E_USER_STORIES.md REG-09):
+# staff-api intermittently 500s with `DB::ConnectionLost` on concurrent
+# POST /bookings. Playwright's retries absorb it and mark the spec `flaky` — a
+# flaky-but-passing run is reported in the summary rather than hidden.
+
+# NOTE: there is deliberately NO `pull_request` trigger.
+#
+# This repository is PUBLIC and this job runs on a SELF-HOSTED runner. A
+# `pull_request` trigger would let anyone's fork execute arbitrary code on that
+# machine — which sits on an internal network — so the only triggers here are ones
+# that require write access to this repo: a schedule, a manual dispatch, and pushes
+# to branches that live here. Do not add `pull_request` back without moving the job
+# to a GitHub-hosted runner (`runs-on: ubuntu-latest`) or making the repo private.
+on:
+    workflow_dispatch:
+    push:
+        branches:
+            # For iterating on CI itself. Deliberately outside the `feat/*`,
+            # `fix/*`, `custom/*`, `refactor/*` set PR Flow watches, so this never
+            # triggers a build or a `build/<branch>/<app>` deploy.
+            - 'e2e/**'
+            #
+            # STAGE 2 — not yet. Add `develop` (and `release/**`, `rc/**`) once the
+            # nightly has a track record. Deliberately deferred: `develop` is the
+            # high-value trigger — it catches a regression where it lands, when
+            # bisecting is cheapest — but turning it on also puts a new check on
+            # everyone's commits, and that should be earned rather than assumed.
+            # Until then `workflow_dispatch` covers any one-off.
+            #
+            # It cannot block builds when it is enabled (different runner pool, no
+            # cross-workflow `needs`, no required status checks on develop) — see
+            # E2E_USER_STORIES.md. The reason to wait is noise and trust, not risk.
+    schedule:
+        # 01:10 UTC daily. NB scheduled workflows only run from the DEFAULT branch,
+        # so the nightly track record does not start accumulating until this file is
+        # merged to `develop`.
+        - cron: '10 1 * * *'
+
+# NOT triggered by feature branches, on purpose.
+#
+# There is ONE self-hosted runner and the stack binds fixed host ports
+# (9443/9080/4214), so runs cannot overlap — they serialise. A busy trigger set
+# would not just burn time, it would build a queue that delays or starves the
+# nightly, and the nightly is what produces the confidence record. Anyone who
+# wants the suite against a feature branch can use "Run workflow".
+
+# `github.event_name` is in the group deliberately.
+#
+# A scheduled run and a push run both have `github.ref` = refs/heads/develop, so
+# with a ref-only group plus cancel-in-progress a push to develop would CANCEL an
+# in-flight nightly — destroying the very run the track record depends on. Keying
+# on the event as well keeps the two apart: pushes still supersede each other,
+# nightlies are never collateral.
+concurrency:
+    group: e2e-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+    cancel-in-progress: true
+
+# The repository default is `write`. This job only reads the code and uploads
+# artifacts (upload-artifact uses the Actions runtime token, not this one), so
+# it has no reason to hold a token that can push. It matters more here than in
+# the other workflows: this is the only job on a self-hosted machine, and that
+# machine is persistent — a token written to its disk outlives the run.
+permissions:
+    contents: read
+
+jobs:
+    workplace:
+        # The job name is what appears in the commit's Checks list, next to the
+        # build jobs. Carrying "advisory" there means a red X cannot be misread as
+        # "the build broke" at a glance.
+        name: 'workplace e2e (advisory — does not block builds)'
+        # Self-hosted macOS runner, targeted by its custom label rather than by
+        # `macOS`/arch labels so the machine can be swapped without editing this.
+        # To fall back to GitHub-hosted, set `runs-on: ubuntu-latest` and restore
+        # the `Raise vm.max_map_count` step (see below).
+        runs-on: [self-hosted, placeos-e2e]
+        timeout-minutes: 45
+        env:
+            E2E_BACKEND_URL: https://localhost:9443
+            # Deliberately lower than the local default of 4.
+            #
+            # A GitHub runner has 4 cores and is simultaneously running ~10
+            # containers, an Angular dev server and the browsers. Fewer workers
+            # means less contention, which means fewer failures that are about the
+            # runner rather than about the code — and avoiding false positives
+            # matters more here than shaving a minute off the run.
+            E2E_WORKERS: '2'
+            TZ: 'Etc/UTC'
+        steps:
+            # persist-credentials: false — checkout otherwise leaves the token in
+            # .git/config. Nothing here pushes, and this runner is not a fresh VM.
+            - uses: actions/checkout@v6
+              with:
+                  persist-credentials: false
+
+            # No actions/cache, no setup-node, no setup-bun — on purpose.
+            #
+            # Those three are the right answer on a GitHub-hosted runner, where every
+            # job starts from a bare VM. Here they were the single biggest cost in
+            # the job: the first self-hosted run spent 9.1 min uploading node_modules
+            # to GitHub's cache and 3.1 min saving the bun cache, out of 19.2 min
+            # total — while the suite itself took 1.0 min. On a persistent machine
+            # the workspace and the toolchain are already there, so shipping them to
+            # a remote cache over a slow uplink buys nothing and costs more than
+            # everything else combined.
+            #
+            # The toolchain is provisioned once on the machine instead:
+            #   brew install colima docker docker-compose oven-sh/bun/bun node@24
+            # See e2e/stack/SELF_HOSTED_RUNNER.md.
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
+
+            - name: Setup version
+              run: bun run postinstall
+
+            # A self-hosted machine is NOT a fresh VM. A previous aborted run can
+            # leave the stack up or the dev-server port held, and the failure that
+            # causes ("port already in use", or specs hitting a half-torn-down
+            # stack) looks nothing like its cause. Reclaim both before starting.
+            - name: Reclaim the machine from any previous run
+              run: |
+                  e2e/stack/down.sh --volumes || true
+                  # Playwright refuses to start its webServer if 4214 is held.
+                  lsof -nP -iTCP:4214 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
+                  docker system df || true
+
+            # NOTE: no `sysctl -w vm.max_map_count=262144` here.
+            #
+            # It is required on a GitHub-hosted Linux runner (default 65530 is below
+            # Elasticsearch's threshold) but is meaningless on macOS: the value lives
+            # inside Docker Desktop's VM, not the host, and Docker Desktop already
+            # sets it high enough. Restore that step if this job moves back to
+            # ubuntu-latest.
+
+            - name: Install Playwright browser
+              run: bunx playwright install --with-deps chromium
+
+            # Brings up an isolated PlaceOS stack (its own compose project, own
+            # volumes, ports 9443/9080) and seeds it. Needs network access to
+            # GitHub once, to clone PlaceOS/www-core into the www volume — that is
+            # where the platform /login page comes from.
+            - name: Bring up the local PlaceOS stack
+              run: e2e/stack/up.sh
+
+            # What backend did this run actually test?
+            #
+            # The PlaceOS services track ${PLACEOS_TAG:-latest} on purpose — an
+            # advisory nightly against current backends is worth having, and
+            # pinning them would make the suite blind to the regressions it is
+            # best placed to catch. The cost is that a result can change with no
+            # frontend commit, so record the inputs: with these IDs a changed
+            # nightly is attributable in seconds instead of guessed at. To pin
+            # deliberately (e.g. while bisecting a frontend regression), set
+            # PLACEOS_TAG in this job's `env` above — it is already threaded
+            # through every service.
+            - name: Record backend inputs
+              run: |
+                  {
+                      echo '### Backend inputs'
+                      echo
+                      echo '| image | id |'
+                      echo '|---|---|'
+                      docker compose -p placeos-e2e -f e2e/stack/docker-compose.yml images \
+                          --format json 2>/dev/null \
+                        | node -e '
+                              let raw = "";
+                              process.stdin.on("data", (d) => (raw += d));
+                              process.stdin.on("end", () => {
+                                  let rows = [];
+                                  try { rows = JSON.parse(raw); } catch { return; }
+                                  for (const r of rows) {
+                                      const tag = `${r.Repository}:${r.Tag}`;
+                                      console.log(`| ${tag} | \`${(r.ID || "").slice(0, 19)}\` |`);
+                                  }
+                              });
+                          '
+                      echo
+                      echo "www-core HEAD: \`$(git ls-remote https://github.com/PlaceOS/www-core HEAD | cut -f1)\`"
+                  } >> "$GITHUB_STEP_SUMMARY"
+
+            - name: Run workplace e2e
+              run: bunx playwright test --config apps/workplace/playwright.config.ts
+
+            - name: Summarise results
+              if: ${{ always() }}
+              run: node e2e/stack/ci-summary.mjs >> "$GITHUB_STEP_SUMMARY"
+
+            # Collect EVERY service, not a hand-picked list. The first run failed
+            # in Elasticsearch — which was not on the list — so the log that
+            # explained the failure was the one log not captured.
+            - name: Collect backend logs
+              if: ${{ failure() }}
+              run: |
+                  mkdir -p e2e-logs
+                  cd e2e/stack
+                  docker compose -p placeos-e2e ps --all > ../../e2e-logs/_ps.txt 2>&1 || true
+                  docker compose -p placeos-e2e logs --no-color > ../../e2e-logs/_all.log 2>&1 || true
+                  for svc in $(docker compose -p placeos-e2e config --services 2>/dev/null); do
+                      docker compose -p placeos-e2e logs --no-color "$svc" \
+                          > "../../e2e-logs/$svc.log" 2>&1 || true
+                  done
+
+            - name: Upload Playwright report
+              if: ${{ always() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report-workplace
+                  path: |
+                      reports/e2e/workplace
+                      reports/e2e/workplace-results.json
+                  retention-days: 14
+                  if-no-files-found: warn
+
+            # Traces/videos/screenshots for the failures. Without these a red
+            # nightly run is unactionable the next morning.
+            - name: Upload failure artifacts
+              if: ${{ failure() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-failures-workplace
+                  path: |
+                      dist/.playwright
+                      e2e-logs
+                  retention-days: 14
+                  if-no-files-found: warn
+
+            - name: Tear down the stack
+              if: ${{ always() }}
+              run: e2e/stack/down.sh --volumes
+
+            # Tell someone. A nightly result nobody sees is not a result.
+            #
+            # Only fires on failure — a green run should be silent, or the signal
+            # gets tuned out within a fortnight. Uses the same chat integration as
+            # PR Flow, so there is nothing new to configure; change the recipient by
+            # repointing the CHAT_URL secret, or swap this step for email/Slack.
+            #
+            # `continue-on-error` so a broken webhook can never turn a green run red.
+            #
+            # Plain curl rather than the `fjogeleit/http-request-action@master`
+            # step the other workflows use. Same request, no third-party code:
+            # a mutable `@master` ref means whatever that repository holds at the
+            # moment the job runs executes here, and unlike build.yml and
+            # pull-request.yml, "here" is a persistent machine on an internal
+            # network. The secrets go through `env` rather than into the command
+            # line so they are not exposed in the process list.
+            #
+            # The other six call sites are the same pattern on GitHub-hosted
+            # runners; worth pinning too, but that is a repo-wide change and does
+            # not belong in this PR.
+            - name: Notify on failure
+              if: ${{ failure() }}
+              continue-on-error: true
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  CHAT_URL: ${{ secrets.CHAT_URL }}
+                  REPO: ${{ github.repository }}
+                  COMMIT: ${{ github.sha }}
+                  BRANCH: ${{ github.ref_name }}
+                  RUN_ID: ${{ github.run_id }}
+              run: |
+                  # node, not jq — jq is not on a stock macOS runner, node is
+                  # provisioned (see SELF_HOSTED_RUNNER.md).
+                  node -e '
+                      process.stdout.write(JSON.stringify({
+                          chat_url: process.env.CHAT_URL,
+                          name: process.env.REPO,
+                          commit: process.env.COMMIT,
+                          branch: process.env.BRANCH,
+                          url: `https://github.com/${process.env.REPO}/actions/runs/${process.env.RUN_ID}`,
+                          pipeline_name: "e2e (advisory) — FAILED",
+                          status: "failure",
+                      }));
+                  ' \
+                    | curl --silent --show-error --fail \
+                           --max-time 30 \
+                           --header 'Content-Type: application/json' \
+                           --data @- \
+                           "$STATUS_URL"

@@ -18,7 +18,12 @@ import {
 import * as Sentry from '@sentry/angular';
 import { addHours } from 'date-fns';
 
-import { hasNewVersion, requestInitReload, setupCache } from './application';
+import {
+    hasNewVersion,
+    reloadForNewVersion,
+    requestInitReload,
+    setupCache,
+} from './application';
 import { AsyncHandler } from './async-handler.class';
 import { requestScreenWakeLock } from './fixed-device-helpers';
 import { firstTruthyValueFrom, log, setAppName } from './general';
@@ -59,6 +64,8 @@ import { setInternalUserDomain } from './types/user.class';
 import { currentUser } from './user-state';
 
 const START_QUERY = location.search;
+/** Longest startup waits on the authority before continuing without it */
+const AUTHORITY_WAIT_MS = 10 * 1000;
 
 declare global {
     interface Window {
@@ -451,7 +458,18 @@ export class PlaceOS_Service extends AsyncHandler {
         }
         if (!isNativeApp()) {
             setLoadingMessage('Authenticating...');
-            await setupPlace(settings).catch((_) => console.error(_));
+            // `setup` resolves only once the authority has loaded, and it never
+            // rejects - a failure retries in the background forever. Waiting on
+            // it therefore parks startup indefinitely on a device with no
+            // network. Everything needed below it (storage prefix, config,
+            // token) is already set synchronously, and the authority arrives on
+            // its own once the network is back.
+            await Promise.race([
+                setupPlace(settings).catch((_) => console.error(_)),
+                new Promise((resolve) =>
+                    setTimeout(resolve, AUTHORITY_WAIT_MS),
+                ),
+            ]);
         }
         if (this._initial_token) setToken(this._initial_token);
         await this._waitFor(() => this._org.initialised());
@@ -562,12 +580,12 @@ export class PlaceOS_Service extends AsyncHandler {
     private _checkReload() {
         if (!hasNewVersion()) return;
         setLoadingMessage('Checking for updates...');
-
-        location.reload();
-        this.timeout(
-            'reload',
-            () => (location.href = `${location.origin}${location.pathname}`),
-        );
+        // Reloads rather than navigating: on a hash routed app the route is in
+        // the hash, so going to the base path restarts the app somewhere else
+        // entirely - a signage player lands on the display picker instead of
+        // back on its content. Routed through the shared update reload so the
+        // app's reload gate still applies.
+        reloadForNewVersion();
     }
 
     private async _initFixedDevice() {

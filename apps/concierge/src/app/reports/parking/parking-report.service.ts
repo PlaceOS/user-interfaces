@@ -9,6 +9,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { format, isSameDay } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { REMOVE_KEYS, ReportsStateService } from '../reports-state.service';
 
 export interface ReportOptions {
@@ -41,7 +42,7 @@ export class ParkingReportService {
         const bookings = this.bookings();
         const days = {};
         for (const booking of bookings) {
-            const date = format(booking.date, 'yyyy-MM-dd');
+            const date = this.formatBookingDate(booking.date, 'yyyy-MM-dd');
             if (!days[date]) {
                 days[date] = {
                     date: booking.date,
@@ -93,6 +94,24 @@ export class ParkingReportService {
         },
     });
     public readonly counts = this._counts.value;
+
+    public get timezone() {
+        return this._settings.get('app.bookings.use_building_timezone') ||
+            this._settings.get('app.parking.use_building_timezone')
+            ? this._org.building?.timezone || ''
+            : '';
+    }
+
+    public get time_format() {
+        return this._settings.time_format;
+    }
+
+    public formatBookingDate(date: number, format_string: string) {
+        return format(
+            this.timezone ? toZonedTime(date, this.timezone) : date,
+            format_string,
+        );
+    }
 
     public setOptions(options: Partial<ReportOptions>) {
         this._options.set({ ...this._options(), ...options });

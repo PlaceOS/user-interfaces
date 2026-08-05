@@ -345,9 +345,58 @@ export class BookingFormService extends AsyncHandler {
     private _asset_window = '';
     public readonly view = signal<BookingFlowView>('form');
 
+    /**
+     * Edits the user made while `newForm` was waiting on the current user,
+     * carried across the deferred re-entry so the reset does not discard them.
+     */
+    private _pending_user_edits: Partial<BookingFormValue> | null = null;
+
     /** Apply a partial patch to the booking form model. */
     private _patch(value: Partial<BookingFormValue>, _opts?: unknown) {
         this.model.update((m) => ({ ...m, ...value }));
+    }
+
+    /**
+     * The fields the user has actually edited, with their current values.
+     *
+     * Reads the signal-forms dirty flags rather than diffing against a
+     * default. Programmatic writes (`_patch`, `model.set`) do not mark a field
+     * dirty, so this returns genuine user input and nothing else — which is
+     * what makes it safe to replay over a freshly loaded booking.
+     */
+    private _userEditedValues(): Partial<BookingFormValue> {
+        const form = this.form as any;
+        if (!form) return {};
+        const model = untracked(this.model) as Record<string, any>;
+        const edits: Record<string, any> = {};
+        for (const key of Object.keys(model || {})) {
+            const field = form[key];
+            if (typeof field !== 'function') continue;
+            // A field can throw if the tree has no matching sub-field, which
+            // is not worth losing the rest of the user's input over.
+            try {
+                if (field()?.dirty?.()) edits[key] = model[key];
+            } catch {
+                continue;
+            }
+        }
+        return edits;
+    }
+
+    /**
+     * Stash the user's in-progress edits for the reset that is about to run.
+     *
+     * Merges rather than replaces. A flow resets twice in a row — `loadForm`
+     * then `newForm` — and the first `form().reset()` clears the dirty flags
+     * `_userEditedValues` reads, so a plain assignment would overwrite a real
+     * capture with an empty one on the second call.
+     */
+    private _captureUserEdits() {
+        const edits = {
+            ...(this._pending_user_edits || {}),
+            ...this._userEditedValues(),
+        };
+        this._pending_user_edits = Object.keys(edits).length ? edits : null;
     }
 
     private _syncAssetOptions() {
@@ -825,6 +874,19 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public newForm(type: BookingType, booking: Booking = new Booking({})) {
+        if (!currentUserIsLoaded()) {
+            // The form is already rendered and interactive at this point, so
+            // anything typed or toggled before the user resolves would be
+            // destroyed by the reset below. Capture it on the way back in —
+            // as late as possible, so we take the user's final state.
+            currentUserLoaded().then(() => {
+                this._captureUserEdits();
+                this.newForm(type, booking);
+            });
+            return;
+        }
+        const user_edits = this._pending_user_edits;
+        this._pending_user_edits = null;
         // Never apply an existing booking's edit state to a different type
         // (e.g. editing parking then opening the desk form).
         if (isCrossTypeEdit(booking, type)) booking = new Booking({});
@@ -864,6 +926,14 @@ export class BookingFormService extends AsyncHandler {
             ),
             { emitEvent: false },
         );
+        // Re-apply the user's own edits over the incoming booking. Done here,
+        // before `applyDurationSettings`, so a restored `all_day` still drives
+        // the time-sync window; and before `_syncWindowIfUnchanged`, which
+        // compares against `initial_date`/`initial_duration` and so leaves a
+        // user-changed window alone of its own accord.
+        if (user_edits && Object.keys(user_edits).length) {
+            this._patch(user_edits, { emitEvent: false });
+        }
         this.applyDurationSettings();
         this._syncAssetOptions();
         const form_change = effect(
@@ -1066,6 +1136,23 @@ export class BookingFormService extends AsyncHandler {
     }
 
     public loadForm(expected_type?: BookingType) {
+        if (!currentUserIsLoaded()) {
+            currentUserLoaded().then(() => this.loadForm(expected_type));
+            return;
+        }
+        // Same hazard as `newForm`, and the one the flows actually hit: the form
+        // is rendered from first paint, but every flow calls this only after org
+        // data lands, so the reset below arrives on top of whatever the user has
+        // already entered. Capture before `form().reset()` clears the dirty
+        // flags `_userEditedValues` reads.
+        this._captureUserEdits();
+        const user_edits = this._pending_user_edits;
+        // Flows call `loadForm(type)` and then `newForm(type)` in the same tick
+        // (desk-flow.component.ts:62 and :65, and the locker/parking
+        // equivalents). Leave the capture in place so that second reset replays
+        // it too, and release it at the end of the tick, where it can no longer
+        // reach an unrelated form.
+        queueMicrotask(() => (this._pending_user_edits = null));
         this._startNetwork();
         this._calendar.loadCalendars();
         const data = JSON.parse(
@@ -1104,6 +1191,12 @@ export class BookingFormService extends AsyncHandler {
             [null, undefined, ''],
         );
         this._patch(booking_data, { emitEvent: false });
+        // Re-apply the user's own edits over the loaded booking, before
+        // `applyDurationSettings` so a restored `all_day` still drives the
+        // time-sync window — same ordering as `newForm`.
+        if (user_edits && Object.keys(user_edits).length) {
+            this._patch(user_edits, { emitEvent: false });
+        }
         this.applyDurationSettings();
         this._form_value.set(this.model());
         this._syncAssetOptions();

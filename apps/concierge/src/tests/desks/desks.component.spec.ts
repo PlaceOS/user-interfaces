@@ -21,6 +21,8 @@ import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('DesksComponent', () => {
+    const levelsForBuilding = (building: any) =>
+        building?.id === 'bld-2' ? [{ id: 'level-b' }] : [{ id: 'level-a' }];
     let spectator: SpectatorRouting<DesksComponent>;
     let active_building: WritableSignal<any>;
     let active_region: WritableSignal<any>;
@@ -32,11 +34,7 @@ describe('DesksComponent', () => {
             { id: 'bld-1', parent_id: 'region-1' },
             { id: 'bld-2', parent_id: 'region-1' },
         ],
-        levelsForBuilding: vi.fn((building) =>
-            building?.id === 'bld-2'
-                ? [{ id: 'level-b' }]
-                : [{ id: 'level-a' }],
-        ),
+        levelsForBuilding: vi.fn(levelsForBuilding),
         levelsForRegion: vi.fn(() => [{ id: 'level-a' }, { id: 'level-b' }]),
         levelWithID: vi.fn(),
         active_building: undefined,
@@ -82,6 +80,9 @@ describe('DesksComponent', () => {
     });
 
     beforeEach(() => {
+        organisation_service.levelsForBuilding.mockImplementation(
+            levelsForBuilding,
+        );
         current_building = { id: 'bld-1', parent_id: 'region-1' };
         active_building = signal(current_building);
         active_region = signal({ id: 'region-1' });
@@ -116,6 +117,21 @@ describe('DesksComponent', () => {
 
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should list parking-only levels last', () => {
+        organisation_service.levelsForBuilding.mockReturnValue([
+            { id: 'level-parking', tags: ['level', 'parking'] },
+            { id: 'level-ground', tags: ['level'] },
+        ]);
+        current_building = { id: 'bld-3', parent_id: 'region-1' };
+        active_building.set(current_building);
+        spectator.component.path.set('manage');
+        spectator.detectChanges();
+
+        expect(
+            spectator.component.levels().map((lvl: any) => lvl.id),
+        ).toEqual(['level-ground', 'level-parking']);
     });
 
     it('should clear stale zones when the active building changes', () => {
