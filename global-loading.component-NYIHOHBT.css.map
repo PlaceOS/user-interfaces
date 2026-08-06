@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["global-loading.component.ts"],
+  "sourcesContent": ["\n            :host {\n                pointer-events: none;\n            }\n\n            [loader] {\n                background-image: linear-gradient(\n                    to right,\n                    #0d47a1 0%,\n                    #2196f3 100%\n                );\n            }\n        "],
+  "mappings": "AACY,MACI,eAAA,IACJ,CAEA,CAAA,QACI,iBAAA,wBAAA,QAAA,SAKJ",
+  "names": []
+}
