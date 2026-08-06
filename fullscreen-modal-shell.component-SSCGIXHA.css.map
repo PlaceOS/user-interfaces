@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["fullscreen-modal-shell.component.ts"],
+  "sourcesContent": ["\n            main {\n                scroll-margin-top: 60px;\n            }\n        "],
+  "mappings": "AACY,KACI,kBAAA,IACJ",
+  "names": []
+}

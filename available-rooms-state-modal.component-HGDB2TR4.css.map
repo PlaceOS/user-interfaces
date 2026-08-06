@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["available-rooms-state-modal.component.ts"],
+  "sourcesContent": ["\n            td {\n                padding: 0.5rem;\n            }\n        "],
+  "mappings": "AACY,WACI,KACJ",
+  "names": []
+}

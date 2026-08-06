@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["printable.component.ts"],
+  "sourcesContent": ["\n            @media print {\n                .printable-screen-view {\n                    display: none !important;\n                }\n            }\n        "],
+  "mappings": "AACY,OAAA,MACI,CAAA,sBACI,QAAA,cACJ,CACJ",
+  "names": []
+}
