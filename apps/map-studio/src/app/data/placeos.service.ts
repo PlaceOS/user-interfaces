@@ -1,7 +1,16 @@
 import { Injectable, signal } from '@angular/core';
-import { authority, setup, token } from '@placeos/ts-client';
+import {
+    authority,
+    setup,
+    showMetadata,
+    token,
+    updateMetadata,
+} from '@placeos/ts-client';
+
+import type { Floorplan } from './types';
 
 const SETTINGS_KEY = 'MAP_BUILDER.placeos';
+const FLOORPLAN_METADATA_KEY = 'map-studio';
 
 export interface PlaceOSSettings {
     domain: string;
@@ -192,6 +201,16 @@ export class PlaceOSService {
         });
     }
 
+    public async getActiveOrganisation(): Promise<PlaceOSZone | null> {
+        const organisations = await this.getZones('org');
+        const configured = authority()?.config?.['org_zone'];
+        return (
+            organisations.find((zone) => zone.id === configured) ??
+            organisations[0] ??
+            null
+        );
+    }
+
     public getZone(id: string): Promise<PlaceOSZone> {
         return this._request<PlaceOSZone>(`/zones/${id}`);
     }
@@ -208,6 +227,71 @@ export class PlaceOSService {
                 body: JSON.stringify(data),
             },
         );
+    }
+
+    public async getFloorplanMetadata(
+        level_id: string,
+    ): Promise<Partial<Floorplan> | null> {
+        const metadata = await showMetadata(level_id, FLOORPLAN_METADATA_KEY);
+        const details = metadata.details;
+        if (!details || typeof details !== 'object' || Array.isArray(details)) {
+            return null;
+        }
+        const floorplan = details as Partial<Floorplan>;
+        if (Number.isFinite(metadata.updated_at)) {
+            floorplan.updated_at = new Date(metadata.updated_at).toISOString();
+        }
+        return floorplan;
+    }
+
+    public async saveFloorplanMetadata(
+        level_id: string,
+        floorplan: Floorplan,
+    ): Promise<string> {
+        const details: Partial<Floorplan> = { ...floorplan };
+        delete details.id;
+        delete details.project_id;
+        delete details.level_zone_id;
+        delete details.source_image_path;
+        delete details.source_type;
+        delete details.created_at;
+        details.updated_at = floorplan.updated_at || new Date().toISOString();
+        const metadata = await updateMetadata(level_id, {
+            id: level_id,
+            name: FLOORPLAN_METADATA_KEY,
+            description: 'Map Studio floorplan',
+            details,
+        });
+        return Number.isFinite(metadata?.updated_at)
+            ? new Date(metadata.updated_at).toISOString()
+            : details.updated_at;
+    }
+
+    public async getLevelSvg(level_id: string): Promise<string | null> {
+        const map_id = (await this.getZone(level_id)).map_id;
+        if (!map_id) return null;
+
+        const external = /^[a-z][a-z\d+.-]*:/i.test(map_id);
+        const on_domain = this._mode() === 'domain';
+        const { domain, api_key } = this._settings();
+        const url = external
+            ? map_id
+            : `${on_domain ? '' : domain}/${map_id.replace(/^\//, '')}`;
+        const response = await fetch(url, {
+            headers: external
+                ? {}
+                : on_domain
+                  ? { Authorization: `Bearer ${token()}` }
+                  : { 'X-API-Key': api_key },
+        });
+        if (!response.ok) {
+            throw new Error(`Failed to load level SVG: ${response.status}`);
+        }
+        const svg = await response.text();
+        if (!/<svg[\s>]/i.test(svg)) {
+            throw new Error('The level map is not an SVG');
+        }
+        return svg;
     }
 
     // ── Systems ─────────────────────────────────────────────────────────────

@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { AsyncHandler } from '@placeos/common';
 
 import type { DetectedRoom } from '../data/floorplan-ai.service';
+import { PlaceOSService } from '../data/placeos.service';
 import { StoreService } from '../data/store.service';
 import {
     AvailabilityState,
@@ -116,6 +117,7 @@ const PLACE_SIZES: Record<string, { width: number; height: number }> = {
 @Injectable()
 export class EditorStateService extends AsyncHandler {
     private readonly _store = inject(StoreService);
+    private readonly _placeos = inject(PlaceOSService);
 
     private readonly _floorplan = signal<Floorplan | null>(null);
     private readonly _objects = signal<MapObject[]>([]);
@@ -242,10 +244,53 @@ export class EditorStateService extends AsyncHandler {
         this._loading.set(true);
         this._error.set('');
         try {
-            const [floorplan, objects] = await Promise.all([
-                this._store.getFloorplan(floorplan_id),
-                this._store.listObjects(floorplan_id),
-            ]);
+            let floorplan = await this._store.getFloorplan(floorplan_id);
+            const server = await this._store
+                .getNewerServerFloorplan(floorplan_id)
+                .catch(() => null);
+            if (
+                server?.updated_at &&
+                confirm(
+                    `A newer server version was saved ${new Date(
+                        server.updated_at,
+                    ).toLocaleString()}. Use it?\n\nCancel keeps this local version.`,
+                )
+            ) {
+                floorplan = await this._store.applyServerFloorplan(
+                    floorplan_id,
+                    server,
+                );
+            }
+            let objects = await this._store.listObjects(floorplan_id);
+            let imported_svg = false;
+            const svg_check_key = `map-studio.svg-import.${floorplan_id}`;
+            if (
+                floorplan.level_zone_id &&
+                !floorplan.canvas_state &&
+                !floorplan.svg_output &&
+                !floorplan.source_image_path &&
+                !objects.length &&
+                !localStorage.getItem(svg_check_key)
+            ) {
+                const svg = await this._placeos
+                    .getLevelSvg(floorplan.level_zone_id)
+                    .catch(() => null);
+                if (svg) {
+                    localStorage.setItem(svg_check_key, 'checked');
+                    if (
+                        confirm(
+                            'This level already has an SVG map. Import it into this floorplan?\n\nCancel starts with a blank floorplan.',
+                        )
+                    ) {
+                        floorplan = await this._store.importLevelSvg(
+                            floorplan_id,
+                            svg,
+                        );
+                        objects = await this._store.listObjects(floorplan_id);
+                        imported_svg = true;
+                    }
+                }
+            }
             this._floorplan.set(floorplan);
             this._objects.set(objects);
 
@@ -266,6 +311,7 @@ export class EditorStateService extends AsyncHandler {
             }
 
             await this._loadImage(floorplan_id);
+            if (imported_svg) await this.save();
         } catch (error) {
             this._error.set(this._message(error, 'Failed to load floorplan'));
         } finally {

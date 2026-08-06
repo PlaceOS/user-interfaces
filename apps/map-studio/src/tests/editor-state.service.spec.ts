@@ -2,6 +2,7 @@ import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { DbService } from '../app/data/db';
+import { PlaceOSService } from '../app/data/placeos.service';
 import { StoreService } from '../app/data/store.service';
 import { EditorStateService } from '../app/editor/editor-state.service';
 
@@ -68,6 +69,61 @@ describe('EditorStateService', () => {
         expect(editor.objects()).toHaveLength(1);
         expect(editor.loading()).toBe(false);
         expect(editor.error()).toBe('');
+    });
+
+    it('offers to apply a newer server floorplan', async () => {
+        const server = {
+            floor_name: 'Server Level',
+            updated_at: '2999-01-01T00:00:00.000Z',
+        };
+        vi.spyOn(store, 'getNewerServerFloorplan').mockResolvedValue(server);
+        const apply = vi
+            .spyOn(store, 'applyServerFloorplan')
+            .mockResolvedValue({
+                ...(await store.getFloorplan(floorplan_id)),
+                ...server,
+            });
+        const confirm_save = vi.fn(() => true);
+        vi.stubGlobal('confirm', confirm_save);
+
+        await editor.load(floorplan_id);
+
+        expect(confirm_save).toHaveBeenCalledWith(
+            expect.stringContaining('newer server version'),
+        );
+        expect(apply).toHaveBeenCalledWith(floorplan_id, server);
+        expect(editor.floorplan()?.floor_name).toBe('Server Level');
+        vi.unstubAllGlobals();
+    });
+
+    it('offers to import a level SVG the first time an empty floorplan opens', async () => {
+        const floorplan = await store.addFloorplan(
+            'p1',
+            'Level 2',
+            1,
+            'level-2',
+        );
+        const svg = '<svg viewBox="0 0 10 10"></svg>';
+        vi.spyOn(
+            TestBed.inject(PlaceOSService),
+            'getLevelSvg',
+        ).mockResolvedValue(svg);
+        const imported = vi
+            .spyOn(store, 'importLevelSvg')
+            .mockResolvedValue({ ...floorplan, svg_output: svg });
+        const confirm_import = vi.fn(() => true);
+        vi.stubGlobal('confirm', confirm_import);
+
+        await editor.load(floorplan.id);
+
+        expect(confirm_import).toHaveBeenCalledWith(
+            expect.stringContaining('already has an SVG map'),
+        );
+        expect(imported).toHaveBeenCalledWith(floorplan.id, svg);
+        expect(
+            localStorage.getItem(`map-studio.svg-import.${floorplan.id}`),
+        ).toBe('checked');
+        vi.unstubAllGlobals();
     });
 
     it('starts with nothing to undo', () => {

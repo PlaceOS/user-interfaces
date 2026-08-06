@@ -236,6 +236,7 @@ export interface Project {
     id: string;
     name: string;
     building_name: string | null;
+    building_zone_id?: string | null;
     status: 'draft' | 'published' | 'archived';
     created_at: string;
     updated_at: string;
@@ -247,6 +248,7 @@ export interface Floorplan {
     project_id: string;
     floor_name: string;
     floor_index: number;
+    level_zone_id?: string | null;
     source_image_path: string | null;
     source_type: string | null;
     background_opacity: number;

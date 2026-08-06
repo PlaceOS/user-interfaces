@@ -2,6 +2,7 @@ vi.mock('@placeos/ts-client', () => ({
     authority: () => ({
         domain: 'place.example.com',
         config: {
+            org_zone: 'org-2',
             map_builder: {
                 llm_system_id: 'sys-ai',
                 llm_model: 'gpt-5.1',
@@ -9,11 +10,14 @@ vi.mock('@placeos/ts-client', () => ({
         },
     }),
     setup: async () => undefined,
+    showMetadata: vi.fn(async () => ({ details: {} })),
     token: () => 'session-token',
+    updateMetadata: vi.fn(async () => undefined),
 }));
 
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 import { PlaceOSService } from '../app/data/placeos.service';
 
@@ -24,6 +28,22 @@ function stubFetch(authority_ok: boolean) {
         calls.push([url, options]);
         if (url.endsWith('/auth/authority'))
             return { ok: authority_ok, json: async () => ({}) };
+        if (url.endsWith('/zones/level-1'))
+            return {
+                ok: true,
+                json: async () => ({ map_id: '/maps/level-1.svg' }),
+            };
+        if (url.endsWith('/maps/level-1.svg'))
+            return {
+                ok: true,
+                status: 200,
+                text: async () => '<svg viewBox="0 0 10 10"></svg>',
+            };
+        if (url.includes('/zones') && url.includes('tags=org'))
+            return {
+                ok: true,
+                json: async () => [{ id: 'org-1' }, { id: 'org-2' }],
+            };
         if (url.includes('/LLM_1/chat'))
             return {
                 ok: true,
@@ -41,6 +61,7 @@ describe('PlaceOSService', () => {
     let service: PlaceOSService;
 
     beforeEach(() => {
+        vi.clearAllMocks();
         localStorage.clear();
         TestBed.configureTestingModule({
             providers: [provideZonelessChangeDetection()],
@@ -97,6 +118,61 @@ describe('PlaceOSService', () => {
             { type: 'json_object' },
             16_000,
         ]);
+    });
+
+    it('selects the authority organisation and loads its level SVG', async () => {
+        const calls = stubFetch(true);
+        await service.init();
+
+        await expect(service.getActiveOrganisation()).resolves.toEqual({
+            id: 'org-2',
+        });
+        await expect(service.getLevelSvg('level-1')).resolves.toContain('<svg');
+
+        const [, options] = calls.find(([url]) =>
+            url.endsWith('/maps/level-1.svg'),
+        )!;
+        expect((options.headers as Record<string, string>).Authorization).toBe(
+            'Bearer session-token',
+        );
+    });
+
+    it('loads and saves floorplan metadata on a level', async () => {
+        stubFetch(true);
+        await service.init();
+        vi.mocked(showMetadata).mockResolvedValueOnce({
+            details: {
+                floor_name: 'Saved Level',
+                updated_at: '2020-01-01T00:00:00.000Z',
+            },
+            updated_at: Date.parse('2026-08-06T01:02:03.000Z'),
+        } as never);
+
+        await expect(service.getFloorplanMetadata('level-1')).resolves.toEqual({
+            floor_name: 'Saved Level',
+            updated_at: '2026-08-06T01:02:03.000Z',
+        });
+        await service.saveFloorplanMetadata('level-1', {
+            id: 'local-floorplan',
+            project_id: 'local-project',
+            level_zone_id: 'level-1',
+            floor_name: 'Saved Level',
+            source_image_path: 'blob:local-only',
+            updated_at: '2026-08-06T01:02:03.000Z',
+        } as never);
+
+        expect(showMetadata).toHaveBeenCalledWith('level-1', 'map-studio');
+        expect(updateMetadata).toHaveBeenCalledWith(
+            'level-1',
+            expect.objectContaining({
+                id: 'level-1',
+                name: 'map-studio',
+                details: {
+                    floor_name: 'Saved Level',
+                    updated_at: '2026-08-06T01:02:03.000Z',
+                },
+            }),
+        );
     });
 
     it('falls back to a domain and API key otherwise', async () => {

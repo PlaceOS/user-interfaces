@@ -1,7 +1,9 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 
 import { DbService } from './db';
-import { SvgAnalysis } from './svg-import';
+import type { PlaceOSZone } from './placeos.service';
+import { PlaceOSService } from './placeos.service';
+import { analyzeSvg, SvgAnalysis } from './svg-import';
 import {
     EditorState,
     Floorplan,
@@ -11,6 +13,19 @@ import {
     Project,
     ValidationIssue,
 } from './types';
+
+type ZoneReference = Pick<PlaceOSZone, 'id' | 'name' | 'display_name'>;
+
+function localFloorplanData(metadata: Partial<Floorplan> = {}) {
+    const saved = { ...metadata };
+    delete saved.id;
+    delete saved.project_id;
+    delete saved.level_zone_id;
+    delete saved.source_image_path;
+    delete saved.source_type;
+    delete saved.created_at;
+    return saved;
+}
 
 const key = {
     project: (id: string) => `project:${id}`,
@@ -89,6 +104,7 @@ function toCsvField(value: unknown): string {
 @Injectable({ providedIn: 'root' })
 export class StoreService {
     private readonly _db = inject(DbService);
+    private readonly _placeos = inject(PlaceOSService);
 
     // ── Projects ────────────────────────────────────────────────────────────
 
@@ -111,11 +127,13 @@ export class StoreService {
     public async createProject(
         name: string,
         building_name?: string,
+        building_zone_id?: string,
     ): Promise<Project> {
         const project: Project = {
             id: uuid(),
             name,
             building_name: building_name || null,
+            building_zone_id: building_zone_id || null,
             status: 'draft',
             created_at: now(),
             updated_at: now(),
@@ -163,6 +181,8 @@ export class StoreService {
         project_id: string,
         floor_name: string,
         floor_index?: number,
+        level_zone_id?: string,
+        metadata?: Partial<Floorplan>,
     ): Promise<Floorplan> {
         const siblings = (await this._db.list<Floorplan>('floorplan:')).filter(
             (f) => f.project_id === project_id,
@@ -172,6 +192,7 @@ export class StoreService {
             project_id,
             floor_name,
             floor_index: floor_index ?? siblings.length,
+            level_zone_id: level_zone_id || null,
             source_image_path: null,
             source_type: null,
             background_opacity: 0.3,
@@ -186,15 +207,96 @@ export class StoreService {
             version: 1,
             created_at: now(),
             updated_at: now(),
+            ...localFloorplanData(metadata),
         };
         await this._db.set(key.floorplan(floorplan.id), floorplan);
+        if (floorplan.canvas_state?.objects) {
+            await this.replaceObjects(
+                floorplan.id,
+                floorplan.canvas_state.objects,
+            );
+        }
         return floorplan;
+    }
+
+    /** Creates the projects and floorplans missing from the PlaceOS zone tree. */
+    public async syncPlaceOSZones(
+        buildings: { zone: ZoneReference; levels: ZoneReference[] }[],
+    ): Promise<void> {
+        const projects = await this.listProjects();
+        for (const { zone, levels } of buildings) {
+            let project = projects.find(
+                (item) => item.building_zone_id === zone.id,
+            );
+            if (!project) {
+                project = await this.createProject(
+                    zone.display_name || zone.name || zone.id,
+                    undefined,
+                    zone.id,
+                );
+                project.floorplans = [];
+                projects.push(project);
+            }
+
+            const existing_levels = new Set(
+                project.floorplans?.map((floor) => floor.level_zone_id),
+            );
+            for (const [floor_index, level] of levels.entries()) {
+                if (existing_levels.has(level.id)) continue;
+                const metadata = await this._placeos
+                    .getFloorplanMetadata(level.id)
+                    .catch(() => null);
+                const floorplan = await this.addFloorplan(
+                    project.id,
+                    level.display_name || level.name || level.id,
+                    floor_index,
+                    level.id,
+                    metadata ?? undefined,
+                );
+                project.floorplans?.push(floorplan);
+                existing_levels.add(level.id);
+            }
+        }
     }
 
     public async getFloorplan(id: string): Promise<Floorplan> {
         const floorplan = await this._db.get<Floorplan>(key.floorplan(id));
         if (!floorplan) throw new Error('Floorplan not found');
         return floorplan;
+    }
+
+    public async getNewerServerFloorplan(
+        id: string,
+    ): Promise<Partial<Floorplan> | null> {
+        const floorplan = await this.getFloorplan(id);
+        if (!floorplan.level_zone_id || this._placeos.mode() !== 'domain') {
+            return null;
+        }
+        const server = await this._placeos.getFloorplanMetadata(
+            floorplan.level_zone_id,
+        );
+        const server_time = Date.parse(server?.updated_at || '');
+        const local_time = Date.parse(floorplan.updated_at);
+        return Number.isFinite(server_time) && server_time > local_time
+            ? server
+            : null;
+    }
+
+    public async applyServerFloorplan(
+        id: string,
+        metadata: Partial<Floorplan>,
+    ): Promise<Floorplan> {
+        const floorplan = await this.getFloorplan(id);
+        const updated = {
+            ...floorplan,
+            ...localFloorplanData(metadata),
+            id,
+        };
+        await this._db.set(key.floorplan(id), updated);
+        if (updated.canvas_state?.objects) {
+            await this.replaceObjects(id, updated.canvas_state.objects);
+        }
+        return updated;
     }
 
     public async updateFloorplan(
@@ -204,6 +306,16 @@ export class StoreService {
         const floorplan = await this.getFloorplan(id);
         const updated = { ...floorplan, ...updates, id, updated_at: now() };
         await this._db.set(key.floorplan(id), updated);
+        if (updated.level_zone_id && this._placeos.mode() === 'domain') {
+            const server_updated_at = await this._placeos.saveFloorplanMetadata(
+                updated.level_zone_id,
+                updated,
+            );
+            if (server_updated_at) {
+                updated.updated_at = server_updated_at;
+                await this._db.set(key.floorplan(id), updated);
+            }
+        }
         return updated;
     }
 
@@ -306,6 +418,31 @@ export class StoreService {
         return (await this._db.get<Blob>(key.image(id))) ?? null;
     }
 
+    /** Imports a level's existing map into its empty local floorplan. */
+    public async importLevelSvg(
+        id: string,
+        svg_content: string,
+    ): Promise<Floorplan> {
+        const floorplan = await this.getFloorplan(id);
+        const analysis = analyzeSvg(svg_content);
+        const blob = new Blob([svg_content], { type: 'image/svg+xml' });
+        const updated: Floorplan = {
+            ...floorplan,
+            svg_output: svg_content,
+            canvas_width: analysis.width,
+            canvas_height: analysis.height,
+            source_image_path: URL.createObjectURL(blob),
+            source_type: 'image/svg+xml',
+            updated_at: now(),
+        };
+        await Promise.all([
+            this._db.set(key.image(id), blob),
+            this._db.set(key.floorplan(id), updated),
+        ]);
+        await this.replaceObjects(id, this._objectsFromSvg(analysis));
+        return updated;
+    }
+
     // ── SVG import ──────────────────────────────────────────────────────────
 
     /**
@@ -342,25 +479,7 @@ export class StoreService {
         });
 
         const chosen = new Map(mappings.map((m) => [m.svgId, m]));
-        const objects: Partial<MapObject>[] = [];
-
-        for (const parsed of analysis.objects) {
-            const mapping = chosen.get(parsed.svgId);
-            if (!mapping) continue;
-            objects.push({
-                object_type: (mapping.objectType ??
-                    parsed.suggestedType) as MapObjectType,
-                svg_id: parsed.svgId,
-                label: mapping.label || parsed.label || parsed.svgId,
-                geometry: parsed.geometry,
-                layer: parsed.layer,
-                metadata: {
-                    source: 'svg-import',
-                    originalTag: parsed.tag,
-                    originalAttributes: parsed.attributes,
-                },
-            });
-        }
+        const objects = this._objectsFromSvg(analysis, chosen);
 
         if (has_outline) {
             const points = outline_points as { x: number; y: number }[];
@@ -391,6 +510,34 @@ export class StoreService {
             floorplan_id: floorplan.id,
             objects: objects.length,
         };
+    }
+
+    private _objectsFromSvg(
+        analysis: SvgAnalysis,
+        mappings?: Map<
+            string,
+            { svgId: string; objectType: string; label?: string }
+        >,
+    ): Partial<MapObject>[] {
+        const objects: Partial<MapObject>[] = [];
+        for (const parsed of analysis.objects) {
+            const mapping = mappings?.get(parsed.svgId);
+            if (mappings && !mapping) continue;
+            objects.push({
+                object_type: (mapping?.objectType ??
+                    parsed.suggestedType) as MapObjectType,
+                svg_id: parsed.svgId,
+                label: mapping?.label || parsed.label || parsed.svgId,
+                geometry: parsed.geometry,
+                layer: parsed.layer,
+                metadata: {
+                    source: 'svg-import',
+                    originalTag: parsed.tag,
+                    originalAttributes: parsed.attributes,
+                },
+            });
+        }
+        return objects;
     }
 
     // ── Objects ─────────────────────────────────────────────────────────────
