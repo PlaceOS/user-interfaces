@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1785954195322,
+  "timestamp": 1786082927730,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -218,13 +218,13 @@
     "./es-FYG5SIKZ.js": "3e3f67130cac03fc2984bcb2bc7a889a0b63b9c6",
     "./favicon.ico": "85171e218f5e09fa0a588b078d17a4a4236baf3d",
     "./fr-MX3JKNBO.js": "80cbb64e27a24490c5a96eaddfa78035955e536b",
-    "./index.html": "9541f84145c31137909420fe925f0a74fa9d785d",
+    "./index.html": "f688602bd10104cd336d52bb60a11e25a8dc1d5e",
     "./it-PSZVI2G5.js": "314eeb606d4f266c7b7d2df7379e92a729ac8e8d",
     "./ja-QCBHSDFU.js": "c7aaa38bebad0cbd02c6c971323ba7fc40c44f9c",
-    "./main.js": "482acb1ae3b38894fa5011eb177cbbb1dde5cd5e",
+    "./main.js": "c25775ec9ee77244eb02d9c417921672e3fa0b2f",
     "./manifest.webmanifest": "9ff7afa85c35a16c2654e5af995082ff60aa3560",
     "./squire-CRXfBZqR.js": "5fa9b3af6d9881feedb3c56bdea3e5aa7688b6b1",
-    "./styles.css": "ae705ac9ed6ce2f060ed1633f5011fe91a5046b9",
+    "./styles.css": "27ef0bb782334b891deb41e858b1d6caf095429d",
     "./zh-3TYXFMTP.js": "fedbeb8a31c963cd38f21dfc862e0941f92d6fee"
   },
   "navigationUrls": [
