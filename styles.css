@@ -2378,6 +2378,8 @@ html {
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --tracking-tight: -0.025em;
   --tracking-wide: 0.025em;
   --tracking-wider: 0.05em;
   --leading-tight: 1.25;
@@ -2822,6 +2824,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .right-0 {
   right: calc(var(--spacing) * 0);
 }
+#placeos .right-0\.5 {
+  right: calc(var(--spacing) * 0.5);
+}
 #placeos .right-1 {
   right: calc(var(--spacing) * 1);
 }
@@ -2878,6 +2883,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bottom-2 {
   bottom: calc(var(--spacing) * 2);
+}
+#placeos .bottom-3 {
+  bottom: calc(var(--spacing) * 3);
 }
 #placeos .bottom-4 {
   bottom: calc(var(--spacing) * 4);
@@ -3035,6 +3043,15 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .row-1 {
   grid-row: 1;
 }
+#placeos .row-2 {
+  grid-row: 2;
+}
+#placeos .row-4 {
+  grid-row: 4;
+}
+#placeos .row-6 {
+  grid-row: 6;
+}
 #placeos .row-start-2 {
   grid-row-start: 2;
 }
@@ -3123,6 +3140,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .mx-1 {
   margin-inline: calc(var(--spacing) * 1);
 }
+#placeos .mx-1\.5 {
+  margin-inline: calc(var(--spacing) * 1.5);
+}
 #placeos .mx-2 {
   margin-inline: calc(var(--spacing) * 2);
 }
@@ -3191,6 +3211,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .mt-1 {
   margin-top: calc(var(--spacing) * 1);
+}
+#placeos .mt-1\.5 {
+  margin-top: calc(var(--spacing) * 1.5);
 }
 #placeos .mt-2 {
   margin-top: calc(var(--spacing) * 2);
@@ -3270,8 +3293,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .mb-0 {
   margin-bottom: calc(var(--spacing) * 0);
 }
+#placeos .mb-0\.5 {
+  margin-bottom: calc(var(--spacing) * 0.5);
+}
 #placeos .mb-1 {
   margin-bottom: calc(var(--spacing) * 1);
+}
+#placeos .mb-1\.5 {
+  margin-bottom: calc(var(--spacing) * 1.5);
 }
 #placeos .mb-2 {
   margin-bottom: calc(var(--spacing) * 2);
@@ -3293,6 +3322,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .mb-6 {
   margin-bottom: calc(var(--spacing) * 6);
+}
+#placeos .mb-7 {
+  margin-bottom: calc(var(--spacing) * 7);
 }
 #placeos .mb-8 {
   margin-bottom: calc(var(--spacing) * 8);
@@ -3402,11 +3434,26 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .inline-flex {
   display: inline-flex;
 }
+#placeos .inline-grid {
+  display: inline-grid;
+}
 #placeos .list-item {
   display: list-item;
 }
 #placeos .table {
   display: table;
+}
+#placeos .size-5\.5 {
+  width: calc(var(--spacing) * 5.5);
+  height: calc(var(--spacing) * 5.5);
+}
+#placeos .size-7 {
+  width: calc(var(--spacing) * 7);
+  height: calc(var(--spacing) * 7);
+}
+#placeos .size-8 {
+  width: calc(var(--spacing) * 8);
+  height: calc(var(--spacing) * 8);
 }
 #placeos .\!h-auto {
   height: auto !important;
@@ -3440,6 +3487,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .h-3 {
   height: calc(var(--spacing) * 3);
+}
+#placeos .h-3\.5 {
+  height: calc(var(--spacing) * 3.5);
 }
 #placeos .h-3\/4 {
   height: calc(3 / 4 * 100%);
@@ -3684,8 +3734,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-h-40 {
   max-height: calc(var(--spacing) * 40);
 }
+#placeos .max-h-44 {
+  max-height: calc(var(--spacing) * 44);
+}
 #placeos .max-h-48 {
   max-height: calc(var(--spacing) * 48);
+}
+#placeos .max-h-52 {
+  max-height: calc(var(--spacing) * 52);
 }
 #placeos .max-h-60 {
   max-height: calc(var(--spacing) * 60);
@@ -3762,6 +3818,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-h-0 {
   min-height: calc(var(--spacing) * 0);
 }
+#placeos .min-h-0\! {
+  min-height: calc(var(--spacing) * 0) !important;
+}
 #placeos .min-h-1\/2 {
   min-height: calc(1 / 2 * 100%);
 }
@@ -3779,6 +3838,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .min-h-9 {
   min-height: calc(var(--spacing) * 9);
+}
+#placeos .min-h-9\! {
+  min-height: calc(var(--spacing) * 9) !important;
 }
 #placeos .min-h-10 {
   min-height: calc(var(--spacing) * 10);
@@ -4176,6 +4238,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-\[min\(42rem\,calc\(100vw-3rem\)\)\] {
   width: min(42rem, calc(100vw - 3rem));
 }
+#placeos .w-\[min\(90\%\,32rem\)\] {
+  width: min(90%, 32rem);
+}
 #placeos .w-auto {
   width: auto;
 }
@@ -4226,6 +4291,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .max-w-24 {
   max-width: calc(var(--spacing) * 24);
+}
+#placeos .max-w-28 {
+  max-width: calc(var(--spacing) * 28);
 }
 #placeos .max-w-30 {
   max-width: calc(var(--spacing) * 30);
@@ -4281,6 +4349,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-w-\[33\%\] {
   max-width: 33%;
 }
+#placeos .max-w-\[37\.5rem\] {
+  max-width: 37.5rem;
+}
 #placeos .max-w-\[40vw\] {
   max-width: 40vw;
 }
@@ -4290,17 +4361,29 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-w-\[50\%\] {
   max-width: 50%;
 }
+#placeos .max-w-\[50rem\] {
+  max-width: 50rem;
+}
 #placeos .max-w-\[50vw\] {
   max-width: 50vw;
 }
+#placeos .max-w-\[56\.25rem\] {
+  max-width: 56.25rem;
+}
 #placeos .max-w-\[65vw\] {
   max-width: 65vw;
+}
+#placeos .max-w-\[68\.75rem\] {
+  max-width: 68.75rem;
 }
 #placeos .max-w-\[80vw\] {
   max-width: 80vw;
 }
 #placeos .max-w-\[85vw\] {
   max-width: 85vw;
+}
+#placeos .max-w-\[87\.5rem\] {
+  max-width: 87.5rem;
 }
 #placeos .max-w-\[90vw\] {
   max-width: 90vw;
@@ -4452,6 +4535,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-48 {
   min-width: calc(var(--spacing) * 48);
 }
+#placeos .min-w-52 {
+  min-width: calc(var(--spacing) * 52);
+}
 #placeos .min-w-60 {
   min-width: calc(var(--spacing) * 60);
 }
@@ -4593,6 +4679,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .grow-4 {
   flex-grow: 4;
 }
+#placeos .border-collapse {
+  border-collapse: collapse;
+}
 #placeos .origin-left {
   transform-origin: 0;
 }
@@ -4688,11 +4777,20 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .animate-spin {
   animation: var(--animate-spin);
 }
+#placeos .cursor-col-resize {
+  cursor: col-resize;
+}
+#placeos .cursor-crosshair {
+  cursor: crosshair;
+}
 #placeos .cursor-default {
   cursor: default;
 }
 #placeos .cursor-grab {
   cursor: grab;
+}
+#placeos .cursor-move {
+  cursor: move;
 }
 #placeos .cursor-pointer {
   cursor: pointer;
@@ -4726,6 +4824,15 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .list-none {
   list-style-type: none;
+}
+#placeos .\[grid-template-columns\:repeat\(auto-fill\,minmax\(8\.75rem\,1fr\)\)\] {
+  grid-template-columns: repeat(auto-fill, minmax(8.75rem, 1fr));
+}
+#placeos .\[grid-template-columns\:repeat\(auto-fill\,minmax\(17\.5rem\,1fr\)\)\] {
+  grid-template-columns: repeat(auto-fill, minmax(17.5rem, 1fr));
+}
+#placeos .\[grid-template-columns\:repeat\(auto-fill\,minmax\(18\.75rem\,1fr\)\)\] {
+  grid-template-columns: repeat(auto-fill, minmax(18.75rem, 1fr));
 }
 #placeos .grid-cols-1 {
   grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -4778,6 +4885,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .place-items-center {
   place-items: center;
 }
+#placeos .items-baseline {
+  align-items: baseline;
+}
 #placeos .items-center {
   align-items: center;
 }
@@ -4802,6 +4912,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .justify-end {
   justify-content: flex-end;
 }
+#placeos .justify-start\! {
+  justify-content: flex-start !important;
+}
 #placeos .justify-items-center {
   justify-items: center;
 }
@@ -4817,17 +4930,26 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .gap-2 {
   gap: calc(var(--spacing) * 2);
 }
+#placeos .gap-2\.5 {
+  gap: calc(var(--spacing) * 2.5);
+}
 #placeos .gap-3 {
   gap: calc(var(--spacing) * 3);
 }
 #placeos .gap-4 {
   gap: calc(var(--spacing) * 4);
 }
+#placeos .gap-5 {
+  gap: calc(var(--spacing) * 5);
+}
 #placeos .gap-\[8px\] {
   gap: 8px;
 }
 #placeos .gap-\[16px\] {
   gap: 16px;
+}
+#placeos .gap-px {
+  gap: 1px;
 }
 :where(#placeos .space-y-0\.5 > :not(:last-child)) {
   --tw-space-y-reverse: 0;
@@ -4997,6 +5119,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .rounded-\[0\.75em\] {
   border-radius: 0.75em;
+}
+#placeos .rounded-\[1px\] {
+  border-radius: 1px;
 }
 #placeos .rounded-\[4rem\] {
   border-radius: 4rem;
@@ -5293,6 +5418,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-primary {
   border-color: var(--primary);
 }
+#placeos .border-primary\/30 {
+  border-color: var(--primary);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .border-primary\/30 {
+    border-color: color-mix(in oklab, var(--primary) 30%, transparent);
+  }
+}
 #placeos .border-secondary {
   border-color: var(--secondary);
 }
@@ -5301,6 +5434,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .border-success {
   border-color: var(--success);
+}
+#placeos .border-transparent {
+  border-color: transparent;
 }
 #placeos .border-warning {
   border-color: var(--warn);
@@ -5337,8 +5473,17 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-b-transparent {
   border-bottom-color: transparent;
 }
+#placeos .border-l-primary {
+  border-left-color: var(--primary);
+}
+#placeos .border-l-transparent {
+  border-left-color: transparent;
+}
 #placeos .\!bg-error-light {
   background-color: var(--error-light) !important;
+}
+#placeos .bg-\[\#0d1117\] {
+  background-color: #0d1117;
 }
 #placeos .bg-\[\#0008\] {
   background-color: #0008;
@@ -5731,6 +5876,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bg-white\/10 {
   background-color: rgba(255, 255, 255, 0.1);
 }
+#placeos .bg-white\/15 {
+  background-color: rgba(255, 255, 255, 0.15);
+}
 #placeos .bg-white\/30 {
   background-color: rgba(255, 255, 255, 0.3);
 }
@@ -5844,6 +5992,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .px-0 {
   padding-inline: calc(var(--spacing) * 0);
 }
+#placeos .px-0\! {
+  padding-inline: calc(var(--spacing) * 0) !important;
+}
 #placeos .px-1 {
   padding-inline: calc(var(--spacing) * 1);
 }
@@ -5853,14 +6004,35 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .px-2 {
   padding-inline: calc(var(--spacing) * 2);
 }
+#placeos .px-2\! {
+  padding-inline: calc(var(--spacing) * 2) !important;
+}
+#placeos .px-2\.5 {
+  padding-inline: calc(var(--spacing) * 2.5);
+}
+#placeos .px-2\.5\! {
+  padding-inline: calc(var(--spacing) * 2.5) !important;
+}
 #placeos .px-3 {
   padding-inline: calc(var(--spacing) * 3);
+}
+#placeos .px-3\! {
+  padding-inline: calc(var(--spacing) * 3) !important;
+}
+#placeos .px-3\.5 {
+  padding-inline: calc(var(--spacing) * 3.5);
 }
 #placeos .px-4 {
   padding-inline: calc(var(--spacing) * 4);
 }
+#placeos .px-5 {
+  padding-inline: calc(var(--spacing) * 5);
+}
 #placeos .px-6 {
   padding-inline: calc(var(--spacing) * 6);
+}
+#placeos .px-7 {
+  padding-inline: calc(var(--spacing) * 7);
 }
 #placeos .px-8 {
   padding-inline: calc(var(--spacing) * 8);
@@ -5883,6 +6055,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .py-1 {
   padding-block: calc(var(--spacing) * 1);
 }
+#placeos .py-1\! {
+  padding-block: calc(var(--spacing) * 1) !important;
+}
 #placeos .py-1\.5 {
   padding-block: calc(var(--spacing) * 1.5);
 }
@@ -5895,6 +6070,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .py-3 {
   padding-block: calc(var(--spacing) * 3);
 }
+#placeos .py-3\.5 {
+  padding-block: calc(var(--spacing) * 3.5);
+}
 #placeos .py-4 {
   padding-block: calc(var(--spacing) * 4);
 }
@@ -5906,6 +6084,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .py-8 {
   padding-block: calc(var(--spacing) * 8);
+}
+#placeos .py-10 {
+  padding-block: calc(var(--spacing) * 10);
 }
 #placeos .py-12 {
   padding-block: calc(var(--spacing) * 12);
@@ -6128,6 +6309,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .text-\[0\.65rem\] {
   font-size: 0.65rem;
 }
+#placeos .text-\[0\.72rem\] {
+  font-size: 0.72rem;
+}
 #placeos .text-\[0\.75em\] {
   font-size: 0.75em;
 }
@@ -6186,6 +6370,10 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-font-weight: var(--font-weight-bold);
   font-weight: var(--font-weight-bold);
 }
+#placeos .font-extrabold {
+  --tw-font-weight: var(--font-weight-extrabold);
+  font-weight: var(--font-weight-extrabold);
+}
 #placeos .font-light {
   --tw-font-weight: var(--font-weight-light);
   font-weight: var(--font-weight-light);
@@ -6209,6 +6397,10 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .tracking-\[0\.2em\] {
   --tw-tracking: 0.2em;
   letter-spacing: 0.2em;
+}
+#placeos .tracking-tight {
+  --tw-tracking: var(--tracking-tight);
+  letter-spacing: var(--tracking-tight);
 }
 #placeos .tracking-wide {
   --tw-tracking: var(--tracking-wide);
@@ -6241,6 +6433,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .whitespace-pre-wrap {
   white-space: pre-wrap;
+}
+#placeos .text-\[\#d97706\] {
+  color: #d97706;
 }
 #placeos .text-approval {
   color: var(--approval);
@@ -6367,6 +6562,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .text-error {
   color: var(--error);
 }
+#placeos .text-error\! {
+  color: var(--error) !important;
+}
 #placeos .text-error-content {
   color: var(--error-content);
 }
@@ -6471,6 +6669,9 @@ input:where([type=button], [type=reset], [type=submit]),
   -webkit-font-smoothing: auto;
   -moz-osx-font-smoothing: auto;
 }
+#placeos .accent-primary {
+  accent-color: var(--primary);
+}
 #placeos .accent-secondary {
   accent-color: var(--secondary);
 }
@@ -6491,6 +6692,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .opacity-40 {
   opacity: 40%;
+}
+#placeos .opacity-45 {
+  opacity: 45%;
 }
 #placeos .opacity-50 {
   opacity: 50%;
@@ -6521,6 +6725,15 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .shadow {
   --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+  box-shadow:
+    var(--tw-inset-shadow),
+    var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow),
+    var(--tw-ring-shadow),
+    var(--tw-shadow);
+}
+#placeos .shadow-2xl {
+  --tw-shadow: 0 25px 50px -12px var(--tw-shadow-color, rgb(0 0 0 / 0.25));
   box-shadow:
     var(--tw-inset-shadow),
     var(--tw-inset-ring-shadow),
@@ -6850,6 +7063,18 @@ input:where([type=button], [type=reset], [type=submit]),
     var(--tw-ring-shadow),
     var(--tw-shadow);
 }
+#placeos .focus-within\:ring-2:focus-within {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+  box-shadow:
+    var(--tw-inset-shadow),
+    var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow),
+    var(--tw-ring-shadow),
+    var(--tw-shadow);
+}
+#placeos .focus-within\:ring-primary:focus-within {
+  --tw-ring-color: var(--primary);
+}
 #placeos .focus-within\:outline-4:focus-within {
   outline-style: var(--tw-outline-style);
   outline-width: 4px;
@@ -7059,13 +7284,38 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (hover: hover) {
+  #placeos .hover\:bg-primary\/40:hover {
+    background-color: var(--primary);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    #placeos .hover\:bg-primary\/40:hover {
+      background-color: color-mix(in oklab, var(--primary) 40%, transparent);
+    }
+  }
+}
+@media (hover: hover) {
+  #placeos .hover\:bg-white\/15:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+}
+@media (hover: hover) {
   #placeos .hover\:bg-white\/20:hover {
     background-color: rgba(255, 255, 255, 0.2);
   }
 }
 @media (hover: hover) {
+  #placeos .hover\:bg-white\/25:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+  }
+}
+@media (hover: hover) {
   #placeos .hover\:text-base-content:hover {
     color: var(--base-content);
+  }
+}
+@media (hover: hover) {
+  #placeos .hover\:text-error:hover {
+    color: var(--error);
   }
 }
 @media (hover: hover) {
@@ -7198,6 +7448,14 @@ input:where([type=button], [type=reset], [type=submit]),
     background-color: color-mix(in oklab, var(--base-100) 30%, transparent);
   }
 }
+#placeos .focus-visible\:bg-primary\/40:focus-visible {
+  background-color: var(--primary);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .focus-visible\:bg-primary\/40:focus-visible {
+    background-color: color-mix(in oklab, var(--primary) 40%, transparent);
+  }
+}
 #placeos .focus-visible\:shadow-md:focus-visible {
   --tw-shadow: 0 4px 6px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 2px 4px -2px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
   box-shadow:
@@ -7231,6 +7489,12 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .disabled\:text-base-content:disabled {
   color: var(--base-content);
+}
+#placeos .disabled\:opacity-20:disabled {
+  opacity: 20%;
+}
+#placeos .disabled\:opacity-35:disabled {
+  opacity: 35%;
 }
 #placeos .disabled\:opacity-40:disabled {
   opacity: 40%;
