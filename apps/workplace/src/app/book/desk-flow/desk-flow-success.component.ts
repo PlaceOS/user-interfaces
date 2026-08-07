@@ -292,6 +292,7 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
     public readonly ical_link = signal('');
     public readonly group_bookings = signal<Booking[]>([]);
     public readonly group_failures = signal<GroupBookingFailure[]>([]);
+    private readonly _desk_names = signal(new Map<string, string>());
     public readonly location = computed(() => {
         return `${this.building()?.display_name || this.level()?.name}, ${this.level()?.display_name || this.level()?.name}`;
     });
@@ -313,11 +314,13 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
 
     public readonly group_booking_items = computed<GroupBookingListItem[]>(
         () => {
+            const desk_names = this._desk_names();
             const items = this.group_bookings().map((booking) => ({
                 id: booking.id,
                 name: booking.user_name || booking.user_email,
                 email: booking.user_email,
-                asset_name: booking.asset_name || booking.asset_id,
+                asset_name:
+                    desk_names.get(booking.asset_id) || booking.asset_id,
                 failed: false,
             }));
             const booked_emails = new Set(items.map((_) => _.email));
@@ -327,10 +330,9 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
                     id: `failed-${failure.email}`,
                     name: failure.name || failure.email,
                     email: failure.email,
-                    asset_name:
-                        failure.asset_name ||
-                        failure.asset_id ||
-                        'No desk assigned',
+                    asset_name: failure.asset_id
+                        ? desk_names.get(failure.asset_id) || failure.asset_id
+                        : 'No desk assigned',
                     failed: true,
                     error: failure.error,
                 }));
@@ -411,8 +413,12 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
         if (booking_ids.length <= 1) return;
 
         try {
-            const bookings = await Promise.all(
-                booking_ids.map((id) => showBooking(id)),
+            const [bookings, desks] = await Promise.all([
+                Promise.all(booking_ids.map((id) => showBooking(id))),
+                this._state.listResources(),
+            ]);
+            this._desk_names.set(
+                new Map(desks.map((desk) => [desk.id, desk.name || desk.id])),
             );
             this.group_bookings.set(
                 bookings.filter((_) => _.booking_type !== 'group'),

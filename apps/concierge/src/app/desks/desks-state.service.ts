@@ -147,8 +147,7 @@ export class DesksStateService extends AsyncHandler {
         params: () => this._desk_params_debounced.value(),
         defaultValue: [] as Desk[],
         loader: async ({ params }) => {
-            // Only load desk metadata when on manage view
-            if (params.view !== 'manage') return [];
+            if (params.view !== 'manage' && params.view !== 'events') return [];
             this._loading.set(true);
             try {
                 const zones = this._getActiveZones(params.zones);
@@ -228,7 +227,17 @@ export class DesksStateService extends AsyncHandler {
     public readonly has_more_pages = computed(
         () => this.paged_bookings().has_next,
     );
-    public readonly bookings = computed(() => this.paged_bookings().list);
+    public readonly bookings = computed(() => {
+        const desks = new Map(this.desks().map((desk) => [desk.id, desk]));
+        const bookings = this.paged_bookings().list;
+        for (const booking of bookings) {
+            Object.assign(booking, {
+                asset_name:
+                    desks.get(booking.asset_id)?.name || booking.asset_id,
+            });
+        }
+        return [...bookings];
+    });
     /** Time the booking list last finished loading from the server */
     private readonly _last_updated = signal(0);
     public readonly last_updated = this._last_updated.asReadonly();
