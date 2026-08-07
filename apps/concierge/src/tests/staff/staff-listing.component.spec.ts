@@ -27,6 +27,12 @@ describe('StaffListingComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
+    // The component schedules a 30ms timer that reads the document. This file
+    // finishes well inside that window, so without an explicit destroy the
+    // timer outlives the test environment and throws `document is not defined`
+    // during teardown, failing the whole run with every test passing.
+    afterEach(() => spectator?.fixture?.destroy());
+
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });

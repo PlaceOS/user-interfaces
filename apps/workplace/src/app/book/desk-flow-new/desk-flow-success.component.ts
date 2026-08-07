@@ -3,6 +3,7 @@ import {
     Component,
     computed,
     inject,
+    OnDestroy,
     OnInit,
     signal,
 } from '@angular/core';
@@ -277,7 +278,7 @@ interface GroupBookingListItem {
         UserAvatarComponent,
     ],
 })
-export class NewDeskFlowSuccessComponent implements OnInit {
+export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
     private _org = inject(OrganisationService);
     private _state = inject(BookingFormService);
     private _settings = inject(SettingsService);
@@ -291,6 +292,7 @@ export class NewDeskFlowSuccessComponent implements OnInit {
     public readonly ical_link = signal('');
     public readonly group_bookings = signal<Booking[]>([]);
     public readonly group_failures = signal<GroupBookingFailure[]>([]);
+    private readonly _desk_names = signal(new Map<string, string>());
     public readonly location = computed(() => {
         return `${this.building()?.display_name || this.level()?.name}, ${this.level()?.display_name || this.level()?.name}`;
     });
@@ -312,11 +314,13 @@ export class NewDeskFlowSuccessComponent implements OnInit {
 
     public readonly group_booking_items = computed<GroupBookingListItem[]>(
         () => {
+            const desk_names = this._desk_names();
             const items = this.group_bookings().map((booking) => ({
                 id: booking.id,
                 name: booking.user_name || booking.user_email,
                 email: booking.user_email,
-                asset_name: booking.asset_name || booking.asset_id,
+                asset_name:
+                    desk_names.get(booking.asset_id) || booking.asset_id,
                 failed: false,
             }));
             const booked_emails = new Set(items.map((_) => _.email));
@@ -326,10 +330,9 @@ export class NewDeskFlowSuccessComponent implements OnInit {
                     id: `failed-${failure.email}`,
                     name: failure.name || failure.email,
                     email: failure.email,
-                    asset_name:
-                        failure.asset_name ||
-                        failure.asset_id ||
-                        'No desk assigned',
+                    asset_name: failure.asset_id
+                        ? desk_names.get(failure.asset_id) || failure.asset_id
+                        : 'No desk assigned',
                     failed: true,
                     error: failure.error,
                 }));
@@ -369,6 +372,8 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         return this._settings.time_format;
     }
 
+    private _group_bookings_timer?: ReturnType<typeof setTimeout>;
+
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         this.last_event.set(this._state.last_success);
@@ -384,9 +389,16 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         this.building.set(this._building_pipe.transform(event.zones));
 
         // Load group bookings if this is a group booking
-        setTimeout(async () => {
+        this._group_bookings_timer = setTimeout(async () => {
             if (this.is_group()) await this._loadGroupBookings();
         }, 100);
+    }
+
+    public ngOnDestroy() {
+        // The callback reads localStorage and writes to this component's
+        // signals, so leaving it pending past destruction does work on a
+        // component nobody is looking at any more.
+        clearTimeout(this._group_bookings_timer);
     }
 
     private async _loadGroupBookings() {
@@ -401,8 +413,12 @@ export class NewDeskFlowSuccessComponent implements OnInit {
         if (booking_ids.length <= 1) return;
 
         try {
-            const bookings = await Promise.all(
-                booking_ids.map((id) => showBooking(id)),
+            const [bookings, desks] = await Promise.all([
+                Promise.all(booking_ids.map((id) => showBooking(id))),
+                this._state.listResources(),
+            ]);
+            this._desk_names.set(
+                new Map(desks.map((desk) => [desk.id, desk.name || desk.id])),
             );
             this.group_bookings.set(
                 bookings.filter((_) => _.booking_type !== 'group'),

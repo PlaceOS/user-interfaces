@@ -17,9 +17,26 @@
 import { Page, expect } from '@playwright/test';
 import { APP_URL, Role } from './env';
 
+/** One request the browser made to /auth/*, as observed on the wire. */
+export interface AuthRequest {
+    url: string;
+    method: string;
+    status: number;
+    postData: string | null;
+}
+
 export interface LoginResult {
     /** The token-endpoint response the browser actually received. */
     token: { access_token?: string; refresh_token?: string; scope?: string; expires_in?: number };
+    /**
+     * Every `/auth/*` request the browser made during the login, in order.
+     *
+     * Captured so specs can assert on what was actually sent rather than on what
+     * the SDK claims it sent. The distinction matters: a client that leaks a
+     * secret, or silently drops PKCE, still returns a perfectly valid-looking
+     * token, so the response alone cannot tell you the handshake was safe.
+     */
+    requests: AuthRequest[];
 }
 
 /**
@@ -36,8 +53,18 @@ export interface LoginResult {
  */
 export async function loginViaUI(page: Page, role: Role): Promise<LoginResult> {
     let token: LoginResult['token'] = {};
+    const requests: AuthRequest[] = [];
     page.on('response', async (res) => {
-        if (res.url().includes('/oauth/token') && res.status() === 200) {
+        const url = res.url();
+        if (!url.includes('/auth/')) return;
+        const req = res.request();
+        requests.push({
+            url,
+            method: req.method(),
+            status: res.status(),
+            postData: req.postData(),
+        });
+        if (url.includes('/oauth/token') && res.status() === 200) {
             try {
                 token = await res.json();
             } catch {
@@ -64,7 +91,7 @@ export async function loginViaUI(page: Page, role: Role): Promise<LoginResult> {
     await page.waitForURL(new RegExp(escapeRe(new URL(APP_URL).host)), { timeout: 30_000 });
     await expect(page.locator('topbar')).toBeVisible({ timeout: 30_000 });
 
-    return { token };
+    return { token, requests };
 }
 
 function escapeRe(s: string): string {

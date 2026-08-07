@@ -31,21 +31,24 @@ on:
     workflow_dispatch:
     push:
         branches:
+            # The branches `build.yml` deploys from — a regression is caught where
+            # it lands, which is when bisecting is cheapest.
+            #
+            # This still cannot block anything: different runner pool, no
+            # cross-workflow `needs`, and it is not a required status check. The
+            # job name says "advisory" so a red X next to the build jobs cannot be
+            # misread. See E2E_USER_STORIES.md.
+            - develop
+            - 'release/**'
+            - 'rc/**'
             # For iterating on CI itself. Deliberately outside the `feat/*`,
             # `fix/*`, `custom/*`, `refactor/*` set PR Flow watches, so this never
             # triggers a build or a `build/<branch>/<app>` deploy.
             - 'e2e/**'
             #
-            # STAGE 2 — not yet. Add `develop` (and `release/**`, `rc/**`) once the
-            # nightly has a track record. Deliberately deferred: `develop` is the
-            # high-value trigger — it catches a regression where it lands, when
-            # bisecting is cheapest — but turning it on also puts a new check on
-            # everyone's commits, and that should be earned rather than assumed.
-            # Until then `workflow_dispatch` covers any one-off.
-            #
-            # It cannot block builds when it is enabled (different runner pool, no
-            # cross-workflow `needs`, no required status checks on develop) — see
-            # E2E_USER_STORIES.md. The reason to wait is noise and trust, not risk.
+            # Still NOT feature branches: there is one self-hosted runner binding
+            # fixed host ports, so runs serialise. A busy trigger set would build a
+            # queue that starves the nightly. Use "Run workflow" for a one-off.
     schedule:
         # 01:10 UTC daily. NB scheduled workflows only run from the DEFAULT branch,
         # so the nightly track record does not start accumulating until this file is

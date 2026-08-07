@@ -243,6 +243,39 @@ describe('DesksStateService', () => {
         );
     });
 
+    it('should use current desk names for desk bookings', () => {
+        const desks = signal<Desk[]>([]);
+        Object.defineProperty(spectator.service, 'desks', {
+            value: desks,
+        });
+        (spectator.service as any)._bookings_state.set({
+            list: [
+                new Booking({
+                    asset_id: 'desk-1',
+                    extension_data: { name: 'Stale Desk Name' },
+                }),
+                new Booking({
+                    asset_id: 'desk-2',
+                    extension_data: { name: 'Another Stale Name' },
+                }),
+            ],
+            total: 2,
+            has_next: false,
+        });
+
+        expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
+            'desk-1',
+            'desk-2',
+        ]);
+
+        desks.set([new Desk({ id: 'desk-1', name: 'Desk One' })]);
+
+        expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
+            'Desk One',
+            'desk-2',
+        ]);
+    });
+
     it('should keep rejected status when a fast reload returns the old approved state', async () => {
         const booking = {
             id: 'booking-1',
