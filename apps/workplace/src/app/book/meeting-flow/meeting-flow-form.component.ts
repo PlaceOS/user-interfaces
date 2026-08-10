@@ -438,6 +438,16 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     <div class="text-xl">
                                         {{ 'FORM.NOTES' | translate }}
                                     </div>
+                                    <div class="w-px flex-1"></div>
+                                    <button
+                                        type="button"
+                                        matRipple
+                                        name="reset-notes-meeting"
+                                        class="text-info bg-none text-xs underline"
+                                        (click)="resetNotes()"
+                                    >
+                                        {{ 'FORM.RESET_NOTES' | translate }}
+                                    </button>
                                 </h3>
                                 <div class="flex w-full flex-col">
                                     <label for="notes">
@@ -632,6 +642,14 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     }
 
     public readonly clearForm = () => this._state.resetForm();
+
+    public resetNotes() {
+        this.model.update((model) => ({
+            ...model,
+            body: this.event?.body || '',
+        }));
+        this.form.body().reset();
+    }
 
     public get allow_daily_allday_recurrence() {
         return this._settings.get('app.events.allow_daily_allday_recurrence');

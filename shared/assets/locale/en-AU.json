@@ -795,6 +795,7 @@
         "DURATION": "Duration",
         "CLEAR": "Clear form",
         "RESET": "Reset form",
+        "RESET_NOTES": "Reset notes",
         "NOTES": "Notes",
         "RECURRENCE": "Recurrence",
         "RECURRENCE_REPEAT_EVERY": "Repeat Every",
