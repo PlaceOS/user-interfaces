@@ -1,5 +1,12 @@
 import { CdkTreeModule } from '@angular/cdk/tree';
-import { Component, computed, input, output, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    input,
+    linkedSignal,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,6 +19,8 @@ import { PagedSearch } from './paged-search';
 interface ZoneSelectTreeNode {
     zone: PlaceZone;
     children: ZoneSelectTreeNode[];
+    children_loaded: boolean;
+    children_loading: boolean;
     level: number;
 }
 
@@ -42,12 +51,19 @@ interface ZoneSelectTreeNode {
                     cdkTreeNodePadding
                     [cdkTreeNodePadding]="node.level"
                     [cdkTreeNodePaddingIndent]="16"
-                    class="border-base-300 bg-base-100 hover:bg-base-200/50 mb-2 flex min-h-0 items-center gap-1 overflow-hidden rounded-lg border pr-1 transition-colors"
+                    class="border-base-300 bg-base-100 hover:bg-base-200/50 relative mb-2 flex min-h-0 items-center gap-1 overflow-hidden rounded-lg border pr-1 transition-colors"
                 >
-                    @if (node.children.length) {
+                    <div
+                        aria-hidden="true"
+                        class="bg-base-content absolute inset-y-1 left-1 rounded-sm"
+                        [style.width]="0.25 * node.level + 'rem'"
+                        [style.opacity]="0.1 * node.level"
+                    ></div>
+                    @if (childCount(node)) {
                         <button
+                            icon default
                             type="button"
-                            class="border-base-300 bg-base-200/60 hover:bg-base-200 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border transition-colors"
+                            class="text-xs ml-2"
                             [attr.aria-label]="
                                 (isExpanded(node)
                                     ? 'SIGNAGE_MANAGER.COLLAPSE_ZONE'
@@ -79,9 +95,6 @@ interface ZoneSelectTreeNode {
                         class="flex min-h-16 min-w-0 flex-1 items-center gap-2 px-1 py-2 text-left"
                         (click)="zoneSelected.emit(node.zone)"
                     >
-                        <icon class="text-base-content/50 shrink-0 text-xl"
-                            >layers</icon
-                        >
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2">
                                 <div
@@ -91,12 +104,17 @@ interface ZoneSelectTreeNode {
                                         node.zone.display_name || node.zone.name
                                     }}
                                 </div>
-                                @if (node.children.length) {
+                                @if (childCount(node)) {
                                     <span
                                         class="bg-base-200 text-base-content/70 rounded-full px-2 py-0.5 text-xs"
                                     >
-                                        {{ node.children.length }}
+                                        {{ childCount(node) }}
                                     </span>
+                                }
+                                @if (node.children_loading) {
+                                    <icon class="animate-spin text-lg"
+                                        >autorenew</icon
+                                    >
                                 }
                             </div>
                             @if (node.zone.description) {
@@ -160,24 +178,29 @@ interface ZoneSelectTreeNode {
 })
 export class ZoneSelectTreeComponent {
     public readonly list = input.required<PagedSearch<PlaceZone>>();
+    public readonly roots = input<PlaceZone[] | null>(null);
+    public readonly load_children = input<
+        ((parent_id: string) => Promise<PlaceZone[]>) | null
+    >(null);
     public readonly exclude_ids = input<string[]>([]);
     public readonly zoneSelected = output<PlaceZone>();
     public readonly expanded_zones = signal<Record<string, boolean>>({});
 
-    public readonly tree_nodes = computed(() => {
-        const excluded_ids = new Set(this.exclude_ids());
-        const nodes = new Map<string, ZoneSelectTreeNode>();
-        for (const zone of this.list().items()) {
-            if (excluded_ids.has(zone.id)) continue;
-            nodes.set(zone.id, { zone, children: [], level: 0 });
-        }
-        const roots: ZoneSelectTreeNode[] = [];
-        for (const node of nodes.values()) {
-            const parent = nodes.get(node.zone.parent_id || '');
-            if (parent) parent.children.push(node);
-            else roots.push(node);
-        }
-        return roots;
+    private readonly _tree_source = computed(() => {
+        const roots = this.roots();
+        const lazy = roots !== null && !this.list().search().trim();
+        return {
+            zones: lazy ? roots : this.list().items(),
+            exclude_ids: this.exclude_ids(),
+            lazy,
+        };
+    });
+    public readonly tree_nodes = linkedSignal({
+        source: this._tree_source,
+        computation: ({ zones, exclude_ids, lazy }) => {
+            const excluded = new Set(exclude_ids);
+            return this.buildTree(zones, excluded, lazy);
+        },
     });
     public readonly flat_tree_nodes = computed(() => {
         const nodes: ZoneSelectTreeNode[] = [];
@@ -189,14 +212,85 @@ export class ZoneSelectTreeComponent {
         node.zone.id;
 
     public toggleNode(node: ZoneSelectTreeNode) {
+        const expanded = !this.isExpanded(node);
         this.expanded_zones.update((state) => ({
             ...state,
-            [node.zone.id]: !state[node.zone.id],
+            [node.zone.id]: expanded,
         }));
+        if (
+            expanded &&
+            !node.children_loaded &&
+            !node.children_loading &&
+            this.load_children()
+        ) {
+            this.loadChildren(node.zone.id);
+        }
     }
 
     public isExpanded(node: ZoneSelectTreeNode) {
-        return !!this.expanded_zones()[node.zone.id];
+        return (
+            !!this.expanded_zones()[node.zone.id] &&
+            (node.children_loaded || node.children_loading)
+        );
+    }
+
+    public childCount(node: ZoneSelectTreeNode) {
+        return node.children_loaded
+            ? node.children.length
+            : node.zone.children_count || node.zone.count || 0;
+    }
+
+    private buildTree(
+        zones: PlaceZone[],
+        excluded_ids: Set<string>,
+        lazy: boolean,
+    ) {
+        const nodes = new Map<string, ZoneSelectTreeNode>();
+        for (const zone of zones) {
+            if (excluded_ids.has(zone.id)) continue;
+            nodes.set(zone.id, {
+                zone,
+                children: [],
+                children_loaded: !lazy,
+                children_loading: false,
+                level: 0,
+            });
+        }
+        const roots: ZoneSelectTreeNode[] = [];
+        for (const node of nodes.values()) {
+            const parent = nodes.get(node.zone.parent_id || '');
+            if (parent) parent.children.push(node);
+            else roots.push(node);
+        }
+        return roots;
+    }
+
+    private async loadChildren(zone_id: string) {
+        this.updateNode(zone_id, (node) => ({
+            ...node,
+            children_loading: true,
+        }));
+        const excluded_ids = new Set(this.exclude_ids());
+        const children = await this.load_children()!(zone_id).catch(() => []);
+        this.updateNode(zone_id, (node) => ({
+            ...node,
+            children: this.buildTree(children, excluded_ids, true),
+            children_loaded: true,
+            children_loading: false,
+        }));
+    }
+
+    private updateNode(
+        zone_id: string,
+        callback: (node: ZoneSelectTreeNode) => ZoneSelectTreeNode,
+    ) {
+        const update = (nodes: ZoneSelectTreeNode[]): ZoneSelectTreeNode[] =>
+            nodes.map((node) =>
+                node.zone.id === zone_id
+                    ? callback(node)
+                    : { ...node, children: update(node.children) },
+            );
+        this.tree_nodes.update(update);
     }
 
     private flattenNode(

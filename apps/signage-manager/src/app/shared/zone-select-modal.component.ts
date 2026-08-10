@@ -31,6 +31,8 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
         >
             <zone-select-tree
                 [list]="list"
+                [roots]="roots()"
+                [load_children]="loadChildren"
                 (zoneSelected)="selectZone($event)"
             />
         </main>
@@ -50,9 +52,13 @@ export class ZoneSelectModalComponent {
     );
 
     public readonly list = new PagedSearch<PlaceZone>(
-        (search) => this._service.querySignageZones(search),
+        (search) =>
+            search.trim() ? this._service.querySelectableZones(search) : null,
         byDisplayName,
     );
+    public readonly roots = this._service.root_zones;
+    public readonly loadChildren = (parent_id: string) =>
+        this._service.zoneChildren(parent_id);
 
     public selectZone(zone: PlaceZone) {
         this._dialog_ref.close(zone.id);

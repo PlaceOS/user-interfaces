@@ -1012,13 +1012,13 @@ export class SignageService {
         });
     }
 
-    public querySignageZones(search = ''): QueryResponse<PlaceZone> | null {
+    public querySelectableZones(search = ''): QueryResponse<PlaceZone> | null {
         if (!this._canQueryLists()) return null;
-        const group_id = this._api_group_id();
         return queryZones({
-            limit: SignageService.PAGE_SIZE,
-            tags: 'signage',
-            ...(group_id ? { group_id } : {}),
+            ...this._orgZoneQueryParams({
+                limit: SignageService.PAGE_SIZE,
+                include_children_count: true,
+            }),
             ...this._searchParam(search),
         } as any);
     }

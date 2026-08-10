@@ -5,7 +5,16 @@ import { PagedSearch } from '../../app/shared/paged-search';
 import { ZoneSelectTreeComponent } from '../../app/shared/zone-select-tree.component';
 
 describe('ZoneSelectTreeComponent', () => {
-    async function make(zones: PlaceZone[], exclude_ids: string[] = []) {
+    const flush = () => new Promise((resolve) => setTimeout(resolve));
+
+    async function make(
+        zones: PlaceZone[],
+        exclude_ids: string[] = [],
+        roots: PlaceZone[] | null = null,
+        load_children:
+            | ((parent_id: string) => Promise<PlaceZone[]>)
+            | null = null,
+    ) {
         await TestBed.configureTestingModule({
             imports: [ZoneSelectTreeComponent],
         })
@@ -23,6 +32,8 @@ describe('ZoneSelectTreeComponent', () => {
         } as unknown as PagedSearch<PlaceZone>;
         fixture.componentRef.setInput('list', list);
         fixture.componentRef.setInput('exclude_ids', exclude_ids);
+        fixture.componentRef.setInput('roots', roots);
+        fixture.componentRef.setInput('load_children', load_children);
         fixture.detectChanges();
         return fixture.componentInstance;
     }
@@ -79,5 +90,42 @@ describe('ZoneSelectTreeComponent', () => {
         expect(component.tree_nodes().map((node) => node.zone.id)).toEqual([
             'child',
         ]);
+    });
+
+    it('loads root zone children when they are expanded', async () => {
+        const load_children = vi.fn().mockResolvedValue([
+            {
+                id: 'child',
+                name: 'Child',
+                parent_id: 'root',
+                children_count: 1,
+            } as PlaceZone,
+        ]);
+        const component = await make(
+            [],
+            [],
+            [
+                {
+                    id: 'root',
+                    name: 'Root',
+                    children_count: 1,
+                } as PlaceZone,
+            ],
+            load_children,
+        );
+
+        component.toggleNode(component.tree_nodes()[0]);
+        await flush();
+
+        expect(load_children).toHaveBeenCalledWith('root');
+        expect(
+            component
+                .flat_tree_nodes()
+                .map((node) => [node.zone.id, node.level]),
+        ).toEqual([
+            ['root', 0],
+            ['child', 1],
+        ]);
+        expect(component.childCount(component.tree_nodes()[0])).toBe(1);
     });
 });
