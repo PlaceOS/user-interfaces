@@ -334,6 +334,7 @@
         "DURATION": "المدة",
         "CLEAR": "مسح النموذج",
         "RESET": "إعادة تعيين النموذج",
+        "RESET_NOTES": "إعادة تعيين الملاحظات",
         "NOTES": "ملاحظات",
         "RECURRENCE": "التكرار",
         "RECURRENCE_REPEAT_EVERY": "تكرار كل",
