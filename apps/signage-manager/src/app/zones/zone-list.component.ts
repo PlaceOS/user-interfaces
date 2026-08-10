@@ -319,6 +319,24 @@ export class ZoneListComponent {
             }
             untracked(() => this.syncSelectedPath(selected_zone.id));
         });
+
+        effect(() => {
+            const root_zone = this._root_zones()[0];
+            const root_node = this.tree_nodes().find(
+                (node) => node.zone.id === root_zone?.id,
+            );
+            if (
+                this.show_search_results() ||
+                !root_node ||
+                !this.isExpanded(root_node) ||
+                this.hasLoadedChildren(root_node) ||
+                root_node.children_loading ||
+                !this.childCount(root_node)
+            ) {
+                return;
+            }
+            untracked(() => this.loadNodeChildren(root_node));
+        });
     }
 
     public onExpandedChange(node: ZoneTreeNode, expanded: boolean) {
@@ -333,6 +351,10 @@ export class ZoneListComponent {
         ) {
             return;
         }
+        this.loadNodeChildren(node);
+    }
+
+    private loadNodeChildren(node: ZoneTreeNode) {
         this.tree_nodes.update((nodes) =>
             this.updateNode(nodes, node.zone.id, (item) => ({
                 ...item,
@@ -349,10 +371,13 @@ export class ZoneListComponent {
 
     public isExpanded(zone_or_node: ZoneTreeNode | PlaceZone | string) {
         const zone_id = this.getZoneId(zone_or_node);
-        return (
-            (this.show_search_results() && this.selected()?.id === zone_id) ||
-            !!this.expanded_zones()[zone_id]
-        );
+        if (this.show_search_results() && this.selected()?.id === zone_id) {
+            return true;
+        }
+        const expanded_zones = this.expanded_zones();
+        return zone_id in expanded_zones
+            ? expanded_zones[zone_id]
+            : this._root_zones()[0]?.id === zone_id;
     }
 
     public childCount(zone_or_id: ZoneTreeNode | PlaceZone | string) {

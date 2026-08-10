@@ -52,10 +52,29 @@ describe('ZoneSelectModalComponent', () => {
         expect(zoneChildren).toHaveBeenCalledWith('z1');
     });
 
-    it('closes with the selected zone id', () => {
+    it('defaults to the root zone', async () => {
         const fixture = TestBed.createComponent(ZoneSelectModalComponent);
 
-        fixture.componentInstance.selectZone({ id: 'z1' } as any);
+        await fixture.whenStable();
+
+        expect(fixture.componentInstance.selected_zone()).toBe(root_zones()[0]);
+    });
+
+    it('queries within the selected zone', async () => {
+        const fixture = TestBed.createComponent(ZoneSelectModalComponent);
+        fixture.detectChanges();
+        fixture.componentInstance.selected_zone.set({ id: 'z1' } as any);
+        fixture.componentInstance.list.search.set(' lobby ');
+        await new Promise((resolve) => setTimeout(resolve, 450));
+
+        expect(querySelectableZones).toHaveBeenCalledWith(' lobby ', 'z1');
+    });
+
+    it('closes with the confirmed zone id', () => {
+        const fixture = TestBed.createComponent(ZoneSelectModalComponent);
+        fixture.componentInstance.selected_zone.set({ id: 'z1' } as any);
+
+        fixture.componentInstance.addZone();
 
         expect(dialog_ref.close).toHaveBeenCalledWith('z1');
     });

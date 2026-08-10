@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, linkedSignal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -33,9 +33,22 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
                 [list]="list"
                 [roots]="roots()"
                 [load_children]="loadChildren"
-                (zoneSelected)="selectZone($event)"
+                [scoped_search]="true"
+                [(selected)]="selected_zone"
             />
         </main>
+        <footer class="border-base-300 flex justify-end border-t p-2">
+            <button
+                btn
+                type="button"
+                matRipple
+                class="min-w-32"
+                [disabled]="!selected_zone()"
+                (click)="addZone()"
+            >
+                {{ 'COMMON.ADD' | translate }}
+            </button>
+        </footer>
     `,
     imports: [
         MatRippleModule,
@@ -51,16 +64,25 @@ export class ZoneSelectModalComponent {
         MatDialogRef<ZoneSelectModalComponent>,
     );
 
-    public readonly list = new PagedSearch<PlaceZone>(
-        (search) =>
-            search.trim() ? this._service.querySelectableZones(search) : null,
-        byDisplayName,
-    );
     public readonly roots = this._service.root_zones;
+    public readonly selected_zone = linkedSignal<PlaceZone[], PlaceZone | null>(
+        {
+            source: this.roots,
+            computation: (roots, previous) =>
+                previous?.value || roots[0] || null,
+        },
+    );
+    public readonly list = new PagedSearch<PlaceZone>((search) => {
+        const parent_id = this.selected_zone()?.id;
+        return parent_id && search.trim()
+            ? this._service.querySelectableZones(search, parent_id)
+            : null;
+    }, byDisplayName);
     public readonly loadChildren = (parent_id: string) =>
         this._service.zoneChildren(parent_id);
 
-    public selectZone(zone: PlaceZone) {
-        this._dialog_ref.close(zone.id);
+    public addZone() {
+        const zone = this.selected_zone();
+        if (zone) this._dialog_ref.close(zone.id);
     }
 }

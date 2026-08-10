@@ -2,10 +2,13 @@ import { CdkTreeModule } from '@angular/cdk/tree';
 import {
     Component,
     computed,
+    effect,
     input,
     linkedSignal,
+    model,
     output,
     signal,
+    untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -33,10 +36,35 @@ interface ZoneSelectTreeNode {
         >
             <input
                 matInput
+                [disabled]="!search_enabled()"
                 [ngModel]="list().search()"
                 (ngModelChange)="list().search.set($event)"
-                [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
-                [attr.aria-label]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
+                [placeholder]="
+                    (scoped_search()
+                        ? 'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
+                        : 'SIGNAGE_MANAGER.SEARCH_ZONES'
+                    )
+                        | translate
+                            : {
+                                  name:
+                                      selected()?.display_name ||
+                                      selected()?.name ||
+                                      '',
+                              }
+                "
+                [attr.aria-label]="
+                    (scoped_search()
+                        ? 'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
+                        : 'SIGNAGE_MANAGER.SEARCH_ZONES'
+                    )
+                        | translate
+                            : {
+                                  name:
+                                      selected()?.display_name ||
+                                      selected()?.name ||
+                                      '',
+                              }
+                "
             />
         </mat-form-field>
         @if (flat_tree_nodes().length) {
@@ -52,6 +80,11 @@ interface ZoneSelectTreeNode {
                     [cdkTreeNodePadding]="node.level"
                     [cdkTreeNodePaddingIndent]="16"
                     class="border-base-300 bg-base-100 hover:bg-base-200/50 relative mb-2 flex min-h-0 items-center gap-1 overflow-hidden rounded-lg border pr-1 transition-colors"
+                    [class.bg-primary]="selected()?.id === node.zone.id"
+                    [class.text-primary-content]="
+                        selected()?.id === node.zone.id
+                    "
+                    [class.hover:bg-base-200]="selected()?.id !== node.zone.id"
                 >
                     <div
                         aria-hidden="true"
@@ -59,11 +92,15 @@ interface ZoneSelectTreeNode {
                         [style.width]="0.25 * node.level + 'rem'"
                         [style.opacity]="0.1 * node.level"
                     ></div>
-                    @if (childCount(node)) {
+                    @if (
+                        childCount(node) &&
+                        !(show_search_results() && node.level === 0)
+                    ) {
                         <button
-                            icon default
+                            icon
+                            default
                             type="button"
-                            class="text-xs ml-2"
+                            class="ml-2 text-xs"
                             [attr.aria-label]="
                                 (isExpanded(node)
                                     ? 'SIGNAGE_MANAGER.COLLAPSE_ZONE'
@@ -93,7 +130,7 @@ interface ZoneSelectTreeNode {
                         type="button"
                         matRipple
                         class="flex min-h-16 min-w-0 flex-1 items-center gap-2 px-1 py-2 text-left"
-                        (click)="zoneSelected.emit(node.zone)"
+                        (click)="selectZone(node.zone)"
                     >
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2">
@@ -183,22 +220,50 @@ export class ZoneSelectTreeComponent {
         ((parent_id: string) => Promise<PlaceZone[]>) | null
     >(null);
     public readonly exclude_ids = input<string[]>([]);
+    public readonly scoped_search = input(false);
+    public readonly selected = model<PlaceZone | null>(null);
     public readonly zoneSelected = output<PlaceZone>();
     public readonly expanded_zones = signal<Record<string, boolean>>({});
+    public readonly search_enabled = computed(
+        () => !this.scoped_search() || !!this.selected()?.id,
+    );
+    public readonly show_search_results = computed(
+        () => this.search_enabled() && !!this.list().search().trim(),
+    );
 
     private readonly _tree_source = computed(() => {
         const roots = this.roots();
-        const lazy = roots !== null && !this.list().search().trim();
+        const searching = this.show_search_results();
+        const lazy = roots !== null && !searching;
         return {
             zones: lazy ? roots : this.list().items(),
             exclude_ids: this.exclude_ids(),
             lazy,
+            searching,
+            selected: searching ? this.selected() : null,
         };
     });
     public readonly tree_nodes = linkedSignal({
         source: this._tree_source,
-        computation: ({ zones, exclude_ids, lazy }) => {
+        computation: ({ zones, exclude_ids, lazy, searching, selected }) => {
             const excluded = new Set(exclude_ids);
+            if (searching && selected && !excluded.has(selected.id)) {
+                return [
+                    {
+                        zone: selected,
+                        children: zones
+                            .filter(
+                                (zone) =>
+                                    zone.id !== selected.id &&
+                                    !excluded.has(zone.id),
+                            )
+                            .map((zone) => this.createNode(zone, false)),
+                        children_loaded: true,
+                        children_loading: false,
+                        level: 0,
+                    },
+                ];
+            }
             return this.buildTree(zones, excluded, lazy);
         },
     });
@@ -211,8 +276,34 @@ export class ZoneSelectTreeComponent {
     public readonly trackByNode = (_: number, node: ZoneSelectTreeNode) =>
         node.zone.id;
 
+    constructor() {
+        effect(() => {
+            const root = this.tree_nodes()[0];
+            if (
+                this.roots() === null ||
+                !root ||
+                !this.expansionRequested(root) ||
+                root.children_loaded ||
+                root.children_loading ||
+                !this.childCount(root) ||
+                !this.load_children()
+            ) {
+                return;
+            }
+            untracked(() => this.loadChildren(root.zone.id));
+        });
+    }
+
+    public selectZone(zone: PlaceZone) {
+        if (this.scoped_search()) {
+            this.list().search.set('');
+            this.selected.set(zone);
+        }
+        this.zoneSelected.emit(zone);
+    }
+
     public toggleNode(node: ZoneSelectTreeNode) {
-        const expanded = !this.isExpanded(node);
+        const expanded = !this.expansionRequested(node);
         this.expanded_zones.update((state) => ({
             ...state,
             [node.zone.id]: expanded,
@@ -229,9 +320,22 @@ export class ZoneSelectTreeComponent {
 
     public isExpanded(node: ZoneSelectTreeNode) {
         return (
-            !!this.expanded_zones()[node.zone.id] &&
+            this.expansionRequested(node) &&
             (node.children_loaded || node.children_loading)
         );
+    }
+
+    private expansionRequested(node: ZoneSelectTreeNode) {
+        if (
+            this.show_search_results() &&
+            this.selected()?.id === node.zone.id
+        ) {
+            return true;
+        }
+        const expanded_zones = this.expanded_zones();
+        return node.zone.id in expanded_zones
+            ? expanded_zones[node.zone.id]
+            : this.roots()?.[0]?.id === node.zone.id;
     }
 
     public childCount(node: ZoneSelectTreeNode) {
@@ -248,13 +352,7 @@ export class ZoneSelectTreeComponent {
         const nodes = new Map<string, ZoneSelectTreeNode>();
         for (const zone of zones) {
             if (excluded_ids.has(zone.id)) continue;
-            nodes.set(zone.id, {
-                zone,
-                children: [],
-                children_loaded: !lazy,
-                children_loading: false,
-                level: 0,
-            });
+            nodes.set(zone.id, this.createNode(zone, lazy));
         }
         const roots: ZoneSelectTreeNode[] = [];
         for (const node of nodes.values()) {
@@ -263,6 +361,16 @@ export class ZoneSelectTreeComponent {
             else roots.push(node);
         }
         return roots;
+    }
+
+    private createNode(zone: PlaceZone, lazy: boolean): ZoneSelectTreeNode {
+        return {
+            zone,
+            children: [],
+            children_loaded: !lazy,
+            children_loading: false,
+            level: 0,
+        };
     }
 
     private async loadChildren(zone_id: string) {

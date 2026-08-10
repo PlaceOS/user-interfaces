@@ -136,20 +136,18 @@ describe('ZoneListComponent', () => {
         expect(zone_search_term()).toBe('');
     });
 
-    it('expands a node, marks it loading and fetches its children', async () => {
+    it('automatically expands the root and fetches its children', async () => {
         root_zones.set([{ id: 'r1', name: 'Root 1', children_count: 1 }]);
         all_zones.set([{ id: 'r1' }, { id: 'c1', parent_id: 'r1' }]);
         zone_children.mockResolvedValue([{ id: 'c1', parent_id: 'r1' }]);
         const component = await make();
         const node = component.tree_nodes()[0];
 
-        component.onExpandedChange(node, true);
-
         expect(component.isExpanded(node)).toBe(true);
         expect(zone_children).toHaveBeenCalledWith('r1');
     });
 
-    it('collapsing a node does not fetch children', async () => {
+    it('allows the automatically expanded root to be collapsed', async () => {
         root_zones.set([{ id: 'r1', name: 'Root 1', children_count: 1 }]);
         all_zones.set([{ id: 'r1' }, { id: 'c1', parent_id: 'r1' }]);
         const component = await make();
@@ -158,6 +156,6 @@ describe('ZoneListComponent', () => {
         component.onExpandedChange(node, false);
 
         expect(component.isExpanded(node)).toBe(false);
-        expect(zone_children).not.toHaveBeenCalled();
+        expect(zone_children).toHaveBeenCalledOnce();
     });
 });

@@ -14,6 +14,8 @@ describe('ZoneSelectTreeComponent', () => {
         load_children:
             | ((parent_id: string) => Promise<PlaceZone[]>)
             | null = null,
+        scoped_search = false,
+        selected: PlaceZone | null = null,
     ) {
         await TestBed.configureTestingModule({
             imports: [ZoneSelectTreeComponent],
@@ -34,6 +36,8 @@ describe('ZoneSelectTreeComponent', () => {
         fixture.componentRef.setInput('exclude_ids', exclude_ids);
         fixture.componentRef.setInput('roots', roots);
         fixture.componentRef.setInput('load_children', load_children);
+        fixture.componentRef.setInput('scoped_search', scoped_search);
+        fixture.componentRef.setInput('selected', selected);
         fixture.detectChanges();
         return fixture.componentInstance;
     }
@@ -92,7 +96,7 @@ describe('ZoneSelectTreeComponent', () => {
         ]);
     });
 
-    it('loads root zone children when they are expanded', async () => {
+    it('automatically expands and loads root zone children', async () => {
         const load_children = vi.fn().mockResolvedValue([
             {
                 id: 'child',
@@ -114,7 +118,6 @@ describe('ZoneSelectTreeComponent', () => {
             load_children,
         );
 
-        component.toggleNode(component.tree_nodes()[0]);
         await flush();
 
         expect(load_children).toHaveBeenCalledWith('root');
@@ -127,5 +130,44 @@ describe('ZoneSelectTreeComponent', () => {
             ['child', 1],
         ]);
         expect(component.childCount(component.tree_nodes()[0])).toBe(1);
+
+        component.toggleNode(component.tree_nodes()[0]);
+
+        expect(component.isExpanded(component.tree_nodes()[0])).toBe(false);
+    });
+
+    it('enables scoped search only after selecting a zone', async () => {
+        const root = { id: 'root', name: 'Root' } as PlaceZone;
+        const component = await make([], [], [root], null, true);
+
+        expect(component.search_enabled()).toBe(false);
+
+        component.list().search.set('old search');
+        component.selectZone(root);
+
+        expect(component.selected()).toBe(root);
+        expect(component.list().search()).toBe('');
+        expect(component.search_enabled()).toBe(true);
+    });
+
+    it('shows scoped search results beneath the selected zone', async () => {
+        const root = { id: 'root', name: 'Root' } as PlaceZone;
+        const result = {
+            id: 'result',
+            name: 'Result',
+            parent_id: 'nested-parent',
+        } as PlaceZone;
+        const component = await make([result], [], [root], null, true, root);
+
+        component.list().search.set('result');
+
+        expect(
+            component
+                .flat_tree_nodes()
+                .map((node) => [node.zone.id, node.level]),
+        ).toEqual([
+            ['root', 0],
+            ['result', 1],
+        ]);
     });
 });

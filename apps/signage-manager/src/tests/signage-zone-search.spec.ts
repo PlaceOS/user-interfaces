@@ -76,20 +76,16 @@ describe('SignageService zone search', () => {
         ]);
     });
 
-    it('searches selectable zones across the organisation hierarchy', () => {
+    it('searches selectable zones beneath the selected zone', () => {
         const service = TestBed.inject(SignageService);
 
-        service.querySelectableZones(' lobby ');
+        service.querySelectableZones(' lobby ', 'parent-1');
 
-        expect((queryZones as any).mock.calls.at(-1)[0]).toEqual(
-            expect.objectContaining({
-                q: 'lobby',
-                zone_id: 'org-1',
-                include_children_count: true,
-            }),
-        );
-        expect((queryZones as any).mock.calls.at(-1)[0]).not.toHaveProperty(
-            'tags',
-        );
+        expect((queryZones as any).mock.calls.at(-1)[0]).toEqual({
+            q: 'lobby',
+            parent_id: 'parent-1',
+            limit: 2500,
+            include_children_count: true,
+        });
     });
 });
