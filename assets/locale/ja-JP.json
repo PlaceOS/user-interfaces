@@ -334,6 +334,7 @@
         "DURATION": "期間",
         "CLEAR": "フォームをクリア",
         "RESET": "フォームをリセット",
+        "RESET_NOTES": "メモをリセット",
         "NOTES": "メモ",
         "RECURRENCE": "繰り返し",
         "RECURRENCE_REPEAT_EVERY": "繰り返し間隔",
