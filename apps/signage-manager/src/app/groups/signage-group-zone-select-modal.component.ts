@@ -1,12 +1,14 @@
-import { Component, computed, inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { IntersectDirective } from '../shared/intersect.directive';
+import { PlaceZone } from '@placeos/ts-client';
 import { byDisplayName, PagedSearch } from '../shared/paged-search';
+import { ZoneSelectTreeComponent } from '../shared/zone-select-tree.component';
 import { SignageService } from '../signage.service';
 
 @Component({
@@ -29,84 +31,21 @@ import { SignageService } from '../signage.service';
             </button>
         </header>
         <main
-            class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
+            class="h-[65vh] max-w-lg min-w-lg overflow-auto px-4 pt-2 pb-4 max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
-            <mat-form-field
-                appearance="outline"
-                class="no-subscript bg-base-100 sticky top-0 z-10 w-full"
-            >
-                <input
-                    matInput
-                    [(ngModel)]="list.search"
-                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
-                    [attr.aria-label]="
-                        'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
-                    "
-                />
-            </mat-form-field>
-            @if (zones().length > 0) {
-                @for (zone of zones(); track zone.id) {
-                    <button
-                        type="button"
-                        matRipple
-                        class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
-                        [mat-dialog-close]="zone"
-                    >
-                        <icon class="text-base-content/60 shrink-0 text-2xl"
-                            >layers</icon
-                        >
-                        <div class="min-w-0 flex-1">
-                            <div class="truncate">
-                                {{ zone.display_name || zone.name }}
-                            </div>
-                            @if (zone.description) {
-                                <div
-                                    class="text-base-content/70 truncate text-xs"
-                                >
-                                    {{ zone.description }}
-                                </div>
-                            }
-                        </div>
-                    </button>
-                }
-                @if (list.has_more()) {
-                    <div
-                        class="h-px w-full"
-                        intersect
-                        (intersect)="list.loadMore()"
-                    ></div>
-                }
-            } @else if (list.loading()) {
-                <div
-                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
-                >
-                    <div class="text-base-content/70">
-                        {{ 'COMMON.LOADING' | translate }}
-                    </div>
-                </div>
-            } @else {
-                <div
-                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
-                >
-                    <icon class="text-base-content/70 text-8xl"
-                        >layers_clear</icon
-                    >
-                    <div class="text-base-content/70">
-                        {{ 'SIGNAGE_MANAGER.NO_ZONES' | translate }}
-                    </div>
-                </div>
-            }
+            <zone-select-tree
+                [list]="list"
+                [exclude_ids]="exclude_ids"
+                (zoneSelected)="selectZone($event)"
+            />
         </main>
     `,
     imports: [
-        FormsModule,
         MatRippleModule,
         MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
         IconComponent,
         TranslatePipe,
-        IntersectDirective,
+        ZoneSelectTreeComponent,
     ],
 })
 export class SignageGroupZoneSelectModalComponent {
@@ -114,14 +53,18 @@ export class SignageGroupZoneSelectModalComponent {
     private readonly _data = inject<{ exclude_ids?: string[] }>(
         MAT_DIALOG_DATA,
     );
+    private readonly _dialog_ref = inject(
+        MatDialogRef<SignageGroupZoneSelectModalComponent>,
+    );
 
-    public readonly list = new PagedSearch<any>(
+    public readonly list = new PagedSearch<PlaceZone>(
         (search) => this._service.queryGroupZones(search),
         byDisplayName,
         300,
     );
-    public readonly zones = computed(() => {
-        const exclude_ids = new Set(this._data.exclude_ids || []);
-        return this.list.items().filter((zone) => !exclude_ids.has(zone.id));
-    });
+    public readonly exclude_ids = this._data.exclude_ids || [];
+
+    public selectZone(zone: PlaceZone) {
+        this._dialog_ref.close(zone);
+    }
 }
