@@ -334,6 +334,7 @@
         "DURATION": "Duración",
         "CLEAR": "Limpiar formulario",
         "RESET": "Restablecer formulario",
+        "RESET_NOTES": "Restablecer notas",
         "NOTES": "Notas",
         "RECURRENCE": "Recurrencia",
         "RECURRENCE_REPEAT_EVERY": "Repetir Cada",
