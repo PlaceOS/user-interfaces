@@ -443,11 +443,18 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             queryParamsHandling: 'merge',
         });
         this._state.setFilters({ zones: clean_zones });
-        persistZones(
-            this.manage() ? 'desks-manage' : 'desks',
-            this._persistScopeId(),
-            clean_zones,
-        );
+        const persistence_view = this.manage()
+            ? 'desks-manage'
+            : this.path() === 'map'
+              ? 'desks'
+              : '';
+        if (persistence_view) {
+            persistZones(
+                persistence_view,
+                this._persistScopeId(),
+                clean_zones,
+            );
+        }
     };
 
     public get use_region() {
@@ -592,12 +599,14 @@ export class DesksComponent extends AsyncHandler implements OnInit, OnDestroy {
             : this.manage()
               ? valid_zones.slice(0, 1)
               : valid_zones;
-        if (!next_zones.length) {
-            // Restore persisted selection for the current view when none is
-            // active. Manage view then falls back to the first level if no
-            // valid persisted zone exists — it can never be "all levels".
+        const persistence_view = this.manage()
+            ? 'desks-manage'
+            : this.path() === 'map'
+              ? 'desks'
+              : '';
+        if (!next_zones.length && persistence_view) {
             const persisted = loadPersistedZones(
-                this.manage() ? 'desks-manage' : 'desks',
+                persistence_view,
                 this._persistScopeId(),
             ).filter((zone) => levels.find((lvl) => lvl.id === zone));
             if (persisted.length) {
