@@ -107,6 +107,33 @@ describe('BroadcastEmailModalComponent', () => {
         ]);
     });
 
+    it('should exclude room addresses from resolved recipients', async () => {
+        (ts_client.query as any).mockResolvedValue({
+            data: [
+                {
+                    host: 'room@example.com',
+                    system: { email: 'room@example.com' },
+                    resources: [{ email: 'overflow-room@example.com' }],
+                    attendees: [
+                        { email: 'guest@example.com' },
+                        { email: 'room@example.com' },
+                        { email: 'overflow-room@example.com' },
+                        { email: 'resource@example.com', resource: true },
+                    ],
+                },
+            ],
+            next: undefined,
+        });
+        spectator.component.model.update((m) => ({
+            ...m,
+            recipient_group: 'rooms',
+        }));
+
+        await spectator.component.updateRecipients();
+
+        expect(spectator.component.recipients()).toEqual(['guest@example.com']);
+    });
+
     it('should not re-resolve recipients when the subject changes', () => {
         TestBed.flushEffects();
         const update_recipients = vi.spyOn(

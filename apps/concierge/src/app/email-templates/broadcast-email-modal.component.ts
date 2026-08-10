@@ -353,10 +353,21 @@ export class BroadcastEmailModalComponent {
             parking_request,
         ]);
         return this._validEmails([
-            ...rooms.flatMap((event) => [
-                event.host,
-                ...(event.attendees || []).map((user) => user.email),
-            ]),
+            ...rooms.flatMap((event) => {
+                const room_emails = new Set(
+                    [event.system, ...(event.resources || [])]
+                        .map((room) => room?.email?.trim().toLowerCase())
+                        .filter((email) => !!email),
+                );
+                return [
+                    event.host,
+                    ...(event.attendees || [])
+                        .filter((user) => !user.resource)
+                        .map((user) => user.email),
+                ].filter(
+                    (email) => !room_emails.has(email.trim().toLowerCase()),
+                );
+            }),
             ...desks.flatMap((booking) => [
                 booking.user_email,
                 booking.booked_by_email,
