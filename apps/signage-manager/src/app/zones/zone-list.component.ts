@@ -41,84 +41,34 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                 >
                     <input
                         matInput
+                        [disabled]="!search_enabled()"
                         [placeholder]="
-                            'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
+                            'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
+                                | translate
+                                    : {
+                                          name:
+                                              selected()?.display_name ||
+                                              selected()?.name ||
+                                              '',
+                                      }
                         "
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
+                            'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
+                                | translate
+                                    : {
+                                          name:
+                                              selected()?.display_name ||
+                                              selected()?.name ||
+                                              '',
+                                      }
                         "
                     />
                 </mat-form-field>
             </div>
 
-            @if (show_search_results()) {
-                @if (zones().length > 0) {
-                    @for (zone of zones(); track zone.id) {
-                        <a
-                            matRipple
-                            class="border-base-300 flex w-full cursor-pointer items-center gap-3 border-b px-4 py-3 text-left no-underline transition-colors"
-                            [class.bg-primary]="selected()?.id === zone.id"
-                            [class.text-primary-content]="
-                                selected()?.id === zone.id
-                            "
-                            [class.hover:bg-base-200]="
-                                selected()?.id !== zone.id
-                            "
-                            [routerLink]="['/zones', zone.id]"
-                            queryParamsHandling="merge"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.OPEN_ZONE'
-                                    | translate
-                                        : {
-                                              name:
-                                                  zone.display_name ||
-                                                  zone.name,
-                                          }
-                            "
-                            (click)="selectZone(zone)"
-                        >
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="min-w-0 flex-1 truncate font-medium"
-                                    >
-                                        {{ zone.display_name || zone.name }}
-                                    </div>
-                                    @if (childCount(zone) > 0) {
-                                        <span
-                                            class="bg-base-200/70 rounded-full px-2 py-0.5 text-xs"
-                                        >
-                                            {{ childCount(zone) }}
-                                        </span>
-                                    }
-                                </div>
-                                @if (zone.description) {
-                                    <div
-                                        class="mt-0.5 truncate text-xs"
-                                        [class.opacity-70]="
-                                            selected()?.id !== zone.id
-                                        "
-                                        [class.opacity-90]="
-                                            selected()?.id === zone.id
-                                        "
-                                    >
-                                        {{ zone.description }}
-                                    </div>
-                                }
-                            </div>
-                        </a>
-                    }
-                } @else {
-                    <div
-                        class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
-                    >
-                        <icon class="text-6xl">layers</icon>
-                        <p>{{ 'SIGNAGE_MANAGER.NO_ZONES' | translate }}</p>
-                    </div>
-                }
-            } @else if (tree_nodes().length) {
+            @if (tree_nodes().length) {
                 <cdk-tree
                     class="zone-tree"
                     [dataSource]="flat_tree_nodes()"
@@ -144,7 +94,10 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                             [style.width]="0.25 * node.level + 'rem'"
                             [style.opacity]="0.1 * node.level"
                         ></div>
-                        @if (childCount(node) > 0) {
+                        @if (
+                            childCount(node) > 0 &&
+                            !(show_search_results() && node.level === 0)
+                        ) {
                             <button
                                 type="button"
                                 class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
@@ -278,8 +231,9 @@ export class ZoneListComponent {
     public readonly search = this._service.zone_search_term;
     public readonly zones = this._service.filtered_zones;
     public readonly selected = this._service.selected_zone;
+    public readonly search_enabled = computed(() => !!this.selected()?.id);
     public readonly show_search_results = computed(
-        () => !!this.search().trim(),
+        () => this.search_enabled() && !!this.search().trim(),
     );
     public readonly tree_nodes = signal<ZoneTreeNode[]>([]);
     public readonly expanded_zones = this._service.zone_tree_expanded;
@@ -314,9 +268,33 @@ export class ZoneListComponent {
 
     constructor() {
         effect(() => {
-            const root_zones = this._root_zones();
+            const searching = this.show_search_results();
+            const root_zones = searching ? this.zones() : this._root_zones();
+            const selected_zone = searching ? this.selected() : null;
             if (!this._org_initialised()) return;
             const existing_roots = untracked(() => this.tree_nodes());
+            if (selected_zone) {
+                const existing_children =
+                    existing_roots.find(
+                        (node) => node.zone.id === selected_zone.id,
+                    )?.children || [];
+                this.tree_nodes.set([
+                    {
+                        zone: selected_zone,
+                        children: root_zones.map((zone) => {
+                            const existing = existing_children.find(
+                                (node) => node.zone.id === zone.id,
+                            );
+                            return existing
+                                ? this.syncNode(existing)
+                                : this.createNode(zone);
+                        }),
+                        children_loaded: true,
+                        children_loading: false,
+                    },
+                ]);
+                return;
+            }
             this.tree_nodes.set(
                 root_zones.map((zone) => {
                     const existing = existing_roots.find(
@@ -365,11 +343,16 @@ export class ZoneListComponent {
     }
 
     public selectZone(zone: PlaceZone) {
+        this.search.set('');
         this.selected.set(zone);
     }
 
     public isExpanded(zone_or_node: ZoneTreeNode | PlaceZone | string) {
-        return !!this.expanded_zones()[this.getZoneId(zone_or_node)];
+        const zone_id = this.getZoneId(zone_or_node);
+        return (
+            (this.show_search_results() && this.selected()?.id === zone_id) ||
+            !!this.expanded_zones()[zone_id]
+        );
     }
 
     public childCount(zone_or_id: ZoneTreeNode | PlaceZone | string) {

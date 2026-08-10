@@ -1217,6 +1217,39 @@ export class SignageService {
     public readonly zone_tree_children_cache = signal<
         Record<string, PlaceZone[]>
     >({});
+    private readonly _zone_search_debounced = debounced(
+        this.zone_search_term,
+        400,
+    );
+    private readonly _zone_search_results = resource({
+        params: () => ({
+            initialised: this._org.initialised(),
+            can_query: this._can_query_group_data(),
+            parent_id: this.selected_zone()?.id || '',
+            search: this._zone_search_debounced.value().trim(),
+        }),
+        loader: async ({ params }) => {
+            if (
+                !params.initialised ||
+                !params.can_query ||
+                !params.parent_id ||
+                !params.search
+            ) {
+                return [] as PlaceZone[];
+            }
+            try {
+                const result = await queryZones({
+                    q: params.search,
+                    parent_id: params.parent_id,
+                    limit: 2500,
+                    include_children_count: true,
+                } as any);
+                return (result.data || []).map(decodeEntityNames);
+            } catch {
+                return [] as PlaceZone[];
+            }
+        },
+    });
 
     public readonly selected_display = signal<any>(null);
     private readonly _playlist_meta_state = signal<
@@ -1274,9 +1307,12 @@ export class SignageService {
     });
 
     public readonly filtered_zones = computed(() => {
-        const term = this.zone_search_term().toLowerCase();
-        return this.all_zones().filter((z) =>
-            (z.display_name || z.name).toLowerCase().includes(term),
+        if (!this.selected_zone()?.id || !this.zone_search_term().trim()) {
+            return this.all_zones();
+        }
+        const overrides = this._zone_overrides();
+        return (this._zone_search_results.value() || []).map(
+            (zone) => overrides[zone.id] || zone,
         );
     });
 

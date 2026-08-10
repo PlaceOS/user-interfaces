@@ -1,8 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { OrganisationService } from '@placeos/common';
-import { ZoneListComponent } from '../../app/zones/zone-list.component';
 import { SignageService } from '../../app/signage.service';
+import { ZoneListComponent } from '../../app/zones/zone-list.component';
 
 describe('ZoneListComponent', () => {
     const initialised = signal(true);
@@ -55,12 +55,37 @@ describe('ZoneListComponent', () => {
         zone_children.mockResolvedValue([]);
     });
 
-    it('switches to search results only when the search term is non-empty', async () => {
+    it('only enables search after selecting a zone', async () => {
         const component = await make();
+        expect(component.search_enabled()).toBe(false);
         expect(component.show_search_results()).toBe(false);
 
         zone_search_term.set('  lobby ');
+        expect(component.show_search_results()).toBe(false);
+
+        selected_zone.set({ id: 'r1', display_name: 'Root 1' });
+        expect(component.search_enabled()).toBe(true);
         expect(component.show_search_results()).toBe(true);
+    });
+
+    it('presents search results beneath the selected zone', async () => {
+        selected_zone.set({ id: 'r1' });
+        zone_search_term.set('lobby');
+        filtered_zones.set([{ id: 'z1', parent_id: 'r1', children_count: 2 }]);
+        const component = await make();
+
+        expect(
+            component
+                .flat_tree_nodes()
+                .map((node) => [node.zone.id, node.level]),
+        ).toEqual([
+            ['r1', 0],
+            ['z1', 1],
+        ]);
+        expect(component.childCount(component.tree_nodes()[0])).toBe(1);
+        expect(
+            component.childCount(component.tree_nodes()[0].children[0]),
+        ).toBe(2);
     });
 
     it('derives child counts and child lookups from the full zone list', async () => {
@@ -73,9 +98,9 @@ describe('ZoneListComponent', () => {
         const component = await make();
 
         expect(component.child_count_lookup()).toEqual({ r1: 2, c1: 1 });
-        expect(
-            component.children_lookup()['r1'].map((z: any) => z.id),
-        ).toEqual(['c1', 'c2']);
+        expect(component.children_lookup()['r1'].map((z: any) => z.id)).toEqual(
+            ['c1', 'c2'],
+        );
     });
 
     it('reports child count from the lookup for a known parent zone', async () => {
@@ -88,9 +113,9 @@ describe('ZoneListComponent', () => {
 
     it('falls back to a zone children_count when it has no lookup entry', async () => {
         const component = await make();
-        expect(component.childCount({ id: 'x', children_count: 4 } as any)).toBe(
-            4,
-        );
+        expect(
+            component.childCount({ id: 'x', children_count: 4 } as any),
+        ).toBe(4);
     });
 
     it('builds root tree nodes from the service root zones', async () => {
@@ -104,9 +129,11 @@ describe('ZoneListComponent', () => {
     });
 
     it('selects a zone through the shared selection signal', async () => {
+        zone_search_term.set('lobby');
         const component = await make();
         component.selectZone({ id: 'z9' } as any);
         expect(selected_zone()?.id).toBe('z9');
+        expect(zone_search_term()).toBe('');
     });
 
     it('expands a node, marks it loading and fetches its children', async () => {

@@ -271,6 +271,7 @@
         "SEARCH_GROUPS": "Search groups",
         "SEARCH_MEDIA_ARIA": "Search media",
         "SEARCH_PLAYLISTS": "Search playlists",
+        "SEARCH_IN_ZONE": "Search in {{ name }}",
         "SEARCH_USERS": "Search users",
         "SEARCH_ZONES": "Search zones",
         "SEARCH_ZONES_PLAYLISTS": "Search zones or playlists",
