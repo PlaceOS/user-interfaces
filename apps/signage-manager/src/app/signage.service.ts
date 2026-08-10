@@ -1164,12 +1164,13 @@ export class SignageService {
             }
         },
     });
-    public readonly root_zones = computed(() =>
-        this._mergeItems(
-            this._root_zone_list.value() || [],
-            this._zone_overrides(),
-        ),
-    );
+    public readonly root_zones = computed(() => {
+        const roots = this._root_zone_list.value() || [];
+        const root_ids = new Set(roots.map(({ id }) => id));
+        return this._mergeItems(roots, this._zone_overrides()).filter(({ id }) =>
+            root_ids.has(id),
+        );
+    });
 
     public async zoneChildren(parent_id: string) {
         const { data } = await queryZones({

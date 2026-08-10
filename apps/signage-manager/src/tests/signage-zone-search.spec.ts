@@ -88,4 +88,30 @@ describe('SignageService zone search', () => {
             include_children_count: true,
         });
     });
+
+    it('does not promote an updated child zone into the root zone list', async () => {
+        (queryZones as any).mockImplementation((params: any) =>
+            Promise.resolve({
+                data:
+                    params.parent_id === 'root'
+                        ? [
+                              new PlaceZone({
+                                  id: 'org-1',
+                                  display_name: 'Organisation',
+                              }),
+                          ]
+                        : [],
+                total: params.parent_id === 'root' ? 1 : 0,
+            }),
+        );
+        const service = TestBed.inject(SignageService);
+        TestBed.tick();
+        await flush();
+
+        (service as any)._cacheZone(
+            new PlaceZone({ id: 'level-1', display_name: 'Level 1' }),
+        );
+
+        expect(service.root_zones().map((zone) => zone.id)).toEqual(['org-1']);
+    });
 });
