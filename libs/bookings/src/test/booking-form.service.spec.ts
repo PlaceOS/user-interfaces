@@ -198,6 +198,42 @@ describe('BookingFormService', () => {
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
     });
 
+    it('should use the current form when listing available resources', async () => {
+        const org = spectator.inject(OrganisationService) as any;
+        org.active_region = signal({ id: 'reg-1' });
+        org.regions = [];
+        org.settings = [];
+        (spectator.inject(SettingsService).overrides as any).set([{}, {}]);
+        const desk = {
+            id: 'desk-1',
+            name: 'Desk 1',
+            zone: { id: 'lvl-1', parent_id: 'bld-1' },
+            features: [],
+        };
+        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
+            {
+                metadata: { desks: { details: [desk] } },
+                zone: desk.zone,
+            },
+        ] as any);
+        (spectator.service as any)._resources_resource.set([desk]);
+        (spectator.service as any)._booking_rules_resource.set({});
+        (spectator.service as any)._available_resource.set([]);
+        spectator.service.setOptions({ type: 'desk', zone_id: 'lvl-1' });
+        spectator.service.model.update((form) => ({
+            ...form,
+            booking_type: 'desk',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            all_day: false,
+            user: currentUser(),
+        }));
+
+        const resources = await spectator.service.listAvailableResources();
+
+        expect(resources.map(({ id }) => id)).toEqual(['desk-1']);
+    });
+
     it('should debounce identical booked resource queries', async () => {
         booked_result = ['desk-1'];
         const query = {

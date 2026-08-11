@@ -628,8 +628,16 @@ export class BookingFormService extends AsyncHandler {
     /** Resolve with the available resources for the current selection */
     public async listAvailableResources(): Promise<BookingAsset[]> {
         this._startNetwork();
-        await this._whenSettled(this._available_resource);
-        return this.available_resources();
+        const [resources] = await Promise.all([
+            this.listResources(),
+            this._whenSettled(this._booking_rules_resource),
+        ]);
+        return this._computeAvailableResources(
+            this._options(),
+            resources,
+            this.booking_rules(),
+            this.model(),
+        );
     }
 
     /** Resolve once the given resource has finished loading */
