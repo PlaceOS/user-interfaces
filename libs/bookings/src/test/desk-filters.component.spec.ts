@@ -8,7 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
-import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
+import { MockComponent, MockModule, MockPipe, ngMocks } from 'ng-mocks';
 
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
@@ -22,7 +22,7 @@ import { DeskFiltersComponent } from '../lib/desk-select-modal/desk-filters.comp
 
 describe('DeskFiltersComponent', () => {
     let spectator: Spectator<DeskFiltersComponent>;
-    const options = signal<any>({ zone_id: 'lvl-a', show_fav: false, features: [] });
+    const options = signal<any>({ zones: ['lvl-a'], show_fav: false, features: [] });
     const features = signal<string[]>(['sit-stand', 'monitor']);
     const resources = signal<any[]>([
         { id: 'd1', zone: { id: 'lvl-a' } },
@@ -112,7 +112,7 @@ describe('DeskFiltersComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        options.set({ zone_id: 'lvl-a', show_fav: false, features: [] });
+        options.set({ zones: ['lvl-a'], show_fav: false, features: [] });
         features.set(['sit-stand', 'monitor']);
         resources.set([
             { id: 'd1', zone: { id: 'lvl-a' } },
@@ -138,6 +138,20 @@ describe('DeskFiltersComponent', () => {
     it('should show the level selector when there is more than one level', () => {
         expect(spectator.component.show_level_select()).toBe(true);
         expect(spectator.query('mat-select[name="location"]')).toExist();
+    });
+
+    it('should allow multiple levels to be selected', () => {
+        expect(ngMocks.input('mat-select[name="location"]', 'multiple')).toBe(
+            true,
+        );
+        spectator.triggerEventHandler(
+            'mat-select[name="location"]',
+            'ngModelChange',
+            ['lvl-a', 'lvl-b'],
+        );
+        expect(set_options).toHaveBeenCalledWith({
+            zones: ['lvl-a', 'lvl-b'],
+        });
     });
 
     it('should hide favourites and feature sections when levels are hidden', () => {
@@ -171,8 +185,8 @@ describe('DeskFiltersComponent', () => {
     });
 
     it('should forward option and feature changes to the booking form service', () => {
-        spectator.component.setOptions({ zone_id: 'lvl-b' });
-        expect(set_options).toHaveBeenCalledWith({ zone_id: 'lvl-b' });
+        spectator.component.setOptions({ zones: ['lvl-b'] });
+        expect(set_options).toHaveBeenCalledWith({ zones: ['lvl-b'] });
         spectator.component.setFeature('monitor', true);
         expect(set_feature).toHaveBeenCalledWith('monitor', true);
     });
@@ -184,18 +198,18 @@ describe('DeskFiltersComponent', () => {
         expect(org_mock.region).toEqual({ id: 'reg-2' });
     });
 
-    it('should clear the selected level when it is no longer valid', () => {
+    it('should clear selected levels that are no longer valid', () => {
         resources.set([{ id: 'd2', zone: { id: 'lvl-b' } }]);
-        options.set({ zone_id: 'lvl-a' });
+        options.set({ zones: ['lvl-a', 'lvl-b'] });
         spectator.detectChanges();
-        expect(set_options).toHaveBeenCalledWith({ zone_id: undefined });
+        expect(set_options).toHaveBeenCalledWith({ zones: ['lvl-b'] });
     });
 
-    it('should retain the selected level while resources are loading', () => {
+    it('should retain the selected levels while resources are loading', () => {
         resources.set([]);
-        options.set({ zone_id: 'lvl-a' });
+        options.set({ zones: ['lvl-a', 'lvl-b'] });
         spectator.detectChanges();
-        expect(set_options).not.toHaveBeenCalledWith({ zone_id: undefined });
+        expect(set_options).not.toHaveBeenCalled();
     });
 
     it('should only allow all-day bookings when both settings are enabled', () => {
