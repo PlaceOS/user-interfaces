@@ -60146,6 +60146,7 @@ var SIGNAGE_MANAGER = {
   SEARCH_GROUPS: "Search groups",
   SEARCH_MEDIA_ARIA: "Search media",
   SEARCH_PLAYLISTS: "Search playlists",
+  SEARCH_IN_ZONE: "Search in {{ name }}",
   SEARCH_USERS: "Search users",
   SEARCH_ZONES: "Search zones",
   SEARCH_ZONES_PLAYLISTS: "Search zones or playlists",
@@ -60690,6 +60691,7 @@ var FORM = {
   DURATION: "Duration",
   CLEAR: "Clear form",
   RESET: "Reset form",
+  RESET_NOTES: "Reset notes",
   NOTES: "Notes",
   RECURRENCE: "Recurrence",
   RECURRENCE_REPEAT_EVERY: "Repeat Every",
@@ -67921,15 +67923,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "c8fecf4",
-  "hash": "c8fecf4",
+  "raw": "8c711a1",
+  "hash": "8c711a1",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c8fecf4",
+  "suffix": "8c711a1",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1786083122178
+  "time": 1786421832551
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -127458,6 +127460,22 @@ function bookingOptionsMatch(a, b2) {
   ]));
   return keys.every((key) => a[key] === b2[key]);
 }
+var AVAILABILITY_SELECTION_FIELDS = /* @__PURE__ */ new Set([
+  "resources",
+  "booking_asset",
+  "asset_id",
+  "asset_name",
+  "map_id",
+  "name",
+  "description",
+  "zones"
+]);
+function availabilityFormMatch(a, b2) {
+  if (!a || !b2)
+    return a === b2;
+  const keys = /* @__PURE__ */ new Set([...Object.keys(a), ...Object.keys(b2)]);
+  return [...keys].every((key) => AVAILABILITY_SELECTION_FIELDS.has(key) || Object.is(a[key], b2[key]));
+}
 function assetDateValue(date) {
   const date_value = date instanceof Date ? date.valueOf() : Number(date);
   return Number.isFinite(date_value) ? date_value : null;
@@ -127615,8 +127633,11 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   /** Resolve with the available resources for the current selection */
   async listAvailableResources() {
     this._startNetwork();
-    await this._whenSettled(this._available_resource);
-    return this.available_resources();
+    const [resources] = await Promise.all([
+      this.listResources(),
+      this._whenSettled(this._booking_rules_resource)
+    ]);
+    return this._computeAvailableResources(this._options(), resources, this.booking_rules(), this.model());
   }
   /** Resolve once the given resource has finished loading */
   _whenSettled(ref) {
@@ -127916,7 +127937,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     );
     this._form_value_debounced = debounced(this._form_value, 500, {
       injector: this._injector,
-      equal: Object.is
+      equal: availabilityFormMatch
     });
     this._resource_params = computed(
       () => {
@@ -130006,7 +130027,7 @@ function DeskFiltersComponent_Conditional_13_Template(rf, ctx) {
     \u0275\u0275listener("ngModelChange", function DeskFiltersComponent_Conditional_13_Template_mat_select_ngModelChange_1_listener($event) {
       \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.setOptions({ zone_id: $event }));
+      return \u0275\u0275resetView(ctx_r1.setOptions({ zones: $event }));
     });
     \u0275\u0275repeaterCreate(3, DeskFiltersComponent_Conditional_13_For_4_Template, 5, 3, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
@@ -130016,7 +130037,7 @@ function DeskFiltersComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275property("ngModel", ctx_r1.options()?.zone_id)("ngModelOptions", \u0275\u0275pureFunction0(5, _c042))("placeholder", \u0275\u0275pipeBind1(2, 3, "COMMON.LEVEL_ANY"));
+    \u0275\u0275property("ngModel", ctx_r1.options()?.zones)("ngModelOptions", \u0275\u0275pureFunction0(6, _c042))("placeholder", \u0275\u0275pipeBind1(2, 4, "COMMON.LEVEL_ANY"))("multiple", true);
     \u0275\u0275control();
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.levels());
@@ -130193,18 +130214,19 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
         []
       )
     );
-    this._clear_invalid_level = effect(
+    this._clear_invalid_levels = effect(
       () => {
-        const zone_id = this.options()?.zone_id;
-        if (!zone_id)
+        const zones = this.options()?.zones || [];
+        if (!zones.length)
           return;
         if (!this._state.resources().length)
           return;
-        if (!this.levels().some((lvl) => lvl.id === zone_id)) {
-          this._state.setOptions({ zone_id: void 0 });
+        const valid_zones = zones.filter((zone_id) => this.levels().some((lvl) => lvl.id === zone_id));
+        if (valid_zones.length !== zones.length) {
+          this._state.setOptions({ zones: valid_zones });
         }
       },
-      ...ngDevMode ? [{ debugName: "_clear_invalid_level" }] : (
+      ...ngDevMode ? [{ debugName: "_clear_invalid_levels" }] : (
         /* istanbul ignore next */
         []
       )
@@ -130261,7 +130283,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskFiltersComponent, selectors: [["desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 25, vars: 25, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "relative", "z-0", "w-full", "divide-y", "p-2"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "formField"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone", "range"], [3, "formField", "time", "max", "min", "step", "use_24hr", "timezone", "end_time"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "label", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "label", "ngModel", "ngModelOptions"]], template: function DeskFiltersComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DeskFiltersComponent, selectors: [["desk-filters"]], inputs: { hide_levels: [1, "hide_levels"] }, decls: 25, vars: 25, consts: [[1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "flex", "items-center", "border-b", "px-4", "py-4"], [1, "text-xl", "font-medium"], [1, "divide-base-200", "relative", "z-0", "w-full", "divide-y", "p-2"], ["details", ""], [1, "mb-1", "text-lg", "font-medium"], [1, "flex", "min-w-32", "flex-1", "flex-col"], ["for", "location"], ["appearance", "outline", 1, "w-full"], [1, "flex-1"], ["name", "date", 3, "ngModelChange", "ngModel", "ngModelOptions", "to", "timezone"], [1, "-mt-2", "mb-2", "flex", "justify-end"], [1, "flex", "items-center", "space-x-2"], ["favs", "", 1, "space-y-2", "pb-4"], ["features", "", 1, "space-y-2"], ["name", "region", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], [3, "value"], ["name", "building", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder"], ["name", "location", 3, "ngModelChange", "ngModel", "ngModelOptions", "placeholder", "multiple"], [1, "flex", "flex-col-reverse"], [1, "text-xs", "opacity-30"], [1, "opacity-0"], [3, "formField"], [1, "w-1/3", "flex-1"], ["name", "start-time", 3, "ngModelChange", "ngModel", "ngModelOptions", "use_24hr", "timezone", "range"], [3, "formField", "time", "max", "min", "step", "use_24hr", "timezone", "end_time"], [1, "mt-2", "text-lg", "font-medium"], [1, "flex", "w-full", "items-center"], [1, "w-full", 3, "ngModelChange", "label", "ngModel", "ngModelOptions"], [1, "flex", "flex-wrap", "items-center", "space-x-2"], [1, "w-full", "capitalize", 3, "ngModelChange", "label", "ngModel", "ngModelOptions"]], template: function DeskFiltersComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "h3", 1);
         \u0275\u0275text(2);
@@ -130275,7 +130297,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
         \u0275\u0275conditionalCreate(10, DeskFiltersComponent_Conditional_10_Template, 3, 3, "label", 6);
         \u0275\u0275conditionalCreate(11, DeskFiltersComponent_Conditional_11_Template, 5, 6, "mat-form-field", 7);
         \u0275\u0275conditionalCreate(12, DeskFiltersComponent_Conditional_12_Template, 4, 4, "mat-form-field", 7);
-        \u0275\u0275conditionalCreate(13, DeskFiltersComponent_Conditional_13_Template, 5, 6, "mat-form-field", 7);
+        \u0275\u0275conditionalCreate(13, DeskFiltersComponent_Conditional_13_Template, 5, 7, "mat-form-field", 7);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(14, "div", 8)(15, "label");
         \u0275\u0275text(16);
@@ -130417,12 +130439,11 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
-                                [ngModel]="options()?.zone_id"
-                                (ngModelChange)="
-                                    setOptions({ zone_id: $event })
-                                "
+                                [ngModel]="options()?.zones"
+                                (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.LEVEL_ANY' | translate"
+                                [multiple]="true"
                             >
                                 @for (lvl of levels(); track lvl) {
                                     <mat-option [value]="lvl.id">
@@ -130568,7 +130589,7 @@ var DeskFiltersComponent = class _DeskFiltersComponent {
   }], null, { hide_levels: [{ type: Input, args: [{ isSignal: true, alias: "hide_levels", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskFiltersComponent, { className: "DeskFiltersComponent", filePath: "libs/bookings/src/lib/desk-select-modal/desk-filters.component.ts", lineNumber: 243 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DeskFiltersComponent, { className: "DeskFiltersComponent", filePath: "libs/bookings/src/lib/desk-select-modal/desk-filters.component.ts", lineNumber: 242 });
 })();
 
 // libs/bookings/src/lib/desk-select-modal/desk-list.component.ts
