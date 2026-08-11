@@ -47041,6 +47041,7 @@ var SIGNAGE_MANAGER = {
   SEARCH_GROUPS: "Search groups",
   SEARCH_MEDIA_ARIA: "Search media",
   SEARCH_PLAYLISTS: "Search playlists",
+  SEARCH_IN_ZONE: "Search in {{ name }}",
   SEARCH_USERS: "Search users",
   SEARCH_ZONES: "Search zones",
   SEARCH_ZONES_PLAYLISTS: "Search zones or playlists",
@@ -47585,6 +47586,7 @@ var FORM = {
   DURATION: "Duration",
   CLEAR: "Clear form",
   RESET: "Reset form",
+  RESET_NOTES: "Reset notes",
   NOTES: "Notes",
   RECURRENCE: "Recurrence",
   RECURRENCE_REPEAT_EVERY: "Repeat Every",
@@ -53277,15 +53279,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "c8fecf4",
-  "hash": "c8fecf4",
+  "raw": "8c711a1",
+  "hash": "8c711a1",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c8fecf4",
+  "suffix": "8c711a1",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1786082981844
+  "time": 1786421768149
 };
 
 // libs/common/src/lib/settings.service.ts
