@@ -48041,6 +48041,7 @@ var SIGNAGE_MANAGER = {
   SEARCH_GROUPS: "Search groups",
   SEARCH_MEDIA_ARIA: "Search media",
   SEARCH_PLAYLISTS: "Search playlists",
+  SEARCH_IN_ZONE: "Search in {{ name }}",
   SEARCH_USERS: "Search users",
   SEARCH_ZONES: "Search zones",
   SEARCH_ZONES_PLAYLISTS: "Search zones or playlists",
@@ -48585,6 +48586,7 @@ var FORM = {
   DURATION: "Duration",
   CLEAR: "Clear form",
   RESET: "Reset form",
+  RESET_NOTES: "Reset notes",
   NOTES: "Notes",
   RECURRENCE: "Recurrence",
   RECURRENCE_REPEAT_EVERY: "Repeat Every",
@@ -55764,15 +55766,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "c8fecf4",
-  "hash": "c8fecf4",
+  "raw": "8c711a1",
+  "hash": "8c711a1",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c8fecf4",
+  "suffix": "8c711a1",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1786083048811
+  "time": 1786421829403
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -128852,6 +128854,22 @@ function bookingOptionsMatch(a, b2) {
   ]));
   return keys.every((key) => a[key] === b2[key]);
 }
+var AVAILABILITY_SELECTION_FIELDS = /* @__PURE__ */ new Set([
+  "resources",
+  "booking_asset",
+  "asset_id",
+  "asset_name",
+  "map_id",
+  "name",
+  "description",
+  "zones"
+]);
+function availabilityFormMatch(a, b2) {
+  if (!a || !b2)
+    return a === b2;
+  const keys = /* @__PURE__ */ new Set([...Object.keys(a), ...Object.keys(b2)]);
+  return [...keys].every((key) => AVAILABILITY_SELECTION_FIELDS.has(key) || Object.is(a[key], b2[key]));
+}
 function assetDateValue(date) {
   const date_value = date instanceof Date ? date.valueOf() : Number(date);
   return Number.isFinite(date_value) ? date_value : null;
@@ -129009,8 +129027,11 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   /** Resolve with the available resources for the current selection */
   async listAvailableResources() {
     this._startNetwork();
-    await this._whenSettled(this._available_resource);
-    return this.available_resources();
+    const [resources] = await Promise.all([
+      this.listResources(),
+      this._whenSettled(this._booking_rules_resource)
+    ]);
+    return this._computeAvailableResources(this._options(), resources, this.booking_rules(), this.model());
   }
   /** Resolve once the given resource has finished loading */
   _whenSettled(ref) {
@@ -129310,7 +129331,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     );
     this._form_value_debounced = debounced(this._form_value, 500, {
       injector: this._injector,
-      equal: Object.is
+      equal: availabilityFormMatch
     });
     this._resource_params = computed(
       () => {
