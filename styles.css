@@ -4485,6 +4485,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-6xl {
   min-width: var(--container-6xl);
 }
+#placeos .min-w-7 {
+  min-width: calc(var(--spacing) * 7);
+}
 #placeos .min-w-7xl {
   min-width: var(--container-7xl);
 }
