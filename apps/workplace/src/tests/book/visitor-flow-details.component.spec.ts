@@ -1,13 +1,20 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     BookingForm,
-    BookingFormValue,
     BookingFormService,
+    BookingFormValue,
     generateBookingForm,
 } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 import { VisitorFlowDetailsComponent } from 'apps/workplace/src/app/book/visitor-flow-new/visitor-flow-details.component';
 import { MockProvider } from 'ng-mocks';
 
@@ -36,7 +43,9 @@ describe('VisitorFlowDetailsComponent', () => {
                         buildings: building_list,
                         building: building_list[0],
                         find: vi.fn((id: string) =>
-                            building_list.find((building) => building.id === id),
+                            building_list.find(
+                                (building) => building.id === id,
+                            ),
                         ),
                         setBuilding: vi.fn(),
                         levelWithID: vi.fn((ids: string[]) =>
@@ -96,8 +105,30 @@ describe('VisitorFlowDetailsComponent', () => {
     });
 
     beforeEach(() => {
+        settingSignal('visitors.duration_step').set(undefined);
+        settingSignal('visitors.min_duration').set(undefined);
+        settingSignal('visitors.max_duration').set(undefined);
+        settingSignal('visitors.custom_duration_options').set(undefined);
+        settingSignal('bookings.duration_step').set(15);
+        settingSignal('bookings.min_duration').set(30);
+        settingSignal('bookings.max_duration').set(180);
+        settingSignal('bookings.custom_duration_options').set([]);
         now = Date.now();
         spectator = createComponent();
+    });
+
+    it('should honour visitor duration overrides including a 45 minute exception', () => {
+        settingSignal('visitors.duration_step').set(30);
+        settingSignal('visitors.min_duration').set(60);
+        settingSignal('visitors.max_duration').set(45);
+        settingSignal('visitors.custom_duration_options').set([45]);
+        settingSignal('bookings.max_duration').set(30);
+
+        expect(spectator.component.duration_step()).toBe(30);
+        expect(spectator.component.min_duration()).toBe(60);
+        expect(spectator.component.max_duration()).toBe(45);
+        expect(spectator.component.custom_duration_options()).toEqual([45]);
+        expect(spectator.component.effective_min_duration()).toBe(45);
     });
 
     it('should hide visitor type switching when editing an existing booking', () => {

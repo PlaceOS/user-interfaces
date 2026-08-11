@@ -1,4 +1,3 @@
-import type { Mock } from 'vitest';
 import { inject, Injector, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -6,10 +5,20 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
-import { Booking, OrganisationService, SettingsService, User } from '@placeos/common';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
+import {
+    Booking,
+    OrganisationService,
+    settingSignal,
+    SettingsService,
+    User,
+} from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider, MockService } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
@@ -70,11 +79,30 @@ describe('VisitorInviteFormComponent', () => {
     });
 
     beforeEach(() => {
+        settingSignal('visitors.duration_step').set(undefined);
+        settingSignal('visitors.min_duration').set(undefined);
+        settingSignal('visitors.max_duration').set(undefined);
+        settingSignal('visitors.custom_duration_options').set(undefined);
+        settingSignal('bookings.duration_step').set(15);
+        settingSignal('bookings.min_duration').set(30);
+        settingSignal('bookings.max_duration').set(180);
+        settingSignal('bookings.custom_duration_options').set([]);
         spectator = createComponent();
     });
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
+
+    it('should allow a configured 45 minute visitor duration below the minimum', () => {
+        settingSignal('visitors.duration_step').set(30);
+        settingSignal('visitors.min_duration').set(60);
+        settingSignal('visitors.custom_duration_options').set([45]);
+
+        expect(spectator.component.duration_step()).toBe(30);
+        expect(spectator.component.min_duration()).toBe(60);
+        expect(spectator.component.custom_duration_options()).toEqual([45]);
+        expect(spectator.component.effective_min_duration()).toBe(45);
+    });
 
     it('should filter visitor suggestions by the search term', () => {
         spectator.component.visitors.set([
@@ -83,14 +111,14 @@ describe('VisitorInviteFormComponent', () => {
         ] as any);
 
         spectator.component.search_term.set('glob');
-        expect(spectator.component.filtered_visitors().map((v) => v.name)).toEqual([
-            'Bob',
-        ]);
+        expect(
+            spectator.component.filtered_visitors().map((v) => v.name),
+        ).toEqual(['Bob']);
 
         spectator.component.search_term.set('alice');
-        expect(spectator.component.filtered_visitors().map((v) => v.name)).toEqual([
-            'Alice',
-        ]);
+        expect(
+            spectator.component.filtered_visitors().map((v) => v.name),
+        ).toEqual(['Alice']);
     });
 
     it('should populate the model when a suggested visitor is selected', () => {
@@ -155,7 +183,9 @@ describe('VisitorInviteFormComponent', () => {
                 international: true,
             },
         ]);
-        expect(spectator.inject(BookingFormService).model().title).toBe('Visit');
+        expect(spectator.inject(BookingFormService).model().title).toBe(
+            'Visit',
+        );
     });
 
     it('should book multiple visitors as a linked group', async () => {
