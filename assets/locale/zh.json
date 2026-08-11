@@ -334,6 +334,7 @@
         "DURATION": "时长",
         "CLEAR": "清除表单",
         "RESET": "重置表单",
+        "RESET_NOTES": "重置备注",
         "NOTES": "备注",
         "RECURRENCE": "重复",
         "RECURRENCE_REPEAT_EVERY": "每隔",
