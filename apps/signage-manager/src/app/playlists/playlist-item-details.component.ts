@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, computed, inject, linkedSignal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -869,7 +869,13 @@ export class PlaylistItemDetailsComponent {
     private readonly _service = inject(SignageService);
 
     public readonly playlist = this._service.selected_playlist;
-    public readonly active_tab = signal(0);
+    public readonly active_tab = linkedSignal<SignagePlaylist | null, number>({
+        source: this.playlist,
+        computation: (playlist, previous) =>
+            previous && playlist?.id === previous.source?.id
+                ? previous.value
+                : 0,
+    });
 
     private readonly _items = this._service.playlist_media_items;
     private readonly _displays = this._service.displays;
@@ -940,13 +946,6 @@ export class PlaylistItemDetailsComponent {
                 formatPlayDateTimeRange(session.start, session.period),
             );
     });
-
-    constructor() {
-        effect(() => {
-            this.playlist();
-            this.active_tab.set(0);
-        });
-    }
 
     public addDisplay() {
         const playlist = this.playlist();

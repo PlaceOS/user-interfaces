@@ -115,6 +115,8 @@ describe('DesksComponent', () => {
         });
     });
 
+    afterEach(() => localStorage.clear());
+
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
@@ -134,10 +136,14 @@ describe('DesksComponent', () => {
         ).toEqual(['level-ground', 'level-parking']);
     });
 
-    it('should clear stale zones when the active building changes', () => {
+    it('should default to all levels when the active building changes', () => {
         // Events view defaults to "all levels" (empty selection). When the
         // building changes, zones that don't belong to the new building must
-        // be dropped so the user isn't left with a stale selection.
+        // be dropped even if that building has a persisted booking selection.
+        localStorage.setItem(
+            'PLACEOS.concierge.zones.desks.bld-2',
+            JSON.stringify(['level-b']),
+        );
         const injected_building = spectator.inject(OrganisationService)
             .active_building as unknown as WritableSignal<any>;
         // Flush the initial `toObservable` emissions, then restore the active

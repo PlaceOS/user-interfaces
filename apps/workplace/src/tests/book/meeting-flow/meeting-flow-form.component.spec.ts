@@ -102,9 +102,7 @@ describe('MeetingFlowFormComponent', () => {
         ).not.toExist();
         (spectator.component.can_notify_new_attendees_only as any).set(true);
         spectator.detectChanges();
-        expect(
-            spectator.query('[name="notify-new-attendees-only"]'),
-        ).toExist();
+        expect(spectator.query('[name="notify-new-attendees-only"]')).toExist();
     });
 
     it('should show room list', () =>
@@ -133,6 +131,20 @@ describe('MeetingFlowFormComponent', () => {
         );
         spectator.detectChanges();
         expect(spectator.query('rich-text-input')).toExist();
+    });
+
+    it('should allow resetting only notes', () => {
+        Object.defineProperty(spectator.inject(EventFormService), 'event', {
+            value: { body: 'Original notes' },
+        });
+        spectator.component.model.update((model) => ({
+            ...model,
+            title: 'Changed title',
+            body: 'Changed notes',
+        }));
+        spectator.click('button[name="reset-notes-meeting"]');
+        expect(spectator.component.model().body).toBe('Original notes');
+        expect(spectator.component.model().title).toBe('Changed title');
     });
 
     it('should allow clearing of form', () => {

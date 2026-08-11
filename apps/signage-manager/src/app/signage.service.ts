@@ -1012,14 +1012,16 @@ export class SignageService {
         });
     }
 
-    public querySignageZones(search = ''): QueryResponse<PlaceZone> | null {
-        if (!this._canQueryLists()) return null;
-        const group_id = this._api_group_id();
+    public querySelectableZones(
+        search: string,
+        parent_id: string,
+    ): QueryResponse<PlaceZone> | null {
+        if (!this._canQueryLists() || !parent_id || !search.trim()) return null;
         return queryZones({
-            limit: SignageService.PAGE_SIZE,
-            tags: 'signage',
-            ...(group_id ? { group_id } : {}),
-            ...this._searchParam(search),
+            q: search.trim(),
+            parent_id,
+            limit: 2500,
+            include_children_count: true,
         } as any);
     }
 
@@ -1162,12 +1164,13 @@ export class SignageService {
             }
         },
     });
-    public readonly root_zones = computed(() =>
-        this._mergeItems(
-            this._root_zone_list.value() || [],
-            this._zone_overrides(),
-        ),
-    );
+    public readonly root_zones = computed(() => {
+        const roots = this._root_zone_list.value() || [];
+        const root_ids = new Set(roots.map(({ id }) => id));
+        return this._mergeItems(roots, this._zone_overrides()).filter(({ id }) =>
+            root_ids.has(id),
+        );
+    });
 
     public async zoneChildren(parent_id: string) {
         const { data } = await queryZones({
@@ -1217,6 +1220,39 @@ export class SignageService {
     public readonly zone_tree_children_cache = signal<
         Record<string, PlaceZone[]>
     >({});
+    private readonly _zone_search_debounced = debounced(
+        this.zone_search_term,
+        400,
+    );
+    private readonly _zone_search_results = resource({
+        params: () => ({
+            initialised: this._org.initialised(),
+            can_query: this._can_query_group_data(),
+            parent_id: this.selected_zone()?.id || '',
+            search: this._zone_search_debounced.value().trim(),
+        }),
+        loader: async ({ params }) => {
+            if (
+                !params.initialised ||
+                !params.can_query ||
+                !params.parent_id ||
+                !params.search
+            ) {
+                return [] as PlaceZone[];
+            }
+            try {
+                const result = await queryZones({
+                    q: params.search,
+                    parent_id: params.parent_id,
+                    limit: 2500,
+                    include_children_count: true,
+                } as any);
+                return (result.data || []).map(decodeEntityNames);
+            } catch {
+                return [] as PlaceZone[];
+            }
+        },
+    });
 
     public readonly selected_display = signal<any>(null);
     private readonly _playlist_meta_state = signal<
@@ -1274,9 +1310,12 @@ export class SignageService {
     });
 
     public readonly filtered_zones = computed(() => {
-        const term = this.zone_search_term().toLowerCase();
-        return this.all_zones().filter((z) =>
-            (z.display_name || z.name).toLowerCase().includes(term),
+        if (!this.selected_zone()?.id || !this.zone_search_term().trim()) {
+            return this.all_zones();
+        }
+        const overrides = this._zone_overrides();
+        return (this._zone_search_results.value() || []).map(
+            (zone) => overrides[zone.id] || zone,
         );
     });
 

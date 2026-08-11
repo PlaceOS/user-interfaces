@@ -173,6 +173,17 @@ describe('PlaylistItemDetailsComponent', () => {
         expect(component.active_tab()).toBe(0);
     });
 
+    it('keeps the active tab when the selected playlist refreshes', async () => {
+        selected_playlist.set({ id: 'pl-1', name: 'Lobby' });
+        const component = await make();
+        component.active_tab.set(2);
+
+        selected_playlist.set({ id: 'pl-1', name: 'Updated Lobby' });
+        TestBed.flushEffects();
+
+        expect(component.active_tab()).toBe(2);
+    });
+
     it('routes add/remove display actions through the service', async () => {
         const playlist = { id: 'pl-1' };
         selected_playlist.set(playlist);
