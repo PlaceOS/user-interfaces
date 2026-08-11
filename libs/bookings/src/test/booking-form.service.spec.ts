@@ -371,6 +371,50 @@ describe('BookingFormService', () => {
         spy.mockRestore();
     });
 
+    it('should not refresh availability when the selected desk changes', async () => {
+        vi.useFakeTimers();
+        try {
+            const form_value = (spectator.service as any)._form_value;
+            form_value.set({
+                date: Date.now(),
+                duration: 60,
+                resources: [],
+                asset_id: '',
+            });
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(500);
+            TestBed.tick();
+            const availability_form = (spectator.service as any)
+                ._form_value_debounced;
+            const initial_value = availability_form.value();
+            const desk = {
+                id: 'desk-1',
+                name: 'Desk 1',
+                map_id: 'map-desk-1',
+                zone: { id: 'level-1', parent_id: 'building-1' },
+            };
+
+            form_value.set({
+                ...initial_value,
+                resources: [desk],
+                booking_asset: desk,
+                asset_id: desk.id,
+                asset_name: desk.name,
+                map_id: desk.map_id,
+                name: desk.name,
+                description: desk.name,
+                zones: [desk.zone.parent_id, desk.zone.id],
+            });
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(500);
+            TestBed.tick();
+
+            expect(availability_form.value()).toBe(initial_value);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it('should not update asset options when form date and duration are unchanged', () => {
         const asset_state = spectator.inject(AssetStateService);
         spectator.service.newForm('desk');

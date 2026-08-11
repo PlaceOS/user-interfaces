@@ -126,6 +126,30 @@ function bookingOptionsMatch(a: BookingFlowOptions, b: BookingFlowOptions) {
     return keys.every((key) => a[key] === b[key]);
 }
 
+const AVAILABILITY_SELECTION_FIELDS = new Set([
+    'resources',
+    'booking_asset',
+    'asset_id',
+    'asset_name',
+    'map_id',
+    'name',
+    'description',
+    'zones',
+]);
+
+function availabilityFormMatch(
+    a: Record<string, any>,
+    b: Record<string, any>,
+) {
+    if (!a || !b) return a === b;
+    const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+    return [...keys].every(
+        (key) =>
+            AVAILABILITY_SELECTION_FIELDS.has(key) ||
+            Object.is(a[key], b[key]),
+    );
+}
+
 function assetDateValue(date: unknown) {
     const date_value = date instanceof Date ? date.valueOf() : Number(date);
     return Number.isFinite(date_value) ? date_value : null;
@@ -442,7 +466,7 @@ export class BookingFormService extends AsyncHandler {
     private readonly _form_value = signal<Record<string, any>>(null);
     private readonly _form_value_debounced = debounced(this._form_value, 500, {
         injector: this._injector,
-        equal: Object.is,
+        equal: availabilityFormMatch,
     });
 
     /** Params driving the resource list, debounced to coalesce rapid changes */
