@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-D5QYLW7K.js";
+} from "./chunk-QG6YGRCF.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -330,7 +330,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-6PO6OALR.js";
+} from "./chunk-N4KOZNFX.js";
 import {
   __objRest,
   __spreadProps,
@@ -9805,6 +9805,22 @@ function bookingOptionsMatch(a, b) {
   ]));
   return keys.every((key) => a[key] === b[key]);
 }
+var AVAILABILITY_SELECTION_FIELDS = /* @__PURE__ */ new Set([
+  "resources",
+  "booking_asset",
+  "asset_id",
+  "asset_name",
+  "map_id",
+  "name",
+  "description",
+  "zones"
+]);
+function availabilityFormMatch(a, b) {
+  if (!a || !b)
+    return a === b;
+  const keys = /* @__PURE__ */ new Set([...Object.keys(a), ...Object.keys(b)]);
+  return [...keys].every((key) => AVAILABILITY_SELECTION_FIELDS.has(key) || Object.is(a[key], b[key]));
+}
 function assetDateValue(date) {
   const date_value = date instanceof Date ? date.valueOf() : Number(date);
   return Number.isFinite(date_value) ? date_value : null;
@@ -9962,8 +9978,11 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   /** Resolve with the available resources for the current selection */
   async listAvailableResources() {
     this._startNetwork();
-    await this._whenSettled(this._available_resource);
-    return this.available_resources();
+    const [resources] = await Promise.all([
+      this.listResources(),
+      this._whenSettled(this._booking_rules_resource)
+    ]);
+    return this._computeAvailableResources(this._options(), resources, this.booking_rules(), this.model());
   }
   /** Resolve once the given resource has finished loading */
   _whenSettled(ref) {
@@ -10263,7 +10282,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     );
     this._form_value_debounced = debounced(this._form_value, 500, {
       injector: this._injector,
-      equal: Object.is
+      equal: availabilityFormMatch
     });
     this._resource_params = computed(
       () => {
@@ -12351,4 +12370,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-Z7TRGOQU.js.map
+//# sourceMappingURL=chunk-WEKULSOL.js.map
