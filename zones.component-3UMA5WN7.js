@@ -1,20 +1,18 @@
 import {
   PlaylistThumbnailComponent
-} from "./chunk-DDAUIEXY.js";
-import {
-  CdkTree,
-  CdkTreeModule,
-  CdkTreeNode,
-  CdkTreeNodeDef,
-  CdkTreeNodePadding
-} from "./chunk-QO5RFLQY.js";
+} from "./chunk-AHJ6MWBT.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-QZAP7LWU.js";
+} from "./chunk-EJ6EUSRD.js";
 import {
   ActivatedRoute,
+  CdkTree,
+  CdkTreeModule,
+  CdkTreeNode,
+  CdkTreeNodeDef,
+  CdkTreeNodePadding,
   Component,
   DefaultValueAccessor,
   FormsModule,
@@ -72,7 +70,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-QJ3EUMM4.js";
+} from "./chunk-NHJN3T55.js";
 import {
   __spreadProps,
   __spreadValues
@@ -875,222 +873,129 @@ var ZoneHeaderComponent = class _ZoneHeaderComponent {
 })();
 
 // apps/signage-manager/src/app/zones/zone-list.component.ts
-var _c03 = (a0) => ["/zones", a0];
-var _c12 = (a0) => ({ name: a0 });
-var _forTrack02 = ($index, $item) => $item.id;
-function ZoneListComponent_Conditional_6_Conditional_0_For_1_Conditional_6_Template(rf, ctx) {
+var _c03 = (a0) => ({ name: a0 });
+var _c12 = (a0) => ["/zones", a0];
+function ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 11);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const zone_r2 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r2.childCount(zone_r2), " ");
-  }
-}
-function ZoneListComponent_Conditional_6_Conditional_0_For_1_Conditional_7_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 13);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const zone_r2 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("opacity-70", ctx_r2.selected()?.id !== zone_r2.id)("opacity-90", ctx_r2.selected()?.id === zone_r2.id);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", zone_r2.description, " ");
-  }
-}
-function ZoneListComponent_Conditional_6_Conditional_0_For_1_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "a", 7);
+    const _r2 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 18);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function ZoneListComponent_Conditional_6_Conditional_0_For_1_Template_a_click_0_listener() {
-      const zone_r2 = \u0275\u0275restoreView(_r1).$implicit;
-      const ctx_r2 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r2.selectZone(zone_r2));
-    });
-    \u0275\u0275elementStart(2, "div", 8)(3, "div", 9)(4, "div", 10);
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(6, ZoneListComponent_Conditional_6_Conditional_0_For_1_Conditional_6_Template, 2, 1, "span", 11);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(7, ZoneListComponent_Conditional_6_Conditional_0_For_1_Conditional_7_Template, 2, 5, "div", 12);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const zone_r2 = ctx.$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("bg-primary", ctx_r2.selected()?.id === zone_r2.id)("text-primary-content", ctx_r2.selected()?.id === zone_r2.id)("hover:bg-base-200", ctx_r2.selected()?.id !== zone_r2.id);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(14, _c03, zone_r2.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 11, "SIGNAGE_MANAGER.OPEN_ZONE", \u0275\u0275pureFunction1(16, _c12, zone_r2.display_name || zone_r2.name)));
-    \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", zone_r2.display_name || zone_r2.name, " ");
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.childCount(zone_r2) > 0 ? 6 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(zone_r2.description ? 7 : -1);
-  }
-}
-function ZoneListComponent_Conditional_6_Conditional_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, ZoneListComponent_Conditional_6_Conditional_0_For_1_Template, 8, 18, "a", 6, _forTrack02);
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275repeater(ctx_r2.zones());
-  }
-}
-function ZoneListComponent_Conditional_6_Conditional_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 14);
-    \u0275\u0275text(2, "layers");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p");
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 1, "SIGNAGE_MANAGER.NO_ZONES"));
-  }
-}
-function ZoneListComponent_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, ZoneListComponent_Conditional_6_Conditional_0_Template, 2, 0)(1, ZoneListComponent_Conditional_6_Conditional_1_Template, 6, 3, "div", 5);
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275conditional(ctx_r2.zones().length > 0 ? 0 : 1);
-  }
-}
-function ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 22);
-    \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_2_Template_button_click_0_listener($event) {
-      \u0275\u0275restoreView(_r5);
-      const node_r6 = \u0275\u0275nextContext().$implicit;
-      const ctx_r2 = \u0275\u0275nextContext(2);
-      ctx_r2.onExpandedChange(node_r6, !ctx_r2.isExpanded(node_r6));
+    \u0275\u0275listener("click", function ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_2_Template_button_click_0_listener($event) {
+      \u0275\u0275restoreView(_r2);
+      const node_r3 = \u0275\u0275nextContext().$implicit;
+      const ctx_r3 = \u0275\u0275nextContext(2);
+      ctx_r3.onExpandedChange(node_r3, !ctx_r3.isExpanded(node_r3));
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275elementStart(2, "icon", 23);
+    \u0275\u0275elementStart(2, "icon", 19);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const node_r6 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 2, ctx_r2.isExpanded(node_r6) ? "SIGNAGE_MANAGER.COLLAPSE_ZONE" : "SIGNAGE_MANAGER.EXPAND_ZONE", \u0275\u0275pureFunction1(5, _c12, node_r6.zone.display_name || node_r6.zone.name)));
+    const node_r3 = \u0275\u0275nextContext().$implicit;
+    const ctx_r3 = \u0275\u0275nextContext(2);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 2, ctx_r3.isExpanded(node_r3) ? "SIGNAGE_MANAGER.COLLAPSE_ZONE" : "SIGNAGE_MANAGER.EXPAND_ZONE", \u0275\u0275pureFunction1(5, _c03, node_r3.zone.display_name || node_r3.zone.name)));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.isExpanded(node_r6) ? "expand_more" : "chevron_right", " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r3.isExpanded(node_r3) ? "expand_more" : "chevron_right", " ");
   }
 }
-function ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_3_Template(rf, ctx) {
+function ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 19);
+    \u0275\u0275element(0, "div", 10);
   }
 }
-function ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_10_Template(rf, ctx) {
+function ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 11);
+    \u0275\u0275elementStart(0, "span", 15);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const node_r6 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(2);
+    const node_r3 = \u0275\u0275nextContext().$implicit;
+    const ctx_r3 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", ctx_r2.childCount(node_r6), " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r3.childCount(node_r3), " ");
   }
 }
-function ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_11_Template(rf, ctx) {
+function ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 21);
+    \u0275\u0275elementStart(0, "icon", 16);
     \u0275\u0275text(1, "autorenew");
     \u0275\u0275elementEnd();
   }
 }
-function ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_12_Template(rf, ctx) {
+function ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 13);
+    \u0275\u0275elementStart(0, "div", 20);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const node_r6 = \u0275\u0275nextContext().$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275classProp("opacity-70", ctx_r2.selected()?.id !== node_r6.zone.id)("opacity-90", ctx_r2.selected()?.id === node_r6.zone.id);
+    const node_r3 = \u0275\u0275nextContext().$implicit;
+    const ctx_r3 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("opacity-70", ctx_r3.selected()?.id !== node_r3.zone.id)("opacity-90", ctx_r3.selected()?.id === node_r3.zone.id);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", node_r6.zone.description, " ");
+    \u0275\u0275textInterpolate1(" ", node_r3.zone.description, " ");
   }
 }
-function ZoneListComponent_Conditional_7_cdk_tree_node_1_Template(rf, ctx) {
+function ZoneListComponent_Conditional_6_cdk_tree_node_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "cdk-tree-node", 16);
-    \u0275\u0275element(1, "div", 17);
-    \u0275\u0275conditionalCreate(2, ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_2_Template, 4, 7, "button", 18)(3, ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_3_Template, 1, 0, "div", 19);
-    \u0275\u0275elementStart(4, "a", 20);
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "cdk-tree-node", 7);
+    \u0275\u0275element(1, "div", 8);
+    \u0275\u0275conditionalCreate(2, ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_2_Template, 4, 7, "button", 9)(3, ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_3_Template, 1, 0, "div", 10);
+    \u0275\u0275elementStart(4, "a", 11);
     \u0275\u0275pipe(5, "translate");
-    \u0275\u0275listener("click", function ZoneListComponent_Conditional_7_cdk_tree_node_1_Template_a_click_4_listener() {
-      const node_r6 = \u0275\u0275restoreView(_r4).$implicit;
-      const ctx_r2 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r2.selectZone(node_r6.zone));
+    \u0275\u0275listener("click", function ZoneListComponent_Conditional_6_cdk_tree_node_1_Template_a_click_4_listener() {
+      const node_r3 = \u0275\u0275restoreView(_r1).$implicit;
+      const ctx_r3 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r3.selectZone(node_r3.zone));
     });
-    \u0275\u0275elementStart(6, "div", 8)(7, "div", 9)(8, "div", 10);
+    \u0275\u0275elementStart(6, "div", 12)(7, "div", 13)(8, "div", 14);
     \u0275\u0275text(9);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(10, ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_10_Template, 2, 1, "span", 11);
-    \u0275\u0275conditionalCreate(11, ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_11_Template, 2, 0, "icon", 21);
+    \u0275\u0275conditionalCreate(10, ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_10_Template, 2, 1, "span", 15);
+    \u0275\u0275conditionalCreate(11, ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_11_Template, 2, 0, "icon", 16);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(12, ZoneListComponent_Conditional_7_cdk_tree_node_1_Conditional_12_Template, 2, 5, "div", 12);
+    \u0275\u0275conditionalCreate(12, ZoneListComponent_Conditional_6_cdk_tree_node_1_Conditional_12_Template, 2, 5, "div", 17);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
-    const node_r6 = ctx.$implicit;
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275classProp("bg-primary", ctx_r2.selected()?.id === node_r6.zone.id)("text-primary-content", ctx_r2.selected()?.id === node_r6.zone.id)("hover:bg-base-200", ctx_r2.selected()?.id !== node_r6.zone.id);
-    \u0275\u0275property("cdkTreeNodePadding", node_r6.level)("cdkTreeNodePaddingIndent", 8);
+    const node_r3 = ctx.$implicit;
+    const ctx_r3 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("bg-primary", ctx_r3.selected()?.id === node_r3.zone.id)("text-primary-content", ctx_r3.selected()?.id === node_r3.zone.id)("hover:bg-base-200", ctx_r3.selected()?.id !== node_r3.zone.id);
+    \u0275\u0275property("cdkTreeNodePadding", node_r3.level)("cdkTreeNodePaddingIndent", 8);
     \u0275\u0275advance();
-    \u0275\u0275styleProp("width", 0.25 * node_r6.level + "rem")("opacity", 0.1 * node_r6.level);
+    \u0275\u0275styleProp("width", 0.25 * node_r3.level + "rem")("opacity", 0.1 * node_r3.level);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.childCount(node_r6) > 0 ? 2 : 3);
+    \u0275\u0275conditional(ctx_r3.childCount(node_r3) > 0 && !(ctx_r3.show_search_results() && node_r3.level === 0) ? 2 : 3);
     \u0275\u0275advance(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(22, _c03, node_r6.zone.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 19, "SIGNAGE_MANAGER.OPEN_ZONE", \u0275\u0275pureFunction1(24, _c12, node_r6.zone.display_name || node_r6.zone.name)));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(22, _c12, node_r3.zone.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 19, "SIGNAGE_MANAGER.OPEN_ZONE", \u0275\u0275pureFunction1(24, _c03, node_r3.zone.display_name || node_r3.zone.name)));
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", node_r6.zone.display_name || node_r6.zone.name, " ");
+    \u0275\u0275textInterpolate1(" ", node_r3.zone.display_name || node_r3.zone.name, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r2.childCount(node_r6) > 0 ? 10 : -1);
+    \u0275\u0275conditional(ctx_r3.childCount(node_r3) > 0 ? 10 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(node_r6.children_loading ? 11 : -1);
+    \u0275\u0275conditional(node_r3.children_loading ? 11 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(node_r6.zone.description ? 12 : -1);
+    \u0275\u0275conditional(node_r3.zone.description ? 12 : -1);
+  }
+}
+function ZoneListComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "cdk-tree", 4);
+    \u0275\u0275template(1, ZoneListComponent_Conditional_6_cdk_tree_node_1_Template, 13, 26, "cdk-tree-node", 6);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275property("dataSource", ctx_r3.flat_tree_nodes())("levelAccessor", ctx_r3.levelAccessor)("trackBy", ctx_r3.trackByNode);
   }
 }
 function ZoneListComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "cdk-tree", 4);
-    \u0275\u0275template(1, ZoneListComponent_Conditional_7_cdk_tree_node_1_Template, 13, 26, "cdk-tree-node", 15);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275property("dataSource", ctx_r2.flat_tree_nodes())("levelAccessor", ctx_r2.levelAccessor)("trackBy", ctx_r2.trackByNode);
-  }
-}
-function ZoneListComponent_Conditional_8_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 14);
+    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 21);
     \u0275\u0275text(2, "layers");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -1114,8 +1019,15 @@ var ZoneListComponent = class _ZoneListComponent {
     this.search = this._service.zone_search_term;
     this.zones = this._service.filtered_zones;
     this.selected = this._service.selected_zone;
+    this.search_enabled = computed(
+      () => !!this.selected()?.id,
+      ...ngDevMode ? [{ debugName: "search_enabled" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.show_search_results = computed(
-      () => !!this.search().trim(),
+      () => this.search_enabled() && !!this.search().trim(),
       ...ngDevMode ? [{ debugName: "show_search_results" }] : (
         /* istanbul ignore next */
         []
@@ -1176,10 +1088,27 @@ var ZoneListComponent = class _ZoneListComponent {
       )
     );
     effect(() => {
-      const root_zones = this._root_zones();
+      const searching = this.show_search_results();
+      const root_zones = searching ? this.zones() : this._root_zones();
+      const selected_zone = searching ? this.selected() : null;
       if (!this._org_initialised())
         return;
       const existing_roots = untracked(() => this.tree_nodes());
+      if (selected_zone) {
+        const existing_children = existing_roots.find((node) => node.zone.id === selected_zone.id)?.children || [];
+        this.tree_nodes.set([
+          {
+            zone: selected_zone,
+            children: root_zones.map((zone) => {
+              const existing = existing_children.find((node) => node.zone.id === zone.id);
+              return existing ? this.syncNode(existing) : this.createNode(zone);
+            }),
+            children_loaded: true,
+            children_loading: false
+          }
+        ]);
+        return;
+      }
       this.tree_nodes.set(root_zones.map((zone) => {
         const existing = existing_roots.find((node) => node.zone.id === zone.id);
         return existing ? this.syncNode(existing) : this.createNode(zone);
@@ -1193,6 +1122,14 @@ var ZoneListComponent = class _ZoneListComponent {
       }
       untracked(() => this.syncSelectedPath(selected_zone.id));
     });
+    effect(() => {
+      const root_zone = this._root_zones()[0];
+      const root_node = this.tree_nodes().find((node) => node.zone.id === root_zone?.id);
+      if (this.show_search_results() || !root_node || !this.isExpanded(root_node) || this.hasLoadedChildren(root_node) || root_node.children_loading || !this.childCount(root_node)) {
+        return;
+      }
+      untracked(() => this.loadNodeChildren(root_node));
+    });
   }
   onExpandedChange(node, expanded) {
     this.expanded_zones.update((state) => __spreadProps(__spreadValues({}, state), {
@@ -1201,16 +1138,25 @@ var ZoneListComponent = class _ZoneListComponent {
     if (!expanded || this.hasLoadedChildren(node) || node.children_loading) {
       return;
     }
+    this.loadNodeChildren(node);
+  }
+  loadNodeChildren(node) {
     this.tree_nodes.update((nodes) => this.updateNode(nodes, node.zone.id, (item) => __spreadProps(__spreadValues({}, item), {
       children_loading: true
     })));
     this.loadChildren(node.zone.id);
   }
   selectZone(zone) {
+    this.search.set("");
     this.selected.set(zone);
   }
   isExpanded(zone_or_node) {
-    return !!this.expanded_zones()[this.getZoneId(zone_or_node)];
+    const zone_id = this.getZoneId(zone_or_node);
+    if (this.show_search_results() && this.selected()?.id === zone_id) {
+      return true;
+    }
+    const expanded_zones = this.expanded_zones();
+    return zone_id in expanded_zones ? expanded_zones[zone_id] : this._root_zones()[0]?.id === zone_id;
   }
   childCount(zone_or_id) {
     if (typeof zone_or_id !== "string" && "children_loaded" in zone_or_id) {
@@ -1389,7 +1335,7 @@ var ZoneListComponent = class _ZoneListComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZoneListComponent, selectors: [["zone-list"]], decls: 9, vars: 8, consts: [[1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "zone-tree", 3, "dataSource", "levelAccessor", "trackBy"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-4", "py-3", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-4", "py-3", "text-left", "no-underline", "transition-colors", 3, "click", "routerLink"], [1, "min-w-0", "flex-1"], [1, "flex", "items-center", "gap-2"], [1, "min-w-0", "flex-1", "truncate", "font-medium"], [1, "bg-base-200/70", "rounded-full", "px-2", "py-0.5", "text-xs"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mt-0.5", "truncate", "text-xs"], [1, "text-6xl"], ["cdkTreeNodePadding", "", "class", "border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2", 3, "cdkTreeNodePadding", "cdkTreeNodePaddingIndent", "bg-primary", "text-primary-content", "hover:bg-base-200", 4, "cdkTreeNodeDef"], ["cdkTreeNodePadding", "", 1, "border-base-300", "bg-base-200/30", "relative", "flex", "min-h-0", "items-center", "gap-2", "border-b", "pr-2", 3, "cdkTreeNodePadding", "cdkTreeNodePaddingIndent"], [1, "bg-base-content", "absolute", "inset-y-1", "left-1", "rounded-sm"], ["type", "button", 1, "hover:bg-base-content/20", "ml-1", "flex", "h-7", "w-7", "shrink-0", "items-center", "justify-center", "rounded-lg", "transition-colors"], [1, "min-w-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "flex", "min-w-0", "flex-1", "cursor-pointer", "items-center", "gap-3", "rounded-md", "py-3", "text-left", "no-underline", "transition-colors", 3, "click", "routerLink"], [1, "animate-spin", "text-lg"], ["type", "button", 1, "hover:bg-base-content/20", "ml-1", "flex", "h-7", "w-7", "shrink-0", "items-center", "justify-center", "rounded-lg", "transition-colors", 3, "click"], [1, "text-xl"]], template: function ZoneListComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZoneListComponent, selectors: [["zone-list"]], decls: 8, vars: 15, consts: [[1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "disabled", "placeholder", "ngModel"], [1, "zone-tree", 3, "dataSource", "levelAccessor", "trackBy"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["cdkTreeNodePadding", "", "class", "border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2", 3, "cdkTreeNodePadding", "cdkTreeNodePaddingIndent", "bg-primary", "text-primary-content", "hover:bg-base-200", 4, "cdkTreeNodeDef"], ["cdkTreeNodePadding", "", 1, "border-base-300", "bg-base-200/30", "relative", "flex", "min-h-0", "items-center", "gap-2", "border-b", "pr-2", 3, "cdkTreeNodePadding", "cdkTreeNodePaddingIndent"], [1, "bg-base-content", "absolute", "inset-y-1", "left-1", "rounded-sm"], ["type", "button", 1, "hover:bg-base-content/20", "ml-1", "flex", "h-7", "w-7", "shrink-0", "items-center", "justify-center", "rounded-lg", "transition-colors"], [1, "min-w-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "flex", "min-w-0", "flex-1", "cursor-pointer", "items-center", "gap-3", "rounded-md", "py-3", "text-left", "no-underline", "transition-colors", 3, "click", "routerLink"], [1, "min-w-0", "flex-1"], [1, "flex", "items-center", "gap-2"], [1, "min-w-0", "flex-1", "truncate", "font-medium"], [1, "bg-base-200/70", "rounded-full", "px-2", "py-0.5", "text-xs"], [1, "animate-spin", "text-lg"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], ["type", "button", 1, "hover:bg-base-content/20", "ml-1", "flex", "h-7", "w-7", "shrink-0", "items-center", "justify-center", "rounded-lg", "transition-colors", 3, "click"], [1, "text-xl"], [1, "mt-0.5", "truncate", "text-xs"], [1, "text-6xl"]], template: function ZoneListComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "mat-form-field", 2)(3, "input", 3);
         \u0275\u0275pipe(4, "translate");
@@ -1400,16 +1346,16 @@ var ZoneListComponent = class _ZoneListComponent {
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(6, ZoneListComponent_Conditional_6_Template, 2, 1)(7, ZoneListComponent_Conditional_7_Template, 2, 3, "cdk-tree", 4)(8, ZoneListComponent_Conditional_8_Template, 6, 3, "div", 5);
+        \u0275\u0275conditionalCreate(6, ZoneListComponent_Conditional_6_Template, 2, 3, "cdk-tree", 4)(7, ZoneListComponent_Conditional_7_Template, 6, 3, "div", 5);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(4, 4, "SIGNAGE_MANAGER.SEARCH_ZONES"))("ngModel", ctx.search());
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 6, "SIGNAGE_MANAGER.SEARCH_ZONES"));
+        \u0275\u0275property("disabled", !ctx.search_enabled())("placeholder", \u0275\u0275pipeBind2(4, 5, "SIGNAGE_MANAGER.SEARCH_IN_ZONE", \u0275\u0275pureFunction1(11, _c03, ctx.selected()?.display_name || ctx.selected()?.name || "")))("ngModel", ctx.search());
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 8, "SIGNAGE_MANAGER.SEARCH_IN_ZONE", \u0275\u0275pureFunction1(13, _c03, ctx.selected()?.display_name || ctx.selected()?.name || "")));
         \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.show_search_results() ? 6 : ctx.tree_nodes().length ? 7 : 8);
+        \u0275\u0275conditional(ctx.tree_nodes().length ? 6 : 7);
       }
     }, dependencies: [
       FormsModule,
@@ -1447,84 +1393,34 @@ var ZoneListComponent = class _ZoneListComponent {
                 >
                     <input
                         matInput
+                        [disabled]="!search_enabled()"
                         [placeholder]="
-                            'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
+                            'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
+                                | translate
+                                    : {
+                                          name:
+                                              selected()?.display_name ||
+                                              selected()?.name ||
+                                              '',
+                                      }
                         "
                         [ngModel]="search()"
                         (ngModelChange)="search.set($event)"
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
+                            'SIGNAGE_MANAGER.SEARCH_IN_ZONE'
+                                | translate
+                                    : {
+                                          name:
+                                              selected()?.display_name ||
+                                              selected()?.name ||
+                                              '',
+                                      }
                         "
                     />
                 </mat-form-field>
             </div>
 
-            @if (show_search_results()) {
-                @if (zones().length > 0) {
-                    @for (zone of zones(); track zone.id) {
-                        <a
-                            matRipple
-                            class="border-base-300 flex w-full cursor-pointer items-center gap-3 border-b px-4 py-3 text-left no-underline transition-colors"
-                            [class.bg-primary]="selected()?.id === zone.id"
-                            [class.text-primary-content]="
-                                selected()?.id === zone.id
-                            "
-                            [class.hover:bg-base-200]="
-                                selected()?.id !== zone.id
-                            "
-                            [routerLink]="['/zones', zone.id]"
-                            queryParamsHandling="merge"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.OPEN_ZONE'
-                                    | translate
-                                        : {
-                                              name:
-                                                  zone.display_name ||
-                                                  zone.name,
-                                          }
-                            "
-                            (click)="selectZone(zone)"
-                        >
-                            <div class="min-w-0 flex-1">
-                                <div class="flex items-center gap-2">
-                                    <div
-                                        class="min-w-0 flex-1 truncate font-medium"
-                                    >
-                                        {{ zone.display_name || zone.name }}
-                                    </div>
-                                    @if (childCount(zone) > 0) {
-                                        <span
-                                            class="bg-base-200/70 rounded-full px-2 py-0.5 text-xs"
-                                        >
-                                            {{ childCount(zone) }}
-                                        </span>
-                                    }
-                                </div>
-                                @if (zone.description) {
-                                    <div
-                                        class="mt-0.5 truncate text-xs"
-                                        [class.opacity-70]="
-                                            selected()?.id !== zone.id
-                                        "
-                                        [class.opacity-90]="
-                                            selected()?.id === zone.id
-                                        "
-                                    >
-                                        {{ zone.description }}
-                                    </div>
-                                }
-                            </div>
-                        </a>
-                    }
-                } @else {
-                    <div
-                        class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
-                    >
-                        <icon class="text-6xl">layers</icon>
-                        <p>{{ 'SIGNAGE_MANAGER.NO_ZONES' | translate }}</p>
-                    </div>
-                }
-            } @else if (tree_nodes().length) {
+            @if (tree_nodes().length) {
                 <cdk-tree
                     class="zone-tree"
                     [dataSource]="flat_tree_nodes()"
@@ -1550,7 +1446,10 @@ var ZoneListComponent = class _ZoneListComponent {
                             [style.width]="0.25 * node.level + 'rem'"
                             [style.opacity]="0.1 * node.level"
                         ></div>
-                        @if (childCount(node) > 0) {
+                        @if (
+                            childCount(node) > 0 &&
+                            !(show_search_results() && node.level === 0)
+                        ) {
                             <button
                                 type="button"
                                 class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
@@ -1660,7 +1559,7 @@ var ZoneListComponent = class _ZoneListComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ZoneListComponent, { className: "ZoneListComponent", filePath: "apps/signage-manager/src/app/zones/zone-list.component.ts", lineNumber: 269 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ZoneListComponent, { className: "ZoneListComponent", filePath: "apps/signage-manager/src/app/zones/zone-list.component.ts", lineNumber: 222 });
 })();
 
 // apps/signage-manager/src/app/zones/zones.component.ts
@@ -2031,4 +1930,4 @@ var ZonesSectionComponent = class _ZonesSectionComponent {
 export {
   ZonesSectionComponent
 };
-//# sourceMappingURL=zones.component-FKSCBQBB.js.map
+//# sourceMappingURL=zones.component-3UMA5WN7.js.map

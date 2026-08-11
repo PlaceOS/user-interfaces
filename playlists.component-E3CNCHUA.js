@@ -8,15 +8,15 @@ import {
   MatTabLabel,
   MatTabsModule,
   moveItemInArray
-} from "./chunk-EJAXY7K4.js";
+} from "./chunk-ZCPEY3A2.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-DDAUIEXY.js";
+} from "./chunk-AHJ6MWBT.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-QZAP7LWU.js";
+} from "./chunk-EJ6EUSRD.js";
 import {
   ActivatedRoute,
   Component,
@@ -57,6 +57,7 @@ import {
   i18n,
   inject,
   input,
+  linkedSignal,
   playlistScheduleLabel,
   playlistScheduleNextPlayLabels,
   rr,
@@ -100,7 +101,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-QJ3EUMM4.js";
+} from "./chunk-NHJN3T55.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1083,13 +1084,13 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
   constructor() {
     this._service = inject(SignageService);
     this.playlist = this._service.selected_playlist;
-    this.active_tab = signal(
-      0,
-      ...ngDevMode ? [{ debugName: "active_tab" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this.active_tab = linkedSignal(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "active_tab" } : (
+      /* istanbul ignore next */
+      {}
+    )), {
+      source: this.playlist,
+      computation: (playlist, previous) => previous && playlist?.id === previous.source?.id ? previous.value : 0
+    }));
     this._items = this._service.playlist_media_items;
     this._displays = this._service.displays;
     this._zones = this._service.zones;
@@ -1200,10 +1201,6 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
         []
       )
     );
-    effect(() => {
-      this.playlist();
-      this.active_tab.set(0);
-    });
   }
   addDisplay() {
     const playlist = this.playlist();
@@ -1811,7 +1808,7 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
       MediaDurationPipe,
       TranslatePipe
     ], styles: ["/* angular:styles/component:css;62f1948e80f1d37fbfc7dd0fe5a3ff76993e7e5f074002a0c62e64986fc743cb;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/playlists/playlist-item-details.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n/*# sourceMappingURL=playlist-item-details.component.css.map */\n"] }]
-  }], () => [], null);
+  }], null, null);
 })();
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemDetailsComponent, { className: "PlaylistItemDetailsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-item-details.component.ts", lineNumber: 868 });
@@ -4200,4 +4197,4 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-U4OMY2RN.js.map
+//# sourceMappingURL=playlists.component-E3CNCHUA.js.map
