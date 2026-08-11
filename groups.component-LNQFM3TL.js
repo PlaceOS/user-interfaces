@@ -1,16 +1,14 @@
 import {
+  GroupBreadcrumbsComponent,
+  NavFooterComponent,
+  NavSidebarComponent
+} from "./chunk-EJ6EUSRD.js";
+import {
   CdkTree,
   CdkTreeModule,
   CdkTreeNode,
   CdkTreeNodeDef,
-  CdkTreeNodePadding
-} from "./chunk-QO5RFLQY.js";
-import {
-  GroupBreadcrumbsComponent,
-  NavFooterComponent,
-  NavSidebarComponent
-} from "./chunk-QZAP7LWU.js";
-import {
+  CdkTreeNodePadding,
   Component,
   DefaultValueAccessor,
   DestroyRef,
@@ -19,7 +17,6 @@ import {
   FullscreenModalShellComponent,
   HotkeysService,
   IconComponent,
-  IntersectDirective,
   MAT_DIALOG_DATA,
   MatDialog,
   MatDialogClose,
@@ -43,6 +40,7 @@ import {
   SettingsToggleComponent,
   SignageService,
   TranslatePipe,
+  ZoneSelectTreeComponent,
   byDisplayName,
   computed,
   debounced,
@@ -98,7 +96,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-QJ3EUMM4.js";
+} from "./chunk-NHJN3T55.js";
 import {
   __spreadProps,
   __spreadValues
@@ -854,105 +852,16 @@ var SignageGroupUsersComponent = class _SignageGroupUsersComponent {
 })();
 
 // apps/signage-manager/src/app/groups/signage-group-zone-select-modal.component.ts
-var _forTrack04 = ($index, $item) => $item.id;
-function SignageGroupZoneSelectModalComponent_Conditional_13_For_1_Conditional_6_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 13);
-    \u0275\u0275text(1);
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const zone_r1 = \u0275\u0275nextContext().$implicit;
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", zone_r1.description, " ");
-  }
-}
-function SignageGroupZoneSelectModalComponent_Conditional_13_For_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 8)(1, "icon", 10);
-    \u0275\u0275text(2, "layers");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 11)(4, "div", 12);
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(6, SignageGroupZoneSelectModalComponent_Conditional_13_For_1_Conditional_6_Template, 2, 1, "div", 13);
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const zone_r1 = ctx.$implicit;
-    \u0275\u0275property("mat-dialog-close", zone_r1);
-    \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", zone_r1.display_name || zone_r1.name, " ");
-    \u0275\u0275advance();
-    \u0275\u0275conditional(zone_r1.description ? 6 : -1);
-  }
-}
-function SignageGroupZoneSelectModalComponent_Conditional_13_Conditional_2_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 14);
-    \u0275\u0275listener("intersect", function SignageGroupZoneSelectModalComponent_Conditional_13_Conditional_2_Template_div_intersect_0_listener() {
-      \u0275\u0275restoreView(_r2);
-      const ctx_r2 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r2.list.loadMore());
-    });
-    \u0275\u0275elementEnd();
-  }
-}
-function SignageGroupZoneSelectModalComponent_Conditional_13_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, SignageGroupZoneSelectModalComponent_Conditional_13_For_1_Template, 7, 3, "button", 8, _forTrack04);
-    \u0275\u0275conditionalCreate(2, SignageGroupZoneSelectModalComponent_Conditional_13_Conditional_2_Template, 1, 0, "div", 9);
-  }
-  if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275repeater(ctx_r2.zones());
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r2.list.has_more() ? 2 : -1);
-  }
-}
-function SignageGroupZoneSelectModalComponent_Conditional_14_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "div", 15);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.LOADING"), " ");
-  }
-}
-function SignageGroupZoneSelectModalComponent_Conditional_15_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7)(1, "icon", 16);
-    \u0275\u0275text(2, "layers_clear");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 15);
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "translate");
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 1, "SIGNAGE_MANAGER.NO_ZONES"), " ");
-  }
-}
 var SignageGroupZoneSelectModalComponent = class _SignageGroupZoneSelectModalComponent {
   constructor() {
     this._service = inject(SignageService);
     this._data = inject(MAT_DIALOG_DATA);
+    this._dialog_ref = inject(MatDialogRef);
     this.list = new PagedSearch((search) => this._service.queryGroupZones(search), byDisplayName, 300);
-    this.zones = computed(
-      () => {
-        const exclude_ids = new Set(this._data.exclude_ids || []);
-        return this.list.items().filter((zone) => !exclude_ids.has(zone.id));
-      },
-      ...ngDevMode ? [{ debugName: "zones" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this.exclude_ids = this._data.exclude_ids || [];
+  }
+  selectZone(zone) {
+    this._dialog_ref.close(zone);
   }
   static {
     this.\u0275fac = function SignageGroupZoneSelectModalComponent_Factory(__ngFactoryType__) {
@@ -960,7 +869,7 @@ var SignageGroupZoneSelectModalComponent = class _SignageGroupZoneSelectModalCom
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignageGroupZoneSelectModalComponent, selectors: [["signage-group-zone-select-modal"]], decls: 16, vars: 14, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "h-[65vh]", "max-w-lg", "min-w-lg", "space-y-2", "overflow-auto", "px-4", "pt-2", "pb-4", "text-center", "max-md:h-auto", "max-md:max-w-none", "max-md:min-w-0", "max-md:flex-1"], ["appearance", "outline", 1, "no-subscript", "bg-base-100", "sticky", "top-0", "z-10", "w-full"], ["matInput", "", 3, "ngModelChange", "ngModel", "placeholder"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "rounded-lg", "p-16"], [1, "bg-base-200", "flex", "h-[calc(100%-3.5rem)]", "w-full", "flex-col", "items-center", "justify-center", "space-y-4", "rounded-lg", "p-16"], ["type", "button", "matRipple", "", 1, "border-base-300", "hover:bg-base-200", "z-0", "flex", "h-16", "w-full", "items-center", "space-x-2", "rounded-sm", "border", "p-2", "text-left", 3, "mat-dialog-close"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/60", "shrink-0", "text-2xl"], [1, "min-w-0", "flex-1"], [1, "truncate"], [1, "text-base-content/70", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-base-content/70"], [1, "text-base-content/70", "text-8xl"]], template: function SignageGroupZoneSelectModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignageGroupZoneSelectModalComponent, selectors: [["signage-group-zone-select-modal"]], decls: 10, vars: 8, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "h-[65vh]", "max-w-lg", "min-w-lg", "overflow-auto", "px-4", "pt-2", "pb-4", "max-md:h-auto", "max-md:max-w-none", "max-md:min-w-0", "max-md:flex-1"], [3, "zoneSelected", "list", "exclude_ids"]], template: function SignageGroupZoneSelectModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2);
@@ -971,47 +880,27 @@ var SignageGroupZoneSelectModalComponent = class _SignageGroupZoneSelectModalCom
         \u0275\u0275elementStart(6, "icon");
         \u0275\u0275text(7, "close");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(8, "main", 3)(9, "mat-form-field", 4)(10, "input", 5);
-        \u0275\u0275pipe(11, "translate");
-        \u0275\u0275pipe(12, "translate");
-        \u0275\u0275twoWayListener("ngModelChange", function SignageGroupZoneSelectModalComponent_Template_input_ngModelChange_10_listener($event) {
-          \u0275\u0275twoWayBindingSet(ctx.list.search, $event) || (ctx.list.search = $event);
-          return $event;
+        \u0275\u0275elementStart(8, "main", 3)(9, "zone-select-tree", 4);
+        \u0275\u0275listener("zoneSelected", function SignageGroupZoneSelectModalComponent_Template_zone_select_tree_zoneSelected_9_listener($event) {
+          return ctx.selectZone($event);
         });
-        \u0275\u0275elementEnd();
-        \u0275\u0275controlCreate();
-        \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(13, SignageGroupZoneSelectModalComponent_Conditional_13_Template, 3, 1)(14, SignageGroupZoneSelectModalComponent_Conditional_14_Template, 4, 3, "div", 6)(15, SignageGroupZoneSelectModalComponent_Conditional_15_Template, 6, 3, "div", 7);
-        \u0275\u0275elementEnd();
+        \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "SIGNAGE_MANAGER.ADD_ZONE_TITLE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "SIGNAGE_MANAGER.ADD_ZONE_TITLE"), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 8, "SIGNAGE_MANAGER.CLOSE_ADD_ZONE"));
-        \u0275\u0275advance(6);
-        \u0275\u0275twoWayProperty("ngModel", ctx.list.search);
-        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(11, 10, "SIGNAGE_MANAGER.SEARCH_ZONES"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 12, "SIGNAGE_MANAGER.SEARCH_ZONES"));
-        \u0275\u0275control();
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.zones().length > 0 ? 13 : ctx.list.loading() ? 14 : 15);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 6, "SIGNAGE_MANAGER.CLOSE_ADD_ZONE"));
+        \u0275\u0275advance(5);
+        \u0275\u0275property("list", ctx.list)("exclude_ids", ctx.exclude_ids);
       }
     }, dependencies: [
-      FormsModule,
-      DefaultValueAccessor,
-      NgControlStatus,
-      NgModel,
       MatRippleModule,
       MatRipple,
       MatDialogModule,
       MatDialogClose,
-      MatFormFieldModule,
-      MatFormField,
-      MatInputModule,
-      MatInput,
       IconComponent,
-      IntersectDirective,
+      ZoneSelectTreeComponent,
       TranslatePipe
     ], encapsulation: 2 });
   }
@@ -1039,95 +928,32 @@ var SignageGroupZoneSelectModalComponent = class _SignageGroupZoneSelectModalCom
             </button>
         </header>
         <main
-            class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
+            class="h-[65vh] max-w-lg min-w-lg overflow-auto px-4 pt-2 pb-4 max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
-            <mat-form-field
-                appearance="outline"
-                class="no-subscript bg-base-100 sticky top-0 z-10 w-full"
-            >
-                <input
-                    matInput
-                    [(ngModel)]="list.search"
-                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
-                    [attr.aria-label]="
-                        'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
-                    "
-                />
-            </mat-form-field>
-            @if (zones().length > 0) {
-                @for (zone of zones(); track zone.id) {
-                    <button
-                        type="button"
-                        matRipple
-                        class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
-                        [mat-dialog-close]="zone"
-                    >
-                        <icon class="text-base-content/60 shrink-0 text-2xl"
-                            >layers</icon
-                        >
-                        <div class="min-w-0 flex-1">
-                            <div class="truncate">
-                                {{ zone.display_name || zone.name }}
-                            </div>
-                            @if (zone.description) {
-                                <div
-                                    class="text-base-content/70 truncate text-xs"
-                                >
-                                    {{ zone.description }}
-                                </div>
-                            }
-                        </div>
-                    </button>
-                }
-                @if (list.has_more()) {
-                    <div
-                        class="h-px w-full"
-                        intersect
-                        (intersect)="list.loadMore()"
-                    ></div>
-                }
-            } @else if (list.loading()) {
-                <div
-                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
-                >
-                    <div class="text-base-content/70">
-                        {{ 'COMMON.LOADING' | translate }}
-                    </div>
-                </div>
-            } @else {
-                <div
-                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
-                >
-                    <icon class="text-base-content/70 text-8xl"
-                        >layers_clear</icon
-                    >
-                    <div class="text-base-content/70">
-                        {{ 'SIGNAGE_MANAGER.NO_ZONES' | translate }}
-                    </div>
-                </div>
-            }
+            <zone-select-tree
+                [list]="list"
+                [exclude_ids]="exclude_ids"
+                (zoneSelected)="selectZone($event)"
+            />
         </main>
     `,
       imports: [
-        FormsModule,
         MatRippleModule,
         MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
         IconComponent,
         TranslatePipe,
-        IntersectDirective
+        ZoneSelectTreeComponent
       ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageGroupZoneSelectModalComponent, { className: "SignageGroupZoneSelectModalComponent", filePath: "apps/signage-manager/src/app/groups/signage-group-zone-select-modal.component.ts", lineNumber: 112 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageGroupZoneSelectModalComponent, { className: "SignageGroupZoneSelectModalComponent", filePath: "apps/signage-manager/src/app/groups/signage-group-zone-select-modal.component.ts", lineNumber: 51 });
 })();
 
 // apps/signage-manager/src/app/groups/signage-group-zones.component.ts
 var _c02 = (a0) => ({ count: a0 });
-var _forTrack05 = ($index, $item) => $item.zone_id;
+var _forTrack04 = ($index, $item) => $item.zone_id;
 function SignageGroupZonesComponent_Conditional_13_For_1_Conditional_8_For_1_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " , ");
@@ -1239,7 +1065,7 @@ function SignageGroupZonesComponent_Conditional_13_For_1_Template(rf, ctx) {
 }
 function SignageGroupZonesComponent_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, SignageGroupZonesComponent_Conditional_13_For_1_Template, 21, 16, "div", 7, _forTrack05);
+    \u0275\u0275repeaterCreate(0, SignageGroupZonesComponent_Conditional_13_For_1_Template, 21, 16, "div", 7, _forTrack04);
   }
   if (rf & 2) {
     const ctx_r6 = \u0275\u0275nextContext();
@@ -1574,7 +1400,7 @@ var SignageGroupContentComponent = class _SignageGroupContentComponent {
 })();
 
 // apps/signage-manager/src/app/groups/signage-group-edit-modal.component.ts
-var _forTrack06 = ($index, $item) => $item.id;
+var _forTrack05 = ($index, $item) => $item.id;
 function SignageGroupEditModalComponent_Conditional_23_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 3);
@@ -1699,7 +1525,7 @@ var SignageGroupEditModalComponent = class _SignageGroupEditModalComponent {
         \u0275\u0275elementStart(24, "mat-form-field", 4)(25, "mat-select", 9);
         \u0275\u0275pipe(26, "translate");
         \u0275\u0275conditionalCreate(27, SignageGroupEditModalComponent_Conditional_27_Template, 3, 3, "mat-option", 10);
-        \u0275\u0275repeaterCreate(28, SignageGroupEditModalComponent_For_29_Template, 2, 2, "mat-option", 11, _forTrack06);
+        \u0275\u0275repeaterCreate(28, SignageGroupEditModalComponent_For_29_Template, 2, 2, "mat-option", 11, _forTrack05);
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementStart(30, "mat-error");
@@ -2135,7 +1961,7 @@ var SignageGroupHeaderComponent = class _SignageGroupHeaderComponent {
 
 // apps/signage-manager/src/app/groups/signage-group-list.component.ts
 var _c04 = (a0) => ({ name: a0 });
-var _forTrack07 = ($index, $item) => $item.id;
+var _forTrack06 = ($index, $item) => $item.id;
 function SignageGroupListComponent_Conditional_7_Conditional_0_For_1_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 13);
@@ -2197,7 +2023,7 @@ function SignageGroupListComponent_Conditional_7_Conditional_0_For_1_Template(rf
 }
 function SignageGroupListComponent_Conditional_7_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, SignageGroupListComponent_Conditional_7_Conditional_0_For_1_Template, 9, 17, "button", 8, _forTrack07);
+    \u0275\u0275repeaterCreate(0, SignageGroupListComponent_Conditional_7_Conditional_0_For_1_Template, 9, 17, "button", 8, _forTrack06);
   }
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext(2);
@@ -2878,7 +2704,7 @@ var SignageGroupListComponent = class _SignageGroupListComponent {
 })();
 
 // apps/signage-manager/src/app/groups/signage-group-tabs.component.ts
-var _forTrack08 = ($index, $item) => $item.id;
+var _forTrack07 = ($index, $item) => $item.id;
 function SignageGroupTabsComponent_For_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -2921,7 +2747,7 @@ var SignageGroupTabsComponent = class _SignageGroupTabsComponent {
       if (rf & 1) {
         \u0275\u0275domElementStart(0, "nav", 0);
         \u0275\u0275pipe(1, "translate");
-        \u0275\u0275repeaterCreate(2, SignageGroupTabsComponent_For_3_Template, 3, 12, "button", 1, _forTrack08);
+        \u0275\u0275repeaterCreate(2, SignageGroupTabsComponent_For_3_Template, 3, 12, "button", 1, _forTrack07);
         \u0275\u0275domElementEnd();
       }
       if (rf & 2) {
@@ -3080,4 +2906,4 @@ var GroupsSectionComponent = class _GroupsSectionComponent {
 export {
   GroupsSectionComponent
 };
-//# sourceMappingURL=groups.component-F7GWYNPB.js.map
+//# sourceMappingURL=groups.component-LNQFM3TL.js.map
