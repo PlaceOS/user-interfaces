@@ -5,7 +5,7 @@ import {
 import {
   CheckinStateService,
   parseTokenFromUrl
-} from "./chunk-24EPPM3R.js";
+} from "./chunk-Y42EYIUP.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -53,6 +53,7 @@ import {
   ViewChild,
   ViewEncapsulation,
   VirtualKeyboardComponent,
+  Wu,
   Zh,
   cl,
   computed,
@@ -129,7 +130,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-7DXTUSV5.js";
+} from "./chunk-BKVWCK5U.js";
 import {
   __spreadProps,
   __spreadValues
@@ -247,18 +248,24 @@ function toCateringItem(asset, caterer) {
     hide_for_zones: details.hide_for_zones instanceof Array ? details.hide_for_zones : []
   });
 }
+async function queryLegacyCateringItems(zone_id) {
+  const metadata = await Wu(zone_id, "catering").catch(() => null);
+  return metadata?.details instanceof Array ? metadata.details.map((item) => new CateringItem(item)) : [];
+}
 async function queryCateringItems(zone_id) {
   if (!zone_id)
     return [];
   const types = await query_catering_types();
   if (!types.length)
-    return [];
+    return queryLegacyCateringItems(zone_id);
   const results = await Promise.all(types.map((type) => Zh({
     zone_id,
     type_id: type.id,
     limit: 500
   }).then((assets) => assets.data.map((asset) => toCateringItem(asset, fromCateringTypeName(type.name))))));
-  return flatten(results).sort((a, b) => a.name.localeCompare(b.name));
+  const items = flatten(results);
+  const menu = items.length ? items : await queryLegacyCateringItems(zone_id);
+  return menu.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 // libs/users/src/lib/user-label.component.ts
@@ -3295,4 +3302,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=checkin.routes-L6R4KELE.js.map
+//# sourceMappingURL=checkin.routes-64J5CWJJ.js.map
