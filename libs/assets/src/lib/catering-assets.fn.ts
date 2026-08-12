@@ -5,6 +5,7 @@ import {
     queryAssets,
     queryAssetTypes,
     removeAsset,
+    showMetadata,
 } from '@placeos/ts-client';
 import {
     findOldestByName,
@@ -192,12 +193,21 @@ function to_asset_data(
     };
 }
 
+async function queryLegacyCateringItems(
+    zone_id: string,
+): Promise<CateringItem[]> {
+    const metadata = await showMetadata(zone_id, 'catering').catch(() => null);
+    return metadata?.details instanceof Array
+        ? metadata.details.map((item) => new CateringItem(item))
+        : [];
+}
+
 export async function queryCateringItems(
     zone_id: string,
 ): Promise<CateringItem[]> {
     if (!zone_id) return [];
     const types = await query_catering_types();
-    if (!types.length) return [];
+    if (!types.length) return queryLegacyCateringItems(zone_id);
     const results = await Promise.all(
         types.map((type) =>
             queryAssets({
@@ -211,9 +221,9 @@ export async function queryCateringItems(
             ),
         ),
     );
-    return flatten<CateringItem>(results).sort((a, b) =>
-        a.name.localeCompare(b.name),
-    );
+    const items = flatten<CateringItem>(results);
+    const menu = items.length ? items : await queryLegacyCateringItems(zone_id);
+    return menu.sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export async function queryCateringItemsForZones(

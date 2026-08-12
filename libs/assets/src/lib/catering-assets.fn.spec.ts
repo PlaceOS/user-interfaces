@@ -153,6 +153,43 @@ describe('[Catering Assets]', () => {
         expect(items[0].caterer).toBe('Acme Catering');
         expect(items[0].category).toBe('Drinks');
         expect(items[0].unit_price).toBe(400);
+        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to the legacy metadata menu when no catering assets exist', async () => {
+        const { catering_assets } = await load_modules();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([{ id: 'cat-1', name: '_CATERING_' }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([{ id: 'type-1', name: 'CATERING:Acme Catering' }]),
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(response([]));
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: [
+                {
+                    id: 'legacy-1',
+                    name: 'Legacy Coffee',
+                    category: 'Drinks',
+                    unit_price: 350,
+                },
+            ],
+        } as any);
+
+        const items = await catering_assets.queryCateringItems('bld-1');
+
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld-1',
+            'catering',
+        );
+        expect(items).toEqual([
+            expect.objectContaining({
+                id: 'legacy-1',
+                name: 'Legacy Coffee',
+                category: 'Drinks',
+                unit_price: 350,
+            }),
+        ]);
     });
 
     it('should create an asset when a supplied item id does not exist', async () => {
@@ -179,7 +216,9 @@ describe('[Catering Assets]', () => {
 
         expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
         expect(ts_client.addAsset).toHaveBeenCalledTimes(1);
-        expect(vi.mocked(ts_client.addAsset).mock.calls[0][0].id).toBeUndefined();
+        expect(
+            vi.mocked(ts_client.addAsset).mock.calls[0][0].id,
+        ).toBeUndefined();
         expect(item.id).toBe('asset-1');
         expect(item.caterer).toBe('standalone');
     });
