@@ -584,20 +584,23 @@ describe('DesksStateService', () => {
         expect(first_page).toHaveBeenCalled();
     });
 
-    it('should reject all displayed desk bookings with the instance endpoint where needed', async () => {
+    it('should reject active desk bookings with the instance endpoint where needed', async () => {
         const confirm_ref = mockConfirm();
         const list = [
             { id: 'booking-1', status: 'approved' },
             {
                 id: 'booking-2',
                 instance: 1_740_000_000,
-                status: 'approved',
+                status: 'tentative',
             },
+            { id: 'booking-3', status: 'declined' },
+            { id: 'booking-4', status: 'cancelled' },
+            { id: 'booking-5', status: 'ended' },
         ];
         Object.defineProperty(spectator.service, 'paged_bookings', {
             value: () => ({
                 list,
-                total: 2,
+                total: list.length,
                 has_next: false,
             }),
         });
@@ -613,6 +616,7 @@ describe('DesksStateService', () => {
             expect.stringContaining('/bookings/booking-2/reject/1740000000'),
             expect.anything(),
         );
+        expect(posted_bookings()).toHaveLength(2);
         expect(confirm_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             'APP.CONCIERGE.DESKS_REJECT_ALL_LOADING',
         );
@@ -622,7 +626,13 @@ describe('DesksStateService', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['success'] }),
         );
-        expect(list.every((desk) => desk.status === 'declined')).toBe(true);
+        expect(list.map((desk) => desk.status)).toEqual([
+            'declined',
+            'declined',
+            'declined',
+            'cancelled',
+            'ended',
+        ]);
         expect(refresh_spy).toHaveBeenCalled();
     });
 
@@ -630,7 +640,13 @@ describe('DesksStateService', () => {
         const confirm_ref = mockConfirm();
         Object.defineProperty(spectator.service, 'paged_bookings', {
             value: () => ({
-                list: [{ id: 'booking-1', instance: 1_740_000_000 }],
+                list: [
+                    {
+                        id: 'booking-1',
+                        instance: 1_740_000_000,
+                        status: 'tentative',
+                    },
+                ],
                 total: 1,
                 has_next: false,
             }),
