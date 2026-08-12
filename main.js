@@ -70070,15 +70070,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "8c711a1",
-  "hash": "8c711a1",
+  "raw": "dd6b22e",
+  "hash": "dd6b22e",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8c711a1",
+  "suffix": "dd6b22e",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1786421826540
+  "time": 1786512070967
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -98943,10 +98943,10 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   async checkUser() {
     var _a10;
-    const state_ready = await resolvedWithin(Promise.all([
+    const state_ready = await this.waitForBackend(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]), OFFLINE_FALLBACK_DELAY);
+    ]));
     if (!state_ready)
       return this.offlineAccess();
     const groups = ((_a10 = this._access) == null ? void 0 : _a10.group) ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
@@ -98975,12 +98975,19 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    const online = await this.waitForBackend(oi(Lr(), Boolean));
     if (!online)
       return null;
     let user = null;
-    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_2) => user = _2), OFFLINE_FALLBACK_DELAY);
+    const loaded = await this.waitForBackend(firstTruthyValueFrom(current_user).then((_2) => user = _2));
     return loaded ? user : null;
+  }
+  async waitForBackend(promise) {
+    if (this._settings.get("app.offline_boot")) {
+      return resolvedWithin(promise, OFFLINE_FALLBACK_DELAY);
+    }
+    await promise;
+    return true;
   }
   /**
    * Access decision for when the backend cannot be reached. Waiting forever
