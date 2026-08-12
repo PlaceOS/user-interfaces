@@ -569,13 +569,14 @@ describe('ParkingStateService', () => {
         );
     });
 
-    it('should waitlist unapproved requests that do not need manual approval', () => {
+    it('should identify waitlisted requests that do not need manual approval', () => {
         settings_map['app.parking.show_requests'] = true;
         const request = {
             id: 'waitlisted-request',
             asset_id: 'unallocated-1',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
+            process_state: 'wait_list',
             date: Date.now(),
             extension_data: { requires_manual_approval: false },
         } as any;
@@ -595,8 +596,8 @@ describe('ParkingStateService', () => {
         const request = {
             id: 'manual-request',
             asset_id: 'unallocated-1',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             date: Date.now(),
             extension_data: { requires_manual_approval: true },
         } as any;
@@ -649,8 +650,8 @@ describe('ParkingStateService', () => {
         const pending_request = {
             id: 'request-1',
             asset_id: 'unallocated-1',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             extension_data: {
                 approver_group: 'parking-team',
                 requires_manual_approval: true,
@@ -659,8 +660,8 @@ describe('ParkingStateService', () => {
         const declined_request = {
             id: 'request-2',
             asset_id: 'unallocated-2',
+            approved: false,
             status: 'declined',
-            process_state: 'unapproved',
             extension_data: {
                 approver_group: 'parking-team',
                 requires_manual_approval: true,
@@ -680,8 +681,8 @@ describe('ParkingStateService', () => {
         const pending_request = {
             id: 'request-1',
             asset_id: 'unallocated-1',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             extension_data: {
                 approver_group: 'parking-team',
                 requires_manual_approval: true,
@@ -716,8 +717,8 @@ describe('ParkingStateService', () => {
         const booking = {
             id: 'booking-1',
             asset_id: 'space-1',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             extension_data: { requires_manual_approval: true },
         } as any;
         const regular_booking = {

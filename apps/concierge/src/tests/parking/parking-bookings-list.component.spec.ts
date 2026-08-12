@@ -637,8 +637,9 @@ describe('ParkingBookingsListComponent', () => {
             spectator.component.statusTone({
                 id: 'waitlisted',
                 asset_id: 'unallocated-1',
+                approved: false,
                 status: 'tentative',
-                process_state: 'unapproved',
+                process_state: 'wait_list',
             } as any),
         ).toBe('warning');
     });

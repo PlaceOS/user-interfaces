@@ -186,14 +186,15 @@ describe('ParkingBookingsWeekViewComponent', () => {
         spectator = createComponent();
         const waitlisted = {
             id: 'waitlisted',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
+            process_state: 'wait_list',
             extension_data: {},
         } as Booking;
         const manual = {
             id: 'manual',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             extension_data: { requires_manual_approval: true },
         } as any as Booking;
         const pending = { id: 'pending', status: 'tentative' } as Booking;
