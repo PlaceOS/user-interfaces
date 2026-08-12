@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["space-select-modal.component.ts"],
+  "sourcesContent": ["\n            @media screen and (max-width: 640px) {\n                [list] {\n                    width: 100% !important;\n                }\n            }\n        "],
+  "mappings": ";AACY,OAAA,YAAA,WAAA;AACI,GAAA;AACI,WAAA;AACJ;AACJ;",
+  "names": []
+}
