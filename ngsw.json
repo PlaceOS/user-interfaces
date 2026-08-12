@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1786421860550,
+  "timestamp": 1786511929465,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -20,7 +20,7 @@
         "./chunk-Y4R37YMA.js",
         "./favicon.ico",
         "./index.html",
-        "./main-T5KPOSU7.js",
+        "./main-VOLPSFMF.js",
         "./manifest.webmanifest",
         "./styles-JZLVVEIK.css"
       ],
@@ -216,8 +216,8 @@
     "./chunk-Y4R37YMA.js": "e9e66716ac39c24be247b6e391868c43816126e9",
     "./favicon.ico": "8addcfd98e3f8644cf662d3a7cf0c1154c2b4a2c",
     "./favicon.svg": "069afd71e02995585596a8d9f5769deee29f7b32",
-    "./index.html": "c36f950275e87ad3451003fe5699d56663df595f",
-    "./main-T5KPOSU7.js": "5233ac120031cc9c6373d8b3432ecaed36be0dbf",
+    "./index.html": "9188b41d414e15705b8f355e516fcf67067af0db",
+    "./main-VOLPSFMF.js": "4d86dc74ad3cd1b922c972613f73be9ca2bfbd00",
     "./manifest.webmanifest": "9d822ec8195715ffcb301d47a6dcd053c17674c7",
     "./styles-JZLVVEIK.css": "d09570b919b0148e393dc5db5e8d0d3c5002264b"
   },
