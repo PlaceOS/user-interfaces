@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["team-quick-actions.component.ts"],
+  "sourcesContent": ["\n            .bg-grad {\n                background: linear-gradient(\n                    105deg,\n                    var(--brand-100) 0%,\n                    var(--brand-200) 100%\n                );\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI;IAAA;;;;AAKJ;",
+  "names": []
+}
