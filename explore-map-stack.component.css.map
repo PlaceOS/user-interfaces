@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["explore-map-stack.component.ts"],
-  "sourcesContent": ["\n            div:not(.hide-levels):not(.isometric) interactive-map {\n                transform: perspective(500px) rotateX(50deg) scale(0.9);\n            }\n\n            div.isometric:not(.hide-levels) interactive-map {\n                transform: perspective(800px) rotateX(45deg) rotateZ(-45deg)\n                    scale(0.7);\n            }\n\n            .hide-levels > div:not(.active) {\n                display: none;\n            }\n\n            interactive-map {\n                transition:\n                    transform 200ms,\n                    opacity 200ms;\n                opacity: 0.1;\n                pointer-events: none;\n                height: 100vw;\n                width: 100vw;\n            }\n\n            .active {\n                opacity: 1 !important;\n                pointer-events: auto;\n            }\n        "],
-  "mappings": ";AACY,GAAA,KAAA,CAAA,YAAA,KAAA,CAAA,WAAA;AACI,aAAA,YAAA,OAAA,QAAA,OAAA,MAAA;AACJ;AAEA,GAAA,CAJA,SAIA,KAAA,CAJA,aAIA;AACI,aAAA,YAAA,OAAA,QAAA,OAAA,QAAA;AAEJ;AAEA,CATA,YASA,EAAA,GAAA,KAAA,CAAA;AACI,WAAA;AACJ;AAEA;AACI;AAGA,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACJ;AAEA,CAdA;AAeI,WAAA;AACA,kBAAA;AACJ;",
-  "names": []
-}
