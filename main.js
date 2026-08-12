@@ -68115,15 +68115,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "e33c908",
-  "hash": "e33c908",
+  "raw": "0923ab7",
+  "hash": "0923ab7",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e33c908",
+  "suffix": "0923ab7",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1785892644467
+  "time": 1786509845309
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -122134,18 +122134,24 @@ function toCateringItem(asset, caterer) {
     hide_for_zones: details.hide_for_zones instanceof Array ? details.hide_for_zones : []
   });
 }
+async function queryLegacyCateringItems(zone_id) {
+  const metadata2 = await Wu(zone_id, "catering").catch(() => null);
+  return metadata2?.details instanceof Array ? metadata2.details.map((item) => new CateringItem(item)) : [];
+}
 async function queryCateringItems(zone_id) {
   if (!zone_id)
     return [];
   const types = await query_catering_types();
   if (!types.length)
-    return [];
+    return queryLegacyCateringItems(zone_id);
   const results = await Promise.all(types.map((type) => Zh({
     zone_id,
     type_id: type.id,
     limit: 500
   }).then((assets) => assets.data.map((asset) => toCateringItem(asset, fromCateringTypeName(type.name))))));
-  return flatten2(results).sort((a, b2) => a.name.localeCompare(b2.name));
+  const items = flatten2(results);
+  const menu = items.length ? items : await queryLegacyCateringItems(zone_id);
+  return menu.sort((a, b2) => a.name.localeCompare(b2.name));
 }
 
 // libs/assets/src/lib/locker-assets.fn.ts
