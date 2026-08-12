@@ -12,7 +12,7 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-WEKULSOL.js";
+} from "./chunk-5ZZQKTEZ.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -24,10 +24,10 @@ import {
   MatSelectModule,
   MatSelectTrigger,
   SanitizePipe
-} from "./chunk-QG6YGRCF.js";
+} from "./chunk-L2LP3PP6.js";
 import {
   CheckinStateService
-} from "./chunk-O5RJFRPL.js";
+} from "./chunk-4PRQM4D7.js";
 import {
   $r,
   ANIMATION_MODULE_TYPE,
@@ -242,7 +242,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-N4KOZNFX.js";
+} from "./chunk-DZUACAK3.js";
 import {
   __export,
   __objRest,
@@ -7008,10 +7008,10 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
-    const state_ready = await resolvedWithin(Promise.all([
+    const state_ready = await this.waitForBackend(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]), OFFLINE_FALLBACK_DELAY);
+    ]));
     if (!state_ready)
       return this.offlineAccess();
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
@@ -7040,12 +7040,19 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    const online = await this.waitForBackend(oi(Lr(), Boolean));
     if (!online)
       return null;
     let user = null;
-    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_) => user = _), OFFLINE_FALLBACK_DELAY);
+    const loaded = await this.waitForBackend(firstTruthyValueFrom(current_user).then((_) => user = _));
     return loaded ? user : null;
+  }
+  async waitForBackend(promise) {
+    if (this._settings.get("app.offline_boot")) {
+      return resolvedWithin(promise, OFFLINE_FALLBACK_DELAY);
+    }
+    await promise;
+    return true;
   }
   /**
    * Access decision for when the backend cannot be reached. Waiting forever
@@ -21607,17 +21614,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-ELMUF3SM.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-RW3D2EZC.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-UHV43JNT.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-HSZNUYDN.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-KZ5VSMBP.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-MPZ6Y266.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
