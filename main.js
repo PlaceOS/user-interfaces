@@ -166,7 +166,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-NHJN3T55.js";
+} from "./chunk-2RIEL44U.js";
 import {
   __export,
   __spreadProps,
@@ -3869,10 +3869,10 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return this.checkUser();
   }
   async checkUser() {
-    const state_ready = await resolvedWithin(Promise.all([
+    const state_ready = await this.waitForBackend(Promise.all([
       this._org.waitUntilInitialised(),
       firstValueWhere(user_groups_loaded, Boolean, this._injector)
-    ]), OFFLINE_FALLBACK_DELAY);
+    ]));
     if (!state_ready)
       return this.offlineAccess();
     const groups = this._access?.group ? [this._access.group] : this._settings.get("app.allow_access_groups") || [];
@@ -3901,12 +3901,19 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await resolvedWithin(oi(Lr(), Boolean), OFFLINE_FALLBACK_DELAY);
+    const online = await this.waitForBackend(oi(Lr(), Boolean));
     if (!online)
       return null;
     let user = null;
-    const loaded = await resolvedWithin(firstTruthyValueFrom(current_user).then((_) => user = _), OFFLINE_FALLBACK_DELAY);
+    const loaded = await this.waitForBackend(firstTruthyValueFrom(current_user).then((_) => user = _));
     return loaded ? user : null;
+  }
+  async waitForBackend(promise) {
+    if (this._settings.get("app.offline_boot")) {
+      return resolvedWithin(promise, OFFLINE_FALLBACK_DELAY);
+    }
+    await promise;
+    return true;
   }
   /**
    * Access decision for when the backend cannot be reached. Waiting forever
@@ -12081,39 +12088,39 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-HULFCIBK.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-S6ZLUSJE.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-E3CNCHUA.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-WZKYE23Q.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-E3CNCHUA.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-WZKYE23Q.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-6V3LPUQP.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-TN4Y4QH5.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-7GBJPHIU.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-BAK6PU3T.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-7GBJPHIU.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-BAK6PU3T.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-LNQFM3TL.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-ZZPOKPP2.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-3UMA5WN7.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-PW3KUZHK.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-3UMA5WN7.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-PW3KUZHK.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
