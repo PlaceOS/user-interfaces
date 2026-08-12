@@ -104,8 +104,9 @@ describe('ParkingRequestsWeekViewComponent', () => {
             {
                 id: 'waitlisted',
                 asset_id: 'unallocated-1',
+                approved: false,
                 status: 'tentative',
-                process_state: 'unapproved',
+                process_state: 'wait_list',
                 date: today,
             } as Booking,
             {
@@ -145,16 +146,17 @@ describe('ParkingRequestsWeekViewComponent', () => {
         expect(all_ids).toContain('new-request');
     });
 
-    it('should style unapproved requests by their request status', () => {
+    it('should style requests by their request status', () => {
         spectator = createComponent();
         const waitlisted = {
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
+            process_state: 'wait_list',
             date: Date.now(),
         } as Booking;
         const manual = {
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             extension_data: { requires_manual_approval: true },
             date: Date.now(),
         } as any as Booking;
@@ -169,8 +171,9 @@ describe('ParkingRequestsWeekViewComponent', () => {
         show_waitlist = false;
         spectator = createComponent();
         const booking = {
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
+            process_state: 'wait_list',
             date: Date.now(),
         } as Booking;
 

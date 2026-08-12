@@ -51,17 +51,18 @@ export type ParkingRequestStatus = 'pending' | 'approval_required' | 'waitlist';
 
 /**
  * Status of an unresolved parking request.
- * `pending` when the backend hasn't set a process state, otherwise the request
- * is unapproved and is either waiting on an approver or on the waitlist.
+ * Unapproved manual requests need approval; non-manual requests are only
+ * waitlisted when the backend marks their process state accordingly.
  */
 export function parkingRequestStatus(
-    booking?: Pick<Booking, 'process_state' | 'extension_data'>,
+    booking?: Pick<Booking, 'approved' | 'process_state' | 'extension_data'>,
 ): ParkingRequestStatus {
-    // Booking defaults an empty process state to `pending`
-    if (booking?.process_state !== 'unapproved') return 'pending';
-    return booking.extension_data?.requires_manual_approval
-        ? 'approval_required'
-        : 'waitlist';
+    const requires_manual_approval =
+        !!booking?.extension_data?.requires_manual_approval;
+    if (booking?.approved !== false) return 'pending';
+    if (requires_manual_approval) return 'approval_required';
+    if (booking.process_state === 'wait_list') return 'waitlist';
+    return 'pending';
 }
 
 export function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
