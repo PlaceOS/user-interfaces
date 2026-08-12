@@ -55,7 +55,9 @@ describe('AuthorisedUserGuard', () => {
         vi.clearAllMocks();
         access_mock.group = '';
         settings_mock.app_name = 'workplace';
-        settings_mock.get.mockReturnValue([]);
+        settings_mock.get.mockImplementation((key) =>
+            key === 'app.allow_access_groups' ? [] : undefined,
+        );
         setCurrentUser({ groups: [] } as any);
         vi.mocked(ts_client.authority).mockReturnValue(undefined);
         vi.mocked(ts_client.currentGroups).mockReturnValue(of([]) as any);
@@ -69,6 +71,9 @@ describe('AuthorisedUserGuard', () => {
 
     it('should treat a stored api key as cached credentials', async () => {
         vi.useFakeTimers();
+        settings_mock.get.mockImplementation((key) =>
+            key === 'app.offline_boot' ? true : [],
+        );
         // ts-client reports an api-key session as the token `x-api-key`; fixed
         // devices authenticate this way, so offline boot depends on it.
         vi.mocked(ts_client.token).mockReturnValue('x-api-key');
@@ -85,6 +90,9 @@ describe('AuthorisedUserGuard', () => {
 
     it('should allow access on cached credentials when the backend is unreachable', async () => {
         vi.useFakeTimers();
+        settings_mock.get.mockImplementation((key) =>
+            key === 'app.offline_boot' ? true : [],
+        );
         // Organisation data never initialises, as on an offline cold boot
         wait_until_initialised.mockImplementation(
             () => new Promise(() => undefined),
@@ -100,6 +108,9 @@ describe('AuthorisedUserGuard', () => {
 
     it('should refuse access when the backend is unreachable and there are no cached credentials', async () => {
         vi.useFakeTimers();
+        settings_mock.get.mockImplementation((key) =>
+            key === 'app.offline_boot' ? true : [],
+        );
         wait_until_initialised.mockImplementation(
             () => new Promise(() => undefined),
         );
@@ -116,7 +127,11 @@ describe('AuthorisedUserGuard', () => {
 
     it('should allow access on cached credentials when the online check stalls', async () => {
         vi.useFakeTimers();
-        settings_mock.get.mockReturnValue(['signage-users']);
+        settings_mock.get.mockImplementation((key) => {
+            if (key === 'app.offline_boot') return true;
+            if (key === 'app.allow_access_groups') return ['signage-users'];
+            return undefined;
+        });
         vi.mocked(ts_client.waitForSignal).mockImplementation(
             () => new Promise(() => undefined) as any,
         );
@@ -125,6 +140,26 @@ describe('AuthorisedUserGuard', () => {
         const result = spectator.service.canActivate();
         await vi.advanceTimersByTimeAsync(21_000);
 
+        await expect(result).resolves.toBe(true);
+        vi.useRealTimers();
+    });
+
+    it('should keep waiting instead of redirecting during a slow startup', async () => {
+        vi.useFakeTimers();
+        let resolve_startup: () => void;
+        wait_until_initialised.mockImplementation(
+            () =>
+                new Promise<void>((resolve) => {
+                    resolve_startup = resolve;
+                }),
+        );
+        const router = spectator.inject(Router);
+
+        const result = spectator.service.canActivate();
+        await vi.advanceTimersByTimeAsync(21_000);
+
+        expect(router.navigate).not.toHaveBeenCalled();
+        resolve_startup!();
         await expect(result).resolves.toBe(true);
         vi.useRealTimers();
     });
@@ -222,7 +257,7 @@ describe('AuthorisedUserGuard', () => {
         } as any);
         settings_mock.app_name = 'signage-manager';
         settings_mock.get.mockImplementation((key) =>
-            key === 'app.access_subsystem' ? ('signage' as any) : [],
+            key === 'app.access_subsystem' ? ('signage' as any) : undefined,
         );
         setCurrentUser({ groups: [] } as any);
         common_lib.user_groups.set([

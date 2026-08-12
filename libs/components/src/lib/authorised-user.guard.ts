@@ -91,12 +91,11 @@ export class AuthorisedUserGuard {
     }
 
     private async checkUser() {
-        const state_ready = await resolvedWithin(
+        const state_ready = await this.waitForBackend(
             Promise.all([
                 this._org.waitUntilInitialised(),
                 firstValueWhere(user_groups_loaded, Boolean, this._injector),
             ]),
-            OFFLINE_FALLBACK_DELAY,
         );
         if (!state_ready) return this.offlineAccess();
         const groups = this._access?.group
@@ -128,17 +127,23 @@ export class AuthorisedUserGuard {
 
     /** The active user, or null if the backend could not be reached in time */
     private async waitForUser() {
-        const online = await resolvedWithin(
+        const online = await this.waitForBackend(
             waitForSignal(onlineState(), Boolean),
-            OFFLINE_FALLBACK_DELAY,
         );
         if (!online) return null;
         let user: any = null;
-        const loaded = await resolvedWithin(
+        const loaded = await this.waitForBackend(
             firstTruthyValueFrom(current_user).then((_) => (user = _)),
-            OFFLINE_FALLBACK_DELAY,
         );
         return loaded ? user : null;
+    }
+
+    private async waitForBackend(promise: Promise<unknown>) {
+        if (this._settings.get('app.offline_boot')) {
+            return resolvedWithin(promise, OFFLINE_FALLBACK_DELAY);
+        }
+        await promise;
+        return true;
     }
 
     /**

@@ -723,7 +723,9 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectAllDesks() {
-        const list = this.bookings();
+        const list = this.bookings().filter(
+            (desk) => desk.status === 'approved' || desk.status === 'tentative',
+        );
         if (list.length <= 0)
             return notifyInfo('No desks to reject for the selected date');
         const resp = await openConfirmModal(
