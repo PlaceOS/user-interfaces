@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["parking-request-modal.component.ts"],
+  "sourcesContent": ["\n            .gradient {\n                background: linear-gradient(\n                    105deg,\n                    var(--base-200) 0%,\n                    var(--base-200) 50%,\n                    var(--base-100) 100%\n                );\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI;IAAA;;;;;AAMJ;",
+  "names": []
+}
