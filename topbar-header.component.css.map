@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["topbar-header.component.ts"],
-  "sourcesContent": ["\n            :host > div {\n                height: 3.5rem;\n            }\n\n            a {\n                border-radius: 0;\n            }\n\n            img {\n                max-height: 2.5rem;\n                max-width: 50vw;\n            }\n        "],
-  "mappings": "AACY,KAAA,CAAA,IACI,OAAA,MACJ,CAEA,gBACI,CACJ,CAEA,IACI,WAAA,OACA,UAAA,IACJ",
-  "names": []
-}
