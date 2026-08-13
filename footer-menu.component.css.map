@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["footer-menu.component.ts"],
-  "sourcesContent": ["\n            a.active icon {\n                color: var(--secondary) !important;\n            }\n\n            a.active {\n                font-weight: 500;\n            }\n\n            a:not(.active) [filled],\n            a.active [outline] {\n                display: none;\n            }\n        "],
-  "mappings": "AACY,CAAA,CAAA,OAAA,KACI,MAAA,IAAA,sBACJ,CAEA,CAAA,CAJA,OAKI,YAAA,GACJ,CAEA,CAAA,KAAA,CARA,QAQA,CAAA,UARA,iBAUI,QAAA,IACJ",
+  "sourcesContent": ["\n            a.active {\n                font-weight: 500;\n            }\n\n            [icon][default].active {\n                background: var(--info-light);\n                color: var(--info);\n                border-color: var(--info);\n            }\n\n            a:not(.active) [filled],\n            a.active [outline],\n            a:not(.active) [bar] {\n                display: none;\n            }\n        "],
+  "mappings": "AACY,CAAA,CAAA,OACI,YAAA,GACJ,CAEA,CAAA,KAAA,CAAA,QAAA,CAJA,OAKI,WAAA,IAAA,cACA,MAAA,IAAA,QACA,aAAA,IAAA,OACJ,CAEA,CAAA,KAAA,CAVA,QAUA,CAAA,UAVA,wBAAA,cAaI,QAAA,IACJ",
   "names": []
 }

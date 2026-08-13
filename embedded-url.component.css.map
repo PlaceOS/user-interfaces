@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["embedded-url.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                width: 100%;\n                height: 100%;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,MAAA,KACA,OAAA,IACJ",
+  "names": []
+}

@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["space-list.component.ts"],
-  "sourcesContent": ["\n            :host {\n                width: 100%;\n                height: 100%;\n                padding: 0.5rem;\n                overflow: auto;\n            }\n        "],
-  "mappings": "AACY,MACI,MAAA,KACA,OAAA,aACA,MACA,SAAA,IACJ",
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n            }\n\n            mat-form-field {\n                width: 48rem;\n                max-width: calc(100% - 2rem);\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,OAAA,KACA,MAAA,IACJ,CAEA,eACI,MAAA,MACA,UAAA,KAAA,KAAA,EAAA,KACJ",
   "names": []
 }
