@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["new-locker-map.component.ts"],
-  "sourcesContent": ["\n            :host {\n                position: relative;\n                background: rgba(0, 0, 0, 0.05);\n                display: flex;\n                flex-direction: column;\n            }\n        "],
-  "mappings": "AACY,MACI,SAAA,SACA,WAAA,UACA,QAAA,KACA,eAAA,MACJ",
-  "names": []
-}
