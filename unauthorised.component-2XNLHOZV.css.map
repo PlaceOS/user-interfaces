@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["unauthorised.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                align-items: center;\n                justify-content: center;\n            }\n\n            [unauthorised] {\n                background-image: linear-gradient(\n                    to right,\n                    #c62828 0%,\n                    #ef5350 100%\n                );\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,YAAA,OACA,gBAAA,MACJ,CAEA,CAAA,cACI,iBAAA,wBAAA,QAAA,SAKJ",
+  "names": []
+}
