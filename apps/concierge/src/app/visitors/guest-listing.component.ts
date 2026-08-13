@@ -601,6 +601,17 @@ import { VisitorsStateService } from './visitors-state.service';
                                 >
                                     {{ 'COMMON.SAVE' | translate }}
                                 </button>
+                                @if (row.extension_data.pass_number) {
+                                    <button
+                                        btn
+                                        matRipple
+                                        name="remove-pass"
+                                        class="inverse error w-full"
+                                        (click)="setPass(row)"
+                                    >
+                                        {{ 'COMMON.REMOVE' | translate }}
+                                    </button>
+                                }
                             </div>
                         </mat-menu>
                     }
@@ -927,10 +938,8 @@ export class GuestListingComponent extends AsyncHandler {
         this._state.poll();
     }
 
-    public async setPass(row: any, pass = '') {
-        if (!pass) return;
-        await saveBooking(new Booking({ ...row, pass_number: pass } as any));
-        this._state.poll();
+    public async setPass(row: Booking, pass = '') {
+        await this._state.setExt(row, 'pass_number', pass || null);
         this.pass_number.set('');
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));
     }

@@ -1,6 +1,6 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
 import { signal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
 import { GuestListingComponent } from '../../app/visitors/guest-listing.component';
@@ -8,6 +8,8 @@ import { VisitorsStateService } from '../../app/visitors/visitors-state.service'
 
 describe('GuestListingComponent', () => {
     let spectator: Spectator<GuestListingComponent>;
+    const set_ext = vi.fn();
+    const poll = vi.fn();
     const settings = {
         get: vi.fn(),
         time_format: 'h:mm a',
@@ -28,11 +30,11 @@ describe('GuestListingComponent', () => {
                 approveVisitor: vi.fn(),
                 declineVisitor: vi.fn(),
                 setCheckinStateForEvent: vi.fn(),
-                setExt: vi.fn(),
+                setExt: set_ext,
                 editVisitorNotes: vi.fn(),
                 setCheckinState: vi.fn(),
                 emailVisitor: vi.fn(),
-                poll: vi.fn(),
+                poll,
             } as any),
             MockProvider(ParkingStateService, { editReservation: vi.fn() }),
             MockProvider(SettingsService, settings as any),
@@ -47,6 +49,8 @@ describe('GuestListingComponent', () => {
 
     beforeEach(() => {
         settings.get.mockReset();
+        set_ext.mockReset().mockResolvedValue(undefined);
+        poll.mockReset();
         filtered_bookings.set([]);
         filters.set({});
         spectator = createComponent();
@@ -118,5 +122,31 @@ describe('GuestListingComponent', () => {
         );
 
         date_now.mockRestore();
+    });
+
+    it('should assign a pass number to the visitor', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            extension_data: { notes: 'VIP' },
+        });
+
+        await spectator.component.setPass(booking, 'PASS-101');
+
+        expect(set_ext).toHaveBeenCalledWith(
+            booking,
+            'pass_number',
+            'PASS-101',
+        );
+    });
+
+    it('should remove an assigned pass number from the visitor', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            extension_data: { notes: 'VIP', pass_number: 'PASS-101' },
+        });
+
+        await spectator.component.setPass(booking);
+
+        expect(set_ext).toHaveBeenCalledWith(booking, 'pass_number', null);
     });
 });
