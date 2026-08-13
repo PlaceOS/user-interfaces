@@ -1,9 +1,17 @@
-import { Booking, setCurrentUser, StaffUser, VERSION } from '@placeos/common';
+import {
+    Booking,
+    CalendarEvent,
+    setCurrentUser,
+    Space,
+    StaffUser,
+    VERSION,
+} from '@placeos/common';
 import {
     approveBooking,
     bookedResourceList,
     checkinBooking,
     createBooking,
+    createBookingsForEvent,
     queryBookings,
     rejectBooking,
     removeBooking,
@@ -114,6 +122,77 @@ describe('[Booking API]', () => {
                 { extension_data: { app_name, app_version } },
             );
             spy.mockReset();
+        });
+    });
+
+    describe('createBookingsForEvent', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            event_start: 1_800_000_000,
+            event_end: 1_800_003_600,
+            host: user_email,
+            title: 'Visitor meeting',
+            ical_uid: 'event-1@example.com',
+            resources: [
+                new Space({
+                    id: 'space-1',
+                    email: 'space-1@example.com',
+                    zones: ['zone-1'],
+                }),
+            ],
+        });
+        const visitors = [
+            {
+                id: 'visitor-1',
+                email: 'visitor.one@external.com',
+                name: 'Visitor One',
+            },
+            {
+                id: 'visitor-2',
+                email: 'visitor.two@external.com',
+                name: 'Visitor Two',
+            },
+        ];
+
+        it('should create linked visitor bookings sequentially', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            let active_requests = 0;
+            let max_concurrent_requests = 0;
+            vi.spyOn(ts_client, 'post').mockImplementation(async () => {
+                active_requests += 1;
+                max_concurrent_requests = Math.max(
+                    max_concurrent_requests,
+                    active_requests,
+                );
+                await Promise.resolve();
+                active_requests -= 1;
+                return { id: `booking-${active_requests}` } as never;
+            });
+
+            await createBookingsForEvent(event, 'visitor', visitors);
+
+            expect(ts_client.post).toHaveBeenCalledTimes(2);
+            expect(max_concurrent_requests).toBe(1);
+        });
+
+        it('should remove created visitor bookings when a later request fails', async () => {
+            const error = new Error('Unable to link visitor');
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            vi.spyOn(ts_client, 'post')
+                .mockResolvedValueOnce({ id: 'visitor-booking-1' } as never)
+                .mockRejectedValueOnce(error);
+            const delete_spy = vi
+                .spyOn(ts_client, 'del')
+                .mockResolvedValue(undefined);
+
+            await expect(
+                createBookingsForEvent(event, 'visitor', visitors),
+            ).rejects.toBe(error);
+
+            expect(delete_spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/visitor-booking-1?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
         });
     });
 
