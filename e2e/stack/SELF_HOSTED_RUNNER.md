@@ -87,8 +87,7 @@ Verified on this VM, so no extra provisioning is needed:
 
 | | |
 |---|---|
-| `vm.max_map_count` | **1048576** — above Elasticsearch's 262144, so no sysctl step |
-| cgroup version | **v2** — the condition that crashes ES 7.17.6; the stack pins 7.17.28 for exactly this reason. Do not downgrade it. |
+| `vm.max_map_count` | **1048576** — no sysctl step needed |
 | Published ports | forwarded to the host, so `localhost:9443` works |
 
 ### 2. Register the runner
@@ -180,7 +179,6 @@ stack-bring-up failure.
 | `docker compose` not a valid command | The compose plugin is not registered — step 1. |
 | Hangs on **Bring up the local PlaceOS stack** | `up.sh` prints `compose ps` plus every service's logs on failure; read the step output first. Usually Colima not running (`colima status`) or the registry unreachable. |
 | `port is already allocated` | Previous run died. The reclaim step handles it; otherwise `./down.sh --volumes`. |
-| `elastic-1 is unhealthy` | Give Colima more memory. ES is pinned to 7.17.28 to avoid the cgroup v2 JDK crash — do not downgrade. |
 | Can't SSH the machine from the LAN | Expected and irrelevant to CI. It sits on a different subnet with inter-VLAN traffic filtered; use Tailscale for admin. |
 
 ## Reverting to GitHub-hosted
