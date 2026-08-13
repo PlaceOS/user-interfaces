@@ -67,6 +67,7 @@ describe('ScheduleComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.mocked(ts_client.post).mockResolvedValue({} as any);
+        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
         spectator = createComponent();
     });
 
@@ -157,6 +158,32 @@ describe('ScheduleComponent', () => {
         const [url] = vi.mocked(ts_client.post).mock.calls[0];
         expect(url).toContain('booking-1');
         expect(url).toContain('check_in');
+        expect(state.triggerPoll).toHaveBeenCalled();
+        expect(state.removeItem).not.toHaveBeenCalled();
+    });
+
+    it('should refresh cancelled bookings without hiding them as deleted', async () => {
+        const state = spectator.inject(ScheduleStateService);
+        const dialog = spectator.fixture.debugElement.injector.get(MatDialog);
+        vi.spyOn(dialog, 'open').mockReturnValue({
+            afterClosed: () => of({ reason: 'done' }),
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        } as any);
+        const booking = new Booking({
+            id: 'booking-1',
+            booking_type: 'visitor',
+            type: 'visitor',
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor',
+        } as any);
+
+        await spectator.component.remove(booking);
+
+        expect(ts_client.del).toHaveBeenCalled();
         expect(state.triggerPoll).toHaveBeenCalled();
         expect(state.removeItem).not.toHaveBeenCalled();
     });

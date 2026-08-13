@@ -701,6 +701,7 @@ export class ScheduleStateService extends AsyncHandler {
             type,
             include_checked_out: true,
             include_booked_by: true,
+            include_deleted: true,
         };
         const key = JSON.stringify(query);
         const existing = this._booking_query_requests.get(key);

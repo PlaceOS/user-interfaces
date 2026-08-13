@@ -73,6 +73,9 @@ describe('VisitorStateService', () => {
         await wait(10);
         expect(spectator.service.bookings()).toHaveLength(1);
         expect(ts_client.get).toHaveBeenCalled();
+        const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
+        expect(url).toContain('include_checked_out=true');
+        expect(url).toContain('include_deleted=true');
     });
 
     it('should apply building timezone to visitor listing requests', async () => {

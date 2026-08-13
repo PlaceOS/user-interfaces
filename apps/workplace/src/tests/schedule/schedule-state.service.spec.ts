@@ -95,4 +95,16 @@ describe('ScheduleStateService', () => {
 
         expect(ts_client.get).toHaveBeenCalledTimes(1);
     });
+
+    it('should request cancelled and ended bookings', async () => {
+        await (spectator.service as any)._bookingQuery(
+            'visitor',
+            'day',
+            new Date(2026, 5, 22, 9).valueOf(),
+        );
+
+        const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
+        expect(url).toContain('include_checked_out=true');
+        expect(url).toContain('include_deleted=true');
+    });
 });

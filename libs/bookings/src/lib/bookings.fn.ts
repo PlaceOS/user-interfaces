@@ -50,8 +50,8 @@ export interface BookingsQueryParams {
     include_checked_out?: boolean;
     /** Include bookings made by the current user in the response */
     include_booked_by?: boolean;
-    /** Include deleted bookings in the response (can be set to apply to only recurring bookings) */
-    include_deleted?: 'all' | 'recurring';
+    /** Include deleted bookings in the response */
+    include_deleted?: boolean;
     /** Include deleted bookings in the response */
     deleted?: boolean;
     /**  */

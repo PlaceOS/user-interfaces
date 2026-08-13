@@ -60,6 +60,14 @@ describe('GuestListingComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
+    it('should show cancelled bookings as cancelled', () => {
+        expect(
+            spectator.component.bookingStatusLabel({
+                status: 'cancelled',
+            } as any),
+        ).toBe('COMMON.TYPE_CANCELLED');
+    });
+
     it('should show all visitor actions from 15 minutes before until 15 minutes after the booking', () => {
         const booking = {
             linked_event: { id: 'event-1' },

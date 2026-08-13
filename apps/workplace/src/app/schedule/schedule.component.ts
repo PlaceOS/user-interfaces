@@ -387,7 +387,8 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
                     : 'APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS',
             ),
         );
-        this._state.removeItem(item);
+        if (item instanceof CalendarEvent) this._state.removeItem(item);
+        else this._state.triggerPoll();
         this._dialog.closeAll();
     }
 
