@@ -68,6 +68,7 @@ const clashBookings = (): any[] =>
 
 describe('BookingFormService', () => {
     let spectator: SpectatorService<BookingFormService>;
+    const settings_overrides = signal<Record<string, unknown>[]>([]);
     const createService = createServiceFactory({
         service: BookingFormService,
         providers: [
@@ -77,13 +78,16 @@ describe('BookingFormService', () => {
             }),
             MockProvider(SettingsService, {
                 get: vi.fn(),
-                overrides: signal([]),
+                overrides: settings_overrides,
             }),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 waitUntilInitialised: () => Promise.resolve(),
+                active_region: signal(null),
                 active_building: signal({ id: 'bld-1' }),
                 active_building_loaded: signal(true),
+                regions: [],
+                settings: [],
                 building_list: signal([{ id: 'bld-1', parent_id: 'reg-1' }]),
                 organisation: { id: 'org-1' },
                 region: { id: 'reg-1' },
@@ -402,7 +406,26 @@ describe('BookingFormService', () => {
 
     it.todo('should list asset features');
 
-    it.todo('should list available assets');
+    it('should list availability for an immediately updated booking window', async () => {
+        settings_overrides.set([{}, {}]);
+        try {
+            spectator.service.newForm('desk');
+            spectator.service.model.update((model) => ({
+                ...model,
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }));
+
+            const available = await spectator.service.listAvailableResources();
+
+            expect(available.map((asset) => asset.id)).toEqual([
+                'desk-1',
+                'desk-1',
+            ]);
+        } finally {
+            settings_overrides.set([]);
+        }
+    });
 
     it('should exclude window-booked AND recurring-clash desks', async () => {
         // desk-1 is booked in the first-instance window, desk-2 clashes with a

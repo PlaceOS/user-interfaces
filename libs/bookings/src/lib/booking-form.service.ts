@@ -590,6 +590,17 @@ export class BookingFormService extends AsyncHandler {
     /** Resolve with the resources for the current booking type once loaded */
     public async listResources(): Promise<BookingAsset[]> {
         this._startNetwork();
+        await firstValueWhere(
+            this._requests_ready,
+            (ready) => ready,
+            this._injector,
+        );
+        const params = this._resource_params();
+        await firstValueWhere(
+            this._resource_params_debounced.value,
+            (value) => value === params,
+            this._injector,
+        );
         await this._whenSettled(this._resources_resource);
         return this.resources();
     }
@@ -597,6 +608,21 @@ export class BookingFormService extends AsyncHandler {
     /** Resolve with the available resources for the current selection */
     public async listAvailableResources(): Promise<BookingAsset[]> {
         this._startNetwork();
+        const form = this.model();
+        this._form_value.set(form);
+        await this.listResources();
+        const rules_params = this._booking_rules_params();
+        await firstValueWhere(
+            this._booking_rules_params_debounced.value,
+            (value) => value === rules_params,
+            this._injector,
+        );
+        await this._whenSettled(this._booking_rules_resource);
+        await firstValueWhere(
+            this._form_value_debounced.value,
+            (value) => value === form,
+            this._injector,
+        );
         await this._whenSettled(this._available_resource);
         return this.available_resources();
     }
