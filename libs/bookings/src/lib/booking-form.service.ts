@@ -2284,6 +2284,7 @@ export class BookingFormService extends AsyncHandler {
             (_) =>
                 _.status !== 'declined' &&
                 _.status !== 'cancelled' &&
+                _.status !== 'ended' &&
                 !_.rejected,
         );
         if (

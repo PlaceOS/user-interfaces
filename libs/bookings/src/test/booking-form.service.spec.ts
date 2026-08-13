@@ -471,6 +471,66 @@ describe('BookingFormService', () => {
 
     it.todo('should allow confirming booking details');
 
+    it.each([
+        ['checked-out', { checked_out_at: 1 }],
+        ['cancelled', { status: 'cancelled' }],
+    ])(
+        'should allow a visitor booking after an overlapping visit is %s',
+        async (_, ended_state) => {
+            const date = Date.now() + 60 * 60 * 1000;
+            vi.mocked(ts_client.get).mockResolvedValue([
+                {
+                    id: 'ended-visit',
+                    booking_type: 'visitor',
+                    asset_id: 'visitor@example.com',
+                    user_email: currentUser().email,
+                    booking_start: Math.floor(date / 1000),
+                    booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
+                    ...ended_state,
+                },
+            ] as any);
+
+            await expect(
+                (spectator.service as any)._checkResourceAvailable(
+                    {
+                        asset_id: 'visitor@example.com',
+                        date: date + 20 * 60 * 1000,
+                        duration: 30,
+                        user_email: currentUser().email,
+                    },
+                    'visitor',
+                ),
+            ).resolves.toBe(true);
+        },
+    );
+
+    it('should reject a visitor booking that overlaps an active visit', async () => {
+        const date = Date.now() + 60 * 60 * 1000;
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'active-visit',
+                booking_type: 'visitor',
+                asset_id: 'visitor@example.com',
+                user_email: currentUser().email,
+                booking_start: Math.floor(date / 1000),
+                booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
+                status: 'approved',
+            },
+        ] as any);
+
+        await expect(
+            (spectator.service as any)._checkResourceAvailable(
+                {
+                    asset_id: 'visitor@example.com',
+                    date: date + 20 * 60 * 1000,
+                    duration: 30,
+                    user_email: currentUser().email,
+                },
+                'visitor',
+            ),
+        ).rejects.toBeTruthy();
+    });
+
     // it('should allow posting booking details', fakeAsync(async () => {
     //     (booking_mod as any).queryBookings = vi.fn(() =>
     //         of([{ asset_id: 'desk-1' }])
