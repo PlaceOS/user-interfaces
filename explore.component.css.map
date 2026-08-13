@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["explore.component.ts"],
-  "sourcesContent": ["\n            :host {\n                position: absolute;\n                display: flex;\n                flex-direction: column;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                background-color: var(--base-200);\n            }\n\n            hr {\n                margin-top: 0.5rem !important;\n                margin-bottom: 0.5rem !important;\n            }\n\n            .isometric {\n                transform: perspective(800px) rotateX(45deg) rotateZ(-45deg)\n                    scale(0.7);\n                transform-origin: center center;\n                transition: transform 300ms ease-in-out;\n            }\n\n            .isometric interactive-map {\n                height: 100%;\n                width: 100%;\n            }\n        "],
-  "mappings": "AACY,MACI,SAAA,SACA,QAAA,KACA,eAAA,OACA,MAAA,EAIA,iBAAA,IAAA,WACJ,CAEA,GACI,WAAA,gBACA,cAAA,eACJ,CAEA,CAAA,UACI,UAAA,YAAA,OAAA,QAAA,OAAA,OAAA,kBAEA,iBAAA,OAAA,OACA,WAAA,UAAA,IAAA,WACJ,CAEA,CAPA,UAOA,gBACI,OAAA,KACA,MAAA,IACJ",
+  "sourcesContent": ["\n            :host {\n                position: absolute;\n                display: flex;\n                flex-direction: column;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                background-color: var(--base-200);\n            }\n\n            hr {\n                margin-top: 0.5rem !important;\n                margin-bottom: 0.5rem !important;\n            }\n        "],
+  "mappings": "AACY,MACI,SAAA,SACA,QAAA,KACA,eAAA,OACA,MAAA,EAIA,iBAAA,IAAA,WACJ,CAEA,GACI,WAAA,gBACA,cAAA,eACJ",
   "names": []
 }
