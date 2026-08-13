@@ -438,7 +438,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     </div>
                 </button>
             }
-            @if (!booking().is_done) {
+            @if (can_cancel()) {
                 <button mat-menu-item (click)="remove(booking(), false)">
                     <div class="flex items-center space-x-2 text-base">
                         <icon class="text-error">delete</icon>
@@ -584,6 +584,10 @@ export class BookingDetailsModalComponent {
         );
     });
 
+    public readonly can_cancel = computed(
+        () => !this.booking().is_done && !this.booking().checked_in,
+    );
+
     public readonly can_checkin = computed(
         () =>
             !settingSignal(
@@ -704,7 +708,7 @@ export class BookingDetailsModalComponent {
     });
 
     public remove(booking: Booking, remove_series?: boolean) {
-        if (booking?.is_done) return;
+        if (booking?.is_done || (booking?.checked_in && !remove_series)) return;
         if (remove_series === undefined) this._data.remove_fn(booking);
         else this._data.remove_fn(booking, remove_series);
     }
