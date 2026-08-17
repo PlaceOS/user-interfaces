@@ -1,22 +1,24 @@
 import {
+  MatTab,
+  MatTabGroup,
+  MatTabLabel,
+  MatTabsModule
+} from "./chunk-4DJD3HBF.js";
+import {
   CdkDrag,
   CdkDragHandle,
   CdkDropList,
   DragDropModule,
-  MatTab,
-  MatTabGroup,
-  MatTabLabel,
-  MatTabsModule,
   moveItemInArray
-} from "./chunk-IKDZCIOS.js";
+} from "./chunk-IWZ7NQPJ.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-XXYQAX6Q.js";
+} from "./chunk-5NOOGBPB.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-FD7IL2B3.js";
+} from "./chunk-GNABOKG3.js";
 import {
   ActivatedRoute,
   Component,
@@ -26,6 +28,7 @@ import {
   IconComponent,
   Input,
   IntersectDirective,
+  Is,
   MatFormField,
   MatFormFieldModule,
   MatInput,
@@ -44,13 +47,13 @@ import {
   MediaThumbnailComponent,
   NgControlStatus,
   NgModel,
-  Ps,
   Router,
   RouterLink,
   SignageService,
   TranslatePipe,
   ViewChildren,
   afterRenderEffect,
+  ar,
   computed,
   effect,
   fromUnixTime,
@@ -60,7 +63,6 @@ import {
   linkedSignal,
   playlistScheduleLabel,
   playlistScheduleNextPlayLabels,
-  rr,
   setClassMetadata,
   signal,
   viewChildren,
@@ -101,7 +103,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-2RIEL44U.js";
+} from "./chunk-MDW4Q3JB.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1132,17 +1134,17 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
         if (!pl)
           return "COMMON.DEFAULT";
         switch (pl.default_animation) {
-          case Ps.Cut:
+          case Is.Cut:
             return "SIGNAGE_MANAGER.ANIM_CUT";
-          case Ps.CrossFade:
+          case Is.CrossFade:
             return "SIGNAGE_MANAGER.ANIM_CROSS_FADE";
-          case Ps.SlideTop:
+          case Is.SlideTop:
             return "SIGNAGE_MANAGER.ANIM_SLIDE_TOP";
-          case Ps.SlideLeft:
+          case Is.SlideLeft:
             return "SIGNAGE_MANAGER.ANIM_SLIDE_LEFT";
-          case Ps.SlideRight:
+          case Is.SlideRight:
             return "SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT";
-          case Ps.SlideBottom:
+          case Is.SlideBottom:
             return "SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM";
           default:
             return "COMMON.DEFAULT";
@@ -2432,7 +2434,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     const schedule = this.item_schedule_list()[index];
     if (schedule?.media?.id === item.id)
       return schedule;
-    return this.item_schedules().get(item.id) || new rr({
+    return this.item_schedules().get(item.id) || new ar({
       item_id: item.id,
       media: item
     });
@@ -4197,4 +4199,4 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-WZKYE23Q.js.map
+//# sourceMappingURL=playlists.component-MOIBXGPK.js.map
