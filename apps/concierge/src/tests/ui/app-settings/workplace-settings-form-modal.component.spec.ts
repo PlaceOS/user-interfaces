@@ -7,9 +7,9 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setCurrentUser,
     setNotifyOutlet,
+    SettingsService,
     StaffUser,
 } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
@@ -240,25 +240,61 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         );
     });
 
-    it('should preserve nested defaults when metadata only patches part of a group', async () => {
+    it('should merge groups and replace atomic setting values', async () => {
         (ts_client.showMetadata as any)
             .mockResolvedValueOnce({
                 details: {
                     events: {
-                        bookable_hours: { start: 8 },
+                        allow_all_day: true,
+                        bookable_hours: { start: 8, end: 17 },
                     },
                 },
             })
-            .mockResolvedValueOnce({ details: {} })
+            .mockResolvedValueOnce({
+                details: {
+                    events: {
+                        hide_notes: true,
+                        bookable_hours: { start: 9, end: 18 },
+                    },
+                },
+            })
             .mockResolvedValueOnce({ details: {} });
 
         await spectator.component.ngOnInit();
 
         expect(spectator.component.model().events.bookable_hours).toEqual({
-            start: 8,
-            end: null,
+            start: 9,
+            end: 18,
         });
+        expect(spectator.component.model().events.allow_all_day).toBe(true);
+        expect(spectator.component.model().events.hide_notes).toBe(true);
         expect(spectator.component.model().events.force_host).toBe('');
+    });
+
+    it('should only save settings that override the inherited values', async () => {
+        (ts_client.showMetadata as any)
+            .mockResolvedValueOnce({
+                details: { events: { allow_all_day: true } },
+            })
+            .mockResolvedValueOnce({
+                details: { events: { hide_notes: true } },
+            })
+            .mockResolvedValueOnce({
+                details: { events: { allow_all_day: false } },
+            });
+
+        await spectator.component.ngOnInit();
+        await spectator.component.save();
+
+        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+            'zone-1',
+            expect.objectContaining({
+                details: {
+                    events: { allow_all_day: false },
+                    edited_by: expect.any(Object),
+                },
+            }),
+        );
     });
 
     it('should save settings via updateMetadata', async () => {

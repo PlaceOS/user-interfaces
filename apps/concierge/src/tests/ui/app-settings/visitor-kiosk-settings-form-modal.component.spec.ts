@@ -7,9 +7,9 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setCurrentUser,
     setNotifyOutlet,
+    SettingsService,
     StaffUser,
 } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
@@ -188,6 +188,59 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         await spectator.component.ngOnInit();
         // Should only call for org and zone (not parent separately)
         expect(ts_client.showMetadata).toHaveBeenCalledTimes(2);
+    });
+
+    it('should compare organisation settings against application defaults', async () => {
+        (ts_client.showMetadata as any).mockClear();
+        (ts_client.showMetadata as any).mockResolvedValueOnce({
+            details: { welcome_message: 'Organisation welcome' },
+        });
+        (spectator.component as any).zone = {
+            ...mock_zone,
+            id: 'org-1',
+            parent_id: '',
+        };
+        (spectator.component as any)._data = {
+            zone: { ...mock_zone, id: 'org-1', parent_id: '' },
+        };
+
+        await spectator.component.ngOnInit();
+        await spectator.component.save();
+
+        expect(ts_client.showMetadata).toHaveBeenCalledTimes(1);
+        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+            'org-1',
+            expect.objectContaining({
+                details: expect.objectContaining({
+                    welcome_message: 'Organisation welcome',
+                }),
+            }),
+        );
+    });
+
+    it('should save an empty string that clears an inherited value', async () => {
+        (ts_client.showMetadata as any)
+            .mockResolvedValueOnce({
+                details: { welcome_message: 'Organisation welcome' },
+            })
+            .mockResolvedValueOnce({
+                details: { welcome_message: 'Region welcome' },
+            })
+            .mockResolvedValueOnce({ details: {} });
+
+        await spectator.component.ngOnInit();
+        spectator.component.model.update((model) => ({
+            ...model,
+            welcome_message: '',
+        }));
+        await spectator.component.save();
+
+        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+            'zone-1',
+            expect.objectContaining({
+                details: expect.objectContaining({ welcome_message: '' }),
+            }),
+        );
     });
 
     it('should save settings via updateMetadata', async () => {
