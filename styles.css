@@ -4768,6 +4768,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .cursor-move {
   cursor: move;
 }
+#placeos .cursor-not-allowed {
+  cursor: not-allowed;
+}
 #placeos .cursor-pointer {
   cursor: pointer;
 }
@@ -5764,6 +5767,14 @@ input:where([type=button], [type=reset], [type=submit]),
     background-color: color-mix(in oklab, var(--primary) 30%, transparent);
   }
 }
+#placeos .bg-primary\/40 {
+  background-color: var(--primary);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-primary\/40 {
+    background-color: color-mix(in oklab, var(--primary) 40%, transparent);
+  }
+}
 #placeos .bg-secondary {
   background-color: var(--secondary);
 }
@@ -6604,6 +6615,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .text-white\! {
   color: #ffffff !important;
 }
+#placeos .text-white\/60 {
+  color: rgba(255, 255, 255, 0.6);
+}
+#placeos .text-white\/80 {
+  color: rgba(255, 255, 255, 0.8);
+}
 #placeos .capitalize {
   text-transform: capitalize;
 }
@@ -6800,6 +6817,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .ring-black\/5 {
   --tw-ring-color: rgba(0, 0, 0, 0.05);
+}
+#placeos .ring-black\/20 {
+  --tw-ring-color: rgba(0, 0, 0, 0.2);
 }
 #placeos .ring-info {
   --tw-ring-color: var(--info);
@@ -7772,6 +7792,11 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 40rem) {
+  #placeos .sm\:w-96 {
+    width: calc(var(--spacing) * 96);
+  }
+}
+@media (width >= 40rem) {
   #placeos .sm\:w-204 {
     width: calc(var(--spacing) * 204);
   }
@@ -8239,8 +8264,23 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 64rem) {
+  #placeos .lg\:h-full {
+    height: 100%;
+  }
+}
+@media (width >= 64rem) {
+  #placeos .lg\:min-h-0 {
+    min-height: calc(var(--spacing) * 0);
+  }
+}
+@media (width >= 64rem) {
   #placeos .lg\:w-84 {
     width: calc(var(--spacing) * 84);
+  }
+}
+@media (width >= 64rem) {
+  #placeos .lg\:w-px {
+    width: 1px;
   }
 }
 @media (width >= 64rem) {
@@ -8280,6 +8320,11 @@ input:where([type=button], [type=reset], [type=submit]),
     --tw-space-x-reverse: 0;
     margin-inline-start: calc(calc(var(--spacing) * 2) * var(--tw-space-x-reverse));
     margin-inline-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-x-reverse)));
+  }
+}
+@media (width >= 64rem) {
+  #placeos .lg\:overflow-visible {
+    overflow: visible;
   }
 }
 @media (width >= 80rem) {
