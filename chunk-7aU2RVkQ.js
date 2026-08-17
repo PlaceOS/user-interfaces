@@ -1,0 +1,1 @@
+import {g3 as hn,g4 as wc,cV as Yu}from'./main.js';var r="/api/staff/v1/guests";async function C(t){let s=hn({q:t});return (await wc(`${r}${t?"?"+s:""}`)).map(c=>new Yu(c))}async function I(t){return new Yu(await wc(`${r}/${encodeURIComponent(t)}`))}export{C,I};//# sourceMappingURL=chunk-7aU2RVkQ.js.map
