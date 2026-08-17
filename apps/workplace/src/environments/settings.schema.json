@@ -261,6 +261,24 @@
                 }
             }
         },
+        "visitors": {
+            "type": "object",
+            "description": "Visitor invite settings. These override the matching bookings settings",
+            "properties": {
+                "allow_all_day": {
+                    "type": "boolean",
+                    "description": "Whether the all-day option is available for visitor invites. Overrides app.bookings.allow_all_day"
+                },
+                "can_book_for_others": {
+                    "type": "boolean",
+                    "description": "Whether users can invite visitors on behalf of another internal host. Overrides app.bookings.can_book_for_others"
+                },
+                "can_book_for_anyone": {
+                    "type": "boolean",
+                    "description": "Whether users can invite visitors on behalf of any host, including external users. Overrides app.bookings.can_book_for_anyone"
+                }
+            }
+        },
         "events": {
             "type": "object",
             "description": "Data associated with meeting booking flow",
