@@ -12,7 +12,7 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-5ZZQKTEZ.js";
+} from "./chunk-LTTMHRFC.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -24,17 +24,17 @@ import {
   MatSelectModule,
   MatSelectTrigger,
   SanitizePipe
-} from "./chunk-L2LP3PP6.js";
+} from "./chunk-LHIVBI7V.js";
 import {
   CheckinStateService
-} from "./chunk-4PRQM4D7.js";
+} from "./chunk-KLUFIV7F.js";
 import {
-  $r,
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
   ActivatedRoute,
   AnimationGroupPlayer,
   AnimationMetadataType,
+  Ar,
   AsyncHandler,
   AuthenticatedImageDirective,
   BidiModule,
@@ -43,7 +43,6 @@ import {
   Clipboard,
   CommonModule,
   Component,
-  Cr,
   DEFAULT_SETTINGS,
   DOCUMENT,
   DatePipe,
@@ -53,9 +52,7 @@ import {
   ElementRef,
   ErrorHandler,
   EventEmitter,
-  Fl,
   FormsModule,
-  Fr,
   GroupPermission,
   HotkeysService,
   IconComponent,
@@ -64,9 +61,10 @@ import {
   InjectionToken,
   Injector,
   Input,
+  It,
+  Kr,
   LOCALE_ID,
   LocaleService,
-  Lr,
   MatError,
   MatFormField,
   MatFormFieldModule,
@@ -91,6 +89,7 @@ import {
   Output,
   Pipe,
   PlaceOS_Service,
+  Qr,
   Renderer2,
   RendererFactory2,
   RequiredValidator,
@@ -98,7 +97,6 @@ import {
   RouterLink,
   RouterModule,
   RouterOutlet,
-  Rt,
   RuntimeError,
   SelectControlValueAccessor,
   SettingsService,
@@ -106,13 +104,11 @@ import {
   TranslatePipe,
   User,
   VERSION,
+  Ve,
   ViewChild,
   ViewEncapsulation,
   VirtualKeyboardComponent,
-  Wl,
   X,
-  Ye,
-  Zr,
   _getAnimationsState,
   addDays,
   addMilliseconds,
@@ -122,10 +118,12 @@ import {
   bootstrapApplication,
   capitalizeFirstLetter,
   computed,
+  cp,
   createErrorHandler,
   currentUser,
   current_user,
   differenceInMinutes,
+  dp,
   effect,
   enableProdMode,
   firstTruthyValueFrom,
@@ -138,6 +136,7 @@ import {
   getNativeEmail,
   getUnixTime,
   hasPermission,
+  hi,
   i18n,
   inject,
   input,
@@ -151,9 +150,8 @@ import {
   normaliseNativeDomain,
   notifyError,
   numberAttribute,
-  oa,
-  oi,
   output,
+  pa,
   padString,
   performanceMarkFeature,
   predictableRandomInt,
@@ -180,12 +178,14 @@ import {
   style,
   subDays,
   timePeriodsIntersect,
+  to,
   unique,
   untracked,
   user_groups_loaded,
   viewChild,
   withHashLocation,
   withNavigationErrorHandler,
+  zr,
   ɵNgNoValidate,
   ɵNgSelectMultipleOption,
   ɵPRE_STYLE,
@@ -242,7 +242,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-DZUACAK3.js";
+} from "./chunk-SZVYLPDF.js";
 import {
   __export,
   __objRest,
@@ -2697,7 +2697,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ye()}`;
+    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ve()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -2779,7 +2779,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = Wl(id, "LLM");
+    const mod = dp(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -4456,13 +4456,13 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     this.loading.set(true);
     await this._org.waitUntilInitialised();
     await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Fr());
+    this.online.set(Qr());
     this.interval("has_token", () => {
-      this.online.set(Fr());
-      if (!Rt() || !X())
+      this.online.set(Qr());
+      if (!It() || !X())
         return;
       this.loading.set(false);
-      this.online.set(Fr());
+      this.online.set(Qr());
       this.clearInterval("has_token");
     }, 1e3);
   }
@@ -5043,20 +5043,20 @@ function addExecuteMessage(message) {
   execute_messages.update((messages) => [...messages, message].slice(-250));
 }
 function installBindingDebugHooks() {
-  const prototype = Cr.prototype;
+  const prototype = zr.prototype;
   if (prototype.__binding_debug_hooks__)
     return;
   prototype.__binding_debug_hooks__ = true;
-  const variable = Cr.prototype.variable;
-  Cr.prototype.variable = function(name) {
+  const variable = zr.prototype.variable;
+  zr.prototype.variable = function(name) {
     return trackBinding(this, variable.call(this, name));
   };
-  const binding = Cr.prototype.binding;
-  Cr.prototype.binding = function(name) {
+  const binding = zr.prototype.binding;
+  zr.prototype.binding = function(name) {
     return trackBinding(this, binding.call(this, name));
   };
-  const execute = Cr.prototype.execute;
-  Cr.prototype.execute = function(method, args = [], timeout_delay) {
+  const execute = zr.prototype.execute;
+  zr.prototype.execute = function(method, args = [], timeout_delay) {
     const id = ++execute_id;
     const details = {
       id,
@@ -5158,7 +5158,7 @@ var BindingDebugPanelComponent = class _BindingDebugPanelComponent extends Async
       },
       loader: async ({ params }) => Object.fromEntries(await Promise.all(params.map(async (id) => {
         if (!system_name_cache.has(id)) {
-          const system = await oa(id).catch(() => null);
+          const system = await pa(id).catch(() => null);
           system_name_cache.set(id, system?.display_name || system?.name || id);
         }
         return [id, system_name_cache.get(id)];
@@ -7040,7 +7040,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await this.waitForBackend(oi(Lr(), Boolean));
+    const online = await this.waitForBackend(hi(Kr(), Boolean));
     if (!online)
       return null;
     let user = null;
@@ -7070,7 +7070,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return false;
   }
   async useGroupSubsystemAccess() {
-    const value = Rt()?.config?.["use_group_subsystem_access"];
+    const value = It()?.config?.["use_group_subsystem_access"];
     return value === true || value === "true";
   }
   checkSubsystemAccess(user) {
@@ -8461,7 +8461,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -8474,7 +8474,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -8488,7 +8488,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -8500,13 +8500,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -8521,7 +8521,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -8533,7 +8533,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -8547,7 +8547,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -8559,13 +8559,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -8580,7 +8580,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -8589,7 +8589,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -8603,7 +8603,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -8615,13 +8615,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -8636,7 +8636,7 @@ function registerMockAssets() {
       return;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -8656,7 +8656,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -8670,7 +8670,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -8682,13 +8682,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  Zr({
+  to({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -10513,7 +10513,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  Zr({
+  to({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -10546,7 +10546,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  Zr({
+  to({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -10581,7 +10581,7 @@ function registerMockBookings() {
       };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -10595,7 +10595,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -10616,7 +10616,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -10639,7 +10639,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -10656,7 +10656,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -10679,13 +10679,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -10701,7 +10701,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -10717,7 +10717,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id/checkin",
     metadata: {},
     method: "POST",
@@ -10732,7 +10732,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -10748,13 +10748,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  Zr({
+  to({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -11107,7 +11107,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  Zr({
+  to({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -11162,7 +11162,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  Zr({
+  to({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -11170,7 +11170,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  Zr({
+  to({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -11182,7 +11182,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  Zr({
+  to({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -11199,7 +11199,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -11222,12 +11222,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = $r(new_event.system?.id);
+      const system = Ar(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -11239,7 +11239,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -11257,7 +11257,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -11269,7 +11269,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -12073,7 +12073,7 @@ function registerMockSignage() {
       });
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -12084,13 +12084,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  Zr({
+  to({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -12105,7 +12105,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -12119,7 +12119,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -12130,13 +12130,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Zr({
+  to({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -12153,7 +12153,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -12169,7 +12169,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -12182,13 +12182,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  Zr({
+  to({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -12205,7 +12205,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -12221,7 +12221,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -12234,13 +12234,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/media/tags",
     metadata: {},
     method: "GET",
@@ -12248,7 +12248,7 @@ function registerMockSignage() {
       ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag2) => !!tag2))
     ]
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -12258,13 +12258,13 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "GET",
     callback: (request) => toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -12272,43 +12272,43 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/media/:id/thumbnail",
     metadata: {},
     method: "GET",
     callback: () => ({})
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/plugins",
     metadata: {},
     method: "GET",
     callback: () => MOCK_PLUGINS
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/plugins/:id",
     metadata: {},
     method: "GET",
     callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -12317,7 +12317,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -12327,7 +12327,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -12335,19 +12335,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -12356,7 +12356,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule",
     metadata: {},
     method: "POST",
@@ -12370,7 +12370,7 @@ function registerMockSignage() {
       ]
     })
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
     metadata: {},
     method: "PATCH",
@@ -12380,7 +12380,7 @@ function registerMockSignage() {
       schedules: request.body?.schedules || []
     })
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -12389,37 +12389,37 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/:id",
     metadata: {},
     method: "GET",
     callback: (request) => signageDisplay(request.route_params.id)
   });
-  Zr({
+  to({
     path: "/api/engine/v2/signage/:id/metrics",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  Zr({
+  to({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -12445,7 +12445,7 @@ function registerMockSignage() {
       };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -12456,7 +12456,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -12486,7 +12486,7 @@ function registerMockSignage() {
       };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -12508,7 +12508,7 @@ function registerMockSignage() {
       };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -12524,7 +12524,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -12547,7 +12547,7 @@ function registerMockSignage() {
       };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -12574,7 +12574,7 @@ function registerMockSignage() {
       };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -12619,7 +12619,7 @@ function registerMockSignage() {
       };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -13218,7 +13218,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  Zr({
+  to({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -13237,7 +13237,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -13262,7 +13262,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -13277,7 +13277,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -13298,7 +13298,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -13311,7 +13311,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -13326,7 +13326,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -14485,7 +14485,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  Fl(space.id, {
+  cp(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -14500,7 +14500,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = $r(space.id);
+  const system = Ar(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -14510,7 +14510,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  Zr({
+  to({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -14527,7 +14527,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -14542,7 +14542,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  Zr({
+  to({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -14554,7 +14554,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -14575,7 +14575,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -14589,7 +14589,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -14604,7 +14604,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -14616,7 +14616,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -14628,7 +14628,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  Zr({
+  to({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -14743,7 +14743,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  Zr({
+  to({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -14759,7 +14759,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -14774,19 +14774,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  Zr({
+  to({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  Zr({
+  to({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -14902,7 +14902,7 @@ function registerMockZones() {
       return {};
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -14913,7 +14913,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  Zr({
+  to({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -14966,7 +14966,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  Zr({
+  to({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -21614,17 +21614,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-RW3D2EZC.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-Q4WW2K3V.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-HSZNUYDN.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-EGWAXI7F.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-MPZ6Y266.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-H5TNGARS.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
