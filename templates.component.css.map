@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["templates.component.ts"],
+  "sourcesContent": ["\n            .mobile-hidden {\n                @media (max-width: 639px) {\n                    display: none !important;\n                }\n            }\n\n            .mobile-full {\n                @media (max-width: 639px) {\n                    flex: 1;\n                }\n            }\n        "],
+  "mappings": "AAEgB,OAAA,UAAA,OADJ,CAAA,cAEQ,QAAA,cAER,CADI,CAIA,OAAA,UAAA,OADJ,CAAA,YAEQ,KAAA,CAER,CADI",
+  "names": []
+}
