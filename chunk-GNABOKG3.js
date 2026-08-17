@@ -53,7 +53,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-2RIEL44U.js";
+} from "./chunk-MDW4Q3JB.js";
 
 // apps/signage-manager/src/app/shared/nav-items.ts
 var NAV_ITEMS = [
@@ -62,6 +62,11 @@ var NAV_ITEMS = [
     route: "/playlists",
     icon: "playlist_play",
     label: "SIGNAGE_MANAGER.NAV_PLAYLISTS"
+  },
+  {
+    route: "/templates",
+    icon: "dashboard_customize",
+    label: "SIGNAGE_MANAGER.NAV_TEMPLATES"
   },
   { route: "/zones", icon: "layers", label: "SIGNAGE_MANAGER.NAV_ZONES" },
   {
@@ -76,8 +81,14 @@ var NAV_ITEMS = [
   },
   { route: "/groups", icon: "groups", label: "COMMON.GROUPS" }
 ];
-function filterManageNavItems(can_manage_groups) {
-  return can_manage_groups ? NAV_ITEMS : NAV_ITEMS.filter((item) => item.route !== "/groups");
+function filterManageNavItems(can_manage_groups, templates_enabled = false) {
+  return NAV_ITEMS.filter((item) => {
+    if (item.route === "/groups")
+      return can_manage_groups;
+    if (item.route === "/templates")
+      return templates_enabled;
+    return true;
+  });
 }
 
 // apps/signage-manager/src/app/shared/nav-footer.component.ts
@@ -170,15 +181,16 @@ var NavFooterComponent = class _NavFooterComponent {
         []
       )
     );
+    this.MORE_MENU_ROUTES = ["/templates", "/schedules", "/groups"];
     this.primary_nav_items = computed(
-      () => filterManageNavItems(this.can_manage_groups()).filter((item) => !["/schedules", "/groups"].includes(item.route)),
+      () => filterManageNavItems(this.can_manage_groups(), this._service.templates_enabled()).filter((item) => !this.MORE_MENU_ROUTES.includes(item.route)),
       ...ngDevMode ? [{ debugName: "primary_nav_items" }] : (
         /* istanbul ignore next */
         []
       )
     );
     this.more_nav_items = computed(
-      () => filterManageNavItems(this.can_manage_groups()).filter((item) => ["/schedules", "/groups"].includes(item.route)),
+      () => filterManageNavItems(this.can_manage_groups(), this._service.templates_enabled()).filter((item) => this.MORE_MENU_ROUTES.includes(item.route)),
       ...ngDevMode ? [{ debugName: "more_nav_items" }] : (
         /* istanbul ignore next */
         []
@@ -782,7 +794,7 @@ var NavSidebarComponent = class _NavSidebarComponent {
     this.locales = this._settings.signal("locales", []);
     this.show_locale_selector = this._settings.signal("show_locale_selector", false);
     this.nav_items = computed(
-      () => filterManageNavItems(this._service.can_manage_all_groups() || !!this._service.manageable_signage_groups().length),
+      () => filterManageNavItems(this._service.can_manage_all_groups() || !!this._service.manageable_signage_groups().length, this._service.templates_enabled()),
       ...ngDevMode ? [{ debugName: "nav_items" }] : (
         /* istanbul ignore next */
         []
@@ -1208,4 +1220,4 @@ export {
   NavSidebarComponent,
   GroupBreadcrumbsComponent
 };
-//# sourceMappingURL=chunk-FD7IL2B3.js.map
+//# sourceMappingURL=chunk-GNABOKG3.js.map
