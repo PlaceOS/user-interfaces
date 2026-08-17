@@ -186,6 +186,16 @@ These apply to all resource booking flows (desks, parking, lockers). Most can be
 | `bookings.force_current_user_for_booking_rules` | boolean | `false` | Always check booking rules against the signed-in user, even when booking on behalf of someone else. |
 | `bookings.assigned_resource_booking` | `allow` \| `deny` \| `other_only` | `other_only` | Controls booking for users with an assigned desk, parking space, or locker. `allow` permits all bookings. `deny` and `other_only` both block a booking whenever the person it is *for* has an assigned resource of that type — whether that assignment comes from the resource metadata or from an existing `is_assigned` booking, and regardless of `allowed_daily_*_count`. They differ in who may book: `other_only` lets a user with an assigned resource book on behalf of others, `deny` does not. |
 
+## Visitor Invites (`visitors.*`)
+
+These settings override the matching `bookings.*` settings for visitor invites.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| `visitors.allow_all_day` | boolean | – | Make the all-day option available for visitor invites. Falls back to `bookings.allow_all_day`. |
+| `visitors.can_book_for_others` | boolean | – | Allow users to invite visitors on behalf of another internal host. Falls back to `bookings.can_book_for_others`. |
+| `visitors.can_book_for_anyone` | boolean | – | Allow users to invite visitors on behalf of any host, including an external host. Falls back to `bookings.can_book_for_anyone`. |
+
 ## Meetings & Events (`events.*`)
 
 | Setting | Type | Default | Description |
@@ -260,8 +270,8 @@ These apply to all resource booking flows (desks, parking, lockers). Most can be
 | `parking.request_submission_notes_html` | string | `""` | Optional HTML content shown in the parking request summary and submission section. |
 | `parking.request_shift_options` | object[] | – | Shift presets shown in the parking request flow (see example below). The custom shift option is always shown separately. |
 | `parking.request_types` | object[] | standard, special, after_hours | Request type options shown in the parking request flow (see example below). |
-| `parking.request_space_restrictions` | object[] | – | Space restriction options shown as a radio set in the parking request flow. `None` is always included and selected by default. If the list is empty, the field is hidden. Each item needs an `id` and a `name`. |
-| `parking.require_space_restriction` | boolean | `false` | Require users to select a configured space restriction instead of `None` in the parking request flow. |
+| `parking.request_space_restrictions` | object[] | – | Space restriction options shown as a radio set in the parking request flow. If the list is empty, the field is hidden. Each item needs an `id` and a `name`. |
+| `parking.require_space_restriction` | boolean | `true` | Require users to select a configured space restriction in the parking request flow. |
 | `parking.extra_space_restrictions` | object[] | – | Additional space restriction options shown as on/off toggles; multiple can be enabled at once. Each item needs an `id` and a `name` (label or translation key). |
 | `parking.auto_approved_groups` | string[] | – | User group names that are auto-approved for parking requests. Users in these groups will not see the approver group selector. |
 | `parking.vehicle_types` | object[] | car, bike, van, truck, other | Vehicle type options shown in the parking request flow. Each item needs an `id` and a `name`. |
@@ -336,7 +346,9 @@ Request types (`forced_time` locks the form to a fixed window and hides the shif
 | `explore.show_legend` | boolean | `true` | Show the legend on the explore map. |
 | `explore.show_legend_group_names` | boolean | `true` | Show group names in the map legend. |
 | `explore.legend` | object | Available / In Use / Pending / Signs of Life | Legend entries, grouped by name. Each group maps to a list of `{ "id", "name" }` entries. |
-| `explore.hide_zones` | boolean | `true` | Hide zone overlays on the explore map. |
+| `explore.hide_zones` | boolean | `true` | Hide the Areas overlay toggle on the explore map. |
+| `explore.hide_devices` | boolean | `true` | Hide the Devices overlay toggle on the explore map. |
+| `explore.hide_sensors` | boolean | `true` | Hide the Sensors overlay toggle on the explore map. |
 | `explore.use_zone_polygons` | boolean | `false` | Render zones on the map using their polygon data. |
 | `explore.show_simple_sensor_info` | boolean | `false` | Show simplified sensor information on the explore map. |
 | `explore.show_presence_indicators` | boolean | `false` | Show presence indicator icons on spaces with presence sensors. |

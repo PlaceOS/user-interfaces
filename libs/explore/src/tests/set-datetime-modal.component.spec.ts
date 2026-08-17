@@ -2,8 +2,9 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { BookingAsset } from 'libs/bookings/src/lib/booking-form.service';
-import { MockProvider, ngMocks } from 'ng-mocks';
+import { MockPipe, MockProvider, ngMocks } from 'ng-mocks';
 
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { SetDatetimeModalComponent } from '../lib/set-datetime-modal.component';
 
 describe('SetDatetimeModalComponent', () => {
@@ -15,6 +16,7 @@ describe('SetDatetimeModalComponent', () => {
         component: SetDatetimeModalComponent,
         ...ngMocks.guts(null),
         providers: [MockProvider(SettingsService, { get: vi.fn() })],
+        declarations: [MockPipe(TranslatePipe, (value) => value)],
     });
 
     function setup(data: Record<string, unknown> = {}) {
@@ -40,6 +42,14 @@ describe('SetDatetimeModalComponent', () => {
     it('should create component', () => {
         setup();
         expect(spectator.component).toBeTruthy();
+    });
+
+    it('should use the room booking wording', () => {
+        setup();
+        expect(spectator.query('header h2')).toContainText(
+            'EXPLORE.BOOKING_HEADER',
+        );
+        expect(spectator.query('footer button')).toContainText('COMMON.SAVE');
     });
 
     it('should initialise the form from the dialog data', () => {
@@ -114,7 +124,7 @@ describe('SetDatetimeModalComponent', () => {
         setup();
         const button = spectator.query('footer button') as HTMLButtonElement;
         expect(button).toBeTruthy();
-        // The continue button closes the dialog with the current form value.
+        // The save button closes the dialog with the current form value.
         expect(spectator.component.form.value).toMatchObject({
             date: base_date.valueOf(),
             duration: 60,

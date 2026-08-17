@@ -95,6 +95,7 @@ describe('ScheduleStateService', () => {
             data: [],
         } as any);
         vi.mocked(ts_client.post).mockResolvedValue({} as any);
+        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
         spectator = createService();
     });
 
@@ -200,6 +201,24 @@ describe('ScheduleStateService', () => {
         expect(removeItem).not.toHaveBeenCalled();
     });
 
+    it('should refresh cancelled bookings without hiding them as deleted', async () => {
+        const triggerPoll = vi.spyOn(spectator.service, 'triggerPoll');
+        const removeItem = vi.spyOn(spectator.service, 'removeItem');
+        const booking = new Booking({
+            id: 'booking-1',
+            booking_type: 'visitor',
+            type: 'visitor',
+            asset_id: 'visitor@example.com',
+            asset_name: 'Visitor',
+        } as any);
+
+        await spectator.service.remove(booking);
+
+        expect(ts_client.del).toHaveBeenCalled();
+        expect(triggerPoll).toHaveBeenCalled();
+        expect(removeItem).not.toHaveBeenCalled();
+    });
+
     it('should not make schedule requests before schedule data is consumed', () => {
         expect(parking_factory).not.toHaveBeenCalled();
         expect(ts_client.get).not.toHaveBeenCalled();
@@ -299,5 +318,17 @@ describe('ScheduleStateService', () => {
         ]);
 
         expect(ts_client.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should request cancelled and ended bookings', async () => {
+        await (spectator.service as any)._bookingQuery(
+            'visitor',
+            'day',
+            new Date(2026, 5, 22, 9).valueOf(),
+        );
+
+        const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
+        expect(url).toContain('include_checked_out=true');
+        expect(url).toContain('include_deleted=true');
     });
 });

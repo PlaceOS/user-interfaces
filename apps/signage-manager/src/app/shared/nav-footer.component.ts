@@ -136,15 +136,19 @@ export class NavFooterComponent {
             this._service.can_manage_all_groups() ||
             !!this._service.manageable_signage_groups().length,
     );
+    // Templates joins the overflow menu so the primary row keeps 4 items max.
+    private readonly MORE_MENU_ROUTES = ['/templates', '/schedules', '/groups'];
     public readonly primary_nav_items = computed(() =>
-        filterManageNavItems(this.can_manage_groups()).filter(
-            (item) => !['/schedules', '/groups'].includes(item.route),
-        ),
+        filterManageNavItems(
+            this.can_manage_groups(),
+            this._service.templates_enabled(),
+        ).filter((item) => !this.MORE_MENU_ROUTES.includes(item.route)),
     );
     public readonly more_nav_items = computed(() =>
-        filterManageNavItems(this.can_manage_groups()).filter((item) =>
-            ['/schedules', '/groups'].includes(item.route),
-        ),
+        filterManageNavItems(
+            this.can_manage_groups(),
+            this._service.templates_enabled(),
+        ).filter((item) => this.MORE_MENU_ROUTES.includes(item.route)),
     );
     public readonly groups = this._service.signage_groups;
     public readonly selected_group_id = this._service.selected_group_id;

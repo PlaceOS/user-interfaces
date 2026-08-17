@@ -645,6 +645,17 @@ export class BookingFormService extends AsyncHandler {
     /** Resolve with the resources for the current booking type once loaded */
     public async listResources(): Promise<BookingAsset[]> {
         this._startNetwork();
+        await firstValueWhere(
+            this._requests_ready,
+            (ready) => ready,
+            this._injector,
+        );
+        const params = this._resource_params();
+        await firstValueWhere(
+            this._resource_params_debounced.value,
+            (value) => value === params,
+            this._injector,
+        );
         await this._whenSettled(this._resources_resource);
         return this.resources();
     }
@@ -652,10 +663,14 @@ export class BookingFormService extends AsyncHandler {
     /** Resolve with the available resources for the current selection */
     public async listAvailableResources(): Promise<BookingAsset[]> {
         this._startNetwork();
-        const [resources] = await Promise.all([
-            this.listResources(),
-            this._whenSettled(this._booking_rules_resource),
-        ]);
+        const resources = await this.listResources();
+        const rules_params = this._booking_rules_params();
+        await firstValueWhere(
+            this._booking_rules_params_debounced.value,
+            (value) => value === rules_params,
+            this._injector,
+        );
+        await this._whenSettled(this._booking_rules_resource);
         return this._computeAvailableResources(
             this._options(),
             resources,
@@ -2420,6 +2435,7 @@ export class BookingFormService extends AsyncHandler {
             (_) =>
                 _.status !== 'declined' &&
                 _.status !== 'cancelled' &&
+                _.status !== 'ended' &&
                 !_.rejected,
         );
         if (

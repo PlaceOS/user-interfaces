@@ -434,7 +434,7 @@ export class ReportsStateService extends AsyncHandler {
         };
         const bookings_query = {
             ...query,
-            include_deleted: true as any,
+            include_deleted: true,
             include_checked_out: true,
         };
         const token = ++this._load_token;

@@ -93,7 +93,7 @@ export class AssetsReportService {
                         endOfDay(end || start || Date.now()),
                     ),
                     type: 'asset-request',
-                    include_deleted: true as any,
+                    include_deleted: true,
                     include_checked_out: true,
                     zones:
                         (zones || [])?.join(',') ||

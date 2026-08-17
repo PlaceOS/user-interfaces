@@ -58,6 +58,10 @@
         "signage_path": {
             "type": "string",
             "description": "Base URL path of the signage viewer application, used to build display preview links. Defaults to `/signage`."
+        },
+        "templates_enabled": {
+            "type": "boolean",
+            "description": "Whether the template management section is available. Defaults to `false` while the feature is in development."
         }
     },
     "$defs": {

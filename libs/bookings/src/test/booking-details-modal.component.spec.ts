@@ -111,6 +111,44 @@ describe('BookingDetailsModalComponent', () => {
         expect(remove_fn).not.toHaveBeenCalled();
     });
 
+    it('should end instead of cancel an ongoing checked-in visitor booking', () => {
+        const booking = new Booking({
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            type: 'visitor',
+            checked_in: true,
+            date: Date.now() - 30 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        } as any);
+        (spectator.component as any).booking.set(booking);
+
+        expect(spectator.component.is_in_progress()).toBe(true);
+        expect(spectator.component.can_cancel()).toBe(false);
+
+        spectator.component.remove(booking, false);
+
+        expect(remove_fn).not.toHaveBeenCalled();
+    });
+
+    it('should allow cancelling a visitor booking before check-in', () => {
+        const booking = new Booking({
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            type: 'visitor',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        } as any);
+        (spectator.component as any).booking.set(booking);
+
+        expect(spectator.component.can_cancel()).toBe(true);
+
+        spectator.component.remove(booking, false);
+
+        expect(remove_fn).toHaveBeenCalledWith(booking, false);
+    });
+
     it('should format visitor name nicely in booking details', () => {
         (spectator.component as any).booking.set(
             new Booking({

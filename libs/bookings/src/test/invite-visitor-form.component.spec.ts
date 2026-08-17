@@ -217,6 +217,40 @@ describe('InviteVisitorFormComponent', () => {
         expect('label[for="reason"]').toExist();
     });
 
+    it('should show all-day and internal host fields from visitor settings', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            [
+                'app.visitors.allow_all_day',
+                'app.visitors.can_book_for_others',
+            ].includes(key),
+        );
+
+        spectator.detectChanges();
+
+        expect(spectator.component.allow_all_day()).toBe(true);
+        expect(spectator.component.can_book_for_others()).toBe(true);
+        expect('mat-checkbox').toExist();
+        expect('host-select-field').toExist();
+        expect('a-user-search-field').not.toExist();
+    });
+
+    it('should show unrestricted host search when visitor settings allow anyone', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            [
+                'app.visitors.can_book_for_others',
+                'app.visitors.can_book_for_anyone',
+            ].includes(key),
+        );
+
+        spectator.detectChanges();
+
+        expect(spectator.component.can_book_for_anyone()).toBe(true);
+        expect('a-user-search-field').toExist();
+        expect('host-select-field').not.toExist();
+    });
+
     it('should reflect updated form date for time and duration fields', async () => {
         const service = spectator.inject(BookingFormService);
         // ngOnInit registers the model.date → form_date sync listener.

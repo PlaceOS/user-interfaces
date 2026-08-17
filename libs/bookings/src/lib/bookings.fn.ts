@@ -22,6 +22,7 @@ import {
     setting,
     toQueryString,
     unique,
+    User,
     VERSION,
 } from '@placeos/common';
 
@@ -100,8 +101,8 @@ export interface BookingsQueryParams {
     include_checked_out?: boolean;
     /** Include bookings made by the current user in the response */
     include_booked_by?: boolean;
-    /** Include deleted bookings in the response (can be set to apply to only recurring bookings) */
-    include_deleted?: 'all' | 'recurring';
+    /** Include deleted bookings in the response */
+    include_deleted?: boolean;
     /** Include deleted bookings in the response */
     deleted?: boolean;
     /**  */
@@ -737,7 +738,7 @@ export async function isResourceAvailable(
 export async function createBookingsForEvent(
     event: CalendarEvent,
     type: BookingType,
-    resources: BookableResource,
+    resources: readonly BookableResource[],
 ) {
     const bookings = (
         await queryBookings({
@@ -756,37 +757,51 @@ export async function createBookingsForEvent(
         (event.system?.zones as any) ||
         unique(flatten(event.resources.map((_) => _.zones))) ||
         [];
-    await Promise.all(
-        resources.map((item) => {
+    const created_bookings: Booking[] = [];
+    try {
+        // Linked booking creation updates the parent event, so process each
+        // request in order to avoid concurrent writes to the same event.
+        for (const item of resources) {
             const booking = bookings.find((_) =>
                 _.asset_ids.find((id) =>
                     item.items?.find((i) => i.item_ids.includes(id)),
                 ),
             );
-            return createBooking(
-                new Booking({
-                    type,
-                    booking_type: type,
-                    date: event.date,
-                    duration: event.duration,
-                    description: event.title || (item as any).name,
-                    user_email: event.host,
-                    asset_id: item.email || item.id,
-                    asset_name: (item as any).name,
-                    title: event.title,
-                    attendees: item.email ? [item] : [],
-                    approved: booking?.approved && !item._changed,
-                    rejected: booking?.rejected && !item._changed,
-                    extension_data: {
-                        parent_id: event.id,
-                        name: (item as any).name,
-                        location_id: event.location,
-                        details: item,
-                    },
-                    zones,
-                }).toJSON(),
-                { ical_uid: event.ical_uid, event_id: event.id },
+            created_bookings.push(
+                await createBooking(
+                    new Booking({
+                        type,
+                        booking_type: type,
+                        date: event.date,
+                        duration: event.duration,
+                        description: event.title || (item as any).name,
+                        user_email: event.host,
+                        asset_id: item.email || item.id,
+                        asset_name: (item as any).name,
+                        title: event.title,
+                        attendees: item.email ? [new User(item)] : [],
+                        approved: booking?.approved && !item._changed,
+                        rejected: booking?.rejected && !item._changed,
+                        extension_data: {
+                            parent_id: event.id,
+                            name: (item as any).name,
+                            location_id: event.location,
+                            details: item,
+                        },
+                        zones,
+                    }).toJSON(),
+                    { ical_uid: event.ical_uid, event_id: event.id },
+                ),
             );
-        }),
-    );
+        }
+    } catch (error) {
+        await Promise.all(
+            created_bookings
+                .filter((booking) => !!booking.id)
+                .map((booking) =>
+                    removeBooking(booking.id).catch(() => undefined),
+                ),
+        );
+        throw error;
+    }
 }

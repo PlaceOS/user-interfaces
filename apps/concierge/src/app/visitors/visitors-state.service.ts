@@ -121,6 +121,7 @@ export class VisitorsStateService extends AsyncHandler {
             period_end: getUnixTime(end),
             zones: (filters.zones || []).join(',') || building.id,
             include_checked_out: true,
+            include_deleted: true,
             limit: 1000,
         }).catch((_) => [] as Booking[]);
         this.bookings.set(list);

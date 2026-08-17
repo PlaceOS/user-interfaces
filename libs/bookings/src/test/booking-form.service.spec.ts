@@ -68,6 +68,7 @@ const clashBookings = (): any[] =>
 
 describe('BookingFormService', () => {
     let spectator: SpectatorService<BookingFormService>;
+    const settings_overrides = signal<Record<string, unknown>[]>([]);
     const createService = createServiceFactory({
         service: BookingFormService,
         providers: [
@@ -77,13 +78,16 @@ describe('BookingFormService', () => {
             }),
             MockProvider(SettingsService, {
                 get: vi.fn(),
-                overrides: signal([]),
+                overrides: settings_overrides,
             }),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
                 waitUntilInitialised: () => Promise.resolve(),
+                active_region: signal(null),
                 active_building: signal({ id: 'bld-1' }),
                 active_building_loaded: signal(true),
+                regions: [],
+                settings: [],
                 building_list: signal([{ id: 'bld-1', parent_id: 'reg-1' }]),
                 organisation: { id: 'org-1' },
                 region: { id: 'reg-1' },
@@ -482,7 +486,26 @@ describe('BookingFormService', () => {
 
     it.todo('should list asset features');
 
-    it.todo('should list available assets');
+    it('should list availability for an immediately updated booking window', async () => {
+        settings_overrides.set([{}, {}]);
+        try {
+            spectator.service.newForm('desk');
+            spectator.service.model.update((model) => ({
+                ...model,
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }));
+
+            const available = await spectator.service.listAvailableResources();
+
+            expect(available.map((asset) => asset.id)).toEqual([
+                'desk-1',
+                'desk-1',
+            ]);
+        } finally {
+            settings_overrides.set([]);
+        }
+    });
 
     it('should exclude window-booked AND recurring-clash desks', async () => {
         // desk-1 is booked in the first-instance window, desk-2 clashes with a
@@ -550,6 +573,66 @@ describe('BookingFormService', () => {
     it.todo('should allow filtering of available assets');
 
     it.todo('should allow confirming booking details');
+
+    it.each([
+        ['checked-out', { checked_out_at: 1 }],
+        ['cancelled', { status: 'cancelled' }],
+    ])(
+        'should allow a visitor booking after an overlapping visit is %s',
+        async (_, ended_state) => {
+            const date = Date.now() + 60 * 60 * 1000;
+            vi.mocked(ts_client.get).mockResolvedValue([
+                {
+                    id: 'ended-visit',
+                    booking_type: 'visitor',
+                    asset_id: 'visitor@example.com',
+                    user_email: currentUser().email,
+                    booking_start: Math.floor(date / 1000),
+                    booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
+                    ...ended_state,
+                },
+            ] as any);
+
+            await expect(
+                (spectator.service as any)._checkResourceAvailable(
+                    {
+                        asset_id: 'visitor@example.com',
+                        date: date + 20 * 60 * 1000,
+                        duration: 30,
+                        user_email: currentUser().email,
+                    },
+                    'visitor',
+                ),
+            ).resolves.toBe(true);
+        },
+    );
+
+    it('should reject a visitor booking that overlaps an active visit', async () => {
+        const date = Date.now() + 60 * 60 * 1000;
+        vi.mocked(ts_client.get).mockResolvedValue([
+            {
+                id: 'active-visit',
+                booking_type: 'visitor',
+                asset_id: 'visitor@example.com',
+                user_email: currentUser().email,
+                booking_start: Math.floor(date / 1000),
+                booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
+                status: 'approved',
+            },
+        ] as any);
+
+        await expect(
+            (spectator.service as any)._checkResourceAvailable(
+                {
+                    asset_id: 'visitor@example.com',
+                    date: date + 20 * 60 * 1000,
+                    duration: 30,
+                    user_email: currentUser().email,
+                },
+                'visitor',
+            ),
+        ).rejects.toBeTruthy();
+    });
 
     // it('should allow posting booking details', fakeAsync(async () => {
     //     (booking_mod as any).queryBookings = vi.fn(() =>
