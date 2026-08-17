@@ -21,4 +21,4 @@ User-friendly references for the runtime settings of each app in this repo. Unle
 | Enrolment | [enrolment.md](enrolment.md) | Can also be configured via the domain config `enrolment` key |
 | App Loader | [app-loader.md](app-loader.md) | Build-time settings only — does not load Zone metadata |
 
-The `public` and `redirect` apps have no configurable settings.
+The Map Studio, `public` and `redirect` apps have no configurable runtime settings.
