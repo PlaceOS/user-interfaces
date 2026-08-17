@@ -5,6 +5,11 @@ const NAV_ITEMS = [
         icon: 'playlist_play',
         label: 'SIGNAGE_MANAGER.NAV_PLAYLISTS',
     },
+    {
+        route: '/templates',
+        icon: 'dashboard_customize',
+        label: 'SIGNAGE_MANAGER.NAV_TEMPLATES',
+    },
     { route: '/zones', icon: 'layers', label: 'SIGNAGE_MANAGER.NAV_ZONES' },
     {
         route: '/schedules',
@@ -21,8 +26,13 @@ const NAV_ITEMS = [
 
 export type NavItem = (typeof NAV_ITEMS)[number];
 
-export function filterManageNavItems(can_manage_groups: boolean): NavItem[] {
-    return can_manage_groups
-        ? NAV_ITEMS
-        : NAV_ITEMS.filter((item) => item.route !== '/groups');
+export function filterManageNavItems(
+    can_manage_groups: boolean,
+    templates_enabled = false,
+): NavItem[] {
+    return NAV_ITEMS.filter((item) => {
+        if (item.route === '/groups') return can_manage_groups;
+        if (item.route === '/templates') return templates_enabled;
+        return true;
+    });
 }

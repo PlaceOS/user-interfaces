@@ -4,6 +4,7 @@ import {
     effect,
     inject,
     Injectable,
+    linkedSignal,
     resource,
     signal,
     untracked,
@@ -28,6 +29,7 @@ import {
     addGroupZone,
     addSignageMedia,
     addSignagePlaylist,
+    addSignageTemplate,
     apiEndpoint,
     currentGroups,
     listSignageMediaTags,
@@ -48,6 +50,7 @@ import {
     querySignageMedia,
     querySignagePlaylists,
     querySignagePlugins,
+    querySignageTemplates,
     querySystems,
     queryUsers,
     queryZones,
@@ -56,6 +59,7 @@ import {
     removeGroupZone,
     removeSignageMedia,
     removeSignagePlaylist,
+    removeSignageTemplate,
     requestApprovalSignagePlaylist,
     scheduleSignagePlaylistMedia,
     shareSignageMedia,
@@ -68,6 +72,8 @@ import {
     SignagePlaylistItemSchedule,
     SignagePlaylistMedia,
     SignagePlugin,
+    SignageTemplate,
+    type SignageTemplateLayout,
     updateGroup,
     updateGroupUser,
     updateGroupZone,
@@ -75,6 +81,7 @@ import {
     updateSignagePlaylist,
     updateSignagePlaylistMedia,
     updateSignagePlaylistMediaSchedule,
+    updateSignageTemplate,
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
@@ -97,6 +104,7 @@ import {
     PlaylistRequestApprovalModalResult,
 } from './shared/playlist-request-approval-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
+import { TemplateEditModalComponent } from './shared/template-edit-modal.component';
 import { ZoneSelectModalComponent } from './shared/zone-select-modal.component';
 import {
     getVideoContainer,
@@ -341,6 +349,11 @@ export class SignageService {
     public readonly show_media_group_tabs = this._settings.signal(
         'show_media_group_tabs',
         true,
+    );
+    /** Feature flag for the template management section. */
+    public readonly templates_enabled = this._settings.signal(
+        'templates_enabled',
+        false,
     );
 
     public readonly search_term = signal('');
@@ -931,6 +944,93 @@ export class SignageService {
         }
     }
 
+    // --- Templates (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list, the same as playlists above.
+    public readonly template_search_term = signal('');
+    private readonly _template_search_debounced = debounced(
+        this.template_search_term,
+        400,
+    );
+    private readonly _template_items = signal<SignageTemplate[]>([]);
+    private readonly _templates_loading = signal(false);
+    private readonly _templates_has_more = signal(false);
+    private _templates_next:
+        | (() => QueryResponse<SignageTemplate> | null)
+        | null = null;
+    private _templates_token = 0;
+
+    public readonly templates = this._template_items.asReadonly();
+    public readonly templates_loading = this._templates_loading.asReadonly();
+    public readonly templates_has_more = this._templates_has_more.asReadonly();
+
+    private readonly _reload_templates = effect(() => {
+        const enabled = this.templates_enabled();
+        const initialised = this._org.initialised();
+        const can_query = this._can_query_group_data();
+        const group_id = this._api_group_id_debounced.value();
+        const search = this._template_search_debounced.value().trim();
+        this._change();
+        untracked(() => {
+            const token = ++this._templates_token;
+            this._template_items.set([]);
+            this._templates_next = null;
+            this._templates_has_more.set(false);
+            if (!enabled || !initialised || !can_query) return;
+            this._fetchTemplatePage(
+                querySignageTemplates(
+                    this._groupQueryParams(
+                        {
+                            limit: SignageService.PAGE_SIZE,
+                            ...this._searchParam(search),
+                        },
+                        group_id,
+                    ),
+                ),
+                token,
+            );
+        });
+    });
+
+    public loadMoreTemplates() {
+        if (this._templates_loading() || !this._templates_has_more()) return;
+        const next = this._templates_next?.();
+        if (!next) {
+            this._templates_has_more.set(false);
+            return;
+        }
+        this._fetchTemplatePage(next, this._templates_token);
+    }
+
+    private async _fetchTemplatePage(
+        query: QueryResponse<SignageTemplate>,
+        token: number,
+    ) {
+        this._templates_loading.set(true);
+        try {
+            const page = await query;
+            if (token !== this._templates_token) return;
+            const items = (page.data || []).map(decodeEntityNames);
+            this._template_items.update((list) => {
+                const by_id = new Map(list.map((item) => [item.id, item]));
+                for (const item of items) by_id.set(item.id, item);
+                return [...by_id.values()].sort((a, b) =>
+                    a.name.localeCompare(b.name),
+                );
+            });
+            this._templates_next = page.next;
+            this._templates_has_more.set(
+                this._template_items().length < page.total,
+            );
+        } catch {
+            if (token === this._templates_token)
+                this._templates_has_more.set(false);
+        } finally {
+            if (token === this._templates_token)
+                this._templates_loading.set(false);
+        }
+    }
+
     // --- Displays (paged incrementally as the user scrolls) ---
     // Searching is done by the backend so results are paged like the full
     // list; filtering the loaded pages would only ever search the displays
@@ -1204,6 +1304,22 @@ export class SignageService {
         },
     });
     public readonly plugins = computed(() => this._plugins.value() || []);
+
+    public readonly selected_template = signal<SignageTemplate | null>(null);
+    public readonly selected_template_layout_index = signal<number | null>(
+        null,
+    );
+    // Editable copy of the selected template's layout items, so reorders and
+    // plugin changes only hit the API when explicitly saved. Resets whenever
+    // the selection (or its saved layouts) change.
+    public readonly template_layout_draft = linkedSignal<
+        SignageTemplateLayout[]
+    >(() => structuredClone(this.selected_template()?.layouts ?? []));
+    public readonly template_layout_dirty = computed(
+        () =>
+            JSON.stringify(this.template_layout_draft()) !==
+            JSON.stringify(this.selected_template()?.layouts ?? []),
+    );
 
     public readonly selected_playlist = signal<SignagePlaylist | null>(null);
     // Selecting a playlist loads its media; debounce so arrowing through the
@@ -1692,6 +1808,124 @@ export class SignageService {
         if (!result) return false;
         this._playlist_change.set(Date.now());
         return true;
+    }
+
+    public async addTemplate() {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_TEMPLATES'),
+            )
+        )
+            return;
+        const ref = this._dialog.open(TemplateEditModalComponent, {
+            data: {
+                template: new SignageTemplate({}),
+                onAdd: (data: Partial<SignageTemplate>) =>
+                    this._addSignageTemplate(data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = await dialogClosed(ref);
+        if (result) {
+            this.changed();
+        }
+    }
+
+    public async editTemplate(template: SignageTemplate) {
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'),
+            )
+        )
+            return;
+        const ref = this._dialog.open(TemplateEditModalComponent, {
+            data: {
+                template,
+                onEdit: (id: string, data: Partial<SignageTemplate>) =>
+                    updateSignageTemplate(id, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = await dialogClosed(ref);
+        if (result) {
+            if (this.selected_template()?.id === template.id) {
+                this.selected_template.set(result);
+            }
+            this.changed();
+        }
+    }
+
+    public async removeTemplate(template: SignageTemplate) {
+        if (!template?.id) return;
+        if (
+            !this._requirePermission(
+                this.can_delete(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_TEMPLATES'),
+            )
+        )
+            return;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
+                    name: template.name,
+                }),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        await removeSignageTemplate(template.id);
+        if (this.selected_template()?.id === template.id) {
+            this.selected_template.set(null);
+            this.selected_template_layout_index.set(null);
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVED'));
+        result.close();
+    }
+
+    /** Persist the layout draft of the selected template */
+    public async saveTemplateLayouts() {
+        const template = this.selected_template();
+        if (!template?.id || !this.template_layout_dirty()) return;
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'),
+            )
+        )
+            return;
+        try {
+            const result = decodeEntityNames(
+                await updateSignageTemplate(template.id, {
+                    layouts: this.template_layout_draft(),
+                }),
+            );
+            this.selected_template.set(result);
+            this._template_items.update((items) =>
+                items.map((item) => (item.id === result.id ? result : item)),
+            );
+            notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_LAYOUTS_SAVED'));
+        } catch {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_SAVE_ERROR'));
+        }
+    }
+
+    public discardTemplateLayoutDraft() {
+        this.template_layout_draft.set(
+            structuredClone(this.selected_template()?.layouts ?? []),
+        );
+    }
+
+    private _addSignageTemplate(form_data: Partial<SignageTemplate>) {
+        const group_id = this._api_group_id();
+        return addSignageTemplate(
+            form_data,
+            group_id ? { group_id } : undefined,
+        );
     }
 
     public changed() {

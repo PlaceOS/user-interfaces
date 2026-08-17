@@ -20,7 +20,12 @@ describe('NavSidebarComponent', () => {
         locale: 'en',
         setLocale: vi.fn(),
     };
-    const service = { can_manage_all_groups, manageable_signage_groups };
+    const templates_enabled = signal(false);
+    const service = {
+        can_manage_all_groups,
+        manageable_signage_groups,
+        templates_enabled,
+    };
 
     async function createComponent() {
         await TestBed.configureTestingModule({
@@ -44,6 +49,7 @@ describe('NavSidebarComponent', () => {
         show_locale_signal.set(false);
         can_manage_all_groups.set(false);
         manageable_signage_groups.set([]);
+        templates_enabled.set(false);
         settings.theme = 'light';
         settings.get.mockReset();
         locale.locale = 'en';
@@ -63,6 +69,19 @@ describe('NavSidebarComponent', () => {
         const component = await createComponent();
 
         expect(component.nav_items().map((_) => _.route)).toContain('/groups');
+    });
+
+    it('hides the templates item until the feature flag is enabled', async () => {
+        const component = await createComponent();
+
+        expect(component.nav_items().map((_) => _.route)).not.toContain(
+            '/templates',
+        );
+
+        templates_enabled.set(true);
+        expect(component.nav_items().map((_) => _.route)).toContain(
+            '/templates',
+        );
     });
 
     it('labels the active locale from the configured list', async () => {
