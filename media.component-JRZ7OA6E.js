@@ -1,21 +1,23 @@
 import {
-  CdkDrag,
-  CdkDragPlaceholder,
-  CdkDropList,
-  DragDropModule,
   MatTabLink,
   MatTabNav,
   MatTabNavPanel,
   MatTabsModule
-} from "./chunk-IKDZCIOS.js";
+} from "./chunk-4DJD3HBF.js";
+import {
+  CdkDrag,
+  CdkDragPlaceholder,
+  CdkDropList,
+  DragDropModule
+} from "./chunk-IWZ7NQPJ.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-XXYQAX6Q.js";
+} from "./chunk-5NOOGBPB.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-FD7IL2B3.js";
+} from "./chunk-GNABOKG3.js";
 import {
   Component,
   CustomTooltipComponent,
@@ -102,7 +104,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-2RIEL44U.js";
+} from "./chunk-MDW4Q3JB.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/shared/media-add-modal.component.ts
@@ -3593,4 +3595,4 @@ var MediaSectionComponent = class _MediaSectionComponent {
 export {
   MediaSectionComponent
 };
-//# sourceMappingURL=media.component-S6ZLUSJE.js.map
+//# sourceMappingURL=media.component-JRZ7OA6E.js.map
