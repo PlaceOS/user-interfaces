@@ -4,6 +4,17 @@ function isSettingsGroup(value: unknown): value is AppSettings {
     return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
+function normaliseAppSetting(key: string, value: unknown): unknown {
+    if (
+        (key === 'logo_light' || key === 'logo_dark') &&
+        isSettingsGroup(value) &&
+        typeof value.src === 'string'
+    ) {
+        return value.src;
+    }
+    return value;
+}
+
 function settingsEqual(left: unknown, right: unknown): boolean {
     if (Object.is(left, right)) return true;
     if (Array.isArray(left) && Array.isArray(right)) {
@@ -29,7 +40,7 @@ export function mergeAppSettings(...layers: AppSettings[]): AppSettings {
     for (const layer of layers) {
         if (!layer) continue;
         for (const key in layer) {
-            const next_value = layer[key];
+            const next_value = normaliseAppSetting(key, layer[key]);
             const current_value = result[key];
             result[key] =
                 isSettingsGroup(current_value) && isSettingsGroup(next_value)

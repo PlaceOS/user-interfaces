@@ -53,6 +53,26 @@ describe('application settings utilities', () => {
         });
     });
 
+    it('should convert legacy logo objects before applying settings', () => {
+        const model = {
+            logo_light: '',
+            logo_dark: '',
+            banner: {},
+        };
+
+        expect(
+            applyAppSettings(model, {
+                logo_light: { src: 'https://placeos.com/logo-light.svg' },
+                logo_dark: 'https://placeos.com/logo-dark.svg',
+                banner: { src: 'https://placeos.com/banner.svg' },
+            }),
+        ).toEqual({
+            logo_light: 'https://placeos.com/logo-light.svg',
+            logo_dark: 'https://placeos.com/logo-dark.svg',
+            banner: { src: 'https://placeos.com/banner.svg' },
+        });
+    });
+
     it('should return only changed setting values', () => {
         const inherited_settings = {
             default_route: '/visitors',
