@@ -42,7 +42,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-5ZZQKTEZ.js";
+} from "./chunk-LTTMHRFC.js";
 import {
   FormField,
   MatCheckbox,
@@ -53,7 +53,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-L2LP3PP6.js";
+} from "./chunk-LHIVBI7V.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -72,6 +72,7 @@ import {
   DestroyRef,
   ElementRef,
   EventEmitter,
+  Fa,
   FocusMonitor,
   FormControl,
   FormControlName,
@@ -86,10 +87,9 @@ import {
   InjectionToken,
   Injector,
   Input,
-  Ju,
+  It,
   LOCAL_TIMEZONE,
   MAP_FEATURE_DATA,
-  Ma,
   MapsPeopleService,
   MatError,
   MatFormField,
@@ -119,7 +119,6 @@ import {
   Router,
   RouterLink,
   RouterModule,
-  Rt,
   RuntimeError,
   S,
   SETTING_KEYS,
@@ -137,8 +136,7 @@ import {
   ViewChildren,
   ViewEncapsulation,
   VirtualKeyboardComponent,
-  Wl,
-  Wu,
+  Vu,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _MatInternalFormField,
@@ -155,24 +153,24 @@ import {
   assertInInjectionContext,
   assertNotInReactiveContext,
   booleanAttribute,
-  ce,
   computed,
   constructFrom,
   createBookingsForEvent,
   currentUser,
   currentUserIsLoaded,
   currentUserLoaded,
+  d,
   debounced,
   differenceInCalendarMonths,
   differenceInMilliseconds,
   differenceInMinutes,
+  dp,
   ee,
   effect,
   enUS,
   endOfDay,
   endOfDayInTimezone,
   endOfMonth,
-  f,
   firstValueWhere,
   flatten,
   format,
@@ -188,8 +186,9 @@ import {
   getTimezoneOffsetString,
   getUnixTime,
   guardModelUndefinedWrites,
+  ha,
+  he,
   i18n,
-  ia,
   inject,
   input,
   isAfter,
@@ -203,13 +202,14 @@ import {
   minutesInDay,
   minutesInMonth,
   model,
+  nc,
   normalizeDates,
   notifyError,
   notifySuccess,
   numberAttribute,
-  oa,
   onFieldChange,
   output,
+  pa,
   queryAllBookings,
   queryBookings,
   queryResourceAvailability,
@@ -307,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-DZUACAK3.js";
+} from "./chunk-SZVYLPDF.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1585,13 +1585,13 @@ var DynamicMapComponent = class _DynamicMapComponent {
       injector.get(MAP_FEATURE_DATA)?.track_id,
       injector
     ]));
-    this.injectors.set((this.features() || []).map((f2) => f2.track_id && old_injectors.get(f2.track_id) || Injector.create({
+    this.injectors.set((this.features() || []).map((f) => f.track_id && old_injectors.get(f.track_id) || Injector.create({
       providers: [
         {
           provide: MAP_FEATURE_DATA,
           useValue: __spreadValues({
-            track_id: f2.track_id
-          }, f2.data)
+            track_id: f.track_id
+          }, f.data)
         }
       ],
       parent: this._injector
@@ -1921,7 +1921,7 @@ var ExploreStateService = class _ExploreStateService {
         level: this._level(),
         initialised: this._initialised()
       }),
-      loader: ({ params: { level, initialised } }) => initialised ? ia({
+      loader: ({ params: { level, initialised } }) => initialised ? ha({
         zone_id: level?.id || this._org.organisation.id,
         limit: 50
       }).then(({ data }) => data.map((_) => new Space(_))).catch((_) => []) : Promise.resolve([])
@@ -3165,7 +3165,7 @@ async function createEvent(data) {
 }
 async function updateEvent(id, data, q = {}, method = "patch") {
   const query = toQueryString(q);
-  const item = await (method === "patch" ? ae : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  const item = await (method === "patch" ? he : ae)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
   return new CalendarEvent(item);
 }
 var saveEvent = async (data, q) => {
@@ -4669,7 +4669,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       },
       loader: ({ params: ids }) => {
         this.addLoadingTag(Tags.BookingRules);
-        return Promise.all(ids.map((id) => Wu(id, "room_booking_rules").then((_) => ({
+        return Promise.all(ids.map((id) => Vu(id, "room_booking_rules").then((_) => ({
           id,
           details: _.details instanceof Array ? _.details : []
         })).catch(() => ({ id, details: [] })))).then((building_rules) => {
@@ -4732,7 +4732,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       {}
     )), {
       params: () => this._network_consumed() && this._requests_ready() ? this._org.organisation?.id || void 0 : void 0,
-      loader: ({ params: id }) => Wu(id, "room_alerts").then((r) => r.details).catch(() => ({}))
+      loader: ({ params: id }) => Vu(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => {
@@ -4769,7 +4769,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           list = list.filter(({ capacity }) => capacity < 0 || capacity >= range.min && capacity <= range.max);
         }
         if (filters.features) {
-          list = list.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
+          list = list.filter(({ features }) => filters.features.every((f) => features.includes(f)));
         }
         return list.sort((a, b) => {
           const cap_diff = (a.capacity || 0) - (b.capacity || 0);
@@ -5015,7 +5015,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-    ref.afterClosed().subscribe((d) => d ? this._router.navigate(["/"]) : "");
+    ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
@@ -5259,7 +5259,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const bld = this._org.buildings.find((b) => space.zones.includes(b.id));
       if (!bld || rules[bld.id])
         continue;
-      const metadata = await Wu(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      const metadata = await Vu(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata.details instanceof Array ? metadata.details : [];
     }
     const space_rules = spaces.map((space) => {
@@ -5466,7 +5466,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.filter((_) => predicate(_));
   }
   async loadSpace(space_id) {
-    const system = await oa(space_id);
+    const system = await pa(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -5480,7 +5480,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.find(({ id, email }) => space_id === id || space_id === email);
   }
   async loadSpaces() {
-    const systems = (await ia({
+    const systems = (await ha({
       zone_id: this._org.organisation?.id,
       limit: 5e3
     })).data;
@@ -6589,7 +6589,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => Wu(bld.id, `room_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => Vu(bld.id, `room_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -6603,7 +6603,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: () => Wu(this._org.organisation.id, `room_alerts`).then((_) => _.details || {}).catch(() => ({}))
+      loader: () => Vu(this._org.organisation.id, `room_alerts`).then((_) => _.details || {}).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => this._room_alerts.value() ?? {},
@@ -6628,13 +6628,13 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list?.length)
       return;
     for (const space of list) {
-      const mod = Wl(space.id, "Bookings");
+      const mod = dp(space.id, "Bookings");
       let binding = mod.variable("bookings");
-      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list, space, d)));
+      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d2) => this.handleBookingsChange(list, space, d2)));
       binding = mod.variable("status");
-      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d) => this.handleStatusChange(list, space, d)));
+      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d2) => this.handleStatusChange(list, space, d2)));
       binding = mod.variable("presence");
-      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d) => this.handlePresenceChange(list, space, d)));
+      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d2) => this.handlePresenceChange(list, space, d2)));
     }
     this.updateActions(list);
     this._updateHoverElements(list);
@@ -6809,7 +6809,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
 
 // libs/explore/src/lib/set-datetime-modal.component.ts
 var _c06 = () => ({ standalone: true });
-function SetDatetimeModalComponent_Conditional_6_Conditional_1_Template(rf, ctx) {
+function SetDatetimeModalComponent_Conditional_7_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 6)(1, "div", 10)(2, "label");
     \u0275\u0275text(3);
@@ -6826,7 +6826,7 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_1_Template(rf, ctx)
     \u0275\u0275textInterpolate1(" ", ctx_r0.resource().name || ctx_r0.resource().map_id || "Unknown Resource", " ");
   }
 }
-function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
+function SetDatetimeModalComponent_Conditional_7_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 6)(1, "div", 7)(2, "label");
     \u0275\u0275text(3, "Host");
@@ -6840,7 +6840,7 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_2_Template(rf, ctx)
     \u0275\u0275control();
   }
 }
-function SetDatetimeModalComponent_Conditional_6_Conditional_9_Template(rf, ctx) {
+function SetDatetimeModalComponent_Conditional_7_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 13)(1, "mat-checkbox", 14);
     \u0275\u0275text(2);
@@ -6858,14 +6858,14 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_9_Template(rf, ctx)
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "COMMON.ALL_DAY"), " ");
   }
 }
-function SetDatetimeModalComponent_Conditional_6_Conditional_10_Template(rf, ctx) {
+function SetDatetimeModalComponent_Conditional_7_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 6)(1, "div", 15)(2, "label");
     \u0275\u0275text(3, "Start Time");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "a-time-field", 16);
-    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_6_Conditional_10_Template_a_time_field_ngModelChange_4_listener($event) {
+    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_7_Conditional_10_Template_a_time_field_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.form.patchValue({ date: $event }));
@@ -6890,11 +6890,11 @@ function SetDatetimeModalComponent_Conditional_6_Conditional_10_Template(rf, ctx
     \u0275\u0275control();
   }
 }
-function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
+function SetDatetimeModalComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "main", 3);
-    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_6_Conditional_1_Template, 6, 2, "div", 6);
-    \u0275\u0275conditionalCreate(2, SetDatetimeModalComponent_Conditional_6_Conditional_2_Template, 5, 0, "div", 6);
+    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_7_Conditional_1_Template, 6, 2, "div", 6);
+    \u0275\u0275conditionalCreate(2, SetDatetimeModalComponent_Conditional_7_Conditional_2_Template, 5, 0, "div", 6);
     \u0275\u0275elementStart(3, "div", 6)(4, "div", 7)(5, "label");
     \u0275\u0275text(6, "Date");
     \u0275\u0275elementEnd();
@@ -6903,8 +6903,8 @@ function SetDatetimeModalComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, SetDatetimeModalComponent_Conditional_6_Conditional_9_Template, 4, 7, "div", 9);
-    \u0275\u0275conditionalCreate(10, SetDatetimeModalComponent_Conditional_6_Conditional_10_Template, 9, 11, "div", 6);
+    \u0275\u0275conditionalCreate(9, SetDatetimeModalComponent_Conditional_7_Conditional_9_Template, 4, 7, "div", 9);
+    \u0275\u0275conditionalCreate(10, SetDatetimeModalComponent_Conditional_7_Conditional_10_Template, 9, 11, "div", 6);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -7012,27 +7012,30 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 11, vars: 5, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end", 3, "-mb-7", "mb-2"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], ["formControlName", "all_day"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 12, vars: 8, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end", 3, "-mb-7", "mb-2"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], ["formControlName", "all_day"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
-        \u0275\u0275text(2, "Set date and time");
+        \u0275\u0275text(2);
+        \u0275\u0275pipe(3, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(3, "button", 2)(4, "icon");
-        \u0275\u0275text(5, "close");
+        \u0275\u0275elementStart(4, "button", 2)(5, "icon");
+        \u0275\u0275text(6, "close");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275conditionalCreate(6, SetDatetimeModalComponent_Conditional_6_Template, 11, 6, "main", 3);
-        \u0275\u0275elementStart(7, "footer", 4)(8, "button", 5);
-        \u0275\u0275text(9);
-        \u0275\u0275pipe(10, "translate");
+        \u0275\u0275conditionalCreate(7, SetDatetimeModalComponent_Conditional_7_Template, 11, 6, "main", 3);
+        \u0275\u0275elementStart(8, "footer", 4)(9, "button", 5);
+        \u0275\u0275text(10);
+        \u0275\u0275pipe(11, "translate");
         \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
-        \u0275\u0275advance(6);
-        \u0275\u0275conditional(ctx.form ? 6 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 4, "EXPLORE.BOOKING_HEADER"), " ");
+        \u0275\u0275advance(5);
+        \u0275\u0275conditional(ctx.form ? 7 : -1);
         \u0275\u0275advance(2);
         \u0275\u0275property("mat-dialog-close", ctx.form.value);
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 3, "COMMON.CONTINUE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(11, 6, "COMMON.SAVE"), " ");
       }
     }, dependencies: [
       MatRippleModule,
@@ -7064,7 +7067,9 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
         <header
             class="bg-base-200 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">Set date and time</h2>
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'EXPLORE.BOOKING_HEADER' | translate }}
+            </h2>
             <button icon matRipple mat-dialog-close>
                 <icon>close</icon>
             </button>
@@ -7163,7 +7168,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
             class="bg-base-200 mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
-                {{ 'COMMON.CONTINUE' | translate }}
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
     `, imports: [
@@ -7182,7 +7187,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 152 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 154 });
 })();
 
 // libs/explore/src/lib/explore-desk-info.component.ts
@@ -7868,7 +7873,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod = Wl(this._details.system, "LocationServices");
+    const mod = dp(this._details.system, "LocationServices");
     if (!mod)
       return;
     this.username.set("Loading...");
@@ -8100,7 +8105,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => Wu(bld.id, `desk_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => Vu(bld.id, `desk_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -8114,7 +8119,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._state.level() || void 0,
-      loader: ({ params: lvl }) => Wu(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))))
+      loader: ({ params: lvl }) => Vu(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))))
     }));
     this.desk_list = computed(
       () => this._desk_list.value() ?? [],
@@ -8183,12 +8188,12 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       return;
     const binding = mod.variable(zone_id);
     if (binding) {
-      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d) => this.processBindingChange(d || {}, mod.id)));
+      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d2) => this.processBindingChange(d2 || {}, mod.id)));
     }
     const bookings_binding = mod.variable(`${zone_id}:desk_bookings`);
     if (bookings_binding) {
-      this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d) => {
-        const value = __spreadValues({}, d || {});
+      this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d2) => {
+        const value = __spreadValues({}, d2 || {});
         for (const id in value) {
           const new_bookings = value[id].map((_) => new Booking(__spreadProps(__spreadValues({}, _), {
             booking_start: _.booking_start || _.started_at,
@@ -8272,12 +8277,12 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     const list = [];
     for (const device of devices) {
       const x = device.x / device.map_width;
-      const y = device.y / device.map_height;
+      const y2 = device.y / device.map_height;
       list.push({
-        track_id: `device:hover:${x},${y}`,
+        track_id: `device:hover:${x},${y2}`,
         location: {
           x: device.coordinates_from?.includes("right") ? 1 - x : x,
-          y: device.coordinates_from?.includes("bottom") ? 1 - y : y
+          y: device.coordinates_from?.includes("bottom") ? 1 - y2 : y2
         },
         content: ExploreDeviceInfoComponent,
         z_index: 20,
@@ -8642,9 +8647,9 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const buildings = this._org.building_list();
     if (!buildings?.length)
       return;
-    const results = await Promise.all(buildings.map((bld) => Ju(bld.id, { name: "desks" }).then((data) => ({
+    const results = await Promise.all(buildings.map((bld) => nc(bld.id, { name: "desks" }).then((data) => ({
       building_id: bld.id,
-      desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
+      desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d2) => new Desk(__spreadProps(__spreadValues({}, d2), {
         zone: meta.zone
       })))))
     })).catch(() => ({
@@ -8654,7 +8659,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const email = currentUser()?.email?.toLowerCase();
     if (!email)
       return this._home_building_id.set(null);
-    const match = results.find((r) => r.desks.some((d) => d.assigned_to?.toLowerCase() === email));
+    const match = results.find((r) => r.desks.some((d2) => d2.assigned_to?.toLowerCase() === email));
     this._home_building_id.set(match?.building_id || null);
   }
   static {
@@ -8920,7 +8925,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => Wu(bld.id, `parking_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => Vu(bld.id, `parking_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -9260,29 +9265,29 @@ var MapCanvasComponent = class _MapCanvasComponent {
     ctx.fillStyle = polygon.color + "80";
     ctx.beginPath();
     ctx.moveTo(points[0][0] * width, points[0][1] * height);
-    points.forEach(([x, y]) => ctx.lineTo(x * width, y * height));
+    points.forEach(([x, y2]) => ctx.lineTo(x * width, y2 * height));
     ctx.closePath();
     ctx.fill();
     ctx.strokeStyle = shiftColorTowards(polygon.color, "#888888", 0.5);
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(points[0][0] * width, points[0][1] * height);
-    points.forEach(([x, y]) => ctx.lineTo(x * width, y * height));
+    points.forEach(([x, y2]) => ctx.lineTo(x * width, y2 * height));
     ctx.closePath();
     ctx.stroke();
     if (this._data.draw_points !== false) {
       ctx.fillStyle = "#fff";
       ctx.strokeStyle = polygon.color;
       ctx.lineWidth = 4;
-      points.forEach(([x, y]) => {
+      points.forEach(([x, y2]) => {
         ctx.beginPath();
-        ctx.arc(x * width, y * height, 8, 0, Math.PI * 2);
+        ctx.arc(x * width, y2 * height, 8, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
       });
     }
     if (this._data.draw_labels !== false) {
-      const center = points.reduce((acc, [x, y]) => [acc[0] + x, acc[1] + y], [0, 0]);
+      const center = points.reduce((acc, [x, y2]) => [acc[0] + x, acc[1] + y2], [0, 0]);
       center[0] /= points.length;
       center[1] /= points.length;
       ctx.textAlign = "center";
@@ -9552,7 +9557,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
   }
   async init() {
     await firstValueWhere(this._org.initialised, (_) => !!_, this._injector);
-    const zone_metadata = await Promise.all(this._org.levels.map((bld) => Wu(bld.id, "map_regions").catch(() => null)));
+    const zone_metadata = await Promise.all(this._org.levels.map((bld) => Vu(bld.id, "map_regions").catch(() => null)));
     this._capacity = {};
     this._count_key = {};
     this._location = {};
@@ -9603,8 +9608,8 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
       return;
     const bind_areas = mod.variable(`${zone_id}:areas`);
     const bind_zone = mod.variable(`${zone_id}`);
-    this.subscription("binding", bind_areas.bindThenSubscribe((d) => this._area_data.set(d)));
-    this.subscription("zone-binding", bind_zone.bindThenSubscribe((d) => this._zone_data.set(d)));
+    this.subscription("binding", bind_areas.bindThenSubscribe((d2) => this._area_data.set(d2)));
+    this.subscription("zone-binding", bind_zone.bindThenSubscribe((d2) => this._zone_data.set(d2)));
   }
   _parseBindingData() {
     const areas = this._area_data()?.value || [];
@@ -9740,11 +9745,11 @@ function getCenterPoint(points) {
   let x_max = first_x;
   let y_min = first_y;
   let y_max = first_y;
-  for (const [x, y] of points) {
+  for (const [x, y2] of points) {
     x_min = Math.min(x_min, x);
     x_max = Math.max(x_max, x);
-    y_min = Math.min(y_min, y);
-    y_max = Math.max(y_max, y);
+    y_min = Math.min(y_min, y2);
+    y_max = Math.max(y_max, y2);
   }
   return {
     x: x_min + (x_max - x_min) / 2,
@@ -9761,15 +9766,15 @@ var ASCENDING_NAME_SORTER = new Intl.Collator(void 0, {
 });
 function queryAssetCategoriesLocal(query = {}) {
   const q = toQueryString(query);
-  return f(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
+  return d(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
 }
 function queryAssetTypesLocal(query = {}) {
   const q = toQueryString(query);
-  return f(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
+  return d(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
 }
 function queryAssetsLocal(query = {}) {
   const q = toQueryString(query);
-  return f(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
+  return d(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
 }
 var TYPES = ["space", "feature", "contact", "user"];
 function typeIndex(item) {
@@ -9898,7 +9903,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async ({ params: bld }) => {
-        const { details } = await Wu(bld.id, "emergency_contacts").catch(() => ({
+        const { details } = await Vu(bld.id, "emergency_contacts").catch(() => ({
           details: { contacts: [], migrated: false }
         }));
         const data = details;
@@ -9931,7 +9936,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => ({ q: this._debounced_filter.value() }),
-      loader: ({ params: { q } }) => q?.length > 2 ? ia({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
+      loader: ({ params: { q } }) => q?.length > 2 ? ha({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
         level: this._org.levelWithID(_.zones)
       })))).catch(() => []) : Promise.resolve([])
     }));
@@ -9940,7 +9945,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => Ju(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => [])
+      loader: ({ params: bld }) => nc(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => [])
     }));
     this._maps_people_search = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_maps_people_search" } : (
       /* istanbul ignore next */
@@ -9968,7 +9973,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async () => {
-        const data = await Ju(this._org.building.id, {
+        const data = await nc(this._org.building.id, {
           name: "map_features"
         }).catch(() => []);
         const list = [];
@@ -9995,7 +10000,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._initialised() || void 0,
-      loader: () => Wu(this._org.organisation.id, "points-of-interest").catch((_) => ({ details: {} }))
+      loader: () => Vu(this._org.organisation.id, "points-of-interest").catch((_) => ({ details: {} }))
     }));
     this._poi_list = computed(
       () => {
@@ -10147,7 +10152,7 @@ var ExploreSearchService = class _ExploreSearchService {
         []
       )
     );
-    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Ma({ q, authority_id: Rt()?.id }).then((_) => _.data) : searchStaff(q);
+    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Fa({ q, authority_id: It()?.id }).then((_) => _.data) : searchStaff(q);
     this.init();
   }
   async init() {
@@ -11604,7 +11609,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod = Wl(locate_details.system_id, locate_details.module);
+    const mod = dp(locate_details.system_id, locate_details.module);
     const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
@@ -11991,4 +11996,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-RW3D2EZC.js.map
+//# sourceMappingURL=explore.routes-Q4WW2K3V.js.map

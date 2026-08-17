@@ -19,10 +19,11 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-L2LP3PP6.js";
+} from "./chunk-LHIVBI7V.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
+  Al,
   ApplicationRef,
   AriaDescriber,
   AsyncHandler,
@@ -56,6 +57,7 @@ import {
   ElementRef,
   EnvironmentInjector,
   EventEmitter,
+  Fa,
   FocusKeyManager,
   FocusMonitor,
   FocusTrapFactory,
@@ -70,13 +72,12 @@ import {
   Injector,
   Input,
   InteractivityChecker,
-  Ju,
-  Kt,
+  It,
   LEFT_ARROW,
+  La,
   MAT_FORM_FIELD,
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
-  Ma,
   MatError,
   MatFormField,
   MatFormFieldModule,
@@ -95,7 +96,6 @@ import {
   MediaMatcher,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
-  Na,
   NavigationEnd,
   NgComponentOutlet,
   NgControlStatus,
@@ -114,21 +114,21 @@ import {
   OverlayRef,
   Pipe,
   Platform,
+  Pn,
   PortalModule,
   QueryList,
   RIGHT_ARROW,
   ReactiveFormsModule,
   Renderer2,
   ReplaySubject,
+  Rl,
   Router,
-  Rt,
   SETTING_KEYS,
   SPACE,
   SafePipe,
   ScrollDispatcher,
   Service,
   SettingsService,
-  Sn,
   Space,
   StaffUser,
   Subject,
@@ -141,16 +141,15 @@ import {
   UP_ARROW,
   User,
   Validators,
+  Ve,
   ViewChild,
   ViewContainerRef,
   ViewEncapsulation,
   ViewportRuler,
   VirtualKeyboardComponent,
-  Vs,
-  Wu,
+  Vu,
   X,
-  Ye,
-  Zh,
+  Yt,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _StructuralStylesLoader,
@@ -167,7 +166,6 @@ import {
   afterNextRender,
   bookedResourceList,
   booleanAttribute,
-  cl,
   coerceArray,
   coerceBooleanProperty,
   coerceNumberProperty,
@@ -181,13 +179,13 @@ import {
   currentUserIsLoaded,
   currentUserLoaded,
   current_user,
+  d,
   debounced,
   defer,
   delay,
   differenceInMinutes,
   effect,
   endOfDay,
-  f,
   filter,
   findBookingClashes,
   first,
@@ -204,10 +202,9 @@ import {
   getTimezoneOffsetString,
   getUnixTime,
   guardModelUndefinedWrites,
+  ha,
   hasModifierKey,
   i18n,
-  ia,
-  il,
   inject,
   input,
   isAfter,
@@ -220,7 +217,10 @@ import {
   localToTimezone,
   map,
   merge,
+  ml,
   model,
+  nc,
+  ni,
   notifyError,
   notifyWarn,
   of,
@@ -241,7 +241,6 @@ import {
   shareReplay,
   signal,
   skipWhile,
-  sl,
   startOfDay,
   startOfMinute,
   startWith,
@@ -256,6 +255,7 @@ import {
   untracked,
   updateSpaceList,
   viewChild,
+  xl,
   ɵNgNoValidate,
   ɵsetClassDebugInfo,
   ɵɵHostDirectivesFeature,
@@ -330,7 +330,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-DZUACAK3.js";
+} from "./chunk-SZVYLPDF.js";
 import {
   __objRest,
   __spreadProps,
@@ -3224,7 +3224,7 @@ var Desk = class {
     this.map_id = data.map_id || data.id || "";
     this.name = data.name || "";
     this.bookable = data.bookable ?? false;
-    this.zone = data.zone || new Kt();
+    this.zone = data.zone || new Yt();
     this.assigned_to = data.assigned_to || "";
     this.groups = data.groups || [];
     this.qr_code = data.qr_code || "";
@@ -3243,7 +3243,7 @@ var Desk = class {
     for (const key of IGNORE_KEYS) {
       delete data[key];
     }
-    Vs(data, [void 0, null, []]);
+    ni(data, [void 0, null, []]);
     return data;
   }
 };
@@ -3569,11 +3569,11 @@ async function searchStaff(q) {
       "department"
     ].join(",")
   });
-  const list = await f(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
+  const list = await d(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
   return list.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await f(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await d(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // node_modules/@angular/material/fesm2022/_tooltip-chunk.mjs
@@ -4549,7 +4549,7 @@ var MapStore = class {
     return this.store.get(path);
   }
   async _load(path) {
-    while (!Rt()) {
+    while (!It()) {
       await new Promise((resolve) => setTimeout(resolve, 300));
     }
     const options = {};
@@ -4557,7 +4557,7 @@ var MapStore = class {
     const is_same_origin = new URL(path, location.origin).origin === location.origin;
     if (tkn && is_same_origin) {
       if (!isMobileSafari()) {
-        options.headers = tkn === "x-api-key" ? { "x-api-key": Ye() } : { Authorization: `Bearer ${tkn}` };
+        options.headers = tkn === "x-api-key" ? { "x-api-key": Ve() } : { Authorization: `Bearer ${tkn}` };
       } else {
         setAuthCookie("/");
       }
@@ -6322,7 +6322,7 @@ function normalise_name(name = "") {
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = cl({
+    _hidden_categories_promise = Rl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -6331,7 +6331,7 @@ async function query_hidden_categories() {
 }
 async function query_types_for_category(category_id) {
   if (!_types_for_category_promises.has(category_id)) {
-    _types_for_category_promises.set(category_id, sl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises.set(category_id, xl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises.get(category_id);
 }
@@ -6439,7 +6439,7 @@ async function queryParkingSpacesForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveParkingTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => ml({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 var PARKING_USER_TYPE_NAME = "_PARKING_USERS_";
@@ -6476,7 +6476,7 @@ function toParkingUser(asset) {
 }
 async function queryParkingUsers(zone_id) {
   const type_id = await resolveParkingUserTypeId();
-  const assets = await Zh({ zone_id, type_id, limit: 500 });
+  const assets = await ml({ zone_id, type_id, limit: 500 });
   return assets.data.map(toParkingUser);
 }
 
@@ -6501,7 +6501,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group = await il(group_id).catch(() => null);
+    const group = await Al(group_id).catch(() => null);
     if (group) {
       asset_group = __spreadValues({}, group);
       ASSET_GROUP_LIST.push(asset_group);
@@ -6536,7 +6536,7 @@ function getAssetRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return Promise.resolve([]);
   if (!RULE_REQUESTS[zone_id] || fresh)
-    RULE_REQUESTS[zone_id] = Wu(zone_id, "assets_config").then((_) => _.details instanceof Array ? _.details : []).catch(() => []);
+    RULE_REQUESTS[zone_id] = Vu(zone_id, "assets_config").then((_) => _.details instanceof Array ? _.details : []).catch(() => []);
   return RULE_REQUESTS[zone_id];
 }
 function assetAvailable(item, rules, event) {
@@ -6909,7 +6909,7 @@ var AssetStateService = class _AssetStateService {
   }
   async _loadSettings(building_id) {
     const existing = this._settings_requests.get(building_id);
-    const request = existing || Wu(building_id, "assets-settings").then((metadata) => metadata.details || {}).catch(() => ({}));
+    const request = existing || Vu(building_id, "assets-settings").then((metadata) => metadata.details || {}).catch(() => ({}));
     if (!existing)
       this._settings_requests.set(building_id, request);
     this._settings.set(await request);
@@ -7438,7 +7438,7 @@ var _hidden_categories_promise2 = null;
 var _types_for_category_promises2 = /* @__PURE__ */ new Map();
 async function query_hidden_categories2() {
   if (!_hidden_categories_promise2) {
-    _hidden_categories_promise2 = cl({
+    _hidden_categories_promise2 = Rl({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -7447,7 +7447,7 @@ async function query_hidden_categories2() {
 }
 async function query_types_for_category2(category_id) {
   if (!_types_for_category_promises2.has(category_id)) {
-    _types_for_category_promises2.set(category_id, sl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises2.set(category_id, xl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises2.get(category_id);
 }
@@ -7509,14 +7509,14 @@ async function queryLockerBankAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerBankTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => ml({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 async function queryLockerAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => Zh({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => ml({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 
@@ -7739,12 +7739,12 @@ var RecurringClashModalComponent = class _RecurringClashModalComponent {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list = await f(CALENDAR_ENDPOINT);
+  const list = await d(CALENDAR_ENDPOINT);
   return list.map((c) => new Calendar(c));
 }
 async function queryCalendarAvailability(q) {
   const query = toQueryString(q);
-  const list = await f(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
+  const list = await d(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
   return list.map((c) => new Calendar(c));
 }
 var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -7753,7 +7753,7 @@ var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map(
 }))).filter((space) => space.bookable);
 async function querySpaceFreeBusy(q, org) {
   const query = toQueryString(q);
-  const list = await f(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
+  const list = await d(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
   return calendarsToSpaces(list.map((c) => new Calendar(c)), org);
 }
 
@@ -8102,7 +8102,7 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from(ia({
+  SPACE_LIST_REQUESTS[id] = from(ha({
     zone_id: id,
     limit: 500,
     signage: false
@@ -8590,9 +8590,9 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
   let closest = "";
   for (const desk of desk_ids) {
     const { x, y } = centerOf(desk) || { x: 2, y: 2 };
-    const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
-    if (d < dist) {
-      dist = d;
+    const d2 = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
+    if (d2 < dist) {
+      dist = d2;
       closest = desk;
     }
   }
@@ -9972,16 +9972,19 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   /** Resolve with the resources for the current booking type once loaded */
   async listResources() {
     this._startNetwork();
+    await firstValueWhere(this._requests_ready, (ready) => ready, this._injector);
+    const params = this._resource_params();
+    await firstValueWhere(this._resource_params_debounced.value, (value) => value === params, this._injector);
     await this._whenSettled(this._resources_resource);
     return this.resources();
   }
   /** Resolve with the available resources for the current selection */
   async listAvailableResources() {
     this._startNetwork();
-    const [resources] = await Promise.all([
-      this.listResources(),
-      this._whenSettled(this._booking_rules_resource)
-    ]);
+    const resources = await this.listResources();
+    const rules_params = this._booking_rules_params();
+    await firstValueWhere(this._booking_rules_params_debounced.value, (value) => value === rules_params, this._injector);
+    await this._whenSettled(this._booking_rules_resource);
     return this._computeAvailableResources(this._options(), resources, this.booking_rules(), this.model());
   }
   /** Resolve once the given resource has finished loading */
@@ -10017,7 +10020,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!email2)
       return false;
     const map_metadata = (meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((desk) => new Desk(__spreadProps(__spreadValues({}, desk), { zone: meta.zone })));
-    const desk_lists = await Promise.all(buildings.map((building) => Ju(building.id, { name: "desks" }).then((data) => flatten(data.map(map_metadata))).catch(() => [])));
+    const desk_lists = await Promise.all(buildings.map((building) => nc(building.id, { name: "desks" }).then((data) => flatten(data.map(map_metadata))).catch(() => [])));
     return flatten(desk_lists).some((desk) => desk.assigned_to?.toLowerCase() === email2);
   }
   /**
@@ -10058,7 +10061,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const default_zone = (this._settings.get("app.use_region") ? this._org.region?.id : this._org.building?.id) || this._org.organisation.id;
     const zones = options.zones?.length ? options.zones.join(",") : options.zone_id || default_zone;
     let booked_ids = [];
-    if (!Sn()) {
+    if (!Pn()) {
       booked_ids = await this._bookedResourceList({
         period_start: getUnixTime(date),
         period_end: getUnixTime(addMinutes(date, duration)),
@@ -10143,7 +10146,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     }
     this.model.set(bookingFormValue(new Booking()));
     this.form().reset();
-    this._patch(Vs(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
+    this._patch(ni(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, booking.extension_data), {
       attachments: bookingAttachments(booking)
     }), booking), {
       _in_progress: booking.state === "started" || booking.state === "in_progress",
@@ -10345,7 +10348,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       params: () => this._network_consumed() && this._requests_ready() ? this._booking_rules_params_debounced.value() : void 0,
       loader: ({ params }) => {
         const { ids, type } = params;
-        return Promise.all(ids.map((id) => Wu(id, `${type}_booking_rules`))).then((building_rules) => {
+        return Promise.all(ids.map((id) => Vu(id, `${type}_booking_rules`))).then((building_rules) => {
           const mapping = {};
           for (const rules of building_rules) {
             mapping[rules.id] = rules.details instanceof Array ? rules.details : [];
@@ -10538,7 +10541,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    this._patch(Vs(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
+    this._patch(ni(__spreadProps(__spreadValues(__spreadValues({}, booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       user: bookingHostUser(booking),
       _in_progress: booking?.state === "started"
@@ -10555,7 +10558,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     sessionStorage.removeItem(STORAGE_KEYS.booking_form_filters);
   }
   storeForm() {
-    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), Vs(__spreadValues({}, this.model()), [null, void 0, ""]))));
+    sessionStorage.setItem(STORAGE_KEYS.booking_form, JSON.stringify(__spreadValues(__spreadValues({}, this._booking()), ni(__spreadValues({}, this.model()), [null, void 0, ""]))));
     sessionStorage.setItem(STORAGE_KEYS.booking_form_filters, JSON.stringify(this._options() || {}));
   }
   loadForm(expected_type) {
@@ -10582,7 +10585,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       booked_by: currentUser()
     }));
     this.form().reset();
-    const booking_data = Vs(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
+    const booking_data = ni(__spreadProps(__spreadValues(__spreadValues(__spreadValues({}, data), booking || {}), booking?.extension_data || {}), {
       attachments: bookingAttachments(booking),
       user: bookingHostUser(booking),
       _in_progress: booking?.state === "started"
@@ -11400,7 +11403,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       email: user_email,
       limit: 1e3
     });
-    const active_bookings = bookings.filter((_) => _.status !== "declined" && _.status !== "cancelled" && !_.rejected);
+    const active_bookings = bookings.filter((_) => _.status !== "declined" && _.status !== "cancelled" && _.status !== "ended" && !_.rejected);
     if (active_bookings.find((_) => _.asset_id === asset_id && id !== _.id)) {
       throw i18n(asset_id.includes("@") ? "BOOKINGS.VISITOR_BOOKED" : "BOOKINGS.RESOURCE_BOOKED", { name: asset_id });
     }
@@ -11446,7 +11449,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (this._useCurrentUserForBookingRules() || current_user2.email === host) {
       return current_user2;
     }
-    return Na(host).catch(() => ({ email: host }));
+    return La(host).catch(() => ({ email: host }));
   }
   /**
    * Check for clashing bookings in a recurring booking series
@@ -11529,8 +11532,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   async loadResourceList(type) {
     const use_region = this._settings.get("app.use_region");
-    const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
-      id: d.id || d.map_id,
+    const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d2) => __spreadProps(__spreadValues({}, d2), {
+      id: d2.id || d2.map_id,
       zone: _.zone
     }));
     const id = use_region ? this._org.building?.parent_id : this._org.building?.id;
@@ -11539,10 +11542,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (use_region) {
       const id2 = this._org.building.parent_id;
       const buildings = this._org.buildings.filter((_) => _.parent_id === id2);
-      const lists = await Promise.all(buildings.map((_) => Ju(_.id, { name: type }).then((data2) => flatten(data2.map(map_metadata)))));
+      const lists = await Promise.all(buildings.map((_) => nc(_.id, { name: type }).then((data2) => flatten(data2.map(map_metadata)))));
       return flatten(lists);
     }
-    const data = await Ju(this._org.building.id, {
+    const data = await nc(this._org.building.id, {
       name: type
     });
     return flatten(data.map(map_metadata));
@@ -11923,9 +11926,9 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         const guest_query = () => searchGuests(q).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Ma({
+        const staff = this.use_basic_search() ? await Fa({
           q,
-          authority_id: Rt()?.id,
+          authority_id: It()?.id,
           fields: ["id", "name", "email"].join(",")
         }).then((_) => _.data.map((u) => new User(u))).catch(() => []) : await searchStaff(q).catch(() => []);
         if (!this.guests())
@@ -11995,7 +11998,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
     this.user.set(value);
     this.search_term.set(value);
     if (typeof new_value !== "string" && !this.use_basic_search() && (value?.id || value?.email)) {
-      Na(value.email || value.id).then((details) => {
+      La(value.email || value.id).then((details) => {
         if (!details)
           return;
         const updated = new User(__spreadValues(__spreadValues({}, value), new User(details)));
@@ -12370,4 +12373,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-5ZZQKTEZ.js.map
+//# sourceMappingURL=chunk-LTTMHRFC.js.map
