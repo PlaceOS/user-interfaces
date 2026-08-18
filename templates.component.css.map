@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["templates.component.ts"],
-  "sourcesContent": ["\n            .mobile-hidden {\n                @media (max-width: 639px) {\n                    display: none !important;\n                }\n            }\n\n            .mobile-full {\n                @media (max-width: 639px) {\n                    flex: 1;\n                }\n            }\n        "],
-  "mappings": ";AAEgB,QAAA,WAAA;AADJ,GAAA;AAEQ,aAAA;AAER;AADI;AAIA,QAAA,WAAA;AADJ,GAAA;AAEQ,UAAA;AAER;AADI;",
+  "sourcesContent": ["\n            .mobile-hidden {\n                @media (max-width: 639px) {\n                    display: none !important;\n                }\n            }\n\n            .mobile-full {\n                @media (max-width: 639px) {\n                    flex: 1;\n                }\n            }\n\n            .tablet-hidden {\n                @media (max-width: 1023px) {\n                    display: none !important;\n                }\n            }\n\n            .tablet-full {\n                @media (max-width: 1023px) {\n                    flex: 1;\n                    min-width: 0;\n                }\n            }\n        "],
+  "mappings": ";AAEgB,QAAA,WAAA;AADJ,GAAA;AAEQ,aAAA;AAER;AADI;AAIA,QAAA,WAAA;AADJ,GAAA;AAEQ,UAAA;AAER;AADI;AAIA,QAAA,WAAA;AADJ,GAAA;AAEQ,aAAA;AAER;AADI;AAIA,QAAA,WAAA;AADJ,GAAA;AAEQ,UAAA;AACA,eAAA;AAER;AADI;",
   "names": []
 }

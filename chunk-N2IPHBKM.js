@@ -54634,15 +54634,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "7260d8b",
-  "hash": "7260d8b",
+  "raw": "8a82cb4",
+  "hash": "8a82cb4",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7260d8b",
+  "suffix": "8a82cb4",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1786946499190
+  "time": 1787023892956
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -103003,6 +103003,34 @@ function playlistScheduleNextPlayLabels(schedule, count = 5) {
   return nextCronPlayDates(schedule.play_cron || "0 0 * * *", count).map((start) => formatPlayDateTimeRange(start, period));
 }
 
+// apps/signage-manager/src/app/signage-plugin.util.ts
+function isRecord(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+function objectHasKeys(value) {
+  return isRecord(value) && Object.keys(value).length > 0;
+}
+function pluginSchema(schema2) {
+  if (!objectHasKeys(schema2))
+    return null;
+  if ("properties" in schema2)
+    return schema2;
+  if (!Object.values(schema2).every(isRecord))
+    return null;
+  return { type: "object", properties: schema2 };
+}
+function schemaDefaults(schema2) {
+  const properties = schema2?.properties;
+  if (!isRecord(properties))
+    return {};
+  return Object.entries(properties).reduce((defaults2, [key, property]) => {
+    if (isRecord(property) && "default" in property) {
+      defaults2[key] = property.default;
+    }
+    return defaults2;
+  }, {});
+}
+
 // apps/signage-manager/src/app/shared/media-edit-modal.component.ts
 function MediaEditModalComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
@@ -103284,20 +103312,6 @@ function mediaSaveErrorMessage(error2) {
   }
   return i18n("SIGNAGE_MANAGER.SVC_MEDIA_UPLOAD_FAILED");
 }
-function objectHasKeys(value) {
-  return !!value && !!Object.keys(value).length;
-}
-function schemaDefaults(schema2) {
-  const properties = schema2?.properties;
-  if (!properties)
-    return {};
-  return Object.entries(properties).reduce((defaults2, [key, property]) => {
-    if (property && "default" in property) {
-      defaults2[key] = property.default;
-    }
-    return defaults2;
-  }, {});
-}
 var MediaEditModalComponent = class _MediaEditModalComponent {
   get media_type() {
     if (!this.file)
@@ -103470,13 +103484,7 @@ var MediaEditModalComponent = class _MediaEditModalComponent {
     });
   }
   _resolvePluginSchema() {
-    const embed_schema = this.plugin_embed_schema();
-    if (objectHasKeys(embed_schema))
-      return embed_schema;
-    const plugin_params = this.plugin()?.params;
-    if (!objectHasKeys(plugin_params))
-      return null;
-    return plugin_params;
+    return pluginSchema(this.plugin_embed_schema()) || pluginSchema(this.plugin()?.params);
   }
   async _loadPluginDetails() {
     const plugin = await this._data.loadPlugin?.().catch(() => void 0);
@@ -104191,7 +104199,7 @@ var MediaEditModalComponent = class _MediaEditModalComponent {
   }], _plugin_embed: [{ type: ViewChild, args: [forwardRef(() => PluginEmbedComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaEditModalComponent, { className: "MediaEditModalComponent", filePath: "apps/signage-manager/src/app/shared/media-edit-modal.component.ts", lineNumber: 495 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaEditModalComponent, { className: "MediaEditModalComponent", filePath: "apps/signage-manager/src/app/shared/media-edit-modal.component.ts", lineNumber: 480 });
 })();
 
 // apps/signage-manager/src/app/shared/media-preview-modal.component.ts
@@ -111610,42 +111618,7 @@ var SignageService = class _SignageService {
   static {
     this.PAGE_SIZE = 200;
   }
-  static {
-    this.MAX_MEDIA_PAGES = 50;
-  }
-  /**
-   * TEMPORARY: walk every page of the media library in one go. See the note
-   * on the media fields above for how to revert this.
-   */
-  async _fetchAllMediaPages(query, token) {
-    this._media_loading_all = true;
-    try {
-      await this._fetchMediaPage(query, token);
-      for (let page = 1; page < _SignageService.MAX_MEDIA_PAGES; page++) {
-        if (token !== this._media_token)
-          return;
-        if (!this._media_has_more())
-          return;
-        const next = this._media_next?.();
-        if (!next)
-          break;
-        const count_before = this._media_items().length;
-        await this._fetchMediaPage(next, token);
-        if (this._media_items().length === count_before)
-          break;
-      }
-      if (token === this._media_token)
-        this._media_has_more.set(false);
-    } finally {
-      if (token === this._media_token) {
-        this._media_loading_all = false;
-        this._media_loading.set(false);
-      }
-    }
-  }
   loadMoreMedia() {
-    if (this._media_loading_all)
-      return;
     if (this._media_loading() || !this._media_has_more())
       return;
     const next = this._media_next?.();
@@ -112260,7 +112233,6 @@ var SignageService = class _SignageService {
     );
     this._media_next = null;
     this._media_token = 0;
-    this._media_loading_all = false;
     this.media = this._media_items.asReadonly();
     this.media_loading = this._media_loading.asReadonly();
     this.media_has_more = this._media_has_more.asReadonly();
@@ -112277,7 +112249,7 @@ var SignageService = class _SignageService {
           this._media_has_more.set(false);
           if (!initialised || !can_query)
             return;
-          this._fetchAllMediaPages(lh(this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE }, group_id)), token);
+          this._fetchMediaPage(lh(this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE }, group_id)), token);
         });
       },
       ...ngDevMode ? [{ debugName: "_reload_media" }] : (
@@ -114614,6 +114586,7 @@ export {
   HostAttributeToken,
   output,
   input,
+  viewChild,
   viewChildren,
   ContentChildren,
   ContentChild,
@@ -114786,6 +114759,7 @@ export {
   FormField,
   FullscreenModalShellComponent,
   CustomTooltipComponent,
+  SchemaFormComponent,
   MediaDurationPipe,
   IntersectDirective,
   PagedSearch,
@@ -114794,6 +114768,8 @@ export {
   playlistMediaThumbnailUrl,
   playlistScheduleLabel,
   playlistScheduleNextPlayLabels,
+  pluginSchema,
+  schemaDefaults,
   MediaThumbnailComponent,
   CdkTreeNodeDef,
   CdkTree,
@@ -114804,4 +114780,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-MDW4Q3JB.js.map
+//# sourceMappingURL=chunk-N2IPHBKM.js.map
