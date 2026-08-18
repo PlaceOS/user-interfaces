@@ -29,7 +29,7 @@ import {
     selector: 'template-layout-list',
     template: `
         <div
-            class="bg-base-100 border-base-300 flex h-full w-full flex-col border-l sm:w-96"
+            class="bg-base-100 border-base-300 flex h-full w-full flex-col lg:w-96 lg:border-l"
         >
             <div
                 class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
