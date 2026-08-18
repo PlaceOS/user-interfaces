@@ -5476,11 +5476,6 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 40rem) {
-  #placeos .sm\:w-96 {
-    width: calc(var(--spacing) * 96);
-  }
-}
-@media (width >= 40rem) {
   #placeos .sm\:w-204 {
     width: calc(var(--spacing) * 204);
   }
@@ -5948,18 +5943,13 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 64rem) {
-  #placeos .lg\:h-full {
-    height: 100%;
-  }
-}
-@media (width >= 64rem) {
-  #placeos .lg\:min-h-0 {
-    min-height: calc(var(--spacing) * 0);
-  }
-}
-@media (width >= 64rem) {
   #placeos .lg\:w-84 {
     width: calc(var(--spacing) * 84);
+  }
+}
+@media (width >= 64rem) {
+  #placeos .lg\:w-96 {
+    width: calc(var(--spacing) * 96);
   }
 }
 @media (width >= 64rem) {
@@ -6007,8 +5997,9 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 64rem) {
-  #placeos .lg\:overflow-visible {
-    overflow: visible;
+  #placeos .lg\:border-l {
+    border-left-style: var(--tw-border-style);
+    border-left-width: 1px;
   }
 }
 @media (width >= 80rem) {
