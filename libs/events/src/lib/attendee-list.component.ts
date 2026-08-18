@@ -97,11 +97,17 @@ export class AttendeeListComponent {
     public readonly host = input('');
     public readonly show_host = input(true);
     public readonly list = input<User[]>([]);
-    public readonly final_list = computed(() =>
-        this.show_host()
-            ? this.list()
-            : this.list().filter((user) => user.email !== this.host()),
-    );
+    public readonly final_list = computed(() => {
+        const attendee_list = this.list();
+        const host = this.host();
+        if (!this.show_host()) {
+            return attendee_list.filter((user) => user.email !== host);
+        }
+        if (!host || attendee_list.some((user) => user.email === host)) {
+            return attendee_list;
+        }
+        return [new User({ email: host }), ...attendee_list];
+    });
     public readonly hide_close = input(false);
     public readonly custom_title = input('');
     public readonly close = output();

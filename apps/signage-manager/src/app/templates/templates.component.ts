@@ -1,4 +1,4 @@
-import { Component, effect, inject, input } from '@angular/core';
+import { Component, effect, inject, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
@@ -97,13 +97,109 @@ import { TemplatePreviewComponent } from './template-preview.component';
                                 }
                             </div>
                             <div
-                                class="flex min-h-0 flex-1 flex-col overflow-auto lg:flex-row lg:overflow-visible"
+                                class="bg-base-100 border-base-300 mx-2 my-2 flex rounded-lg border lg:hidden"
+                                role="tablist"
+                                [attr.aria-label]="'COMMON.DETAILS' | translate"
+                            >
+                                <button
+                                    #preview_tab
+                                    type="button"
+                                    role="tab"
+                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    [class.border-primary]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [class.border-b-2]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [class.text-primary]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [class.opacity-60]="
+                                        view_tab() !== 'preview'
+                                    "
+                                    (click)="setViewTab('preview')"
+                                    (keydown)="
+                                        handleTabKeydown(
+                                            $event,
+                                            preview_tab,
+                                            layouts_tab
+                                        )
+                                    "
+                                    [attr.aria-selected]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [tabIndex]="
+                                        view_tab() === 'preview' ? 0 : -1
+                                    "
+                                    aria-controls="template-preview-panel"
+                                    id="template-preview-tab"
+                                >
+                                    {{ 'COMMON.PREVIEW' | translate }}
+                                </button>
+                                <button
+                                    #layouts_tab
+                                    type="button"
+                                    role="tab"
+                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    [class.border-primary]="
+                                        view_tab() === 'layouts'
+                                    "
+                                    [class.border-b-2]="
+                                        view_tab() === 'layouts'
+                                    "
+                                    [class.text-primary]="
+                                        view_tab() === 'layouts'
+                                    "
+                                    [class.opacity-60]="
+                                        view_tab() !== 'layouts'
+                                    "
+                                    (click)="setViewTab('layouts')"
+                                    (keydown)="
+                                        handleTabKeydown(
+                                            $event,
+                                            preview_tab,
+                                            layouts_tab
+                                        )
+                                    "
+                                    [attr.aria-selected]="
+                                        view_tab() === 'layouts'
+                                    "
+                                    [tabIndex]="
+                                        view_tab() === 'layouts' ? 0 : -1
+                                    "
+                                    aria-controls="template-layouts-panel"
+                                    id="template-layouts-tab"
+                                >
+                                    {{
+                                        'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS'
+                                            | translate
+                                    }}
+                                </button>
+                            </div>
+                            <div
+                                class="flex min-h-0 flex-1 flex-row overflow-hidden"
                             >
                                 <template-preview
-                                    class="min-h-72 w-full flex-1 lg:min-h-0 lg:w-px"
+                                    id="template-preview-panel"
+                                    role="tabpanel"
+                                    aria-labelledby="template-preview-tab"
+                                    class="min-h-0 w-full flex-1 lg:w-px"
+                                    [class.tablet-hidden]="
+                                        view_tab() === 'layouts'
+                                    "
                                 />
                                 <template-layout-list
-                                    class="shrink-0 lg:h-full"
+                                    id="template-layouts-panel"
+                                    role="tabpanel"
+                                    aria-labelledby="template-layouts-tab"
+                                    class="h-full shrink-0"
+                                    [class.tablet-hidden]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [class.tablet-full]="
+                                        view_tab() === 'layouts'
+                                    "
                                 />
                             </div>
                         } @else {
@@ -140,6 +236,19 @@ import { TemplatePreviewComponent } from './template-preview.component';
                     flex: 1;
                 }
             }
+
+            .tablet-hidden {
+                @media (max-width: 1023px) {
+                    display: none !important;
+                }
+            }
+
+            .tablet-full {
+                @media (max-width: 1023px) {
+                    flex: 1;
+                    min-width: 0;
+                }
+            }
         `,
     ],
     imports: [
@@ -160,6 +269,7 @@ export class TemplatesSectionComponent {
     private readonly _router = inject(Router);
 
     public readonly id = input('');
+    public readonly view_tab = signal<'preview' | 'layouts'>('preview');
     public readonly selected_template = this._service.selected_template;
     public readonly can_update = this._service.can_update;
     public readonly can_delete = this._service.can_delete;
@@ -202,5 +312,26 @@ export class TemplatesSectionComponent {
         this._service.selected_template.set(null);
         this._service.selected_template_layout_index.set(null);
         this._router.navigate(['/templates'], {});
+    }
+
+    public setViewTab(tab: 'preview' | 'layouts') {
+        this.view_tab.set(tab);
+    }
+
+    public handleTabKeydown(
+        event: KeyboardEvent,
+        preview_tab: HTMLButtonElement,
+        layouts_tab: HTMLButtonElement,
+    ) {
+        let tab: 'preview' | 'layouts' | null = null;
+        if (event.key === 'Home') tab = 'preview';
+        else if (event.key === 'End') tab = 'layouts';
+        else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            tab = this.view_tab() === 'preview' ? 'layouts' : 'preview';
+        }
+        if (!tab) return;
+        event.preventDefault();
+        this.view_tab.set(tab);
+        (tab === 'preview' ? preview_tab : layouts_tab).focus();
     }
 }

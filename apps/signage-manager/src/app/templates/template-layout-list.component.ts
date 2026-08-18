@@ -5,7 +5,7 @@ import {
     CdkDropList,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { Component, computed, inject, linkedSignal } from '@angular/core';
+import { Component, computed, inject, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,11 +13,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SchemaFormComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     SignageTemplateLayout,
     SignageTemplateLayoutPosition,
 } from '@placeos/ts-client';
+import { pluginSchema, schemaDefaults } from '../signage-plugin.util';
 import { SignageService } from '../signage.service';
 import {
     LAYOUT_POSITIONS,
@@ -29,7 +34,7 @@ import {
     selector: 'template-layout-list',
     template: `
         <div
-            class="bg-base-100 border-base-300 flex h-full w-full flex-col border-l sm:w-96"
+            class="bg-base-100 border-base-300 flex h-full w-full flex-col lg:w-96 lg:border-l"
         >
             <div
                 class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
@@ -235,28 +240,30 @@ import {
                                         </mat-form-field>
                                     }
                                 </div>
-                                <label [for]="'params-' + $index">{{
-                                    'SIGNAGE_MANAGER.PLUGIN_PARAMETERS'
-                                        | translate
-                                }}</label>
-                                <textarea
-                                    [id]="'params-' + $index"
-                                    class="border-base-300 min-h-24 w-full rounded border p-2 font-mono text-xs"
-                                    [class.border-error]="params_error()"
-                                    [ngModel]="params_text()"
-                                    (ngModelChange)="setParamsText($event)"
-                                    [disabled]="!can_update()"
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.PLUGIN_PARAMETERS'
-                                            | translate
-                                    "
-                                ></textarea>
-                                @if (params_error()) {
-                                    <div class="text-error text-xs">
+                                @if (selected_plugin_schema()) {
+                                    <label>
                                         {{
-                                            'SIGNAGE_MANAGER.TEMPLATE_PARAMS_INVALID'
+                                            'SIGNAGE_MANAGER.PLUGIN_PARAMETERS'
                                                 | translate
                                         }}
+                                    </label>
+                                    <div
+                                        class="bg-base-200/60 rounded-lg p-4"
+                                        [class.opacity-70]="!can_update()"
+                                        [attr.inert]="can_update() ? null : ''"
+                                    >
+                                        <schema-form
+                                            [schema]="selected_plugin_schema()"
+                                            [ngModel]="
+                                                layout.plugin_params || {}
+                                            "
+                                            (ngModelChange)="
+                                                setParams($index, $event)
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        ></schema-form>
                                     </div>
                                 }
                             </div>
@@ -295,7 +302,6 @@ import {
                             type="button"
                             matRipple
                             class="bg-secondary text-secondary-content flex-1 rounded-lg py-2"
-                            [disabled]="params_error()"
                             (click)="save()"
                         >
                             {{ 'COMMON.SAVE' | translate }}
@@ -325,6 +331,7 @@ import {
         MatSelectModule,
         MatTooltipModule,
         IconComponent,
+        SchemaFormComponent,
         TranslatePipe,
     ],
 })
@@ -338,33 +345,16 @@ export class TemplateLayoutListComponent {
     public readonly dirty = this._service.template_layout_dirty;
     public readonly can_update = this._service.can_update;
     public readonly plugins = this._service.plugins;
-
-    // Editable JSON text for the selected layout's plugin params. Only resets
-    // when the selection moves so typing doesn't get reformatted mid-edit;
-    // handlers that change params through other paths update it explicitly.
-    public readonly params_text = linkedSignal({
-        source: () => ({
-            template_id: this._service.selected_template()?.id,
-            index: this.selected_index(),
-        }),
-        computation: ({ index }) => {
-            if (index === null || index === undefined) return '';
-            const layout = this.layouts()[index];
-            return layout
-                ? JSON.stringify(layout.plugin_params ?? {}, null, 2)
-                : '';
-        },
+    public readonly selected_plugin = computed(() => {
+        const index = this.selected_index();
+        const plugin_id =
+            index === null ? '' : this.layouts()[index]?.plugin_id;
+        return this.plugins().find((plugin) => plugin.id === plugin_id);
     });
-    public readonly params_error = computed(() => {
-        const text = this.params_text().trim();
-        if (!text) return false;
-        try {
-            JSON.parse(text);
-            return false;
-        } catch {
-            return true;
-        }
-    });
+    public readonly selected_plugin_schema = computed(() =>
+        pluginSchema(this.selected_plugin()?.params),
+    );
+    private readonly _schema_form = viewChild(SchemaFormComponent);
 
     public positionIcon = layoutPositionIcon;
     public positionLabel = layoutPositionLabel;
@@ -418,31 +408,23 @@ export class TemplateLayoutListComponent {
 
     public setPlugin(index: number, plugin_id: string) {
         const plugin = this.plugins().find((item) => item.id === plugin_id);
+        const defaults = {
+            ...(plugin?.defaults ?? {}),
+            ...schemaDefaults(pluginSchema(plugin?.params)),
+        };
         this.layouts.update((layouts) =>
             layouts.map((layout, item_index) => {
                 if (item_index !== index) return layout;
-                const keep_params = Object.keys(
-                    layout.plugin_params ?? {},
-                ).length;
                 return {
                     ...layout,
                     plugin_id: plugin_id || undefined,
-                    plugin_params: keep_params
-                        ? layout.plugin_params
-                        : ((plugin?.defaults ??
-                              {}) as SignageTemplateLayout['plugin_params']),
+                    plugin_params: {
+                        ...defaults,
+                        ...(layout.plugin_params ?? {}),
+                    } as SignageTemplateLayout['plugin_params'],
                 };
             }),
         );
-        if (this.selected_index() === index) {
-            this.params_text.set(
-                JSON.stringify(
-                    this.layouts()[index]?.plugin_params ?? {},
-                    null,
-                    2,
-                ),
-            );
-        }
     }
 
     public hasXValue(position: SignageTemplateLayoutPosition) {
@@ -487,28 +469,26 @@ export class TemplateLayoutListComponent {
         );
     }
 
-    public setParamsText(text: string) {
-        this.params_text.set(text);
-        const index = this.selected_index();
-        if (index === null) return;
-        let params: SignageTemplateLayout['plugin_params'];
-        try {
-            params = JSON.parse(text.trim() || '{}');
-        } catch {
+    public setParams(index: number, params: Record<string, unknown>) {
+        if (!params || typeof params !== 'object' || Array.isArray(params)) {
             return;
         }
-        if (!params || typeof params !== 'object' || Array.isArray(params))
-            return;
         this.layouts.update((layouts) =>
             layouts.map((layout, item_index) =>
                 item_index === index
-                    ? { ...layout, plugin_params: params }
+                    ? {
+                          ...layout,
+                          plugin_params:
+                              params as SignageTemplateLayout['plugin_params'],
+                      }
                     : layout,
             ),
         );
     }
 
     public save() {
+        const schema_form = this._schema_form();
+        if (schema_form && !schema_form.isValid()) return;
         this._service.saveTemplateLayouts();
     }
 

@@ -100,8 +100,20 @@ describe('TemplateLayoutListComponent', () => {
         expect(draft()[0].position).toBe('top');
     });
 
-    it('applies a plugin with its default params to a layout', async () => {
-        plugins.set([{ id: 'plugin-1', name: 'Clock', defaults: { size: 2 } }]);
+    it('applies plugin and schema defaults to a layout', async () => {
+        plugins.set([
+            {
+                id: 'plugin-1',
+                name: 'Clock',
+                defaults: { size: 2 },
+                params: {
+                    type: 'object',
+                    properties: {
+                        format: { type: 'string', default: '24h' },
+                    },
+                },
+            },
+        ]);
         draft.set([{ position: 'top', plugin_params: {} }]);
         selected_index.set(0);
         const component = await make();
@@ -109,37 +121,60 @@ describe('TemplateLayoutListComponent', () => {
         expect(draft()[0]).toEqual({
             position: 'top',
             plugin_id: 'plugin-1',
-            plugin_params: { size: 2 },
+            plugin_params: { size: 2, format: '24h' },
         });
-        expect(component.params_text()).toContain('"size": 2');
     });
 
-    it('keeps existing params when switching plugin', async () => {
+    it('keeps existing params ahead of defaults when switching plugin', async () => {
         plugins.set([{ id: 'plugin-1', name: 'Clock', defaults: { size: 2 } }]);
         draft.set([
-            { position: 'top', plugin_id: 'other', plugin_params: { a: 1 } },
+            {
+                position: 'top',
+                plugin_id: 'other',
+                plugin_params: { size: 4 },
+            },
         ]);
         const component = await make();
         component.setPlugin(0, 'plugin-1');
-        expect(draft()[0].plugin_params).toEqual({ a: 1 });
+        expect(draft()[0].plugin_params).toEqual({ size: 4 });
     });
 
-    it('applies valid JSON params text to the selected layout', async () => {
+    it('generates a schema from catalogue plugin params', async () => {
+        plugins.set([
+            {
+                id: 'plugin-1',
+                name: 'Clock',
+                params: {
+                    format: {
+                        type: 'string',
+                        title: 'Format',
+                        default: '24h',
+                    },
+                },
+            },
+        ]);
+        draft.set([
+            {
+                position: 'top',
+                plugin_id: 'plugin-1',
+                plugin_params: {},
+            },
+        ]);
+        selected_index.set(0);
+        const component = await make();
+
+        expect(component.selected_plugin_schema()).toEqual({
+            type: 'object',
+            properties: plugins()[0].params,
+        });
+    });
+
+    it('applies generated field values to the selected layout', async () => {
         draft.set([{ position: 'top', plugin_params: {} }]);
         selected_index.set(0);
         const component = await make();
-        component.setParamsText('{ "speed": 5 }');
-        expect(component.params_error()).toBe(false);
+        component.setParams(0, { speed: 5 });
         expect(draft()[0].plugin_params).toEqual({ speed: 5 });
-    });
-
-    it('flags invalid JSON without touching the draft', async () => {
-        draft.set([{ position: 'top', plugin_params: { kept: true } }]);
-        selected_index.set(0);
-        const component = await make();
-        component.setParamsText('{ not json');
-        expect(component.params_error()).toBe(true);
-        expect(draft()[0].plugin_params).toEqual({ kept: true });
     });
 
     it('saves and discards through the service', async () => {
