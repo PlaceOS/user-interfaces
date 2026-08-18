@@ -67972,15 +67972,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "7260d8b",
-  "hash": "7260d8b",
+  "raw": "8a82cb4",
+  "hash": "8a82cb4",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7260d8b",
+  "suffix": "8a82cb4",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1786946579537
+  "time": 1787023888525
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -117493,7 +117493,17 @@ var AttendeeListComponent = class _AttendeeListComponent {
       )
     );
     this.final_list = computed(
-      () => this.show_host() ? this.list() : this.list().filter((user) => user.email !== this.host()),
+      () => {
+        const attendee_list = this.list();
+        const host = this.host();
+        if (!this.show_host()) {
+          return attendee_list.filter((user) => user.email !== host);
+        }
+        if (!host || attendee_list.some((user) => user.email === host)) {
+          return attendee_list;
+        }
+        return [new User({ email: host }), ...attendee_list];
+      },
       ...ngDevMode ? [{ debugName: "final_list" }] : (
         /* istanbul ignore next */
         []
