@@ -676,16 +676,7 @@ export class SignageService {
     // How many items to request per network page.
     private static readonly PAGE_SIZE = 200;
 
-    // --- Media ---
-    //
-    // TEMPORARY WORKAROUND: the signage media endpoint paginates unreliably,
-    // so the whole library is pulled up front instead of a page at a time as
-    // the user scrolls.
-    //
-    // TO REVERT once the backend is fixed: call _fetchMediaPage instead of
-    // _fetchAllMediaPages in the reload effect below, then delete
-    // _fetchAllMediaPages, _media_loading_all and MAX_MEDIA_PAGES.
-    // loadMoreMedia() already drives incremental loading and needs no change.
+    // --- Media (paged incrementally as the user scrolls) ---
     private readonly _media_items = signal<SignageMedia[]>([]);
     private readonly _media_loading = signal(false);
     private readonly _media_has_more = signal(false);
@@ -693,11 +684,6 @@ export class SignageService {
         null;
     // Bumped on every reset so in-flight pages from a stale query are discarded.
     private _media_token = 0;
-    // Blocks scroll-driven loading while every page is being pulled up front
-    private _media_loading_all = false;
-    // Bounded because the fault being worked around is in the very pagination
-    // this loop follows; without it a repeating cursor would never terminate.
-    private static readonly MAX_MEDIA_PAGES = 50;
 
     public readonly media = this._media_items.asReadonly();
     public readonly media_loading = this._media_loading.asReadonly();
@@ -715,7 +701,7 @@ export class SignageService {
             this._media_next = null;
             this._media_has_more.set(false);
             if (!initialised || !can_query) return;
-            this._fetchAllMediaPages(
+            this._fetchMediaPage(
                 querySignageMedia(
                     this._orgZoneQueryParams(
                         { limit: SignageService.PAGE_SIZE },
@@ -727,39 +713,7 @@ export class SignageService {
         });
     });
 
-    /**
-     * TEMPORARY: walk every page of the media library in one go. See the note
-     * on the media fields above for how to revert this.
-     */
-    private async _fetchAllMediaPages(
-        query: QueryResponse<SignageMedia>,
-        token: number,
-    ) {
-        this._media_loading_all = true;
-        try {
-            await this._fetchMediaPage(query, token);
-            for (let page = 1; page < SignageService.MAX_MEDIA_PAGES; page++) {
-                if (token !== this._media_token) return;
-                if (!this._media_has_more()) return;
-                const next = this._media_next?.();
-                if (!next) break;
-                const count_before = this._media_items().length;
-                await this._fetchMediaPage(next, token);
-                // A page that adds nothing means the cursor is repeating
-                if (this._media_items().length === count_before) break;
-            }
-            if (token === this._media_token) this._media_has_more.set(false);
-        } finally {
-            if (token === this._media_token) {
-                this._media_loading_all = false;
-                this._media_loading.set(false);
-            }
-        }
-    }
-
     public loadMoreMedia() {
-        // Nothing to add while every page is being pulled up front
-        if (this._media_loading_all) return;
         if (this._media_loading() || !this._media_has_more()) return;
         const next = this._media_next?.();
         if (!next) {
@@ -778,8 +732,8 @@ export class SignageService {
             const page = await query;
             if (token !== this._media_token) return;
             const items = (page.data || []).map(decodeEntityNames);
-            // Merged by id because a faulty paginator can repeat an item
-            // across pages, which a plain concatenation would duplicate.
+            // Merged by id so an item already held locally, such as one
+            // just uploaded, is not shown twice when its page arrives.
             this._media_items.update((list) => {
                 const by_id = new Map(list.map((item) => [item.id, item]));
                 for (const item of items) by_id.set(item.id, item);
@@ -1267,8 +1221,8 @@ export class SignageService {
     public readonly root_zones = computed(() => {
         const roots = this._root_zone_list.value() || [];
         const root_ids = new Set(roots.map(({ id }) => id));
-        return this._mergeItems(roots, this._zone_overrides()).filter(({ id }) =>
-            root_ids.has(id),
+        return this._mergeItems(roots, this._zone_overrides()).filter(
+            ({ id }) => root_ids.has(id),
         );
     });
 

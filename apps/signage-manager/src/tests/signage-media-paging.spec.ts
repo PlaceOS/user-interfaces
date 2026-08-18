@@ -14,19 +14,26 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 type SignageServiceTestAccess = SignageService & Record<string, any>;
 
-/**
- * Covers the temporary workaround that loads the whole media library up front.
- * Delete alongside _fetchAllMediaPages once the backend pagination is fixed.
- */
+/** Covers the media library being paged in as the user scrolls the list. */
 describe('SignageService media paging', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
-    /** Build a page whose `next` yields the following page, API style */
+    /**
+     * Build a page whose `next` yields the following page, API style. Ids are
+     * single letters and timestamps descend with them, so the list order the
+     * service sorts into is alphabetical no matter which page an item is on.
+     */
     const pageOf = (ids: string[], total: number, next: any = null) => ({
-        data: ids.map((id) => new SignageMedia({ id, created_at: 1 })),
+        data: ids.map(
+            (id) =>
+                new SignageMedia({ id, created_at: 1000 - id.charCodeAt(0) }),
+        ),
         total,
         next: next ? () => Promise.resolve(next) : null,
     });
+
+    const idsOf = (service: SignageService) =>
+        service.media().map((item) => item.id);
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -53,84 +60,96 @@ describe('SignageService media paging', () => {
         });
     });
 
-    const loadAll = async (first_page: any) => {
+    /** Inject the service and settle it on `first_page` as its first page. */
+    const loadFirstPage = async (first_page: any) => {
         (querySignageMedia as any).mockResolvedValue(first_page);
         const service = TestBed.inject(
             SignageService,
         ) as unknown as SignageServiceTestAccess;
         // The reload effect bumps the token on its first run; let it settle so
-        // the pages below are not discarded as stale.
+        // the page below is not discarded as stale.
         await flush();
-        await service['_fetchAllMediaPages'](
+        await service['_fetchMediaPage'](
             Promise.resolve(first_page),
             service['_media_token'],
         );
         return service;
     };
 
-    it('should pull every page without waiting for a scroll', async () => {
-        const service = await loadAll(
-            pageOf(['a', 'b'], 6, pageOf(['c', 'd'], 6, pageOf(['e', 'f'], 6))),
+    it('should load one page up front and leave the rest for scrolling', async () => {
+        const service = await loadFirstPage(
+            pageOf(['a', 'b'], 4, pageOf(['c', 'd'], 4)),
         );
+
+        expect(idsOf(service)).toEqual(['a', 'b']);
+        expect(service.media_has_more()).toBe(true);
+        expect(service.media_loading()).toBe(false);
+    });
+
+    it('should append the next page when the list is scrolled', async () => {
+        const service = await loadFirstPage(
+            pageOf(['a', 'b'], 4, pageOf(['c', 'd'], 4)),
+        );
+
+        service.loadMoreMedia();
         await flush();
 
-        expect(
-            service
-                .media()
-                .map((item) => item.id)
-                .sort(),
-        ).toEqual(['a', 'b', 'c', 'd', 'e', 'f']);
+        expect(idsOf(service)).toEqual(['a', 'b', 'c', 'd']);
         expect(service.media_has_more()).toBe(false);
         expect(service.media_loading()).toBe(false);
     });
 
-    it('should not duplicate items when pages overlap', async () => {
-        const service = await loadAll(
-            pageOf(['a', 'b'], 4, pageOf(['b', 'c'], 4)),
-        );
-
-        expect(
-            service
-                .media()
-                .map((item) => item.id)
-                .sort(),
-        ).toEqual(['a', 'b', 'c']);
-    });
-
-    // The endpoint being worked around is the one handing out these cursors,
-    // so a page that repeats itself must not spin forever.
-    it('should stop when a page adds nothing new', async () => {
-        const repeating: any = { data: [], total: 99, next: null };
-        repeating.data = [new SignageMedia({ id: 'a', created_at: 1 })];
-        repeating.next = () => Promise.resolve(repeating);
-
-        const service = await loadAll(repeating);
-
-        expect(service.media().map((item) => item.id)).toEqual(['a']);
-        expect(service.media_has_more()).toBe(false);
-    });
-
-    it('should stop at the page cap', async () => {
-        // Every page reports a distinct item and always offers another page
-        let index = 0;
-        const nextPage: any = () => {
-            index += 1;
-            return Promise.resolve({
-                data: [new SignageMedia({ id: `m-${index}`, created_at: 1 })],
-                total: 10_000,
-                next: nextPage,
-            });
-        };
-        const service = await loadAll({
-            data: [new SignageMedia({ id: 'm-0', created_at: 1 })],
-            total: 10_000,
-            next: nextPage,
+    it('should keep the list ordered by newest first across pages', async () => {
+        const service = await loadFirstPage({
+            data: [new SignageMedia({ id: 'old', created_at: 1 })],
+            total: 2,
+            next: () =>
+                Promise.resolve({
+                    data: [new SignageMedia({ id: 'new', created_at: 9 })],
+                    total: 2,
+                    next: null,
+                }),
         });
 
-        expect(service.media().length).toBe(
-            (SignageService as any).MAX_MEDIA_PAGES,
-        );
+        service.loadMoreMedia();
+        await flush();
+
+        expect(idsOf(service)).toEqual(['new', 'old']);
+    });
+
+    it('should not request the next page twice while one is in flight', async () => {
+        const service = await loadFirstPage(pageOf(['a'], 3));
+        // Hold the next page open so both calls land while it is loading
+        const next = vi.fn(() => new Promise(() => {}));
+        service['_media_next'] = next as any;
+        service['_media_has_more'].set(true);
+
+        service.loadMoreMedia();
+        service.loadMoreMedia();
+
+        expect(next).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not request anything once the last page is loaded', async () => {
+        const service = await loadFirstPage(pageOf(['a', 'b'], 2));
+        const next = vi.fn();
+        service['_media_next'] = next as any;
+
         expect(service.media_has_more()).toBe(false);
+        service.loadMoreMedia();
+
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('should not duplicate an item already held when its page arrives', async () => {
+        const service = await loadFirstPage(
+            pageOf(['a', 'b'], 3, pageOf(['b', 'c'], 3)),
+        );
+
+        service.loadMoreMedia();
+        await flush();
+
+        expect(idsOf(service).sort()).toEqual(['a', 'b', 'c']);
     });
 
     it('should discard pages from a superseded query', async () => {
@@ -140,7 +159,7 @@ describe('SignageService media paging', () => {
         const stale_token = service['_media_token'];
         service['_media_token'] = stale_token + 1;
 
-        await service['_fetchAllMediaPages'](
+        await service['_fetchMediaPage'](
             Promise.resolve(pageOf(['a'], 1)),
             stale_token,
         );
