@@ -33,6 +33,32 @@ describe('AttendeeListComponent', () => {
         expect('[attendee]').toHaveLength(2);
     });
 
+    it('should show the host when the attendee list omits them', () => {
+        spectator.setInput({
+            host: 'host@example.com',
+            list: [new User({ email: 'attendee@example.com' })],
+        });
+
+        expect(
+            spectator.component.final_list().map((user) => user.email),
+        ).toEqual(['host@example.com', 'attendee@example.com']);
+    });
+
+    it('should not duplicate or show a hidden host', () => {
+        const host = new User({ email: 'host@example.com' });
+        const attendee = new User({ email: 'attendee@example.com' });
+        spectator.setInput({
+            host: host.email,
+            list: [host, attendee],
+        });
+
+        expect(spectator.component.final_list()).toEqual([host, attendee]);
+
+        spectator.setInput({ show_host: false });
+
+        expect(spectator.component.final_list()).toEqual([attendee]);
+    });
+
     it('should allow closing the component', () =>
         new Promise<void>((done) => {
             expect('button[close]').toExist();
