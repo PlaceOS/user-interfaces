@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { SignageService } from '../../app/signage.service';
 import { TemplateLayoutListComponent } from '../../app/templates/template-layout-list.component';
+import { SIDEBAR_WIDTH_PC } from '../../app/templates/template-layout.util';
 
 describe('TemplateLayoutListComponent', () => {
     const draft = signal<any[]>([]);
@@ -137,6 +138,24 @@ describe('TemplateLayoutListComponent', () => {
         const component = await make();
         component.setPlugin(0, 'plugin-1');
         expect(draft()[0].plugin_params).toEqual({ size: 4 });
+    });
+
+    it('stores axis percentages as API ratios', async () => {
+        draft.set([{ position: 'left', plugin_params: {} }]);
+        const component = await make();
+
+        component.setAxis(0, 'x_pos', 25);
+        expect(draft()[0].x_pos).toBe(0.25);
+        expect(component.axisPercentage(draft()[0], 'x_pos')).toBe(25);
+
+        component.setAxis(0, 'x_pos', 150);
+        expect(draft()[0].x_pos).toBe(1);
+
+        component.setAxis(0, 'x_pos', null);
+        expect(draft()[0].x_pos).toBeUndefined();
+        expect(component.axisPercentage(draft()[0], 'x_pos')).toBe(
+            SIDEBAR_WIDTH_PC,
+        );
     });
 
     it('generates a schema from catalogue plugin params', async () => {

@@ -72,8 +72,8 @@ describe('computeTemplateLayoutRects', () => {
 
     it('sizes edge panels from x_pos/y_pos', () => {
         const [header, sidebar] = computeTemplateLayoutRects([
-            layout('top', { y_pos: 30 }),
-            layout('left', { x_pos: 40 }),
+            layout('top', { y_pos: 0.3 }),
+            layout('left', { x_pos: 0.4 }),
         ]);
         expect(header.height).toBe(30);
         expect(sidebar.width).toBe(40);
@@ -82,7 +82,7 @@ describe('computeTemplateLayoutRects', () => {
 
     it('fills floating panels from their top-left corner without consuming space', () => {
         const [float_rect, footer] = computeTemplateLayoutRects([
-            layout('floating', { x_pos: 10, y_pos: 20 }),
+            layout('floating', { x_pos: 0.1, y_pos: 0.2 }),
             layout('bottom'),
         ]);
         expect(float_rect).toEqual({
@@ -106,8 +106,8 @@ describe('computeTemplateLayoutRects', () => {
 
     it('clamps values to the frame', () => {
         const [top, float_rect] = computeTemplateLayoutRects([
-            layout('top', { y_pos: 250 }),
-            layout('floating', { x_pos: -20, y_pos: 500 }),
+            layout('top', { y_pos: 2.5 }),
+            layout('floating', { x_pos: -0.2, y_pos: 5 }),
         ]);
         expect(top.height).toBe(100);
         expect(float_rect.left).toBe(0);
