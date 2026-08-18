@@ -418,6 +418,68 @@ describe('DesksStateService', () => {
         );
     });
 
+    it('should cancel overlapping bookings after assigning a desk', async () => {
+        const mock_now = new Date('2026-08-18T10:55:00+10:00').valueOf();
+        vi.spyOn(Date, 'now').mockReturnValue(mock_now);
+        vi.mocked(ts_client_mod.post).mockResolvedValue({
+            id: 'assigned-booking',
+            booking_start:
+                new Date('2026-08-18T03:00:00+10:00').valueOf() / 1000,
+            booking_end: new Date('2026-08-18T23:00:00+10:00').valueOf() / 1000,
+            booking_type: 'desk',
+            recurrence_type: 'daily',
+            user_email: 'staff@example.com',
+            asset_id: 'G-033',
+            zones: ['ground-floor'],
+        } as never);
+        vi.mocked(ts_client_mod.get).mockResolvedValue([
+            {
+                id: 'ad-hoc-booking',
+                booking_start:
+                    new Date('2026-08-18T16:45:00+10:00').valueOf() / 1000,
+                booking_end:
+                    new Date('2026-08-18T17:15:00+10:00').valueOf() / 1000,
+                booking_type: 'desk',
+                approved: true,
+                asset_id: 'F-010',
+                zones: ['first-floor'],
+            },
+        ] as never);
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'G-033',
+                        name: 'G-033',
+                        assigned_to: 'staff@example.com',
+                        assigned_name: 'Staff Name',
+                    },
+                }),
+            componentInstance: {
+                event: new EventEmitter<any>(),
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['ground-floor'] });
+
+        await spectator.service.editDesk({ id: 'G-033' } as Desk);
+
+        expect(del_urls()).toEqual([
+            expect.stringMatching(/\/bookings\/ad-hoc-booking\?utm_source=/),
+        ]);
+        expect(posted_bookings()).not.toEqual(
+            expect.arrayContaining([
+                [
+                    expect.stringContaining('/ad-hoc-booking/reject'),
+                    expect.anything(),
+                ],
+            ]),
+        );
+    });
+
     it('should block assignments when the desk limit is reached', async () => {
         settings_map['app.desks.max_assigned_count'] = 1;
         vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({

@@ -11,12 +11,12 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
+    cancelOverlappingRecurringBookings,
     checkinBooking,
     queryBookings,
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
-    rejectOverlappingRecurringBookings,
     removeBooking,
     saveBooking,
     updateBooking,
@@ -562,10 +562,10 @@ export class DesksStateService extends AsyncHandler {
                 ref.componentInstance.loading.set(false);
                 throw e;
             });
-            // Reject the assignee's overlapping ad-hoc desk bookings over the
-            // next 4 weeks now that they have a recurring desk assigned.
+            // Cancel the assignee's overlapping ad-hoc desk bookings over the
+            // next 4 weeks so a later approval cannot reactivate them.
             if (created?.id) {
-                await rejectOverlappingRecurringBookings(created, 'desk').catch(
+                await cancelOverlappingRecurringBookings(created, 'desk').catch(
                     () => [],
                 );
             }

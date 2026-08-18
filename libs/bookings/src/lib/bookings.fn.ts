@@ -358,22 +358,12 @@ function bookingsTimeOfDayOverlap(a: Booking, b: Booking): boolean {
     return a_start < b_end && b_start < a_end;
 }
 
-/**
- * Reject the assignee's bookings of the given type, within the next
- * `window_days` days, that overlap with instances of a recurring booking.
- * Used when assigning a desk/parking space to a recurring booking so the
- * assignee's existing ad-hoc bookings on those days/times are rejected. A
- * no-op for non-recurring bookings.
- * @param booking Recurring booking being assigned (must have a `user_email`)
- * @param type Booking type to clear (e.g. 'desk', 'parking')
- * @param window_days How far ahead to look (default 28)
- * @returns ids of the bookings that were rejected
- */
-export async function rejectOverlappingRecurringBookings(
+/** Find active bookings that overlap with instances of a recurring booking. */
+async function overlappingRecurringBookings(
     booking: Booking,
     type: BookingType,
     window_days = 28,
-): Promise<string[]> {
+): Promise<Booking[]> {
     if (!booking?.recurrence_type || booking.recurrence_type === 'none') {
         return [];
     }
@@ -388,7 +378,7 @@ export async function rejectOverlappingRecurringBookings(
         limit: 1000,
     });
     const recurrence = fromBookingRecurrence(booking as any);
-    const overlapping = existing.filter(
+    return existing.filter(
         (other) =>
             other.id !== booking.id &&
             other.parent_id !== booking.id &&
@@ -398,11 +388,52 @@ export async function rejectOverlappingRecurringBookings(
             isRecurrenceInstanceDate(recurrence, booking.date, other.date) &&
             bookingsTimeOfDayOverlap(booking, other),
     );
+}
+
+/**
+ * Reject the assignee's bookings that overlap with instances of a recurring
+ * booking.
+ */
+export async function rejectOverlappingRecurringBookings(
+    booking: Booking,
+    type: BookingType,
+    window_days = 28,
+): Promise<string[]> {
+    const overlapping = await overlappingRecurringBookings(
+        booking,
+        type,
+        window_days,
+    );
     await Promise.all(
         overlapping.map((other) =>
             (other.instance
                 ? rejectBookingInstance(other.id, other.instance)
                 : rejectBooking(other.id)
+            ).catch(() => null),
+        ),
+    );
+    return overlapping.map((_) => _.id);
+}
+
+/**
+ * Cancel the assignee's bookings that overlap with instances of a recurring
+ * booking. Cancellation is persistent when an approval arrives later.
+ */
+export async function cancelOverlappingRecurringBookings(
+    booking: Booking,
+    type: BookingType,
+    window_days = 28,
+): Promise<string[]> {
+    const overlapping = await overlappingRecurringBookings(
+        booking,
+        type,
+        window_days,
+    );
+    await Promise.all(
+        overlapping.map((other) =>
+            (other.instance
+                ? removeBookingInstance(other.id, other.instance)
+                : removeBooking(other.id)
             ).catch(() => null),
         ),
     );
