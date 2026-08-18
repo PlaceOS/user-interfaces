@@ -106,11 +106,11 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                             [class.border-primary]="selected_index() === $index"
                             [class.bg-primary/40]="selected_index() === $index"
                             [class.z-10]="selected_index() === $index"
-                            [class.border-white/40]="
+                            [class.border-white/60]="
                                 selected_index() !== $index
                             "
-                            [class.bg-white/15]="selected_index() !== $index"
-                            [class.hover:bg-white/25]="
+                            [class.bg-black/60]="selected_index() !== $index"
+                            [class.hover:bg-black/70]="
                                 selected_index() !== $index
                             "
                             [style.left.%]="item.rect.left"
@@ -131,7 +131,7 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                                         | translate
                                 }}
                             </div>
-                            <div class="truncate px-2 text-xs text-white/80">
+                            <div class="truncate px-2 text-xs text-white/90">
                                 {{
                                     pluginName(item.layout.plugin_id) ||
                                         ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
