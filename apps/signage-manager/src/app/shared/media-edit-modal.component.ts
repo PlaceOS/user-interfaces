@@ -50,6 +50,11 @@ import {
     SignageMediaMetadata,
 } from '../signage-media-upload.util';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
+import {
+    objectHasKeys,
+    pluginSchema,
+    schemaDefaults,
+} from '../signage-plugin.util';
 
 export interface MediaEditModalData {
     media: SignageMedia;
@@ -102,26 +107,6 @@ function mediaSaveErrorMessage(error: unknown) {
         if (value) return mediaSaveErrorMessage(value);
     }
     return i18n('SIGNAGE_MANAGER.SVC_MEDIA_UPLOAD_FAILED');
-}
-
-function objectHasKeys(value: Record<string, unknown> | null | undefined) {
-    return !!value && !!Object.keys(value).length;
-}
-
-function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
-    const properties = schema?.properties as
-        | Record<string, Record<string, unknown>>
-        | undefined;
-    if (!properties) return {};
-    return Object.entries(properties).reduce(
-        (defaults, [key, property]) => {
-            if (property && 'default' in property) {
-                defaults[key] = property.default;
-            }
-            return defaults;
-        },
-        {} as Record<string, unknown>,
-    );
 }
 
 @Component({
@@ -652,11 +637,10 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     private _resolvePluginSchema(): Record<string, unknown> | null {
-        const embed_schema = this.plugin_embed_schema();
-        if (objectHasKeys(embed_schema)) return embed_schema;
-        const plugin_params = this.plugin()?.params;
-        if (!objectHasKeys(plugin_params)) return null;
-        return plugin_params;
+        return (
+            pluginSchema(this.plugin_embed_schema()) ||
+            pluginSchema(this.plugin()?.params)
+        );
     }
 
     private async _loadPluginDetails() {
