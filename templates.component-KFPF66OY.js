@@ -3,12 +3,12 @@ import {
   CdkDragHandle,
   CdkDropList,
   moveItemInArray
-} from "./chunk-IWZ7NQPJ.js";
+} from "./chunk-THYHMR5R.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-GNABOKG3.js";
+} from "./chunk-MASWKTYU.js";
 import {
   AuthenticatedImageDirective,
   Component,
@@ -40,18 +40,23 @@ import {
   NumberValueAccessor,
   Router,
   RouterLink,
+  SchemaFormComponent,
   SignageService,
   TranslatePipe,
+  ViewChild,
   ViewChildren,
   afterRenderEffect,
   computed,
   effect,
+  forwardRef,
   gh,
   inject,
   input,
-  linkedSignal,
+  pluginSchema,
+  schemaDefaults,
   setClassMetadata,
   signal,
+  viewChild,
   viewChildren,
   ɵsetClassDebugInfo,
   ɵɵadvance,
@@ -72,6 +77,7 @@ import {
   ɵɵpipeBind1,
   ɵɵpipeBind2,
   ɵɵproperty,
+  ɵɵpureFunction0,
   ɵɵpureFunction1,
   ɵɵqueryAdvance,
   ɵɵreference,
@@ -89,7 +95,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-MDW4Q3JB.js";
+} from "./chunk-N2IPHBKM.js";
 import {
   __spreadProps,
   __spreadValues
@@ -309,6 +315,8 @@ function computeTemplateLayoutRects(layouts) {
 }
 
 // apps/signage-manager/src/app/templates/template-layout-list.component.ts
+var _c02 = () => ({});
+var _c1 = () => ({ standalone: true });
 var _forTrack0 = ($index, $item) => $item.id;
 function TemplateLayoutListComponent_Conditional_5_For_9_Template(rf, ctx) {
   if (rf & 1) {
@@ -403,7 +411,7 @@ function TemplateLayoutListComponent_For_8_Conditional_13_For_11_Template(rf, ct
 function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 30)(1, "input", 33);
+    \u0275\u0275elementStart(0, "mat-form-field", 30)(1, "input", 31);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275listener("ngModelChange", function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Template_input_ngModelChange_1_listener($event) {
@@ -414,7 +422,7 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Templat
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(4, "span", 34);
+    \u0275\u0275elementStart(4, "span", 32);
     \u0275\u0275text(5, "%");
     \u0275\u0275elementEnd()();
   }
@@ -430,7 +438,7 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Templat
 function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r12 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 30)(1, "input", 33);
+    \u0275\u0275elementStart(0, "mat-form-field", 30)(1, "input", 31);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275listener("ngModelChange", function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Template_input_ngModelChange_1_listener($event) {
@@ -441,7 +449,7 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Templat
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(4, "span", 34);
+    \u0275\u0275elementStart(4, "span", 32);
     \u0275\u0275text(5, "%");
     \u0275\u0275elementEnd()();
   }
@@ -454,16 +462,35 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Templat
     \u0275\u0275control();
   }
 }
-function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_20_Template(rf, ctx) {
+function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 32);
+    const _r13 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "label");
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 33)(4, "schema-form", 34);
+    \u0275\u0275listener("ngModelChange", function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_15_Template_schema_form_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r13);
+      const $index_r6 = \u0275\u0275nextContext(2).$index;
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.setParams($index_r6, $event));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
+    const layout_r11 = \u0275\u0275nextContext(2).$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.TEMPLATE_PARAMS_INVALID"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 7, "SIGNAGE_MANAGER.PLUGIN_PARAMETERS"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("opacity-70", !ctx_r2.can_update());
+    \u0275\u0275attribute("inert", ctx_r2.can_update() ? null : "");
+    \u0275\u0275advance();
+    \u0275\u0275property("schema", ctx_r2.selected_plugin_schema())("ngModel", layout_r11.plugin_params || \u0275\u0275pureFunction0(9, _c02))("ngModelOptions", \u0275\u0275pureFunction0(10, _c1));
+    \u0275\u0275control();
   }
 }
 function TemplateLayoutListComponent_For_8_Conditional_13_Template(rf, ctx) {
@@ -493,37 +520,24 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Template(rf, ctx) {
     \u0275\u0275conditionalCreate(13, TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Template, 6, 8, "mat-form-field", 30);
     \u0275\u0275conditionalCreate(14, TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Template, 6, 8, "mat-form-field", 30);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "label", 24);
-    \u0275\u0275text(16);
-    \u0275\u0275pipe(17, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "textarea", 31);
-    \u0275\u0275pipe(19, "translate");
-    \u0275\u0275listener("ngModelChange", function TemplateLayoutListComponent_For_8_Conditional_13_Template_textarea_ngModelChange_18_listener($event) {
-      \u0275\u0275restoreView(_r8);
-      const ctx_r2 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r2.setParamsText($event));
-    });
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275conditionalCreate(20, TemplateLayoutListComponent_For_8_Conditional_13_Conditional_20_Template, 3, 3, "div", 32);
+    \u0275\u0275conditionalCreate(15, TemplateLayoutListComponent_For_8_Conditional_13_Conditional_15_Template, 5, 11);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r12 = \u0275\u0275nextContext();
-    const layout_r11 = ctx_r12.$implicit;
-    const $index_r6 = ctx_r12.$index;
+    const ctx_r13 = \u0275\u0275nextContext();
+    const layout_r11 = ctx_r13.$implicit;
+    const $index_r6 = ctx_r13.$index;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
     \u0275\u0275property("for", "plugin-" + $index_r6);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 18, "SIGNAGE_MANAGER.SELECT_PLUGIN"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 10, "SIGNAGE_MANAGER.SELECT_PLUGIN"));
     \u0275\u0275advance(3);
     \u0275\u0275property("id", "plugin-" + $index_r6)("ngModel", layout_r11.plugin_id || "")("disabled", !ctx_r2.can_update());
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(6, 20, "SIGNAGE_MANAGER.SELECT_PLUGIN_ARIA"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(6, 12, "SIGNAGE_MANAGER.SELECT_PLUGIN_ARIA"));
     \u0275\u0275control();
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 22, "SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 14, "SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN"));
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r2.plugins());
     \u0275\u0275advance(3);
@@ -531,16 +545,7 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r2.hasYValue(layout_r11.position) ? 14 : -1);
     \u0275\u0275advance();
-    \u0275\u0275property("for", "params-" + $index_r6);
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(17, 24, "SIGNAGE_MANAGER.PLUGIN_PARAMETERS"));
-    \u0275\u0275advance(2);
-    \u0275\u0275classProp("border-error", ctx_r2.params_error());
-    \u0275\u0275property("id", "params-" + $index_r6)("ngModel", ctx_r2.params_text())("disabled", !ctx_r2.can_update());
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(19, 26, "SIGNAGE_MANAGER.PLUGIN_PARAMETERS"));
-    \u0275\u0275control();
-    \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r2.params_error() ? 20 : -1);
+    \u0275\u0275conditional(ctx_r2.selected_plugin_schema() ? 15 : -1);
   }
 }
 function TemplateLayoutListComponent_For_8_Template(rf, ctx) {
@@ -566,7 +571,7 @@ function TemplateLayoutListComponent_For_8_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
     \u0275\u0275conditionalCreate(12, TemplateLayoutListComponent_For_8_Conditional_12_Template, 4, 3, "button", 21);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(13, TemplateLayoutListComponent_For_8_Conditional_13_Template, 21, 28, "div", 22);
+    \u0275\u0275conditionalCreate(13, TemplateLayoutListComponent_For_8_Conditional_13_Template, 16, 16, "div", 22);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -606,10 +611,10 @@ function TemplateLayoutListComponent_ForEmpty_9_Template(rf, ctx) {
 }
 function TemplateLayoutListComponent_Conditional_10_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    const _r15 = \u0275\u0275getCurrentView();
+    const _r16 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 39);
     \u0275\u0275listener("click", function TemplateLayoutListComponent_Conditional_10_Conditional_4_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r15);
+      \u0275\u0275restoreView(_r16);
       const ctx_r2 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r2.save());
     });
@@ -618,25 +623,23 @@ function TemplateLayoutListComponent_Conditional_10_Conditional_4_Template(rf, c
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r2 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("disabled", ctx_r2.params_error());
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 2, "COMMON.SAVE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.SAVE"), " ");
   }
 }
 function TemplateLayoutListComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    const _r14 = \u0275\u0275getCurrentView();
+    const _r15 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 7)(1, "button", 37);
     \u0275\u0275listener("click", function TemplateLayoutListComponent_Conditional_10_Template_button_click_1_listener() {
-      \u0275\u0275restoreView(_r14);
+      \u0275\u0275restoreView(_r15);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.discard());
     });
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(4, TemplateLayoutListComponent_Conditional_10_Conditional_4_Template, 3, 4, "button", 38);
+    \u0275\u0275conditionalCreate(4, TemplateLayoutListComponent_Conditional_10_Conditional_4_Template, 3, 3, "button", 38);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -656,34 +659,27 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
     this.dirty = this._service.template_layout_dirty;
     this.can_update = this._service.can_update;
     this.plugins = this._service.plugins;
-    this.params_text = linkedSignal(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "params_text" } : (
-      /* istanbul ignore next */
-      {}
-    )), {
-      source: () => ({
-        template_id: this._service.selected_template()?.id,
-        index: this.selected_index()
-      }),
-      computation: ({ index }) => {
-        if (index === null || index === void 0)
-          return "";
-        const layout = this.layouts()[index];
-        return layout ? JSON.stringify(layout.plugin_params ?? {}, null, 2) : "";
-      }
-    }));
-    this.params_error = computed(
+    this.selected_plugin = computed(
       () => {
-        const text = this.params_text().trim();
-        if (!text)
-          return false;
-        try {
-          JSON.parse(text);
-          return false;
-        } catch {
-          return true;
-        }
+        const index = this.selected_index();
+        const plugin_id = index === null ? "" : this.layouts()[index]?.plugin_id;
+        return this.plugins().find((plugin) => plugin.id === plugin_id);
       },
-      ...ngDevMode ? [{ debugName: "params_error" }] : (
+      ...ngDevMode ? [{ debugName: "selected_plugin" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.selected_plugin_schema = computed(
+      () => pluginSchema(this.selected_plugin()?.params),
+      ...ngDevMode ? [{ debugName: "selected_plugin_schema" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._schema_form = viewChild(
+      SchemaFormComponent,
+      ...ngDevMode ? [{ debugName: "_schema_form" }] : (
         /* istanbul ignore next */
         []
       )
@@ -731,18 +727,15 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
   }
   setPlugin(index, plugin_id) {
     const plugin = this.plugins().find((item) => item.id === plugin_id);
+    const defaults = __spreadValues(__spreadValues({}, plugin?.defaults ?? {}), schemaDefaults(pluginSchema(plugin?.params)));
     this.layouts.update((layouts) => layouts.map((layout, item_index) => {
       if (item_index !== index)
         return layout;
-      const keep_params = Object.keys(layout.plugin_params ?? {}).length;
       return __spreadProps(__spreadValues({}, layout), {
         plugin_id: plugin_id || void 0,
-        plugin_params: keep_params ? layout.plugin_params : plugin?.defaults ?? {}
+        plugin_params: __spreadValues(__spreadValues({}, defaults), layout.plugin_params ?? {})
       });
     }));
-    if (this.selected_index() === index) {
-      this.params_text.set(JSON.stringify(this.layouts()[index]?.plugin_params ?? {}, null, 2));
-    }
   }
   hasXValue(position) {
     return position === "left" || position === "right" || position === "floating";
@@ -759,22 +752,18 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
   setAxis(index, axis, value) {
     this.layouts.update((layouts) => layouts.map((layout, item_index) => item_index === index ? __spreadProps(__spreadValues({}, layout), { [axis]: value ?? void 0 }) : layout));
   }
-  setParamsText(text) {
-    this.params_text.set(text);
-    const index = this.selected_index();
-    if (index === null)
-      return;
-    let params;
-    try {
-      params = JSON.parse(text.trim() || "{}");
-    } catch {
+  setParams(index, params) {
+    if (!params || typeof params !== "object" || Array.isArray(params)) {
       return;
     }
-    if (!params || typeof params !== "object" || Array.isArray(params))
-      return;
-    this.layouts.update((layouts) => layouts.map((layout, item_index) => item_index === index ? __spreadProps(__spreadValues({}, layout), { plugin_params: params }) : layout));
+    this.layouts.update((layouts) => layouts.map((layout, item_index) => item_index === index ? __spreadProps(__spreadValues({}, layout), {
+      plugin_params: params
+    }) : layout));
   }
   save() {
+    const schema_form = this._schema_form();
+    if (schema_form && !schema_form.isValid())
+      return;
     this._service.saveTemplateLayouts();
   }
   discard() {
@@ -786,7 +775,14 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplateLayoutListComponent, selectors: [["template-layout-list"]], decls: 11, vars: 6, consts: [["position_menu", "matMenu"], [1, "bg-base-100", "border-base-300", "flex", "h-full", "w-full", "flex-col", "border-l", "sm:w-96"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "flex-1", "text-lg", "font-medium"], ["cdkDropList", "", "role", "list", 1, "min-h-0", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "mb-2", "rounded-lg", "border", 3, "cdkDragDisabled", "border-primary"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8", "text-center"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-t", "px-4", "py-3"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex", "items-center", "rounded-lg", "py-1.5", "pr-4", "pl-2", 3, "matMenuTriggerFor"], [1, "mr-1", "text-2xl"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "gap-2"], [1, "text-2xl"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "mb-2", "rounded-lg", "border", 3, "cdkDragDisabled"], [1, "flex", "w-full", "cursor-pointer", "items-center", "gap-2", "px-2", "py-2", 3, "click"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [1, "shrink-0", "text-2xl", "opacity-70"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "truncate", "text-xs", "opacity-60"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", ""], [1, "border-base-300", "flex", "flex-col", "gap-2", "border-t", "px-3", "py-3"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click"], [3, "for"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "ngModelChange", "id", "ngModel", "disabled"], ["value", ""], [3, "value"], [1, "flex", "gap-2"], ["appearance", "outline", 1, "no-subscript", "flex-1"], [1, "border-base-300", "min-h-24", "w-full", "rounded", "border", "p-2", "font-mono", "text-xs", 3, "ngModelChange", "id", "ngModel", "disabled"], [1, "text-error", "text-xs"], ["matInput", "", "type", "number", "min", "0", "max", "100", 3, "ngModelChange", "placeholder", "ngModel", "disabled"], ["matTextSuffix", ""], [1, "text-5xl"], [1, "text-sm"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-base-200", "flex-1", "rounded-lg", "py-2", 3, "click"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex-1", "rounded-lg", "py-2", 3, "disabled"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex-1", "rounded-lg", "py-2", 3, "click", "disabled"]], template: function TemplateLayoutListComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplateLayoutListComponent, selectors: [["template-layout-list"]], viewQuery: function TemplateLayoutListComponent_Query(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275viewQuerySignal(ctx._schema_form, SchemaFormComponent, 5);
+      }
+      if (rf & 2) {
+        \u0275\u0275queryAdvance();
+      }
+    }, decls: 11, vars: 6, consts: [["position_menu", "matMenu"], [1, "bg-base-100", "border-base-300", "flex", "h-full", "w-full", "flex-col", "lg:w-96", "lg:border-l"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "flex-1", "text-lg", "font-medium"], ["cdkDropList", "", "role", "list", 1, "min-h-0", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "mb-2", "rounded-lg", "border", 3, "cdkDragDisabled", "border-primary"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8", "text-center"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-t", "px-4", "py-3"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex", "items-center", "rounded-lg", "py-1.5", "pr-4", "pl-2", 3, "matMenuTriggerFor"], [1, "mr-1", "text-2xl"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "gap-2"], [1, "text-2xl"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "mb-2", "rounded-lg", "border", 3, "cdkDragDisabled"], [1, "flex", "w-full", "cursor-pointer", "items-center", "gap-2", "px-2", "py-2", 3, "click"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [1, "shrink-0", "text-2xl", "opacity-70"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "truncate", "text-xs", "opacity-60"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", ""], [1, "border-base-300", "flex", "flex-col", "gap-2", "border-t", "px-3", "py-3"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click"], [3, "for"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "ngModelChange", "id", "ngModel", "disabled"], ["value", ""], [3, "value"], [1, "flex", "gap-2"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["matInput", "", "type", "number", "min", "0", "max", "100", 3, "ngModelChange", "placeholder", "ngModel", "disabled"], ["matTextSuffix", ""], [1, "bg-base-200/60", "rounded-lg", "p-4"], [3, "ngModelChange", "schema", "ngModel", "ngModelOptions"], [1, "text-5xl"], [1, "text-sm"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-base-200", "flex-1", "rounded-lg", "py-2", 3, "click"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex-1", "rounded-lg", "py-2"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex-1", "rounded-lg", "py-2", 3, "click"]], template: function TemplateLayoutListComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "h4", 3);
         \u0275\u0275text(3);
@@ -840,6 +836,7 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
       MatOption,
       MatTooltipModule,
       IconComponent,
+      SchemaFormComponent,
       TranslatePipe
     ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  height: 100%;\n}\n/*# sourceMappingURL=template-layout-list.component.css.map */"] });
   }
@@ -849,7 +846,7 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
     type: Component,
     args: [{ selector: "template-layout-list", template: `
         <div
-            class="bg-base-100 border-base-300 flex h-full w-full flex-col border-l sm:w-96"
+            class="bg-base-100 border-base-300 flex h-full w-full flex-col lg:w-96 lg:border-l"
         >
             <div
                 class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
@@ -1055,28 +1052,30 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
                                         </mat-form-field>
                                     }
                                 </div>
-                                <label [for]="'params-' + $index">{{
-                                    'SIGNAGE_MANAGER.PLUGIN_PARAMETERS'
-                                        | translate
-                                }}</label>
-                                <textarea
-                                    [id]="'params-' + $index"
-                                    class="border-base-300 min-h-24 w-full rounded border p-2 font-mono text-xs"
-                                    [class.border-error]="params_error()"
-                                    [ngModel]="params_text()"
-                                    (ngModelChange)="setParamsText($event)"
-                                    [disabled]="!can_update()"
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.PLUGIN_PARAMETERS'
-                                            | translate
-                                    "
-                                ></textarea>
-                                @if (params_error()) {
-                                    <div class="text-error text-xs">
+                                @if (selected_plugin_schema()) {
+                                    <label>
                                         {{
-                                            'SIGNAGE_MANAGER.TEMPLATE_PARAMS_INVALID'
+                                            'SIGNAGE_MANAGER.PLUGIN_PARAMETERS'
                                                 | translate
                                         }}
+                                    </label>
+                                    <div
+                                        class="bg-base-200/60 rounded-lg p-4"
+                                        [class.opacity-70]="!can_update()"
+                                        [attr.inert]="can_update() ? null : ''"
+                                    >
+                                        <schema-form
+                                            [schema]="selected_plugin_schema()"
+                                            [ngModel]="
+                                                layout.plugin_params || {}
+                                            "
+                                            (ngModelChange)="
+                                                setParams($index, $event)
+                                            "
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
+                                        ></schema-form>
                                     </div>
                                 }
                             </div>
@@ -1115,7 +1114,6 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
                             type="button"
                             matRipple
                             class="bg-secondary text-secondary-content flex-1 rounded-lg py-2"
-                            [disabled]="params_error()"
                             (click)="save()"
                         >
                             {{ 'COMMON.SAVE' | translate }}
@@ -1136,17 +1134,18 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
       MatSelectModule,
       MatTooltipModule,
       IconComponent,
+      SchemaFormComponent,
       TranslatePipe
     ], styles: ["/* angular:styles/component:css;4c8b7fe2646ecddfcf76b99840d048a4c4066ae3f497b895bd939d142f82f88c;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/templates/template-layout-list.component.ts */\n:host {\n  display: block;\n  height: 100%;\n}\n/*# sourceMappingURL=template-layout-list.component.css.map */\n"] }]
-  }], null, null);
+  }], null, { _schema_form: [{ type: ViewChild, args: [forwardRef(() => SchemaFormComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateLayoutListComponent, { className: "TemplateLayoutListComponent", filePath: "apps/signage-manager/src/app/templates/template-layout-list.component.ts", lineNumber: 331 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateLayoutListComponent, { className: "TemplateLayoutListComponent", filePath: "apps/signage-manager/src/app/templates/template-layout-list.component.ts", lineNumber: 338 });
 })();
 
 // apps/signage-manager/src/app/templates/template-list.component.ts
-var _c02 = ["template_item"];
-var _c1 = (a0) => ["/templates", a0];
+var _c03 = ["template_item"];
+var _c12 = (a0) => ["/templates", a0];
 var _c2 = (a0) => ({ name: a0 });
 var _c3 = (a0) => ({ count: a0 });
 var _forTrack02 = ($index, $item) => $item.id;
@@ -1199,7 +1198,7 @@ function TemplateListComponent_Conditional_6_For_1_Template(rf, ctx) {
     const template_r1 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275classProp("bg-primary", ctx_r1.selected()?.id === template_r1.id)("text-primary-content", ctx_r1.selected()?.id === template_r1.id)("hover:bg-base-200", ctx_r1.selected()?.id !== template_r1.id);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(18, _c1, template_r1.id));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(18, _c12, template_r1.id));
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 12, "SIGNAGE_MANAGER.OPEN_TEMPLATE", \u0275\u0275pureFunction1(20, _c2, template_r1.name)));
     \u0275\u0275advance(7);
     \u0275\u0275textInterpolate1(" ", template_r1.name, " ");
@@ -1304,7 +1303,7 @@ var TemplateListComponent = class _TemplateListComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplateListComponent, selectors: [["template-list"]], viewQuery: function TemplateListComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._template_items, _c02, 5);
+        \u0275\u0275viewQuerySignal(ctx._template_items, _c03, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -1820,7 +1819,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
 // apps/signage-manager/src/app/templates/templates.component.ts
 function TemplatesSectionComponent_Conditional_7_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 12);
+    \u0275\u0275elementStart(0, "div", 14);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1833,7 +1832,7 @@ function TemplatesSectionComponent_Conditional_7_Conditional_8_Template(rf, ctx)
 function TemplatesSectionComponent_Conditional_7_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275elementStart(0, "button", 23);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Conditional_10_Template_button_click_0_listener() {
@@ -1853,7 +1852,7 @@ function TemplatesSectionComponent_Conditional_7_Conditional_10_Template(rf, ctx
 function TemplatesSectionComponent_Conditional_7_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 19);
+    \u0275\u0275elementStart(0, "button", 24);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Conditional_11_Template_button_click_0_listener() {
@@ -1873,7 +1872,7 @@ function TemplatesSectionComponent_Conditional_7_Conditional_11_Template(rf, ctx
 function TemplatesSectionComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 8)(1, "button", 9);
+    \u0275\u0275elementStart(0, "div", 10)(1, "button", 11);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r1);
@@ -1883,24 +1882,56 @@ function TemplatesSectionComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275elementStart(3, "icon");
     \u0275\u0275text(4, "arrow_back");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(5, "div", 10)(6, "h4", 11);
+    \u0275\u0275elementStart(5, "div", 12)(6, "h4", 13);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(8, TemplatesSectionComponent_Conditional_7_Conditional_8_Template, 2, 1, "div", 12);
+    \u0275\u0275conditionalCreate(8, TemplatesSectionComponent_Conditional_7_Conditional_8_Template, 2, 1, "div", 14);
     \u0275\u0275elementEnd();
     \u0275\u0275element(9, "div");
-    \u0275\u0275conditionalCreate(10, TemplatesSectionComponent_Conditional_7_Conditional_10_Template, 5, 6, "button", 13);
-    \u0275\u0275conditionalCreate(11, TemplatesSectionComponent_Conditional_7_Conditional_11_Template, 5, 6, "button", 14);
+    \u0275\u0275conditionalCreate(10, TemplatesSectionComponent_Conditional_7_Conditional_10_Template, 5, 6, "button", 15);
+    \u0275\u0275conditionalCreate(11, TemplatesSectionComponent_Conditional_7_Conditional_11_Template, 5, 6, "button", 16);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "div", 15);
-    \u0275\u0275element(13, "template-preview", 16)(14, "template-layout-list", 17);
+    \u0275\u0275elementStart(12, "div", 17);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275elementStart(14, "button", 18, 0);
+    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Template_button_click_14_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.setViewTab("preview"));
+    })("keydown", function TemplatesSectionComponent_Conditional_7_Template_button_keydown_14_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const preview_tab_r6 = \u0275\u0275reference(15);
+      const layouts_tab_r7 = \u0275\u0275reference(19);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.handleTabKeydown($event, preview_tab_r6, layouts_tab_r7));
+    });
+    \u0275\u0275text(16);
+    \u0275\u0275pipe(17, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(18, "button", 19, 1);
+    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Template_button_click_18_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.setViewTab("layouts"));
+    })("keydown", function TemplatesSectionComponent_Conditional_7_Template_button_keydown_18_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const preview_tab_r6 = \u0275\u0275reference(15);
+      const layouts_tab_r7 = \u0275\u0275reference(19);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.handleTabKeydown($event, preview_tab_r6, layouts_tab_r7));
+    });
+    \u0275\u0275text(20);
+    \u0275\u0275pipe(21, "translate");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(22, "div", 20);
+    \u0275\u0275element(23, "template-preview", 21)(24, "template-layout-list", 22);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const template_r3 = ctx;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 5, "SIGNAGE_MANAGER.BACK_TO_TEMPLATES"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 34, "SIGNAGE_MANAGER.BACK_TO_TEMPLATES"));
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1(" ", template_r3.name, " ");
     \u0275\u0275advance();
@@ -1909,11 +1940,29 @@ function TemplatesSectionComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.can_update() ? 10 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_delete() ? 11 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(13, 36, "COMMON.DETAILS"));
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "preview")("border-b-2", ctx_r1.view_tab() === "preview")("text-primary", ctx_r1.view_tab() === "preview")("opacity-60", ctx_r1.view_tab() !== "preview");
+    \u0275\u0275property("tabIndex", ctx_r1.view_tab() === "preview" ? 0 : -1);
+    \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "preview");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(17, 38, "COMMON.PREVIEW"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "layouts")("border-b-2", ctx_r1.view_tab() === "layouts")("text-primary", ctx_r1.view_tab() === "layouts")("opacity-60", ctx_r1.view_tab() !== "layouts");
+    \u0275\u0275property("tabIndex", ctx_r1.view_tab() === "layouts" ? 0 : -1);
+    \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "layouts");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 40, "SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275classProp("tablet-hidden", ctx_r1.view_tab() === "layouts");
+    \u0275\u0275advance();
+    \u0275\u0275classProp("tablet-hidden", ctx_r1.view_tab() === "preview")("tablet-full", ctx_r1.view_tab() === "layouts");
   }
 }
 function TemplatesSectionComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 7)(1, "icon", 20);
+    \u0275\u0275elementStart(0, "div", 9)(1, "icon", 25);
     \u0275\u0275text(2, "dashboard_customize");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -1933,6 +1982,13 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
     this.id = input(
       "",
       ...ngDevMode ? [{ debugName: "id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.view_tab = signal(
+      "preview",
+      ...ngDevMode ? [{ debugName: "view_tab" }] : (
         /* istanbul ignore next */
         []
       )
@@ -1975,22 +2031,40 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
     this._service.selected_template_layout_index.set(null);
     this._router.navigate(["/templates"], {});
   }
+  setViewTab(tab) {
+    this.view_tab.set(tab);
+  }
+  handleTabKeydown(event, preview_tab, layouts_tab) {
+    let tab = null;
+    if (event.key === "Home")
+      tab = "preview";
+    else if (event.key === "End")
+      tab = "layouts";
+    else if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+      tab = this.view_tab() === "preview" ? "layouts" : "preview";
+    }
+    if (!tab)
+      return;
+    event.preventDefault();
+    this.view_tab.set(tab);
+    (tab === "preview" ? preview_tab : layouts_tab).focus();
+  }
   static {
     this.\u0275fac = function TemplatesSectionComponent_Factory(__ngFactoryType__) {
       return new (__ngFactoryType__ || _TemplatesSectionComponent)();
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatesSectionComponent, selectors: [["templates-section"]], inputs: { id: [1, "id"] }, decls: 10, vars: 5, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "flex", "items-center", "gap-2", "rounded-b-lg", "border", "p-2"], ["icon", "", "default", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2"], [1, "truncate", "text-lg", "font-medium"], [1, "-mt-1", "truncate", "text-xs"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "flex", "min-h-0", "flex-1", "flex-col", "overflow-auto", "lg:flex-row", "lg:overflow-visible"], [1, "min-h-72", "w-full", "flex-1", "lg:min-h-0", "lg:w-px"], [1, "shrink-0", "lg:h-full"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-6xl"]], template: function TemplatesSectionComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatesSectionComponent, selectors: [["templates-section"]], inputs: { id: [1, "id"] }, decls: 10, vars: 5, consts: [["preview_tab", ""], ["layouts_tab", ""], [1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "flex", "items-center", "gap-2", "rounded-b-lg", "border", "p-2"], ["icon", "", "default", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2"], [1, "truncate", "text-lg", "font-medium"], [1, "-mt-1", "truncate", "text-xs"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "my-2", "flex", "rounded-lg", "border", "lg:hidden"], ["type", "button", "role", "tab", "aria-controls", "template-preview-panel", "id", "template-preview-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click", "keydown", "tabIndex"], ["type", "button", "role", "tab", "aria-controls", "template-layouts-panel", "id", "template-layouts-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click", "keydown", "tabIndex"], [1, "flex", "min-h-0", "flex-1", "flex-row", "overflow-hidden"], ["id", "template-preview-panel", "role", "tabpanel", "aria-labelledby", "template-preview-tab", 1, "min-h-0", "w-full", "flex-1", "lg:w-px"], ["id", "template-layouts-panel", "role", "tabpanel", "aria-labelledby", "template-layouts-tab", 1, "h-full", "shrink-0"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-6xl"]], template: function TemplatesSectionComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0);
-        \u0275\u0275element(1, "nav-sidebar", 1);
-        \u0275\u0275elementStart(2, "div", 2);
-        \u0275\u0275element(3, "template-header", 3);
-        \u0275\u0275elementStart(4, "div", 4);
-        \u0275\u0275element(5, "template-list", 5);
-        \u0275\u0275elementStart(6, "div", 6);
-        \u0275\u0275conditionalCreate(7, TemplatesSectionComponent_Conditional_7_Template, 15, 7)(8, TemplatesSectionComponent_Conditional_8_Template, 6, 3, "div", 7);
+        \u0275\u0275elementStart(0, "div", 2);
+        \u0275\u0275element(1, "nav-sidebar", 3);
+        \u0275\u0275elementStart(2, "div", 4);
+        \u0275\u0275element(3, "template-header", 5);
+        \u0275\u0275elementStart(4, "div", 6);
+        \u0275\u0275element(5, "template-list", 7);
+        \u0275\u0275elementStart(6, "div", 8);
+        \u0275\u0275conditionalCreate(7, TemplatesSectionComponent_Conditional_7_Template, 25, 42)(8, TemplatesSectionComponent_Conditional_8_Template, 6, 3, "div", 9);
         \u0275\u0275elementEnd()()();
         \u0275\u0275element(9, "nav-footer");
         \u0275\u0275elementEnd();
@@ -2017,7 +2091,7 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
       MatTooltip,
       IconComponent,
       TranslatePipe
-    ], styles: ["\n@media (max-width: 639px) {\n  .mobile-hidden[_ngcontent-%COMP%] {\n    display: none !important;\n  }\n}\n@media (max-width: 639px) {\n  .mobile-full[_ngcontent-%COMP%] {\n    flex: 1;\n  }\n}\n/*# sourceMappingURL=templates.component.css.map */"] });
+    ], styles: ["\n@media (max-width: 639px) {\n  .mobile-hidden[_ngcontent-%COMP%] {\n    display: none !important;\n  }\n}\n@media (max-width: 639px) {\n  .mobile-full[_ngcontent-%COMP%] {\n    flex: 1;\n  }\n}\n@media (max-width: 1023px) {\n  .tablet-hidden[_ngcontent-%COMP%] {\n    display: none !important;\n  }\n}\n@media (max-width: 1023px) {\n  .tablet-full[_ngcontent-%COMP%] {\n    flex: 1;\n    min-width: 0;\n  }\n}\n/*# sourceMappingURL=templates.component.css.map */"] });
   }
 };
 (() => {
@@ -2107,13 +2181,109 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
                                 }
                             </div>
                             <div
-                                class="flex min-h-0 flex-1 flex-col overflow-auto lg:flex-row lg:overflow-visible"
+                                class="bg-base-100 border-base-300 mx-2 my-2 flex rounded-lg border lg:hidden"
+                                role="tablist"
+                                [attr.aria-label]="'COMMON.DETAILS' | translate"
+                            >
+                                <button
+                                    #preview_tab
+                                    type="button"
+                                    role="tab"
+                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    [class.border-primary]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [class.border-b-2]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [class.text-primary]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [class.opacity-60]="
+                                        view_tab() !== 'preview'
+                                    "
+                                    (click)="setViewTab('preview')"
+                                    (keydown)="
+                                        handleTabKeydown(
+                                            $event,
+                                            preview_tab,
+                                            layouts_tab
+                                        )
+                                    "
+                                    [attr.aria-selected]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [tabIndex]="
+                                        view_tab() === 'preview' ? 0 : -1
+                                    "
+                                    aria-controls="template-preview-panel"
+                                    id="template-preview-tab"
+                                >
+                                    {{ 'COMMON.PREVIEW' | translate }}
+                                </button>
+                                <button
+                                    #layouts_tab
+                                    type="button"
+                                    role="tab"
+                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    [class.border-primary]="
+                                        view_tab() === 'layouts'
+                                    "
+                                    [class.border-b-2]="
+                                        view_tab() === 'layouts'
+                                    "
+                                    [class.text-primary]="
+                                        view_tab() === 'layouts'
+                                    "
+                                    [class.opacity-60]="
+                                        view_tab() !== 'layouts'
+                                    "
+                                    (click)="setViewTab('layouts')"
+                                    (keydown)="
+                                        handleTabKeydown(
+                                            $event,
+                                            preview_tab,
+                                            layouts_tab
+                                        )
+                                    "
+                                    [attr.aria-selected]="
+                                        view_tab() === 'layouts'
+                                    "
+                                    [tabIndex]="
+                                        view_tab() === 'layouts' ? 0 : -1
+                                    "
+                                    aria-controls="template-layouts-panel"
+                                    id="template-layouts-tab"
+                                >
+                                    {{
+                                        'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS'
+                                            | translate
+                                    }}
+                                </button>
+                            </div>
+                            <div
+                                class="flex min-h-0 flex-1 flex-row overflow-hidden"
                             >
                                 <template-preview
-                                    class="min-h-72 w-full flex-1 lg:min-h-0 lg:w-px"
+                                    id="template-preview-panel"
+                                    role="tabpanel"
+                                    aria-labelledby="template-preview-tab"
+                                    class="min-h-0 w-full flex-1 lg:w-px"
+                                    [class.tablet-hidden]="
+                                        view_tab() === 'layouts'
+                                    "
                                 />
                                 <template-layout-list
-                                    class="shrink-0 lg:h-full"
+                                    id="template-layouts-panel"
+                                    role="tabpanel"
+                                    aria-labelledby="template-layouts-tab"
+                                    class="h-full shrink-0"
+                                    [class.tablet-hidden]="
+                                        view_tab() === 'preview'
+                                    "
+                                    [class.tablet-full]="
+                                        view_tab() === 'layouts'
+                                    "
                                 />
                             </div>
                         } @else {
@@ -2147,13 +2317,13 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
       MatTooltipModule,
       IconComponent,
       TranslatePipe
-    ], styles: ["/* angular:styles/component:css;8eac906e2c3493bde876d274a7a1452ede86c23d5ec71ac8ae62cdbdcc4a851c;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/templates/templates.component.ts */\n@media (max-width: 639px) {\n  .mobile-hidden {\n    display: none !important;\n  }\n}\n@media (max-width: 639px) {\n  .mobile-full {\n    flex: 1;\n  }\n}\n/*# sourceMappingURL=templates.component.css.map */\n"] }]
+    ], styles: ["/* angular:styles/component:css;291dd75aed1604695cdb603225bb6e72f070a26c29e0e51b6d4e02e2cf76f84b;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/templates/templates.component.ts */\n@media (max-width: 639px) {\n  .mobile-hidden {\n    display: none !important;\n  }\n}\n@media (max-width: 639px) {\n  .mobile-full {\n    flex: 1;\n  }\n}\n@media (max-width: 1023px) {\n  .tablet-hidden {\n    display: none !important;\n  }\n}\n@media (max-width: 1023px) {\n  .tablet-full {\n    flex: 1;\n    min-width: 0;\n  }\n}\n/*# sourceMappingURL=templates.component.css.map */\n"] }]
   }], () => [], { id: [{ type: Input, args: [{ isSignal: true, alias: "id", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatesSectionComponent, { className: "TemplatesSectionComponent", filePath: "apps/signage-manager/src/app/templates/templates.component.ts", lineNumber: 158 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatesSectionComponent, { className: "TemplatesSectionComponent", filePath: "apps/signage-manager/src/app/templates/templates.component.ts", lineNumber: 267 });
 })();
 export {
   TemplatesSectionComponent
 };
-//# sourceMappingURL=templates.component-Q5ICWU4J.js.map
+//# sourceMappingURL=templates.component-KFPF66OY.js.map
