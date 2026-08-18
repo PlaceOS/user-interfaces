@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["media-player.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: block;\n                position: relative;\n                height: 100%;\n                width: 100%;\n                background: var(--bg);\n            }\n        "],
-  "mappings": "AACY,MACI,QAAA,MACA,SAAA,SACA,OAAA,KACA,MAAA,KACA,WAAA,IAAA,KACJ",
+  "sourcesContent": ["\n            :host {\n                display: block;\n                position: relative;\n                height: 100%;\n                width: 100%;\n                background: var(--bg);\n            }\n\n            :host(.transparent) {\n                background: transparent;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,MACA,SAAA,SACA,OAAA,KACA,MAAA,KACA,WAAA,IAAA,KACJ,CAEA,MAAA,CAAA,aACI,WAAA,WACJ",
   "names": []
 }
