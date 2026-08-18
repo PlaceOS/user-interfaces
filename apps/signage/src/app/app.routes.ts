@@ -5,6 +5,7 @@ import {
 } from '@placeos/components';
 import { BootstrapComponent } from './bootstrap.component';
 import { SignagePanelComponent } from './signage.component';
+import { SignageTemplateComponent } from './template.component';
 
 export const routes: Routes = [
     {
@@ -24,6 +25,16 @@ export const routes: Routes = [
     {
         path: 'signage/:system_id',
         component: SignagePanelComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
+    {
+        path: 'template/:template_id/:system_id',
+        component: SignageTemplateComponent,
+        canActivate: [AuthorisedUserGuard],
+    },
+    {
+        path: 'template/:template_id',
+        component: SignageTemplateComponent,
         canActivate: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: 'bootstrap' },

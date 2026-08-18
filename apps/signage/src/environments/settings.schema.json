@@ -33,6 +33,10 @@
         "default_animation_time": {
             "type": "number",
             "description": "Duration in milliseconds of the media player's transition animation between playlist items. Defaults to `1000`"
+        },
+        "templates_enabled": {
+            "type": "boolean",
+            "description": "Whether template selection is available during signage bootstrap. Defaults to `false`."
         }
     }
 }

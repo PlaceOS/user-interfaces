@@ -1,5 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal, viewChildren } from '@angular/core';
+import {
+    Component,
+    inject,
+    input,
+    OnInit,
+    signal,
+    viewChildren,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
@@ -42,6 +49,7 @@ function isCoveredByLoadingOverlay() {
             [playlist]="playlist()"
             [controls]="debug()"
             [muted]="muted()"
+            [transparent]="transparent()"
             [override]="override_playlist().playlist.length > 0"
             [animation_time]="animation_time"
             (playing_id)="playing_id.set($event)"
@@ -55,6 +63,7 @@ function isCoveredByLoadingOverlay() {
                 [controls]="debug()"
                 [can_close]="true"
                 [muted]="muted()"
+                [transparent]="transparent()"
                 [animation_time]="animation_time"
                 (playing_id)="playing_id.set($event)"
                 (event)="handlePlayerEvent($event, true)"
@@ -110,6 +119,7 @@ export class SignagePanelComponent extends AsyncHandler implements OnInit {
     public readonly debug = this._signage.debug;
     public readonly playing_id = this._signage.playing_id;
     public readonly muted = signal(true);
+    public readonly transparent = input(false);
     public readonly version_hash = VERSION.hash;
     public readonly version_date = VERSION.time;
 

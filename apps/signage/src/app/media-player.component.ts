@@ -52,11 +52,14 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
 
 @Component({
     selector: 'media-player',
+    host: {
+        '[class.transparent]': 'transparent()',
+    },
     template: `
         <div
             class="absolute inset-0"
-            [class.bg-black]="!controls()"
-            [style.background]="controls() ? '#212121' : ''"
+            [class.bg-black]="!controls() && !transparent()"
+            [style.background]="controls() && !transparent() ? '#212121' : ''"
         >
             <div
                 #media_container_0
@@ -226,6 +229,10 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                 width: 100%;
                 background: var(--bg);
             }
+
+            :host(.transparent) {
+                background: transparent;
+            }
         `,
     ],
     imports: [
@@ -243,6 +250,8 @@ export class MediaPlayerComponent
 {
     public readonly playlist = input<MediaPlayerItem[]>([]);
     public readonly controls = input(false);
+    /** Let media render over a parent surface, such as a signage template. */
+    public readonly transparent = input(false);
     public readonly override = input(false);
     public readonly can_close = input(false);
     public readonly loop = model<'NONE' | 'ONE' | 'ALL'>('ALL');

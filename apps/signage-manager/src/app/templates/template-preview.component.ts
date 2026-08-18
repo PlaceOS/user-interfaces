@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { settingSignal } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     IconComponent,
@@ -56,30 +57,23 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                     </button>
                 }
                 <div class="w-px flex-1"></div>
-                <!-- Tooltip lives on the wrapper as disabled buttons swallow pointer events -->
-                <div
+                <a
+                    btn
+                    matRipple
+                    class="border-base-300 flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium"
                     [matTooltip]="
-                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW_UNAVAILABLE'
-                            | translate
+                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate
+                    "
+                    [href]="player_link()"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate
                     "
                 >
-                    <button
-                        btn
-                        type="button"
-                        class="border-base-300 flex cursor-not-allowed items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium opacity-40"
-                        disabled
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW'
-                                | translate
-                        "
-                    >
-                        <icon>open_in_new</icon>
-                        {{
-                            'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW'
-                                | translate
-                        }}
-                    </button>
-                </div>
+                    <icon>open_in_new</icon>
+                    {{ 'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate }}
+                </a>
             </div>
             <div
                 class="preview-frame-container flex min-h-0 flex-1 items-center justify-center overflow-hidden p-4"
@@ -180,6 +174,7 @@ export class TemplatePreviewComponent {
 
     public readonly aspect_ratios = ASPECT_RATIOS;
     public readonly aspect = signal(ASPECT_RATIOS[0]);
+    public readonly signage_path = settingSignal('signage_path');
 
     public readonly selected_index =
         this._service.selected_template_layout_index;
@@ -198,6 +193,13 @@ export class TemplatePreviewComponent {
         const background_id =
             this._service.selected_template()?.background_item_id;
         return background_id ? mediaThumbnail(background_id) : '';
+    });
+
+    public readonly player_link = computed(() => {
+        const template_id = this._service.selected_template()?.id;
+        if (!template_id) return '';
+        const signage_path = this.signage_path() || '/signage';
+        return `${signage_path.replace(/\/$/, '')}/#/template/${encodeURIComponent(template_id)}?debug=true`;
     });
 
     public selectLayout(index: number) {
