@@ -1909,6 +1909,8 @@
             "BOOTSTRAP_TITLE": "Configuración del Panel de Control",
             "BOOTSTRAP_DISPLAY": "Seleccione una pantalla del menú desplegable a continuación",
             "BOOTSTRAP_DISPLAY_SELECT": "Seleccionar Pantalla",
+            "BOOTSTRAP_TEMPLATE": "Seleccione una plantilla (opcional)",
+            "BOOTSTRAP_TEMPLATE_NONE": "Pantalla estándar",
             "BOOTSTRAP_LOADING": "Inicializando aplicación...",
             "BOOTSTRAP_LOADING_CHECK": "Comprobando la configuración de la aplicación existente...",
             "PREVIOUS": "Medio Anterior",
