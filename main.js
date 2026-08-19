@@ -50061,6 +50061,8 @@ var APP = {
     BOOTSTRAP_TITLE: "Signage",
     BOOTSTRAP_DISPLAY: "Select a display from the dropdown below",
     BOOTSTRAP_DISPLAY_SELECT: "Select Display",
+    BOOTSTRAP_TEMPLATE: "Select a template (optional)",
+    BOOTSTRAP_TEMPLATE_NONE: "Standard display",
     BOOTSTRAP_LOADING: "Initialising application...",
     BOOTSTRAP_LOADING_CHECK: "Checking for existing application setup...",
     PREVIOUS: "Previous Media",
@@ -52189,9 +52191,38 @@ var lr = class {
     this.id = e.id || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.name = e.name || "", this.description = e.description || "", this.uri = e.uri || "", this.playback_type = e.playback_type || "static", this.authority_id = e.authority_id || "", this.enabled = e.enabled ?? true, this.params = e.params || {}, this.defaults = e.defaults || {};
   }
 };
+var pr = class {
+  created_at;
+  updated_at;
+  id;
+  name;
+  description;
+  tags;
+  authority_id;
+  background_item_id;
+  layouts;
+  full_screen_takeover;
+  approval_requested;
+  requested_by_id;
+  approved;
+  approved_by_id;
+  approved_by_name;
+  approved_by_email;
+  live_template_id;
+  constructor(e = {}) {
+    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.tags = e.tags || [], this.authority_id = e.authority_id || "", this.background_item_id = e.background_item_id || "", this.layouts = e.layouts || [], this.full_screen_takeover = e.full_screen_takeover || false, this.approval_requested = e.approval_requested || false, this.requested_by_id = e.requested_by_id || "", this.approved = e.approved || false, this.approved_by_id = e.approved_by_id || "", this.approved_by_name = e.approved_by_name || "", this.approved_by_email = e.approved_by_email || "", this.live_template_id = e.live_template_id || "";
+  }
+};
 var Ms = "signage";
 function ah(t, e = {}, n) {
   return g({ id: t, query_params: e, fn: (s) => s, path: `${Ms}`, options: n });
+}
+var ve = "signage/media";
+function un(t) {
+  return new Es(t);
+}
+function dh(t, e = {}) {
+  return g({ id: t, query_params: e, fn: un, path: ve });
 }
 var ht = "signage/plugins";
 function hn(t) {
@@ -52199,6 +52230,21 @@ function hn(t) {
 }
 function Mh(t = {}) {
   return y({ query_params: t, fn: hn, path: ht });
+}
+var oe = "signage/templates";
+function lt(t) {
+  return new pr(t);
+}
+function Dh(t = {}) {
+  return y({ query_params: t, fn: lt, path: oe });
+}
+function Hh(t, e = {}) {
+  return g({
+    id: t,
+    query_params: e,
+    fn: lt,
+    path: oe
+  });
 }
 var Ns = class {
   _listeners = /* @__PURE__ */ new Set();
@@ -53390,6 +53436,7 @@ var app = {
   logo_dark: "assets/logo-dark.svg",
   diagnostics: true,
   default_animation_time: 1e3,
+  templates_enabled: false,
   /** Start from cached organisation data when the backend is unreachable */
   offline_boot: true
 };
@@ -54145,15 +54192,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "8a82cb4",
-  "hash": "8a82cb4",
+  "raw": "e9f70dd",
+  "hash": "e9f70dd",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8a82cb4",
+  "suffix": "e9f70dd",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787023968859
+  "time": 1787114202211
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -96734,6 +96781,10 @@ var properties = {
   default_animation_time: {
     type: "number",
     description: "Duration in milliseconds of the media player's transition animation between playlist items. Defaults to `1000`"
+  },
+  templates_enabled: {
+    type: "boolean",
+    description: "Whether template selection is available during signage bootstrap. Defaults to `false`."
   }
 };
 var settings_schema_default = {
@@ -97121,6 +97172,7 @@ var environment = {
 };
 
 // apps/signage/src/app/bootstrap.component.ts
+var _forTrack04 = ($index, $item) => $item.id;
 function BootstrapComponent_Conditional_5_For_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "mat-option", 11)(1, "div", 13)(2, "div");
@@ -97138,6 +97190,55 @@ function BootstrapComponent_Conditional_5_For_9_Template(rf, ctx) {
     \u0275\u0275textInterpolate(option_r3.name);
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate2(" ", ctx_r1.building(option_r3)?.display_name || ctx_r1.building(option_r3)?.name || "Unknown Building", " - ", ctx_r1.level(option_r3)?.display_name || ctx_r1.level(option_r3)?.name || "Unknown Level", " ");
+  }
+}
+function BootstrapComponent_Conditional_5_Conditional_10_For_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 11);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const option_r5 = ctx.$implicit;
+    \u0275\u0275property("value", option_r5.id);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", option_r5.name, " ");
+  }
+}
+function BootstrapComponent_Conditional_5_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "label", 15);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "mat-form-field", 9)(4, "mat-select", 16);
+    \u0275\u0275twoWayListener("ngModelChange", function BootstrapComponent_Conditional_5_Conditional_10_Template_mat_select_ngModelChange_4_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      \u0275\u0275twoWayBindingSet(ctx_r1.active_template, $event) || (ctx_r1.active_template = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementStart(5, "mat-option", 17);
+    \u0275\u0275text(6);
+    \u0275\u0275pipe(7, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275repeaterCreate(8, BootstrapComponent_Conditional_5_Conditional_10_For_9_Template, 2, 2, "mat-option", 11, _forTrack04);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 3, "APP.SIGNAGE.BOOTSTRAP_TEMPLATE"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_template);
+    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 5, "APP.SIGNAGE.BOOTSTRAP_TEMPLATE_NONE"), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r1.templates());
   }
 }
 function BootstrapComponent_Conditional_5_Template(rf, ctx) {
@@ -97159,36 +97260,39 @@ function BootstrapComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "button", 12);
-    \u0275\u0275listener("click", function BootstrapComponent_Conditional_5_Template_button_click_10_listener() {
+    \u0275\u0275conditionalCreate(10, BootstrapComponent_Conditional_5_Conditional_10_Template, 10, 7);
+    \u0275\u0275elementStart(11, "button", 12);
+    \u0275\u0275listener("click", function BootstrapComponent_Conditional_5_Template_button_click_11_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.bootstrapPanel());
     });
-    \u0275\u0275text(11);
-    \u0275\u0275pipe(12, "translate");
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 6, "APP.SIGNAGE.BOOTSTRAP_DISPLAY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, "APP.SIGNAGE.BOOTSTRAP_DISPLAY"), " ");
     \u0275\u0275advance(3);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.active_display);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 8, "APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT"))("disabled", !ctx_r1.displays().length);
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 9, "APP.SIGNAGE.BOOTSTRAP_DISPLAY_SELECT"))("disabled", !ctx_r1.displays().length);
     \u0275\u0275control();
     \u0275\u0275advance(3);
     \u0275\u0275repeater(ctx_r1.displays());
     \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.templates_enabled() ? 10 : -1);
+    \u0275\u0275advance();
     \u0275\u0275property("disabled", !ctx_r1.active_display());
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 10, "COMMON.BOOTSTRAP_SUBMIT"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 11, "COMMON.BOOTSTRAP_SUBMIT"), " ");
   }
 }
 function BootstrapComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 5);
-    \u0275\u0275element(1, "mat-spinner", 15);
+    \u0275\u0275element(1, "mat-spinner", 18);
     \u0275\u0275elementStart(2, "p");
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
@@ -97204,12 +97308,14 @@ function BootstrapComponent_Conditional_6_Template(rf, ctx) {
 var STORE_PREFIX = "PlaceOS.SIGNAGE";
 var STORE_DISPLAY_KEY2 = `${STORE_PREFIX}.display`;
 var STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
+var STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
 var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
     this._org = inject2(OrganisationService);
     this._route = inject2(ActivatedRoute);
     this._router = inject2(Router);
+    this._settings = inject2(SettingsService);
     this.loading = signal(
       "",
       ...ngDevMode ? [{ debugName: "loading" }] : (
@@ -97224,6 +97330,14 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
         []
       )
     );
+    this.active_template = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "active_template" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.templates_enabled = this._settings.signal("templates_enabled", false);
     this._displays = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_displays" } : (
       /* istanbul ignore next */
       {}
@@ -97241,9 +97355,28 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
         return result.data.sort((a, b2) => (a.display_name || a.name).localeCompare(b2.display_name || b2.name));
       }
     }));
+    this._templates = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_templates" } : (
+      /* istanbul ignore next */
+      {}
+    )), {
+      params: () => this.templates_enabled() && this._org.initialised(),
+      loader: async ({ params: enabled }) => {
+        if (!enabled)
+          return [];
+        const result = await Dh({ limit: 500 }).catch(() => ({ data: [] }));
+        return result.data.sort((a, b2) => a.name.localeCompare(b2.name));
+      }
+    }));
     this.displays = computed(
       () => this._displays.value() ?? [],
       ...ngDevMode ? [{ debugName: "displays" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.templates = computed(
+      () => this._templates.value() ?? [],
+      ...ngDevMode ? [{ debugName: "templates" }] : (
         /* istanbul ignore next */
         []
       )
@@ -97267,7 +97400,9 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
         log("BOOTSTRAP", "Bootstrapped data clear");
         localStorage.removeItem(STORE_DISPLAY_KEY2);
         localStorage.removeItem(STORE_BUILDING_KEY);
+        localStorage.removeItem(STORE_TEMPLATE_KEY);
       }
+      this.active_template.set(params.get("template") || "");
       if (params.has("display")) {
         this.active_display.set(params.get("display"));
         log("BOOTSTRAP", "Bootstrapped data for display set");
@@ -97289,8 +97424,14 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       return;
     }
     localStorage.setItem(STORE_DISPLAY_KEY2, active_display);
+    const template_id = this.templates_enabled() ? this.active_template() : "";
+    if (template_id) {
+      localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
+    } else {
+      localStorage.removeItem(STORE_TEMPLATE_KEY);
+    }
     log("BOOTSTRAP", `Bootstrapped panel to display ${active_display}`);
-    this._router.navigate(["/signage", active_display]);
+    this._router.navigate(template_id ? ["/template", template_id, active_display] : ["/signage", active_display]);
     this.loading.set("");
   }
   /**
@@ -97300,8 +97441,12 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
     this.loading.set(i18n("APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK"));
     const display_id = localStorage?.getItem(STORE_DISPLAY_KEY2);
     if (display_id) {
+      const template_id = this.templates_enabled() && (this.active_template() || localStorage.getItem(STORE_TEMPLATE_KEY)) || "";
+      if (this.active_template() && this.templates_enabled()) {
+        localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
+      }
       log("BOOTSTRAP", `Application already bootstrapped to display ${display_id}`);
-      this._router.navigate(["/signage", display_id]);
+      this._router.navigate(template_id ? ["/template", template_id, display_id] : ["/signage", display_id]);
     }
     VirtualKeyboardComponent.enabled = localStorage.getItem("OSK.enabled") === "true";
     log("BOOTSTRAP", `No bootstrap details found for system`);
@@ -97316,13 +97461,13 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BootstrapComponent, selectors: [["", "bootstrap", ""]], features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 16, consts: [["select", ""], [1, "bg-base-200", "absolute", "inset-0"], ["form", "", 1, "bg-base-100", "absolute", "top-2", "left-1/2", "flex", "w-120", "max-w-[calc(100vw-2rem)]", "-translate-x-1/2", "transform", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "shadow-sm"], [1, "bg-secondary", "text-secondary-content", "mb-2", "w-full", "px-4", "py-3", "text-lg", "font-medium"], [1, "px-4", "py-2"], [1, "m-auto", "flex", "flex-col", "items-center", "p-8"], [1, "absolute", "right-0", "bottom-0", "z-10", "p-2", "text-right"], [1, "text-xs", "opacity-40"], ["for", "display"], ["appearance", "outline"], ["name", "display", 3, "ngModelChange", "ngModel", "placeholder", "disabled"], [3, "value"], ["btn", "", "matRipple", "", 1, "mb-2", "w-full", 3, "click", "disabled"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], [3, "diameter"]], template: function BootstrapComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BootstrapComponent, selectors: [["", "bootstrap", ""]], features: [\u0275\u0275InheritDefinitionFeature], decls: 15, vars: 16, consts: [["select", ""], [1, "bg-base-200", "absolute", "inset-0"], ["form", "", 1, "bg-base-100", "absolute", "top-2", "left-1/2", "flex", "w-120", "max-w-[calc(100vw-2rem)]", "-translate-x-1/2", "transform", "flex-col", "items-center", "overflow-hidden", "rounded-sm", "shadow-sm"], [1, "bg-secondary", "text-secondary-content", "mb-2", "w-full", "px-4", "py-3", "text-lg", "font-medium"], [1, "px-4", "py-2"], [1, "m-auto", "flex", "flex-col", "items-center", "p-8"], [1, "absolute", "right-0", "bottom-0", "z-10", "p-2", "text-right"], [1, "text-xs", "opacity-40"], ["for", "display"], ["appearance", "outline"], ["name", "display", 3, "ngModelChange", "ngModel", "placeholder", "disabled"], [3, "value"], ["btn", "", "matRipple", "", 1, "mb-2", "w-full", 3, "click", "disabled"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], ["for", "template"], ["name", "template", 3, "ngModelChange", "ngModel"], ["value", ""], [3, "diameter"]], template: function BootstrapComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "header", 3);
         \u0275\u0275text(3);
         \u0275\u0275pipe(4, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(5, BootstrapComponent_Conditional_5_Template, 13, 12, "main", 4)(6, BootstrapComponent_Conditional_6_Template, 4, 2, "div", 5);
+        \u0275\u0275conditionalCreate(5, BootstrapComponent_Conditional_5_Template, 14, 13, "main", 4)(6, BootstrapComponent_Conditional_6_Template, 4, 2, "div", 5);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(7, "div", 6)(8, "div", 7);
         \u0275\u0275text(9);
@@ -97420,6 +97565,34 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
                                 }
                             </mat-select>
                         </mat-form-field>
+                        @if (templates_enabled()) {
+                            <label for="template">
+                                {{
+                                    'APP.SIGNAGE.BOOTSTRAP_TEMPLATE' | translate
+                                }}
+                            </label>
+                            <mat-form-field appearance="outline">
+                                <mat-select
+                                    name="template"
+                                    [(ngModel)]="active_template"
+                                >
+                                    <mat-option value="">
+                                        {{
+                                            'APP.SIGNAGE.BOOTSTRAP_TEMPLATE_NONE'
+                                                | translate
+                                        }}
+                                    </mat-option>
+                                    @for (
+                                        option of templates();
+                                        track option.id
+                                    ) {
+                                        <mat-option [value]="option.id">
+                                            {{ option.name }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
                         <button
                             btn
                             matRipple
@@ -97460,7 +97633,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/signage/src/app/bootstrap.component.ts", lineNumber: 139 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/signage/src/app/bootstrap.component.ts", lineNumber: 174 });
 })();
 
 // apps/signage/src/app/diagnostics.ts
@@ -98034,7 +98207,7 @@ var MediaControlsComponent = class _MediaControlsComponent {
 // apps/signage/src/app/playlist-display.component.ts
 var _c017 = (a0) => ({ count: a0 });
 var _c19 = (a0) => ({ data: a0 });
-var _forTrack04 = ($index, $item) => $item.id + $index;
+var _forTrack05 = ($index, $item) => $item.id + $index;
 function PlaylistDisplayComponent_Conditional_9_ng_template_1_Conditional_0_Conditional_29_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 18);
@@ -98198,7 +98371,7 @@ function PlaylistDisplayComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 5);
     \u0275\u0275template(1, PlaylistDisplayComponent_Conditional_9_ng_template_1_Template, 1, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
-    \u0275\u0275repeaterCreate(3, PlaylistDisplayComponent_Conditional_9_For_4_Template, 17, 29, "button", 7, _forTrack04);
+    \u0275\u0275repeaterCreate(3, PlaylistDisplayComponent_Conditional_9_For_4_Template, 17, 29, "button", 7, _forTrack05);
     \u0275\u0275elementStart(5, "div", 8)(6, "div", 9);
     \u0275\u0275text(7);
     \u0275\u0275pipe(8, "translate");
@@ -99214,6 +99387,13 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this.controls = input(
       false,
       ...ngDevMode ? [{ debugName: "controls" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.transparent = input(
+      false,
+      ...ngDevMode ? [{ debugName: "transparent" }] : (
         /* istanbul ignore next */
         []
       )
@@ -100515,7 +100695,11 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275queryAdvance(8);
       }
-    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", stateChange: "stateChange", indexChange: "indexChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 23, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "statusChange", "plugin_interaction", "plugin_error", "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "z-20", "p-4"], [1, "absolute", "bottom-0", "left-1/2", "z-20", "-translate-x-1/2"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], [1, "absolute", "top-0", "left-1/2", "z-20", "-translate-x-1/2", "p-2"], [1, "absolute", "top-0", "right-0", "z-20", "p-4"], ["icon", "", "default", "", "matRipple", "", 1, "absolute", "top-6", "right-6", "z-20", 3, "click"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"], [3, "selected", "index", "playlist"]], template: function MediaPlayerComponent_Template(rf, ctx) {
+    }, hostVars: 2, hostBindings: function MediaPlayerComponent_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275classProp("transparent", ctx.transparent());
+      }
+    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], transparent: [1, "transparent"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", stateChange: "stateChange", indexChange: "indexChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 23, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "statusChange", "plugin_interaction", "plugin_error", "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "z-20", "p-4"], [1, "absolute", "bottom-0", "left-1/2", "z-20", "-translate-x-1/2"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], [1, "absolute", "top-0", "left-1/2", "z-20", "-translate-x-1/2", "p-2"], [1, "absolute", "top-0", "right-0", "z-20", "p-4"], ["icon", "", "default", "", "matRipple", "", 1, "absolute", "top-6", "right-6", "z-20", 3, "click"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"], [3, "selected", "index", "playlist"]], template: function MediaPlayerComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 8)(1, "div", 9, 0)(3, "img", 10, 1);
         \u0275\u0275listener("load", function MediaPlayerComponent_Template_img_load_3_listener() {
@@ -100563,8 +100747,8 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
-        \u0275\u0275styleProp("background", ctx.controls() ? "#212121" : "");
-        \u0275\u0275classProp("bg-black", !ctx.controls());
+        \u0275\u0275styleProp("background", ctx.controls() && !ctx.transparent() ? "#212121" : "");
+        \u0275\u0275classProp("bg-black", !ctx.controls() && !ctx.transparent());
         \u0275\u0275advance();
         \u0275\u0275classProp("invisible", !ctx.in_animation() && (ctx.active_output() !== 0 || ctx.defer_reveal() && ctx.pending_output() === 0))("z-10", ctx.active_output() === 0)("z-0", ctx.active_output() !== 0)("opacity-0", ctx.active_output() !== 0 || ctx.defer_reveal() && ctx.pending_output() === 0);
         \u0275\u0275advance(8);
@@ -100584,17 +100768,19 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       MediaControlsComponent,
       TimeControlsComponent,
       PluginEmbedComponent
-    ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  position: relative;\n  height: 100%;\n  width: 100%;\n  background: var(--bg);\n}\n/*# sourceMappingURL=media-player.component.css.map */"] });
+    ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  position: relative;\n  height: 100%;\n  width: 100%;\n  background: var(--bg);\n}\n.transparent[_nghost-%COMP%] {\n  background: transparent;\n}\n/*# sourceMappingURL=media-player.component.css.map */"] });
   }
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MediaPlayerComponent, [{
     type: Component,
-    args: [{ selector: "media-player", template: `
+    args: [{ selector: "media-player", host: {
+      "[class.transparent]": "transparent()"
+    }, template: `
         <div
             class="absolute inset-0"
-            [class.bg-black]="!controls()"
-            [style.background]="controls() ? '#212121' : ''"
+            [class.bg-black]="!controls() && !transparent()"
+            [style.background]="controls() && !transparent() ? '#212121' : ''"
         >
             <div
                 #media_container_0
@@ -100761,11 +100947,11 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       MediaControlsComponent,
       TimeControlsComponent,
       PluginEmbedComponent
-    ], styles: ["/* angular:styles/component:css;bdf6948218468dfdb3a4c7f5f2797a67209c64d43490e240c37e8c0de6193927;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/media-player.component.ts */\n:host {\n  display: block;\n  position: relative;\n  height: 100%;\n  width: 100%;\n  background: var(--bg);\n}\n/*# sourceMappingURL=media-player.component.css.map */\n"] }]
-  }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], stateChange: [{ type: Output, args: ["stateChange"] }], indexChange: [{ type: Output, args: ["indexChange"] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
+    ], styles: ["/* angular:styles/component:css;5613b9902f7eaff64fa7b47128753d0c0992f47947c9fe3653769f5bfd4edb00;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/media-player.component.ts */\n:host {\n  display: block;\n  position: relative;\n  height: 100%;\n  width: 100%;\n  background: var(--bg);\n}\n:host(.transparent) {\n  background: transparent;\n}\n/*# sourceMappingURL=media-player.component.css.map */\n"] }]
+  }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], stateChange: [{ type: Output, args: ["stateChange"] }], indexChange: [{ type: Output, args: ["indexChange"] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 240 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 247 });
 })();
 
 // apps/signage/src/app/cron-helpers.ts
@@ -102324,7 +102510,7 @@ function SignagePanelComponent_Conditional_1_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("playlist", ctx_r1.override_playlist().playlist)("controls", ctx_r1.debug())("can_close", true)("muted", ctx_r1.muted())("animation_time", ctx_r1.animation_time);
+    \u0275\u0275property("playlist", ctx_r1.override_playlist().playlist)("controls", ctx_r1.debug())("can_close", true)("muted", ctx_r1.muted())("transparent", ctx_r1.transparent())("animation_time", ctx_r1.animation_time);
   }
 }
 function SignagePanelComponent_Conditional_2_Conditional_11_Template(rf, ctx) {
@@ -102387,6 +102573,13 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
     this.muted = signal(
       true,
       ...ngDevMode ? [{ debugName: "muted" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.transparent = input(
+      false,
+      ...ngDevMode ? [{ debugName: "transparent" }] : (
         /* istanbul ignore next */
         []
       )
@@ -102520,7 +102713,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 7, consts: [[1, "z-0", 3, "playing_id", "event", "mutedChange", "playlist", "controls", "muted", "override", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playlist", "controls", "can_close", "muted", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "can_close", "muted", "animation_time"], ["stroke", "", 1, "text-base-100/60", "bg-base-content/40", "absolute", "bottom-1", "left-1", "rounded", "px-2", "py-1", "font-mono", "text-[0.625rem]"], [1, "opacity-50"], [1, "select-all"], ["stroke", "", 1, "text-base-100/60", "bg-base-content/40", "absolute", "right-1", "bottom-1", "rounded", "px-2", "py-1", "font-mono", "text-[0.625rem]"]], template: function SignagePanelComponent_Template(rf, ctx) {
+    }, inputs: { transparent: [1, "transparent"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 8, consts: [[1, "z-0", 3, "playing_id", "event", "mutedChange", "playlist", "controls", "muted", "transparent", "override", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playlist", "controls", "can_close", "muted", "transparent", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "can_close", "muted", "transparent", "animation_time"], ["stroke", "", 1, "text-base-100/60", "bg-base-content/40", "absolute", "bottom-1", "left-1", "rounded", "px-2", "py-1", "font-mono", "text-[0.625rem]"], [1, "opacity-50"], [1, "select-all"], ["stroke", "", 1, "text-base-100/60", "bg-base-content/40", "absolute", "right-1", "bottom-1", "rounded", "px-2", "py-1", "font-mono", "text-[0.625rem]"]], template: function SignagePanelComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "media-player", 0);
         \u0275\u0275listener("playing_id", function SignagePanelComponent_Template_media_player_playing_id_0_listener($event) {
@@ -102531,11 +102724,11 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
           return ctx.setMuted($event);
         });
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(1, SignagePanelComponent_Conditional_1_Template, 1, 5, "media-player", 1);
+        \u0275\u0275conditionalCreate(1, SignagePanelComponent_Conditional_1_Template, 1, 6, "media-player", 1);
         \u0275\u0275conditionalCreate(2, SignagePanelComponent_Conditional_2_Template, 12, 11);
       }
       if (rf & 2) {
-        \u0275\u0275property("playlist", ctx.playlist())("controls", ctx.debug())("muted", ctx.muted())("override", ctx.override_playlist().playlist.length > 0)("animation_time", ctx.animation_time);
+        \u0275\u0275property("playlist", ctx.playlist())("controls", ctx.debug())("muted", ctx.muted())("transparent", ctx.transparent())("override", ctx.override_playlist().playlist.length > 0)("animation_time", ctx.animation_time);
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.override_playlist().playlist.length > 0 ? 1 : -1);
         \u0275\u0275advance();
@@ -102552,6 +102745,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
             [playlist]="playlist()"
             [controls]="debug()"
             [muted]="muted()"
+            [transparent]="transparent()"
             [override]="override_playlist().playlist.length > 0"
             [animation_time]="animation_time"
             (playing_id)="playing_id.set($event)"
@@ -102565,6 +102759,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
                 [controls]="debug()"
                 [can_close]="true"
                 [muted]="muted()"
+                [transparent]="transparent()"
                 [animation_time]="animation_time"
                 (playing_id)="playing_id.set($event)"
                 (event)="handlePlayerEvent($event, true)"
@@ -102596,10 +102791,339 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
             </div>
         }
     `, imports: [DatePipe, MediaPlayerComponent], styles: ["/* angular:styles/component:css;cd55edd5bec2e27ad72dbab2cf735c69f9dbe31aab8da774385fbf5fd5fffa9b;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/signage.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n.stroke {\n  -webkit-text-stroke: 1px #000;\n}\n/*# sourceMappingURL=signage.component.css.map */\n"] }]
-  }], null, { _players: [{ type: ViewChildren, args: [forwardRef(() => MediaPlayerComponent), { isSignal: true }] }] });
+  }], null, { transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], _players: [{ type: ViewChildren, args: [forwardRef(() => MediaPlayerComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 102 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 111 });
+})();
+
+// apps/signage/src/app/template-layout.ts
+var EDGE_BAR_SIZE = 15;
+var SIDE_BAR_SIZE = 20;
+var FLOATING_POSITION = 50;
+var clamp2 = (value, max = 100) => Math.min(Math.max(value, 0), Math.max(max, 0));
+function percentage(value, fallback) {
+  return value === void 0 ? fallback : clamp2(value * 100);
+}
+function computeTemplateLayout(layouts) {
+  const player = { left: 0, top: 0, width: 100, height: 100 };
+  const items = layouts.map((layout) => {
+    let rect;
+    switch (layout.position) {
+      case "top": {
+        const height = clamp2(percentage(layout.y_pos, EDGE_BAR_SIZE), player.height);
+        rect = __spreadProps(__spreadValues({}, player), { height });
+        player.top += height;
+        player.height -= height;
+        break;
+      }
+      case "bottom": {
+        const height = clamp2(percentage(layout.y_pos, EDGE_BAR_SIZE), player.height);
+        rect = __spreadProps(__spreadValues({}, player), {
+          top: player.top + player.height - height,
+          height
+        });
+        player.height -= height;
+        break;
+      }
+      case "left": {
+        const width = clamp2(percentage(layout.x_pos, SIDE_BAR_SIZE), player.width);
+        rect = __spreadProps(__spreadValues({}, player), { width });
+        player.left += width;
+        player.width -= width;
+        break;
+      }
+      case "right": {
+        const width = clamp2(percentage(layout.x_pos, SIDE_BAR_SIZE), player.width);
+        rect = __spreadProps(__spreadValues({}, player), {
+          left: player.left + player.width - width,
+          width
+        });
+        player.width -= width;
+        break;
+      }
+      case "floating":
+      default: {
+        const left = percentage(layout.x_pos, FLOATING_POSITION);
+        const top = percentage(layout.y_pos, FLOATING_POSITION);
+        rect = { left, top, width: 100 - left, height: 100 - top };
+        break;
+      }
+    }
+    return { layout, rect };
+  });
+  return { items, player };
+}
+
+// apps/signage/src/app/template.component.ts
+var _forTrack06 = ($index, $item) => $item.config.instance_id;
+function SignageTemplateComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "media-player", 0);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("playlist", ctx_r0.background_playlist())("loop", "ONE")("muted", true)("transparent", true);
+  }
+}
+function SignageTemplateComponent_Conditional_1_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "plugin-embed", 3);
+  }
+  if (rf & 2) {
+    const item_r2 = ctx.$implicit;
+    \u0275\u0275styleProp("left", item_r2.rect.left, "%")("top", item_r2.rect.top, "%")("width", item_r2.rect.width, "%")("height", item_r2.rect.height, "%");
+    \u0275\u0275property("plugin", item_r2.plugin)("config", item_r2.config)("auto_play", true);
+  }
+}
+function SignageTemplateComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "signage-panel", 1);
+    \u0275\u0275repeaterCreate(1, SignageTemplateComponent_Conditional_1_For_2_Template, 1, 11, "plugin-embed", 2, _forTrack06);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("left", ctx_r0.player_rect().left, "%")("top", ctx_r0.player_rect().top, "%")("width", ctx_r0.player_rect().width, "%")("height", ctx_r0.player_rect().height, "%");
+    \u0275\u0275property("transparent", true);
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r0.layout_items());
+  }
+}
+var STORE_DISPLAY_KEY3 = "PlaceOS.SIGNAGE.display";
+function backgroundPlayerItem(media, plugins, media_cache, cache_owner) {
+  const plugin = plugins.find((item) => item.id === media.plugin_id);
+  const cacheable = media.media_type !== "webpage" && media.media_type !== "plugin";
+  if (cacheable) {
+    media_cache.requestFilesToCache([media.media_url], cache_owner, {
+      prune_other_owners: false
+    }).catch(() => void 0);
+  }
+  return {
+    id: media.id,
+    name: media.name,
+    playlist: "",
+    playlist_name: "",
+    animation: media.animation || Is.Cut,
+    type: media.media_type,
+    url: media.media_url,
+    start_time: media.start_time,
+    duration: media.play_time || media.video_length || 15e3,
+    valid_from: media.valid_from || 0,
+    valid_until: media.valid_until || 0,
+    plugin,
+    plugin_params: plugin ? __spreadValues(__spreadValues({}, plugin.defaults), media.plugin_params) : void 0,
+    getURL: async () => {
+      if (!cacheable)
+        return media.media_url || plugin?.uri || "";
+      let file = await media_cache.getFile(media.media_url).catch(() => null);
+      if (!file) {
+        await media_cache.requestFilesToCache([media.media_url], cache_owner, {
+          prune_other_owners: false
+        }).catch(() => void 0);
+        file = await media_cache.getFile(media.media_url).catch(() => null);
+      }
+      try {
+        return file ? URL.createObjectURL(file) : "";
+      } catch {
+        return "";
+      }
+    },
+    isLoading: cacheable ? () => media_cache.isLoadingFile(media.media_url) : () => false,
+    isCached: cacheable ? () => media_cache.isCachedFile(media.media_url) : () => false
+  };
+}
+var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHandler {
+  constructor() {
+    super(...arguments);
+    this._route = inject2(ActivatedRoute);
+    this._router = inject2(Router);
+    this._media_cache = inject2(MediaCacheService);
+    this._plugins = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_plugins" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._load_id = 0;
+    this.template = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "template" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.background_playlist = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "background_playlist" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._layout = computed(
+      () => computeTemplateLayout(this.template()?.layouts || []),
+      ...ngDevMode ? [{ debugName: "_layout" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.player_rect = computed(
+      () => this._layout().player,
+      ...ngDevMode ? [{ debugName: "player_rect" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.layout_items = computed(
+      () => {
+        const template_id = this.template()?.id || "template";
+        const plugins = this._plugins();
+        return this._layout().items.map(({ layout, rect }, index) => {
+          const plugin = plugins.find((item) => item.id === layout.plugin_id);
+          return plugin ? {
+            plugin,
+            rect,
+            config: {
+              instance_id: `${template_id}-layout-${index}`,
+              config: __spreadValues(__spreadValues({}, plugin.defaults), layout.plugin_params)
+            }
+          } : null;
+        }).filter((item) => !!item);
+      },
+      ...ngDevMode ? [{ debugName: "layout_items" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  ngOnInit() {
+    this.subscription("route.params", this._route.paramMap.subscribe((params) => {
+      const template_id = params.get("template_id") || "";
+      const system_id = params.get("system_id") || "";
+      if (!template_id)
+        return;
+      if (!system_id) {
+        this._bootstrapTemplate(template_id);
+        return;
+      }
+      this._loadTemplate(template_id);
+    }));
+  }
+  _bootstrapTemplate(template_id) {
+    const display_id = localStorage.getItem(STORE_DISPLAY_KEY3);
+    if (display_id) {
+      this._router.navigate(["/template", template_id, display_id], {
+        replaceUrl: true
+      });
+      return;
+    }
+    this._router.navigate(["/bootstrap"], {
+      queryParams: { template: template_id },
+      replaceUrl: true
+    });
+  }
+  async _loadTemplate(template_id) {
+    const load_id = ++this._load_id;
+    try {
+      const template = await Hh(template_id, {
+        approved: true
+      });
+      const [plugin_result, background] = await Promise.all([
+        Mh({ limit: 500 }).catch(() => ({ data: [] })),
+        template.background_item_id ? dh(template.background_item_id).catch(() => null) : null
+      ]);
+      const plugins = plugin_result.data || [];
+      if (load_id !== this._load_id)
+        return;
+      this._plugins.set(plugins);
+      this.template.set(template);
+      this.background_playlist.set(background ? [
+        backgroundPlayerItem(background, plugins, this._media_cache, `template:${template_id}`)
+      ] : []);
+    } catch (error2) {
+      if (load_id !== this._load_id)
+        return;
+      log("SIGNAGE", `Unable to load template "${template_id}"`, [error2], "error");
+      this.template.set(null);
+      this.background_playlist.set([]);
+    }
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275SignageTemplateComponent_BaseFactory;
+      return function SignageTemplateComponent_Factory(__ngFactoryType__) {
+        return (\u0275SignageTemplateComponent_BaseFactory || (\u0275SignageTemplateComponent_BaseFactory = \u0275\u0275getInheritedFactory(_SignageTemplateComponent)))(__ngFactoryType__ || _SignageTemplateComponent);
+      };
+    })();
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SignageTemplateComponent, selectors: [["signage-template"]], hostVars: 2, hostBindings: function SignageTemplateComponent_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275classProp("bg-black", !ctx.background_playlist().length);
+      }
+    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 2, consts: [[1, "absolute", "inset-0", "z-0", 3, "playlist", "loop", "muted", "transparent"], [1, "absolute", "z-10", 3, "transparent"], [1, "absolute", "z-20", "bg-transparent", 3, "plugin", "config", "auto_play", "left", "top", "width", "height"], [1, "absolute", "z-20", "bg-transparent", 3, "plugin", "config", "auto_play"]], template: function SignageTemplateComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275conditionalCreate(0, SignageTemplateComponent_Conditional_0_Template, 1, 4, "media-player", 0);
+        \u0275\u0275conditionalCreate(1, SignageTemplateComponent_Conditional_1_Template, 3, 9);
+      }
+      if (rf & 2) {
+        \u0275\u0275conditional(ctx.background_playlist().length ? 0 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.template() ? 1 : -1);
+      }
+    }, dependencies: [
+      MediaPlayerComponent,
+      PluginEmbedComponent,
+      SignagePanelComponent
+    ], styles: ["\n[_nghost-%COMP%] {\n  position: relative;\n  display: block;\n  height: 100%;\n  width: 100%;\n  overflow: hidden;\n}\n/*# sourceMappingURL=template.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SignageTemplateComponent, [{
+    type: Component,
+    args: [{ selector: "signage-template", host: {
+      "[class.bg-black]": "!background_playlist().length"
+    }, template: `
+        @if (background_playlist().length) {
+            <media-player
+                class="absolute inset-0 z-0"
+                [playlist]="background_playlist()"
+                [loop]="'ONE'"
+                [muted]="true"
+                [transparent]="true"
+            />
+        }
+        @if (template()) {
+            <signage-panel
+                class="absolute z-10"
+                [transparent]="true"
+                [style.left.%]="player_rect().left"
+                [style.top.%]="player_rect().top"
+                [style.width.%]="player_rect().width"
+                [style.height.%]="player_rect().height"
+            />
+            @for (item of layout_items(); track item.config.instance_id) {
+                <plugin-embed
+                    class="absolute z-20 bg-transparent"
+                    [plugin]="item.plugin"
+                    [config]="item.config"
+                    [auto_play]="true"
+                    [style.left.%]="item.rect.left"
+                    [style.top.%]="item.rect.top"
+                    [style.width.%]="item.rect.width"
+                    [style.height.%]="item.rect.height"
+                />
+            }
+        }
+    `, imports: [
+      MediaPlayerComponent,
+      PluginEmbedComponent,
+      SignagePanelComponent
+    ], styles: ["/* angular:styles/component:css;e51189524b21d790cdb1dc962fef0dde19dc08de2dad2685902d2ecc4cea1154;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/template.component.ts */\n:host {\n  position: relative;\n  display: block;\n  height: 100%;\n  width: 100%;\n  overflow: hidden;\n}\n/*# sourceMappingURL=template.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageTemplateComponent, { className: "SignageTemplateComponent", filePath: "apps/signage/src/app/template.component.ts", lineNumber: 148 });
 })();
 
 // apps/signage/src/app/app.routes.ts
@@ -102621,6 +103145,16 @@ var routes = [
   {
     path: "signage/:system_id",
     component: SignagePanelComponent,
+    canActivate: [AuthorisedUserGuard]
+  },
+  {
+    path: "template/:template_id/:system_id",
+    component: SignageTemplateComponent,
+    canActivate: [AuthorisedUserGuard]
+  },
+  {
+    path: "template/:template_id",
+    component: SignageTemplateComponent,
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }

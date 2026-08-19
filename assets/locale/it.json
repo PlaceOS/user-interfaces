@@ -1909,6 +1909,8 @@
             "BOOTSTRAP_TITLE": "Impostazione Pannello di Controllo",
             "BOOTSTRAP_DISPLAY": "Seleziona un display dal menu a discesa qui sotto",
             "BOOTSTRAP_DISPLAY_SELECT": "Seleziona Display",
+            "BOOTSTRAP_TEMPLATE": "Seleziona un modello (facoltativo)",
+            "BOOTSTRAP_TEMPLATE_NONE": "Display standard",
             "BOOTSTRAP_LOADING": "Inizializzazione dell'applicazione...",
             "BOOTSTRAP_LOADING_CHECK": "Verifica della configurazione dell'applicazione in corso...",
             "PREVIOUS": "Media precedente",
