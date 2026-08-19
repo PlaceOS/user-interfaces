@@ -62560,6 +62560,8 @@ var APP = {
     BOOTSTRAP_TITLE: "Signage",
     BOOTSTRAP_DISPLAY: "Select a display from the dropdown below",
     BOOTSTRAP_DISPLAY_SELECT: "Select Display",
+    BOOTSTRAP_TEMPLATE: "Select a template (optional)",
+    BOOTSTRAP_TEMPLATE_NONE: "Standard display",
     BOOTSTRAP_LOADING: "Initialising application...",
     BOOTSTRAP_LOADING_CHECK: "Checking for existing application setup...",
     PREVIOUS: "Previous Media",
@@ -67972,15 +67974,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "8a82cb4",
-  "hash": "8a82cb4",
+  "raw": "e9f70dd",
+  "hash": "e9f70dd",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8a82cb4",
+  "suffix": "e9f70dd",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787023888525
+  "time": 1787114133834
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -123969,7 +123971,10 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
       )
     );
     this.can_checkin = computed(
-      () => !settingSignal(`${(this.booking()?.type || "booking") + "s"}.hide_checkin`)() && !settingSignal(`${this.booking()?.type || "bookings"}.hide_checkin`)() && !settingSignal("bookings.hide_checkin")(),
+      () => {
+        const booking = this.booking();
+        return !(booking.booking_type === "parking" && booking.asset_id.startsWith("unallocated")) && !settingSignal(`${(booking.type || "booking") + "s"}.hide_checkin`)() && !settingSignal(`${booking.type || "bookings"}.hide_checkin`)() && !settingSignal("bookings.hide_checkin")();
+      },
       ...ngDevMode ? [{ debugName: "can_checkin" }] : (
         /* istanbul ignore next */
         []
@@ -134023,7 +134028,7 @@ function DeskMapComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275listener("ngModelChange", function DeskMapComponent_Conditional_1_Template_mat_select_ngModelChange_1_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.setOptions({ zone_ids: [$event.id] }));
+      return \u0275\u0275resetView(ctx_r1.setLevel($event));
     });
     \u0275\u0275repeaterCreate(3, DeskMapComponent_Conditional_1_For_4_Template, 5, 3, "mat-option", 5, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
@@ -134279,7 +134284,7 @@ var DeskMapComponent = class _DeskMapComponent {
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
-                        (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
+                        (ngModelChange)="setLevel($event)"
                         [ngModelOptions]="{ standalone: true }"
                         [placeholder]="'COMMON.LEVEL_ANY' | translate"
                     >
