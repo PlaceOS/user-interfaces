@@ -19,6 +19,7 @@ import {
     updateSignageMedia,
     updateSignagePlaylistMedia,
     updateSignagePlaylistMediaSchedule,
+    updateSignageTemplate,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
@@ -538,5 +539,35 @@ describe('SignageService media uploads', () => {
                 /\/signage\/templates\/template%2F1\?group_id=group%2F1$/,
             ),
         );
+    });
+
+    it('sends displayed layout position defaults when saving', async () => {
+        const service = createService();
+        service.selected_template.set(
+            new SignageTemplate({ id: 'template-1', layouts: [] }),
+        );
+        service.template_layout_draft.set([
+            { position: 'top', plugin_params: {} },
+            { position: 'left', plugin_params: {} },
+            { position: 'floating', plugin_params: {} },
+        ]);
+        (updateSignageTemplate as any).mockImplementation((_id, data) =>
+            Promise.resolve(new SignageTemplate({ id: 'template-1', ...data })),
+        );
+
+        await service.saveTemplateLayouts();
+
+        expect(updateSignageTemplate).toHaveBeenCalledWith('template-1', {
+            layouts: [
+                { position: 'top', plugin_params: {}, y_pos: 0.15 },
+                { position: 'left', plugin_params: {}, x_pos: 0.2 },
+                {
+                    position: 'floating',
+                    plugin_params: {},
+                    x_pos: 0.5,
+                    y_pos: 0.5,
+                },
+            ],
+        });
     });
 });

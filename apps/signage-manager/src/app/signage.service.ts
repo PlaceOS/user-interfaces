@@ -126,6 +126,7 @@ import {
     playlistMediaIds,
     playlistMediaItems,
 } from './signage-playlist.util';
+import { applyLayoutPositionDefaults } from './templates/template-layout.util';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -1865,9 +1866,12 @@ export class SignageService {
         )
             return;
         try {
+            const layouts = this.template_layout_draft().map(
+                applyLayoutPositionDefaults,
+            );
             const result = decodeEntityNames(
                 await updateSignageTemplate(template.id, {
-                    layouts: this.template_layout_draft(),
+                    layouts,
                 }),
             );
             this.selected_template.set(result);

@@ -66,6 +66,38 @@ export function layoutPercentageToRatio(value: number | null) {
         : clamp(value / 100, 0, 1);
 }
 
+/** Add the displayed position defaults before sending a layout to the API. */
+export function applyLayoutPositionDefaults(
+    layout: SignageTemplateLayout,
+): SignageTemplateLayout {
+    switch (layout.position) {
+        case 'top':
+        case 'bottom':
+            return {
+                ...layout,
+                y_pos:
+                    layout.y_pos ?? layoutPercentageToRatio(EDGE_BAR_HEIGHT_PC),
+            };
+        case 'left':
+        case 'right':
+            return {
+                ...layout,
+                x_pos:
+                    layout.x_pos ?? layoutPercentageToRatio(SIDEBAR_WIDTH_PC),
+            };
+        case 'floating':
+            return {
+                ...layout,
+                x_pos:
+                    layout.x_pos ??
+                    layoutPercentageToRatio(FLOATING_DEFAULT_X_PC),
+                y_pos:
+                    layout.y_pos ??
+                    layoutPercentageToRatio(FLOATING_DEFAULT_Y_PC),
+            };
+    }
+}
+
 /**
  * Resolve each layout item to a rectangle in the preview frame. Items are
  * placed in array order, each edge panel consuming space from the remaining
