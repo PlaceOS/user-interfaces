@@ -9,14 +9,18 @@ import {
 } from '@placeos/common';
 import {
     addSignageMedia,
+    del,
     listSignagePlaylistMedia,
+    removeSignageMedia,
     scheduleSignagePlaylistMedia,
     SignageMedia,
     SignagePlaylist,
+    SignageTemplate,
     updateSignageMedia,
     updateSignagePlaylistMedia,
     updateSignagePlaylistMediaSchedule,
 } from '@placeos/ts-client';
+import { NEVER, of } from 'rxjs';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
 import { SignageService } from '../app/signage.service';
@@ -63,6 +67,8 @@ describe('SignageService media uploads', () => {
             media: [],
         });
         (scheduleSignagePlaylistMedia as any).mockResolvedValue({});
+        (del as any).mockResolvedValue({});
+        (removeSignageMedia as any).mockResolvedValue({});
         dialog.open.mockReturnValue({
             afterClosed: () => ({
                 subscribe: (handler: (value?: unknown) => void) => {
@@ -88,6 +94,23 @@ describe('SignageService media uploads', () => {
         test_service['_requirePermission'] = vi.fn(() => true);
         test_service['_generateThumbnail'] = vi.fn().mockResolvedValue('');
         return service;
+    }
+
+    function confirmNextDialog() {
+        dialog.open.mockReturnValue({
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: vi.fn() },
+            },
+            afterClosed: () => NEVER,
+            close: vi.fn(),
+        });
+    }
+
+    function selectApiGroup(service: SignageService, group_id: string) {
+        Object.defineProperty(service, '_api_group_id', {
+            value: () => group_id,
+        });
     }
 
     it('requires schedules before adding media to distribution playlists', async () => {
@@ -459,5 +482,61 @@ describe('SignageService media uploads', () => {
 
         expect(media.name).toBe('New name');
         expect(service.media()[0].name).toBe('New name');
+    });
+
+    it('unshares deleted media from the selected group', async () => {
+        confirmNextDialog();
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        selectApiGroup(service, 'group-1');
+        test_service['_removeMediaFromCachedPlaylists'] = vi
+            .fn()
+            .mockResolvedValue(undefined);
+
+        await service.removeMedia(
+            new SignageMedia({ id: 'media-1', name: 'Poster' }),
+        );
+
+        expect(removeSignageMedia).toHaveBeenCalledWith('media-1', {
+            group_id: 'group-1',
+        });
+    });
+
+    it('unshares each bulk-deleted media item from the selected group', async () => {
+        confirmNextDialog();
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        selectApiGroup(service, 'group-1');
+        test_service['_removeMediaFromCachedPlaylists'] = vi
+            .fn()
+            .mockResolvedValue(undefined);
+
+        await service.removeMediaItems([
+            new SignageMedia({ id: 'media-1' }),
+            new SignageMedia({ id: 'media-2' }),
+        ]);
+
+        expect(removeSignageMedia).toHaveBeenCalledWith('media-1', {
+            group_id: 'group-1',
+        });
+        expect(removeSignageMedia).toHaveBeenCalledWith('media-2', {
+            group_id: 'group-1',
+        });
+    });
+
+    it('unshares deleted templates from the selected group', async () => {
+        confirmNextDialog();
+        const service = createService();
+        selectApiGroup(service, 'group/1');
+
+        await service.removeTemplate(
+            new SignageTemplate({ id: 'template/1', name: 'Welcome' }),
+        );
+
+        expect(del).toHaveBeenCalledWith(
+            expect.stringMatching(
+                /\/signage\/templates\/template%2F1\?group_id=group%2F1$/,
+            ),
+        );
     });
 });
