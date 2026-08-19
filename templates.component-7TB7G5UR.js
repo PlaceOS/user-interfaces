@@ -3,15 +3,16 @@ import {
   CdkDragHandle,
   CdkDropList,
   moveItemInArray
-} from "./chunk-THYHMR5R.js";
+} from "./chunk-WWZMUDVM.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-MASWKTYU.js";
+} from "./chunk-4AFLTOY5.js";
 import {
   AuthenticatedImageDirective,
   Component,
+  CounterComponent,
   DefaultValueAccessor,
   FormsModule,
   IconComponent,
@@ -30,14 +31,10 @@ import {
   MatRippleModule,
   MatSelect,
   MatSelectModule,
-  MatSuffix,
   MatTooltip,
   MatTooltipModule,
-  MaxValidator,
-  MinValidator,
   NgControlStatus,
   NgModel,
-  NumberValueAccessor,
   Router,
   RouterLink,
   SchemaFormComponent,
@@ -55,6 +52,7 @@ import {
   pluginSchema,
   schemaDefaults,
   setClassMetadata,
+  settingSignal,
   signal,
   viewChild,
   viewChildren,
@@ -87,6 +85,7 @@ import {
   ɵɵrepeaterTrackByIndex,
   ɵɵresetView,
   ɵɵrestoreView,
+  ɵɵsanitizeUrl,
   ɵɵstyleProp,
   ɵɵtext,
   ɵɵtextInterpolate,
@@ -95,7 +94,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-N2IPHBKM.js";
+} from "./chunk-ZTNF3JQB.js";
 import {
   __spreadProps,
   __spreadValues
@@ -268,19 +267,25 @@ function layoutPositionLabel(position) {
   return POSITION_LABELS[position] || position;
 }
 var clamp = (value, min, max) => Math.min(Math.max(value, min), Math.max(min, max));
+function layoutRatioToPercentage(value) {
+  return value === void 0 ? null : clamp(value, 0, 1) * 100;
+}
+function layoutPercentageToRatio(value) {
+  return value === null || !Number.isFinite(value) ? void 0 : clamp(value / 100, 0, 1);
+}
 function computeTemplateLayoutRects(layouts) {
   const rem = { left: 0, top: 0, width: 100, height: 100 };
   return layouts.map((layout) => {
     switch (layout.position) {
       case "top": {
-        const height = Math.min(clamp(layout.y_pos ?? EDGE_BAR_HEIGHT_PC, 0, 100), rem.height);
+        const height = Math.min(layoutRatioToPercentage(layout.y_pos) ?? EDGE_BAR_HEIGHT_PC, rem.height);
         const rect = __spreadProps(__spreadValues({}, rem), { height });
         rem.top += height;
         rem.height -= height;
         return rect;
       }
       case "bottom": {
-        const height = Math.min(clamp(layout.y_pos ?? EDGE_BAR_HEIGHT_PC, 0, 100), rem.height);
+        const height = Math.min(layoutRatioToPercentage(layout.y_pos) ?? EDGE_BAR_HEIGHT_PC, rem.height);
         const rect = __spreadProps(__spreadValues({}, rem), {
           top: rem.top + rem.height - height,
           height
@@ -289,14 +294,14 @@ function computeTemplateLayoutRects(layouts) {
         return rect;
       }
       case "left": {
-        const width = Math.min(clamp(layout.x_pos ?? SIDEBAR_WIDTH_PC, 0, 100), rem.width);
+        const width = Math.min(layoutRatioToPercentage(layout.x_pos) ?? SIDEBAR_WIDTH_PC, rem.width);
         const rect = __spreadProps(__spreadValues({}, rem), { width });
         rem.left += width;
         rem.width -= width;
         return rect;
       }
       case "right": {
-        const width = Math.min(clamp(layout.x_pos ?? SIDEBAR_WIDTH_PC, 0, 100), rem.width);
+        const width = Math.min(layoutRatioToPercentage(layout.x_pos) ?? SIDEBAR_WIDTH_PC, rem.width);
         const rect = __spreadProps(__spreadValues({}, rem), {
           left: rem.left + rem.width - width,
           width
@@ -306,8 +311,8 @@ function computeTemplateLayoutRects(layouts) {
       }
       case "floating":
       default: {
-        const left = clamp(layout.x_pos ?? FLOATING_DEFAULT_X_PC, 0, 100);
-        const top = clamp(layout.y_pos ?? FLOATING_DEFAULT_Y_PC, 0, 100);
+        const left = clamp(layoutRatioToPercentage(layout.x_pos) ?? FLOATING_DEFAULT_X_PC, 0, 100);
+        const top = clamp(layoutRatioToPercentage(layout.y_pos) ?? FLOATING_DEFAULT_Y_PC, 0, 100);
         return { left, top, width: 100 - left, height: 100 - top };
       }
     }
@@ -411,10 +416,13 @@ function TemplateLayoutListComponent_For_8_Conditional_13_For_11_Template(rf, ct
 function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 30)(1, "input", 31);
-    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementStart(0, "label", 18)(1, "div", 30);
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Template_input_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "a-counter", 31);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Template_a_counter_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r10);
       const $index_r6 = \u0275\u0275nextContext(2).$index;
       const ctx_r2 = \u0275\u0275nextContext();
@@ -422,26 +430,29 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Templat
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(4, "span", 32);
-    \u0275\u0275text(5, "%");
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const layout_r11 = \u0275\u0275nextContext(2).$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(2, 4, ctx_r2.xLabel(layout_r11.position)))("ngModel", layout_r11.x_pos ?? null)("disabled", !ctx_r2.can_update());
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 6, ctx_r2.xLabel(layout_r11.position)));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, ctx_r2.xLabel(layout_r11.position)), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("min", 0)("max", 100)("ngModel", ctx_r2.axisPercentage(layout_r11, "x_pos"))("disabled", !ctx_r2.can_update())("render_fn", ctx_r2.renderPercent);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 9, ctx_r2.xLabel(layout_r11.position)));
     \u0275\u0275control();
   }
 }
 function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
     const _r12 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-form-field", 30)(1, "input", 31);
-    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementStart(0, "label", 18)(1, "div", 30);
+    \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
-    \u0275\u0275listener("ngModelChange", function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Template_input_ngModelChange_1_listener($event) {
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "a-counter", 31);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("ngModelChange", function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Template_a_counter_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r12);
       const $index_r6 = \u0275\u0275nextContext(2).$index;
       const ctx_r2 = \u0275\u0275nextContext();
@@ -449,16 +460,16 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Templat
     });
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementStart(4, "span", 32);
-    \u0275\u0275text(5, "%");
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const layout_r11 = \u0275\u0275nextContext(2).$implicit;
     const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(2, 4, ctx_r2.yLabel(layout_r11.position)))("ngModel", layout_r11.y_pos ?? null)("disabled", !ctx_r2.can_update());
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 6, ctx_r2.yLabel(layout_r11.position)));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, ctx_r2.yLabel(layout_r11.position)), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("min", 0)("max", 100)("ngModel", ctx_r2.axisPercentage(layout_r11, "y_pos"))("disabled", !ctx_r2.can_update())("render_fn", ctx_r2.renderPercent);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 9, ctx_r2.yLabel(layout_r11.position)));
     \u0275\u0275control();
   }
 }
@@ -469,7 +480,7 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_15_Templat
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 33)(4, "schema-form", 34);
+    \u0275\u0275elementStart(3, "div", 32)(4, "schema-form", 33);
     \u0275\u0275listener("ngModelChange", function TemplateLayoutListComponent_For_8_Conditional_13_Conditional_15_Template_schema_form_ngModelChange_4_listener($event) {
       \u0275\u0275restoreView(_r13);
       const $index_r6 = \u0275\u0275nextContext(2).$index;
@@ -517,8 +528,8 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Template(rf, ctx) {
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(12, "div", 29);
-    \u0275\u0275conditionalCreate(13, TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Template, 6, 8, "mat-form-field", 30);
-    \u0275\u0275conditionalCreate(14, TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Template, 6, 8, "mat-form-field", 30);
+    \u0275\u0275conditionalCreate(13, TemplateLayoutListComponent_For_8_Conditional_13_Conditional_13_Template, 6, 11, "label", 18);
+    \u0275\u0275conditionalCreate(14, TemplateLayoutListComponent_For_8_Conditional_13_Conditional_14_Template, 6, 11, "label", 18);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(15, TemplateLayoutListComponent_For_8_Conditional_13_Conditional_15_Template, 5, 11);
     \u0275\u0275elementEnd();
@@ -596,10 +607,10 @@ function TemplateLayoutListComponent_For_8_Template(rf, ctx) {
 }
 function TemplateLayoutListComponent_ForEmpty_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "icon", 35);
+    \u0275\u0275elementStart(0, "div", 6)(1, "icon", 34);
     \u0275\u0275text(2, "space_dashboard");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 36);
+    \u0275\u0275elementStart(3, "p", 35);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -612,7 +623,7 @@ function TemplateLayoutListComponent_ForEmpty_9_Template(rf, ctx) {
 function TemplateLayoutListComponent_Conditional_10_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r16 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 39);
+    \u0275\u0275elementStart(0, "button", 38);
     \u0275\u0275listener("click", function TemplateLayoutListComponent_Conditional_10_Conditional_4_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r16);
       const ctx_r2 = \u0275\u0275nextContext(2);
@@ -630,7 +641,7 @@ function TemplateLayoutListComponent_Conditional_10_Conditional_4_Template(rf, c
 function TemplateLayoutListComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r15 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 7)(1, "button", 37);
+    \u0275\u0275elementStart(0, "div", 7)(1, "button", 36);
     \u0275\u0275listener("click", function TemplateLayoutListComponent_Conditional_10_Template_button_click_1_listener() {
       \u0275\u0275restoreView(_r15);
       const ctx_r2 = \u0275\u0275nextContext();
@@ -639,7 +650,7 @@ function TemplateLayoutListComponent_Conditional_10_Template(rf, ctx) {
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(4, TemplateLayoutListComponent_Conditional_10_Conditional_4_Template, 3, 3, "button", 38);
+    \u0275\u0275conditionalCreate(4, TemplateLayoutListComponent_Conditional_10_Conditional_4_Template, 3, 3, "button", 37);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -686,6 +697,7 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
     );
     this.positionIcon = layoutPositionIcon;
     this.positionLabel = layoutPositionLabel;
+    this.renderPercent = (value = 0) => `${value}%`;
   }
   pluginName(plugin_id) {
     if (!plugin_id)
@@ -749,8 +761,18 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
   yLabel(position) {
     return position === "floating" ? "SIGNAGE_MANAGER.TEMPLATE_Y_POS" : "SIGNAGE_MANAGER.TEMPLATE_PANEL_HEIGHT";
   }
+  axisPercentage(layout, axis) {
+    const percentage = layoutRatioToPercentage(layout[axis]);
+    if (percentage !== null)
+      return percentage;
+    if (layout.position === "floating") {
+      return axis === "x_pos" ? FLOATING_DEFAULT_X_PC : FLOATING_DEFAULT_Y_PC;
+    }
+    return axis === "x_pos" ? SIDEBAR_WIDTH_PC : EDGE_BAR_HEIGHT_PC;
+  }
   setAxis(index, axis, value) {
-    this.layouts.update((layouts) => layouts.map((layout, item_index) => item_index === index ? __spreadProps(__spreadValues({}, layout), { [axis]: value ?? void 0 }) : layout));
+    const ratio = layoutPercentageToRatio(value);
+    this.layouts.update((layouts) => layouts.map((layout, item_index) => item_index === index ? __spreadProps(__spreadValues({}, layout), { [axis]: ratio }) : layout));
   }
   setParams(index, params) {
     if (!params || typeof params !== "object" || Array.isArray(params)) {
@@ -782,7 +804,7 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, decls: 11, vars: 6, consts: [["position_menu", "matMenu"], [1, "bg-base-100", "border-base-300", "flex", "h-full", "w-full", "flex-col", "lg:w-96", "lg:border-l"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "flex-1", "text-lg", "font-medium"], ["cdkDropList", "", "role", "list", 1, "min-h-0", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "mb-2", "rounded-lg", "border", 3, "cdkDragDisabled", "border-primary"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8", "text-center"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-t", "px-4", "py-3"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex", "items-center", "rounded-lg", "py-1.5", "pr-4", "pl-2", 3, "matMenuTriggerFor"], [1, "mr-1", "text-2xl"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "gap-2"], [1, "text-2xl"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "mb-2", "rounded-lg", "border", 3, "cdkDragDisabled"], [1, "flex", "w-full", "cursor-pointer", "items-center", "gap-2", "px-2", "py-2", 3, "click"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [1, "shrink-0", "text-2xl", "opacity-70"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "truncate", "text-xs", "opacity-60"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", ""], [1, "border-base-300", "flex", "flex-col", "gap-2", "border-t", "px-3", "py-3"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click"], [3, "for"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "ngModelChange", "id", "ngModel", "disabled"], ["value", ""], [3, "value"], [1, "flex", "gap-2"], ["appearance", "outline", 1, "no-subscript", "flex-1"], ["matInput", "", "type", "number", "min", "0", "max", "100", 3, "ngModelChange", "placeholder", "ngModel", "disabled"], ["matTextSuffix", ""], [1, "bg-base-200/60", "rounded-lg", "p-4"], [3, "ngModelChange", "schema", "ngModel", "ngModelOptions"], [1, "text-5xl"], [1, "text-sm"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-base-200", "flex-1", "rounded-lg", "py-2", 3, "click"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex-1", "rounded-lg", "py-2"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex-1", "rounded-lg", "py-2", 3, "click"]], template: function TemplateLayoutListComponent_Template(rf, ctx) {
+    }, decls: 11, vars: 6, consts: [["position_menu", "matMenu"], [1, "bg-base-100", "border-base-300", "flex", "h-full", "w-full", "flex-col", "lg:w-96", "lg:border-l"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "flex-1", "text-lg", "font-medium"], ["cdkDropList", "", "role", "list", 1, "min-h-0", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "mb-2", "rounded-lg", "border", 3, "cdkDragDisabled", "border-primary"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8", "text-center"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-t", "px-4", "py-3"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex", "items-center", "rounded-lg", "py-1.5", "pr-4", "pl-2", 3, "matMenuTriggerFor"], [1, "mr-1", "text-2xl"], ["type", "button", "mat-menu-item", ""], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "gap-2"], [1, "text-2xl"], ["cdkDrag", "", "role", "listitem", 1, "border-base-300", "bg-base-100", "mb-2", "rounded-lg", "border", 3, "cdkDragDisabled"], [1, "flex", "w-full", "cursor-pointer", "items-center", "gap-2", "px-2", "py-2", 3, "click"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [1, "shrink-0", "text-2xl", "opacity-70"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "truncate", "text-xs", "opacity-60"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", ""], [1, "border-base-300", "flex", "flex-col", "gap-2", "border-t", "px-3", "py-3"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click"], [3, "for"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "ngModelChange", "id", "ngModel", "disabled"], ["value", ""], [3, "value"], [1, "flex", "gap-2"], [1, "mb-1", "text-sm"], [1, "block", 3, "ngModelChange", "min", "max", "ngModel", "disabled", "render_fn"], [1, "bg-base-200/60", "rounded-lg", "p-4"], [3, "ngModelChange", "schema", "ngModel", "ngModelOptions"], [1, "text-5xl"], [1, "text-sm"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-base-200", "flex-1", "rounded-lg", "py-2", 3, "click"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex-1", "rounded-lg", "py-2"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "flex-1", "rounded-lg", "py-2", 3, "click"]], template: function TemplateLayoutListComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "h4", 3);
         \u0275\u0275text(3);
@@ -814,19 +836,12 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
       CdkDrag,
       CdkDragHandle,
       FormsModule,
-      DefaultValueAccessor,
-      NumberValueAccessor,
       NgControlStatus,
-      MinValidator,
-      MaxValidator,
       NgModel,
       MatRippleModule,
       MatRipple,
       MatFormFieldModule,
       MatFormField,
-      MatSuffix,
-      MatInputModule,
-      MatInput,
       MatMenuModule,
       MatMenu,
       MatMenuItem,
@@ -835,6 +850,7 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
       MatSelect,
       MatOption,
       MatTooltipModule,
+      CounterComponent,
       IconComponent,
       SchemaFormComponent,
       TranslatePipe
@@ -990,20 +1006,23 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
                                      top-left corner and fill from there -->
                                 <div class="flex gap-2">
                                     @if (hasXValue(layout.position)) {
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="no-subscript flex-1"
-                                        >
-                                            <input
-                                                matInput
-                                                type="number"
-                                                min="0"
-                                                max="100"
-                                                [placeholder]="
+                                        <label class="min-w-0 flex-1">
+                                            <div class="mb-1 text-sm">
+                                                {{
                                                     xLabel(layout.position)
                                                         | translate
+                                                }}
+                                            </div>
+                                            <a-counter
+                                                class="block"
+                                                [min]="0"
+                                                [max]="100"
+                                                [ngModel]="
+                                                    axisPercentage(
+                                                        layout,
+                                                        'x_pos'
+                                                    )
                                                 "
-                                                [ngModel]="layout.x_pos ?? null"
                                                 (ngModelChange)="
                                                     setAxis(
                                                         $index,
@@ -1012,29 +1031,32 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
                                                     )
                                                 "
                                                 [disabled]="!can_update()"
+                                                [render_fn]="renderPercent"
                                                 [attr.aria-label]="
                                                     xLabel(layout.position)
                                                         | translate
                                                 "
                                             />
-                                            <span matTextSuffix>%</span>
-                                        </mat-form-field>
+                                        </label>
                                     }
                                     @if (hasYValue(layout.position)) {
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="no-subscript flex-1"
-                                        >
-                                            <input
-                                                matInput
-                                                type="number"
-                                                min="0"
-                                                max="100"
-                                                [placeholder]="
+                                        <label class="min-w-0 flex-1">
+                                            <div class="mb-1 text-sm">
+                                                {{
                                                     yLabel(layout.position)
                                                         | translate
+                                                }}
+                                            </div>
+                                            <a-counter
+                                                class="block"
+                                                [min]="0"
+                                                [max]="100"
+                                                [ngModel]="
+                                                    axisPercentage(
+                                                        layout,
+                                                        'y_pos'
+                                                    )
                                                 "
-                                                [ngModel]="layout.y_pos ?? null"
                                                 (ngModelChange)="
                                                     setAxis(
                                                         $index,
@@ -1043,13 +1065,13 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
                                                     )
                                                 "
                                                 [disabled]="!can_update()"
+                                                [render_fn]="renderPercent"
                                                 [attr.aria-label]="
                                                     yLabel(layout.position)
                                                         | translate
                                                 "
                                             />
-                                            <span matTextSuffix>%</span>
-                                        </mat-form-field>
+                                        </label>
                                     }
                                 </div>
                                 @if (selected_plugin_schema()) {
@@ -1129,10 +1151,10 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
       FormsModule,
       MatRippleModule,
       MatFormFieldModule,
-      MatInputModule,
       MatMenuModule,
       MatSelectModule,
       MatTooltipModule,
+      CounterComponent,
       IconComponent,
       SchemaFormComponent,
       TranslatePipe
@@ -1140,7 +1162,7 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
   }], null, { _schema_form: [{ type: ViewChild, args: [forwardRef(() => SchemaFormComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateLayoutListComponent, { className: "TemplateLayoutListComponent", filePath: "apps/signage-manager/src/app/templates/template-layout-list.component.ts", lineNumber: 338 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateLayoutListComponent, { className: "TemplateLayoutListComponent", filePath: "apps/signage-manager/src/app/templates/template-layout-list.component.ts", lineNumber: 350 });
 })();
 
 // apps/signage-manager/src/app/templates/template-list.component.ts
@@ -1491,7 +1513,7 @@ var _forTrack03 = ($index, $item) => $item.id;
 function TemplatePreviewComponent_For_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 10);
     \u0275\u0275listener("click", function TemplatePreviewComponent_For_4_Template_button_click_0_listener() {
       const option_r2 = \u0275\u0275restoreView(_r1).$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
@@ -1509,9 +1531,9 @@ function TemplatePreviewComponent_For_4_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", option_r2.label, " ");
   }
 }
-function TemplatePreviewComponent_Conditional_16_Template(rf, ctx) {
+function TemplatePreviewComponent_Conditional_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 8);
+    \u0275\u0275element(0, "img", 7);
     \u0275\u0275pipe(1, "translate");
   }
   if (rf & 2) {
@@ -1519,21 +1541,21 @@ function TemplatePreviewComponent_Conditional_16_Template(rf, ctx) {
     \u0275\u0275property("source", ctx_r2.background_url())("alt", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.TEMPLATE_BACKGROUND"));
   }
 }
-function TemplatePreviewComponent_For_18_Template(rf, ctx) {
+function TemplatePreviewComponent_For_17_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 12);
+    \u0275\u0275elementStart(0, "button", 11);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function TemplatePreviewComponent_For_18_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function TemplatePreviewComponent_For_17_Template_button_click_0_listener() {
       const $index_r5 = \u0275\u0275restoreView(_r4).$index;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.selectLayout($index_r5));
     });
-    \u0275\u0275elementStart(2, "div", 13);
+    \u0275\u0275elementStart(2, "div", 12);
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 14);
+    \u0275\u0275elementStart(5, "div", 13);
     \u0275\u0275text(6);
     \u0275\u0275pipe(7, "translate");
     \u0275\u0275elementEnd()();
@@ -1543,7 +1565,7 @@ function TemplatePreviewComponent_For_18_Template(rf, ctx) {
     const $index_r5 = ctx.$index;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275styleProp("left", item_r6.rect.left, "%")("top", item_r6.rect.top, "%")("width", item_r6.rect.width, "%")("height", item_r6.rect.height, "%");
-    \u0275\u0275classProp("border-primary", ctx_r2.selected_index() === $index_r5)("bg-primary/40", ctx_r2.selected_index() === $index_r5)("z-10", ctx_r2.selected_index() === $index_r5)("border-white/40", ctx_r2.selected_index() !== $index_r5)("bg-white/15", ctx_r2.selected_index() !== $index_r5)("hover:bg-white/25", ctx_r2.selected_index() !== $index_r5);
+    \u0275\u0275classProp("border-primary", ctx_r2.selected_index() === $index_r5)("bg-primary/40", ctx_r2.selected_index() === $index_r5)("z-10", ctx_r2.selected_index() === $index_r5)("border-white/60", ctx_r2.selected_index() !== $index_r5)("bg-black/60", ctx_r2.selected_index() !== $index_r5)("hover:bg-black/70", ctx_r2.selected_index() !== $index_r5);
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 24, ctx_r2.positionLabel(item_r6.layout.position)))("aria-pressed", ctx_r2.selected_index() === $index_r5);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 26, ctx_r2.positionLabel(item_r6.layout.position)), " ");
@@ -1551,9 +1573,9 @@ function TemplatePreviewComponent_For_18_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r2.pluginName(item_r6.layout.plugin_id) || \u0275\u0275pipeBind1(7, 28, "SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN"), " ");
   }
 }
-function TemplatePreviewComponent_Conditional_19_Template(rf, ctx) {
+function TemplatePreviewComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 10);
+    \u0275\u0275elementStart(0, "div", 9);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -1581,6 +1603,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
         []
       )
     );
+    this.signage_path = settingSignal("signage_path");
     this.selected_index = this._service.selected_template_layout_index;
     this._layouts = this._service.template_layout_draft;
     this.layout_rects = computed(
@@ -1607,6 +1630,19 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
         []
       )
     );
+    this.player_link = computed(
+      () => {
+        const template_id = this._service.selected_template()?.id;
+        if (!template_id)
+          return "";
+        const signage_path = this.signage_path() || "/signage";
+        return `${signage_path.replace(/\/$/, "")}/#/template/${encodeURIComponent(template_id)}?debug=true`;
+      },
+      ...ngDevMode ? [{ debugName: "player_link" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.positionLabel = layoutPositionLabel;
   }
   selectLayout(index) {
@@ -1623,47 +1659,45 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatePreviewComponent, selectors: [["template-preview"]], decls: 20, vars: 16, consts: [[1, "flex", "h-full", "min-h-0", "flex-col"], ["role", "radiogroup", 1, "flex", "flex-wrap", "items-center", "gap-2", "px-4", "py-2"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "border-primary", "bg-primary", "text-primary-content", "border-base-300", "hover:bg-base-200"], [1, "w-px", "flex-1"], [3, "matTooltip"], ["btn", "", "type", "button", "disabled", "", 1, "border-base-300", "flex", "cursor-not-allowed", "items-center", "gap-2", "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "opacity-40"], [1, "preview-frame-container", "flex", "min-h-0", "flex-1", "items-center", "justify-center", "overflow-hidden", "p-4"], [1, "preview-frame", "relative", "overflow-hidden", "rounded-lg", "bg-neutral-900", "shadow-lg", "ring-1", "ring-black/20"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-cover", "opacity-80", 3, "source", "alt"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "gap-1", "overflow-hidden", "border-2", "backdrop-blur-sm", "transition-colors", 3, "border-primary", "bg-primary/40", "z-10", "border-white/40", "bg-white/15", "hover:bg-white/25", "left", "top", "width", "height"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center", "p-4", "text-center", "text-sm", "text-white/60"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "gap-1", "overflow-hidden", "border-2", "backdrop-blur-sm", "transition-colors", 3, "click"], [1, "truncate", "px-2", "text-xs", "font-semibold", "text-white", "uppercase"], [1, "truncate", "px-2", "text-xs", "text-white/80"]], template: function TemplatePreviewComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatePreviewComponent, selectors: [["template-preview"]], decls: 19, vars: 17, consts: [[1, "flex", "h-full", "min-h-0", "flex-col"], ["role", "radiogroup", 1, "flex", "flex-wrap", "items-center", "gap-2", "px-4", "py-2"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "border-primary", "bg-primary", "text-primary-content", "border-base-300", "hover:bg-base-200"], [1, "w-px", "flex-1"], ["btn", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 1, "border-base-300", "flex", "items-center", "gap-2", "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", 3, "matTooltip", "href"], [1, "preview-frame-container", "flex", "min-h-0", "flex-1", "items-center", "justify-center", "overflow-hidden", "p-4"], [1, "preview-frame", "relative", "overflow-hidden", "rounded-lg", "bg-neutral-900", "shadow-lg", "ring-1", "ring-black/20"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-cover", "opacity-80", 3, "source", "alt"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "gap-1", "overflow-hidden", "border-2", "backdrop-blur-sm", "transition-colors", 3, "border-primary", "bg-primary/40", "z-10", "border-white/60", "bg-black/60", "hover:bg-black/70", "left", "top", "width", "height"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center", "p-4", "text-center", "text-sm", "text-white/60"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "gap-1", "overflow-hidden", "border-2", "backdrop-blur-sm", "transition-colors", 3, "click"], [1, "truncate", "px-2", "text-xs", "font-semibold", "text-white", "uppercase"], [1, "truncate", "px-2", "text-xs", "text-white/90"]], template: function TemplatePreviewComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
         \u0275\u0275pipe(2, "translate");
         \u0275\u0275repeaterCreate(3, TemplatePreviewComponent_For_4_Template, 2, 12, "button", 2, _forTrack03);
         \u0275\u0275element(5, "div", 3);
-        \u0275\u0275elementStart(6, "div", 4);
+        \u0275\u0275elementStart(6, "a", 4);
         \u0275\u0275pipe(7, "translate");
-        \u0275\u0275elementStart(8, "button", 5);
-        \u0275\u0275pipe(9, "translate");
-        \u0275\u0275elementStart(10, "icon");
-        \u0275\u0275text(11, "open_in_new");
+        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275elementStart(9, "icon");
+        \u0275\u0275text(10, "open_in_new");
         \u0275\u0275elementEnd();
-        \u0275\u0275text(12);
-        \u0275\u0275pipe(13, "translate");
-        \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(14, "div", 6)(15, "div", 7);
-        \u0275\u0275conditionalCreate(16, TemplatePreviewComponent_Conditional_16_Template, 2, 4, "img", 8);
-        \u0275\u0275repeaterCreate(17, TemplatePreviewComponent_For_18_Template, 8, 30, "button", 9, \u0275\u0275repeaterTrackByIndex);
-        \u0275\u0275conditionalCreate(19, TemplatePreviewComponent_Conditional_19_Template, 3, 3, "div", 10);
+        \u0275\u0275text(11);
+        \u0275\u0275pipe(12, "translate");
+        \u0275\u0275elementEnd()();
+        \u0275\u0275elementStart(13, "div", 5)(14, "div", 6);
+        \u0275\u0275conditionalCreate(15, TemplatePreviewComponent_Conditional_15_Template, 2, 4, "img", 7);
+        \u0275\u0275repeaterCreate(16, TemplatePreviewComponent_For_17_Template, 8, 30, "button", 8, \u0275\u0275repeaterTrackByIndex);
+        \u0275\u0275conditionalCreate(18, TemplatePreviewComponent_Conditional_18_Template, 3, 3, "div", 9);
         \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
         \u0275\u0275advance();
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 8, "SIGNAGE_MANAGER.TEMPLATE_ASPECT_RATIO"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 9, "SIGNAGE_MANAGER.TEMPLATE_ASPECT_RATIO"));
         \u0275\u0275advance(2);
         \u0275\u0275repeater(ctx.aspect_ratios);
         \u0275\u0275advance(3);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(7, 10, "SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW_UNAVAILABLE"));
-        \u0275\u0275advance(2);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(9, 12, "SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW"));
-        \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 14, "SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW"), " ");
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(7, 11, "SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW"))("href", ctx.player_link(), \u0275\u0275sanitizeUrl);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(8, 13, "SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW"));
+        \u0275\u0275advance(5);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 15, "SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW"), " ");
         \u0275\u0275advance(3);
         \u0275\u0275styleProp("--ratio", ctx.aspect().ratio);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.background_url() ? 16 : -1);
+        \u0275\u0275conditional(ctx.background_url() ? 15 : -1);
         \u0275\u0275advance();
         \u0275\u0275repeater(ctx.layout_rects());
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.layout_rects().length ? 19 : -1);
+        \u0275\u0275conditional(!ctx.layout_rects().length ? 18 : -1);
       }
     }, dependencies: [
       MatRippleModule,
@@ -1706,30 +1740,23 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
                     </button>
                 }
                 <div class="w-px flex-1"></div>
-                <!-- Tooltip lives on the wrapper as disabled buttons swallow pointer events -->
-                <div
+                <a
+                    btn
+                    matRipple
+                    class="border-base-300 flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium"
                     [matTooltip]="
-                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW_UNAVAILABLE'
-                            | translate
+                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate
+                    "
+                    [href]="player_link()"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate
                     "
                 >
-                    <button
-                        btn
-                        type="button"
-                        class="border-base-300 flex cursor-not-allowed items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium opacity-40"
-                        disabled
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW'
-                                | translate
-                        "
-                    >
-                        <icon>open_in_new</icon>
-                        {{
-                            'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW'
-                                | translate
-                        }}
-                    </button>
-                </div>
+                    <icon>open_in_new</icon>
+                    {{ 'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate }}
+                </a>
             </div>
             <div
                 class="preview-frame-container flex min-h-0 flex-1 items-center justify-center overflow-hidden p-4"
@@ -1756,11 +1783,11 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
                             [class.border-primary]="selected_index() === $index"
                             [class.bg-primary/40]="selected_index() === $index"
                             [class.z-10]="selected_index() === $index"
-                            [class.border-white/40]="
+                            [class.border-white/60]="
                                 selected_index() !== $index
                             "
-                            [class.bg-white/15]="selected_index() !== $index"
-                            [class.hover:bg-white/25]="
+                            [class.bg-black/60]="selected_index() !== $index"
+                            [class.hover:bg-black/70]="
                                 selected_index() !== $index
                             "
                             [style.left.%]="item.rect.left"
@@ -1781,7 +1808,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
                                         | translate
                                 }}
                             </div>
-                            <div class="truncate px-2 text-xs text-white/80">
+                            <div class="truncate px-2 text-xs text-white/90">
                                 {{
                                     pluginName(item.layout.plugin_id) ||
                                         ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
@@ -1813,7 +1840,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatePreviewComponent, { className: "TemplatePreviewComponent", filePath: "apps/signage-manager/src/app/templates/template-preview.component.ts", lineNumber: 178 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatePreviewComponent, { className: "TemplatePreviewComponent", filePath: "apps/signage-manager/src/app/templates/template-preview.component.ts", lineNumber: 172 });
 })();
 
 // apps/signage-manager/src/app/templates/templates.component.ts
@@ -2326,4 +2353,4 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
 export {
   TemplatesSectionComponent
 };
-//# sourceMappingURL=templates.component-KFPF66OY.js.map
+//# sourceMappingURL=templates.component-7TB7G5UR.js.map
