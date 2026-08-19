@@ -32,6 +32,7 @@ import {
     addSignageTemplate,
     apiEndpoint,
     currentGroups,
+    del,
     listSignageMediaTags,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
@@ -1831,7 +1832,12 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await removeSignageTemplate(template.id);
+        const group_id = this._api_group_id();
+        await (group_id
+            ? del(
+                  `${apiEndpoint()}/signage/templates/${encodeURIComponent(template.id)}?group_id=${encodeURIComponent(group_id)}`,
+              )
+            : removeSignageTemplate(template.id));
         if (this.selected_template()?.id === template.id) {
             this.selected_template.set(null);
             this.selected_template_layout_index.set(null);
@@ -2962,7 +2968,7 @@ export class SignageService {
         );
         if (result.reason !== 'done') return;
         await this._removeMediaFromCachedPlaylists([item.id]);
-        await removeSignageMedia(item.id);
+        await removeSignageMedia(item.id, this._groupQueryParams({}));
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
         result.close();
@@ -2995,7 +3001,9 @@ export class SignageService {
             media_items.map((item) => item.id),
         );
         await Promise.all(
-            media_items.map((item) => removeSignageMedia(item.id)),
+            media_items.map((item) =>
+                removeSignageMedia(item.id, this._groupQueryParams({})),
+            ),
         );
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
