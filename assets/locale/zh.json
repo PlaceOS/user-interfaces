@@ -1910,6 +1910,8 @@
             "BOOTSTRAP_TITLE": "控制面板设置",
             "BOOTSTRAP_DISPLAY": "从下面的下拉菜单中选择一个显示器",
             "BOOTSTRAP_DISPLAY_SELECT": "选择显示器",
+            "BOOTSTRAP_TEMPLATE": "选择模板（可选）",
+            "BOOTSTRAP_TEMPLATE_NONE": "标准显示",
             "BOOTSTRAP_LOADING": "正在初始化应用程序...",
             "BOOTSTRAP_LOADING_CHECK": "正在检查现有的应用程序设置...",
             "PREVIOUS": "上一个媒体",
