@@ -4790,9 +4790,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .cursor-move {
   cursor: move;
 }
-#placeos .cursor-not-allowed {
-  cursor: not-allowed;
-}
 #placeos .cursor-pointer {
   cursor: pointer;
 }
@@ -5462,6 +5459,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-white\/40 {
   border-color: rgba(255, 255, 255, 0.4);
 }
+#placeos .border-white\/60 {
+  border-color: rgba(255, 255, 255, 0.6);
+}
 #placeos .border-t-primary {
   border-top-color: var(--primary);
 }
@@ -5663,6 +5663,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-black\/50 {
   background-color: rgba(0, 0, 0, 0.5);
+}
+#placeos .bg-black\/60 {
+  background-color: rgba(0, 0, 0, 0.6);
 }
 #placeos .bg-black\/80 {
   background-color: rgba(0, 0, 0, 0.8);
@@ -6640,8 +6643,8 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .text-white\/60 {
   color: rgba(255, 255, 255, 0.6);
 }
-#placeos .text-white\/80 {
-  color: rgba(255, 255, 255, 0.8);
+#placeos .text-white\/90 {
+  color: rgba(255, 255, 255, 0.9);
 }
 #placeos .capitalize {
   text-transform: capitalize;
@@ -7269,6 +7272,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (hover: hover) {
   #placeos .hover\:bg-black\/60:hover {
     background-color: rgba(0, 0, 0, 0.6);
+  }
+}
+@media (hover: hover) {
+  #placeos .hover\:bg-black\/70:hover {
+    background-color: rgba(0, 0, 0, 0.7);
   }
 }
 @media (hover: hover) {
