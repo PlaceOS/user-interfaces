@@ -49455,6 +49455,8 @@ var APP = {
     BOOTSTRAP_TITLE: "Signage",
     BOOTSTRAP_DISPLAY: "Select a display from the dropdown below",
     BOOTSTRAP_DISPLAY_SELECT: "Select Display",
+    BOOTSTRAP_TEMPLATE: "Select a template (optional)",
+    BOOTSTRAP_TEMPLATE_NONE: "Standard display",
     BOOTSTRAP_LOADING: "Initialising application...",
     BOOTSTRAP_LOADING_CHECK: "Checking for existing application setup...",
     PREVIOUS: "Previous Media",
@@ -53328,15 +53330,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "8a82cb4",
-  "hash": "8a82cb4",
+  "raw": "e9f70dd",
+  "hash": "e9f70dd",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8a82cb4",
+  "suffix": "e9f70dd",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787023946549
+  "time": 1787114137552
 };
 
 // libs/common/src/lib/settings.service.ts
