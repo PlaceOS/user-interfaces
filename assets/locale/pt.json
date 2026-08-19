@@ -1909,6 +1909,8 @@
             "BOOTSTRAP_TITLE": "Configuração do Painel de Controle",
             "BOOTSTRAP_DISPLAY": "Selecione uma tela no menu suspenso abaixo",
             "BOOTSTRAP_DISPLAY_SELECT": "Selecionar Tela",
+            "BOOTSTRAP_TEMPLATE": "Selecione um modelo (opcional)",
+            "BOOTSTRAP_TEMPLATE_NONE": "Tela padrão",
             "BOOTSTRAP_LOADING": "Inicializando aplicativo...",
             "BOOTSTRAP_LOADING_CHECK": "Verificando configuração existente do aplicativo...",
             "PREVIOUS": "Mídia Anterior",
