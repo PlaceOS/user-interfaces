@@ -1909,6 +1909,8 @@
             "BOOTSTRAP_TITLE": "إعداد لوحة التحكم",
             "BOOTSTRAP_DISPLAY": "اختر عرضًا من القائمة المنسدلة أدناه",
             "BOOTSTRAP_DISPLAY_SELECT": "اختر عرضًا",
+            "BOOTSTRAP_TEMPLATE": "اختر قالبًا (اختياري)",
+            "BOOTSTRAP_TEMPLATE_NONE": "عرض قياسي",
             "BOOTSTRAP_LOADING": "جاري تهيئة التطبيق...",
             "BOOTSTRAP_LOADING_CHECK": "جاري التحقق من إعداد التطبيق الحالي...",
             "PREVIOUS": "الوسائط السابقة",
