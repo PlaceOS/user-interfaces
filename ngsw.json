@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1787105984323,
+  "timestamp": 1787113873876,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -360,7 +360,7 @@
     "./it-CElwfVUf.js": "125b42ce66426ec1ea00aaa1db99aea750760a86",
     "./ja-CbRrZq6N.js": "8476992f9a2643aa47a2dcaaef2a80afe0c72852",
     "./lockers.routes-Ccok_yd0.js": "ee5f22bbddd22a341b61d88787fe1c59e9ac9908",
-    "./main.js": "253ea02ecd55ba608dd4359b1d6404c7f709d536",
+    "./main.js": "bee2e41f37fac5659198a24bcb51a6c2fdb3a9e3",
     "./manifest.webmanifest": "5a30ca9dc18b90c55afe775cbb7f8ad4fa8f3feb",
     "./parking.routes-Dk5baWnH.js": "767c52505c27bcc77a7c354492e76917280958b3",
     "./poi-manager.routes-CDtqodAJ.js": "ad8e7e9aec56b9a9d9cd0f57fbb59defdcc4676b",
