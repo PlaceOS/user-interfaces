@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1787022524818,
+  "timestamp": 1787105850667,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -172,17 +172,17 @@
     "./assets/icons/today-outline.svg": "40fc045c0b90aa2313cc5385260781ba5b55b8ad",
     "./assets/icons/visa.svg": "11187e2ea86894625af0aeb5b85c17bcbf8fe192",
     "./assets/icons/visitor-placeholder.svg": "744f6d0a7c3f96db704b4e4cc301aff7bed145d2",
-    "./assets/locale/ar.json": "835d622a6c284d3fe5a51aa125ee1449c37776c9",
-    "./assets/locale/en-AU.json": "c51e5cf36eef2e3d5dd906e3926e346bd42b9b2c",
-    "./assets/locale/en-GB.json": "55cc0afae64542d3be3ae9b833d0a7827b5cd066",
-    "./assets/locale/en-US.json": "dacd0246e81a09539fa5c3353e7f9dd77941789a",
-    "./assets/locale/es.json": "63b93709c791c7401eaf5ab92a2ec694cd0ff60d",
-    "./assets/locale/fr-CA.json": "a94df32edeb6e97c8e2c1397f8303bb0b191062e",
-    "./assets/locale/fr.json": "d240e7e9c02b3e1bdebed4a74718877af069ceb6",
-    "./assets/locale/it.json": "544185238d961ef7c50650573b81c4bbd2f134d6",
-    "./assets/locale/ja-JP.json": "216e6b26022b3d0607b1aa93753036a1dba954a1",
-    "./assets/locale/pt.json": "b0d1cfbeab84e2e6cb5f7e8199c9a009a6a5dcc2",
-    "./assets/locale/zh.json": "f3d2824dd975b3ac252a41f0676f33d050273130",
+    "./assets/locale/ar.json": "ac77a83dacb64606b32b61a721fbb38a406c79d1",
+    "./assets/locale/en-AU.json": "b3ac02277aa4b9438557337169e6d3c3a90b62f7",
+    "./assets/locale/en-GB.json": "d38da25bd51984a1ce8c6f781fdb06606514d4a3",
+    "./assets/locale/en-US.json": "91f4a14693c5958cadb55d129c2df24ced21ee70",
+    "./assets/locale/es.json": "91694ad0f128c78d6340abba90493acc51021b82",
+    "./assets/locale/fr-CA.json": "2fc25660a99fba3c142bd896e6e72e54eb996ae0",
+    "./assets/locale/fr.json": "555e8130d04aab97ed1dcb1ff3fea72635b8be82",
+    "./assets/locale/it.json": "682b35db198ae5a58ffd6ea0efacede85c9ff21a",
+    "./assets/locale/ja-JP.json": "c4907430dd011a9ed142347567ab5fecca6c083d",
+    "./assets/locale/pt.json": "8d62b87259b22030f237f481f577421f05ac23ec",
+    "./assets/locale/zh.json": "5569e66ead1a1b51e9180b48197128fa366bbc5a",
     "./assets/logo-dark.svg": "3c5dbbd620a781a0d1e3680cb697982dd44a1613",
     "./assets/logo-light.svg": "29908fafefe60c105f06b2f8d69f7c1eed436c17",
     "./assets/maps/level_1.svg": "ba165a2e4b967619f71aa625855113950c4cde53",
@@ -213,9 +213,9 @@
     "./chunk-Y4R37YMA.js": "e9e66716ac39c24be247b6e391868c43816126e9",
     "./favicon.ico": "dfc345494b2f49ee24e0f3d28fdc108fe205c7c3",
     "./index.html": "5ff1d0da61df08840699cc5d61c6bc3008a43a00",
-    "./main.js": "79c5691ce9882a5e0908f6e72d6a94fa69873c54",
+    "./main.js": "7c2e9c1e93c891a8a4b680eac3dcc7837462d231",
     "./manifest.webmanifest": "4dc45db7bd3228ce62839eb66a94fd6986b18a1d",
-    "./styles.css": "3b5fd0f014bc86da404d58985a9f4ddc6006e10a"
+    "./styles.css": "62ad787eee4330547d5baecdf8216cd81de169c8"
   },
   "navigationUrls": [
     {
