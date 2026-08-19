@@ -30,6 +30,7 @@ import {
     addSignageMedia,
     addSignagePlaylist,
     addSignageTemplate,
+    addSystem,
     apiEndpoint,
     currentGroups,
     del,
@@ -41,6 +42,7 @@ import {
     PlaceGroup,
     PlaceGroupUser,
     PlaceGroupZone,
+    PlaceSystem,
     PlaceUser,
     PlaceZone,
     post,
@@ -61,6 +63,7 @@ import {
     removeSignageMedia,
     removeSignagePlaylist,
     removeSignageTemplate,
+    removeSystem,
     requestApprovalSignagePlaylist,
     scheduleSignagePlaylistMedia,
     shareSignageMedia,
@@ -86,6 +89,8 @@ import {
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
+import { DisplayEditModalComponent } from './displays/display-edit-modal.component';
+import { displayZoneIds } from './displays/display-zones.util';
 import {
     BulkMediaUploadItem,
     BulkMediaUploadModalComponent,
@@ -660,6 +665,7 @@ export class SignageService {
     public readonly can_delete = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Delete),
     );
+    public readonly can_delete_displays = this.is_sys_admin;
     public readonly can_approve = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Approve),
     );
@@ -2263,6 +2269,36 @@ export class SignageService {
         }));
     }
 
+    private _addDisplayToList(display: PlaceSystem) {
+        if (!display?.id) return;
+        const item = decodeEntityNames(display);
+        this._display_items.update((items) => [
+            item,
+            ...items.filter((existing) => existing.id !== item.id),
+        ]);
+        this._display_cache.update((cache) => ({
+            ...cache,
+            [item.id]: item,
+        }));
+        this._cacheDisplay(item);
+    }
+
+    private _removeDisplayFromList(display_id: string) {
+        this._display_items.update((items) =>
+            items.filter((item) => item.id !== display_id),
+        );
+        this._display_cache.update((cache) => {
+            const next = { ...cache };
+            delete next[display_id];
+            return next;
+        });
+        this._display_overrides.update((overrides) => {
+            const next = { ...overrides };
+            delete next[display_id];
+            return next;
+        });
+    }
+
     private _cacheZone(zone: any) {
         if (!zone?.id) return;
         this._zone_overrides.update((state) => ({
@@ -3128,6 +3164,139 @@ export class SignageService {
         this.selected_zone.set(updated);
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_ZONE'));
+    }
+
+    public async addDisplay() {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_DISPLAYS'),
+            )
+        )
+            return null;
+        const default_zone_ids = await this._defaultDisplayZoneIds();
+        const ref = this._dialog.open(DisplayEditModalComponent, {
+            data: {
+                display: new PlaceSystem({}),
+                default_zone_ids,
+                roots: this.root_zones,
+                zones: this.all_zones,
+                load_children: (parent_id: string) =>
+                    this.zoneChildren(parent_id),
+                query_zones: (search: string, parent_id: string) =>
+                    this.querySelectableZones(search, parent_id),
+                onAdd: (data: Partial<PlaceSystem>) => addSystem(data),
+                onEdit: (id: string, data: Partial<PlaceSystem>) =>
+                    updateSystem(id, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = (await dialogClosed(ref)) as PlaceSystem | null;
+        if (!result) return null;
+        this._addDisplayToList(result);
+        this.selected_display.set(result);
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVED'));
+        return result;
+    }
+
+    public async editDisplay(display: PlaceSystem) {
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_DISPLAYS'),
+            )
+        )
+            return null;
+        const ref = this._dialog.open(DisplayEditModalComponent, {
+            data: {
+                display,
+                default_zone_ids: [],
+                roots: this.root_zones,
+                zones: this.all_zones,
+                load_children: (parent_id: string) =>
+                    this.zoneChildren(parent_id),
+                query_zones: (search: string, parent_id: string) =>
+                    this.querySelectableZones(search, parent_id),
+                onAdd: (data: Partial<PlaceSystem>) => addSystem(data),
+                onEdit: (id: string, data: Partial<PlaceSystem>) =>
+                    updateSystem(id, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = (await dialogClosed(ref)) as PlaceSystem | null;
+        if (!result) return null;
+        this._addDisplayToList(result);
+        this.selected_display.set(result);
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVED'));
+        return result;
+    }
+
+    public async removeDisplay(display: PlaceSystem) {
+        if (!display?.id) return false;
+        if (
+            !this._requirePermission(
+                this.can_delete_displays(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_DISPLAYS'),
+            )
+        )
+            return false;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_DISPLAY_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
+                    name: display.display_name || display.name,
+                }),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        const used_elsewhere = !!(
+            display.map_id ||
+            display.email ||
+            display.modules.length ||
+            display.module_list.length
+        );
+        if (used_elsewhere) {
+            await updateSystem(display.id, { signage: false });
+        } else {
+            await removeSystem(display.id);
+        }
+        result.close();
+        this._removeDisplayFromList(display.id);
+        if (this.selected_display()?.id === display.id) {
+            this.selected_display.set(null);
+        }
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_REMOVED'));
+        return true;
+    }
+
+    private async _defaultDisplayZoneIds() {
+        const group_id = this._api_group_id();
+        const active_zone =
+            this._org.building || this._org.region || this._org.organisation;
+        let roots = group_id
+            ? this.root_zones()
+            : active_zone
+              ? [active_zone]
+              : [];
+        if (group_id && !roots.length) {
+            const result = await queryZones({
+                group_id,
+                limit: 500,
+                include_children_count: true,
+            } as any).catch(() => null);
+            roots = (result?.data || []).map(decodeEntityNames);
+        }
+        const known_zones = [
+            ...this.all_zones(),
+            this._org.organisation,
+            this._org.region,
+            this._org.building,
+        ].filter((zone): zone is PlaceZone => !!zone?.id);
+        return displayZoneIds(roots, known_zones, async (zone_id) =>
+            showZone(zone_id).catch(() => null),
+        );
     }
 
     public async addDisplayToZone(zone: any) {

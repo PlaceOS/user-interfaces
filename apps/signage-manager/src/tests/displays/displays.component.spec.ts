@@ -9,8 +9,21 @@ describe('DisplaysSectionComponent', () => {
     const displays = signal<any[]>([]);
     const playlists = signal<any[]>([]);
     const zones = signal<any[]>([]);
+    const can_update = signal(false);
+    const can_delete_displays = signal(false);
     const navigate = vi.fn();
-    const service_stub = { selected_display, displays, playlists, zones };
+    const edit_display = vi.fn();
+    const remove_display = vi.fn();
+    const service_stub = {
+        selected_display,
+        displays,
+        playlists,
+        zones,
+        can_update,
+        can_delete_displays,
+        editDisplay: edit_display,
+        removeDisplay: remove_display,
+    };
     const router_stub = { navigate };
 
     async function make(): Promise<
@@ -38,6 +51,9 @@ describe('DisplaysSectionComponent', () => {
         displays.set([]);
         playlists.set([]);
         zones.set([]);
+        can_update.set(false);
+        can_delete_displays.set(false);
+        remove_display.mockResolvedValue(false);
     });
 
     it('counts the playlists and zones attached to the selected display', async () => {
@@ -126,6 +142,28 @@ describe('DisplaysSectionComponent', () => {
         component.deselectDisplay();
 
         expect(selected_display()).toBeNull();
+        expect(navigate).toHaveBeenCalledWith(['/displays'], {});
+    });
+
+    it('edits the selected display', async () => {
+        const display = { id: 'd1' };
+        selected_display.set(display);
+        const [component] = await make();
+
+        component.editDisplay();
+
+        expect(edit_display).toHaveBeenCalledWith(display);
+    });
+
+    it('returns to the list after deleting the selected display', async () => {
+        const display = { id: 'd1' };
+        selected_display.set(display);
+        remove_display.mockResolvedValue(true);
+        const [component] = await make();
+
+        await component.removeDisplay();
+
+        expect(remove_display).toHaveBeenCalledWith(display);
         expect(navigate).toHaveBeenCalledWith(['/displays'], {});
     });
 });

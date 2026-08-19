@@ -79,7 +79,51 @@ function parseDisplayTab(
                                             {{ selected_display().description }}
                                         </div>
                                     }
+                                    <div
+                                        class="text-base-content/60 truncate text-xs capitalize"
+                                    >
+                                        {{ selected_display().orientation }}
+                                    </div>
                                 </div>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.EDIT_DISPLAY_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="editDisplay()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.EDIT_SELECTED_DISPLAY'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>edit</icon>
+                                    </button>
+                                }
+                                @if (can_delete_displays()) {
+                                    <button
+                                        icon
+                                        default
+                                        error
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.DELETE_DISPLAY_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="removeDisplay()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.DELETE_SELECTED_DISPLAY'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>delete</icon>
+                                    </button>
+                                }
                                 <a
                                     icon
                                     default
@@ -238,6 +282,8 @@ export class DisplaysSectionComponent {
         'schedule',
     );
     public readonly selected_display = this._service.selected_display;
+    public readonly can_update = this._service.can_update;
+    public readonly can_delete_displays = this._service.can_delete_displays;
 
     private readonly _displays = this._service.displays;
     private readonly _playlists = this._service.playlists;
@@ -296,6 +342,17 @@ export class DisplaysSectionComponent {
     public deselectDisplay() {
         this._service.selected_display.set(null);
         this._router.navigate(['/displays'], {});
+    }
+
+    public editDisplay() {
+        const display = this.selected_display();
+        if (display) this._service.editDisplay(display);
+    }
+
+    public async removeDisplay() {
+        const display = this.selected_display();
+        if (!display || !(await this._service.removeDisplay(display))) return;
+        await this._router.navigate(['/displays'], {});
     }
 
     public setViewTab(tab: 'schedule' | 'playlists' | 'zones') {
