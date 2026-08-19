@@ -1909,6 +1909,8 @@
             "BOOTSTRAP_TITLE": "コントロールパネル設定",
             "BOOTSTRAP_DISPLAY": "下のドロップダウンからディスプレイを選択してください",
             "BOOTSTRAP_DISPLAY_SELECT": "ディスプレイを選択",
+            "BOOTSTRAP_TEMPLATE": "テンプレートを選択（任意）",
+            "BOOTSTRAP_TEMPLATE_NONE": "標準ディスプレイ",
             "BOOTSTRAP_LOADING": "アプリケーションを初期化中...",
             "BOOTSTRAP_LOADING_CHECK": "既存のアプリケーション設定を確認中...",
             "PREVIOUS": "前のメディア",
