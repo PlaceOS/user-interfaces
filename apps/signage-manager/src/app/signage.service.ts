@@ -1074,6 +1074,14 @@ export class SignageService {
         });
     }
 
+    public queryMedia(search = ''): QueryResponse<SignageMedia> | null {
+        if (!this._canQueryLists()) return null;
+        return querySignageMedia({
+            ...this._orgZoneQueryParams({ limit: SignageService.PAGE_SIZE }),
+            ...this._searchParam(search),
+        });
+    }
+
     public querySelectableZones(
         search: string,
         parent_id: string,
