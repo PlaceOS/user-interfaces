@@ -104,7 +104,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵviewQuery
-} from "./chunk-N2IPHBKM.js";
+} from "./chunk-ZTNF3JQB.js";
 
 // node_modules/@angular/material/fesm2022/tabs.mjs
 var _c0 = ["*"];
@@ -2581,4 +2581,4 @@ export {
   MatTabNavPanel,
   MatTabsModule
 };
-//# sourceMappingURL=chunk-43PFE4J2.js.map
+//# sourceMappingURL=chunk-IZVX3RRW.js.map
