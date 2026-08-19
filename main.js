@@ -12,7 +12,7 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-VNXALKPG.js";
+} from "./chunk-Y43SCPIN.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -24,10 +24,10 @@ import {
   MatSelectModule,
   MatSelectTrigger,
   SanitizePipe
-} from "./chunk-WIUBWEP5.js";
+} from "./chunk-DJN2YO3H.js";
 import {
   CheckinStateService
-} from "./chunk-P3HIBAO5.js";
+} from "./chunk-EITHISLR.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -242,7 +242,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-XGPLITBV.js";
+} from "./chunk-YQYORR35.js";
 import {
   __export,
   __objRest,
@@ -21614,17 +21614,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-TLHMCZUO.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-GAIN4ZEL.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-4ADYWKGD.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-GV5V4F7B.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-M2AMGSYA.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-4CM2F2W4.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
