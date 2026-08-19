@@ -1909,6 +1909,8 @@
             "BOOTSTRAP_TITLE": "Configuration du panneau de contrôle",
             "BOOTSTRAP_DISPLAY": "Sélectionnez un affichage dans le menu déroulant ci-dessous",
             "BOOTSTRAP_DISPLAY_SELECT": "Sélectionner un affichage",
+            "BOOTSTRAP_TEMPLATE": "Sélectionnez un modèle (facultatif)",
+            "BOOTSTRAP_TEMPLATE_NONE": "Affichage standard",
             "BOOTSTRAP_LOADING": "Initialisation de l'application...",
             "BOOTSTRAP_LOADING_CHECK": "Vérification de la configuration de l'application existante...",
             "PREVIOUS": "Média précédent",
