@@ -1943,6 +1943,8 @@
             "BOOTSTRAP_TITLE": "Signage",
             "BOOTSTRAP_DISPLAY": "Select a display from the dropdown below",
             "BOOTSTRAP_DISPLAY_SELECT": "Select Display",
+            "BOOTSTRAP_TEMPLATE": "Select a template (optional)",
+            "BOOTSTRAP_TEMPLATE_NONE": "Standard display",
             "BOOTSTRAP_LOADING": "Initialising application...",
             "BOOTSTRAP_LOADING_CHECK": "Checking for existing application setup...",
             "PREVIOUS": "Previous Media",
