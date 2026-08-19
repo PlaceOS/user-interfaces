@@ -588,16 +588,20 @@ export class BookingDetailsModalComponent {
         () => !this.booking().is_done && !this.booking().checked_in,
     );
 
-    public readonly can_checkin = computed(
-        () =>
+    public readonly can_checkin = computed(() => {
+        const booking = this.booking();
+        return (
+            !(
+                booking.booking_type === 'parking' &&
+                booking.asset_id.startsWith('unallocated')
+            ) &&
             !settingSignal(
-                `${(this.booking()?.type || 'booking') + 's'}.hide_checkin`,
+                `${(booking.type || 'booking') + 's'}.hide_checkin`,
             )() &&
-            !settingSignal(
-                `${this.booking()?.type || 'bookings'}.hide_checkin`,
-            )() &&
-            !settingSignal('bookings.hide_checkin')(),
-    );
+            !settingSignal(`${booking.type || 'bookings'}.hide_checkin`)() &&
+            !settingSignal('bookings.hide_checkin')()
+        );
+    });
 
     public readonly allow_series_delete = computed(() => {
         const is_assigned = this.booking().extension_data.is_assigned;
