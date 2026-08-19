@@ -119,9 +119,18 @@ describe('DeskMapComponent', () => {
         expect(selected).toEqual({ id: 'd1' });
     });
 
-    it('should delegate setOptions to the booking form service', () => {
-        spectator.component.setOptions({ zone_ids: ['lvl-2'] });
-        expect(set_options).toHaveBeenCalledWith({ zone_ids: ['lvl-2'] });
+    it('should filter desks by the selected level', () => {
+        spectator.triggerEventHandler(
+            'mat-select[name="location"]',
+            'ngModelChange',
+            levels[1],
+        );
+        expect(set_options).toHaveBeenCalledWith({ zone_id: 'lvl-2' });
+        expect(spectator.component.level()).toEqual(levels[1]);
+        expect(spectator.component.coordinates()).toEqual({
+            latitude: 1.23,
+            longitude: 4.56,
+        });
     });
 
     it('should build map actions from the available resources', () => {

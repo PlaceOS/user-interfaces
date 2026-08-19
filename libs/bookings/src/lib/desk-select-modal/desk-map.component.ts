@@ -38,7 +38,7 @@ import { BookingAsset, BookingFormService } from '../booking-form.service';
                     <mat-select
                         name="location"
                         [(ngModel)]="level"
-                        (ngModelChange)="setOptions({ zone_ids: [$event.id] })"
+                        (ngModelChange)="setLevel($event)"
                         [ngModelOptions]="{ standalone: true }"
                         [placeholder]="'COMMON.LEVEL_ANY' | translate"
                     >
