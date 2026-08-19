@@ -86,6 +86,7 @@ export interface TemplateEditFormModel {
                                 | translate
                         "
                         [formField]="form.full_screen_takeover"
+                        info="When selected, takeover content will hide the template and takeover the entire screen"
                     >
                     </settings-toggle>
                 </div>

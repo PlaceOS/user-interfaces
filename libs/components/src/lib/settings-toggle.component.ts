@@ -19,12 +19,14 @@ import { IconComponent } from './icon.component';
             [class.border-info]="value()"
             (click)="setValue(!value())"
         >
-            <div class="z-10 flex flex-1 items-center space-x-2 p-2 text-left">
-                <div>
-                    {{ label() }}
-                    <ng-content></ng-content>
+            <div class="z-10 flex flex-1 items-center space-x-2 px-2 text-left" [class.py-2]="!inline()" [class.py-1]="!inline()">
+                <div class="flex flex-col justify-center w-full leading-none h-full">
+                    <div>{{ label() }}<ng-content></ng-content></div>
+                    @if (info() && inline()) {
+                        <div class="text-xs opacity-30">{{ info() }}</div>
+                    }
                 </div>
-                @if (info()) {
+                @if (info() && !inline()) {
                     <icon [matTooltip]="info()">info</icon>
                 }
             </div>
@@ -86,6 +88,7 @@ export class SettingsToggleComponent implements ControlValueAccessor {
     public readonly toggle = input<boolean>(undefined);
     public readonly label = input<string>(undefined);
     public readonly info = input<string>(undefined);
+    public readonly inline = input(true);
 
     public value = signal<boolean>(undefined);
 
