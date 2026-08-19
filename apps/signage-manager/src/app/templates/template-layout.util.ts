@@ -12,10 +12,9 @@ export interface TemplateLayoutRect {
 }
 
 /**
- * For edge panels `x_pos`/`y_pos` are the panel's size (percent of the frame
- * — width and height respectively). For floating panels they are the top-left
- * corner instead, with the panel filling the frame from there. Defaults apply
- * when a panel has no value set.
+ * The API stores `x_pos`/`y_pos` as ratios from 0 to 1. For edge panels they
+ * are the panel's size on the relevant axis. For floating panels they are the
+ * top-left corner, with the panel filling the frame from there.
  */
 export const EDGE_BAR_HEIGHT_PC = 15;
 export const SIDEBAR_WIDTH_PC = 20;
@@ -57,6 +56,16 @@ export function layoutPositionLabel(position: SignageTemplateLayoutPosition) {
 const clamp = (value: number, min: number, max: number) =>
     Math.min(Math.max(value, min), Math.max(min, max));
 
+export function layoutRatioToPercentage(value?: number) {
+    return value === undefined ? null : clamp(value, 0, 1) * 100;
+}
+
+export function layoutPercentageToRatio(value: number | null) {
+    return value === null || !Number.isFinite(value)
+        ? undefined
+        : clamp(value / 100, 0, 1);
+}
+
 /**
  * Resolve each layout item to a rectangle in the preview frame. Items are
  * placed in array order, each edge panel consuming space from the remaining
@@ -74,7 +83,8 @@ export function computeTemplateLayoutRects(
         switch (layout.position) {
             case 'top': {
                 const height = Math.min(
-                    clamp(layout.y_pos ?? EDGE_BAR_HEIGHT_PC, 0, 100),
+                    layoutRatioToPercentage(layout.y_pos) ??
+                        EDGE_BAR_HEIGHT_PC,
                     rem.height,
                 );
                 const rect = { ...rem, height };
@@ -84,7 +94,8 @@ export function computeTemplateLayoutRects(
             }
             case 'bottom': {
                 const height = Math.min(
-                    clamp(layout.y_pos ?? EDGE_BAR_HEIGHT_PC, 0, 100),
+                    layoutRatioToPercentage(layout.y_pos) ??
+                        EDGE_BAR_HEIGHT_PC,
                     rem.height,
                 );
                 const rect = {
@@ -97,7 +108,7 @@ export function computeTemplateLayoutRects(
             }
             case 'left': {
                 const width = Math.min(
-                    clamp(layout.x_pos ?? SIDEBAR_WIDTH_PC, 0, 100),
+                    layoutRatioToPercentage(layout.x_pos) ?? SIDEBAR_WIDTH_PC,
                     rem.width,
                 );
                 const rect = { ...rem, width };
@@ -107,7 +118,7 @@ export function computeTemplateLayoutRects(
             }
             case 'right': {
                 const width = Math.min(
-                    clamp(layout.x_pos ?? SIDEBAR_WIDTH_PC, 0, 100),
+                    layoutRatioToPercentage(layout.x_pos) ?? SIDEBAR_WIDTH_PC,
                     rem.width,
                 );
                 const rect = {
@@ -121,12 +132,14 @@ export function computeTemplateLayoutRects(
             case 'floating':
             default: {
                 const left = clamp(
-                    layout.x_pos ?? FLOATING_DEFAULT_X_PC,
+                    layoutRatioToPercentage(layout.x_pos) ??
+                        FLOATING_DEFAULT_X_PC,
                     0,
                     100,
                 );
                 const top = clamp(
-                    layout.y_pos ?? FLOATING_DEFAULT_Y_PC,
+                    layoutRatioToPercentage(layout.y_pos) ??
+                        FLOATING_DEFAULT_Y_PC,
                     0,
                     100,
                 );

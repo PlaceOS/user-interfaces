@@ -273,6 +273,30 @@ describe('BookingDetailsModalComponent', () => {
         expect(close).toHaveBeenCalled();
     });
 
+    it('should hide check-in for unallocated parking bookings', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+            } as any),
+        );
+
+        expect(spectator.component.can_checkin()).toBe(false);
+    });
+
+    it('should allow check-in for allocated parking bookings', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'parking-1',
+            } as any),
+        );
+
+        expect(spectator.component.can_checkin()).toBe(true);
+    });
+
     it('should show waitlisted status for parking requests when enabled', () => {
         (spectator.component as any).booking.set(
             new Booking({

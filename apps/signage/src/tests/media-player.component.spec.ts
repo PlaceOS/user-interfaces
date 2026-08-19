@@ -106,6 +106,19 @@ describe('MediaPlayerComponent', () => {
         ).toContain('z-20');
     });
 
+    it('should allow the player background to be transparent', () => {
+        const surface = spectator.query('div.absolute.inset-0');
+        expect(surface?.classList).toContain('bg-black');
+
+        spectator.setInput('controls', true);
+        spectator.setInput('transparent', true);
+        spectator.detectChanges();
+
+        expect(surface?.classList).not.toContain('bg-black');
+        expect(surface?.getAttribute('style')).not.toContain('background');
+        expect(spectator.element.classList).toContain('transparent');
+    });
+
     it('should pause playback when loop mode is NONE and the playlist ends', () => {
         load_playlist([create_item('media-1')]);
         spectator.component.index.set(0);

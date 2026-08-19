@@ -13,9 +13,15 @@ import {
     i18n,
     log,
     OrganisationService,
+    SettingsService,
     VERSION,
 } from '@placeos/common';
-import { PlaceSystem, querySystems } from '@placeos/ts-client';
+import {
+    PlaceSystem,
+    querySignageTemplates,
+    querySystems,
+    SignageTemplate,
+} from '@placeos/ts-client';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -29,6 +35,7 @@ const STORE_PREFIX = 'PlaceOS.SIGNAGE';
 /** Keep in step with `bootstrap-state.ts` */
 const STORE_DISPLAY_KEY = `${STORE_PREFIX}.display`;
 const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
+const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
 
 @Component({
     selector: '[bootstrap]',
@@ -86,6 +93,34 @@ const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
                                 }
                             </mat-select>
                         </mat-form-field>
+                        @if (templates_enabled()) {
+                            <label for="template">
+                                {{
+                                    'APP.SIGNAGE.BOOTSTRAP_TEMPLATE' | translate
+                                }}
+                            </label>
+                            <mat-form-field appearance="outline">
+                                <mat-select
+                                    name="template"
+                                    [(ngModel)]="active_template"
+                                >
+                                    <mat-option value="">
+                                        {{
+                                            'APP.SIGNAGE.BOOTSTRAP_TEMPLATE_NONE'
+                                                | translate
+                                        }}
+                                    </mat-option>
+                                    @for (
+                                        option of templates();
+                                        track option.id
+                                    ) {
+                                        <mat-option [value]="option.id">
+                                            {{ option.name }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
                         <button
                             btn
                             matRipple
@@ -140,6 +175,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    private _settings = inject(SettingsService);
 
     public get version() {
         return VERSION;
@@ -149,6 +185,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     public readonly loading = signal('');
     /** Actively selected display */
     public readonly active_display = signal('');
+    /** Template selected for the bootstrapped display. */
+    public readonly active_template = signal('');
+    /** Whether template selection is available during bootstrap. */
+    public readonly templates_enabled = this._settings.signal(
+        'templates_enabled',
+        false,
+    );
 
     private readonly _displays = resource({
         params: () => this._org.initialised(),
@@ -170,8 +213,21 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         },
     });
 
+    private readonly _templates = resource({
+        params: () => this.templates_enabled() && this._org.initialised(),
+        loader: async ({ params: enabled }) => {
+            if (!enabled) return [] as SignageTemplate[];
+            const result = await querySignageTemplates({ limit: 500 }).catch(
+                () => ({ data: [] }),
+            );
+            return result.data.sort((a, b) => a.name.localeCompare(b.name));
+        },
+    });
+
     /** List of signage displays available for the active organisation */
     public readonly displays = computed(() => this._displays.value() ?? []);
+    /** Templates available when template bootstrapping is enabled. */
+    public readonly templates = computed(() => this._templates.value() ?? []);
 
     public level(system: PlaceSystem) {
         return this._org.levelWithID((system.zones || []) as any);
@@ -192,7 +248,9 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
                     log('BOOTSTRAP', 'Bootstrapped data clear');
                     localStorage.removeItem(STORE_DISPLAY_KEY);
                     localStorage.removeItem(STORE_BUILDING_KEY);
+                    localStorage.removeItem(STORE_TEMPLATE_KEY);
                 }
+                this.active_template.set(params.get('template') || '');
                 if (params.has('display')) {
                     this.active_display.set(params.get('display'));
                     log('BOOTSTRAP', 'Bootstrapped data for display set');
@@ -223,8 +281,20 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
             return;
         }
         localStorage.setItem(STORE_DISPLAY_KEY, active_display);
+        const template_id = this.templates_enabled()
+            ? this.active_template()
+            : '';
+        if (template_id) {
+            localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
+        } else {
+            localStorage.removeItem(STORE_TEMPLATE_KEY);
+        }
         log('BOOTSTRAP', `Bootstrapped panel to display ${active_display}`);
-        this._router.navigate(['/signage', active_display]);
+        this._router.navigate(
+            template_id
+                ? ['/template', template_id, active_display]
+                : ['/signage', active_display],
+        );
         this.loading.set('');
     }
 
@@ -235,11 +305,23 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         this.loading.set(i18n('APP.SIGNAGE.BOOTSTRAP_LOADING_CHECK'));
         const display_id = localStorage?.getItem(STORE_DISPLAY_KEY);
         if (display_id) {
+            const template_id =
+                (this.templates_enabled() &&
+                    (this.active_template() ||
+                        localStorage.getItem(STORE_TEMPLATE_KEY))) ||
+                '';
+            if (this.active_template() && this.templates_enabled()) {
+                localStorage.setItem(STORE_TEMPLATE_KEY, template_id);
+            }
             log(
                 'BOOTSTRAP',
                 `Application already bootstrapped to display ${display_id}`,
             );
-            this._router.navigate(['/signage', display_id]);
+            this._router.navigate(
+                template_id
+                    ? ['/template', template_id, display_id]
+                    : ['/signage', display_id],
+            );
         }
         VirtualKeyboardComponent.enabled =
             localStorage.getItem('OSK.enabled') === 'true';

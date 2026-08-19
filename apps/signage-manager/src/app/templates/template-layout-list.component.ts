@@ -9,7 +9,6 @@ import { Component, computed, inject, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -18,6 +17,7 @@ import {
     SchemaFormComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { CounterComponent } from '@placeos/form-fields';
 import {
     SignageTemplateLayout,
     SignageTemplateLayoutPosition,
@@ -25,9 +25,15 @@ import {
 import { pluginSchema, schemaDefaults } from '../signage-plugin.util';
 import { SignageService } from '../signage.service';
 import {
+    EDGE_BAR_HEIGHT_PC,
+    FLOATING_DEFAULT_X_PC,
+    FLOATING_DEFAULT_Y_PC,
     LAYOUT_POSITIONS,
+    SIDEBAR_WIDTH_PC,
+    layoutPercentageToRatio,
     layoutPositionIcon,
     layoutPositionLabel,
+    layoutRatioToPercentage,
 } from './template-layout.util';
 
 @Component({
@@ -178,20 +184,23 @@ import {
                                      top-left corner and fill from there -->
                                 <div class="flex gap-2">
                                     @if (hasXValue(layout.position)) {
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="no-subscript flex-1"
-                                        >
-                                            <input
-                                                matInput
-                                                type="number"
-                                                min="0"
-                                                max="100"
-                                                [placeholder]="
+                                        <label class="min-w-0 flex-1">
+                                            <div class="mb-1 text-sm">
+                                                {{
                                                     xLabel(layout.position)
                                                         | translate
+                                                }}
+                                            </div>
+                                            <a-counter
+                                                class="block"
+                                                [min]="0"
+                                                [max]="100"
+                                                [ngModel]="
+                                                    axisPercentage(
+                                                        layout,
+                                                        'x_pos'
+                                                    )
                                                 "
-                                                [ngModel]="layout.x_pos ?? null"
                                                 (ngModelChange)="
                                                     setAxis(
                                                         $index,
@@ -200,29 +209,32 @@ import {
                                                     )
                                                 "
                                                 [disabled]="!can_update()"
+                                                [render_fn]="renderPercent"
                                                 [attr.aria-label]="
                                                     xLabel(layout.position)
                                                         | translate
                                                 "
                                             />
-                                            <span matTextSuffix>%</span>
-                                        </mat-form-field>
+                                        </label>
                                     }
                                     @if (hasYValue(layout.position)) {
-                                        <mat-form-field
-                                            appearance="outline"
-                                            class="no-subscript flex-1"
-                                        >
-                                            <input
-                                                matInput
-                                                type="number"
-                                                min="0"
-                                                max="100"
-                                                [placeholder]="
+                                        <label class="min-w-0 flex-1">
+                                            <div class="mb-1 text-sm">
+                                                {{
                                                     yLabel(layout.position)
                                                         | translate
+                                                }}
+                                            </div>
+                                            <a-counter
+                                                class="block"
+                                                [min]="0"
+                                                [max]="100"
+                                                [ngModel]="
+                                                    axisPercentage(
+                                                        layout,
+                                                        'y_pos'
+                                                    )
                                                 "
-                                                [ngModel]="layout.y_pos ?? null"
                                                 (ngModelChange)="
                                                     setAxis(
                                                         $index,
@@ -231,13 +243,13 @@ import {
                                                     )
                                                 "
                                                 [disabled]="!can_update()"
+                                                [render_fn]="renderPercent"
                                                 [attr.aria-label]="
                                                     yLabel(layout.position)
                                                         | translate
                                                 "
                                             />
-                                            <span matTextSuffix>%</span>
-                                        </mat-form-field>
+                                        </label>
                                     }
                                 </div>
                                 @if (selected_plugin_schema()) {
@@ -326,10 +338,10 @@ import {
         FormsModule,
         MatRippleModule,
         MatFormFieldModule,
-        MatInputModule,
         MatMenuModule,
         MatSelectModule,
         MatTooltipModule,
+        CounterComponent,
         IconComponent,
         SchemaFormComponent,
         TranslatePipe,
@@ -358,6 +370,7 @@ export class TemplateLayoutListComponent {
 
     public positionIcon = layoutPositionIcon;
     public positionLabel = layoutPositionLabel;
+    public renderPercent = (value = 0) => `${value}%`;
 
     public pluginName(plugin_id?: string) {
         if (!plugin_id) return '';
@@ -455,15 +468,30 @@ export class TemplateLayoutListComponent {
             : 'SIGNAGE_MANAGER.TEMPLATE_PANEL_HEIGHT';
     }
 
+    public axisPercentage(
+        layout: SignageTemplateLayout,
+        axis: 'x_pos' | 'y_pos',
+    ) {
+        const percentage = layoutRatioToPercentage(layout[axis]);
+        if (percentage !== null) return percentage;
+        if (layout.position === 'floating') {
+            return axis === 'x_pos'
+                ? FLOATING_DEFAULT_X_PC
+                : FLOATING_DEFAULT_Y_PC;
+        }
+        return axis === 'x_pos' ? SIDEBAR_WIDTH_PC : EDGE_BAR_HEIGHT_PC;
+    }
+
     public setAxis(
         index: number,
         axis: 'x_pos' | 'y_pos',
         value: number | null,
     ) {
+        const ratio = layoutPercentageToRatio(value);
         this.layouts.update((layouts) =>
             layouts.map((layout, item_index) =>
                 item_index === index
-                    ? { ...layout, [axis]: value ?? undefined }
+                    ? { ...layout, [axis]: ratio }
                     : layout,
             ),
         );
