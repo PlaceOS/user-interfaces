@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["libs/components/src/lib/level.pipe.ts"],
+  "sourcesContent": ["import { Pipe, PipeTransform, inject } from '@angular/core';\nimport { BuildingLevel, OrganisationService } from '@placeos/common';\n\n@Pipe({\n    name: 'level',\n})\nexport class LevelPipe implements PipeTransform {\n    private _org = inject(OrganisationService);\n\n    public transform(id: string | string[]): BuildingLevel {\n        return this._org.levelWithID(id instanceof Array ? id : [id]);\n    }\n}\n"],
+  "mappings": ";;;;;;;;;;;AAMM,IAAO,YAAP,MAAO,WAAS;EAHtB,cAAA;AAIY,SAAA,OAAO,OAAO,mBAAmB;;EAElC,UAAU,IAAqB;AAClC,WAAO,KAAK,KAAK,YAAY,cAAc,QAAQ,KAAK,CAAC,EAAE,CAAC;EAChE;;;uCALS,YAAS;IAAA;EAAA;;oFAAT,YAAS,MAAA,KAAA,CAAA;EAAA;;;sEAAT,WAAS,CAAA;UAHrB;WAAK;MACF,MAAM;KACT;;;",
+  "names": []
+}
