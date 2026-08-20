@@ -1737,3 +1737,19 @@ export function getFormTimeSyncHandle(
 ): FormTimeSyncHandle | undefined {
     return (form as any)?._time_sync;
 }
+
+/**
+ * Extract a readable message from a thrown value. API failures arrive as
+ * strings, `Error` instances, or nested `{ error: { message } }` objects, so
+ * callers cannot rely on a single shape. Returns an empty string when no
+ * message is found, letting the caller pick its own fallback text.
+ */
+export function errorMessage(error: unknown): string {
+    if (typeof error === 'string') return error;
+    if (error instanceof Error) return error.message || '';
+    const value = error as { error?: any; message?: any };
+    if (typeof value?.error === 'string') return value.error;
+    if (typeof value?.message === 'string') return value.message;
+    if (typeof value?.error?.message === 'string') return value.error.message;
+    return '';
+}

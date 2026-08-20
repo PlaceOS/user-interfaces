@@ -23,6 +23,7 @@ import {
     currentUserIsLoaded,
     currentUserLoaded,
     Desk,
+    errorMessage,
     firstValueWhere,
     flatten,
     getAllDayTimeRange,
@@ -1456,28 +1457,40 @@ export class BookingFormService extends AsyncHandler {
             throw error;
         });
         if (value.assets?.length || booking.extension_data.assets?.length) {
-            const requests = await validateAssetRequestsForResource(
-                { ...result, from_booking: true },
-                {
-                    date: value.date,
-                    duration: value.duration,
-                    all_day: value.all_day,
-                    host: value.booked_by_email,
-                    zones: unique([...zones, ...(value.zones || [])]).filter(
-                        (_) => _,
-                    ),
-                },
-                value.assets,
-            ).catch((e) => {
+            // The booking record exists by this point, so a failure here must
+            // remove it again. Otherwise the user is told the booking failed
+            // while the record stays visible in concierge.
+            const is_new_booking = !booking.id && !value.id;
+            try {
+                const requests = await validateAssetRequestsForResource(
+                    { ...result, from_booking: true },
+                    {
+                        date: value.date,
+                        duration: value.duration,
+                        all_day: value.all_day,
+                        host: value.booked_by_email,
+                        zones: unique([
+                            ...zones,
+                            ...(value.zones || []),
+                        ]).filter((_) => _),
+                    },
+                    value.assets,
+                );
+                if (!requests) throw i18n('BOOKINGS.ASSETS_INVALID_ERROR');
+                await requests();
+            } catch (e) {
                 console.error("Couldn't update asset requests", e);
-                if (e?.status === 409) {
-                    notifyError(i18n('BOOKINGS.ASSETS_CLASH_ERROR'));
-                }
                 this._loading.set('');
-                throw e?.error || e;
-            });
-            if (!requests) throw i18n('BOOKINGS.ASSETS_INVALID_ERROR');
-            await requests();
+                if (is_new_booking && result?.id) {
+                    await removeBooking(result.id).catch((err) =>
+                        console.error('Failed to rollback booking', err),
+                    );
+                }
+                throw e?.status === 409
+                    ? i18n('BOOKINGS.ASSETS_CLASH_ERROR')
+                    : errorMessage(e?.error || e) ||
+                          i18n('BOOKINGS.ASSETS_INVALID_ERROR');
+            }
         }
         this._loading.set('');
         const { booking_type } = value;
@@ -2053,14 +2066,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     private _error_message(error: any) {
-        if (typeof error === 'string') return error;
-        if (error instanceof Error && error.message) return error.message;
-        if (typeof error?.error === 'string') return error.error;
-        if (typeof error?.message === 'string') return error.message;
-        if (typeof error?.error?.message === 'string') {
-            return error.error.message;
-        }
-        return i18n('BOOKINGS.ERROR_GENERIC');
+        return errorMessage(error) || i18n('BOOKINGS.ERROR_GENERIC');
     }
 
     private _isPermissionError(error: any) {

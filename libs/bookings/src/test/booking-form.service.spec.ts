@@ -11,8 +11,10 @@ import { of, Subject } from 'rxjs';
 import type { Mock, MockedFunction } from 'vitest';
 
 import {
+    AssetRequest,
     Booking,
     currentUser,
+    i18n,
     OrganisationService,
     setCurrentUser,
     StaffUser,
@@ -3130,6 +3132,111 @@ describe('BookingFormService', () => {
             } finally {
                 deferred.restore();
             }
+        });
+    });
+
+    describe('asset request failures', () => {
+        /** Booking ids passed to removeBooking (-> del /bookings/<id>). */
+        const deletedBookingIds = () =>
+            vi
+                .mocked(ts_client.del)
+                .mock.calls.map(([url]) => url)
+                .filter((url) => url.startsWith(`${BOOKINGS_ENDPOINT}/`))
+                .map((url) => url.split('/').pop().split('?')[0]);
+
+        /**
+         * Post handler that assigns an id to created bookings, and fails the
+         * `asset-request` records posted after the desk booking when `error`
+         * is given.
+         */
+        const postBookings = (error?: unknown) =>
+            vi.mocked(ts_client.post).mockImplementation((async (
+                url: string,
+                body: any,
+            ) => {
+                if (url.includes('/clashing-assets')) return [...clash_result];
+                if (error && body?.type === 'asset-request') throw error;
+                return body?.id ? body : { ...body, id: 'booking-1' };
+            }) as any);
+
+        const useDeskFormWithAssets = (booking?: Booking) => {
+            spectator.service.newForm('desk', booking);
+            spectator.service.model.update(
+                (m) =>
+                    ({
+                        ...m,
+                        asset_id: 'desk-1',
+                        asset_name: 'Desk 1',
+                        assets: [new AssetRequest({ id: 'asset-1' })],
+                    }) as any,
+            );
+        };
+
+        beforeEach(() => {
+            (spectator.inject(PaymentsService) as any).enabled = false;
+            // Asset group availability is resolved from the asset APIs before
+            // the requests are posted.
+            vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+                data: [],
+                next: null,
+                total: 0,
+            } as any);
+            vi.mocked(ts_client.queryAssets).mockResolvedValue({
+                data: [],
+                next: null,
+                total: 0,
+            } as any);
+            postBookings();
+        });
+
+        it('should remove the new booking when its asset requests fail', async () => {
+            postBookings({ status: 422, error: 'Asset unavailable' });
+            useDeskFormWithAssets();
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'Asset unavailable',
+            );
+
+            expect(deletedBookingIds()).toEqual(['booking-1']);
+        });
+
+        it('should report an asset clash instead of the desk being unavailable', async () => {
+            postBookings({ status: 409 });
+            useDeskFormWithAssets();
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                i18n('BOOKINGS.ASSETS_CLASH_ERROR'),
+            );
+
+            expect(deletedBookingIds()).toEqual(['booking-1']);
+        });
+
+        it('should keep an existing booking when its asset requests fail', async () => {
+            postBookings({ status: 422, error: 'Asset unavailable' });
+            useDeskFormWithAssets(
+                new Booking({
+                    id: 'bkn-1',
+                    booking_type: 'desk',
+                    asset_id: 'desk-1',
+                }),
+            );
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'Asset unavailable',
+            );
+
+            expect(deletedBookingIds()).toEqual([]);
+        });
+
+        it('should keep the booking when its asset requests succeed', async () => {
+            useDeskFormWithAssets();
+
+            await spectator.service.postForm(true);
+
+            expect(
+                savedBookings().some((_) => _.type === 'asset-request'),
+            ).toBe(true);
+            expect(deletedBookingIds()).toEqual([]);
         });
     });
 });
