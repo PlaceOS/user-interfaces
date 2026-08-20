@@ -1,0 +1,1 @@
+import {m,D as Dd,dz as Wn}from'./main-3SYZEJY3.js';var f=(()=>{class t{constructor(){this._org=m(Dd);}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.\u0275fac=function(n){return new(n||t)};}static{this.\u0275pipe=Wn({name:"level",type:t,pure:true});}}return t})();export{f};
