@@ -1,0 +1,1 @@
+import {bz as Rke,cn as zn}from'./main-EQKG5XBX.js';var u=(()=>{class r{transform(t,e=false){let i=Rke({hours:Math.floor(t/60),minutes:t%60});return e&&(i=i.replace(" hour","h").replace(" minute","m").replace(/s/gi,"")),i}static{this.\u0275fac=function(e){return new(e||r)};}static{this.\u0275pipe=zn({name:"duration",type:r,pure:true});}}return r})();export{u};
