@@ -35,7 +35,7 @@ import {
                                 icon
                                 type="button"
                                 matRipple
-                                class="text-error"
+                                class="text-error hover:bg-error/10"
                                 (click)="unshare(group)"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.SHARED_WITH_REMOVE'
