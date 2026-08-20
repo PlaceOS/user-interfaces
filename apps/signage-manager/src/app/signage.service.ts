@@ -69,6 +69,7 @@ import {
     scheduleSignagePlaylistMedia,
     shareSignageMedia,
     shareSignagePlaylists,
+    shareSignageTemplates,
     showSystem,
     showZone,
     SignageMedia,
@@ -159,6 +160,24 @@ const MEDIA_RETRY_DELAYS = [500, 1500, 4500];
 const VIDEO_THUMBNAIL_OFFSET = 0.1;
 /** How long to wait for a paintable video frame, in milliseconds */
 const VIDEO_THUMBNAIL_TIMEOUT = 15 * 1000;
+
+const SIGNAGE_SHARE_CONFIG = {
+    media: {
+        title: 'SIGNAGE_MANAGER.SVC_SHARE_MEDIA_TITLE',
+        success: 'SIGNAGE_MANAGER.SVC_MEDIA_SHARED',
+        request: shareSignageMedia,
+    },
+    playlists: {
+        title: 'SIGNAGE_MANAGER.SVC_SHARE_PLAYLIST_TITLE',
+        success: 'SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED',
+        request: shareSignagePlaylists,
+    },
+    templates: {
+        title: 'SIGNAGE_MANAGER.SVC_SHARE_TEMPLATE_TITLE',
+        success: 'SIGNAGE_MANAGER.SVC_TEMPLATE_SHARED',
+        request: shareSignageTemplates,
+    },
+} as const;
 
 /**
  * A 401 is deliberately absent: the API client already invalidates the token,
@@ -1958,6 +1977,11 @@ export class SignageService {
         result.close();
     }
 
+    public async shareTemplate(template: SignageTemplate) {
+        if (!template?.id) return;
+        await this._shareSignageItems('templates', [template.id]);
+    }
+
     /** Persist the layout draft of the selected template */
     public async saveTemplateLayouts() {
         const template = this.selected_template();
@@ -2323,7 +2347,7 @@ export class SignageService {
     }
 
     private async _shareSignageItems(
-        item_type: 'media' | 'playlists',
+        item_type: keyof typeof SIGNAGE_SHARE_CONFIG,
         item_ids: string[],
     ) {
         if (
@@ -2341,31 +2365,19 @@ export class SignageService {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_TO_SHARE'));
             return false;
         }
+        const share_config = SIGNAGE_SHARE_CONFIG[item_type];
         const ref = this._dialog.open(GroupSelectModalComponent, {
             data: {
-                title:
-                    item_type === 'media'
-                        ? i18n('SIGNAGE_MANAGER.SVC_SHARE_MEDIA_TITLE')
-                        : i18n('SIGNAGE_MANAGER.SVC_SHARE_PLAYLIST_TITLE'),
+                title: i18n(share_config.title),
                 groups: target_groups,
             },
             panelClass: 'mobile-fullscreen',
         });
         const group_id = await dialogClosed(ref);
         if (!group_id) return false;
-        const request =
-            item_type === 'media'
-                ? shareSignageMedia({ items: item_ids.join(','), to: group_id })
-                : shareSignagePlaylists({
-                      items: item_ids.join(','),
-                      to: group_id,
-                  });
-        await request;
-        notifySuccess(
-            item_type === 'media'
-                ? i18n('SIGNAGE_MANAGER.SVC_MEDIA_SHARED')
-                : i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED'),
-        );
+        const options = { items: item_ids.join(','), to: group_id };
+        await share_config.request(options);
+        notifySuccess(i18n(share_config.success));
         return true;
     }
 

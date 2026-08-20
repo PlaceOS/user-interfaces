@@ -14,8 +14,10 @@ describe('TemplatesSectionComponent', () => {
         can_approve: signal(false),
         can_update: signal(true),
         can_delete: signal(true),
+        can_share: signal(true),
         editTemplate: vi.fn(),
         removeTemplate: vi.fn(),
+        shareTemplate: vi.fn(),
         approveTemplate: vi.fn(),
         requestTemplateApproval: vi.fn(),
     };
@@ -72,5 +74,15 @@ describe('TemplatesSectionComponent', () => {
         expect(service_stub.requestTemplateApproval).toHaveBeenCalledWith(
             template,
         );
+    });
+
+    it('delegates sharing for the selected template', async () => {
+        const template = { id: 'template-1' };
+        service_stub.selected_template.set(template);
+        const component = await make();
+
+        component.shareTemplate();
+
+        expect(service_stub.shareTemplate).toHaveBeenCalledWith(template);
     });
 });

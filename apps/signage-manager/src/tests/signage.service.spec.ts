@@ -16,6 +16,7 @@ import {
     removeSignageMedia,
     requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
+    shareSignageTemplates,
     SignageMedia,
     SignagePlaylist,
     SignagePlugin,
@@ -602,6 +603,40 @@ describe('SignageService media uploads', () => {
                 /\/signage\/templates\/template%2F1\?group_id=group%2F1$/,
             ),
         );
+    });
+
+    it('shares templates with the selected signage group', async () => {
+        const service = createService();
+        (shareSignageTemplates as any).mockResolvedValue({});
+        Object.defineProperty(service, 'can_share', {
+            value: () => true,
+        });
+        Object.defineProperty(service, 'selected_group', {
+            value: () => ({ group: { id: 'group-1' } }),
+        });
+        Object.defineProperty(service, 'signage_groups', {
+            value: () => [
+                { group: { id: 'group-1', name: 'Current' } },
+                { group: { id: 'group-2', name: 'Target' } },
+            ],
+        });
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value: string) => void) => {
+                    Promise.resolve().then(() => handler('group-2'));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+
+        await service.shareTemplate(
+            new SignageTemplate({ id: 'template-1', name: 'Welcome' }),
+        );
+
+        expect(shareSignageTemplates).toHaveBeenCalledWith({
+            items: 'template-1',
+            to: 'group-2',
+        });
     });
 
     it('opens template approval for users with approval permission', () => {

@@ -126,6 +126,25 @@ import { TemplatePreviewComponent } from './template-preview.component';
                                         <icon>edit</icon>
                                     </button>
                                 }
+                                @if (can_share()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.SHARE_TEMPLATE_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="shareTemplate()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.SHARE_SELECTED_TEMPLATE'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>ios_share</icon>
+                                    </button>
+                                }
                                 @if (can_delete()) {
                                     <button
                                         icon
@@ -328,6 +347,7 @@ export class TemplatesSectionComponent {
     public readonly can_approve = this._service.can_approve;
     public readonly can_update = this._service.can_update;
     public readonly can_delete = this._service.can_delete;
+    public readonly can_share = this._service.can_share;
     public readonly approval_request_loading =
         this._service.template_approval_request_loading;
 
@@ -363,6 +383,11 @@ export class TemplatesSectionComponent {
     public removeTemplate() {
         const template = this.selected_template();
         if (template) this._service.removeTemplate(template);
+    }
+
+    public shareTemplate() {
+        const template = this.selected_template();
+        if (template) this._service.shareTemplate(template);
     }
 
     public approveTemplate() {
