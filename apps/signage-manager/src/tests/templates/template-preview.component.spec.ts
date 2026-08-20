@@ -13,7 +13,7 @@ describe('TemplatePreviewComponent', () => {
         selected_template,
         selected_template_layout_index: signal<number | null>(null),
         template_layout_draft: signal([]),
-        plugins: signal([]),
+        widgets: signal([]),
     };
 
     async function make() {

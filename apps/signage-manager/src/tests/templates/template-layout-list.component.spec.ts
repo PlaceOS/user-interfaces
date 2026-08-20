@@ -9,7 +9,7 @@ describe('TemplateLayoutListComponent', () => {
     const selected_index = signal<number | null>(null);
     const selected_template = signal<any>(null);
     const can_update = signal(true);
-    const plugins = signal<any[]>([]);
+    const widgets = signal<any[]>([]);
     const save = vi.fn();
     const discard = vi.fn();
 
@@ -19,7 +19,7 @@ describe('TemplateLayoutListComponent', () => {
         template_layout_dirty: signal(false),
         selected_template,
         can_update,
-        plugins,
+        widgets,
         saveTemplateLayouts: save,
         discardTemplateLayoutDraft: discard,
     };
@@ -43,7 +43,7 @@ describe('TemplateLayoutListComponent', () => {
         selected_index.set(null);
         selected_template.set(null);
         can_update.set(true);
-        plugins.set([]);
+        widgets.set([]);
     });
 
     it('appends and selects a new layout item', async () => {
@@ -102,10 +102,11 @@ describe('TemplateLayoutListComponent', () => {
     });
 
     it('applies plugin and schema defaults to a layout', async () => {
-        plugins.set([
+        widgets.set([
             {
                 id: 'plugin-1',
                 name: 'Clock',
+                plugin_type: 'widget',
                 defaults: { size: 2 },
                 params: {
                     type: 'object',
@@ -127,7 +128,14 @@ describe('TemplateLayoutListComponent', () => {
     });
 
     it('keeps existing params ahead of defaults when switching plugin', async () => {
-        plugins.set([{ id: 'plugin-1', name: 'Clock', defaults: { size: 2 } }]);
+        widgets.set([
+            {
+                id: 'plugin-1',
+                name: 'Clock',
+                plugin_type: 'widget',
+                defaults: { size: 2 },
+            },
+        ]);
         draft.set([
             {
                 position: 'top',
@@ -159,10 +167,11 @@ describe('TemplateLayoutListComponent', () => {
     });
 
     it('generates a schema from catalogue plugin params', async () => {
-        plugins.set([
+        widgets.set([
             {
                 id: 'plugin-1',
                 name: 'Clock',
+                plugin_type: 'widget',
                 params: {
                     format: {
                         type: 'string',
@@ -184,8 +193,24 @@ describe('TemplateLayoutListComponent', () => {
 
         expect(component.selected_plugin_schema()).toEqual({
             type: 'object',
-            properties: plugins()[0].params,
+            properties: widgets()[0].params,
         });
+    });
+
+    it('only allows widget plugins in template layouts', async () => {
+        widgets.set([
+            { id: 'widget-1', name: 'Clock', plugin_type: 'widget' },
+        ]);
+        draft.set([{ position: 'top', plugin_params: {} }]);
+        const component = await make();
+
+        expect(component.widgets().map(({ id }) => id)).toEqual(['widget-1']);
+
+        component.setPlugin(0, 'plugin-1');
+        expect(draft()[0]).toEqual({ position: 'top', plugin_params: {} });
+
+        component.setPlugin(0, 'widget-1');
+        expect(draft()[0].plugin_id).toBe('widget-1');
     });
 
     it('applies generated field values to the selected layout', async () => {

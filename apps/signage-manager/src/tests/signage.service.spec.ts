@@ -11,10 +11,12 @@ import {
     addSignageMedia,
     del,
     listSignagePlaylistMedia,
+    querySignagePlugins,
     removeSignageMedia,
     scheduleSignagePlaylistMedia,
     SignageMedia,
     SignagePlaylist,
+    SignagePlugin,
     SignageTemplate,
     updateSignageMedia,
     updateSignagePlaylistMedia,
@@ -71,6 +73,9 @@ describe('SignageService media uploads', () => {
         (scheduleSignagePlaylistMedia as any).mockResolvedValue({});
         (del as any).mockResolvedValue({});
         (removeSignageMedia as any).mockResolvedValue({});
+        vi.mocked(querySignagePlugins).mockResolvedValue({
+            data: [],
+        } as Awaited<ReturnType<typeof querySignagePlugins>>);
         dialog.open.mockReturnValue({
             afterClosed: () => ({
                 subscribe: (handler: (value?: unknown) => void) => {
@@ -114,6 +119,45 @@ describe('SignageService media uploads', () => {
             value: () => group_id,
         });
     }
+
+    it('requests plugins and widgets separately', async () => {
+        vi.mocked(querySignagePlugins).mockImplementation(async (options) => {
+            const plugin_type = options.plugin_type || 'plugin';
+            return {
+                data: [
+                    new SignagePlugin({
+                        id: `${plugin_type}-1`,
+                        name: plugin_type,
+                        plugin_type,
+                    }),
+                ],
+            } as Awaited<ReturnType<typeof querySignagePlugins>>;
+        });
+        const service = createService();
+        TestBed.flushEffects();
+
+        await vi.waitFor(() => {
+            expect(service.plugins()[0]?.id).toBe('plugin-1');
+            expect(service.widgets()[0]?.id).toBe('widget-1');
+        });
+        expect(querySignagePlugins).toHaveBeenCalledWith(
+            expect.objectContaining({ plugin_type: 'plugin' }),
+        );
+        expect(querySignagePlugins).toHaveBeenCalledWith(
+            expect.objectContaining({ plugin_type: 'widget' }),
+        );
+    });
+
+    it('rejects widget plugins when adding media', async () => {
+        const service = createService();
+        const edit_media = vi.spyOn(service, 'editMedia');
+
+        await service.addMediaFromPlugin(
+            new SignagePlugin({ id: 'widget-1', plugin_type: 'widget' }),
+        );
+
+        expect(edit_media).not.toHaveBeenCalled();
+    });
 
     it('requires schedules before adding media to distribution playlists', async () => {
         const service = createService();

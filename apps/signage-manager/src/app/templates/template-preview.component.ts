@@ -235,7 +235,7 @@ export class TemplatePreviewComponent {
     public pluginName(plugin_id?: string) {
         if (!plugin_id) return '';
         return (
-            this._service.plugins().find((item) => item.id === plugin_id)
+            this._service.widgets().find((item) => item.id === plugin_id)
                 ?.name || plugin_id
         );
     }

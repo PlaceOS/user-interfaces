@@ -170,7 +170,7 @@ import {
                                                 | translate
                                         }}</mat-option>
                                         @for (
-                                            plugin of plugins();
+                                            plugin of widgets();
                                             track plugin.id
                                         ) {
                                             <mat-option [value]="plugin.id">{{
@@ -356,12 +356,12 @@ export class TemplateLayoutListComponent {
         this._service.selected_template_layout_index;
     public readonly dirty = this._service.template_layout_dirty;
     public readonly can_update = this._service.can_update;
-    public readonly plugins = this._service.plugins;
+    public readonly widgets = this._service.widgets;
     public readonly selected_plugin = computed(() => {
         const index = this.selected_index();
         const plugin_id =
             index === null ? '' : this.layouts()[index]?.plugin_id;
-        return this.plugins().find((plugin) => plugin.id === plugin_id);
+        return this.widgets().find((plugin) => plugin.id === plugin_id);
     });
     public readonly selected_plugin_schema = computed(() =>
         pluginSchema(this.selected_plugin()?.params),
@@ -375,7 +375,7 @@ export class TemplateLayoutListComponent {
     public pluginName(plugin_id?: string) {
         if (!plugin_id) return '';
         return (
-            this.plugins().find((item) => item.id === plugin_id)?.name ||
+            this.widgets().find((item) => item.id === plugin_id)?.name ||
             plugin_id
         );
     }
@@ -420,7 +420,8 @@ export class TemplateLayoutListComponent {
     }
 
     public setPlugin(index: number, plugin_id: string) {
-        const plugin = this.plugins().find((item) => item.id === plugin_id);
+        const plugin = this.widgets().find((item) => item.id === plugin_id);
+        if (plugin_id && !plugin) return;
         const defaults = {
             ...(plugin?.defaults ?? {}),
             ...schemaDefaults(pluginSchema(plugin?.params)),

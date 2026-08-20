@@ -75,6 +75,7 @@ import {
     SignagePlaylistItemSchedule,
     SignagePlaylistMedia,
     SignagePlugin,
+    type SignagePluginType,
     SignageTemplate,
     type SignageTemplateLayout,
     updateGroup,
@@ -1261,29 +1262,38 @@ export class SignageService {
         return (data || []).map(decodeEntityNames);
     }
 
-    private readonly _plugins = resource({
-        params: () => ({
-            initialised: this._org.initialised(),
-            change: this._change(),
-        }),
-        loader: async ({ params }) => {
-            if (!params.initialised) return [] as SignagePlugin[];
-            try {
-                const result = await querySignagePlugins(
-                    this._orgZoneQueryParams({ limit: 500 }),
-                );
-                return (result.data || [])
-                    .filter((plugin: SignagePlugin) => plugin.enabled)
-                    .map(decodeEntityNames)
-                    .sort((a: SignagePlugin, b: SignagePlugin) =>
-                        a.name.localeCompare(b.name),
+    private _pluginResource(plugin_type: SignagePluginType) {
+        return resource({
+            params: () => ({
+                initialised: this._org.initialised(),
+                change: this._change(),
+            }),
+            loader: async ({ params }) => {
+                if (!params.initialised) return [] as SignagePlugin[];
+                try {
+                    const result = await querySignagePlugins(
+                        this._orgZoneQueryParams({
+                            limit: 500,
+                            plugin_type,
+                        }),
                     );
-            } catch {
-                return [] as SignagePlugin[];
-            }
-        },
-    });
+                    return (result.data || [])
+                        .filter((plugin: SignagePlugin) => plugin.enabled)
+                        .map(decodeEntityNames)
+                        .sort((a: SignagePlugin, b: SignagePlugin) =>
+                            a.name.localeCompare(b.name),
+                        );
+                } catch {
+                    return [] as SignagePlugin[];
+                }
+            },
+        });
+    }
+
+    private readonly _plugins = this._pluginResource('plugin');
+    private readonly _widgets = this._pluginResource('widget');
     public readonly plugins = computed(() => this._plugins.value() || []);
+    public readonly widgets = computed(() => this._widgets.value() || []);
 
     public readonly selected_template = signal<SignageTemplate | null>(null);
     public readonly selected_template_layout_index = signal<number | null>(
@@ -2704,6 +2714,7 @@ export class SignageService {
     }
 
     public async addMediaFromPlugin(plugin: SignagePlugin) {
+        if (plugin.plugin_type !== 'plugin') return;
         if (
             !this._requirePermission(
                 this.can_create(),
@@ -2834,7 +2845,8 @@ export class SignageService {
         try {
             const result = await querySignagePlugins({
                 limit: 500,
-            } as any).catch(() => ({ data: [] }));
+                plugin_type: 'plugin',
+            }).catch(() => ({ data: [] }));
             const all_plugins = result.data || [];
             return all_plugins.find((p: SignagePlugin) => p.id === plugin_id);
         } catch {
