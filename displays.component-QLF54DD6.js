@@ -1,15 +1,15 @@
 import {
   DAY_COUNT,
   buildScheduleBlocks
-} from "./chunk-REZFYQ2U.js";
+} from "./chunk-MIO2572A.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-FF7N3I2A.js";
+} from "./chunk-277XOJSC.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-4AFLTOY5.js";
+} from "./chunk-Q7SQZLCT.js";
 import {
   ActivatedRoute,
   Component,
@@ -80,7 +80,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-ZTNF3JQB.js";
+} from "./chunk-2FXQT5UN.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/displays/display-schedule.component.ts
@@ -1422,9 +1422,34 @@ var DisplayContentComponent = class _DisplayContentComponent {
 
 // apps/signage-manager/src/app/displays/display-header.component.ts
 var _c03 = (a0) => ({ count: a0 });
+function DisplayHeaderComponent_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 7);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275listener("click", function DisplayHeaderComponent_Conditional_11_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.addDisplay());
+    });
+    \u0275\u0275elementStart(2, "icon", 8);
+    \u0275\u0275text(3, "add");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div");
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.CREATE_NEW_DISPLAY"));
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 4, "SIGNAGE_MANAGER.NEW_DISPLAY"));
+  }
+}
 var DisplayHeaderComponent = class _DisplayHeaderComponent {
   constructor() {
     this._service = inject(SignageService);
+    this._router = inject(Router);
     this.total_count = computed(
       () => this._service.filtered_displays().length,
       ...ngDevMode ? [{ debugName: "total_count" }] : (
@@ -1432,6 +1457,12 @@ var DisplayHeaderComponent = class _DisplayHeaderComponent {
         []
       )
     );
+    this.can_create = this._service.can_create;
+  }
+  async addDisplay() {
+    const display = await this._service.addDisplay();
+    if (display?.id)
+      await this._router.navigate(["/displays", display.id]);
   }
   static {
     this.\u0275fac = function DisplayHeaderComponent_Factory(__ngFactoryType__) {
@@ -1439,7 +1470,7 @@ var DisplayHeaderComponent = class _DisplayHeaderComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplayHeaderComponent, selectors: [["display-header"]], decls: 11, vars: 10, consts: [[1, "bg-base-100", "border-base-300", "sticky", "top-0", "flex", "flex-wrap", "items-center", "gap-2", "border-b", "px-4", "py-2", "shadow", "sm:flex-nowrap"], [1, "py-2"], [1, "text-2xl", "font-medium"], [1, "flex", "flex-wrap", "items-center", "gap-2"], [1, "text-sm", "opacity-60"], [1, "w-px", "flex-1"]], template: function DisplayHeaderComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplayHeaderComponent, selectors: [["display-header"]], decls: 12, vars: 11, consts: [[1, "bg-base-100", "border-base-300", "sticky", "top-0", "flex", "flex-wrap", "items-center", "gap-2", "border-b", "px-4", "py-2", "shadow", "sm:flex-nowrap"], [1, "py-2"], [1, "text-2xl", "font-medium"], [1, "flex", "flex-wrap", "items-center", "gap-2"], [1, "text-sm", "opacity-60"], [1, "w-px", "flex-1"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "h-12", "shrink-0", "rounded-lg", "px-4"], ["btn", "", "type", "button", "matRipple", "", 1, "bg-secondary", "text-secondary-content", "h-12", "shrink-0", "rounded-lg", "px-4", 3, "click"], [1, "mr-2", "text-2xl"]], template: function DisplayHeaderComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "h3", 2);
         \u0275\u0275text(3);
@@ -1452,15 +1483,24 @@ var DisplayHeaderComponent = class _DisplayHeaderComponent {
         \u0275\u0275element(9, "group-breadcrumbs");
         \u0275\u0275elementEnd()();
         \u0275\u0275element(10, "div", 5);
+        \u0275\u0275conditionalCreate(11, DisplayHeaderComponent_Conditional_11_Template, 7, 6, "button", 6);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 2, "SIGNAGE_MANAGER.DISPLAYS_TITLE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 3, "SIGNAGE_MANAGER.DISPLAYS_TITLE"), " ");
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 4, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(8, _c03, ctx.total_count()), ctx.total_count()), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 5, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(9, _c03, ctx.total_count()), ctx.total_count()), " ");
+        \u0275\u0275advance(4);
+        \u0275\u0275conditional(ctx.can_create() ? 11 : -1);
       }
-    }, dependencies: [GroupBreadcrumbsComponent, TranslatePipe], encapsulation: 2 });
+    }, dependencies: [
+      MatRippleModule,
+      MatRipple,
+      IconComponent,
+      GroupBreadcrumbsComponent,
+      TranslatePipe
+    ], encapsulation: 2 });
   }
 };
 (() => {
@@ -1489,14 +1529,34 @@ var DisplayHeaderComponent = class _DisplayHeaderComponent {
                 </div>
             </div>
             <div class="w-px flex-1"></div>
+            @if (can_create()) {
+                <button
+                    btn
+                    type="button"
+                    matRipple
+                    class="bg-secondary text-secondary-content h-12 shrink-0 rounded-lg px-4"
+                    (click)="addDisplay()"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.CREATE_NEW_DISPLAY' | translate
+                    "
+                >
+                    <icon class="mr-2 text-2xl">add</icon>
+                    <div>{{ 'SIGNAGE_MANAGER.NEW_DISPLAY' | translate }}</div>
+                </button>
+            }
         </div>
     `,
-      imports: [TranslatePipe, GroupBreadcrumbsComponent]
+      imports: [
+        MatRippleModule,
+        IconComponent,
+        TranslatePipe,
+        GroupBreadcrumbsComponent
+      ]
     }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayHeaderComponent, { className: "DisplayHeaderComponent", filePath: "apps/signage-manager/src/app/displays/display-header.component.ts", lineNumber: 33 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayHeaderComponent, { className: "DisplayHeaderComponent", filePath: "apps/signage-manager/src/app/displays/display-header.component.ts", lineNumber: 55 });
 })();
 
 // apps/signage-manager/src/app/displays/display-list.component.ts
@@ -1802,6 +1862,46 @@ function DisplaysSectionComponent_Conditional_7_Conditional_10_Template(rf, ctx)
     \u0275\u0275textInterpolate1(" ", ctx_r1.selected_display().description, " ");
   }
 }
+function DisplaysSectionComponent_Conditional_7_Conditional_13_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 22);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function DisplaysSectionComponent_Conditional_7_Conditional_13_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.editDisplay());
+    });
+    \u0275\u0275elementStart(3, "icon");
+    \u0275\u0275text(4, "edit");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.EDIT_DISPLAY_TOOLTIP"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.EDIT_SELECTED_DISPLAY"));
+  }
+}
+function DisplaysSectionComponent_Conditional_7_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function DisplaysSectionComponent_Conditional_7_Conditional_14_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.removeDisplay());
+    });
+    \u0275\u0275elementStart(3, "icon");
+    \u0275\u0275text(4, "delete");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.DELETE_DISPLAY_TOOLTIP"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.DELETE_SELECTED_DISPLAY"));
+  }
+}
 function DisplaysSectionComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -1822,71 +1922,81 @@ function DisplaysSectionComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275text(9);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(10, DisplaysSectionComponent_Conditional_7_Conditional_10_Template, 2, 1, "div", 13);
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "a", 14);
-    \u0275\u0275pipe(12, "translate");
-    \u0275\u0275pipe(13, "translate");
-    \u0275\u0275elementStart(14, "icon");
-    \u0275\u0275text(15, "open_in_new");
-    \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(16, "div", 15);
+    \u0275\u0275elementStart(11, "div", 14);
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(13, DisplaysSectionComponent_Conditional_7_Conditional_13_Template, 5, 6, "button", 15);
+    \u0275\u0275conditionalCreate(14, DisplaysSectionComponent_Conditional_7_Conditional_14_Template, 5, 6, "button", 16);
+    \u0275\u0275elementStart(15, "a", 17);
+    \u0275\u0275pipe(16, "translate");
     \u0275\u0275pipe(17, "translate");
-    \u0275\u0275elementStart(18, "button", 16);
-    \u0275\u0275listener("click", function DisplaysSectionComponent_Conditional_7_Template_button_click_18_listener() {
+    \u0275\u0275elementStart(18, "icon");
+    \u0275\u0275text(19, "open_in_new");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(20, "div", 18);
+    \u0275\u0275pipe(21, "translate");
+    \u0275\u0275elementStart(22, "button", 19);
+    \u0275\u0275listener("click", function DisplaysSectionComponent_Conditional_7_Template_button_click_22_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setViewTab("schedule"));
     });
-    \u0275\u0275text(19);
-    \u0275\u0275pipe(20, "translate");
+    \u0275\u0275text(23);
+    \u0275\u0275pipe(24, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "button", 17);
-    \u0275\u0275listener("click", function DisplaysSectionComponent_Conditional_7_Template_button_click_21_listener() {
+    \u0275\u0275elementStart(25, "button", 20);
+    \u0275\u0275listener("click", function DisplaysSectionComponent_Conditional_7_Template_button_click_25_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setViewTab("playlists"));
     });
-    \u0275\u0275text(22);
-    \u0275\u0275pipe(23, "translate");
+    \u0275\u0275text(26);
+    \u0275\u0275pipe(27, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(24, "button", 18);
-    \u0275\u0275listener("click", function DisplaysSectionComponent_Conditional_7_Template_button_click_24_listener() {
+    \u0275\u0275elementStart(28, "button", 21);
+    \u0275\u0275listener("click", function DisplaysSectionComponent_Conditional_7_Template_button_click_28_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setViewTab("zones"));
     });
-    \u0275\u0275text(25);
-    \u0275\u0275pipe(26, "translate");
+    \u0275\u0275text(29);
+    \u0275\u0275pipe(30, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 37, "SIGNAGE_MANAGER.BACK_TO_DISPLAYS"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 40, "SIGNAGE_MANAGER.BACK_TO_DISPLAYS"));
     \u0275\u0275advance(8);
     \u0275\u0275textInterpolate1(" ", ctx_r1.selected_display().display_name || ctx_r1.selected_display().name, " ");
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.selected_display().description ? 10 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.selected_display().orientation, " ");
     \u0275\u0275advance();
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(12, 39, "SIGNAGE_MANAGER.OPEN_PANEL"))("href", ctx_r1.panel_link(), \u0275\u0275sanitizeUrl);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(13, 41, "SIGNAGE_MANAGER.OPEN_PANEL_NEW_TAB"));
+    \u0275\u0275conditional(ctx_r1.can_update() ? 13 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.can_delete_displays() ? 14 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(16, 42, "SIGNAGE_MANAGER.OPEN_PANEL"))("href", ctx_r1.panel_link(), \u0275\u0275sanitizeUrl);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(17, 44, "SIGNAGE_MANAGER.OPEN_PANEL_NEW_TAB"));
     \u0275\u0275advance(5);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(17, 43, "SIGNAGE_MANAGER.DISPLAY_DETAILS_TABS"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(21, 46, "SIGNAGE_MANAGER.DISPLAY_DETAILS_TABS"));
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "schedule")("border-b-2", ctx_r1.view_tab() === "schedule")("text-primary", ctx_r1.view_tab() === "schedule")("opacity-60", ctx_r1.view_tab() !== "schedule");
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "schedule");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(20, 45, "SIGNAGE_MANAGER.SCHEDULE"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(24, 48, "SIGNAGE_MANAGER.SCHEDULE"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "playlists")("border-b-2", ctx_r1.view_tab() === "playlists")("text-primary", ctx_r1.view_tab() === "playlists")("opacity-60", ctx_r1.view_tab() !== "playlists");
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "playlists");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(23, 47, "SIGNAGE_MANAGER.PLAYLISTS_COUNT", \u0275\u0275pureFunction1(55, _c05, ctx_r1.playlist_count()), ctx_r1.playlist_count()), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(27, 50, "SIGNAGE_MANAGER.PLAYLISTS_COUNT", \u0275\u0275pureFunction1(58, _c05, ctx_r1.playlist_count()), ctx_r1.playlist_count()), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "zones")("border-b-2", ctx_r1.view_tab() === "zones")("text-primary", ctx_r1.view_tab() === "zones")("opacity-60", ctx_r1.view_tab() !== "zones");
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "zones");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(26, 51, "SIGNAGE_MANAGER.ZONES_COUNT", \u0275\u0275pureFunction1(57, _c05, ctx_r1.zone_count()), ctx_r1.zone_count()), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(30, 54, "SIGNAGE_MANAGER.ZONES_COUNT", \u0275\u0275pureFunction1(60, _c05, ctx_r1.zone_count()), ctx_r1.zone_count()), " ");
   }
 }
 var TAB_QUERY_PARAM = "tab";
@@ -1924,6 +2034,8 @@ var DisplaysSectionComponent = class _DisplaysSectionComponent {
       )
     );
     this.selected_display = this._service.selected_display;
+    this.can_update = this._service.can_update;
+    this.can_delete_displays = this._service.can_delete_displays;
     this._displays = this._service.displays;
     this._playlists = this._service.playlists;
     this._zones = this._service.zones;
@@ -1991,6 +2103,17 @@ var DisplaysSectionComponent = class _DisplaysSectionComponent {
     this._service.selected_display.set(null);
     this._router.navigate(["/displays"], {});
   }
+  editDisplay() {
+    const display = this.selected_display();
+    if (display)
+      this._service.editDisplay(display);
+  }
+  async removeDisplay() {
+    const display = this.selected_display();
+    if (!display || !await this._service.removeDisplay(display))
+      return;
+    await this._router.navigate(["/displays"], {});
+  }
   setViewTab(tab) {
     if (tab === this.view_tab())
       return;
@@ -2008,7 +2131,7 @@ var DisplaysSectionComponent = class _DisplaysSectionComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplaysSectionComponent, selectors: [["displays-section"]], inputs: { id: [1, "id"], tab: [1, "tab"] }, decls: 10, vars: 6, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col", "overflow-hidden"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], [1, "h-1/2", "flex-1", 3, "activeTab"], [1, "bg-base-100", "border-base-300", "mx-2", "flex", "items-center", "gap-2", "rounded-b-lg", "border", "px-2", "py-1"], ["icon", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1", "py-2"], [1, "truncate", "text-lg", "font-medium"], [1, "text-base-content/80", "truncate", "text-sm"], ["icon", "", "default", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 3, "matTooltip", "href"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "mt-2", "flex", "overflow-hidden", "rounded-lg", "border"], ["type", "button", "role", "tab", "aria-controls", "display-schedule-panel", "id", "display-schedule-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "display-playlists-panel", "id", "display-playlists-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "display-zones-panel", "id", "display-zones-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"]], template: function DisplaysSectionComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplaysSectionComponent, selectors: [["displays-section"]], inputs: { id: [1, "id"], tab: [1, "tab"] }, decls: 10, vars: 6, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col", "overflow-hidden"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], [1, "h-1/2", "flex-1", 3, "activeTab"], [1, "bg-base-100", "border-base-300", "mx-2", "flex", "items-center", "gap-2", "rounded-b-lg", "border", "px-2", "py-1"], ["icon", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1", "py-2"], [1, "truncate", "text-lg", "font-medium"], [1, "text-base-content/80", "truncate", "text-sm"], [1, "text-base-content/60", "truncate", "text-xs", "capitalize"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 3, "matTooltip", "href"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "mt-2", "flex", "overflow-hidden", "rounded-lg", "border"], ["type", "button", "role", "tab", "aria-controls", "display-schedule-panel", "id", "display-schedule-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "display-playlists-panel", "id", "display-playlists-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "display-zones-panel", "id", "display-zones-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"]], template: function DisplaysSectionComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0);
         \u0275\u0275element(1, "nav-sidebar", 1);
@@ -2017,7 +2140,7 @@ var DisplaysSectionComponent = class _DisplaysSectionComponent {
         \u0275\u0275elementStart(4, "div", 4);
         \u0275\u0275element(5, "display-list", 5);
         \u0275\u0275elementStart(6, "div", 6);
-        \u0275\u0275conditionalCreate(7, DisplaysSectionComponent_Conditional_7_Template, 27, 59);
+        \u0275\u0275conditionalCreate(7, DisplaysSectionComponent_Conditional_7_Template, 31, 62);
         \u0275\u0275element(8, "display-content", 7);
         \u0275\u0275elementEnd()()();
         \u0275\u0275element(9, "nav-footer");
@@ -2099,7 +2222,51 @@ var DisplaysSectionComponent = class _DisplaysSectionComponent {
                                             {{ selected_display().description }}
                                         </div>
                                     }
+                                    <div
+                                        class="text-base-content/60 truncate text-xs capitalize"
+                                    >
+                                        {{ selected_display().orientation }}
+                                    </div>
                                 </div>
+                                @if (can_update()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.EDIT_DISPLAY_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="editDisplay()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.EDIT_SELECTED_DISPLAY'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>edit</icon>
+                                    </button>
+                                }
+                                @if (can_delete_displays()) {
+                                    <button
+                                        icon
+                                        default
+                                        error
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.DELETE_DISPLAY_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="removeDisplay()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.DELETE_SELECTED_DISPLAY'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>delete</icon>
+                                    </button>
+                                }
                                 <a
                                     icon
                                     default
@@ -2232,9 +2399,9 @@ var DisplaysSectionComponent = class _DisplaysSectionComponent {
   }], () => [], { id: [{ type: Input, args: [{ isSignal: true, alias: "id", required: false }] }], tab: [{ type: Input, args: [{ isSignal: true, alias: "tab", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplaysSectionComponent, { className: "DisplaysSectionComponent", filePath: "apps/signage-manager/src/app/displays/displays.component.ts", lineNumber: 229 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplaysSectionComponent, { className: "DisplaysSectionComponent", filePath: "apps/signage-manager/src/app/displays/displays.component.ts", lineNumber: 273 });
 })();
 export {
   DisplaysSectionComponent
 };
-//# sourceMappingURL=displays.component-4DPKKTOD.js.map
+//# sourceMappingURL=displays.component-QLF54DD6.js.map

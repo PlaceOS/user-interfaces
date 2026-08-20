@@ -3,21 +3,25 @@ import {
   CdkDragHandle,
   CdkDropList,
   moveItemInArray
-} from "./chunk-WWZMUDVM.js";
+} from "./chunk-UVWI7PAK.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-4AFLTOY5.js";
+} from "./chunk-Q7SQZLCT.js";
 import {
   AuthenticatedImageDirective,
   Component,
   CounterComponent,
   DefaultValueAccessor,
+  EDGE_BAR_HEIGHT_PC,
+  FLOATING_DEFAULT_X_PC,
+  FLOATING_DEFAULT_Y_PC,
   FormsModule,
   IconComponent,
   Input,
   IntersectDirective,
+  LAYOUT_POSITIONS,
   MatFormField,
   MatFormFieldModule,
   MatInput,
@@ -27,6 +31,8 @@ import {
   MatMenuModule,
   MatMenuTrigger,
   MatOption,
+  MatProgressSpinner,
+  MatProgressSpinnerModule,
   MatRipple,
   MatRippleModule,
   MatSelect,
@@ -37,18 +43,23 @@ import {
   NgModel,
   Router,
   RouterLink,
+  SIDEBAR_WIDTH_PC,
   SchemaFormComponent,
   SignageService,
   TranslatePipe,
   ViewChild,
   ViewChildren,
   afterRenderEffect,
+  computeTemplateLayoutRects,
   computed,
   effect,
   forwardRef,
-  gh,
   inject,
   input,
+  layoutPercentageToRatio,
+  layoutPositionIcon,
+  layoutPositionLabel,
+  layoutRatioToPercentage,
   pluginSchema,
   schemaDefaults,
   setClassMetadata,
@@ -56,6 +67,7 @@ import {
   signal,
   viewChild,
   viewChildren,
+  yh,
   ɵsetClassDebugInfo,
   ɵɵadvance,
   ɵɵattribute,
@@ -94,7 +106,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-ZTNF3JQB.js";
+} from "./chunk-2FXQT5UN.js";
 import {
   __spreadProps,
   __spreadValues
@@ -233,91 +245,6 @@ var TemplateHeaderComponent = class _TemplateHeaderComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateHeaderComponent, { className: "TemplateHeaderComponent", filePath: "apps/signage-manager/src/app/templates/template-header.component.ts", lineNumber: 52 });
 })();
-
-// apps/signage-manager/src/app/templates/template-layout.util.ts
-var EDGE_BAR_HEIGHT_PC = 15;
-var SIDEBAR_WIDTH_PC = 20;
-var FLOATING_DEFAULT_X_PC = 50;
-var FLOATING_DEFAULT_Y_PC = 50;
-var LAYOUT_POSITIONS = [
-  "top",
-  "bottom",
-  "left",
-  "right",
-  "floating"
-];
-var POSITION_ICONS = {
-  top: "align_vertical_top",
-  bottom: "align_vertical_bottom",
-  left: "align_horizontal_left",
-  right: "align_horizontal_right",
-  floating: "picture_in_picture"
-};
-var POSITION_LABELS = {
-  top: "SIGNAGE_MANAGER.TEMPLATE_POSITION_TOP",
-  bottom: "SIGNAGE_MANAGER.TEMPLATE_POSITION_BOTTOM",
-  left: "SIGNAGE_MANAGER.TEMPLATE_POSITION_LEFT",
-  right: "SIGNAGE_MANAGER.TEMPLATE_POSITION_RIGHT",
-  floating: "SIGNAGE_MANAGER.TEMPLATE_POSITION_FLOATING"
-};
-function layoutPositionIcon(position) {
-  return POSITION_ICONS[position] || "crop_free";
-}
-function layoutPositionLabel(position) {
-  return POSITION_LABELS[position] || position;
-}
-var clamp = (value, min, max) => Math.min(Math.max(value, min), Math.max(min, max));
-function layoutRatioToPercentage(value) {
-  return value === void 0 ? null : clamp(value, 0, 1) * 100;
-}
-function layoutPercentageToRatio(value) {
-  return value === null || !Number.isFinite(value) ? void 0 : clamp(value / 100, 0, 1);
-}
-function computeTemplateLayoutRects(layouts) {
-  const rem = { left: 0, top: 0, width: 100, height: 100 };
-  return layouts.map((layout) => {
-    switch (layout.position) {
-      case "top": {
-        const height = Math.min(layoutRatioToPercentage(layout.y_pos) ?? EDGE_BAR_HEIGHT_PC, rem.height);
-        const rect = __spreadProps(__spreadValues({}, rem), { height });
-        rem.top += height;
-        rem.height -= height;
-        return rect;
-      }
-      case "bottom": {
-        const height = Math.min(layoutRatioToPercentage(layout.y_pos) ?? EDGE_BAR_HEIGHT_PC, rem.height);
-        const rect = __spreadProps(__spreadValues({}, rem), {
-          top: rem.top + rem.height - height,
-          height
-        });
-        rem.height -= height;
-        return rect;
-      }
-      case "left": {
-        const width = Math.min(layoutRatioToPercentage(layout.x_pos) ?? SIDEBAR_WIDTH_PC, rem.width);
-        const rect = __spreadProps(__spreadValues({}, rem), { width });
-        rem.left += width;
-        rem.width -= width;
-        return rect;
-      }
-      case "right": {
-        const width = Math.min(layoutRatioToPercentage(layout.x_pos) ?? SIDEBAR_WIDTH_PC, rem.width);
-        const rect = __spreadProps(__spreadValues({}, rem), {
-          left: rem.left + rem.width - width,
-          width
-        });
-        rem.width -= width;
-        return rect;
-      }
-      case "floating":
-      default: {
-        const left = clamp(layoutRatioToPercentage(layout.x_pos) ?? FLOATING_DEFAULT_X_PC, 0, 100);
-        const top = clamp(layoutRatioToPercentage(layout.y_pos) ?? FLOATING_DEFAULT_Y_PC, 0, 100);
-        return { left, top, width: 100 - left, height: 100 - top };
-      }
-    }
-  });
-}
 
 // apps/signage-manager/src/app/templates/template-layout-list.component.ts
 var _c02 = () => ({});
@@ -550,7 +477,7 @@ function TemplateLayoutListComponent_For_8_Conditional_13_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 14, "SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN"));
     \u0275\u0275advance(2);
-    \u0275\u0275repeater(ctx_r2.plugins());
+    \u0275\u0275repeater(ctx_r2.widgets());
     \u0275\u0275advance(3);
     \u0275\u0275conditional(ctx_r2.hasXValue(layout_r11.position) ? 13 : -1);
     \u0275\u0275advance();
@@ -669,12 +596,12 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
     this.selected_index = this._service.selected_template_layout_index;
     this.dirty = this._service.template_layout_dirty;
     this.can_update = this._service.can_update;
-    this.plugins = this._service.plugins;
+    this.widgets = this._service.widgets;
     this.selected_plugin = computed(
       () => {
         const index = this.selected_index();
         const plugin_id = index === null ? "" : this.layouts()[index]?.plugin_id;
-        return this.plugins().find((plugin) => plugin.id === plugin_id);
+        return this.widgets().find((plugin) => plugin.id === plugin_id);
       },
       ...ngDevMode ? [{ debugName: "selected_plugin" }] : (
         /* istanbul ignore next */
@@ -702,7 +629,7 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
   pluginName(plugin_id) {
     if (!plugin_id)
       return "";
-    return this.plugins().find((item) => item.id === plugin_id)?.name || plugin_id;
+    return this.widgets().find((item) => item.id === plugin_id)?.name || plugin_id;
   }
   selectLayout(index) {
     this.selected_index.set(this.selected_index() === index ? null : index);
@@ -738,7 +665,9 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
     this.layouts.set(layouts);
   }
   setPlugin(index, plugin_id) {
-    const plugin = this.plugins().find((item) => item.id === plugin_id);
+    const plugin = this.widgets().find((item) => item.id === plugin_id);
+    if (plugin_id && !plugin)
+      return;
     const defaults = __spreadValues(__spreadValues({}, plugin?.defaults ?? {}), schemaDefaults(pluginSchema(plugin?.params)));
     this.layouts.update((layouts) => layouts.map((layout, item_index) => {
       if (item_index !== index)
@@ -992,7 +921,7 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
                                                 | translate
                                         }}</mat-option>
                                         @for (
-                                            plugin of plugins();
+                                            plugin of widgets();
                                             track plugin.id
                                         ) {
                                             <mat-option [value]="plugin.id">{{
@@ -1171,7 +1100,7 @@ var _c12 = (a0) => ["/templates", a0];
 var _c2 = (a0) => ({ name: a0 });
 var _c3 = (a0) => ({ count: a0 });
 var _forTrack02 = ($index, $item) => $item.id;
-function TemplateListComponent_Conditional_6_For_1_Conditional_12_Template(rf, ctx) {
+function TemplateListComponent_Conditional_6_For_1_Case_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 15);
     \u0275\u0275text(1);
@@ -1183,9 +1112,21 @@ function TemplateListComponent_Conditional_6_For_1_Conditional_12_Template(rf, c
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW"), " ");
   }
 }
-function TemplateListComponent_Conditional_6_For_1_Conditional_13_Template(rf, ctx) {
+function TemplateListComponent_Conditional_6_For_1_Case_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 17);
+    \u0275\u0275elementStart(0, "span", 16);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.APPROVAL_REQUIRED"), " ");
+  }
+}
+function TemplateListComponent_Conditional_6_For_1_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 18);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1211,12 +1152,13 @@ function TemplateListComponent_Conditional_6_For_1_Template(rf, ctx) {
     \u0275\u0275text(10);
     \u0275\u0275pipe(11, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(12, TemplateListComponent_Conditional_6_For_1_Conditional_12_Template, 3, 3, "span", 15);
+    \u0275\u0275conditionalCreate(12, TemplateListComponent_Conditional_6_For_1_Case_12_Template, 3, 3, "span", 15)(13, TemplateListComponent_Conditional_6_For_1_Case_13_Template, 3, 3, "span", 16);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(13, TemplateListComponent_Conditional_6_For_1_Conditional_13_Template, 2, 5, "div", 16);
+    \u0275\u0275conditionalCreate(14, TemplateListComponent_Conditional_6_For_1_Conditional_14_Template, 2, 5, "div", 17);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
+    let tmp_19_0;
     const template_r1 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275classProp("bg-primary", ctx_r1.selected()?.id === template_r1.id)("text-primary-content", ctx_r1.selected()?.id === template_r1.id)("hover:bg-base-200", ctx_r1.selected()?.id !== template_r1.id);
@@ -1227,15 +1169,15 @@ function TemplateListComponent_Conditional_6_For_1_Template(rf, ctx) {
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 15, "SIGNAGE_MANAGER.TEMPLATE_LAYOUT_COUNT", \u0275\u0275pureFunction1(22, _c3, template_r1.layouts.length)), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(template_r1.approval_requested && !template_r1.approved ? 12 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(template_r1.description ? 13 : -1);
+    \u0275\u0275conditional((tmp_19_0 = ctx_r1.getStatus(template_r1)) === "awaiting_review" ? 12 : tmp_19_0 === "awaiting_approval" ? 13 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(template_r1.description ? 14 : -1);
   }
 }
 function TemplateListComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275listener("intersect", function TemplateListComponent_Conditional_6_Conditional_2_Template_div_intersect_0_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -1258,7 +1200,7 @@ function TemplateListComponent_Conditional_6_Conditional_3_Template(rf, ctx) {
 }
 function TemplateListComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, TemplateListComponent_Conditional_6_For_1_Template, 14, 24, "a", 6, _forTrack02);
+    \u0275\u0275repeaterCreate(0, TemplateListComponent_Conditional_6_For_1_Template, 15, 24, "a", 6, _forTrack02);
     \u0275\u0275conditionalCreate(2, TemplateListComponent_Conditional_6_Conditional_2_Template, 1, 0, "div", 7)(3, TemplateListComponent_Conditional_6_Conditional_3_Template, 3, 3, "div", 8);
   }
   if (rf & 2) {
@@ -1270,7 +1212,7 @@ function TemplateListComponent_Conditional_6_Template(rf, ctx) {
 }
 function TemplateListComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 19);
+    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 20);
     \u0275\u0275text(2, "dashboard_customize");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -1317,6 +1259,11 @@ var TemplateListComponent = class _TemplateListComponent {
   loadMore() {
     this._service.loadMoreTemplates();
   }
+  getStatus(template) {
+    if (template.approved)
+      return null;
+    return template.approval_requested ? "awaiting_review" : "awaiting_approval";
+  }
   static {
     this.\u0275fac = function TemplateListComponent_Factory(__ngFactoryType__) {
       return new (__ngFactoryType__ || _TemplateListComponent)();
@@ -1330,7 +1277,7 @@ var TemplateListComponent = class _TemplateListComponent {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, decls: 8, vars: 8, consts: [["template_item", ""], [1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-2", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "my-2", "p-2", "text-center", "text-xs"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-2", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-3xl", "opacity-60"], [1, "min-w-0", "flex-1", "pr-2"], [1, "truncate", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]", "font-medium", "uppercase"], [1, "bg-base-200", "text-base-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mt-0.5", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-6xl"]], template: function TemplateListComponent_Template(rf, ctx) {
+    }, decls: 8, vars: 8, consts: [["template_item", ""], [1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-2", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "my-2", "p-2", "text-center", "text-xs"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-2", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-3xl", "opacity-60"], [1, "min-w-0", "flex-1", "pr-2"], [1, "truncate", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]", "font-medium", "uppercase"], [1, "bg-base-200", "text-base-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mt-0.5", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-6xl"]], template: function TemplateListComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "mat-form-field", 3)(3, "input", 4);
         \u0275\u0275pipe(4, "translate");
@@ -1440,18 +1387,27 @@ var TemplateListComponent = class _TemplateListComponent {
                                                   }
                                     }}
                                 </span>
-                                @if (
-                                    template.approval_requested &&
-                                    !template.approved
-                                ) {
-                                    <span
-                                        class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5"
-                                    >
-                                        {{
-                                            'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
-                                                | translate
-                                        }}
-                                    </span>
+                                @switch (getStatus(template)) {
+                                    @case ('awaiting_review') {
+                                        <span
+                                            class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
+                                                    | translate
+                                            }}
+                                        </span>
+                                    }
+                                    @case ('awaiting_approval') {
+                                        <span
+                                            class="bg-base-300 shrink-0 rounded px-1.5 py-0.5"
+                                        >
+                                            {{
+                                                'COMMON.APPROVAL_REQUIRED'
+                                                    | translate
+                                            }}
+                                        </span>
+                                    }
                                 }
                             </div>
                             @if (template.description) {
@@ -1505,7 +1461,7 @@ var TemplateListComponent = class _TemplateListComponent {
   }], () => [], { _template_items: [{ type: ViewChildren, args: ["template_item", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateListComponent, { className: "TemplateListComponent", filePath: "apps/signage-manager/src/app/templates/template-list.component.ts", lineNumber: 157 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateListComponent, { className: "TemplateListComponent", filePath: "apps/signage-manager/src/app/templates/template-list.component.ts", lineNumber: 169 });
 })();
 
 // apps/signage-manager/src/app/templates/template-preview.component.ts
@@ -1565,12 +1521,12 @@ function TemplatePreviewComponent_For_17_Template(rf, ctx) {
     const $index_r5 = ctx.$index;
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275styleProp("left", item_r6.rect.left, "%")("top", item_r6.rect.top, "%")("width", item_r6.rect.width, "%")("height", item_r6.rect.height, "%");
-    \u0275\u0275classProp("border-primary", ctx_r2.selected_index() === $index_r5)("bg-primary/40", ctx_r2.selected_index() === $index_r5)("z-10", ctx_r2.selected_index() === $index_r5)("border-white/60", ctx_r2.selected_index() !== $index_r5)("bg-black/60", ctx_r2.selected_index() !== $index_r5)("hover:bg-black/70", ctx_r2.selected_index() !== $index_r5);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 24, ctx_r2.positionLabel(item_r6.layout.position)))("aria-pressed", ctx_r2.selected_index() === $index_r5);
+    \u0275\u0275classProp("border-primary", ctx_r2.selected_index() === $index_r5)("bg-primary/40", ctx_r2.selected_index() === $index_r5 && item_r6.layout.plugin_id)("bg-primary/15", ctx_r2.selected_index() === $index_r5 && !item_r6.layout.plugin_id)("z-10", ctx_r2.selected_index() === $index_r5)("border-white/60", ctx_r2.selected_index() !== $index_r5 && item_r6.layout.plugin_id)("border-white/40", ctx_r2.selected_index() !== $index_r5 && !item_r6.layout.plugin_id)("border-dashed", !item_r6.layout.plugin_id)("backdrop-blur-sm", item_r6.layout.plugin_id)("bg-black/60", ctx_r2.selected_index() !== $index_r5 && item_r6.layout.plugin_id)("bg-black/10", ctx_r2.selected_index() !== $index_r5 && !item_r6.layout.plugin_id)("hover:bg-black/70", ctx_r2.selected_index() !== $index_r5 && item_r6.layout.plugin_id)("hover:bg-black/20", ctx_r2.selected_index() !== $index_r5 && !item_r6.layout.plugin_id);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 36, ctx_r2.positionLabel(item_r6.layout.position)))("aria-pressed", ctx_r2.selected_index() === $index_r5);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 26, ctx_r2.positionLabel(item_r6.layout.position)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 38, ctx_r2.positionLabel(item_r6.layout.position)), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.pluginName(item_r6.layout.plugin_id) || \u0275\u0275pipeBind1(7, 28, "SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN"), " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r2.pluginName(item_r6.layout.plugin_id) || \u0275\u0275pipeBind1(7, 40, "SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN"), " ");
   }
 }
 function TemplatePreviewComponent_Conditional_18_Template(rf, ctx) {
@@ -1623,7 +1579,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
     this.background_url = computed(
       () => {
         const background_id = this._service.selected_template()?.background_item_id;
-        return background_id ? gh(background_id) : "";
+        return background_id ? yh(background_id) : "";
       },
       ...ngDevMode ? [{ debugName: "background_url" }] : (
         /* istanbul ignore next */
@@ -1651,7 +1607,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
   pluginName(plugin_id) {
     if (!plugin_id)
       return "";
-    return this._service.plugins().find((item) => item.id === plugin_id)?.name || plugin_id;
+    return this._service.widgets().find((item) => item.id === plugin_id)?.name || plugin_id;
   }
   static {
     this.\u0275fac = function TemplatePreviewComponent_Factory(__ngFactoryType__) {
@@ -1659,7 +1615,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatePreviewComponent, selectors: [["template-preview"]], decls: 19, vars: 17, consts: [[1, "flex", "h-full", "min-h-0", "flex-col"], ["role", "radiogroup", 1, "flex", "flex-wrap", "items-center", "gap-2", "px-4", "py-2"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "border-primary", "bg-primary", "text-primary-content", "border-base-300", "hover:bg-base-200"], [1, "w-px", "flex-1"], ["btn", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 1, "border-base-300", "flex", "items-center", "gap-2", "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", 3, "matTooltip", "href"], [1, "preview-frame-container", "flex", "min-h-0", "flex-1", "items-center", "justify-center", "overflow-hidden", "p-4"], [1, "preview-frame", "relative", "overflow-hidden", "rounded-lg", "bg-neutral-900", "shadow-lg", "ring-1", "ring-black/20"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-cover", "opacity-80", 3, "source", "alt"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "gap-1", "overflow-hidden", "border-2", "backdrop-blur-sm", "transition-colors", 3, "border-primary", "bg-primary/40", "z-10", "border-white/60", "bg-black/60", "hover:bg-black/70", "left", "top", "width", "height"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center", "p-4", "text-center", "text-sm", "text-white/60"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "gap-1", "overflow-hidden", "border-2", "backdrop-blur-sm", "transition-colors", 3, "click"], [1, "truncate", "px-2", "text-xs", "font-semibold", "text-white", "uppercase"], [1, "truncate", "px-2", "text-xs", "text-white/90"]], template: function TemplatePreviewComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatePreviewComponent, selectors: [["template-preview"]], decls: 19, vars: 17, consts: [[1, "flex", "h-full", "min-h-0", "flex-col"], ["role", "radiogroup", 1, "flex", "flex-wrap", "items-center", "gap-2", "px-4", "py-2"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "border-primary", "bg-primary", "text-primary-content", "border-base-300", "hover:bg-base-200"], [1, "w-px", "flex-1"], ["btn", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 1, "border-base-300", "flex", "items-center", "gap-2", "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", 3, "matTooltip", "href"], [1, "preview-frame-container", "flex", "min-h-0", "flex-1", "items-center", "justify-center", "overflow-hidden", "p-4"], [1, "preview-frame", "relative", "overflow-hidden", "rounded-lg", "bg-neutral-900", "shadow-lg", "ring-1", "ring-black/20"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-cover", "opacity-80", 3, "source", "alt"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "overflow-hidden", "border-2", "transition-colors", "leading-none", 3, "border-primary", "bg-primary/40", "bg-primary/15", "z-10", "border-white/60", "border-white/40", "border-dashed", "backdrop-blur-sm", "bg-black/60", "bg-black/10", "hover:bg-black/70", "hover:bg-black/20", "left", "top", "width", "height"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center", "p-4", "text-center", "text-sm", "text-white/60"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "overflow-hidden", "border-2", "transition-colors", "leading-none", 3, "click"], [1, "truncate", "px-2", "text-sm", "font-semibold", "text-base-content", "uppercase", "text-shadow-lg", "text-shadow-base-100"], [1, "truncate", "px-2", "text-sm", "text-base-content/60", "text-shadow-lg", "text-shadow-base-100"]], template: function TemplatePreviewComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
         \u0275\u0275pipe(2, "translate");
@@ -1676,7 +1632,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
         \u0275\u0275elementEnd()();
         \u0275\u0275elementStart(13, "div", 5)(14, "div", 6);
         \u0275\u0275conditionalCreate(15, TemplatePreviewComponent_Conditional_15_Template, 2, 4, "img", 7);
-        \u0275\u0275repeaterCreate(16, TemplatePreviewComponent_For_17_Template, 8, 30, "button", 8, \u0275\u0275repeaterTrackByIndex);
+        \u0275\u0275repeaterCreate(16, TemplatePreviewComponent_For_17_Template, 8, 42, "button", 8, \u0275\u0275repeaterTrackByIndex);
         \u0275\u0275conditionalCreate(18, TemplatePreviewComponent_Conditional_18_Template, 3, 3, "div", 9);
         \u0275\u0275elementEnd()()();
       }
@@ -1779,16 +1735,42 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
                     @for (item of layout_rects(); track $index) {
                         <button
                             type="button"
-                            class="absolute flex flex-col items-center justify-center gap-1 overflow-hidden border-2 backdrop-blur-sm transition-colors"
+                            class="absolute flex flex-col items-center justify-center overflow-hidden border-2 transition-colors leading-none"
                             [class.border-primary]="selected_index() === $index"
-                            [class.bg-primary/40]="selected_index() === $index"
+                            [class.bg-primary/40]="
+                                selected_index() === $index &&
+                                item.layout.plugin_id
+                            "
+                            [class.bg-primary/15]="
+                                selected_index() === $index &&
+                                !item.layout.plugin_id
+                            "
                             [class.z-10]="selected_index() === $index"
                             [class.border-white/60]="
-                                selected_index() !== $index
+                                selected_index() !== $index &&
+                                item.layout.plugin_id
                             "
-                            [class.bg-black/60]="selected_index() !== $index"
+                            [class.border-white/40]="
+                                selected_index() !== $index &&
+                                !item.layout.plugin_id
+                            "
+                            [class.border-dashed]="!item.layout.plugin_id"
+                            [class.backdrop-blur-sm]="item.layout.plugin_id"
+                            [class.bg-black/60]="
+                                selected_index() !== $index &&
+                                item.layout.plugin_id
+                            "
+                            [class.bg-black/10]="
+                                selected_index() !== $index &&
+                                !item.layout.plugin_id
+                            "
                             [class.hover:bg-black/70]="
-                                selected_index() !== $index
+                                selected_index() !== $index &&
+                                item.layout.plugin_id
+                            "
+                            [class.hover:bg-black/20]="
+                                selected_index() !== $index &&
+                                !item.layout.plugin_id
                             "
                             [style.left.%]="item.rect.left"
                             [style.top.%]="item.rect.top"
@@ -1801,14 +1783,14 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
                             [attr.aria-pressed]="selected_index() === $index"
                         >
                             <div
-                                class="truncate px-2 text-xs font-semibold text-white uppercase"
+                                class="truncate px-2 text-sm font-semibold text-base-content uppercase text-shadow-lg text-shadow-base-100"
                             >
                                 {{
                                     positionLabel(item.layout.position)
                                         | translate
                                 }}
                             </div>
-                            <div class="truncate px-2 text-xs text-white/90">
+                            <div class="truncate px-2 text-sm text-base-content/60 text-shadow-lg text-shadow-base-100">
                                 {{
                                     pluginName(item.layout.plugin_id) ||
                                         ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
@@ -1840,7 +1822,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatePreviewComponent, { className: "TemplatePreviewComponent", filePath: "apps/signage-manager/src/app/templates/template-preview.component.ts", lineNumber: 172 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatePreviewComponent, { className: "TemplatePreviewComponent", filePath: "apps/signage-manager/src/app/templates/template-preview.component.ts", lineNumber: 198 });
 })();
 
 // apps/signage-manager/src/app/templates/templates.component.ts
@@ -1856,14 +1838,77 @@ function TemplatesSectionComponent_Conditional_7_Conditional_8_Template(rf, ctx)
     \u0275\u0275textInterpolate1(" ", template_r3.description, " ");
   }
 }
-function TemplatesSectionComponent_Conditional_7_Conditional_10_Template(rf, ctx) {
+function TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 23);
+    \u0275\u0275elementStart(0, "button", 24);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Conditional_10_Template_button_click_0_listener() {
+    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_0_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.approveTemplate());
+    });
+    \u0275\u0275elementStart(3, "icon", 25);
+    \u0275\u0275text(4, "order_approve");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.APPROVE_TEMPLATE_TOOLTIP"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.APPROVE_SELECTED_TEMPLATE"));
+  }
+}
+function TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_1_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "mat-spinner", 27);
+  }
+}
+function TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_1_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "icon", 25);
+    \u0275\u0275text(1, "approval");
+    \u0275\u0275elementEnd();
+  }
+}
+function TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 26);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_1_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.requestApproval());
+    });
+    \u0275\u0275conditionalCreate(3, TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_1_Conditional_3_Template, 1, 0, "mat-spinner", 27)(4, TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_1_Conditional_4_Template, 2, 0, "icon", 25);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 4, "SIGNAGE_MANAGER.REQUEST_TEMPLATE_APPROVAL_TOOLTIP"))("disabled", ctx_r1.approval_request_loading());
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 6, "SIGNAGE_MANAGER.REQUEST_APPROVAL_SELECTED_TEMPLATE"));
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx_r1.approval_request_loading() ? 3 : 4);
+  }
+}
+function TemplatesSectionComponent_Conditional_7_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_0_Template, 5, 6, "button", 15)(1, TemplatesSectionComponent_Conditional_7_Conditional_10_Conditional_1_Template, 5, 8, "button", 23);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275conditional(ctx_r1.can_approve() ? 0 : 1);
+  }
+}
+function TemplatesSectionComponent_Conditional_7_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 24);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Conditional_11_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.editTemplate());
     });
@@ -1876,14 +1921,34 @@ function TemplatesSectionComponent_Conditional_7_Conditional_10_Template(rf, ctx
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.EDIT_SELECTED_TEMPLATE"));
   }
 }
-function TemplatesSectionComponent_Conditional_7_Conditional_11_Template(rf, ctx) {
+function TemplatesSectionComponent_Conditional_7_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
+    const _r7 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "button", 24);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Conditional_11_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r5);
+    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Conditional_12_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.shareTemplate());
+    });
+    \u0275\u0275elementStart(3, "icon");
+    \u0275\u0275text(4, "ios_share");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.SHARE_TEMPLATE_TOOLTIP"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.SHARE_SELECTED_TEMPLATE"));
+  }
+}
+function TemplatesSectionComponent_Conditional_7_Conditional_13_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 28);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Conditional_13_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r8);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.removeTemplate());
     });
@@ -1915,72 +1980,78 @@ function TemplatesSectionComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275conditionalCreate(8, TemplatesSectionComponent_Conditional_7_Conditional_8_Template, 2, 1, "div", 14);
     \u0275\u0275elementEnd();
     \u0275\u0275element(9, "div");
-    \u0275\u0275conditionalCreate(10, TemplatesSectionComponent_Conditional_7_Conditional_10_Template, 5, 6, "button", 15);
-    \u0275\u0275conditionalCreate(11, TemplatesSectionComponent_Conditional_7_Conditional_11_Template, 5, 6, "button", 16);
+    \u0275\u0275conditionalCreate(10, TemplatesSectionComponent_Conditional_7_Conditional_10_Template, 2, 1);
+    \u0275\u0275conditionalCreate(11, TemplatesSectionComponent_Conditional_7_Conditional_11_Template, 5, 6, "button", 15);
+    \u0275\u0275conditionalCreate(12, TemplatesSectionComponent_Conditional_7_Conditional_12_Template, 5, 6, "button", 15);
+    \u0275\u0275conditionalCreate(13, TemplatesSectionComponent_Conditional_7_Conditional_13_Template, 5, 6, "button", 16);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "div", 17);
-    \u0275\u0275pipe(13, "translate");
-    \u0275\u0275elementStart(14, "button", 18, 0);
-    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Template_button_click_14_listener() {
+    \u0275\u0275elementStart(14, "div", 17);
+    \u0275\u0275pipe(15, "translate");
+    \u0275\u0275elementStart(16, "button", 18, 0);
+    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Template_button_click_16_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setViewTab("preview"));
-    })("keydown", function TemplatesSectionComponent_Conditional_7_Template_button_keydown_14_listener($event) {
+    })("keydown", function TemplatesSectionComponent_Conditional_7_Template_button_keydown_16_listener($event) {
       \u0275\u0275restoreView(_r1);
-      const preview_tab_r6 = \u0275\u0275reference(15);
-      const layouts_tab_r7 = \u0275\u0275reference(19);
+      const preview_tab_r9 = \u0275\u0275reference(17);
+      const layouts_tab_r10 = \u0275\u0275reference(21);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.handleTabKeydown($event, preview_tab_r6, layouts_tab_r7));
+      return \u0275\u0275resetView(ctx_r1.handleTabKeydown($event, preview_tab_r9, layouts_tab_r10));
     });
-    \u0275\u0275text(16);
-    \u0275\u0275pipe(17, "translate");
+    \u0275\u0275text(18);
+    \u0275\u0275pipe(19, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "button", 19, 1);
-    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Template_button_click_18_listener() {
+    \u0275\u0275elementStart(20, "button", 19, 1);
+    \u0275\u0275listener("click", function TemplatesSectionComponent_Conditional_7_Template_button_click_20_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.setViewTab("layouts"));
-    })("keydown", function TemplatesSectionComponent_Conditional_7_Template_button_keydown_18_listener($event) {
+    })("keydown", function TemplatesSectionComponent_Conditional_7_Template_button_keydown_20_listener($event) {
       \u0275\u0275restoreView(_r1);
-      const preview_tab_r6 = \u0275\u0275reference(15);
-      const layouts_tab_r7 = \u0275\u0275reference(19);
+      const preview_tab_r9 = \u0275\u0275reference(17);
+      const layouts_tab_r10 = \u0275\u0275reference(21);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.handleTabKeydown($event, preview_tab_r6, layouts_tab_r7));
+      return \u0275\u0275resetView(ctx_r1.handleTabKeydown($event, preview_tab_r9, layouts_tab_r10));
     });
-    \u0275\u0275text(20);
-    \u0275\u0275pipe(21, "translate");
+    \u0275\u0275text(22);
+    \u0275\u0275pipe(23, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(22, "div", 20);
-    \u0275\u0275element(23, "template-preview", 21)(24, "template-layout-list", 22);
+    \u0275\u0275elementStart(24, "div", 20);
+    \u0275\u0275element(25, "template-preview", 21)(26, "template-layout-list", 22);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const template_r3 = ctx;
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 34, "SIGNAGE_MANAGER.BACK_TO_TEMPLATES"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 36, "SIGNAGE_MANAGER.BACK_TO_TEMPLATES"));
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1(" ", template_r3.name, " ");
     \u0275\u0275advance();
     \u0275\u0275conditional(template_r3.description ? 8 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.can_update() ? 10 : -1);
+    \u0275\u0275conditional(ctx_r1.requires_approval() ? 10 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.can_delete() ? 11 : -1);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 11 : -1);
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(13, 36, "COMMON.DETAILS"));
+    \u0275\u0275conditional(ctx_r1.can_share() ? 12 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.can_delete() ? 13 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(15, 38, "COMMON.DETAILS"));
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "preview")("border-b-2", ctx_r1.view_tab() === "preview")("text-primary", ctx_r1.view_tab() === "preview")("opacity-60", ctx_r1.view_tab() !== "preview");
     \u0275\u0275property("tabIndex", ctx_r1.view_tab() === "preview" ? 0 : -1);
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "preview");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(17, 38, "COMMON.PREVIEW"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(19, 40, "COMMON.PREVIEW"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "layouts")("border-b-2", ctx_r1.view_tab() === "layouts")("text-primary", ctx_r1.view_tab() === "layouts")("opacity-60", ctx_r1.view_tab() !== "layouts");
     \u0275\u0275property("tabIndex", ctx_r1.view_tab() === "layouts" ? 0 : -1);
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "layouts");
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(21, 40, "SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(23, 42, "SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS"), " ");
     \u0275\u0275advance(3);
     \u0275\u0275classProp("tablet-hidden", ctx_r1.view_tab() === "layouts");
     \u0275\u0275advance();
@@ -1989,7 +2060,7 @@ function TemplatesSectionComponent_Conditional_7_Template(rf, ctx) {
 }
 function TemplatesSectionComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9)(1, "icon", 25);
+    \u0275\u0275elementStart(0, "div", 9)(1, "icon", 29);
     \u0275\u0275text(2, "dashboard_customize");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -2021,8 +2092,12 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
       )
     );
     this.selected_template = this._service.selected_template;
+    this.requires_approval = this._service.selected_template_requires_approval;
+    this.can_approve = this._service.can_approve;
     this.can_update = this._service.can_update;
     this.can_delete = this._service.can_delete;
+    this.can_share = this._service.can_share;
+    this.approval_request_loading = this._service.template_approval_request_loading;
     this._templates = this._service.templates;
     this._route_resolved = false;
     effect(() => {
@@ -2053,6 +2128,21 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
     if (template)
       this._service.removeTemplate(template);
   }
+  shareTemplate() {
+    const template = this.selected_template();
+    if (template)
+      this._service.shareTemplate(template);
+  }
+  approveTemplate() {
+    const template = this.selected_template();
+    if (template)
+      this._service.approveTemplate(template);
+  }
+  requestApproval() {
+    const template = this.selected_template();
+    if (template)
+      this._service.requestTemplateApproval(template);
+  }
   deselectTemplate() {
     this._service.selected_template.set(null);
     this._service.selected_template_layout_index.set(null);
@@ -2082,7 +2172,7 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatesSectionComponent, selectors: [["templates-section"]], inputs: { id: [1, "id"] }, decls: 10, vars: 5, consts: [["preview_tab", ""], ["layouts_tab", ""], [1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "flex", "items-center", "gap-2", "rounded-b-lg", "border", "p-2"], ["icon", "", "default", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2"], [1, "truncate", "text-lg", "font-medium"], [1, "-mt-1", "truncate", "text-xs"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "my-2", "flex", "rounded-lg", "border", "lg:hidden"], ["type", "button", "role", "tab", "aria-controls", "template-preview-panel", "id", "template-preview-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click", "keydown", "tabIndex"], ["type", "button", "role", "tab", "aria-controls", "template-layouts-panel", "id", "template-layouts-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click", "keydown", "tabIndex"], [1, "flex", "min-h-0", "flex-1", "flex-row", "overflow-hidden"], ["id", "template-preview-panel", "role", "tabpanel", "aria-labelledby", "template-preview-tab", 1, "min-h-0", "w-full", "flex-1", "lg:w-px"], ["id", "template-layouts-panel", "role", "tabpanel", "aria-labelledby", "template-layouts-tab", 1, "h-full", "shrink-0"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-6xl"]], template: function TemplatesSectionComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatesSectionComponent, selectors: [["templates-section"]], inputs: { id: [1, "id"] }, decls: 10, vars: 5, consts: [["preview_tab", ""], ["layouts_tab", ""], [1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "flex", "items-center", "gap-2", "rounded-b-lg", "border", "p-2"], ["icon", "", "default", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2"], [1, "truncate", "text-lg", "font-medium"], [1, "-mt-1", "truncate", "text-xs"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "my-2", "flex", "rounded-lg", "border", "lg:hidden"], ["type", "button", "role", "tab", "aria-controls", "template-preview-panel", "id", "template-preview-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click", "keydown", "tabIndex"], ["type", "button", "role", "tab", "aria-controls", "template-layouts-panel", "id", "template-layouts-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click", "keydown", "tabIndex"], [1, "flex", "min-h-0", "flex-1", "flex-row", "overflow-hidden"], ["id", "template-preview-panel", "role", "tabpanel", "aria-labelledby", "template-preview-tab", 1, "min-h-0", "w-full", "flex-1", "lg:w-px"], ["id", "template-layouts-panel", "role", "tabpanel", "aria-labelledby", "template-layouts-tab", 1, "h-full", "shrink-0"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-6xl"]], template: function TemplatesSectionComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 2);
         \u0275\u0275element(1, "nav-sidebar", 3);
@@ -2091,7 +2181,7 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
         \u0275\u0275elementStart(4, "div", 6);
         \u0275\u0275element(5, "template-list", 7);
         \u0275\u0275elementStart(6, "div", 8);
-        \u0275\u0275conditionalCreate(7, TemplatesSectionComponent_Conditional_7_Template, 25, 42)(8, TemplatesSectionComponent_Conditional_8_Template, 6, 3, "div", 9);
+        \u0275\u0275conditionalCreate(7, TemplatesSectionComponent_Conditional_7_Template, 27, 44)(8, TemplatesSectionComponent_Conditional_8_Template, 6, 3, "div", 9);
         \u0275\u0275elementEnd()()();
         \u0275\u0275element(9, "nav-footer");
         \u0275\u0275elementEnd();
@@ -2114,6 +2204,8 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
       TemplateLayoutListComponent,
       MatRippleModule,
       MatRipple,
+      MatProgressSpinnerModule,
+      MatProgressSpinner,
       MatTooltipModule,
       MatTooltip,
       IconComponent,
@@ -2167,6 +2259,56 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
                                     }
                                 </div>
                                 <div></div>
+                                @if (requires_approval()) {
+                                    @if (can_approve()) {
+                                        <button
+                                            icon
+                                            default
+                                            type="button"
+                                            matRipple
+                                            [matTooltip]="
+                                                'SIGNAGE_MANAGER.APPROVE_TEMPLATE_TOOLTIP'
+                                                    | translate
+                                            "
+                                            (click)="approveTemplate()"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.APPROVE_SELECTED_TEMPLATE'
+                                                    | translate
+                                            "
+                                        >
+                                            <icon class="text-warning"
+                                                >order_approve</icon
+                                            >
+                                        </button>
+                                    } @else {
+                                        <button
+                                            icon
+                                            default
+                                            type="button"
+                                            matRipple
+                                            [matTooltip]="
+                                                'SIGNAGE_MANAGER.REQUEST_TEMPLATE_APPROVAL_TOOLTIP'
+                                                    | translate
+                                            "
+                                            (click)="requestApproval()"
+                                            [disabled]="
+                                                approval_request_loading()
+                                            "
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.REQUEST_APPROVAL_SELECTED_TEMPLATE'
+                                                    | translate
+                                            "
+                                        >
+                                            @if (approval_request_loading()) {
+                                                <mat-spinner diameter="20" />
+                                            } @else {
+                                                <icon class="text-warning"
+                                                    >approval</icon
+                                                >
+                                            }
+                                        </button>
+                                    }
+                                }
                                 @if (can_update()) {
                                     <button
                                         icon
@@ -2184,6 +2326,25 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
                                         "
                                     >
                                         <icon>edit</icon>
+                                    </button>
+                                }
+                                @if (can_share()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.SHARE_TEMPLATE_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="shareTemplate()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.SHARE_SELECTED_TEMPLATE'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>ios_share</icon>
                                     </button>
                                 }
                                 @if (can_delete()) {
@@ -2341,6 +2502,7 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
       TemplatePreviewComponent,
       TemplateLayoutListComponent,
       MatRippleModule,
+      MatProgressSpinnerModule,
       MatTooltipModule,
       IconComponent,
       TranslatePipe
@@ -2348,9 +2510,9 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
   }], () => [], { id: [{ type: Input, args: [{ isSignal: true, alias: "id", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatesSectionComponent, { className: "TemplatesSectionComponent", filePath: "apps/signage-manager/src/app/templates/templates.component.ts", lineNumber: 267 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatesSectionComponent, { className: "TemplatesSectionComponent", filePath: "apps/signage-manager/src/app/templates/templates.component.ts", lineNumber: 338 });
 })();
 export {
   TemplatesSectionComponent
 };
-//# sourceMappingURL=templates.component-7TB7G5UR.js.map
+//# sourceMappingURL=templates.component-BD3TC2DU.js.map
