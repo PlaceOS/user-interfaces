@@ -55,6 +55,7 @@ import {
     pluginSchema,
     schemaDefaults,
 } from '../signage-plugin.util';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface MediaEditModalData {
     media: SignageMedia;
@@ -62,6 +63,8 @@ export interface MediaEditModalData {
     file_metadata?: SignageMediaMetadata;
     file_thumbnail?: string;
     playlist_id?: string;
+    /** Signage group the media is being viewed from */
+    group_id?: string;
     plugin?: SignagePlugin;
     /** Existing media tags to suggest while the user types */
     tag_options?: string[];
@@ -451,6 +454,11 @@ function mediaSaveErrorMessage(error: unknown) {
                             ></a-date-field>
                         </div>
                     </div>
+                    <signage-shared-with
+                        type="media"
+                        [item_id]="item.id"
+                        [group_id]="group_id"
+                    ></signage-shared-with>
                 </div>
             </form>
         </fullscreen-modal-shell>
@@ -478,6 +486,7 @@ function mediaSaveErrorMessage(error: unknown) {
         SchemaFormComponent,
         PluginEmbedComponent,
         ItemListFieldComponent,
+        SignageSharedWithComponent,
     ],
 })
 export class MediaEditModalComponent implements OnDestroy {
@@ -490,6 +499,7 @@ export class MediaEditModalComponent implements OnDestroy {
     public readonly loading = signal(false);
     public readonly item = this._data.media;
     public readonly tag_options = this._data.tag_options || [];
+    public readonly group_id = this._data.group_id || '';
     public readonly file = this._data.file;
     public readonly plugin = signal<SignagePlugin | undefined>(
         this._data.plugin,

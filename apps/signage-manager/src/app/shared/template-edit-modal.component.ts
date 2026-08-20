@@ -31,9 +31,12 @@ import {
     MediaSelectModalComponent,
     MediaSelectModalData,
 } from './media-select-modal.component';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface TemplateEditModalData {
     template: SignageTemplate;
+    /** Signage group the template is being viewed from */
+    group_id?: string;
     onAdd?: (data: Partial<SignageTemplate>) => Promise<SignageTemplate>;
     onEdit?: (
         id: string,
@@ -191,6 +194,11 @@ export interface TemplateEditFormModel {
                     >
                     </settings-toggle>
                 </div>
+                <signage-shared-with
+                    type="templates"
+                    [item_id]="template.id"
+                    [group_id]="group_id"
+                ></signage-shared-with>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -204,6 +212,7 @@ export interface TemplateEditFormModel {
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        SignageSharedWithComponent,
     ],
 })
 export class TemplateEditModalComponent {
@@ -214,6 +223,7 @@ export class TemplateEditModalComponent {
 
     public readonly loading = signal(false);
     public readonly template = this._data.template;
+    public readonly group_id = this._data.group_id || '';
     public readonly model = signal<TemplateEditFormModel>({
         name: this.template.name || '',
         description: this.template.description || '',

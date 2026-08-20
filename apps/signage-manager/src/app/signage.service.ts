@@ -1548,6 +1548,7 @@ export class SignageService {
         const ref = this._dialog.open(PlaylistEditModalComponent, {
             data: {
                 playlist,
+                group_id: this._api_group_id(),
                 onEdit: (id: string, data: Partial<SignagePlaylist>) =>
                     updateSignagePlaylist(id, data),
             },
@@ -1823,6 +1824,7 @@ export class SignageService {
         const ref = this._dialog.open(TemplateEditModalComponent, {
             data: {
                 template,
+                group_id: this._api_group_id(),
                 onEdit: (id: string, data: Partial<SignageTemplate>) =>
                     updateSignageTemplate(id, data),
             },
@@ -2768,6 +2770,7 @@ export class SignageService {
                 file_metadata,
                 file_thumbnail,
                 playlist_id,
+                group_id: this._api_group_id(),
                 plugin,
                 tag_options: this.media_tags(),
                 loadPlugin: load_plugin,

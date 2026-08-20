@@ -852,6 +852,17 @@ function filterByGroup<T>(items: T[], group_id = '') {
     return items.filter((_, index) => index % 2 === 0);
 }
 
+/**
+ * Groups holding an item, matching the index parity `filterByGroup` uses to
+ * fake group scoping.
+ */
+function sharedWithGroups(items: any[], id: string) {
+    const index = items.findIndex((item) => item.id === id);
+    if (index < 0) return [];
+    const groups = index % 2 === 0 ? SIGNAGE_GROUPS : [SIGNAGE_GROUPS[0]];
+    return groups.map(({ group }) => ({ id: group.id, name: group.name }));
+}
+
 function toEngineMedia(item: any) {
     const is_video = item.type === 'video';
     return {
@@ -1231,10 +1242,12 @@ export function registerMockSignage() {
         path: '/api/engine/v2/signage/media/:id',
         metadata: {},
         method: 'GET',
-        callback: (request) =>
-            toEngineMedia(
+        callback: (request) => ({
+            ...toEngineMedia(
                 MOCK_MEDIA.find((item) => item.id === request.route_params.id),
             ),
+            shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id),
+        }),
     });
 
     registerMockEndpoint({
@@ -1320,6 +1333,23 @@ export function registerMockSignage() {
             id: `playlist-${Date.now()}`,
             created_at: getUnixTime(Date.now()),
             updated_at: getUnixTime(Date.now()),
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/playlists/:id',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => ({
+            ...toEnginePlaylist(
+                MOCK_PLAYLISTS.find(
+                    (item) => item.id === request.route_params.id,
+                ),
+            ),
+            shared_with: sharedWithGroups(
+                MOCK_PLAYLISTS,
+                request.route_params.id,
+            ),
         }),
     });
 
