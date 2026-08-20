@@ -11,8 +11,10 @@ import {
     addSignageMedia,
     del,
     listSignagePlaylistMedia,
+    listSignageTemplateApprovers,
     querySignagePlugins,
     removeSignageMedia,
+    requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
     SignageMedia,
     SignagePlaylist,
@@ -24,9 +26,11 @@ import {
     updateSignageTemplate,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
-import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
 import { MediaPreviewModalComponent } from '../app/shared/media-preview-modal.component';
+import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
+import { TemplateApproveModalComponent } from '../app/shared/template-approve-modal.component';
+import { TemplateRequestApprovalModalComponent } from '../app/shared/template-request-approval-modal.component';
 import { SignageService } from '../app/signage.service';
 
 type SignageServiceTestAccess = SignageService & Record<string, any>;
@@ -598,6 +602,87 @@ describe('SignageService media uploads', () => {
                 /\/signage\/templates\/template%2F1\?group_id=group%2F1$/,
             ),
         );
+    });
+
+    it('opens template approval for users with approval permission', () => {
+        const service = createService();
+        const template = new SignageTemplate({ id: 'template-1' });
+
+        service.approveTemplate(template);
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            TemplateApproveModalComponent,
+            {
+                data: { template },
+                panelClass: 'mobile-fullscreen',
+            },
+        );
+    });
+
+    it('requests template approval and updates the cached status', async () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const template = new SignageTemplate({
+            id: 'template-1',
+            approved: false,
+        });
+        test_service['_template_items'].set([template]);
+        Object.defineProperty(service, 'can_approve', {
+            value: () => false,
+        });
+        test_service['_templateApprovalGroups'] = vi
+            .fn()
+            .mockResolvedValue([{ group: { id: 'group-1' } }]);
+        vi.mocked(listSignageTemplateApprovers).mockResolvedValue([
+            { id: 'user-1', name: 'Reviewer' },
+        ]);
+        (requestApprovalSignageTemplate as any).mockResolvedValue({});
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value?: unknown) => void) => {
+                    Promise.resolve().then(() =>
+                        handler({ approver_id: 'user-1', message: 'Review' }),
+                    );
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+
+        await service.requestTemplateApproval(template);
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            TemplateRequestApprovalModalComponent,
+            expect.objectContaining({
+                data: {
+                    template,
+                    approvers: [{ id: 'user-1', name: 'Reviewer' }],
+                },
+            }),
+        );
+        expect(requestApprovalSignageTemplate).toHaveBeenCalledWith(
+            'template-1',
+            'group-1',
+            'Review',
+            'user-1',
+        );
+        expect(service.templates()[0].approval_requested).toBe(true);
+    });
+
+    it('updates template approval state in the list and selection', () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const template = new SignageTemplate({
+            id: 'template-1',
+            approved: false,
+        });
+        test_service['_template_items'].set([template]);
+        service.selected_template.set(template);
+
+        service.setTemplateApprovalStatus('template-1', true);
+
+        expect(service.templates()[0].approved).toBe(true);
+        expect(service.selected_template()?.approved).toBe(true);
+        expect(service.selected_template_requires_approval()).toBe(false);
     });
 
     it('sends displayed layout position defaults when saving', async () => {

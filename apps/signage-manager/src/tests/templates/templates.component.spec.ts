@@ -9,10 +9,15 @@ describe('TemplatesSectionComponent', () => {
         selected_template: signal<{ id: string } | null>(null),
         selected_template_layout_index: signal<number | null>(null),
         templates: signal<{ id: string }[]>([]),
+        selected_template_requires_approval: signal(false),
+        template_approval_request_loading: signal(false),
+        can_approve: signal(false),
         can_update: signal(true),
         can_delete: signal(true),
         editTemplate: vi.fn(),
         removeTemplate: vi.fn(),
+        approveTemplate: vi.fn(),
+        requestTemplateApproval: vi.fn(),
     };
 
     async function make() {
@@ -53,5 +58,19 @@ describe('TemplatesSectionComponent', () => {
         expect(component.view_tab()).toBe('layouts');
         expect(event.preventDefault).toHaveBeenCalled();
         expect(layouts_tab.focus).toHaveBeenCalled();
+    });
+
+    it('delegates approval actions for the selected template', async () => {
+        const template = { id: 'template-1' };
+        service_stub.selected_template.set(template);
+        const component = await make();
+
+        component.approveTemplate();
+        component.requestApproval();
+
+        expect(service_stub.approveTemplate).toHaveBeenCalledWith(template);
+        expect(service_stub.requestTemplateApproval).toHaveBeenCalledWith(
+            template,
+        );
     });
 });

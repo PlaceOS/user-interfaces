@@ -36,6 +36,7 @@ import {
     del,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
+    listSignageTemplateApprovers,
     mediaThumbnail,
     PlaceCurrentGroup,
     PlaceGroup,
@@ -64,6 +65,7 @@ import {
     removeSignageTemplate,
     removeSystem,
     requestApprovalSignagePlaylist,
+    requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
     shareSignageMedia,
     shareSignagePlaylists,
@@ -77,6 +79,7 @@ import {
     SignagePlugin,
     type SignagePluginType,
     SignageTemplate,
+    type SignageTemplateApprover,
     type SignageTemplateLayout,
     updateGroup,
     updateGroupUser,
@@ -110,7 +113,12 @@ import {
     PlaylistRequestApprovalModalResult,
 } from './shared/playlist-request-approval-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
+import { TemplateApproveModalComponent } from './shared/template-approve-modal.component';
 import { TemplateEditModalComponent } from './shared/template-edit-modal.component';
+import {
+    TemplateRequestApprovalModalComponent,
+    TemplateRequestApprovalModalResult,
+} from './shared/template-request-approval-modal.component';
 import { ZoneSelectModalComponent } from './shared/zone-select-modal.component';
 import {
     listSignageMediaTagCounts,
@@ -1296,6 +1304,11 @@ export class SignageService {
     public readonly widgets = computed(() => this._widgets.value() || []);
 
     public readonly selected_template = signal<SignageTemplate | null>(null);
+    public readonly selected_template_requires_approval = computed(() => {
+        const template = this.selected_template();
+        return !!template?.id && !template.approved;
+    });
+    public readonly template_approval_request_loading = signal(false);
     public readonly selected_template_layout_index = signal<number | null>(
         null,
     );
@@ -1849,6 +1862,67 @@ export class SignageService {
         }
     }
 
+    public approveTemplate(template: SignageTemplate) {
+        if (!template?.id) return;
+        if (
+            !this._requirePermission(
+                this.can_approve(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_APPROVE_TEMPLATES'),
+            )
+        )
+            return;
+        this._dialog.open(TemplateApproveModalComponent, {
+            data: { template },
+            panelClass: 'mobile-fullscreen',
+        });
+    }
+
+    public async requestTemplateApproval(template: SignageTemplate) {
+        if (!template?.id || this.template_approval_request_loading()) return;
+        if (this.can_approve()) {
+            this.approveTemplate(template);
+            return;
+        }
+        let approvers: SignageTemplateApprover[] = [];
+        let group: PlaceCurrentGroup | null = null;
+        this.template_approval_request_loading.set(true);
+        try {
+            const groups = await this._templateApprovalGroups(template);
+            if (!groups.length) {
+                notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_TEMPLATE'));
+                return;
+            }
+            const selected_group_id = this._api_group_id();
+            group =
+                groups.find((item) => item.group.id === selected_group_id) ||
+                groups[0];
+            approvers =
+                ((await listSignageTemplateApprovers(
+                    group.group.id,
+                )) as SignageTemplateApprover[]) || [];
+        } catch {
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_TEMPLATE_APPROVERS'));
+        } finally {
+            this.template_approval_request_loading.set(false);
+        }
+        if (!group) return;
+        const ref = this._dialog.open(TemplateRequestApprovalModalComponent, {
+            data: { template, approvers },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result: TemplateRequestApprovalModalResult | undefined =
+            await dialogClosed(ref);
+        if (!result) return;
+        await requestApprovalSignageTemplate(
+            template.id,
+            group.group.id,
+            result.message || '',
+            result.approver_id || '',
+        );
+        this.setTemplateApprovalStatus(template.id, false, true);
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUESTED'));
+    }
+
     public async removeTemplate(template: SignageTemplate) {
         if (!template?.id) return;
         if (
@@ -1918,6 +1992,33 @@ export class SignageService {
         this.template_layout_draft.set(
             structuredClone(this.selected_template()?.layouts ?? []),
         );
+    }
+
+    public setTemplateApprovalStatus(
+        template_id: string,
+        approved: boolean,
+        approval_requested = false,
+    ) {
+        const template =
+            this.templates().find((item) => item.id === template_id) ||
+            this.selected_template();
+        if (!template || template.id !== template_id) return;
+        this.updateCachedTemplate(
+            new SignageTemplate({
+                ...template,
+                approved,
+                approval_requested,
+            }),
+        );
+    }
+
+    public updateCachedTemplate(template: SignageTemplate) {
+        this._template_items.update((items) =>
+            items.map((item) => (item.id === template.id ? template : item)),
+        );
+        if (this.selected_template()?.id === template.id) {
+            this.selected_template.set(template);
+        }
     }
 
     private _addSignageTemplate(form_data: Partial<SignageTemplate>) {
@@ -2285,6 +2386,33 @@ export class SignageService {
                 } as any);
                 if (
                     (result.data || []).some((item) => item.id === playlist.id)
+                ) {
+                    matching_groups.push(group);
+                }
+            } catch {
+                // Ignore groups the user cannot query.
+            }
+        }
+        return matching_groups;
+    }
+
+    private async _templateApprovalGroups(template: SignageTemplate) {
+        const groups = this.signage_groups();
+        const selected_group_id = this._api_group_id();
+        const matching_groups: PlaceCurrentGroup[] = [];
+        for (const group of groups) {
+            if (!group.group.id) continue;
+            if (group.group.id === selected_group_id) {
+                matching_groups.push(group);
+                continue;
+            }
+            try {
+                const result = await querySignageTemplates({
+                    group_id: group.group.id,
+                    limit: 500,
+                });
+                if (
+                    (result.data || []).some((item) => item.id === template.id)
                 ) {
                     matching_groups.push(group);
                 }
