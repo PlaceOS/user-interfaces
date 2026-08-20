@@ -28,8 +28,6 @@ import {
     approveBooking,
     approveBookingInstance,
     bookedResourceList,
-    checkinBooking,
-    checkinBookingInstance,
     parkingRequestStatus,
     queryBookings,
     queryPagedBookings,
@@ -37,6 +35,7 @@ import {
     rejectBookingInstance,
     removeBooking as removeBookingApi,
     saveBooking,
+    setBookingCheckedIn,
     updateBooking,
     updateBookingInstance,
 } from '@placeos/bookings';
@@ -1047,11 +1046,10 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public async setBookingCheckinState(booking: Booking, state = true) {
-        const promise = (
-            booking.instance
-                ? checkinBookingInstance(booking.id, booking.instance, state)
-                : checkinBooking(booking.id, state)
-        ).catch((_) => ({ state: 'failed', error: _ }));
+        const promise = setBookingCheckedIn(booking, state).catch((_) => ({
+            state: 'failed',
+            error: _,
+        }));
         const success = await promise;
         success.state === 'failed'
             ? notifyError(

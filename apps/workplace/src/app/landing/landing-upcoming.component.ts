@@ -5,8 +5,8 @@ import { Router, RouterModule } from '@angular/router';
 import {
     BookingCardComponent,
     BookingFormService,
-    checkinBooking,
     removeBooking,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -238,7 +238,7 @@ export class LandingUpcomingComponent
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        await checkinBooking(item.id, false).catch((e) => {
+        await setBookingCheckedIn(item, false).catch((e) => {
             notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
             resp.close();
             throw e;

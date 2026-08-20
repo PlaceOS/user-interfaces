@@ -11,9 +11,8 @@ import { Router } from '@angular/router';
 import {
     BookingCardComponent,
     BookingFormService,
-    checkinBooking,
-    checkinBookingInstance,
     removeBooking,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -409,11 +408,7 @@ export class ScheduleComponent extends AsyncHandler implements OnInit {
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        const promise = (
-            item.instance
-                ? checkinBookingInstance(item.id, item.instance, false)
-                : checkinBooking(item.id, false)
-        ).catch((e) => {
+        const promise = setBookingCheckedIn(item, false).catch((e) => {
             notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
             resp.close();
             throw e;

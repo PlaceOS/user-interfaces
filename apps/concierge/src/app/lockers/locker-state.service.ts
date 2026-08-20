@@ -20,7 +20,6 @@ import {
 } from '@placeos/assets';
 import {
     approveBooking,
-    checkinBooking,
     Locker,
     LockerBank,
     lockerBankFromAsset,
@@ -30,6 +29,7 @@ import {
     rejectBooking,
     removeBooking,
     saveBooking,
+    setBookingCheckedIn,
     updateBooking,
 } from '@placeos/bookings';
 import {
@@ -785,8 +785,8 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async checkinLocker(locker: Booking, state = true) {
-        const status: any = await checkinBooking(
-            locker.id,
+        const status: any = await setBookingCheckedIn(
+            locker,
             state ?? true,
         ).catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {

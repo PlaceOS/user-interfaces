@@ -12,8 +12,8 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     BookingFormService,
-    checkinBooking,
     queryBookings,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -269,7 +269,7 @@ export class BookCodeFlowComponent
         }).catch((_) => [] as Booking[]);
         const item = bookings.find((_) => _.asset_id === asset_id);
         if (item) {
-            await checkinBooking(item.id, true).catch((_) => {
+            await setBookingCheckedIn(item, true).catch((_) => {
                 notifyError(
                     `Unable to checkin booking with resource "${asset_id}"`,
                 );

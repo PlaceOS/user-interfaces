@@ -9,9 +9,9 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    checkinBooking,
     loadLockerResources,
     queryBookings,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -792,7 +792,7 @@ export class ScheduleStateService extends AsyncHandler {
                     continue;
                 }
                 result.loading('Checking in booking...');
-                await checkinBooking(booking.id, true);
+                await setBookingCheckedIn(booking, true);
                 result.close();
             }
         }

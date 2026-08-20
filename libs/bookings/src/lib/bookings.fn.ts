@@ -647,6 +647,30 @@ export async function checkinBookingInstance(
 }
 
 /**
+ * Set the checkin state of a booking, changing only the single occurrence when
+ * the booking belongs to a recurring series. The first occurrence of a series
+ * is the master booking so it has no `instance`, and checking it in without
+ * one would change the state of every future occurrence.
+ * @param booking Booking to change the checkin state of
+ * @param state New checkin state of the booking
+ */
+export async function setBookingCheckedIn(
+    booking: Booking,
+    state: boolean,
+): Promise<Booking> {
+    const is_recurring =
+        !!booking.instance ||
+        (!!booking.recurrence_type && booking.recurrence_type !== 'none');
+    return is_recurring
+        ? checkinBookingInstance(
+              booking.id,
+              booking.instance || booking.booking_start,
+              state,
+          )
+        : checkinBooking(booking.id, state);
+}
+
+/**
  * Set the checkin state of a booking
  * @param id ID of the booking to grab
  * @param state New checkin state of the booking

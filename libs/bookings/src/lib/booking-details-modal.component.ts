@@ -38,7 +38,7 @@ import {
     parkingRequestStatus,
     visitorDisplayNameFor,
 } from './booking.utilities';
-import { checkinBooking, checkinBookingInstance } from './bookings.fn';
+import { setBookingCheckedIn } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 @Component({
@@ -818,10 +818,9 @@ export class BookingDetailsModalComponent {
             response.close();
         }
         this.checking_in.set(true);
-        const updated_booking = await (
-            bkn.instance
-                ? checkinBookingInstance(bkn.id, bkn.instance, !bkn.checked_in)
-                : checkinBooking(bkn.id, !bkn.checked_in)
+        const updated_booking = await setBookingCheckedIn(
+            bkn,
+            !bkn.checked_in,
         ).catch((_) => {
             notifyError(
                 i18n(
