@@ -2608,7 +2608,7 @@ export class SignageService {
                 ? await this._resolvePlugin(item.plugin_id)
                 : undefined;
         this._dialog.open(MediaPreviewModalComponent, {
-            data: { media: item, plugin },
+            data: { media: item, plugin, group_id: this._api_group_id() },
             panelClass: 'fullscreen-dialog',
         });
     }

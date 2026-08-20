@@ -23,6 +23,7 @@ import {
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
+import { MediaPreviewModalComponent } from '../app/shared/media-preview-modal.component';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
 import { SignageService } from '../app/signage.service';
 
@@ -484,6 +485,19 @@ describe('SignageService media uploads', () => {
 
         expect(media.name).toBe('New name');
         expect(service.media()[0].name).toBe('New name');
+    });
+
+    it('passes the selected group to the media preview', async () => {
+        const service = createService();
+        selectApiGroup(service, 'group-1');
+        const media = new SignageMedia({ id: 'media-1', media_type: 'image' });
+
+        await service.previewMedia(media);
+
+        expect(dialog.open).toHaveBeenCalledWith(MediaPreviewModalComponent, {
+            data: { media, plugin: undefined, group_id: 'group-1' },
+            panelClass: 'fullscreen-dialog',
+        });
     });
 
     it('unshares deleted media from the selected group', async () => {

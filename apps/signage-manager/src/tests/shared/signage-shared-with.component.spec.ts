@@ -21,6 +21,7 @@ describe('SignageSharedWithComponent', () => {
     function make(
         groups: Array<{ id: string; name: string }>,
         group_id = 'grp-1',
+        allow_unshare = true,
     ) {
         TestBed.configureTestingModule({
             providers: [
@@ -33,6 +34,7 @@ describe('SignageSharedWithComponent', () => {
         fixture.componentRef.setInput('type', 'media');
         fixture.componentRef.setInput('item_id', 'media-1');
         fixture.componentRef.setInput('group_id', group_id);
+        fixture.componentRef.setInput('allow_unshare', allow_unshare);
         (fixture.componentInstance as any)._shared_groups.value.set(groups);
         return fixture.componentInstance;
     }
@@ -86,6 +88,20 @@ describe('SignageSharedWithComponent', () => {
         expect(component.can_unshare()).toBe(false);
     });
 
+    it('hides unlink actions in read-only views', () => {
+        const component = make(
+            [
+                { id: 'grp-1', name: 'Facilities' },
+                { id: 'grp-2', name: 'Marketing' },
+            ],
+            'grp-1',
+            false,
+        );
+
+        expect(component.visible()).toBe(true);
+        expect(component.can_unshare()).toBe(false);
+    });
+
     it('unlinks the item from the confirmed group and reloads', async () => {
         const component = make([
             { id: 'grp-1', name: 'Facilities' },
@@ -102,6 +118,33 @@ describe('SignageSharedWithComponent', () => {
             group_id: 'grp-2',
         });
         expect(reload).toHaveBeenCalled();
+    });
+
+    it('marks the group as unlinking while the request is pending', async () => {
+        let finish_unshare: () => void;
+        (removeSignageMedia as any).mockImplementation(
+            () =>
+                new Promise<void>((resolve) => {
+                    finish_unshare = resolve;
+                }),
+        );
+        const component = make([
+            { id: 'grp-1', name: 'Facilities' },
+            { id: 'grp-2', name: 'Marketing' },
+        ]);
+
+        const pending = component.unshare({
+            id: 'grp-2',
+            name: 'Marketing',
+        });
+        await vi.waitFor(() => {
+            expect(component.unsharing_group_id()).toBe('grp-2');
+        });
+
+        finish_unshare!();
+        await pending;
+
+        expect(component.unsharing_group_id()).toBe('');
     });
 
     it('keeps the group when the confirmation is dismissed', async () => {

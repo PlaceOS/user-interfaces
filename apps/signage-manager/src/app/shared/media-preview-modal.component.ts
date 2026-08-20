@@ -338,6 +338,7 @@ interface MediaPreviewModalData {
                             type="media"
                             [item_id]="item.id"
                             [group_id]="group_id"
+                            [compact_label]="true"
                         ></signage-shared-with>
                     </div>
                 </aside>
@@ -365,7 +366,7 @@ interface MediaPreviewModalData {
         PluginEmbedComponent,
         TranslatePipe,
         MatTooltip,
-        SignageSharedWithComponent
+        SignageSharedWithComponent,
     ],
 })
 export class MediaPreviewModalComponent implements OnInit {

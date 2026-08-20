@@ -10,6 +10,7 @@ describe('PlaylistItemDetailsComponent', () => {
     const displays = signal<any[]>([]);
     const zones = signal<any[]>([]);
     const can_update = signal(true);
+    const selected_group = signal<any>(null);
     const add_display = vi.fn();
     const add_zone = vi.fn();
     const remove_display = vi.fn();
@@ -21,6 +22,7 @@ describe('PlaylistItemDetailsComponent', () => {
         displays,
         zones,
         can_update,
+        selected_group,
         addDisplayToPlaylist: add_display,
         addZoneToPlaylist: add_zone,
         removeDisplayFromPlaylist: remove_display,
@@ -47,6 +49,7 @@ describe('PlaylistItemDetailsComponent', () => {
         displays.set([]);
         zones.set([]);
         can_update.set(true);
+        selected_group.set(null);
     });
 
     it('counts the loaded playlist media items', async () => {
@@ -81,6 +84,13 @@ describe('PlaylistItemDetailsComponent', () => {
         const component = await make();
         expect(component.playlist_displays()).toEqual([]);
         expect(component.playlist_zones()).toEqual([]);
+    });
+
+    it('uses the selected signage group for shared playlist details', async () => {
+        selected_group.set({ group: { id: 'grp-1' } });
+        const component = await make();
+
+        expect(component.selected_group_id()).toBe('grp-1');
     });
 
     it('maps the animation enum to a translation key', async () => {

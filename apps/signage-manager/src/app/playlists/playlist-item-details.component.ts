@@ -15,6 +15,7 @@ import {
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
 import { fromUnixTime } from 'date-fns';
+import { SignageSharedWithComponent } from '../shared/signage-shared-with.component';
 import { SignageService } from '../signage.service';
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
@@ -538,6 +539,14 @@ function nextSchedulePlaySessions(
                                         </div>
                                     </div>
                                 }
+                                <signage-shared-with
+                                    class="mt-2"
+                                    type="playlists"
+                                    [item_id]="playlist().id"
+                                    [group_id]="selected_group_id()"
+                                    [allow_unshare]="can_update()"
+                                    [compact_label]="true"
+                                />
                             </div>
                         </div>
                     </mat-tab>
@@ -863,6 +872,7 @@ function nextSchedulePlaySessions(
         DatePipe,
         MediaDurationPipe,
         TranslatePipe,
+        SignageSharedWithComponent,
     ],
 })
 export class PlaylistItemDetailsComponent {
@@ -883,6 +893,9 @@ export class PlaylistItemDetailsComponent {
 
     public readonly item_count = computed(() => this._items().length);
     public readonly can_update = this._service.can_update;
+    public readonly selected_group_id = computed(
+        () => this._service.selected_group()?.group.id || '',
+    );
 
     public readonly playlist_displays = computed(() => {
         const pl = this.playlist();
