@@ -1,1 +1,0 @@
-import {m,O as OT,ct as zn}from'./main.js';var f=(()=>{class t{constructor(){this._org=m(OT);}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.\u0275fac=function(n){return new(n||t)};}static{this.\u0275pipe=zn({name:"level",type:t,pure:true});}}return t})();export{f};//# sourceMappingURL=chunk-CC-Tfmip.js.map
