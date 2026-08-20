@@ -20,7 +20,10 @@ import { UserPipe } from '@placeos/users';
 import { MockProvider } from 'ng-mocks';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
-import { ParkingStateService } from '../../app/parking/parking-state.service';
+import {
+    ParkingStateService,
+    type ParkingSpace,
+} from '../../app/parking/parking-state.service';
 import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
 import { captureDownloads } from '../reports/download-capture.helper';
 
@@ -373,6 +376,75 @@ describe('ParkingStateService', () => {
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
                 booking_end: getUnixTime(assigned_start + 22 * 60 * 60 * 1000),
+            }),
+        );
+    });
+
+    it('should not update zone fields when editing a parking space', async () => {
+        spectator.service.setOptions({ zones: ['lvl-selected'] });
+        const original_space = {
+            id: 'space-1',
+            identifier: 'Bay 1',
+            zone_id: 'lvl-original',
+            zones: ['org-1', 'region-1', 'bld-1', 'lvl-original'],
+            bookable: true,
+        } as ParkingSpace;
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'space-1',
+                        identifier: 'Bay 1',
+                        bookable: false,
+                        zone_id: 'lvl-selected',
+                        zones: ['lvl-selected'],
+                    },
+                }),
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+
+        await spectator.service.editSpace(original_space);
+
+        expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
+        const update_data = vi.mocked(ts_client.updateAsset).mock.calls[0][1];
+        expect(update_data).toEqual(
+            expect.objectContaining({ id: 'space-1', bookable: false }),
+        );
+        expect(update_data).not.toHaveProperty('zone_id');
+        expect(update_data).not.toHaveProperty('zones');
+    });
+
+    it('should set zone fields when creating a parking space', async () => {
+        spectator.service.setOptions({ zones: ['lvl-selected'] });
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        identifier: 'Bay 1',
+                        bookable: true,
+                    },
+                }),
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+
+        await spectator.service.editSpace();
+
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                zone_id: 'lvl-selected',
+                zones: ['org-1', 'region-1', 'bld-1', 'lvl-selected'],
             }),
         );
     });

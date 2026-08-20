@@ -119,6 +119,13 @@ function csvBoolean(value: unknown): boolean {
     return value === true || csvString(value).toLowerCase() === 'true';
 }
 
+function stripParkingZones(space: Partial<ParkingSpace>) {
+    const metadata = { ...space };
+    Reflect.deleteProperty(metadata, 'zone_id');
+    Reflect.deleteProperty(metadata, 'zones');
+    return metadata;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -758,8 +765,7 @@ export class ParkingStateService extends AsyncHandler {
             this._options().zones[0] ||
             this._org.levelsForBuilding()[0]?.id;
         const asset_data: Partial<ParkingSpace> = {
-            ...state.metadata,
-            zone_id,
+            ...stripParkingZones(state.metadata),
             id: state.metadata.id || undefined,
         };
         if (
@@ -780,10 +786,7 @@ export class ParkingStateService extends AsyncHandler {
                 throw error;
             }
         }
-        const original_space_data: Partial<ParkingSpace> = {
-            ...space,
-            zone_id: space.zone_id || zone_id,
-        };
+        const original_space_data = stripParkingZones(space);
         let recreate = false;
         if (
             space.assigned_to &&
@@ -809,10 +812,9 @@ export class ParkingStateService extends AsyncHandler {
             this._org.building?.id,
             zone_id,
         ]);
-        const saved = await saveParkingSpace({
-            ...asset_data,
-            zones,
-        }).catch((e) => {
+        const saved = await saveParkingSpace(
+            space.id ? asset_data : { ...asset_data, zone_id, zones },
+        ).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
                     error: e,
