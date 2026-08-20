@@ -57,6 +57,7 @@ import {
   ViewEncapsulation,
   X,
   _getAnimationsState,
+  ad,
   addDays,
   addMilliseconds,
   addMinutes,
@@ -65,8 +66,8 @@ import {
   bootstrapApplication,
   capitalizeFirstLetter,
   computed,
-  cp,
   current_user,
+  da,
   differenceInMinutes,
   effect,
   firstTruthyValueFrom,
@@ -88,7 +89,6 @@ import {
   normaliseNativeDomain,
   numberAttribute,
   output,
-  pa,
   padString,
   predictableRandomInt,
   provideAppInitializer,
@@ -166,7 +166,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-ZTNF3JQB.js";
+} from "./chunk-2FXQT5UN.js";
 import {
   __export,
   __spreadProps,
@@ -2019,7 +2019,7 @@ var BindingDebugPanelComponent = class _BindingDebugPanelComponent extends Async
       },
       loader: async ({ params }) => Object.fromEntries(await Promise.all(params.map(async (id) => {
         if (!system_name_cache.has(id)) {
-          const system = await pa(id).catch(() => null);
+          const system = await da(id).catch(() => null);
           system_name_cache.set(id, system?.display_name || system?.name || id);
         }
         return [id, system_name_cache.get(id)];
@@ -7579,7 +7579,7 @@ function registerMockBookings() {
     }
   });
   to({
-    path: "/api/staff/v1/bookings/:id/checkin",
+    path: "/api/staff/v1/bookings/:id/check_in",
     metadata: {},
     method: "POST",
     callback: (req) => {
@@ -7589,7 +7589,14 @@ function registerMockBookings() {
           status: 404,
           message: `Unable to find booking with ID ${req.route_params.id}`
         };
-      booking.checked_in = true;
+      const state = `${req.query_params?.state ?? "true"}` === "true";
+      booking.checked_in = state;
+      if (state) {
+        booking.checked_in_at = getUnixTime(Date.now());
+        delete booking.checked_out_at;
+      } else {
+        booking.checked_out_at = getUnixTime(Date.now());
+      }
       return booking;
     }
   });
@@ -8838,6 +8845,13 @@ function filterByGroup(items, group_id = "") {
     return items;
   return items.filter((_, index) => index % 2 === 0);
 }
+function sharedWithGroups(items, id) {
+  const index = items.findIndex((item) => item.id === id);
+  if (index < 0)
+    return [];
+  const groups = index % 2 === 0 ? SIGNAGE_GROUPS : [SIGNAGE_GROUPS[0]];
+  return groups.map(({ group }) => ({ id: group.id, name: group.name }));
+}
 function toEngineMedia(item) {
   const is_video = item.type === "video";
   return {
@@ -9110,6 +9124,22 @@ function registerMockSignage() {
     ]
   });
   to({
+    path: "/api/engine/v2/signage/media/tag_counts",
+    metadata: {},
+    method: "GET",
+    callback: (request) => {
+      const counts = {};
+      for (const item of filterByGroup(MOCK_MEDIA, request.query_params?.group_id)) {
+        for (const tag of item.tags || []) {
+          if (!tag)
+            continue;
+          counts[tag] = (counts[tag] || 0) + 1;
+        }
+      }
+      return counts;
+    }
+  });
+  to({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -9123,7 +9153,9 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "GET",
-    callback: (request) => toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))
+    callback: (request) => __spreadProps(__spreadValues({}, toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))), {
+      shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id)
+    })
   });
   to({
     path: "/api/engine/v2/signage/media/:id",
@@ -9186,6 +9218,14 @@ function registerMockSignage() {
       id: `playlist-${Date.now()}`,
       created_at: getUnixTime(Date.now()),
       updated_at: getUnixTime(Date.now())
+    })
+  });
+  to({
+    path: "/api/engine/v2/signage/playlists/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => __spreadProps(__spreadValues({}, toEnginePlaylist(MOCK_PLAYLISTS.find((item) => item.id === request.route_params.id))), {
+      shared_with: sharedWithGroups(MOCK_PLAYLISTS, request.route_params.id)
     })
   });
   to({
@@ -11346,7 +11386,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  cp(space.id, {
+  ad(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -12101,49 +12141,49 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-5RUP76RL.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-I24DTROW.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-C5CERO44.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-57PADRZF.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-C5CERO44.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-57PADRZF.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-7TB7G5UR.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-BD3TC2DU.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-7TB7G5UR.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-BD3TC2DU.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-NG3Z6GU7.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-ZG5GSJR6.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-4DPKKTOD.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-QLF54DD6.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-4DPKKTOD.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-QLF54DD6.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-CYK33BYT.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-GUSSYG5A.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-ECRMFGKQ.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-7EIMZSEH.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-ECRMFGKQ.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-7EIMZSEH.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
