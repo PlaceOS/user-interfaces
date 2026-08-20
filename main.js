@@ -1930,9 +1930,9 @@ function __asyncValues(o) {
       });
     };
   }
-  function settle(resolve, reject, d2, v) {
+  function settle(resolve, reject, d, v) {
     Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d2 });
+      resolve({ value: v2, done: d });
     }, reject);
   }
 }
@@ -2788,9 +2788,9 @@ function pairwise() {
     let prev;
     let hasPrev = false;
     source.subscribe(createOperatorSubscriber(subscriber, (value) => {
-      const p = prev;
+      const p2 = prev;
       prev = value;
-      hasPrev && subscriber.next([p, value]);
+      hasPrev && subscriber.next([p2, value]);
       hasPrev = true;
     }));
   });
@@ -13802,7 +13802,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding));
+    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -17020,10 +17020,10 @@ function publishNonCoreGlobalUtil(name, fn) {
 }
 function publishUtil(name, fn) {
   if (typeof COMPILED === "undefined" || !COMPILED) {
-    const w = _global;
+    const w2 = _global;
     ngDevMode && assertDefined(fn, "function not defined");
-    w[GLOBAL_PUBLISH_EXPANDO_KEY] ??= {};
-    w[GLOBAL_PUBLISH_EXPANDO_KEY][name] = fn;
+    w2[GLOBAL_PUBLISH_EXPANDO_KEY] ??= {};
+    w2[GLOBAL_PUBLISH_EXPANDO_KEY][name] = fn;
   }
 }
 var TESTABILITY = new InjectionToken("");
@@ -22748,7 +22748,7 @@ function getStandaloneDefFunctions(type2, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type2, imports);
-    return [...scope.compilation.directives].map((p) => getComponentDef(p) || getDirectiveDef(p)).filter((d2) => d2 !== null);
+    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d) => d !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
@@ -22760,7 +22760,7 @@ function getStandaloneDefFunctions(type2, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type2, imports);
-    return [...scope.compilation.pipes].map((p) => getPipeDef(p)).filter((d2) => d2 !== null);
+    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d) => d !== null);
   };
   return {
     directiveDefs,
@@ -23005,9 +23005,9 @@ var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (t
 var Component = makeDecorator("Component", (c2 = {}) => __spreadValues({
   changeDetection: ChangeDetectionStrategy.Eager
 }, c2), Directive, void 0, (type2, meta) => compileComponent(type2, meta));
-var Pipe = makeDecorator("Pipe", (p) => __spreadValues({
+var Pipe = makeDecorator("Pipe", (p2) => __spreadValues({
   pure: true
-}, p), void 0, void 0, (type2, meta) => compilePipe(type2, meta));
+}, p2), void 0, void 0, (type2, meta) => compilePipe(type2, meta));
 var Input = makePropDecorator("Input", (arg) => {
   if (!arg) {
     return {};
@@ -27196,8 +27196,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y2, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
-      return createDate(y2, m2 - 1, d2);
+      const [y2, m2 = 1, d = 1] = value.split("-").map((val) => +val);
+      return createDate(y2, m2 - 1, d);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27286,7 +27286,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d2) => !d2);
+    isZero = digits.every((d) => !d);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27344,7 +27344,7 @@ function formatNumber(value, locale, digitsInfo) {
   return formatNumberToLocaleString(value, pattern, locale, NumberSymbol.Group, NumberSymbol.Decimal, digitsInfo);
 }
 function parseNumberFormat(format3, minusSign = "-") {
-  const p = {
+  const p2 = {
     minInt: 1,
     minFrac: 0,
     maxFrac: 0,
@@ -27359,29 +27359,29 @@ function parseNumberFormat(format3, minusSign = "-") {
   const positive = patternParts[0];
   const negative = patternParts[1];
   const positiveParts = positive.indexOf(DECIMAL_SEP) !== -1 ? positive.split(DECIMAL_SEP) : [positive.substring(0, positive.lastIndexOf(ZERO_CHAR) + 1), positive.substring(positive.lastIndexOf(ZERO_CHAR) + 1)], integer = positiveParts[0], fraction = positiveParts[1] || "";
-  p.posPre = integer.substring(0, integer.indexOf(DIGIT_CHAR));
+  p2.posPre = integer.substring(0, integer.indexOf(DIGIT_CHAR));
   for (let i = 0; i < fraction.length; i++) {
     const ch = fraction.charAt(i);
     if (ch === ZERO_CHAR) {
-      p.minFrac = p.maxFrac = i + 1;
+      p2.minFrac = p2.maxFrac = i + 1;
     } else if (ch === DIGIT_CHAR) {
-      p.maxFrac = i + 1;
+      p2.maxFrac = i + 1;
     } else {
-      p.posSuf += ch;
+      p2.posSuf += ch;
     }
   }
   const groups = integer.split(GROUP_SEP);
-  p.gSize = groups[1] ? groups[1].length : 0;
-  p.lgSize = groups[2] || groups[1] ? (groups[2] || groups[1]).length : 0;
+  p2.gSize = groups[1] ? groups[1].length : 0;
+  p2.lgSize = groups[2] || groups[1] ? (groups[2] || groups[1]).length : 0;
   if (negative) {
-    const trunkLen = positive.length - p.posPre.length - p.posSuf.length, pos = negative.indexOf(DIGIT_CHAR);
-    p.negPre = negative.substring(0, pos).replace(/'/g, "");
-    p.negSuf = negative.slice(pos + trunkLen).replace(/'/g, "");
+    const trunkLen = positive.length - p2.posPre.length - p2.posSuf.length, pos = negative.indexOf(DIGIT_CHAR);
+    p2.negPre = negative.substring(0, pos).replace(/'/g, "");
+    p2.negSuf = negative.slice(pos + trunkLen).replace(/'/g, "");
   } else {
-    p.negPre = minusSign + p.posPre;
-    p.negSuf = p.posSuf;
+    p2.negPre = minusSign + p2.posPre;
+    p2.negSuf = p2.posSuf;
   }
-  return p;
+  return p2;
 }
 function toPercent(parsedNumber) {
   if (parsedNumber.digits[0] === 0) {
@@ -27475,9 +27475,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
-    d2 = d2 + carry2;
-    digits2[i] = d2 < 10 ? d2 : d2 - 10;
+  const carry = digits.reduceRight(function(carry2, d, i, digits2) {
+    d = d + carry2;
+    digits2[i] = d < 10 ? d : d - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27485,7 +27485,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d2 >= 10 ? 1 : 0;
+    return d >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -30516,9 +30516,9 @@ var EventManager = class _EventManager {
     plugins.forEach((plugin) => {
       plugin.manager = this;
     });
-    const otherPlugins = plugins.filter((p) => !(p instanceof DomEventsPlugin));
+    const otherPlugins = plugins.filter((p2) => !(p2 instanceof DomEventsPlugin));
     this._plugins = otherPlugins.slice().reverse();
-    const domEventPlugin = plugins.find((p) => p instanceof DomEventsPlugin);
+    const domEventPlugin = plugins.find((p2) => p2 instanceof DomEventsPlugin);
     if (domEventPlugin) {
       this._plugins.push(domEventPlugin);
     }
@@ -34492,8 +34492,8 @@ var UrlSerializer = class _UrlSerializer {
 })();
 var DefaultUrlSerializer = class {
   parse(url) {
-    const p = new UrlParser(url);
-    return new UrlTree(p.parseRootSegment(), p.parseQueryParams(), p.parseFragment());
+    const p2 = new UrlParser(url);
+    return new UrlTree(p2.parseRootSegment(), p2.parseQueryParams(), p2.parseFragment());
   }
   serialize(tree2) {
     const segment = `/${serializeSegment(tree2.root, true)}`;
@@ -34504,7 +34504,7 @@ var DefaultUrlSerializer = class {
 };
 var DEFAULT_SERIALIZER = new DefaultUrlSerializer();
 function serializePaths(segment) {
-  return segment.segments.map((p) => serializePath(p)).join("/");
+  return segment.segments.map((p2) => serializePath(p2)).join("/");
 }
 function serializeSegment(segment, root) {
   if (!segment.hasChildren()) {
@@ -35040,8 +35040,8 @@ function createNewSegmentGroup(segmentGroup, startIndex, commands) {
       return new UrlSegmentGroup(paths, children);
     }
     if (i === 0 && isMatrixParams(commands[0])) {
-      const p = segmentGroup.segments[startIndex];
-      paths.push(new UrlSegment(p.path, stringify2(commands[0])));
+      const p2 = segmentGroup.segments[startIndex];
+      paths.push(new UrlSegment(p2.path, stringify2(commands[0])));
       i++;
       continue;
     }
@@ -35463,8 +35463,8 @@ var Tree = class {
     return this._root.value;
   }
   parent(t) {
-    const p = this.pathFromRoot(t);
-    return p.length > 1 ? p[p.length - 2] : null;
+    const p2 = this.pathFromRoot(t);
+    return p2.length > 1 ? p2[p2.length - 2] : null;
   }
   children(t) {
     const n = findNode(t, this._root);
@@ -35475,9 +35475,9 @@ var Tree = class {
     return n && n.children.length > 0 ? n.children[0].value : null;
   }
   siblings(t) {
-    const p = findPath(t, this._root);
-    if (p.length < 2) return [];
-    const c2 = p[p.length - 2].children.map((c3) => c3.value);
+    const p2 = findPath(t, this._root);
+    if (p2.length < 2) return [];
+    const c2 = p2[p2.length - 2].children.map((c3) => c3.value);
     return c2.filter((cc) => cc !== t);
   }
   pathFromRoot(t) {
@@ -35579,7 +35579,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = this.dataSubject?.pipe(map((d2) => d2[RouteTitleKey])) ?? of(void 0);
+    this.title = this.dataSubject?.pipe(map((d) => d[RouteTitleKey])) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -35605,11 +35605,11 @@ var ActivatedRoute = class {
     return this._routerState.pathFromRoot(this);
   }
   get paramMap() {
-    this._paramMap ??= this.params.pipe(map((p) => convertToParamMap(p)));
+    this._paramMap ??= this.params.pipe(map((p2) => convertToParamMap(p2)));
     return this._paramMap;
   }
   get queryParamMap() {
-    this._queryParamMap ??= this.queryParams.pipe(map((p) => convertToParamMap(p)));
+    this._queryParamMap ??= this.queryParams.pipe(map((p2) => convertToParamMap(p2)));
     return this._queryParamMap;
   }
   toString() {
@@ -36098,9 +36098,9 @@ function createNode(routeReuseStrategy, curr, prevState) {
 }
 function createOrReuseChildren(routeReuseStrategy, curr, prevState) {
   return curr.children.map((child) => {
-    for (const p of prevState.children) {
-      if (routeReuseStrategy.shouldReuseRoute(child.value, p.value.snapshot)) {
-        return createNode(routeReuseStrategy, child, p);
+    for (const p2 of prevState.children) {
+      if (routeReuseStrategy.shouldReuseRoute(child.value, p2.value.snapshot)) {
+        return createNode(routeReuseStrategy, child, p2);
       }
     }
     return createNode(routeReuseStrategy, child);
@@ -36311,11 +36311,11 @@ function getAllRouteGuards(future, curr, parentContexts) {
   const currRoot = curr ? curr._root : null;
   return getChildRouteGuards(futureRoot, currRoot, parentContexts, [futureRoot.value]);
 }
-function getCanActivateChild(p) {
-  const canActivateChild = p.routeConfig ? p.routeConfig.canActivateChild : null;
+function getCanActivateChild(p2) {
+  const canActivateChild = p2.routeConfig ? p2.routeConfig.canActivateChild : null;
   if (!canActivateChild || canActivateChild.length === 0) return null;
   return {
-    node: p,
+    node: p2,
     guards: canActivateChild
   };
 }
@@ -36538,11 +36538,11 @@ function runCanActivate(futureRSS, futureARS) {
 }
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
-  const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p) => getCanActivateChild(p)).filter((_2) => _2 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
+  const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_2) => _2 !== null);
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d) => {
     return defer(() => {
-      const guardsMapped = d2.guards.map((canActivateChild) => {
-        const closestInjector = d2.node._environmentInjector;
+      const guardsMapped = d.guards.map((canActivateChild) => {
+        const closestInjector = d.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -37200,9 +37200,9 @@ function checkOutletNameUniqueness(nodes) {
   nodes.forEach((n) => {
     const routeWithSameOutletName = names[n.value.outlet];
     if (routeWithSameOutletName) {
-      const p = routeWithSameOutletName.url.map((s) => s.toString()).join("/");
+      const p2 = routeWithSameOutletName.url.map((s) => s.toString()).join("/");
       const c2 = n.value.url.map((s) => s.toString()).join("/");
-      throw new RuntimeError(4006, (typeof ngDevMode === "undefined" || ngDevMode) && `Two segments cannot have the same outlet name: '${p}' and '${c2}'.`);
+      throw new RuntimeError(4006, (typeof ngDevMode === "undefined" || ngDevMode) && `Two segments cannot have the same outlet name: '${p2}' and '${c2}'.`);
     }
     names[n.value.outlet] = n.value;
   });
@@ -47336,10 +47336,10 @@ function validateTime(hours, minutes, seconds) {
 function toZonedTime(date, timeZone, options) {
   date = toDate3(date, options);
   const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d2 = new Date(date.getTime() - offsetMilliseconds);
+  const d = new Date(date.getTime() - offsetMilliseconds);
   const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
-  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
+  resultDate.setFullYear(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  resultDate.setHours(d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
   return resultDate;
 }
 
@@ -47414,7 +47414,11 @@ var SIGNAGE_MANAGER = {
   APPROVE_PLAYLIST: "Approve Playlist",
   APPROVE_PLAYLIST_TOOLTIP: "Approve playlist",
   APPROVE_SELECTED_PLAYLIST: "Approve selected playlist",
+  APPROVE_SELECTED_TEMPLATE: "Approve selected template",
+  APPROVE_TEMPLATE: "Approve Template",
+  APPROVE_TEMPLATE_TOOLTIP: "Approve template",
   APPROVING_PLAYLIST: "Approving playlist...",
+  APPROVING_TEMPLATE: "Approving template...",
   AWAITING_APPROVAL: "Awaiting approval",
   BACK_TO_DISPLAYS: "Back to displays list",
   BACK_TO_GROUPS: "Back to groups list",
@@ -47441,11 +47445,13 @@ var SIGNAGE_MANAGER = {
   CLOSE_ADD_USER: "Close add user dialog",
   CLOSE_ADD_ZONE: "Close add zone dialog",
   CLOSE_APPROVE_PLAYLIST: "Close approve playlist dialog",
+  CLOSE_APPROVE_TEMPLATE: "Close approve template dialog",
   CLOSE_GROUP_SELECT: "Close group selection dialog",
   CLOSE_MEDIA_PREVIEW: "Close media preview",
   CLOSE_REQUEST_APPROVAL: "Close request approval dialog",
   COLLAPSE_GROUP: "Collapse group {{ name }}",
   COLLAPSE_ZONE: "Collapse zone {{ name }}",
+  CREATE_NEW_DISPLAY: "Create new display",
   CREATE_NEW_PLAYLIST: "Create new playlist",
   CREATE_NEW_TEMPLATE: "Create new template",
   CUSTOM_SCHEDULE: "Custom schedule",
@@ -47455,7 +47461,9 @@ var SIGNAGE_MANAGER = {
   DEFAULT_DURATION: "Default Duration",
   DEFAULT_PERMISSIONS: "No permissions",
   DEFAULT_PLAY_TIME: "Default Play Time",
+  DELETE_DISPLAY_TOOLTIP: "Delete display",
   DELETE_PLAYLIST_TOOLTIP: "Delete playlist",
+  DELETE_SELECTED_DISPLAY: "Delete selected display",
   DELETE_SELECTED_PLAYLIST: "Delete selected playlist",
   DELETE_SELECTED_TEMPLATE: "Delete selected template",
   DELETE_TEMPLATE_TOOLTIP: "Delete template",
@@ -47466,8 +47474,14 @@ var SIGNAGE_MANAGER = {
   DISPLAY_COUNT_LABEL: "{{ count }} displays",
   DISPLAY_COUNT_LABEL_1: "{{ count }} display",
   DISPLAY_DETAILS_TABS: "Display details tabs",
+  DISPLAY_EDIT: "Edit Display",
+  DISPLAY_NAME_ARIA: "Display name",
   DISPLAY_NO_ZONES: "This display is not in any zones.",
+  DISPLAY_ORIENTATION_ARIA: "Display orientation",
+  DISPLAY_SAVING: "Saving display...",
   DISPLAY_SELECT_DETAILS: "Select a display to view its details.",
+  DISPLAY_ZONES: "Display zones",
+  DISPLAY_ZONES_HINT: "Select a zone to add it to this display.",
   DRAG_MEDIA_HINT: "Drag media onto a playlist to add it",
   DURATION_DAY: "{{ count }} days",
   DURATION_DAY_1: "{{ count }} day",
@@ -47475,8 +47489,10 @@ var SIGNAGE_MANAGER = {
   DURATION_HOUR_1: "{{ count }} hour",
   DURATION_MINUTE: "{{ count }} minutes",
   DURATION_MINUTE_1: "{{ count }} minute",
+  EDIT_DISPLAY_TOOLTIP: "Edit display",
   EDIT_GROUP_TOOLTIP: "Edit group",
   EDIT_PLAYLIST_TOOLTIP: "Edit playlist",
+  EDIT_SELECTED_DISPLAY: "Edit selected display",
   EDIT_SELECTED_PLAYLIST: "Edit selected playlist",
   EDIT_SELECTED_TEMPLATE: "Edit selected template",
   EDIT_TEMPLATE_TOOLTIP: "Edit template",
@@ -47535,6 +47551,7 @@ var SIGNAGE_MANAGER = {
   NAV_SCHEDULES: "Schedules",
   NAV_TEMPLATES: "Templates",
   NAV_ZONES: "Zones",
+  NEW_DISPLAY: "New Display",
   NEW_PLAYLIST: "New Playlist",
   NEW_TEMPLATE: "New Template",
   NEXT_5_PLAYS: "Next 5 Plays",
@@ -47578,6 +47595,7 @@ var SIGNAGE_MANAGER = {
   ORIENTATION_LANDSCAPE: "Landscape",
   ORIENTATION_PORTRAIT: "Portrait",
   ORIENTATION_SQUARE: "Square",
+  ORIENTATION_UNSPECIFIED: "Unspecified",
   PARENT_REQUIRED: "Parent group is required",
   PERMISSIONS: "Permissions",
   PERM_CREATE: "Create",
@@ -47624,13 +47642,15 @@ var SIGNAGE_MANAGER = {
   PREVIEW_MEDIA_ARIA: "Preview media",
   PREVIEW_UNAVAILABLE: "Preview not available",
   PREVIOUS_DAY: "Previous day",
-  PREVIOUS_VERSION: "Previous version",
+  NO_OLDER_VERSION: "No older version",
+  PREVIOUS_VERSION: "Old version",
   PREV_WEEK: "Previous week",
   PREV_WEEK_ARIA: "Show previous week",
   PRIMARY_NAV: "Primary navigation",
   RECURRING_SCHEDULE: "Recurring schedule",
   REMOVE_DISPLAY: "Remove display",
   REMOVE_DISPLAY_FROM_PLAYLIST: "Remove display {{ name }} from playlist",
+  REMOVE_DISPLAY_ZONE: "Remove zone {{ name }} from display",
   REMOVE_FROM_PLAYLIST: "Remove from Playlist",
   REMOVE_GROUP_TOOLTIP: "Remove group",
   REMOVE_PLAYLIST_FROM_DISPLAY: "Remove playlist {{ name }} from display",
@@ -47643,7 +47663,9 @@ var SIGNAGE_MANAGER = {
   REPEAT_PATTERN_ARIA: "Recurring schedule repeat pattern",
   REQUEST_APPROVAL: "Request Approval",
   REQUEST_APPROVAL_SELECTED: "Request approval for selected playlist",
+  REQUEST_APPROVAL_SELECTED_TEMPLATE: "Request approval for selected template",
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
+  REQUEST_TEMPLATE_APPROVAL_TOOLTIP: "Request template approval",
   SCHEDULE: "Schedule",
   EDIT_SCHEDULE: "Edit Schedule",
   ITEM_SCHEDULES: "Item Schedules",
@@ -47674,8 +47696,17 @@ var SIGNAGE_MANAGER = {
   SELECT_TEMPLATE_HINT: "Select a template to preview and edit its layout.",
   SEQUENTIAL: "Sequential",
   SHARE: "Share",
+  SHARED_WITH: "Shared with",
+  SHARED_WITH_REMOVE: "Remove from group",
+  SHARED_WITH_REMOVED: "Removed from group",
+  SHARED_WITH_REMOVE_CONTENT: "Remove this item from <strong>{{ name }}</strong>? It stays available in the other groups it is shared with.",
+  SHARED_WITH_REMOVE_ERROR: "Failed to remove from group. {{ error }}",
+  SHARED_WITH_REMOVE_TITLE: "Remove from group?",
+  SHARED_WITH_REMOVING: "Removing from group...",
   SHARE_PLAYLIST_TOOLTIP: "Share playlist",
   SHARE_SELECTED_PLAYLIST: "Share selected playlist",
+  SHARE_SELECTED_TEMPLATE: "Share selected template",
+  SHARE_TEMPLATE_TOOLTIP: "Share template",
   SHOW_APPROVAL_CHANGES: "Show approval changes",
   SHOW_NEXT_DAY: "Show next day",
   SHOW_PREVIOUS_DAY: "Show previous day",
@@ -47712,8 +47743,10 @@ var SIGNAGE_MANAGER = {
   SVC_DISPLAY_ADDED_PLAYLIST: "Display added to playlist",
   SVC_DISPLAY_ADDED_ZONE: "Display added to zone",
   SVC_DISPLAY_IN_ZONE: "Display already assigned to this zone.",
+  SVC_DISPLAY_REMOVED: "Display removed",
   SVC_DISPLAY_REMOVED_PLAYLIST: "Display removed from playlist",
   SVC_DISPLAY_REMOVED_ZONE: "Display removed from zone",
+  SVC_DISPLAY_SAVED: "Display saved",
   SVC_ERR_ADD_USER: "Error adding group user",
   SVC_ERR_ADD_ZONE: "Error adding group zone",
   SVC_ERR_CONVERT_IMAGE: "Unable to convert image",
@@ -47734,17 +47767,23 @@ var SIGNAGE_MANAGER = {
   SVC_MEDIA_UPLOAD_FAILED: "Media upload failed. Please try again.",
   SVC_NO_APPROVERS: "Unable to load playlist approvers.",
   SVC_NO_APPROVE_PLAYLISTS: "You cannot approve playlists in this group.",
+  SVC_NO_APPROVE_TEMPLATES: "You cannot approve templates in this group.",
+  SVC_NO_CREATE_DISPLAYS: "You cannot create displays in this group.",
   SVC_NO_CREATE_MEDIA: "You cannot create media in this group.",
   SVC_NO_CREATE_PLAYLISTS: "You cannot create playlists in this group.",
   SVC_NO_CREATE_TEMPLATES: "You cannot create templates in this group.",
+  SVC_NO_DELETE_DISPLAYS: "Only system administrators can delete displays.",
   SVC_NO_DELETE_MEDIA: "You cannot delete media in this group.",
   SVC_NO_DELETE_PLAYLISTS: "You cannot delete playlists in this group.",
   SVC_NO_DELETE_TEMPLATES: "You cannot delete templates in this group.",
   SVC_NO_GROUPS_FOR_PLAYLIST: "No signage groups are available for this playlist.",
+  SVC_NO_GROUPS_FOR_TEMPLATE: "No signage groups are available for this template.",
   SVC_NO_GROUPS_TO_SHARE: "No other signage groups are available to share with.",
   SVC_NO_MANAGE_GROUP: "You cannot manage this signage group.",
   SVC_NO_SHARE_ITEMS: "You cannot share items from this group.",
+  SVC_NO_TEMPLATE_APPROVERS: "Unable to load template approvers.",
   SVC_NO_UPDATE_ASSIGNMENTS: "You cannot update signage assignments in this group.",
+  SVC_NO_UPDATE_DISPLAYS: "You cannot update displays in this group.",
   SVC_NO_UPDATE_MEDIA: "You cannot update media in this group.",
   SVC_NO_UPDATE_PLAYLISTS: "You cannot update playlists in this group.",
   SVC_NO_UPDATE_TEMPLATES: "You cannot update templates in this group.",
@@ -47759,6 +47798,7 @@ var SIGNAGE_MANAGER = {
   SVC_PLAYLIST_SHARED: "Playlist shared",
   SVC_PLAYLIST_UPDATED: "Playlist updated",
   SVC_REMOVE_GROUP_TITLE: "Remove signage group?",
+  SVC_REMOVE_DISPLAY_TITLE: "Remove display?",
   SVC_REMOVE_MEDIA_TITLE: "Remove media?",
   SVC_REMOVE_NAMED_FROM_GROUP: 'Remove "{{ name }}" from this group?',
   SVC_REMOVE_PLAYLIST_TITLE: "Remove playlist?",
@@ -47768,8 +47808,11 @@ var SIGNAGE_MANAGER = {
   SVC_SELECT_MEDIA_FILE: "Please select a media file to upload.",
   SVC_SHARE_MEDIA_TITLE: "Share media with group",
   SVC_SHARE_PLAYLIST_TITLE: "Share playlist with group",
+  SVC_SHARE_TEMPLATE_TITLE: "Share template with group",
   SVC_TEMPLATE_LAYOUTS_SAVED: "Template layout saved",
+  SVC_TEMPLATE_APPROVAL_REQUESTED: "Template approval requested",
   SVC_TEMPLATE_REMOVED: "Template removed",
+  SVC_TEMPLATE_SHARED: "Template shared",
   SVC_TEMPLATE_SAVE_ERROR: "Error saving template layout",
   SVC_THUMBNAIL_FAILED: "Could not generate a thumbnail from the selected image.",
   SVC_THUMBNAIL_NOT_IMAGE: "Thumbnails must be an image file.",
@@ -47789,15 +47832,24 @@ var SIGNAGE_MANAGER = {
   TAKEOVER_SUFFIX: " \xB7 takeover",
   TEMPLATES_PAGE_TITLE: "Signage Templates",
   TEMPLATE_ADD_LAYOUT: "Add layout",
+  TEMPLATE_APPROVED: "Template approved",
+  TEMPLATE_APPROVE_ERROR: "Error approving template",
   TEMPLATE_ASPECT_RATIO: "Preview aspect ratio",
   TEMPLATE_BACKGROUND: "Template background",
+  TEMPLATE_BACKGROUND_EMPTY: "No background selected",
+  TEMPLATE_BACKGROUND_REMOVE: "Remove background",
+  TEMPLATE_BACKGROUND_SEARCH: "Search media",
+  TEMPLATE_BACKGROUND_SELECT: "Select background media",
+  TEMPLATE_BACKGROUND_SELECTED: "Selected background",
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
+  TEMPLATE_LABEL: "Template",
   TEMPLATE_NAME_ARIA: "Template name",
+  TEMPLATE_NO_LAYOUT_CHANGES: "No layout changes",
   TEMPLATE_NO_LAYOUTS: "No layout items yet. Add one to get started.",
   TEMPLATE_NO_LAYOUTS_HINT: "Add layout items to build this template.",
   TEMPLATE_NO_PLUGIN: "No plugin",
@@ -47811,7 +47863,10 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_POSITION_LEFT: "Left Sidebar",
   TEMPLATE_POSITION_RIGHT: "Right Sidebar",
   TEMPLATE_POSITION_TOP: "Header",
+  TEMPLATE_PREVIEW_ARIA: "Preview of {{ name }}",
   TEMPLATE_REMOVE_LAYOUT: "Remove layout item",
+  TEMPLATE_REVERTED: "Template reverted to previous version",
+  TEMPLATE_REVERT_ERROR: "Error reverting template changes",
   TEMPLATE_SAVED: "Template saved",
   TEMPLATE_SAVE_ERROR: "Error saving template",
   TEMPLATE_SAVING: "Saving Template...",
@@ -47840,7 +47895,7 @@ var SIGNAGE_MANAGER = {
   USERS_COUNT_1: "User ({{ count }})",
   USER_PERMISSIONS: "User permissions",
   VALID_FROM: "Valid From",
-  VERSION_TO_APPROVE: "Version to approve",
+  VERSION_TO_APPROVE: "New Version",
   VIEW_FOLDER: "Folders",
   VIEW_GRID: "Grid view",
   VIEW_LIST: "List view",
@@ -48340,6 +48395,7 @@ var EXPLORE = {
 var BOOKINGS = {
   ASSOCIATE: "Associate",
   BOOKED_FOR: "For {{ name }}",
+  BOOKED_FOR_LABEL: "Booked For",
   PREVENT: "Prevent Bookings",
   RELEASED: "Released",
   ASSETS_REQUESTED_FOR: "Requested for {{ time }}",
@@ -50525,17 +50581,17 @@ function Qs() {
         3204031479,
         3329325298
       ]);
-      function s(v, c2, l, p, C2) {
+      function s(v, c2, l, d, C2) {
         for (var P2, U2, k, Q2, D2, E2, se, H2, j, z, We, Qe, kt; C2 >= 64; ) {
           for (P2 = c2[0], U2 = c2[1], k = c2[2], Q2 = c2[3], D2 = c2[4], E2 = c2[5], se = c2[6], H2 = c2[7], z = 0; z < 16; z++)
-            We = p + z * 4, v[z] = (l[We] & 255) << 24 | (l[We + 1] & 255) << 16 | (l[We + 2] & 255) << 8 | l[We + 3] & 255;
+            We = d + z * 4, v[z] = (l[We] & 255) << 24 | (l[We + 1] & 255) << 16 | (l[We + 2] & 255) << 8 | l[We + 3] & 255;
           for (z = 16; z < 64; z++)
             j = v[z - 2], Qe = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = v[z - 15], kt = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, v[z] = (Qe + v[z - 7] | 0) + (kt + v[z - 16] | 0);
           for (z = 0; z < 64; z++)
             Qe = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & se) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, kt = ((P2 >>> 2 | P2 << 30) ^ (P2 >>> 13 | P2 << 19) ^ (P2 >>> 22 | P2 << 10)) + (P2 & U2 ^ P2 & k ^ U2 & k) | 0, H2 = se, se = E2, E2 = D2, D2 = Q2 + Qe | 0, Q2 = k, k = U2, U2 = P2, P2 = Qe + kt | 0;
-          c2[0] += P2, c2[1] += U2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, p += 64, C2 -= 64;
+          c2[0] += P2, c2[1] += U2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, d += 64, C2 -= 64;
         }
-        return p;
+        return d;
       }
       var i = (
         /** @class */
@@ -50554,20 +50610,20 @@ function Qs() {
           }, v.prototype.update = function(c2, l) {
             if (l === void 0 && (l = c2.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var p = 0;
+            var d = 0;
             if (this.bytesHashed += l, this.bufferLength > 0) {
               for (; this.bufferLength < 64 && l > 0; )
-                this.buffer[this.bufferLength++] = c2[p++], l--;
+                this.buffer[this.bufferLength++] = c2[d++], l--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (l >= 64 && (p = s(this.temp, this.state, c2, p, l), l %= 64); l > 0; )
-              this.buffer[this.bufferLength++] = c2[p++], l--;
+            for (l >= 64 && (d = s(this.temp, this.state, c2, d, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c2[d++], l--;
             return this;
           }, v.prototype.finish = function(c2) {
             if (!this.finished) {
-              var l = this.bytesHashed, p = this.bufferLength, C2 = l / 536870912 | 0, P2 = l << 3, U2 = l % 64 < 56 ? 64 : 128;
-              this.buffer[p] = 128;
-              for (var k = p + 1; k < U2 - 8; k++)
+              var l = this.bytesHashed, d = this.bufferLength, C2 = l / 536870912 | 0, P2 = l << 3, U2 = l % 64 < 56 ? 64 : 128;
+              this.buffer[d] = 128;
+              for (var k = d + 1; k < U2 - 8; k++)
                 this.buffer[k] = 0;
               this.buffer[U2 - 8] = C2 >>> 24 & 255, this.buffer[U2 - 7] = C2 >>> 16 & 255, this.buffer[U2 - 6] = C2 >>> 8 & 255, this.buffer[U2 - 5] = C2 >>> 0 & 255, this.buffer[U2 - 4] = P2 >>> 24 & 255, this.buffer[U2 - 3] = P2 >>> 16 & 255, this.buffer[U2 - 2] = P2 >>> 8 & 255, this.buffer[U2 - 1] = P2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, U2), this.finished = true;
             }
@@ -50581,8 +50637,8 @@ function Qs() {
             for (var l = 0; l < this.state.length; l++)
               c2[l] = this.state[l];
           }, v.prototype._restoreState = function(c2, l) {
-            for (var p = 0; p < this.state.length; p++)
-              this.state[p] = c2[p];
+            for (var d = 0; d < this.state.length; d++)
+              this.state[d] = c2[d];
             this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
           }, v;
         })()
@@ -50597,16 +50653,16 @@ function Qs() {
             if (c2.length > this.blockSize)
               new i().update(c2).finish(l).clean();
             else
-              for (var p = 0; p < c2.length; p++)
-                l[p] = c2[p];
-            for (var p = 0; p < l.length; p++)
-              l[p] ^= 54;
+              for (var d = 0; d < c2.length; d++)
+                l[d] = c2[d];
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 54;
             this.inner.update(l);
-            for (var p = 0; p < l.length; p++)
-              l[p] ^= 106;
+            for (var d = 0; d < l.length; d++)
+              l[d] ^= 106;
             this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var p = 0; p < l.length; p++)
-              l[p] = 0;
+            for (var d = 0; d < l.length; d++)
+              l[d] = 0;
           }
           return v.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
@@ -50631,26 +50687,26 @@ function Qs() {
       }
       e.hash = o, e.default = o;
       function h2(v, c2) {
-        var l = new r(v).update(c2), p = l.digest();
-        return l.clean(), p;
+        var l = new r(v).update(c2), d = l.digest();
+        return l.clean(), d;
       }
       e.hmac = h2;
-      function $(v, c2, l, p) {
-        var C2 = p[0];
+      function $(v, c2, l, d) {
+        var C2 = d[0];
         if (C2 === 0)
           throw new Error("hkdf: cannot expand more");
-        c2.reset(), C2 > 1 && c2.update(v), l && c2.update(l), c2.update(p), c2.finish(v), p[0]++;
+        c2.reset(), C2 > 1 && c2.update(v), l && c2.update(l), c2.update(d), c2.finish(v), d[0]++;
       }
       var L2 = new Uint8Array(e.digestLength);
-      function R2(v, c2, l, p) {
-        c2 === void 0 && (c2 = L2), p === void 0 && (p = 32);
-        for (var C2 = new Uint8Array([1]), P2 = h2(c2, v), U2 = new r(P2), k = new Uint8Array(U2.digestLength), Q2 = k.length, D2 = new Uint8Array(p), E2 = 0; E2 < p; E2++)
+      function R2(v, c2, l, d) {
+        c2 === void 0 && (c2 = L2), d === void 0 && (d = 32);
+        for (var C2 = new Uint8Array([1]), P2 = h2(c2, v), U2 = new r(P2), k = new Uint8Array(U2.digestLength), Q2 = k.length, D2 = new Uint8Array(d), E2 = 0; E2 < d; E2++)
           Q2 === k.length && ($(k, U2, l, C2), Q2 = 0), D2[E2] = k[Q2++];
         return U2.clean(), k.fill(0), C2.fill(0), D2;
       }
       e.hkdf = R2;
-      function W2(v, c2, l, p) {
-        for (var C2 = new r(v), P2 = C2.digestLength, U2 = new Uint8Array(4), k = new Uint8Array(P2), Q2 = new Uint8Array(P2), D2 = new Uint8Array(p), E2 = 0; E2 * P2 < p; E2++) {
+      function W2(v, c2, l, d) {
+        for (var C2 = new r(v), P2 = C2.digestLength, U2 = new Uint8Array(4), k = new Uint8Array(P2), Q2 = new Uint8Array(P2), D2 = new Uint8Array(d), E2 = 0; E2 * P2 < d; E2++) {
           var se = E2 + 1;
           U2[0] = se >>> 24 & 255, U2[1] = se >>> 16 & 255, U2[2] = se >>> 8 & 255, U2[3] = se >>> 0 & 255, C2.reset(), C2.update(c2), C2.update(U2), C2.finish(Q2);
           for (var H2 = 0; H2 < P2; H2++)
@@ -50660,7 +50716,7 @@ function Qs() {
             for (var j = 0; j < P2; j++)
               k[j] ^= Q2[j];
           }
-          for (var H2 = 0; H2 < P2 && E2 * P2 + H2 < p; H2++)
+          for (var H2 = 0; H2 < P2 && E2 * P2 + H2 < d; H2++)
             D2[E2 * P2 + H2] = k[H2];
         }
         for (var E2 = 0; E2 < P2; E2++)
@@ -50997,7 +51053,7 @@ function b(t) {
 var Ae = {};
 function re(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    ge(t), Ae[t] = setTimeout(() => {
+    ye(t), Ae[t] = setTimeout(() => {
       e(), delete Ae[t];
     }, n);
   else
@@ -51005,7 +51061,7 @@ function re(t, e, n = 300) {
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function ge(t) {
+function ye(t) {
   Ae[t] && (clearTimeout(Ae[t]), delete Ae[t]);
 }
 function ne(t) {
@@ -51035,7 +51091,7 @@ function hi(t, e = Boolean) {
 function li(t) {
   return new Promise((e) => setTimeout(e, t));
 }
-var pi = {
+var di = {
   id: "mock-authority",
   name: "localhost:4200",
   description: "",
@@ -51047,25 +51103,25 @@ var pi = {
   config: {},
   version: "2.0.0"
 };
-var f = Ht("Auth");
-var _ = {};
-var T = localStorage;
-var N;
+var _ = Ht("Auth");
 var m = {};
+var T = localStorage;
+var w;
+var g = {};
 var I = "";
-var ye = "";
-var be = ne("");
+var be = "";
+var $e = ne("");
 var Ye = ne("");
 var An = "/api/engine/v2";
-var me = ne(false);
+var ge = ne(false);
 var qn = ne(false);
 var Rt = 0;
 function os() {
-  if (_.mock) return true;
+  if (m.mock) return true;
   if (!T) return false;
-  if (Ve() && !_.ignore_api_key) return true;
+  if (Ve() && !m.ignore_api_key) return true;
   const t = T.getItem(`${I}_expires_at`) || "";
-  return ss(+t, /* @__PURE__ */ new Date()) ? false : !!(be.value || T.getItem(`${I}_access_token`));
+  return ss(+t, /* @__PURE__ */ new Date()) ? false : !!($e.value || T.getItem(`${I}_access_token`));
 }
 function Ce() {
   qn.set(os());
@@ -51073,17 +51129,17 @@ function Ce() {
 function us(t) {
   if (!t || t.startsWith("http://") || t.startsWith("https://"))
     return t;
-  const e = N?.domain;
-  return e ? `${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${e}${t}` : t;
+  const e = w?.domain;
+  return e ? `${m.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${e}${t}` : t;
 }
 function u2() {
-  return `${`${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${_.host || window.location?.host}`}${cs()}`;
+  return `${`${m.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${m.host || window.location?.host}`}${cs()}`;
 }
 function cs() {
-  return _.version === "ACA Engine" ? "/control/api" : An;
+  return m.version === "ACA Engine" ? "/control/api" : An;
 }
-function di() {
-  return !!_.token_header;
+function pi() {
+  return !!m.token_header;
 }
 function fi() {
   return I;
@@ -51095,18 +51151,18 @@ function Ve() {
   return Et("x-api-key", false) || "";
 }
 function _i(t, e = Vs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  _.ignore_api_key && t === "x-api-key" || (T.setItem(`${I}_expires_at`, `${e}`), T.setItem(`${I}_access_token`, t), be.set(t), Ce());
+  m.ignore_api_key && t === "x-api-key" || (T.setItem(`${I}_expires_at`, `${e}`), T.setItem(`${I}_access_token`, t), $e.set(t), Ce());
 }
 function X(t = true) {
-  if (_.mock) return "mock-token";
+  if (m.mock) return "mock-token";
   if (!T) return "";
-  if (Ve() && !_.ignore_api_key) return "x-api-key";
-  const e = T.getItem(`${I}_expires_at`) || "", n = be.value;
-  return ss(+e, /* @__PURE__ */ new Date()) && (f("Token expired. Requesting new token..."), Un(), m.load_authority || (Rt += 1, re(
+  if (Ve() && !m.ignore_api_key) return "x-api-key";
+  const e = T.getItem(`${I}_expires_at`) || "", n = $e.value;
+  return ss(+e, /* @__PURE__ */ new Date()) && (_("Token expired. Requesting new token..."), Un(), g.load_authority || (Rt += 1, re(
     "re-authorise",
     async () => {
-      delete m.authorise, await zt().catch(
-        (s) => f.error("Failed to get token:", s)
+      delete g.authorise, await zt().catch(
+        (s) => _.error("Failed to get token:", s)
       );
     },
     200 * Math.min(20, Rt)
@@ -51116,31 +51172,31 @@ function Ut() {
   return Ye.value || T.getItem(`${I}_refresh_token`) || "";
 }
 function xn() {
-  return _.host || window.location?.host;
+  return m.host || window.location?.host;
 }
 function mi() {
   return Ce(), qn.asReadonly();
 }
 function It() {
-  return N;
+  return w;
 }
 function Qr() {
-  return me.value;
+  return ge.value;
 }
 function Pn() {
-  return !!_.mock;
+  return !!m.mock;
 }
 function gi() {
-  return !!_.secure;
+  return !!m.secure;
 }
 function Kr() {
-  return me.asReadonly();
+  return ge.asReadonly();
 }
 function Tn() {
   return Et("trust") === "true" || Et("trusted") === "true";
 }
 function as() {
-  return !!Ve() && !_.ignore_api_key || Et("fixed_device") === "true";
+  return !!Ve() && !m.ignore_api_key || Et("fixed_device") === "true";
 }
 function Et(t, e = true) {
   let s = is()[t];
@@ -51151,61 +51207,61 @@ function Et(t, e = true) {
   return s;
 }
 async function Zr(t) {
-  return _ = t || _, _.token_header = _.token_header ?? ii(), window.AbortController || (window.AbortController = oi), T = _.storage === "session" ? sessionStorage : localStorage, I = K.hashStr(_.redirect_uri, false), yi(), _.delay && _.delay > 0 && await li(_.delay), In();
+  return m = t || m, m.token_header = m.token_header ?? ii(), window.AbortController || (window.AbortController = oi), T = m.storage === "session" ? sessionStorage : localStorage, I = K.hashStr(m.redirect_uri, false), yi(), m.delay && m.delay > 0 && await li(m.delay), In();
 }
 var Mt = false;
 function yi() {
   Mt || (Mt = true, window.addEventListener("focus", Ot), document.addEventListener("visibilitychange", Ot));
 }
 async function Ot() {
-  if (document.visibilityState === "hidden" || _.mock || !N || N.session || os()) return;
-  if (delete m.check_params, await ls().catch(() => false) || ye || Ut()) {
-    f("Application focused with new credentials. Authorising..."), Oe = false, delete m.authorise, await zt().catch(
-      (e) => f.error("Failed to authorise on focus:", e)
+  if (document.visibilityState === "hidden" || m.mock || !w || w.session || os()) return;
+  if (delete g.check_params, await ls().catch(() => false) || be || Ut()) {
+    _("Application focused with new credentials. Authorising..."), Oe = false, delete g.authorise, await zt().catch(
+      (e) => _.error("Failed to authorise on focus:", e)
     );
     return;
   }
-  f("Application focused without a session. Reloading authority..."), Oe = false, Rn().catch(
-    (e) => f.error("Failed to refresh authority:", e)
+  _("Application focused without a session. Reloading authority..."), Oe = false, Rn().catch(
+    (e) => _.error("Failed to refresh authority:", e)
   );
 }
 function Rn() {
-  return f("Refreshing authorty."), N = void 0, In();
+  return _("Refreshing authorty."), w = void 0, In();
 }
 function Un() {
-  f("Invalidating tokens."), T.removeItem(`${I}_access_token`), T.removeItem(`${I}_expires_at`), be.value && be.set(""), Ce();
+  _("Invalidating tokens."), T.removeItem(`${I}_access_token`), T.removeItem(`${I}_expires_at`), $e.value && $e.set(""), Ce();
 }
-function zt(t, e = N) {
-  return m.authorise || (m.authorise = new Promise((n, s) => {
+function zt(t, e = w) {
+  return g.authorise || (g.authorise = new Promise((n, s) => {
     if (!e)
-      return delete m.authorise, s("Authority is not loaded");
-    f("Authorising user...");
+      return delete g.authorise, s("Authority is not loaded");
+    _("Authorising user...");
     const i = () => {
       if (X(false))
-        f("Valid token found."), delete m.authorise, n(X());
+        _("Valid token found."), delete g.authorise, n(X());
       else {
         const r = [
           () => {
-            f("Successfully generated token."), n(X()), delete m.authorise;
+            _("Successfully generated token."), n(X()), delete g.authorise;
           },
           () => {
-            f.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
+            _.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete g.authorise, 200);
           }
         ];
-        if (_ && _.auth_type === "password")
-          f("Logging in with credentials."), Pi(_).then(
+        if (m && m.auth_type === "password")
+          _("Logging in with credentials."), Pi(m).then(
             ...r
           ), Rt = 0;
-        else if (ye || Ut())
-          f(
-            `Generating token with ${ye ? "code" : "refresh token"}`
-          ), ps().then(...r), Rt = 0;
+        else if (be || Ut())
+          _(
+            `Generating token with ${be ? "code" : "refresh token"}`
+          ), ds().then(...r), Rt = 0;
         else if (e.session)
-          f(
+          _(
             "Users has session. Authorising application..."
           ), $i(t).then(...r);
         else {
-          f("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
+          _("No user session"), s("No user session"), setTimeout(() => delete g.authorise, 200);
           try {
             hs(e);
           } catch {
@@ -51214,20 +51270,20 @@ function zt(t, e = N) {
       }
     };
     ki().then(i, i);
-  })), m.authorise;
+  })), g.authorise;
 }
 function In(t = 0) {
-  return m.load_authority || (m.load_authority = new Promise((e) => {
-    if (me.set(false), _.mock) {
-      N = pi, f("System in mock mode"), me.set(true), e();
+  return g.load_authority || (g.load_authority = new Promise((e) => {
+    if (ge.set(false), m.mock) {
+      w = di, _("System in mock mode"), ge.set(true), e();
       return;
     }
-    f(`Fixed: ${as()} | Trusted: ${Tn()}`), f("Loading authority...");
-    const n = _.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
-      f.error(`Failed to load authority(${i})`), me.set(false), re(
+    _(`Fixed: ${as()} | Trusted: ${Tn()}`), _("Loading authority...");
+    const n = m.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
+      _.error(`Failed to load authority(${i})`), ge.set(false), re(
         "load_authority",
         () => {
-          delete m.load_authority, In(t).then((r) => e());
+          delete g.load_authority, In(t).then((r) => e());
         },
         300 * Math.min(20, ++t)
       );
@@ -51237,59 +51293,59 @@ function In(t = 0) {
     }).then(async (i) => {
       if (!i.ok)
         return s(await i.text().catch((o) => o));
-      N = await i.json(), An = /[2-9]\.[0-9]+\.[0-9]+/g.test(
-        N.version || ""
-      ) ? "/api/engine/v2" : "/control/api", f.group("Loaded authority."), N && (f(`Name: ${N.name}`), f(`Version: ${N.version}`), f(`Domain: ${N.domain}`), f(`Session: ${N.session}`), f(`Production: ${N.production}`), f(
-        `Config Keys: ${Object.keys(N.config || {}).length}`
-      )), f.groupEnd("");
+      w = await i.json(), An = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+        w.version || ""
+      ) ? "/api/engine/v2" : "/control/api", _.group("Loaded authority."), w && (_(`Name: ${w.name}`), _(`Version: ${w.version}`), _(`Domain: ${w.domain}`), _(`Session: ${w.session}`), _(`Production: ${w.production}`), _(
+        `Config Keys: ${Object.keys(w.config || {}).length}`
+      )), _.groupEnd("");
       const r = () => {
-        me.set(true), f("Application set online."), e();
+        ge.set(true), _("Application set online."), e();
       };
-      delete m.load_authority, zt("").then(r, r);
+      delete g.load_authority, zt("").then(r, r);
     }, s);
-  })), m.load_authority;
+  })), g.load_authority;
 }
 async function $i(t) {
   const e = Si(t);
-  if (_.use_iframe)
+  if (m.use_iframe)
     return vi2(e);
   window.location?.assign(e);
 }
 function vi2(t) {
-  return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
-    f("Authorizing in an iFrame...");
+  return g.iframe_auth || (g.iframe_auth = new Promise((e, n) => {
+    _("Authorizing in an iFrame...");
     const s = document.createElement("iframe");
     s.style.position = "absolute", s.style.top = "0", s.style.left = "0", s.style.height = "1px", s.style.width = "1px", s.style.zIndex = "-1", s.id = "place-authorize", s.src = `${t}`;
     const i = (o) => {
       if (o.origin === window.location?.origin && o.data.type === "place-os") {
         const h2 = o.data;
-        if (f("Received credentials from iFrame..."), document.body.removeChild(s), ge("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, h2.token)
+        if (_("Received credentials from iFrame..."), document.body.removeChild(s), ye("iframe_auth"), window.removeEventListener("message", i), delete g.iframe_auth, h2.token)
           return e(), En(__spreadValues({
             access_token: h2.token
           }, h2));
-        ye = h2.code || "", ps().then(
+        be = h2.code || "", ds().then(
           ($) => e($),
           ($) => n($)
         );
       }
     }, r = () => {
-      window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete m.iframe_auth;
+      window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete g.iframe_auth;
     };
     re(
       "iframe_auth",
       () => {
-        f.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
+        _.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      f.error("iFrame error.", o), ge("iframe_auth"), r(), n();
+      _.error("iFrame error.", o), ye("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
-  })), m.iframe_auth;
+  })), g.iframe_auth;
 }
 var Oe = false;
 function hs(t) {
-  if (_.handle_login !== false && !Oe) {
-    f("Redirecting to login page...");
+  if (m.handle_login !== false && !Oe) {
+    _("Redirecting to login page...");
     const e = us(
       t.login_url?.replace(
         "{{url}}",
@@ -51298,17 +51354,17 @@ function hs(t) {
     );
     throw setTimeout(() => window.location?.assign(e), 300), Oe = true, new Error("Redirecting to login page...");
   } else
-    f("Login being handled locally.");
-  delete m.authorise;
+    _("Login being handled locally.");
+  delete g.authorise;
 }
 function ki() {
-  return m.check_token || (m.check_token = new Promise(async (t, e) => {
-    X() ? (f("Valid token found."), t(X())) : (f("No token. Checking URL for auth credentials..."), await ls() ? t(true) : e()), delete m.check_token;
-  })), m.check_token;
+  return g.check_token || (g.check_token = new Promise(async (t, e) => {
+    X() ? (_("Valid token found."), t(X())) : (_("No token. Checking URL for auth credentials..."), await ls() ? t(true) : e()), delete g.check_token;
+  })), g.check_token;
 }
 function ls() {
-  return m.check_params || (m.check_params = new Promise((t) => {
-    f("Checking for auth parameters...");
+  return g.check_params || (g.check_params = new Promise((t) => {
+    _("Checking for auth parameters...");
     let e = is();
     if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
@@ -51316,7 +51372,7 @@ function ls() {
       const n = T.getItem(`${I}_nonce`) || "", s = (e.state || "").split(";");
       ie("state"), ie("token_type");
       const i = s[0];
-      n === i ? (e.code && (ye = e.code, ie("code")), e.refresh_token && (T.setItem(
+      n === i ? (e.code && (be = e.code, ie("code")), e.refresh_token && (T.setItem(
         `${I}_refresh_token`,
         e.refresh_token
       ), ie("refresh_token")), En(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
@@ -51324,17 +51380,17 @@ function ls() {
       t(false);
     re(
       "check_params_promise",
-      () => delete m.check_params,
+      () => delete g.check_params,
       50
     );
-  })), m.check_params;
+  })), g.check_params;
 }
 function Si(t) {
   const e = Ti();
   t = t ? `${e};${t}` : e;
-  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = Tn() || _.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
-  if (_.auth_type === "auth_code") {
+  const n = m ? (m.auth_uri || "").indexOf("?") >= 0 : false, s = (m ? m.auth_uri : null) || "/auth/oauth/authorize", i = Tn() || m.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(m.redirect_uri)}&scope=${encodeURIComponent(m.scope)}`;
+  if (m.auth_type === "auth_code") {
     const { challenge: o, verify: h2 } = xi();
     sessionStorage.setItem(`${I}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${h2}`;
   }
@@ -51345,15 +51401,15 @@ function xi(t = 43) {
   return { challenge: e, verify: s };
 }
 function Ai() {
-  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I)}`, n = "";
-  if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Ut()) {
+  let e = (m.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I)}`, n = "";
+  if (e += `&redirect_uri=${encodeURIComponent(m.redirect_uri)}`, Ut()) {
     e += `&refresh_token=${encodeURIComponent(Ut())}`, e += "&grant_type=refresh_token";
     const s = e.indexOf("?");
     n = e.slice(s + 1), e = e.slice(0, s);
   } else {
-    e += `&code=${encodeURIComponent(ye)}`, e += "&grant_type=authorization_code";
+    e += `&code=${encodeURIComponent(be)}`, e += "&grant_type=authorization_code";
     const s = sessionStorage.getItem(`${I}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I}_challenge`)), ye = "";
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I}_challenge`)), be = "";
   }
   return [e, n];
 }
@@ -51363,24 +51419,24 @@ function qi(t) {
     client_id: I,
     client_secret: t.client_secret,
     redirect_uri: t.redirect_uri,
-    authority: N?.id,
+    authority: w?.id,
     scope: t.scope,
     username: t.username,
     password: t.password
   });
   return `${e}?${n}`;
 }
-function ps() {
-  return ds(...Ai());
+function ds() {
+  return ps(...Ai());
 }
 function Pi(t) {
-  return ds(qi(t));
+  return ps(qi(t));
 }
-function ds(t, e = "") {
-  return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
-    f("Generating new token...");
+function ps(t, e = "") {
+  return g.generate_tokens || (g.generate_tokens = new Promise((n, s) => {
+    _("Generating new token...");
     const i = (r) => {
-      f.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T.removeItem(`${I}_refresh_token`), Ye.set("")), Ce(), s(), delete m.generate_tokens;
+      _.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T.removeItem(`${I}_refresh_token`), Ye.set("")), Ce(), s(), delete g.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -51391,22 +51447,22 @@ function ds(t, e = "") {
     }).then(async (r) => {
       if (!r.ok) return i(r);
       const o = await r.json();
-      En(o), n(), delete m.generate_tokens;
+      En(o), n(), delete g.generate_tokens;
     }, i);
-  })), m.generate_tokens;
+  })), g.generate_tokens;
 }
 function En(t) {
   const e = Xs(
     /* @__PURE__ */ new Date(),
     Math.max(60, parseInt(t.expires_in, 10) - 300)
   );
-  f("Tokens generated storing..."), Tn() && (t.access_token && (T.setItem(
+  _("Tokens generated storing..."), Tn() && (t.access_token && (T.setItem(
     `${I}_access_token`,
     t.access_token
   ), ie("access_token")), t.refresh_token && (T.setItem(
     `${I}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (T.setItem(`${I}_expires_at`, `${e.valueOf()}`), ie("expires_in")), me.set(true), be.set(t.access_token || ""), Ye.set(t.refresh_token || ""), Ce();
+  ), ie("refresh_token"))), t.expires_in && (T.setItem(`${I}_expires_at`, `${e.valueOf()}`), ie("expires_in")), ge.set(true), $e.set(t.access_token || ""), Ye.set(t.refresh_token || ""), Ce();
 }
 function Ti() {
   const t = rs();
@@ -51495,7 +51551,7 @@ var _s = {};
 function Ci(t, e = _s) {
   return e[t] || {};
 }
-function d(t, e, n = Xe) {
+function p(t, e, n = Xe) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
 function S(t, e, n, s = Xe) {
@@ -51507,7 +51563,7 @@ function ae(t, e, n, s = Xe) {
 function he(t, e, n, s = Xe) {
   return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-async function Ni(t, e, n = _s) {
+async function wi(t, e, n = _s) {
   if (t.headers) {
     const s = {};
     t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
@@ -51533,7 +51589,7 @@ var ms = () => (Un(), Rn().then(
     }, 1e3);
   })
 ));
-function Xe(t, e, n, s = Pn, i = Ui, r = Ni) {
+function Xe(t, e, n, s = Pn, i = Ui, r = wi) {
   if (s()) {
     const R2 = i(t, e, n?.body);
     if (R2) return R2;
@@ -51597,7 +51653,7 @@ var Ie = {};
 function y(t) {
   const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
   if (Ie[o]) return Ie[o].promise;
-  const h2 = d(o).then(($) => {
+  const h2 = p(o).then(($) => {
     const L2 = Fi(o, r, s);
     return {
       total: L2.total || 0,
@@ -51617,9 +51673,9 @@ function y(t) {
     clearTimeout(Ie[o]?.timeout), delete Ie[o];
   }), h2;
 }
-function g(t) {
+function f(t) {
   const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), h2 = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return d(h2, r).then(($) => (i || jt)($));
+  return p(h2, r).then(($) => (i || jt)($));
 }
 function q(t) {
   const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, h2 = b(__spreadProps(__spreadValues({}, n), {
@@ -51790,14 +51846,14 @@ function rt(t) {
 }
 function xu(t = {}) {
   const e = b(t), n = `${u2()}/${Fe}/current${e ? "?" + e : ""}`;
-  return d(n).then(
+  return p(n).then(
     (s) => (s || []).map((i) => ({
       group: rt(i.group || {}),
       permissions: i.permissions || 0
     }))
   );
 }
-var pe = class extends F {
+var de = class extends F {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -51906,7 +51962,7 @@ var Yt = class extends F {
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new pe(n)
+      (n) => new de(n)
     ));
   }
 };
@@ -51939,16 +51995,16 @@ var As = class {
     this.editors = e.editors || [], this.schema = e.schema || "", this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
   }
 };
-var $e = "metadata";
+var ve = "metadata";
 function Le(t) {
   return new As(t);
 }
 function Vu(t, e) {
-  return g({
+  return f({
     id: t,
     query_params: { name: e },
     fn: (n) => Le(n[e]),
-    path: $e
+    path: ve
   });
 }
 function Xu(t, e, n = "put") {
@@ -51958,12 +52014,12 @@ function Xu(t, e, n = "put") {
     query_params: {},
     method: n,
     fn: Le,
-    path: $e
+    path: ve
   });
 }
 function sc(t, e) {
-  const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return d(s).then(
+  const n = b(e), s = `${u2()}/${ve}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
+  return p(s).then(
     (i) => Object.keys(i || {}).reduce(
       (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Le(i[o]) }),
       {}
@@ -52115,15 +52171,15 @@ function Te(t) {
 function ha(t = {}) {
   return y({ query_params: t, fn: Te, path: M });
 }
-function pa(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Te, path: M });
+function da(t, e = {}) {
+  return f({ id: t, query_params: e, fn: Te, path: M });
 }
 var Y = "users";
 function Re(t) {
   return new Mn(t);
 }
 function La(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Re, path: Y });
+  return f({ id: t, query_params: e, fn: Re, path: Y });
 }
 function Ga(t, e, n = "patch") {
   return q({
@@ -52135,12 +52191,12 @@ function Ga(t, e, n = "patch") {
     path: Y
   });
 }
-var de = "zones";
+var pe = "zones";
 function on(t) {
   return new Yt(t);
 }
 function eh(t = {}) {
-  return y({ query_params: t, fn: on, path: de });
+  return y({ query_params: t, fn: on, path: pe });
 }
 var Is = /* @__PURE__ */ ((t) => (t.Default = "default", t.Cut = "cut", t.CrossFade = "cross_fade", t.SlideTop = "slide_top", t.SlideLeft = "slide_left", t.SlideRight = "slide_right", t.SlideBottom = "slide_bottom", t))(Is || {});
 var Es = class {
@@ -52165,6 +52221,7 @@ var Es = class {
   valid_from;
   valid_until;
   tags;
+  shared_with;
   get media_url() {
     return this.media_id ? `/api/engine/v2/uploads/${this.media_id}/url` : this.media_uri;
   }
@@ -52172,7 +52229,7 @@ var Es = class {
     return `/api/engine/v2/uploads/${this.thumbnail_id}/url`;
   }
   constructor(e) {
-    this.id = e.id || "", this.created_at = e.created_at || Sn(Date.now()), this.updated_at = e.updated_at || Sn(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [];
+    this.id = e.id || "", this.created_at = e.created_at || Sn(Date.now()), this.updated_at = e.updated_at || Sn(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [], this.shared_with = e.shared_with || [];
   }
 };
 var lr = class {
@@ -52183,15 +52240,16 @@ var lr = class {
   description;
   uri;
   playback_type;
+  plugin_type;
   authority_id;
   enabled;
   params;
   defaults;
   constructor(e = {}) {
-    this.id = e.id || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.name = e.name || "", this.description = e.description || "", this.uri = e.uri || "", this.playback_type = e.playback_type || "static", this.authority_id = e.authority_id || "", this.enabled = e.enabled ?? true, this.params = e.params || {}, this.defaults = e.defaults || {};
+    this.id = e.id || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.name = e.name || "", this.description = e.description || "", this.uri = e.uri || "", this.playback_type = e.playback_type || "static", this.plugin_type = e.plugin_type || "plugin", this.authority_id = e.authority_id || "", this.enabled = e.enabled ?? true, this.params = e.params || {}, this.defaults = e.defaults || {};
   }
 };
-var pr = class {
+var dr = class {
   created_at;
   updated_at;
   id;
@@ -52209,44 +52267,45 @@ var pr = class {
   approved_by_name;
   approved_by_email;
   live_template_id;
+  shared_with;
   constructor(e = {}) {
-    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.tags = e.tags || [], this.authority_id = e.authority_id || "", this.background_item_id = e.background_item_id || "", this.layouts = e.layouts || [], this.full_screen_takeover = e.full_screen_takeover || false, this.approval_requested = e.approval_requested || false, this.requested_by_id = e.requested_by_id || "", this.approved = e.approved || false, this.approved_by_id = e.approved_by_id || "", this.approved_by_name = e.approved_by_name || "", this.approved_by_email = e.approved_by_email || "", this.live_template_id = e.live_template_id || "";
+    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.tags = e.tags || [], this.authority_id = e.authority_id || "", this.background_item_id = e.background_item_id || "", this.layouts = e.layouts || [], this.full_screen_takeover = e.full_screen_takeover || false, this.approval_requested = e.approval_requested || false, this.requested_by_id = e.requested_by_id || "", this.approved = e.approved || false, this.approved_by_id = e.approved_by_id || "", this.approved_by_name = e.approved_by_name || "", this.approved_by_email = e.approved_by_email || "", this.live_template_id = e.live_template_id || "", this.shared_with = e.shared_with || [];
   }
 };
 var Ms = "signage";
 function ah(t, e = {}, n) {
-  return g({ id: t, query_params: e, fn: (s) => s, path: `${Ms}`, options: n });
+  return f({ id: t, query_params: e, fn: (s) => s, path: `${Ms}`, options: n });
 }
-var ve = "signage/media";
+var fe = "signage/media";
 function un(t) {
   return new Es(t);
 }
-function dh(t, e = {}) {
-  return g({ id: t, query_params: e, fn: un, path: ve });
+function fh(t, e = {}) {
+  return f({ id: t, query_params: e, fn: un, path: fe });
 }
 var ht = "signage/plugins";
 function hn(t) {
   return new lr(t);
 }
-function Mh(t = {}) {
+function Oh(t = {}) {
   return y({ query_params: t, fn: hn, path: ht });
 }
 var oe = "signage/templates";
 function lt(t) {
-  return new pr(t);
+  return new dr(t);
 }
-function Dh(t = {}) {
+function Hh(t = {}) {
   return y({ query_params: t, fn: lt, path: oe });
 }
-function Hh(t, e = {}) {
-  return g({
+function zh(t, e = {}) {
+  return f({
     id: t,
     query_params: e,
     fn: lt,
     path: oe
   });
 }
-var Ns = class {
+var ws = class {
   _listeners = /* @__PURE__ */ new Set();
   _error_listeners = /* @__PURE__ */ new Set();
   _complete_listeners = /* @__PURE__ */ new Set();
@@ -52276,7 +52335,7 @@ var Ns = class {
     this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
   }
 };
-var vr = class extends Ns {
+var vr = class extends ws {
   constructor(e) {
     super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
       const n = [...this._queue];
@@ -52307,7 +52366,7 @@ function kr(t) {
   );
 }
 var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var ws = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(ws || {});
+var Ns = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Ns || {});
 var Sr = class {
   constructor(e, n) {
     this._system = e;
@@ -52371,12 +52430,12 @@ var xr = class {
     this[e] || (this[e] = []), this[e].push(new Sr(this, n));
   }
 };
-var Nt = {};
-function cp(t, e) {
-  return Nt[t] = new xr(e), Nt[t];
+var wt = {};
+function ad(t, e) {
+  return wt[t] = new xr(e), wt[t];
 }
 function Ar(t) {
-  return Nt[t];
+  return wt[t];
 }
 var O = Ht("WS");
 var Ds = 15;
@@ -52390,8 +52449,8 @@ var xe = ne(false);
 var zs = ne([0, 0]);
 var Fs = Date.now();
 var Me;
-var wt = 0;
-var fe = null;
+var Nt = 0;
+var _e = null;
 var At;
 var Ln = 0;
 var vt = 10 * 1e3;
@@ -52461,7 +52520,7 @@ function Be(t, e = vt, n = 0) {
           },
           e
         );
-      } else fe ? setTimeout(() => h2(), 1e3) : jn().then(() => h2());
+      } else _e ? setTimeout(() => h2(), 1e3) : jn().then(() => h2());
     }), G[s] = i;
   }
   return G[s].promise;
@@ -52480,11 +52539,11 @@ function js(t) {
         module: `${e.mod}_${e.index}`,
         class_name: t.klass || "<empty>",
         message: t.msg || "<empty>",
-        level: t.level || ws.Debug,
+        level: t.level || Ns.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
     } else t.type === "error" ? Or(t) : t.cmd || O.error("Invalid websocket message", t);
-    ge(`${t.id}`);
+    ye(`${t.id}`);
   } else t === "pong" && (Ln = Date.now(), O("Pong!"));
 }
 function Mr(t) {
@@ -52518,7 +52577,7 @@ function Or(t) {
   }
   O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), ge(`${n.key}`), delete G[n.key]);
+  n && n.reject && (n.reject(t), ye(`${n.key}`), delete G[n.key]);
 }
 function Cr(t, e, n = Fn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
@@ -52531,24 +52590,24 @@ function Cr(t, e, n = Fn) {
   ]), n[s].set(e);
 }
 function jn(t = 0) {
-  return fe == null && (fe = new Promise((e) => {
+  return _e == null && (_e = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    wt++, Fs = Date.now(), V = Pn() ? Dr() : Nr(), V ? (O.debug("Authority:", It()), O("Connecting to websocket..."), V.subscribe(
+    Nt++, Fs = Date.now(), V = Pn() ? Dr() : wr(), V ? (O.debug("Authority:", It()), O("Connecting to websocket..."), V.subscribe(
       (n) => {
-        xe.value || (O("Connection established."), e()), xe.set(true), wt = 0, vn(), js(n);
+        xe.value || (O("Connection established."), e()), xe.set(true), Nt = 0, vn(), js(n);
       },
       (n) => {
-        V = void 0, fe = null, Xn(), vn(), wr(n);
+        V = void 0, _e = null, Xn(), vn(), Nr(n);
       },
       () => {
-        V = void 0, fe = null, Xn(), O("Connection closed by browser."), xe.set(false), Dt();
+        V = void 0, _e = null, Xn(), O("Connection closed by browser."), xe.set(false), Dt();
       }
     ), Me && clearInterval(Me), Ln = Date.now(), Yn(), Me = setInterval(
       () => Yn(),
       Ds * 1e3
     ), vn(), Hs += 1, At = setTimeout(() => {
-      O("Unhealthy connection. Reconnecting..."), xe.set(false), fe = null, Dt();
+      O("Unhealthy connection. Reconnecting..."), xe.set(false), _e = null, Dt();
     }, 30 * 1e3)) : (V ? O(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
       [!!X(), !!It()],
@@ -52557,19 +52616,19 @@ function jn(t = 0) {
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
-        fe = null, jn(t).then((n) => e(n));
+        _e = null, jn(t).then((n) => e(n));
       },
       1e3 * Math.min(10, ++t)
     ));
-  })), fe;
+  })), _e;
 }
-function Nr() {
+function wr() {
   if (!It() || !X()) return null;
   const t = gi() || location.protocol.indexOf("https") >= 0;
   let e = `ws${t ? "s" : ""}://${xn()}${$n()}${as() ? "?fixed_device=true" : ""}`;
   const n = X();
   let s = n === "x-api-key" ? `api-key=${Ve()}` : `bearer_token=${n}`;
-  return !di() && !si() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${$n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
+  return !pi() && !si() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${$n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
     `Creating websocket connection to ws${t ? "s" : ""}://${xn()}${$n()}`
   ), kr({
     url: e,
@@ -52589,12 +52648,12 @@ function Dt() {
   zs.set([Hs, Date.now() - Fs]), V && Ls() && (V.complete(), Me && (clearInterval(Me), Me = void 0)), O(
     `Reconnecting in ${Math.min(
       5e3,
-      wt * 300 || 1e3
+      Nt * 300 || 1e3
     )}ms...`
   ), re(
     "reconnect",
     () => jn(),
-    Math.min(5e3, (wt + 1) * 300 || 1e3)
+    Math.min(5e3, (Nt + 1) * 300 || 1e3)
   );
 }
 function Yn() {
@@ -52602,14 +52661,14 @@ function Yn() {
     return Dt();
   V?.next("ping");
 }
-function wr(t) {
+function Nr(t) {
   xe.set(false), O.error("Websocket error:", t), t.status === 401 && Un(), Rn(), Dt();
 }
 function vn() {
   At && (clearTimeout(At), At = void 0);
 }
 function Dr() {
-  const t = new Ns();
+  const t = new ws();
   return t.subscribe(
     (e) => js(e)
   ), t;
@@ -52644,7 +52703,7 @@ function Hr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], ge(`${s}`));
+          n[s] && (n[s](), delete n[s], ye(`${s}`));
           break;
       }
     } catch (o) {
@@ -52692,7 +52751,7 @@ function Xn() {
 var es = class {
   constructor(e, n) {
     this._module = e, this.name = n, Tr().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Pt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (ge(`rebind:${JSON.stringify(this.binding())}`), Pt(
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Pt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (ye(`rebind:${JSON.stringify(this.binding())}`), Pt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -52877,7 +52936,7 @@ var kn = {};
 function Lr(t) {
   return kn[t] || (kn[t] = new Fr(t)), kn[t];
 }
-function dp(t, e, n = 1) {
+function fd(t, e, n = 1) {
   return Lr(t).module(e, n);
 }
 
@@ -53129,16 +53188,16 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d2 = new Date(date);
-    return { hours: d2.getHours(), minutes: d2.getMinutes() };
+    const d = new Date(date);
+    return { hours: d.getHours(), minutes: d.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d2 = set(new Date(date), { hours, minutes });
-    return startOfMinute(d2).valueOf();
+    const d = set(new Date(date), { hours, minutes });
+    return startOfMinute(d).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -53240,18 +53299,18 @@ function xmur3(str) {
     return (h2 ^= h2 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c2, d2) {
+function sfc32(a, b2, c2, d) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c2 >>>= 0;
-    d2 >>>= 0;
+    d >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c2 + (c2 << 3) | 0;
     c2 = c2 << 21 | c2 >>> 11;
-    d2 = d2 + 1 | 0;
-    t = t + d2 | 0;
+    d = d + 1 | 0;
+    t = t + d | 0;
     c2 = c2 + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -53466,14 +53525,14 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w, d2, s, l, i) {
-        w[l] = w[l] || [];
-        w[l].push({
+      (function(w2, d, s, l, i) {
+        w2[l] = w2[l] || [];
+        w2[l].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f2 = d2.getElementsByTagName(s)[0];
-        const j = d2.createElement(s);
+        const f2 = d.getElementsByTagName(s)[0];
+        const j = d.createElement(s);
         const dl = l != "dataLayer" ? "&l=" + l : "";
         j.async = true;
         j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
@@ -54192,15 +54251,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "e9f70dd",
-  "hash": "e9f70dd",
+  "raw": "957e573",
+  "hash": "957e573",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e9f70dd",
+  "suffix": "957e573",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787114202211
+  "time": 1787242357996
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -64883,7 +64942,7 @@ var UNKNOWN_FUNCTION = "?";
 var WEBPACK_ERROR_REGEXP = /\(error: (.*)\)/;
 var STRIP_FRAME_REGEXP = /captureMessage|captureException/;
 function createStackParser(...parsers) {
-  const sortedParsers = parsers.sort((a, b2) => a[0] - b2[0]).map((p) => p[1]);
+  const sortedParsers = parsers.sort((a, b2) => a[0] - b2[0]).map((p2) => p2[1]);
   return (stack, skipFirstLines = 0, framesToPop = 0) => {
     const frames = [];
     const lines = stack.split("\n");
@@ -66216,7 +66275,7 @@ function getDefaultIsolationScope() {
 }
 
 // node_modules/@sentry/core/build/esm/utils/chain-and-copy-promiselike.js
-var isActualPromise = (p) => p instanceof Promise && !p[kChainedCopy];
+var isActualPromise = (p2) => p2 instanceof Promise && !p2[kChainedCopy];
 var kChainedCopy = /* @__PURE__ */ Symbol("chained PromiseLike");
 var chainAndCopyPromiseLike = (original, onSuccess, onError) => {
   const chained = original.then(
@@ -71908,7 +71967,7 @@ function initUnique(identityObj, ClassObj) {
       instanceMap.set(identityObj, new ClassObj());
     }
     return instanceMap.get(identityObj);
-  } catch (_e) {
+  } catch (_e2) {
     return new ClassObj();
   }
 }
@@ -76623,7 +76682,7 @@ var OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : dp(system_id, mod_id);
+    return !system_id || !mod_id ? null : fd(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -78219,19 +78278,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setFullYear(year, month, date);
-    d2.setHours(0, 0, 0, 0);
-    return d2;
+    const d = /* @__PURE__ */ new Date();
+    d.setFullYear(year, month, date);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d2);
+    const d = /* @__PURE__ */ new Date();
+    d.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -79671,8 +79730,8 @@ var MatFormField = class _MatFormField {
     }
   }
   _checkPrefixAndSuffixTypes() {
-    this._hasIconPrefix = !!this._prefixChildren.find((p) => !p._isText);
-    this._hasTextPrefix = !!this._prefixChildren.find((p) => p._isText);
+    this._hasIconPrefix = !!this._prefixChildren.find((p2) => !p2._isText);
+    this._hasTextPrefix = !!this._prefixChildren.find((p2) => p2._isText);
     this._hasIconSuffix = !!this._suffixChildren.find((s) => !s._isText);
     this._hasTextSuffix = !!this._suffixChildren.find((s) => s._isText);
   }
@@ -85695,7 +85754,7 @@ var BindingDebugPanelComponent = class _BindingDebugPanelComponent extends Async
       },
       loader: async ({ params }) => Object.fromEntries(await Promise.all(params.map(async (id) => {
         if (!system_name_cache.has(id)) {
-          const system = await pa(id).catch(() => null);
+          const system = await da(id).catch(() => null);
           system_name_cache.set(id, system?.display_name || system?.name || id);
         }
         return [id, system_name_cache.get(id)];
@@ -89428,7 +89487,7 @@ function registerMockAssets() {
     callback: (req) => {
       let results = MOCK_PRODUCTS;
       if (req.query_params?.category_id) {
-        results = results.filter((p) => p.category_id === req.query_params.category_id);
+        results = results.filter((p2) => p2.category_id === req.query_params.category_id);
       }
       return results;
     }
@@ -90299,7 +90358,7 @@ function generateCateringOrder(event) {
     // 10% tax
     total: Math.floor(totalPrice * 1.1),
     // Special requirements
-    dietary_requirements: dietaryNeeds.map((d2) => d2.name),
+    dietary_requirements: dietaryNeeds.map((d) => d.name),
     special_instructions: predictableRandomInt(3) === 0 ? [
       "Please use company branded napkins",
       "Set up 15 minutes before event start",
@@ -92455,7 +92514,7 @@ function registerMockBookings() {
     }
   });
   to({
-    path: "/api/staff/v1/bookings/:id/checkin",
+    path: "/api/staff/v1/bookings/:id/check_in",
     metadata: {},
     method: "POST",
     callback: (req) => {
@@ -92465,7 +92524,14 @@ function registerMockBookings() {
           status: 404,
           message: `Unable to find booking with ID ${req.route_params.id}`
         };
-      booking.checked_in = true;
+      const state = `${req.query_params?.state ?? "true"}` === "true";
+      booking.checked_in = state;
+      if (state) {
+        booking.checked_in_at = getUnixTime(Date.now());
+        delete booking.checked_out_at;
+      } else {
+        booking.checked_out_at = getUnixTime(Date.now());
+      }
       return booking;
     }
   });
@@ -93417,7 +93483,7 @@ function generateMockPlaylists(displays, media) {
   const playlists = [];
   let playlistId = 1;
   MOCK_BUILDINGS.forEach((building) => {
-    const buildingDisplays = displays.filter((d2) => d2.building_id === building.id);
+    const buildingDisplays = displays.filter((d) => d.building_id === building.id);
     const generalPlaylist = {
       id: `playlist-${String(playlistId).padStart(3, "0")}`,
       name: `${building.name} General Content`,
@@ -93448,7 +93514,7 @@ function generateMockPlaylists(displays, media) {
       },
       // Targeting
       target: {
-        displays: buildingDisplays.map((d2) => d2.id),
+        displays: buildingDisplays.map((d) => d.id),
         zones: [building.id],
         categories: ["lobby", "corridor", "general"]
       },
@@ -93486,7 +93552,7 @@ function generateMockPlaylists(displays, media) {
           end_date: mediaItem.scheduling.end_date
         })),
         target: {
-          displays: buildingDisplays.filter((d2) => d2.location.area.includes("Meeting")).map((d2) => d2.id),
+          displays: buildingDisplays.filter((d) => d.location.area.includes("Meeting")).map((d) => d.id),
           zones: [building.id],
           categories: ["meeting_room"]
         },
@@ -93518,7 +93584,7 @@ function generateMockPlaylists(displays, media) {
       duration_override: null
     })),
     target: {
-      displays: displays.map((d2) => d2.id),
+      displays: displays.map((d) => d.id),
       // All displays
       zones: ["zone-EmWFTjuYExK"],
       categories: ["emergency"]
@@ -93713,6 +93779,13 @@ function filterByGroup(items, group_id = "") {
   if (!group_id || group_id === SIGNAGE_GROUPS[0].group.id)
     return items;
   return items.filter((_2, index) => index % 2 === 0);
+}
+function sharedWithGroups(items, id) {
+  const index = items.findIndex((item) => item.id === id);
+  if (index < 0)
+    return [];
+  const groups = index % 2 === 0 ? SIGNAGE_GROUPS : [SIGNAGE_GROUPS[0]];
+  return groups.map(({ group }) => ({ id: group.id, name: group.name }));
 }
 function toEngineMedia(item) {
   const is_video = item.type === "video";
@@ -93986,6 +94059,22 @@ function registerMockSignage() {
     ]
   });
   to({
+    path: "/api/engine/v2/signage/media/tag_counts",
+    metadata: {},
+    method: "GET",
+    callback: (request) => {
+      const counts = {};
+      for (const item of filterByGroup(MOCK_MEDIA, request.query_params?.group_id)) {
+        for (const tag of item.tags || []) {
+          if (!tag)
+            continue;
+          counts[tag] = (counts[tag] || 0) + 1;
+        }
+      }
+      return counts;
+    }
+  });
+  to({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -93999,7 +94088,9 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "GET",
-    callback: (request) => toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))
+    callback: (request) => __spreadProps(__spreadValues({}, toEngineMedia(MOCK_MEDIA.find((item) => item.id === request.route_params.id))), {
+      shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id)
+    })
   });
   to({
     path: "/api/engine/v2/signage/media/:id",
@@ -94062,6 +94153,14 @@ function registerMockSignage() {
       id: `playlist-${Date.now()}`,
       created_at: getUnixTime(Date.now()),
       updated_at: getUnixTime(Date.now())
+    })
+  });
+  to({
+    path: "/api/engine/v2/signage/playlists/:id",
+    metadata: {},
+    method: "GET",
+    callback: (request) => __spreadProps(__spreadValues({}, toEnginePlaylist(MOCK_PLAYLISTS.find((item) => item.id === request.route_params.id))), {
+      shared_with: sharedWithGroups(MOCK_PLAYLISTS, request.route_params.id)
     })
   });
   to({
@@ -94163,21 +94262,21 @@ function registerMockSignage() {
     callback: (request) => {
       let displays = MOCK_DISPLAYS;
       if (request.query_params?.building_id) {
-        displays = displays.filter((d2) => d2.building_id === request.query_params.building_id);
+        displays = displays.filter((d) => d.building_id === request.query_params.building_id);
       }
       if (request.query_params?.status) {
-        displays = displays.filter((d2) => d2.status === request.query_params.status);
+        displays = displays.filter((d) => d.status === request.query_params.status);
       }
       if (request.query_params?.zone_id) {
-        displays = displays.filter((d2) => d2.zone_id === request.query_params.zone_id);
+        displays = displays.filter((d) => d.zone_id === request.query_params.zone_id);
       }
       return {
         data: displays,
         meta: {
           total: displays.length,
-          online: displays.filter((d2) => d2.status === "online").length,
-          offline: displays.filter((d2) => d2.status === "offline").length,
-          error: displays.filter((d2) => d2.status === "error").length
+          online: displays.filter((d) => d.status === "online").length,
+          offline: displays.filter((d) => d.status === "offline").length,
+          error: displays.filter((d) => d.status === "error").length
         }
       };
     }
@@ -94187,7 +94286,7 @@ function registerMockSignage() {
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       return display;
@@ -94230,17 +94329,17 @@ function registerMockSignage() {
     callback: (request) => {
       let playlists = MOCK_PLAYLISTS;
       if (request.query_params?.building_id) {
-        playlists = playlists.filter((p) => p.target.zones.includes(request.query_params.building_id));
+        playlists = playlists.filter((p2) => p2.target.zones.includes(request.query_params.building_id));
       }
       if (request.query_params?.status) {
-        playlists = playlists.filter((p) => p.status === request.query_params.status);
+        playlists = playlists.filter((p2) => p2.status === request.query_params.status);
       }
       return {
         data: playlists,
         meta: {
           total: playlists.length,
-          active: playlists.filter((p) => p.status === "active").length,
-          standby: playlists.filter((p) => p.status === "standby").length
+          active: playlists.filter((p2) => p2.status === "active").length,
+          standby: playlists.filter((p2) => p2.status === "standby").length
         }
       };
     }
@@ -94250,7 +94349,7 @@ function registerMockSignage() {
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const playlist = MOCK_PLAYLISTS.find((p) => p.id === request.route_params.id);
+      const playlist = MOCK_PLAYLISTS.find((p2) => p2.id === request.route_params.id);
       if (!playlist)
         throw { status: 404, message: "Playlist not found" };
       const playlistWithMedia = __spreadProps(__spreadValues({}, playlist), {
@@ -94289,10 +94388,10 @@ function registerMockSignage() {
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
-      const activePlaylist = MOCK_PLAYLISTS.find((p) => p.status === "active" && p.target.displays.includes(display.id));
+      const activePlaylist = MOCK_PLAYLISTS.find((p2) => p2.status === "active" && p2.target.displays.includes(display.id));
       if (!activePlaylist) {
         return { message: "No active content for this display" };
       }
@@ -94320,14 +94419,14 @@ function registerMockSignage() {
       const building_id = request.query_params?.building_id;
       let displays = MOCK_DISPLAYS;
       if (building_id) {
-        displays = displays.filter((d2) => d2.building_id === building_id);
+        displays = displays.filter((d) => d.building_id === building_id);
       }
       return {
         timeframe,
         summary: {
           total_displays: displays.length,
-          online_displays: displays.filter((d2) => d2.status === "online").length,
-          total_impressions: displays.reduce((sum, d2) => sum + d2.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
+          online_displays: displays.filter((d) => d.status === "online").length,
+          total_impressions: displays.reduce((sum, d) => sum + d.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
           average_uptime: "99.2%",
           content_items_served: MOCK_MEDIA.length * displays.length * 24
         },
@@ -94346,7 +94445,7 @@ function registerMockSignage() {
           engagement_rate: media.performance.engagement_rate,
           average_view_time: media.performance.average_view_time
         })),
-        health_alerts: displays.filter((d2) => d2.status !== "online").map((display) => ({
+        health_alerts: displays.filter((d) => d.status !== "online").map((display) => ({
           display_id: display.id,
           display_name: display.name,
           alert_type: display.status,
@@ -94361,7 +94460,7 @@ function registerMockSignage() {
     metadata: {},
     method: "POST",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       const action = request.body?.action;
@@ -96222,7 +96321,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  cp(space.id, {
+  ad(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -97363,7 +97462,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       loader: async ({ params: enabled }) => {
         if (!enabled)
           return [];
-        const result = await Dh({ limit: 500 }).catch(() => ({ data: [] }));
+        const result = await Hh({ limit: 500 }).catch(() => ({ data: [] }));
         return result.data.sort((a, b2) => a.name.localeCompare(b2.name));
       }
     }));
@@ -101847,7 +101946,7 @@ var SignageService = class _SignageService extends AsyncHandler {
           }
           const playlists = this._mappedPlaylistIds(item);
           this._setActivePlaylistConfigs(item, playlists);
-          const media = this._getPlaylistMedia(item, playlists, (p) => p.enabled && (!playlistSchedules(p).length || activePlaylistSchedules(p).some(({ schedule }) => !schedule.play_takeover)));
+          const media = this._getPlaylistMedia(item, playlists, (p2) => p2.enabled && (!playlistSchedules(p2).length || activePlaylistSchedules(p2).some(({ schedule }) => !schedule.play_takeover)));
           this._last_playlist = media;
           return media;
         } catch (e) {
@@ -101972,28 +102071,28 @@ var SignageService = class _SignageService extends AsyncHandler {
     this._display_signature = display_signature;
   }
   async _fetchDisplay(id) {
-    let d2 = await this._withTimeout(ah(id, ni({
+    let d = await this._withTimeout(ah(id, ni({
       preview: this.debug() || void 0,
       item_id: this.playing_id()
     }, [void 0, null, ""])), DISPLAY_FETCH_TIMEOUT_MS).catch((e) => {
       log6.warn("Failed to fetch display details.", e);
       return null;
     });
-    if (!d2) {
+    if (!d) {
       const display_key = displayCacheKey(id);
-      d2 = JSON.parse(localStorage.getItem(display_key) || localStorage.getItem(DISPLAY_KEY) || "{}");
-      if (d2.id !== id)
-        d2 = {};
+      d = JSON.parse(localStorage.getItem(display_key) || localStorage.getItem(DISPLAY_KEY) || "{}");
+      if (d.id !== id)
+        d = {};
     }
-    if (d2.id === id) {
-      localStorage.setItem(displayCacheKey(id), JSON.stringify(d2));
+    if (d.id === id) {
+      localStorage.setItem(displayCacheKey(id), JSON.stringify(d));
     }
-    return d2;
+    return d;
   }
   _bindTriggers(display) {
     const triggers = Object.keys(display.playlist_mappings || {}).filter((_2) => _2.startsWith("trig-"));
     this.unsubWith("trigger_");
-    const mod = dp(display.id, "_TRIGGER__1");
+    const mod = fd(display.id, "_TRIGGER__1");
     for (const id of triggers) {
       const binding = mod.variable(id);
       this.subscription(`trigger_listen-${id}`, binding.bindThenSubscribe(() => this._handleTrigger(id)));
@@ -102221,10 +102320,10 @@ var SignageService = class _SignageService extends AsyncHandler {
     const now = time();
     const playlists = this._mappedPlaylistIds(display);
     const active_media = [
-      ...this._getPlaylistMedia(display, playlists, (p) => p.enabled && (!playlistSchedules(p).length || activePlaylistSchedules(p, now).some(({ schedule }) => !schedule.play_takeover))),
-      ...this._getPlaylistMedia(display, playlists, (p) => p.enabled && activePlaylistSchedules(p, now).some(({ schedule }) => schedule.play_takeover))
+      ...this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && (!playlistSchedules(p2).length || activePlaylistSchedules(p2, now).some(({ schedule }) => !schedule.play_takeover))),
+      ...this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && activePlaylistSchedules(p2, now).some(({ schedule }) => schedule.play_takeover))
     ];
-    const upcoming_media = this._getPlaylistMedia(display, playlists, (p) => p.enabled && playlistStartsWithin(p, now, MEDIA_CACHE_LOOK_AHEAD_SECONDS));
+    const upcoming_media = this._getPlaylistMedia(display, playlists, (p2) => p2.enabled && playlistStartsWithin(p2, now, MEDIA_CACHE_LOOK_AHEAD_SECONDS));
     const urls = [...active_media, ...upcoming_media].filter(({ type: type2 }) => type2 !== "webpage" && type2 !== "plugin").map(({ url }) => url).filter((_2) => !!_2);
     return [...new Set(urls)];
   }
@@ -102303,7 +102402,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     const unresolved_plugin = plugin_ids?.some((id) => !display_plugins.find((plugin) => plugin.id === id && plugin.uri));
     if (!unresolved_plugin)
       return Promise.resolve(display_plugins);
-    return Mh({ limit: 500 }).catch(() => ({ data: [] })).then((result) => {
+    return Oh({ limit: 500 }).catch(() => ({ data: [] })).then((result) => {
       const plugins = /* @__PURE__ */ new Map();
       for (const plugin of result.data || []) {
         if (plugin?.id)
@@ -102460,7 +102559,7 @@ var SignageService = class _SignageService extends AsyncHandler {
     if (this.override_playlist().playlist?.length > 0)
       return;
     const playlists = [...display.playlist_mappings[id]];
-    const media = this._getPlaylistMedia(display, playlists, (p) => p.enabled);
+    const media = this._getPlaylistMedia(display, playlists, (p2) => p2.enabled);
     if (media.length <= 0)
       return;
     log6.debug(`Handled trigger ${id}`, media);
@@ -103025,12 +103124,12 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
   async _loadTemplate(template_id) {
     const load_id = ++this._load_id;
     try {
-      const template = await Hh(template_id, {
+      const template = await zh(template_id, {
         approved: true
       });
       const [plugin_result, background] = await Promise.all([
-        Mh({ limit: 500 }).catch(() => ({ data: [] })),
-        template.background_item_id ? dh(template.background_item_id).catch(() => null) : null
+        Oh({ limit: 500 }).catch(() => ({ data: [] })),
+        template.background_item_id ? fh(template.background_item_id).catch(() => null) : null
       ]);
       const plugins = plugin_result.data || [];
       if (load_id !== this._load_id)
