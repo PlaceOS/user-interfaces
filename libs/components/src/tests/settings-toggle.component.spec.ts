@@ -51,9 +51,15 @@ describe('SettingsToggleComponent', () => {
         expect('[toggle]').toExist();
     });
 
-    it('should show an info icon when info text is provided', () => {
+    it('should display info inline by default and as an icon when disabled', async () => {
         expect('icon').not.toExist();
         spectator.setInput({ info: 'Some helpful details' });
+        await spectator.fixture.whenStable();
+        expect('.text-xs').toContainText('Some helpful details');
+        expect('icon').not.toExist();
+        spectator.setInput({ inline: false });
+        await spectator.fixture.whenStable();
+        expect('.text-xs').not.toExist();
         expect('icon').toExist();
     });
 });
