@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["template-preview.component.ts"],
-  "sourcesContent": ["\n            .preview-frame-container {\n                container-type: size;\n            }\n\n            /* Largest frame with the chosen aspect ratio that fits the pane */\n            .preview-frame {\n                width: min(100%, calc(100cqh * var(--ratio)));\n                aspect-ratio: var(--ratio);\n            }\n        "],
-  "mappings": "AACY,CAAA,wBACI,eAAA,IACJ,CAGA,CAAA,cACI,MAAA,IAAA,IAAA,CAAA,KAAA,OAAA,EAAA,IAAA,WACA,aAAA,IAAA,QACJ",
+  "sourcesContent": ["\n            .preview-frame-container {\n                container-type: size;\n            }\n\n            /* Largest frame with the chosen aspect ratio that fits the pane */\n            .preview-frame {\n                width: min(100%, calc(100cqh * var(--ratio)));\n                aspect-ratio: var(--ratio);\n            }\n\n            .text-outline {\n                -webkit-text-stroke: 1px var(--base-100);\n            }\n        "],
+  "mappings": "AACY,CAAA,wBACI,eAAA,IACJ,CAGA,CAAA,cACI,MAAA,IAAA,IAAA,CAAA,KAAA,OAAA,EAAA,IAAA,WACA,aAAA,IAAA,QACJ,CAEA,CAAA,aACI,oBAAA,IAAA,IAAA,WACJ",
   "names": []
 }
