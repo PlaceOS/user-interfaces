@@ -96,16 +96,42 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                     @for (item of layout_rects(); track $index) {
                         <button
                             type="button"
-                            class="absolute flex flex-col items-center justify-center gap-1 overflow-hidden border-2 backdrop-blur-sm transition-colors"
+                            class="absolute flex flex-col items-center justify-center overflow-hidden border-2 transition-colors leading-none"
                             [class.border-primary]="selected_index() === $index"
-                            [class.bg-primary/40]="selected_index() === $index"
+                            [class.bg-primary/40]="
+                                selected_index() === $index &&
+                                item.layout.plugin_id
+                            "
+                            [class.bg-primary/15]="
+                                selected_index() === $index &&
+                                !item.layout.plugin_id
+                            "
                             [class.z-10]="selected_index() === $index"
                             [class.border-white/60]="
-                                selected_index() !== $index
+                                selected_index() !== $index &&
+                                item.layout.plugin_id
                             "
-                            [class.bg-black/60]="selected_index() !== $index"
+                            [class.border-white/40]="
+                                selected_index() !== $index &&
+                                !item.layout.plugin_id
+                            "
+                            [class.border-dashed]="!item.layout.plugin_id"
+                            [class.backdrop-blur-sm]="item.layout.plugin_id"
+                            [class.bg-black/60]="
+                                selected_index() !== $index &&
+                                item.layout.plugin_id
+                            "
+                            [class.bg-black/10]="
+                                selected_index() !== $index &&
+                                !item.layout.plugin_id
+                            "
                             [class.hover:bg-black/70]="
-                                selected_index() !== $index
+                                selected_index() !== $index &&
+                                item.layout.plugin_id
+                            "
+                            [class.hover:bg-black/20]="
+                                selected_index() !== $index &&
+                                !item.layout.plugin_id
                             "
                             [style.left.%]="item.rect.left"
                             [style.top.%]="item.rect.top"
@@ -118,14 +144,14 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                             [attr.aria-pressed]="selected_index() === $index"
                         >
                             <div
-                                class="truncate px-2 text-xs font-semibold text-white uppercase"
+                                class="truncate px-2 text-sm font-semibold text-base-content uppercase text-shadow-lg text-shadow-base-100"
                             >
                                 {{
                                     positionLabel(item.layout.position)
                                         | translate
                                 }}
                             </div>
-                            <div class="truncate px-2 text-xs text-white/90">
+                            <div class="truncate px-2 text-sm text-base-content/60 text-shadow-lg text-shadow-base-100">
                                 {{
                                     pluginName(item.layout.plugin_id) ||
                                         ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
@@ -158,6 +184,10 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
             .preview-frame {
                 width: min(100%, calc(100cqh * var(--ratio)));
                 aspect-ratio: var(--ratio);
+            }
+
+            .text-outline {
+                -webkit-text-stroke: 1px var(--base-100);
             }
         `,
     ],
