@@ -1197,6 +1197,25 @@ export function registerMockSignage() {
     });
 
     registerMockEndpoint({
+        path: '/api/engine/v2/signage/media/tag_counts',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const counts: Record<string, number> = {};
+            for (const item of filterByGroup(
+                MOCK_MEDIA,
+                request.query_params?.group_id,
+            )) {
+                for (const tag of item.tags || []) {
+                    if (!tag) continue;
+                    counts[tag] = (counts[tag] || 0) + 1;
+                }
+            }
+            return counts;
+        },
+    });
+
+    registerMockEndpoint({
         path: '/api/engine/v2/signage/media',
         metadata: {},
         method: 'POST',

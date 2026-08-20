@@ -710,6 +710,7 @@ export class MediaListComponent implements OnInit {
 
     public readonly media = this._service.filtered_media;
     public readonly media_tags = this._service.media_tags;
+    public readonly media_tag_counts = this._service.media_tag_counts;
     public readonly loading = this._service.media_loading;
     public readonly view_mode = this._service.media_view_mode;
     public readonly groups = this._service.signage_groups;
@@ -730,14 +731,16 @@ export class MediaListComponent implements OnInit {
     // An always-present "Untagged" bucket shown first, then one folder per
     // distinct tag (sourced from the media-tags endpoint so the list is complete
     // regardless of how much media has been paged in). Tags are pre-sorted by the
-    // service. Counts come from the media paged in so far, so they can undercount
-    // large libraries until more pages load (the endpoint gives tags, not counts).
+    // service. Tag counts come from the backend; the untagged count and any tag
+    // the backend did not count fall back to the media paged in so far, so they
+    // can undercount large libraries until more pages load.
     public readonly folders = computed(() => {
         const media = this.media();
         const tags = this.media_tags();
+        const tag_counts = this.media_tag_counts();
         // Nothing to show at all -> leave empty so the empty state can render.
         if (!media.length && !tags.length) return [];
-        const counts = new Map<string, number>();
+        const loaded_counts = new Map<string, number>();
         let untagged_count = 0;
         for (const item of media) {
             const item_tags = item.tags || [];
@@ -746,14 +749,14 @@ export class MediaListComponent implements OnInit {
                 continue;
             }
             for (const tag of item_tags) {
-                counts.set(tag, (counts.get(tag) || 0) + 1);
+                loaded_counts.set(tag, (loaded_counts.get(tag) || 0) + 1);
             }
         }
         return [
             { id: UNTAGGED, count: untagged_count, untagged: true },
             ...tags.map((id) => ({
                 id,
-                count: counts.get(id) || 0,
+                count: tag_counts[id] ?? loaded_counts.get(id) ?? 0,
                 untagged: false,
             })),
         ];

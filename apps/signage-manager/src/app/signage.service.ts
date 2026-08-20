@@ -34,7 +34,6 @@ import {
     apiEndpoint,
     currentGroups,
     del,
-    listSignageMediaTags,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
     mediaThumbnail,
@@ -112,6 +111,10 @@ import {
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
 import { TemplateEditModalComponent } from './shared/template-edit-modal.component';
 import { ZoneSelectModalComponent } from './shared/zone-select-modal.component';
+import {
+    listSignageMediaTagCounts,
+    type SignageMediaTagCounts,
+} from './signage-media-tags.util';
 import {
     getVideoContainer,
     isImageSourceFile,
@@ -771,8 +774,9 @@ export class SignageService {
         );
     });
 
-    // Distinct tags in use across the active group/zone's signage media. Sourced
-    // from the dedicated tags endpoint so the folder list stays complete no
+    // Distinct tags in use across the active group/zone's signage media, with
+    // the number of media items using each. Sourced from the dedicated
+    // tag-counts endpoint so the folder list and its counts stay complete no
     // matter how many media pages have been loaded.
     private readonly _media_tags = resource({
         params: () => ({
@@ -782,18 +786,24 @@ export class SignageService {
             change: this._change(),
         }),
         loader: async ({ params }) => {
-            if (!params.initialised || !params.can_query) return [] as string[];
+            const empty: SignageMediaTagCounts = { tags: [], counts: {} };
+            if (!params.initialised || !params.can_query) return empty;
             try {
-                const tags = await listSignageMediaTags(
+                return await listSignageMediaTagCounts(
                     this._orgZoneQueryParams({}, params.group_id),
                 );
-                return [...tags].sort((a, b) => a.localeCompare(b));
             } catch {
-                return [] as string[];
+                return empty;
             }
         },
     });
-    public readonly media_tags = computed(() => this._media_tags.value() || []);
+    public readonly media_tags = computed(
+        () => this._media_tags.value()?.tags || [],
+    );
+    /** Media count per tag. Empty when the backend cannot count them. */
+    public readonly media_tag_counts = computed(
+        () => this._media_tags.value()?.counts || {},
+    );
 
     // --- Playlists (paged incrementally as the user scrolls) ---
     // Searching is done by the backend so results are paged like the full
