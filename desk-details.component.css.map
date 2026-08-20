@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["desk-details.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                width: 30%;\n                min-width: 20rem;\n                height: 100%;\n                min-height: 65vh;\n                background: white;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,SAAA;AACA,aAAA;AACA,UAAA;AACA,cAAA;AACA,cAAA;AACJ;",
+  "sourcesContent": ["\n            :host {\n                position: relative;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACJ;",
   "names": []
 }
