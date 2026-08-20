@@ -10,6 +10,7 @@ function media(id: string, tags: string[]) {
 describe('MediaListComponent folders', () => {
     const filtered_media = signal<any[]>([]);
     const media_tags = signal<string[]>([]);
+    const media_tag_counts = signal<Record<string, number>>({});
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
     const signage_groups = signal<any[]>([]);
     const is_sys_admin = signal(false);
@@ -18,6 +19,7 @@ describe('MediaListComponent folders', () => {
     const service_stub = {
         filtered_media,
         media_tags,
+        media_tag_counts,
         media_view_mode,
         media_has_more: signal(false),
         signage_groups,
@@ -52,8 +54,9 @@ describe('MediaListComponent folders', () => {
             media('b', ['news']),
             media('c', []),
         ]);
-        // Tags come from the media-tags endpoint (pre-sorted by the service).
+        // Tags come from the tag-counts endpoint (pre-sorted by the service).
         media_tags.set(['lobby', 'news']);
+        media_tag_counts.set({});
         media_view_mode.set('folder');
         signage_groups.set([]);
         is_sys_admin.set(false);
@@ -85,6 +88,27 @@ describe('MediaListComponent folders', () => {
             ['news', 2],
         ]);
         expect(folders.at(0)!.untagged).toBe(true);
+    });
+
+    it('counts tagged folders from the backend, not the loaded media', () => {
+        // The backend counts every item, including media not yet paged in.
+        media_tag_counts.set({ lobby: 12, news: 40 });
+        const component = make();
+        expect(component.folders().map((f) => [f.id, f.count])).toEqual([
+            [component.untagged_id, 1],
+            ['lobby', 12],
+            ['news', 40],
+        ]);
+    });
+
+    it('falls back to loaded counts for tags the backend did not count', () => {
+        media_tag_counts.set({ news: 40 });
+        const component = make();
+        expect(component.folders().map((f) => [f.id, f.count])).toEqual([
+            [component.untagged_id, 1],
+            ['lobby', 1],
+            ['news', 40],
+        ]);
     });
 
     it('always shows the untagged bucket, even when every item is tagged', () => {

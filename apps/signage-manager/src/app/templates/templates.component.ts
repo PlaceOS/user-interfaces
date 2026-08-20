@@ -1,5 +1,6 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
@@ -56,6 +57,56 @@ import { TemplatePreviewComponent } from './template-preview.component';
                                     }
                                 </div>
                                 <div></div>
+                                @if (requires_approval()) {
+                                    @if (can_approve()) {
+                                        <button
+                                            icon
+                                            default
+                                            type="button"
+                                            matRipple
+                                            [matTooltip]="
+                                                'SIGNAGE_MANAGER.APPROVE_TEMPLATE_TOOLTIP'
+                                                    | translate
+                                            "
+                                            (click)="approveTemplate()"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.APPROVE_SELECTED_TEMPLATE'
+                                                    | translate
+                                            "
+                                        >
+                                            <icon class="text-warning"
+                                                >order_approve</icon
+                                            >
+                                        </button>
+                                    } @else {
+                                        <button
+                                            icon
+                                            default
+                                            type="button"
+                                            matRipple
+                                            [matTooltip]="
+                                                'SIGNAGE_MANAGER.REQUEST_TEMPLATE_APPROVAL_TOOLTIP'
+                                                    | translate
+                                            "
+                                            (click)="requestApproval()"
+                                            [disabled]="
+                                                approval_request_loading()
+                                            "
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.REQUEST_APPROVAL_SELECTED_TEMPLATE'
+                                                    | translate
+                                            "
+                                        >
+                                            @if (approval_request_loading()) {
+                                                <mat-spinner diameter="20" />
+                                            } @else {
+                                                <icon class="text-warning"
+                                                    >approval</icon
+                                                >
+                                            }
+                                        </button>
+                                    }
+                                }
                                 @if (can_update()) {
                                     <button
                                         icon
@@ -73,6 +124,25 @@ import { TemplatePreviewComponent } from './template-preview.component';
                                         "
                                     >
                                         <icon>edit</icon>
+                                    </button>
+                                }
+                                @if (can_share()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.SHARE_TEMPLATE_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="shareTemplate()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.SHARE_SELECTED_TEMPLATE'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>ios_share</icon>
                                     </button>
                                 }
                                 @if (can_delete()) {
@@ -259,6 +329,7 @@ import { TemplatePreviewComponent } from './template-preview.component';
         TemplatePreviewComponent,
         TemplateLayoutListComponent,
         MatRippleModule,
+        MatProgressSpinnerModule,
         MatTooltipModule,
         IconComponent,
         TranslatePipe,
@@ -271,8 +342,14 @@ export class TemplatesSectionComponent {
     public readonly id = input('');
     public readonly view_tab = signal<'preview' | 'layouts'>('preview');
     public readonly selected_template = this._service.selected_template;
+    public readonly requires_approval =
+        this._service.selected_template_requires_approval;
+    public readonly can_approve = this._service.can_approve;
     public readonly can_update = this._service.can_update;
     public readonly can_delete = this._service.can_delete;
+    public readonly can_share = this._service.can_share;
+    public readonly approval_request_loading =
+        this._service.template_approval_request_loading;
 
     private readonly _templates = this._service.templates;
 
@@ -306,6 +383,21 @@ export class TemplatesSectionComponent {
     public removeTemplate() {
         const template = this.selected_template();
         if (template) this._service.removeTemplate(template);
+    }
+
+    public shareTemplate() {
+        const template = this.selected_template();
+        if (template) this._service.shareTemplate(template);
+    }
+
+    public approveTemplate() {
+        const template = this.selected_template();
+        if (template) this._service.approveTemplate(template);
+    }
+
+    public requestApproval() {
+        const template = this.selected_template();
+        if (template) this._service.requestTemplateApproval(template);
     }
 
     public deselectTemplate() {

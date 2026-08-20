@@ -31,6 +31,7 @@ import {
     updateSignagePlaylist,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
@@ -41,6 +42,8 @@ import {
 
 export interface PlaylistEditModalData {
     playlist: SignagePlaylist;
+    /** Signage group the playlist is being viewed from */
+    group_id?: string;
     onAdd?: (data: Partial<SignagePlaylist>) => Promise<SignagePlaylist>;
     onEdit?: (
         id: string,
@@ -302,6 +305,11 @@ export interface PlaylistEditFormModel {
                         </div>
                     </div>
                 }
+                <signage-shared-with
+                    type="playlists"
+                    [item_id]="playlist.id"
+                    [group_id]="group_id"
+                ></signage-shared-with>
             </form>
         </fullscreen-modal-shell>
     `,
@@ -318,6 +326,7 @@ export interface PlaylistEditFormModel {
         MatSliderModule,
         MediaDurationPipe,
         PlaylistScheduleFormComponent,
+        SignageSharedWithComponent,
     ],
 })
 export class PlaylistEditModalComponent {
@@ -328,6 +337,7 @@ export class PlaylistEditModalComponent {
     public readonly loading = signal(false);
     public readonly active_schedule_index = signal<number | null>(0);
     public readonly playlist = this._data.playlist;
+    public readonly group_id = this._data.group_id || '';
     public readonly model = signal<PlaylistEditFormModel>({
         name: this.playlist.name || '',
         description: this.playlist.description || '',

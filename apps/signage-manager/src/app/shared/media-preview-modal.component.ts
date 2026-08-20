@@ -23,10 +23,12 @@ import {
 } from '@placeos/ts-client';
 import { playlistMediaThumbnailUrl, playlistMediaUrl } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 interface MediaPreviewModalData {
     media: SignageMedia;
     plugin?: SignagePlugin;
+    group_id?: string;
 }
 
 @Component({
@@ -332,6 +334,12 @@ interface MediaPreviewModalData {
                                 </div>
                             </div>
                         }
+                        <signage-shared-with
+                            type="media"
+                            [item_id]="item.id"
+                            [group_id]="group_id"
+                            [compact_label]="true"
+                        ></signage-shared-with>
                     </div>
                 </aside>
             </main>
@@ -358,6 +366,7 @@ interface MediaPreviewModalData {
         PluginEmbedComponent,
         TranslatePipe,
         MatTooltip,
+        SignageSharedWithComponent,
     ],
 })
 export class MediaPreviewModalComponent implements OnInit {
@@ -366,6 +375,7 @@ export class MediaPreviewModalComponent implements OnInit {
     private readonly _sanitizer = inject(DomSanitizer);
 
     public readonly item = this._data.media;
+    public readonly group_id = this._data.group_id || '';
     public readonly plugin = this._data.plugin;
     public readonly media_url = playlistMediaUrl(this.item);
     public readonly thumbnail_url = playlistMediaThumbnailUrl(this.item);

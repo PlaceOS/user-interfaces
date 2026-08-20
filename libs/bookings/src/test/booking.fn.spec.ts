@@ -19,6 +19,7 @@ import {
     removeBooking,
     removeBookingInstance,
     saveBooking,
+    setBookingCheckedIn,
     showBooking,
     updateBooking,
 } from '../lib/bookings.fn';
@@ -398,6 +399,60 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1/check_in?state=true&utm_source=${utm_source}`,
+                '',
+            );
+            spy.mockReset();
+        });
+    });
+
+    describe('setBookingCheckedIn', () => {
+        it('should check in the whole booking when it is not recurring', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue({} as any);
+            const booking = await setBookingCheckedIn(
+                new Booking({ id: '1', booking_start: 100 }),
+                true,
+            );
+            expect(booking).toBeInstanceOf(Booking);
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1/check_in?state=true&utm_source=${utm_source}`,
+                '',
+            );
+            spy.mockReset();
+        });
+
+        it('should check in only the instance of a recurring booking', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue({} as any);
+            await setBookingCheckedIn(
+                new Booking({
+                    id: '1',
+                    booking_start: 100,
+                    instance: 200,
+                    recurrence_type: 'daily',
+                } as any),
+                true,
+            );
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1/check_in/200?state=true&utm_source=${utm_source}`,
+                '',
+            );
+            spy.mockReset();
+        });
+
+        it('should use the start time for the first instance of a series', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue({} as any);
+            await setBookingCheckedIn(
+                new Booking({
+                    id: '1',
+                    booking_start: 100,
+                    recurrence_type: 'weekly',
+                } as any),
+                false,
+            );
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1/check_in/100?state=false&utm_source=${utm_source}`,
                 '',
             );
             spy.mockReset();

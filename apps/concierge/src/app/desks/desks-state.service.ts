@@ -12,13 +12,13 @@ import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
     cancelOverlappingRecurringBookings,
-    checkinBooking,
     queryBookings,
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
     removeBooking,
     saveBooking,
+    setBookingCheckedIn,
     updateBooking,
 } from '@placeos/bookings';
 import {
@@ -577,9 +577,10 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async checkinDesk(desk: Booking, state = true) {
-        const status: any = await checkinBooking(desk.id, state ?? true).catch(
-            (_) => ({ failed: true, error: _ }),
-        );
+        const status: any = await setBookingCheckedIn(
+            desk,
+            state ?? true,
+        ).catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
             notifyError(
                 i18n(

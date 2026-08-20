@@ -37,6 +37,7 @@ import {
     listSignageMediaTags,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
+    listSignageTemplateApprovers,
     mediaThumbnail,
     PlaceCurrentGroup,
     PlaceGroup,
@@ -65,9 +66,11 @@ import {
     removeSignageTemplate,
     removeSystem,
     requestApprovalSignagePlaylist,
+    requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
     shareSignageMedia,
     shareSignagePlaylists,
+    shareSignageTemplates,
     showSystem,
     showZone,
     SignageMedia,
@@ -76,7 +79,9 @@ import {
     SignagePlaylistItemSchedule,
     SignagePlaylistMedia,
     SignagePlugin,
+    type SignagePluginType,
     SignageTemplate,
+    type SignageTemplateApprover,
     type SignageTemplateLayout,
     updateGroup,
     updateGroupUser,
@@ -110,8 +115,17 @@ import {
     PlaylistRequestApprovalModalResult,
 } from './shared/playlist-request-approval-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
+import { TemplateApproveModalComponent } from './shared/template-approve-modal.component';
 import { TemplateEditModalComponent } from './shared/template-edit-modal.component';
+import {
+    TemplateRequestApprovalModalComponent,
+    TemplateRequestApprovalModalResult,
+} from './shared/template-request-approval-modal.component';
 import { ZoneSelectModalComponent } from './shared/zone-select-modal.component';
+import {
+    listSignageMediaTagCounts,
+    type SignageMediaTagCounts,
+} from './signage-media-tags.util';
 import {
     getVideoContainer,
     isImageSourceFile,
@@ -126,6 +140,7 @@ import {
     playlistMediaIds,
     playlistMediaItems,
 } from './signage-playlist.util';
+import { applyLayoutPositionDefaults } from './templates/template-layout.util';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -146,6 +161,24 @@ const MEDIA_RETRY_DELAYS = [500, 1500, 4500];
 const VIDEO_THUMBNAIL_OFFSET = 0.1;
 /** How long to wait for a paintable video frame, in milliseconds */
 const VIDEO_THUMBNAIL_TIMEOUT = 15 * 1000;
+
+const SIGNAGE_SHARE_CONFIG = {
+    media: {
+        title: 'SIGNAGE_MANAGER.SVC_SHARE_MEDIA_TITLE',
+        success: 'SIGNAGE_MANAGER.SVC_MEDIA_SHARED',
+        request: shareSignageMedia,
+    },
+    playlists: {
+        title: 'SIGNAGE_MANAGER.SVC_SHARE_PLAYLIST_TITLE',
+        success: 'SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED',
+        request: shareSignagePlaylists,
+    },
+    templates: {
+        title: 'SIGNAGE_MANAGER.SVC_SHARE_TEMPLATE_TITLE',
+        success: 'SIGNAGE_MANAGER.SVC_TEMPLATE_SHARED',
+        request: shareSignageTemplates,
+    },
+} as const;
 
 /**
  * A 401 is deliberately absent: the API client already invalidates the token,
@@ -770,8 +803,9 @@ export class SignageService {
         );
     });
 
-    // Distinct tags in use across the active group/zone's signage media. Sourced
-    // from the dedicated tags endpoint so the folder list stays complete no
+    // Distinct tags in use across the active group/zone's signage media, with
+    // the number of media items using each. Sourced from the dedicated
+    // tag-counts endpoint so the folder list and its counts stay complete no
     // matter how many media pages have been loaded.
     private readonly _media_tags = resource({
         params: () => ({
@@ -781,18 +815,24 @@ export class SignageService {
             change: this._change(),
         }),
         loader: async ({ params }) => {
-            if (!params.initialised || !params.can_query) return [] as string[];
+            const empty: SignageMediaTagCounts = { tags: [], counts: {} };
+            if (!params.initialised || !params.can_query) return empty;
             try {
-                const tags = await listSignageMediaTags(
+                return await listSignageMediaTagCounts(
                     this._orgZoneQueryParams({}, params.group_id),
                 );
-                return [...tags].sort((a, b) => a.localeCompare(b));
             } catch {
-                return [] as string[];
+                return empty;
             }
         },
     });
-    public readonly media_tags = computed(() => this._media_tags.value() || []);
+    public readonly media_tags = computed(
+        () => this._media_tags.value()?.tags || [],
+    );
+    /** Media count per tag. Empty when the backend cannot count them. */
+    public readonly media_tag_counts = computed(
+        () => this._media_tags.value()?.counts || {},
+    );
 
     // --- Playlists (paged incrementally as the user scrolls) ---
     // Searching is done by the backend so results are paged like the full
@@ -1073,6 +1113,14 @@ export class SignageService {
         });
     }
 
+    public queryMedia(search = ''): QueryResponse<SignageMedia> | null {
+        if (!this._canQueryLists()) return null;
+        return querySignageMedia({
+            ...this._orgZoneQueryParams({ limit: SignageService.PAGE_SIZE }),
+            ...this._searchParam(search),
+        });
+    }
+
     public querySelectableZones(
         search: string,
         parent_id: string,
@@ -1242,31 +1290,45 @@ export class SignageService {
         return (data || []).map(decodeEntityNames);
     }
 
-    private readonly _plugins = resource({
-        params: () => ({
-            initialised: this._org.initialised(),
-            change: this._change(),
-        }),
-        loader: async ({ params }) => {
-            if (!params.initialised) return [] as SignagePlugin[];
-            try {
-                const result = await querySignagePlugins(
-                    this._orgZoneQueryParams({ limit: 500 }),
-                );
-                return (result.data || [])
-                    .filter((plugin: SignagePlugin) => plugin.enabled)
-                    .map(decodeEntityNames)
-                    .sort((a: SignagePlugin, b: SignagePlugin) =>
-                        a.name.localeCompare(b.name),
+    private _pluginResource(plugin_type: SignagePluginType) {
+        return resource({
+            params: () => ({
+                initialised: this._org.initialised(),
+                change: this._change(),
+            }),
+            loader: async ({ params }) => {
+                if (!params.initialised) return [] as SignagePlugin[];
+                try {
+                    const result = await querySignagePlugins(
+                        this._orgZoneQueryParams({
+                            limit: 500,
+                            plugin_type,
+                        }),
                     );
-            } catch {
-                return [] as SignagePlugin[];
-            }
-        },
-    });
+                    return (result.data || [])
+                        .filter((plugin: SignagePlugin) => plugin.enabled)
+                        .map(decodeEntityNames)
+                        .sort((a: SignagePlugin, b: SignagePlugin) =>
+                            a.name.localeCompare(b.name),
+                        );
+                } catch {
+                    return [] as SignagePlugin[];
+                }
+            },
+        });
+    }
+
+    private readonly _plugins = this._pluginResource('plugin');
+    private readonly _widgets = this._pluginResource('widget');
     public readonly plugins = computed(() => this._plugins.value() || []);
+    public readonly widgets = computed(() => this._widgets.value() || []);
 
     public readonly selected_template = signal<SignageTemplate | null>(null);
+    public readonly selected_template_requires_approval = computed(() => {
+        const template = this.selected_template();
+        return !!template?.id && !template.approved;
+    });
+    public readonly template_approval_request_loading = signal(false);
     public readonly selected_template_layout_index = signal<number | null>(
         null,
     );
@@ -1529,6 +1591,7 @@ export class SignageService {
         const ref = this._dialog.open(PlaylistEditModalComponent, {
             data: {
                 playlist,
+                group_id: this._api_group_id(),
                 onEdit: (id: string, data: Partial<SignagePlaylist>) =>
                     updateSignagePlaylist(id, data),
             },
@@ -1804,6 +1867,7 @@ export class SignageService {
         const ref = this._dialog.open(TemplateEditModalComponent, {
             data: {
                 template,
+                group_id: this._api_group_id(),
                 onEdit: (id: string, data: Partial<SignageTemplate>) =>
                     updateSignageTemplate(id, data),
             },
@@ -1816,6 +1880,67 @@ export class SignageService {
             }
             this.changed();
         }
+    }
+
+    public approveTemplate(template: SignageTemplate) {
+        if (!template?.id) return;
+        if (
+            !this._requirePermission(
+                this.can_approve(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_APPROVE_TEMPLATES'),
+            )
+        )
+            return;
+        this._dialog.open(TemplateApproveModalComponent, {
+            data: { template },
+            panelClass: 'mobile-fullscreen',
+        });
+    }
+
+    public async requestTemplateApproval(template: SignageTemplate) {
+        if (!template?.id || this.template_approval_request_loading()) return;
+        if (this.can_approve()) {
+            this.approveTemplate(template);
+            return;
+        }
+        let approvers: SignageTemplateApprover[] = [];
+        let group: PlaceCurrentGroup | null = null;
+        this.template_approval_request_loading.set(true);
+        try {
+            const groups = await this._templateApprovalGroups(template);
+            if (!groups.length) {
+                notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_TEMPLATE'));
+                return;
+            }
+            const selected_group_id = this._api_group_id();
+            group =
+                groups.find((item) => item.group.id === selected_group_id) ||
+                groups[0];
+            approvers =
+                ((await listSignageTemplateApprovers(
+                    group.group.id,
+                )) as SignageTemplateApprover[]) || [];
+        } catch {
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_TEMPLATE_APPROVERS'));
+        } finally {
+            this.template_approval_request_loading.set(false);
+        }
+        if (!group) return;
+        const ref = this._dialog.open(TemplateRequestApprovalModalComponent, {
+            data: { template, approvers },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result: TemplateRequestApprovalModalResult | undefined =
+            await dialogClosed(ref);
+        if (!result) return;
+        await requestApprovalSignageTemplate(
+            template.id,
+            group.group.id,
+            result.message || '',
+            result.approver_id || '',
+        );
+        this.setTemplateApprovalStatus(template.id, false, true);
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUESTED'));
     }
 
     public async removeTemplate(template: SignageTemplate) {
@@ -1853,6 +1978,11 @@ export class SignageService {
         result.close();
     }
 
+    public async shareTemplate(template: SignageTemplate) {
+        if (!template?.id) return;
+        await this._shareSignageItems('templates', [template.id]);
+    }
+
     /** Persist the layout draft of the selected template */
     public async saveTemplateLayouts() {
         const template = this.selected_template();
@@ -1865,9 +1995,12 @@ export class SignageService {
         )
             return;
         try {
+            const layouts = this.template_layout_draft().map(
+                applyLayoutPositionDefaults,
+            );
             const result = decodeEntityNames(
                 await updateSignageTemplate(template.id, {
-                    layouts: this.template_layout_draft(),
+                    layouts,
                 }),
             );
             this.selected_template.set(result);
@@ -1884,6 +2017,33 @@ export class SignageService {
         this.template_layout_draft.set(
             structuredClone(this.selected_template()?.layouts ?? []),
         );
+    }
+
+    public setTemplateApprovalStatus(
+        template_id: string,
+        approved: boolean,
+        approval_requested = false,
+    ) {
+        const template =
+            this.templates().find((item) => item.id === template_id) ||
+            this.selected_template();
+        if (!template || template.id !== template_id) return;
+        this.updateCachedTemplate(
+            new SignageTemplate({
+                ...template,
+                approved,
+                approval_requested,
+            }),
+        );
+    }
+
+    public updateCachedTemplate(template: SignageTemplate) {
+        this._template_items.update((items) =>
+            items.map((item) => (item.id === template.id ? template : item)),
+        );
+        if (this.selected_template()?.id === template.id) {
+            this.selected_template.set(template);
+        }
     }
 
     private _addSignageTemplate(form_data: Partial<SignageTemplate>) {
@@ -2188,7 +2348,7 @@ export class SignageService {
     }
 
     private async _shareSignageItems(
-        item_type: 'media' | 'playlists',
+        item_type: keyof typeof SIGNAGE_SHARE_CONFIG,
         item_ids: string[],
     ) {
         if (
@@ -2206,31 +2366,19 @@ export class SignageService {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_TO_SHARE'));
             return false;
         }
+        const share_config = SIGNAGE_SHARE_CONFIG[item_type];
         const ref = this._dialog.open(GroupSelectModalComponent, {
             data: {
-                title:
-                    item_type === 'media'
-                        ? i18n('SIGNAGE_MANAGER.SVC_SHARE_MEDIA_TITLE')
-                        : i18n('SIGNAGE_MANAGER.SVC_SHARE_PLAYLIST_TITLE'),
+                title: i18n(share_config.title),
                 groups: target_groups,
             },
             panelClass: 'mobile-fullscreen',
         });
         const group_id = await dialogClosed(ref);
         if (!group_id) return false;
-        const request =
-            item_type === 'media'
-                ? shareSignageMedia({ items: item_ids.join(','), to: group_id })
-                : shareSignagePlaylists({
-                      items: item_ids.join(','),
-                      to: group_id,
-                  });
-        await request;
-        notifySuccess(
-            item_type === 'media'
-                ? i18n('SIGNAGE_MANAGER.SVC_MEDIA_SHARED')
-                : i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED'),
-        );
+        const options = { items: item_ids.join(','), to: group_id };
+        await share_config.request(options);
+        notifySuccess(i18n(share_config.success));
         return true;
     }
 
@@ -2251,6 +2399,33 @@ export class SignageService {
                 } as any);
                 if (
                     (result.data || []).some((item) => item.id === playlist.id)
+                ) {
+                    matching_groups.push(group);
+                }
+            } catch {
+                // Ignore groups the user cannot query.
+            }
+        }
+        return matching_groups;
+    }
+
+    private async _templateApprovalGroups(template: SignageTemplate) {
+        const groups = this.signage_groups();
+        const selected_group_id = this._api_group_id();
+        const matching_groups: PlaceCurrentGroup[] = [];
+        for (const group of groups) {
+            if (!group.group.id) continue;
+            if (group.group.id === selected_group_id) {
+                matching_groups.push(group);
+                continue;
+            }
+            try {
+                const result = await querySignageTemplates({
+                    group_id: group.group.id,
+                    limit: 500,
+                });
+                if (
+                    (result.data || []).some((item) => item.id === template.id)
                 ) {
                     matching_groups.push(group);
                 }
@@ -2584,7 +2759,7 @@ export class SignageService {
                 ? await this._resolvePlugin(item.plugin_id)
                 : undefined;
         this._dialog.open(MediaPreviewModalComponent, {
-            data: { media: item, plugin },
+            data: { media: item, plugin, group_id: this._api_group_id() },
             panelClass: 'fullscreen-dialog',
         });
     }
@@ -2680,6 +2855,7 @@ export class SignageService {
     }
 
     public async addMediaFromPlugin(plugin: SignagePlugin) {
+        if (plugin.plugin_type !== 'plugin') return;
         if (
             !this._requirePermission(
                 this.can_create(),
@@ -2746,7 +2922,9 @@ export class SignageService {
                 file_metadata,
                 file_thumbnail,
                 playlist_id,
+                group_id: this._api_group_id(),
                 plugin,
+                tag_options: this.media_tags(),
                 loadPlugin: load_plugin,
                 generateThumbnail: (f: File) => this.generateThumbnailImage(f),
                 onAdd: (
@@ -2808,7 +2986,8 @@ export class SignageService {
         try {
             const result = await querySignagePlugins({
                 limit: 500,
-            } as any).catch(() => ({ data: [] }));
+                plugin_type: 'plugin',
+            }).catch(() => ({ data: [] }));
             const all_plugins = result.data || [];
             return all_plugins.find((p: SignagePlugin) => p.id === plugin_id);
         } catch {
@@ -3069,6 +3248,7 @@ export class SignageService {
         )
             return false;
         const ref = this._dialog.open(MediaTagsModalComponent, {
+            data: { tags: this.media_tags() },
             width: 'min(28rem, calc(100vw - 2rem))',
         });
         const tags = await dialogClosed<string[]>(ref);

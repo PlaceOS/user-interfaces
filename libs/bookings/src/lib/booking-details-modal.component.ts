@@ -38,7 +38,7 @@ import {
     parkingRequestStatus,
     visitorDisplayNameFor,
 } from './booking.utilities';
-import { checkinBooking, checkinBookingInstance } from './bookings.fn';
+import { setBookingCheckedIn } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 export function canEditBooking(booking: Booking) {
@@ -223,7 +223,7 @@ export function canEditBooking(booking: Booking) {
                     }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Host">person</icon>
+                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate">person</icon>
                             <div>
                                 {{
                                     (booking().user_email | user | async)
@@ -234,7 +234,7 @@ export function canEditBooking(booking: Booking) {
                     }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Booked By">edit_calendar</icon>
+                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate">edit_calendar</icon>
                             <div>
                                 {{
                                     (booking().booked_by_email | user | async)
@@ -818,10 +818,9 @@ export class BookingDetailsModalComponent {
             response.close();
         }
         this.checking_in.set(true);
-        const updated_booking = await (
-            bkn.instance
-                ? checkinBookingInstance(bkn.id, bkn.instance, !bkn.checked_in)
-                : checkinBooking(bkn.id, !bkn.checked_in)
+        const updated_booking = await setBookingCheckedIn(
+            bkn,
+            !bkn.checked_in,
         ).catch((_) => {
             notifyError(
                 i18n(

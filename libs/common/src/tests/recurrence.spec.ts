@@ -1,8 +1,12 @@
-import { addWeeks, endOfDay, format } from 'date-fns';
+import { addWeeks, endOfDay, format, getUnixTime } from 'date-fns';
 
 import {
     formatRecurrence,
+    fromBookingRecurrence,
     fromEventRecurrence,
+    RecurrDays,
+    recurrenceEndDate,
+    recurrenceInstanceCount,
     toBookingRecurrence,
     toEventRecurrence,
     WeekOfMonth,
@@ -278,5 +282,90 @@ describe('formatRecurrence', () => {
                 end_type: 'never',
             }),
         ).toBe('Every 1 day');
+    });
+});
+
+/**
+ * PPT-2672: a stored `recurrence_instances` value that is not a usable count
+ * (e.g. an empty array from `extension_data`) used to read as truthy. That
+ * flipped the recurrence to instances mode, where the end date was recomputed
+ * as "one instance" — so the summary showed the booking date instead of the
+ * end date the user picked, and the count rendered as an empty string.
+ */
+describe('recurrence instance counts', () => {
+    const booking_date = new Date(2026, 7, 19).valueOf();
+    const end_date = new Date(2026, 8, 2, 23, 59).valueOf();
+
+    it('should only accept whole counts of one or more', () => {
+        expect(recurrenceInstanceCount([] as any)).toBeUndefined();
+        expect(recurrenceInstanceCount(null)).toBeUndefined();
+        expect(recurrenceInstanceCount(undefined)).toBeUndefined();
+        expect(recurrenceInstanceCount(0)).toBeUndefined();
+        expect(recurrenceInstanceCount(13)).toBe(13);
+        expect(recurrenceInstanceCount('13')).toBe(13);
+    });
+
+    it('should end by date when the stored instance count is unusable', () => {
+        const recurrence = fromBookingRecurrence({
+            recurrence_custom: true,
+            recurrence_type: 'daily',
+            recurrence_interval: 1,
+            recurrence_days: RecurrDays.ALL,
+            recurrence_end: getUnixTime(end_date),
+            recurrence_instances: [] as any,
+        });
+
+        expect(recurrence.end_type).toBe('date');
+        expect(recurrence.end_instances).toBeUndefined();
+        expect(formatRecurrence(recurrence, booking_date)).toBe(
+            'Every 1 day until 02 Sep 2026',
+        );
+    });
+
+    it('should keep a usable stored instance count', () => {
+        const recurrence = fromBookingRecurrence({
+            recurrence_custom: true,
+            recurrence_type: 'daily',
+            recurrence_interval: 1,
+            recurrence_days: RecurrDays.ALL,
+            recurrence_end: getUnixTime(end_date),
+            recurrence_instances: 15,
+        });
+
+        expect(recurrence.end_type).toBe('instances');
+        expect(recurrence.end_instances).toBe(15);
+        expect(formatRecurrence(recurrence, booking_date)).toBe(
+            'Every 1 day ends after 15 instances (02 Sep 2026)',
+        );
+    });
+
+    it('should count the full run when computing an instance end date', () => {
+        expect(
+            recurrenceEndDate(
+                {
+                    _custom: true,
+                    type: 'daily',
+                    interval: 1,
+                    end_type: 'instances',
+                    end_instances: 15,
+                },
+                booking_date,
+            ),
+        ).toBe(endOfDay(new Date(2026, 8, 2)).valueOf());
+    });
+
+    it('should not write an unusable instance count back to a booking', () => {
+        const raw = toBookingRecurrence(
+            {
+                _custom: true,
+                type: 'daily',
+                interval: 1,
+                end_type: 'instances',
+                end_instances: [] as any,
+            },
+            booking_date,
+        );
+
+        expect(raw.recurrence_instances).toBeUndefined();
     });
 });

@@ -11,18 +11,27 @@ import {
     addSignageMedia,
     del,
     listSignagePlaylistMedia,
+    listSignageTemplateApprovers,
+    querySignagePlugins,
     removeSignageMedia,
+    requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
+    shareSignageTemplates,
     SignageMedia,
     SignagePlaylist,
+    SignagePlugin,
     SignageTemplate,
     updateSignageMedia,
     updateSignagePlaylistMedia,
     updateSignagePlaylistMediaSchedule,
+    updateSignageTemplate,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
+import { MediaPreviewModalComponent } from '../app/shared/media-preview-modal.component';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
+import { TemplateApproveModalComponent } from '../app/shared/template-approve-modal.component';
+import { TemplateRequestApprovalModalComponent } from '../app/shared/template-request-approval-modal.component';
 import { SignageService } from '../app/signage.service';
 
 type SignageServiceTestAccess = SignageService & Record<string, any>;
@@ -69,6 +78,9 @@ describe('SignageService media uploads', () => {
         (scheduleSignagePlaylistMedia as any).mockResolvedValue({});
         (del as any).mockResolvedValue({});
         (removeSignageMedia as any).mockResolvedValue({});
+        vi.mocked(querySignagePlugins).mockResolvedValue({
+            data: [],
+        } as Awaited<ReturnType<typeof querySignagePlugins>>);
         dialog.open.mockReturnValue({
             afterClosed: () => ({
                 subscribe: (handler: (value?: unknown) => void) => {
@@ -112,6 +124,45 @@ describe('SignageService media uploads', () => {
             value: () => group_id,
         });
     }
+
+    it('requests plugins and widgets separately', async () => {
+        vi.mocked(querySignagePlugins).mockImplementation(async (options) => {
+            const plugin_type = options.plugin_type || 'plugin';
+            return {
+                data: [
+                    new SignagePlugin({
+                        id: `${plugin_type}-1`,
+                        name: plugin_type,
+                        plugin_type,
+                    }),
+                ],
+            } as Awaited<ReturnType<typeof querySignagePlugins>>;
+        });
+        const service = createService();
+        TestBed.flushEffects();
+
+        await vi.waitFor(() => {
+            expect(service.plugins()[0]?.id).toBe('plugin-1');
+            expect(service.widgets()[0]?.id).toBe('widget-1');
+        });
+        expect(querySignagePlugins).toHaveBeenCalledWith(
+            expect.objectContaining({ plugin_type: 'plugin' }),
+        );
+        expect(querySignagePlugins).toHaveBeenCalledWith(
+            expect.objectContaining({ plugin_type: 'widget' }),
+        );
+    });
+
+    it('rejects widget plugins when adding media', async () => {
+        const service = createService();
+        const edit_media = vi.spyOn(service, 'editMedia');
+
+        await service.addMediaFromPlugin(
+            new SignagePlugin({ id: 'widget-1', plugin_type: 'widget' }),
+        );
+
+        expect(edit_media).not.toHaveBeenCalled();
+    });
 
     it('requires schedules before adding media to distribution playlists', async () => {
         const service = createService();
@@ -286,6 +337,7 @@ describe('SignageService media uploads', () => {
         ]);
 
         expect(dialog.open).toHaveBeenCalledWith(MediaTagsModalComponent, {
+            data: { tags: [] },
             width: 'min(28rem, calc(100vw - 2rem))',
         });
         expect(updateSignageMedia).toHaveBeenCalledWith('media-1', {
@@ -484,6 +536,19 @@ describe('SignageService media uploads', () => {
         expect(service.media()[0].name).toBe('New name');
     });
 
+    it('passes the selected group to the media preview', async () => {
+        const service = createService();
+        selectApiGroup(service, 'group-1');
+        const media = new SignageMedia({ id: 'media-1', media_type: 'image' });
+
+        await service.previewMedia(media);
+
+        expect(dialog.open).toHaveBeenCalledWith(MediaPreviewModalComponent, {
+            data: { media, plugin: undefined, group_id: 'group-1' },
+            panelClass: 'fullscreen-dialog',
+        });
+    });
+
     it('unshares deleted media from the selected group', async () => {
         confirmNextDialog();
         const service = createService();
@@ -538,5 +603,149 @@ describe('SignageService media uploads', () => {
                 /\/signage\/templates\/template%2F1\?group_id=group%2F1$/,
             ),
         );
+    });
+    it('shares templates with the selected signage group', async () => {
+        const service = createService();
+        (shareSignageTemplates as any).mockResolvedValue({});
+        Object.defineProperty(service, 'can_share', {
+            value: () => true,
+        });
+        Object.defineProperty(service, 'selected_group', {
+            value: () => ({ group: { id: 'group-1' } }),
+        });
+        Object.defineProperty(service, 'signage_groups', {
+            value: () => [
+                { group: { id: 'group-1', name: 'Current' } },
+                { group: { id: 'group-2', name: 'Target' } },
+            ],
+        });
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value: string) => void) => {
+                    Promise.resolve().then(() => handler('group-2'));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+
+        await service.shareTemplate(
+            new SignageTemplate({ id: 'template-1', name: 'Welcome' }),
+        );
+
+        expect(shareSignageTemplates).toHaveBeenCalledWith({
+            items: 'template-1',
+            to: 'group-2',
+        });
+    });
+
+    it('opens template approval for users with approval permission', () => {
+        const service = createService();
+        const template = new SignageTemplate({ id: 'template-1' });
+
+        service.approveTemplate(template);
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            TemplateApproveModalComponent,
+            {
+                data: { template },
+                panelClass: 'mobile-fullscreen',
+            },
+        );
+    });
+
+    it('requests template approval and updates the cached status', async () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const template = new SignageTemplate({
+            id: 'template-1',
+            approved: false,
+        });
+        test_service['_template_items'].set([template]);
+        Object.defineProperty(service, 'can_approve', {
+            value: () => false,
+        });
+        test_service['_templateApprovalGroups'] = vi
+            .fn()
+            .mockResolvedValue([{ group: { id: 'group-1' } }]);
+        vi.mocked(listSignageTemplateApprovers).mockResolvedValue([
+            { id: 'user-1', name: 'Reviewer' },
+        ]);
+        (requestApprovalSignageTemplate as any).mockResolvedValue({});
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value?: unknown) => void) => {
+                    Promise.resolve().then(() =>
+                        handler({ approver_id: 'user-1', message: 'Review' }),
+                    );
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+
+        await service.requestTemplateApproval(template);
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            TemplateRequestApprovalModalComponent,
+            expect.objectContaining({
+                data: {
+                    template,
+                    approvers: [{ id: 'user-1', name: 'Reviewer' }],
+                },
+            }),
+        );
+        expect(requestApprovalSignageTemplate).toHaveBeenCalledWith(
+            'template-1',
+            'group-1',
+            'Review',
+            'user-1',
+        );
+        expect(service.templates()[0].approval_requested).toBe(true);
+    });
+
+    it('updates template approval state in the list and selection', () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const template = new SignageTemplate({
+            id: 'template-1',
+            approved: false,
+        });
+        test_service['_template_items'].set([template]);
+        service.selected_template.set(template);
+
+        service.setTemplateApprovalStatus('template-1', true);
+
+        expect(service.templates()[0].approved).toBe(true);
+        expect(service.selected_template()?.approved).toBe(true);
+        expect(service.selected_template_requires_approval()).toBe(false);
+    });
+
+    it('sends displayed layout position defaults when saving', async () => {
+        const service = createService();
+        service.selected_template.set(
+            new SignageTemplate({ id: 'template-1', layouts: [] }),
+        );
+        service.template_layout_draft.set([
+            { position: 'top', plugin_params: {} },
+            { position: 'left', plugin_params: {} },
+            { position: 'floating', plugin_params: {} },
+        ]);
+        (updateSignageTemplate as any).mockImplementation((_id, data) =>
+            Promise.resolve(new SignageTemplate({ id: 'template-1', ...data })),
+        );
+
+        await service.saveTemplateLayouts();
+
+        expect(updateSignageTemplate).toHaveBeenCalledWith('template-1', {
+            layouts: [
+                { position: 'top', plugin_params: {}, y_pos: 0.15 },
+                { position: 'left', plugin_params: {}, x_pos: 0.2 },
+                {
+                    position: 'floating',
+                    plugin_params: {},
+                    x_pos: 0.5,
+                    y_pos: 0.5,
+                },
+            ],
+        });
     });
 });

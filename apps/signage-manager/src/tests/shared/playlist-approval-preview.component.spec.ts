@@ -78,10 +78,8 @@ describe('PlaylistApprovalPreviewComponent', () => {
         ]);
         fixture.detectChanges();
 
-        expect(fixture.nativeElement.textContent).toContain(
-            'Version to approve',
-        );
-        expect(fixture.nativeElement.textContent).toContain('Previous version');
+        expect(fixture.nativeElement.textContent).toContain('New Version');
+        expect(fixture.nativeElement.textContent).toContain('Old version');
         expect(fixture.nativeElement.textContent).toContain('Image');
         expect(fixture.nativeElement.textContent).toContain('Webpage');
         expect(fixture.nativeElement.textContent).toContain('Video');

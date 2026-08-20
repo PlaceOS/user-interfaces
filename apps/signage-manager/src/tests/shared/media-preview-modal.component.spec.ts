@@ -20,13 +20,14 @@ describe('MediaPreviewModalComponent', () => {
     async function createComponent(
         media: SignageMedia,
         plugin?: SignagePlugin,
+        group_id = '',
     ) {
         await TestBed.configureTestingModule({
             imports: [MediaPreviewModalComponent],
             providers: [
                 {
                     provide: MAT_DIALOG_DATA,
-                    useValue: { media, plugin },
+                    useValue: { media, plugin, group_id },
                 },
                 { provide: SignageService, useValue: service },
             ],
@@ -75,6 +76,16 @@ describe('MediaPreviewModalComponent', () => {
         );
 
         expect(component.type_label()).toBe('COMMON.WEBPAGE');
+    });
+
+    it('uses the signage group passed to the modal', async () => {
+        const component = await createComponent(
+            new SignageMedia({ id: 'm1', media_type: 'image' }),
+            undefined,
+            'group-1',
+        );
+
+        expect(component.group_id).toBe('group-1');
     });
 
     it('maps the animation to a translation label', async () => {

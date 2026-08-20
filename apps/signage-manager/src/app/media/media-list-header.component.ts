@@ -310,10 +310,9 @@ export class MediaListHeaderComponent {
     private readonly _dialog = inject(MatDialog);
     private readonly _media = this._service.filtered_media;
     private readonly _all_media = this._service.media;
-    private readonly _plugins = this._service.plugins;
     public readonly link = signal('');
     public readonly selected_plugin = signal<any>(null);
-    public readonly available_plugins = computed(() => this._plugins());
+    public readonly available_plugins = this._service.plugins;
     public readonly item_count = computed(() => this._media().length);
     public readonly total_count = computed(() => this._all_media().length);
     public readonly search = this._service.search_term;
@@ -357,7 +356,10 @@ export class MediaListHeaderComponent {
     }
 
     public async addFromPlugin() {
-        const plugin = this.selected_plugin();
+        const selected_plugin = this.selected_plugin();
+        const plugin = this.available_plugins().find(
+            ({ id }) => id === selected_plugin?.id,
+        );
         if (!plugin) return;
         await this._service.addMediaFromPlugin(plugin);
         this.selected_plugin.set(null);

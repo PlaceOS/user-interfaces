@@ -11,8 +11,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { SignageTemplate } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { SignageService } from '../signage.service';
+
+type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
 
 @Component({
     selector: 'template-list',
@@ -81,18 +84,27 @@ import { SignageService } from '../signage.service';
                                                   }
                                     }}
                                 </span>
-                                @if (
-                                    template.approval_requested &&
-                                    !template.approved
-                                ) {
-                                    <span
-                                        class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5"
-                                    >
-                                        {{
-                                            'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
-                                                | translate
-                                        }}
-                                    </span>
+                                @switch (getStatus(template)) {
+                                    @case ('awaiting_review') {
+                                        <span
+                                            class="bg-warning text-warning-content shrink-0 rounded px-1.5 py-0.5"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.STATUS_AWAITING_REVIEW'
+                                                    | translate
+                                            }}
+                                        </span>
+                                    }
+                                    @case ('awaiting_approval') {
+                                        <span
+                                            class="bg-base-300 shrink-0 rounded px-1.5 py-0.5"
+                                        >
+                                            {{
+                                                'COMMON.APPROVAL_REQUIRED'
+                                                    | translate
+                                            }}
+                                        </span>
+                                    }
                                 }
                             </div>
                             @if (template.description) {
@@ -188,5 +200,12 @@ export class TemplateListComponent {
 
     public loadMore() {
         this._service.loadMoreTemplates();
+    }
+
+    public getStatus(template: SignageTemplate): TemplateStatus {
+        if (template.approved) return null;
+        return template.approval_requested
+            ? 'awaiting_review'
+            : 'awaiting_approval';
     }
 }

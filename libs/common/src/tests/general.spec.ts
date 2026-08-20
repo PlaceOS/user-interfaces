@@ -5,6 +5,7 @@ import {
     alignDateToBookableHours,
     csvToJson,
     downloadFile,
+    errorMessage,
     getItemWithKeys,
     getNextBookableTime,
     isWithinBookableHours,
@@ -590,7 +591,9 @@ describe('General Methods', () => {
             setField(form, { duration: 60 });
 
             expect(form().duration).toBe(60);
-            expect(form().date_end).toBe(addMinutes(after_window, 60).valueOf());
+            expect(form().date_end).toBe(
+                addMinutes(after_window, 60).valueOf(),
+            );
         });
 
         it('should preserve a custom duration below min_duration when it fits the window', () => {
@@ -1436,6 +1439,28 @@ describe('General Methods', () => {
 
             expect(form().duration).toBe(dur);
             expect(new Date(form().date_end).getDate()).toBe(17);
+        });
+    });
+
+    describe('errorMessage', () => {
+        it('should read the message from every shape the API throws', () => {
+            expect(errorMessage('Desk taken')).toBe('Desk taken');
+            expect(errorMessage(new Error('boom'))).toBe('boom');
+            expect(errorMessage({ error: 'Asset unavailable' })).toBe(
+                'Asset unavailable',
+            );
+            expect(errorMessage({ message: 'Not permitted' })).toBe(
+                'Not permitted',
+            );
+            expect(errorMessage({ error: { message: 'Conflict' } })).toBe(
+                'Conflict',
+            );
+        });
+
+        it('should return an empty string when no message is found', () => {
+            expect(errorMessage({})).toBe('');
+            expect(errorMessage(null)).toBe('');
+            expect(errorMessage({ error: { status: 409 } })).toBe('');
         });
     });
 });

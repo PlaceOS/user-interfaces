@@ -5,12 +5,15 @@ import { SignageService } from '../../app/signage.service';
 import { TemplatePreviewComponent } from '../../app/templates/template-preview.component';
 
 describe('TemplatePreviewComponent', () => {
-    const selected_template = signal<{ id: string } | null>(null);
+    const selected_template = signal<{
+        id: string;
+        background_item_id?: string;
+    } | null>(null);
     const service_stub = {
         selected_template,
         selected_template_layout_index: signal<number | null>(null),
         template_layout_draft: signal([]),
-        plugins: signal([]),
+        widgets: signal([]),
     };
 
     async function make() {
@@ -44,5 +47,17 @@ describe('TemplatePreviewComponent', () => {
         const component = await make();
 
         expect(component.player_link()).toBe('');
+    });
+
+    it('resolves the selected background media thumbnail', async () => {
+        selected_template.set({
+            id: 'template-1',
+            background_item_id: 'media-1',
+        });
+        const component = await make();
+
+        expect(component.background_url()).toContain(
+            '/signage/media/media-1/thumbnail',
+        );
     });
 });

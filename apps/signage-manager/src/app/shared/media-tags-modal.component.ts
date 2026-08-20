@@ -1,10 +1,19 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ItemListFieldComponent } from '@placeos/form-fields';
+
+export interface MediaTagsModalData {
+    /** Existing tags to suggest while the user types */
+    tags?: string[];
+}
 
 @Component({
     selector: 'media-tags-modal',
@@ -32,6 +41,7 @@ import { ItemListFieldComponent } from '@placeos/form-fields';
             <item-list-field
                 name="media-tags"
                 [(ngModel)]="tags"
+                [options]="tag_options"
                 [placeholder]="'COMMON.TAGS' | translate"
             />
         </main>
@@ -60,7 +70,12 @@ import { ItemListFieldComponent } from '@placeos/form-fields';
 export class MediaTagsModalComponent {
     private readonly _dialog_ref =
         inject<MatDialogRef<MediaTagsModalComponent>>(MatDialogRef);
+    private readonly _data = inject<MediaTagsModalData>(MAT_DIALOG_DATA, {
+        optional: true,
+    });
 
+    /** Tags already in use, offered as suggestions */
+    public readonly tag_options = this._data?.tags || [];
     public readonly heading = `${i18n('COMMON.ADD')} ${i18n('COMMON.TAGS')}`;
     public readonly tags = signal<string[]>([]);
 
