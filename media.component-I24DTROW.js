@@ -3,21 +3,21 @@ import {
   MatTabNav,
   MatTabNavPanel,
   MatTabsModule
-} from "./chunk-IZVX3RRW.js";
+} from "./chunk-S7XHSIXD.js";
 import {
   CdkDrag,
   CdkDragPlaceholder,
   CdkDropList,
   DragDropModule
-} from "./chunk-WWZMUDVM.js";
+} from "./chunk-UVWI7PAK.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-FF7N3I2A.js";
+} from "./chunk-277XOJSC.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-4AFLTOY5.js";
+} from "./chunk-Q7SQZLCT.js";
 import {
   Component,
   CustomTooltipComponent,
@@ -104,7 +104,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-ZTNF3JQB.js";
+} from "./chunk-2FXQT5UN.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/shared/media-add-modal.component.ts
@@ -229,12 +229,16 @@ var MediaAddModalComponent = class _MediaAddModalComponent {
     );
     this.available_plugins = this._service.plugins;
     this.can_add = computed(
-      () => this.mode === "link" ? !!this.link().trim() : !!this.selected_plugin(),
+      () => this.mode === "link" ? !!this.link().trim() : !!this.selectedMediaPlugin(),
       ...ngDevMode ? [{ debugName: "can_add" }] : (
         /* istanbul ignore next */
         []
       )
     );
+  }
+  selectedMediaPlugin() {
+    const selected_plugin = this.selected_plugin();
+    return this.available_plugins().find(({ id }) => id === selected_plugin?.id);
   }
   async add() {
     if (this.mode === "link") {
@@ -246,7 +250,7 @@ var MediaAddModalComponent = class _MediaAddModalComponent {
       this._dialog_ref.close();
       await this._service.addMediaFromLink(link);
     } else {
-      const plugin = this.selected_plugin();
+      const plugin = this.selectedMediaPlugin();
       if (!plugin)
         return;
       this._dialog_ref.close();
@@ -659,7 +663,6 @@ var MediaListHeaderComponent = class _MediaListHeaderComponent {
     this._dialog = inject(MatDialog);
     this._media = this._service.filtered_media;
     this._all_media = this._service.media;
-    this._plugins = this._service.plugins;
     this.link = signal(
       "",
       ...ngDevMode ? [{ debugName: "link" }] : (
@@ -674,13 +677,7 @@ var MediaListHeaderComponent = class _MediaListHeaderComponent {
         []
       )
     );
-    this.available_plugins = computed(
-      () => this._plugins(),
-      ...ngDevMode ? [{ debugName: "available_plugins" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+    this.available_plugins = this._service.plugins;
     this.item_count = computed(
       () => this._media().length,
       ...ngDevMode ? [{ debugName: "item_count" }] : (
@@ -733,7 +730,8 @@ var MediaListHeaderComponent = class _MediaListHeaderComponent {
     this.link.set("");
   }
   async addFromPlugin() {
-    const plugin = this.selected_plugin();
+    const selected_plugin = this.selected_plugin();
+    const plugin = this.available_plugins().find(({ id }) => id === selected_plugin?.id);
     if (!plugin)
       return;
     await this._service.addMediaFromPlugin(plugin);
@@ -2014,6 +2012,7 @@ var MediaListComponent = class _MediaListComponent {
     this._onMediaChange = (e) => this.sidebar_hidden.set(e.matches);
     this.media = this._service.filtered_media;
     this.media_tags = this._service.media_tags;
+    this.media_tag_counts = this._service.media_tag_counts;
     this.loading = this._service.media_loading;
     this.view_mode = this._service.media_view_mode;
     this.groups = this._service.signage_groups;
@@ -2038,9 +2037,10 @@ var MediaListComponent = class _MediaListComponent {
       () => {
         const media = this.media();
         const tags = this.media_tags();
+        const tag_counts = this.media_tag_counts();
         if (!media.length && !tags.length)
           return [];
-        const counts = /* @__PURE__ */ new Map();
+        const loaded_counts = /* @__PURE__ */ new Map();
         let untagged_count = 0;
         for (const item of media) {
           const item_tags = item.tags || [];
@@ -2049,14 +2049,14 @@ var MediaListComponent = class _MediaListComponent {
             continue;
           }
           for (const tag of item_tags) {
-            counts.set(tag, (counts.get(tag) || 0) + 1);
+            loaded_counts.set(tag, (loaded_counts.get(tag) || 0) + 1);
           }
         }
         return [
           { id: UNTAGGED, count: untagged_count, untagged: true },
           ...tags.map((id) => ({
             id,
-            count: counts.get(id) || 0,
+            count: tag_counts[id] ?? loaded_counts.get(id) ?? 0,
             untagged: false
           }))
         ];
@@ -3595,4 +3595,4 @@ var MediaSectionComponent = class _MediaSectionComponent {
 export {
   MediaSectionComponent
 };
-//# sourceMappingURL=media.component-5RUP76RL.js.map
+//# sourceMappingURL=media.component-I24DTROW.js.map
