@@ -263,6 +263,7 @@ export class DisplayEditModalComponent {
                 orientation: form_value.orientation,
                 signage: true,
                 zones: form_value.zones,
+                ...(this.display.id ? { version: this.display.version } : {}),
             };
             try {
                 const result = this.display.id

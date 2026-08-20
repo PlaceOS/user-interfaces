@@ -85,6 +85,7 @@ describe('DisplayEditModalComponent', () => {
             new PlaceSystem({
                 id: 'display-1',
                 display_name: 'Old name',
+                version: 7,
                 zones: ['existing-zone'],
             }),
             ['unused-default'],
@@ -97,6 +98,7 @@ describe('DisplayEditModalComponent', () => {
             'display-1',
             expect.objectContaining({
                 display_name: 'Cafe',
+                version: 7,
                 zones: ['existing-zone'],
             }),
         );
