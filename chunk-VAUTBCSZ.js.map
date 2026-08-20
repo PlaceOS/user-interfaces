@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["libs/components/src/lib/duration.pipe.ts"],
+  "sourcesContent": ["import { Pipe } from '@angular/core';\nimport { formatDuration } from '@placeos/common';\n\n@Pipe({\n    name: 'duration',\n})\nexport class DurationPipe {\n    /**\n     * Format the duration value\n     * @param length Duration to format in minutes\n     * @param shorten Whether to shorten the period names e.g. `hours` as `h`\n     */\n    public transform(length: number, shorten = false): string {\n        let duration = formatDuration({\n            hours: Math.floor(length / 60),\n            minutes: length % 60,\n        });\n        if (shorten) {\n            duration = duration\n                .replace(' hour', 'h')\n                .replace(' minute', 'm')\n                .replace(/s/gi, '');\n        }\n        return duration;\n    }\n}\n"],
+  "mappings": ";;;;;;;;AAMM,IAAO,eAAP,MAAO,cAAY;;;;;;EAMd,UAAU,QAAgB,UAAU,OAAK;AAC5C,QAAI,WAAW,eAAe;MAC1B,OAAO,KAAK,MAAM,SAAS,EAAE;MAC7B,SAAS,SAAS;KACrB;AACD,QAAI,SAAS;AACT,iBAAW,SACN,QAAQ,SAAS,GAAG,EACpB,QAAQ,WAAW,GAAG,EACtB,QAAQ,OAAO,EAAE;IAC1B;AACA,WAAO;EACX;;;uCAlBS,eAAY;IAAA;EAAA;;uFAAZ,eAAY,MAAA,KAAA,CAAA;EAAA;;;sEAAZ,cAAY,CAAA;UAHxB;WAAK;MACF,MAAM;KACT;;;",
+  "names": []
+}
