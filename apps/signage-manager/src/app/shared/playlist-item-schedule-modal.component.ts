@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { form, minLength, submit } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -7,9 +8,11 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
+    SignageMedia,
     type SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
+import { MediaThumbnailComponent } from './media-thumbnail.component';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
@@ -36,6 +39,38 @@ export interface PlaylistItemScheduleModalData {
             "
         >
             <div class="flex flex-col gap-4">
+                @if (media.id) {
+                    <div
+                        class="border-base-300 bg-base-100 flex items-start gap-4 rounded-lg border p-3"
+                    >
+                        <media-thumbnail
+                            [item]="media"
+                            [cover]="true"
+                            class="bg-base-300 h-20 w-32 shrink-0 overflow-hidden rounded"
+                        />
+                        <div class="min-w-0 flex-1">
+                            <h3 class="truncate text-base font-medium">
+                                {{ media.name }}
+                            </h3>
+                            @if (media.description) {
+                                <p
+                                    class="text-base-content/70 mt-1 line-clamp-2 text-sm"
+                                >
+                                    {{ media.description }}
+                                </p>
+                            }
+                            @if (media.valid_until) {
+                                <p class="text-base-content/70 mt-2 text-xs">
+                                    {{ 'FORM.EXPIRES_AT' | translate }}:
+                                    {{
+                                        media.valid_until * 1000
+                                            | date: 'mediumDate'
+                                    }}
+                                </p>
+                            }
+                        </div>
+                    </div>
+                }
                 @for (
                     schedule of form_model.schedules;
                     track index;
@@ -61,7 +96,9 @@ export interface PlaylistItemScheduleModalData {
         </fullscreen-modal-shell>
     `,
     imports: [
+        DatePipe,
         FullscreenModalShellComponent,
+        MediaThumbnailComponent,
         PlaylistScheduleFormComponent,
         TranslatePipe,
     ],
@@ -72,6 +109,8 @@ export class PlaylistItemScheduleModalComponent {
     private readonly _dialog_ref =
         inject<MatDialogRef<PlaylistItemScheduleModalComponent>>(MatDialogRef);
 
+    /** Media the schedules are attached to, shown as context in the modal header */
+    public readonly media = new SignageMedia(this._data.item.media || {});
     public readonly loading = signal(false);
     public readonly active_schedule_index = signal<number | null>(0);
     public readonly model = signal<{ schedules: PlaylistScheduleFormModel[] }>({
