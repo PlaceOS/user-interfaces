@@ -1930,9 +1930,9 @@ function __asyncValues(o) {
       });
     };
   }
-  function settle(resolve, reject, d2, v2) {
+  function settle(resolve, reject, d, v2) {
     Promise.resolve(v2).then(function(v3) {
-      resolve({ value: v3, done: d2 });
+      resolve({ value: v3, done: d });
     }, reject);
   }
 }
@@ -2792,9 +2792,9 @@ function pairwise() {
     let prev;
     let hasPrev = false;
     source.subscribe(createOperatorSubscriber(subscriber, (value) => {
-      const p = prev;
+      const p2 = prev;
       prev = value;
-      hasPrev && subscriber.next([p, value]);
+      hasPrev && subscriber.next([p2, value]);
       hasPrev = true;
     }));
   });
@@ -3087,13 +3087,13 @@ function formatRuntimeErrorCode(code) {
 }
 function formatRuntimeError(code, message2) {
   const fullCode = formatRuntimeErrorCode(code);
-  let errorMessage = `${fullCode}${message2 ? ": " + message2 : ""}`;
+  let errorMessage2 = `${fullCode}${message2 ? ": " + message2 : ""}`;
   if (ngDevMode && code < 0) {
-    const addPeriodSeparator = !errorMessage.match(/[.,;!?\n]$/);
+    const addPeriodSeparator = !errorMessage2.match(/[.,;!?\n]$/);
     const separator = addPeriodSeparator ? "." : "";
-    errorMessage = `${errorMessage}${separator} Find more at ${ERROR_DETAILS_PAGE_BASE_URL}/${fullCode}`;
+    errorMessage2 = `${errorMessage2}${separator} Find more at ${ERROR_DETAILS_PAGE_BASE_URL}/${fullCode}`;
   }
-  return errorMessage;
+  return errorMessage2;
 }
 function getClosureSafeProperty(objWithPropertyToExtract) {
   for (let key in objWithPropertyToExtract) {
@@ -3565,8 +3565,8 @@ function throwInvalidProviderError(ngModuleType, providers, provider) {
   }
 }
 function throwProviderNotFoundError(token, injectorName) {
-  const errorMessage = ngDevMode && `No provider for ${stringifyForError(token)} found${injectorName ? ` in ${injectorName}` : ""}`;
-  throw new RuntimeError(-201, errorMessage);
+  const errorMessage2 = ngDevMode && `No provider for ${stringifyForError(token)} found${injectorName ? ` in ${injectorName}` : ""}`;
+  throw new RuntimeError(-201, errorMessage2);
 }
 function prependTokenToDependencyPath(error2, token) {
   error2[NG_TOKEN_PATH] ??= [];
@@ -9131,9 +9131,9 @@ function \u0275\u0275sanitizeUrlOrResourceUrl(unsafeUrl, tag, prop) {
 }
 function validateAgainstEventProperties(name) {
   if (name.toLowerCase().startsWith("on")) {
-    const errorMessage = `Binding to event property '${name}' is disallowed for security reasons, please use (${name.slice(2)})=...
+    const errorMessage2 = `Binding to event property '${name}' is disallowed for security reasons, please use (${name.slice(2)})=...
 If '${name}' is a directive input, make sure the directive is imported by the current module.`;
-    throw new RuntimeError(306, errorMessage);
+    throw new RuntimeError(306, errorMessage2);
   }
 }
 function getSanitizer() {
@@ -9189,22 +9189,22 @@ function \u0275\u0275validateAttribute(value, tagName, attributeName) {
   const displayTagName = tagName[0] === ":" ? tagName.split(":").pop() : tagName;
   if (typeof validationConfig !== "boolean") {
     if (!tNode) {
-      const errorMessage2 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${tagName}> element. For security reasons, the \`${attributeName}\` can be set on the <${tagName}> element as a static attribute only. 
+      const errorMessage3 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${tagName}> element. For security reasons, the \`${attributeName}\` can be set on the <${tagName}> element as a static attribute only. 
 To fix this, switch the \`${attributeName}\` binding to a static attribute in a template or in host bindings section.`;
-      throw new RuntimeError(-910, errorMessage2);
+      throw new RuntimeError(-910, errorMessage3);
     }
     const element = getNativeByTNode(tNode, lView);
     const attributeNameValue = getSecuritySensitiveSVGAnimationAttributeName(element, validationConfig);
     if (attributeNameValue) {
-      const errorMessage2 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${getTemplateLocationDetails(lView)}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only when the "attributeName" is set to '${attributeNameValue}'. 
+      const errorMessage3 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${getTemplateLocationDetails(lView)}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only when the "attributeName" is set to '${attributeNameValue}'. 
 To fix this, switch the \`${attributeNameValue}\` binding to a static attribute in a template or in host bindings section.`;
-      throw new RuntimeError(-910, errorMessage2);
+      throw new RuntimeError(-910, errorMessage3);
     }
     return value;
   }
-  const errorMessage = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${tNode ? getTemplateLocationDetails(lView) : ""}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only. 
+  const errorMessage2 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${tNode ? getTemplateLocationDetails(lView) : ""}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only. 
 To fix this, switch the \`${attributeName}\` binding to a static attribute in a template or in host bindings section.`;
-  throw new RuntimeError(-910, errorMessage);
+  throw new RuntimeError(-910, errorMessage2);
 }
 function getSecuritySensitiveSVGAnimationAttributeName(element, validationConfig) {
   for (const attributeName of SVG_ANIMATION_ATTRIBUTE_NAME_CANDIDATES) {
@@ -13815,7 +13815,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding));
+    const hasInputBindings = componentBindings?.some(isInputBinding) || directives?.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -17033,10 +17033,10 @@ function publishNonCoreGlobalUtil(name, fn) {
 }
 function publishUtil(name, fn) {
   if (typeof COMPILED === "undefined" || !COMPILED) {
-    const w2 = _global;
+    const w3 = _global;
     ngDevMode && assertDefined(fn, "function not defined");
-    w2[GLOBAL_PUBLISH_EXPANDO_KEY] ??= {};
-    w2[GLOBAL_PUBLISH_EXPANDO_KEY][name] = fn;
+    w3[GLOBAL_PUBLISH_EXPANDO_KEY] ??= {};
+    w3[GLOBAL_PUBLISH_EXPANDO_KEY][name] = fn;
   }
 }
 var TESTABILITY = new InjectionToken("");
@@ -17243,12 +17243,12 @@ function publishDefaultGlobalUtils() {
 }
 function publishSignalConfiguration() {
   setThrowInvalidWriteToSignalError(() => {
-    let errorMessage = "";
+    let errorMessage2 = "";
     if (ngDevMode) {
       const activeConsumer2 = getActiveConsumer();
-      errorMessage = activeConsumer2 && isReactiveLViewConsumer(activeConsumer2) ? "Writing to signals is not allowed while Angular renders the template (eg. interpolations)" : "Writing to signals is not allowed in a `computed`";
+      errorMessage2 = activeConsumer2 && isReactiveLViewConsumer(activeConsumer2) ? "Writing to signals is not allowed while Angular renders the template (eg. interpolations)" : "Writing to signals is not allowed in a `computed`";
     }
-    throw new RuntimeError(600, errorMessage);
+    throw new RuntimeError(600, errorMessage2);
   });
 }
 var MAXIMUM_REFRESH_RERUNS = 10;
@@ -17319,12 +17319,12 @@ var ApplicationRef = class _ApplicationRef {
       (typeof ngDevMode === "undefined" || ngDevMode) && warnIfDestroyed(this._destroyed);
       const initStatus = this._injector.get(ApplicationInitStatus);
       if (!initStatus.done) {
-        let errorMessage = "";
+        let errorMessage2 = "";
         if (typeof ngDevMode === "undefined" || ngDevMode) {
           const standalone = isStandalone(component);
-          errorMessage = "Cannot bootstrap as there are still asynchronous initializers running." + (standalone ? "" : " Bootstrap components in the `ngDoBootstrap` method of the root module.");
+          errorMessage2 = "Cannot bootstrap as there are still asynchronous initializers running." + (standalone ? "" : " Bootstrap components in the `ngDoBootstrap` method of the root module.");
         }
-        throw new RuntimeError(405, errorMessage);
+        throw new RuntimeError(405, errorMessage2);
       }
       const componentDef = getComponentDef(component);
       const ngModule = this._injector.get(NgModuleRef$1);
@@ -21890,8 +21890,8 @@ function getMultipleMatchingPipesMessage(name) {
   const hostIsStandalone = isHostComponentStandalone(lView);
   const componentInfoMessage = context2 ? ` in the '${context2.constructor.name}' component` : "";
   const verifyMessage = `check ${hostIsStandalone ? "'@Component.imports' of this component" : "the imports of this module"}`;
-  const errorMessage = `Multiple pipes match the name \`${name}\`${componentInfoMessage}. ${verifyMessage}`;
-  return errorMessage;
+  const errorMessage2 = `Multiple pipes match the name \`${name}\`${componentInfoMessage}. ${verifyMessage}`;
+  return errorMessage2;
 }
 function getPipeNotFoundErrorMessage(name) {
   const lView = getLView();
@@ -21900,8 +21900,8 @@ function getPipeNotFoundErrorMessage(name) {
   const hostIsStandalone = isHostComponentStandalone(lView);
   const componentInfoMessage = context2 ? ` in the '${context2.constructor.name}' component` : "";
   const verifyMessage = `Verify that it is ${hostIsStandalone ? "included in the '@Component.imports' of this component" : "declared or imported in this module"}`;
-  const errorMessage = `The pipe '${name}' could not be found${componentInfoMessage}. ${verifyMessage}`;
-  return errorMessage;
+  const errorMessage2 = `The pipe '${name}' could not be found${componentInfoMessage}. ${verifyMessage}`;
+  return errorMessage2;
 }
 function \u0275\u0275pipeBind1(index, offset, v1) {
   const adjustedIndex = index + HEADER_OFFSET;
@@ -22750,7 +22750,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.directives].map((p) => getComponentDef(p) || getDirectiveDef(p)).filter((d2) => d2 !== null);
+    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d) => d !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
@@ -22762,7 +22762,7 @@ function getStandaloneDefFunctions(type, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type, imports);
-    return [...scope.compilation.pipes].map((p) => getPipeDef(p)).filter((d2) => d2 !== null);
+    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d) => d !== null);
   };
   return {
     directiveDefs,
@@ -23007,9 +23007,9 @@ var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (t
 var Component = makeDecorator("Component", (c = {}) => __spreadValues({
   changeDetection: ChangeDetectionStrategy.Eager
 }, c), Directive, void 0, (type, meta) => compileComponent(type, meta));
-var Pipe = makeDecorator("Pipe", (p) => __spreadValues({
+var Pipe = makeDecorator("Pipe", (p2) => __spreadValues({
   pure: true
-}, p), void 0, void 0, (type, meta) => compilePipe(type, meta));
+}, p2), void 0, void 0, (type, meta) => compilePipe(type, meta));
 var Input = makePropDecorator("Input", (arg) => {
   if (!arg) {
     return {};
@@ -27356,8 +27356,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y2, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
-      return createDate(y2, m2 - 1, d2);
+      const [y2, m2 = 1, d = 1] = value.split("-").map((val) => +val);
+      return createDate(y2, m2 - 1, d);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27446,7 +27446,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d2) => !d2);
+    isZero = digits.every((d) => !d);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27504,7 +27504,7 @@ function formatNumber(value, locale, digitsInfo) {
   return formatNumberToLocaleString(value, pattern, locale, NumberSymbol.Group, NumberSymbol.Decimal, digitsInfo);
 }
 function parseNumberFormat(format3, minusSign = "-") {
-  const p = {
+  const p2 = {
     minInt: 1,
     minFrac: 0,
     maxFrac: 0,
@@ -27519,29 +27519,29 @@ function parseNumberFormat(format3, minusSign = "-") {
   const positive = patternParts[0];
   const negative = patternParts[1];
   const positiveParts = positive.indexOf(DECIMAL_SEP) !== -1 ? positive.split(DECIMAL_SEP) : [positive.substring(0, positive.lastIndexOf(ZERO_CHAR) + 1), positive.substring(positive.lastIndexOf(ZERO_CHAR) + 1)], integer = positiveParts[0], fraction = positiveParts[1] || "";
-  p.posPre = integer.substring(0, integer.indexOf(DIGIT_CHAR));
+  p2.posPre = integer.substring(0, integer.indexOf(DIGIT_CHAR));
   for (let i = 0; i < fraction.length; i++) {
     const ch = fraction.charAt(i);
     if (ch === ZERO_CHAR) {
-      p.minFrac = p.maxFrac = i + 1;
+      p2.minFrac = p2.maxFrac = i + 1;
     } else if (ch === DIGIT_CHAR) {
-      p.maxFrac = i + 1;
+      p2.maxFrac = i + 1;
     } else {
-      p.posSuf += ch;
+      p2.posSuf += ch;
     }
   }
   const groups = integer.split(GROUP_SEP);
-  p.gSize = groups[1] ? groups[1].length : 0;
-  p.lgSize = groups[2] || groups[1] ? (groups[2] || groups[1]).length : 0;
+  p2.gSize = groups[1] ? groups[1].length : 0;
+  p2.lgSize = groups[2] || groups[1] ? (groups[2] || groups[1]).length : 0;
   if (negative) {
-    const trunkLen = positive.length - p.posPre.length - p.posSuf.length, pos = negative.indexOf(DIGIT_CHAR);
-    p.negPre = negative.substring(0, pos).replace(/'/g, "");
-    p.negSuf = negative.slice(pos + trunkLen).replace(/'/g, "");
+    const trunkLen = positive.length - p2.posPre.length - p2.posSuf.length, pos = negative.indexOf(DIGIT_CHAR);
+    p2.negPre = negative.substring(0, pos).replace(/'/g, "");
+    p2.negSuf = negative.slice(pos + trunkLen).replace(/'/g, "");
   } else {
-    p.negPre = minusSign + p.posPre;
-    p.negSuf = p.posSuf;
+    p2.negPre = minusSign + p2.posPre;
+    p2.negSuf = p2.posSuf;
   }
-  return p;
+  return p2;
 }
 function toPercent(parsedNumber) {
   if (parsedNumber.digits[0] === 0) {
@@ -27635,9 +27635,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
-    d2 = d2 + carry2;
-    digits2[i] = d2 < 10 ? d2 : d2 - 10;
+  const carry = digits.reduceRight(function(carry2, d, i, digits2) {
+    d = d + carry2;
+    digits2[i] = d < 10 ? d : d - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27645,7 +27645,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d2 >= 10 ? 1 : 0;
+    return d >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -28035,11 +28035,11 @@ var NgForOf = class _NgForOf {
           try {
             this._differ = this._differs.find(value).create(this.ngForTrackBy);
           } catch {
-            let errorMessage = `Cannot find a differ supporting object '${value}' of type '${getTypeName(value)}'. NgFor only supports binding to Iterables, such as Arrays.`;
+            let errorMessage2 = `Cannot find a differ supporting object '${value}' of type '${getTypeName(value)}'. NgFor only supports binding to Iterables, such as Arrays.`;
             if (typeof value === "object") {
-              errorMessage += " Did you mean to use the keyvalue pipe?";
+              errorMessage2 += " Did you mean to use the keyvalue pipe?";
             }
-            throw new RuntimeError(-2200, errorMessage);
+            throw new RuntimeError(-2200, errorMessage2);
           }
         } else {
           this._differ = this._differs.find(value).create(this.ngForTrackBy);
@@ -30673,9 +30673,9 @@ var EventManager = class _EventManager {
     plugins.forEach((plugin) => {
       plugin.manager = this;
     });
-    const otherPlugins = plugins.filter((p) => !(p instanceof DomEventsPlugin));
+    const otherPlugins = plugins.filter((p2) => !(p2 instanceof DomEventsPlugin));
     this._plugins = otherPlugins.slice().reverse();
-    const domEventPlugin = plugins.find((p) => p instanceof DomEventsPlugin);
+    const domEventPlugin = plugins.find((p2) => p2 instanceof DomEventsPlugin);
     if (domEventPlugin) {
       this._plugins.push(domEventPlugin);
     }
@@ -43575,8 +43575,8 @@ var UrlSerializer = class _UrlSerializer {
 })();
 var DefaultUrlSerializer = class {
   parse(url) {
-    const p = new UrlParser(url);
-    return new UrlTree(p.parseRootSegment(), p.parseQueryParams(), p.parseFragment());
+    const p2 = new UrlParser(url);
+    return new UrlTree(p2.parseRootSegment(), p2.parseQueryParams(), p2.parseFragment());
   }
   serialize(tree2) {
     const segment = `/${serializeSegment(tree2.root, true)}`;
@@ -43587,7 +43587,7 @@ var DefaultUrlSerializer = class {
 };
 var DEFAULT_SERIALIZER = new DefaultUrlSerializer();
 function serializePaths(segment) {
-  return segment.segments.map((p) => serializePath(p)).join("/");
+  return segment.segments.map((p2) => serializePath(p2)).join("/");
 }
 function serializeSegment(segment, root) {
   if (!segment.hasChildren()) {
@@ -44123,8 +44123,8 @@ function createNewSegmentGroup(segmentGroup, startIndex, commands) {
       return new UrlSegmentGroup(paths, children);
     }
     if (i === 0 && isMatrixParams(commands[0])) {
-      const p = segmentGroup.segments[startIndex];
-      paths.push(new UrlSegment(p.path, stringify2(commands[0])));
+      const p2 = segmentGroup.segments[startIndex];
+      paths.push(new UrlSegment(p2.path, stringify2(commands[0])));
       i++;
       continue;
     }
@@ -44546,8 +44546,8 @@ var Tree = class {
     return this._root.value;
   }
   parent(t) {
-    const p = this.pathFromRoot(t);
-    return p.length > 1 ? p[p.length - 2] : null;
+    const p2 = this.pathFromRoot(t);
+    return p2.length > 1 ? p2[p2.length - 2] : null;
   }
   children(t) {
     const n = findNode(t, this._root);
@@ -44558,9 +44558,9 @@ var Tree = class {
     return n && n.children.length > 0 ? n.children[0].value : null;
   }
   siblings(t) {
-    const p = findPath(t, this._root);
-    if (p.length < 2) return [];
-    const c = p[p.length - 2].children.map((c2) => c2.value);
+    const p2 = findPath(t, this._root);
+    if (p2.length < 2) return [];
+    const c = p2[p2.length - 2].children.map((c2) => c2.value);
     return c.filter((cc) => cc !== t);
   }
   pathFromRoot(t) {
@@ -44662,7 +44662,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = this.dataSubject?.pipe(map((d2) => d2[RouteTitleKey])) ?? of(void 0);
+    this.title = this.dataSubject?.pipe(map((d) => d[RouteTitleKey])) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -44688,11 +44688,11 @@ var ActivatedRoute = class {
     return this._routerState.pathFromRoot(this);
   }
   get paramMap() {
-    this._paramMap ??= this.params.pipe(map((p) => convertToParamMap(p)));
+    this._paramMap ??= this.params.pipe(map((p2) => convertToParamMap(p2)));
     return this._paramMap;
   }
   get queryParamMap() {
-    this._queryParamMap ??= this.queryParams.pipe(map((p) => convertToParamMap(p)));
+    this._queryParamMap ??= this.queryParams.pipe(map((p2) => convertToParamMap(p2)));
     return this._queryParamMap;
   }
   toString() {
@@ -45181,9 +45181,9 @@ function createNode(routeReuseStrategy, curr, prevState) {
 }
 function createOrReuseChildren(routeReuseStrategy, curr, prevState) {
   return curr.children.map((child) => {
-    for (const p of prevState.children) {
-      if (routeReuseStrategy.shouldReuseRoute(child.value, p.value.snapshot)) {
-        return createNode(routeReuseStrategy, child, p);
+    for (const p2 of prevState.children) {
+      if (routeReuseStrategy.shouldReuseRoute(child.value, p2.value.snapshot)) {
+        return createNode(routeReuseStrategy, child, p2);
       }
     }
     return createNode(routeReuseStrategy, child);
@@ -45394,11 +45394,11 @@ function getAllRouteGuards(future, curr, parentContexts) {
   const currRoot = curr ? curr._root : null;
   return getChildRouteGuards(futureRoot, currRoot, parentContexts, [futureRoot.value]);
 }
-function getCanActivateChild(p) {
-  const canActivateChild = p.routeConfig ? p.routeConfig.canActivateChild : null;
+function getCanActivateChild(p2) {
+  const canActivateChild = p2.routeConfig ? p2.routeConfig.canActivateChild : null;
   if (!canActivateChild || canActivateChild.length === 0) return null;
   return {
-    node: p,
+    node: p2,
     guards: canActivateChild
   };
 }
@@ -45621,11 +45621,11 @@ function runCanActivate(futureRSS, futureARS) {
 }
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
-  const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p) => getCanActivateChild(p)).filter((_3) => _3 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
+  const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_3) => _3 !== null);
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d) => {
     return defer(() => {
-      const guardsMapped = d2.guards.map((canActivateChild) => {
-        const closestInjector = d2.node._environmentInjector;
+      const guardsMapped = d.guards.map((canActivateChild) => {
+        const closestInjector = d.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -46283,9 +46283,9 @@ function checkOutletNameUniqueness(nodes) {
   nodes.forEach((n) => {
     const routeWithSameOutletName = names[n.value.outlet];
     if (routeWithSameOutletName) {
-      const p = routeWithSameOutletName.url.map((s) => s.toString()).join("/");
+      const p2 = routeWithSameOutletName.url.map((s) => s.toString()).join("/");
       const c = n.value.url.map((s) => s.toString()).join("/");
-      throw new RuntimeError(4006, (typeof ngDevMode === "undefined" || ngDevMode) && `Two segments cannot have the same outlet name: '${p}' and '${c}'.`);
+      throw new RuntimeError(4006, (typeof ngDevMode === "undefined" || ngDevMode) && `Two segments cannot have the same outlet name: '${p2}' and '${c}'.`);
     }
     names[n.value.outlet] = n.value;
   });
@@ -50315,19 +50315,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setFullYear(year, month, date);
-    d2.setHours(0, 0, 0, 0);
-    return d2;
+    const d = /* @__PURE__ */ new Date();
+    d.setFullYear(year, month, date);
+    d.setHours(0, 0, 0, 0);
+    return d;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d2 = /* @__PURE__ */ new Date();
-    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d2);
+    const d = /* @__PURE__ */ new Date();
+    d.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -54707,11 +54707,11 @@ function isPresent(o) {
 function toObservable(value) {
   const obs = isPromise2(value) ? from(value) : value;
   if ((typeof ngDevMode === "undefined" || ngDevMode) && !isSubscribable(obs)) {
-    let errorMessage = `Expected async validator to return Promise or Observable.`;
+    let errorMessage2 = `Expected async validator to return Promise or Observable.`;
     if (typeof value === "object") {
-      errorMessage += " Are you using a synchronous validator where an async validator is expected?";
+      errorMessage2 += " Are you using a synchronous validator where an async validator is expected?";
     }
-    throw new RuntimeError(-1101, errorMessage);
+    throw new RuntimeError(-1101, errorMessage2);
   }
   return obs;
 }
@@ -59835,10 +59835,10 @@ function validateTime(hours, minutes, seconds) {
 function toZonedTime(date, timeZone, options) {
   date = toDate3(date, options);
   const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d2 = new Date(date.getTime() - offsetMilliseconds);
+  const d = new Date(date.getTime() - offsetMilliseconds);
   const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
-  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
+  resultDate.setFullYear(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  resultDate.setHours(d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
   return resultDate;
 }
 
@@ -59913,7 +59913,11 @@ var SIGNAGE_MANAGER = {
   APPROVE_PLAYLIST: "Approve Playlist",
   APPROVE_PLAYLIST_TOOLTIP: "Approve playlist",
   APPROVE_SELECTED_PLAYLIST: "Approve selected playlist",
+  APPROVE_SELECTED_TEMPLATE: "Approve selected template",
+  APPROVE_TEMPLATE: "Approve Template",
+  APPROVE_TEMPLATE_TOOLTIP: "Approve template",
   APPROVING_PLAYLIST: "Approving playlist...",
+  APPROVING_TEMPLATE: "Approving template...",
   AWAITING_APPROVAL: "Awaiting approval",
   BACK_TO_DISPLAYS: "Back to displays list",
   BACK_TO_GROUPS: "Back to groups list",
@@ -59940,11 +59944,13 @@ var SIGNAGE_MANAGER = {
   CLOSE_ADD_USER: "Close add user dialog",
   CLOSE_ADD_ZONE: "Close add zone dialog",
   CLOSE_APPROVE_PLAYLIST: "Close approve playlist dialog",
+  CLOSE_APPROVE_TEMPLATE: "Close approve template dialog",
   CLOSE_GROUP_SELECT: "Close group selection dialog",
   CLOSE_MEDIA_PREVIEW: "Close media preview",
   CLOSE_REQUEST_APPROVAL: "Close request approval dialog",
   COLLAPSE_GROUP: "Collapse group {{ name }}",
   COLLAPSE_ZONE: "Collapse zone {{ name }}",
+  CREATE_NEW_DISPLAY: "Create new display",
   CREATE_NEW_PLAYLIST: "Create new playlist",
   CREATE_NEW_TEMPLATE: "Create new template",
   CUSTOM_SCHEDULE: "Custom schedule",
@@ -59954,7 +59960,9 @@ var SIGNAGE_MANAGER = {
   DEFAULT_DURATION: "Default Duration",
   DEFAULT_PERMISSIONS: "No permissions",
   DEFAULT_PLAY_TIME: "Default Play Time",
+  DELETE_DISPLAY_TOOLTIP: "Delete display",
   DELETE_PLAYLIST_TOOLTIP: "Delete playlist",
+  DELETE_SELECTED_DISPLAY: "Delete selected display",
   DELETE_SELECTED_PLAYLIST: "Delete selected playlist",
   DELETE_SELECTED_TEMPLATE: "Delete selected template",
   DELETE_TEMPLATE_TOOLTIP: "Delete template",
@@ -59965,8 +59973,14 @@ var SIGNAGE_MANAGER = {
   DISPLAY_COUNT_LABEL: "{{ count }} displays",
   DISPLAY_COUNT_LABEL_1: "{{ count }} display",
   DISPLAY_DETAILS_TABS: "Display details tabs",
+  DISPLAY_EDIT: "Edit Display",
+  DISPLAY_NAME_ARIA: "Display name",
   DISPLAY_NO_ZONES: "This display is not in any zones.",
+  DISPLAY_ORIENTATION_ARIA: "Display orientation",
+  DISPLAY_SAVING: "Saving display...",
   DISPLAY_SELECT_DETAILS: "Select a display to view its details.",
+  DISPLAY_ZONES: "Display zones",
+  DISPLAY_ZONES_HINT: "Select a zone to add it to this display.",
   DRAG_MEDIA_HINT: "Drag media onto a playlist to add it",
   DURATION_DAY: "{{ count }} days",
   DURATION_DAY_1: "{{ count }} day",
@@ -59974,8 +59988,10 @@ var SIGNAGE_MANAGER = {
   DURATION_HOUR_1: "{{ count }} hour",
   DURATION_MINUTE: "{{ count }} minutes",
   DURATION_MINUTE_1: "{{ count }} minute",
+  EDIT_DISPLAY_TOOLTIP: "Edit display",
   EDIT_GROUP_TOOLTIP: "Edit group",
   EDIT_PLAYLIST_TOOLTIP: "Edit playlist",
+  EDIT_SELECTED_DISPLAY: "Edit selected display",
   EDIT_SELECTED_PLAYLIST: "Edit selected playlist",
   EDIT_SELECTED_TEMPLATE: "Edit selected template",
   EDIT_TEMPLATE_TOOLTIP: "Edit template",
@@ -60034,6 +60050,7 @@ var SIGNAGE_MANAGER = {
   NAV_SCHEDULES: "Schedules",
   NAV_TEMPLATES: "Templates",
   NAV_ZONES: "Zones",
+  NEW_DISPLAY: "New Display",
   NEW_PLAYLIST: "New Playlist",
   NEW_TEMPLATE: "New Template",
   NEXT_5_PLAYS: "Next 5 Plays",
@@ -60077,6 +60094,7 @@ var SIGNAGE_MANAGER = {
   ORIENTATION_LANDSCAPE: "Landscape",
   ORIENTATION_PORTRAIT: "Portrait",
   ORIENTATION_SQUARE: "Square",
+  ORIENTATION_UNSPECIFIED: "Unspecified",
   PARENT_REQUIRED: "Parent group is required",
   PERMISSIONS: "Permissions",
   PERM_CREATE: "Create",
@@ -60123,13 +60141,15 @@ var SIGNAGE_MANAGER = {
   PREVIEW_MEDIA_ARIA: "Preview media",
   PREVIEW_UNAVAILABLE: "Preview not available",
   PREVIOUS_DAY: "Previous day",
-  PREVIOUS_VERSION: "Previous version",
+  NO_OLDER_VERSION: "No older version",
+  PREVIOUS_VERSION: "Old version",
   PREV_WEEK: "Previous week",
   PREV_WEEK_ARIA: "Show previous week",
   PRIMARY_NAV: "Primary navigation",
   RECURRING_SCHEDULE: "Recurring schedule",
   REMOVE_DISPLAY: "Remove display",
   REMOVE_DISPLAY_FROM_PLAYLIST: "Remove display {{ name }} from playlist",
+  REMOVE_DISPLAY_ZONE: "Remove zone {{ name }} from display",
   REMOVE_FROM_PLAYLIST: "Remove from Playlist",
   REMOVE_GROUP_TOOLTIP: "Remove group",
   REMOVE_PLAYLIST_FROM_DISPLAY: "Remove playlist {{ name }} from display",
@@ -60142,7 +60162,9 @@ var SIGNAGE_MANAGER = {
   REPEAT_PATTERN_ARIA: "Recurring schedule repeat pattern",
   REQUEST_APPROVAL: "Request Approval",
   REQUEST_APPROVAL_SELECTED: "Request approval for selected playlist",
+  REQUEST_APPROVAL_SELECTED_TEMPLATE: "Request approval for selected template",
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
+  REQUEST_TEMPLATE_APPROVAL_TOOLTIP: "Request template approval",
   SCHEDULE: "Schedule",
   EDIT_SCHEDULE: "Edit Schedule",
   ITEM_SCHEDULES: "Item Schedules",
@@ -60173,8 +60195,17 @@ var SIGNAGE_MANAGER = {
   SELECT_TEMPLATE_HINT: "Select a template to preview and edit its layout.",
   SEQUENTIAL: "Sequential",
   SHARE: "Share",
+  SHARED_WITH: "Shared with",
+  SHARED_WITH_REMOVE: "Remove from group",
+  SHARED_WITH_REMOVED: "Removed from group",
+  SHARED_WITH_REMOVE_CONTENT: "Remove this item from <strong>{{ name }}</strong>? It stays available in the other groups it is shared with.",
+  SHARED_WITH_REMOVE_ERROR: "Failed to remove from group. {{ error }}",
+  SHARED_WITH_REMOVE_TITLE: "Remove from group?",
+  SHARED_WITH_REMOVING: "Removing from group...",
   SHARE_PLAYLIST_TOOLTIP: "Share playlist",
   SHARE_SELECTED_PLAYLIST: "Share selected playlist",
+  SHARE_SELECTED_TEMPLATE: "Share selected template",
+  SHARE_TEMPLATE_TOOLTIP: "Share template",
   SHOW_APPROVAL_CHANGES: "Show approval changes",
   SHOW_NEXT_DAY: "Show next day",
   SHOW_PREVIOUS_DAY: "Show previous day",
@@ -60211,8 +60242,10 @@ var SIGNAGE_MANAGER = {
   SVC_DISPLAY_ADDED_PLAYLIST: "Display added to playlist",
   SVC_DISPLAY_ADDED_ZONE: "Display added to zone",
   SVC_DISPLAY_IN_ZONE: "Display already assigned to this zone.",
+  SVC_DISPLAY_REMOVED: "Display removed",
   SVC_DISPLAY_REMOVED_PLAYLIST: "Display removed from playlist",
   SVC_DISPLAY_REMOVED_ZONE: "Display removed from zone",
+  SVC_DISPLAY_SAVED: "Display saved",
   SVC_ERR_ADD_USER: "Error adding group user",
   SVC_ERR_ADD_ZONE: "Error adding group zone",
   SVC_ERR_CONVERT_IMAGE: "Unable to convert image",
@@ -60233,17 +60266,23 @@ var SIGNAGE_MANAGER = {
   SVC_MEDIA_UPLOAD_FAILED: "Media upload failed. Please try again.",
   SVC_NO_APPROVERS: "Unable to load playlist approvers.",
   SVC_NO_APPROVE_PLAYLISTS: "You cannot approve playlists in this group.",
+  SVC_NO_APPROVE_TEMPLATES: "You cannot approve templates in this group.",
+  SVC_NO_CREATE_DISPLAYS: "You cannot create displays in this group.",
   SVC_NO_CREATE_MEDIA: "You cannot create media in this group.",
   SVC_NO_CREATE_PLAYLISTS: "You cannot create playlists in this group.",
   SVC_NO_CREATE_TEMPLATES: "You cannot create templates in this group.",
+  SVC_NO_DELETE_DISPLAYS: "Only system administrators can delete displays.",
   SVC_NO_DELETE_MEDIA: "You cannot delete media in this group.",
   SVC_NO_DELETE_PLAYLISTS: "You cannot delete playlists in this group.",
   SVC_NO_DELETE_TEMPLATES: "You cannot delete templates in this group.",
   SVC_NO_GROUPS_FOR_PLAYLIST: "No signage groups are available for this playlist.",
+  SVC_NO_GROUPS_FOR_TEMPLATE: "No signage groups are available for this template.",
   SVC_NO_GROUPS_TO_SHARE: "No other signage groups are available to share with.",
   SVC_NO_MANAGE_GROUP: "You cannot manage this signage group.",
   SVC_NO_SHARE_ITEMS: "You cannot share items from this group.",
+  SVC_NO_TEMPLATE_APPROVERS: "Unable to load template approvers.",
   SVC_NO_UPDATE_ASSIGNMENTS: "You cannot update signage assignments in this group.",
+  SVC_NO_UPDATE_DISPLAYS: "You cannot update displays in this group.",
   SVC_NO_UPDATE_MEDIA: "You cannot update media in this group.",
   SVC_NO_UPDATE_PLAYLISTS: "You cannot update playlists in this group.",
   SVC_NO_UPDATE_TEMPLATES: "You cannot update templates in this group.",
@@ -60258,6 +60297,7 @@ var SIGNAGE_MANAGER = {
   SVC_PLAYLIST_SHARED: "Playlist shared",
   SVC_PLAYLIST_UPDATED: "Playlist updated",
   SVC_REMOVE_GROUP_TITLE: "Remove signage group?",
+  SVC_REMOVE_DISPLAY_TITLE: "Remove display?",
   SVC_REMOVE_MEDIA_TITLE: "Remove media?",
   SVC_REMOVE_NAMED_FROM_GROUP: 'Remove "{{ name }}" from this group?',
   SVC_REMOVE_PLAYLIST_TITLE: "Remove playlist?",
@@ -60267,8 +60307,11 @@ var SIGNAGE_MANAGER = {
   SVC_SELECT_MEDIA_FILE: "Please select a media file to upload.",
   SVC_SHARE_MEDIA_TITLE: "Share media with group",
   SVC_SHARE_PLAYLIST_TITLE: "Share playlist with group",
+  SVC_SHARE_TEMPLATE_TITLE: "Share template with group",
   SVC_TEMPLATE_LAYOUTS_SAVED: "Template layout saved",
+  SVC_TEMPLATE_APPROVAL_REQUESTED: "Template approval requested",
   SVC_TEMPLATE_REMOVED: "Template removed",
+  SVC_TEMPLATE_SHARED: "Template shared",
   SVC_TEMPLATE_SAVE_ERROR: "Error saving template layout",
   SVC_THUMBNAIL_FAILED: "Could not generate a thumbnail from the selected image.",
   SVC_THUMBNAIL_NOT_IMAGE: "Thumbnails must be an image file.",
@@ -60288,15 +60331,24 @@ var SIGNAGE_MANAGER = {
   TAKEOVER_SUFFIX: " \xB7 takeover",
   TEMPLATES_PAGE_TITLE: "Signage Templates",
   TEMPLATE_ADD_LAYOUT: "Add layout",
+  TEMPLATE_APPROVED: "Template approved",
+  TEMPLATE_APPROVE_ERROR: "Error approving template",
   TEMPLATE_ASPECT_RATIO: "Preview aspect ratio",
   TEMPLATE_BACKGROUND: "Template background",
+  TEMPLATE_BACKGROUND_EMPTY: "No background selected",
+  TEMPLATE_BACKGROUND_REMOVE: "Remove background",
+  TEMPLATE_BACKGROUND_SEARCH: "Search media",
+  TEMPLATE_BACKGROUND_SELECT: "Select background media",
+  TEMPLATE_BACKGROUND_SELECTED: "Selected background",
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
+  TEMPLATE_LABEL: "Template",
   TEMPLATE_NAME_ARIA: "Template name",
+  TEMPLATE_NO_LAYOUT_CHANGES: "No layout changes",
   TEMPLATE_NO_LAYOUTS: "No layout items yet. Add one to get started.",
   TEMPLATE_NO_LAYOUTS_HINT: "Add layout items to build this template.",
   TEMPLATE_NO_PLUGIN: "No plugin",
@@ -60310,7 +60362,10 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_POSITION_LEFT: "Left Sidebar",
   TEMPLATE_POSITION_RIGHT: "Right Sidebar",
   TEMPLATE_POSITION_TOP: "Header",
+  TEMPLATE_PREVIEW_ARIA: "Preview of {{ name }}",
   TEMPLATE_REMOVE_LAYOUT: "Remove layout item",
+  TEMPLATE_REVERTED: "Template reverted to previous version",
+  TEMPLATE_REVERT_ERROR: "Error reverting template changes",
   TEMPLATE_SAVED: "Template saved",
   TEMPLATE_SAVE_ERROR: "Error saving template",
   TEMPLATE_SAVING: "Saving Template...",
@@ -60339,7 +60394,7 @@ var SIGNAGE_MANAGER = {
   USERS_COUNT_1: "User ({{ count }})",
   USER_PERMISSIONS: "User permissions",
   VALID_FROM: "Valid From",
-  VERSION_TO_APPROVE: "Version to approve",
+  VERSION_TO_APPROVE: "New Version",
   VIEW_FOLDER: "Folders",
   VIEW_GRID: "Grid view",
   VIEW_LIST: "List view",
@@ -60839,6 +60894,7 @@ var EXPLORE = {
 var BOOKINGS = {
   ASSOCIATE: "Associate",
   BOOKED_FOR: "For {{ name }}",
+  BOOKED_FOR_LABEL: "Booked For",
   PREVENT: "Prevent Bookings",
   RELEASED: "Released",
   ASSETS_REQUESTED_FOR: "Requested for {{ time }}",
@@ -63024,17 +63080,17 @@ function Qs() {
         3204031479,
         3329325298
       ]);
-      function s(v2, c, l2, p, C2) {
+      function s(v2, c, l2, d, C2) {
         for (var P3, U2, k2, Q3, D2, E3, se2, H3, j2, z2, We2, Qe2, kt2; C2 >= 64; ) {
           for (P3 = c[0], U2 = c[1], k2 = c[2], Q3 = c[3], D2 = c[4], E3 = c[5], se2 = c[6], H3 = c[7], z2 = 0; z2 < 16; z2++)
-            We2 = p + z2 * 4, v2[z2] = (l2[We2] & 255) << 24 | (l2[We2 + 1] & 255) << 16 | (l2[We2 + 2] & 255) << 8 | l2[We2 + 3] & 255;
+            We2 = d + z2 * 4, v2[z2] = (l2[We2] & 255) << 24 | (l2[We2 + 1] & 255) << 16 | (l2[We2 + 2] & 255) << 8 | l2[We2 + 3] & 255;
           for (z2 = 16; z2 < 64; z2++)
             j2 = v2[z2 - 2], Qe2 = (j2 >>> 17 | j2 << 15) ^ (j2 >>> 19 | j2 << 13) ^ j2 >>> 10, j2 = v2[z2 - 15], kt2 = (j2 >>> 7 | j2 << 25) ^ (j2 >>> 18 | j2 << 14) ^ j2 >>> 3, v2[z2] = (Qe2 + v2[z2 - 7] | 0) + (kt2 + v2[z2 - 16] | 0);
           for (z2 = 0; z2 < 64; z2++)
             Qe2 = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E3 ^ ~D2 & se2) | 0) + (H3 + (n[z2] + v2[z2] | 0) | 0) | 0, kt2 = ((P3 >>> 2 | P3 << 30) ^ (P3 >>> 13 | P3 << 19) ^ (P3 >>> 22 | P3 << 10)) + (P3 & U2 ^ P3 & k2 ^ U2 & k2) | 0, H3 = se2, se2 = E3, E3 = D2, D2 = Q3 + Qe2 | 0, Q3 = k2, k2 = U2, U2 = P3, P3 = Qe2 + kt2 | 0;
-          c[0] += P3, c[1] += U2, c[2] += k2, c[3] += Q3, c[4] += D2, c[5] += E3, c[6] += se2, c[7] += H3, p += 64, C2 -= 64;
+          c[0] += P3, c[1] += U2, c[2] += k2, c[3] += Q3, c[4] += D2, c[5] += E3, c[6] += se2, c[7] += H3, d += 64, C2 -= 64;
         }
-        return p;
+        return d;
       }
       var i = (
         /** @class */
@@ -63053,20 +63109,20 @@ function Qs() {
           }, v2.prototype.update = function(c, l2) {
             if (l2 === void 0 && (l2 = c.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var p = 0;
+            var d = 0;
             if (this.bytesHashed += l2, this.bufferLength > 0) {
               for (; this.bufferLength < 64 && l2 > 0; )
-                this.buffer[this.bufferLength++] = c[p++], l2--;
+                this.buffer[this.bufferLength++] = c[d++], l2--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (l2 >= 64 && (p = s(this.temp, this.state, c, p, l2), l2 %= 64); l2 > 0; )
-              this.buffer[this.bufferLength++] = c[p++], l2--;
+            for (l2 >= 64 && (d = s(this.temp, this.state, c, d, l2), l2 %= 64); l2 > 0; )
+              this.buffer[this.bufferLength++] = c[d++], l2--;
             return this;
           }, v2.prototype.finish = function(c) {
             if (!this.finished) {
-              var l2 = this.bytesHashed, p = this.bufferLength, C2 = l2 / 536870912 | 0, P3 = l2 << 3, U2 = l2 % 64 < 56 ? 64 : 128;
-              this.buffer[p] = 128;
-              for (var k2 = p + 1; k2 < U2 - 8; k2++)
+              var l2 = this.bytesHashed, d = this.bufferLength, C2 = l2 / 536870912 | 0, P3 = l2 << 3, U2 = l2 % 64 < 56 ? 64 : 128;
+              this.buffer[d] = 128;
+              for (var k2 = d + 1; k2 < U2 - 8; k2++)
                 this.buffer[k2] = 0;
               this.buffer[U2 - 8] = C2 >>> 24 & 255, this.buffer[U2 - 7] = C2 >>> 16 & 255, this.buffer[U2 - 6] = C2 >>> 8 & 255, this.buffer[U2 - 5] = C2 >>> 0 & 255, this.buffer[U2 - 4] = P3 >>> 24 & 255, this.buffer[U2 - 3] = P3 >>> 16 & 255, this.buffer[U2 - 2] = P3 >>> 8 & 255, this.buffer[U2 - 1] = P3 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, U2), this.finished = true;
             }
@@ -63080,8 +63136,8 @@ function Qs() {
             for (var l2 = 0; l2 < this.state.length; l2++)
               c[l2] = this.state[l2];
           }, v2.prototype._restoreState = function(c, l2) {
-            for (var p = 0; p < this.state.length; p++)
-              this.state[p] = c[p];
+            for (var d = 0; d < this.state.length; d++)
+              this.state[d] = c[d];
             this.bytesHashed = l2, this.finished = false, this.bufferLength = 0;
           }, v2;
         })()
@@ -63096,16 +63152,16 @@ function Qs() {
             if (c.length > this.blockSize)
               new i().update(c).finish(l2).clean();
             else
-              for (var p = 0; p < c.length; p++)
-                l2[p] = c[p];
-            for (var p = 0; p < l2.length; p++)
-              l2[p] ^= 54;
+              for (var d = 0; d < c.length; d++)
+                l2[d] = c[d];
+            for (var d = 0; d < l2.length; d++)
+              l2[d] ^= 54;
             this.inner.update(l2);
-            for (var p = 0; p < l2.length; p++)
-              l2[p] ^= 106;
+            for (var d = 0; d < l2.length; d++)
+              l2[d] ^= 106;
             this.outer.update(l2), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var p = 0; p < l2.length; p++)
-              l2[p] = 0;
+            for (var d = 0; d < l2.length; d++)
+              l2[d] = 0;
           }
           return v2.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
@@ -63130,26 +63186,26 @@ function Qs() {
       }
       e.hash = o, e.default = o;
       function h(v2, c) {
-        var l2 = new r(v2).update(c), p = l2.digest();
-        return l2.clean(), p;
+        var l2 = new r(v2).update(c), d = l2.digest();
+        return l2.clean(), d;
       }
       e.hmac = h;
-      function $2(v2, c, l2, p) {
-        var C2 = p[0];
+      function $2(v2, c, l2, d) {
+        var C2 = d[0];
         if (C2 === 0)
           throw new Error("hkdf: cannot expand more");
-        c.reset(), C2 > 1 && c.update(v2), l2 && c.update(l2), c.update(p), c.finish(v2), p[0]++;
+        c.reset(), C2 > 1 && c.update(v2), l2 && c.update(l2), c.update(d), c.finish(v2), d[0]++;
       }
       var L3 = new Uint8Array(e.digestLength);
-      function R3(v2, c, l2, p) {
-        c === void 0 && (c = L3), p === void 0 && (p = 32);
-        for (var C2 = new Uint8Array([1]), P3 = h(c, v2), U2 = new r(P3), k2 = new Uint8Array(U2.digestLength), Q3 = k2.length, D2 = new Uint8Array(p), E3 = 0; E3 < p; E3++)
+      function R3(v2, c, l2, d) {
+        c === void 0 && (c = L3), d === void 0 && (d = 32);
+        for (var C2 = new Uint8Array([1]), P3 = h(c, v2), U2 = new r(P3), k2 = new Uint8Array(U2.digestLength), Q3 = k2.length, D2 = new Uint8Array(d), E3 = 0; E3 < d; E3++)
           Q3 === k2.length && ($2(k2, U2, l2, C2), Q3 = 0), D2[E3] = k2[Q3++];
         return U2.clean(), k2.fill(0), C2.fill(0), D2;
       }
       e.hkdf = R3;
-      function W3(v2, c, l2, p) {
-        for (var C2 = new r(v2), P3 = C2.digestLength, U2 = new Uint8Array(4), k2 = new Uint8Array(P3), Q3 = new Uint8Array(P3), D2 = new Uint8Array(p), E3 = 0; E3 * P3 < p; E3++) {
+      function W3(v2, c, l2, d) {
+        for (var C2 = new r(v2), P3 = C2.digestLength, U2 = new Uint8Array(4), k2 = new Uint8Array(P3), Q3 = new Uint8Array(P3), D2 = new Uint8Array(d), E3 = 0; E3 * P3 < d; E3++) {
           var se2 = E3 + 1;
           U2[0] = se2 >>> 24 & 255, U2[1] = se2 >>> 16 & 255, U2[2] = se2 >>> 8 & 255, U2[3] = se2 >>> 0 & 255, C2.reset(), C2.update(c), C2.update(U2), C2.finish(Q3);
           for (var H3 = 0; H3 < P3; H3++)
@@ -63159,7 +63215,7 @@ function Qs() {
             for (var j2 = 0; j2 < P3; j2++)
               k2[j2] ^= Q3[j2];
           }
-          for (var H3 = 0; H3 < P3 && E3 * P3 + H3 < p; H3++)
+          for (var H3 = 0; H3 < P3 && E3 * P3 + H3 < d; H3++)
             D2[E3 * P3 + H3] = k2[H3];
         }
         for (var E3 = 0; E3 < P3; E3++)
@@ -63496,7 +63552,7 @@ function b(t) {
 var Ae = {};
 function re(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    ge(t), Ae[t] = setTimeout(() => {
+    ye(t), Ae[t] = setTimeout(() => {
       e(), delete Ae[t];
     }, n);
   else
@@ -63504,7 +63560,7 @@ function re(t, e, n = 300) {
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function ge(t) {
+function ye(t) {
   Ae[t] && (clearTimeout(Ae[t]), delete Ae[t]);
 }
 function ne(t) {
@@ -63534,7 +63590,7 @@ function hi(t, e = Boolean) {
 function li(t) {
   return new Promise((e) => setTimeout(e, t));
 }
-var pi = {
+var di = {
   id: "mock-authority",
   name: "localhost:4200",
   description: "",
@@ -63546,25 +63602,25 @@ var pi = {
   config: {},
   version: "2.0.0"
 };
-var f = Ht("Auth");
-var _ = {};
-var T2 = localStorage;
-var N2;
+var _ = Ht("Auth");
 var m = {};
+var T2 = localStorage;
+var w;
+var g = {};
 var I2 = "";
-var ye = "";
-var be = ne("");
+var be = "";
+var $e = ne("");
 var Ye = ne("");
 var An = "/api/engine/v2";
-var me = ne(false);
+var ge = ne(false);
 var qn = ne(false);
 var Rt = 0;
 function os() {
-  if (_.mock) return true;
+  if (m.mock) return true;
   if (!T2) return false;
-  if (Ve() && !_.ignore_api_key) return true;
+  if (Ve() && !m.ignore_api_key) return true;
   const t = T2.getItem(`${I2}_expires_at`) || "";
-  return ss(+t, /* @__PURE__ */ new Date()) ? false : !!(be.value || T2.getItem(`${I2}_access_token`));
+  return ss(+t, /* @__PURE__ */ new Date()) ? false : !!($e.value || T2.getItem(`${I2}_access_token`));
 }
 function Ce() {
   qn.set(os());
@@ -63572,17 +63628,17 @@ function Ce() {
 function us(t) {
   if (!t || t.startsWith("http://") || t.startsWith("https://"))
     return t;
-  const e = N2?.domain;
-  return e ? `${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${e}${t}` : t;
+  const e = w?.domain;
+  return e ? `${m.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${e}${t}` : t;
 }
 function u2() {
-  return `${`${_.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${_.host || window.location?.host}`}${cs()}`;
+  return `${`${m.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${m.host || window.location?.host}`}${cs()}`;
 }
 function cs() {
-  return _.version === "ACA Engine" ? "/control/api" : An;
+  return m.version === "ACA Engine" ? "/control/api" : An;
 }
-function di() {
-  return !!_.token_header;
+function pi() {
+  return !!m.token_header;
 }
 function fi() {
   return I2;
@@ -63594,18 +63650,18 @@ function Ve() {
   return Et("x-api-key", false) || "";
 }
 function _i(t, e = Vs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  _.ignore_api_key && t === "x-api-key" || (T2.setItem(`${I2}_expires_at`, `${e}`), T2.setItem(`${I2}_access_token`, t), be.set(t), Ce());
+  m.ignore_api_key && t === "x-api-key" || (T2.setItem(`${I2}_expires_at`, `${e}`), T2.setItem(`${I2}_access_token`, t), $e.set(t), Ce());
 }
 function X2(t = true) {
-  if (_.mock) return "mock-token";
+  if (m.mock) return "mock-token";
   if (!T2) return "";
-  if (Ve() && !_.ignore_api_key) return "x-api-key";
-  const e = T2.getItem(`${I2}_expires_at`) || "", n = be.value;
-  return ss(+e, /* @__PURE__ */ new Date()) && (f("Token expired. Requesting new token..."), Un(), m.load_authority || (Rt += 1, re(
+  if (Ve() && !m.ignore_api_key) return "x-api-key";
+  const e = T2.getItem(`${I2}_expires_at`) || "", n = $e.value;
+  return ss(+e, /* @__PURE__ */ new Date()) && (_("Token expired. Requesting new token..."), Un(), g.load_authority || (Rt += 1, re(
     "re-authorise",
     async () => {
-      delete m.authorise, await zt().catch(
-        (s) => f.error("Failed to get token:", s)
+      delete g.authorise, await zt().catch(
+        (s) => _.error("Failed to get token:", s)
       );
     },
     200 * Math.min(20, Rt)
@@ -63615,31 +63671,31 @@ function Ut() {
   return Ye.value || T2.getItem(`${I2}_refresh_token`) || "";
 }
 function xn() {
-  return _.host || window.location?.host;
+  return m.host || window.location?.host;
 }
 function mi() {
   return Ce(), qn.asReadonly();
 }
 function It() {
-  return N2;
+  return w;
 }
 function Qr() {
-  return me.value;
+  return ge.value;
 }
 function Pn() {
-  return !!_.mock;
+  return !!m.mock;
 }
 function gi() {
-  return !!_.secure;
+  return !!m.secure;
 }
 function Kr() {
-  return me.asReadonly();
+  return ge.asReadonly();
 }
 function Tn() {
   return Et("trust") === "true" || Et("trusted") === "true";
 }
 function as() {
-  return !!Ve() && !_.ignore_api_key || Et("fixed_device") === "true";
+  return !!Ve() && !m.ignore_api_key || Et("fixed_device") === "true";
 }
 function Et(t, e = true) {
   let s = is()[t];
@@ -63650,61 +63706,61 @@ function Et(t, e = true) {
   return s;
 }
 async function Zr(t) {
-  return _ = t || _, _.token_header = _.token_header ?? ii(), window.AbortController || (window.AbortController = oi), T2 = _.storage === "session" ? sessionStorage : localStorage, I2 = K2.hashStr(_.redirect_uri, false), yi(), _.delay && _.delay > 0 && await li(_.delay), In();
+  return m = t || m, m.token_header = m.token_header ?? ii(), window.AbortController || (window.AbortController = oi), T2 = m.storage === "session" ? sessionStorage : localStorage, I2 = K2.hashStr(m.redirect_uri, false), yi(), m.delay && m.delay > 0 && await li(m.delay), In();
 }
 var Mt = false;
 function yi() {
   Mt || (Mt = true, window.addEventListener("focus", Ot), document.addEventListener("visibilitychange", Ot));
 }
 async function Ot() {
-  if (document.visibilityState === "hidden" || _.mock || !N2 || N2.session || os()) return;
-  if (delete m.check_params, await ls().catch(() => false) || ye || Ut()) {
-    f("Application focused with new credentials. Authorising..."), Oe = false, delete m.authorise, await zt().catch(
-      (e) => f.error("Failed to authorise on focus:", e)
+  if (document.visibilityState === "hidden" || m.mock || !w || w.session || os()) return;
+  if (delete g.check_params, await ls().catch(() => false) || be || Ut()) {
+    _("Application focused with new credentials. Authorising..."), Oe = false, delete g.authorise, await zt().catch(
+      (e) => _.error("Failed to authorise on focus:", e)
     );
     return;
   }
-  f("Application focused without a session. Reloading authority..."), Oe = false, Rn().catch(
-    (e) => f.error("Failed to refresh authority:", e)
+  _("Application focused without a session. Reloading authority..."), Oe = false, Rn().catch(
+    (e) => _.error("Failed to refresh authority:", e)
   );
 }
 function Rn() {
-  return f("Refreshing authorty."), N2 = void 0, In();
+  return _("Refreshing authorty."), w = void 0, In();
 }
 function Un() {
-  f("Invalidating tokens."), T2.removeItem(`${I2}_access_token`), T2.removeItem(`${I2}_expires_at`), be.value && be.set(""), Ce();
+  _("Invalidating tokens."), T2.removeItem(`${I2}_access_token`), T2.removeItem(`${I2}_expires_at`), $e.value && $e.set(""), Ce();
 }
-function zt(t, e = N2) {
-  return m.authorise || (m.authorise = new Promise((n, s) => {
+function zt(t, e = w) {
+  return g.authorise || (g.authorise = new Promise((n, s) => {
     if (!e)
-      return delete m.authorise, s("Authority is not loaded");
-    f("Authorising user...");
+      return delete g.authorise, s("Authority is not loaded");
+    _("Authorising user...");
     const i = () => {
       if (X2(false))
-        f("Valid token found."), delete m.authorise, n(X2());
+        _("Valid token found."), delete g.authorise, n(X2());
       else {
         const r = [
           () => {
-            f("Successfully generated token."), n(X2()), delete m.authorise;
+            _("Successfully generated token."), n(X2()), delete g.authorise;
           },
           () => {
-            f.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete m.authorise, 200);
+            _.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete g.authorise, 200);
           }
         ];
-        if (_ && _.auth_type === "password")
-          f("Logging in with credentials."), Pi(_).then(
+        if (m && m.auth_type === "password")
+          _("Logging in with credentials."), Pi(m).then(
             ...r
           ), Rt = 0;
-        else if (ye || Ut())
-          f(
-            `Generating token with ${ye ? "code" : "refresh token"}`
-          ), ps().then(...r), Rt = 0;
+        else if (be || Ut())
+          _(
+            `Generating token with ${be ? "code" : "refresh token"}`
+          ), ds().then(...r), Rt = 0;
         else if (e.session)
-          f(
+          _(
             "Users has session. Authorising application..."
           ), $i(t).then(...r);
         else {
-          f("No user session"), s("No user session"), setTimeout(() => delete m.authorise, 200);
+          _("No user session"), s("No user session"), setTimeout(() => delete g.authorise, 200);
           try {
             hs(e);
           } catch {
@@ -63713,20 +63769,20 @@ function zt(t, e = N2) {
       }
     };
     ki().then(i, i);
-  })), m.authorise;
+  })), g.authorise;
 }
 function In(t = 0) {
-  return m.load_authority || (m.load_authority = new Promise((e) => {
-    if (me.set(false), _.mock) {
-      N2 = pi, f("System in mock mode"), me.set(true), e();
+  return g.load_authority || (g.load_authority = new Promise((e) => {
+    if (ge.set(false), m.mock) {
+      w = di, _("System in mock mode"), ge.set(true), e();
       return;
     }
-    f(`Fixed: ${as()} | Trusted: ${Tn()}`), f("Loading authority...");
-    const n = _.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
-      f.error(`Failed to load authority(${i})`), me.set(false), re(
+    _(`Fixed: ${as()} | Trusted: ${Tn()}`), _("Loading authority...");
+    const n = m.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
+      _.error(`Failed to load authority(${i})`), ge.set(false), re(
         "load_authority",
         () => {
-          delete m.load_authority, In(t).then((r) => e());
+          delete g.load_authority, In(t).then((r) => e());
         },
         300 * Math.min(20, ++t)
       );
@@ -63736,59 +63792,59 @@ function In(t = 0) {
     }).then(async (i) => {
       if (!i.ok)
         return s(await i.text().catch((o) => o));
-      N2 = await i.json(), An = /[2-9]\.[0-9]+\.[0-9]+/g.test(
-        N2.version || ""
-      ) ? "/api/engine/v2" : "/control/api", f.group("Loaded authority."), N2 && (f(`Name: ${N2.name}`), f(`Version: ${N2.version}`), f(`Domain: ${N2.domain}`), f(`Session: ${N2.session}`), f(`Production: ${N2.production}`), f(
-        `Config Keys: ${Object.keys(N2.config || {}).length}`
-      )), f.groupEnd("");
+      w = await i.json(), An = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+        w.version || ""
+      ) ? "/api/engine/v2" : "/control/api", _.group("Loaded authority."), w && (_(`Name: ${w.name}`), _(`Version: ${w.version}`), _(`Domain: ${w.domain}`), _(`Session: ${w.session}`), _(`Production: ${w.production}`), _(
+        `Config Keys: ${Object.keys(w.config || {}).length}`
+      )), _.groupEnd("");
       const r = () => {
-        me.set(true), f("Application set online."), e();
+        ge.set(true), _("Application set online."), e();
       };
-      delete m.load_authority, zt("").then(r, r);
+      delete g.load_authority, zt("").then(r, r);
     }, s);
-  })), m.load_authority;
+  })), g.load_authority;
 }
 async function $i(t) {
   const e = Si(t);
-  if (_.use_iframe)
+  if (m.use_iframe)
     return vi2(e);
   window.location?.assign(e);
 }
 function vi2(t) {
-  return m.iframe_auth || (m.iframe_auth = new Promise((e, n) => {
-    f("Authorizing in an iFrame...");
+  return g.iframe_auth || (g.iframe_auth = new Promise((e, n) => {
+    _("Authorizing in an iFrame...");
     const s = document.createElement("iframe");
     s.style.position = "absolute", s.style.top = "0", s.style.left = "0", s.style.height = "1px", s.style.width = "1px", s.style.zIndex = "-1", s.id = "place-authorize", s.src = `${t}`;
     const i = (o) => {
       if (o.origin === window.location?.origin && o.data.type === "place-os") {
         const h = o.data;
-        if (f("Received credentials from iFrame..."), document.body.removeChild(s), ge("iframe_auth"), window.removeEventListener("message", i), delete m.iframe_auth, h.token)
+        if (_("Received credentials from iFrame..."), document.body.removeChild(s), ye("iframe_auth"), window.removeEventListener("message", i), delete g.iframe_auth, h.token)
           return e(), En(__spreadValues({
             access_token: h.token
           }, h));
-        ye = h.code || "", ps().then(
+        be = h.code || "", ds().then(
           ($2) => e($2),
           ($2) => n($2)
         );
       }
     }, r = () => {
-      window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete m.iframe_auth;
+      window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete g.iframe_auth;
     };
     re(
       "iframe_auth",
       () => {
-        f.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
+        _.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      f.error("iFrame error.", o), ge("iframe_auth"), r(), n();
+      _.error("iFrame error.", o), ye("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
-  })), m.iframe_auth;
+  })), g.iframe_auth;
 }
 var Oe = false;
 function hs(t) {
-  if (_.handle_login !== false && !Oe) {
-    f("Redirecting to login page...");
+  if (m.handle_login !== false && !Oe) {
+    _("Redirecting to login page...");
     const e = us(
       t.login_url?.replace(
         "{{url}}",
@@ -63797,17 +63853,17 @@ function hs(t) {
     );
     throw setTimeout(() => window.location?.assign(e), 300), Oe = true, new Error("Redirecting to login page...");
   } else
-    f("Login being handled locally.");
-  delete m.authorise;
+    _("Login being handled locally.");
+  delete g.authorise;
 }
 function ki() {
-  return m.check_token || (m.check_token = new Promise(async (t, e) => {
-    X2() ? (f("Valid token found."), t(X2())) : (f("No token. Checking URL for auth credentials..."), await ls() ? t(true) : e()), delete m.check_token;
-  })), m.check_token;
+  return g.check_token || (g.check_token = new Promise(async (t, e) => {
+    X2() ? (_("Valid token found."), t(X2())) : (_("No token. Checking URL for auth credentials..."), await ls() ? t(true) : e()), delete g.check_token;
+  })), g.check_token;
 }
 function ls() {
-  return m.check_params || (m.check_params = new Promise((t) => {
-    f("Checking for auth parameters...");
+  return g.check_params || (g.check_params = new Promise((t) => {
+    _("Checking for auth parameters...");
     let e = is();
     if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
@@ -63815,7 +63871,7 @@ function ls() {
       const n = T2.getItem(`${I2}_nonce`) || "", s = (e.state || "").split(";");
       ie("state"), ie("token_type");
       const i = s[0];
-      n === i ? (e.code && (ye = e.code, ie("code")), e.refresh_token && (T2.setItem(
+      n === i ? (e.code && (be = e.code, ie("code")), e.refresh_token && (T2.setItem(
         `${I2}_refresh_token`,
         e.refresh_token
       ), ie("refresh_token")), En(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
@@ -63823,17 +63879,17 @@ function ls() {
       t(false);
     re(
       "check_params_promise",
-      () => delete m.check_params,
+      () => delete g.check_params,
       50
     );
-  })), m.check_params;
+  })), g.check_params;
 }
 function Si(t) {
   const e = Ti();
   t = t ? `${e};${t}` : e;
-  const n = _ ? (_.auth_uri || "").indexOf("?") >= 0 : false, s = (_ ? _.auth_uri : null) || "/auth/oauth/authorize", i = Tn() || _.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I2)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(_.redirect_uri)}&scope=${encodeURIComponent(_.scope)}`;
-  if (_.auth_type === "auth_code") {
+  const n = m ? (m.auth_uri || "").indexOf("?") >= 0 : false, s = (m ? m.auth_uri : null) || "/auth/oauth/authorize", i = Tn() || m.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I2)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(m.redirect_uri)}&scope=${encodeURIComponent(m.scope)}`;
+  if (m.auth_type === "auth_code") {
     const { challenge: o, verify: h } = xi();
     sessionStorage.setItem(`${I2}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${h}`;
   }
@@ -63844,15 +63900,15 @@ function xi(t = 43) {
   return { challenge: e, verify: s };
 }
 function Ai() {
-  let e = (_.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I2)}`, n = "";
-  if (e += `&redirect_uri=${encodeURIComponent(_.redirect_uri)}`, Ut()) {
+  let e = (m.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I2)}`, n = "";
+  if (e += `&redirect_uri=${encodeURIComponent(m.redirect_uri)}`, Ut()) {
     e += `&refresh_token=${encodeURIComponent(Ut())}`, e += "&grant_type=refresh_token";
     const s = e.indexOf("?");
     n = e.slice(s + 1), e = e.slice(0, s);
   } else {
-    e += `&code=${encodeURIComponent(ye)}`, e += "&grant_type=authorization_code";
+    e += `&code=${encodeURIComponent(be)}`, e += "&grant_type=authorization_code";
     const s = sessionStorage.getItem(`${I2}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I2}_challenge`)), ye = "";
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I2}_challenge`)), be = "";
   }
   return [e, n];
 }
@@ -63862,24 +63918,24 @@ function qi(t) {
     client_id: I2,
     client_secret: t.client_secret,
     redirect_uri: t.redirect_uri,
-    authority: N2?.id,
+    authority: w?.id,
     scope: t.scope,
     username: t.username,
     password: t.password
   });
   return `${e}?${n}`;
 }
-function ps() {
-  return ds(...Ai());
+function ds() {
+  return ps(...Ai());
 }
 function Pi(t) {
-  return ds(qi(t));
+  return ps(qi(t));
 }
-function ds(t, e = "") {
-  return m.generate_tokens || (m.generate_tokens = new Promise((n, s) => {
-    f("Generating new token...");
+function ps(t, e = "") {
+  return g.generate_tokens || (g.generate_tokens = new Promise((n, s) => {
+    _("Generating new token...");
     const i = (r) => {
-      f.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T2.removeItem(`${I2}_refresh_token`), Ye.set("")), Ce(), s(), delete m.generate_tokens;
+      _.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T2.removeItem(`${I2}_refresh_token`), Ye.set("")), Ce(), s(), delete g.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -63890,22 +63946,22 @@ function ds(t, e = "") {
     }).then(async (r) => {
       if (!r.ok) return i(r);
       const o = await r.json();
-      En(o), n(), delete m.generate_tokens;
+      En(o), n(), delete g.generate_tokens;
     }, i);
-  })), m.generate_tokens;
+  })), g.generate_tokens;
 }
 function En(t) {
   const e = Xs(
     /* @__PURE__ */ new Date(),
     Math.max(60, parseInt(t.expires_in, 10) - 300)
   );
-  f("Tokens generated storing..."), Tn() && (t.access_token && (T2.setItem(
+  _("Tokens generated storing..."), Tn() && (t.access_token && (T2.setItem(
     `${I2}_access_token`,
     t.access_token
   ), ie("access_token")), t.refresh_token && (T2.setItem(
     `${I2}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (T2.setItem(`${I2}_expires_at`, `${e.valueOf()}`), ie("expires_in")), me.set(true), be.set(t.access_token || ""), Ye.set(t.refresh_token || ""), Ce();
+  ), ie("refresh_token"))), t.expires_in && (T2.setItem(`${I2}_expires_at`, `${e.valueOf()}`), ie("expires_in")), ge.set(true), $e.set(t.access_token || ""), Ye.set(t.refresh_token || ""), Ce();
 }
 function Ti() {
   const t = rs();
@@ -63980,7 +64036,7 @@ var _s = {};
 function Ci(t, e = _s) {
   return e[t] || {};
 }
-function d(t, e, n = Xe) {
+function p(t, e, n = Xe) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
 function S2(t, e, n, s = Xe) {
@@ -63995,7 +64051,7 @@ function he(t, e, n, s = Xe) {
 function ee(t, e, n = Xe) {
   return e || (e = { response_type: "void" }), n("DELETE", t, __spreadValues({ response_type: "void" }, e));
 }
-async function Ni(t, e, n = _s) {
+async function wi(t, e, n = _s) {
   if (t.headers) {
     const s = {};
     t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
@@ -64021,7 +64077,7 @@ var ms = () => (Un(), Rn().then(
     }, 1e3);
   })
 ));
-function Xe(t, e, n, s = Pn, i = Ui, r = Ni) {
+function Xe(t, e, n, s = Pn, i = Ui, r = wi) {
   if (s()) {
     const R3 = i(t, e, n?.body);
     if (R3) return R3;
@@ -64085,7 +64141,7 @@ var Ie = {};
 function y(t) {
   const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
   if (Ie[o]) return Ie[o].promise;
-  const h = d(o).then(($2) => {
+  const h = p(o).then(($2) => {
     const L3 = Fi(o, r, s);
     return {
       total: L3.total || 0,
@@ -64105,9 +64161,9 @@ function y(t) {
     clearTimeout(Ie[o]?.timeout), delete Ie[o];
   }), h;
 }
-function g(t) {
+function f(t) {
   const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), h = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return d(h, r).then(($2) => (i || jt)($2));
+  return p(h, r).then(($2) => (i || jt)($2));
 }
 function A2(t) {
   const { query_params: e, form_data: n, path: s, fn: i } = t, r = b(e), o = `${u2()}/${s}${r ? "?" + r : ""}`;
@@ -64115,7 +64171,7 @@ function A2(t) {
 }
 function a(t) {
   const { id: e, task_name: n, form_data: s, method: i, path: r, callback: o } = t, h = b(s), $2 = `${u2()}/${r}/${e}/${n}`;
-  return (i === "post" || i === "put" || !i ? (i === "put" ? ae : S2)($2, s) : (i === "del" ? ee : d)(
+  return (i === "post" || i === "put" || !i ? (i === "put" ? ae : S2)($2, s) : (i === "del" ? ee : p)(
     `${$2}${h ? "?" + h : ""}`,
     {
       response_type: "json"
@@ -64291,14 +64347,14 @@ function rt(t) {
 }
 function xu(t = {}) {
   const e = b(t), n = `${u2()}/${Fe}/current${e ? "?" + e : ""}`;
-  return d(n).then(
+  return p(n).then(
     (s) => (s || []).map((i) => ({
       group: rt(i.group || {}),
       permissions: i.permissions || 0
     }))
   );
 }
-var pe = class extends F13 {
+var de = class extends F13 {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -64407,7 +64463,7 @@ var Yt = class extends F13 {
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new pe(n)
+      (n) => new de(n)
     ));
   }
 };
@@ -64454,16 +64510,16 @@ var Xi = class {
       this.metadata[s] = new As(n[s]);
   }
 };
-var $e = "metadata";
+var ve = "metadata";
 function Le(t) {
   return new As(t);
 }
 function Vu(t, e) {
-  return g({
+  return f({
     id: t,
     query_params: { name: e },
     fn: (n) => Le(n[e]),
-    path: $e
+    path: ve
   });
 }
 function Xu(t, e, n = "put") {
@@ -64473,7 +64529,7 @@ function Xu(t, e, n = "put") {
     query_params: {},
     method: n,
     fn: Le,
-    path: $e
+    path: ve
   });
 }
 function nc(t, e) {
@@ -64487,12 +64543,12 @@ function nc(t, e) {
         keys: Object.keys(s.metadata)
       }))
     ),
-    path: $e
+    path: ve
   });
 }
 function sc(t, e) {
-  const n = b(e), s = `${u2()}/${$e}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return d(s).then(
+  const n = b(e), s = `${u2()}/${ve}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
+  return p(s).then(
     (i) => Object.keys(i || {}).reduce(
       (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Le(i[o]) }),
       {}
@@ -64647,8 +64703,8 @@ function ha(t = {}) {
 function la(t) {
   return y({ query_params: t, fn: Te, path: `${M2}/with_emails` });
 }
-function pa(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Te, path: M2 });
+function da(t, e = {}) {
+  return f({ id: t, query_params: e, fn: Te, path: M2 });
 }
 var Y2 = "users";
 function Re(t) {
@@ -64658,7 +64714,7 @@ function Fa(t = {}) {
   return y({ query_params: t, fn: Re, path: Y2 });
 }
 function La(t, e = {}) {
-  return g({ id: t, query_params: e, fn: Re, path: Y2 });
+  return f({ id: t, query_params: e, fn: Re, path: Y2 });
 }
 function Ga(t, e, n = "patch") {
   return q({
@@ -64670,12 +64726,12 @@ function Ga(t, e, n = "patch") {
     path: Y2
   });
 }
-var de = "zones";
+var pe = "zones";
 function on(t) {
   return new Yt(t);
 }
 function eh(t = {}) {
-  return y({ query_params: t, fn: on, path: de });
+  return y({ query_params: t, fn: on, path: pe });
 }
 var _r = class {
   id;
@@ -64736,7 +64792,7 @@ var ke = "assets";
 function Ue(t) {
   return new yr(t);
 }
-function ml(t = {}) {
+function gl(t = {}) {
   return y({
     query_params: t,
     fn: Ue,
@@ -64747,22 +64803,22 @@ var mt = "asset_types";
 function _n(t) {
   return new gr(t);
 }
-function xl(t = {}) {
+function Al(t = {}) {
   return y({
     query_params: t,
     fn: _n,
     path: mt
   });
 }
-function Al(t, e = {}) {
-  return g({
+function ql(t, e = {}) {
+  return f({
     id: t,
     query_params: e,
     fn: _n,
     path: mt
   });
 }
-function ql(t, e, n = "patch") {
+function Pl(t, e, n = "patch") {
   return q({
     id: t,
     form_data: e,
@@ -64772,7 +64828,7 @@ function ql(t, e, n = "patch") {
     path: mt
   });
 }
-function Pl(t) {
+function Tl(t) {
   return A2({
     form_data: t,
     query_params: {},
@@ -64784,14 +64840,14 @@ var gt = "asset_categories";
 function mn(t) {
   return new _r(t);
 }
-function Rl(t = {}) {
+function Ul(t = {}) {
   return y({
     query_params: t,
     fn: mn,
     path: gt
   });
 }
-function Il(t, e, n = "patch") {
+function El(t, e, n = "patch") {
   return q({
     id: t,
     form_data: e,
@@ -64801,7 +64857,7 @@ function Il(t, e, n = "patch") {
     path: gt
   });
 }
-function El(t) {
+function Ml(t) {
   return A2({
     form_data: t,
     query_params: {},
@@ -64809,7 +64865,7 @@ function El(t) {
     path: gt
   });
 }
-var Ns = class {
+var ws = class {
   _listeners = /* @__PURE__ */ new Set();
   _error_listeners = /* @__PURE__ */ new Set();
   _complete_listeners = /* @__PURE__ */ new Set();
@@ -64839,7 +64895,7 @@ var Ns = class {
     this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
   }
 };
-var vr = class extends Ns {
+var vr = class extends ws {
   constructor(e) {
     super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
       const n = [...this._queue];
@@ -64870,10 +64926,10 @@ function kr(t) {
   );
 }
 var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var ws = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(ws || {});
-var Nt = {};
+var Ns = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Ns || {});
+var wt = {};
 function Ar(t) {
-  return Nt[t];
+  return wt[t];
 }
 var O2 = Ht("WS");
 var Ds = 15;
@@ -64887,8 +64943,8 @@ var xe = ne(false);
 var zs = ne([0, 0]);
 var Fs = Date.now();
 var Me;
-var wt = 0;
-var fe = null;
+var Nt = 0;
+var _e = null;
 var At;
 var Ln = 0;
 var vt = 10 * 1e3;
@@ -64958,7 +65014,7 @@ function Be(t, e = vt, n = 0) {
           },
           e
         );
-      } else fe ? setTimeout(() => h(), 1e3) : jn().then(() => h());
+      } else _e ? setTimeout(() => h(), 1e3) : jn().then(() => h());
     }), G2[s] = i;
   }
   return G2[s].promise;
@@ -64977,11 +65033,11 @@ function js(t) {
         module: `${e.mod}_${e.index}`,
         class_name: t.klass || "<empty>",
         message: t.msg || "<empty>",
-        level: t.level || ws.Debug,
+        level: t.level || Ns.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
     } else t.type === "error" ? Or(t) : t.cmd || O2.error("Invalid websocket message", t);
-    ge(`${t.id}`);
+    ye(`${t.id}`);
   } else t === "pong" && (Ln = Date.now(), O2("Pong!"));
 }
 function Mr(t) {
@@ -65015,7 +65071,7 @@ function Or(t) {
   }
   O2.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G2).map((s) => G2[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), ge(`${n.key}`), delete G2[n.key]);
+  n && n.reject && (n.reject(t), ye(`${n.key}`), delete G2[n.key]);
 }
 function Cr(t, e, n = Fn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
@@ -65028,24 +65084,24 @@ function Cr(t, e, n = Fn) {
   ]), n[s].set(e);
 }
 function jn(t = 0) {
-  return fe == null && (fe = new Promise((e) => {
+  return _e == null && (_e = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    wt++, Fs = Date.now(), V2 = Pn() ? Dr() : Nr(), V2 ? (O2.debug("Authority:", It()), O2("Connecting to websocket..."), V2.subscribe(
+    Nt++, Fs = Date.now(), V2 = Pn() ? Dr() : wr(), V2 ? (O2.debug("Authority:", It()), O2("Connecting to websocket..."), V2.subscribe(
       (n) => {
-        xe.value || (O2("Connection established."), e()), xe.set(true), wt = 0, vn(), js(n);
+        xe.value || (O2("Connection established."), e()), xe.set(true), Nt = 0, vn(), js(n);
       },
       (n) => {
-        V2 = void 0, fe = null, Xn(), vn(), wr(n);
+        V2 = void 0, _e = null, Xn(), vn(), Nr(n);
       },
       () => {
-        V2 = void 0, fe = null, Xn(), O2("Connection closed by browser."), xe.set(false), Dt();
+        V2 = void 0, _e = null, Xn(), O2("Connection closed by browser."), xe.set(false), Dt();
       }
     ), Me && clearInterval(Me), Ln = Date.now(), Yn(), Me = setInterval(
       () => Yn(),
       Ds * 1e3
     ), vn(), Hs += 1, At = setTimeout(() => {
-      O2("Unhealthy connection. Reconnecting..."), xe.set(false), fe = null, Dt();
+      O2("Unhealthy connection. Reconnecting..."), xe.set(false), _e = null, Dt();
     }, 30 * 1e3)) : (V2 ? O2(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
       [!!X2(), !!It()],
@@ -65054,19 +65110,19 @@ function jn(t = 0) {
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
-        fe = null, jn(t).then((n) => e(n));
+        _e = null, jn(t).then((n) => e(n));
       },
       1e3 * Math.min(10, ++t)
     ));
-  })), fe;
+  })), _e;
 }
-function Nr() {
+function wr() {
   if (!It() || !X2()) return null;
   const t = gi() || location.protocol.indexOf("https") >= 0;
   let e = `ws${t ? "s" : ""}://${xn()}${$n()}${as() ? "?fixed_device=true" : ""}`;
   const n = X2();
   let s = n === "x-api-key" ? `api-key=${Ve()}` : `bearer_token=${n}`;
-  return !di() && !si() ? (O2("Authenticating through cookie..."), s += `;max-age=120;path=${$n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O2("Cookies:", [document.cookie, s])) : (O2("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O2(
+  return !pi() && !si() ? (O2("Authenticating through cookie..."), s += `;max-age=120;path=${$n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O2("Cookies:", [document.cookie, s])) : (O2("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O2(
     `Creating websocket connection to ws${t ? "s" : ""}://${xn()}${$n()}`
   ), kr({
     url: e,
@@ -65086,12 +65142,12 @@ function Dt() {
   zs.set([Hs, Date.now() - Fs]), V2 && Ls() && (V2.complete(), Me && (clearInterval(Me), Me = void 0)), O2(
     `Reconnecting in ${Math.min(
       5e3,
-      wt * 300 || 1e3
+      Nt * 300 || 1e3
     )}ms...`
   ), re(
     "reconnect",
     () => jn(),
-    Math.min(5e3, (wt + 1) * 300 || 1e3)
+    Math.min(5e3, (Nt + 1) * 300 || 1e3)
   );
 }
 function Yn() {
@@ -65099,14 +65155,14 @@ function Yn() {
     return Dt();
   V2?.next("ping");
 }
-function wr(t) {
+function Nr(t) {
   xe.set(false), O2.error("Websocket error:", t), t.status === 401 && Un(), Rn(), Dt();
 }
 function vn() {
   At && (clearTimeout(At), At = void 0);
 }
 function Dr() {
-  const t = new Ns();
+  const t = new ws();
   return t.subscribe(
     (e) => js(e)
   ), t;
@@ -65141,7 +65197,7 @@ function Hr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], ge(`${s}`));
+          n[s] && (n[s](), delete n[s], ye(`${s}`));
           break;
       }
     } catch (o) {
@@ -65189,7 +65245,7 @@ function Xn() {
 var es = class {
   constructor(e, n) {
     this._module = e, this.name = n, Tr().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Pt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (ge(`rebind:${JSON.stringify(this.binding())}`), Pt(
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Pt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (ye(`rebind:${JSON.stringify(this.binding())}`), Pt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -65374,7 +65430,7 @@ var kn = {};
 function Lr(t) {
   return kn[t] || (kn[t] = new Fr(t)), kn[t];
 }
-function dp(t, e, n = 1) {
+function fd(t, e, n = 1) {
   return Lr(t).module(e, n);
 }
 
@@ -65647,8 +65703,8 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d2 = new Date(date);
-    return { hours: d2.getHours(), minutes: d2.getMinutes() };
+    const d = new Date(date);
+    return { hours: d.getHours(), minutes: d.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
@@ -65659,8 +65715,8 @@ function formatTimeInTimezone(date, tz) {
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d2 = set(new Date(date), { hours, minutes });
-    return startOfMinute(d2).valueOf();
+    const d = set(new Date(date), { hours, minutes });
+    return startOfMinute(d).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -65820,18 +65876,18 @@ function xmur3(str) {
     return (h ^= h >>> 16) >>> 0;
   };
 }
-function sfc32(a2, b2, c, d2) {
+function sfc32(a2, b2, c, d) {
   return function() {
     a2 >>>= 0;
     b2 >>>= 0;
     c >>>= 0;
-    d2 >>>= 0;
+    d >>>= 0;
     let t = a2 + b2 | 0;
     a2 = b2 ^ b2 >>> 9;
     b2 = c + (c << 3) | 0;
     c = c << 21 | c >>> 11;
-    d2 = d2 + 1 | 0;
-    t = t + d2 | 0;
+    d = d + 1 | 0;
+    t = t + d | 0;
     c = c + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -66144,9 +66200,9 @@ function setupFormTimeSync(model2, options = {}, injector) {
     date_end = normaliseTimeValue(date_end);
     if (!date || !date_end)
       return false;
-    const d2 = timezone ? toZonedTime(date, timezone) : new Date(date);
+    const d = timezone ? toZonedTime(date, timezone) : new Date(date);
     const e = timezone ? toZonedTime(date_end, timezone) : new Date(date_end);
-    return !isSameDay(d2, e);
+    return !isSameDay(d, e);
   };
   const alignEndToBookableHours = (date_end) => {
     date_end = normaliseTimeValue(date_end);
@@ -66429,6 +66485,20 @@ function setupFormTimeSync(model2, options = {}, injector) {
     }
   };
   return handle;
+}
+function errorMessage(error2) {
+  if (typeof error2 === "string")
+    return error2;
+  if (error2 instanceof Error)
+    return error2.message || "";
+  const value = error2;
+  if (typeof value?.error === "string")
+    return value.error;
+  if (typeof value?.message === "string")
+    return value.message;
+  if (typeof value?.error?.message === "string")
+    return value.error.message;
+  return "";
 }
 
 // libs/common/src/lib/hotkeys.service.ts
@@ -66737,14 +66807,14 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w2, d2, s, l2, i) {
-        w2[l2] = w2[l2] || [];
-        w2[l2].push({
+      (function(w3, d, s, l2, i) {
+        w3[l2] = w3[l2] || [];
+        w3[l2].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f3 = d2.getElementsByTagName(s)[0];
-        const j2 = d2.createElement(s);
+        const f3 = d.getElementsByTagName(s)[0];
+        const j2 = d.createElement(s);
         const dl = l2 != "dataLayer" ? "&l=" + l2 : "";
         j2.async = true;
         j2.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
@@ -67974,15 +68044,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "e9f70dd",
-  "hash": "e9f70dd",
+  "raw": "957e573",
+  "hash": "957e573",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e9f70dd",
+  "suffix": "957e573",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787114133834
+  "time": 1787242358770
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -68710,8 +68780,8 @@ var AnimationGroupPlayer = class {
     this._finished = false;
     this._started = false;
   }
-  setPosition(p) {
-    const timeAtPosition = p * this.totalTime;
+  setPosition(p2) {
+    const timeAtPosition = p2 * this.totalTime;
     this.players.forEach((player) => {
       const position = player.totalTime ? Math.min(1, timeAtPosition / player.totalTime) : 1;
       player.setPosition(position);
@@ -68882,8 +68952,8 @@ var RendererAnimationPlayer = class {
     this._command("reset");
     this._started = false;
   }
-  setPosition(p) {
-    this._command("setPosition", p);
+  setPosition(p2) {
+    this._command("setPosition", p2);
   }
   getPosition() {
     return unwrapAnimationRenderer(this._renderer)?.engine?.players[this.id]?.getPosition() ?? 0;
@@ -69851,7 +69921,7 @@ var UNKNOWN_FUNCTION = "?";
 var WEBPACK_ERROR_REGEXP = /\(error: (.*)\)/;
 var STRIP_FRAME_REGEXP = /captureMessage|captureException/;
 function createStackParser(...parsers) {
-  const sortedParsers = parsers.sort((a2, b2) => a2[0] - b2[0]).map((p) => p[1]);
+  const sortedParsers = parsers.sort((a2, b2) => a2[0] - b2[0]).map((p2) => p2[1]);
   return (stack, skipFirstLines = 0, framesToPop = 0) => {
     const frames = [];
     const lines = stack.split("\n");
@@ -71184,7 +71254,7 @@ function getDefaultIsolationScope() {
 }
 
 // node_modules/@sentry/core/build/esm/utils/chain-and-copy-promiselike.js
-var isActualPromise = (p) => p instanceof Promise && !p[kChainedCopy];
+var isActualPromise = (p2) => p2 instanceof Promise && !p2[kChainedCopy];
 var kChainedCopy = /* @__PURE__ */ Symbol("chained PromiseLike");
 var chainAndCopyPromiseLike = (original, onSuccess, onError) => {
   const chained = original.then(
@@ -76876,7 +76946,7 @@ function initUnique(identityObj, ClassObj) {
       instanceMap.set(identityObj, new ClassObj());
     }
     return instanceMap.get(identityObj);
-  } catch (_e2) {
+  } catch (_e3) {
     return new ClassObj();
   }
 }
@@ -81585,7 +81655,7 @@ var OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : dp(system_id, mod_id);
+    return !system_id || !mod_id ? null : fd(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -82431,11 +82501,11 @@ var Bitmap = class _Bitmap {
     this.height = height;
     this.width = width;
   }
-  point(p) {
-    return this.data[p.y][p.x];
+  point(p2) {
+    return this.data[p2.y][p2.x];
   }
-  isInside(p) {
-    return 0 <= p.x && p.x < this.width && 0 <= p.y && p.y < this.height;
+  isInside(p2) {
+    return 0 <= p2.x && p2.x < this.width && 0 <= p2.y && p2.y < this.height;
   }
   size(offset) {
     if (!offset)
@@ -82585,7 +82655,7 @@ var Bitmap = class _Bitmap {
     const dims = [...u16le(this.width), ...u16le(this.height)];
     const data = [];
     this.rectRead(0, Infinity, (_3, cur) => data.push(+(cur === true)));
-    const N4 = 126;
+    const N3 = 126;
     const bytes = [
       71,
       73,
@@ -82610,10 +82680,10 @@ var Bitmap = class _Bitmap {
       0,
       7
     ];
-    const fullChunks = Math.floor(data.length / N4);
+    const fullChunks = Math.floor(data.length / N3);
     for (let i = 0; i < fullChunks; i++)
-      bytes.push(N4 + 1, 128, ...data.slice(N4 * i, N4 * (i + 1)).map((i2) => +i2));
-    bytes.push(data.length % N4 + 1, 128, ...data.slice(fullChunks * N4).map((i) => +i));
+      bytes.push(N3 + 1, 128, ...data.slice(N3 * i, N3 * (i + 1)).map((i2) => +i2));
+    bytes.push(data.length % N3 + 1, 128, ...data.slice(fullChunks * N3).map((i) => +i));
     bytes.push(1, 129, 0, 59);
     return new Uint8Array(bytes);
   }
@@ -82729,16 +82799,16 @@ var info = {
   formatMask: 21522,
   formatBits(ecc, maskIdx) {
     const data = info.ECCode[ecc] << 3 | maskIdx;
-    let d2 = data;
+    let d = data;
     for (let i = 0; i < 10; i++)
-      d2 = d2 << 1 ^ (d2 >> 9) * 1335;
-    return (data << 10 | d2) ^ info.formatMask;
+      d = d << 1 ^ (d >> 9) * 1335;
+    return (data << 10 | d) ^ info.formatMask;
   },
   versionBits(ver) {
-    let d2 = ver;
+    let d = ver;
     for (let i = 0; i < 12; i++)
-      d2 = d2 << 1 ^ (d2 >> 11) * 7973;
-    return ver << 12 | d2;
+      d = d << 1 ^ (d >> 11) * 7973;
+    return ver << 12 | d;
   },
   alphabet: {
     numeric: alphabet("0123456789"),
@@ -82955,10 +83025,10 @@ var GF = {
 function RS(eccWords) {
   return {
     encode(from2) {
-      const d2 = GF.divisorPoly(eccWords);
+      const d = GF.divisorPoly(eccWords);
       const pol = Array.from(from2);
-      pol.push(...d2.slice(0, -1).fill(0));
-      return Uint8Array.from(GF.remainderPoly(pol, d2));
+      pol.push(...d.slice(0, -1).fill(0));
+      return Uint8Array.from(GF.remainderPoly(pol, d));
     },
     decode(to) {
       const res = to.slice();
@@ -83403,6 +83473,10 @@ function validWeekdays(days) {
     return [];
   return Array.from(days).filter((day) => day >= 0 && day < 7).sort((a2, b2) => a2 - b2);
 }
+function recurrenceInstanceCount(value) {
+  const count = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+  return Number.isFinite(count) && count >= 1 ? Math.floor(count) : void 0;
+}
 function isWeeklyInstance(date, start_date, interval, weekdays) {
   const day = new Date(date).getDay();
   const days = validWeekdays(weekdays);
@@ -83432,7 +83506,7 @@ function firstRecurrenceInstance(recurrence, date = Date.now()) {
   return date;
 }
 function recurrenceEndDate(recurrence, date = Date.now()) {
-  const instances = Math.max((recurrence.end_instances || 1) - 1, 0);
+  const instances = Math.max((recurrenceInstanceCount(recurrence.end_instances) || 1) - 1, 0);
   const interval = Math.max(recurrence.interval, 1);
   const first_instance = firstRecurrenceInstance(recurrence, date);
   if (recurrence.type === "daily") {
@@ -83472,16 +83546,17 @@ function fromEventRecurrence(r) {
       end_type: "never"
     };
   }
+  const occurrences = recurrenceInstanceCount(r.occurrences);
   const recurr = {
     _custom: r._pattern == "custom_display",
     type: r.pattern,
     interval: r.interval || 1,
-    end_type: r._end_type ?? (r.occurrences ? "instances" : r.end ? "date" : "never")
+    end_type: r._end_type ?? (occurrences ? "instances" : r.end ? "date" : "never")
   };
   if (r.end)
     recurr.end_date = r.end;
-  if (r.occurrences)
-    recurr.end_instances = r.occurrences;
+  if (occurrences)
+    recurr.end_instances = occurrences;
   if (r.pattern === "weekly" && r.days_of_week?.length) {
     recurr.weekdays = new Set(r.days_of_week);
   }
@@ -83521,17 +83596,18 @@ function fromBookingRecurrence(r) {
       end_type: "never"
     };
   }
+  const instances = recurrenceInstanceCount(r.recurrence_instances);
   const recurr = {
     _custom: r.recurrence_custom,
     type: r.recurrence_type,
     interval: r.recurrence_interval || 1,
-    end_type: r.recurrence_instances ? "instances" : r.recurrence_end ? "date" : "never"
+    end_type: instances ? "instances" : r.recurrence_end ? "date" : "never"
   };
   if (r.recurrence_end) {
     recurr.end_date = r.recurrence_end * 1e3;
   }
-  if (r.recurrence_instances) {
-    recurr.end_instances = r.recurrence_instances;
+  if (instances) {
+    recurr.end_instances = instances;
   }
   if (r.recurrence_type === "daily" && r.recurrence_days) {
     const weekdays = /* @__PURE__ */ new Set();
@@ -83585,7 +83661,7 @@ function toBookingRecurrence(r, date = Date.now()) {
   if (r.end_type === "date" && r.end_date) {
     booking.recurrence_end = getUnixTime(r.end_date);
   } else if (r.end_type === "instances") {
-    booking.recurrence_instances = r.end_instances;
+    booking.recurrence_instances = recurrenceInstanceCount(r.end_instances);
     booking.recurrence_end = getUnixTime(recurrenceEndDate(r, date));
   }
   if (r.type === "daily") {
@@ -83668,10 +83744,13 @@ function formatRecurrence(recurrence, selected_date = Date.now()) {
         if (!end_date)
           return "";
         return ` until ${format(end_date, "dd MMM yyyy")}`;
-      case "instances":
-        if (!end_instances)
-          return "";
-        return ` ends after ${end_instances} ${plural2(end_instances, "instance")}${end_date ? ` (${format(end_date, "dd MMM yyyy")})` : ""}`;
+      case "instances": {
+        const count = recurrenceInstanceCount(end_instances);
+        if (!count) {
+          return end_date ? ` until ${format(end_date, "dd MMM yyyy")}` : "";
+        }
+        return ` ends after ${count} ${plural2(count, "instance")}${end_date ? ` (${format(end_date, "dd MMM yyyy")})` : ""}`;
+      }
     }
   }
   let result;
@@ -83683,7 +83762,7 @@ function formatRecurrence(recurrence, selected_date = Date.now()) {
       result = `Every ${safe_interval} ${plural2(safe_interval, "day")}`;
       break;
     case "weekly": {
-      const days = validWeekdays2(weekdays).length ? formatList(validWeekdays2(weekdays).map((d2) => dayNames[d2])) : dayNames[selected_day];
+      const days = validWeekdays2(weekdays).length ? formatList(validWeekdays2(weekdays).map((d) => dayNames[d])) : dayNames[selected_day];
       result = `Every ${safe_interval} ${plural2(safe_interval, "week")}${days ? " on " + days : ""}`;
       break;
     }
@@ -83691,7 +83770,7 @@ function formatRecurrence(recurrence, selected_date = Date.now()) {
       const recurrence_days = validWeekdays2(weekdays);
       const week_value = week || selectedWeek();
       if (monthly_type === "day_of_week") {
-        const days = recurrence_days.length ? formatList(recurrence_days.map((d2) => dayNames[d2])) : dayNames[selected_day];
+        const days = recurrence_days.length ? formatList(recurrence_days.map((d) => dayNames[d])) : dayNames[selected_day];
         const week_name = weekNames[week_value] || weekNames[selectedWeek()];
         result = `Every ${safe_interval} ${plural2(safe_interval, "month")} on the ${week_name}${days ? " " + days : ""}`;
       } else if (monthly_type === "day_of_month") {
@@ -83711,7 +83790,7 @@ function formatRecurrence(recurrence, selected_date = Date.now()) {
 }
 
 // node_modules/@placeos/cloud-uploads/dist/index.es.js
-function w(s) {
+function w2(s) {
   return typeof s == "function";
 }
 var ut = function(s, e) {
@@ -83810,10 +83889,10 @@ var tt = (function() {
           }
         else
           a2.remove(this);
-      var p = this.initialTeardown;
-      if (w(p))
+      var p2 = this.initialTeardown;
+      if (w2(p2))
         try {
-          p();
+          p2();
         } catch (b2) {
           n = b2 instanceof nt ? b2.errors : [b2];
         }
@@ -83874,10 +83953,10 @@ var tt = (function() {
 })();
 var Mt2 = tt.EMPTY;
 function qt2(s) {
-  return s instanceof tt || s && "closed" in s && w(s.remove) && w(s.add) && w(s.unsubscribe);
+  return s instanceof tt || s && "closed" in s && w2(s.remove) && w2(s.add) && w2(s.unsubscribe);
 }
 function xt2(s) {
-  w(s) ? s() : s.unsubscribe();
+  w2(s) ? s() : s.unsubscribe();
 }
 var ue = {
   Promise: void 0
@@ -83907,7 +83986,7 @@ var wt2 = (function(s) {
   L2(e, s);
   function e(t) {
     var r = s.call(this) || this;
-    return r.isStopped = false, t ? (r.destination = t, qt2(t) && t.add(r)) : r.destination = fe2, r;
+    return r.isStopped = false, t ? (r.destination = t, qt2(t) && t.add(r)) : r.destination = fe, r;
   }
   return e.create = function(t, r, i) {
     return new ft(t, r, i);
@@ -83971,7 +84050,7 @@ var ft = (function(s) {
   L2(e, s);
   function e(t, r, i) {
     var n = s.call(this) || this, a2;
-    return w(t) || !t ? a2 = {
+    return w2(t) || !t ? a2 = {
       next: t ?? void 0,
       error: r ?? void 0,
       complete: i ?? void 0
@@ -83985,13 +84064,13 @@ function F14(s) {
 function de2(s) {
   throw s;
 }
-var fe2 = {
+var fe = {
   closed: true,
   next: At2,
   error: de2,
   complete: At2
 };
-var _e = (function() {
+var _e2 = (function() {
   return typeof Symbol == "function" && Symbol.observable || "@@observable";
 })();
 function Nt2(s) {
@@ -84042,7 +84121,7 @@ var _t = (function() {
   }, s.prototype._subscribe = function(e) {
     var t;
     return (t = this.source) === null || t === void 0 ? void 0 : t.subscribe(e);
-  }, s.prototype[_e] = function() {
+  }, s.prototype[_e2] = function() {
     return this;
   }, s.prototype.pipe = function() {
     for (var e = [], t = 0; t < arguments.length; t++)
@@ -84068,11 +84147,11 @@ function zt2(s) {
   var e;
   return (e = s ?? ue.Promise) !== null && e !== void 0 ? e : Promise;
 }
-function me2(s) {
-  return s && w(s.next) && w(s.error) && w(s.complete);
+function me(s) {
+  return s && w2(s.next) && w2(s.error) && w2(s.complete);
 }
 function ge2(s) {
-  return s && s instanceof wt2 || me2(s) && qt2(s);
+  return s && s instanceof wt2 || me(s) && qt2(s);
 }
 var be2 = (function(s) {
   L2(e, s);
@@ -84081,14 +84160,14 @@ var be2 = (function(s) {
     return u3.onFinalize = a2, u3.shouldUnsubscribe = o, u3._next = r ? function(c) {
       try {
         r(c);
-      } catch (p) {
-        t.error(p);
+      } catch (p2) {
+        t.error(p2);
       }
     } : s.prototype._next, u3._error = n ? function(c) {
       try {
         n(c);
-      } catch (p) {
-        t.error(p);
+      } catch (p2) {
+        t.error(p2);
       } finally {
         this.unsubscribe();
       }
@@ -84215,7 +84294,7 @@ var Ot2 = (function(s) {
     return (i = (r = this.source) === null || r === void 0 ? void 0 : r.subscribe(t)) !== null && i !== void 0 ? i : Mt2;
   }, e;
 })(jt2);
-var ve = new _t(function(s) {
+var ve2 = new _t(function(s) {
   return s.complete();
 });
 var Ht2 = yt(function(s) {
@@ -84558,7 +84637,7 @@ function vt2(s) {
   for (const e of k.keys())
     e.startsWith(`${s}:`) && k.delete(e);
 }
-function N3(s, e) {
+function N2(s, e) {
   return Math.ceil(s.size / e);
 }
 function Xt(s, e, t) {
@@ -84592,7 +84671,7 @@ function z(s, e, t) {
   }), j(s.id);
 }
 function He(s) {
-  const e = new Set(s.state.getValue().completed), t = N3(s.file, s.provider.part_size);
+  const e = new Set(s.state.getValue().completed), t = N2(s.file, s.provider.part_size);
   for (let r = 1; r <= t; r++)
     if (!e.has(r)) return r;
   return t + 1;
@@ -84602,7 +84681,7 @@ function Pt2(s) {
     St2(s);
     return;
   }
-  const e = He(s), t = N3(s.file, s.provider.part_size);
+  const e = He(s), t = N2(s.file, s.provider.part_size);
   if (e > t) {
     te2(s).catch(
       (r) => z(s, r, "Finalisation failed")
@@ -84656,7 +84735,7 @@ async function K3() {
     working: [...t.working, s.part]
   });
   try {
-    const i = k.get(`${e.id}:${s.part}`)?.base64 ?? "", n = N3(
+    const i = k.get(`${e.id}:${s.part}`)?.base64 ?? "", n = N2(
       e.file,
       e.provider.part_size
     ), a2 = e.state.getValue().completed;
@@ -84689,14 +84768,14 @@ async function K3() {
       e.provider.part_size
     );
     await Be2(o, u3);
-    const c = e.state.getValue(), p = [...c.completed, s.part].sort(
+    const c = e.state.getValue(), p2 = [...c.completed, s.part].sort(
       (m2, y2) => m2 - y2
     ), x = c.working.filter((m2) => m2 !== s.part);
     if (_2(e, {
-      completed: p,
+      completed: p2,
       working: x,
-      progress: Math.round(p.length / n * 100)
-    }), p.length === n)
+      progress: Math.round(p2.length / n * 100)
+    }), p2.length === n)
       try {
         await te2(e);
       } catch (m2) {
@@ -84856,7 +84935,7 @@ async function Ve2(s, e = 1) {
     throw new Error(
       `Invalid resume_id: ${s.resume_id}. Upload: ${s.id}`
     );
-  const t = N3(s.file, s.provider.part_size), r = s.state.getValue(), i = ar();
+  const t = N2(s.file, s.provider.part_size), r = s.state.getValue(), i = ar();
   console.debug(
     `[UPLOADS] Queuing ${t} chunks for ${s.file.name} (part size: ${s.provider.part_size}, workers: ${i})`
   );
@@ -84873,7 +84952,7 @@ async function Ve2(s, e = 1) {
       ), m2 = await Ne(x);
       k.set(u3, m2), console.debug(`[UPLOADS] Part ${o}/${t} hash cached`);
     }
-    const c = (o - 1) * s.provider.part_size, p = Math.min(
+    const c = (o - 1) * s.provider.part_size, p2 = Math.min(
       c + s.provider.part_size,
       s.file.size
     );
@@ -84881,7 +84960,7 @@ async function Ve2(s, e = 1) {
       upload_id: s.id,
       part: o,
       start: c,
-      end: p,
+      end: p2,
       retries: 0
     }), K3();
   };
@@ -84920,7 +84999,7 @@ function We(s, e = []) {
     return;
   }
   console.debug(`[UPLOADS] Upload is chunked (${s.file.name})`);
-  const t = N3(s.file, s.provider.part_size), r = [...e].sort((n, a2) => n - a2), i = Math.round(r.length / t * 100);
+  const t = N2(s.file, s.provider.part_size), r = [...e].sort((n, a2) => n - a2), i = Math.round(r.length / t * 100);
   if (_2(s, {
     status: l.auto_start ? "UPLOADING" : "PAUSED",
     completed: r,
@@ -84969,7 +85048,7 @@ function yr2(s = {}) {
     retries: o = 3,
     auto_start: u3 = true,
     auto_remove: c = false,
-    remove_after_ms: p = -1
+    remove_after_ms: p2 = -1
   } = s;
   console.debug("[UPLOADS] Initialising..."), t ? Je2(t) : e && Ye2(e), Xe2(o), qe2({
     simultaneous: n,
@@ -84977,7 +85056,7 @@ function yr2(s = {}) {
     retries: o,
     auto_start: u3,
     auto_remove: c,
-    remove_after_ms: p
+    remove_after_ms: p2
   }), ir(r, i);
 }
 function It2(s, e, t, r, i = false, n) {
@@ -86628,8 +86707,8 @@ var MatFormField = class _MatFormField {
     }
   }
   _checkPrefixAndSuffixTypes() {
-    this._hasIconPrefix = !!this._prefixChildren.find((p) => !p._isText);
-    this._hasTextPrefix = !!this._prefixChildren.find((p) => p._isText);
+    this._hasIconPrefix = !!this._prefixChildren.find((p2) => !p2._isText);
+    this._hasTextPrefix = !!this._prefixChildren.find((p2) => p2._isText);
     this._hasIconSuffix = !!this._suffixChildren.find((s) => !s._isText);
     this._hasTextSuffix = !!this._suffixChildren.find((s) => s._isText);
   }
@@ -92190,9 +92269,21 @@ var MatTooltipModule = class _MatTooltipModule {
 
 // libs/components/src/lib/settings-toggle.component.ts
 var _c014 = ["*"];
-function SettingsToggleComponent_Conditional_5_Template(rf, ctx) {
+function SettingsToggleComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 3);
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.info());
+  }
+}
+function SettingsToggleComponent_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "icon", 4);
     \u0275\u0275text(1, "info");
     \u0275\u0275elementEnd();
   }
@@ -92201,14 +92292,14 @@ function SettingsToggleComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275property("matTooltip", ctx_r0.info());
   }
 }
-function SettingsToggleComponent_Conditional_6_Template(rf, ctx) {
+function SettingsToggleComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "div", 4);
+    \u0275\u0275element(0, "div", 5);
   }
 }
-function SettingsToggleComponent_Conditional_7_Template(rf, ctx) {
+function SettingsToggleComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5)(1, "div", 7)(2, "div", 8)(3, "icon");
+    \u0275\u0275elementStart(0, "div", 6)(1, "div", 8)(2, "div", 9)(3, "icon");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()()()();
   }
@@ -92222,11 +92313,11 @@ function SettingsToggleComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r0.value() ? "done" : "remove");
   }
 }
-function SettingsToggleComponent_Conditional_8_Template(rf, ctx) {
+function SettingsToggleComponent_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "mat-checkbox", 9);
-    \u0275\u0275listener("ngModelChange", function SettingsToggleComponent_Conditional_8_Template_mat_checkbox_ngModelChange_0_listener($event) {
+    \u0275\u0275elementStart(0, "mat-checkbox", 10);
+    \u0275\u0275listener("ngModelChange", function SettingsToggleComponent_Conditional_10_Template_mat_checkbox_ngModelChange_0_listener($event) {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.setValue($event));
@@ -92259,6 +92350,13 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
     this.info = input(
       void 0,
       ...ngDevMode ? [{ debugName: "info" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.inline = input(
+      true,
+      ...ngDevMode ? [{ debugName: "inline" }] : (
         /* istanbul ignore next */
         []
       )
@@ -92296,39 +92394,45 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsToggleComponent, selectors: [["settings-toggle"]], inputs: { toggle: [1, "toggle"], label: [1, "label"], info: [1, "info"] }, features: [\u0275\u0275ProvidersFeature([
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsToggleComponent, selectors: [["settings-toggle"]], inputs: { toggle: [1, "toggle"], label: [1, "label"], info: [1, "info"], inline: [1, "inline"] }, features: [\u0275\u0275ProvidersFeature([
       {
         provide: NG_VALUE_ACCESSOR,
         useExisting: forwardRef(() => _SettingsToggleComponent),
         multi: true
       }
-    ])], ngContentSelectors: _c014, decls: 9, vars: 8, consts: [["type", "button", "matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "p-2", "text-left"], [1, "w-full"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
+    ])], ngContentSelectors: _c014, decls: 11, vars: 13, consts: [["type", "button", "matRipple", "", 1, "hover:bg-base-200", "relative", "flex", "flex-1", "items-center", "space-x-2", "overflow-hidden", "rounded-sm", "border", "py-1", "pr-1", "pl-2", 3, "click"], [1, "z-10", "flex", "flex-1", "items-center", "space-x-2", "px-2", "text-left"], [1, "flex", "h-full", "w-full", "flex-col", "justify-center", "leading-none"], [1, "text-xs", "opacity-30"], [3, "matTooltip"], [1, "bg-info", "absolute", "inset-0", "z-0", "m-0!", "opacity-10"], [1, "px-2"], [1, "pointer-events-none", 3, "ngModel"], ["toggle", "", 1, "border-base-400", "relative", "h-8", "w-12", "rounded-full", "border-2"], [1, "absolute", "top-1/2", "flex", "h-6", "w-6", "-translate-x-0.5", "-translate-y-1/2", "items-center", "justify-center", "rounded-full", "text-black", "shadow-sm"], [1, "pointer-events-none", 3, "ngModelChange", "ngModel"]], template: function SettingsToggleComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275elementStart(0, "button", 0);
         \u0275\u0275listener("click", function SettingsToggleComponent_Template_button_click_0_listener() {
           return ctx.setValue(!ctx.value());
         });
-        \u0275\u0275elementStart(1, "div", 1)(2, "div", 2);
-        \u0275\u0275text(3);
-        \u0275\u0275projection(4);
+        \u0275\u0275elementStart(1, "div", 1)(2, "div", 2)(3, "div");
+        \u0275\u0275text(4);
+        \u0275\u0275projection(5);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(5, SettingsToggleComponent_Conditional_5_Template, 2, 1, "icon", 3);
+        \u0275\u0275conditionalCreate(6, SettingsToggleComponent_Conditional_6_Template, 2, 1, "div", 3);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(6, SettingsToggleComponent_Conditional_6_Template, 1, 0, "div", 4);
-        \u0275\u0275conditionalCreate(7, SettingsToggleComponent_Conditional_7_Template, 5, 15, "div", 5)(8, SettingsToggleComponent_Conditional_8_Template, 1, 1, "mat-checkbox", 6);
+        \u0275\u0275conditionalCreate(7, SettingsToggleComponent_Conditional_7_Template, 2, 1, "icon", 4);
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(8, SettingsToggleComponent_Conditional_8_Template, 1, 0, "div", 5);
+        \u0275\u0275conditionalCreate(9, SettingsToggleComponent_Conditional_9_Template, 5, 15, "div", 6)(10, SettingsToggleComponent_Conditional_10_Template, 1, 1, "mat-checkbox", 7);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
         \u0275\u0275classProp("border-base-300", !ctx.value())("border-info", ctx.value());
+        \u0275\u0275advance();
+        \u0275\u0275classProp("py-2", !ctx.inline())("py-1", ctx.inline());
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", ctx.label(), " ");
+        \u0275\u0275textInterpolate(ctx.label());
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.info() ? 5 : -1);
+        \u0275\u0275conditional(ctx.info() && ctx.inline() ? 6 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.value() ? 6 : -1);
+        \u0275\u0275conditional(ctx.info() && !ctx.inline() ? 7 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.toggle() ? 7 : 8);
+        \u0275\u0275conditional(ctx.value() ? 8 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.toggle() ? 9 : 10);
       }
     }, dependencies: [MatCheckboxModule, MatCheckbox, FormsModule, NgControlStatus, NgModel, IconComponent, MatTooltipModule, MatTooltip], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n}\n[toggle][_ngcontent-%COMP%] {\n  transition: background 200ms, left 200ms;\n}\n/*# sourceMappingURL=settings-toggle.component.css.map */"] });
   }
@@ -92345,12 +92449,20 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
             [class.border-info]="value()"
             (click)="setValue(!value())"
         >
-            <div class="z-10 flex flex-1 items-center space-x-2 p-2 text-left">
-                <div class="w-full">
-                    {{ label() }}
-                    <ng-content></ng-content>
+            <div
+                class="z-10 flex flex-1 items-center space-x-2 px-2 text-left"
+                [class.py-2]="!inline()"
+                [class.py-1]="inline()"
+            >
+                <div
+                    class="flex h-full w-full flex-col justify-center leading-none"
+                >
+                    <div>{{ label() }}<ng-content></ng-content></div>
+                    @if (info() && inline()) {
+                        <div class="text-xs opacity-30">{{ info() }}</div>
+                    }
                 </div>
-                @if (info()) {
+                @if (info() && !inline()) {
                     <icon [matTooltip]="info()">info</icon>
                 }
             </div>
@@ -92392,10 +92504,10 @@ var SettingsToggleComponent = class _SettingsToggleComponent {
         multi: true
       }
     ], imports: [MatCheckboxModule, FormsModule, IconComponent, MatTooltipModule], styles: ["/* angular:styles/component:css;09d472dfc67150cf01347a580874515fc3cc343b61a90041f2b167ad15a01cf4;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/settings-toggle.component.ts */\n:host {\n  display: flex;\n}\n[toggle] {\n  transition: background 200ms, left 200ms;\n}\n/*# sourceMappingURL=settings-toggle.component.css.map */\n"] }]
-  }], null, { toggle: [{ type: Input, args: [{ isSignal: true, alias: "toggle", required: false }] }], label: [{ type: Input, args: [{ isSignal: true, alias: "label", required: false }] }], info: [{ type: Input, args: [{ isSignal: true, alias: "info", required: false }] }] });
+  }], null, { toggle: [{ type: Input, args: [{ isSignal: true, alias: "toggle", required: false }] }], label: [{ type: Input, args: [{ isSignal: true, alias: "label", required: false }] }], info: [{ type: Input, args: [{ isSignal: true, alias: "info", required: false }] }], inline: [{ type: Input, args: [{ isSignal: true, alias: "inline", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 85 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsToggleComponent, { className: "SettingsToggleComponent", filePath: "libs/components/src/lib/settings-toggle.component.ts", lineNumber: 93 });
 })();
 
 // libs/components/src/lib/translate.pipe.ts
@@ -93093,12 +93205,12 @@ var LeafLogicNode = class _LeafLogicNode {
         builder,
         predicates
       } = childBuilders[0];
-      return new _LeafLogicNode(builder, [...this.predicates, ...predicates.map((p) => bindLevel(p, this.depth))], this.depth + 1);
+      return new _LeafLogicNode(builder, [...this.predicates, ...predicates.map((p2) => bindLevel(p2, this.depth))], this.depth + 1);
     } else {
       const builtNodes = childBuilders.map(({
         builder,
         predicates
-      }) => new _LeafLogicNode(builder, [...this.predicates, ...predicates.map((p) => bindLevel(p, this.depth))], this.depth + 1));
+      }) => new _LeafLogicNode(builder, [...this.predicates, ...predicates.map((p2) => bindLevel(p2, this.depth))], this.depth + 1));
       return new CompositeLogicNode(builtNodes);
     }
   }
@@ -93591,14 +93703,14 @@ var FieldNodeContext = class {
   }, ...ngDevMode ? [{
     debugName: "index"
   }] : []);
-  fieldTreeOf(p) {
-    return this.resolve(p);
+  fieldTreeOf(p2) {
+    return this.resolve(p2);
   }
-  stateOf(p) {
-    return this.resolve(p)();
+  stateOf(p2) {
+    return this.resolve(p2)();
   }
-  valueOf = (p) => {
-    const result = this.resolve(p)().value();
+  valueOf = (p2) => {
+    const result = this.resolve(p2)().value();
     if (result instanceof AbstractControl) {
       throw new RuntimeError(1907, ngDevMode && `Tried to read an 'AbstractControl' value from a 'form()'. Did you mean to use 'compatForm()' instead?`);
     }
@@ -93642,18 +93754,18 @@ var FieldMetadataState = class {
   }
 };
 var FIELD_PROXY_HANDLER = {
-  get(getTgt, p, receiver) {
+  get(getTgt, p2, receiver) {
     const tgt = getTgt();
-    const child = tgt.structure.getChild(p);
+    const child = tgt.structure.getChild(p2);
     if (child !== void 0) {
       return child.fieldTree;
     }
     const value = untracked2(tgt.value);
     if (isArray3(value)) {
-      if (p === "length") {
+      if (p2 === "length") {
         return tgt.value().length;
       }
-      if (p === Symbol.iterator) {
+      if (p2 === Symbol.iterator) {
         return () => {
           tgt.value();
           return Array.prototype[Symbol.iterator].apply(tgt.fieldTree);
@@ -93661,7 +93773,7 @@ var FIELD_PROXY_HANDLER = {
       }
     }
     if (isObject(value)) {
-      if (p === Symbol.iterator) {
+      if (p2 === Symbol.iterator) {
         return function* () {
           for (const key in receiver) {
             yield [key, receiver[key]];
@@ -95536,12 +95648,12 @@ function generateUserForm(user, injector) {
       []
     )
   );
-  return form(model2, (p) => {
-    required(p.name);
-    required(p.email);
-    email(p.email);
-    required(p.organisation);
-    validate(p.phone, ({ value }) => value() && !PHONE_PATTERN.test(value()) ? { kind: "pattern" } : void 0);
+  return form(model2, (p2) => {
+    required(p2.name);
+    required(p2.email);
+    email(p2.email);
+    required(p2.organisation);
+    validate(p2.phone, ({ value }) => value() && !PHONE_PATTERN.test(value()) ? { kind: "pattern" } : void 0);
   }, injector ? { injector } : void 0);
 }
 
@@ -95593,7 +95705,7 @@ var SpacePipe = class _SpacePipe {
     if (ATTEMPT_COUNT[space_id])
       return EMPTY_SPACE;
     if (!is_email) {
-      const system = await pa(space_id).catch((_3) => null);
+      const system = await da(space_id).catch((_3) => null);
       if (system) {
         space = new Space(__spreadProps(__spreadValues({}, system), {
           level: this.org?.levelWithID([...system.zones])
@@ -96297,17 +96409,17 @@ function getElementBoundsInSvgSpace(element, svg_inverse_ctm) {
     { x: bbox.x + bbox.width, y: bbox.y },
     { x: bbox.x, y: bbox.y + bbox.height },
     { x: bbox.x + bbox.width, y: bbox.y + bbox.height }
-  ].map((p) => ({
-    x: matrix.a * p.x + matrix.c * p.y + matrix.e,
-    y: matrix.b * p.x + matrix.d * p.y + matrix.f
+  ].map((p2) => ({
+    x: matrix.a * p2.x + matrix.c * p2.y + matrix.e,
+    y: matrix.b * p2.x + matrix.d * p2.y + matrix.f
   }));
-  const min_x = Math.min(...corners.map((p) => p.x));
-  const min_y = Math.min(...corners.map((p) => p.y));
+  const min_x = Math.min(...corners.map((p2) => p2.x));
+  const min_y = Math.min(...corners.map((p2) => p2.y));
   return {
     x: min_x,
     y: min_y,
-    width: Math.max(...corners.map((p) => p.x)) - min_x,
-    height: Math.max(...corners.map((p) => p.y)) - min_y
+    width: Math.max(...corners.map((p2) => p2.x)) - min_x,
+    height: Math.max(...corners.map((p2) => p2.y)) - min_y
   };
 }
 function generateElementBounds(data) {
@@ -96979,11 +97091,11 @@ var MapViewer = class {
     for (const [, bounds] of this.map.element_bounds) {
       const x = toScreenX(bounds.x);
       const y2 = toScreenY(bounds.y);
-      const w2 = bounds.w * scale.x;
+      const w3 = bounds.w * scale.x;
       const h = bounds.h * scale.y;
-      if (x + w2 < 0 || y2 + h < 0 || x > width || y2 > height)
+      if (x + w3 < 0 || y2 + h < 0 || x > width || y2 > height)
         continue;
-      ctx.strokeRect(x, y2, w2, h);
+      ctx.strokeRect(x, y2, w3, h);
     }
     const highlight_id = this.debug_info.highlight_id || this.debug_info.hover_id;
     const hover_bounds = highlight_id ? this.map.element_bounds.get(highlight_id) : null;
@@ -97030,12 +97142,12 @@ var MapViewer = class {
       instance.last_transform = value;
       instance.element.style.transform = value;
     };
-    const setSize = (instance, w2, h) => {
-      const size = `${w2} ${h}`;
+    const setSize = (instance, w3, h) => {
+      const size = `${w3} ${h}`;
       if (instance.last_size === size)
         return;
       instance.last_size = size;
-      instance.element.style.width = w2;
+      instance.element.style.width = w3;
       instance.element.style.height = h;
     };
     for (const instance of this._overlay_instances) {
@@ -98067,11 +98179,11 @@ var DynamicMapComponent = class _DynamicMapComponent {
       const events2 = this._convertActionTypes(action.action);
       if (events2.length === 0)
         continue;
-      const callback = (p) => {
+      const callback = (p2) => {
         const synthetic_event = new CustomEvent("mapaction", {
-          detail: { point: p }
+          detail: { point: p2 }
         });
-        action.callback(synthetic_event, { x: p.x, y: p.y });
+        action.callback(synthetic_event, { x: p2.x, y: p2.y });
       };
       map_actions.push({
         ref: action.id,
@@ -108589,7 +108701,7 @@ var BindingDirective = class _BindingDirective extends AsyncHandler {
   bindVariable() {
     if (It() && this.bind() && this.sys() && this.mod() && !this._binding) {
       this.timeout("bind", () => {
-        const module2 = dp(this.sys(), this.mod(), this.index());
+        const module2 = fd(this.sys(), this.mod(), this.index());
         const binding = module2.variable(this.bind());
         this._binding = true;
         this.subscription("on_changes", binding.bindThenSubscribe((value) => {
@@ -108611,7 +108723,7 @@ var BindingDirective = class _BindingDirective extends AsyncHandler {
   execute() {
     if (It() && this.exec() && this.sys() && this.mod() && !this._timers["execute"]) {
       this.timeout("execute", () => {
-        const module2 = dp(this.sys(), this.mod(), this.index());
+        const module2 = fd(this.sys(), this.mod(), this.index());
         let params = this.params();
         if (this.bind())
           params = this.params() || [this.model()];
@@ -108665,7 +108777,7 @@ function withAppVersion(data) {
 async function queryBookings(q3) {
   const query2 = toQueryString(q3);
   try {
-    const list = await d(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
+    const list = await p(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
     return list.map((item) => new Booking(item));
   } catch (_3) {
     return [];
@@ -108754,6 +108866,10 @@ async function checkinBookingInstance(id, start_time, state2) {
     throw body.error || body.message || body;
   }
 }
+async function setBookingCheckedIn(booking, state2) {
+  const is_recurring = !!booking.instance || !!booking.recurrence_type && booking.recurrence_type !== "none";
+  return is_recurring ? checkinBookingInstance(booking.id, booking.instance || booking.booking_start, state2) : checkinBooking(booking.id, state2);
+}
 async function queryResourceAvailability(id_list, start, duration, ignore, type = "room") {
   const bookings = await queryBookings({
     type,
@@ -108806,12 +108922,12 @@ async function createBookingsForEvent(event, type, resources) {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list = await d(CALENDAR_ENDPOINT);
+  const list = await p(CALENDAR_ENDPOINT);
   return list.map((c) => new Calendar(c));
 }
 async function queryCalendarAvailability(q3) {
   const query2 = toQueryString(q3);
-  const list = await d(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
+  const list = await p(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
   return list.map((c) => new Calendar(c));
 }
 var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -108820,11 +108936,11 @@ var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map(
 }))).filter((space) => space.bookable);
 async function queryUserFreeBusy(q3) {
   const query2 = toQueryString(q3);
-  return await d(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
+  return await p(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
 }
 async function querySpaceFreeBusy(q3, org) {
   const query2 = toQueryString(q3);
-  const list = await d(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
+  const list = await p(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
   return calendarsToSpaces(list.map((c) => new Calendar(c)), org);
 }
 
@@ -110655,11 +110771,11 @@ var MatAutocompleteModule = class _MatAutocompleteModule {
 var GUEST_ENDPOINT = "/api/staff/v1/guests";
 async function searchGuests(q3) {
   const query2 = toQueryString({ q: q3 });
-  const list = await d(`${GUEST_ENDPOINT}${q3 ? "?" + query2 : ""}`);
+  const list = await p(`${GUEST_ENDPOINT}${q3 ? "?" + query2 : ""}`);
   return list.map((item) => new GuestUser(item));
 }
 async function showGuest(id) {
-  return new GuestUser(await d(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new GuestUser(await p(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/users/src/lib/staff.fn.ts
@@ -110676,11 +110792,11 @@ async function searchStaff(q3) {
       "department"
     ].join(",")
   });
-  const list = await d(`${STAFF_ENDPOINT}${q3 ? "?" + query2 : ""}`);
+  const list = await p(`${STAFF_ENDPOINT}${q3 ? "?" + query2 : ""}`);
   return list.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await d(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await p(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/form-fields/src/lib/user-search-field.component.ts
@@ -111683,8 +111799,8 @@ var FindAvailabilityModalComponent = class _FindAvailabilityModalComponent exten
     );
     this.selection_left = computed(
       () => {
-        const d2 = new Date(this.date());
-        return (d2.getHours() + d2.getMinutes() / 60) * 5;
+        const d = new Date(this.date());
+        return (d.getHours() + d.getMinutes() / 60) * 5;
       },
       ...ngDevMode ? [{ debugName: "selection_left" }] : (
         /* istanbul ignore next */
@@ -111722,10 +111838,10 @@ var FindAvailabilityModalComponent = class _FindAvailabilityModalComponent exten
     this._dialog_ref.close(true);
   }
   ngAfterViewInit() {
-    const d2 = new Date(this.date());
+    const d = new Date(this.date());
     const hour_width = 80;
     this.timeout("init", () => {
-      const selected_hour = d2.getHours() + d2.getMinutes() / 60;
+      const selected_hour = d.getHours() + d.getMinutes() / 60;
       const scroll_x = Math.max(0, selected_hour * hour_width - 48);
       this._container_el().nativeElement.scrollTo(scroll_x, 0);
       this.onScroll();
@@ -112719,7 +112835,7 @@ var CounterComponent = class _CounterComponent {
     );
     this.registerOnChange = (fn) => this._onChange = fn;
     this.registerOnTouched = (fn) => this._onTouch = fn;
-    this.setDisabledState = (d2) => this.disabled.set(d2);
+    this.setDisabledState = (d) => this.disabled.set(d);
   }
   /**
    * Add the `step` to the current value
@@ -115568,7 +115684,7 @@ var AnimationTransitionNamespace = class {
     });
   }
   destroy(context2) {
-    this.players.forEach((p) => p.destroy());
+    this.players.forEach((p2) => p2.destroy());
     this._signalRemovalForInnerTriggers(this.hostElement, context2);
   }
 };
@@ -116144,7 +116260,7 @@ var TransitionAnimationEngine = class {
           }
         }
       }
-      const activePlayers = players.filter((p) => !p.destroyed);
+      const activePlayers = players.filter((p2) => !p2.destroyed);
       if (activePlayers.length) {
         removeNodesAfterAnimationDone(this, element, activePlayers);
       } else {
@@ -116229,8 +116345,8 @@ var TransitionAnimationEngine = class {
       const details = element[REMOVAL_FLAG];
       if (details && details.removedBeforeQueried) return new NoopAnimationPlayer(timelineInstruction.duration, timelineInstruction.delay);
       const isQueriedElement = element !== rootElement;
-      const previousPlayers = flattenGroupPlayers((allPreviousPlayersMap.get(element) || EMPTY_PLAYER_ARRAY).map((p) => p.getRealPlayer())).filter((p) => {
-        const pp = p;
+      const previousPlayers = flattenGroupPlayers((allPreviousPlayersMap.get(element) || EMPTY_PLAYER_ARRAY).map((p2) => p2.getRealPlayer())).filter((p2) => {
+        const pp = p2;
         return pp.element ? pp.element === element : false;
       });
       const preStyles = preStylesMap.get(element);
@@ -116305,9 +116421,9 @@ var TransitionAnimationPlayer = class {
     this.totalTime = totalTime;
   }
   syncPlayerEvents(player) {
-    const p = this._player;
-    if (p.triggerCallback) {
-      player.onStart(() => p.triggerCallback("start"));
+    const p2 = this._player;
+    if (p2.triggerCallback) {
+      player.onStart(() => p2.triggerCallback("start"));
     }
     player.onDone(() => this.finish());
     player.onDestroy(() => this.destroy());
@@ -116358,18 +116474,18 @@ var TransitionAnimationPlayer = class {
   reset() {
     !this.queued && this._player.reset();
   }
-  setPosition(p) {
+  setPosition(p2) {
     if (!this.queued) {
-      this._player.setPosition(p);
+      this._player.setPosition(p2);
     }
   }
   getPosition() {
     return this.queued ? 0 : this._player.getPosition();
   }
   triggerCallback(phaseName) {
-    const p = this._player;
-    if (p.triggerCallback) {
-      p.triggerCallback(phaseName);
+    const p2 = this._player;
+    if (p2.triggerCallback) {
+      p2.triggerCallback(phaseName);
     }
   }
 };
@@ -116806,12 +116922,12 @@ var WebAnimationsPlayer = class {
       this._onDestroyFns = [];
     }
   }
-  setPosition(p) {
+  setPosition(p2) {
     if (!this.domPlayer) {
       this.init();
     }
     if (this.domPlayer) {
-      this.domPlayer.currentTime = p * this.time;
+      this.domPlayer.currentTime = p2 * this.time;
     }
   }
   getPosition() {
@@ -117675,7 +117791,7 @@ function withAppVersion2(data) {
 async function queryEvents(q3) {
   const query2 = toQueryString(q3);
   try {
-    const list = await d(`${EVENTS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
+    const list = await p(`${EVENTS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
     return list.map((e) => new CalendarEvent(e));
   } catch (_3) {
     return [];
@@ -117718,7 +117834,7 @@ async function removeEventGuest(id, guest, q3 = {}) {
 }
 async function getEventMetadata(id, system_id, query2 = {}) {
   const q3 = toQueryString(__spreadValues({}, query2));
-  return await d(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/metadata/${encodeURIComponent(system_id)}${q3 ? "?" + q3 : ""}`);
+  return await p(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/metadata/${encodeURIComponent(system_id)}${q3 ? "?" + q3 : ""}`);
 }
 async function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_period = [0, 0]) {
   const end = addMinutes(start, duration).valueOf();
@@ -119012,7 +119128,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group2 = await Al(group_id).catch(() => null);
+    const group2 = await ql(group_id).catch(() => null);
     if (group2) {
       asset_group = __spreadValues({}, group2);
       ASSET_GROUP_LIST.push(asset_group);
@@ -119095,21 +119211,21 @@ function filter_hidden_items(response) {
   });
 }
 async function visible_category_ids() {
-  const response = await Rl({});
+  const response = await Ul({});
   return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
 }
 async function queryAssetCategories(query2 = {}) {
   if (query2.hidden === true)
-    return Rl(query2);
+    return Ul(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
-  return filter_hidden_items(await Rl(rest));
+  return filter_hidden_items(await Ul(rest));
 }
 async function queryAssetTypes(query2 = {}) {
   if (query2.hidden === true)
-    return xl(query2);
+    return Al(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, visible_ids] = await Promise.all([
-    xl(rest),
+    Al(rest),
     visible_category_ids()
   ]);
   return __spreadProps(__spreadValues({}, response), {
@@ -119118,10 +119234,10 @@ async function queryAssetTypes(query2 = {}) {
 }
 async function queryAssets(query2 = {}) {
   if (query2.hidden === true)
-    return ml(query2);
+    return gl(query2);
   const _a = query2, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   const [response, types] = await Promise.all([
-    ml(rest),
+    gl(rest),
     queryAssetTypes(__spreadProps(__spreadValues({}, rest.zone_id ? { zone_id: rest.zone_id } : {}), {
       limit: 2e3
     }))
@@ -119132,12 +119248,12 @@ async function queryAssets(query2 = {}) {
   });
 }
 function saveAssetCategory(category) {
-  return category.id ? Il(category.id, category) : El(category);
+  return category.id ? El(category.id, category) : Ml(category);
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
 async function queryAllAssetPages(query2 = {}) {
-  let response = await ml(__spreadProps(__spreadValues({}, query2), {
+  let response = await gl(__spreadProps(__spreadValues({}, query2), {
     limit: query2.limit || 500
   }));
   let total = response.total;
@@ -119172,7 +119288,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   if (q3.zones)
     delete q3.zones;
   const [types, assets] = await Promise.all([
-    xl(q3),
+    Al(q3),
     queryAllAssetPages(q3)
   ]);
   let groups = types.data.filter((item) => !item?.hidden);
@@ -119196,7 +119312,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   return list;
 }
 function saveAssetType(product) {
-  return product.id ? ql(product.id, product) : Pl(product);
+  return product.id ? Pl(product.id, product) : Tl(product);
 }
 async function queryGroupAvailability(query2, ignore = []) {
   const [products, bookings] = await Promise.all([
@@ -122350,7 +122466,7 @@ function reset_hidden_categories_cache() {
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = Rl({
+    _hidden_categories_promise = Ul({
       hidden: true,
       limit: 500
     }).then((_3) => _3.data).catch(() => []);
@@ -122400,7 +122516,7 @@ function resolveCateringCategoryId() {
 }
 function query_catering_types() {
   if (!_catering_types_promise) {
-    _catering_types_promise = resolveCateringCategoryId().then((category_id) => xl({ category_id, limit: 500 })).then((_3) => _3.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
+    _catering_types_promise = resolveCateringCategoryId().then((category_id) => Al({ category_id, limit: 500 })).then((_3) => _3.data.filter((type) => isCateringTypeName(type.name))).catch(() => []);
   }
   return _catering_types_promise;
 }
@@ -122428,7 +122544,7 @@ async function queryCateringItems(zone_id) {
   const types = await query_catering_types();
   if (!types.length)
     return [];
-  const results = await Promise.all(types.map((type) => ml({
+  const results = await Promise.all(types.map((type) => gl({
     zone_id,
     type_id: type.id,
     limit: 500
@@ -122448,7 +122564,7 @@ var _hidden_categories_promise2 = null;
 var _types_for_category_promises = /* @__PURE__ */ new Map();
 async function query_hidden_categories2() {
   if (!_hidden_categories_promise2) {
-    _hidden_categories_promise2 = Rl({
+    _hidden_categories_promise2 = Ul({
       hidden: true,
       limit: 500
     }).then((_3) => _3.data).catch(() => []);
@@ -122457,7 +122573,7 @@ async function query_hidden_categories2() {
 }
 async function query_types_for_category(category_id) {
   if (!_types_for_category_promises.has(category_id)) {
-    _types_for_category_promises.set(category_id, xl({ category_id, limit: 500 }).then((_3) => _3.data).catch(() => []));
+    _types_for_category_promises.set(category_id, Al({ category_id, limit: 500 }).then((_3) => _3.data).catch(() => []));
   }
   return _types_for_category_promises.get(category_id);
 }
@@ -122519,14 +122635,14 @@ async function queryLockerBankAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerBankTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => ml({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => gl({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
   return flatten2(results);
 }
 async function queryLockerAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => ml({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => gl({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
   return flatten2(results);
 }
 
@@ -122542,7 +122658,7 @@ function normalise_name(name = "") {
 }
 async function query_hidden_categories3() {
   if (!_hidden_categories_promise3) {
-    _hidden_categories_promise3 = Rl({
+    _hidden_categories_promise3 = Ul({
       hidden: true,
       limit: 500
     }).then((_3) => _3.data).catch(() => []);
@@ -122551,7 +122667,7 @@ async function query_hidden_categories3() {
 }
 async function query_types_for_category2(category_id) {
   if (!_types_for_category_promises2.has(category_id)) {
-    _types_for_category_promises2.set(category_id, xl({ category_id, limit: 500 }).then((_3) => _3.data).catch(() => []));
+    _types_for_category_promises2.set(category_id, Al({ category_id, limit: 500 }).then((_3) => _3.data).catch(() => []));
   }
   return _types_for_category_promises2.get(category_id);
 }
@@ -122659,7 +122775,7 @@ async function queryParkingSpacesForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveParkingTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => ml({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => gl({ zone_id, type_id, limit: 500 }).then((_3) => _3.data)));
   return flatten2(results);
 }
 var PARKING_USER_TYPE_NAME = "_PARKING_USERS_";
@@ -122696,7 +122812,7 @@ function toParkingUser(asset) {
 }
 async function queryParkingUsers(zone_id) {
   const type_id = await resolveParkingUserTypeId();
-  const assets = await ml({ zone_id, type_id, limit: 500 });
+  const assets = await gl({ zone_id, type_id, limit: 500 });
   return assets.data.map(toParkingUser);
 }
 
@@ -122919,27 +123035,27 @@ function generateBookingForm(booking = new Booking(), injector) {
   guardModelUndefinedWrites(model2, bookingFormValue(new Booking()));
   const require_plate_number = settingSignal("parking.require_plate_number", false);
   const require_space_restriction = settingSignal("parking.require_space_restriction", false);
-  const booking_form = form(model2, (p) => {
-    required(p.date);
-    required(p.asset_id);
-    email(p.asset_id, {
-      when: ({ valueOf }) => valueOf(p.booking_type) === "visitor"
+  const booking_form = form(model2, (p2) => {
+    required(p2.date);
+    required(p2.asset_id);
+    email(p2.asset_id, {
+      when: ({ valueOf }) => valueOf(p2.booking_type) === "visitor"
     });
-    required(p.plate_number, {
+    required(p2.plate_number, {
       when: ({ valueOf }) => {
-        const booking_type = valueOf(p.booking_type);
+        const booking_type = valueOf(p2.booking_type);
         return booking_type === "parking" && require_plate_number();
       }
     });
-    validate(p.plate_number, ({ value, valueOf }) => valueOf(p.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
-    validate(p.space_restrictions, ({ value, valueOf }) => valueOf(p.booking_type) === "parking" && require_space_restriction() && !value() ? { kind: "required" } : void 0);
-    validate(p.duration, ({ value, valueOf }) => {
-      const date = valueOf(p.date);
+    validate(p2.plate_number, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
+    validate(p2.space_restrictions, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_space_restriction() && !value() ? { kind: "required" } : void 0);
+    validate(p2.duration, ({ value, valueOf }) => {
+      const date = valueOf(p2.date);
       if (value() <= 0)
         return { kind: "duration" };
       return date && isAfter(Date.now(), addMinutes(date, value())) ? { kind: "duration" } : void 0;
     });
-    disabled(p.date, ({ value }) => {
+    disabled(p2.date, ({ value }) => {
       if (started)
         return true;
       return value() < Date.now() && !!untracked2(model2).id;
@@ -122985,9 +123101,9 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
   let closest = "";
   for (const desk of desk_ids) {
     const { x, y: y2 } = centerOf(desk) || { x: 2, y: 2 };
-    const d2 = Math.sqrt((x - point.x) * (x - point.x) + (y2 - point.y) * (y2 - point.y));
-    if (d2 < dist) {
-      dist = d2;
+    const d = Math.sqrt((x - point.x) * (x - point.x) + (y2 - point.y) * (y2 - point.y));
+    if (d < dist) {
+      dist = d;
       closest = desk;
     }
   }
@@ -123525,40 +123641,46 @@ function BookingDetailsModalComponent_Conditional_35_Template(rf, ctx) {
 function BookingDetailsModalComponent_Conditional_36_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 15)(1, "icon", 34);
-    \u0275\u0275text(2, "person");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3, "person");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div");
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "user");
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275elementStart(4, "div");
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "user");
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(2, 2, "BOOKED_FOR_LABEL"));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 3, \u0275\u0275pipeBind1(5, 1, ctx_r0.booking().user_email))?.name || ctx_r0.booking().user_name, " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 6, \u0275\u0275pipeBind1(6, 4, ctx_r0.booking().user_email))?.name || ctx_r0.booking().user_name, " ");
   }
 }
 function BookingDetailsModalComponent_Conditional_37_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 15)(1, "icon", 35);
-    \u0275\u0275text(2, "edit_calendar");
+    \u0275\u0275elementStart(0, "div", 15)(1, "icon", 34);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275text(3, "edit_calendar");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div");
-    \u0275\u0275text(4);
-    \u0275\u0275pipe(5, "user");
-    \u0275\u0275pipe(6, "async");
+    \u0275\u0275elementStart(4, "div");
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "user");
+    \u0275\u0275pipe(7, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(2, 2, "COMMON.BOOKED_BY"));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 3, \u0275\u0275pipeBind1(5, 1, ctx_r0.booking().booked_by_email))?.name || ctx_r0.booking().booked_by_name, " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 6, \u0275\u0275pipeBind1(6, 4, ctx_r0.booking().booked_by_email))?.name || ctx_r0.booking().booked_by_name, " ");
   }
 }
 function BookingDetailsModalComponent_Conditional_38_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 38)(1, "icon", 40);
+    \u0275\u0275elementStart(0, "div", 37)(1, "icon", 39);
     \u0275\u0275text(2, "category");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "div");
@@ -123573,10 +123695,10 @@ function BookingDetailsModalComponent_Conditional_38_Conditional_9_Template(rf, 
 }
 function BookingDetailsModalComponent_Conditional_38_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 38)(1, "icon", 41);
+    \u0275\u0275elementStart(0, "div", 37)(1, "icon", 40);
     \u0275\u0275text(2, "tag");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 42);
+    \u0275\u0275elementStart(3, "div", 41);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()();
   }
@@ -123588,17 +123710,17 @@ function BookingDetailsModalComponent_Conditional_38_Conditional_10_Template(rf,
 }
 function BookingDetailsModalComponent_Conditional_38_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19)(1, "h3", 36);
+    \u0275\u0275elementStart(0, "div", 19)(1, "h3", 35);
     \u0275\u0275text(2, " Group Booking ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "div", 37)(4, "div", 38)(5, "icon", 39);
+    \u0275\u0275elementStart(3, "div", 36)(4, "div", 37)(5, "icon", 38);
     \u0275\u0275text(6, "groups");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(7, "div");
     \u0275\u0275text(8);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, BookingDetailsModalComponent_Conditional_38_Conditional_9_Template, 5, 1, "div", 38);
-    \u0275\u0275conditionalCreate(10, BookingDetailsModalComponent_Conditional_38_Conditional_10_Template, 5, 1, "div", 38);
+    \u0275\u0275conditionalCreate(9, BookingDetailsModalComponent_Conditional_38_Conditional_9_Template, 5, 1, "div", 37);
+    \u0275\u0275conditionalCreate(10, BookingDetailsModalComponent_Conditional_38_Conditional_10_Template, 5, 1, "div", 37);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123613,10 +123735,10 @@ function BookingDetailsModalComponent_Conditional_38_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_Conditional_39_For_6_For_15_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 52)(1, "div", 53)(2, "span", 47);
+    \u0275\u0275elementStart(0, "div", 51)(1, "div", 52)(2, "span", 46);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(4, "div", 54);
+    \u0275\u0275elementStart(4, "div", 53);
     \u0275\u0275text(5);
     \u0275\u0275elementEnd()();
   }
@@ -123631,25 +123753,25 @@ function BookingDetailsModalComponent_Conditional_39_For_6_For_15_Template(rf, c
 function BookingDetailsModalComponent_Conditional_39_For_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 44)(1, "button", 45);
+    \u0275\u0275elementStart(0, "div", 43)(1, "button", 44);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_39_For_6_Template_button_click_1_listener() {
       const request_r6 = \u0275\u0275restoreView(_r5).$implicit;
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.toggleRequest(request_r6.id));
     });
-    \u0275\u0275elementStart(2, "div", 46)(3, "div", 47);
+    \u0275\u0275elementStart(2, "div", 45)(3, "div", 46);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "date");
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(7, "div", 48)(8, "icon");
+    \u0275\u0275elementStart(7, "div", 47)(8, "icon");
     \u0275\u0275text(9);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "div", 49)(11, "icon", 50);
+    \u0275\u0275elementStart(10, "div", 48)(11, "icon", 49);
     \u0275\u0275text(12);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(13, "div", 51);
-    \u0275\u0275repeaterCreate(14, BookingDetailsModalComponent_Conditional_39_For_6_For_15_Template, 6, 2, "div", 52, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(13, "div", 50);
+    \u0275\u0275repeaterCreate(14, BookingDetailsModalComponent_Conditional_39_For_6_For_15_Template, 6, 2, "div", 51, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123672,12 +123794,12 @@ function BookingDetailsModalComponent_Conditional_39_For_6_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_Conditional_39_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19)(1, "h3", 36);
+    \u0275\u0275elementStart(0, "div", 19)(1, "h3", 35);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 43);
-    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_39_For_6_Template, 16, 25, "div", 44, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementStart(4, "div", 42);
+    \u0275\u0275repeaterCreate(5, BookingDetailsModalComponent_Conditional_39_For_6_Template, 16, 25, "div", 43, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -123690,7 +123812,7 @@ function BookingDetailsModalComponent_Conditional_39_Template(rf, ctx) {
 }
 function BookingDetailsModalComponent_Conditional_40_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "interactive-map", 56);
+    \u0275\u0275element(0, "interactive-map", 55);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
@@ -123700,13 +123822,13 @@ function BookingDetailsModalComponent_Conditional_40_Conditional_1_Template(rf, 
 function BookingDetailsModalComponent_Conditional_40_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 55);
+    \u0275\u0275elementStart(0, "button", 54);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_40_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r8);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.viewLocation());
     });
-    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_40_Conditional_1_Template, 1, 4, "interactive-map", 56);
+    \u0275\u0275conditionalCreate(1, BookingDetailsModalComponent_Conditional_40_Conditional_1_Template, 1, 4, "interactive-map", 55);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -123718,13 +123840,13 @@ function BookingDetailsModalComponent_Conditional_40_Template(rf, ctx) {
 function BookingDetailsModalComponent_Conditional_46_Template(rf, ctx) {
   if (rf & 1) {
     const _r9 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 57);
+    \u0275\u0275elementStart(0, "button", 56);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_46_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r9);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.edit(ctx_r0.booking()));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon");
+    \u0275\u0275elementStart(1, "div", 57)(2, "icon");
     \u0275\u0275text(3, "edit");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123740,13 +123862,13 @@ function BookingDetailsModalComponent_Conditional_46_Template(rf, ctx) {
 function BookingDetailsModalComponent_Conditional_47_Template(rf, ctx) {
   if (rf & 1) {
     const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
+    \u0275\u0275elementStart(0, "button", 58);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_47_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r10);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.setDeskHeight());
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 60);
+    \u0275\u0275elementStart(1, "div", 57)(2, "icon", 59);
     \u0275\u0275text(3, " height ");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123762,13 +123884,13 @@ function BookingDetailsModalComponent_Conditional_47_Template(rf, ctx) {
 function BookingDetailsModalComponent_Conditional_48_Template(rf, ctx) {
   if (rf & 1) {
     const _r11 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
+    \u0275\u0275elementStart(0, "button", 58);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_48_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r11);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.booking(), false));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 61);
+    \u0275\u0275elementStart(1, "div", 57)(2, "icon", 60);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123784,13 +123906,13 @@ function BookingDetailsModalComponent_Conditional_48_Template(rf, ctx) {
 function BookingDetailsModalComponent_Conditional_49_Template(rf, ctx) {
   if (rf & 1) {
     const _r12 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
+    \u0275\u0275elementStart(0, "button", 58);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_49_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r12);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.group_parent_booking(), false));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 61);
+    \u0275\u0275elementStart(1, "div", 57)(2, "icon", 60);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123801,13 +123923,13 @@ function BookingDetailsModalComponent_Conditional_49_Template(rf, ctx) {
 function BookingDetailsModalComponent_Conditional_50_Template(rf, ctx) {
   if (rf & 1) {
     const _r13 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
+    \u0275\u0275elementStart(0, "button", 58);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_50_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r13);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.remove(ctx_r0.booking(), true));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 61);
+    \u0275\u0275elementStart(1, "div", 57)(2, "icon", 60);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -123823,13 +123945,13 @@ function BookingDetailsModalComponent_Conditional_50_Template(rf, ctx) {
 function BookingDetailsModalComponent_Conditional_51_Template(rf, ctx) {
   if (rf & 1) {
     const _r14 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 59);
+    \u0275\u0275elementStart(0, "button", 58);
     \u0275\u0275listener("click", function BookingDetailsModalComponent_Conditional_51_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r0 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r0.end(ctx_r0.booking()));
     });
-    \u0275\u0275elementStart(1, "div", 58)(2, "icon", 61);
+    \u0275\u0275elementStart(1, "div", 57)(2, "icon", 60);
     \u0275\u0275text(3, "delete");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div");
@@ -124261,7 +124383,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
       response.close();
     }
     this.checking_in.set(true);
-    const updated_booking = await (bkn.instance ? checkinBookingInstance(bkn.id, bkn.instance, !bkn.checked_in) : checkinBooking(bkn.id, !bkn.checked_in)).catch((_3) => {
+    const updated_booking = await setBookingCheckedIn(bkn, !bkn.checked_in).catch((_3) => {
       notifyError(i18n(bkn.checked_in ? "BOOKINGS.CHECK_OUT_ERROR" : "BOOKINGS.CHECK_IN_ERROR"));
       this.checking_in.set(false);
       throw _3;
@@ -124313,7 +124435,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 52, vars: 32, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "px-3", "text-sm", "opacity-70"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-4", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "gap-1"], [1, "mx-auto", 3, "diameter"], [1, "text-xl"], [1, "text-xs", "opacity-60"], ["matTooltip", "Location"], ["matTooltip", "Host"], ["matTooltip", "Booked By"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-3", "text-sm"], [1, "flex", "items-center", "space-x-2"], ["matTooltip", "Group Size"], ["matTooltip", "Resource Type"], ["matTooltip", "Group Reference"], [1, "break-all"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingDetailsModalComponent, selectors: [["booking-details-modal"]], decls: 52, vars: 32, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "px-3", "text-sm", "opacity-70"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-4", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], ["matTooltip", "Date"], ["matTooltip", "Time"], ["matTooltip", "Level and Resource"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", ""], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "bg-success", "text-success-content", "disabled"], ["btn", "", "matRipple", "", 1, "h-10", "min-w-40", "flex-1", "border-none", 3, "click", "disabled"], [1, "flex", "items-center", "justify-center", "gap-1"], [1, "mx-auto", 3, "diameter"], [1, "text-xl"], [1, "text-xs", "opacity-60"], ["matTooltip", "Location"], [3, "matTooltip"], [1, "mx-3", "py-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2", "px-3", "text-sm"], [1, "flex", "items-center", "space-x-2"], ["matTooltip", "Group Size"], ["matTooltip", "Resource Type"], ["matTooltip", "Group Reference"], [1, "break-all"], [1, "flex", "flex-col", "space-y-2"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "text-sm"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full"], [1, "text-2xl"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:my-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click"], [1, "flex", "items-center", "space-x-2", "text-base"], ["mat-menu-item", "", 3, "click"], ["className", "material-symbols-rounded"], [1, "text-error"]], template: function BookingDetailsModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2);
         \u0275\u0275conditionalCreate(2, BookingDetailsModalComponent_Conditional_2_Template, 1, 0, "div", 3);
@@ -124353,8 +124475,8 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
         \u0275\u0275conditionalCreate(33, BookingDetailsModalComponent_Conditional_33_Template, 3, 2)(34, BookingDetailsModalComponent_Conditional_34_Template, 1, 1);
         \u0275\u0275elementEnd()();
         \u0275\u0275conditionalCreate(35, BookingDetailsModalComponent_Conditional_35_Template, 5, 2, "div", 15);
-        \u0275\u0275conditionalCreate(36, BookingDetailsModalComponent_Conditional_36_Template, 7, 5, "div", 15);
-        \u0275\u0275conditionalCreate(37, BookingDetailsModalComponent_Conditional_37_Template, 7, 5, "div", 15);
+        \u0275\u0275conditionalCreate(36, BookingDetailsModalComponent_Conditional_36_Template, 8, 8, "div", 15);
+        \u0275\u0275conditionalCreate(37, BookingDetailsModalComponent_Conditional_37_Template, 8, 8, "div", 15);
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(38, BookingDetailsModalComponent_Conditional_38_Template, 11, 3, "div", 19);
         \u0275\u0275conditionalCreate(39, BookingDetailsModalComponent_Conditional_39_Template, 7, 4, "div", 19);
@@ -124619,7 +124741,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
                     }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Host">person</icon>
+                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate">person</icon>
                             <div>
                                 {{
                                     (booking().user_email | user | async)
@@ -124630,7 +124752,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
                     }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Booked By">edit_calendar</icon>
+                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate">edit_calendar</icon>
                             <div>
                                 {{
                                     (booking().booked_by_email | user | async)
@@ -125084,7 +125206,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
       return;
     const results = await Promise.all(buildings.map((bld) => nc(bld.id, { name: "desks" }).then((data) => ({
       building_id: bld.id,
-      desks: flatten2(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d2) => new Desk(__spreadProps(__spreadValues({}, d2), {
+      desks: flatten2(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
         zone: meta.zone
       })))))
     })).catch(() => ({
@@ -125094,7 +125216,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const email2 = currentUser()?.email?.toLowerCase();
     if (!email2)
       return this._home_building_id.set(null);
-    const match3 = results.find((r) => r.desks.some((d2) => d2.assigned_to?.toLowerCase() === email2));
+    const match3 = results.find((r) => r.desks.some((d) => d.assigned_to?.toLowerCase() === email2));
     this._home_building_id.set(match3?.building_id || null);
   }
   static {
@@ -128518,23 +128640,29 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       throw error2;
     });
     if (value.assets?.length || booking.extension_data.assets?.length) {
-      const requests = await validateAssetRequestsForResource(__spreadProps(__spreadValues({}, result), { from_booking: true }), {
-        date: value.date,
-        duration: value.duration,
-        all_day: value.all_day,
-        host: value.booked_by_email,
-        zones
-      }, value.assets).catch((e) => {
+      const is_new_booking = !booking.id && !value.id;
+      try {
+        const requests = await validateAssetRequestsForResource(__spreadProps(__spreadValues({}, result), { from_booking: true }), {
+          date: value.date,
+          duration: value.duration,
+          all_day: value.all_day,
+          host: value.booked_by_email,
+          zones: unique([
+            ...zones,
+            ...value.zones || []
+          ]).filter((_3) => _3)
+        }, value.assets);
+        if (!requests)
+          throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
+        await requests();
+      } catch (e) {
         console.error("Couldn't update asset requests", e);
-        if (e?.status === 409) {
-          notifyError(i18n("BOOKINGS.ASSETS_CLASH_ERROR"));
-        }
         this._loading.set("");
-        throw e?.error || e;
-      });
-      if (!requests)
-        throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
-      await requests();
+        if (is_new_booking && result?.id) {
+          await removeBooking(result.id).catch((err) => console.error("Failed to rollback booking", err));
+        }
+        throw e?.status === 409 ? i18n("BOOKINGS.ASSETS_CLASH_ERROR") : errorMessage(e?.error || e) || i18n("BOOKINGS.ASSETS_INVALID_ERROR");
+      }
     }
     this._loading.set("");
     const { booking_type } = value;
@@ -128972,18 +129100,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     });
   }
   _error_message(error2) {
-    if (typeof error2 === "string")
-      return error2;
-    if (error2 instanceof Error && error2.message)
-      return error2.message;
-    if (typeof error2?.error === "string")
-      return error2.error;
-    if (typeof error2?.message === "string")
-      return error2.message;
-    if (typeof error2?.error?.message === "string") {
-      return error2.error.message;
-    }
-    return i18n("BOOKINGS.ERROR_GENERIC");
+    return errorMessage(error2) || i18n("BOOKINGS.ERROR_GENERIC");
   }
   _isPermissionError(error2) {
     const status = error2?.status || error2?.error?.status;
@@ -129276,8 +129393,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   async loadResourceList(type) {
     const use_region = this._settings.get("app.use_region");
-    const map_metadata = (_3) => (_3?.metadata[type]?.details instanceof Array ? _3.metadata[type].details : []).map((d2) => __spreadProps(__spreadValues({}, d2), {
-      id: d2.id || d2.map_id,
+    const map_metadata = (_3) => (_3?.metadata[type]?.details instanceof Array ? _3.metadata[type].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
+      id: d.id || d.map_id,
       zone: _3.zone
     }));
     const id = use_region ? this._org.building?.parent_id : this._org.building?.id;
@@ -131645,21 +131762,21 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     )
   );
   guardModelUndefinedWrites(model2, eventFormValue(new CalendarEvent()));
-  const event_form = form(model2, (p) => {
-    required(p.host);
-    required(p.date);
-    validate(p.duration, ({ value, valueOf }) => {
-      const date = valueOf(p.date);
+  const event_form = form(model2, (p2) => {
+    required(p2.host);
+    required(p2.date);
+    validate(p2.duration, ({ value, valueOf }) => {
+      const date = valueOf(p2.date);
       return date && isAfter(Date.now(), addMinutes(date, value())) ? { kind: "duration" } : void 0;
     });
-    required(p.catering_notes, {
-      when: ({ valueOf }) => !!valueOf(p.catering)?.length && notes_required()
+    required(p2.catering_notes, {
+      when: ({ valueOf }) => !!valueOf(p2.catering)?.length && notes_required()
     });
-    disabled(p.host, { when: () => has_id });
-    disabled(p.organiser, { when: () => has_id });
-    disabled(p.date, { when: () => lock_start_time() });
-    disabled(p.assets, { when: ({ valueOf }) => !valueOf(p.resources)?.length });
-    disabled(p.duration, { when: ({ valueOf }) => !!valueOf(p.all_day) });
+    disabled(p2.host, { when: () => has_id });
+    disabled(p2.organiser, { when: () => has_id });
+    disabled(p2.date, { when: () => lock_start_time() });
+    disabled(p2.assets, { when: ({ valueOf }) => !valueOf(p2.resources)?.length });
+    disabled(p2.duration, { when: ({ valueOf }) => !!valueOf(p2.all_day) });
   }, { injector });
   onFieldChange(model2, (v2) => v2.organiser, (organiser) => (
     // Coalesce to '' so the `host` sub-field is never removed from the
@@ -132293,7 +132410,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-    ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
+    ref.afterClosed().subscribe((d) => d ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
@@ -133799,13 +133916,13 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list?.length)
       return;
     for (const space of list) {
-      const mod2 = dp(space.id, "Bookings");
+      const mod2 = fd(space.id, "Bookings");
       let binding = mod2.variable("bookings");
-      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d2) => this.handleBookingsChange(list, space, d2)));
+      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list, space, d)));
       binding = mod2.variable("status");
-      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d2) => this.handleStatusChange(list, space, d2)));
+      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d) => this.handleStatusChange(list, space, d)));
       binding = mod2.variable("presence");
-      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d2) => this.handlePresenceChange(list, space, d2)));
+      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d) => this.handlePresenceChange(list, space, d)));
     }
     this.updateActions(list);
     this._updateHoverElements(list);
@@ -136297,7 +136414,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.filter((_3) => predicate(_3));
   }
   async loadSpace(space_id) {
-    const system = await pa(space_id);
+    const system = await da(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -137221,7 +137338,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
     }));
   }
   async checkin() {
-    const mod2 = dp(this.space()?.id, "Bookings");
+    const mod2 = fd(this.space()?.id, "Bookings");
     if (!mod2)
       return;
     await mod2.execute("checkin", [getUnixTime(this.event().date)]).catch((e) => notifyError(`Error checking in booking. ${e}`));
@@ -138475,14 +138592,14 @@ var EventCardComponent = class _EventCardComponent extends AsyncHandler {
       )
     );
     this.edit_fn = input(
-      (d2) => null,
+      (d) => null,
       ...ngDevMode ? [{ debugName: "edit_fn" }] : (
         /* istanbul ignore next */
         []
       )
     );
     this.remove_fn = input(
-      (d2, t) => null,
+      (d, t) => null,
       ...ngDevMode ? [{ debugName: "remove_fn" }] : (
         /* istanbul ignore next */
         []
@@ -147412,8 +147529,8 @@ var MeetingBookingFormComponent = class _MeetingBookingFormComponent extends Asy
         duration
       }
     });
-    ref.afterClosed().subscribe((d2) => {
-      if (!d2)
+    ref.afterClosed().subscribe((d) => {
+      if (!d)
         return;
       this.model.update((m2) => __spreadProps(__spreadValues({}, m2), {
         date: ref.componentInstance.date(),
@@ -152711,7 +152828,7 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
       const spaces = await requestSpacesForZone(bld.id).toPromise().catch(() => []);
       const events_by_space = [];
       for (const [idx, space] of (spaces || []).entries()) {
-        const binding = dp(space.id, "Bookings").variable("bookings");
+        const binding = fd(space.id, "Bookings").variable("bookings");
         cleanups.push(binding.bindThenSubscribe((event_list) => {
           events_by_space[idx] = (event_list || []).map((i) => new CalendarEvent(__spreadProps(__spreadValues({}, i), {
             resources: i.attendees.filter((_3) => _3.email === space.email || _3.resource),
@@ -152909,7 +153026,7 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
           continue;
         }
         result.loading("Checking in booking...");
-        await checkinBooking(booking.id, true);
+        await setBookingCheckedIn(booking, true);
         result.close();
       }
     }
@@ -153024,7 +153141,7 @@ var ScheduleStateService = class _ScheduleStateService extends AsyncHandler {
     if (resp.reason !== "done")
       return;
     resp.loading(i18n("APP.WORKPLACE.SCHEDULE_END_LOADING"));
-    const promise = (item.instance ? checkinBookingInstance(item.id, item.instance, false) : checkinBooking(item.id, false)).catch((e) => {
+    const promise = setBookingCheckedIn(item, false).catch((e) => {
       notifyError(i18n("APP.WORKPLACE.SCHEDULE_END_ERROR", { error: e }));
       resp.close();
       throw e;
