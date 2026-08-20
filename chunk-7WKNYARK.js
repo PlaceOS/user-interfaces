@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-DJN2YO3H.js";
+} from "./chunk-3AWGQG2G.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -121,7 +121,6 @@ import {
   ReactiveFormsModule,
   Renderer2,
   ReplaySubject,
-  Rl,
   Router,
   SETTING_KEYS,
   SPACE,
@@ -139,6 +138,7 @@ import {
   TranslatePipe,
   Type,
   UP_ARROW,
+  Ul,
   User,
   Validators,
   Ve,
@@ -179,13 +179,13 @@ import {
   currentUserIsLoaded,
   currentUserLoaded,
   current_user,
-  d,
   debounced,
   defer,
   delay,
   differenceInMinutes,
   effect,
   endOfDay,
+  errorMessage,
   filter,
   findBookingClashes,
   first,
@@ -201,6 +201,7 @@ import {
   getTimeInTimezone,
   getTimezoneOffsetString,
   getUnixTime,
+  gl,
   guardModelUndefinedWrites,
   ha,
   hasModifierKey,
@@ -217,7 +218,6 @@ import {
   localToTimezone,
   map,
   merge,
-  ml,
   model,
   nc,
   ni,
@@ -226,7 +226,9 @@ import {
   of,
   onFieldChange,
   output,
+  p,
   predictableRandomInt,
+  ql,
   queryBookings,
   randomString,
   removeBooking,
@@ -255,7 +257,6 @@ import {
   untracked,
   updateSpaceList,
   viewChild,
-  xl,
   ɵNgNoValidate,
   ɵsetClassDebugInfo,
   ɵɵHostDirectivesFeature,
@@ -330,7 +331,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-YQYORR35.js";
+} from "./chunk-GTKB3LNQ.js";
 import {
   __objRest,
   __spreadProps,
@@ -3569,11 +3570,11 @@ async function searchStaff(q) {
       "department"
     ].join(",")
   });
-  const list = await d(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
+  const list = await p(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
   return list.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await d(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await p(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // node_modules/@angular/material/fesm2022/_tooltip-chunk.mjs
@@ -4483,17 +4484,17 @@ function getElementBoundsInSvgSpace(element, svg_inverse_ctm) {
     { x: bbox.x + bbox.width, y: bbox.y },
     { x: bbox.x, y: bbox.y + bbox.height },
     { x: bbox.x + bbox.width, y: bbox.y + bbox.height }
-  ].map((p) => ({
-    x: matrix.a * p.x + matrix.c * p.y + matrix.e,
-    y: matrix.b * p.x + matrix.d * p.y + matrix.f
+  ].map((p2) => ({
+    x: matrix.a * p2.x + matrix.c * p2.y + matrix.e,
+    y: matrix.b * p2.x + matrix.d * p2.y + matrix.f
   }));
-  const min_x = Math.min(...corners.map((p) => p.x));
-  const min_y = Math.min(...corners.map((p) => p.y));
+  const min_x = Math.min(...corners.map((p2) => p2.x));
+  const min_y = Math.min(...corners.map((p2) => p2.y));
   return {
     x: min_x,
     y: min_y,
-    width: Math.max(...corners.map((p) => p.x)) - min_x,
-    height: Math.max(...corners.map((p) => p.y)) - min_y
+    width: Math.max(...corners.map((p2) => p2.x)) - min_x,
+    height: Math.max(...corners.map((p2) => p2.y)) - min_y
   };
 }
 function generateElementBounds(data) {
@@ -6322,7 +6323,7 @@ function normalise_name(name = "") {
 }
 async function query_hidden_categories() {
   if (!_hidden_categories_promise) {
-    _hidden_categories_promise = Rl({
+    _hidden_categories_promise = Ul({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -6331,7 +6332,7 @@ async function query_hidden_categories() {
 }
 async function query_types_for_category(category_id) {
   if (!_types_for_category_promises.has(category_id)) {
-    _types_for_category_promises.set(category_id, xl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises.set(category_id, Al({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises.get(category_id);
 }
@@ -6439,7 +6440,7 @@ async function queryParkingSpacesForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveParkingTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => ml({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => gl({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 var PARKING_USER_TYPE_NAME = "_PARKING_USERS_";
@@ -6476,7 +6477,7 @@ function toParkingUser(asset) {
 }
 async function queryParkingUsers(zone_id) {
   const type_id = await resolveParkingUserTypeId();
-  const assets = await ml({ zone_id, type_id, limit: 500 });
+  const assets = await gl({ zone_id, type_id, limit: 500 });
   return assets.data.map(toParkingUser);
 }
 
@@ -6501,7 +6502,7 @@ var AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group = await Al(group_id).catch(() => null);
+    const group = await ql(group_id).catch(() => null);
     if (group) {
       asset_group = __spreadValues({}, group);
       ASSET_GROUP_LIST.push(asset_group);
@@ -7438,7 +7439,7 @@ var _hidden_categories_promise2 = null;
 var _types_for_category_promises2 = /* @__PURE__ */ new Map();
 async function query_hidden_categories2() {
   if (!_hidden_categories_promise2) {
-    _hidden_categories_promise2 = Rl({
+    _hidden_categories_promise2 = Ul({
       hidden: true,
       limit: 500
     }).then((_) => _.data).catch(() => []);
@@ -7447,7 +7448,7 @@ async function query_hidden_categories2() {
 }
 async function query_types_for_category2(category_id) {
   if (!_types_for_category_promises2.has(category_id)) {
-    _types_for_category_promises2.set(category_id, xl({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
+    _types_for_category_promises2.set(category_id, Al({ category_id, limit: 500 }).then((_) => _.data).catch(() => []));
   }
   return _types_for_category_promises2.get(category_id);
 }
@@ -7509,14 +7510,14 @@ async function queryLockerBankAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerBankTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => ml({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => gl({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 async function queryLockerAssetsForZones(zone_ids) {
   if (!zone_ids?.length)
     return [];
   const type_id = await resolveLockerTypeId();
-  const results = await Promise.all(zone_ids.map((zone_id) => ml({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
+  const results = await Promise.all(zone_ids.map((zone_id) => gl({ zone_id, type_id, limit: 500 }).then((_) => _.data)));
   return flatten(results);
 }
 
@@ -7739,12 +7740,12 @@ var RecurringClashModalComponent = class _RecurringClashModalComponent {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list = await d(CALENDAR_ENDPOINT);
+  const list = await p(CALENDAR_ENDPOINT);
   return list.map((c) => new Calendar(c));
 }
 async function queryCalendarAvailability(q) {
   const query = toQueryString(q);
-  const list = await d(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
+  const list = await p(`${CALENDAR_ENDPOINT}/availability${query ? "?" + query : ""}`);
   return list.map((c) => new Calendar(c));
 }
 var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -7753,7 +7754,7 @@ var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map(
 }))).filter((space) => space.bookable);
 async function querySpaceFreeBusy(q, org) {
   const query = toQueryString(q);
-  const list = await d(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
+  const list = await p(`${CALENDAR_ENDPOINT}/free_busy${query ? "?" + query : ""}`);
   return calendarsToSpaces(list.map((c) => new Calendar(c)), org);
 }
 
@@ -8524,27 +8525,27 @@ function generateBookingForm(booking = new Booking(), injector) {
   guardModelUndefinedWrites(model2, bookingFormValue(new Booking()));
   const require_plate_number = settingSignal("parking.require_plate_number", false);
   const require_space_restriction = settingSignal("parking.require_space_restriction", false);
-  const booking_form = form(model2, (p) => {
-    required(p.date);
-    required(p.asset_id);
-    email(p.asset_id, {
-      when: ({ valueOf }) => valueOf(p.booking_type) === "visitor"
+  const booking_form = form(model2, (p2) => {
+    required(p2.date);
+    required(p2.asset_id);
+    email(p2.asset_id, {
+      when: ({ valueOf }) => valueOf(p2.booking_type) === "visitor"
     });
-    required(p.plate_number, {
+    required(p2.plate_number, {
       when: ({ valueOf }) => {
-        const booking_type = valueOf(p.booking_type);
+        const booking_type = valueOf(p2.booking_type);
         return booking_type === "parking" && require_plate_number();
       }
     });
-    validate(p.plate_number, ({ value, valueOf }) => valueOf(p.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
-    validate(p.space_restrictions, ({ value, valueOf }) => valueOf(p.booking_type) === "parking" && require_space_restriction() && !value() ? { kind: "required" } : void 0);
-    validate(p.duration, ({ value, valueOf }) => {
-      const date = valueOf(p.date);
+    validate(p2.plate_number, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_plate_number() && !`${value() || ""}`.trim() ? { kind: "required" } : void 0);
+    validate(p2.space_restrictions, ({ value, valueOf }) => valueOf(p2.booking_type) === "parking" && require_space_restriction() && !value() ? { kind: "required" } : void 0);
+    validate(p2.duration, ({ value, valueOf }) => {
+      const date = valueOf(p2.date);
       if (value() <= 0)
         return { kind: "duration" };
       return date && isAfter(Date.now(), addMinutes(date, value())) ? { kind: "duration" } : void 0;
     });
-    disabled(p.date, ({ value }) => {
+    disabled(p2.date, ({ value }) => {
       if (started)
         return true;
       return value() < Date.now() && !!untracked(model2).id;
@@ -8590,9 +8591,9 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
   let closest = "";
   for (const desk of desk_ids) {
     const { x, y } = centerOf(desk) || { x: 2, y: 2 };
-    const d2 = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
-    if (d2 < dist) {
-      dist = d2;
+    const d = Math.sqrt((x - point.x) * (x - point.x) + (y - point.y) * (y - point.y));
+    if (d < dist) {
+      dist = d;
       closest = desk;
     }
   }
@@ -10774,23 +10775,29 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       throw error;
     });
     if (value.assets?.length || booking.extension_data.assets?.length) {
-      const requests = await validateAssetRequestsForResource(__spreadProps(__spreadValues({}, result), { from_booking: true }), {
-        date: value.date,
-        duration: value.duration,
-        all_day: value.all_day,
-        host: value.booked_by_email,
-        zones
-      }, value.assets).catch((e) => {
+      const is_new_booking = !booking.id && !value.id;
+      try {
+        const requests = await validateAssetRequestsForResource(__spreadProps(__spreadValues({}, result), { from_booking: true }), {
+          date: value.date,
+          duration: value.duration,
+          all_day: value.all_day,
+          host: value.booked_by_email,
+          zones: unique([
+            ...zones,
+            ...value.zones || []
+          ]).filter((_) => _)
+        }, value.assets);
+        if (!requests)
+          throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
+        await requests();
+      } catch (e) {
         console.error("Couldn't update asset requests", e);
-        if (e?.status === 409) {
-          notifyError(i18n("BOOKINGS.ASSETS_CLASH_ERROR"));
-        }
         this._loading.set("");
-        throw e?.error || e;
-      });
-      if (!requests)
-        throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
-      await requests();
+        if (is_new_booking && result?.id) {
+          await removeBooking(result.id).catch((err) => console.error("Failed to rollback booking", err));
+        }
+        throw e?.status === 409 ? i18n("BOOKINGS.ASSETS_CLASH_ERROR") : errorMessage(e?.error || e) || i18n("BOOKINGS.ASSETS_INVALID_ERROR");
+      }
     }
     this._loading.set("");
     const { booking_type } = value;
@@ -11228,18 +11235,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     });
   }
   _error_message(error) {
-    if (typeof error === "string")
-      return error;
-    if (error instanceof Error && error.message)
-      return error.message;
-    if (typeof error?.error === "string")
-      return error.error;
-    if (typeof error?.message === "string")
-      return error.message;
-    if (typeof error?.error?.message === "string") {
-      return error.error.message;
-    }
-    return i18n("BOOKINGS.ERROR_GENERIC");
+    return errorMessage(error) || i18n("BOOKINGS.ERROR_GENERIC");
   }
   _isPermissionError(error) {
     const status = error?.status || error?.error?.status;
@@ -11532,8 +11528,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   }
   async loadResourceList(type) {
     const use_region = this._settings.get("app.use_region");
-    const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d2) => __spreadProps(__spreadValues({}, d2), {
-      id: d2.id || d2.map_id,
+    const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
+      id: d.id || d.map_id,
       zone: _.zone
     }));
     const id = use_region ? this._org.building?.parent_id : this._org.building?.id;
@@ -12373,4 +12369,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-Y43SCPIN.js.map
+//# sourceMappingURL=chunk-7WKNYARK.js.map

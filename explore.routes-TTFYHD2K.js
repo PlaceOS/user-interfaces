@@ -42,7 +42,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-Y43SCPIN.js";
+} from "./chunk-7WKNYARK.js";
 import {
   FormField,
   MatCheckbox,
@@ -53,7 +53,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-DJN2YO3H.js";
+} from "./chunk-3AWGQG2G.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -159,18 +159,18 @@ import {
   currentUser,
   currentUserIsLoaded,
   currentUserLoaded,
-  d,
+  da,
   debounced,
   differenceInCalendarMonths,
   differenceInMilliseconds,
   differenceInMinutes,
-  dp,
   ee,
   effect,
   enUS,
   endOfDay,
   endOfDayInTimezone,
   endOfMonth,
+  fd,
   firstValueWhere,
   flatten,
   format,
@@ -209,7 +209,7 @@ import {
   numberAttribute,
   onFieldChange,
   output,
-  pa,
+  p,
   queryAllBookings,
   queryBookings,
   queryResourceAvailability,
@@ -307,7 +307,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-YQYORR35.js";
+} from "./chunk-GTKB3LNQ.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1461,11 +1461,11 @@ var DynamicMapComponent = class _DynamicMapComponent {
       const events = this._convertActionTypes(action.action);
       if (events.length === 0)
         continue;
-      const callback = (p) => {
+      const callback = (p2) => {
         const synthetic_event = new CustomEvent("mapaction", {
-          detail: { point: p }
+          detail: { point: p2 }
         });
-        action.callback(synthetic_event, { x: p.x, y: p.y });
+        action.callback(synthetic_event, { x: p2.x, y: p2.y });
       };
       map_actions.push({
         ref: action.id,
@@ -3281,21 +3281,21 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     )
   );
   guardModelUndefinedWrites(model2, eventFormValue(new CalendarEvent()));
-  const event_form = form(model2, (p) => {
-    required(p.host);
-    required(p.date);
-    validate(p.duration, ({ value, valueOf }) => {
-      const date = valueOf(p.date);
+  const event_form = form(model2, (p2) => {
+    required(p2.host);
+    required(p2.date);
+    validate(p2.duration, ({ value, valueOf }) => {
+      const date = valueOf(p2.date);
       return date && isAfter(Date.now(), addMinutes(date, value())) ? { kind: "duration" } : void 0;
     });
-    required(p.catering_notes, {
-      when: ({ valueOf }) => !!valueOf(p.catering)?.length && notes_required()
+    required(p2.catering_notes, {
+      when: ({ valueOf }) => !!valueOf(p2.catering)?.length && notes_required()
     });
-    disabled(p.host, { when: () => has_id });
-    disabled(p.organiser, { when: () => has_id });
-    disabled(p.date, { when: () => lock_start_time() });
-    disabled(p.assets, { when: ({ valueOf }) => !valueOf(p.resources)?.length });
-    disabled(p.duration, { when: ({ valueOf }) => !!valueOf(p.all_day) });
+    disabled(p2.host, { when: () => has_id });
+    disabled(p2.organiser, { when: () => has_id });
+    disabled(p2.date, { when: () => lock_start_time() });
+    disabled(p2.assets, { when: ({ valueOf }) => !valueOf(p2.resources)?.length });
+    disabled(p2.duration, { when: ({ valueOf }) => !!valueOf(p2.all_day) });
   }, { injector });
   onFieldChange(model2, (v) => v.organiser, (organiser) => (
     // Coalesce to '' so the `host` sub-field is never removed from the
@@ -5015,7 +5015,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-    ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
+    ref.afterClosed().subscribe((d) => d ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
@@ -5466,7 +5466,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.filter((_) => predicate(_));
   }
   async loadSpace(space_id) {
-    const system = await pa(space_id);
+    const system = await da(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -6628,13 +6628,13 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list?.length)
       return;
     for (const space of list) {
-      const mod = dp(space.id, "Bookings");
+      const mod = fd(space.id, "Bookings");
       let binding = mod.variable("bookings");
-      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d2) => this.handleBookingsChange(list, space, d2)));
+      this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list, space, d)));
       binding = mod.variable("status");
-      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d2) => this.handleStatusChange(list, space, d2)));
+      this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d) => this.handleStatusChange(list, space, d)));
       binding = mod.variable("presence");
-      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d2) => this.handlePresenceChange(list, space, d2)));
+      this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d) => this.handlePresenceChange(list, space, d)));
     }
     this.updateActions(list);
     this._updateHoverElements(list);
@@ -7873,7 +7873,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod = dp(this._details.system, "LocationServices");
+    const mod = fd(this._details.system, "LocationServices");
     if (!mod)
       return;
     this.username.set("Loading...");
@@ -8188,12 +8188,12 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       return;
     const binding = mod.variable(zone_id);
     if (binding) {
-      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d2) => this.processBindingChange(d2 || {}, mod.id)));
+      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d) => this.processBindingChange(d || {}, mod.id)));
     }
     const bookings_binding = mod.variable(`${zone_id}:desk_bookings`);
     if (bookings_binding) {
-      this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d2) => {
-        const value = __spreadValues({}, d2 || {});
+      this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d) => {
+        const value = __spreadValues({}, d || {});
         for (const id in value) {
           const new_bookings = value[id].map((_) => new Booking(__spreadProps(__spreadValues({}, _), {
             booking_start: _.booking_start || _.started_at,
@@ -8649,7 +8649,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
       return;
     const results = await Promise.all(buildings.map((bld) => nc(bld.id, { name: "desks" }).then((data) => ({
       building_id: bld.id,
-      desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d2) => new Desk(__spreadProps(__spreadValues({}, d2), {
+      desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
         zone: meta.zone
       })))))
     })).catch(() => ({
@@ -8659,7 +8659,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const email = currentUser()?.email?.toLowerCase();
     if (!email)
       return this._home_building_id.set(null);
-    const match = results.find((r) => r.desks.some((d2) => d2.assigned_to?.toLowerCase() === email));
+    const match = results.find((r) => r.desks.some((d) => d.assigned_to?.toLowerCase() === email));
     this._home_building_id.set(match?.building_id || null);
   }
   static {
@@ -9608,8 +9608,8 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
       return;
     const bind_areas = mod.variable(`${zone_id}:areas`);
     const bind_zone = mod.variable(`${zone_id}`);
-    this.subscription("binding", bind_areas.bindThenSubscribe((d2) => this._area_data.set(d2)));
-    this.subscription("zone-binding", bind_zone.bindThenSubscribe((d2) => this._zone_data.set(d2)));
+    this.subscription("binding", bind_areas.bindThenSubscribe((d) => this._area_data.set(d)));
+    this.subscription("zone-binding", bind_zone.bindThenSubscribe((d) => this._zone_data.set(d)));
   }
   _parseBindingData() {
     const areas = this._area_data()?.value || [];
@@ -9766,15 +9766,15 @@ var ASCENDING_NAME_SORTER = new Intl.Collator(void 0, {
 });
 function queryAssetCategoriesLocal(query = {}) {
   const q = toQueryString(query);
-  return d(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
+  return p(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
 }
 function queryAssetTypesLocal(query = {}) {
   const q = toQueryString(query);
-  return d(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
+  return p(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
 }
 function queryAssetsLocal(query = {}) {
   const q = toQueryString(query);
-  return d(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
+  return p(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
 }
 var TYPES = ["space", "feature", "contact", "user"];
 function typeIndex(item) {
@@ -11609,7 +11609,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod = dp(locate_details.system_id, locate_details.module);
+    const mod = fd(locate_details.system_id, locate_details.module);
     const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
@@ -11996,4 +11996,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-GAIN4ZEL.js.map
+//# sourceMappingURL=explore.routes-TTFYHD2K.js.map
