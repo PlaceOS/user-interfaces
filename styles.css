@@ -2396,6 +2396,7 @@ html {
   --animate-ping: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite;
   --animate-bounce: bounce 1s infinite;
   --blur-sm: 8px;
+  --aspect-video: 16 / 9;
   --default-transition-duration: 150ms;
   --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   --default-font-family: var(--font-sans);
@@ -3415,6 +3416,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .table {
   display: table;
+}
+#placeos .aspect-video {
+  aspect-ratio: var(--aspect-video);
 }
 #placeos .size-5\.5 {
   width: calc(var(--spacing) * 5.5);
@@ -5021,6 +5025,9 @@ input:where([type=button], [type=reset], [type=submit]),
   margin-inline-start: calc(0.5em * var(--tw-space-x-reverse));
   margin-inline-end: calc(0.5em * calc(1 - var(--tw-space-x-reverse)));
 }
+#placeos .gap-y-0\.5 {
+  row-gap: calc(var(--spacing) * 0.5);
+}
 #placeos .gap-y-1 {
   row-gap: calc(var(--spacing) * 1);
 }
@@ -5635,6 +5642,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .bg-black {
   background-color: #000000;
+}
+#placeos .bg-black\/10 {
+  background-color: rgba(0, 0, 0, 0.1);
 }
 #placeos .bg-black\/40 {
   background-color: rgba(0, 0, 0, 0.4);
@@ -6621,9 +6631,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .text-white\/60 {
   color: rgba(255, 255, 255, 0.6);
 }
-#placeos .text-white\/90 {
-  color: rgba(255, 255, 255, 0.9);
-}
 #placeos .capitalize {
   text-transform: capitalize;
 }
@@ -6985,6 +6992,20 @@ input:where([type=button], [type=reset], [type=submit]),
   -webkit-user-select: text;
   user-select: text;
 }
+#placeos .text-shadow-base-100 {
+  --tw-text-shadow-color: var(--base-100);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .text-shadow-base-100 {
+    --tw-text-shadow-color: color-mix(in oklab, var(--base-100) var(--tw-text-shadow-alpha), transparent);
+  }
+}
+#placeos .text-shadow-lg {
+  text-shadow:
+    0px 1px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)),
+    0px 3px 2px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1)),
+    0px 4px 8px var(--tw-text-shadow-color, rgb(0 0 0 / 0.1));
+}
 @media (hover: hover) {
   #placeos .group-hover\:bg-base-200\/50:is(:where(.group):hover *) {
     background-color: var(--base-200);
@@ -7251,6 +7272,11 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (hover: hover) {
+  #placeos .hover\:bg-black\/20:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+}
+@media (hover: hover) {
   #placeos .hover\:bg-black\/60:hover {
     background-color: rgba(0, 0, 0, 0.6);
   }
@@ -7258,6 +7284,16 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (hover: hover) {
   #placeos .hover\:bg-black\/70:hover {
     background-color: rgba(0, 0, 0, 0.7);
+  }
+}
+@media (hover: hover) {
+  #placeos .hover\:bg-error\/10:hover {
+    background-color: var(--error);
+  }
+  @supports (color: color-mix(in lab, red, red)) {
+    #placeos .hover\:bg-error\/10:hover {
+      background-color: color-mix(in oklab, var(--error) 10%, transparent);
+    }
   }
 }
 @media (hover: hover) {
@@ -8589,6 +8625,8 @@ select:focus-visible,
 @property --tw-backdrop-sepia { syntax: "*"; inherits: false; }
 @property --tw-duration { syntax: "*"; inherits: false; }
 @property --tw-ease { syntax: "*"; inherits: false; }
+@property --tw-text-shadow-color { syntax: "*"; inherits: false; }
+@property --tw-text-shadow-alpha { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -8689,6 +8727,8 @@ select:focus-visible,
       --tw-backdrop-sepia: initial;
       --tw-duration: initial;
       --tw-ease: initial;
+      --tw-text-shadow-color: initial;
+      --tw-text-shadow-alpha: 100%;
     }
   }
 }

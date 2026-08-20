@@ -53,7 +53,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-ZTNF3JQB.js";
+} from "./chunk-2FXQT5UN.js";
 
 // apps/signage-manager/src/app/shared/nav-items.ts
 var NAV_ITEMS = [
@@ -1220,4 +1220,4 @@ export {
   NavSidebarComponent,
   GroupBreadcrumbsComponent
 };
-//# sourceMappingURL=chunk-4AFLTOY5.js.map
+//# sourceMappingURL=chunk-Q7SQZLCT.js.map
