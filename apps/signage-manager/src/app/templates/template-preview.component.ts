@@ -185,10 +185,6 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                 width: min(100%, calc(100cqh * var(--ratio)));
                 aspect-ratio: var(--ratio);
             }
-
-            .text-outline {
-                -webkit-text-stroke: 1px var(--base-100);
-            }
         `,
     ],
     imports: [

@@ -966,6 +966,7 @@
     "BOOKINGS": {
         "ASSOCIATE": "Associate",
         "BOOKED_FOR": "For {{ name }}",
+        "BOOKED_FOR_LABEL": "Booked For",
         "PREVENT": "Prevent Bookings",
         "RELEASED": "Released",
         "ASSETS_REQUESTED_FOR": "Requested for {{ time }}",

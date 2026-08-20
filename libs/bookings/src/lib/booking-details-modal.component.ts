@@ -207,7 +207,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Host">person</icon>
+                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate">person</icon>
                             <div>
                                 {{
                                     (booking().user_email | user | async)
@@ -218,7 +218,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Booked By">edit_calendar</icon>
+                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate">edit_calendar</icon>
                             <div>
                                 {{
                                     (booking().booked_by_email | user | async)
