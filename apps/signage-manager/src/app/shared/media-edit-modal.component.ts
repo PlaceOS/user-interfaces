@@ -63,6 +63,8 @@ export interface MediaEditModalData {
     file_thumbnail?: string;
     playlist_id?: string;
     plugin?: SignagePlugin;
+    /** Existing media tags to suggest while the user types */
+    tag_options?: string[];
     loadPlugin?: () => Promise<SignagePlugin | undefined>;
     generateThumbnail?: (file: File) => Promise<string>;
     onAdd: (
@@ -400,6 +402,7 @@ function mediaSaveErrorMessage(error: unknown) {
                     <item-list-field
                         name="tags"
                         [formField]="form.tags"
+                        [options]="tag_options"
                         [placeholder]="'COMMON.TAGS' | translate"
                     ></item-list-field>
                     @if (media_type === 'plugin' && plugin_loading()) {
@@ -486,6 +489,7 @@ export class MediaEditModalComponent implements OnDestroy {
 
     public readonly loading = signal(false);
     public readonly item = this._data.media;
+    public readonly tag_options = this._data.tag_options || [];
     public readonly file = this._data.file;
     public readonly plugin = signal<SignagePlugin | undefined>(
         this._data.plugin,

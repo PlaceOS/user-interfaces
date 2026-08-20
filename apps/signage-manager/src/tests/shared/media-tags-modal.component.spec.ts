@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MediaTagsModalComponent } from '../../app/shared/media-tags-modal.component';
 
 describe('MediaTagsModalComponent', () => {
@@ -9,7 +9,10 @@ describe('MediaTagsModalComponent', () => {
         vi.clearAllMocks();
         await TestBed.configureTestingModule({
             imports: [MediaTagsModalComponent],
-            providers: [{ provide: MatDialogRef, useValue: dialog_ref }],
+            providers: [
+                { provide: MatDialogRef, useValue: dialog_ref },
+                { provide: MAT_DIALOG_DATA, useValue: { tags: ['lobby'] } },
+            ],
         })
             .overrideComponent(MediaTagsModalComponent, {
                 set: { template: '', imports: [] },
@@ -36,5 +39,13 @@ describe('MediaTagsModalComponent', () => {
         component.addTags();
 
         expect(dialog_ref.close).not.toHaveBeenCalled();
+    });
+
+    it('offers the tags already in use as suggestions', () => {
+        const component = TestBed.createComponent(
+            MediaTagsModalComponent,
+        ).componentInstance;
+
+        expect(component.tag_options).toEqual(['lobby']);
     });
 });

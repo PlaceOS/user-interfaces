@@ -2769,6 +2769,7 @@ export class SignageService {
                 file_thumbnail,
                 playlist_id,
                 plugin,
+                tag_options: this.media_tags(),
                 loadPlugin: load_plugin,
                 generateThumbnail: (f: File) => this.generateThumbnailImage(f),
                 onAdd: (
@@ -3091,6 +3092,7 @@ export class SignageService {
         )
             return false;
         const ref = this._dialog.open(MediaTagsModalComponent, {
+            data: { tags: this.media_tags() },
             width: 'min(28rem, calc(100vw - 2rem))',
         });
         const tags = await dialogClosed<string[]>(ref);

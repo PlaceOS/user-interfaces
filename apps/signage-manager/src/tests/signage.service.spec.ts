@@ -287,6 +287,7 @@ describe('SignageService media uploads', () => {
         ]);
 
         expect(dialog.open).toHaveBeenCalledWith(MediaTagsModalComponent, {
+            data: { tags: [] },
             width: 'min(28rem, calc(100vw - 2rem))',
         });
         expect(updateSignageMedia).toHaveBeenCalledWith('media-1', {
