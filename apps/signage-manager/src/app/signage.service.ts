@@ -1997,10 +1997,11 @@ export class SignageService {
             const layouts = this.template_layout_draft().map(
                 applyLayoutPositionDefaults,
             );
+            const response = await updateSignageTemplate(template.id, {
+                layouts,
+            });
             const result = decodeEntityNames(
-                await updateSignageTemplate(template.id, {
-                    layouts,
-                }),
+                new SignageTemplate({ ...response, layouts }),
             );
             this.selected_template.set(result);
             this._template_items.update((items) =>

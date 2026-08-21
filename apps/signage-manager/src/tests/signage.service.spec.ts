@@ -749,4 +749,45 @@ describe('SignageService media uploads', () => {
             ],
         });
     });
+
+    it('keeps saved plugin details when the update response omits them', async () => {
+        const service = createService();
+        service.selected_template.set(
+            new SignageTemplate({ id: 'template-1', layouts: [] }),
+        );
+        service.template_layout_draft.set([
+            {
+                position: 'top',
+                plugin_id: 'clock-widget',
+                plugin_params: { display: { format: '24h' } },
+            },
+        ]);
+        vi.mocked(updateSignageTemplate).mockResolvedValue(
+            new SignageTemplate({
+                id: 'template-1',
+                layouts: [
+                    {
+                        position: 'top',
+                        y_pos: 0.15,
+                        plugin_params: {},
+                    },
+                ],
+            }),
+        );
+
+        await service.saveTemplateLayouts();
+
+        expect(service.selected_template()?.layouts).toEqual([
+            {
+                position: 'top',
+                y_pos: 0.15,
+                plugin_id: 'clock-widget',
+                plugin_params: { display: { format: '24h' } },
+            },
+        ]);
+        expect(service.template_layout_draft()).toEqual(
+            service.selected_template()?.layouts,
+        );
+        expect(service.template_layout_dirty()).toBe(false);
+    });
 });
