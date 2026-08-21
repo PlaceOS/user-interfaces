@@ -1,3 +1,4 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
@@ -72,6 +73,35 @@ describe('MediaPreviewModalComponent', () => {
         );
 
         expect(component.type_label()).toBe('COMMON.WEBPAGE');
+    });
+
+    it('shows every media tag in the preview details', async () => {
+        const media = new SignageMedia({
+            id: 'm1',
+            media_type: 'unknown',
+            tags: ['lobby', 'news'],
+        });
+        await TestBed.configureTestingModule({
+            imports: [MediaPreviewModalComponent],
+            providers: [
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: { media },
+                },
+                { provide: SignageService, useValue: service },
+            ],
+        })
+            .overrideComponent(MediaPreviewModalComponent, {
+                set: { schemas: [NO_ERRORS_SCHEMA] },
+            })
+            .compileComponents();
+        const fixture = TestBed.createComponent(MediaPreviewModalComponent);
+
+        await fixture.whenStable();
+
+        const preview_text = fixture.nativeElement.textContent;
+        expect(preview_text).toContain('lobby');
+        expect(preview_text).toContain('news');
     });
 
     it('uses the signage group passed to the modal', async () => {

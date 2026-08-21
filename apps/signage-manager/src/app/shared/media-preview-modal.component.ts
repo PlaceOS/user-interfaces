@@ -205,6 +205,24 @@ interface MediaPreviewModalData {
                                 {{ type_label() | translate }}
                             </span>
                         </div>
+                        @if (item.tags?.length) {
+                            <div>
+                                <div
+                                    class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    {{ 'COMMON.TAGS' | translate }}
+                                </div>
+                                <div class="flex flex-wrap gap-1">
+                                    @for (tag of item.tags; track tag) {
+                                        <span
+                                            class="bg-info-light text-info max-w-full truncate rounded-full px-2 py-1 text-xs font-medium"
+                                        >
+                                            {{ tag }}
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
                         @if (item.play_time) {
                             <div>
                                 <div
