@@ -62,7 +62,29 @@ describe('playlist-schedule-form helpers', () => {
             play_cron: '0 0 * * *',
             play_period: 45,
             play_takeover: true,
+            valid_until: 0,
         });
+    });
+
+    it('round trips a schedule expiry as unix seconds', () => {
+        const valid_until = getUnixTime(new Date(Date.UTC(2026, 3, 2, 18, 45)));
+
+        const model = createPlaylistScheduleModel({ valid_until });
+        const payload = playlistSchedulePayload(model);
+
+        expect(model.has_valid_until).toBe(true);
+        expect(model.valid_until).toBe(valid_until * 1000);
+        expect(payload.valid_until).toBe(valid_until);
+    });
+
+    it('serialises a disabled schedule expiry as zero', () => {
+        const payload = playlistSchedulePayload({
+            ...createPlaylistScheduleModel(),
+            has_valid_until: false,
+            valid_until: Date.UTC(2026, 3, 2, 18, 45),
+        });
+
+        expect(payload.valid_until).toBe(0);
     });
 
     it('builds a recurring payload with a generated cron and no play_at', () => {
@@ -132,6 +154,19 @@ describe('PlaylistScheduleFormComponent', () => {
 
         expect(component.recurringScheduleSummary()).toContain(
             'for 1 hour 30 minutes',
+        );
+    });
+
+    it('adds a relative expiry to the summary and an exact tooltip', () => {
+        const valid_until = Date.UTC(2027, 0, 2, 18, 45);
+        const { component } = setup({
+            has_valid_until: true,
+            valid_until,
+        });
+
+        expect(component.scheduleSummary()).toContain('until');
+        expect(component.scheduleExpiryTooltip()).toBe(
+            new Date(valid_until).toLocaleString(),
         );
     });
 

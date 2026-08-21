@@ -3,7 +3,7 @@ import {
     type SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { fromUnixTime } from 'date-fns';
+import { formatDistance, fromUnixTime } from 'date-fns';
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_NAMES = [
@@ -231,16 +231,42 @@ function schedulePeriod(schedule: Partial<SignagePlaylistSchedule>) {
         : DEFAULT_PLAY_PERIOD_MINUTES;
 }
 
+export function playlistScheduleExpiryLabel(
+    schedule: Partial<SignagePlaylistSchedule>,
+    now = Date.now(),
+) {
+    if (!schedule.valid_until) return '';
+    const expiry = fromUnixTime(schedule.valid_until);
+    const distance = formatDistance(expiry, new Date(now));
+    const relative_time =
+        expiry.getTime() >= now ? `${distance} from now` : `${distance} ago`;
+    return `until ${relative_time}`;
+}
+
+export function playlistScheduleExpiryTooltip(
+    schedule: Partial<SignagePlaylistSchedule>,
+) {
+    return schedule.valid_until
+        ? fromUnixTime(schedule.valid_until).toLocaleString()
+        : '';
+}
+
 export function playlistScheduleLabel(
     schedule: Partial<SignagePlaylistSchedule>,
 ) {
     const period = schedulePeriod(schedule);
+    const expiry = playlistScheduleExpiryLabel(schedule);
+    const suffix = [schedule.play_takeover ? 'takeover' : '', expiry]
+        .filter((_) => _)
+        .join(' · ');
     if (schedule.play_at) {
         const date = fromUnixTime(schedule.play_at);
-        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
+        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}${
+            suffix ? ` · ${suffix}` : ''
+        }`;
     }
     return `${humanizeCronSchedule(schedule.play_cron || '0 0 * * *', period)}${
-        schedule.play_takeover ? ' · takeover' : ''
+        suffix ? ` · ${suffix}` : ''
     }`;
 }
 
@@ -308,7 +334,7 @@ function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
     return `${formatPlayDateTime(start)} – ${end_text}`;
 }
 
-function nextCronPlayDates(cron: string, count: number) {
+function nextCronPlayDates(cron: string, count: number, valid_until = 0) {
     const result: Date[] = [];
     if (!cron?.trim()) return result;
     const date = new Date();
@@ -316,7 +342,8 @@ function nextCronPlayDates(cron: string, count: number) {
     date.setMinutes(date.getMinutes() + 1);
     const end = new Date(date);
     end.setFullYear(end.getFullYear() + 2);
-    while (date <= end && result.length < count) {
+    const expiry = valid_until ? fromUnixTime(valid_until) : end;
+    while (date <= end && date <= expiry && result.length < count) {
         if (doesCronMatchDate(cron, date)) result.push(new Date(date));
         date.setMinutes(date.getMinutes() + 1);
     }
@@ -333,11 +360,15 @@ export function playlistScheduleNextPlayLabels(
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);
-        return end >= new Date()
+        const expires_before_play =
+            !!schedule.valid_until && schedule.play_at > schedule.valid_until;
+        return end >= new Date() && !expires_before_play
             ? [formatPlayDateTimeRange(start, period)]
             : [];
     }
-    return nextCronPlayDates(schedule.play_cron || '0 0 * * *', count).map(
-        (start) => formatPlayDateTimeRange(start, period),
-    );
+    return nextCronPlayDates(
+        schedule.play_cron || '0 0 * * *',
+        count,
+        schedule.valid_until,
+    ).map((start) => formatPlayDateTimeRange(start, period));
 }

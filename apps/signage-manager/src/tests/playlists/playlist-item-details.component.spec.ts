@@ -123,6 +123,7 @@ describe('PlaylistItemDetailsComponent', () => {
     });
 
     it('builds a human readable schedule label for a daily cron', async () => {
+        const valid_until = Math.floor(Date.UTC(2027, 0, 2, 18, 45) / 1000);
         selected_playlist.set({
             id: 'pl-1',
             schedules: [
@@ -130,6 +131,7 @@ describe('PlaylistItemDetailsComponent', () => {
                     play_cron: '0 9 * * *',
                     play_period: 180,
                     play_takeover: false,
+                    valid_until,
                 },
             ],
         });
@@ -138,6 +140,10 @@ describe('PlaylistItemDetailsComponent', () => {
         expect(labels.length).toBe(1);
         expect(labels[0]).toContain('Every day at');
         expect(labels[0]).toContain('for 3 hours');
+        expect(labels[0]).toContain(' · until ');
+        expect(component.schedule_expiry_tooltips()).toEqual([
+            new Date(valid_until * 1000).toLocaleString(),
+        ]);
     });
 
     it('hides playlist-level schedule labels for distribution playlists', async () => {

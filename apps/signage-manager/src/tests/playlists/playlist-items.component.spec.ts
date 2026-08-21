@@ -147,11 +147,16 @@ describe('PlaylistItemsComponent', () => {
 
     it('builds a tooltip with the next play blocks for a schedule', async () => {
         const component = await make();
+        const valid_until = Math.floor(Date.UTC(2027, 0, 2, 18, 45) / 1000);
         const tooltip = component.scheduleTooltip({
             play_cron: '0 9 * * *',
             play_period: 30,
+            valid_until,
         });
         expect(tooltip).toContain('–');
+        expect(tooltip).toContain(
+            new Date(valid_until * 1000).toLocaleString(),
+        );
     });
 
     it('reorders media on drop when updates are permitted', async () => {

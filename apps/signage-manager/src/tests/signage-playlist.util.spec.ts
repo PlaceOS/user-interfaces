@@ -3,6 +3,8 @@ import {
     playlistItemScheduleMap,
     playlistMediaIds,
     playlistMediaItems,
+    playlistScheduleExpiryLabel,
+    playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
 } from '../app/signage-playlist.util';
@@ -95,6 +97,26 @@ describe('signage playlist util', () => {
         ).toContain('for 30 minutes');
     });
 
+    it('adds relative and exact schedule expiry descriptions', () => {
+        const now = Date.UTC(2026, 0, 1, 9);
+        const valid_until = getUnixTime(new Date(Date.UTC(2026, 0, 22, 9)));
+        const schedule = { valid_until };
+
+        expect(playlistScheduleExpiryLabel(schedule, now)).toBe(
+            'until 21 days from now',
+        );
+        expect(playlistScheduleExpiryTooltip(schedule)).toBe(
+            new Date(valid_until * 1000).toLocaleString(),
+        );
+        expect(
+            playlistScheduleLabel({
+                ...schedule,
+                play_cron: '0 9 * * *',
+                play_period: 30,
+            }),
+        ).toContain(' · until ');
+    });
+
     it('lists the next five play blocks for a recurring schedule', () => {
         const labels = playlistScheduleNextPlayLabels({
             play_cron: '0 9 * * *',
@@ -102,5 +124,15 @@ describe('signage playlist util', () => {
         });
         expect(labels).toHaveLength(5);
         expect(labels[0]).toContain('–');
+    });
+
+    it('does not list play blocks after a schedule expires', () => {
+        const labels = playlistScheduleNextPlayLabels({
+            play_cron: '0 9 * * *',
+            play_period: 30,
+            valid_until: getUnixTime(new Date(Date.now() - 60_000)),
+        });
+
+        expect(labels).toEqual([]);
     });
 });

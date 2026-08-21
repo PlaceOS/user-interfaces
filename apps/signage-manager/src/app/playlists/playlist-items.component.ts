@@ -21,6 +21,7 @@ import {
 } from '@placeos/ts-client';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import {
+    playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
@@ -621,11 +622,13 @@ export class PlaylistItemsComponent {
 
     public scheduleTooltip(schedule: Partial<SignagePlaylistSchedule>) {
         const labels = playlistScheduleNextPlayLabels(schedule);
+        const expiry = playlistScheduleExpiryTooltip(schedule);
         return [
             `-- ${i18n('SIGNAGE_MANAGER.NEXT_5_PLAYS')} --`,
             ...(labels.length
                 ? labels
                 : [i18n('SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES')]),
+            ...(expiry ? [`${i18n('FORM.EXPIRES_AT')}: ${expiry}`] : []),
         ].join('\n');
     }
 
