@@ -1,12 +1,22 @@
+import { signal } from '@angular/core';
 import {
     removeSignageMedia,
     removeSignagePlaylist,
     removeSignageTemplate,
-    SignageMedia,
     showSignageMedia,
     showSignagePlaylist,
     showSignageTemplate,
+    SignageMedia,
 } from '@placeos/ts-client';
+
+const _shared_groups_change = signal(0);
+
+/** Changes after a successful share so visible shared-group lists reload. */
+export const signage_shared_groups_change = _shared_groups_change.asReadonly();
+
+export function markSignageSharedGroupsChanged() {
+    _shared_groups_change.update((change) => change + 1);
+}
 
 /** Signage item types that can be shared between signage groups */
 export type SignageShareableType = 'media' | 'playlists' | 'templates';

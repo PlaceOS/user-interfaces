@@ -139,6 +139,7 @@ import {
     playlistMediaIds,
     playlistMediaItems,
 } from './signage-playlist.util';
+import { markSignageSharedGroupsChanged } from './signage-shared-groups.util';
 import { applyLayoutPositionDefaults } from './templates/template-layout.util';
 
 function dataURLtoFile(data_url: string, filename: string) {
@@ -2478,6 +2479,7 @@ export class SignageService {
         if (!group_id) return false;
         const options = { items: item_ids.join(','), to: group_id };
         await share_config.request(options);
+        markSignageSharedGroupsChanged();
         notifySuccess(i18n(share_config.success));
         return true;
     }

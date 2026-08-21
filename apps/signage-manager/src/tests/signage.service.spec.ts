@@ -16,7 +16,9 @@ import {
     removeSignageMedia,
     requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
+    shareSignagePlaylists,
     shareSignageTemplates,
+    showSignagePlaylist,
     SignageMedia,
     SignagePlaylist,
     SignagePlaylistItemSchedule,
@@ -31,6 +33,7 @@ import { NEVER, of } from 'rxjs';
 import { MediaPreviewModalComponent } from '../app/shared/media-preview-modal.component';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
+import { SignageSharedWithComponent } from '../app/shared/signage-shared-with.component';
 import { TemplateApproveModalComponent } from '../app/shared/template-approve-modal.component';
 import { TemplateRequestApprovalModalComponent } from '../app/shared/template-request-approval-modal.component';
 import { SignageService } from '../app/signage.service';
@@ -721,6 +724,66 @@ describe('SignageService media uploads', () => {
         expect(shareSignageTemplates).toHaveBeenCalledWith({
             items: 'template-1',
             to: 'group-2',
+        });
+    });
+
+    it('refreshes the shared groups after sharing a playlist', async () => {
+        const service = createService();
+        const current_group = { id: 'group-1', name: 'Current' };
+        const target_group = { id: 'group-2', name: 'Target' };
+        vi.mocked(showSignagePlaylist).mockResolvedValue(
+            new SignagePlaylist({
+                id: 'playlist-1',
+                shared_with: [current_group],
+            }),
+        );
+        vi.mocked(shareSignagePlaylists).mockResolvedValue({
+            linked: ['playlist-1'],
+            already_present: [],
+        });
+        Object.defineProperty(service, 'can_share', {
+            value: () => true,
+        });
+        Object.defineProperty(service, 'selected_group', {
+            value: () => ({ group: current_group }),
+        });
+        Object.defineProperty(service, 'signage_groups', {
+            value: () => [{ group: current_group }, { group: target_group }],
+        });
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value: string) => void) => {
+                    Promise.resolve().then(() => handler(target_group.id));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+        const fixture = TestBed.createComponent(SignageSharedWithComponent);
+        fixture.componentRef.setInput('type', 'playlists');
+        fixture.componentRef.setInput('item_id', 'playlist-1');
+        fixture.componentRef.setInput('group_id', current_group.id);
+        fixture.detectChanges();
+        await vi.waitFor(() => {
+            expect(fixture.componentInstance.shared_groups()).toEqual([
+                current_group,
+            ]);
+        });
+
+        vi.mocked(showSignagePlaylist).mockResolvedValue(
+            new SignagePlaylist({
+                id: 'playlist-1',
+                shared_with: [current_group, target_group],
+            }),
+        );
+        await service.sharePlaylist(
+            new SignagePlaylist({ id: 'playlist-1', name: 'Lobby' }),
+        );
+
+        await vi.waitFor(() => {
+            expect(fixture.componentInstance.shared_groups()).toEqual([
+                current_group,
+                target_group,
+            ]);
         });
     });
 
