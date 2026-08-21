@@ -287,7 +287,7 @@ export class DisplaysSectionComponent {
 
     private readonly _displays = this._service.displays;
     private readonly _playlists = this._service.playlists;
-    private readonly _zones = this._service.zones;
+    private readonly _zones = this._service.all_zones;
 
     public readonly playlist_count = computed(() => {
         const display = this.selected_display();

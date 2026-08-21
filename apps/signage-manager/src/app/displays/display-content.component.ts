@@ -348,7 +348,7 @@ export class DisplayContentComponent {
     public readonly can_update = this._service.can_update;
 
     private readonly _playlists = this._service.playlists;
-    private readonly _zones = this._service.zones;
+    private readonly _zones = this._service.all_zones;
 
     public readonly display_playlists = computed(() => {
         const display = this.selected_display();
