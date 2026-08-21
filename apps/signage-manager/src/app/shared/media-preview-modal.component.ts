@@ -15,13 +15,16 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    listSignagePlaylistMedia,
     MediaAnimation,
+    showSignageMedia,
     SignageMedia,
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { playlistMediaThumbnailUrl, playlistMediaUrl } from '../signage-playlist.util';
+import {
+    playlistMediaThumbnailUrl,
+    playlistMediaUrl,
+} from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
@@ -443,20 +446,17 @@ export class MediaPreviewModalComponent implements OnInit {
     });
 
     public async ngOnInit() {
-        const all_playlists = this._service.playlists();
-        const matching: SignagePlaylist[] = [];
-        for (const playlist of all_playlists) {
-            try {
-                const media_list = await listSignagePlaylistMedia(playlist.id);
-                if (media_list.items?.includes(this.item.id)) {
-                    matching.push(playlist);
-                }
-            } catch {
-                // Skip playlists that fail to load
-            }
+        try {
+            const media = await showSignageMedia(
+                this.item.id,
+                this.group_id ? { group_id: this.group_id } : {},
+            );
+            this.containing_playlists.set(media.playlists);
+        } catch {
+            this.containing_playlists.set([]);
+        } finally {
+            this.loading_playlists.set(false);
         }
-        this.containing_playlists.set(matching);
-        this.loading_playlists.set(false);
     }
 
     public handleMediaLoaded() {
