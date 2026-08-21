@@ -1,6 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
+import { By } from '@angular/platform-browser';
+import { DurationFieldComponent } from '@placeos/form-fields';
 import { getUnixTime } from 'date-fns';
 import {
     createPlaylistScheduleModel,
@@ -187,6 +189,26 @@ describe('PlaylistScheduleFormComponent', () => {
 
         expect(component.nextCronPlayTimes()).toEqual([]);
     });
+
+    it.each(['play_at', 'play_cron'] as const)(
+        'offers a 15-minute play period for %s schedules',
+        async (schedule_type) => {
+            const { fixture } = setup({ schedule_type });
+            fixture.componentRef.setInput('open', true);
+
+            await fixture.whenStable();
+
+            const duration_field = fixture.debugElement.query(
+                By.directive(DurationFieldComponent),
+            ).componentInstance as DurationFieldComponent;
+            expect(
+                duration_field
+                    .duration_options()
+                    .slice(0, 2)
+                    .map((option) => option.id),
+            ).toEqual([15, 30]);
+        },
+    );
 
     it('toggles weekday selection on and off', () => {
         const { component } = setup({

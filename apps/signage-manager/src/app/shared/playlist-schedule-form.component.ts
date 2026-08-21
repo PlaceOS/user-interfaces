@@ -654,6 +654,7 @@ export function playlistSchedulePayload(
                         <a-duration-field
                             class="w-full"
                             [formField]="schedule().play_period"
+                            [min]="15"
                             [max]="24 * 60"
                             [time]="value().play_at"
                             [custom_options]="[value().play_period]"
@@ -966,6 +967,7 @@ export function playlistSchedulePayload(
                                     <a-duration-field
                                         class="no-subscript w-full flex-1"
                                         [formField]="schedule().play_period"
+                                        [min]="15"
                                         [max]="24 * 60"
                                         [time]="recurringPlayStartTime()"
                                         [custom_options]="[value().play_period]"
