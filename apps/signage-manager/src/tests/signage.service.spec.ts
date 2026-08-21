@@ -19,6 +19,7 @@ import {
     shareSignageTemplates,
     SignageMedia,
     SignagePlaylist,
+    SignagePlaylistItemSchedule,
     SignagePlugin,
     SignageTemplate,
     updateSignageMedia,
@@ -251,6 +252,61 @@ describe('SignageService media uploads', () => {
         );
     });
 
+    it('applies one schedule to multiple distribution playlist items', async () => {
+        const service = createService();
+        service.selected_playlist.set(
+            new SignagePlaylist({
+                id: 'playlist-1',
+                distribution: true,
+            }),
+        );
+        (updateSignagePlaylistMediaSchedule as any).mockResolvedValue({});
+
+        await service.editPlaylistItemSchedules([
+            new SignagePlaylistItemSchedule({
+                id: 'schedule-1',
+                item_id: 'media-1',
+                schedules: [
+                    {
+                        play_cron: '0 8 * * *',
+                        play_period: 30,
+                        play_takeover: false,
+                    },
+                ],
+            }),
+            new SignagePlaylistItemSchedule({
+                id: 'schedule-2',
+                item_id: 'media-2',
+                schedules: [],
+            }),
+        ]);
+
+        const modal_data = dialog.open.mock.calls[0][1].data;
+        expect(modal_data.item.id).toBe('schedule-1');
+        await modal_data.save('schedule-1', [
+            { play_cron: '0 9 * * *', play_period: 30 },
+        ]);
+
+        expect(updateSignagePlaylistMediaSchedule).toHaveBeenNthCalledWith(
+            1,
+            'playlist-1',
+            'schedule-1',
+            {
+                item_id: 'media-1',
+                schedules: [{ play_cron: '0 9 * * *', play_period: 30 }],
+            },
+        );
+        expect(updateSignagePlaylistMediaSchedule).toHaveBeenNthCalledWith(
+            2,
+            'playlist-1',
+            'schedule-2',
+            {
+                item_id: 'media-2',
+                schedules: [{ play_cron: '0 9 * * *', play_period: 30 }],
+            },
+        );
+    });
+
     it('removes a distribution schedule from the playlist items', async () => {
         const service = createService();
         (listSignagePlaylistMedia as any).mockResolvedValue({
@@ -264,6 +320,35 @@ describe('SignageService media uploads', () => {
         expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
             'schedule-2',
         ]);
+    });
+
+    it('removes selected playlist occurrences with one update', async () => {
+        const service = createService();
+        service.selected_playlist_item.set(new SignageMedia({ id: 'media-1' }));
+        service.selected_playlist_item_index.set(2);
+        (listSignagePlaylistMedia as any).mockResolvedValue({
+            items: ['media-1', 'media-2', 'media-1', 'media-3'],
+            schedules: [],
+        });
+        (updateSignagePlaylistMedia as any).mockResolvedValue({});
+        confirmNextDialog();
+
+        const removed = await service.removeMediaItemsFromPlaylist(
+            'playlist-1',
+            [
+                { id: 'media-1', index: 0 },
+                { id: 'media-1', index: 2 },
+            ],
+        );
+
+        expect(removed).toBe(true);
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledOnce();
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
+            'media-2',
+            'media-3',
+        ]);
+        expect(service.selected_playlist_item()).toBeNull();
+        expect(service.selected_playlist_item_index()).toBeNull();
     });
 
     it('does not create signage media when the media upload fails', async () => {

@@ -1754,6 +1754,80 @@ export class SignageService {
         this.changed();
     }
 
+    public async removeMediaItemsFromPlaylist(
+        playlist_id: string,
+        selected_items: { id: string; index: number }[],
+    ) {
+        const playlist_items = selected_items.filter(
+            (item) => !!item.id && item.index >= 0,
+        );
+        if (!playlist_id || !playlist_items.length) return false;
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
+            )
+        )
+            return false;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_PLAYLIST_ITEMS_TITLE'),
+                content: i18n(
+                    'SIGNAGE_MANAGER.SVC_REMOVE_SELECTED_PLAYLIST_ITEMS',
+                    { count: playlist_items.length },
+                    playlist_items.length,
+                ),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        const media_list = await listSignagePlaylistMedia(playlist_id);
+        const new_items = [...(media_list.items || [])];
+        let removed_count = 0;
+        for (const item of [...playlist_items].sort(
+            (first, second) => second.index - first.index,
+        )) {
+            const index =
+                new_items[item.index] === item.id
+                    ? item.index
+                    : new_items.indexOf(item.id);
+            if (index < 0) continue;
+            new_items.splice(index, 1);
+            removed_count++;
+        }
+        if (!removed_count) {
+            result.close();
+            return false;
+        }
+        await updateSignagePlaylistMedia(playlist_id, new_items);
+        this._setPlaylistMediaState(
+            playlist_id,
+            new_items,
+            false,
+            media_list.schedules,
+        );
+        const selected_index = this.selected_playlist_item_index();
+        if (
+            selected_index !== null &&
+            playlist_items.some((item) => item.index === selected_index)
+        ) {
+            this.selected_playlist_item.set(null);
+            this.selected_playlist_item_index.set(null);
+        }
+        notifySuccess(
+            i18n(
+                'SIGNAGE_MANAGER.SVC_ITEMS_REMOVED',
+                { count: removed_count },
+                removed_count,
+            ),
+        );
+        this._playlist_change.set(Date.now());
+        this.changed();
+        result.close();
+        return true;
+    }
+
     public async reorderPlaylistMedia(playlist_id: string, items: string[]) {
         if (
             !this._requirePermission(
@@ -1768,26 +1842,39 @@ export class SignageService {
     }
 
     public async editPlaylistItemSchedule(item: SignagePlaylistItemSchedule) {
+        return this.editPlaylistItemSchedules([item]);
+    }
+
+    public async editPlaylistItemSchedules(
+        items: SignagePlaylistItemSchedule[],
+    ) {
         const playlist = this.selected_playlist();
-        if (!playlist?.id || !item?.item_id) return;
+        const schedule_items = items.filter(
+            (item) => !!item?.item_id && !!(item.id || item.item_id),
+        );
+        if (!playlist?.id || !schedule_items.length) return false;
         if (
             !this._requirePermission(
                 this.can_update(),
                 i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
             )
         )
-            return;
+            return false;
         const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
             data: {
-                item,
-                save: (schedule_id, schedules) =>
-                    updateSignagePlaylistMediaSchedule(
-                        playlist.id,
-                        schedule_id,
-                        {
-                            item_id: item.item_id,
-                            schedules,
-                        },
+                item: schedule_items[0],
+                save: (_schedule_id, schedules) =>
+                    Promise.all(
+                        schedule_items.map((item) =>
+                            updateSignagePlaylistMediaSchedule(
+                                playlist.id,
+                                item.id || item.item_id,
+                                {
+                                    item_id: item.item_id,
+                                    schedules,
+                                },
+                            ),
+                        ),
                     ),
             },
             panelClass: 'mobile-fullscreen',
@@ -1797,6 +1884,7 @@ export class SignageService {
             this._playlist_change.set(Date.now());
             this.changed();
         }
+        return !!result;
     }
 
     public refreshPlaylist(playlist_id: string) {
