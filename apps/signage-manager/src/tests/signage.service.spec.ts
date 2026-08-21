@@ -720,6 +720,46 @@ describe('SignageService media uploads', () => {
         expect(service.selected_template_requires_approval()).toBe(false);
     });
 
+    it('replaces an approved template with its new draft ID', () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const approved = new SignageTemplate({
+            id: 'template-live',
+            approved: true,
+        });
+        const draft = new SignageTemplate({
+            id: 'template-draft',
+            live_template_id: 'template-live',
+        });
+        test_service['_template_items'].set([approved]);
+        service.selected_template.set(approved);
+
+        service.updateCachedTemplate(draft);
+
+        expect(service.templates()).toEqual([draft]);
+        expect(service.selected_template()).toBe(draft);
+    });
+
+    it('replaces a draft with its approved template', () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const draft = new SignageTemplate({
+            id: 'template-draft',
+            live_template_id: 'template-live',
+        });
+        const approved = new SignageTemplate({
+            id: 'template-live',
+            approved: true,
+        });
+        test_service['_template_items'].set([draft]);
+        service.selected_template.set(draft);
+
+        service.updateCachedTemplate(approved);
+
+        expect(service.templates()).toEqual([approved]);
+        expect(service.selected_template()).toBe(approved);
+    });
+
     it('sends displayed layout position defaults when saving', async () => {
         const service = createService();
         service.selected_template.set(

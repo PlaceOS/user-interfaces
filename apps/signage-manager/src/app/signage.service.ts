@@ -331,6 +331,17 @@ function persistSelectedGroupId(group_id: string) {
     }
 }
 
+/** Whether two records are approved and draft versions of one template. */
+function isSameSignageTemplate(
+    first: SignageTemplate,
+    second: SignageTemplate,
+) {
+    return (
+        (first.live_template_id || first.id) ===
+        (second.live_template_id || second.id)
+    );
+}
+
 /** Group and its ancestors, root first. Stops on a repeated group so a broken
  * parent chain can't loop forever. */
 export function groupHierarchy(
@@ -1874,9 +1885,7 @@ export class SignageService {
         });
         const result = await dialogClosed(ref);
         if (result) {
-            if (this.selected_template()?.id === template.id) {
-                this.selected_template.set(result);
-            }
+            this.updateCachedTemplate(result);
             this.changed();
         }
     }
@@ -2003,10 +2012,7 @@ export class SignageService {
             const result = decodeEntityNames(
                 new SignageTemplate({ ...response, layouts }),
             );
-            this.selected_template.set(result);
-            this._template_items.update((items) =>
-                items.map((item) => (item.id === result.id ? result : item)),
-            );
+            this.updateCachedTemplate(result);
             notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_LAYOUTS_SAVED'));
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_SAVE_ERROR'));
@@ -2039,9 +2045,15 @@ export class SignageService {
 
     public updateCachedTemplate(template: SignageTemplate) {
         this._template_items.update((items) =>
-            items.map((item) => (item.id === template.id ? template : item)),
+            items.map((item) =>
+                isSameSignageTemplate(item, template) ? template : item,
+            ),
         );
-        if (this.selected_template()?.id === template.id) {
+        const selected_template = this.selected_template();
+        if (
+            selected_template &&
+            isSameSignageTemplate(selected_template, template)
+        ) {
             this.selected_template.set(template);
         }
     }
