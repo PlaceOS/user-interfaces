@@ -62,6 +62,21 @@ describe('TemplateListComponent', () => {
         ).toBeNull();
     });
 
+    it('lists the groups a template is shared with', async () => {
+        const component = await make();
+        const template = new SignageTemplate({
+            id: 'template-1',
+            shared_with: [
+                { id: 'group-1', name: 'Facilities' },
+                { id: 'group-2', name: 'Marketing' },
+            ],
+        });
+
+        expect(component.sharedGroupNames(template)).toBe(
+            'Facilities, Marketing',
+        );
+    });
+
     it('requests the next page when scrolled', async () => {
         const component = await make();
 
