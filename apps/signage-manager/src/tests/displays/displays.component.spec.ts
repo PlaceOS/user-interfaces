@@ -12,6 +12,7 @@ describe('DisplaysSectionComponent', () => {
     const all_zones = signal<any[]>([]);
     const can_update = signal(false);
     const can_delete_displays = signal(false);
+    const templates_enabled = signal(true);
     const navigate = vi.fn();
     const edit_display = vi.fn();
     const remove_display = vi.fn();
@@ -23,6 +24,7 @@ describe('DisplaysSectionComponent', () => {
         all_zones,
         can_update,
         can_delete_displays,
+        templates_enabled,
         editDisplay: edit_display,
         removeDisplay: remove_display,
     };
@@ -56,6 +58,7 @@ describe('DisplaysSectionComponent', () => {
         all_zones.set([]);
         can_update.set(false);
         can_delete_displays.set(false);
+        templates_enabled.set(true);
         remove_display.mockResolvedValue(false);
     });
 
@@ -118,6 +121,15 @@ describe('DisplaysSectionComponent', () => {
         TestBed.flushEffects();
 
         expect(component.view_tab()).toBe('zones');
+    });
+
+    it('opens the templates tab when template management is enabled', async () => {
+        const [component, fixture] = await make();
+        fixture.componentRef.setInput('tab', 'templates');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        expect(component.view_tab()).toBe('templates');
     });
 
     it('navigates and updates the tab when switching views', async () => {

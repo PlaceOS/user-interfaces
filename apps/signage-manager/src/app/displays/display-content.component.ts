@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
+import { TemplateMappingsComponent } from '../shared/template-mappings.component';
 import { SignageService } from '../signage.service';
 import { DisplayScheduleComponent } from './display-schedule.component';
 
@@ -25,6 +26,20 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-hidden rounded-lg border"
                         >
                             <display-schedule />
+                        </div>
+                    }
+
+                    @if (activeTab() === 'templates') {
+                        <div
+                            id="display-templates-panel"
+                            role="tabpanel"
+                            aria-labelledby="display-templates-tab"
+                            class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-hidden rounded-lg border"
+                        >
+                            <template-mappings
+                                target_type="display"
+                                [target_id]="selected_display().id"
+                            />
                         </div>
                     }
 
@@ -332,6 +347,7 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         RouterLink,
         IconComponent,
         DisplayScheduleComponent,
+        TemplateMappingsComponent,
         TranslatePipe,
         PlaylistThumbnailComponent,
     ],
@@ -339,9 +355,9 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
 export class DisplayContentComponent {
     private readonly _service = inject(SignageService);
 
-    public readonly activeTab = input<'schedule' | 'playlists' | 'zones'>(
-        'schedule',
-    );
+    public readonly activeTab = input<
+        'schedule' | 'templates' | 'playlists' | 'zones'
+    >('schedule');
     public readonly selected_display = this._service.selected_display;
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;

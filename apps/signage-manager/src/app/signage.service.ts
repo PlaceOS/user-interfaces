@@ -30,6 +30,7 @@ import {
     addSignageMedia,
     addSignagePlaylist,
     addSignageTemplate,
+    addSignageTemplateMapping,
     addSystem,
     apiEndpoint,
     currentGroups,
@@ -46,6 +47,7 @@ import {
     PlaceUser,
     PlaceZone,
     post,
+    query,
     queryGroups,
     queryGroupUsers,
     queryGroupZones,
@@ -63,6 +65,7 @@ import {
     removeSignageMedia,
     removeSignagePlaylist,
     removeSignageTemplate,
+    removeSignageTemplateMapping,
     removeSystem,
     requestApprovalSignagePlaylist,
     requestApprovalSignageTemplate,
@@ -77,6 +80,7 @@ import {
     type SignagePlaylistApprover,
     SignagePlaylistItemSchedule,
     SignagePlaylistMedia,
+    type SignagePlaylistSchedule,
     SignagePlugin,
     type SignagePluginType,
     SignageTemplate,
@@ -90,6 +94,7 @@ import {
     updateSignagePlaylistMedia,
     updateSignagePlaylistMediaSchedule,
     updateSignageTemplate,
+    updateSignageTemplateMapping,
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
@@ -116,6 +121,7 @@ import {
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
 import { TemplateApproveModalComponent } from './shared/template-approve-modal.component';
 import { TemplateEditModalComponent } from './shared/template-edit-modal.component';
+import { TemplateMappingModalComponent } from './shared/template-mapping-modal.component';
 import {
     TemplateRequestApprovalModalComponent,
     TemplateRequestApprovalModalResult,
@@ -140,6 +146,10 @@ import {
     playlistMediaItems,
 } from './signage-playlist.util';
 import { markSignageSharedGroupsChanged } from './signage-shared-groups.util';
+import {
+    HydratedSignageTemplateMapping,
+    SignageTemplateMappingTarget,
+} from './signage-template-mapping';
 import { applyLayoutPositionDefaults } from './templates/template-layout.util';
 
 function dataURLtoFile(data_url: string, filename: string) {
@@ -1132,6 +1142,29 @@ export class SignageService {
         });
     }
 
+    public async listApprovedTemplates() {
+        if (!this._canQueryLists()) return [];
+        const result = await query<SignageTemplate>({
+            path: 'signage/templates',
+            query_params: this._groupQueryParams({
+                approved: true,
+                limit: 10_000,
+            }),
+            fn: (data) => new SignageTemplate(data),
+        });
+        return result.data;
+    }
+
+    public async listTemplateMappings(target: SignageTemplateMappingTarget) {
+        if (!this._canQueryLists()) return [];
+        const result = await query<HydratedSignageTemplateMapping>({
+            path: 'signage/template_mappings',
+            query_params: { ...target, limit: 10_000 },
+            fn: (data) => new HydratedSignageTemplateMapping(data),
+        });
+        return result.data;
+    }
+
     public querySelectableZones(
         search: string,
         parent_id: string,
@@ -1976,6 +2009,78 @@ export class SignageService {
         if (result) {
             this.updateCachedTemplate(result);
             this.changed();
+        }
+    }
+
+    public async editTemplateMapping(
+        target: SignageTemplateMappingTarget,
+        mapping: HydratedSignageTemplateMapping | null = null,
+    ) {
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
+            )
+        )
+            return false;
+        const templates = mapping ? [] : await this.listApprovedTemplates();
+        const ref = this._dialog.open(TemplateMappingModalComponent, {
+            data: {
+                mapping,
+                templates,
+                save: (
+                    template_id: string,
+                    schedule: SignagePlaylistSchedule | null,
+                ) =>
+                    mapping
+                        ? updateSignageTemplateMapping(mapping.id, { schedule })
+                        : addSignageTemplateMapping({
+                              ...target,
+                              template_id,
+                              schedule,
+                          }),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        return !!(await dialogClosed(ref));
+    }
+
+    public async removeTemplateMapping(
+        mapping: HydratedSignageTemplateMapping,
+    ) {
+        if (
+            !mapping?.id ||
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
+            )
+        )
+            return false;
+        const result = await openConfirmModal(
+            {
+                title: i18n(
+                    'SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_MAPPING_TITLE',
+                ),
+                content: i18n(
+                    'SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_MAPPING_CONTENT',
+                    { name: mapping.template_details.name },
+                ),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        try {
+            await removeSignageTemplateMapping(mapping.id);
+            result.close();
+            notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVED'));
+            return true;
+        } catch (error) {
+            result.close();
+            notifyError(
+                i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVE_ERROR'),
+            );
+            throw error;
         }
     }
 
