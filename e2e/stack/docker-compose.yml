@@ -24,6 +24,7 @@
 
 volumes:
   postgres-data:
+  elastic-data:
   redis-data:
   nginx-data:
   www:
@@ -44,8 +45,17 @@ x-postgresdb-client-env: &postgresdb-client-env
   PG_DATABASE: placeos
   PG_DATABASE_URL: postgresql://placeos:development@postgres:5432/placeos
 
+x-elastic-client-env: &elastic-client-env
+  ELASTIC_HOST: elastic
+  ELASTIC_PORT: 9200
+  ES_HOST: elastic
+  ES_PORT: 9200
+
 x-redis-client-env: &redis-client-env
   REDIS_URL: redis://redis:6379
+
+x-search-ingest-client-env: &search-ingest-client-env
+  PLACE_SEARCH_INGEST_URI: http://search-ingest:3000
 
 x-logging: &std-logging
   logging:
@@ -74,6 +84,79 @@ services:
       POSTGRES_DB: placeos
       TZ: ${TZ:-UTC}
 
+  elastic:
+    # STILL HERE ON PURPOSE — do not delete without reading this.
+    #
+    # PPT-2644 moved rest-api's search off Elasticsearch and onto Postgres, and
+    # this service was removed on that basis in 16dc58f4 (merged 2026-08-13).
+    # That merge broke CI for 11 days, because the stack pins
+    # `${PLACEOS_TAG:-latest}` and `latest` is the RELEASE channel, not develop:
+    # it was `placeos-2.2608.1`, cut before PPT-2644 landed. A rest-api without
+    # PG search and without an `elastic` service falls back to its default host
+    # and every index route 500s with
+    #
+    #     Error connecting to '127.0.0.1:9200': Connection refused
+    #
+    # which surfaces as the seed's `GET /oauth_apps` failing in `up.sh`.
+    #
+    # The rule this violated: THE STACK'S COMPOSITION MUST MATCH THE IMAGE
+    # CHANNEL IT PINS. Removing this is safe only once the image that
+    # `${PLACEOS_TAG:-latest}` resolves to actually contains PPT-2644. Check
+    # before you do, do not infer it from the rest-api repo:
+    #
+    #     docker pull placeos/rest-api:latest
+    #     docker image inspect placeos/rest-api:latest \
+    #       --format '{{index .Config.Labels "org.opencontainers.image.version"}}'
+    #     # then, in the rest-api clone:
+    #     git merge-base --is-ancestor 51faa1a <that release's revision>
+    #
+    # As of 2026-08-24 that is false for `latest` and true for `nightly`. When it
+    # flips, re-apply 16dc58f4 (it reverts cleanly) rather than redoing the work.
+    #
+    # A LATE 7.17 patch, not the 7.17.6 that PlaceOS/local pins.
+    #
+    # 7.17.6 bundles a JDK with the cgroup v2 NPE bug: its launcher dies in
+    # `JvmOptionsParser` -> `DefaultSystemMemoryInfo` with "Cannot invoke
+    # CgroupInfo.getMountPoint() because anyController is null" before the JVM even
+    # starts, so no ES_JAVA_OPTS setting can work around it. GitHub runners use
+    # cgroup v2; Docker Desktop's VM does not, which is why this passes locally and
+    # failed the first two CI runs. Staying on the 7.x line keeps client
+    # compatibility with rest-api and search-ingest, which is what PlaceOS/local
+    # exercises.
+    image: elasticsearch:${E2E_ELASTIC_VERSION:-7.17.28}
+    hostname: elastic
+    restart: always
+    <<: *std-logging
+    healthcheck:
+      test: curl --silent --fail localhost:9200/_cat/health
+      interval: 10s
+      start_period: 60s
+      retries: 20
+    volumes:
+      - elastic-data:/usr/share/elasticsearch/data
+    # `bootstrap.memory_lock` is OFF deliberately.
+    #
+    # PlaceOS/local enables it, but it requires an unlimited `memlock` rlimit or
+    # Elasticsearch refuses to boot ("memory locking requested ... but memory is
+    # not locked") — the container exits, and `compose --wait` reports it as
+    # unhealthy within seconds rather than after its retry budget. Docker Desktop
+    # grants that rlimit by default, so this only bites in CI: it is what failed
+    # the first GitHub Actions run. Memory locking is production tuning and buys
+    # a throwaway test stack nothing. The ulimits below make it work either way.
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    environment:
+      bootstrap.memory_lock: 'false'
+      cluster.routing.allocation.disk.threshold_enabled: 'false'
+      discovery.type: single-node
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      TZ: ${TZ:-UTC}
+
   redis:
     # Pinned: keydb is not the system under test, so a moving tag here can only
     # ever add noise. The PlaceOS services deliberately stay on ${PLACEOS_TAG}
@@ -94,6 +177,17 @@ services:
       - redis-data:/data
     environment:
       TZ: ${TZ:-UTC}
+
+  search-ingest:
+    image: placeos/search-ingest:${PLACEOS_TAG:-latest}
+    hostname: search-ingest
+    restart: always
+    <<: *std-logging
+    depends_on:
+      elastic: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    environment:
+      <<: [*deployment-env, *postgresdb-client-env, *elastic-client-env]
 
   # Populates the shared `www` volume from PlaceOS/www-core — the source of the
   # platform /login page that the real-login spec drives.
@@ -137,6 +231,7 @@ services:
     <<: *std-logging
     depends_on:
       postgres: { condition: service_healthy }
+      elastic: { condition: service_healthy }
       redis: { condition: service_started }
     env_file:
       - .secrets/.env.public_key
@@ -146,7 +241,9 @@ services:
         [
           *deployment-env,
           *postgresdb-client-env,
+          *elastic-client-env,
           *redis-client-env,
+          *search-ingest-client-env,
         ]
 
   staff-api:
@@ -211,7 +308,7 @@ services:
     env_file:
       - .secrets/.env.secret_key
     environment:
-      <<: [*deployment-env, *postgresdb-client-env]
+      <<: [*deployment-env, *postgresdb-client-env, *elastic-client-env]
       PLACE_DOMAIN: ${E2E_DOMAIN:-localhost:9443}
       PLACE_APPLICATION: backoffice
       PLACE_AUTH_HOST: auth:8080
