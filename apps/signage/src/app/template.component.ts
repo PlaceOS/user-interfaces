@@ -14,6 +14,7 @@ import {
 import { MediaCacheService } from './media-cache.service';
 import { MediaPlayerComponent } from './media-player.component';
 import { SignagePanelComponent } from './signage.component';
+import { SignageService } from './signage.service';
 import { computeTemplateLayout } from './template-layout';
 import { MediaPlayerItem } from './types';
 
@@ -119,6 +120,7 @@ function backgroundPlayerItem(
             @for (item of layout_items(); track item.config.instance_id) {
                 <plugin-embed
                     class="absolute z-20 bg-transparent"
+                    [class.pointer-events-none]="debug()"
                     [plugin]="item.plugin"
                     [config]="item.config"
                     [auto_play]="true"
@@ -152,6 +154,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     private readonly _plugins = signal<SignagePlugin[]>([]);
     private _load_id = 0;
 
+    public readonly debug = inject(SignageService).debug;
     public readonly template = signal<SignageTemplate | null>(null);
     public readonly background_playlist = signal<MediaPlayerItem[]>([]);
 

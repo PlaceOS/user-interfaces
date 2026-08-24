@@ -27,6 +27,7 @@ describe('SignagePanelComponent', () => {
     });
 
     beforeEach(() => {
+        localStorage.clear();
         sessionStorage.clear();
         signage_service = {
             playlist: signal([]),
@@ -149,6 +150,44 @@ describe('SignagePanelComponent', () => {
         expect(spectator.element.textContent).toContain(
             new Date(spectator.component.version_date).getFullYear().toString(),
         );
+    });
+
+    it('should only show the layout grid while editing the debug layout', async () => {
+        build_component();
+        spectator.component.debug.set(true);
+        await spectator.fixture.whenStable();
+
+        expect(
+            spectator.query('[data-testid="debug-layout-grid"]'),
+        ).toBeFalsy();
+        expect(spectator.query('media-player')?.classList).toContain('z-0');
+
+        spectator.click('button[aria-label="Edit debug layout"]');
+        await spectator.fixture.whenStable();
+
+        expect(spectator.component.debug_layout_editing()).toBe(true);
+        expect(
+            spectator.query('[data-testid="debug-layout-grid"]'),
+        ).toBeTruthy();
+        expect(spectator.query('media-player')?.classList).toContain('z-auto');
+        expect(spectator.query('media-player')?.classList).not.toContain('z-0');
+        expect(
+            spectator.query('button[aria-label="Reset debug layout"]'),
+        ).toBeTruthy();
+    });
+
+    it('should clear saved debug layouts without clearing other storage', () => {
+        localStorage.setItem('SIGNAGE.debug-overlay.player-time', '{}');
+        localStorage.setItem('unrelated', 'keep');
+        build_component();
+
+        spectator.component.resetDebugLayout();
+
+        expect(spectator.component.debug_layout_reset_count()).toBe(1);
+        expect(
+            localStorage.getItem('SIGNAGE.debug-overlay.player-time'),
+        ).toBeNull();
+        expect(localStorage.getItem('unrelated')).toBe('keep');
     });
 
     it('should persist muted state for the browser session', () => {
