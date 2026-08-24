@@ -258,6 +258,104 @@ describe('SignageService', () => {
         expect(upcoming[1].ends_at).toBe('single pass');
     });
 
+    it('should stop normal playlist playback when its schedule expires', async () => {
+        const now = new Date('2026-01-01T10:00:00Z');
+        vi.setSystemTime(now);
+        const valid_until = Math.floor((now.getTime() + 30_000) / 1000);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist', 'scheduled-playlist'],
+                        'zone-1': [],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_duration: 10_000,
+                                schedules: [
+                                    {
+                                        play_at: Math.floor(
+                                            now.getTime() / 1000,
+                                        ),
+                                        play_period: 10,
+                                        play_takeover: false,
+                                        valid_until,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+            'media-3',
+        ]);
+        expect(
+            spectator.service.playlist().find((_) => _.id === 'media-3')
+                ?.valid_until,
+        ).toBe(valid_until);
+
+        vi.advanceTimersByTime(31_000);
+        await flush();
+
+        expect(spectator.service.playlist().map((_) => _.id)).toEqual([
+            'media-1',
+        ]);
+    });
+
+    it('should ignore an expired takeover schedule', async () => {
+        const now = new Date('2026-01-01T10:00:00Z');
+        vi.setSystemTime(now);
+        const expired_at = Math.floor((now.getTime() - 1_000) / 1000);
+        (ts_client.showSignage as any).mockReturnValue(
+            Promise.resolve(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['scheduled-playlist'],
+                        'zone-1': [],
+                    },
+                    playlist_config: {
+                        ...create_display().playlist_config,
+                        'scheduled-playlist': [
+                            {
+                                id: 'scheduled-playlist',
+                                name: 'Scheduled Playlist',
+                                enabled: true,
+                                default_duration: 10_000,
+                                schedules: [
+                                    {
+                                        play_at: Math.floor(
+                                            (now.getTime() - 60_000) / 1000,
+                                        ),
+                                        play_period: 10,
+                                        play_takeover: true,
+                                        valid_until: expired_at,
+                                    },
+                                ],
+                            },
+                            ['media-3'],
+                        ],
+                    },
+                }) as any,
+            ),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.override_playlist().playlist).toEqual([]);
+    });
+
     it('should finish reloading when trigger binding fails', async () => {
         (ts_client.getModule as any).mockImplementation(() => {
             throw new Error('module unavailable');

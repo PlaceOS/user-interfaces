@@ -16,6 +16,10 @@ import {
 } from '@placeos/ts-client';
 import { fromUnixTime } from 'date-fns';
 import { SignageSharedWithComponent } from '../shared/signage-shared-with.component';
+import {
+    playlistScheduleExpiryLabel,
+    playlistScheduleExpiryTooltip,
+} from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
@@ -273,12 +277,18 @@ function schedulePeriod(schedule: Partial<SignagePlaylistSchedule>) {
 
 function scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
     const period = schedulePeriod(schedule);
+    const expiry = playlistScheduleExpiryLabel(schedule);
+    const suffix = [schedule.play_takeover ? 'takeover' : '', expiry]
+        .filter((_) => _)
+        .join(' · ');
     if (schedule.play_at) {
         const date = fromUnixTime(schedule.play_at);
-        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
+        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}${
+            suffix ? ` · ${suffix}` : ''
+        }`;
     }
     return `${humanizeCronSchedule(schedule.play_cron || '0 0 * * *', period)}${
-        schedule.play_takeover ? ' · takeover' : ''
+        suffix ? ` · ${suffix}` : ''
     }`;
 }
 
@@ -297,11 +307,19 @@ function nextSchedulePlaySessions(
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);
-        return end >= new Date() ? [{ start, period }] : [];
+        const expires_before_play =
+            !!schedule.valid_until && schedule.play_at > schedule.valid_until;
+        return end >= new Date() && !expires_before_play
+            ? [{ start, period }]
+            : [];
     }
-    return nextCronPlayDates(schedule.play_cron || '0 0 * * *', count).map(
-        (start) => ({ start, period }),
-    );
+    return nextCronPlayDates(schedule.play_cron || '0 0 * * *', count)
+        .filter(
+            (start) =>
+                !schedule.valid_until ||
+                start.getTime() <= schedule.valid_until * 1000,
+        )
+        .map((start) => ({ start, period }));
 }
 
 @Component({
@@ -488,7 +506,20 @@ function nextSchedulePlaySessions(
                                                 schedule of schedule_labels();
                                                 track schedule
                                             ) {
-                                                <div>{{ schedule }}</div>
+                                                <div
+                                                    [matTooltip]="
+                                                        schedule_expiry_tooltips()[
+                                                            $index
+                                                        ]
+                                                    "
+                                                    [matTooltipDisabled]="
+                                                        !schedule_expiry_tooltips()[
+                                                            $index
+                                                        ]
+                                                    "
+                                                >
+                                                    {{ schedule }}
+                                                </div>
                                             }
                                         </div>
                                         <div class="mt-2">
@@ -946,6 +977,14 @@ export class PlaylistItemDetailsComponent {
         const pl = this.playlist();
         if (!pl || pl.distribution) return [];
         return playlistSchedules(pl).map((schedule) => scheduleLabel(schedule));
+    });
+
+    public readonly schedule_expiry_tooltips = computed(() => {
+        const pl = this.playlist();
+        if (!pl || pl.distribution) return [];
+        return playlistSchedules(pl).map((schedule) =>
+            playlistScheduleExpiryTooltip(schedule),
+        );
     });
 
     public readonly next_play_sessions = computed(() => {

@@ -5,10 +5,14 @@ import { SignageService } from '../../app/signage.service';
 import { TemplatesSectionComponent } from '../../app/templates/templates.component';
 
 describe('TemplatesSectionComponent', () => {
+    const navigate = vi.fn();
     const service_stub = {
-        selected_template: signal<{ id: string } | null>(null),
+        selected_template: signal<{
+            id: string;
+            live_template_id?: string;
+        } | null>(null),
         selected_template_layout_index: signal<number | null>(null),
-        templates: signal<{ id: string }[]>([]),
+        templates: signal<{ id: string; live_template_id?: string }[]>([]),
         selected_template_requires_approval: signal(false),
         template_approval_request_loading: signal(false),
         can_approve: signal(false),
@@ -22,21 +26,32 @@ describe('TemplatesSectionComponent', () => {
         requestTemplateApproval: vi.fn(),
     };
 
-    async function make() {
+    async function makeFixture() {
         await TestBed.configureTestingModule({
             imports: [TemplatesSectionComponent],
             providers: [
                 { provide: SignageService, useValue: service_stub },
-                { provide: Router, useValue: { navigate: vi.fn() } },
+                { provide: Router, useValue: { navigate } },
             ],
         })
             .overrideComponent(TemplatesSectionComponent, {
                 set: { template: '' },
             })
             .compileComponents();
-        return TestBed.createComponent(TemplatesSectionComponent)
-            .componentInstance;
+        return TestBed.createComponent(TemplatesSectionComponent);
     }
+
+    async function make() {
+        return (await makeFixture()).componentInstance;
+    }
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        service_stub.selected_template.set(null);
+        service_stub.selected_template_layout_index.set(null);
+        service_stub.templates.set([]);
+        TestBed.resetTestingModule();
+    });
 
     it('shows the preview tab by default and switches to layouts', async () => {
         const component = await make();
@@ -84,5 +99,39 @@ describe('TemplatesSectionComponent', () => {
         component.shareTemplate();
 
         expect(service_stub.shareTemplate).toHaveBeenCalledWith(template);
+    });
+
+    it('selects a draft from an approved route and stores the draft ID', async () => {
+        const fixture = await makeFixture();
+        const draft = {
+            id: 'template-draft',
+            live_template_id: 'template-live',
+        };
+        service_stub.templates.set([draft]);
+        fixture.componentRef.setInput('id', 'template-live');
+        await fixture.whenStable();
+
+        expect(service_stub.selected_template()).toBe(draft);
+        expect(navigate).toHaveBeenCalledWith(
+            ['/templates', 'template-draft'],
+            {
+                queryParamsHandling: 'merge',
+                replaceUrl: true,
+            },
+        );
+    });
+
+    it('stores the approved ID after approving a draft', async () => {
+        const fixture = await makeFixture();
+        const approved = { id: 'template-live' };
+        service_stub.selected_template.set(approved);
+        service_stub.templates.set([approved]);
+        fixture.componentRef.setInput('id', 'template-draft');
+        await fixture.whenStable();
+
+        expect(navigate).toHaveBeenCalledWith(['/templates', 'template-live'], {
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     });
 });

@@ -120,6 +120,31 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
                                     {{ template.description }}
                                 </div>
                             }
+                            @if (template.shared_with.length) {
+                                <div
+                                    class="mt-0.5 flex min-w-0 items-center gap-1 text-xs"
+                                    [class.opacity-70]="
+                                        selected()?.id !== template.id
+                                    "
+                                    [class.opacity-90]="
+                                        selected()?.id === template.id
+                                    "
+                                    [title]="sharedGroupNames(template)"
+                                >
+                                    <icon class="shrink-0 text-base"
+                                        >groups</icon
+                                    >
+                                    <span class="shrink-0">
+                                        {{
+                                            'SIGNAGE_MANAGER.SHARED_WITH'
+                                                | translate
+                                        }}:
+                                    </span>
+                                    <span class="truncate">
+                                        {{ sharedGroupNames(template) }}
+                                    </span>
+                                </div>
+                            }
                         </div>
                     </a>
                 }
@@ -207,5 +232,9 @@ export class TemplateListComponent {
         return template.approval_requested
             ? 'awaiting_review'
             : 'awaiting_approval';
+    }
+
+    public sharedGroupNames(template: SignageTemplate) {
+        return template.shared_with.map(({ name }) => name).join(', ');
     }
 }

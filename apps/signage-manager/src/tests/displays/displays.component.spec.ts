@@ -9,6 +9,7 @@ describe('DisplaysSectionComponent', () => {
     const displays = signal<any[]>([]);
     const playlists = signal<any[]>([]);
     const zones = signal<any[]>([]);
+    const all_zones = signal<any[]>([]);
     const can_update = signal(false);
     const can_delete_displays = signal(false);
     const navigate = vi.fn();
@@ -19,6 +20,7 @@ describe('DisplaysSectionComponent', () => {
         displays,
         playlists,
         zones,
+        all_zones,
         can_update,
         can_delete_displays,
         editDisplay: edit_display,
@@ -51,6 +53,7 @@ describe('DisplaysSectionComponent', () => {
         displays.set([]);
         playlists.set([]);
         zones.set([]);
+        all_zones.set([]);
         can_update.set(false);
         can_delete_displays.set(false);
         remove_display.mockResolvedValue(false);
@@ -58,7 +61,8 @@ describe('DisplaysSectionComponent', () => {
 
     it('counts the playlists and zones attached to the selected display', async () => {
         playlists.set([{ id: 'p1' }, { id: 'p2' }]);
-        zones.set([{ id: 'z1' }, { id: 'z2' }, { id: 'z3' }]);
+        zones.set([{ id: 'z1' }]);
+        all_zones.set([{ id: 'z1' }, { id: 'z2' }, { id: 'z3' }]);
         selected_display.set({
             id: 'd1',
             playlists: ['p1'],

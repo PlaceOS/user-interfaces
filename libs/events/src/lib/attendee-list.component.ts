@@ -44,10 +44,12 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
                             attendee
                             class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
-                            @let usr =
+                            @let resolved_host =
                                 host() === user.email
-                                    ? (host() | user | async) || user
-                                    : user;
+                                    ? (host() | user | async)
+                                    : null;
+                            @let usr =
+                                resolved_host?.email ? resolved_host : user;
                             <a-user-avatar [user]="usr"></a-user-avatar>
                             <div class="w-1/2 flex-1">
                                 <div class="truncate">{{ usr?.name }}</div>

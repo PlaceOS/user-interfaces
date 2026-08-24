@@ -16,9 +16,12 @@ import {
     removeSignageMedia,
     requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
+    shareSignagePlaylists,
     shareSignageTemplates,
+    showSignagePlaylist,
     SignageMedia,
     SignagePlaylist,
+    SignagePlaylistItemSchedule,
     SignagePlugin,
     SignageTemplate,
     updateSignageMedia,
@@ -30,6 +33,7 @@ import { NEVER, of } from 'rxjs';
 import { MediaPreviewModalComponent } from '../app/shared/media-preview-modal.component';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
+import { SignageSharedWithComponent } from '../app/shared/signage-shared-with.component';
 import { TemplateApproveModalComponent } from '../app/shared/template-approve-modal.component';
 import { TemplateRequestApprovalModalComponent } from '../app/shared/template-request-approval-modal.component';
 import { SignageService } from '../app/signage.service';
@@ -251,6 +255,61 @@ describe('SignageService media uploads', () => {
         );
     });
 
+    it('applies one schedule to multiple distribution playlist items', async () => {
+        const service = createService();
+        service.selected_playlist.set(
+            new SignagePlaylist({
+                id: 'playlist-1',
+                distribution: true,
+            }),
+        );
+        (updateSignagePlaylistMediaSchedule as any).mockResolvedValue({});
+
+        await service.editPlaylistItemSchedules([
+            new SignagePlaylistItemSchedule({
+                id: 'schedule-1',
+                item_id: 'media-1',
+                schedules: [
+                    {
+                        play_cron: '0 8 * * *',
+                        play_period: 30,
+                        play_takeover: false,
+                    },
+                ],
+            }),
+            new SignagePlaylistItemSchedule({
+                id: 'schedule-2',
+                item_id: 'media-2',
+                schedules: [],
+            }),
+        ]);
+
+        const modal_data = dialog.open.mock.calls[0][1].data;
+        expect(modal_data.item.id).toBe('schedule-1');
+        await modal_data.save('schedule-1', [
+            { play_cron: '0 9 * * *', play_period: 30 },
+        ]);
+
+        expect(updateSignagePlaylistMediaSchedule).toHaveBeenNthCalledWith(
+            1,
+            'playlist-1',
+            'schedule-1',
+            {
+                item_id: 'media-1',
+                schedules: [{ play_cron: '0 9 * * *', play_period: 30 }],
+            },
+        );
+        expect(updateSignagePlaylistMediaSchedule).toHaveBeenNthCalledWith(
+            2,
+            'playlist-1',
+            'schedule-2',
+            {
+                item_id: 'media-2',
+                schedules: [{ play_cron: '0 9 * * *', play_period: 30 }],
+            },
+        );
+    });
+
     it('removes a distribution schedule from the playlist items', async () => {
         const service = createService();
         (listSignagePlaylistMedia as any).mockResolvedValue({
@@ -264,6 +323,35 @@ describe('SignageService media uploads', () => {
         expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
             'schedule-2',
         ]);
+    });
+
+    it('removes selected playlist occurrences with one update', async () => {
+        const service = createService();
+        service.selected_playlist_item.set(new SignageMedia({ id: 'media-1' }));
+        service.selected_playlist_item_index.set(2);
+        (listSignagePlaylistMedia as any).mockResolvedValue({
+            items: ['media-1', 'media-2', 'media-1', 'media-3'],
+            schedules: [],
+        });
+        (updateSignagePlaylistMedia as any).mockResolvedValue({});
+        confirmNextDialog();
+
+        const removed = await service.removeMediaItemsFromPlaylist(
+            'playlist-1',
+            [
+                { id: 'media-1', index: 0 },
+                { id: 'media-1', index: 2 },
+            ],
+        );
+
+        expect(removed).toBe(true);
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledOnce();
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('playlist-1', [
+            'media-2',
+            'media-3',
+        ]);
+        expect(service.selected_playlist_item()).toBeNull();
+        expect(service.selected_playlist_item_index()).toBeNull();
     });
 
     it('does not create signage media when the media upload fails', async () => {
@@ -638,6 +726,66 @@ describe('SignageService media uploads', () => {
         });
     });
 
+    it('refreshes the shared groups after sharing a playlist', async () => {
+        const service = createService();
+        const current_group = { id: 'group-1', name: 'Current' };
+        const target_group = { id: 'group-2', name: 'Target' };
+        vi.mocked(showSignagePlaylist).mockResolvedValue(
+            new SignagePlaylist({
+                id: 'playlist-1',
+                shared_with: [current_group],
+            }),
+        );
+        vi.mocked(shareSignagePlaylists).mockResolvedValue({
+            linked: ['playlist-1'],
+            already_present: [],
+        });
+        Object.defineProperty(service, 'can_share', {
+            value: () => true,
+        });
+        Object.defineProperty(service, 'selected_group', {
+            value: () => ({ group: current_group }),
+        });
+        Object.defineProperty(service, 'signage_groups', {
+            value: () => [{ group: current_group }, { group: target_group }],
+        });
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value: string) => void) => {
+                    Promise.resolve().then(() => handler(target_group.id));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+        const fixture = TestBed.createComponent(SignageSharedWithComponent);
+        fixture.componentRef.setInput('type', 'playlists');
+        fixture.componentRef.setInput('item_id', 'playlist-1');
+        fixture.componentRef.setInput('group_id', current_group.id);
+        fixture.detectChanges();
+        await vi.waitFor(() => {
+            expect(fixture.componentInstance.shared_groups()).toEqual([
+                current_group,
+            ]);
+        });
+
+        vi.mocked(showSignagePlaylist).mockResolvedValue(
+            new SignagePlaylist({
+                id: 'playlist-1',
+                shared_with: [current_group, target_group],
+            }),
+        );
+        await service.sharePlaylist(
+            new SignagePlaylist({ id: 'playlist-1', name: 'Lobby' }),
+        );
+
+        await vi.waitFor(() => {
+            expect(fixture.componentInstance.shared_groups()).toEqual([
+                current_group,
+                target_group,
+            ]);
+        });
+    });
+
     it('opens template approval for users with approval permission', () => {
         const service = createService();
         const template = new SignageTemplate({ id: 'template-1' });
@@ -719,6 +867,46 @@ describe('SignageService media uploads', () => {
         expect(service.selected_template_requires_approval()).toBe(false);
     });
 
+    it('replaces an approved template with its new draft ID', () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const approved = new SignageTemplate({
+            id: 'template-live',
+            approved: true,
+        });
+        const draft = new SignageTemplate({
+            id: 'template-draft',
+            live_template_id: 'template-live',
+        });
+        test_service['_template_items'].set([approved]);
+        service.selected_template.set(approved);
+
+        service.updateCachedTemplate(draft);
+
+        expect(service.templates()).toEqual([draft]);
+        expect(service.selected_template()).toBe(draft);
+    });
+
+    it('replaces a draft with its approved template', () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const draft = new SignageTemplate({
+            id: 'template-draft',
+            live_template_id: 'template-live',
+        });
+        const approved = new SignageTemplate({
+            id: 'template-live',
+            approved: true,
+        });
+        test_service['_template_items'].set([draft]);
+        service.selected_template.set(draft);
+
+        service.updateCachedTemplate(approved);
+
+        expect(service.templates()).toEqual([approved]);
+        expect(service.selected_template()).toBe(approved);
+    });
+
     it('sends displayed layout position defaults when saving', async () => {
         const service = createService();
         service.selected_template.set(
@@ -747,5 +935,46 @@ describe('SignageService media uploads', () => {
                 },
             ],
         });
+    });
+
+    it('keeps saved plugin details when the update response omits them', async () => {
+        const service = createService();
+        service.selected_template.set(
+            new SignageTemplate({ id: 'template-1', layouts: [] }),
+        );
+        service.template_layout_draft.set([
+            {
+                position: 'top',
+                plugin_id: 'clock-widget',
+                plugin_params: { display: { format: '24h' } },
+            },
+        ]);
+        vi.mocked(updateSignageTemplate).mockResolvedValue(
+            new SignageTemplate({
+                id: 'template-1',
+                layouts: [
+                    {
+                        position: 'top',
+                        y_pos: 0.15,
+                        plugin_params: {},
+                    },
+                ],
+            }),
+        );
+
+        await service.saveTemplateLayouts();
+
+        expect(service.selected_template()?.layouts).toEqual([
+            {
+                position: 'top',
+                y_pos: 0.15,
+                plugin_id: 'clock-widget',
+                plugin_params: { display: { format: '24h' } },
+            },
+        ]);
+        expect(service.template_layout_draft()).toEqual(
+            service.selected_template()?.layouts,
+        );
+        expect(service.template_layout_dirty()).toBe(false);
     });
 });

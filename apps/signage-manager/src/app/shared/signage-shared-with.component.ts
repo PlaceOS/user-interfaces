@@ -17,6 +17,7 @@ import {
 } from '@placeos/components';
 import {
     listSignageSharedGroups,
+    signage_shared_groups_change,
     SignageShareableType,
     SignageSharedGroup,
     unshareSignageItem,
@@ -94,6 +95,7 @@ export class SignageSharedWithComponent {
             type: this.type(),
             id: this.item_id(),
             group_id: this.group_id(),
+            shared_groups_change: signage_shared_groups_change(),
         }),
         loader: ({ params }) =>
             listSignageSharedGroups(params.type, params.id, params.group_id),

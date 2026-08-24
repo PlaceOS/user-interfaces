@@ -141,6 +141,7 @@ interface DisplayEditFormModel {
                                         icon
                                         default
                                         type="button"
+                                        class="rounded-full"
                                         (click)="removeZone(zone.id)"
                                         [attr.aria-label]="
                                             'SIGNAGE_MANAGER.REMOVE_DISPLAY_ZONE'

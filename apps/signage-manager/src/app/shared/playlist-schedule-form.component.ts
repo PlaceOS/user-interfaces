@@ -5,6 +5,7 @@ import { FieldTree, FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, LocaleService } from '@placeos/common';
 import {
     IconComponent,
@@ -21,7 +22,11 @@ import {
     SignagePlaylist,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { fromUnixTime, getUnixTime } from 'date-fns';
+import { endOfDay, fromUnixTime, getUnixTime } from 'date-fns';
+import {
+    playlistScheduleExpiryLabel,
+    playlistScheduleExpiryTooltip,
+} from '../signage-playlist.util';
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
 type RecurringScheduleType =
@@ -48,6 +53,8 @@ export interface PlaylistScheduleFormModel {
     recurrence_weekdays: number[];
     recurrence_day_of_month: number[];
     play_period: number;
+    has_valid_until: boolean;
+    valid_until: number;
 }
 
 const FULL_DAY_START_MINUTES = 0;
@@ -470,7 +477,11 @@ function formatMinutes(value: number | null | undefined) {
         .join(' ');
 }
 
-function nextCronPlayTimes(cron: string, duration_minutes: number) {
+function nextCronPlayTimes(
+    cron: string,
+    duration_minutes: number,
+    valid_until = 0,
+) {
     const result: string[] = [];
     if (!cron?.trim()) return result;
     const date = new Date();
@@ -478,7 +489,8 @@ function nextCronPlayTimes(cron: string, duration_minutes: number) {
     date.setMinutes(date.getMinutes() + 1);
     const end = new Date(date);
     end.setFullYear(end.getFullYear() + 2);
-    while (date <= end && result.length < 5) {
+    const expiry = valid_until ? new Date(valid_until) : end;
+    while (date <= end && date <= expiry && result.length < 5) {
         if (doesCronMatchDate(cron, date)) {
             result.push(formatPlayDateTimeRange(date, duration_minutes));
         }
@@ -510,6 +522,10 @@ export function createPlaylistScheduleModel(
         recurrence_weekdays: recurring_schedule.recurrence_weekdays,
         recurrence_day_of_month: recurring_schedule.recurrence_day_of_month,
         play_period: playlistPlayPeriod(source),
+        has_valid_until: !!source.valid_until,
+        valid_until: source.valid_until
+            ? fromUnixTime(source.valid_until).getTime()
+            : endOfDay(Date.now()).getTime(),
     };
 }
 
@@ -522,12 +538,18 @@ export function playlistSchedulePayload(
               play_cron: DEFAULT_RECURRING_CRON,
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
+              valid_until: value.has_valid_until
+                  ? getUnixTime(new Date(value.valid_until))
+                  : 0,
           }
         : {
               play_at: 0,
               play_cron: buildRecurringCron(value),
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
+              valid_until: value.has_valid_until
+                  ? getUnixTime(new Date(value.valid_until))
+                  : 0,
           };
 }
 
@@ -555,6 +577,8 @@ export function playlistSchedulePayload(
                     </div>
                     <div
                         class="text-base-content min-w-0 flex-1 truncate text-xs"
+                        [matTooltip]="scheduleExpiryTooltip()"
+                        [matTooltipDisabled]="!value().has_valid_until"
                     >
                         {{ scheduleSummary() }}
                     </div>
@@ -630,6 +654,7 @@ export function playlistSchedulePayload(
                         <a-duration-field
                             class="w-full"
                             [formField]="schedule().play_period"
+                            [min]="15"
                             [max]="24 * 60"
                             [time]="value().play_at"
                             [custom_options]="[value().play_period]"
@@ -942,6 +967,7 @@ export function playlistSchedulePayload(
                                     <a-duration-field
                                         class="no-subscript w-full flex-1"
                                         [formField]="schedule().play_period"
+                                        [min]="15"
                                         [max]="24 * 60"
                                         [time]="recurringPlayStartTime()"
                                         [custom_options]="[value().play_period]"
@@ -986,6 +1012,32 @@ export function playlistSchedulePayload(
                             }
                         </div>
                     }
+                    <div
+                        class="bg-base-200/40 border-base-300 mt-4 rounded-lg border p-3"
+                    >
+                        <settings-toggle
+                            [label]="'FORM.EXPIRES_AT' | translate"
+                            [formField]="schedule().has_valid_until"
+                        />
+                        @if (value().has_valid_until) {
+                            <div class="mt-3 flex space-x-4">
+                                <a-date-field
+                                    class="w-full flex-1"
+                                    [formField]="schedule().valid_until"
+                                ></a-date-field>
+                                <a-time-field
+                                    class="w-full flex-1"
+                                    [ngModel]="value().valid_until"
+                                    (ngModelChange)="
+                                        schedule()
+                                            .valid_until()
+                                            .value.set($event)
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></a-time-field>
+                            </div>
+                        }
+                    </div>
                 </div>
             }
         </div>
@@ -1000,6 +1052,7 @@ export function playlistSchedulePayload(
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
+        MatTooltipModule,
         IconComponent,
         CounterComponent,
         SettingsToggleComponent,
@@ -1041,6 +1094,7 @@ export class PlaylistScheduleFormComponent {
         return nextCronPlayTimes(
             buildRecurringCron(value),
             value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES,
+            value.has_valid_until ? value.valid_until : 0,
         );
     }
 
@@ -1117,14 +1171,24 @@ export class PlaylistScheduleFormComponent {
         const takeover = value.play_takeover
             ? i18n('SIGNAGE_MANAGER.TAKEOVER_SUFFIX')
             : '';
+        const expiry = playlistScheduleExpiryLabel(
+            playlistSchedulePayload(value),
+        );
+        const expiry_suffix = expiry ? ` · ${expiry}` : '';
         if (value.schedule_type === 'play_at') {
             const date = new Date(value.play_at || Date.now());
             return `${i18n('SIGNAGE_MANAGER.SUMMARY_PLAY_ONCE', {
                 datetime: formatPlayDateTime(date),
                 duration,
-            })}${takeover}`;
+            })}${takeover}${expiry_suffix}`;
         }
-        return `${this.recurringScheduleSummary()}${takeover}`;
+        return `${this.recurringScheduleSummary()}${takeover}${expiry_suffix}`;
+    }
+
+    public scheduleExpiryTooltip() {
+        return playlistScheduleExpiryTooltip(
+            playlistSchedulePayload(this.value()),
+        );
     }
 
     public recurringPlayStartTime() {

@@ -188,6 +188,15 @@ function parsePlayAt(play_at: number): Date | null {
     return fromUnixTime(play_at);
 }
 
+function isScheduleValidAt(
+    schedule: Partial<SignagePlaylistSchedule>,
+    date: Date,
+) {
+    return (
+        !schedule.valid_until || date.getTime() <= schedule.valid_until * 1000
+    );
+}
+
 function isDayInRange(
     day: Date,
     valid_from?: number,
@@ -289,7 +298,13 @@ function generateScheduleBlocks(
 
             if (play_at) {
                 const at_date = parsePlayAt(play_at);
-                if (!at_date || !isSameDay(day, at_date)) continue;
+                if (
+                    !at_date ||
+                    !isSameDay(day, at_date) ||
+                    !isScheduleValidAt(schedule, at_date)
+                ) {
+                    continue;
+                }
                 const start_minutes =
                     at_date.getHours() * 60 + at_date.getMinutes();
                 const duration_minutes = play_period;
@@ -311,6 +326,9 @@ function generateScheduleBlocks(
             if (!doesCronMatchDay(play_cron, day)) continue;
             const cron_blocks = getCronBlocksForDay(play_cron, schedule);
             for (const block of cron_blocks) {
+                const starts_at = new Date(day);
+                starts_at.setHours(0, block.start_minutes, 0, 0);
+                if (!isScheduleValidAt(schedule, starts_at)) continue;
                 blocks.push({
                     ...block,
                     playlist,

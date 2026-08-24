@@ -3,7 +3,14 @@ import {
     DragDropModule,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { Component, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    linkedSignal,
+    signal,
+} from '@angular/core';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -21,6 +28,7 @@ import {
 } from '@placeos/ts-client';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import {
+    playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
 } from '../signage-playlist.util';
@@ -170,6 +178,8 @@ import { SignageService } from '../signage.service';
                             [class.hover:bg-base-200]="
                                 !isItemSelected(item, $index)
                             "
+                            [class.ring-2]="isBulkItemSelected($index)"
+                            [class.ring-primary]="isBulkItemSelected($index)"
                             (click)="selectItem(item, $index)"
                             (keydown.enter)="
                                 selectItemWithKeyboard($event, item, $index)
@@ -187,6 +197,15 @@ import { SignageService } from '../signage.service';
                                 class="shrink-0 cursor-grab opacity-40"
                                 >drag_indicator</icon
                             >
+                            <mat-checkbox
+                                [checked]="isBulkItemSelected($index)"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.SELECT_MEDIA'
+                                        | translate: { name: item.name }
+                                "
+                                (click)="$event.stopPropagation()"
+                                (change)="toggleSelection($index)"
+                            />
                             <media-thumbnail
                                 [item]="item"
                                 [cover]="true"
@@ -323,6 +342,8 @@ import { SignageService } from '../signage.service';
                             [class.hover:bg-base-200]="
                                 !isItemSelected(item, $index)
                             "
+                            [class.ring-2]="isBulkItemSelected($index)"
+                            [class.ring-primary]="isBulkItemSelected($index)"
                             (click)="selectItem(item, $index)"
                             (keydown.enter)="
                                 selectItemWithKeyboard($event, item, $index)
@@ -336,6 +357,15 @@ import { SignageService } from '../signage.service';
                             "
                         >
                             <div class="flex items-start gap-3">
+                                <mat-checkbox
+                                    [checked]="isBulkItemSelected($index)"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.SELECT_MEDIA'
+                                            | translate: { name: item.name }
+                                    "
+                                    (click)="$event.stopPropagation()"
+                                    (change)="toggleSelection($index)"
+                                />
                                 <media-thumbnail
                                     [item]="item"
                                     [cover]="true"
@@ -527,6 +557,79 @@ import { SignageService } from '../signage.service';
                     <p>{{ 'SIGNAGE_MANAGER.NO_PLAYLIST_ITEMS' | translate }}</p>
                 </div>
             }
+            @if (selected_count() > 0) {
+                <footer
+                    class="bg-base-100 border-base-300 sticky bottom-2 z-20 mx-2 mt-2 flex items-center justify-between gap-2 rounded-xl border p-2 shadow-lg"
+                    aria-live="polite"
+                >
+                    <div class="flex items-center gap-3">
+                        <button
+                            icon
+                            type="button"
+                            matRipple
+                            class="hover:bg-base-200 rounded-xl"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.CLEAR_SELECTED_PLAYLIST_ITEMS'
+                                    | translate
+                            "
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.CLEAR_SELECTED_PLAYLIST_ITEMS'
+                                    | translate
+                            "
+                            (click)="clearSelection()"
+                        >
+                            <icon>close</icon>
+                        </button>
+                        <div class="font-medium">
+                            {{
+                                'COMMON.SELECTED_COUNT'
+                                    | translate: { count: selected_count() }
+                            }}
+                        </div>
+                    </div>
+                    @if (can_update()) {
+                        <div class="flex items-center gap-2">
+                            @if (is_distribution()) {
+                                <button
+                                    icon
+                                    default
+                                    type="button"
+                                    matRipple
+                                    (click)="applyScheduleToSelected()"
+                                    [matTooltip]="
+                                        'SIGNAGE_MANAGER.APPLY_SCHEDULE'
+                                            | translate
+                                    "
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.APPLY_SCHEDULE'
+                                            | translate
+                                    "
+                                >
+                                    <icon>edit_calendar</icon>
+                                </button>
+                            }
+                            <button
+                                icon
+                                default
+                                error
+                                type="button"
+                                matRipple
+                                (click)="deleteSelected()"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.REMOVE_SELECTED_FROM_PLAYLIST'
+                                        | translate
+                                "
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.REMOVE_SELECTED_FROM_PLAYLIST'
+                                        | translate
+                                "
+                            >
+                                <icon>delete</icon>
+                            </button>
+                        </div>
+                    }
+                </footer>
+            }
         } @else {
             <div
                 class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -559,6 +662,7 @@ import { SignageService } from '../signage.service';
     ],
     imports: [
         DragDropModule,
+        MatCheckboxModule,
         MatRippleModule,
         MatMenuModule,
         MatProgressSpinnerModule,
@@ -592,6 +696,19 @@ export class PlaylistItemsComponent {
     public readonly is_distribution = () =>
         !!this.selected_playlist()?.distribution;
     public readonly collapsed_schedules = signal<Record<string, boolean>>({});
+    public readonly selected_indices = linkedSignal({
+        source: () => [this.selected_playlist()?.id, this.items()] as const,
+        computation: () => new Set<number>(),
+    });
+    public readonly selected_items = computed(() => {
+        const selected_indices = this.selected_indices();
+        return this.items().flatMap((item, index) =>
+            selected_indices.has(index) ? [{ item, index }] : [],
+        );
+    });
+    public readonly selected_count = computed(
+        () => this.selected_items().length,
+    );
 
     public selectItem(item: SignageMedia, index: number) {
         this._service.selected_playlist_item.set(item);
@@ -603,6 +720,24 @@ export class PlaylistItemsComponent {
             this.selected_item()?.id === item.id &&
             this.selected_item_index() === index
         );
+    }
+
+    public isBulkItemSelected(index: number) {
+        return this.selected_indices().has(index);
+    }
+
+    public toggleSelection(index: number) {
+        this.selected_indices.update((indices) => {
+            const selected_indices = new Set(indices);
+            selected_indices.has(index)
+                ? selected_indices.delete(index)
+                : selected_indices.add(index);
+            return selected_indices;
+        });
+    }
+
+    public clearSelection() {
+        this.selected_indices.set(new Set<number>());
     }
 
     public itemSchedule(item: SignageMedia, index = -1) {
@@ -621,11 +756,13 @@ export class PlaylistItemsComponent {
 
     public scheduleTooltip(schedule: Partial<SignagePlaylistSchedule>) {
         const labels = playlistScheduleNextPlayLabels(schedule);
+        const expiry = playlistScheduleExpiryTooltip(schedule);
         return [
             `-- ${i18n('SIGNAGE_MANAGER.NEXT_5_PLAYS')} --`,
             ...(labels.length
                 ? labels
                 : [i18n('SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES')]),
+            ...(expiry ? [`${i18n('FORM.EXPIRES_AT')}: ${expiry}`] : []),
         ].join('\n');
     }
 
@@ -688,6 +825,15 @@ export class PlaylistItemsComponent {
         this._service.editPlaylistItemSchedule(schedule);
     }
 
+    public async applyScheduleToSelected() {
+        const schedules = this.selected_items().map(({ item, index }) =>
+            this.itemSchedule(item, index),
+        );
+        if (await this._service.editPlaylistItemSchedules(schedules)) {
+            this.clearSelection();
+        }
+    }
+
     public editPlaylist() {
         const playlist = this.selected_playlist();
         if (playlist) this._service.editPlaylist(playlist);
@@ -728,6 +874,28 @@ export class PlaylistItemsComponent {
         if (this.isItemSelected(item, item_index)) {
             this._service.selected_playlist_item.set(null);
             this._service.selected_playlist_item_index.set(null);
+        }
+    }
+
+    public async deleteSelected() {
+        const playlist = this.selected_playlist();
+        if (!playlist?.id) return;
+        const selected_items = this.selected_items().map(({ item, index }) => {
+            const schedule = playlist.distribution
+                ? this.itemSchedule(item, index)
+                : null;
+            return {
+                id: schedule?.id || schedule?.item_id || item.id,
+                index,
+            };
+        });
+        if (
+            await this._service.removeMediaItemsFromPlaylist(
+                playlist.id,
+                selected_items,
+            )
+        ) {
+            this.clearSelection();
         }
     }
 

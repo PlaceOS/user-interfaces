@@ -362,10 +362,35 @@ export class TemplatesSectionComponent {
             const list = this._templates();
             if (!list.length) return;
             if (id) {
-                const match = list.find((t) => t.id === id);
+                const match = list.find(
+                    (template) =>
+                        template.id === id || template.live_template_id === id,
+                );
                 if (match && this._service.selected_template() !== match) {
                     this._service.selected_template.set(match);
                     this._service.selected_template_layout_index.set(null);
+                }
+                if (match?.id && match.id !== id) {
+                    void this._router.navigate(['/templates', match.id], {
+                        queryParamsHandling: 'merge',
+                        replaceUrl: true,
+                    });
+                } else if (!match) {
+                    const selected_template = this._service.selected_template();
+                    if (
+                        selected_template?.id &&
+                        list.some(
+                            (template) => template.id === selected_template.id,
+                        )
+                    ) {
+                        void this._router.navigate(
+                            ['/templates', selected_template.id],
+                            {
+                                queryParamsHandling: 'merge',
+                                replaceUrl: true,
+                            },
+                        );
+                    }
                 }
                 this._route_resolved = true;
             } else if (this._route_resolved) {

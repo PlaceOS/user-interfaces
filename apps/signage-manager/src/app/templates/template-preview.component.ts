@@ -1,10 +1,13 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { settingSignal } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
-    IconComponent,
+    SafePipe,
+    SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { mediaThumbnail } from '@placeos/ts-client';
@@ -32,48 +35,75 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
     selector: 'template-preview',
     template: `
         <div class="flex h-full min-h-0 flex-col">
-            <div
-                class="flex flex-wrap items-center gap-2 px-4 py-2"
-                role="radiogroup"
-                [attr.aria-label]="
-                    'SIGNAGE_MANAGER.TEMPLATE_ASPECT_RATIO' | translate
-                "
-            >
-                @for (option of aspect_ratios; track option.id) {
-                    <button
-                        type="button"
-                        role="radio"
-                        matRipple
-                        class="rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors"
-                        [class.border-primary]="aspect().id === option.id"
-                        [class.bg-primary]="aspect().id === option.id"
-                        [class.text-primary-content]="aspect().id === option.id"
-                        [class.border-base-300]="aspect().id !== option.id"
-                        [class.hover:bg-base-200]="aspect().id !== option.id"
-                        (click)="aspect.set(option)"
-                        [attr.aria-checked]="aspect().id === option.id"
-                    >
-                        {{ option.label }}
-                    </button>
-                }
-                <div class="w-px flex-1"></div>
-                <a
-                    btn
-                    matRipple
-                    class="border-base-300 flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium"
-                    [matTooltip]="
-                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate
-                    "
-                    [href]="player_link()"
-                    target="_blank"
-                    rel="noopener noreferrer"
+            <div class="flex flex-wrap items-center gap-2 px-4 py-2">
+                <div
+                    class="flex flex-wrap items-center gap-2"
+                    role="radiogroup"
                     [attr.aria-label]="
-                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate
+                        'SIGNAGE_MANAGER.TEMPLATE_ASPECT_RATIO' | translate
                     "
                 >
-                    <icon>open_in_new</icon>
-                    {{ 'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate }}
-                </a>
+                    @for (option of aspect_ratios; track option.id) {
+                        <button
+                            type="button"
+                            role="radio"
+                            matRipple
+                            class="rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors"
+                            [class.border-primary]="aspect().id === option.id"
+                            [class.bg-primary]="aspect().id === option.id"
+                            [class.text-primary-content]="
+                                aspect().id === option.id
+                            "
+                            [class.border-base-300]="aspect().id !== option.id"
+                            [class.hover:bg-base-200]="
+                                aspect().id !== option.id
+                            "
+                            (click)="aspect.set(option)"
+                            [attr.aria-checked]="aspect().id === option.id"
+                        >
+                            {{ option.label }}
+                        </button>
+                    }
+                </div>
+                <div class="min-w-4 flex-1"></div>
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript w-full sm:w-64"
+                >
+                    <mat-select
+                        [(ngModel)]="selected_display_id"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.TEMPLATE_SELECT_DISPLAY'
+                                | translate
+                        "
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.TEMPLATE_SELECT_DISPLAY'
+                                | translate
+                        "
+                    >
+                        @for (display of displays(); track display.id) {
+                            <mat-option [value]="display.id">
+                                {{ display.display_name || display.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <settings-toggle
+                    [toggle]="true"
+                    [label]="
+                        'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE' | translate
+                    "
+                    [info]="
+                        'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE_HINT' | translate
+                    "
+                    [inline]="false"
+                    [(ngModel)]="live_mode"
+                    [class.opacity-50]="!live_preview_available()"
+                    [attr.aria-disabled]="!live_preview_available()"
+                    [attr.inert]="
+                        !live_preview_available() ? '' : null
+                    "
+                />
             </div>
             <div
                 class="preview-frame-container flex min-h-0 flex-1 items-center justify-center overflow-hidden p-4"
@@ -82,7 +112,17 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                     class="preview-frame relative overflow-hidden rounded-lg bg-neutral-900 shadow-lg ring-1 ring-black/20"
                     [style.--ratio]="aspect().ratio"
                 >
-                    @if (background_url()) {
+                    @if (live_mode() && live_preview_available()) {
+                        <iframe
+                            class="absolute inset-0 h-full w-full border-0"
+                            [src]="live_preview_url() | safe: 'resource'"
+                            [title]="
+                                'SIGNAGE_MANAGER.TEMPLATE_LIVE_PREVIEW'
+                                    | translate
+                            "
+                            allow="autoplay; fullscreen"
+                        ></iframe>
+                    } @else if (background_url()) {
                         <img
                             auth
                             class="absolute inset-0 h-full w-full object-cover opacity-80"
@@ -93,82 +133,91 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                             "
                         />
                     }
-                    @for (item of layout_rects(); track $index) {
-                        <button
-                            type="button"
-                            class="absolute flex flex-col items-center justify-center overflow-hidden border-2 transition-colors leading-none"
-                            [class.border-primary]="selected_index() === $index"
-                            [class.bg-primary/40]="
-                                selected_index() === $index &&
-                                item.layout.plugin_id
-                            "
-                            [class.bg-primary/15]="
-                                selected_index() === $index &&
-                                !item.layout.plugin_id
-                            "
-                            [class.z-10]="selected_index() === $index"
-                            [class.border-white/60]="
-                                selected_index() !== $index &&
-                                item.layout.plugin_id
-                            "
-                            [class.border-white/40]="
-                                selected_index() !== $index &&
-                                !item.layout.plugin_id
-                            "
-                            [class.border-dashed]="!item.layout.plugin_id"
-                            [class.backdrop-blur-sm]="item.layout.plugin_id"
-                            [class.bg-black/60]="
-                                selected_index() !== $index &&
-                                item.layout.plugin_id
-                            "
-                            [class.bg-black/10]="
-                                selected_index() !== $index &&
-                                !item.layout.plugin_id
-                            "
-                            [class.hover:bg-black/70]="
-                                selected_index() !== $index &&
-                                item.layout.plugin_id
-                            "
-                            [class.hover:bg-black/20]="
-                                selected_index() !== $index &&
-                                !item.layout.plugin_id
-                            "
-                            [style.left.%]="item.rect.left"
-                            [style.top.%]="item.rect.top"
-                            [style.width.%]="item.rect.width"
-                            [style.height.%]="item.rect.height"
-                            (click)="selectLayout($index)"
-                            [attr.aria-label]="
-                                positionLabel(item.layout.position) | translate
-                            "
-                            [attr.aria-pressed]="selected_index() === $index"
-                        >
+                    @if (!live_mode()) {
+                        @for (item of layout_rects(); track $index) {
+                            <button
+                                type="button"
+                                class="absolute flex flex-col items-center justify-center overflow-hidden border-2 leading-none transition-colors"
+                                [class.border-primary]="
+                                    selected_index() === $index
+                                "
+                                [class.bg-primary/40]="
+                                    selected_index() === $index &&
+                                    item.layout.plugin_id
+                                "
+                                [class.bg-primary/15]="
+                                    selected_index() === $index &&
+                                    !item.layout.plugin_id
+                                "
+                                [class.z-10]="selected_index() === $index"
+                                [class.border-white/60]="
+                                    selected_index() !== $index &&
+                                    item.layout.plugin_id
+                                "
+                                [class.border-white/40]="
+                                    selected_index() !== $index &&
+                                    !item.layout.plugin_id
+                                "
+                                [class.border-dashed]="!item.layout.plugin_id"
+                                [class.backdrop-blur-sm]="item.layout.plugin_id"
+                                [class.bg-black/60]="
+                                    selected_index() !== $index &&
+                                    item.layout.plugin_id
+                                "
+                                [class.bg-black/10]="
+                                    selected_index() !== $index &&
+                                    !item.layout.plugin_id
+                                "
+                                [class.hover:bg-black/70]="
+                                    selected_index() !== $index &&
+                                    item.layout.plugin_id
+                                "
+                                [class.hover:bg-black/20]="
+                                    selected_index() !== $index &&
+                                    !item.layout.plugin_id
+                                "
+                                [style.left.%]="item.rect.left"
+                                [style.top.%]="item.rect.top"
+                                [style.width.%]="item.rect.width"
+                                [style.height.%]="item.rect.height"
+                                (click)="selectLayout($index)"
+                                [attr.aria-label]="
+                                    positionLabel(item.layout.position)
+                                        | translate
+                                "
+                                [attr.aria-pressed]="
+                                    selected_index() === $index
+                                "
+                            >
+                                <div
+                                    class="text-base-content text-shadow-base-100 truncate px-2 text-sm font-semibold uppercase text-shadow-lg"
+                                >
+                                    {{
+                                        positionLabel(item.layout.position)
+                                            | translate
+                                    }}
+                                </div>
+                                <div
+                                    class="text-base-content/60 text-shadow-base-100 truncate px-2 text-sm text-shadow-lg"
+                                >
+                                    {{
+                                        pluginName(item.layout.plugin_id) ||
+                                            ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
+                                                | translate)
+                                    }}
+                                </div>
+                            </button>
+                        }
+                        @if (!layout_rects().length) {
                             <div
-                                class="truncate px-2 text-sm font-semibold text-base-content uppercase text-shadow-lg text-shadow-base-100"
+                                class="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-white/60"
                             >
                                 {{
-                                    positionLabel(item.layout.position)
+                                    'SIGNAGE_MANAGER.TEMPLATE_NO_LAYOUTS_HINT'
                                         | translate
                                 }}
                             </div>
-                            <div class="truncate px-2 text-sm text-base-content/60 text-shadow-lg text-shadow-base-100">
-                                {{
-                                    pluginName(item.layout.plugin_id) ||
-                                        ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
-                                            | translate)
-                                }}
-                            </div>
-                        </button>
-                    }
-                    @if (!layout_rects().length) {
-                        <div
-                            class="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-white/60"
-                        >
-                            {{
-                                'SIGNAGE_MANAGER.TEMPLATE_NO_LAYOUTS_HINT'
-                                    | translate
-                            }}
-                        </div>
+                        }
                     }
                 </div>
             </div>
@@ -188,9 +237,12 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
         `,
     ],
     imports: [
+        FormsModule,
         MatRippleModule,
-        MatTooltipModule,
-        IconComponent,
+        MatFormFieldModule,
+        MatSelectModule,
+        SafePipe,
+        SettingsToggleComponent,
         TranslatePipe,
         AuthenticatedImageDirective,
     ],
@@ -200,6 +252,9 @@ export class TemplatePreviewComponent {
 
     public readonly aspect_ratios = ASPECT_RATIOS;
     public readonly aspect = signal(ASPECT_RATIOS[0]);
+    public readonly selected_display_id = signal('');
+    public readonly live_mode = signal(false);
+    public readonly displays = this._service.displays;
     public readonly signage_path = settingSignal('signage_path');
 
     public readonly selected_index =
@@ -221,11 +276,21 @@ export class TemplatePreviewComponent {
         return background_id ? mediaThumbnail(background_id) : '';
     });
 
-    public readonly player_link = computed(() => {
-        const template_id = this._service.selected_template()?.id;
-        if (!template_id) return '';
+    public readonly live_template_id = computed(() => {
+        const template = this._service.selected_template();
+        return template?.live_template_id || template?.id || '';
+    });
+
+    public readonly live_preview_available = computed(() => {
+        return !!this.live_template_id() && !!this.selected_display_id();
+    });
+
+    public readonly live_preview_url = computed(() => {
+        const template_id = this.live_template_id();
+        const display_id = this.selected_display_id();
+        if (!template_id || !display_id) return '';
         const signage_path = this.signage_path() || '/signage';
-        return `${signage_path.replace(/\/$/, '')}/#/template/${encodeURIComponent(template_id)}?debug=true`;
+        return `${signage_path.replace(/\/$/, '')}/#/template/${encodeURIComponent(template_id)}/${encodeURIComponent(display_id)}?debug=true`;
     });
 
     public selectLayout(index: number) {

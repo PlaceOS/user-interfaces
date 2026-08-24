@@ -101,6 +101,35 @@ describe('signage-schedule.util', () => {
         ]);
     });
 
+    it('does not build blocks after a schedule expires', () => {
+        const days = [
+            new Date('2026-03-02T00:00:00'),
+            new Date('2026-03-03T00:00:00'),
+        ];
+        const blocks = buildScheduleBlocks(
+            [
+                {
+                    playlist: {
+                        id: 'playlist-1',
+                        name: 'Breakfast',
+                        schedules: [
+                            {
+                                play_cron: '0 9 * * *',
+                                play_period: 60,
+                                valid_until: getUnixTime(
+                                    new Date('2026-03-02T12:00:00'),
+                                ),
+                            },
+                        ],
+                    } as any,
+                },
+            ],
+            days,
+        );
+
+        expect(blocks.map((block) => block.day_index)).toEqual([0]);
+    });
+
     it('matches monthly weekday schedules with multiple month instances', () => {
         const days = [
             new Date('2026-03-02T00:00:00'),

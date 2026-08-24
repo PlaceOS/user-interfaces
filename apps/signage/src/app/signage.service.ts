@@ -55,6 +55,7 @@ interface PlaylistSchedule {
     readonly play_period?: number;
     readonly play_at?: number;
     readonly play_takeover?: boolean;
+    readonly valid_until?: number;
 }
 
 interface ActivePlaylistSchedule {
@@ -163,6 +164,16 @@ function parsePlayAtTimestamp(value: number) {
     return value * 1000;
 }
 
+function parseValidUntilTimestamp(value: number | undefined) {
+    if (!Number.isFinite(value) || !value || value <= 0) return 0;
+    return value * 1000;
+}
+
+function capScheduleEnd(value: number, valid_until: number) {
+    if (!valid_until) return value;
+    return value ? Math.min(value, valid_until) : valid_until;
+}
+
 function scheduledPlaylistEnd(starts_at: number, period_minutes: number) {
     return period_minutes
         ? starts_at + period_minutes * 60 * 1000
@@ -186,11 +197,19 @@ function scheduledPlaylistWindow(
 ) {
     const period_minutes = playlistPlayPeriodMinutes(schedule);
     const window_seconds = trigger_window_seconds || period_minutes * 60;
+    const valid_until = parseValidUntilTimestamp(schedule.valid_until);
+    if (valid_until && now > valid_until) return null;
     if (schedule.play_at) {
         const starts_at = parsePlayAtTimestamp(schedule.play_at);
         if (!starts_at) return null;
-        const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-        const expires_at = scheduledPlaylistExpiry(starts_at, period_minutes);
+        const ends_at = capScheduleEnd(
+            scheduledPlaylistEnd(starts_at, period_minutes),
+            valid_until,
+        );
+        const expires_at = capScheduleEnd(
+            scheduledPlaylistExpiry(starts_at, period_minutes),
+            valid_until,
+        );
         return now >= starts_at && now <= ends_at
             ? { starts_at, ends_at, expires_at }
             : null;
@@ -207,10 +226,13 @@ function scheduledPlaylistWindow(
             );
             if (!last) return null;
             const starts_at = last * 1000;
-            const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-            const expires_at = scheduledPlaylistExpiry(
-                starts_at,
-                period_minutes,
+            const ends_at = capScheduleEnd(
+                scheduledPlaylistEnd(starts_at, period_minutes),
+                valid_until,
+            );
+            const expires_at = capScheduleEnd(
+                scheduledPlaylistExpiry(starts_at, period_minutes),
+                valid_until,
             );
             return now <= ends_at ? { starts_at, ends_at, expires_at } : null;
         } catch {
@@ -261,9 +283,12 @@ function nextScheduledPlaylistStart(
     now: number,
     horizon_seconds: number,
 ) {
+    const valid_until = parseValidUntilTimestamp(schedule.valid_until);
+    if (valid_until && now > valid_until) return 0;
     if (schedule.play_at) {
         const starts_at = parsePlayAtTimestamp(schedule.play_at);
         if (!starts_at || starts_at <= now) return 0;
+        if (valid_until && starts_at > valid_until) return 0;
         return starts_at <= now + horizon_seconds * 1000 ? starts_at : 0;
     }
     if (schedule.play_cron?.trim()) {
@@ -273,7 +298,8 @@ function nextScheduledPlaylistStart(
                 horizon_seconds,
                 now,
             );
-            return next ? next * 1000 : 0;
+            const starts_at = next ? next * 1000 : 0;
+            return valid_until && starts_at > valid_until ? 0 : starts_at;
         } catch {
             return 0;
         }
