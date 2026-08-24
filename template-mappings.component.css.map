@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["template-mappings.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                min-height: 0;\n                height: 100%;\n            }\n\n            ::ng-deep .playlist-schedule-tooltip .mdc-tooltip__surface {\n                white-space: pre-line;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,WAAA,EACA,OAAA,IACJ,CAEA,UAAA,CAAA,0BAAA,CAAA,qBACI,YAAA,QACJ",
+  "names": []
+}

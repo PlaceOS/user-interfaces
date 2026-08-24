@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["zone-content.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n\n            .tablet-hidden {\n                @media (max-width: 1023px) {\n                    display: none !important;\n                }\n            }\n\n            .tablet-full {\n                @media (max-width: 1023px) {\n                    flex: 1;\n                    min-width: 0;\n                }\n            }\n        "],
-  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,OAAA,IACJ,CAGI,OAAA,UAAA,QADJ,CAAA,cAEQ,QAAA,cAER,CADI,CAIA,OAAA,UAAA,QADJ,CAAA,YAEQ,KAAA,EACA,UAAA,CAER,CADI",
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,OAAA,IACJ",
   "names": []
 }
