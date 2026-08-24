@@ -1,8 +1,9 @@
 /**
  * Is the local PlaceOS stack actually up?
  *
- * The stack is a PRECONDITION, not something Playwright starts — it is a
- * dozen-odd containers, so a `webServer` block would be the wrong tool. Instead fail in about a second with a message that
+ * The stack is a PRECONDITION, not something Playwright starts — it is ~20
+ * containers and Elasticsearch alone wants several GB, so a `webServer` block
+ * would be the wrong tool. Instead fail in about a second with a message that
  * says what to do, rather than after 90s of unexplained navigation timeouts.
  */
 import { request as pwRequest } from '@playwright/test';
