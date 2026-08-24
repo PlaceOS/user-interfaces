@@ -1,6 +1,9 @@
+vi.mock('@placeos/ts-client');
+
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { User } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { MockComponent, MockModule } from 'ng-mocks';
@@ -18,7 +21,10 @@ describe('AttendeeListComponent', () => {
         imports: [MockModule(MatTooltipModule)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        vi.mocked(ts_client.get).mockReset();
+        spectator = createComponent();
+    });
 
     it('should create component', () =>
         expect(spectator.component).toBeTruthy());
@@ -42,6 +48,27 @@ describe('AttendeeListComponent', () => {
         expect(
             spectator.component.final_list().map((user) => user.email),
         ).toEqual(['host@example.com', 'attendee@example.com']);
+    });
+
+    it('should keep external host details when directory lookup fails', async () => {
+        vi.mocked(ts_client.get).mockRejectedValue(new Error('Not found'));
+        spectator.setInput({
+            host: 'external.host@vantageeng.au',
+            list: [
+                new User({
+                    name: 'External Host',
+                    email: 'external.host@vantageeng.au',
+                }),
+            ],
+        });
+
+        spectator.detectChanges();
+        await vi.waitFor(() => expect(ts_client.get).toHaveBeenCalledTimes(2));
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+
+        expect('[attendee]').toHaveText('External Host');
+        expect('[attendee]').toHaveText('external.host@vantageeng.au');
     });
 
     it('should not duplicate or show a hidden host', () => {
