@@ -346,7 +346,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         const event = this.nextEvent();
         if (!event) return '';
         if (event instanceof Booking) {
-            return event.description || event.title || event.asset_name || 'Booking';
+            return event.title || event.description || event.asset_name || 'Booking';
         }
         return event.title || 'Event';
     });
