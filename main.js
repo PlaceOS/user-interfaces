@@ -59912,6 +59912,7 @@ var SIGNAGE_MANAGER = {
   APPROVERS_NOTE_PLACEHOLDER: "Add a note for the approvers...",
   APPROVE_PLAYLIST: "Approve Playlist",
   APPROVE_PLAYLIST_TOOLTIP: "Approve playlist",
+  APPLY_SCHEDULE: "Apply schedule",
   APPROVE_SELECTED_PLAYLIST: "Approve selected playlist",
   APPROVE_SELECTED_TEMPLATE: "Approve selected template",
   APPROVE_TEMPLATE: "Approve Template",
@@ -59939,6 +59940,7 @@ var SIGNAGE_MANAGER = {
   BULK_UPLOAD_UPLOADING: "Uploading {{ current }} of {{ total }}...",
   CLEAR_SCHEDULE_SEARCH: "Clear schedule search",
   CLEAR_SELECTED: "Clear selected media",
+  CLEAR_SELECTED_PLAYLIST_ITEMS: "Clear selected playlist items",
   CLOSE_ADD_DISPLAY: "Close add display dialog",
   CLOSE_ADD_PLAYLIST: "Close add playlist dialog",
   CLOSE_ADD_USER: "Close add user dialog",
@@ -60155,6 +60157,7 @@ var SIGNAGE_MANAGER = {
   REMOVE_PLAYLIST_FROM_DISPLAY: "Remove playlist {{ name }} from display",
   REMOVE_PLAYLIST_FROM_ZONE: "Remove playlist {{ name }} from zone",
   REMOVE_PLAYLIST_TOOLTIP: "Remove playlist",
+  REMOVE_SELECTED_FROM_PLAYLIST: "Remove selected items from playlist",
   REMOVE_USER: "Remove user",
   REMOVE_ZONE: "Remove zone",
   REMOVE_ZONE_FROM_PLAYLIST: "Remove zone {{ name }} from playlist",
@@ -60259,6 +60262,8 @@ var SIGNAGE_MANAGER = {
   SVC_GROUP_REMOVED: "Signage group removed",
   SVC_GROUP_SAVED: "Signage group saved",
   SVC_ITEM_REMOVED: "Item removed from playlist",
+  SVC_ITEMS_REMOVED: "{{ count }} items removed from playlist",
+  SVC_ITEMS_REMOVED_1: "{{ count }} item removed from playlist",
   SVC_MEDIA_ALREADY_IN: "Selected media is already in this playlist.",
   SVC_MEDIA_REMOVED: "Media removed",
   SVC_MEDIA_SHARED: "Media shared",
@@ -60300,7 +60305,10 @@ var SIGNAGE_MANAGER = {
   SVC_REMOVE_DISPLAY_TITLE: "Remove display?",
   SVC_REMOVE_MEDIA_TITLE: "Remove media?",
   SVC_REMOVE_NAMED_FROM_GROUP: 'Remove "{{ name }}" from this group?',
+  SVC_REMOVE_PLAYLIST_ITEMS_TITLE: "Remove playlist items?",
   SVC_REMOVE_PLAYLIST_TITLE: "Remove playlist?",
+  SVC_REMOVE_SELECTED_PLAYLIST_ITEMS: "Remove {{ count }} selected items from this playlist?",
+  SVC_REMOVE_SELECTED_PLAYLIST_ITEMS_1: "Remove {{ count }} selected item from this playlist?",
   SVC_REMOVE_TEMPLATE_TITLE: "Remove template?",
   SVC_REMOVE_USER_TITLE: "Remove group user?",
   SVC_REMOVE_ZONE_TITLE: "Remove group zone?",
@@ -60347,6 +60355,9 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
   TEMPLATE_LABEL: "Template",
+  TEMPLATE_LIVE_MODE: "Live",
+  TEMPLATE_LIVE_MODE_HINT: "Show the template plugins and live display",
+  TEMPLATE_LIVE_PREVIEW: "Live template preview",
   TEMPLATE_NAME_ARIA: "Template name",
   TEMPLATE_NO_LAYOUT_CHANGES: "No layout changes",
   TEMPLATE_NO_LAYOUTS: "No layout items yet. Add one to get started.",
@@ -60369,6 +60380,7 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_SAVED: "Template saved",
   TEMPLATE_SAVE_ERROR: "Error saving template",
   TEMPLATE_SAVING: "Saving Template...",
+  TEMPLATE_SELECT_DISPLAY: "Select display",
   TEMPLATE_X_POS: "X position",
   TEMPLATE_Y_POS: "Y position",
   THIS_WEEK_ARIA: "Show this week",
@@ -68044,15 +68056,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "c688a30",
-  "hash": "c688a30",
+  "raw": "3a7b851",
+  "hash": "3a7b851",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c688a30",
+  "suffix": "3a7b851",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787536590521
+  "time": 1787544226100
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -117563,13 +117575,14 @@ function AttendeeListComponent_For_9_Conditional_0_Template(rf, ctx) {
   if (rf & 2) {
     const user_r3 = \u0275\u0275nextContext().$implicit;
     const ctx_r1 = \u0275\u0275nextContext();
-    const usr_r4 = ctx_r1.host() === user_r3.email ? \u0275\u0275pipeBind1(3, 11, \u0275\u0275pipeBind1(2, 9, ctx_r1.host())) || user_r3 : user_r3;
+    const resolved_host_r4 = ctx_r1.host() === user_r3.email ? \u0275\u0275pipeBind1(3, 11, \u0275\u0275pipeBind1(2, 9, ctx_r1.host())) : null;
+    const usr_r5 = resolved_host_r4?.email ? resolved_host_r4 : user_r3;
     \u0275\u0275advance(4);
-    \u0275\u0275property("user", usr_r4);
+    \u0275\u0275property("user", usr_r5);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(usr_r4?.name);
+    \u0275\u0275textInterpolate(usr_r5?.name);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", usr_r4?.email, " ");
+    \u0275\u0275textInterpolate1(" ", usr_r5?.email, " ");
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.host() === user_r3.email ? 10 : -1);
     \u0275\u0275advance(2);
@@ -117722,10 +117735,12 @@ var AttendeeListComponent = class _AttendeeListComponent {
                             attendee
                             class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
-                            @let usr =
+                            @let resolved_host =
                                 host() === user.email
-                                    ? (host() | user | async) || user
-                                    : user;
+                                    ? (host() | user | async)
+                                    : null;
+                            @let usr =
+                                resolved_host?.email ? resolved_host : user;
                             <a-user-avatar [user]="usr"></a-user-avatar>
                             <div class="w-1/2 flex-1">
                                 <div class="truncate">{{ usr?.name }}</div>
@@ -117771,7 +117786,7 @@ var AttendeeListComponent = class _AttendeeListComponent {
   }], null, { host: [{ type: Input, args: [{ isSignal: true, alias: "host", required: false }] }], show_host: [{ type: Input, args: [{ isSignal: true, alias: "show_host", required: false }] }], list: [{ type: Input, args: [{ isSignal: true, alias: "list", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], custom_title: [{ type: Input, args: [{ isSignal: true, alias: "custom_title", required: false }] }], close: [{ type: Output, args: ["close"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttendeeListComponent, { className: "AttendeeListComponent", filePath: "libs/events/src/lib/attendee-list.component.ts", lineNumber: 96 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttendeeListComponent, { className: "AttendeeListComponent", filePath: "libs/events/src/lib/attendee-list.component.ts", lineNumber: 98 });
 })();
 
 // libs/events/src/lib/events.fn.ts
