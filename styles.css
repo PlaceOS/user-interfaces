@@ -4452,6 +4452,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-3xl {
   min-width: var(--container-3xl);
 }
+#placeos .min-w-4 {
+  min-width: calc(var(--spacing) * 4);
+}
 #placeos .min-w-4xl {
   min-width: var(--container-4xl);
 }
