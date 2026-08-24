@@ -128,38 +128,48 @@ import { ScheduleStateService } from '../schedule/schedule-state.service';
                         class="flex w-full flex-col items-end space-y-2 sm:flex-1"
                     >
                         <div class="flex w-full items-center space-x-2 sm:w-56">
-                            <button
-                                btn
-                                matRipple
-                                [disabled]="checkinDisabled()"
-                                class="flex-1 space-x-2"
-                                [class.white]="!isCheckedIn()"
-                                [class.bg-success]="isCheckedIn()"
-                                [class.text-success-content]="isCheckedIn()"
-                                (click)="checkIn()"
-                            >
-                                <icon class="text-2xl">{{
-                                    isCheckedIn() ? 'done' : 'check_circle'
-                                }}</icon>
-                                <div class="pr-2">
-                                    {{
-                                        (isCheckedIn()
-                                            ? 'COMMON.CHECKED_IN'
-                                            : 'COMMON.CHECK_IN'
-                                        ) | translate
-                                    }}
-                                </div>
-                            </button>
+                            @if (showCheckin()) {
+                                <button
+                                    btn
+                                    matRipple
+                                    [disabled]="checkinDisabled()"
+                                    class="flex-1 space-x-2"
+                                    [class.white]="!isCheckedIn()"
+                                    [class.bg-success]="isCheckedIn()"
+                                    [class.text-success-content]="isCheckedIn()"
+                                    (click)="checkIn()"
+                                >
+                                    <icon class="text-2xl">{{
+                                        isCheckedIn() ? 'done' : 'check_circle'
+                                    }}</icon>
+                                    <div class="pr-2">
+                                        {{
+                                            (isCheckedIn()
+                                                ? 'COMMON.CHECKED_IN'
+                                                : 'COMMON.CHECK_IN'
+                                            ) | translate
+                                        }}
+                                    </div>
+                                </button>
+                            }
                             <button
                                 btn
                                 matRiple
                                 matTooltip="Edit Booking"
                                 matTooltipPosition="left"
                                 [disabled]="!canEdit()"
-                                class="white inverse h-12 w-12 px-0"
+                                class="white inverse h-12 px-0"
+                                [class.w-12]="showCheckin()"
+                                [class.flex-1]="!showCheckin()"
+                                [class.space-x-2]="!showCheckin()"
                                 (click)="edit()"
                             >
                                 <icon class="text-2xl">edit</icon>
+                                @if (!showCheckin()) {
+                                    <div class="pr-2">
+                                        {{ 'COMMON.EDIT' | translate }}
+                                    </div>
+                                }
                             </button>
                         </div>
                         <div class="flex w-full items-center space-x-2 sm:w-56">
@@ -301,6 +311,15 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
         return events?.[0];
     });
 
+    public readonly showCheckin = computed(() => {
+        const event = this.nextEvent();
+        return !(
+            event instanceof Booking &&
+            event.booking_type === 'parking' &&
+            event.asset_id.startsWith('unallocated')
+        );
+    });
+
     public readonly canCheckin = computed(() => {
         const event = this.nextEvent();
         const can_checkin =
@@ -310,6 +329,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
                   ? event?.can_check_in
                   : event?.can_check_in;
         return (
+            this.showCheckin() &&
             can_checkin &&
             (event instanceof Booking ||
                 event?.extension_data?.shared_event ||

@@ -120,6 +120,52 @@ describe('LandingUpcomingBookingComponent', () => {
         expect(spectator.queryAll('button[btn]')[1]).toBeDisabled();
     });
 
+    it('should hide check-in for unallocated parking bookings', () => {
+        upcoming_events.set([
+            new Booking({
+                id: 'parking-booking-1',
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-123',
+                date: Date.now(),
+                duration: 60,
+                status: 'approved',
+            } as any),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.query('button[btn]:not(.inverse)')).not.toExist();
+        const edit_button = spectator.query<HTMLButtonElement>(
+            'button[mattooltip="Edit Booking"]',
+        );
+        expect(edit_button).toHaveClass('flex-1');
+        expect(edit_button).not.toHaveClass('w-12');
+        expect(edit_button?.querySelector('div.pr-2')).toExist();
+    });
+
+    it('should show check-in for allocated parking bookings', () => {
+        upcoming_events.set([
+            new Booking({
+                id: 'parking-booking-1',
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'parking-123',
+                date: Date.now(),
+                duration: 60,
+                status: 'approved',
+            } as any),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.query('button[btn]:not(.inverse)')).toExist();
+        const edit_button = spectator.query<HTMLButtonElement>(
+            'button[mattooltip="Edit Booking"]',
+        );
+        expect(edit_button).toHaveClass('w-12');
+        expect(edit_button).not.toHaveClass('flex-1');
+        expect(edit_button?.querySelector('div.pr-2')).not.toExist();
+    });
+
     it('should keep delete enabled before the shown booking ends', () => {
         const date = Date.now();
         upcoming_events.set([
