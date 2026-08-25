@@ -618,7 +618,7 @@ export class BookingDetailsModalComponent {
             const value = this._settings.get(check_key);
             if (value != null) return !!value;
         }
-        return false;
+        return !is_assigned && this.booking().booking_type !== 'parking';
     });
 
     public readonly auto_checkin = settingSignal(

@@ -149,6 +149,39 @@ describe('BookingDetailsModalComponent', () => {
         expect(remove_fn).toHaveBeenCalledWith(booking, false);
     });
 
+    it('should show cancel series for a recurring booking by default', () => {
+        spectator.component.booking.set(
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'desk',
+                type: 'desk',
+                instance: Math.floor(Date.now() / 1000),
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                status: 'approved',
+            } as any),
+        );
+
+        expect(spectator.component.allow_series_delete()).toBe(true);
+    });
+
+    it('should hide cancel series for an assigned booking by default', () => {
+        spectator.component.booking.set(
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'locker',
+                type: 'locker',
+                instance: Math.floor(Date.now() / 1000),
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                status: 'approved',
+                extension_data: { is_assigned: true },
+            } as any),
+        );
+
+        expect(spectator.component.allow_series_delete()).toBe(false);
+    });
+
     it('should format visitor name nicely in booking details', () => {
         (spectator.component as any).booking.set(
             new Booking({
