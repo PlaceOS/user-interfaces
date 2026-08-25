@@ -316,17 +316,10 @@ export class SpaceSelectModalComponent {
 
     public toggleFavourite(item: Space) {
         const fav_list = this.favorites();
-        const new_state = !fav_list.includes(item.id);
-        if (new_state) {
-            this._settings.saveUserSetting('favourite_spaces', [
-                ...fav_list,
-                item.id,
-            ]);
-        } else {
-            this._settings.saveUserSetting(
-                'favourite_spaces',
-                fav_list.filter((_) => _ !== item.id),
-            );
-        }
+        const next_favs = fav_list.includes(item.id)
+            ? fav_list.filter((_) => _ !== item.id)
+            : [...fav_list, item.id];
+        this.favorites.set(next_favs);
+        this._settings.saveUserSetting('favourite_spaces', next_favs);
     }
 }
