@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["signage.component.ts"],
-  "sourcesContent": ["\n        :host {\n            display: block;\n            height: 100%;\n            width: 100%;\n        }\n\n        .stroke {\n            -webkit-text-stroke: 1px #000;\n        }\n    "],
-  "mappings": "AACQ,MACI,QAAA,MACA,OAAA,KACA,MAAA,IACJ,CAEA,CAAA,OACI,oBAAA,IAAA,IACJ",
+  "sourcesContent": ["\n        :host {\n            display: block;\n            height: 100%;\n            width: 100%;\n        }\n\n        .stroke {\n            -webkit-text-stroke: 1px #000;\n        }\n\n        .debug-layout-grid {\n            background-image:\n                linear-gradient(\n                    to right,\n                    color-mix(in srgb, var(--primary) 35%, transparent) 1px,\n                    transparent 1px\n                ),\n                linear-gradient(\n                    to bottom,\n                    color-mix(in srgb, var(--primary) 35%, transparent) 1px,\n                    transparent 1px\n                );\n            background-size: 5% 5%;\n        }\n\n        @media (min-width: 1024px) {\n            .debug-layout-grid {\n                background-size: 2.5% 2.5%;\n            }\n        }\n    "],
+  "mappings": "AACQ,MACI,QAAA,MACA,OAAA,KACA,MAAA,IACJ,CAEA,CAAA,OACI,oBAAA,IAAA,IACJ,CAEA,CAAA,kBACI,kNAWA,gBAAA,GAAA,EACJ,CAEA,OAAA,UAAA,QACI,CAhBJ,kBAiBQ,gBAAA,KAAA,IACJ,CACJ",
   "names": []
 }

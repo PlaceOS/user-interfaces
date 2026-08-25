@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["debug-overlay.component.ts"],
+  "sourcesContent": ["\n        :host {\n            display: block;\n            position: absolute;\n            z-index: 20;\n        }\n    "],
+  "mappings": "AACQ,MACI,QAAA,MACA,SAAA,SACA,QAAA,EACJ",
+  "names": []
+}
