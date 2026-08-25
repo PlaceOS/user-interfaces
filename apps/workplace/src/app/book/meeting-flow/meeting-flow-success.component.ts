@@ -1,8 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { OrganisationService, SettingsService, Space } from '@placeos/common';
-import { TranslatePipe } from '@placeos/components';
+import {
+    formatRecurrence,
+    fromEventRecurrence,
+    OrganisationService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { EventFormService, SpacePipe } from '@placeos/events';
 
 @Component({
@@ -51,6 +57,17 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                             }}
                         }
                     </p>
+                    @if (formatted_recurrence()) {
+                        <div
+                            recurrence
+                            class="bg-base-200 flex items-center space-x-2 rounded-lg px-4 py-2"
+                        >
+                            <icon class="text-xl">update</icon>
+                            <div class="text-sm">
+                                {{ formatted_recurrence() }}
+                            </div>
+                        </div>
+                    }
                     @if (true) {
                         <p>
                             {{
@@ -88,7 +105,7 @@ import { EventFormService, SpacePipe } from '@placeos/events';
         }
     `,
     styles: [``],
-    imports: [CommonModule, RouterModule, TranslatePipe],
+    imports: [CommonModule, RouterModule, TranslatePipe, IconComponent],
     providers: [SpacePipe],
 })
 export class MeetingFlowSuccessComponent implements OnInit {
@@ -101,6 +118,18 @@ export class MeetingFlowSuccessComponent implements OnInit {
     public readonly loading = signal(false);
     public readonly last_event = this._event_form.last_success;
     public readonly resolved_space = signal<Space | null>(null);
+    public readonly formatted_recurrence = computed(() => {
+        const event = this.last_event();
+        if (!event?.recurrence?.pattern) return '';
+        const recurrence_start = event.recurrence.start || event.date;
+        return formatRecurrence(
+            fromEventRecurrence({
+                ...event.recurrence,
+                start: recurrence_start,
+            }),
+            recurrence_start,
+        );
+    });
 
     public get allow_desk_booking() {
         return (

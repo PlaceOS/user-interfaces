@@ -12,6 +12,19 @@ import { MockProvider } from 'ng-mocks';
 describe('MeetingFlowSuccessComponent', () => {
     let spectator: Spectator<MeetingFlowSuccessComponent>;
     let hide_nearby_desks = false;
+    const booking_date = new Date(2026, 7, 25, 9).valueOf();
+    const base_event = () => ({
+        all_day: false,
+        date: booking_date,
+        date_end: booking_date + 60 * 60 * 1000,
+        recurrence: {},
+        space: {
+            email: 'room@placeos.test',
+            id: 'room-1',
+            zones: ['level-1'],
+        },
+    });
+    const last_success = signal(base_event());
     const level_2 = new BuildingLevel({
         id: 'level-2',
         name: 'Level 2',
@@ -33,16 +46,7 @@ describe('MeetingFlowSuccessComponent', () => {
             {
                 provide: EventFormService,
                 useValue: {
-                    last_success: signal({
-                        all_day: false,
-                        date: Date.now(),
-                        date_end: Date.now() + 60 * 60 * 1000,
-                        space: {
-                            email: 'room@placeos.test',
-                            id: 'room-1',
-                            zones: ['level-1'],
-                        },
-                    }),
+                    last_success,
                 },
             },
             MockProvider(OrganisationService, {
@@ -67,6 +71,7 @@ describe('MeetingFlowSuccessComponent', () => {
 
     beforeEach(async () => {
         hide_nearby_desks = false;
+        last_success.set(base_event());
         spectator = createComponent();
         await spectator.fixture.whenStable();
         spectator.component.loading.set(false);
@@ -87,5 +92,23 @@ describe('MeetingFlowSuccessComponent', () => {
 
     it("should show the resolved space's level", () => {
         expect(spectator.component.level).toBe(level_2);
+    });
+
+    it('should show the recurring booking end date', async () => {
+        last_success.set({
+            ...base_event(),
+            recurrence: {
+                pattern: 'daily',
+                interval: 1,
+                days_of_week: [2],
+                start: booking_date,
+                end: new Date(2026, 8, 30, 23, 59, 59).valueOf(),
+            },
+        });
+        await spectator.fixture.whenStable();
+
+        expect(spectator.query('[recurrence]')).toHaveText(
+            'Every 1 day until 30 Sep 2026',
+        );
     });
 });
