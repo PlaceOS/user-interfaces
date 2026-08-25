@@ -423,6 +423,7 @@ export async function validateAssetRequestsForResource(
             period_start: getUnixTime(date),
             period_end: getUnixTime(addMinutes(date, duration)),
             type: 'asset-request',
+            zones: (zones || []).join(','),
         },
         bookings.map((_) => _.id),
     );
@@ -430,23 +431,24 @@ export async function validateAssetRequestsForResource(
         // Handle duplicate asset ids
         const asset_ids = flatten(
             (request.items as any).map(({ id, item_ids, quantity }) => {
+                const selected_ids = item_ids || [];
                 const assets = available_groups.find(
                     (_) => _.id === id,
                 )?.assets;
-                if (!assets) return item_ids;
+                if (!assets) return selected_ids;
                 const list = [];
                 return new Array(quantity).fill(0).map((_, idx) => {
                     const item =
-                        used_ids.includes(item_ids[idx]) ||
-                        list.includes(item_ids[idx]) ||
-                        !item_ids[idx]
+                        used_ids.includes(selected_ids[idx]) ||
+                        list.includes(selected_ids[idx]) ||
+                        !selected_ids[idx]
                             ? assets?.find(({ id }) => {
                                   return (
                                       !used_ids.includes(id) &&
                                       !list.includes(id)
                                   );
                               })?.id
-                            : item_ids[idx];
+                            : selected_ids[idx];
                     if (!item) {
                         request.conflict = true;
                         throw 'Unable to find available asset for request';
@@ -456,10 +458,14 @@ export async function validateAssetRequestsForResource(
                 });
             }),
         );
+        if (!asset_ids.length || asset_ids.some((id) => !id)) {
+            request.conflict = true;
+            throw 'Unable to find available asset for request';
+        }
         // Grab any existing bookings for the asset for the parent event/booking
         const booking = bookings.find((_) =>
             _.asset_ids.find((id) =>
-                request.items?.find((i) => i.item_ids.includes(id)),
+                request.items?.find((i) => i.item_ids?.includes(id)),
             ),
         );
         used_ids = [...used_ids, ...asset_ids];
