@@ -3,22 +3,22 @@ import {
   MatTabGroup,
   MatTabLabel,
   MatTabsModule
-} from "./chunk-S7XHSIXD.js";
+} from "./chunk-EQNB23CX.js";
 import {
   CdkDrag,
   CdkDragHandle,
   CdkDropList,
   DragDropModule,
   moveItemInArray
-} from "./chunk-UVWI7PAK.js";
+} from "./chunk-OMITDJHB.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-277XOJSC.js";
+} from "./chunk-XTJDOASO.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-Q7SQZLCT.js";
+} from "./chunk-EI4O6XKT.js";
 import {
   ActivatedRoute,
   Component,
@@ -29,6 +29,8 @@ import {
   Input,
   IntersectDirective,
   Is,
+  MatCheckbox,
+  MatCheckboxModule,
   MatFormField,
   MatFormFieldModule,
   MatInput,
@@ -62,6 +64,8 @@ import {
   inject,
   input,
   linkedSignal,
+  playlistScheduleExpiryLabel,
+  playlistScheduleExpiryTooltip,
   playlistScheduleLabel,
   playlistScheduleNextPlayLabels,
   setClassMetadata,
@@ -104,7 +108,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-2FXQT5UN.js";
+} from "./chunk-MCDYY27O.js";
 import {
   __spreadProps,
   __spreadValues
@@ -351,31 +355,34 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_48_Template(rf, 
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div");
+    \u0275\u0275elementStart(0, "div", 24);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const schedule_r3 = ctx.$implicit;
+    const $index_r4 = ctx.$index;
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275property("matTooltip", ctx_r1.schedule_expiry_tooltips()[$index_r4])("matTooltipDisabled", !ctx_r1.schedule_expiry_tooltips()[$index_r4]);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate(schedule_r3);
+    \u0275\u0275textInterpolate1(" ", schedule_r3, " ");
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 27);
+    \u0275\u0275elementStart(0, "div", 28);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const play_time_r4 = ctx.$implicit;
+    const play_time_r5 = ctx.$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", play_time_r4, " ");
+    \u0275\u0275textInterpolate1(" ", play_time_r5, " ");
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_49_ForEmpty_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 28);
+    \u0275\u0275elementStart(0, "div", 29);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -392,14 +399,14 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_49_Template(rf, 
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 23);
-    \u0275\u0275repeaterCreate(5, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_6_Template, 2, 1, "div", null, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(5, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_6_Template, 2, 3, "div", 24, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "div", 24)(8, "div", 25);
+    \u0275\u0275elementStart(7, "div", 25)(8, "div", 26);
     \u0275\u0275text(9);
     \u0275\u0275pipe(10, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "div", 26);
-    \u0275\u0275repeaterCreate(12, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_13_Template, 2, 1, "div", 27, \u0275\u0275repeaterTrackByIdentity, false, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_ForEmpty_14_Template, 3, 3, "div", 28);
+    \u0275\u0275elementStart(11, "div", 27);
+    \u0275\u0275repeaterCreate(12, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_For_13_Template, 2, 1, "div", 28, \u0275\u0275repeaterTrackByIdentity, false, PlaylistItemDetailsComponent_Conditional_0_Conditional_49_ForEmpty_14_Template, 3, 3, "div", 29);
     \u0275\u0275elementEnd()()();
   }
   if (rf & 2) {
@@ -444,12 +451,12 @@ function PlaylistItemDetailsComponent_Conditional_0_ng_template_53_Template(rf, 
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_61_Template(rf, ctx) {
   if (rf & 1) {
-    const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 30);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_61_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r5);
+      \u0275\u0275restoreView(_r6);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.addZone());
     });
@@ -464,70 +471,70 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_61_Template(rf, 
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 35);
+    \u0275\u0275elementStart(0, "div", 36);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const zone_r6 = \u0275\u0275nextContext().$implicit;
+    const zone_r7 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", zone_r6.description, " ");
+    \u0275\u0275textInterpolate1(" ", zone_r7.description, " ");
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 37);
+    const _r8 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 38);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Conditional_9_Template_button_click_0_listener($event) {
-      \u0275\u0275restoreView(_r7);
-      const zone_r6 = \u0275\u0275nextContext().$implicit;
+      \u0275\u0275restoreView(_r8);
+      const zone_r7 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.removeZone($event, zone_r6));
+      return \u0275\u0275resetView(ctx_r1.removeZone($event, zone_r7));
     });
     \u0275\u0275elementStart(3, "icon");
     \u0275\u0275text(4, "close");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const zone_r6 = \u0275\u0275nextContext().$implicit;
+    const zone_r7 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.REMOVE_ZONE"));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, zone_r6.display_name || zone_r6.name)));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_ZONE_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, zone_r7.display_name || zone_r7.name)));
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 30)(1, "a", 31);
+    \u0275\u0275elementStart(0, "div", 31)(1, "a", 32);
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementStart(3, "icon", 32);
+    \u0275\u0275elementStart(3, "icon", 33);
     \u0275\u0275text(4, "location_on");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 33)(6, "div", 34);
+    \u0275\u0275elementStart(5, "div", 34)(6, "div", 35);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Conditional_8_Template, 2, 1, "div", 35);
+    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Conditional_8_Template, 2, 1, "div", 36);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Conditional_9_Template, 5, 9, "button", 36);
+    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Conditional_9_Template, 5, 9, "button", 37);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const zone_r6 = ctx.$implicit;
+    const zone_r7 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275advance();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c1, zone_r6.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 5, "SIGNAGE_MANAGER.OPEN_ZONE", \u0275\u0275pureFunction1(10, _c2, zone_r6.display_name || zone_r6.name)));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c1, zone_r7.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 5, "SIGNAGE_MANAGER.OPEN_ZONE", \u0275\u0275pureFunction1(10, _c2, zone_r7.display_name || zone_r7.name)));
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", zone_r6.display_name || zone_r6.name, " ");
+    \u0275\u0275textInterpolate1(" ", zone_r7.display_name || zone_r7.name, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(zone_r6.description ? 8 : -1);
+    \u0275\u0275conditional(zone_r7.description ? 8 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_update() ? 9 : -1);
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_63_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Template, 10, 12, "div", 30, _forTrack0);
+    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_63_For_1_Template, 10, 12, "div", 31, _forTrack0);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
@@ -536,7 +543,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_63_Template(rf, 
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_64_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 21)(1, "icon", 38);
+    \u0275\u0275elementStart(0, "div", 21)(1, "icon", 39);
     \u0275\u0275text(2, "location_off");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p", 11);
@@ -561,12 +568,12 @@ function PlaylistItemDetailsComponent_Conditional_0_ng_template_66_Template(rf, 
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_74_Template(rf, ctx) {
   if (rf & 1) {
-    const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
+    const _r9 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 30);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_74_Template_button_click_0_listener() {
-      \u0275\u0275restoreView(_r8);
+      \u0275\u0275restoreView(_r9);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.addDisplay());
     });
@@ -581,70 +588,70 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_74_Template(rf, 
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 35);
+    \u0275\u0275elementStart(0, "div", 36);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const display_r9 = \u0275\u0275nextContext().$implicit;
+    const display_r10 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", display_r9.description, " ");
+    \u0275\u0275textInterpolate1(" ", display_r10.description, " ");
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    const _r10 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 37);
+    const _r11 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 38);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_9_Template_button_click_0_listener($event) {
-      \u0275\u0275restoreView(_r10);
-      const display_r9 = \u0275\u0275nextContext().$implicit;
+      \u0275\u0275restoreView(_r11);
+      const display_r10 = \u0275\u0275nextContext().$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
-      return \u0275\u0275resetView(ctx_r1.removeDisplay($event, display_r9));
+      return \u0275\u0275resetView(ctx_r1.removeDisplay($event, display_r10));
     });
     \u0275\u0275elementStart(3, "icon");
     \u0275\u0275text(4, "close");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const display_r9 = \u0275\u0275nextContext().$implicit;
+    const display_r10 = \u0275\u0275nextContext().$implicit;
     \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.REMOVE_DISPLAY"));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_DISPLAY_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, display_r9.display_name || display_r9.name)));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 4, "SIGNAGE_MANAGER.REMOVE_DISPLAY_FROM_PLAYLIST", \u0275\u0275pureFunction1(7, _c2, display_r10.display_name || display_r10.name)));
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 30)(1, "a", 31);
+    \u0275\u0275elementStart(0, "div", 31)(1, "a", 32);
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275elementStart(3, "icon", 32);
+    \u0275\u0275elementStart(3, "icon", 33);
     \u0275\u0275text(4, "tv");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 33)(6, "div", 34);
+    \u0275\u0275elementStart(5, "div", 34)(6, "div", 35);
     \u0275\u0275text(7);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_8_Template, 2, 1, "div", 35);
+    \u0275\u0275conditionalCreate(8, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_8_Template, 2, 1, "div", 36);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_9_Template, 5, 9, "button", 36);
+    \u0275\u0275conditionalCreate(9, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Conditional_9_Template, 5, 9, "button", 37);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const display_r9 = ctx.$implicit;
+    const display_r10 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275advance();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c3, display_r9.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 5, "SIGNAGE_MANAGER.OPEN_DISPLAY", \u0275\u0275pureFunction1(10, _c2, display_r9.display_name || display_r9.name)));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(8, _c3, display_r10.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 5, "SIGNAGE_MANAGER.OPEN_DISPLAY", \u0275\u0275pureFunction1(10, _c2, display_r10.display_name || display_r10.name)));
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate1(" ", display_r9.display_name || display_r9.name, " ");
+    \u0275\u0275textInterpolate1(" ", display_r10.display_name || display_r10.name, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(display_r9.description ? 8 : -1);
+    \u0275\u0275conditional(display_r10.description ? 8 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_update() ? 9 : -1);
   }
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Template, 10, 12, "div", 30, _forTrack0);
+    \u0275\u0275repeaterCreate(0, PlaylistItemDetailsComponent_Conditional_0_Conditional_76_For_1_Template, 10, 12, "div", 31, _forTrack0);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
@@ -653,7 +660,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Conditional_76_Template(rf, 
 }
 function PlaylistItemDetailsComponent_Conditional_0_Conditional_77_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 21)(1, "icon", 38);
+    \u0275\u0275elementStart(0, "div", 21)(1, "icon", 39);
     \u0275\u0275text(2, "tv_off");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p", 11);
@@ -816,7 +823,7 @@ function PlaylistItemDetailsComponent_Conditional_0_Template(rf, ctx) {
 }
 function PlaylistItemDetailsComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 39);
+    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 40);
     \u0275\u0275text(2, "info");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -1068,11 +1075,13 @@ function schedulePeriod(schedule) {
 }
 function scheduleLabel(schedule) {
   const period = schedulePeriod(schedule);
+  const expiry = playlistScheduleExpiryLabel(schedule);
+  const suffix = [schedule.play_takeover ? "takeover" : "", expiry].filter((_) => _).join(" \xB7 ");
   if (schedule.play_at) {
     const date = fromUnixTime(schedule.play_at);
-    return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
+    return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}${suffix ? ` \xB7 ${suffix}` : ""}`;
   }
-  return `${humanizeCronSchedule(schedule.play_cron || "0 0 * * *", period)}${schedule.play_takeover ? " \xB7 takeover" : ""}`;
+  return `${humanizeCronSchedule(schedule.play_cron || "0 0 * * *", period)}${suffix ? ` \xB7 ${suffix}` : ""}`;
 }
 function nextSchedulePlaySessions(schedule, count) {
   const period = schedulePeriod(schedule);
@@ -1082,9 +1091,10 @@ function nextSchedulePlaySessions(schedule, count) {
     end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
     if (period > 0)
       end.setSeconds(end.getSeconds() - 1);
-    return end >= /* @__PURE__ */ new Date() ? [{ start, period }] : [];
+    const expires_before_play = !!schedule.valid_until && schedule.play_at > schedule.valid_until;
+    return end >= /* @__PURE__ */ new Date() && !expires_before_play ? [{ start, period }] : [];
   }
-  return nextCronPlayDates(schedule.play_cron || "0 0 * * *", count).map((start) => ({ start, period }));
+  return nextCronPlayDates(schedule.play_cron || "0 0 * * *", count).filter((start) => !schedule.valid_until || start.getTime() <= schedule.valid_until * 1e3).map((start) => ({ start, period }));
 }
 var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
   constructor() {
@@ -1202,6 +1212,18 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
         []
       )
     );
+    this.schedule_expiry_tooltips = computed(
+      () => {
+        const pl = this.playlist();
+        if (!pl || pl.distribution)
+          return [];
+        return playlistSchedules(pl).map((schedule) => playlistScheduleExpiryTooltip(schedule));
+      },
+      ...ngDevMode ? [{ debugName: "schedule_expiry_tooltips" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.next_play_sessions = computed(
       () => {
         const pl = this.playlist();
@@ -1245,7 +1267,7 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemDetailsComponent, selectors: [["playlist-item-details"]], decls: 2, vars: 1, consts: [[1, "border-base-300", "flex", "h-full", "min-w-60", "flex-col", "overflow-hidden", "border-l", "lg:w-84"], [1, "border-base-300", "text-base-content/70", "flex", "min-w-60", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "border-l", "p-8"], [1, "flex-1", "overflow-hidden", 3, "selectedIndexChange", "selectedIndex"], [3, "label"], [1, "h-full", "overflow-auto"], [1, "flex", "w-full", "flex-col", "gap-2", "p-4"], [1, "w-full"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "text-sm", "font-medium"], [1, "bg-success", "text-success-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "text-sm"], [1, "font-mono", "text-sm"], ["type", "playlists", 1, "mt-2", 3, "item_id", "group_id", "allow_unshare", "compact_label"], ["mat-tab-label", ""], [1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "min-h-0", "flex-1", "gap-2", "overflow-auto", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-sm", "capitalize"], [1, "space-y-1", "text-sm"], [1, "mt-2"], [1, "text-base-content/60", "mb-1", "text-xs", "font-medium", "tracking-wide", "uppercase"], [1, "text-base-content/80", "space-y-0.5", "font-mono", "text-xs", "leading-tight"], [1, "truncate"], [1, "text-base-content/60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "text-base-content/70", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "click", "matTooltip"], [1, "text-4xl"], [1, "text-6xl"]], template: function PlaylistItemDetailsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemDetailsComponent, selectors: [["playlist-item-details"]], decls: 2, vars: 1, consts: [[1, "border-base-300", "flex", "h-full", "min-w-60", "flex-col", "overflow-hidden", "border-l", "lg:w-84"], [1, "border-base-300", "text-base-content/70", "flex", "min-w-60", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "border-l", "p-8"], [1, "flex-1", "overflow-hidden", 3, "selectedIndexChange", "selectedIndex"], [3, "label"], [1, "h-full", "overflow-auto"], [1, "flex", "w-full", "flex-col", "gap-2", "p-4"], [1, "w-full"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "text-sm", "font-medium"], [1, "bg-success", "text-success-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "bg-warning", "text-warning-content", "rounded", "px-2", "py-1", "text-xs", "font-bold", "uppercase"], [1, "text-sm"], [1, "font-mono", "text-sm"], ["type", "playlists", 1, "mt-2", 3, "item_id", "group_id", "allow_unshare", "compact_label"], ["mat-tab-label", ""], [1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "min-h-0", "flex-1", "gap-2", "overflow-auto", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "text-sm", "capitalize"], [1, "space-y-1", "text-sm"], [3, "matTooltip", "matTooltipDisabled"], [1, "mt-2"], [1, "text-base-content/60", "mb-1", "text-xs", "font-medium", "tracking-wide", "uppercase"], [1, "text-base-content/80", "space-y-0.5", "font-mono", "text-xs", "leading-tight"], [1, "truncate"], [1, "text-base-content/60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "text-base-content/70", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 1, "m-1", "text-sm", 3, "click", "matTooltip"], [1, "text-4xl"], [1, "text-6xl"]], template: function PlaylistItemDetailsComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, PlaylistItemDetailsComponent_Conditional_0_Template, 78, 62, "div", 0)(1, PlaylistItemDetailsComponent_Conditional_1_Template, 6, 3, "div", 1);
       }
@@ -1455,7 +1477,20 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
                                                 schedule of schedule_labels();
                                                 track schedule
                                             ) {
-                                                <div>{{ schedule }}</div>
+                                                <div
+                                                    [matTooltip]="
+                                                        schedule_expiry_tooltips()[
+                                                            $index
+                                                        ]
+                                                    "
+                                                    [matTooltipDisabled]="
+                                                        !schedule_expiry_tooltips()[
+                                                            $index
+                                                        ]
+                                                    "
+                                                >
+                                                    {{ schedule }}
+                                                </div>
                                             }
                                         </div>
                                         <div class="mt-2">
@@ -1834,16 +1869,17 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemDetailsComponent, { className: "PlaylistItemDetailsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-item-details.component.ts", lineNumber: 878 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemDetailsComponent, { className: "PlaylistItemDetailsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-item-details.component.ts", lineNumber: 909 });
 })();
 
 // apps/signage-manager/src/app/playlists/playlist-items.component.ts
 var _c03 = (a0) => ({ name: a0 });
+var _c12 = (a0) => ({ count: a0 });
 var _forTrack02 = ($index, $item) => $item.id + "-" + $index;
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275elementStart(0, "button", 14);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template_button_click_0_listener() {
@@ -1851,7 +1887,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Templa
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.approvePlaylist());
     });
-    \u0275\u0275elementStart(3, "icon", 14);
+    \u0275\u0275elementStart(3, "icon", 15);
     \u0275\u0275text(4, "order_approve");
     \u0275\u0275elementEnd()();
   }
@@ -1862,12 +1898,12 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Templa
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 16);
+    \u0275\u0275element(0, "mat-spinner", 17);
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 14);
+    \u0275\u0275elementStart(0, "icon", 15);
     \u0275\u0275text(1, "approval");
     \u0275\u0275elementEnd();
   }
@@ -1875,7 +1911,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Condit
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 15);
+    \u0275\u0275elementStart(0, "button", 16);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template_button_click_0_listener() {
@@ -1883,7 +1919,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Templa
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.requestApproval());
     });
-    \u0275\u0275conditionalCreate(3, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_3_Template, 1, 0, "mat-spinner", 16)(4, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_4_Template, 2, 0, "icon", 14);
+    \u0275\u0275conditionalCreate(3, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_3_Template, 1, 0, "mat-spinner", 17)(4, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Conditional_4_Template, 2, 0, "icon", 15);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -1896,7 +1932,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Templa
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template, 5, 6, "button", 7)(1, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template, 5, 8, "button", 12);
+    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_0_Template, 5, 6, "button", 7)(1, PlaylistItemsComponent_Conditional_0_Conditional_6_Conditional_1_Template, 5, 8, "button", 13);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
@@ -1906,7 +1942,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275elementStart(0, "button", 14);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_7_Template_button_click_0_listener() {
@@ -1926,7 +1962,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_7_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275elementStart(0, "button", 14);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_8_Template_button_click_0_listener() {
@@ -1946,7 +1982,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_8_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 17);
+    \u0275\u0275elementStart(0, "button", 18);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_9_Template_button_click_0_listener() {
@@ -1966,7 +2002,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_9_Template(rf, ctx) {
 function PlaylistItemsComponent_Conditional_0_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 9);
-    \u0275\u0275element(1, "mat-spinner", 18);
+    \u0275\u0275element(1, "mat-spinner", 19);
     \u0275\u0275elementStart(2, "p");
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
@@ -1977,9 +2013,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 1, "SIGNAGE_MANAGER.LOADING_PLAYLIST_ITEMS"), " ");
   }
 }
-function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_11_Template(rf, ctx) {
+function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 27);
+    \u0275\u0275elementStart(0, "span", 29);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "mediaDuration");
     \u0275\u0275elementEnd();
@@ -1990,11 +2026,11 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_1
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r10.play_time / 1e3), " ");
   }
 }
-function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_25_Template(rf, ctx) {
+function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_27_Template(rf, ctx) {
   if (rf & 1) {
     const _r14 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
-    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_25_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_27_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r14);
       const ctx_r14 = \u0275\u0275nextContext();
       const item_r10 = ctx_r14.$implicit;
@@ -2002,10 +2038,10 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_2
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.removeItem(item_r10, $index_r11));
     });
-    \u0275\u0275elementStart(1, "div", 30)(2, "icon", 34);
+    \u0275\u0275elementStart(1, "div", 32)(2, "icon", 36);
     \u0275\u0275text(3, " delete ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 32);
+    \u0275\u0275elementStart(4, "div", 34);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
@@ -2018,7 +2054,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_2
 function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 21);
+    \u0275\u0275elementStart(0, "div", 22);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_div_click_0_listener() {
       const ctx_r8 = \u0275\u0275restoreView(_r8);
@@ -2039,50 +2075,63 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r10, $index_r11));
     });
-    \u0275\u0275elementStart(2, "icon", 22);
+    \u0275\u0275elementStart(2, "icon", 23);
     \u0275\u0275text(3, "drag_indicator");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "media-thumbnail", 23);
-    \u0275\u0275elementStart(5, "div", 5)(6, "div", 24);
-    \u0275\u0275text(7);
+    \u0275\u0275elementStart(4, "mat-checkbox", 24);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_mat_checkbox_click_4_listener($event) {
+      return $event.stopPropagation();
+    })("change", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_mat_checkbox_change_4_listener() {
+      const $index_r11 = \u0275\u0275restoreView(_r8).$index;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.toggleSelection($index_r11));
+    });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "div", 25)(9, "span", 26);
-    \u0275\u0275text(10);
+    \u0275\u0275element(6, "media-thumbnail", 25);
+    \u0275\u0275elementStart(7, "div", 5)(8, "div", 26);
+    \u0275\u0275text(9);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(11, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_11_Template, 3, 3, "span", 27);
+    \u0275\u0275elementStart(10, "div", 27)(11, "span", 28);
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(13, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_13_Template, 3, 3, "span", 29);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(12, "button", 28);
-    \u0275\u0275pipe(13, "translate");
-    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_button_click_12_listener($event) {
+    \u0275\u0275elementStart(14, "button", 30);
+    \u0275\u0275pipe(15, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_button_click_14_listener($event) {
       return $event.stopPropagation();
     });
-    \u0275\u0275elementStart(14, "icon");
-    \u0275\u0275text(15, "more_vert");
+    \u0275\u0275elementStart(16, "icon");
+    \u0275\u0275text(17, "more_vert");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(16, "mat-menu", null, 0)(18, "button", 29);
-    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_button_click_18_listener() {
+    \u0275\u0275elementStart(18, "mat-menu", null, 0)(20, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template_button_click_20_listener() {
       const item_r10 = \u0275\u0275restoreView(_r8).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.previewItem(item_r10));
     });
-    \u0275\u0275elementStart(19, "div", 30)(20, "icon", 31);
-    \u0275\u0275text(21, "visibility");
+    \u0275\u0275elementStart(21, "div", 32)(22, "icon", 33);
+    \u0275\u0275text(23, "visibility");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(22, "div", 32);
-    \u0275\u0275text(23);
-    \u0275\u0275pipe(24, "translate");
+    \u0275\u0275elementStart(24, "div", 34);
+    \u0275\u0275text(25);
+    \u0275\u0275pipe(26, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(25, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_25_Template, 7, 3, "button", 33);
+    \u0275\u0275conditionalCreate(27, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Conditional_27_Template, 7, 3, "button", 35);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const item_r10 = ctx.$implicit;
     const $index_r11 = ctx.$index;
-    const item_menu_r16 = \u0275\u0275reference(17);
+    const item_menu_r16 = \u0275\u0275reference(19);
     const ctx_r1 = \u0275\u0275nextContext(3);
-    \u0275\u0275classProp("bg-primary", ctx_r1.isItemSelected(item_r10, $index_r11))("text-primary-content", ctx_r1.isItemSelected(item_r10, $index_r11))("hover:bg-base-200", !ctx_r1.isItemSelected(item_r10, $index_r11));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 32, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(39, _c03, item_r10.name)));
+    \u0275\u0275classProp("bg-primary", ctx_r1.isItemSelected(item_r10, $index_r11))("text-primary-content", ctx_r1.isItemSelected(item_r10, $index_r11))("hover:bg-base-200", !ctx_r1.isItemSelected(item_r10, $index_r11))("ring-2", ctx_r1.isBulkItemSelected($index_r11))("ring-primary", ctx_r1.isBulkItemSelected($index_r11));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(1, 38, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(48, _c03, item_r10.name)));
     \u0275\u0275advance(4);
+    \u0275\u0275property("checked", ctx_r1.isBulkItemSelected($index_r11));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 41, "SIGNAGE_MANAGER.SELECT_MEDIA", \u0275\u0275pureFunction1(50, _c03, item_r10.name)));
+    \u0275\u0275advance(2);
     \u0275\u0275property("item", item_r10)("cover", true);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", item_r10.name, " ");
@@ -2091,26 +2140,26 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template(rf, 
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", item_r10.media_type, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(item_r10.play_time ? 11 : -1);
+    \u0275\u0275conditional(item_r10.play_time ? 13 : -1);
     \u0275\u0275advance();
     \u0275\u0275property("matMenuTriggerFor", item_menu_r16);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(13, 35, "SIGNAGE_MANAGER.ITEM_ACTIONS"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(15, 44, "SIGNAGE_MANAGER.ITEM_ACTIONS"));
     \u0275\u0275advance(11);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(24, 37, "COMMON.PREVIEW"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(26, 46, "COMMON.PREVIEW"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.can_update() ? 25 : -1);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 27 : -1);
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
     const _r7 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275elementStart(0, "div", 20);
     \u0275\u0275listener("cdkDropListDropped", function PlaylistItemsComponent_Conditional_0_Conditional_11_Template_div_cdkDropListDropped_0_listener($event) {
       \u0275\u0275restoreView(_r7);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.onDrop($event));
     });
-    \u0275\u0275repeaterCreate(1, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template, 26, 41, "div", 20, _forTrack02);
+    \u0275\u0275repeaterCreate(1, PlaylistItemsComponent_Conditional_0_Conditional_11_For_2_Template, 28, 52, "div", 21, _forTrack02);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -2119,9 +2168,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r1.items());
   }
 }
-function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_11_Template(rf, ctx) {
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 27);
+    \u0275\u0275elementStart(0, "span", 29);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "mediaDuration");
     \u0275\u0275elementEnd();
@@ -2132,26 +2181,26 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_1
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, item_r20.play_time / 1e3), " ");
   }
 }
-function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_25_Template(rf, ctx) {
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_27_Template(rf, ctx) {
   if (rf & 1) {
     const _r24 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 29);
-    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_25_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_27_Template_button_click_0_listener() {
       \u0275\u0275restoreView(_r24);
       \u0275\u0275nextContext();
       const schedule_r25 = \u0275\u0275readContextLet(0);
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.editItemSchedule(schedule_r25));
     });
-    \u0275\u0275elementStart(1, "div", 30)(2, "icon", 31);
+    \u0275\u0275elementStart(1, "div", 32)(2, "icon", 33);
     \u0275\u0275text(3, "edit_calendar");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 32);
+    \u0275\u0275elementStart(4, "div", 34);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275elementStart(7, "button", 29);
-    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_25_Template_button_click_7_listener() {
+    \u0275\u0275elementStart(7, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_27_Template_button_click_7_listener() {
       \u0275\u0275restoreView(_r24);
       const ctx_r25 = \u0275\u0275nextContext();
       const item_r20 = ctx_r25.$implicit;
@@ -2159,10 +2208,10 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_2
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.removeItem(item_r20, $index_r21));
     });
-    \u0275\u0275elementStart(8, "div", 30)(9, "icon", 34);
+    \u0275\u0275elementStart(8, "div", 32)(9, "icon", 36);
     \u0275\u0275text(10, " delete ");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(11, "div", 32);
+    \u0275\u0275elementStart(11, "div", 34);
     \u0275\u0275text(12);
     \u0275\u0275pipe(13, "translate");
     \u0275\u0275elementEnd()()();
@@ -2174,9 +2223,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_2
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 4, "SIGNAGE_MANAGER.REMOVE_FROM_PLAYLIST"), " ");
   }
 }
-function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_32_Conditional_0_For_1_Template(rf, ctx) {
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_34_Conditional_0_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 45);
+    \u0275\u0275elementStart(0, "div", 47);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -2188,9 +2237,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_3
     \u0275\u0275textInterpolate1(" ", ctx_r1.scheduleLabel(item_schedule_r28), " ");
   }
 }
-function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_32_Conditional_0_Template(rf, ctx) {
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_34_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_32_Conditional_0_For_1_Template, 2, 2, "div", 45, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275repeaterCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_34_Conditional_0_For_1_Template, 2, 2, "div", 47, \u0275\u0275repeaterTrackByIndex);
   }
   if (rf & 2) {
     \u0275\u0275nextContext(2);
@@ -2198,9 +2247,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_3
     \u0275\u0275repeater(schedule_r25.schedules);
   }
 }
-function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_32_Conditional_1_Template(rf, ctx) {
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_34_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 44);
+    \u0275\u0275elementStart(0, "div", 46);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -2210,9 +2259,9 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_3
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.NO_SCHEDULES"), " ");
   }
 }
-function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_32_Template(rf, ctx) {
+function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_34_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_32_Conditional_0_Template, 2, 0)(1, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_32_Conditional_1_Template, 3, 3, "div", 44);
+    \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_34_Conditional_0_Template, 2, 0)(1, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_34_Conditional_1_Template, 3, 3, "div", 46);
   }
   if (rf & 2) {
     \u0275\u0275nextContext();
@@ -2224,7 +2273,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template(rf, 
   if (rf & 1) {
     const _r18 = \u0275\u0275getCurrentView();
     \u0275\u0275declareLet(0);
-    \u0275\u0275elementStart(1, "div", 40);
+    \u0275\u0275elementStart(1, "div", 42);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_div_click_1_listener() {
       const ctx_r18 = \u0275\u0275restoreView(_r18);
@@ -2245,66 +2294,78 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template(rf, 
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.selectItemWithKeyboard($event, item_r20, $index_r21));
     });
-    \u0275\u0275elementStart(3, "div", 41);
-    \u0275\u0275element(4, "media-thumbnail", 23);
-    \u0275\u0275elementStart(5, "div", 5)(6, "div", 24);
-    \u0275\u0275text(7);
+    \u0275\u0275elementStart(3, "div", 43)(4, "mat-checkbox", 24);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_mat_checkbox_click_4_listener($event) {
+      return $event.stopPropagation();
+    })("change", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_mat_checkbox_change_4_listener() {
+      const $index_r21 = \u0275\u0275restoreView(_r18).$index;
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.toggleSelection($index_r21));
+    });
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "div", 25)(9, "span", 26);
-    \u0275\u0275text(10);
+    \u0275\u0275element(6, "media-thumbnail", 25);
+    \u0275\u0275elementStart(7, "div", 5)(8, "div", 26);
+    \u0275\u0275text(9);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(11, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_11_Template, 3, 3, "span", 27);
+    \u0275\u0275elementStart(10, "div", 27)(11, "span", 28);
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(13, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_13_Template, 3, 3, "span", 29);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(12, "button", 28);
-    \u0275\u0275pipe(13, "translate");
-    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_12_listener($event) {
+    \u0275\u0275elementStart(14, "button", 30);
+    \u0275\u0275pipe(15, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_14_listener($event) {
       return $event.stopPropagation();
     });
-    \u0275\u0275elementStart(14, "icon");
-    \u0275\u0275text(15, "more_vert");
+    \u0275\u0275elementStart(16, "icon");
+    \u0275\u0275text(17, "more_vert");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(16, "mat-menu", null, 1)(18, "button", 29);
-    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_18_listener() {
+    \u0275\u0275elementStart(18, "mat-menu", null, 1)(20, "button", 31);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_20_listener() {
       const item_r20 = \u0275\u0275restoreView(_r18).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.previewItem(item_r20));
     });
-    \u0275\u0275elementStart(19, "div", 30)(20, "icon", 31);
-    \u0275\u0275text(21, "visibility");
+    \u0275\u0275elementStart(21, "div", 32)(22, "icon", 33);
+    \u0275\u0275text(23, "visibility");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(22, "div", 32);
-    \u0275\u0275text(23);
-    \u0275\u0275pipe(24, "translate");
+    \u0275\u0275elementStart(24, "div", 34);
+    \u0275\u0275text(25);
+    \u0275\u0275pipe(26, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(25, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_25_Template, 14, 6);
+    \u0275\u0275conditionalCreate(27, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_27_Template, 14, 6);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(26, "div", 42)(27, "button", 43);
-    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_27_listener($event) {
+    \u0275\u0275elementStart(28, "div", 44)(29, "button", 45);
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template_button_click_29_listener($event) {
       const ctx_r26 = \u0275\u0275restoreView(_r18);
       const item_r20 = ctx_r26.$implicit;
       const $index_r21 = ctx_r26.$index;
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.toggleSchedules($event, item_r20, $index_r21));
     });
-    \u0275\u0275elementStart(28, "span");
-    \u0275\u0275text(29, "Schedules");
+    \u0275\u0275elementStart(30, "span");
+    \u0275\u0275text(31, "Schedules");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(30, "icon", 37);
-    \u0275\u0275text(31);
+    \u0275\u0275elementStart(32, "icon", 39);
+    \u0275\u0275text(33);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(32, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_32_Template, 2, 1);
+    \u0275\u0275conditionalCreate(34, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Conditional_34_Template, 2, 1);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const item_r20 = ctx.$implicit;
     const $index_r21 = ctx.$index;
-    const distribution_item_menu_r29 = \u0275\u0275reference(17);
+    const distribution_item_menu_r29 = \u0275\u0275reference(19);
     const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275storeLet(ctx_r1.itemSchedule(item_r20, $index_r21));
     \u0275\u0275advance();
-    \u0275\u0275classProp("bg-primary", ctx_r1.isItemSelected(item_r20, $index_r21))("text-primary-content", ctx_r1.isItemSelected(item_r20, $index_r21))("hover:bg-base-200", !ctx_r1.isItemSelected(item_r20, $index_r21));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 36, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(43, _c03, item_r20.name)));
+    \u0275\u0275classProp("bg-primary", ctx_r1.isItemSelected(item_r20, $index_r21))("text-primary-content", ctx_r1.isItemSelected(item_r20, $index_r21))("hover:bg-base-200", !ctx_r1.isItemSelected(item_r20, $index_r21))("ring-2", ctx_r1.isBulkItemSelected($index_r21))("ring-primary", ctx_r1.isBulkItemSelected($index_r21));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 42, "SIGNAGE_MANAGER.SELECT_MEDIA_ITEM", \u0275\u0275pureFunction1(52, _c03, item_r20.name)));
     \u0275\u0275advance(3);
+    \u0275\u0275property("checked", ctx_r1.isBulkItemSelected($index_r21));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(5, 45, "SIGNAGE_MANAGER.SELECT_MEDIA", \u0275\u0275pureFunction1(54, _c03, item_r20.name)));
+    \u0275\u0275advance(2);
     \u0275\u0275property("item", item_r20)("cover", true);
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", item_r20.name, " ");
@@ -2313,38 +2374,38 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template(rf, 
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", item_r20.media_type, " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(item_r20.play_time ? 11 : -1);
+    \u0275\u0275conditional(item_r20.play_time ? 13 : -1);
     \u0275\u0275advance();
     \u0275\u0275property("matMenuTriggerFor", distribution_item_menu_r29);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(13, 39, "SIGNAGE_MANAGER.ITEM_ACTIONS"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(15, 48, "SIGNAGE_MANAGER.ITEM_ACTIONS"));
     \u0275\u0275advance(11);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(24, 41, "COMMON.PREVIEW"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(26, 50, "COMMON.PREVIEW"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.can_update() ? 25 : -1);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 27 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275attribute("aria-expanded", ctx_r1.schedulesOpen(item_r20, $index_r21));
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate(ctx_r1.schedulesOpen(item_r20, $index_r21) ? "expand_less" : "expand_more");
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.schedulesOpen(item_r20, $index_r21) ? 32 : -1);
+    \u0275\u0275conditional(ctx_r1.schedulesOpen(item_r20, $index_r21) ? 34 : -1);
   }
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     const _r17 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 11)(1, "div", 35)(2, "button", 36);
+    \u0275\u0275elementStart(0, "div", 11)(1, "div", 37)(2, "button", 38);
     \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_12_Template_button_click_2_listener($event) {
       \u0275\u0275restoreView(_r17);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.toggleAllSchedules($event));
     });
-    \u0275\u0275elementStart(3, "icon", 37);
+    \u0275\u0275elementStart(3, "icon", 39);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "span", 38);
+    \u0275\u0275elementStart(5, "span", 40);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd()()();
-    \u0275\u0275repeaterCreate(7, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template, 33, 45, "div", 39, _forTrack02);
+    \u0275\u0275repeaterCreate(7, PlaylistItemsComponent_Conditional_0_Conditional_12_For_8_Template, 35, 56, "div", 41, _forTrack02);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -2359,7 +2420,7 @@ function PlaylistItemsComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
 }
 function PlaylistItemsComponent_Conditional_0_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 46);
+    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 48);
     \u0275\u0275text(2, "queue_music");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -2370,6 +2431,84 @@ function PlaylistItemsComponent_Conditional_0_Conditional_13_Template(rf, ctx) {
   if (rf & 2) {
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 1, "SIGNAGE_MANAGER.NO_PLAYLIST_ITEMS"));
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_14_Conditional_10_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r32 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 14);
+    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_14_Conditional_10_Conditional_1_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r32);
+      const ctx_r1 = \u0275\u0275nextContext(4);
+      return \u0275\u0275resetView(ctx_r1.applyScheduleToSelected());
+    });
+    \u0275\u0275elementStart(3, "icon");
+    \u0275\u0275text(4, "edit_calendar");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.APPLY_SCHEDULE"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 4, "SIGNAGE_MANAGER.APPLY_SCHEDULE"));
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_14_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r31 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 27);
+    \u0275\u0275conditionalCreate(1, PlaylistItemsComponent_Conditional_0_Conditional_14_Conditional_10_Conditional_1_Template, 5, 6, "button", 7);
+    \u0275\u0275elementStart(2, "button", 18);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_14_Conditional_10_Template_button_click_2_listener() {
+      \u0275\u0275restoreView(_r31);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      return \u0275\u0275resetView(ctx_r1.deleteSelected());
+    });
+    \u0275\u0275elementStart(5, "icon");
+    \u0275\u0275text(6, "delete");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.is_distribution() ? 1 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(3, 3, "SIGNAGE_MANAGER.REMOVE_SELECTED_FROM_PLAYLIST"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(4, 5, "SIGNAGE_MANAGER.REMOVE_SELECTED_FROM_PLAYLIST"));
+  }
+}
+function PlaylistItemsComponent_Conditional_0_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r30 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "footer", 12)(1, "div", 49)(2, "button", 50);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275listener("click", function PlaylistItemsComponent_Conditional_0_Conditional_14_Template_button_click_2_listener() {
+      \u0275\u0275restoreView(_r30);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.clearSelection());
+    });
+    \u0275\u0275elementStart(5, "icon");
+    \u0275\u0275text(6, "close");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(7, "div", 51);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(10, PlaylistItemsComponent_Conditional_0_Conditional_14_Conditional_10_Template, 7, 7, "div", 27);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(3, 4, "SIGNAGE_MANAGER.CLEAR_SELECTED_PLAYLIST_ITEMS"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(4, 6, "SIGNAGE_MANAGER.CLEAR_SELECTED_PLAYLIST_ITEMS"));
+    \u0275\u0275advance(6);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(9, 8, "COMMON.SELECTED_COUNT", \u0275\u0275pureFunction1(11, _c12, ctx_r1.selected_count())), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.can_update() ? 10 : -1);
   }
 }
 function PlaylistItemsComponent_Conditional_0_Template(rf, ctx) {
@@ -2386,6 +2525,7 @@ function PlaylistItemsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275conditionalCreate(9, PlaylistItemsComponent_Conditional_0_Conditional_9_Template, 5, 6, "button", 8);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(10, PlaylistItemsComponent_Conditional_0_Conditional_10_Template, 5, 3, "div", 9)(11, PlaylistItemsComponent_Conditional_0_Conditional_11_Template, 3, 0, "div", 10)(12, PlaylistItemsComponent_Conditional_0_Conditional_12_Template, 9, 2, "div", 11)(13, PlaylistItemsComponent_Conditional_0_Conditional_13_Template, 6, 3, "div", 2);
+    \u0275\u0275conditionalCreate(14, PlaylistItemsComponent_Conditional_0_Conditional_14_Template, 11, 13, "footer", 12);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
@@ -2401,11 +2541,13 @@ function PlaylistItemsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.can_delete() ? 9 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.loading() ? 10 : ctx_r1.items().length > 0 && !ctx_r1.is_distribution() ? 11 : ctx_r1.items().length > 0 ? 12 : 13);
+    \u0275\u0275advance(4);
+    \u0275\u0275conditional(ctx_r1.selected_count() > 0 ? 14 : -1);
   }
 }
 function PlaylistItemsComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 46);
+    \u0275\u0275elementStart(0, "div", 2)(1, "icon", 48);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -2442,6 +2584,30 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
         []
       )
     );
+    this.selected_indices = linkedSignal(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "selected_indices" } : (
+      /* istanbul ignore next */
+      {}
+    )), {
+      source: () => [this.selected_playlist()?.id, this.items()],
+      computation: () => /* @__PURE__ */ new Set()
+    }));
+    this.selected_items = computed(
+      () => {
+        const selected_indices = this.selected_indices();
+        return this.items().flatMap((item, index) => selected_indices.has(index) ? [{ item, index }] : []);
+      },
+      ...ngDevMode ? [{ debugName: "selected_items" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.selected_count = computed(
+      () => this.selected_items().length,
+      ...ngDevMode ? [{ debugName: "selected_count" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.scheduleLabel = playlistScheduleLabel;
   }
   selectItem(item, index) {
@@ -2450,6 +2616,19 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
   }
   isItemSelected(item, index) {
     return this.selected_item()?.id === item.id && this.selected_item_index() === index;
+  }
+  isBulkItemSelected(index) {
+    return this.selected_indices().has(index);
+  }
+  toggleSelection(index) {
+    this.selected_indices.update((indices) => {
+      const selected_indices = new Set(indices);
+      selected_indices.has(index) ? selected_indices.delete(index) : selected_indices.add(index);
+      return selected_indices;
+    });
+  }
+  clearSelection() {
+    this.selected_indices.set(/* @__PURE__ */ new Set());
   }
   itemSchedule(item, index = -1) {
     const schedule = this.item_schedule_list()[index];
@@ -2462,9 +2641,11 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
   }
   scheduleTooltip(schedule) {
     const labels = playlistScheduleNextPlayLabels(schedule);
+    const expiry = playlistScheduleExpiryTooltip(schedule);
     return [
       `-- ${i18n("SIGNAGE_MANAGER.NEXT_5_PLAYS")} --`,
-      ...labels.length ? labels : [i18n("SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES")]
+      ...labels.length ? labels : [i18n("SIGNAGE_MANAGER.NO_UPCOMING_PLAY_TIMES")],
+      ...expiry ? [`${i18n("FORM.EXPIRES_AT")}: ${expiry}`] : []
     ].join("\n");
   }
   scheduleKey(item, index) {
@@ -2510,6 +2691,12 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
   editItemSchedule(schedule) {
     this._service.editPlaylistItemSchedule(schedule);
   }
+  async applyScheduleToSelected() {
+    const schedules = this.selected_items().map(({ item, index }) => this.itemSchedule(item, index));
+    if (await this._service.editPlaylistItemSchedules(schedules)) {
+      this.clearSelection();
+    }
+  }
   editPlaylist() {
     const playlist = this.selected_playlist();
     if (playlist)
@@ -2547,6 +2734,21 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
       this._service.selected_playlist_item_index.set(null);
     }
   }
+  async deleteSelected() {
+    const playlist = this.selected_playlist();
+    if (!playlist?.id)
+      return;
+    const selected_items = this.selected_items().map(({ item, index }) => {
+      const schedule = playlist.distribution ? this.itemSchedule(item, index) : null;
+      return {
+        id: schedule?.id || schedule?.item_id || item.id,
+        index
+      };
+    });
+    if (await this._service.removeMediaItemsFromPlaylist(playlist.id, selected_items)) {
+      this.clearSelection();
+    }
+  }
   async onDrop(event) {
     if (!this.can_update() || this.is_distribution())
       return;
@@ -2564,9 +2766,9 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemsComponent, selectors: [["playlist-items"]], decls: 2, vars: 1, consts: [["item_menu", "matMenu"], ["distribution_item_menu", "matMenu"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "px-4", "py-3", "lg:flex"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-lg", "font-medium"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-3", "p-8", "opacity-70"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["diameter", "32"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [1, "bg-base-300", "h-12", "w-16", "shrink-0", "overflow-hidden", "rounded", 3, "item", "cover"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "items-center", "gap-2"], [1, "rounded", "px-1.5", "py-0.5", "text-[10px]", "capitalize"], [1, "font-mono", "text-[10px]", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matMenuTriggerFor"], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], [1, "pr-2"], ["type", "button", "mat-menu-item", ""], [1, "text-error", "text-2xl"], [1, "-mt-2", "mb-2", "flex", "justify-end", "lg:mt-0"], ["type", "button", "matRipple", "", 1, "text-base-content/70", "hover:bg-base-200", "flex", "w-28", "items-center", "justify-center", "gap-1", "rounded", "px-2", "py-1", "text-xs", "font-medium", 3, "click"], [1, "text-base"], [1, "mr-2"], ["role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "cursor-pointer", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200"], ["role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "cursor-pointer", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], [1, "flex", "items-start", "gap-3"], [1, "border-base-300", "bg-base-100", "text-base-content", "relative", "mt-4", "flex", "flex-col", "gap-1", "rounded-lg", "border", "text-sm"], ["type", "button", 1, "bg-base-100", "absolute", "-top-3", "left-4", "flex", "items-center", "gap-1", "rounded-lg", "px-2", "text-xs", "font-medium", 3, "click"], [1, "text-base-content/60", "rounded-md", "p-2"], ["matTooltipClass", "playlist-schedule-tooltip", 1, "rounded-md", "p-2", 3, "matTooltip"], [1, "text-6xl"]], template: function PlaylistItemsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistItemsComponent, selectors: [["playlist-items"]], decls: 2, vars: 1, consts: [["item_menu", "matMenu"], ["distribution_item_menu", "matMenu"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "bg-base-100", "border-base-300", "mx-2", "hidden", "items-center", "gap-2", "rounded-b-lg", "border", "px-4", "py-3", "lg:flex"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-lg", "font-medium"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-3", "p-8", "opacity-70"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2"], ["aria-live", "polite", 1, "bg-base-100", "border-base-300", "sticky", "bottom-2", "z-20", "mx-2", "mt-2", "flex", "items-center", "justify-between", "gap-2", "rounded-xl", "border", "p-2", "shadow-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip", "disabled"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-warning"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip", "disabled"], ["diameter", "20"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], ["diameter", "32"], ["cdkDropList", "", "role", "list", 1, "w-full", "flex-1", "overflow-auto", "px-3", "py-2", 3, "cdkDropListDropped"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "ring-2", "ring-primary"], ["cdkDrag", "", "role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "flex", "cursor-pointer", "items-center", "gap-3", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], ["cdkDragHandle", "", 1, "shrink-0", "cursor-grab", "opacity-40"], [3, "click", "change", "checked"], [1, "bg-base-300", "h-12", "w-16", "shrink-0", "overflow-hidden", "rounded", 3, "item", "cover"], [1, "truncate", "text-sm", "font-medium"], [1, "flex", "items-center", "gap-2"], [1, "rounded", "px-1.5", "py-0.5", "text-[10px]", "capitalize"], [1, "font-mono", "text-[10px]", "opacity-60"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matMenuTriggerFor"], ["type", "button", "mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "space-x-2"], [1, "text-2xl"], [1, "pr-2"], ["type", "button", "mat-menu-item", ""], [1, "text-error", "text-2xl"], [1, "-mt-2", "mb-2", "flex", "justify-end", "lg:mt-0"], ["type", "button", "matRipple", "", 1, "text-base-content/70", "hover:bg-base-200", "flex", "w-28", "items-center", "justify-center", "gap-1", "rounded", "px-2", "py-1", "text-xs", "font-medium", 3, "click"], [1, "text-base"], [1, "mr-2"], ["role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "cursor-pointer", "rounded-lg", "border", "p-2", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "ring-2", "ring-primary"], ["role", "button", "tabindex", "0", 1, "bg-base-100", "border-base-300", "mb-2", "cursor-pointer", "rounded-lg", "border", "p-2", "transition-colors", 3, "click", "keydown.enter", "keydown.space"], [1, "flex", "items-start", "gap-3"], [1, "border-base-300", "bg-base-100", "text-base-content", "relative", "mt-4", "flex", "flex-col", "gap-1", "rounded-lg", "border", "text-sm"], ["type", "button", 1, "bg-base-100", "absolute", "-top-3", "left-4", "flex", "items-center", "gap-1", "rounded-lg", "px-2", "text-xs", "font-medium", 3, "click"], [1, "text-base-content/60", "rounded-md", "p-2"], ["matTooltipClass", "playlist-schedule-tooltip", 1, "rounded-md", "p-2", 3, "matTooltip"], [1, "text-6xl"], [1, "flex", "items-center", "gap-3"], ["icon", "", "type", "button", "matRipple", "", 1, "hover:bg-base-200", "rounded-xl", 3, "click", "matTooltip"], [1, "font-medium"]], template: function PlaylistItemsComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Template, 14, 6)(1, PlaylistItemsComponent_Conditional_1_Template, 6, 3, "div", 2);
+        \u0275\u0275conditionalCreate(0, PlaylistItemsComponent_Conditional_0_Template, 15, 7)(1, PlaylistItemsComponent_Conditional_1_Template, 6, 3, "div", 2);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.selected_playlist() ? 0 : 1);
@@ -2576,6 +2778,8 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
       CdkDropList,
       CdkDrag,
       CdkDragHandle,
+      MatCheckboxModule,
+      MatCheckbox,
       MatRippleModule,
       MatRipple,
       MatMenuModule,
@@ -2738,6 +2942,8 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                             [class.hover:bg-base-200]="
                                 !isItemSelected(item, $index)
                             "
+                            [class.ring-2]="isBulkItemSelected($index)"
+                            [class.ring-primary]="isBulkItemSelected($index)"
                             (click)="selectItem(item, $index)"
                             (keydown.enter)="
                                 selectItemWithKeyboard($event, item, $index)
@@ -2755,6 +2961,15 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                                 class="shrink-0 cursor-grab opacity-40"
                                 >drag_indicator</icon
                             >
+                            <mat-checkbox
+                                [checked]="isBulkItemSelected($index)"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.SELECT_MEDIA'
+                                        | translate: { name: item.name }
+                                "
+                                (click)="$event.stopPropagation()"
+                                (change)="toggleSelection($index)"
+                            />
                             <media-thumbnail
                                 [item]="item"
                                 [cover]="true"
@@ -2891,6 +3106,8 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                             [class.hover:bg-base-200]="
                                 !isItemSelected(item, $index)
                             "
+                            [class.ring-2]="isBulkItemSelected($index)"
+                            [class.ring-primary]="isBulkItemSelected($index)"
                             (click)="selectItem(item, $index)"
                             (keydown.enter)="
                                 selectItemWithKeyboard($event, item, $index)
@@ -2904,6 +3121,15 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                             "
                         >
                             <div class="flex items-start gap-3">
+                                <mat-checkbox
+                                    [checked]="isBulkItemSelected($index)"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.SELECT_MEDIA'
+                                            | translate: { name: item.name }
+                                    "
+                                    (click)="$event.stopPropagation()"
+                                    (change)="toggleSelection($index)"
+                                />
                                 <media-thumbnail
                                     [item]="item"
                                     [cover]="true"
@@ -3095,6 +3321,79 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
                     <p>{{ 'SIGNAGE_MANAGER.NO_PLAYLIST_ITEMS' | translate }}</p>
                 </div>
             }
+            @if (selected_count() > 0) {
+                <footer
+                    class="bg-base-100 border-base-300 sticky bottom-2 z-20 mx-2 mt-2 flex items-center justify-between gap-2 rounded-xl border p-2 shadow-lg"
+                    aria-live="polite"
+                >
+                    <div class="flex items-center gap-3">
+                        <button
+                            icon
+                            type="button"
+                            matRipple
+                            class="hover:bg-base-200 rounded-xl"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.CLEAR_SELECTED_PLAYLIST_ITEMS'
+                                    | translate
+                            "
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.CLEAR_SELECTED_PLAYLIST_ITEMS'
+                                    | translate
+                            "
+                            (click)="clearSelection()"
+                        >
+                            <icon>close</icon>
+                        </button>
+                        <div class="font-medium">
+                            {{
+                                'COMMON.SELECTED_COUNT'
+                                    | translate: { count: selected_count() }
+                            }}
+                        </div>
+                    </div>
+                    @if (can_update()) {
+                        <div class="flex items-center gap-2">
+                            @if (is_distribution()) {
+                                <button
+                                    icon
+                                    default
+                                    type="button"
+                                    matRipple
+                                    (click)="applyScheduleToSelected()"
+                                    [matTooltip]="
+                                        'SIGNAGE_MANAGER.APPLY_SCHEDULE'
+                                            | translate
+                                    "
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.APPLY_SCHEDULE'
+                                            | translate
+                                    "
+                                >
+                                    <icon>edit_calendar</icon>
+                                </button>
+                            }
+                            <button
+                                icon
+                                default
+                                error
+                                type="button"
+                                matRipple
+                                (click)="deleteSelected()"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.REMOVE_SELECTED_FROM_PLAYLIST'
+                                        | translate
+                                "
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.REMOVE_SELECTED_FROM_PLAYLIST'
+                                        | translate
+                                "
+                            >
+                                <icon>delete</icon>
+                            </button>
+                        </div>
+                    }
+                </footer>
+            }
         } @else {
             <div
                 class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -3105,6 +3404,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
         }
     `, imports: [
       DragDropModule,
+      MatCheckboxModule,
       MatRippleModule,
       MatMenuModule,
       MatProgressSpinnerModule,
@@ -3117,12 +3417,12 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemsComponent, { className: "PlaylistItemsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-items.component.ts", lineNumber: 572 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistItemsComponent, { className: "PlaylistItemsComponent", filePath: "apps/signage-manager/src/app/playlists/playlist-items.component.ts", lineNumber: 676 });
 })();
 
 // apps/signage-manager/src/app/playlists/playlist-list.component.ts
 var _c04 = ["playlist_item"];
-var _c12 = (a0) => ["/playlists", a0];
+var _c13 = (a0) => ["/playlists", a0];
 var _c22 = (a0) => ({ name: a0 });
 var _forTrack03 = ($index, $item) => $item.id;
 function PlaylistListComponent_Conditional_6_For_1_Conditional_8_Template(rf, ctx) {
@@ -3228,7 +3528,7 @@ function PlaylistListComponent_Conditional_6_For_1_Template(rf, ctx) {
     const playlist_r1 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275classProp("bg-primary", ctx_r1.selected()?.id === playlist_r1.id)("text-primary-content", ctx_r1.selected()?.id === playlist_r1.id)("hover:bg-base-200", ctx_r1.selected()?.id !== playlist_r1.id);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(17, _c12, playlist_r1.id));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(17, _c13, playlist_r1.id));
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 14, "SIGNAGE_MANAGER.OPEN_PLAYLIST", \u0275\u0275pureFunction1(19, _c22, playlist_r1.name)));
     \u0275\u0275advance(3);
     \u0275\u0275property("playlist", playlist_r1);
@@ -4220,4 +4520,4 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-57PADRZF.js.map
+//# sourceMappingURL=playlists.component-AYQ6MCVL.js.map

@@ -40135,6 +40135,8 @@ var millisecondsInWeek = 6048e5;
 var millisecondsInDay = 864e5;
 var millisecondsInMinute = 6e4;
 var millisecondsInHour = 36e5;
+var minutesInMonth = 43200;
+var minutesInDay = 1440;
 var secondsInHour = 3600;
 var secondsInDay = secondsInHour * 24;
 var secondsInWeek = secondsInDay * 7;
@@ -40246,6 +40248,8 @@ var SIGNAGE_MANAGER = {
   APPROVERS_NOTE_PLACEHOLDER: "Add a note for the approvers...",
   APPROVE_PLAYLIST: "Approve Playlist",
   APPROVE_PLAYLIST_TOOLTIP: "Approve playlist",
+  APPLY_SCHEDULE: "Apply schedule",
+  APPLY_TEMPLATE: "Apply template",
   APPROVE_SELECTED_PLAYLIST: "Approve selected playlist",
   APPROVE_SELECTED_TEMPLATE: "Approve selected template",
   APPROVE_TEMPLATE: "Approve Template",
@@ -40273,6 +40277,7 @@ var SIGNAGE_MANAGER = {
   BULK_UPLOAD_UPLOADING: "Uploading {{ current }} of {{ total }}...",
   CLEAR_SCHEDULE_SEARCH: "Clear schedule search",
   CLEAR_SELECTED: "Clear selected media",
+  CLEAR_SELECTED_PLAYLIST_ITEMS: "Clear selected playlist items",
   CLOSE_ADD_DISPLAY: "Close add display dialog",
   CLOSE_ADD_PLAYLIST: "Close add playlist dialog",
   CLOSE_ADD_USER: "Close add user dialog",
@@ -40293,6 +40298,8 @@ var SIGNAGE_MANAGER = {
   DEFAULT_ANIMATION: "Default animation",
   DEFAULT_DURATION: "Default Duration",
   DEFAULT_PERMISSIONS: "No permissions",
+  DEFAULT_TEMPLATE: "Default template",
+  DEFAULT_TEMPLATE_HINT: "This template plays when no scheduled template is active.",
   DEFAULT_PLAY_TIME: "Default Play Time",
   DELETE_DISPLAY_TOOLTIP: "Delete display",
   DELETE_PLAYLIST_TOOLTIP: "Delete playlist",
@@ -40410,6 +40417,8 @@ var SIGNAGE_MANAGER = {
   NO_PLUGINS: "No plugins available.",
   NO_SCHEDULES_MATCH: "No schedules match your search.",
   NO_TEMPLATES: "No templates found.",
+  NO_APPROVED_TEMPLATES: "No approved templates are available.",
+  NO_TEMPLATE_MAPPINGS: "No templates are applied to this item.",
   NO_UPCOMING_PLAY_TIMES: "No upcoming play times found.",
   NO_USERS_ASSIGNED: "No users assigned to this group.",
   NO_ZONES: "No zones found.",
@@ -40489,6 +40498,7 @@ var SIGNAGE_MANAGER = {
   REMOVE_PLAYLIST_FROM_DISPLAY: "Remove playlist {{ name }} from display",
   REMOVE_PLAYLIST_FROM_ZONE: "Remove playlist {{ name }} from zone",
   REMOVE_PLAYLIST_TOOLTIP: "Remove playlist",
+  REMOVE_SELECTED_FROM_PLAYLIST: "Remove selected items from playlist",
   REMOVE_USER: "Remove user",
   REMOVE_ZONE: "Remove zone",
   REMOVE_ZONE_FROM_PLAYLIST: "Remove zone {{ name }} from playlist",
@@ -40500,6 +40510,7 @@ var SIGNAGE_MANAGER = {
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   REQUEST_TEMPLATE_APPROVAL_TOOLTIP: "Request template approval",
   SCHEDULE: "Schedule",
+  SCHEDULED_TEMPLATE: "Scheduled template",
   EDIT_SCHEDULE: "Edit Schedule",
   ITEM_SCHEDULES: "Item Schedules",
   NO_SCHEDULES: "No schedules",
@@ -40593,6 +40604,8 @@ var SIGNAGE_MANAGER = {
   SVC_GROUP_REMOVED: "Signage group removed",
   SVC_GROUP_SAVED: "Signage group saved",
   SVC_ITEM_REMOVED: "Item removed from playlist",
+  SVC_ITEMS_REMOVED: "{{ count }} items removed from playlist",
+  SVC_ITEMS_REMOVED_1: "{{ count }} item removed from playlist",
   SVC_MEDIA_ALREADY_IN: "Selected media is already in this playlist.",
   SVC_MEDIA_REMOVED: "Media removed",
   SVC_MEDIA_SHARED: "Media shared",
@@ -40634,7 +40647,10 @@ var SIGNAGE_MANAGER = {
   SVC_REMOVE_DISPLAY_TITLE: "Remove display?",
   SVC_REMOVE_MEDIA_TITLE: "Remove media?",
   SVC_REMOVE_NAMED_FROM_GROUP: 'Remove "{{ name }}" from this group?',
+  SVC_REMOVE_PLAYLIST_ITEMS_TITLE: "Remove playlist items?",
   SVC_REMOVE_PLAYLIST_TITLE: "Remove playlist?",
+  SVC_REMOVE_SELECTED_PLAYLIST_ITEMS: "Remove {{ count }} selected items from this playlist?",
+  SVC_REMOVE_SELECTED_PLAYLIST_ITEMS_1: "Remove {{ count }} selected item from this playlist?",
   SVC_REMOVE_TEMPLATE_TITLE: "Remove template?",
   SVC_REMOVE_USER_TITLE: "Remove group user?",
   SVC_REMOVE_ZONE_TITLE: "Remove group zone?",
@@ -40647,6 +40663,12 @@ var SIGNAGE_MANAGER = {
   SVC_TEMPLATE_REMOVED: "Template removed",
   SVC_TEMPLATE_SHARED: "Template shared",
   SVC_TEMPLATE_SAVE_ERROR: "Error saving template layout",
+  SVC_REMOVE_TEMPLATE_MAPPING_CONTENT: "Remove {{ name }} from this item?",
+  SVC_REMOVE_TEMPLATE_MAPPING_TITLE: "Remove applied template?",
+  SVC_TEMPLATE_MAPPING_REMOVED: "Template removed from item",
+  SVC_TEMPLATE_MAPPING_REMOVE_ERROR: "Error removing template from item",
+  SVC_TEMPLATE_MAPPING_SAVED: "Applied template saved",
+  SVC_TEMPLATE_MAPPING_SAVE_ERROR: "Error saving applied template",
   SVC_THUMBNAIL_FAILED: "Could not generate a thumbnail from the selected image.",
   SVC_THUMBNAIL_NOT_IMAGE: "Thumbnails must be an image file.",
   SVC_THUMBNAIL_UPLOAD_FAILED: "Media uploaded, but its thumbnail could not be saved.",
@@ -40677,10 +40699,17 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
+  TEMPLATE_MAPPING_DEFAULT_HINT: "Turn this off to make the template the default for this item.",
+  TEMPLATE_MAPPING_EDIT: "Edit template schedule",
+  TEMPLATE_MAPPING_SCHEDULE: "Schedule this template",
+  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load applied templates.",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
   TEMPLATE_LABEL: "Template",
+  TEMPLATE_LIVE_MODE: "Live",
+  TEMPLATE_LIVE_MODE_HINT: "Show the template plugins and live display",
+  TEMPLATE_LIVE_PREVIEW: "Live template preview",
   TEMPLATE_NAME_ARIA: "Template name",
   TEMPLATE_NO_LAYOUT_CHANGES: "No layout changes",
   TEMPLATE_NO_LAYOUTS: "No layout items yet. Add one to get started.",
@@ -40703,6 +40732,9 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_SAVED: "Template saved",
   TEMPLATE_SAVE_ERROR: "Error saving template",
   TEMPLATE_SAVING: "Saving Template...",
+  TEMPLATE_REQUIRED: "Select a template",
+  SELECT_APPROVED_TEMPLATE: "Approved template",
+  TEMPLATE_SELECT_DISPLAY: "Select display",
   TEMPLATE_X_POS: "X position",
   TEMPLATE_Y_POS: "Y position",
   THIS_WEEK_ARIA: "Show this week",
@@ -42325,7 +42357,8 @@ var APP = {
     PARKING_BOOKING_TYPE_BOOKED: "Allocated",
     PARKING_BAY: "Parking Bay",
     PARKING_BAY_NUMBER: "Bay Number",
-    PARKING_USER_GROUPS: "User Groups",
+    PARKING_USER_GROUPS: "Group at Request time",
+    PARKING_ALLOCATION_GROUP: "Group at Allocation time",
     PARKING_RESERVED_FOR: "Reserved For",
     PARKING_RESERVED_BY: "Reserved By",
     PARKING_CHECKED_OUT_AT: "Left at {{ time }}",
@@ -45211,7 +45244,10 @@ var Es = class {
   valid_from;
   valid_until;
   tags;
+  /** User groups that the media item is shared with. Only set on the show requests result not the query */
   shared_with;
+  /** Playlists that the media item is included within. Only set on the show requests result not the query */
+  playlists;
   get media_url() {
     return this.media_id ? `/api/engine/v2/uploads/${this.media_id}/url` : this.media_uri;
   }
@@ -45219,7 +45255,7 @@ var Es = class {
     return `/api/engine/v2/uploads/${this.thumbnail_id}/url`;
   }
   constructor(e) {
-    this.id = e.id || "", this.created_at = e.created_at || Sn(Date.now()), this.updated_at = e.updated_at || Sn(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [], this.shared_with = e.shared_with || [];
+    this.id = e.id || "", this.created_at = e.created_at || Sn(Date.now()), this.updated_at = e.updated_at || Sn(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [], this.shared_with = e.shared_with || [], this.playlists = e.playlists || [];
   }
 };
 var cr = class {
@@ -45317,6 +45353,18 @@ var dr = class {
   shared_with;
   constructor(e = {}) {
     this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.tags = e.tags || [], this.authority_id = e.authority_id || "", this.background_item_id = e.background_item_id || "", this.layouts = e.layouts || [], this.full_screen_takeover = e.full_screen_takeover || false, this.approval_requested = e.approval_requested || false, this.requested_by_id = e.requested_by_id || "", this.approved = e.approved || false, this.approved_by_id = e.approved_by_id || "", this.approved_by_name = e.approved_by_name || "", this.approved_by_email = e.approved_by_email || "", this.live_template_id = e.live_template_id || "", this.shared_with = e.shared_with || [];
+  }
+};
+var pr = class {
+  created_at;
+  updated_at;
+  id;
+  control_system_id;
+  zone_id;
+  template_id;
+  schedule;
+  constructor(e = {}) {
+    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.control_system_id = e.control_system_id || "", this.zone_id = e.zone_id || "", this.template_id = e.template_id || "", this.schedule = e.schedule || null;
   }
 };
 var fe = "signage/media";
@@ -45573,6 +45621,31 @@ function Kh(t, e, n = "", s) {
     path: oe,
     form_data: { message: n }
   });
+}
+var dt = "signage/template_mappings";
+function ln(t) {
+  return new pr(t);
+}
+function Yh(t) {
+  return A({
+    form_data: t,
+    query_params: {},
+    fn: ln,
+    path: dt
+  });
+}
+function Vh(t, e, n = "patch") {
+  return q({
+    id: t,
+    form_data: e,
+    query_params: {},
+    method: n,
+    fn: ln,
+    path: dt
+  });
+}
+function Xh(t) {
+  return x({ id: t, query_params: {}, path: dt });
 }
 var ws = class {
   _listeners = /* @__PURE__ */ new Set();
@@ -51425,6 +51498,12 @@ function differenceInMonths(laterDate, earlierDate, options) {
   return result === 0 ? 0 : result;
 }
 
+// node_modules/date-fns/differenceInSeconds.js
+function differenceInSeconds(laterDate, earlierDate, options) {
+  const diff = differenceInMilliseconds(laterDate, earlierDate) / 1e3;
+  return getRoundingMethod(options?.roundingMethod)(diff);
+}
+
 // node_modules/date-fns/startOfMonth.js
 function startOfMonth(date, options) {
   const _date = toDate2(date, options?.in);
@@ -52861,6 +52940,80 @@ function cleanEscapedString(input2) {
     return input2;
   }
   return matched[1].replace(doubleQuoteRegExp, "'");
+}
+
+// node_modules/date-fns/formatDistance.js
+function formatDistance2(laterDate, earlierDate, options) {
+  const defaultOptions2 = getDefaultOptions();
+  const locale = options?.locale ?? defaultOptions2.locale ?? enUS;
+  const minutesInAlmostTwoDays = 2520;
+  const comparison = compareAsc(laterDate, earlierDate);
+  if (isNaN(comparison)) throw new RangeError("Invalid time value");
+  const localizeOptions = Object.assign({}, options, {
+    addSuffix: options?.addSuffix,
+    comparison
+  });
+  const [laterDate_, earlierDate_] = normalizeDates(
+    options?.in,
+    ...comparison > 0 ? [earlierDate, laterDate] : [laterDate, earlierDate]
+  );
+  const seconds = differenceInSeconds(earlierDate_, laterDate_);
+  const offsetInSeconds = (getTimezoneOffsetInMilliseconds(earlierDate_) - getTimezoneOffsetInMilliseconds(laterDate_)) / 1e3;
+  const minutes = Math.round((seconds - offsetInSeconds) / 60);
+  let months;
+  if (minutes < 2) {
+    if (options?.includeSeconds) {
+      if (seconds < 5) {
+        return locale.formatDistance("lessThanXSeconds", 5, localizeOptions);
+      } else if (seconds < 10) {
+        return locale.formatDistance("lessThanXSeconds", 10, localizeOptions);
+      } else if (seconds < 20) {
+        return locale.formatDistance("lessThanXSeconds", 20, localizeOptions);
+      } else if (seconds < 40) {
+        return locale.formatDistance("halfAMinute", 0, localizeOptions);
+      } else if (seconds < 60) {
+        return locale.formatDistance("lessThanXMinutes", 1, localizeOptions);
+      } else {
+        return locale.formatDistance("xMinutes", 1, localizeOptions);
+      }
+    } else {
+      if (minutes === 0) {
+        return locale.formatDistance("lessThanXMinutes", 1, localizeOptions);
+      } else {
+        return locale.formatDistance("xMinutes", minutes, localizeOptions);
+      }
+    }
+  } else if (minutes < 45) {
+    return locale.formatDistance("xMinutes", minutes, localizeOptions);
+  } else if (minutes < 90) {
+    return locale.formatDistance("aboutXHours", 1, localizeOptions);
+  } else if (minutes < minutesInDay) {
+    const hours = Math.round(minutes / 60);
+    return locale.formatDistance("aboutXHours", hours, localizeOptions);
+  } else if (minutes < minutesInAlmostTwoDays) {
+    return locale.formatDistance("xDays", 1, localizeOptions);
+  } else if (minutes < minutesInMonth) {
+    const days = Math.round(minutes / minutesInDay);
+    return locale.formatDistance("xDays", days, localizeOptions);
+  } else if (minutes < minutesInMonth * 2) {
+    months = Math.round(minutes / minutesInMonth);
+    return locale.formatDistance("aboutXMonths", months, localizeOptions);
+  }
+  months = differenceInMonths(earlierDate_, laterDate_);
+  if (months < 12) {
+    const nearestMonth = Math.round(minutes / minutesInMonth);
+    return locale.formatDistance("xMonths", nearestMonth, localizeOptions);
+  } else {
+    const monthsSinceStartOfYear = months % 12;
+    const years = Math.trunc(months / 12);
+    if (monthsSinceStartOfYear < 3) {
+      return locale.formatDistance("aboutXYears", years, localizeOptions);
+    } else if (monthsSinceStartOfYear < 9) {
+      return locale.formatDistance("overXYears", years, localizeOptions);
+    } else {
+      return locale.formatDistance("almostXYears", years + 1, localizeOptions);
+    }
+  }
 }
 
 // node_modules/date-fns/formatDuration.js
@@ -54816,15 +54969,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "957e573",
-  "hash": "957e573",
+  "raw": "20f78e5",
+  "hash": "20f78e5",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "957e573",
+  "suffix": "20f78e5",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787242358449
+  "time": 1787714083145
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -55036,6 +55189,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
   }
   saveUserSetting(name, value) {
     this._pending_settings[name] = value;
+    this._updateSignals();
     if (name === "dark_mode")
       this.setTheme(value ? "dark" : "");
     if (name === "font_size")
@@ -79794,7 +79948,7 @@ var nt = yt(function(s) {
   `) : "", this.name = "UnsubscriptionError", this.errors = t;
   };
 });
-function dt(s, e) {
+function dt2(s, e) {
   if (s) {
     var t = s.indexOf(e);
     0 <= t && s.splice(t, 1);
@@ -79880,10 +80034,10 @@ var tt = (function() {
     this._parentage = Array.isArray(t) ? (t.push(e), t) : t ? [t, e] : e;
   }, s.prototype._removeParent = function(e) {
     var t = this._parentage;
-    t === e ? this._parentage = null : Array.isArray(t) && dt(t, e);
+    t === e ? this._parentage = null : Array.isArray(t) && dt2(t, e);
   }, s.prototype.remove = function(e) {
     var t = this._finalizers;
-    t && dt(t, e), e instanceof s && e._removeParent(this);
+    t && dt2(t, e), e instanceof s && e._removeParent(this);
   }, s.EMPTY = (function() {
     var e = new s();
     return e.closed = true, e;
@@ -80200,7 +80354,7 @@ var jt2 = (function(s) {
   }, e.prototype._innerSubscribe = function(t) {
     var r = this, i = this, n = i.hasError, a2 = i.isStopped, o = i.observers;
     return n || a2 ? Mt2 : (this.currentObservers = null, o.push(t), new tt(function() {
-      r.currentObservers = null, dt(o, t);
+      r.currentObservers = null, dt2(o, t);
     }));
   }, e.prototype._checkFinalizedStatuses = function(t) {
     var r = this, i = r.hasError, n = r.thrownError, a2 = r.isStopped;
@@ -101691,7 +101845,7 @@ var DisplayEditModalComponent = class _DisplayEditModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplayEditModalComponent, selectors: [["display-edit-modal"]], decls: 53, vars: 57, consts: [["confirm_hotkey", "S", 3, "confirm", "heading", "loading"], [1, "flex", "flex-col", "gap-4"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], ["for", "description"], ["matInput", "", 1, "min-h-24", 3, "placeholder", "formField"], ["for", "orientation"], [3, "formField"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], [1, "mb-1", "font-medium"], [1, "mb-3", "text-sm", "opacity-70"], [1, "mb-3", "flex", "flex-wrap", "gap-2"], [1, "border-base-300", "h-80", "overflow-auto", "rounded-lg", "border", "p-2"], [3, "selectedChange", "zoneSelected", "list", "roots", "load_children", "scoped_search", "selected"], [1, "bg-base-200", "flex", "items-center", "gap-1", "rounded-full", "py-1", "pr-1", "pl-3", "text-sm"], ["icon", "", "default", "", "type", "button", 3, "click"]], template: function DisplayEditModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DisplayEditModalComponent, selectors: [["display-edit-modal"]], decls: 53, vars: 57, consts: [["confirm_hotkey", "S", 3, "confirm", "heading", "loading"], [1, "flex", "flex-col", "gap-4"], ["for", "name"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["matInput", "", 3, "placeholder", "formField"], ["for", "description"], ["matInput", "", 1, "min-h-24", 3, "placeholder", "formField"], ["for", "orientation"], [3, "formField"], ["value", "unspecified"], ["value", "landscape"], ["value", "portrait"], ["value", "square"], [1, "mb-1", "font-medium"], [1, "mb-3", "text-sm", "opacity-70"], [1, "mb-3", "flex", "flex-wrap", "gap-2"], [1, "border-base-300", "h-80", "overflow-auto", "rounded-lg", "border", "p-2"], [3, "selectedChange", "zoneSelected", "list", "roots", "load_children", "scoped_search", "selected"], [1, "bg-base-200", "flex", "items-center", "gap-1", "rounded-full", "py-1", "pr-1", "pl-3", "text-sm"], ["icon", "", "default", "", "type", "button", 1, "rounded-full", 3, "click"]], template: function DisplayEditModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
         \u0275\u0275pipe(1, "translate");
@@ -101926,6 +102080,7 @@ var DisplayEditModalComponent = class _DisplayEditModalComponent {
                                         icon
                                         default
                                         type="button"
+                                        class="rounded-full"
                                         (click)="removeZone(zone.id)"
                                         [attr.aria-label]="
                                             'SIGNAGE_MANAGER.REMOVE_DISPLAY_ZONE'
@@ -101974,7 +102129,7 @@ var DisplayEditModalComponent = class _DisplayEditModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayEditModalComponent, { className: "DisplayEditModalComponent", filePath: "apps/signage-manager/src/app/displays/display-edit-modal.component.ts", lineNumber: 189 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DisplayEditModalComponent, { className: "DisplayEditModalComponent", filePath: "apps/signage-manager/src/app/displays/display-edit-modal.component.ts", lineNumber: 190 });
 })();
 
 // apps/signage-manager/src/app/displays/display-zones.util.ts
@@ -106588,13 +106743,26 @@ function humanizeCronSchedule(cron, duration_minutes) {
 function schedulePeriod(schedule) {
   return Number.isFinite(schedule.play_period) ? schedule.play_period || 0 : DEFAULT_PLAY_PERIOD_MINUTES;
 }
+function playlistScheduleExpiryLabel(schedule, now = Date.now()) {
+  if (!schedule.valid_until)
+    return "";
+  const expiry = fromUnixTime(schedule.valid_until);
+  const distance = formatDistance2(expiry, new Date(now));
+  const relative_time = expiry.getTime() >= now ? `${distance} from now` : `${distance} ago`;
+  return `until ${relative_time}`;
+}
+function playlistScheduleExpiryTooltip(schedule) {
+  return schedule.valid_until ? fromUnixTime(schedule.valid_until).toLocaleString() : "";
+}
 function playlistScheduleLabel(schedule) {
   const period = schedulePeriod(schedule);
+  const expiry = playlistScheduleExpiryLabel(schedule);
+  const suffix = [schedule.play_takeover ? "takeover" : "", expiry].filter((_3) => _3).join(" \xB7 ");
   if (schedule.play_at) {
     const date = fromUnixTime(schedule.play_at);
-    return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
+    return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}${suffix ? ` \xB7 ${suffix}` : ""}`;
   }
-  return `${humanizeCronSchedule(schedule.play_cron || "0 0 * * *", period)}${schedule.play_takeover ? " \xB7 takeover" : ""}`;
+  return `${humanizeCronSchedule(schedule.play_cron || "0 0 * * *", period)}${suffix ? ` \xB7 ${suffix}` : ""}`;
 }
 function matchesCronPart(value, cron_part) {
   if (cron_part === "*")
@@ -106659,7 +106827,7 @@ function formatPlayDateTimeRange(start, duration_minutes) {
   const end_text = start.toDateString() === end.toDateString() ? formatPlayTime(end) : formatPlayDateTime(end);
   return `${formatPlayDateTime(start)} \u2013 ${end_text}`;
 }
-function nextCronPlayDates(cron, count) {
+function nextCronPlayDates(cron, count, valid_until = 0) {
   const result = [];
   if (!cron?.trim())
     return result;
@@ -106668,7 +106836,8 @@ function nextCronPlayDates(cron, count) {
   date.setMinutes(date.getMinutes() + 1);
   const end = new Date(date);
   end.setFullYear(end.getFullYear() + 2);
-  while (date <= end && result.length < count) {
+  const expiry = valid_until ? fromUnixTime(valid_until) : end;
+  while (date <= end && date <= expiry && result.length < count) {
     if (doesCronMatchDate(cron, date))
       result.push(new Date(date));
     date.setMinutes(date.getMinutes() + 1);
@@ -106683,9 +106852,10 @@ function playlistScheduleNextPlayLabels(schedule, count = 5) {
     end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
     if (period > 0)
       end.setSeconds(end.getSeconds() - 1);
-    return end >= /* @__PURE__ */ new Date() ? [formatPlayDateTimeRange(start, period)] : [];
+    const expires_before_play = !!schedule.valid_until && schedule.play_at > schedule.valid_until;
+    return end >= /* @__PURE__ */ new Date() && !expires_before_play ? [formatPlayDateTimeRange(start, period)] : [];
   }
-  return nextCronPlayDates(schedule.play_cron || "0 0 * * *", count).map((start) => formatPlayDateTimeRange(start, period));
+  return nextCronPlayDates(schedule.play_cron || "0 0 * * *", count, schedule.valid_until).map((start) => formatPlayDateTimeRange(start, period));
 }
 
 // apps/signage-manager/src/app/signage-plugin.util.ts
@@ -106717,6 +106887,17 @@ function schemaDefaults(schema2) {
 }
 
 // apps/signage-manager/src/app/signage-shared-groups.util.ts
+var _shared_groups_change = signal(
+  0,
+  ...ngDevMode ? [{ debugName: "_shared_groups_change" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+var signage_shared_groups_change = _shared_groups_change.asReadonly();
+function markSignageSharedGroupsChanged() {
+  _shared_groups_change.update((change) => change + 1);
+}
 function showSignageItem(type, id, query_params) {
   switch (type) {
     case "media":
@@ -106875,7 +107056,8 @@ var SignageSharedWithComponent = class _SignageSharedWithComponent {
       params: () => ({
         type: this.type(),
         id: this.item_id(),
-        group_id: this.group_id()
+        group_id: this.group_id(),
+        shared_groups_change: signage_shared_groups_change()
       }),
       loader: ({ params }) => listSignageSharedGroups(params.type, params.id, params.group_id),
       defaultValue: []
@@ -107020,7 +107202,7 @@ var SignageSharedWithComponent = class _SignageSharedWithComponent {
   }], null, { type: [{ type: Input, args: [{ isSignal: true, alias: "type", required: true }] }], item_id: [{ type: Input, args: [{ isSignal: true, alias: "item_id", required: false }] }], group_id: [{ type: Input, args: [{ isSignal: true, alias: "group_id", required: false }] }], allow_unshare: [{ type: Input, args: [{ isSignal: true, alias: "allow_unshare", required: false }] }], compact_label: [{ type: Input, args: [{ isSignal: true, alias: "compact_label", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageSharedWithComponent, { className: "SignageSharedWithComponent", filePath: "apps/signage-manager/src/app/shared/signage-shared-with.component.ts", lineNumber: 81 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageSharedWithComponent, { className: "SignageSharedWithComponent", filePath: "apps/signage-manager/src/app/shared/signage-shared-with.component.ts", lineNumber: 82 });
 })();
 
 // apps/signage-manager/src/app/shared/media-edit-modal.component.ts
@@ -108357,6 +108539,18 @@ function MediaPreviewModalComponent_Conditional_24_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r0.item.description, " ");
   }
 }
+function MediaPreviewModalComponent_Conditional_32_For_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "span", 34);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const tag_r5 = ctx.$implicit;
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", tag_r5, " ");
+  }
+}
 function MediaPreviewModalComponent_Conditional_32_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "div", 17);
@@ -108364,6 +108558,24 @@ function MediaPreviewModalComponent_Conditional_32_Template(rf, ctx) {
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 33);
+    \u0275\u0275repeaterCreate(5, MediaPreviewModalComponent_Conditional_32_For_6_Template, 2, 1, "span", 34, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.TAGS"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275repeater(ctx_r0.item.tags);
+  }
+}
+function MediaPreviewModalComponent_Conditional_33_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "div", 17);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 35);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "mediaDuration");
     \u0275\u0275elementEnd()();
@@ -108376,7 +108588,7 @@ function MediaPreviewModalComponent_Conditional_32_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 4, ctx_r0.item.play_time / 1e3), " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_51_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_52_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275text(1);
@@ -108388,9 +108600,9 @@ function MediaPreviewModalComponent_Conditional_51_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "COMMON.LOADING"), " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_52_For_2_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_53_For_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 34)(1, "icon", 35);
+    \u0275\u0275elementStart(0, "a", 36)(1, "icon", 37);
     \u0275\u0275text(2, "playlist_play");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "span", 19);
@@ -108398,17 +108610,17 @@ function MediaPreviewModalComponent_Conditional_52_For_2_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const playlist_r5 = ctx.$implicit;
+    const playlist_r6 = ctx.$implicit;
     const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(3, _c029, playlist_r5.id))("queryParams", \u0275\u0275pureFunction1(5, _c114, ctx_r0.item.id));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(3, _c029, playlist_r6.id))("queryParams", \u0275\u0275pureFunction1(5, _c114, ctx_r0.item.id));
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(playlist_r5.name);
+    \u0275\u0275textInterpolate(playlist_r6.name);
   }
 }
-function MediaPreviewModalComponent_Conditional_52_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_53_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 22);
-    \u0275\u0275repeaterCreate(1, MediaPreviewModalComponent_Conditional_52_For_2_Template, 5, 7, "a", 34, _forTrack010);
+    \u0275\u0275repeaterCreate(1, MediaPreviewModalComponent_Conditional_53_For_2_Template, 5, 7, "a", 36, _forTrack010);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -108417,7 +108629,7 @@ function MediaPreviewModalComponent_Conditional_52_Template(rf, ctx) {
     \u0275\u0275repeater(ctx_r0.containing_playlists());
   }
 }
-function MediaPreviewModalComponent_Conditional_53_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_54_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 21);
     \u0275\u0275text(1);
@@ -108429,7 +108641,7 @@ function MediaPreviewModalComponent_Conditional_53_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.NOT_IN_PLAYLISTS"), " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_54_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_55_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "div", 17);
     \u0275\u0275text(2);
@@ -108447,7 +108659,7 @@ function MediaPreviewModalComponent_Conditional_54_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r0.item.play_count || "0", " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_55_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_56_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "div", 17);
     \u0275\u0275text(2);
@@ -108466,7 +108678,7 @@ function MediaPreviewModalComponent_Conditional_55_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(6, 4, ctx_r0.item.valid_from * 1e3, "mediumDate"), " ");
   }
 }
-function MediaPreviewModalComponent_Conditional_56_Template(rf, ctx) {
+function MediaPreviewModalComponent_Conditional_57_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div")(1, "div", 17);
     \u0275\u0275text(2);
@@ -108600,19 +108812,14 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
     );
   }
   async ngOnInit() {
-    const all_playlists = this._service.playlists();
-    const matching = [];
-    for (const playlist of all_playlists) {
-      try {
-        const media_list = await Ah(playlist.id);
-        if (media_list.items?.includes(this.item.id)) {
-          matching.push(playlist);
-        }
-      } catch {
-      }
+    try {
+      const media = await fh(this.item.id, this.group_id ? { group_id: this.group_id } : {});
+      this.containing_playlists.set(media.playlists);
+    } catch {
+      this.containing_playlists.set([]);
+    } finally {
+      this.loading_playlists.set(false);
     }
-    this.containing_playlists.set(matching);
-    this.loading_playlists.set(false);
   }
   handleMediaLoaded() {
     this.media_loading.set(false);
@@ -108631,7 +108838,7 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaPreviewModalComponent, selectors: [["media-preview-modal"]], decls: 58, vars: 56, consts: [[1, "bg-base-100", "flex", "h-full", "flex-col", "items-center", "overflow-auto"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "truncate", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "bg-base-100", "z-0", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "flex-1", "gap-2", "overflow-hidden", "rounded-sm", "max-md:flex-col"], [1, "bg-base-200", "border-base-300", "relative", "flex", "flex-1", "items-center", "justify-center", "overflow-hidden", "rounded-lg", "border"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-contain", 3, "source", "alt"], ["aria-live", "assertive", 1, "bg-base-200/80", "absolute", "inset-0", "z-10", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-4", "text-center"], ["aria-live", "polite", 1, "bg-base-200/60", "absolute", "inset-0", "z-10", "flex", "items-center", "justify-center"], ["auth", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "source", "alt", "opacity-0"], ["auth", "", "controls", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "source", "opacity-0"], [1, "h-full", "w-full", "border-0", "bg-white", 3, "src", "title", "opacity-0"], [1, "h-full", "w-full", 3, "plugin", "config", "auto_play"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "border-base-300", "bg-base-100", "w-72", "shrink-0", "overflow-y-auto", "rounded-lg", "border", "max-md:w-full"], [1, "relative", "space-y-5", "p-5"], ["icon", "", "default", "", "matTooltipPosition", "left", 1, "absolute", "top-2", "right-2", 3, "click", "matTooltip"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "text-sm"], [1, "text-sm", "capitalize"], [1, "text-base-content/70", "text-sm"], [1, "space-y-1"], ["type", "media", 3, "item_id", "group_id", "compact_label"], [1, "text-error", "text-6xl"], [1, "text-base", "font-medium"], [1, "text-base-content/70", "max-w-sm", "text-sm"], [3, "diameter"], [1, "sr-only"], ["auth", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "load", "error", "source", "alt"], ["auth", "", "controls", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "loadeddata", "error", "source"], [1, "h-full", "w-full", "border-0", "bg-white", 3, "load", "src", "title"], [1, "text-8xl"], [1, "font-mono", "text-sm"], ["matRipple", "", "mat-dialog-close", "", 1, "hover:bg-base-200", "flex", "items-center", "space-x-2", "rounded", "px-2", "py-1", "no-underline", 3, "routerLink", "queryParams"], [1, "text-base-content/60", "text-xl"]], template: function MediaPreviewModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaPreviewModalComponent, selectors: [["media-preview-modal"]], decls: 59, vars: 57, consts: [[1, "bg-base-100", "flex", "h-full", "flex-col", "items-center", "overflow-auto"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "truncate", "text-xl", "font-medium"], ["icon", "", "type", "button", "matRipple", "", "mat-dialog-close", ""], [1, "bg-base-100", "z-0", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "flex-1", "gap-2", "overflow-hidden", "rounded-sm", "max-md:flex-col"], [1, "bg-base-200", "border-base-300", "relative", "flex", "flex-1", "items-center", "justify-center", "overflow-hidden", "rounded-lg", "border"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-contain", 3, "source", "alt"], ["aria-live", "assertive", 1, "bg-base-200/80", "absolute", "inset-0", "z-10", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-4", "text-center"], ["aria-live", "polite", 1, "bg-base-200/60", "absolute", "inset-0", "z-10", "flex", "items-center", "justify-center"], ["auth", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "source", "alt", "opacity-0"], ["auth", "", "controls", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "source", "opacity-0"], [1, "h-full", "w-full", "border-0", "bg-white", 3, "src", "title", "opacity-0"], [1, "h-full", "w-full", 3, "plugin", "config", "auto_play"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2"], [1, "border-base-300", "bg-base-100", "w-72", "shrink-0", "overflow-y-auto", "rounded-lg", "border", "max-md:w-full"], [1, "relative", "space-y-5", "p-5"], ["icon", "", "default", "", "matTooltipPosition", "left", 1, "absolute", "top-2", "right-2", 3, "click", "matTooltip"], [1, "text-base-content/70", "mb-1", "text-xs", "font-medium", "tracking-wider", "uppercase"], [1, "rounded-lg", "px-2", "py-1", "font-mono", "text-xs", "capitalize"], [1, "text-sm"], [1, "text-sm", "capitalize"], [1, "text-base-content/70", "text-sm"], [1, "space-y-1"], ["type", "media", 3, "item_id", "group_id", "compact_label"], [1, "text-error", "text-6xl"], [1, "text-base", "font-medium"], [1, "text-base-content/70", "max-w-sm", "text-sm"], [3, "diameter"], [1, "sr-only"], ["auth", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "load", "error", "source", "alt"], ["auth", "", "controls", "", 1, "h-full", "max-h-full", "w-full", "max-w-full", "object-contain", 3, "loadeddata", "error", "source"], [1, "h-full", "w-full", "border-0", "bg-white", 3, "load", "src", "title"], [1, "text-8xl"], [1, "flex", "flex-wrap", "gap-1"], [1, "bg-info-light", "text-info", "max-w-full", "truncate", "rounded-full", "px-2", "py-1", "text-xs", "font-medium"], [1, "font-mono", "text-sm"], ["matRipple", "", "mat-dialog-close", "", 1, "hover:bg-base-200", "flex", "items-center", "space-x-2", "rounded", "px-2", "py-1", "no-underline", 3, "routerLink", "queryParams"], [1, "text-base-content/60", "text-xl"]], template: function MediaPreviewModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
         \u0275\u0275text(3);
@@ -108663,40 +108870,41 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
         \u0275\u0275text(30);
         \u0275\u0275pipe(31, "translate");
         \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(32, MediaPreviewModalComponent_Conditional_32_Template, 7, 6, "div");
-        \u0275\u0275elementStart(33, "div")(34, "div", 17);
-        \u0275\u0275text(35);
-        \u0275\u0275pipe(36, "translate");
+        \u0275\u0275conditionalCreate(32, MediaPreviewModalComponent_Conditional_32_Template, 7, 3, "div");
+        \u0275\u0275conditionalCreate(33, MediaPreviewModalComponent_Conditional_33_Template, 7, 6, "div");
+        \u0275\u0275elementStart(34, "div")(35, "div", 17);
+        \u0275\u0275text(36);
+        \u0275\u0275pipe(37, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(37, "div", 19);
-        \u0275\u0275text(38);
-        \u0275\u0275pipe(39, "translate");
+        \u0275\u0275elementStart(38, "div", 19);
+        \u0275\u0275text(39);
+        \u0275\u0275pipe(40, "translate");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(40, "div")(41, "div", 17);
-        \u0275\u0275text(42);
-        \u0275\u0275pipe(43, "translate");
+        \u0275\u0275elementStart(41, "div")(42, "div", 17);
+        \u0275\u0275text(43);
+        \u0275\u0275pipe(44, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(44, "div", 20);
-        \u0275\u0275text(45);
-        \u0275\u0275pipe(46, "translate");
+        \u0275\u0275elementStart(45, "div", 20);
+        \u0275\u0275text(46);
+        \u0275\u0275pipe(47, "translate");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(47, "div")(48, "div", 17);
-        \u0275\u0275text(49);
-        \u0275\u0275pipe(50, "translate");
+        \u0275\u0275elementStart(48, "div")(49, "div", 17);
+        \u0275\u0275text(50);
+        \u0275\u0275pipe(51, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(51, MediaPreviewModalComponent_Conditional_51_Template, 3, 3, "div", 21)(52, MediaPreviewModalComponent_Conditional_52_Template, 3, 0, "div", 22)(53, MediaPreviewModalComponent_Conditional_53_Template, 3, 3, "div", 21);
+        \u0275\u0275conditionalCreate(52, MediaPreviewModalComponent_Conditional_52_Template, 3, 3, "div", 21)(53, MediaPreviewModalComponent_Conditional_53_Template, 3, 0, "div", 22)(54, MediaPreviewModalComponent_Conditional_54_Template, 3, 3, "div", 21);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(54, MediaPreviewModalComponent_Conditional_54_Template, 6, 4, "div");
-        \u0275\u0275conditionalCreate(55, MediaPreviewModalComponent_Conditional_55_Template, 7, 7, "div");
+        \u0275\u0275conditionalCreate(55, MediaPreviewModalComponent_Conditional_55_Template, 6, 4, "div");
         \u0275\u0275conditionalCreate(56, MediaPreviewModalComponent_Conditional_56_Template, 7, 7, "div");
-        \u0275\u0275element(57, "signage-shared-with", 23);
+        \u0275\u0275conditionalCreate(57, MediaPreviewModalComponent_Conditional_57_Template, 7, 7, "div");
+        \u0275\u0275element(58, "signage-shared-with", 23);
         \u0275\u0275elementEnd()()()();
       }
       if (rf & 2) {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate(ctx.item.name);
         \u0275\u0275advance();
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 38, "SIGNAGE_MANAGER.CLOSE_MEDIA_PREVIEW"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 39, "SIGNAGE_MANAGER.CLOSE_MEDIA_PREVIEW"));
         \u0275\u0275advance(6);
         \u0275\u0275conditional(ctx.thumbnail_url && (ctx.media_loading() || ctx.media_error()) ? 10 : -1);
         \u0275\u0275advance();
@@ -108704,35 +108912,37 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
         \u0275\u0275advance(2);
         \u0275\u0275conditional(ctx.item.media_type === "image" ? 13 : ctx.item.media_type === "video" ? 14 : ctx.item.media_type === "webpage" ? 15 : ctx.item.media_type === "plugin" && ctx.plugin ? 16 : 17);
         \u0275\u0275advance(7);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(21, 40, "SIGNAGE_MANAGER.MEDIA_EDIT"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(21, 41, "SIGNAGE_MANAGER.MEDIA_EDIT"));
         \u0275\u0275advance(4);
         \u0275\u0275conditional(ctx.item.description ? 24 : -1);
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(28, 42, "COMMON.TYPE"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(28, 43, "COMMON.TYPE"), " ");
         \u0275\u0275advance(2);
         \u0275\u0275classProp("bg-info", ctx.item.media_type === "video")("text-info-content", ctx.item.media_type === "video")("bg-warning", ctx.item.media_type === "image")("text-warning-content", ctx.item.media_type === "image")("bg-success", ctx.item.media_type === "webpage")("text-success-content", ctx.item.media_type === "webpage")("bg-error", ctx.item.media_type === "plugin")("text-error-content", ctx.item.media_type === "plugin");
         \u0275\u0275advance();
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(31, 44, ctx.type_label()), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(31, 45, ctx.type_label()), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.item.play_time ? 32 : -1);
+        \u0275\u0275conditional(ctx.item.tags?.length ? 32 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.item.play_time ? 33 : -1);
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(36, 46, "SIGNAGE_MANAGER.ANIMATION"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(37, 47, "SIGNAGE_MANAGER.ANIMATION"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(39, 48, ctx.animation_label()), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(40, 49, ctx.animation_label()), " ");
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(43, 50, "SIGNAGE_MANAGER.ORIENTATION"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(44, 51, "SIGNAGE_MANAGER.ORIENTATION"), " ");
         \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate1(" ", ctx.item.orientation || \u0275\u0275pipeBind1(46, 52, "COMMON.LOCATION_UNSPECIFIED"), " ");
+        \u0275\u0275textInterpolate1(" ", ctx.item.orientation || \u0275\u0275pipeBind1(47, 53, "COMMON.LOCATION_UNSPECIFIED"), " ");
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(50, 54, "SIGNAGE_MANAGER.NAV_PLAYLISTS"), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(51, 55, "SIGNAGE_MANAGER.NAV_PLAYLISTS"), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.loading_playlists() ? 51 : ctx.containing_playlists().length > 0 ? 52 : 53);
+        \u0275\u0275conditional(ctx.loading_playlists() ? 52 : ctx.containing_playlists().length > 0 ? 53 : 54);
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.item.play_count ? 54 : -1);
+        \u0275\u0275conditional(ctx.item.play_count ? 55 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.item.valid_from ? 55 : -1);
+        \u0275\u0275conditional(ctx.item.valid_from ? 56 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.item.valid_until ? 56 : -1);
+        \u0275\u0275conditional(ctx.item.valid_until ? 57 : -1);
         \u0275\u0275advance();
         \u0275\u0275property("item_id", ctx.item.id)("group_id", ctx.group_id)("compact_label", true);
       }
@@ -108927,6 +109137,24 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
                                 {{ type_label() | translate }}
                             </span>
                         </div>
+                        @if (item.tags?.length) {
+                            <div>
+                                <div
+                                    class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    {{ 'COMMON.TAGS' | translate }}
+                                </div>
+                                <div class="flex flex-wrap gap-1">
+                                    @for (tag of item.tags; track tag) {
+                                        <span
+                                            class="bg-info-light text-info max-w-full truncate rounded-full px-2 py-1 text-xs font-medium"
+                                        >
+                                            {{ tag }}
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
                         @if (item.play_time) {
                             <div>
                                 <div
@@ -109086,7 +109314,7 @@ var MediaPreviewModalComponent = class _MediaPreviewModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPreviewModalComponent, { className: "MediaPreviewModalComponent", filePath: "apps/signage-manager/src/app/shared/media-preview-modal.component.ts", lineNumber: 372 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPreviewModalComponent, { className: "MediaPreviewModalComponent", filePath: "apps/signage-manager/src/app/shared/media-preview-modal.component.ts", lineNumber: 393 });
 })();
 
 // apps/signage-manager/src/app/shared/media-tags-modal.component.ts
@@ -109982,17 +110210,17 @@ var _forTrack012 = ($index, $item) => $item.value;
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_10_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 13)(1, "div", 14)(2, "label");
+    \u0275\u0275elementStart(0, "div", 16)(1, "div", 17)(2, "label");
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(5, "a-date-field", 15);
+    \u0275\u0275element(5, "a-date-field", 18);
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(6, "div", 14)(7, "label");
+    \u0275\u0275elementStart(6, "div", 17)(7, "label");
     \u0275\u0275text(8, "\xA0");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(9, "a-time-field", 16);
+    \u0275\u0275elementStart(9, "a-time-field", 19);
     \u0275\u0275listener("ngModelChange", function PlaylistScheduleFormComponent_Conditional_14_Conditional_10_Template_a_time_field_ngModelChange_9_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -110005,35 +110233,35 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_10_Template(rf
     \u0275\u0275text(11);
     \u0275\u0275pipe(12, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(13, "a-duration-field", 17);
+    \u0275\u0275element(13, "a-duration-field", 20);
     \u0275\u0275controlCreate();
-    \u0275\u0275element(14, "settings-toggle", 18);
+    \u0275\u0275element(14, "settings-toggle", 14);
     \u0275\u0275pipe(15, "translate");
     \u0275\u0275controlCreate();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 11, "SIGNAGE_MANAGER.PLAY_AT"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 12, "SIGNAGE_MANAGER.PLAY_AT"));
     \u0275\u0275advance(2);
     \u0275\u0275property("formField", ctx_r1.schedule().play_at);
     \u0275\u0275control();
     \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r1.value().play_at)("ngModelOptions", \u0275\u0275pureFunction0(17, _c116));
+    \u0275\u0275property("ngModel", ctx_r1.value().play_at)("ngModelOptions", \u0275\u0275pureFunction0(18, _c116));
     \u0275\u0275control();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 13, "SIGNAGE_MANAGER.PLAY_PERIOD"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 14, "SIGNAGE_MANAGER.PLAY_PERIOD"));
     \u0275\u0275advance(2);
-    \u0275\u0275property("formField", ctx_r1.schedule().play_period)("max", 24 * 60)("time", ctx_r1.value().play_at)("custom_options", \u0275\u0275pureFunction1(18, _c210, ctx_r1.value().play_period));
+    \u0275\u0275property("formField", ctx_r1.schedule().play_period)("min", 15)("max", 24 * 60)("time", ctx_r1.value().play_at)("custom_options", \u0275\u0275pureFunction1(19, _c210, ctx_r1.value().play_period));
     \u0275\u0275control();
     \u0275\u0275advance();
-    \u0275\u0275property("label", \u0275\u0275pipeBind1(15, 15, "SIGNAGE_MANAGER.TAKEOVER_PLAYBACK"))("formField", ctx_r1.schedule().play_takeover);
+    \u0275\u0275property("label", \u0275\u0275pipeBind1(15, 16, "SIGNAGE_MANAGER.TAKEOVER_PLAYBACK"))("formField", ctx_r1.schedule().play_takeover);
     \u0275\u0275control();
   }
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_27_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 28);
+    \u0275\u0275elementStart(0, "mat-option", 30);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -110045,11 +110273,11 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_28_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "label", 29)(1, "div");
+    \u0275\u0275elementStart(0, "label", 31)(1, "div");
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "a-counter", 39);
+    \u0275\u0275element(4, "a-counter", 41);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
@@ -110067,7 +110295,7 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_29_For_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 43);
+    \u0275\u0275elementStart(0, "button", 45);
     \u0275\u0275listener("click", function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_29_For_6_Template_button_click_0_listener() {
       const day_r4 = \u0275\u0275restoreView(_r3).$implicit;
       const ctx_r1 = \u0275\u0275nextContext(4);
@@ -110087,12 +110315,12 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_29_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div")(1, "div", 40);
+    \u0275\u0275elementStart(0, "div")(1, "div", 42);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 41);
-    \u0275\u0275repeaterCreate(5, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_29_For_6_Template, 2, 10, "button", 42, _forTrack012);
+    \u0275\u0275elementStart(4, "div", 43);
+    \u0275\u0275repeaterCreate(5, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_29_For_6_Template, 2, 10, "button", 44, _forTrack012);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -110105,7 +110333,7 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_30_For_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 45);
+    \u0275\u0275elementStart(0, "mat-option", 47);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -110123,9 +110351,9 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 9)(5, "mat-select", 44);
+    \u0275\u0275elementStart(4, "mat-form-field", 9)(5, "mat-select", 46);
     \u0275\u0275pipe(6, "translate");
-    \u0275\u0275repeaterCreate(7, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_30_For_8_Template, 2, 2, "mat-option", 45, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(7, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_30_For_8_Template, 2, 2, "mat-option", 47, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
@@ -110144,7 +110372,7 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_31_For_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 45);
+    \u0275\u0275elementStart(0, "mat-option", 47);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -110158,7 +110386,7 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_31_For_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 45);
+    \u0275\u0275elementStart(0, "mat-option", 47);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -110176,15 +110404,15 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 46)(5, "mat-form-field", 9)(6, "mat-select", 44);
+    \u0275\u0275elementStart(4, "div", 48)(5, "mat-form-field", 9)(6, "mat-select", 46);
     \u0275\u0275pipe(7, "translate");
-    \u0275\u0275repeaterCreate(8, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_31_For_9_Template, 2, 2, "mat-option", 45, \u0275\u0275repeaterTrackByIdentity);
+    \u0275\u0275repeaterCreate(8, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_31_For_9_Template, 2, 2, "mat-option", 47, \u0275\u0275repeaterTrackByIdentity);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(10, "mat-form-field", 9)(11, "mat-select", 44);
+    \u0275\u0275elementStart(10, "mat-form-field", 9)(11, "mat-select", 46);
     \u0275\u0275pipe(12, "translate");
-    \u0275\u0275repeaterCreate(13, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_31_For_14_Template, 2, 2, "mat-option", 45, _forTrack012);
+    \u0275\u0275repeaterCreate(13, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_31_For_14_Template, 2, 2, "mat-option", 47, _forTrack012);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()()();
@@ -110209,7 +110437,7 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_32_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 30);
+    \u0275\u0275elementStart(0, "div", 32);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -110222,11 +110450,11 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_34_Template(rf, ctx) {
   if (rf & 1) {
     const _r8 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 32)(1, "label");
+    \u0275\u0275elementStart(0, "div", 34)(1, "label");
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "mat-form-field", 47)(5, "input", 48);
+    \u0275\u0275elementStart(4, "mat-form-field", 49)(5, "input", 50);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275listener("input", function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_34_Template_input_input_5_listener($event) {
       \u0275\u0275restoreView(_r8);
@@ -110246,7 +110474,7 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_For_47_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 37);
+    \u0275\u0275elementStart(0, "div", 39);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -110258,7 +110486,7 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_For_47_Temp
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_ForEmpty_48_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 38);
+    \u0275\u0275elementStart(0, "div", 40);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -110270,83 +110498,83 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_ForEmpty_48
 }
 function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 19)(1, "div", 20)(2, "div", 21)(3, "label");
+    \u0275\u0275elementStart(0, "div", 21)(1, "div", 22)(2, "div", 23)(3, "label");
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(6, "mat-form-field", 9)(7, "mat-select", 10);
     \u0275\u0275pipe(8, "translate");
-    \u0275\u0275elementStart(9, "mat-option", 22);
+    \u0275\u0275elementStart(9, "mat-option", 24);
     \u0275\u0275text(10);
     \u0275\u0275pipe(11, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(12, "mat-option", 23);
+    \u0275\u0275elementStart(12, "mat-option", 25);
     \u0275\u0275text(13);
     \u0275\u0275pipe(14, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "mat-option", 24);
+    \u0275\u0275elementStart(15, "mat-option", 26);
     \u0275\u0275text(16);
     \u0275\u0275pipe(17, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(18, "mat-option", 25);
+    \u0275\u0275elementStart(18, "mat-option", 27);
     \u0275\u0275text(19);
     \u0275\u0275pipe(20, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "mat-option", 26);
+    \u0275\u0275elementStart(21, "mat-option", 28);
     \u0275\u0275text(22);
     \u0275\u0275pipe(23, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(24, "mat-option", 27);
+    \u0275\u0275elementStart(24, "mat-option", 29);
     \u0275\u0275text(25);
     \u0275\u0275pipe(26, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(27, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_27_Template, 3, 3, "mat-option", 28);
+    \u0275\u0275conditionalCreate(27, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_27_Template, 3, 3, "mat-option", 30);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(28, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_28_Template, 6, 9, "label", 29);
+    \u0275\u0275conditionalCreate(28, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_28_Template, 6, 9, "label", 31);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(29, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_29_Template, 7, 3, "div")(30, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_30_Template, 9, 7, "div")(31, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_31_Template, 15, 11, "div")(32, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_32_Template, 3, 3, "div", 30);
-    \u0275\u0275elementStart(33, "div", 31);
-    \u0275\u0275conditionalCreate(34, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_34_Template, 7, 7, "div", 32);
-    \u0275\u0275elementStart(35, "div", 33)(36, "label");
+    \u0275\u0275conditionalCreate(29, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_29_Template, 7, 3, "div")(30, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_30_Template, 9, 7, "div")(31, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_31_Template, 15, 11, "div")(32, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_32_Template, 3, 3, "div", 32);
+    \u0275\u0275elementStart(33, "div", 33);
+    \u0275\u0275conditionalCreate(34, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Conditional_34_Template, 7, 7, "div", 34);
+    \u0275\u0275elementStart(35, "div", 35)(36, "label");
     \u0275\u0275text(37);
     \u0275\u0275pipe(38, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(39, "a-duration-field", 34);
+    \u0275\u0275element(39, "a-duration-field", 36);
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
-    \u0275\u0275element(40, "settings-toggle", 18);
+    \u0275\u0275element(40, "settings-toggle", 14);
     \u0275\u0275pipe(41, "translate");
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(42, "div", 35)(43, "div", 36);
+    \u0275\u0275elementStart(42, "div", 37)(43, "div", 38);
     \u0275\u0275text(44);
     \u0275\u0275pipe(45, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275repeaterCreate(46, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_For_47_Template, 2, 1, "div", 37, \u0275\u0275repeaterTrackByIdentity, false, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_ForEmpty_48_Template, 3, 3, "div", 38);
+    \u0275\u0275repeaterCreate(46, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_For_47_Template, 2, 1, "div", 39, \u0275\u0275repeaterTrackByIdentity, false, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_ForEmpty_48_Template, 3, 3, "div", 40);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 22, "SIGNAGE_MANAGER.REPEAT"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 23, "SIGNAGE_MANAGER.REPEAT"));
     \u0275\u0275advance(3);
     \u0275\u0275property("formField", ctx_r1.schedule().recurrence_type);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(8, 24, "SIGNAGE_MANAGER.REPEAT_PATTERN_ARIA"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(8, 25, "SIGNAGE_MANAGER.REPEAT_PATTERN_ARIA"));
     \u0275\u0275control();
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(11, 26, "SIGNAGE_MANAGER.EVERY_FEW_HOURS"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(11, 27, "SIGNAGE_MANAGER.EVERY_FEW_HOURS"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(14, 28, "SIGNAGE_MANAGER.EVERY_DAY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(14, 29, "SIGNAGE_MANAGER.EVERY_DAY"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(17, 30, "SIGNAGE_MANAGER.WEEKDAYS"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(17, 31, "SIGNAGE_MANAGER.WEEKDAYS"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(20, 32, "SIGNAGE_MANAGER.WEEKLY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(20, 33, "SIGNAGE_MANAGER.WEEKLY"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(23, 34, "SIGNAGE_MANAGER.MONTHLY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(23, 35, "SIGNAGE_MANAGER.MONTHLY"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(26, 36, "SIGNAGE_MANAGER.MONTHLY_BY_WEEKDAY"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(26, 37, "SIGNAGE_MANAGER.MONTHLY_BY_WEEKDAY"));
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.value().recurrence_type === "custom" ? 27 : -1);
     \u0275\u0275advance();
@@ -110356,17 +110584,43 @@ function PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Template(rf
     \u0275\u0275advance(5);
     \u0275\u0275conditional(ctx_r1.showRecurringStartTime() ? 34 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(38, 38, "SIGNAGE_MANAGER.PLAY_PERIOD"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(38, 39, "SIGNAGE_MANAGER.PLAY_PERIOD"));
     \u0275\u0275advance(2);
-    \u0275\u0275property("formField", ctx_r1.schedule().play_period)("max", 24 * 60)("time", ctx_r1.recurringPlayStartTime())("custom_options", \u0275\u0275pureFunction1(44, _c210, ctx_r1.value().play_period));
+    \u0275\u0275property("formField", ctx_r1.schedule().play_period)("min", 15)("max", 24 * 60)("time", ctx_r1.recurringPlayStartTime())("custom_options", \u0275\u0275pureFunction1(45, _c210, ctx_r1.value().play_period));
     \u0275\u0275control();
     \u0275\u0275advance();
-    \u0275\u0275property("label", \u0275\u0275pipeBind1(41, 40, "SIGNAGE_MANAGER.TAKEOVER_PLAYBACK"))("formField", ctx_r1.schedule().play_takeover);
+    \u0275\u0275property("label", \u0275\u0275pipeBind1(41, 41, "SIGNAGE_MANAGER.TAKEOVER_PLAYBACK"))("formField", ctx_r1.schedule().play_takeover);
     \u0275\u0275control();
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(45, 42, "SIGNAGE_MANAGER.UPCOMING_PLAY_TIMES"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(45, 43, "SIGNAGE_MANAGER.UPCOMING_PLAY_TIMES"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r1.nextCronPlayTimes());
+  }
+}
+function PlaylistScheduleFormComponent_Conditional_14_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r10 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 15);
+    \u0275\u0275element(1, "a-date-field", 51);
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(2, "a-time-field", 52);
+    \u0275\u0275listener("ngModelChange", function PlaylistScheduleFormComponent_Conditional_14_Conditional_15_Template_a_time_field_ngModelChange_2_listener($event) {
+      \u0275\u0275restoreView(_r10);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.schedule().valid_until().value.set($event));
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275property("formField", ctx_r1.schedule().valid_until);
+    \u0275\u0275control();
+    \u0275\u0275advance();
+    \u0275\u0275property("ngModel", ctx_r1.value().valid_until)("ngModelOptions", \u0275\u0275pureFunction0(3, _c116));
+    \u0275\u0275control();
   }
 }
 function PlaylistScheduleFormComponent_Conditional_14_Template(rf, ctx) {
@@ -110383,21 +110637,31 @@ function PlaylistScheduleFormComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275elementEnd()();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(10, PlaylistScheduleFormComponent_Conditional_14_Conditional_10_Template, 16, 20)(11, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Template, 49, 46);
-    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(10, PlaylistScheduleFormComponent_Conditional_14_Conditional_10_Template, 16, 21)(11, PlaylistScheduleFormComponent_Conditional_14_Conditional_11_Template, 49, 47);
+    \u0275\u0275elementStart(12, "div", 13);
+    \u0275\u0275element(13, "settings-toggle", 14);
+    \u0275\u0275pipe(14, "translate");
+    \u0275\u0275controlCreate();
+    \u0275\u0275conditionalCreate(15, PlaylistScheduleFormComponent_Conditional_14_Conditional_15_Template, 3, 4, "div", 15);
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
     \u0275\u0275property("formField", ctx_r1.schedule().schedule_type);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 5, "SIGNAGE_MANAGER.SCHEDULE_TYPE_ARIA"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 8, "SIGNAGE_MANAGER.SCHEDULE_TYPE_ARIA"));
     \u0275\u0275control();
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 7, "SIGNAGE_MANAGER.PLAY_ONCE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(6, 10, "SIGNAGE_MANAGER.PLAY_ONCE"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 9, "SIGNAGE_MANAGER.RECURRING_SCHEDULE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(9, 12, "SIGNAGE_MANAGER.RECURRING_SCHEDULE"));
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.value().schedule_type === "play_at" ? 10 : ctx_r1.value().schedule_type === "play_cron" ? 11 : -1);
+    \u0275\u0275advance(3);
+    \u0275\u0275property("label", \u0275\u0275pipeBind1(14, 14, "FORM.EXPIRES_AT"))("formField", ctx_r1.schedule().has_valid_until);
+    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.value().has_valid_until ? 15 : -1);
   }
 }
 var FULL_DAY_START_MINUTES = 0;
@@ -110746,7 +111010,7 @@ function formatMinutes(value) {
   ];
   return parts.filter((part) => part.value).map((part) => i18n(part.key, { count: part.value }, part.value)).join(" ");
 }
-function nextCronPlayTimes(cron, duration_minutes) {
+function nextCronPlayTimes(cron, duration_minutes, valid_until = 0) {
   const result = [];
   if (!cron?.trim())
     return result;
@@ -110755,7 +111019,8 @@ function nextCronPlayTimes(cron, duration_minutes) {
   date.setMinutes(date.getMinutes() + 1);
   const end = new Date(date);
   end.setFullYear(end.getFullYear() + 2);
-  while (date <= end && result.length < 5) {
+  const expiry = valid_until ? new Date(valid_until) : end;
+  while (date <= end && date <= expiry && result.length < 5) {
     if (doesCronMatchDate2(cron, date)) {
       result.push(formatPlayDateTimeRange2(date, duration_minutes));
     }
@@ -110781,7 +111046,9 @@ function createPlaylistScheduleModel(schedule) {
     recurrence_day_of_week: recurring_schedule.recurrence_day_of_week,
     recurrence_weekdays: recurring_schedule.recurrence_weekdays,
     recurrence_day_of_month: recurring_schedule.recurrence_day_of_month,
-    play_period: playlistPlayPeriod(source)
+    play_period: playlistPlayPeriod(source),
+    has_valid_until: !!source.valid_until,
+    valid_until: source.valid_until ? fromUnixTime(source.valid_until).getTime() : endOfDay(Date.now()).getTime()
   };
 }
 function playlistSchedulePayload(value) {
@@ -110789,12 +111056,14 @@ function playlistSchedulePayload(value) {
     play_at: value.play_at ? getUnixTime(new Date(value.play_at)) : 0,
     play_cron: DEFAULT_RECURRING_CRON,
     play_period: Math.max(0, value.play_period || 0),
-    play_takeover: !!value.play_takeover
+    play_takeover: !!value.play_takeover,
+    valid_until: value.has_valid_until ? getUnixTime(new Date(value.valid_until)) : 0
   } : {
     play_at: 0,
     play_cron: buildRecurringCron(value),
     play_period: Math.max(0, value.play_period || 0),
-    play_takeover: !!value.play_takeover
+    play_takeover: !!value.play_takeover,
+    valid_until: value.has_valid_until ? getUnixTime(new Date(value.valid_until)) : 0
   };
 }
 var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
@@ -110851,7 +111120,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
     const value = this.value();
     if (value.schedule_type !== "play_cron")
       return [];
-    return nextCronPlayTimes(buildRecurringCron(value), value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES2);
+    return nextCronPlayTimes(buildRecurringCron(value), value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES2, value.has_valid_until ? value.valid_until : 0);
   }
   recurringScheduleSummary() {
     const value = this.value();
@@ -110909,14 +111178,19 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
     const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES2;
     const duration = formatMinutes(period) || i18n("SIGNAGE_MANAGER.ONE_PLAYLIST_PASS");
     const takeover = value.play_takeover ? i18n("SIGNAGE_MANAGER.TAKEOVER_SUFFIX") : "";
+    const expiry = playlistScheduleExpiryLabel(playlistSchedulePayload(value));
+    const expiry_suffix = expiry ? ` \xB7 ${expiry}` : "";
     if (value.schedule_type === "play_at") {
       const date = new Date(value.play_at || Date.now());
       return `${i18n("SIGNAGE_MANAGER.SUMMARY_PLAY_ONCE", {
         datetime: formatPlayDateTime2(date),
         duration
-      })}${takeover}`;
+      })}${takeover}${expiry_suffix}`;
     }
-    return `${this.recurringScheduleSummary()}${takeover}`;
+    return `${this.recurringScheduleSummary()}${takeover}${expiry_suffix}`;
+  }
+  scheduleExpiryTooltip() {
+    return playlistScheduleExpiryTooltip(playlistSchedulePayload(this.value()));
   }
   recurringPlayStartTime() {
     if (!this.showRecurringStartTime())
@@ -110960,7 +111234,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistScheduleFormComponent, selectors: [["playlist-schedule-form"]], inputs: { schedule: [1, "schedule"], index: [1, "index"], open: [1, "open"], can_remove: [1, "can_remove"] }, outputs: { toggle: "toggle", remove: "remove" }, decls: 15, vars: 14, consts: [[1, "border-base-300", "overflow-hidden", "rounded-sm", "border"], [1, "hover:bg-base-200/60", "flex", "items-center", "gap-3", "px-3", "py-1.5", "transition-colors"], ["type", "button", 1, "flex", "min-w-0", "flex-1", "items-center", "gap-3", "text-left", 3, "click"], [1, "min-w-24", "text-sm", "font-medium"], [1, "text-base-content", "min-w-0", "flex-1", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", 1, "border-base-300", "hover:bg-base-200", "rounded", "border", "px-3", "py-2", "text-sm", "disabled:cursor-not-allowed", "disabled:opacity-40", 3, "click", "disabled"], ["type", "button", 1, "flex", "items-center", 3, "click"], [1, "text-base-content/60", "text-xl"], [1, "border-base-300", "space-y-2", "border-t", "px-2", "pt-4", "pb-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "formField"], ["value", "play_at"], ["value", "play_cron"], [1, "flex", "space-x-4"], [1, "flex-1"], [1, "w-full", 3, "formField"], [1, "w-full", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-full", 3, "formField", "max", "time", "custom_options"], [3, "label", "formField"], [1, "bg-base-200/40", "border-base-300", "space-y-4", "rounded-lg", "border", "p-3"], [1, "flex", "flex-col", "gap-3", "md:flex-row", "md:items-end"], [1, "min-w-48", "flex-1"], ["value", "hours"], ["value", "daily"], ["value", "weekdays"], ["value", "weekly"], ["value", "monthly"], ["value", "monthly_weekday"], ["value", "custom"], [1, "m-0", "min-w-40", "flex-1"], [1, "border-warning/30", "bg-warning/10", "text-warning-content", "rounded-lg", "border", "p-3", "text-sm"], [1, "flex", "flex-col", "gap-3", "md:flex-row"], [1, "flex", "w-full", "flex-1", "flex-col"], [1, "w-full", "flex-1"], [1, "no-subscript", "w-full", "flex-1", 3, "formField", "max", "time", "custom_options"], [1, "border-base-300", "relative", "mt-6", "flex", "flex-col", "gap-2", "rounded", "border", "px-2", "pt-4", "pb-2", "text-sm"], [1, "bg-base-100", "absolute", "top-0", "left-3", "-translate-y-1/2", "rounded", "px-2"], [1, "border-base-200", "hover:bg-base-200/50", "rounded-lg", "border", "p-2", "font-mono", "text-xs"], [1, "text-base-content/60", "text-xs"], [3, "min", "max", "formField"], [1, "mb-2", "text-sm", "font-medium"], [1, "flex", "flex-wrap", "gap-2"], ["type", "button", 1, "min-w-12", "rounded-full", "border", "px-3", "py-2", "text-sm", "transition-colors", 3, "border-primary", "bg-primary", "text-primary-content", "border-base-300"], ["type", "button", 1, "min-w-12", "rounded-full", "border", "px-3", "py-2", "text-sm", "transition-colors", 3, "click"], ["multiple", "", 3, "formField"], [3, "value"], [1, "grid", "grid-cols-2", "gap-3"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", "type", "time", 3, "input", "value"]], template: function PlaylistScheduleFormComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PlaylistScheduleFormComponent, selectors: [["playlist-schedule-form"]], inputs: { schedule: [1, "schedule"], index: [1, "index"], open: [1, "open"], can_remove: [1, "can_remove"] }, outputs: { toggle: "toggle", remove: "remove" }, decls: 15, vars: 16, consts: [[1, "border-base-300", "overflow-hidden", "rounded-sm", "border"], [1, "hover:bg-base-200/60", "flex", "items-center", "gap-3", "px-3", "py-1.5", "transition-colors"], ["type", "button", 1, "flex", "min-w-0", "flex-1", "items-center", "gap-3", "text-left", 3, "click"], [1, "min-w-24", "text-sm", "font-medium"], [1, "text-base-content", "min-w-0", "flex-1", "truncate", "text-xs", 3, "matTooltip", "matTooltipDisabled"], ["icon", "", "default", "", "error", "", "type", "button", 1, "border-base-300", "hover:bg-base-200", "rounded", "border", "px-3", "py-2", "text-sm", "disabled:cursor-not-allowed", "disabled:opacity-40", 3, "click", "disabled"], ["type", "button", 1, "flex", "items-center", 3, "click"], [1, "text-base-content/60", "text-xl"], [1, "border-base-300", "space-y-2", "border-t", "px-2", "pt-4", "pb-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], [3, "formField"], ["value", "play_at"], ["value", "play_cron"], [1, "bg-base-200/40", "border-base-300", "mt-4", "rounded-lg", "border", "p-3"], [3, "label", "formField"], [1, "mt-3", "flex", "space-x-4"], [1, "flex", "space-x-4"], [1, "flex-1"], [1, "w-full", 3, "formField"], [1, "w-full", 3, "ngModelChange", "ngModel", "ngModelOptions"], [1, "w-full", 3, "formField", "min", "max", "time", "custom_options"], [1, "bg-base-200/40", "border-base-300", "space-y-4", "rounded-lg", "border", "p-3"], [1, "flex", "flex-col", "gap-3", "md:flex-row", "md:items-end"], [1, "min-w-48", "flex-1"], ["value", "hours"], ["value", "daily"], ["value", "weekdays"], ["value", "weekly"], ["value", "monthly"], ["value", "monthly_weekday"], ["value", "custom"], [1, "m-0", "min-w-40", "flex-1"], [1, "border-warning/30", "bg-warning/10", "text-warning-content", "rounded-lg", "border", "p-3", "text-sm"], [1, "flex", "flex-col", "gap-3", "md:flex-row"], [1, "flex", "w-full", "flex-1", "flex-col"], [1, "w-full", "flex-1"], [1, "no-subscript", "w-full", "flex-1", 3, "formField", "min", "max", "time", "custom_options"], [1, "border-base-300", "relative", "mt-6", "flex", "flex-col", "gap-2", "rounded", "border", "px-2", "pt-4", "pb-2", "text-sm"], [1, "bg-base-100", "absolute", "top-0", "left-3", "-translate-y-1/2", "rounded", "px-2"], [1, "border-base-200", "hover:bg-base-200/50", "rounded-lg", "border", "p-2", "font-mono", "text-xs"], [1, "text-base-content/60", "text-xs"], [3, "min", "max", "formField"], [1, "mb-2", "text-sm", "font-medium"], [1, "flex", "flex-wrap", "gap-2"], ["type", "button", 1, "min-w-12", "rounded-full", "border", "px-3", "py-2", "text-sm", "transition-colors", 3, "border-primary", "bg-primary", "text-primary-content", "border-base-300"], ["type", "button", 1, "min-w-12", "rounded-full", "border", "px-3", "py-2", "text-sm", "transition-colors", 3, "click"], ["multiple", "", 3, "formField"], [3, "value"], [1, "grid", "grid-cols-2", "gap-3"], ["appearance", "outline", 1, "no-subscript"], ["matInput", "", "type", "time", 3, "input", "value"], [1, "w-full", "flex-1", 3, "formField"], [1, "w-full", "flex-1", 3, "ngModelChange", "ngModel", "ngModelOptions"]], template: function PlaylistScheduleFormComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "button", 2);
         \u0275\u0275listener("click", function PlaylistScheduleFormComponent_Template_button_click_2_listener() {
@@ -110987,7 +111261,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
         \u0275\u0275elementStart(12, "icon", 7);
         \u0275\u0275text(13);
         \u0275\u0275elementEnd()()();
-        \u0275\u0275conditionalCreate(14, PlaylistScheduleFormComponent_Conditional_14_Template, 12, 11, "div", 8);
+        \u0275\u0275conditionalCreate(14, PlaylistScheduleFormComponent_Conditional_14_Template, 16, 16, "div", 8);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -110995,8 +111269,10 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
         \u0275\u0275advance(2);
         \u0275\u0275attribute("aria-expanded", ctx.open());
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(5, 9, "SIGNAGE_MANAGER.SCHEDULE_NUMBER", \u0275\u0275pureFunction1(12, _c031, ctx.index() + 1)), " ");
-        \u0275\u0275advance(3);
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(5, 11, "SIGNAGE_MANAGER.SCHEDULE_NUMBER", \u0275\u0275pureFunction1(14, _c031, ctx.index() + 1)), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275property("matTooltip", ctx.scheduleExpiryTooltip())("matTooltipDisabled", !ctx.value().has_valid_until);
+        \u0275\u0275advance();
         \u0275\u0275textInterpolate1(" ", ctx.scheduleSummary(), " ");
         \u0275\u0275advance();
         \u0275\u0275property("disabled", !ctx.can_remove());
@@ -111022,6 +111298,8 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
       MatSelectModule,
       MatSelect,
       MatOption,
+      MatTooltipModule,
+      MatTooltip,
       IconComponent,
       CounterComponent,
       SettingsToggleComponent,
@@ -111054,6 +111332,8 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
                     </div>
                     <div
                         class="text-base-content min-w-0 flex-1 truncate text-xs"
+                        [matTooltip]="scheduleExpiryTooltip()"
+                        [matTooltipDisabled]="!value().has_valid_until"
                     >
                         {{ scheduleSummary() }}
                     </div>
@@ -111129,6 +111409,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
                         <a-duration-field
                             class="w-full"
                             [formField]="schedule().play_period"
+                            [min]="15"
                             [max]="24 * 60"
                             [time]="value().play_at"
                             [custom_options]="[value().play_period]"
@@ -111441,6 +111722,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
                                     <a-duration-field
                                         class="no-subscript w-full flex-1"
                                         [formField]="schedule().play_period"
+                                        [min]="15"
                                         [max]="24 * 60"
                                         [time]="recurringPlayStartTime()"
                                         [custom_options]="[value().play_period]"
@@ -111485,6 +111767,32 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
                             }
                         </div>
                     }
+                    <div
+                        class="bg-base-200/40 border-base-300 mt-4 rounded-lg border p-3"
+                    >
+                        <settings-toggle
+                            [label]="'FORM.EXPIRES_AT' | translate"
+                            [formField]="schedule().has_valid_until"
+                        />
+                        @if (value().has_valid_until) {
+                            <div class="mt-3 flex space-x-4">
+                                <a-date-field
+                                    class="w-full flex-1"
+                                    [formField]="schedule().valid_until"
+                                ></a-date-field>
+                                <a-time-field
+                                    class="w-full flex-1"
+                                    [ngModel]="value().valid_until"
+                                    (ngModelChange)="
+                                        schedule()
+                                            .valid_until()
+                                            .value.set($event)
+                                    "
+                                    [ngModelOptions]="{ standalone: true }"
+                                ></a-time-field>
+                            </div>
+                        }
+                    </div>
                 </div>
             }
         </div>
@@ -111497,6 +111805,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
       MatFormFieldModule,
       MatInputModule,
       MatSelectModule,
+      MatTooltipModule,
       IconComponent,
       CounterComponent,
       SettingsToggleComponent,
@@ -111505,7 +111814,7 @@ var PlaylistScheduleFormComponent = class _PlaylistScheduleFormComponent {
   }], null, { schedule: [{ type: Input, args: [{ isSignal: true, alias: "schedule", required: true }] }], index: [{ type: Input, args: [{ isSignal: true, alias: "index", required: true }] }], open: [{ type: Input, args: [{ isSignal: true, alias: "open", required: false }] }], can_remove: [{ type: Input, args: [{ isSignal: true, alias: "can_remove", required: false }] }], toggle: [{ type: Output, args: ["toggle"] }], remove: [{ type: Output, args: ["remove"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistScheduleFormComponent, { className: "PlaylistScheduleFormComponent", filePath: "apps/signage-manager/src/app/shared/playlist-schedule-form.component.ts", lineNumber: 1009 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PlaylistScheduleFormComponent, { className: "PlaylistScheduleFormComponent", filePath: "apps/signage-manager/src/app/shared/playlist-schedule-form.component.ts", lineNumber: 1062 });
 })();
 
 // apps/signage-manager/src/app/shared/playlist-edit-modal.component.ts
@@ -114994,8 +115303,442 @@ var TemplateEditModalComponent = class _TemplateEditModalComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateEditModalComponent, { className: "TemplateEditModalComponent", filePath: "apps/signage-manager/src/app/shared/template-edit-modal.component.ts", lineNumber: 218 });
 })();
 
-// apps/signage-manager/src/app/shared/template-request-approval-modal.component.ts
+// apps/signage-manager/src/app/signage-template-mapping.ts
+var HydratedSignageTemplate = class extends dr {
+  constructor(data = {}) {
+    super(data);
+    this.background_media = data.background_media ? new Es(data.background_media) : null;
+  }
+};
+var HydratedSignageTemplateMapping = class extends pr {
+  constructor(data = {}) {
+    super(data);
+    this.template_details = new HydratedSignageTemplate(__spreadValues({
+      id: data.template_id
+    }, data.template_details));
+  }
+};
+
+// apps/signage-manager/src/app/shared/template-mapping-modal.component.ts
 var _forTrack017 = ($index, $item) => $item.id;
+function TemplateMappingModalComponent_Conditional_4_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 7);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("source", ctx_r0.background_url())("alt", ctx_r0.selected_template()?.name || "");
+  }
+}
+function TemplateMappingModalComponent_Conditional_4_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "icon", 8);
+    \u0275\u0275text(1, "dashboard");
+    \u0275\u0275elementEnd();
+  }
+}
+function TemplateMappingModalComponent_Conditional_4_Conditional_7_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r0.selected_template()?.description, " ");
+  }
+}
+function TemplateMappingModalComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2)(1, "div", 6);
+    \u0275\u0275conditionalCreate(2, TemplateMappingModalComponent_Conditional_4_Conditional_2_Template, 1, 2, "img", 7)(3, TemplateMappingModalComponent_Conditional_4_Conditional_3_Template, 2, 0, "icon", 8);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "div", 9)(5, "div", 10);
+    \u0275\u0275text(6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(7, TemplateMappingModalComponent_Conditional_4_Conditional_7_Template, 2, 1, "div", 11);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r0.background_url() ? 2 : 3);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", ctx_r0.selected_template()?.name, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r0.selected_template()?.description ? 7 : -1);
+  }
+}
+function TemplateMappingModalComponent_Conditional_5_For_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "mat-option", 15);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const template_r2 = ctx.$implicit;
+    \u0275\u0275property("value", template_r2.id);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", template_r2.name, " ");
+  }
+}
+function TemplateMappingModalComponent_Conditional_5_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 16);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.NO_APPROVED_TEMPLATES"), " ");
+  }
+}
+function TemplateMappingModalComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div")(1, "label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementStart(4, "span", 12);
+    \u0275\u0275text(5, "*");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(6, "mat-form-field", 13)(7, "mat-select", 14);
+    \u0275\u0275pipe(8, "translate");
+    \u0275\u0275repeaterCreate(9, TemplateMappingModalComponent_Conditional_5_For_10_Template, 2, 2, "mat-option", 15, _forTrack017);
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementStart(11, "mat-error");
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(14, TemplateMappingModalComponent_Conditional_5_Conditional_14_Template, 3, 3, "p", 16);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "SIGNAGE_MANAGER.SELECT_APPROVED_TEMPLATE"), " ");
+    \u0275\u0275advance(5);
+    \u0275\u0275property("formField", ctx_r0.form_model.template_id);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(8, 7, "SIGNAGE_MANAGER.SELECT_APPROVED_TEMPLATE"));
+    \u0275\u0275control();
+    \u0275\u0275advance(2);
+    \u0275\u0275repeater(ctx_r0.templates);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(13, 9, "SIGNAGE_MANAGER.TEMPLATE_REQUIRED"));
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx_r0.templates.length ? 14 : -1);
+  }
+}
+function TemplateMappingModalComponent_Conditional_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "playlist-schedule-form", 4);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275property("schedule", ctx_r0.form_model.schedule)("index", 0)("open", true)("can_remove", false);
+  }
+}
+function TemplateMappingModalComponent_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 17);
+    \u0275\u0275text(2, "home");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div")(4, "div", 18);
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(7, "div", 19);
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 2, "SIGNAGE_MANAGER.DEFAULT_TEMPLATE"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 4, "SIGNAGE_MANAGER.DEFAULT_TEMPLATE_HINT"), " ");
+  }
+}
+var TemplateMappingModalComponent = class _TemplateMappingModalComponent {
+  constructor() {
+    this._data = inject2(MAT_DIALOG_DATA);
+    this._dialog_ref = inject2(MatDialogRef);
+    this.mapping = this._data.mapping;
+    this.templates = this._data.templates;
+    this.loading = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.model = signal(
+      {
+        template_id: this.mapping?.template_id || "",
+        scheduled: !!this.mapping?.schedule,
+        schedule: createPlaylistScheduleModel(this.mapping?.schedule || void 0)
+      },
+      ...ngDevMode ? [{ debugName: "model" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.form_model = form(this.model, (path) => {
+      required(path.template_id);
+    });
+    this.selected_template = computed(
+      () => {
+        const template_id = this.model().template_id;
+        return this.mapping?.template_details || this.templates.find((template) => template.id === template_id) || null;
+      },
+      ...ngDevMode ? [{ debugName: "selected_template" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.background_url = computed(
+      () => {
+        const template = this.selected_template();
+        if (!template)
+          return "";
+        if (template instanceof HydratedSignageTemplate && template.background_media) {
+          return template.background_media.media_url;
+        }
+        return template.background_item_id ? yh(template.background_item_id) : "";
+      },
+      ...ngDevMode ? [{ debugName: "background_url" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  async saveMapping() {
+    await submit(this.form_model, async () => {
+      this.loading.set(true);
+      this._dialog_ref.disableClose = true;
+      const value = this.model();
+      const schedule = value.scheduled ? playlistSchedulePayload(value.schedule) : null;
+      try {
+        await this._data.save(value.template_id, schedule);
+        this._dialog_ref.disableClose = false;
+        this._dialog_ref.close(true);
+        notifySuccess(i18n("SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_SAVED"));
+      } catch (error2) {
+        this._dialog_ref.disableClose = false;
+        this.loading.set(false);
+        notifyError(i18n("SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_SAVE_ERROR"));
+        throw error2;
+      }
+    });
+  }
+  static {
+    this.\u0275fac = function TemplateMappingModalComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _TemplateMappingModalComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplateMappingModalComponent, selectors: [["template-mapping-modal"]], decls: 11, vars: 15, consts: [[3, "confirm", "heading", "loading"], [1, "flex", "flex-col", "gap-4"], [1, "border-base-300", "bg-base-100", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-3"], [3, "label", "info", "formField"], [3, "schedule", "index", "open", "can_remove"], [1, "bg-base-200", "border-base-300", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-4"], [1, "bg-base-200", "flex", "h-16", "w-24", "shrink-0", "items-center", "justify-center", "overflow-hidden", "rounded"], ["auth", "", 1, "h-full", "w-full", "object-cover", 3, "source", "alt"], [1, "text-base-content/40", "text-3xl"], [1, "min-w-0", "flex-1"], [1, "truncate", "font-medium"], [1, "text-base-content/70", "mt-1", "line-clamp-2", "text-sm"], ["required", ""], ["appearance", "outline", 1, "w-full"], ["placeholder", "Select a template", 3, "formField"], [3, "value"], [1, "text-base-content/70", "-mt-3", "text-sm"], [1, "text-primary", "text-2xl"], [1, "font-medium"], [1, "text-base-content/70", "text-sm"]], template: function TemplateMappingModalComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "fullscreen-modal-shell", 0);
+        \u0275\u0275pipe(1, "translate");
+        \u0275\u0275pipe(2, "translate");
+        \u0275\u0275listener("confirm", function TemplateMappingModalComponent_Template_fullscreen_modal_shell_confirm_0_listener() {
+          return ctx.saveMapping();
+        });
+        \u0275\u0275elementStart(3, "div", 1);
+        \u0275\u0275conditionalCreate(4, TemplateMappingModalComponent_Conditional_4_Template, 8, 3, "div", 2)(5, TemplateMappingModalComponent_Conditional_5_Template, 15, 11, "div");
+        \u0275\u0275element(6, "settings-toggle", 3);
+        \u0275\u0275pipe(7, "translate");
+        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275controlCreate();
+        \u0275\u0275conditionalCreate(9, TemplateMappingModalComponent_Conditional_9_Template, 1, 4, "playlist-schedule-form", 4)(10, TemplateMappingModalComponent_Conditional_10_Template, 10, 6, "div", 5);
+        \u0275\u0275elementEnd()();
+      }
+      if (rf & 2) {
+        \u0275\u0275property("heading", \u0275\u0275pipeBind1(1, 7, ctx.mapping ? "SIGNAGE_MANAGER.TEMPLATE_MAPPING_EDIT" : "SIGNAGE_MANAGER.APPLY_TEMPLATE"))("loading", ctx.loading() ? \u0275\u0275pipeBind1(2, 9, "SIGNAGE_MANAGER.TEMPLATE_SAVING") : "");
+        \u0275\u0275advance(4);
+        \u0275\u0275conditional(ctx.mapping ? 4 : 5);
+        \u0275\u0275advance(2);
+        \u0275\u0275property("label", \u0275\u0275pipeBind1(7, 11, "SIGNAGE_MANAGER.TEMPLATE_MAPPING_SCHEDULE"))("info", \u0275\u0275pipeBind1(8, 13, "SIGNAGE_MANAGER.TEMPLATE_MAPPING_DEFAULT_HINT"))("formField", ctx.form_model.scheduled);
+        \u0275\u0275control();
+        \u0275\u0275advance(3);
+        \u0275\u0275conditional(ctx.model().scheduled ? 9 : 10);
+      }
+    }, dependencies: [
+      FormField,
+      MatFormFieldModule,
+      MatFormField,
+      MatError,
+      MatSelectModule,
+      MatSelect,
+      MatOption,
+      AuthenticatedImageDirective,
+      FullscreenModalShellComponent,
+      IconComponent,
+      PlaylistScheduleFormComponent,
+      SettingsToggleComponent,
+      TranslatePipe
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TemplateMappingModalComponent, [{
+    type: Component,
+    args: [{
+      selector: "template-mapping-modal",
+      template: `
+        <fullscreen-modal-shell
+            [heading]="
+                (mapping
+                    ? 'SIGNAGE_MANAGER.TEMPLATE_MAPPING_EDIT'
+                    : 'SIGNAGE_MANAGER.APPLY_TEMPLATE'
+                ) | translate
+            "
+            (confirm)="saveMapping()"
+            [loading]="
+                loading() ? ('SIGNAGE_MANAGER.TEMPLATE_SAVING' | translate) : ''
+            "
+        >
+            <div class="flex flex-col gap-4">
+                @if (mapping) {
+                    <div
+                        class="border-base-300 bg-base-100 flex items-center gap-3 rounded-lg border p-3"
+                    >
+                        <div
+                            class="bg-base-200 flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded"
+                        >
+                            @if (background_url()) {
+                                <img
+                                    auth
+                                    class="h-full w-full object-cover"
+                                    [source]="background_url()"
+                                    [alt]="selected_template()?.name || ''"
+                                />
+                            } @else {
+                                <icon class="text-base-content/40 text-3xl"
+                                    >dashboard</icon
+                                >
+                            }
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="truncate font-medium">
+                                {{ selected_template()?.name }}
+                            </div>
+                            @if (selected_template()?.description) {
+                                <div
+                                    class="text-base-content/70 mt-1 line-clamp-2 text-sm"
+                                >
+                                    {{ selected_template()?.description }}
+                                </div>
+                            }
+                        </div>
+                    </div>
+                } @else {
+                    <div>
+                        <label>
+                            {{
+                                'SIGNAGE_MANAGER.SELECT_APPROVED_TEMPLATE'
+                                    | translate
+                            }}
+                            <span required>*</span>
+                        </label>
+                        <mat-form-field appearance="outline" class="w-full">
+                            <mat-select
+                                placeholder="Select a template"
+                                [formField]="form_model.template_id"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.SELECT_APPROVED_TEMPLATE'
+                                        | translate
+                                "
+                            >
+                                @for (
+                                    template of templates;
+                                    track template.id
+                                ) {
+                                    <mat-option [value]="template.id">
+                                        {{ template.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-error>{{
+                                'SIGNAGE_MANAGER.TEMPLATE_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                        @if (!templates.length) {
+                            <p class="text-base-content/70 -mt-3 text-sm">
+                                {{
+                                    'SIGNAGE_MANAGER.NO_APPROVED_TEMPLATES'
+                                        | translate
+                                }}
+                            </p>
+                        }
+                    </div>
+                }
+
+                <settings-toggle
+                    [label]="
+                        'SIGNAGE_MANAGER.TEMPLATE_MAPPING_SCHEDULE' | translate
+                    "
+                    [info]="
+                        'SIGNAGE_MANAGER.TEMPLATE_MAPPING_DEFAULT_HINT'
+                            | translate
+                    "
+                    [formField]="form_model.scheduled"
+                />
+
+                @if (model().scheduled) {
+                    <playlist-schedule-form
+                        [schedule]="form_model.schedule"
+                        [index]="0"
+                        [open]="true"
+                        [can_remove]="false"
+                    />
+                } @else {
+                    <div
+                        class="bg-base-200 border-base-300 flex items-center gap-3 rounded-lg border p-4"
+                    >
+                        <icon class="text-primary text-2xl">home</icon>
+                        <div>
+                            <div class="font-medium">
+                                {{
+                                    'SIGNAGE_MANAGER.DEFAULT_TEMPLATE'
+                                        | translate
+                                }}
+                            </div>
+                            <div class="text-base-content/70 text-sm">
+                                {{
+                                    'SIGNAGE_MANAGER.DEFAULT_TEMPLATE_HINT'
+                                        | translate
+                                }}
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </fullscreen-modal-shell>
+    `,
+      imports: [
+        FormField,
+        MatFormFieldModule,
+        MatSelectModule,
+        AuthenticatedImageDirective,
+        FullscreenModalShellComponent,
+        IconComponent,
+        PlaylistScheduleFormComponent,
+        SettingsToggleComponent,
+        TranslatePipe
+      ]
+    }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateMappingModalComponent, { className: "TemplateMappingModalComponent", filePath: "apps/signage-manager/src/app/shared/template-mapping-modal.component.ts", lineNumber: 190 });
+})();
+
+// apps/signage-manager/src/app/shared/template-request-approval-modal.component.ts
+var _forTrack018 = ($index, $item) => $item.id;
 function TemplateRequestApprovalModalComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "button", 2);
@@ -115046,7 +115789,7 @@ function TemplateRequestApprovalModalComponent_Conditional_5_Conditional_1_Templ
     \u0275\u0275text(13);
     \u0275\u0275pipe(14, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275repeaterCreate(15, TemplateRequestApprovalModalComponent_Conditional_5_Conditional_1_For_16_Template, 2, 2, "mat-option", 17, _forTrack017);
+    \u0275\u0275repeaterCreate(15, TemplateRequestApprovalModalComponent_Conditional_5_Conditional_1_For_16_Template, 2, 2, "mat-option", 17, _forTrack018);
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
@@ -115833,6 +116576,9 @@ function persistSelectedGroupId(group_id) {
   } catch {
   }
 }
+function isSameSignageTemplate(first2, second) {
+  return (first2.live_template_id || first2.id) === (second.live_template_id || second.id);
+}
 function groupHierarchy(selected, all_groups) {
   if (!selected)
     return [];
@@ -116022,6 +116768,29 @@ var SignageService = class _SignageService {
     if (!this._canQueryLists())
       return null;
     return lh(__spreadValues(__spreadValues({}, this._orgZoneQueryParams({ limit: _SignageService.PAGE_SIZE })), this._searchParam(search)));
+  }
+  async listApprovedTemplates() {
+    if (!this._canQueryLists())
+      return [];
+    const result = await y({
+      path: "signage/templates",
+      query_params: this._groupQueryParams({
+        approved: true,
+        limit: 1e4
+      }),
+      fn: (data) => new dr(data)
+    });
+    return result.data;
+  }
+  async listTemplateMappings(target) {
+    if (!this._canQueryLists())
+      return [];
+    const result = await y({
+      path: "signage/template_mappings",
+      query_params: __spreadProps(__spreadValues({}, target), { limit: 1e4 }),
+      fn: (data) => new HydratedSignageTemplateMapping(data)
+    });
+    return result.data;
   }
   querySelectableZones(search, parent_id) {
     if (!this._canQueryLists() || !parent_id || !search.trim())
@@ -117409,6 +118178,46 @@ var SignageService = class _SignageService {
     this._playlist_change.set(Date.now());
     this.changed();
   }
+  async removeMediaItemsFromPlaylist(playlist_id, selected_items) {
+    const playlist_items = selected_items.filter((item) => !!item.id && item.index >= 0);
+    if (!playlist_id || !playlist_items.length)
+      return false;
+    if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS")))
+      return false;
+    const result = await openConfirmModal({
+      title: i18n("SIGNAGE_MANAGER.SVC_REMOVE_PLAYLIST_ITEMS_TITLE"),
+      content: i18n("SIGNAGE_MANAGER.SVC_REMOVE_SELECTED_PLAYLIST_ITEMS", { count: playlist_items.length }, playlist_items.length),
+      icon: { content: "delete" }
+    }, this._dialog);
+    if (result.reason !== "done")
+      return false;
+    const media_list = await Ah(playlist_id);
+    const new_items = [...media_list.items || []];
+    let removed_count = 0;
+    for (const item of [...playlist_items].sort((first2, second) => second.index - first2.index)) {
+      const index = new_items[item.index] === item.id ? item.index : new_items.indexOf(item.id);
+      if (index < 0)
+        continue;
+      new_items.splice(index, 1);
+      removed_count++;
+    }
+    if (!removed_count) {
+      result.close();
+      return false;
+    }
+    await Uh(playlist_id, new_items);
+    this._setPlaylistMediaState(playlist_id, new_items, false, media_list.schedules);
+    const selected_index = this.selected_playlist_item_index();
+    if (selected_index !== null && playlist_items.some((item) => item.index === selected_index)) {
+      this.selected_playlist_item.set(null);
+      this.selected_playlist_item_index.set(null);
+    }
+    notifySuccess(i18n("SIGNAGE_MANAGER.SVC_ITEMS_REMOVED", { count: removed_count }, removed_count));
+    this._playlist_change.set(Date.now());
+    this.changed();
+    result.close();
+    return true;
+  }
   async reorderPlaylistMedia(playlist_id, items) {
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS")))
       return;
@@ -117417,18 +118226,22 @@ var SignageService = class _SignageService {
     this._playlist_change.set(Date.now());
   }
   async editPlaylistItemSchedule(item) {
+    return this.editPlaylistItemSchedules([item]);
+  }
+  async editPlaylistItemSchedules(items) {
     const playlist = this.selected_playlist();
-    if (!playlist?.id || !item?.item_id)
-      return;
+    const schedule_items = items.filter((item) => !!item?.item_id && !!(item.id || item.item_id));
+    if (!playlist?.id || !schedule_items.length)
+      return false;
     if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS")))
-      return;
+      return false;
     const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
       data: {
-        item,
-        save: (schedule_id, schedules) => Eh(playlist.id, schedule_id, {
+        item: schedule_items[0],
+        save: (_schedule_id, schedules) => Promise.all(schedule_items.map((item) => Eh(playlist.id, item.id || item.item_id, {
           item_id: item.item_id,
           schedules
-        })
+        })))
       },
       panelClass: "mobile-fullscreen"
     });
@@ -117437,6 +118250,7 @@ var SignageService = class _SignageService {
       this._playlist_change.set(Date.now());
       this.changed();
     }
+    return !!result;
   }
   refreshPlaylist(playlist_id) {
     if (!playlist_id)
@@ -117500,10 +118314,46 @@ var SignageService = class _SignageService {
     });
     const result = await dialogClosed(ref);
     if (result) {
-      if (this.selected_template()?.id === template.id) {
-        this.selected_template.set(result);
-      }
+      this.updateCachedTemplate(result);
       this.changed();
+    }
+  }
+  async editTemplateMapping(target, mapping = null) {
+    if (!this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS")))
+      return false;
+    const templates = mapping ? [] : await this.listApprovedTemplates();
+    const ref = this._dialog.open(TemplateMappingModalComponent, {
+      data: {
+        mapping,
+        templates,
+        save: (template_id, schedule) => mapping ? Vh(mapping.id, { schedule }) : Yh(__spreadProps(__spreadValues({}, target), {
+          template_id,
+          schedule
+        }))
+      },
+      panelClass: "mobile-fullscreen"
+    });
+    return !!await dialogClosed(ref);
+  }
+  async removeTemplateMapping(mapping) {
+    if (!mapping?.id || !this._requirePermission(this.can_update(), i18n("SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS")))
+      return false;
+    const result = await openConfirmModal({
+      title: i18n("SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_MAPPING_TITLE"),
+      content: i18n("SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_MAPPING_CONTENT", { name: mapping.template_details.name }),
+      icon: { content: "delete" }
+    }, this._dialog);
+    if (result.reason !== "done")
+      return false;
+    try {
+      await Xh(mapping.id);
+      result.close();
+      notifySuccess(i18n("SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVED"));
+      return true;
+    } catch (error2) {
+      result.close();
+      notifyError(i18n("SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVE_ERROR"));
+      throw error2;
     }
   }
   approveTemplate(template) {
@@ -117591,11 +118441,11 @@ var SignageService = class _SignageService {
       return;
     try {
       const layouts = this.template_layout_draft().map(applyLayoutPositionDefaults);
-      const result = decodeEntityNames(await Lh(template.id, {
+      const response = await Lh(template.id, {
         layouts
-      }));
-      this.selected_template.set(result);
-      this._template_items.update((items) => items.map((item) => item.id === result.id ? result : item));
+      });
+      const result = decodeEntityNames(new dr(__spreadProps(__spreadValues({}, response), { layouts })));
+      this.updateCachedTemplate(result);
       notifySuccess(i18n("SIGNAGE_MANAGER.SVC_TEMPLATE_LAYOUTS_SAVED"));
     } catch {
       notifyError(i18n("SIGNAGE_MANAGER.SVC_TEMPLATE_SAVE_ERROR"));
@@ -117614,8 +118464,9 @@ var SignageService = class _SignageService {
     })));
   }
   updateCachedTemplate(template) {
-    this._template_items.update((items) => items.map((item) => item.id === template.id ? template : item));
-    if (this.selected_template()?.id === template.id) {
+    this._template_items.update((items) => items.map((item) => isSameSignageTemplate(item, template) ? template : item));
+    const selected_template = this.selected_template();
+    if (selected_template && isSameSignageTemplate(selected_template, template)) {
       this.selected_template.set(template);
     }
   }
@@ -117875,6 +118726,7 @@ var SignageService = class _SignageService {
       return false;
     const options = { items: item_ids.join(","), to: group_id };
     await share_config.request(options);
+    markSignageSharedGroupsChanged();
     notifySuccess(i18n(share_config.success));
     return true;
   }
@@ -119043,6 +119895,7 @@ export {
   ChangeDetectionStrategy,
   ViewEncapsulation,
   ɵɵsanitizeUrl,
+  ɵɵsanitizeResourceUrl,
   ɵɵresolveWindow,
   afterNextRender,
   ɵɵadvance,
@@ -119269,6 +120122,7 @@ export {
   MatOption,
   MatProgressSpinner,
   MatProgressSpinnerModule,
+  SafePipe,
   IconComponent,
   SharedResizeObserver,
   MatError,
@@ -119312,6 +120166,8 @@ export {
   ZoneSelectTreeComponent,
   GroupSelectModalComponent,
   playlistMediaThumbnailUrl,
+  playlistScheduleExpiryLabel,
+  playlistScheduleExpiryTooltip,
   playlistScheduleLabel,
   playlistScheduleNextPlayLabels,
   pluginSchema,
@@ -119331,4 +120187,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-2FXQT5UN.js.map
+//# sourceMappingURL=chunk-MCDYY27O.js.map
