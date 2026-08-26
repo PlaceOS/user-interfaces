@@ -49251,6 +49251,7 @@ var SIGNAGE_MANAGER = {
   APPROVE_PLAYLIST: "Approve Playlist",
   APPROVE_PLAYLIST_TOOLTIP: "Approve playlist",
   APPLY_SCHEDULE: "Apply schedule",
+  APPLY_TEMPLATE: "Apply template",
   APPROVE_SELECTED_PLAYLIST: "Approve selected playlist",
   APPROVE_SELECTED_TEMPLATE: "Approve selected template",
   APPROVE_TEMPLATE: "Approve Template",
@@ -49299,6 +49300,8 @@ var SIGNAGE_MANAGER = {
   DEFAULT_ANIMATION: "Default animation",
   DEFAULT_DURATION: "Default Duration",
   DEFAULT_PERMISSIONS: "No permissions",
+  DEFAULT_TEMPLATE: "Default template",
+  DEFAULT_TEMPLATE_HINT: "This template plays when no scheduled template is active.",
   DEFAULT_PLAY_TIME: "Default Play Time",
   DELETE_DISPLAY_TOOLTIP: "Delete display",
   DELETE_PLAYLIST_TOOLTIP: "Delete playlist",
@@ -49416,6 +49419,8 @@ var SIGNAGE_MANAGER = {
   NO_PLUGINS: "No plugins available.",
   NO_SCHEDULES_MATCH: "No schedules match your search.",
   NO_TEMPLATES: "No templates found.",
+  NO_APPROVED_TEMPLATES: "No approved templates are available.",
+  NO_TEMPLATE_MAPPINGS: "No templates are applied to this item.",
   NO_UPCOMING_PLAY_TIMES: "No upcoming play times found.",
   NO_USERS_ASSIGNED: "No users assigned to this group.",
   NO_ZONES: "No zones found.",
@@ -49507,6 +49512,7 @@ var SIGNAGE_MANAGER = {
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   REQUEST_TEMPLATE_APPROVAL_TOOLTIP: "Request template approval",
   SCHEDULE: "Schedule",
+  SCHEDULED_TEMPLATE: "Scheduled template",
   EDIT_SCHEDULE: "Edit Schedule",
   ITEM_SCHEDULES: "Item Schedules",
   NO_SCHEDULES: "No schedules",
@@ -49659,6 +49665,12 @@ var SIGNAGE_MANAGER = {
   SVC_TEMPLATE_REMOVED: "Template removed",
   SVC_TEMPLATE_SHARED: "Template shared",
   SVC_TEMPLATE_SAVE_ERROR: "Error saving template layout",
+  SVC_REMOVE_TEMPLATE_MAPPING_CONTENT: "Remove {{ name }} from this item?",
+  SVC_REMOVE_TEMPLATE_MAPPING_TITLE: "Remove applied template?",
+  SVC_TEMPLATE_MAPPING_REMOVED: "Template removed from item",
+  SVC_TEMPLATE_MAPPING_REMOVE_ERROR: "Error removing template from item",
+  SVC_TEMPLATE_MAPPING_SAVED: "Applied template saved",
+  SVC_TEMPLATE_MAPPING_SAVE_ERROR: "Error saving applied template",
   SVC_THUMBNAIL_FAILED: "Could not generate a thumbnail from the selected image.",
   SVC_THUMBNAIL_NOT_IMAGE: "Thumbnails must be an image file.",
   SVC_THUMBNAIL_UPLOAD_FAILED: "Media uploaded, but its thumbnail could not be saved.",
@@ -49689,6 +49701,10 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
+  TEMPLATE_MAPPING_DEFAULT_HINT: "Turn this off to make the template the default for this item.",
+  TEMPLATE_MAPPING_EDIT: "Edit template schedule",
+  TEMPLATE_MAPPING_SCHEDULE: "Schedule this template",
+  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load applied templates.",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
@@ -49718,6 +49734,8 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_SAVED: "Template saved",
   TEMPLATE_SAVE_ERROR: "Error saving template",
   TEMPLATE_SAVING: "Saving Template...",
+  TEMPLATE_REQUIRED: "Select a template",
+  SELECT_APPROVED_TEMPLATE: "Approved template",
   TEMPLATE_SELECT_DISPLAY: "Select display",
   TEMPLATE_X_POS: "X position",
   TEMPLATE_Y_POS: "Y position",
@@ -51341,7 +51359,8 @@ var APP = {
     PARKING_BOOKING_TYPE_BOOKED: "Allocated",
     PARKING_BAY: "Parking Bay",
     PARKING_BAY_NUMBER: "Bay Number",
-    PARKING_USER_GROUPS: "User Groups",
+    PARKING_USER_GROUPS: "Group at Request time",
+    PARKING_ALLOCATION_GROUP: "Group at Allocation time",
     PARKING_RESERVED_FOR: "Reserved For",
     PARKING_RESERVED_BY: "Reserved By",
     PARKING_CHECKED_OUT_AT: "Left at {{ time }}",
@@ -56634,15 +56653,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "3a7b851",
-  "hash": "3a7b851",
+  "raw": "20f78e5",
+  "hash": "20f78e5",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3a7b851",
+  "suffix": "20f78e5",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787544218581
+  "time": 1787714070703
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -56854,6 +56873,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
   }
   saveUserSetting(name, value) {
     this._pending_settings[name] = value;
+    this._updateSignals();
     if (name === "dark_mode")
       this.setTheme(value ? "dark" : "");
     if (name === "font_size")
