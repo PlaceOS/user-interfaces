@@ -163,7 +163,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuery
-} from "./chunk-GTKB3LNQ.js";
+} from "./chunk-KLH36INZ.js";
 import {
   __objRest,
   __spreadProps,
@@ -5984,18 +5984,20 @@ async function validateAssetRequestsForResource({ id, ical_uid, from_booking }, 
   const available_groups = await queryGroupAvailability({
     period_start: getUnixTime(date),
     period_end: getUnixTime(addMinutes(date, duration)),
-    type: "asset-request"
+    type: "asset-request",
+    zones: (zones || []).join(",")
   }, bookings.map((_) => _.id));
   const processed_requests = changed_assets.map((request) => {
     const asset_ids = flatten(request.items.map(({ id: id2, item_ids, quantity }) => {
+      const selected_ids = item_ids || [];
       const assets = available_groups.find((_) => _.id === id2)?.assets;
       if (!assets)
-        return item_ids;
+        return selected_ids;
       const list = [];
       return new Array(quantity).fill(0).map((_, idx) => {
-        const item = used_ids.includes(item_ids[idx]) || list.includes(item_ids[idx]) || !item_ids[idx] ? assets?.find(({ id: id3 }) => {
+        const item = used_ids.includes(selected_ids[idx]) || list.includes(selected_ids[idx]) || !selected_ids[idx] ? assets?.find(({ id: id3 }) => {
           return !used_ids.includes(id3) && !list.includes(id3);
-        })?.id : item_ids[idx];
+        })?.id : selected_ids[idx];
         if (!item) {
           request.conflict = true;
           throw "Unable to find available asset for request";
@@ -6004,7 +6006,11 @@ async function validateAssetRequestsForResource({ id, ical_uid, from_booking }, 
         return item;
       });
     }));
-    const booking = bookings.find((_) => _.asset_ids.find((id2) => request.items?.find((i) => i.item_ids.includes(id2))));
+    if (!asset_ids.length || asset_ids.some((id2) => !id2)) {
+      request.conflict = true;
+      throw "Unable to find available asset for request";
+    }
+    const booking = bookings.find((_) => _.asset_ids.find((id2) => request.items?.find((i) => i.item_ids?.includes(id2))));
     used_ids = [...used_ids, ...asset_ids];
     const asset_data = {
       type: "asset-request",
@@ -6066,4 +6072,4 @@ export {
   queryGroupAvailability,
   validateAssetRequestsForResource
 };
-//# sourceMappingURL=chunk-3AWGQG2G.js.map
+//# sourceMappingURL=chunk-PBM5KKAM.js.map
