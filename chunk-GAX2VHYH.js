@@ -3,7 +3,7 @@ import {
   i18n,
   isSameDay,
   startOfDay
-} from "./chunk-2FXQT5UN.js";
+} from "./chunk-MCDYY27O.js";
 import {
   __spreadProps,
   __spreadValues
@@ -131,6 +131,9 @@ function parsePlayAt(play_at) {
     return null;
   return fromUnixTime(play_at);
 }
+function isScheduleValidAt(schedule, date) {
+  return !schedule.valid_until || date.getTime() <= schedule.valid_until * 1e3;
+}
 function isDayInRange(day, valid_from, valid_until) {
   const day_start = startOfDay(day).getTime();
   if (valid_from) {
@@ -210,8 +213,9 @@ function generateScheduleBlocks(assignment, days, palette_index) {
       const play_period = playPeriodMinutes(schedule);
       if (play_at) {
         const at_date = parsePlayAt(play_at);
-        if (!at_date || !isSameDay(day, at_date))
+        if (!at_date || !isSameDay(day, at_date) || !isScheduleValidAt(schedule, at_date)) {
           continue;
+        }
         const start_minutes = at_date.getHours() * 60 + at_date.getMinutes();
         const duration_minutes = play_period;
         blocks.push({
@@ -232,6 +236,10 @@ function generateScheduleBlocks(assignment, days, palette_index) {
         continue;
       const cron_blocks = getCronBlocksForDay(play_cron, schedule);
       for (const block of cron_blocks) {
+        const starts_at = new Date(day);
+        starts_at.setHours(0, block.start_minutes, 0, 0);
+        if (!isScheduleValidAt(schedule, starts_at))
+          continue;
         blocks.push(__spreadProps(__spreadValues({}, block), {
           playlist,
           day_index: index,
@@ -300,4 +308,4 @@ export {
   buildDisplayScheduleAssignments,
   buildZoneScheduleAssignments
 };
-//# sourceMappingURL=chunk-MIO2572A.js.map
+//# sourceMappingURL=chunk-GAX2VHYH.js.map

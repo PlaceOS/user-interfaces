@@ -1,11 +1,14 @@
 import {
+  TemplateMappingsComponent
+} from "./chunk-QB7GQXMS.js";
+import {
   PlaylistThumbnailComponent
-} from "./chunk-277XOJSC.js";
+} from "./chunk-XTJDOASO.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-Q7SQZLCT.js";
+} from "./chunk-EI4O6XKT.js";
 import {
   ActivatedRoute,
   CdkTree,
@@ -70,7 +73,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-2FXQT5UN.js";
+} from "./chunk-MCDYY27O.js";
 import {
   __spreadProps,
   __spreadValues
@@ -85,7 +88,7 @@ var _forTrack0 = ($index, $item) => $item.id;
 function ZoneContentComponent_Conditional_0_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 12);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function ZoneContentComponent_Conditional_0_Conditional_9_Template_button_click_0_listener() {
@@ -104,7 +107,7 @@ function ZoneContentComponent_Conditional_0_Conditional_9_Template(rf, ctx) {
 }
 function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 18);
+    \u0275\u0275elementStart(0, "span", 19);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -116,7 +119,7 @@ function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_8_T
 }
 function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 19);
+    \u0275\u0275elementStart(0, "span", 20);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -128,7 +131,7 @@ function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_9_Template
 }
 function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_10_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 20);
+    \u0275\u0275elementStart(0, "span", 21);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -140,7 +143,7 @@ function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_10_Templat
 }
 function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "span", 21);
+    \u0275\u0275elementStart(0, "span", 22);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -152,7 +155,7 @@ function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_11_Templat
 }
 function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 22);
+    \u0275\u0275elementStart(0, "div", 23);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -165,7 +168,7 @@ function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_12_
 function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 24);
+    \u0275\u0275elementStart(0, "button", 25);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_13_Template_button_click_0_listener($event) {
@@ -174,7 +177,7 @@ function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_13_
       const ctx_r1 = \u0275\u0275nextContext(3);
       return \u0275\u0275resetView(ctx_r1.removePlaylist($event, playlist_r3.id));
     });
-    \u0275\u0275elementStart(3, "icon", 25);
+    \u0275\u0275elementStart(3, "icon", 26);
     \u0275\u0275text(4, " close ");
     \u0275\u0275elementEnd()();
   }
@@ -186,19 +189,19 @@ function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_13_
 }
 function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 12)(1, "a", 13);
+    \u0275\u0275elementStart(0, "div", 13)(1, "a", 14);
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275element(3, "playlist-thumbnail", 14);
-    \u0275\u0275elementStart(4, "div", 15)(5, "div", 16);
+    \u0275\u0275element(3, "playlist-thumbnail", 15);
+    \u0275\u0275elementStart(4, "div", 16)(5, "div", 17);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "div", 17);
-    \u0275\u0275conditionalCreate(8, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_8_Template, 3, 3, "span", 18);
-    \u0275\u0275conditionalCreate(9, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_9_Template, 3, 3, "span", 19)(10, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_10_Template, 3, 3, "span", 20)(11, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_11_Template, 3, 3, "span", 21);
+    \u0275\u0275elementStart(7, "div", 18);
+    \u0275\u0275conditionalCreate(8, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_8_Template, 3, 3, "span", 19);
+    \u0275\u0275conditionalCreate(9, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_9_Template, 3, 3, "span", 20)(10, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_10_Template, 3, 3, "span", 21)(11, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Case_11_Template, 3, 3, "span", 22);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(12, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_12_Template, 2, 1, "div", 22);
+    \u0275\u0275conditionalCreate(12, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_12_Template, 2, 1, "div", 23);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(13, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_13_Template, 5, 9, "button", 23);
+    \u0275\u0275conditionalCreate(13, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Conditional_13_Template, 5, 9, "button", 24);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -224,7 +227,7 @@ function ZoneContentComponent_Conditional_0_Conditional_11_For_1_Template(rf, ct
 }
 function ZoneContentComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Template, 14, 15, "div", 12, _forTrack0);
+    \u0275\u0275repeaterCreate(0, ZoneContentComponent_Conditional_0_Conditional_11_For_1_Template, 14, 15, "div", 13, _forTrack0);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
@@ -233,10 +236,10 @@ function ZoneContentComponent_Conditional_0_Conditional_11_Template(rf, ctx) {
 }
 function ZoneContentComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9)(1, "icon", 26);
+    \u0275\u0275elementStart(0, "div", 9)(1, "icon", 27);
     \u0275\u0275text(2, "playlist_remove");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 27);
+    \u0275\u0275elementStart(3, "p", 28);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -249,7 +252,7 @@ function ZoneContentComponent_Conditional_0_Conditional_12_Template(rf, ctx) {
 function ZoneContentComponent_Conditional_0_Conditional_20_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    \u0275\u0275elementStart(0, "button", 12);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275listener("click", function ZoneContentComponent_Conditional_0_Conditional_20_Template_button_click_0_listener() {
@@ -268,7 +271,7 @@ function ZoneContentComponent_Conditional_0_Conditional_20_Template(rf, ctx) {
 }
 function ZoneContentComponent_Conditional_0_Conditional_22_For_1_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 30);
+    \u0275\u0275elementStart(0, "div", 31);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -280,15 +283,15 @@ function ZoneContentComponent_Conditional_0_Conditional_22_For_1_Conditional_7_T
 }
 function ZoneContentComponent_Conditional_0_Conditional_22_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "a", 28);
+    \u0275\u0275elementStart(0, "a", 29);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275elementStart(2, "icon", 29);
+    \u0275\u0275elementStart(2, "icon", 30);
     \u0275\u0275text(3, "tv");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 15)(5, "div", 16);
+    \u0275\u0275elementStart(4, "div", 16)(5, "div", 17);
     \u0275\u0275text(6);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(7, ZoneContentComponent_Conditional_0_Conditional_22_For_1_Conditional_7_Template, 2, 1, "div", 30);
+    \u0275\u0275conditionalCreate(7, ZoneContentComponent_Conditional_0_Conditional_22_For_1_Conditional_7_Template, 2, 1, "div", 31);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -303,7 +306,7 @@ function ZoneContentComponent_Conditional_0_Conditional_22_For_1_Template(rf, ct
 }
 function ZoneContentComponent_Conditional_0_Conditional_22_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, ZoneContentComponent_Conditional_0_Conditional_22_For_1_Template, 8, 11, "a", 28, _forTrack0);
+    \u0275\u0275repeaterCreate(0, ZoneContentComponent_Conditional_0_Conditional_22_For_1_Template, 8, 11, "a", 29, _forTrack0);
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
@@ -312,10 +315,10 @@ function ZoneContentComponent_Conditional_0_Conditional_22_Template(rf, ctx) {
 }
 function ZoneContentComponent_Conditional_0_Conditional_23_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9)(1, "icon", 26);
+    \u0275\u0275elementStart(0, "div", 9)(1, "icon", 27);
     \u0275\u0275text(2, "tv_off");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "p", 27);
+    \u0275\u0275elementStart(3, "p", 28);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
     \u0275\u0275elementEnd()();
@@ -323,6 +326,18 @@ function ZoneContentComponent_Conditional_0_Conditional_23_Template(rf, ctx) {
   if (rf & 2) {
     \u0275\u0275advance(4);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 1, "SIGNAGE_MANAGER.NO_DISPLAYS_ZONE"), " ");
+  }
+}
+function ZoneContentComponent_Conditional_0_Conditional_24_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275element(1, "template-mappings", 32);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275property("target_id", ctx_r1.selected_zone().id);
   }
 }
 function ZoneContentComponent_Conditional_0_Template(rf, ctx) {
@@ -348,31 +363,35 @@ function ZoneContentComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(21, "div", 8);
     \u0275\u0275conditionalCreate(22, ZoneContentComponent_Conditional_0_Conditional_22_Template, 2, 0)(23, ZoneContentComponent_Conditional_0_Conditional_23_Template, 6, 3, "div", 9);
-    \u0275\u0275elementEnd()()()();
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(24, ZoneContentComponent_Conditional_0_Conditional_24_Template, 2, 1, "div", 11);
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275classProp("tablet-hidden", ctx_r1.activeTab() === "displays")("tablet-full", ctx_r1.activeTab() === "playlists");
+    \u0275\u0275classProp("hidden", ctx_r1.activeTab() !== "playlists");
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 14, "SIGNAGE_MANAGER.PLAYLISTS_COUNT", \u0275\u0275pureFunction1(22, _c0, ctx_r1.zone_playlists().length), ctx_r1.zone_playlists().length), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 11, "SIGNAGE_MANAGER.PLAYLISTS_COUNT", \u0275\u0275pureFunction1(19, _c0, ctx_r1.zone_playlists().length), ctx_r1.zone_playlists().length), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.can_update() ? 9 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.zone_playlists().length > 0 ? 11 : 12);
     \u0275\u0275advance(2);
-    \u0275\u0275classProp("tablet-hidden", ctx_r1.activeTab() === "playlists")("tablet-full", ctx_r1.activeTab() === "displays");
+    \u0275\u0275classProp("hidden", ctx_r1.activeTab() !== "displays");
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(19, 18, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(24, _c0, ctx_r1.zone_displays().length), ctx_r1.zone_displays().length), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(19, 15, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(21, _c0, ctx_r1.zone_displays().length), ctx_r1.zone_displays().length), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.can_update() ? 20 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.zone_displays().length > 0 ? 22 : 23);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.activeTab() === "templates" ? 24 : -1);
   }
 }
 function ZoneContentComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 31);
+    \u0275\u0275elementStart(0, "div", 1)(1, "icon", 33);
     \u0275\u0275text(2, "layers");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -459,9 +478,9 @@ var ZoneContentComponent = class _ZoneContentComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZoneContentComponent, selectors: [["zone-content"]], inputs: { activeTab: [1, "activeTab"] }, decls: 2, vars: 1, consts: [[1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "flex", "min-h-0", "flex-1", "flex-col", "gap-3", "p-3", "lg:flex-row"], ["id", "zone-playlists-panel", "role", "tabpanel", "aria-labelledby", "zone-playlists-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-auto", "rounded-lg", "border", "lg:min-w-0"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "gap-2", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-6"], ["id", "zone-displays-panel", "role", "tabpanel", "aria-labelledby", "zone-displays-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-auto", "rounded-lg", "border", "lg:min-w-0"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pr-2", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "border-base-200", "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md", "border", 3, "playlist"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "mt-1", "flex", "flex-wrap", "gap-1"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-secondary", "text-secondary-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "text-base-content/70", "mt-0.5", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-error"], [1, "text-4xl"], [1, "text-sm"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "hover:bg-base-200", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "px-4", "py-3", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "text-base-content/70", "truncate", "text-xs"], [1, "text-6xl"]], template: function ZoneContentComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZoneContentComponent, selectors: [["zone-content"]], inputs: { activeTab: [1, "activeTab"] }, decls: 2, vars: 1, consts: [[1, "flex", "h-full", "flex-col", "overflow-hidden"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], [1, "flex", "min-h-0", "flex-1", "flex-col", "gap-3", "p-3"], ["id", "zone-playlists-panel", "role", "tabpanel", "aria-labelledby", "zone-playlists-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-auto", "rounded-lg", "border"], [1, "border-base-300", "flex", "items-center", "gap-2", "border-b", "px-4", "py-3"], [1, "text-base-content/80", "flex", "flex-1", "items-center", "gap-2", "font-medium", "tracking-wider", "uppercase"], [1, "text-lg"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "matTooltip"], [1, "gap-2", "p-2"], [1, "text-base-content/70", "flex", "flex-col", "items-center", "justify-center", "space-y-2", "p-6"], ["id", "zone-displays-panel", "role", "tabpanel", "aria-labelledby", "zone-displays-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-auto", "rounded-lg", "border"], ["id", "zone-templates-panel", "role", "tabpanel", "aria-labelledby", "zone-templates-tab", 1, "bg-base-100", "border-base-300", "min-h-0", "flex-1", "overflow-hidden", "rounded-lg", "border"], ["icon", "", "default", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "border-base-300", "bg-base-100", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "p-0.5", "pr-2", "pl-1"], ["matRipple", "", 1, "hover:bg-base-200", "flex", "min-w-0", "flex-1", "items-center", "gap-3", "rounded-lg", "p-1", "no-underline", "transition-colors", 3, "routerLink"], [1, "border-base-200", "relative", "h-12", "w-12", "shrink-0", "overflow-hidden", "rounded-md", "border", 3, "playlist"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-sm", "font-medium"], [1, "mt-1", "flex", "flex-wrap", "gap-1"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-error", "text-error-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-info", "text-info-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "bg-secondary", "text-secondary-content", "shrink-0", "rounded", "px-1.5", "py-0.5", "text-[10px]", "font-bold", "uppercase"], [1, "text-base-content/70", "mt-0.5", "truncate", "text-xs"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "matTooltip"], ["icon", "", "default", "", "error", "", "type", "button", "matRipple", "", 3, "click", "matTooltip"], [1, "text-error"], [1, "text-4xl"], [1, "text-sm"], ["matRipple", "", 1, "border-base-300", "bg-base-100", "hover:bg-base-200", "mb-2", "flex", "items-center", "gap-3", "rounded-lg", "border", "px-4", "py-3", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-xl", "opacity-60"], [1, "text-base-content/70", "truncate", "text-xs"], ["target_type", "zone", 3, "target_id"], [1, "text-6xl"]], template: function ZoneContentComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, ZoneContentComponent_Conditional_0_Template, 24, 26, "div", 0)(1, ZoneContentComponent_Conditional_1_Template, 6, 3, "div", 1);
+        \u0275\u0275conditionalCreate(0, ZoneContentComponent_Conditional_0_Template, 25, 23, "div", 0)(1, ZoneContentComponent_Conditional_1_Template, 6, 3, "div", 1);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.selected_zone() ? 0 : 1);
@@ -474,8 +493,9 @@ var ZoneContentComponent = class _ZoneContentComponent {
       RouterLink,
       IconComponent,
       PlaylistThumbnailComponent,
+      TemplateMappingsComponent,
       TranslatePipe
-    ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n@media (max-width: 1023px) {\n  .tablet-hidden[_ngcontent-%COMP%] {\n    display: none !important;\n  }\n}\n@media (max-width: 1023px) {\n  .tablet-full[_ngcontent-%COMP%] {\n    flex: 1;\n    min-width: 0;\n  }\n}\n/*# sourceMappingURL=zone-content.component.css.map */"] });
+    ], styles: ["\n[_nghost-%COMP%] {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n/*# sourceMappingURL=zone-content.component.css.map */"] });
   }
 };
 (() => {
@@ -484,14 +504,13 @@ var ZoneContentComponent = class _ZoneContentComponent {
     args: [{ selector: "zone-content", template: `
         @if (selected_zone()) {
             <div class="flex h-full flex-col overflow-hidden">
-                <div class="flex min-h-0 flex-1 flex-col gap-3 p-3 lg:flex-row">
+                <div class="flex min-h-0 flex-1 flex-col gap-3 p-3">
                     <div
                         id="zone-playlists-panel"
                         role="tabpanel"
                         aria-labelledby="zone-playlists-tab"
-                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border lg:min-w-0"
-                        [class.tablet-hidden]="activeTab() === 'displays'"
-                        [class.tablet-full]="activeTab() === 'playlists'"
+                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border"
+                        [class.hidden]="activeTab() !== 'playlists'"
                     >
                         <div
                             class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
@@ -673,9 +692,8 @@ var ZoneContentComponent = class _ZoneContentComponent {
                         id="zone-displays-panel"
                         role="tabpanel"
                         aria-labelledby="zone-displays-tab"
-                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border lg:min-w-0"
-                        [class.tablet-hidden]="activeTab() === 'playlists'"
-                        [class.tablet-full]="activeTab() === 'displays'"
+                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border"
+                        [class.hidden]="activeTab() !== 'displays'"
                     >
                         <div
                             class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
@@ -769,6 +787,19 @@ var ZoneContentComponent = class _ZoneContentComponent {
                             }
                         </div>
                     </div>
+                    @if (activeTab() === 'templates') {
+                        <div
+                            id="zone-templates-panel"
+                            role="tabpanel"
+                            aria-labelledby="zone-templates-tab"
+                            class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-hidden rounded-lg border"
+                        >
+                            <template-mappings
+                                target_type="zone"
+                                [target_id]="selected_zone().id"
+                            />
+                        </div>
+                    }
                 </div>
             </div>
         } @else {
@@ -785,8 +816,9 @@ var ZoneContentComponent = class _ZoneContentComponent {
       RouterLink,
       IconComponent,
       TranslatePipe,
-      PlaylistThumbnailComponent
-    ], styles: ["/* angular:styles/component:css;9855fddcf81591377c77cb722254fbf3f8630850c7cb1584a5532885aa230ece;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/zones/zone-content.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n@media (max-width: 1023px) {\n  .tablet-hidden {\n    display: none !important;\n  }\n}\n@media (max-width: 1023px) {\n  .tablet-full {\n    flex: 1;\n    min-width: 0;\n  }\n}\n/*# sourceMappingURL=zone-content.component.css.map */\n"] }]
+      PlaylistThumbnailComponent,
+      TemplateMappingsComponent
+    ], styles: ["/* angular:styles/component:css;62f1948e80f1d37fbfc7dd0fe5a3ff76993e7e5f074002a0c62e64986fc743cb;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/zones/zone-content.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n}\n/*# sourceMappingURL=zone-content.component.css.map */\n"] }]
   }], null, { activeTab: [{ type: Input, args: [{ isSignal: true, alias: "activeTab", required: false }] }] });
 })();
 (() => {
@@ -1576,6 +1608,27 @@ function ZonesSectionComponent_Conditional_7_Conditional_10_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r1.selected_zone().description, " ");
   }
 }
+function ZonesSectionComponent_Conditional_7_Conditional_19_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 18);
+    \u0275\u0275listener("click", function ZonesSectionComponent_Conditional_7_Conditional_19_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.setViewTab("templates"));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "templates")("border-b-2", ctx_r1.view_tab() === "templates")("text-primary", ctx_r1.view_tab() === "templates")("opacity-60", ctx_r1.view_tab() !== "templates");
+    \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "templates");
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 10, "SIGNAGE_MANAGER.NAV_TEMPLATES"), " ");
+  }
+}
 function ZonesSectionComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -1616,33 +1669,39 @@ function ZonesSectionComponent_Conditional_7_Template(rf, ctx) {
     });
     \u0275\u0275text(17);
     \u0275\u0275pipe(18, "translate");
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(19, ZonesSectionComponent_Conditional_7_Conditional_19_Template, 3, 12, "button", 17);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 24, "SIGNAGE_MANAGER.BACK_TO_ZONES"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 25, "SIGNAGE_MANAGER.BACK_TO_ZONES"));
     \u0275\u0275advance(8);
     \u0275\u0275textInterpolate1(" ", ctx_r1.selected_zone().display_name || ctx_r1.selected_zone().name, " ");
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.selected_zone().description ? 10 : -1);
     \u0275\u0275advance();
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 26, "SIGNAGE_MANAGER.ZONE_DETAILS_TABS"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(12, 27, "SIGNAGE_MANAGER.ZONE_DETAILS_TABS"));
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "playlists")("border-b-2", ctx_r1.view_tab() === "playlists")("text-primary", ctx_r1.view_tab() === "playlists")("opacity-60", ctx_r1.view_tab() !== "playlists");
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "playlists");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(15, 28, "SIGNAGE_MANAGER.PLAYLISTS_COUNT", \u0275\u0275pureFunction1(36, _c04, ctx_r1.playlist_count()), ctx_r1.playlist_count()), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(15, 29, "SIGNAGE_MANAGER.PLAYLISTS_COUNT", \u0275\u0275pureFunction1(37, _c04, ctx_r1.playlist_count()), ctx_r1.playlist_count()), " ");
     \u0275\u0275advance(2);
     \u0275\u0275classProp("border-primary", ctx_r1.view_tab() === "displays")("border-b-2", ctx_r1.view_tab() === "displays")("text-primary", ctx_r1.view_tab() === "displays")("opacity-60", ctx_r1.view_tab() !== "displays");
     \u0275\u0275attribute("aria-selected", ctx_r1.view_tab() === "displays");
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(18, 32, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(38, _c04, ctx_r1.display_count()), ctx_r1.display_count()), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(18, 33, "SIGNAGE_MANAGER.DISPLAYS_COUNT", \u0275\u0275pureFunction1(39, _c04, ctx_r1.display_count()), ctx_r1.display_count()), " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r1.templates_enabled() ? 19 : -1);
   }
 }
 var TAB_QUERY_PARAM = "tab";
 function parseZoneTab(value) {
-  return value === "displays" ? "displays" : "playlists";
+  if (value === "displays" || value === "templates")
+    return value;
+  return "playlists";
 }
 var ZonesSectionComponent = class _ZonesSectionComponent {
   constructor() {
@@ -1663,6 +1722,7 @@ var ZonesSectionComponent = class _ZonesSectionComponent {
         []
       )
     );
+    this.templates_enabled = this._service.templates_enabled;
     this.view_tab = signal(
       "playlists",
       ...ngDevMode ? [{ debugName: "view_tab" }] : (
@@ -1701,8 +1761,9 @@ var ZonesSectionComponent = class _ZonesSectionComponent {
     this._route_resolved = false;
     effect(() => {
       const route_tab = parseZoneTab(this.tab());
-      if (route_tab !== this.view_tab()) {
-        this.view_tab.set(route_tab);
+      const available_tab = route_tab === "templates" && !this.templates_enabled() ? "playlists" : route_tab;
+      if (available_tab !== this.view_tab()) {
+        this.view_tab.set(available_tab);
       }
     });
     effect(() => {
@@ -1742,7 +1803,7 @@ var ZonesSectionComponent = class _ZonesSectionComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZonesSectionComponent, selectors: [["zones-section"]], inputs: { id: [1, "id"], tab: [1, "tab"] }, decls: 10, vars: 6, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], [1, "h-1/2", "flex-1", 3, "activeTab"], [1, "bg-base-100", "border-base-300", "mx-2", "flex", "items-center", "gap-2", "rounded-b-lg", "border", "px-4", "py-3"], ["icon", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-lg", "font-medium"], [1, "text-base-content/80", "truncate", "text-sm"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "mt-2", "flex", "overflow-hidden", "rounded-lg", "border", "lg:hidden"], ["type", "button", "role", "tab", "aria-controls", "zone-playlists-panel", "id", "zone-playlists-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "zone-displays-panel", "id", "zone-displays-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"]], template: function ZonesSectionComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ZonesSectionComponent, selectors: [["zones-section"]], inputs: { id: [1, "id"], tab: [1, "tab"] }, decls: 10, vars: 6, consts: [[1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col", "sm:flex-row"], [1, "sm:h-full"], [1, "flex", "min-h-0", "flex-1", "flex-col"], [1, "relative", "z-10"], [1, "flex", "min-h-0", "flex-1", "flex-row"], [1, "mobile-full"], [1, "flex", "min-h-0", "w-px", "flex-1", "flex-col"], [1, "h-1/2", "flex-1", 3, "activeTab"], [1, "bg-base-100", "border-base-300", "mx-2", "flex", "items-center", "gap-2", "rounded-b-lg", "border", "px-4", "py-3"], ["icon", "", "type", "button", "matRipple", "", 1, "sm:hidden", 3, "click"], [1, "shrink-0", "text-2xl", "opacity-60"], [1, "min-w-0", "flex-1"], [1, "truncate", "text-lg", "font-medium"], [1, "text-base-content/80", "truncate", "text-sm"], ["role", "tablist", 1, "bg-base-100", "border-base-300", "mx-2", "mt-2", "flex", "overflow-hidden", "rounded-lg", "border"], ["type", "button", "role", "tab", "aria-controls", "zone-playlists-panel", "id", "zone-playlists-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "zone-displays-panel", "id", "zone-displays-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", "role", "tab", "aria-controls", "zone-templates-panel", "id", "zone-templates-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "border-primary", "border-b-2", "text-primary", "opacity-60"], ["type", "button", "role", "tab", "aria-controls", "zone-templates-panel", "id", "zone-templates-tab", 1, "flex-1", "px-4", "py-2.5", "text-sm", "font-medium", "transition-colors", 3, "click"]], template: function ZonesSectionComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0);
         \u0275\u0275element(1, "nav-sidebar", 1);
@@ -1751,7 +1812,7 @@ var ZonesSectionComponent = class _ZonesSectionComponent {
         \u0275\u0275elementStart(4, "div", 4);
         \u0275\u0275element(5, "zone-list", 5);
         \u0275\u0275elementStart(6, "div", 6);
-        \u0275\u0275conditionalCreate(7, ZonesSectionComponent_Conditional_7_Template, 19, 40);
+        \u0275\u0275conditionalCreate(7, ZonesSectionComponent_Conditional_7_Template, 20, 41);
         \u0275\u0275element(8, "zone-content", 7);
         \u0275\u0275elementEnd()()();
         \u0275\u0275element(9, "nav-footer");
@@ -1834,7 +1895,7 @@ var ZonesSectionComponent = class _ZonesSectionComponent {
                                 </div>
                             </div>
                             <div
-                                class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border lg:hidden"
+                                class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"
                                 role="tablist"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.ZONE_DETAILS_TABS'
@@ -1901,6 +1962,36 @@ var ZonesSectionComponent = class _ZonesSectionComponent {
                                                 : display_count()
                                     }}
                                 </button>
+                                @if (templates_enabled()) {
+                                    <button
+                                        type="button"
+                                        role="tab"
+                                        class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                        [class.border-primary]="
+                                            view_tab() === 'templates'
+                                        "
+                                        [class.border-b-2]="
+                                            view_tab() === 'templates'
+                                        "
+                                        [class.text-primary]="
+                                            view_tab() === 'templates'
+                                        "
+                                        [class.opacity-60]="
+                                            view_tab() !== 'templates'
+                                        "
+                                        (click)="setViewTab('templates')"
+                                        [attr.aria-selected]="
+                                            view_tab() === 'templates'
+                                        "
+                                        aria-controls="zone-templates-panel"
+                                        id="zone-templates-tab"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.NAV_TEMPLATES'
+                                                | translate
+                                        }}
+                                    </button>
+                                }
                             </div>
                         }
                         <zone-content
@@ -1925,9 +2016,9 @@ var ZonesSectionComponent = class _ZonesSectionComponent {
   }], () => [], { id: [{ type: Input, args: [{ isSignal: true, alias: "id", required: false }] }], tab: [{ type: Input, args: [{ isSignal: true, alias: "tab", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ZonesSectionComponent, { className: "ZonesSectionComponent", filePath: "apps/signage-manager/src/app/zones/zones.component.ts", lineNumber: 183 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ZonesSectionComponent, { className: "ZonesSectionComponent", filePath: "apps/signage-manager/src/app/zones/zones.component.ts", lineNumber: 216 });
 })();
 export {
   ZonesSectionComponent
 };
-//# sourceMappingURL=zones.component-7EIMZSEH.js.map
+//# sourceMappingURL=zones.component-JXCSE7Q5.js.map
