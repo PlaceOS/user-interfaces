@@ -47413,6 +47413,8 @@ var SIGNAGE_MANAGER = {
   APPROVERS_NOTE_PLACEHOLDER: "Add a note for the approvers...",
   APPROVE_PLAYLIST: "Approve Playlist",
   APPROVE_PLAYLIST_TOOLTIP: "Approve playlist",
+  APPLY_SCHEDULE: "Apply schedule",
+  APPLY_TEMPLATE: "Apply template",
   APPROVE_SELECTED_PLAYLIST: "Approve selected playlist",
   APPROVE_SELECTED_TEMPLATE: "Approve selected template",
   APPROVE_TEMPLATE: "Approve Template",
@@ -47440,6 +47442,7 @@ var SIGNAGE_MANAGER = {
   BULK_UPLOAD_UPLOADING: "Uploading {{ current }} of {{ total }}...",
   CLEAR_SCHEDULE_SEARCH: "Clear schedule search",
   CLEAR_SELECTED: "Clear selected media",
+  CLEAR_SELECTED_PLAYLIST_ITEMS: "Clear selected playlist items",
   CLOSE_ADD_DISPLAY: "Close add display dialog",
   CLOSE_ADD_PLAYLIST: "Close add playlist dialog",
   CLOSE_ADD_USER: "Close add user dialog",
@@ -47460,6 +47463,8 @@ var SIGNAGE_MANAGER = {
   DEFAULT_ANIMATION: "Default animation",
   DEFAULT_DURATION: "Default Duration",
   DEFAULT_PERMISSIONS: "No permissions",
+  DEFAULT_TEMPLATE: "Default template",
+  DEFAULT_TEMPLATE_HINT: "This template plays when no scheduled template is active.",
   DEFAULT_PLAY_TIME: "Default Play Time",
   DELETE_DISPLAY_TOOLTIP: "Delete display",
   DELETE_PLAYLIST_TOOLTIP: "Delete playlist",
@@ -47577,6 +47582,8 @@ var SIGNAGE_MANAGER = {
   NO_PLUGINS: "No plugins available.",
   NO_SCHEDULES_MATCH: "No schedules match your search.",
   NO_TEMPLATES: "No templates found.",
+  NO_APPROVED_TEMPLATES: "No approved templates are available.",
+  NO_TEMPLATE_MAPPINGS: "No templates are applied to this item.",
   NO_UPCOMING_PLAY_TIMES: "No upcoming play times found.",
   NO_USERS_ASSIGNED: "No users assigned to this group.",
   NO_ZONES: "No zones found.",
@@ -47656,6 +47663,7 @@ var SIGNAGE_MANAGER = {
   REMOVE_PLAYLIST_FROM_DISPLAY: "Remove playlist {{ name }} from display",
   REMOVE_PLAYLIST_FROM_ZONE: "Remove playlist {{ name }} from zone",
   REMOVE_PLAYLIST_TOOLTIP: "Remove playlist",
+  REMOVE_SELECTED_FROM_PLAYLIST: "Remove selected items from playlist",
   REMOVE_USER: "Remove user",
   REMOVE_ZONE: "Remove zone",
   REMOVE_ZONE_FROM_PLAYLIST: "Remove zone {{ name }} from playlist",
@@ -47667,6 +47675,7 @@ var SIGNAGE_MANAGER = {
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   REQUEST_TEMPLATE_APPROVAL_TOOLTIP: "Request template approval",
   SCHEDULE: "Schedule",
+  SCHEDULED_TEMPLATE: "Scheduled template",
   EDIT_SCHEDULE: "Edit Schedule",
   ITEM_SCHEDULES: "Item Schedules",
   NO_SCHEDULES: "No schedules",
@@ -47760,6 +47769,8 @@ var SIGNAGE_MANAGER = {
   SVC_GROUP_REMOVED: "Signage group removed",
   SVC_GROUP_SAVED: "Signage group saved",
   SVC_ITEM_REMOVED: "Item removed from playlist",
+  SVC_ITEMS_REMOVED: "{{ count }} items removed from playlist",
+  SVC_ITEMS_REMOVED_1: "{{ count }} item removed from playlist",
   SVC_MEDIA_ALREADY_IN: "Selected media is already in this playlist.",
   SVC_MEDIA_REMOVED: "Media removed",
   SVC_MEDIA_SHARED: "Media shared",
@@ -47801,7 +47812,10 @@ var SIGNAGE_MANAGER = {
   SVC_REMOVE_DISPLAY_TITLE: "Remove display?",
   SVC_REMOVE_MEDIA_TITLE: "Remove media?",
   SVC_REMOVE_NAMED_FROM_GROUP: 'Remove "{{ name }}" from this group?',
+  SVC_REMOVE_PLAYLIST_ITEMS_TITLE: "Remove playlist items?",
   SVC_REMOVE_PLAYLIST_TITLE: "Remove playlist?",
+  SVC_REMOVE_SELECTED_PLAYLIST_ITEMS: "Remove {{ count }} selected items from this playlist?",
+  SVC_REMOVE_SELECTED_PLAYLIST_ITEMS_1: "Remove {{ count }} selected item from this playlist?",
   SVC_REMOVE_TEMPLATE_TITLE: "Remove template?",
   SVC_REMOVE_USER_TITLE: "Remove group user?",
   SVC_REMOVE_ZONE_TITLE: "Remove group zone?",
@@ -47814,6 +47828,12 @@ var SIGNAGE_MANAGER = {
   SVC_TEMPLATE_REMOVED: "Template removed",
   SVC_TEMPLATE_SHARED: "Template shared",
   SVC_TEMPLATE_SAVE_ERROR: "Error saving template layout",
+  SVC_REMOVE_TEMPLATE_MAPPING_CONTENT: "Remove {{ name }} from this item?",
+  SVC_REMOVE_TEMPLATE_MAPPING_TITLE: "Remove applied template?",
+  SVC_TEMPLATE_MAPPING_REMOVED: "Template removed from item",
+  SVC_TEMPLATE_MAPPING_REMOVE_ERROR: "Error removing template from item",
+  SVC_TEMPLATE_MAPPING_SAVED: "Applied template saved",
+  SVC_TEMPLATE_MAPPING_SAVE_ERROR: "Error saving applied template",
   SVC_THUMBNAIL_FAILED: "Could not generate a thumbnail from the selected image.",
   SVC_THUMBNAIL_NOT_IMAGE: "Thumbnails must be an image file.",
   SVC_THUMBNAIL_UPLOAD_FAILED: "Media uploaded, but its thumbnail could not be saved.",
@@ -47844,10 +47864,17 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
+  TEMPLATE_MAPPING_DEFAULT_HINT: "Turn this off to make the template the default for this item.",
+  TEMPLATE_MAPPING_EDIT: "Edit template schedule",
+  TEMPLATE_MAPPING_SCHEDULE: "Schedule this template",
+  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load applied templates.",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
   TEMPLATE_LABEL: "Template",
+  TEMPLATE_LIVE_MODE: "Live",
+  TEMPLATE_LIVE_MODE_HINT: "Show the template plugins and live display",
+  TEMPLATE_LIVE_PREVIEW: "Live template preview",
   TEMPLATE_NAME_ARIA: "Template name",
   TEMPLATE_NO_LAYOUT_CHANGES: "No layout changes",
   TEMPLATE_NO_LAYOUTS: "No layout items yet. Add one to get started.",
@@ -47870,6 +47897,9 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_SAVED: "Template saved",
   TEMPLATE_SAVE_ERROR: "Error saving template",
   TEMPLATE_SAVING: "Saving Template...",
+  TEMPLATE_REQUIRED: "Select a template",
+  SELECT_APPROVED_TEMPLATE: "Approved template",
+  TEMPLATE_SELECT_DISPLAY: "Select display",
   TEMPLATE_X_POS: "X position",
   TEMPLATE_Y_POS: "Y position",
   THIS_WEEK_ARIA: "Show this week",
@@ -49492,7 +49522,8 @@ var APP = {
     PARKING_BOOKING_TYPE_BOOKED: "Allocated",
     PARKING_BAY: "Parking Bay",
     PARKING_BAY_NUMBER: "Bay Number",
-    PARKING_USER_GROUPS: "User Groups",
+    PARKING_USER_GROUPS: "Group at Request time",
+    PARKING_ALLOCATION_GROUP: "Group at Allocation time",
     PARKING_RESERVED_FOR: "Reserved For",
     PARKING_RESERVED_BY: "Reserved By",
     PARKING_CHECKED_OUT_AT: "Left at {{ time }}",
@@ -52221,7 +52252,10 @@ var Es = class {
   valid_from;
   valid_until;
   tags;
+  /** User groups that the media item is shared with. Only set on the show requests result not the query */
   shared_with;
+  /** Playlists that the media item is included within. Only set on the show requests result not the query */
+  playlists;
   get media_url() {
     return this.media_id ? `/api/engine/v2/uploads/${this.media_id}/url` : this.media_uri;
   }
@@ -52229,7 +52263,7 @@ var Es = class {
     return `/api/engine/v2/uploads/${this.thumbnail_id}/url`;
   }
   constructor(e) {
-    this.id = e.id || "", this.created_at = e.created_at || Sn(Date.now()), this.updated_at = e.updated_at || Sn(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [], this.shared_with = e.shared_with || [];
+    this.id = e.id || "", this.created_at = e.created_at || Sn(Date.now()), this.updated_at = e.updated_at || Sn(Date.now()), this.name = e.name || "", this.description = e.description || "", this.authority_id = e.authority_id || "", this.start_time = e.start_time || 0, this.play_time = e.play_time || 0, this.video_length = e.video_length || 0, this.animation = e.animation, this.media_type = e.media_type || "unknown", this.orientation = e.orientation || "unspecified", this.media_uri = e.media_uri || "", this.media_id = e.media_id || "", this.thumbnail_id = e.thumbnail_id || "", this.plugin_id = e.plugin_id || "", this.plugin_params = e.plugin_params || {}, this.play_count = e.play_count || 0, this.valid_from = e.valid_from, this.valid_until = e.valid_until, this.tags = e.tags || [], this.shared_with = e.shared_with || [], this.playlists = e.playlists || [];
   }
 };
 var lr = class {
@@ -54251,15 +54285,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "957e573",
-  "hash": "957e573",
+  "raw": "20f78e5",
+  "hash": "20f78e5",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "957e573",
+  "suffix": "20f78e5",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787242357996
+  "time": 1787714115888
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -54471,6 +54505,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
   }
   saveUserSetting(name, value) {
     this._pending_settings[name] = value;
+    this._updateSignals();
     if (name === "dark_mode")
       this.setTheme(value ? "dark" : "");
     if (name === "font_size")
@@ -97735,6 +97770,526 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BootstrapComponent, { className: "BootstrapComponent", filePath: "apps/signage/src/app/bootstrap.component.ts", lineNumber: 174 });
 })();
 
+// apps/signage/src/app/debug-overlay.component.ts
+var _c016 = ["*"];
+function DebugOverlayComponent_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 2);
+    \u0275\u0275listener("pointerdown", function DebugOverlayComponent_Conditional_3_Template_button_pointerdown_0_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.startOriginDrag($event));
+    })("pointermove", function DebugOverlayComponent_Conditional_3_Template_button_pointermove_0_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.moveOriginDrag($event));
+    })("pointerup", function DebugOverlayComponent_Conditional_3_Template_button_pointerup_0_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.finishOriginDrag($event));
+    })("pointercancel", function DebugOverlayComponent_Conditional_3_Template_button_pointercancel_0_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.finishOriginDrag($event));
+    });
+    \u0275\u0275element(1, "span", 3)(2, "span", 4);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "button", 5);
+    \u0275\u0275listener("pointerdown", function DebugOverlayComponent_Conditional_3_Template_button_pointerdown_3_listener($event) {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.stopEvent($event));
+    })("click", function DebugOverlayComponent_Conditional_3_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.setMinimized(true));
+    });
+    \u0275\u0275elementStart(4, "icon");
+    \u0275\u0275text(5, "visibility_off");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275styleProp("left", ctx_r1.origin().x * 100, "%")("top", ctx_r1.origin().y * 100, "%");
+    \u0275\u0275attribute("aria-label", "Move " + ctx_r1.label() + " origin");
+    \u0275\u0275advance(3);
+    \u0275\u0275classProp("top-full", ctx_r1.position().y < 0.5)("mt-2", ctx_r1.position().y < 0.5)("bottom-full", ctx_r1.position().y >= 0.5)("mb-2", ctx_r1.position().y >= 0.5);
+    \u0275\u0275attribute("aria-label", "Hide " + ctx_r1.label());
+  }
+}
+function DebugOverlayComponent_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 6);
+    \u0275\u0275listener("pointerdown", function DebugOverlayComponent_Conditional_4_Template_button_pointerdown_0_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.startDrag($event));
+    })("pointermove", function DebugOverlayComponent_Conditional_4_Template_button_pointermove_0_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.moveDrag($event));
+    })("pointerup", function DebugOverlayComponent_Conditional_4_Template_button_pointerup_0_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.finishDrag($event));
+    })("pointercancel", function DebugOverlayComponent_Conditional_4_Template_button_pointercancel_0_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.finishDrag($event));
+    })("click", function DebugOverlayComponent_Conditional_4_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.restore());
+    });
+    \u0275\u0275elementStart(1, "icon");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275attribute("aria-label", "Show " + ctx_r1.label());
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(ctx_r1.icon());
+  }
+}
+var STORAGE_PREFIX = "SIGNAGE.debug-overlay.";
+var DEFAULT_GRID_SIZE = 20;
+var LAPTOP_GRID_SIZE = 40;
+var LAPTOP_MIN_WIDTH = 1024;
+function clearDebugOverlayLayouts() {
+  for (let index = localStorage.length - 1; index >= 0; index--) {
+    const key = localStorage.key(index);
+    if (key?.startsWith(STORAGE_PREFIX))
+      localStorage.removeItem(key);
+  }
+}
+function clamp2(value) {
+  return Math.min(1, Math.max(0, value));
+}
+function isPosition(value) {
+  if (!value || typeof value !== "object")
+    return false;
+  const position = value;
+  return Number.isFinite(position.x) && Number.isFinite(position.y);
+}
+function isDebugOverlayState(value) {
+  if (!value || typeof value !== "object")
+    return false;
+  const state = value;
+  return typeof state.minimized === "boolean" && isPosition(state.position) && (state.origin === void 0 || isPosition(state.origin));
+}
+function snapToGrid(value) {
+  const grid_size = window.innerWidth >= LAPTOP_MIN_WIDTH ? LAPTOP_GRID_SIZE : DEFAULT_GRID_SIZE;
+  return Math.round(value * grid_size) / grid_size;
+}
+var DebugOverlayComponent = class _DebugOverlayComponent {
+  constructor() {
+    this._element = inject2(ElementRef);
+    this._drag_state = null;
+    this._origin_drag_state = null;
+    this._ignore_restore_click = false;
+    this.overlay_id = input.required(
+      ...ngDevMode ? [{ debugName: "overlay_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.label = input.required(
+      ...ngDevMode ? [{ debugName: "label" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.icon = input(
+      "widgets",
+      ...ngDevMode ? [{ debugName: "icon" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.editing = input(
+      false,
+      ...ngDevMode ? [{ debugName: "editing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.reset_count = input(
+      0,
+      ...ngDevMode ? [{ debugName: "reset_count" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.initial_position = input(
+      {
+        x: 0,
+        y: 0
+      },
+      ...ngDevMode ? [{ debugName: "initial_position" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.minimized = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "minimized" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.origin = signal(
+      { x: 0, y: 0 },
+      ...ngDevMode ? [{ debugName: "origin" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.position = signal(
+      { x: 0, y: 0 },
+      ...ngDevMode ? [{ debugName: "position" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+  ngOnInit() {
+    this._resetState();
+    const stored_state = this._storedState();
+    if (!stored_state)
+      return;
+    this.position.set({
+      x: clamp2(stored_state.position.x),
+      y: clamp2(stored_state.position.y)
+    });
+    const stored_origin = stored_state.origin || stored_state.position;
+    this.origin.set({
+      x: clamp2(stored_origin.x),
+      y: clamp2(stored_origin.y)
+    });
+    this.minimized.set(stored_state.minimized);
+  }
+  ngOnChanges(changes) {
+    if (changes["reset_count"] && !changes["reset_count"].firstChange) {
+      this.resetLayout();
+    }
+  }
+  resetLayout() {
+    this._resetState();
+    localStorage.removeItem(`${STORAGE_PREFIX}${this.overlay_id()}`);
+  }
+  _resetState() {
+    const initial_position = this.initial_position();
+    this.position.set({
+      x: clamp2(initial_position.x),
+      y: clamp2(initial_position.y)
+    });
+    this.origin.set({
+      x: clamp2(initial_position.x),
+      y: clamp2(initial_position.y)
+    });
+    this.minimized.set(false);
+  }
+  positionTransform() {
+    const { x, y: y2 } = this.origin();
+    return `translate(${-x * 100}%, ${-y2 * 100}%)`;
+  }
+  setMinimized(minimized) {
+    this.minimized.set(minimized);
+    this._storeState();
+  }
+  restore() {
+    if (this._ignore_restore_click) {
+      this._ignore_restore_click = false;
+      return;
+    }
+    this.setMinimized(false);
+  }
+  startDrag(event) {
+    if (!this.editing() || event.button !== 0)
+      return;
+    const host = this._element.nativeElement;
+    const parent = host.parentElement;
+    if (!parent)
+      return;
+    const parent_bounds = parent.getBoundingClientRect();
+    const host_bounds = host.getBoundingClientRect();
+    this._drag_state = {
+      pointer_id: event.pointerId,
+      start_x: event.clientX,
+      start_y: event.clientY,
+      start_position: this.position(),
+      parent_width: Math.max(1, parent_bounds.width),
+      parent_height: Math.max(1, parent_bounds.height),
+      host_width: host_bounds.width,
+      host_height: host_bounds.height,
+      moved: false,
+      restores_on_click: this.minimized()
+    };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+  }
+  stopEvent(event) {
+    event.stopPropagation();
+  }
+  moveDrag(event) {
+    const drag_state = this._drag_state;
+    if (!drag_state || drag_state.pointer_id !== event.pointerId)
+      return;
+    const delta_x = event.clientX - drag_state.start_x;
+    const delta_y = event.clientY - drag_state.start_y;
+    drag_state.moved ||= Math.abs(delta_x) > 2 || Math.abs(delta_y) > 2;
+    let position = {
+      x: drag_state.start_position.x + delta_x / drag_state.parent_width,
+      y: drag_state.start_position.y + delta_y / drag_state.parent_height
+    };
+    if (event.shiftKey) {
+      position = {
+        x: snapToGrid(position.x),
+        y: snapToGrid(position.y)
+      };
+    }
+    this.position.set(this._constrainPosition(position, drag_state));
+  }
+  finishDrag(event) {
+    const drag_state = this._drag_state;
+    if (!drag_state || drag_state.pointer_id !== event.pointerId)
+      return;
+    if (drag_state.moved)
+      this._storeState();
+    this._ignore_restore_click = drag_state.moved && drag_state.restores_on_click;
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    this._drag_state = null;
+  }
+  startOriginDrag(event) {
+    if (!this.editing() || event.button !== 0)
+      return;
+    const host = this._element.nativeElement;
+    const parent = host.parentElement;
+    if (!parent)
+      return;
+    const parent_bounds = parent.getBoundingClientRect();
+    const host_bounds = host.getBoundingClientRect();
+    this._origin_drag_state = {
+      pointer_id: event.pointerId,
+      parent_left: parent_bounds.left,
+      parent_top: parent_bounds.top,
+      parent_width: Math.max(1, parent_bounds.width),
+      parent_height: Math.max(1, parent_bounds.height),
+      host_left: host_bounds.left - parent_bounds.left,
+      host_top: host_bounds.top - parent_bounds.top,
+      host_width: Math.max(1, host_bounds.width),
+      host_height: Math.max(1, host_bounds.height),
+      moved: false
+    };
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  moveOriginDrag(event) {
+    const drag_state = this._origin_drag_state;
+    if (!drag_state || drag_state.pointer_id !== event.pointerId)
+      return;
+    let position = {
+      x: (event.clientX - drag_state.parent_left) / drag_state.parent_width,
+      y: (event.clientY - drag_state.parent_top) / drag_state.parent_height
+    };
+    if (event.shiftKey) {
+      position = {
+        x: snapToGrid(position.x),
+        y: snapToGrid(position.y)
+      };
+    }
+    const origin = {
+      x: clamp2((position.x * drag_state.parent_width - drag_state.host_left) / drag_state.host_width),
+      y: clamp2((position.y * drag_state.parent_height - drag_state.host_top) / drag_state.host_height)
+    };
+    drag_state.moved ||= Math.abs(origin.x - this.origin().x) > 2e-3 || Math.abs(origin.y - this.origin().y) > 2e-3;
+    this.origin.set(origin);
+    this.position.set({
+      x: clamp2((drag_state.host_left + origin.x * drag_state.host_width) / drag_state.parent_width),
+      y: clamp2((drag_state.host_top + origin.y * drag_state.host_height) / drag_state.parent_height)
+    });
+    event.stopPropagation();
+  }
+  finishOriginDrag(event) {
+    const drag_state = this._origin_drag_state;
+    if (!drag_state || drag_state.pointer_id !== event.pointerId)
+      return;
+    if (drag_state.moved)
+      this._storeState();
+    event.currentTarget.releasePointerCapture?.(event.pointerId);
+    this._origin_drag_state = null;
+    event.stopPropagation();
+  }
+  _storedState() {
+    const stored_state = localStorage.getItem(`${STORAGE_PREFIX}${this.overlay_id()}`);
+    if (!stored_state)
+      return null;
+    try {
+      const state = JSON.parse(stored_state);
+      return isDebugOverlayState(state) ? state : null;
+    } catch {
+      return null;
+    }
+  }
+  _storeState() {
+    localStorage.setItem(`${STORAGE_PREFIX}${this.overlay_id()}`, JSON.stringify({
+      minimized: this.minimized(),
+      origin: this.origin(),
+      position: this.position()
+    }));
+  }
+  _constrainPosition(position, bounds) {
+    const origin = this.origin();
+    const min_x = origin.x * bounds.host_width / bounds.parent_width;
+    const max_x = 1 - (1 - origin.x) * bounds.host_width / bounds.parent_width;
+    const min_y = origin.y * bounds.host_height / bounds.parent_height;
+    const max_y = 1 - (1 - origin.y) * bounds.host_height / bounds.parent_height;
+    return {
+      x: Math.min(max_x, Math.max(min_x, position.x)),
+      y: Math.min(max_y, Math.max(min_y, position.y))
+    };
+  }
+  static {
+    this.\u0275fac = function DebugOverlayComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _DebugOverlayComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DebugOverlayComponent, selectors: [["debug-overlay"]], hostVars: 7, hostBindings: function DebugOverlayComponent_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("data-overlay-id", ctx.overlay_id());
+        \u0275\u0275styleProp("left", ctx.position().x * 100, "%")("top", ctx.position().y * 100, "%")("transform", ctx.positionTransform());
+      }
+    }, inputs: { overlay_id: [1, "overlay_id"], label: [1, "label"], icon: [1, "icon"], editing: [1, "editing"], reset_count: [1, "reset_count"], initial_position: [1, "initial_position"] }, features: [\u0275\u0275NgOnChangesFeature], ngContentSelectors: _c016, decls: 5, vars: 22, consts: [[1, "relative", 3, "pointerdown", "pointermove", "pointerup", "pointercancel"], ["type", "button", "icon", "", "default", "", "matRipple", "", 1, "border-base-300", "bg-base-100", "cursor-move", "touch-none", "rounded-full", "border", "shadow-sm"], ["type", "button", 1, "border-primary", "bg-base-100", "absolute", "z-20", "h-5", "w-5", "-translate-x-1/2", "-translate-y-1/2", "touch-none", "rounded-full", "border-2", "p-0", "shadow-sm", 3, "pointerdown", "pointermove", "pointerup", "pointercancel"], [1, "bg-primary", "absolute", "top-1/2", "left-0", "h-0.5", "w-full", "-translate-y-1/2"], [1, "bg-primary", "absolute", "top-0", "left-1/2", "h-full", "w-0.5", "-translate-x-1/2"], ["type", "button", "icon", "", "default", "", "matRipple", "", 1, "absolute", "right-0", "z-30", "text-xs", 3, "pointerdown", "click"], ["type", "button", "icon", "", "default", "", "matRipple", "", 1, "border-base-300", "bg-base-100", "cursor-move", "touch-none", "rounded-full", "border", "shadow-sm", 3, "pointerdown", "pointermove", "pointerup", "pointercancel", "click"]], template: function DebugOverlayComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275projectionDef();
+        \u0275\u0275elementStart(0, "div", 0);
+        \u0275\u0275listener("pointerdown", function DebugOverlayComponent_Template_div_pointerdown_0_listener($event) {
+          return ctx.startDrag($event);
+        })("pointermove", function DebugOverlayComponent_Template_div_pointermove_0_listener($event) {
+          return ctx.moveDrag($event);
+        })("pointerup", function DebugOverlayComponent_Template_div_pointerup_0_listener($event) {
+          return ctx.finishDrag($event);
+        })("pointercancel", function DebugOverlayComponent_Template_div_pointercancel_0_listener($event) {
+          return ctx.finishDrag($event);
+        });
+        \u0275\u0275elementStart(1, "div");
+        \u0275\u0275projection(2);
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(3, DebugOverlayComponent_Conditional_3_Template, 6, 14);
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(4, DebugOverlayComponent_Conditional_4_Template, 3, 2, "button", 1);
+      }
+      if (rf & 2) {
+        \u0275\u0275classProp("hidden", ctx.minimized())("cursor-move", ctx.editing())("touch-none", ctx.editing())("outline", ctx.editing())("outline-2", ctx.editing())("outline-primary", ctx.editing())("outline-offset-2", ctx.editing());
+        \u0275\u0275attribute("aria-label", ctx.editing() ? "Move " + ctx.label() : null);
+        \u0275\u0275advance();
+        \u0275\u0275classProp("pointer-events-none", ctx.editing())("opacity-80", ctx.editing());
+        \u0275\u0275attribute("inert", ctx.editing() ? "" : null);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(ctx.editing() ? 3 : -1);
+        \u0275\u0275advance();
+        \u0275\u0275conditional(ctx.editing() && ctx.minimized() ? 4 : -1);
+      }
+    }, dependencies: [IconComponent, MatRippleModule, MatRipple], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  position: absolute;\n  z-index: 20;\n}\n/*# sourceMappingURL=debug-overlay.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DebugOverlayComponent, [{
+    type: Component,
+    args: [{ selector: "debug-overlay", host: {
+      "[attr.data-overlay-id]": "overlay_id()",
+      "[style.left.%]": "position().x * 100",
+      "[style.top.%]": "position().y * 100",
+      "[style.transform]": "positionTransform()"
+    }, template: `
+        <div
+            [class.hidden]="minimized()"
+            [class.cursor-move]="editing()"
+            [class.touch-none]="editing()"
+            [class.outline]="editing()"
+            [class.outline-2]="editing()"
+            [class.outline-primary]="editing()"
+            [class.outline-offset-2]="editing()"
+            class="relative"
+            [attr.aria-label]="editing() ? 'Move ' + label() : null"
+            (pointerdown)="startDrag($event)"
+            (pointermove)="moveDrag($event)"
+            (pointerup)="finishDrag($event)"
+            (pointercancel)="finishDrag($event)"
+        >
+            <div
+                [class.pointer-events-none]="editing()"
+                [class.opacity-80]="editing()"
+                [attr.inert]="editing() ? '' : null"
+            >
+                <ng-content />
+            </div>
+            @if (editing()) {
+                <button
+                    type="button"
+                    class="border-primary bg-base-100 absolute z-20 h-5 w-5 -translate-x-1/2 -translate-y-1/2 touch-none rounded-full border-2 p-0 shadow-sm"
+                    [style.left.%]="origin().x * 100"
+                    [style.top.%]="origin().y * 100"
+                    (pointerdown)="startOriginDrag($event)"
+                    (pointermove)="moveOriginDrag($event)"
+                    (pointerup)="finishOriginDrag($event)"
+                    (pointercancel)="finishOriginDrag($event)"
+                    [attr.aria-label]="'Move ' + label() + ' origin'"
+                >
+                    <span
+                        class="bg-primary absolute top-1/2 left-0 h-0.5 w-full -translate-y-1/2"
+                    ></span>
+                    <span
+                        class="bg-primary absolute top-0 left-1/2 h-full w-0.5 -translate-x-1/2"
+                    ></span>
+                </button>
+                <button
+                    type="button"
+                    icon
+                    default
+                    matRipple
+                    class="absolute right-0 z-30 text-xs"
+                    [class.top-full]="position().y < 0.5"
+                    [class.mt-2]="position().y < 0.5"
+                    [class.bottom-full]="position().y >= 0.5"
+                    [class.mb-2]="position().y >= 0.5"
+                    (pointerdown)="stopEvent($event)"
+                    (click)="setMinimized(true)"
+                    [attr.aria-label]="'Hide ' + label()"
+                >
+                    <icon>visibility_off</icon>
+                </button>
+            }
+        </div>
+        @if (editing() && minimized()) {
+            <button
+                type="button"
+                icon
+                default
+                matRipple
+                class="border-base-300 bg-base-100 cursor-move touch-none rounded-full border shadow-sm"
+                (pointerdown)="startDrag($event)"
+                (pointermove)="moveDrag($event)"
+                (pointerup)="finishDrag($event)"
+                (pointercancel)="finishDrag($event)"
+                (click)="restore()"
+                [attr.aria-label]="'Show ' + label()"
+            >
+                <icon>{{ icon() }}</icon>
+            </button>
+        }
+    `, imports: [IconComponent, MatRippleModule], styles: ["/* angular:styles/component:css;a5a6d0b1549e8d049652c9d7c4368abeb56c4939fa970b44fdd1767039101e6d;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/debug-overlay.component.ts */\n:host {\n  display: block;\n  position: absolute;\n  z-index: 20;\n}\n/*# sourceMappingURL=debug-overlay.component.css.map */\n"] }]
+  }], null, { overlay_id: [{ type: Input, args: [{ isSignal: true, alias: "overlay_id", required: true }] }], label: [{ type: Input, args: [{ isSignal: true, alias: "label", required: true }] }], icon: [{ type: Input, args: [{ isSignal: true, alias: "icon", required: false }] }], editing: [{ type: Input, args: [{ isSignal: true, alias: "editing", required: false }] }], reset_count: [{ type: Input, args: [{ isSignal: true, alias: "reset_count", required: false }] }], initial_position: [{ type: Input, args: [{ isSignal: true, alias: "initial_position", required: false }] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DebugOverlayComponent, { className: "DebugOverlayComponent", filePath: "apps/signage/src/app/debug-overlay.component.ts", lineNumber: 190 });
+})();
+
 // apps/signage/src/app/diagnostics.ts
 function registerSignageDiagnostics(actions) {
   const api = {
@@ -97840,7 +98395,7 @@ function findValidPlaylistIndex(playlist, start_index, step, include_start = fal
 }
 
 // apps/signage/src/app/media-controls.component.ts
-var _c016 = ["bar"];
+var _c017 = ["bar"];
 var _c18 = (a0) => ({ state: a0 });
 function MediaControlsComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -97939,7 +98494,7 @@ var MediaProgressBarComponent = class _MediaProgressBarComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaProgressBarComponent, selectors: [["media-progress-bar"]], viewQuery: function MediaProgressBarComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._bar, _c016, 5);
+        \u0275\u0275viewQuerySignal(ctx._bar, _c017, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -98304,7 +98859,7 @@ var MediaControlsComponent = class _MediaControlsComponent {
 })();
 
 // apps/signage/src/app/playlist-display.component.ts
-var _c017 = (a0) => ({ count: a0 });
+var _c018 = (a0) => ({ count: a0 });
 var _c19 = (a0) => ({ data: a0 });
 var _forTrack05 = ($index, $item) => $item.id + $index;
 function PlaylistDisplayComponent_Conditional_9_ng_template_1_Conditional_0_Conditional_29_Template(rf, ctx) {
@@ -98572,7 +99127,7 @@ var PlaylistDisplayComponent = class _PlaylistDisplayComponent {
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 3, "APP.SIGNAGE.MEDIA_LIST"));
         \u0275\u0275advance(4);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 5, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(9, _c017, ctx.playlist()?.length || 0), ctx.playlist()?.length || 0), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(8, 5, "COMMON.ITEM_COUNT", \u0275\u0275pureFunction1(9, _c018, ctx.playlist()?.length || 0), ctx.playlist()?.length || 0), " ");
         \u0275\u0275advance(2);
         \u0275\u0275conditional(ctx.playlist().length > 0 ? 9 : 10);
       }
@@ -99323,7 +99878,7 @@ var TimeControlsComponent = class _TimeControlsComponent extends AsyncHandler {
 })();
 
 // apps/signage/src/app/media-player.component.ts
-var _c018 = ["media_container_0"];
+var _c019 = ["media_container_0"];
 var _c110 = ["media_container_1"];
 var _c25 = ["img_el_0"];
 var _c34 = ["img_el_1"];
@@ -99331,6 +99886,10 @@ var _c43 = ["video_el_0"];
 var _c52 = ["video_el_1"];
 var _c62 = ["web_el_0"];
 var _c72 = ["web_el_1"];
+var _c82 = () => ({ x: 0.01, y: 0.01 });
+var _c9 = () => ({ x: 0.5, y: 0.99 });
+var _c10 = () => ({ x: 0.99, y: 0.01 });
+var _c11 = () => ({ x: 0.5, y: 0.01 });
 function MediaPlayerComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -99390,7 +99949,7 @@ function MediaPlayerComponent_Conditional_18_Template(rf, ctx) {
 function MediaPlayerComponent_Conditional_19_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     const _r5 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 21)(1, "div", 24)(2, "h2", 25);
+    \u0275\u0275elementStart(0, "debug-overlay", 21)(1, "div", 24)(2, "h2", 25);
     \u0275\u0275text(3);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 26);
@@ -99408,62 +99967,46 @@ function MediaPlayerComponent_Conditional_19_Conditional_4_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("editing", ctx_r1.layout_editing())("reset_count", ctx_r1.layout_reset_count())("initial_position", \u0275\u0275pureFunction0(4, _c11));
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", ctx_r1.playlist_items[0]?.playlist_name || "Unknown", " ");
-  }
-}
-function MediaPlayerComponent_Conditional_19_Conditional_5_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r6 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 22)(1, "playlist-display", 28);
-    \u0275\u0275listener("selected", function MediaPlayerComponent_Conditional_19_Conditional_5_Template_playlist_display_selected_1_listener($event) {
-      \u0275\u0275restoreView(_r6);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      return \u0275\u0275resetView(ctx_r1.setPlaylistItem($event));
-    });
-    \u0275\u0275elementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance();
-    \u0275\u0275property("index", ctx_r1.index())("playlist", ctx_r1.playlist_items);
   }
 }
 function MediaPlayerComponent_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275elementStart(0, "debug-overlay", 18);
     \u0275\u0275element(1, "time-controls");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(2, "div", 19)(3, "media-controls", 20);
+    \u0275\u0275elementStart(2, "debug-overlay", 19)(3, "media-controls", 20);
     \u0275\u0275listener("event", function MediaPlayerComponent_Conditional_19_Template_media_controls_event_3_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.handleControlEvent($event));
     });
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(4, MediaPlayerComponent_Conditional_19_Conditional_4_Template, 9, 1, "div", 21);
-    \u0275\u0275conditionalCreate(5, MediaPlayerComponent_Conditional_19_Conditional_5_Template, 2, 2, "div", 22);
-    \u0275\u0275elementStart(6, "button", 23);
-    \u0275\u0275listener("click", function MediaPlayerComponent_Conditional_19_Template_button_click_6_listener() {
+    \u0275\u0275conditionalCreate(4, MediaPlayerComponent_Conditional_19_Conditional_4_Template, 9, 5, "debug-overlay", 21);
+    \u0275\u0275elementStart(5, "debug-overlay", 22)(6, "playlist-display", 23);
+    \u0275\u0275listener("selected", function MediaPlayerComponent_Conditional_19_Template_playlist_display_selected_6_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.show_playlist.set(!ctx_r1.show_playlist()));
+      return \u0275\u0275resetView(ctx_r1.setPlaylistItem($event));
     });
-    \u0275\u0275elementStart(7, "icon");
-    \u0275\u0275text(8);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275advance(3);
+    \u0275\u0275property("overlay_id", ctx_r1.can_close() ? "override-time" : "player-time")("editing", ctx_r1.layout_editing())("reset_count", ctx_r1.layout_reset_count())("initial_position", \u0275\u0275pureFunction0(25, _c82));
+    \u0275\u0275advance(2);
+    \u0275\u0275property("overlay_id", ctx_r1.can_close() ? "override-playback" : "player-playback")("editing", ctx_r1.layout_editing())("reset_count", ctx_r1.layout_reset_count())("initial_position", \u0275\u0275pureFunction0(26, _c9));
+    \u0275\u0275advance();
     \u0275\u0275property("state", ctx_r1.state())("loop", ctx_r1.loop())("muted", ctx_r1.muted())("shuffle", ctx_r1.shuffle())("progress", ctx_r1.progress())("duration", ctx_r1.duration())("playback_start", ctx_r1.progress_start())("playback_duration", ctx_r1.progress_duration())("animating", ctx_r1.in_animation())("loading", ctx_r1.waiting_for_item());
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.can_close() ? 4 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.show_playlist() ? 5 : -1);
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r1.show_playlist() ? "close" : "queue_music");
+    \u0275\u0275property("overlay_id", ctx_r1.can_close() ? "override-playlist" : "player-playlist")("editing", ctx_r1.layout_editing())("reset_count", ctx_r1.layout_reset_count())("initial_position", \u0275\u0275pureFunction0(27, _c10));
+    \u0275\u0275advance();
+    \u0275\u0275property("index", ctx_r1.index())("playlist", ctx_r1.playlist_items);
   }
 }
 var MAX_URL_WAIT_LOADING = 30 * 1e3;
@@ -99486,6 +100029,20 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this.controls = input(
       false,
       ...ngDevMode ? [{ debugName: "controls" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.layout_editing = input(
+      false,
+      ...ngDevMode ? [{ debugName: "layout_editing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.layout_reset_count = input(
+      0,
+      ...ngDevMode ? [{ debugName: "layout_reset_count" }] : (
         /* istanbul ignore next */
         []
       )
@@ -99595,13 +100152,6 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     this.progress_duration = signal(
       0,
       ...ngDevMode ? [{ debugName: "progress_duration" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.show_playlist = signal(
-      true,
-      ...ngDevMode ? [{ debugName: "show_playlist" }] : (
         /* istanbul ignore next */
         []
       )
@@ -100789,7 +101339,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MediaPlayerComponent, selectors: [["media-player"]], viewQuery: function MediaPlayerComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._container_0, _c018, 5)(ctx._container_1, _c110, 5)(ctx._image_element_0, _c25, 5)(ctx._image_element_1, _c34, 5)(ctx._video_element_0, _c43, 5)(ctx._video_element_1, _c52, 5)(ctx._web_element_0, _c62, 5)(ctx._web_element_1, _c72, 5);
+        \u0275\u0275viewQuerySignal(ctx._container_0, _c019, 5)(ctx._container_1, _c110, 5)(ctx._image_element_0, _c25, 5)(ctx._image_element_1, _c34, 5)(ctx._video_element_0, _c43, 5)(ctx._video_element_1, _c52, 5)(ctx._web_element_0, _c62, 5)(ctx._web_element_1, _c72, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(8);
@@ -100798,7 +101348,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275classProp("transparent", ctx.transparent());
       }
-    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], transparent: [1, "transparent"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", stateChange: "stateChange", indexChange: "indexChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 23, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "statusChange", "plugin_interaction", "plugin_error", "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "z-20", "p-4"], [1, "absolute", "bottom-0", "left-1/2", "z-20", "-translate-x-1/2"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], [1, "absolute", "top-0", "left-1/2", "z-20", "-translate-x-1/2", "p-2"], [1, "absolute", "top-0", "right-0", "z-20", "p-4"], ["icon", "", "default", "", "matRipple", "", 1, "absolute", "top-6", "right-6", "z-20", 3, "click"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"], [3, "selected", "index", "playlist"]], template: function MediaPlayerComponent_Template(rf, ctx) {
+    }, inputs: { playlist: [1, "playlist"], controls: [1, "controls"], layout_editing: [1, "layout_editing"], layout_reset_count: [1, "layout_reset_count"], transparent: [1, "transparent"], override: [1, "override"], can_close: [1, "can_close"], loop: [1, "loop"], shuffle: [1, "shuffle"], indexInput: [1, "index", "indexInput"], animation_time: [1, "animation_time"], mutedInput: [1, "muted", "mutedInput"], stateInput: [1, "state", "stateInput"] }, outputs: { loop: "loopChange", shuffle: "shuffleChange", stateChange: "stateChange", indexChange: "indexChange", mutedChange: "mutedChange", playing_id: "playing_id", event: "event", closed: "closed" }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], decls: 20, vars: 23, consts: [["media_container_0", ""], ["img_el_0", ""], ["video_el_0", ""], ["web_el_0", ""], ["media_container_1", ""], ["img_el_1", ""], ["video_el_1", ""], ["web_el_1", ""], [1, "absolute", "inset-0"], [1, "pointer-events-none", "absolute", "top-0", "left-0", "h-full", "w-full"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "hidden", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "plugin", "config", "play"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "load", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "object-contain", "object-center", 3, "loadeddata", "error"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", "border-0", 3, "load"], [1, "absolute", "top-0", "left-0", "h-full", "w-full", 3, "loaded", "statusChange", "plugin_interaction", "plugin_error", "plugin", "config", "play"], ["label", "debug time", "icon", "event", 3, "overlay_id", "editing", "reset_count", "initial_position"], ["label", "playback controls", "icon", "play_circle", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "event", "state", "loop", "muted", "shuffle", "progress", "duration", "playback_start", "playback_duration", "animating", "loading"], ["overlay_id", "override-details", "label", "override details", "icon", "priority_high", 3, "editing", "reset_count", "initial_position"], ["label", "playlist", "icon", "queue_music", 3, "overlay_id", "editing", "reset_count", "initial_position"], [3, "selected", "index", "playlist"], [1, "border-base-200", "bg-base-100", "flex", "items-center", "space-x-4", "rounded-full", "border", "p-2"], [1, "max-w-[30vw]", "truncate", "py-2", "pl-4"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "font-mono", "text-[0.625rem]"], ["icon", "", "default", "", "matRipple", "", 3, "click"]], template: function MediaPlayerComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 8)(1, "div", 9, 0)(3, "img", 10, 1);
         \u0275\u0275listener("load", function MediaPlayerComponent_Template_img_load_3_listener() {
@@ -100842,7 +101392,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(18, MediaPlayerComponent_Conditional_18_Template, 1, 3, "plugin-embed", 13);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(19, MediaPlayerComponent_Conditional_19_Template, 9, 13);
+        \u0275\u0275conditionalCreate(19, MediaPlayerComponent_Conditional_19_Template, 7, 28);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
@@ -100862,6 +101412,7 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
     }, dependencies: [
       MatRippleModule,
       MatRipple,
+      DebugOverlayComponent,
       PlaylistDisplayComponent,
       IconComponent,
       MediaControlsComponent,
@@ -100972,10 +101523,26 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
                 }
             </div>
             @if (controls()) {
-                <div class="absolute top-0 left-0 z-20 p-4">
+                <debug-overlay
+                    [overlay_id]="can_close() ? 'override-time' : 'player-time'"
+                    [editing]="layout_editing()"
+                    [reset_count]="layout_reset_count()"
+                    label="debug time"
+                    icon="event"
+                    [initial_position]="{ x: 0.01, y: 0.01 }"
+                >
                     <time-controls />
-                </div>
-                <div class="absolute bottom-0 left-1/2 z-20 -translate-x-1/2">
+                </debug-overlay>
+                <debug-overlay
+                    [overlay_id]="
+                        can_close() ? 'override-playback' : 'player-playback'
+                    "
+                    [editing]="layout_editing()"
+                    [reset_count]="layout_reset_count()"
+                    label="playback controls"
+                    icon="play_circle"
+                    [initial_position]="{ x: 0.5, y: 0.99 }"
+                >
                     <media-controls
                         [state]="state()"
                         [loop]="loop()"
@@ -100989,10 +101556,15 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
                         [loading]="waiting_for_item()"
                         (event)="handleControlEvent($event)"
                     />
-                </div>
+                </debug-overlay>
                 @if (can_close()) {
-                    <div
-                        class="absolute top-0 left-1/2 z-20 -translate-x-1/2 p-2"
+                    <debug-overlay
+                        overlay_id="override-details"
+                        [editing]="layout_editing()"
+                        [reset_count]="layout_reset_count()"
+                        label="override details"
+                        icon="priority_high"
+                        [initial_position]="{ x: 0.5, y: 0.01 }"
                     >
                         <div
                             class="border-base-200 bg-base-100 flex items-center space-x-4 rounded-full border p-2"
@@ -101017,40 +101589,39 @@ var MediaPlayerComponent = class _MediaPlayerComponent extends AsyncHandler {
                                 <icon>close</icon>
                             </button>
                         </div>
-                    </div>
+                    </debug-overlay>
                 }
-                @if (show_playlist()) {
-                    <div class="absolute top-0 right-0 z-20 p-4">
-                        <playlist-display
-                            [index]="index()"
-                            [playlist]="playlist_items"
-                            (selected)="setPlaylistItem($event)"
-                        />
-                    </div>
-                }
-                <button
-                    icon
-                    default
-                    matRipple
-                    class="absolute top-6 right-6 z-20"
-                    (click)="show_playlist.set(!show_playlist())"
+                <debug-overlay
+                    [overlay_id]="
+                        can_close() ? 'override-playlist' : 'player-playlist'
+                    "
+                    [editing]="layout_editing()"
+                    [reset_count]="layout_reset_count()"
+                    label="playlist"
+                    icon="queue_music"
+                    [initial_position]="{ x: 0.99, y: 0.01 }"
                 >
-                    <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>
-                </button>
+                    <playlist-display
+                        [index]="index()"
+                        [playlist]="playlist_items"
+                        (selected)="setPlaylistItem($event)"
+                    />
+                </debug-overlay>
             }
         </div>
     `, imports: [
       MatRippleModule,
+      DebugOverlayComponent,
       PlaylistDisplayComponent,
       IconComponent,
       MediaControlsComponent,
       TimeControlsComponent,
       PluginEmbedComponent
     ], styles: ["/* angular:styles/component:css;5613b9902f7eaff64fa7b47128753d0c0992f47947c9fe3653769f5bfd4edb00;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/media-player.component.ts */\n:host {\n  display: block;\n  position: relative;\n  height: 100%;\n  width: 100%;\n  background: var(--bg);\n}\n:host(.transparent) {\n  background: transparent;\n}\n/*# sourceMappingURL=media-player.component.css.map */\n"] }]
-  }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], stateChange: [{ type: Output, args: ["stateChange"] }], indexChange: [{ type: Output, args: ["indexChange"] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
+  }], null, { playlist: [{ type: Input, args: [{ isSignal: true, alias: "playlist", required: false }] }], controls: [{ type: Input, args: [{ isSignal: true, alias: "controls", required: false }] }], layout_editing: [{ type: Input, args: [{ isSignal: true, alias: "layout_editing", required: false }] }], layout_reset_count: [{ type: Input, args: [{ isSignal: true, alias: "layout_reset_count", required: false }] }], transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], override: [{ type: Input, args: [{ isSignal: true, alias: "override", required: false }] }], can_close: [{ type: Input, args: [{ isSignal: true, alias: "can_close", required: false }] }], loop: [{ type: Input, args: [{ isSignal: true, alias: "loop", required: false }] }, { type: Output, args: ["loopChange"] }], shuffle: [{ type: Input, args: [{ isSignal: true, alias: "shuffle", required: false }] }, { type: Output, args: ["shuffleChange"] }], indexInput: [{ type: Input, args: [{ isSignal: true, alias: "index", required: false }] }], animation_time: [{ type: Input, args: [{ isSignal: true, alias: "animation_time", required: false }] }], mutedInput: [{ type: Input, args: [{ isSignal: true, alias: "muted", required: false }] }], stateInput: [{ type: Input, args: [{ isSignal: true, alias: "state", required: false }] }], stateChange: [{ type: Output, args: ["stateChange"] }], indexChange: [{ type: Output, args: ["indexChange"] }], mutedChange: [{ type: Output, args: ["mutedChange"] }], playing_id: [{ type: Output, args: ["playing_id"] }], event: [{ type: Output, args: ["event"] }], closed: [{ type: Output, args: ["closed"] }], _container_0: [{ type: ViewChild, args: ["media_container_0", { isSignal: true }] }], _container_1: [{ type: ViewChild, args: ["media_container_1", { isSignal: true }] }], _image_element_0: [{ type: ViewChild, args: ["img_el_0", { isSignal: true }] }], _image_element_1: [{ type: ViewChild, args: ["img_el_1", { isSignal: true }] }], _video_element_0: [{ type: ViewChild, args: ["video_el_0", { isSignal: true }] }], _video_element_1: [{ type: ViewChild, args: ["video_el_1", { isSignal: true }] }], _web_element_0: [{ type: ViewChild, args: ["web_el_0", { isSignal: true }] }], _web_element_1: [{ type: ViewChild, args: ["web_el_1", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 247 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MediaPlayerComponent, { className: "MediaPlayerComponent", filePath: "apps/signage/src/app/media-player.component.ts", lineNumber: 268 });
 })();
 
 // apps/signage/src/app/cron-helpers.ts
@@ -101798,6 +102369,16 @@ function parsePlayAtTimestamp(value) {
     return 0;
   return value * 1e3;
 }
+function parseValidUntilTimestamp(value) {
+  if (!Number.isFinite(value) || !value || value <= 0)
+    return 0;
+  return value * 1e3;
+}
+function capScheduleEnd(value, valid_until) {
+  if (!valid_until)
+    return value;
+  return value ? Math.min(value, valid_until) : valid_until;
+}
 function scheduledPlaylistEnd(starts_at, period_minutes) {
   return period_minutes ? starts_at + period_minutes * 60 * 1e3 : starts_at + SINGLE_PASS_TRIGGER_WINDOW_MS;
 }
@@ -101807,12 +102388,15 @@ function scheduledPlaylistExpiry(starts_at, period_minutes) {
 function scheduledPlaylistWindow(schedule, now = time(), trigger_window_seconds = 0) {
   const period_minutes = playlistPlayPeriodMinutes(schedule);
   const window_seconds = trigger_window_seconds || period_minutes * 60;
+  const valid_until = parseValidUntilTimestamp(schedule.valid_until);
+  if (valid_until && now > valid_until)
+    return null;
   if (schedule.play_at) {
     const starts_at = parsePlayAtTimestamp(schedule.play_at);
     if (!starts_at)
       return null;
-    const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-    const expires_at = scheduledPlaylistExpiry(starts_at, period_minutes);
+    const ends_at = capScheduleEnd(scheduledPlaylistEnd(starts_at, period_minutes), valid_until);
+    const expires_at = capScheduleEnd(scheduledPlaylistExpiry(starts_at, period_minutes), valid_until);
     return now >= starts_at && now <= ends_at ? { starts_at, ends_at, expires_at } : null;
   }
   if (schedule.play_cron?.trim()) {
@@ -101821,8 +102405,8 @@ function scheduledPlaylistWindow(schedule, now = time(), trigger_window_seconds 
       if (!last3)
         return null;
       const starts_at = last3 * 1e3;
-      const ends_at = scheduledPlaylistEnd(starts_at, period_minutes);
-      const expires_at = scheduledPlaylistExpiry(starts_at, period_minutes);
+      const ends_at = capScheduleEnd(scheduledPlaylistEnd(starts_at, period_minutes), valid_until);
+      const expires_at = capScheduleEnd(scheduledPlaylistExpiry(starts_at, period_minutes), valid_until);
       return now <= ends_at ? { starts_at, ends_at, expires_at } : null;
     } catch {
       return null;
@@ -101845,16 +102429,22 @@ function activePlaylistSchedule(playlist, now = time(), trigger_window_seconds =
   return activePlaylistSchedules(playlist, now, trigger_window_seconds)[0];
 }
 function nextScheduledPlaylistStart(schedule, now, horizon_seconds) {
+  const valid_until = parseValidUntilTimestamp(schedule.valid_until);
+  if (valid_until && now > valid_until)
+    return 0;
   if (schedule.play_at) {
     const starts_at = parsePlayAtTimestamp(schedule.play_at);
     if (!starts_at || starts_at <= now)
+      return 0;
+    if (valid_until && starts_at > valid_until)
       return 0;
     return starts_at <= now + horizon_seconds * 1e3 ? starts_at : 0;
   }
   if (schedule.play_cron?.trim()) {
     try {
       const next = getNextCronRunTimestampInRange(schedule.play_cron, horizon_seconds, now);
-      return next ? next * 1e3 : 0;
+      const starts_at = next ? next * 1e3 : 0;
+      return valid_until && starts_at > valid_until ? 0 : starts_at;
     } catch {
       return 0;
     }
@@ -102584,6 +103174,8 @@ var SignageService = class _SignageService extends AsyncHandler {
 })();
 
 // apps/signage/src/app/signage.component.ts
+var _c020 = () => ({ x: 0.01, y: 0.99 });
+var _c111 = () => ({ x: 0.99, y: 0.99 });
 function SignagePanelComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -102609,10 +103201,65 @@ function SignagePanelComponent_Conditional_1_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("playlist", ctx_r1.override_playlist().playlist)("controls", ctx_r1.debug())("can_close", true)("muted", ctx_r1.muted())("transparent", ctx_r1.transparent())("animation_time", ctx_r1.animation_time);
+    \u0275\u0275classProp("z-10", !ctx_r1.debug_layout_editing())("z-auto", ctx_r1.debug_layout_editing());
+    \u0275\u0275property("playlist", ctx_r1.override_playlist().playlist)("controls", ctx_r1.debug())("layout_editing", ctx_r1.debug_layout_editing())("layout_reset_count", ctx_r1.debug_layout_reset_count())("can_close", true)("muted", ctx_r1.muted())("transparent", ctx_r1.transparent())("animation_time", ctx_r1.animation_time);
   }
 }
-function SignagePanelComponent_Conditional_2_Conditional_11_Template(rf, ctx) {
+function SignagePanelComponent_Conditional_2_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 3);
+  }
+}
+function SignagePanelComponent_Conditional_2_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 12);
+    \u0275\u0275listener("click", function SignagePanelComponent_Conditional_2_Conditional_4_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.resetDebugLayout());
+    });
+    \u0275\u0275elementStart(1, "icon");
+    \u0275\u0275text(2, "restart_alt");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(3, "button", 13);
+    \u0275\u0275listener("click", function SignagePanelComponent_Conditional_2_Conditional_4_Template_button_click_3_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.debug_layout_editing.set(!ctx_r1.debug_layout_editing()));
+    });
+    \u0275\u0275elementStart(4, "icon");
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("matTooltip", "Reset Layout");
+    \u0275\u0275advance(3);
+    \u0275\u0275property("matTooltip", "Save Layout");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate("done");
+  }
+}
+function SignagePanelComponent_Conditional_2_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r4 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 14);
+    \u0275\u0275listener("click", function SignagePanelComponent_Conditional_2_Conditional_5_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.debug_layout_editing.set(!ctx_r1.debug_layout_editing()));
+    });
+    \u0275\u0275elementStart(1, "icon");
+    \u0275\u0275text(2);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("matTooltip", "Edit Layout");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate("dashboard_customize");
+  }
+}
+function SignagePanelComponent_Conditional_2_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span");
     \u0275\u0275text(1, "No item playing");
@@ -102621,32 +103268,49 @@ function SignagePanelComponent_Conditional_2_Conditional_11_Template(rf, ctx) {
 }
 function SignagePanelComponent_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 3);
-    \u0275\u0275text(1);
-    \u0275\u0275pipe(2, "date");
-    \u0275\u0275pipe(3, "date");
-    \u0275\u0275elementStart(4, "span", 4);
-    \u0275\u0275text(5, "|");
+    \u0275\u0275conditionalCreate(0, SignagePanelComponent_Conditional_2_Conditional_0_Template, 1, 0, "div", 3);
+    \u0275\u0275elementStart(1, "div", 4)(2, "div", 5);
+    \u0275\u0275text(3);
     \u0275\u0275elementEnd();
-    \u0275\u0275text(6, "\xA0");
-    \u0275\u0275elementStart(7, "span", 5);
+    \u0275\u0275conditionalCreate(4, SignagePanelComponent_Conditional_2_Conditional_4_Template, 6, 3)(5, SignagePanelComponent_Conditional_2_Conditional_5_Template, 3, 2, "button", 6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "debug-overlay", 7)(7, "div", 8);
     \u0275\u0275text(8);
-    \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(9, "div", 6);
-    \u0275\u0275text(10);
-    \u0275\u0275conditionalCreate(11, SignagePanelComponent_Conditional_2_Conditional_11_Template, 2, 0, "span");
+    \u0275\u0275pipe(9, "date");
+    \u0275\u0275pipe(10, "date");
+    \u0275\u0275elementStart(11, "span", 9);
+    \u0275\u0275text(12, "|");
     \u0275\u0275elementEnd();
+    \u0275\u0275text(13, "\xA0");
+    \u0275\u0275elementStart(14, "span", 10);
+    \u0275\u0275text(15);
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(16, "debug-overlay", 11)(17, "div", 8);
+    \u0275\u0275text(18);
+    \u0275\u0275conditionalCreate(19, SignagePanelComponent_Conditional_2_Conditional_19_Template, 2, 0, "span");
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r1.debug_layout_editing() ? 0 : -1);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(2, 5, ctx_r1.version_date, "mediumDate"), " \u2013 ", \u0275\u0275pipeBind2(3, 8, ctx_r1.version_date, "shortTime"), " ");
+    \u0275\u0275attribute("aria-label", ctx_r1.debug_layout_editing() ? "Finish editing debug layout" : "Edit debug layout");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.debug_layout_editing() ? "Editing" : "Edit layout", " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.debug_layout_editing() ? 4 : 5);
+    \u0275\u0275advance(2);
+    \u0275\u0275property("editing", ctx_r1.debug_layout_editing())("reset_count", ctx_r1.debug_layout_reset_count())("initial_position", \u0275\u0275pureFunction0(21, _c020));
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(9, 15, ctx_r1.version_date, "mediumDate"), " \u2013 ", \u0275\u0275pipeBind2(10, 18, ctx_r1.version_date, "shortTime"), " ");
     \u0275\u0275advance(7);
     \u0275\u0275textInterpolate(ctx_r1.version_hash);
+    \u0275\u0275advance();
+    \u0275\u0275property("editing", ctx_r1.debug_layout_editing())("reset_count", ctx_r1.debug_layout_reset_count())("initial_position", \u0275\u0275pureFunction0(22, _c111));
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", ctx_r1.playing_id(), " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r1.playing_id() ? 11 : -1);
+    \u0275\u0275conditional(!ctx_r1.playing_id() ? 19 : -1);
   }
 }
 var REMOTE_PAUSE = "signage:pause";
@@ -102672,6 +103336,20 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
     this.muted = signal(
       true,
       ...ngDevMode ? [{ debugName: "muted" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_layout_editing = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "debug_layout_editing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.debug_layout_reset_count = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "debug_layout_reset_count" }] : (
         /* istanbul ignore next */
         []
       )
@@ -102702,6 +103380,10 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       else if (data.type === REMOTE_RESUME)
         this._setPlaybackState("PLAYING");
     };
+  }
+  resetDebugLayout() {
+    clearDebugOverlayLayouts();
+    this.debug_layout_reset_count.update((count) => count + 1);
   }
   setMuted(muted) {
     this.muted.set(muted);
@@ -102812,7 +103494,7 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, inputs: { transparent: [1, "transparent"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 8, consts: [[1, "z-0", 3, "playing_id", "event", "mutedChange", "playlist", "controls", "muted", "transparent", "override", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playlist", "controls", "can_close", "muted", "transparent", "animation_time"], [1, "absolute", "inset-0", "z-10", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "can_close", "muted", "transparent", "animation_time"], ["stroke", "", 1, "text-base-100/60", "bg-base-content/40", "absolute", "bottom-1", "left-1", "rounded", "px-2", "py-1", "font-mono", "text-[0.625rem]"], [1, "opacity-50"], [1, "select-all"], ["stroke", "", 1, "text-base-100/60", "bg-base-content/40", "absolute", "right-1", "bottom-1", "rounded", "px-2", "py-1", "font-mono", "text-[0.625rem]"]], template: function SignagePanelComponent_Template(rf, ctx) {
+    }, inputs: { transparent: [1, "transparent"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 14, consts: [[3, "playing_id", "event", "mutedChange", "playlist", "controls", "layout_editing", "layout_reset_count", "muted", "transparent", "override", "animation_time"], [1, "absolute", "inset-0", 3, "playlist", "controls", "layout_editing", "layout_reset_count", "can_close", "muted", "transparent", "animation_time", "z-10", "z-auto"], [1, "absolute", "inset-0", 3, "playing_id", "event", "mutedChange", "closed", "playlist", "controls", "layout_editing", "layout_reset_count", "can_close", "muted", "transparent", "animation_time"], ["data-testid", "debug-layout-grid", 1, "debug-layout-grid", "pointer-events-none", "absolute", "inset-0", "z-10"], [1, "border-base-300", "bg-base-100", "text-base-content", "absolute", "top-0", "left-1/2", "z-30", "flex", "w-40", "-translate-x-1/2", "items-center", "gap-1", "rounded-b-lg", "border-x", "border-b", "p-1", "text-xs", "shadow-lg"], [1, "flex-1", "px-4", "text-sm"], ["icon", "", "default", "", "aria-label", "Edit debug layout", 3, "matTooltip"], ["overlay_id", "build-details", "label", "build details", "icon", "info", 3, "editing", "reset_count", "initial_position"], ["stroke", "", 1, "text-base-100/60", "bg-base-content/40", "rounded", "px-2", "py-1", "font-mono", "text-[0.625rem]"], [1, "opacity-50"], [1, "select-all"], ["overlay_id", "playing-item", "label", "playing item", "icon", "perm_media", 3, "editing", "reset_count", "initial_position"], ["icon", "", "default", "", "aria-label", "Reset debug layout", 3, "click", "matTooltip"], ["icon", "", "default", "", "aria-label", "Finish editing debug layout", 1, "border-success", "bg-success-light", "text-success", 3, "click", "matTooltip"], ["icon", "", "default", "", "aria-label", "Edit debug layout", 3, "click", "matTooltip"]], template: function SignagePanelComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "media-player", 0);
         \u0275\u0275listener("playing_id", function SignagePanelComponent_Template_media_player_playing_id_0_listener($event) {
@@ -102823,17 +103505,26 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
           return ctx.setMuted($event);
         });
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(1, SignagePanelComponent_Conditional_1_Template, 1, 6, "media-player", 1);
-        \u0275\u0275conditionalCreate(2, SignagePanelComponent_Conditional_2_Template, 12, 11);
+        \u0275\u0275conditionalCreate(1, SignagePanelComponent_Conditional_1_Template, 1, 12, "media-player", 1);
+        \u0275\u0275conditionalCreate(2, SignagePanelComponent_Conditional_2_Template, 20, 23);
       }
       if (rf & 2) {
-        \u0275\u0275property("playlist", ctx.playlist())("controls", ctx.debug())("muted", ctx.muted())("transparent", ctx.transparent())("override", ctx.override_playlist().playlist.length > 0)("animation_time", ctx.animation_time);
+        \u0275\u0275classProp("z-0", !ctx.debug_layout_editing())("z-auto", ctx.debug_layout_editing());
+        \u0275\u0275property("playlist", ctx.playlist())("controls", ctx.debug())("layout_editing", ctx.debug_layout_editing())("layout_reset_count", ctx.debug_layout_reset_count())("muted", ctx.muted())("transparent", ctx.transparent())("override", ctx.override_playlist().playlist.length > 0)("animation_time", ctx.animation_time);
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.override_playlist().playlist.length > 0 ? 1 : -1);
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.debug() ? 2 : -1);
       }
-    }, dependencies: [MediaPlayerComponent, DatePipe], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n.stroke[_ngcontent-%COMP%] {\n  -webkit-text-stroke: 1px #000;\n}\n/*# sourceMappingURL=signage.component.css.map */"] });
+    }, dependencies: [
+      DebugOverlayComponent,
+      IconComponent,
+      MatRippleModule,
+      MediaPlayerComponent,
+      MatTooltipModule,
+      MatTooltip,
+      DatePipe
+    ], styles: ["\n[_nghost-%COMP%] {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n.stroke[_ngcontent-%COMP%] {\n  -webkit-text-stroke: 1px #000;\n}\n.debug-layout-grid[_ngcontent-%COMP%] {\n  background-image:\n    linear-gradient(\n      to right,\n      color-mix(in srgb, var(--primary) 35%, transparent) 1px,\n      transparent 1px),\n    linear-gradient(\n      to bottom,\n      color-mix(in srgb, var(--primary) 35%, transparent) 1px,\n      transparent 1px);\n  background-size: 5% 5%;\n}\n@media (min-width: 1024px) {\n  .debug-layout-grid[_ngcontent-%COMP%] {\n    background-size: 2.5% 2.5%;\n  }\n}\n/*# sourceMappingURL=signage.component.css.map */"] });
   }
 };
 (() => {
@@ -102843,6 +103534,8 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
         <media-player
             [playlist]="playlist()"
             [controls]="debug()"
+            [layout_editing]="debug_layout_editing()"
+            [layout_reset_count]="debug_layout_reset_count()"
             [muted]="muted()"
             [transparent]="transparent()"
             [override]="override_playlist().playlist.length > 0"
@@ -102850,12 +103543,15 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
             (playing_id)="playing_id.set($event)"
             (event)="handlePlayerEvent($event)"
             (mutedChange)="setMuted($event)"
-            class="z-0"
+            [class.z-0]="!debug_layout_editing()"
+            [class.z-auto]="debug_layout_editing()"
         />
         @if (override_playlist().playlist.length > 0) {
             <media-player
                 [playlist]="override_playlist().playlist"
                 [controls]="debug()"
+                [layout_editing]="debug_layout_editing()"
+                [layout_reset_count]="debug_layout_reset_count()"
                 [can_close]="true"
                 [muted]="muted()"
                 [transparent]="transparent()"
@@ -102864,45 +103560,125 @@ var SignagePanelComponent = class _SignagePanelComponent extends AsyncHandler {
                 (event)="handlePlayerEvent($event, true)"
                 (mutedChange)="setMuted($event)"
                 (closed)="clearOverridePlaylist()"
-                class="absolute inset-0 z-10"
+                class="absolute inset-0"
+                [class.z-10]="!debug_layout_editing()"
+                [class.z-auto]="debug_layout_editing()"
             />
         }
         @if (debug()) {
+            @if (debug_layout_editing()) {
+                <div
+                    data-testid="debug-layout-grid"
+                    class="debug-layout-grid pointer-events-none absolute inset-0 z-10"
+                ></div>
+            }
             <div
-                stroke
-                class="text-base-100/60 bg-base-content/40 absolute bottom-1 left-1 rounded px-2 py-1 font-mono text-[0.625rem]"
+                class="border-base-300 bg-base-100 text-base-content absolute top-0 left-1/2 z-30 flex w-40 -translate-x-1/2 items-center gap-1 rounded-b-lg border-x border-b p-1 text-xs shadow-lg"
+                [attr.aria-label]="
+                    debug_layout_editing()
+                        ? 'Finish editing debug layout'
+                        : 'Edit debug layout'
+                "
             >
-                {{ version_date | date: 'mediumDate' }} &ndash;
-                {{ version_date | date: 'shortTime' }}
-                <span class="opacity-50">|</span>&nbsp;<span
-                    class="select-all"
-                    >{{ version_hash }}</span
-                >
-            </div>
-            <div
-                stroke
-                class="text-base-100/60 bg-base-content/40 absolute right-1 bottom-1 rounded px-2 py-1 font-mono text-[0.625rem]"
-            >
-                {{ playing_id() }}
-                @if (!playing_id()) {
-                    <span>No item playing</span>
+                <div class="flex-1 px-4 text-sm">
+                    {{ debug_layout_editing() ? 'Editing' : 'Edit layout' }}
+                </div>
+                @if (debug_layout_editing()) {
+                    <button
+                        icon
+                        default
+                        aria-label="Reset debug layout"
+                        [matTooltip]="'Reset Layout'"
+                        (click)="resetDebugLayout()"
+                    >
+                        <icon>restart_alt</icon>
+                    </button>
+                    <button
+                        icon
+                        default
+                        aria-label="Finish editing debug layout"
+                        [matTooltip]="'Save Layout'"
+                        class="border-success bg-success-light text-success"
+                        (click)="
+                            debug_layout_editing.set(!debug_layout_editing())
+                        "
+                    >
+                        <icon>{{ 'done' }}</icon>
+                    </button>
+                } @else {
+                    <button
+                        icon
+                        default
+                        aria-label="Edit debug layout"
+                        [matTooltip]="'Edit Layout'"
+                        (click)="
+                            debug_layout_editing.set(!debug_layout_editing())
+                        "
+                    >
+                        <icon>{{ 'dashboard_customize' }}</icon>
+                    </button>
                 }
             </div>
+            <debug-overlay
+                overlay_id="build-details"
+                [editing]="debug_layout_editing()"
+                [reset_count]="debug_layout_reset_count()"
+                label="build details"
+                icon="info"
+                [initial_position]="{ x: 0.01, y: 0.99 }"
+            >
+                <div
+                    stroke
+                    class="text-base-100/60 bg-base-content/40 rounded px-2 py-1 font-mono text-[0.625rem]"
+                >
+                    {{ version_date | date: 'mediumDate' }} &ndash;
+                    {{ version_date | date: 'shortTime' }}
+                    <span class="opacity-50">|</span>&nbsp;<span
+                        class="select-all"
+                        >{{ version_hash }}</span
+                    >
+                </div>
+            </debug-overlay>
+            <debug-overlay
+                overlay_id="playing-item"
+                [editing]="debug_layout_editing()"
+                [reset_count]="debug_layout_reset_count()"
+                label="playing item"
+                icon="perm_media"
+                [initial_position]="{ x: 0.99, y: 0.99 }"
+            >
+                <div
+                    stroke
+                    class="text-base-100/60 bg-base-content/40 rounded px-2 py-1 font-mono text-[0.625rem]"
+                >
+                    {{ playing_id() }}
+                    @if (!playing_id()) {
+                        <span>No item playing</span>
+                    }
+                </div>
+            </debug-overlay>
         }
-    `, imports: [DatePipe, MediaPlayerComponent], styles: ["/* angular:styles/component:css;cd55edd5bec2e27ad72dbab2cf735c69f9dbe31aab8da774385fbf5fd5fffa9b;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/signage.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n.stroke {\n  -webkit-text-stroke: 1px #000;\n}\n/*# sourceMappingURL=signage.component.css.map */\n"] }]
+    `, imports: [
+      DatePipe,
+      DebugOverlayComponent,
+      IconComponent,
+      MatRippleModule,
+      MediaPlayerComponent,
+      MatTooltipModule
+    ], styles: ["/* angular:styles/component:css;b14f5503c90bc73fe8e3edbf873bd4e28c274ac3da8973c1859825c5b030b8eb;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/signage.component.ts */\n:host {\n  display: block;\n  height: 100%;\n  width: 100%;\n}\n.stroke {\n  -webkit-text-stroke: 1px #000;\n}\n.debug-layout-grid {\n  background-image:\n    linear-gradient(\n      to right,\n      color-mix(in srgb, var(--primary) 35%, transparent) 1px,\n      transparent 1px),\n    linear-gradient(\n      to bottom,\n      color-mix(in srgb, var(--primary) 35%, transparent) 1px,\n      transparent 1px);\n  background-size: 5% 5%;\n}\n@media (min-width: 1024px) {\n  .debug-layout-grid {\n    background-size: 2.5% 2.5%;\n  }\n}\n/*# sourceMappingURL=signage.component.css.map */\n"] }]
   }], null, { transparent: [{ type: Input, args: [{ isSignal: true, alias: "transparent", required: false }] }], _players: [{ type: ViewChildren, args: [forwardRef(() => MediaPlayerComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 111 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignagePanelComponent, { className: "SignagePanelComponent", filePath: "apps/signage/src/app/signage.component.ts", lineNumber: 224 });
 })();
 
 // apps/signage/src/app/template-layout.ts
 var EDGE_BAR_SIZE = 15;
 var SIDE_BAR_SIZE = 20;
 var FLOATING_POSITION = 50;
-var clamp2 = (value, max = 100) => Math.min(Math.max(value, 0), Math.max(max, 0));
+var clamp3 = (value, max = 100) => Math.min(Math.max(value, 0), Math.max(max, 0));
 function percentage(value, fallback) {
-  return value === void 0 ? fallback : clamp2(value * 100);
+  return value === void 0 ? fallback : clamp3(value * 100);
 }
 function computeTemplateLayout(layouts) {
   const player = { left: 0, top: 0, width: 100, height: 100 };
@@ -102910,14 +103686,14 @@ function computeTemplateLayout(layouts) {
     let rect;
     switch (layout.position) {
       case "top": {
-        const height = clamp2(percentage(layout.y_pos, EDGE_BAR_SIZE), player.height);
+        const height = clamp3(percentage(layout.y_pos, EDGE_BAR_SIZE), player.height);
         rect = __spreadProps(__spreadValues({}, player), { height });
         player.top += height;
         player.height -= height;
         break;
       }
       case "bottom": {
-        const height = clamp2(percentage(layout.y_pos, EDGE_BAR_SIZE), player.height);
+        const height = clamp3(percentage(layout.y_pos, EDGE_BAR_SIZE), player.height);
         rect = __spreadProps(__spreadValues({}, player), {
           top: player.top + player.height - height,
           height
@@ -102926,14 +103702,14 @@ function computeTemplateLayout(layouts) {
         break;
       }
       case "left": {
-        const width = clamp2(percentage(layout.x_pos, SIDE_BAR_SIZE), player.width);
+        const width = clamp3(percentage(layout.x_pos, SIDE_BAR_SIZE), player.width);
         rect = __spreadProps(__spreadValues({}, player), { width });
         player.left += width;
         player.width -= width;
         break;
       }
       case "right": {
-        const width = clamp2(percentage(layout.x_pos, SIDE_BAR_SIZE), player.width);
+        const width = clamp3(percentage(layout.x_pos, SIDE_BAR_SIZE), player.width);
         rect = __spreadProps(__spreadValues({}, player), {
           left: player.left + player.width - width,
           width
@@ -102971,14 +103747,16 @@ function SignageTemplateComponent_Conditional_1_For_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const item_r2 = ctx.$implicit;
+    const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275styleProp("left", item_r2.rect.left, "%")("top", item_r2.rect.top, "%")("width", item_r2.rect.width, "%")("height", item_r2.rect.height, "%");
+    \u0275\u0275classProp("pointer-events-none", ctx_r0.debug());
     \u0275\u0275property("plugin", item_r2.plugin)("config", item_r2.config)("auto_play", true);
   }
 }
 function SignageTemplateComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "signage-panel", 1);
-    \u0275\u0275repeaterCreate(1, SignageTemplateComponent_Conditional_1_For_2_Template, 1, 11, "plugin-embed", 2, _forTrack06);
+    \u0275\u0275repeaterCreate(1, SignageTemplateComponent_Conditional_1_For_2_Template, 1, 13, "plugin-embed", 2, _forTrack06);
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext();
@@ -103045,6 +103823,7 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
       )
     );
     this._load_id = 0;
+    this.debug = inject2(SignageService).debug;
     this.template = signal(
       null,
       ...ngDevMode ? [{ debugName: "template" }] : (
@@ -103160,7 +103939,7 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
       if (rf & 2) {
         \u0275\u0275classProp("bg-black", !ctx.background_playlist().length);
       }
-    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 2, consts: [[1, "absolute", "inset-0", "z-0", 3, "playlist", "loop", "muted", "transparent"], [1, "absolute", "z-10", 3, "transparent"], [1, "absolute", "z-20", "bg-transparent", 3, "plugin", "config", "auto_play", "left", "top", "width", "height"], [1, "absolute", "z-20", "bg-transparent", 3, "plugin", "config", "auto_play"]], template: function SignageTemplateComponent_Template(rf, ctx) {
+    }, features: [\u0275\u0275InheritDefinitionFeature], decls: 2, vars: 2, consts: [[1, "absolute", "inset-0", "z-0", 3, "playlist", "loop", "muted", "transparent"], [1, "absolute", "z-10", 3, "transparent"], [1, "absolute", "z-20", "bg-transparent", 3, "pointer-events-none", "plugin", "config", "auto_play", "left", "top", "width", "height"], [1, "absolute", "z-20", "bg-transparent", 3, "plugin", "config", "auto_play"]], template: function SignageTemplateComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275conditionalCreate(0, SignageTemplateComponent_Conditional_0_Template, 1, 4, "media-player", 0);
         \u0275\u0275conditionalCreate(1, SignageTemplateComponent_Conditional_1_Template, 3, 9);
@@ -103204,6 +103983,7 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
             @for (item of layout_items(); track item.config.instance_id) {
                 <plugin-embed
                     class="absolute z-20 bg-transparent"
+                    [class.pointer-events-none]="debug()"
                     [plugin]="item.plugin"
                     [config]="item.config"
                     [auto_play]="true"
@@ -103222,7 +104002,7 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageTemplateComponent, { className: "SignageTemplateComponent", filePath: "apps/signage/src/app/template.component.ts", lineNumber: 148 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageTemplateComponent, { className: "SignageTemplateComponent", filePath: "apps/signage/src/app/template.component.ts", lineNumber: 150 });
 })();
 
 // apps/signage/src/app/app.routes.ts
