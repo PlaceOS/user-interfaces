@@ -318,16 +318,19 @@ describe('ParkingBookingsListComponent', () => {
             {
                 id: 'booking-beta',
                 asset_id: 'bay-1',
+                date: selected_date,
                 extension_data: { user_groups: ['Beta', 'Alpha'] },
             },
             {
                 id: 'booking-alpha',
                 asset_id: 'bay-2',
+                date: selected_date,
                 extension_data: { user_groups: ['Alpha', 'Zulu'] },
             },
             {
                 id: 'booking-gamma',
                 asset_id: 'bay-3',
+                date: selected_date,
                 extension_data: { user_groups: ['Gamma'] },
             },
         ] as unknown as Booking[];
@@ -359,6 +362,55 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(0);
     });
 
+    it('should show request and allocation parking groups', () => {
+        show_user_groups = ['Staff'];
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                date: selected_date,
+                extension_data: {
+                    user_groups: ['Staff'],
+                    parking_group: '  HIO PlaceOS P1 Parking  ',
+                },
+            },
+        ] as unknown as Booking[];
+        spectator = createComponent();
+
+        const table = spectator.query(SimpleTableComponent);
+        const columns = table?.active_columns();
+
+        expect(columns?.map((column) => column.key)).toEqual(
+            expect.arrayContaining(['user_groups', 'parking_group']),
+        );
+        expect(
+            columns?.findIndex((column) => column.key === 'parking_group'),
+        ).toBe(
+            (columns?.findIndex((column) => column.key === 'user_groups') ??
+                -1) + 1,
+        );
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            user_groups: ['Staff'],
+            parking_group: 'HIO PlaceOS P1 Parking',
+        });
+    });
+
+    it('should leave missing or blank allocation groups empty', () => {
+        spectator = createComponent();
+
+        expect(
+            spectator.component.allocationGroup({
+                extension_data: { parking_group: '   ' },
+            } as unknown as Booking),
+        ).toBe('');
+        expect(
+            spectator.component.allocationGroup({
+                extension_data: { parking_group: null },
+            } as unknown as Booking),
+        ).toBe('');
+        expect(spectator.component.allocationGroup({} as Booking)).toBe('');
+    });
+
     it('should resolve and sort parking space restrictions by name', () => {
         show_user_groups = ['Staff'];
         space_restriction_options = [
@@ -370,6 +422,7 @@ describe('ParkingBookingsListComponent', () => {
             {
                 id: 'booking-electric',
                 asset_id: 'bay-2',
+                date: selected_date,
                 extension_data: {
                     user_groups: ['Staff'],
                     space_restrictions: 2,
@@ -378,11 +431,13 @@ describe('ParkingBookingsListComponent', () => {
             {
                 id: 'booking-none',
                 asset_id: 'bay-3',
+                date: selected_date,
                 extension_data: { space_restrictions: 1 },
             },
             {
                 id: 'booking-acrod',
                 asset_id: 'bay-1',
+                date: selected_date,
                 extension_data: { space_restrictions: 9 },
             },
         ] as unknown as Booking[];
@@ -403,7 +458,7 @@ describe('ParkingBookingsListComponent', () => {
             space_restriction: 'Electric Vehicle',
         });
         expect(column_keys?.indexOf('space_restriction')).toBe(
-            (column_keys?.indexOf('user_groups') ?? -1) + 1,
+            (column_keys?.indexOf('parking_group') ?? -1) + 1,
         );
         expect(table?.column('space_restriction')?.name).toBe(
             'Space Restriction',

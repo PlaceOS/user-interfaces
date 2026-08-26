@@ -149,8 +149,27 @@ import {
                                     </div>
                                 }
                                 @if (matchedUserGroups(booking); as groups) {
-                                    <div class="mt-0.5 opacity-40">
+                                    <div
+                                        class="mt-0.5 opacity-40"
+                                        data-testid="parking-request-group"
+                                    >
+                                        {{
+                                            'APP.CONCIERGE.PARKING_USER_GROUPS'
+                                                | translate
+                                        }}:
                                         {{ groups }}
+                                    </div>
+                                }
+                                @if (allocationGroup(booking); as group) {
+                                    <div
+                                        class="mt-0.5 opacity-40"
+                                        data-testid="parking-allocation-group"
+                                    >
+                                        {{
+                                            'APP.CONCIERGE.PARKING_ALLOCATION_GROUP'
+                                                | translate
+                                        }}:
+                                        {{ group }}
                                     </div>
                                 }
                                 <button
@@ -513,6 +532,11 @@ export class ParkingBookingsWeekViewComponent extends AsyncHandler {
         const groups = booking?.extension_data?.user_groups;
         if (!Array.isArray(groups)) return '';
         return groups.filter((group) => allowed.includes(group)).join(', ');
+    }
+
+    public allocationGroup(booking: Booking): string {
+        const group = booking?.extension_data?.parking_group;
+        return typeof group === 'string' ? group.trim() : '';
     }
 
     /** Status colour tone for tentative bookings, empty for any other status */

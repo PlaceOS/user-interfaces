@@ -58,6 +58,7 @@ interface ParkingBookingColumnTemplates {
     status_template: TemplateRef<any>;
     requested_at_template: TemplateRef<any>;
     user_groups_template: TemplateRef<any>;
+    allocation_group_template: TemplateRef<any>;
     action_template: TemplateRef<any>;
     status_busy_label: string;
     type_label: string;
@@ -69,6 +70,7 @@ interface ParkingBookingColumnTemplates {
     notes_label: string;
     status_label: string;
     user_groups_label: string;
+    allocation_group_label: string;
 }
 
 @Component({
@@ -125,6 +127,7 @@ interface ParkingBookingColumnTemplates {
                             status_template,
                             requested_at_template,
                             user_groups_template,
+                            allocation_group_template,
                             action_template,
                             status_busy_label: 'COMMON.STATUS_BUSY' | translate,
                             type_label:
@@ -143,6 +146,9 @@ interface ParkingBookingColumnTemplates {
                             status_label: 'COMMON.STATUS' | translate,
                             user_groups_label:
                                 'APP.CONCIERGE.PARKING_USER_GROUPS' | translate,
+                            allocation_group_label:
+                                'APP.CONCIERGE.PARKING_ALLOCATION_GROUP'
+                                | translate,
                         })
                     "
                     [filter]="options().search"
@@ -514,6 +520,11 @@ interface ParkingBookingColumnTemplates {
                         {{ row.user_groups.join(', ') }}
                     </div>
                 </ng-template>
+                <ng-template #allocation_group_template let-row="row">
+                    <div class="px-4 py-2">
+                        {{ row.parking_group }}
+                    </div>
+                </ng-template>
                 <ng-template #action_template let-row="row">
                     <div class="flex w-full items-center justify-end gap-2 p-2">
                         <button
@@ -666,6 +677,7 @@ export class ParkingBookingsListComponent
                 // Intersection of the booking's user groups with the
                 // configured `show_user_groups` filter, surfaced for display.
                 user_groups: this.matchedUserGroups(booking),
+                parking_group: this.allocationGroup(booking),
                 space_restriction: this.spaceRestriction(booking),
                 ...this.customExtensionColumnValues(booking),
             }))
@@ -776,6 +788,11 @@ export class ParkingBookingsListComponent
 
     public sortUserGroups(a: string[] = [], b: string[] = []) {
         return (a[0] || '').localeCompare(b[0] || '');
+    }
+
+    public allocationGroup(booking: Booking): string {
+        const group = booking?.extension_data?.parking_group;
+        return typeof group === 'string' ? group.trim() : '';
     }
 
     public get space_restriction_options(): ParkingSpaceRestrictionOption[] {
@@ -986,6 +1003,13 @@ export class ParkingBookingsListComponent
                 content: templates.user_groups_template,
                 size: '12rem',
                 sort_fn: this.sortUserGroups,
+                show: this.show_user_groups.length > 0,
+            },
+            {
+                key: 'parking_group',
+                name: templates.allocation_group_label,
+                content: templates.allocation_group_template,
+                size: '12rem',
                 show: this.show_user_groups.length > 0,
             },
             {
