@@ -98,12 +98,7 @@ describe('MediaPlayerComponent', () => {
         spectator.setInput('controls', true);
         spectator.detectChanges();
 
-        expect(
-            spectator.query('time-controls')?.parentElement?.classList,
-        ).toContain('z-20');
-        expect(
-            spectator.query('media-controls')?.parentElement?.classList,
-        ).toContain('z-20');
+        expect(spectator.queryAll('debug-overlay')).toHaveLength(3);
     });
 
     it('should allow the player background to be transparent', () => {

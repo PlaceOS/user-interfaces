@@ -92,6 +92,7 @@ describe('SpaceSelectModalComponent', () => {
 
     it('should allow favouriting a space', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
+        expect(spectator.component.favorites()).toEqual(['1']);
         expect(
             spectator.inject(SettingsService).saveUserSetting,
         ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, ['1']);
@@ -159,6 +160,7 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
     it('should allow un-favouriting a space', () => {
         spectator.component.favorites.set(['1']);
         spectator.component.toggleFavourite(new Space({ id: '1' }));
+        expect(spectator.component.favorites()).toEqual([]);
         expect(
             spectator.inject(SettingsService).saveUserSetting,
         ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, []);

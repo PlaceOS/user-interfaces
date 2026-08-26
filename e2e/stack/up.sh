@@ -63,9 +63,11 @@ fi
 # Self-diagnose on failure.
 #
 # `compose --wait` reports only "container X is unhealthy" and exits. On a CI
-# runner that is the whole of the evidence unless something dumps more — the
-# reason is usually in a container log nobody had collected. Print state and
-# logs for EVERY service here, so the step output alone explains the failure.
+# runner that is the whole of the evidence unless something dumps more, and the
+# first GitHub Actions run failed with exactly that one line — the reason
+# (Elasticsearch refusing to boot without a memlock rlimit) was in a container log
+# nobody had collected. Print state and logs for EVERY service here, so the step
+# output alone explains the failure.
 diagnose() {
     echo
     echo "=== compose ps ==="
@@ -79,8 +81,8 @@ trap 'rc=$?; [[ $rc -ne 0 ]] && diagnose; exit $rc' ERR
 step "starting services"
 # Bounded so a stuck container fails with a clear message rather than hanging
 # until the job timeout.
-dc up -d --wait --wait-timeout 300 postgres redis
-dc up -d frontend-loader auth rest-api staff-api nginx
+dc up -d --wait --wait-timeout 300 postgres elastic redis
+dc up -d search-ingest frontend-loader auth rest-api staff-api nginx
 
 step "waiting for the API"
 for i in $(seq 1 60); do

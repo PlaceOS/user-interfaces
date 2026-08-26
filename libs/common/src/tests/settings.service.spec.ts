@@ -1,11 +1,14 @@
 import { Title } from '@angular/platform-browser';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
 
-import { setCurrentUser } from '../lib/user-state';
 import { SettingsService } from '../lib/settings.service';
+import { setCurrentUser } from '../lib/user-state';
 
 // Only the external ts-client API layer is stubbed; the real user-state store
 // is seeded with a loaded user so settings initialisation can complete.
@@ -63,5 +66,20 @@ describe('SettingsService', () => {
         const service = spectator.service;
         await whenInitialised(service);
         expect(service.get('test_something_non_existent')).toBe(null);
+    });
+
+    it.each([
+        'favourite_desks',
+        'favourite_parking_spaces',
+        'favourite_assets',
+        'favourite_menu_items',
+    ])('should update the %s signal before saving', async (key) => {
+        const service = spectator.service;
+        await whenInitialised(service);
+        const favorites = service.signal<string[]>(key, [], true);
+
+        service.saveUserSetting(key, ['item-1']);
+
+        expect(favorites()).toEqual(['item-1']);
     });
 });

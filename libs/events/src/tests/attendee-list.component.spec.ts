@@ -50,8 +50,7 @@ describe('AttendeeListComponent', () => {
         ).toEqual(['host@example.com', 'attendee@example.com']);
     });
 
-    it('should keep external host details when directory lookup fails', async () => {
-        vi.mocked(ts_client.get).mockRejectedValue(new Error('Not found'));
+    it('should use external host details from the attendee list', async () => {
         spectator.setInput({
             host: 'external.host@vantageeng.au',
             list: [
@@ -63,12 +62,11 @@ describe('AttendeeListComponent', () => {
         });
 
         spectator.detectChanges();
-        await vi.waitFor(() => expect(ts_client.get).toHaveBeenCalledTimes(2));
         await spectator.fixture.whenStable();
-        spectator.detectChanges();
 
         expect('[attendee]').toHaveText('External Host');
         expect('[attendee]').toHaveText('external.host@vantageeng.au');
+        expect(ts_client.get).not.toHaveBeenCalled();
     });
 
     it('should not duplicate or show a hidden host', () => {

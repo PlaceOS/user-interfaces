@@ -1,20 +1,22 @@
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ZonesSectionComponent } from '../../app/zones/zones.component';
 import { SignageService } from '../../app/signage.service';
+import { ZonesSectionComponent } from '../../app/zones/zones.component';
 
 describe('ZonesSectionComponent', () => {
     const selected_zone = signal<any>(null);
     const all_zones = signal<any[]>([]);
     const playlists = signal<any[]>([]);
     const displays = signal<any[]>([]);
+    const templates_enabled = signal(true);
     const navigate = vi.fn();
     const service_stub = {
         selected_zone,
         all_zones,
         playlists,
         displays,
+        templates_enabled,
     };
     const router_stub = { navigate };
 
@@ -43,6 +45,7 @@ describe('ZonesSectionComponent', () => {
         all_zones.set([]);
         playlists.set([]);
         displays.set([]);
+        templates_enabled.set(true);
     });
 
     it('counts playlists on the zone and displays that reference it', async () => {
@@ -88,6 +91,15 @@ describe('ZonesSectionComponent', () => {
         TestBed.flushEffects();
 
         expect(component.view_tab()).toBe('displays');
+    });
+
+    it('opens the templates tab when template management is enabled', async () => {
+        const [component, fixture] = await make();
+        fixture.componentRef.setInput('tab', 'templates');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        expect(component.view_tab()).toBe('templates');
     });
 
     it('navigates and updates the tab when switching views', async () => {

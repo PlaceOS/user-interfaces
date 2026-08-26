@@ -1080,37 +1080,41 @@ export class EventFormService extends AsyncHandler {
             const assets =
                 this._model().assets || event.extension_data.assets || [];
             if (assets.length) {
-                const requests = await validateAssetRequestsForResource(
-                    created_event,
-                    {
-                        date: all_day_period.date,
-                        duration: all_day_period.duration,
-                        host: value.host,
-                        all_day: value.all_day,
-                        location_name:
-                            spaces[0]?.display_name || spaces[0]?.name || '',
-                        location_id: spaces[0]?.id || '',
-                        zones: unique([
-                            this._org.organisation.id,
-                            this._org.region?.id,
-                            this._org.building?.id,
-                            ...(spaces[0]?.zones || []),
-                        ]).filter((_) => !!_),
-                        reset_state: has_time_changed,
-                    },
-                    assets,
-                    changed_spaces.length > 0 || has_time_changed,
-                ).catch((e) =>
-                    this._removeBookingAfterError(
+                try {
+                    const requests = await validateAssetRequestsForResource(
+                        created_event,
+                        {
+                            date: all_day_period.date,
+                            duration: all_day_period.duration,
+                            host: value.host,
+                            all_day: value.all_day,
+                            location_name:
+                                spaces[0]?.display_name ||
+                                spaces[0]?.name ||
+                                '',
+                            location_id: spaces[0]?.id || '',
+                            zones: unique([
+                                this._org.organisation.id,
+                                this._org.region?.id,
+                                this._org.building?.id,
+                                ...(spaces[0]?.zones || []),
+                            ]).filter((_) => !!_),
+                            reset_state: has_time_changed,
+                        },
+                        assets,
+                        changed_spaces.length > 0 || has_time_changed,
+                    );
+                    if (!requests)
+                        throw i18n('CALENDAR_EVENT.ASSETS_INVALID_ERROR');
+                    await requests();
+                } catch (e) {
+                    await this._removeBookingAfterError(
                         !event.id,
                         created_event,
                         true,
                         e,
-                    ),
-                );
-                if (!requests)
-                    throw i18n('CALENDAR_EVENT.ASSETS_INVALID_ERROR');
-                await requests();
+                    );
+                }
             }
             this.clearForm();
             sessionStorage.setItem(

@@ -16,6 +16,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignageTemplateComponent', () => {
     let spectator: SpectatorRouting<SignageTemplateComponent>;
+    const debug = signal(false);
 
     const create_component = createRoutingFactory({
         component: SignageTemplateComponent,
@@ -24,7 +25,7 @@ describe('SignageTemplateComponent', () => {
             MockProvider(SignageService, {
                 playlist: signal([]),
                 override_playlist: signal({ ends_at: 0, playlist: [] }),
-                debug: signal(false),
+                debug,
                 playing_id: signal(''),
                 setDisplay: vi.fn(),
                 clearPlaylistOverride: vi.fn(),
@@ -43,6 +44,7 @@ describe('SignageTemplateComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         localStorage.clear();
+        debug.set(false);
         (ts_client.showSignageTemplate as any).mockResolvedValue({
             id: 'template-1',
             background_item_id: 'background-1',
@@ -109,6 +111,9 @@ describe('SignageTemplateComponent', () => {
         });
         expect(spectator.element.classList).not.toContain('bg-black');
         expect(spectator.component.layout_items()).toHaveLength(1);
+        expect(spectator.query('plugin-embed')?.classList).not.toContain(
+            'pointer-events-none',
+        );
         expect(spectator.component.layout_items()[0].config).toEqual({
             instance_id: 'template-1-layout-0',
             config: { colour: 'blue', title: 'Welcome' },
@@ -138,6 +143,22 @@ describe('SignageTemplateComponent', () => {
         expect(spectator.component.background_playlist()).toEqual([]);
         expect(spectator.element.classList).toContain('bg-black');
         expect(ts_client.showSignageMedia).not.toHaveBeenCalled();
+    });
+
+    it('should not let a template overlay capture debug controls', async () => {
+        spectator = create_component({
+            params: { template_id: 'template-1', system_id: 'display-1' },
+        });
+        await vi.waitFor(() => {
+            expect(spectator.component.layout_items()).toHaveLength(1);
+        });
+
+        debug.set(true);
+        await spectator.fixture.whenStable();
+
+        expect(spectator.query('plugin-embed')?.classList).toContain(
+            'pointer-events-none',
+        );
     });
 
     it('uses the stored display when opening a template without one', () => {

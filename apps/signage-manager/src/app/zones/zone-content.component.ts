@@ -5,6 +5,7 @@ import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
+import { TemplateMappingsComponent } from '../shared/template-mappings.component';
 import { SignageService } from '../signage.service';
 
 type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
@@ -14,14 +15,13 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
     template: `
         @if (selected_zone()) {
             <div class="flex h-full flex-col overflow-hidden">
-                <div class="flex min-h-0 flex-1 flex-col gap-3 p-3 lg:flex-row">
+                <div class="flex min-h-0 flex-1 flex-col gap-3 p-3">
                     <div
                         id="zone-playlists-panel"
                         role="tabpanel"
                         aria-labelledby="zone-playlists-tab"
-                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border lg:min-w-0"
-                        [class.tablet-hidden]="activeTab() === 'displays'"
-                        [class.tablet-full]="activeTab() === 'playlists'"
+                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border"
+                        [class.hidden]="activeTab() !== 'playlists'"
                     >
                         <div
                             class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
@@ -203,9 +203,8 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                         id="zone-displays-panel"
                         role="tabpanel"
                         aria-labelledby="zone-displays-tab"
-                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border lg:min-w-0"
-                        [class.tablet-hidden]="activeTab() === 'playlists'"
-                        [class.tablet-full]="activeTab() === 'displays'"
+                        class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border"
+                        [class.hidden]="activeTab() !== 'displays'"
                     >
                         <div
                             class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
@@ -299,6 +298,19 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                             }
                         </div>
                     </div>
+                    @if (activeTab() === 'templates') {
+                        <div
+                            id="zone-templates-panel"
+                            role="tabpanel"
+                            aria-labelledby="zone-templates-tab"
+                            class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-hidden rounded-lg border"
+                        >
+                            <template-mappings
+                                target_type="zone"
+                                [target_id]="selected_zone().id"
+                            />
+                        </div>
+                    }
                 </div>
             </div>
         } @else {
@@ -317,19 +329,6 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
                 flex-direction: column;
                 height: 100%;
             }
-
-            .tablet-hidden {
-                @media (max-width: 1023px) {
-                    display: none !important;
-                }
-            }
-
-            .tablet-full {
-                @media (max-width: 1023px) {
-                    flex: 1;
-                    min-width: 0;
-                }
-            }
         `,
     ],
     imports: [
@@ -339,12 +338,15 @@ type PlaylistStatus = 'expired' | 'pending' | 'awaiting_approval' | null;
         IconComponent,
         TranslatePipe,
         PlaylistThumbnailComponent,
+        TemplateMappingsComponent,
     ],
 })
 export class ZoneContentComponent {
     private readonly _service = inject(SignageService);
 
-    public readonly activeTab = input<'playlists' | 'displays'>('playlists');
+    public readonly activeTab = input<'playlists' | 'displays' | 'templates'>(
+        'playlists',
+    );
     public readonly selected_zone = this._service.selected_zone;
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;

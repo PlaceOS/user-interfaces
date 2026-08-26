@@ -9,9 +9,11 @@ import {
 } from '@placeos/common';
 import {
     addSignageMedia,
+    addSignageTemplateMapping,
     del,
     listSignagePlaylistMedia,
     listSignageTemplateApprovers,
+    query,
     querySignagePlugins,
     removeSignageMedia,
     requestApprovalSignageTemplate,
@@ -28,6 +30,7 @@ import {
     updateSignagePlaylistMedia,
     updateSignagePlaylistMediaSchedule,
     updateSignageTemplate,
+    updateSignageTemplateMapping,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
 import { MediaPreviewModalComponent } from '../app/shared/media-preview-modal.component';
@@ -35,7 +38,9 @@ import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.componen
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
 import { SignageSharedWithComponent } from '../app/shared/signage-shared-with.component';
 import { TemplateApproveModalComponent } from '../app/shared/template-approve-modal.component';
+import { TemplateMappingModalComponent } from '../app/shared/template-mapping-modal.component';
 import { TemplateRequestApprovalModalComponent } from '../app/shared/template-request-approval-modal.component';
+import { HydratedSignageTemplateMapping } from '../app/signage-template-mapping';
 import { SignageService } from '../app/signage.service';
 
 type SignageServiceTestAccess = SignageService & Record<string, any>;
@@ -976,5 +981,117 @@ describe('SignageService media uploads', () => {
             service.selected_template()?.layouts,
         );
         expect(service.template_layout_dirty()).toBe(false);
+    });
+
+    it('queries only approved templates for the mapping picker', async () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        test_service['_canQueryLists'] = () => true;
+        selectApiGroup(service, 'group-1');
+        (query as any).mockImplementation(async (options: any) => ({
+            total: 1,
+            next: () => null,
+            data: [
+                options.fn({
+                    id: 'template-1',
+                    name: 'Welcome',
+                    approved: true,
+                }),
+            ],
+        }));
+
+        const templates = await service.listApprovedTemplates();
+
+        expect(templates[0]).toBeInstanceOf(SignageTemplate);
+        expect(query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                path: 'signage/templates',
+                query_params: expect.objectContaining({
+                    approved: true,
+                    group_id: 'group-1',
+                }),
+            }),
+        );
+    });
+
+    it('keeps hydrated template details when listing mappings', async () => {
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        test_service['_canQueryLists'] = () => true;
+        (query as any).mockImplementation(async (options: any) => ({
+            total: 1,
+            next: () => null,
+            data: [
+                options.fn({
+                    id: 'mapping-1',
+                    zone_id: 'zone-1',
+                    template_id: 'template-1',
+                    template_details: { name: 'Welcome' },
+                }),
+            ],
+        }));
+
+        const mappings = await service.listTemplateMappings({
+            zone_id: 'zone-1',
+        });
+
+        expect(mappings[0]).toBeInstanceOf(HydratedSignageTemplateMapping);
+        expect(mappings[0].template_details.name).toBe('Welcome');
+        expect(query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                path: 'signage/template_mappings',
+                query_params: expect.objectContaining({ zone_id: 'zone-1' }),
+            }),
+        );
+    });
+
+    it('creates a mapping with its target and updates only its schedule', async () => {
+        const service = createService();
+        vi.spyOn(service, 'listApprovedTemplates').mockResolvedValue([
+            new SignageTemplate({
+                id: 'template-1',
+                name: 'Welcome',
+                approved: true,
+            }),
+        ]);
+        vi.mocked(addSignageTemplateMapping).mockResolvedValue({} as any);
+        vi.mocked(updateSignageTemplateMapping).mockResolvedValue({} as any);
+        const schedule = {
+            play_at: 0,
+            play_cron: '0 9 * * *',
+            play_period: 60,
+            play_takeover: false,
+        };
+
+        await service.editTemplateMapping({ control_system_id: 'display-1' });
+        const add_config = dialog.open.mock.calls.at(-1)?.[1] as any;
+        await add_config.data.save('template-1', schedule);
+
+        expect(dialog.open).toHaveBeenLastCalledWith(
+            TemplateMappingModalComponent,
+            expect.anything(),
+        );
+        expect(addSignageTemplateMapping).toHaveBeenCalledWith({
+            control_system_id: 'display-1',
+            template_id: 'template-1',
+            schedule,
+        });
+
+        const mapping = new HydratedSignageTemplateMapping({
+            id: 'mapping-1',
+            template_id: 'template-1',
+            control_system_id: 'display-1',
+            template_details: { name: 'Welcome' },
+        });
+        await service.editTemplateMapping(
+            { control_system_id: 'display-1' },
+            mapping,
+        );
+        const edit_config = dialog.open.mock.calls.at(-1)?.[1] as any;
+        await edit_config.data.save('template-changed', null);
+
+        expect(updateSignageTemplateMapping).toHaveBeenCalledWith('mapping-1', {
+            schedule: null,
+        });
     });
 });

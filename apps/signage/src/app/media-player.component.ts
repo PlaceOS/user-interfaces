@@ -22,6 +22,7 @@ import {
     SignagePluginMessageType,
 } from '@placeos/components';
 import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
+import { DebugOverlayComponent } from './debug-overlay.component';
 import { MediaControlsComponent } from './media-controls.component';
 import {
     findValidPlaylistIndex,
@@ -152,10 +153,26 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                 }
             </div>
             @if (controls()) {
-                <div class="absolute top-0 left-0 z-20 p-4">
+                <debug-overlay
+                    [overlay_id]="can_close() ? 'override-time' : 'player-time'"
+                    [editing]="layout_editing()"
+                    [reset_count]="layout_reset_count()"
+                    label="debug time"
+                    icon="event"
+                    [initial_position]="{ x: 0.01, y: 0.01 }"
+                >
                     <time-controls />
-                </div>
-                <div class="absolute bottom-0 left-1/2 z-20 -translate-x-1/2">
+                </debug-overlay>
+                <debug-overlay
+                    [overlay_id]="
+                        can_close() ? 'override-playback' : 'player-playback'
+                    "
+                    [editing]="layout_editing()"
+                    [reset_count]="layout_reset_count()"
+                    label="playback controls"
+                    icon="play_circle"
+                    [initial_position]="{ x: 0.5, y: 0.99 }"
+                >
                     <media-controls
                         [state]="state()"
                         [loop]="loop()"
@@ -169,10 +186,15 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                         [loading]="waiting_for_item()"
                         (event)="handleControlEvent($event)"
                     />
-                </div>
+                </debug-overlay>
                 @if (can_close()) {
-                    <div
-                        class="absolute top-0 left-1/2 z-20 -translate-x-1/2 p-2"
+                    <debug-overlay
+                        overlay_id="override-details"
+                        [editing]="layout_editing()"
+                        [reset_count]="layout_reset_count()"
+                        label="override details"
+                        icon="priority_high"
+                        [initial_position]="{ x: 0.5, y: 0.01 }"
                     >
                         <div
                             class="border-base-200 bg-base-100 flex items-center space-x-4 rounded-full border p-2"
@@ -197,26 +219,24 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                                 <icon>close</icon>
                             </button>
                         </div>
-                    </div>
+                    </debug-overlay>
                 }
-                @if (show_playlist()) {
-                    <div class="absolute top-0 right-0 z-20 p-4">
-                        <playlist-display
-                            [index]="index()"
-                            [playlist]="playlist_items"
-                            (selected)="setPlaylistItem($event)"
-                        />
-                    </div>
-                }
-                <button
-                    icon
-                    default
-                    matRipple
-                    class="absolute top-6 right-6 z-20"
-                    (click)="show_playlist.set(!show_playlist())"
+                <debug-overlay
+                    [overlay_id]="
+                        can_close() ? 'override-playlist' : 'player-playlist'
+                    "
+                    [editing]="layout_editing()"
+                    [reset_count]="layout_reset_count()"
+                    label="playlist"
+                    icon="queue_music"
+                    [initial_position]="{ x: 0.99, y: 0.01 }"
                 >
-                    <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>
-                </button>
+                    <playlist-display
+                        [index]="index()"
+                        [playlist]="playlist_items"
+                        (selected)="setPlaylistItem($event)"
+                    />
+                </debug-overlay>
             }
         </div>
     `,
@@ -237,6 +257,7 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
     ],
     imports: [
         MatRippleModule,
+        DebugOverlayComponent,
         PlaylistDisplayComponent,
         IconComponent,
         MediaControlsComponent,
@@ -250,6 +271,8 @@ export class MediaPlayerComponent
 {
     public readonly playlist = input<MediaPlayerItem[]>([]);
     public readonly controls = input(false);
+    public readonly layout_editing = input(false);
+    public readonly layout_reset_count = input(0);
     /** Let media render over a parent surface, such as a signage template. */
     public readonly transparent = input(false);
     public readonly override = input(false);
@@ -276,7 +299,6 @@ export class MediaPlayerComponent
     public readonly progress = signal(0);
     public readonly progress_start = signal(0);
     public readonly progress_duration = signal(0);
-    public readonly show_playlist = signal(true);
     public readonly hold_over_item = signal(true);
     public readonly in_animation = signal(false);
     public readonly defer_reveal = signal(false);

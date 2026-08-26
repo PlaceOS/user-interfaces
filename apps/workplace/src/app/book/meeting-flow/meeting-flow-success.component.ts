@@ -58,13 +58,14 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                             }}
                         }
                     </p>
-                    @if (last_event()?.recurrence?.pattern) {
+                    @if (formatted_recurrence()) {
                         <div
+                            recurrence
                             class="bg-base-200 flex items-center space-x-2 rounded-lg px-4 py-2"
                         >
                             <icon class="text-xl">update</icon>
                             <div class="text-sm">
-                                {{ formatted_recurrence }}
+                                {{ formatted_recurrence() }}
                             </div>
                         </div>
                     }
@@ -128,6 +129,18 @@ export class MeetingFlowSuccessComponent implements OnInit {
     public readonly level = computed(() => {
         return this._org.levelWithID(this.space().zones) || new BuildingLevel();
     });
+    public readonly formatted_recurrence = computed(() => {
+        const event = this.last_event();
+        if (!event?.recurrence?.pattern) return '';
+        const recurrence_start = event.recurrence.start || event.date;
+        return formatRecurrence(
+            fromEventRecurrence({
+                ...event.recurrence,
+                start: recurrence_start,
+            }),
+            recurrence_start,
+        );
+    });
 
     public get allow_desk_booking() {
         return (
@@ -138,19 +151,6 @@ export class MeetingFlowSuccessComponent implements OnInit {
 
     public get time_format() {
         return this._settings.time_format;
-    }
-
-    public get formatted_recurrence() {
-        const event = this.last_event();
-        if (!event?.recurrence?.pattern) return '';
-
-        return formatRecurrence(
-            fromEventRecurrence({
-                ...event.recurrence,
-                start: event.recurrence.start || event.date,
-            }),
-            event.recurrence.start || event.date,
-        );
     }
 
     public async ngOnInit() {

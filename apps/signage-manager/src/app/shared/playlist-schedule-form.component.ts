@@ -1064,7 +1064,7 @@ export class PlaylistScheduleFormComponent {
     private readonly _date_pipe = new DatePipe(this._locale.locale);
 
     public readonly schedule =
-        input.required<FieldTree<PlaylistScheduleFormModel, number>>();
+        input.required<FieldTree<PlaylistScheduleFormModel>>();
     public readonly index = input.required<number>();
     public readonly open = input(false);
     public readonly can_remove = input(false);

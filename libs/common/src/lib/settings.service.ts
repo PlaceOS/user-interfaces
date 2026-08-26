@@ -260,6 +260,7 @@ export class SettingsService extends AsyncHandler {
 
     public saveUserSetting<T>(name: string, value: T) {
         this._pending_settings[name] = value;
+        this._updateSignals();
         if (name === 'dark_mode') this.setTheme(value ? 'dark' : '');
         if (name === 'font_size') this._setFontSize();
         this.timeout('save_settings', () => this._savePendingChanges(), 2400);

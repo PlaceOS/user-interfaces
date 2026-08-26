@@ -3,11 +3,14 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
+    AssetRequest,
     CalendarEvent,
     currentUser,
+    i18n,
     OrganisationService,
     setCurrentUser,
     SettingsService,
+    Space,
 } from '@placeos/common';
 import { Subject } from 'rxjs';
 
@@ -48,6 +51,7 @@ describe('EventFormService', () => {
                         initialised: signal(true),
                         organisation: { id: 'org-1' },
                         region: { id: 'reg-1' },
+                        waitUntilInitialised: vi.fn(() => Promise.resolve()),
                     },
                 },
                 {
@@ -602,6 +606,108 @@ describe('EventFormService', () => {
             Math.floor(submitted_start / 1000),
         );
         expect(last_success.event_end).toBe(Math.floor(submitted_end / 1000));
+    });
+
+    function prepareRoomAssetBooking(item_ids?: string[]) {
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const space = new Space({
+            id: 'space-1',
+            email: 'space-1@test.com',
+            zones: ['bld-1'],
+        });
+        const asset_request = new AssetRequest({
+            items: [
+                {
+                    id: 'asset-type-1',
+                    ...(item_ids ? { item_ids } : {}),
+                    name: 'Projector',
+                    quantity: 1,
+                },
+            ],
+        });
+        vi.spyOn((service as any)._space_pipe, 'transform').mockResolvedValue(
+            space,
+        );
+        vi.spyOn(service as any, '_checkResourcesAvailable').mockResolvedValue(
+            true,
+        );
+        vi.spyOn(service as any, '_checkResourceRules').mockResolvedValue(true);
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+            data: [{ id: 'asset-type-1', name: 'Projectors' }],
+            total: 1,
+        } as any);
+        vi.mocked(ts_client.queryAssets).mockResolvedValue({
+            data: [{ id: 'asset-1', asset_type_id: 'asset-type-1' }],
+            total: 1,
+        } as any);
+        vi.mocked(ts_client.post).mockResolvedValue({
+            id: 'asset-booking-1',
+        } as any);
+        vi.spyOn(service as any, '_performBooking').mockResolvedValue(
+            new CalendarEvent({
+                id: 'event-1',
+                title: 'Room with asset',
+                date,
+                duration: 60,
+                attendees: [],
+                resources: [],
+            }),
+        );
+
+        service.newForm();
+        service.model.update((model) => ({
+            ...model,
+            host: 'host@test.com',
+            organiser: { email: 'host@test.com' } as any,
+            creator: 'host@test.com',
+            title: 'Room with asset',
+            date,
+            duration: 60,
+            attendees: [],
+            resources: [
+                {
+                    ...space,
+                },
+            ],
+            assets: [asset_request],
+        }));
+    }
+
+    it('should complete a room booking with an asset request', async () => {
+        prepareRoomAssetBooking();
+
+        await expect(service.postForm(true)).resolves.toMatchObject({
+            id: 'event-1',
+        });
+        expect(ts_client.queryAssetTypes).toHaveBeenCalledWith(
+            expect.objectContaining({
+                zone_id: 'org-1,reg-1,bld-1',
+            }),
+        );
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings?'),
+            expect.objectContaining({
+                asset_id: 'asset-1',
+                asset_ids: ['asset-1'],
+            }),
+        );
+    });
+
+    it('should remove a new room booking when its asset request fails', async () => {
+        prepareRoomAssetBooking(['asset-1']);
+        vi.mocked(ts_client.post).mockRejectedValue({
+            status: 400,
+        });
+        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
+
+        await expect(service.postForm(true)).rejects.toBe(
+            i18n('CALENDAR_EVENT.ASSETS_ERROR'),
+        );
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/events/event-1?'),
+            expect.objectContaining({ response_type: 'void' }),
+        );
     });
 
     it('should post the selected time after reloading a new meeting form', async () => {
