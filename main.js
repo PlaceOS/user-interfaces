@@ -59913,6 +59913,7 @@ var SIGNAGE_MANAGER = {
   APPROVE_PLAYLIST: "Approve Playlist",
   APPROVE_PLAYLIST_TOOLTIP: "Approve playlist",
   APPLY_SCHEDULE: "Apply schedule",
+  APPLY_TEMPLATE: "Apply template",
   APPROVE_SELECTED_PLAYLIST: "Approve selected playlist",
   APPROVE_SELECTED_TEMPLATE: "Approve selected template",
   APPROVE_TEMPLATE: "Approve Template",
@@ -59961,6 +59962,8 @@ var SIGNAGE_MANAGER = {
   DEFAULT_ANIMATION: "Default animation",
   DEFAULT_DURATION: "Default Duration",
   DEFAULT_PERMISSIONS: "No permissions",
+  DEFAULT_TEMPLATE: "Default template",
+  DEFAULT_TEMPLATE_HINT: "This template plays when no scheduled template is active.",
   DEFAULT_PLAY_TIME: "Default Play Time",
   DELETE_DISPLAY_TOOLTIP: "Delete display",
   DELETE_PLAYLIST_TOOLTIP: "Delete playlist",
@@ -60078,6 +60081,8 @@ var SIGNAGE_MANAGER = {
   NO_PLUGINS: "No plugins available.",
   NO_SCHEDULES_MATCH: "No schedules match your search.",
   NO_TEMPLATES: "No templates found.",
+  NO_APPROVED_TEMPLATES: "No approved templates are available.",
+  NO_TEMPLATE_MAPPINGS: "No templates are applied to this item.",
   NO_UPCOMING_PLAY_TIMES: "No upcoming play times found.",
   NO_USERS_ASSIGNED: "No users assigned to this group.",
   NO_ZONES: "No zones found.",
@@ -60169,6 +60174,7 @@ var SIGNAGE_MANAGER = {
   REQUEST_PLAYLIST_APPROVAL_TOOLTIP: "Request playlist approval",
   REQUEST_TEMPLATE_APPROVAL_TOOLTIP: "Request template approval",
   SCHEDULE: "Schedule",
+  SCHEDULED_TEMPLATE: "Scheduled template",
   EDIT_SCHEDULE: "Edit Schedule",
   ITEM_SCHEDULES: "Item Schedules",
   NO_SCHEDULES: "No schedules",
@@ -60321,6 +60327,12 @@ var SIGNAGE_MANAGER = {
   SVC_TEMPLATE_REMOVED: "Template removed",
   SVC_TEMPLATE_SHARED: "Template shared",
   SVC_TEMPLATE_SAVE_ERROR: "Error saving template layout",
+  SVC_REMOVE_TEMPLATE_MAPPING_CONTENT: "Remove {{ name }} from this item?",
+  SVC_REMOVE_TEMPLATE_MAPPING_TITLE: "Remove applied template?",
+  SVC_TEMPLATE_MAPPING_REMOVED: "Template removed from item",
+  SVC_TEMPLATE_MAPPING_REMOVE_ERROR: "Error removing template from item",
+  SVC_TEMPLATE_MAPPING_SAVED: "Applied template saved",
+  SVC_TEMPLATE_MAPPING_SAVE_ERROR: "Error saving applied template",
   SVC_THUMBNAIL_FAILED: "Could not generate a thumbnail from the selected image.",
   SVC_THUMBNAIL_NOT_IMAGE: "Thumbnails must be an image file.",
   SVC_THUMBNAIL_UPLOAD_FAILED: "Media uploaded, but its thumbnail could not be saved.",
@@ -60351,6 +60363,10 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
+  TEMPLATE_MAPPING_DEFAULT_HINT: "Turn this off to make the template the default for this item.",
+  TEMPLATE_MAPPING_EDIT: "Edit template schedule",
+  TEMPLATE_MAPPING_SCHEDULE: "Schedule this template",
+  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load applied templates.",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
@@ -60380,6 +60396,8 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_SAVED: "Template saved",
   TEMPLATE_SAVE_ERROR: "Error saving template",
   TEMPLATE_SAVING: "Saving Template...",
+  TEMPLATE_REQUIRED: "Select a template",
+  SELECT_APPROVED_TEMPLATE: "Approved template",
   TEMPLATE_SELECT_DISPLAY: "Select display",
   TEMPLATE_X_POS: "X position",
   TEMPLATE_Y_POS: "Y position",
@@ -62003,7 +62021,8 @@ var APP = {
     PARKING_BOOKING_TYPE_BOOKED: "Allocated",
     PARKING_BAY: "Parking Bay",
     PARKING_BAY_NUMBER: "Bay Number",
-    PARKING_USER_GROUPS: "User Groups",
+    PARKING_USER_GROUPS: "Group at Request time",
+    PARKING_ALLOCATION_GROUP: "Group at Allocation time",
     PARKING_RESERVED_FOR: "Reserved For",
     PARKING_RESERVED_BY: "Reserved By",
     PARKING_CHECKED_OUT_AT: "Left at {{ time }}",
@@ -68056,15 +68075,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "3a7b851",
-  "hash": "3a7b851",
+  "raw": "20f78e5",
+  "hash": "20f78e5",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3a7b851",
+  "suffix": "20f78e5",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787544226100
+  "time": 1787714071470
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -68276,6 +68295,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
   }
   saveUserSetting(name, value) {
     this._pending_settings[name] = value;
+    this._updateSignals();
     if (name === "dark_mode")
       this.setTheme(value ? "dark" : "");
     if (name === "font_size")
@@ -117575,7 +117595,7 @@ function AttendeeListComponent_For_9_Conditional_0_Template(rf, ctx) {
   if (rf & 2) {
     const user_r3 = \u0275\u0275nextContext().$implicit;
     const ctx_r1 = \u0275\u0275nextContext();
-    const resolved_host_r4 = ctx_r1.host() === user_r3.email ? \u0275\u0275pipeBind1(3, 11, \u0275\u0275pipeBind1(2, 9, ctx_r1.host())) : null;
+    const resolved_host_r4 = ctx_r1.host() === user_r3.email && (!user_r3.is_external || !user_r3.name) ? \u0275\u0275pipeBind1(3, 11, \u0275\u0275pipeBind1(2, 9, ctx_r1.host())) : null;
     const usr_r5 = resolved_host_r4?.email ? resolved_host_r4 : user_r3;
     \u0275\u0275advance(4);
     \u0275\u0275property("user", usr_r5);
@@ -117736,7 +117756,8 @@ var AttendeeListComponent = class _AttendeeListComponent {
                             class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
                             @let resolved_host =
-                                host() === user.email
+                                host() === user.email &&
+                                (!user.is_external || !user.name)
                                     ? (host() | user | async)
                                     : null;
                             @let usr =
@@ -117786,7 +117807,7 @@ var AttendeeListComponent = class _AttendeeListComponent {
   }], null, { host: [{ type: Input, args: [{ isSignal: true, alias: "host", required: false }] }], show_host: [{ type: Input, args: [{ isSignal: true, alias: "show_host", required: false }] }], list: [{ type: Input, args: [{ isSignal: true, alias: "list", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], custom_title: [{ type: Input, args: [{ isSignal: true, alias: "custom_title", required: false }] }], close: [{ type: Output, args: ["close"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttendeeListComponent, { className: "AttendeeListComponent", filePath: "libs/events/src/lib/attendee-list.component.ts", lineNumber: 98 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttendeeListComponent, { className: "AttendeeListComponent", filePath: "libs/events/src/lib/attendee-list.component.ts", lineNumber: 99 });
 })();
 
 // libs/events/src/lib/events.fn.ts
@@ -119396,18 +119417,20 @@ async function validateAssetRequestsForResource({ id, ical_uid, from_booking }, 
   const available_groups = await queryGroupAvailability({
     period_start: getUnixTime(date),
     period_end: getUnixTime(addMinutes(date, duration)),
-    type: "asset-request"
+    type: "asset-request",
+    zones: (zones || []).join(",")
   }, bookings.map((_3) => _3.id));
   const processed_requests = changed_assets.map((request) => {
     const asset_ids = flatten2(request.items.map(({ id: id2, item_ids, quantity }) => {
+      const selected_ids = item_ids || [];
       const assets = available_groups.find((_3) => _3.id === id2)?.assets;
       if (!assets)
-        return item_ids;
+        return selected_ids;
       const list = [];
       return new Array(quantity).fill(0).map((_3, idx) => {
-        const item = used_ids.includes(item_ids[idx]) || list.includes(item_ids[idx]) || !item_ids[idx] ? assets?.find(({ id: id3 }) => {
+        const item = used_ids.includes(selected_ids[idx]) || list.includes(selected_ids[idx]) || !selected_ids[idx] ? assets?.find(({ id: id3 }) => {
           return !used_ids.includes(id3) && !list.includes(id3);
-        })?.id : item_ids[idx];
+        })?.id : selected_ids[idx];
         if (!item) {
           request.conflict = true;
           throw "Unable to find available asset for request";
@@ -119416,7 +119439,11 @@ async function validateAssetRequestsForResource({ id, ical_uid, from_booking }, 
         return item;
       });
     }));
-    const booking = bookings.find((_3) => _3.asset_ids.find((id2) => request.items?.find((i) => i.item_ids.includes(id2))));
+    if (!asset_ids.length || asset_ids.some((id2) => !id2)) {
+      request.conflict = true;
+      throw "Unable to find available asset for request";
+    }
+    const booking = bookings.find((_3) => _3.asset_ids.find((id2) => request.items?.find((i) => i.item_ids?.includes(id2))));
     used_ids = [...used_ids, ...asset_ids];
     const asset_data = {
       type: "asset-request",
@@ -124132,7 +124159,7 @@ var BookingDetailsModalComponent = class _BookingDetailsModalComponent {
           if (value != null)
             return !!value;
         }
-        return false;
+        return !is_assigned && this.booking().booking_type !== "parking";
       },
       ...ngDevMode ? [{ debugName: "allow_series_delete" }] : (
         /* istanbul ignore next */
@@ -132584,24 +132611,28 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       }
       const assets = this._model().assets || event.extension_data.assets || [];
       if (assets.length) {
-        const requests = await validateAssetRequestsForResource(created_event, {
-          date: all_day_period.date,
-          duration: all_day_period.duration,
-          host: value.host,
-          all_day: value.all_day,
-          location_name: spaces[0]?.display_name || spaces[0]?.name || "",
-          location_id: spaces[0]?.id || "",
-          zones: unique([
-            this._org.organisation.id,
-            this._org.region?.id,
-            this._org.building?.id,
-            ...spaces[0]?.zones || []
-          ]).filter((_3) => !!_3),
-          reset_state: has_time_changed
-        }, assets, changed_spaces.length > 0 || has_time_changed).catch((e) => this._removeBookingAfterError(!event.id, created_event, true, e));
-        if (!requests)
-          throw i18n("CALENDAR_EVENT.ASSETS_INVALID_ERROR");
-        await requests();
+        try {
+          const requests = await validateAssetRequestsForResource(created_event, {
+            date: all_day_period.date,
+            duration: all_day_period.duration,
+            host: value.host,
+            all_day: value.all_day,
+            location_name: spaces[0]?.display_name || spaces[0]?.name || "",
+            location_id: spaces[0]?.id || "",
+            zones: unique([
+              this._org.organisation.id,
+              this._org.region?.id,
+              this._org.building?.id,
+              ...spaces[0]?.zones || []
+            ]).filter((_3) => !!_3),
+            reset_state: has_time_changed
+          }, assets, changed_spaces.length > 0 || has_time_changed);
+          if (!requests)
+            throw i18n("CALENDAR_EVENT.ASSETS_INVALID_ERROR");
+          await requests();
+        } catch (e) {
+          await this._removeBookingAfterError(!event.id, created_event, true, e);
+        }
       }
       this.clearForm();
       sessionStorage.setItem("PLACEOS.last_modified_event", JSON.stringify(created_event.toJSON()));
@@ -141779,10 +141810,9 @@ var SpaceSelectModalComponent = class _SpaceSelectModalComponent {
     if (!item?.id)
       return;
     const fav_list = this.favorites();
-    const new_state = !fav_list.includes(item.id);
-    const updated = new_state ? [...fav_list, item.id] : fav_list.filter((_3) => _3 !== item.id);
-    this.favorites.set(updated);
-    this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_ROOMS, updated);
+    const next_favs = fav_list.includes(item.id) ? fav_list.filter((_3) => _3 !== item.id) : [...fav_list, item.id];
+    this.favorites.set(next_favs);
+    this._settings.saveUserSetting(SETTING_KEYS.FAVORITE_ROOMS, next_favs);
   }
   static {
     this.\u0275fac = function SpaceSelectModalComponent_Factory(__ngFactoryType__) {
