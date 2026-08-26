@@ -3,12 +3,12 @@ import {
   CdkDragHandle,
   CdkDropList,
   moveItemInArray
-} from "./chunk-UVWI7PAK.js";
+} from "./chunk-OMITDJHB.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-Q7SQZLCT.js";
+} from "./chunk-EI4O6XKT.js";
 import {
   AuthenticatedImageDirective,
   Component,
@@ -44,7 +44,9 @@ import {
   Router,
   RouterLink,
   SIDEBAR_WIDTH_PC,
+  SafePipe,
   SchemaFormComponent,
+  SettingsToggleComponent,
   SignageService,
   TranslatePipe,
   ViewChild,
@@ -97,7 +99,7 @@ import {
   ɵɵrepeaterTrackByIndex,
   ɵɵresetView,
   ɵɵrestoreView,
-  ɵɵsanitizeUrl,
+  ɵɵsanitizeResourceUrl,
   ɵɵstyleProp,
   ɵɵtext,
   ɵɵtextInterpolate,
@@ -106,7 +108,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-2FXQT5UN.js";
+} from "./chunk-MCDYY27O.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1126,7 +1128,7 @@ function TemplateListComponent_Conditional_6_For_1_Case_13_Template(rf, ctx) {
 }
 function TemplateListComponent_Conditional_6_For_1_Conditional_14_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -1136,6 +1138,30 @@ function TemplateListComponent_Conditional_6_For_1_Conditional_14_Template(rf, c
     \u0275\u0275classProp("opacity-70", ctx_r1.selected()?.id !== template_r1.id)("opacity-90", ctx_r1.selected()?.id === template_r1.id);
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", template_r1.description, " ");
+  }
+}
+function TemplateListComponent_Conditional_6_For_1_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 20)(1, "icon", 21);
+    \u0275\u0275text(2, "groups");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "span", 22);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "span", 23);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const template_r1 = \u0275\u0275nextContext().$implicit;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("opacity-70", ctx_r1.selected()?.id !== template_r1.id)("opacity-90", ctx_r1.selected()?.id === template_r1.id);
+    \u0275\u0275property("title", ctx_r1.sharedGroupNames(template_r1));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 7, "SIGNAGE_MANAGER.SHARED_WITH"), ": ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", ctx_r1.sharedGroupNames(template_r1), " ");
   }
 }
 function TemplateListComponent_Conditional_6_For_1_Template(rf, ctx) {
@@ -1155,6 +1181,7 @@ function TemplateListComponent_Conditional_6_For_1_Template(rf, ctx) {
     \u0275\u0275conditionalCreate(12, TemplateListComponent_Conditional_6_For_1_Case_12_Template, 3, 3, "span", 15)(13, TemplateListComponent_Conditional_6_For_1_Case_13_Template, 3, 3, "span", 16);
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(14, TemplateListComponent_Conditional_6_For_1_Conditional_14_Template, 2, 5, "div", 17);
+    \u0275\u0275conditionalCreate(15, TemplateListComponent_Conditional_6_For_1_Conditional_15_Template, 8, 9, "div", 18);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -1162,22 +1189,24 @@ function TemplateListComponent_Conditional_6_For_1_Template(rf, ctx) {
     const template_r1 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275classProp("bg-primary", ctx_r1.selected()?.id === template_r1.id)("text-primary-content", ctx_r1.selected()?.id === template_r1.id)("hover:bg-base-200", ctx_r1.selected()?.id !== template_r1.id);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(18, _c12, template_r1.id));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 12, "SIGNAGE_MANAGER.OPEN_TEMPLATE", \u0275\u0275pureFunction1(20, _c2, template_r1.name)));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(19, _c12, template_r1.id));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind2(2, 13, "SIGNAGE_MANAGER.OPEN_TEMPLATE", \u0275\u0275pureFunction1(21, _c2, template_r1.name)));
     \u0275\u0275advance(7);
     \u0275\u0275textInterpolate1(" ", template_r1.name, " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 15, "SIGNAGE_MANAGER.TEMPLATE_LAYOUT_COUNT", \u0275\u0275pureFunction1(22, _c3, template_r1.layouts.length)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(11, 16, "SIGNAGE_MANAGER.TEMPLATE_LAYOUT_COUNT", \u0275\u0275pureFunction1(23, _c3, template_r1.layouts.length)), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional((tmp_19_0 = ctx_r1.getStatus(template_r1)) === "awaiting_review" ? 12 : tmp_19_0 === "awaiting_approval" ? 13 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275conditional(template_r1.description ? 14 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(template_r1.shared_with.length ? 15 : -1);
   }
 }
 function TemplateListComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 19);
+    \u0275\u0275elementStart(0, "div", 24);
     \u0275\u0275listener("intersect", function TemplateListComponent_Conditional_6_Conditional_2_Template_div_intersect_0_listener() {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
@@ -1200,7 +1229,7 @@ function TemplateListComponent_Conditional_6_Conditional_3_Template(rf, ctx) {
 }
 function TemplateListComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275repeaterCreate(0, TemplateListComponent_Conditional_6_For_1_Template, 15, 24, "a", 6, _forTrack02);
+    \u0275\u0275repeaterCreate(0, TemplateListComponent_Conditional_6_For_1_Template, 16, 25, "a", 6, _forTrack02);
     \u0275\u0275conditionalCreate(2, TemplateListComponent_Conditional_6_Conditional_2_Template, 1, 0, "div", 7)(3, TemplateListComponent_Conditional_6_Conditional_3_Template, 3, 3, "div", 8);
   }
   if (rf & 2) {
@@ -1212,7 +1241,7 @@ function TemplateListComponent_Conditional_6_Template(rf, ctx) {
 }
 function TemplateListComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 20);
+    \u0275\u0275elementStart(0, "div", 5)(1, "icon", 25);
     \u0275\u0275text(2, "dashboard_customize");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "p");
@@ -1264,6 +1293,9 @@ var TemplateListComponent = class _TemplateListComponent {
       return null;
     return template.approval_requested ? "awaiting_review" : "awaiting_approval";
   }
+  sharedGroupNames(template) {
+    return template.shared_with.map(({ name }) => name).join(", ");
+  }
   static {
     this.\u0275fac = function TemplateListComponent_Factory(__ngFactoryType__) {
       return new (__ngFactoryType__ || _TemplateListComponent)();
@@ -1277,7 +1309,7 @@ var TemplateListComponent = class _TemplateListComponent {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, decls: 8, vars: 8, consts: [["template_item", ""], [1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-2", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "my-2", "p-2", "text-center", "text-xs"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-2", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-3xl", "opacity-60"], [1, "min-w-0", "flex-1", "pr-2"], [1, "truncate", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]", "font-medium", "uppercase"], [1, "bg-base-200", "text-base-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mt-0.5", "truncate", "text-xs"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-6xl"]], template: function TemplateListComponent_Template(rf, ctx) {
+    }, decls: 8, vars: 8, consts: [["template_item", ""], [1, "bg-base-100", "border-base-300", "h-full", "min-w-64", "overflow-auto", "border-r", "sm:max-w-80"], [1, "border-base-300", "bg-base-100", "sticky", "top-0", "z-10", "border-b", "p-2"], ["appearance", "outline", 1, "no-subscript", "w-full"], ["matInput", "", 3, "ngModelChange", "placeholder", "ngModel"], [1, "text-base-content/70", "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-2", "p-8"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-2", "text-left", "no-underline", "transition-colors", 3, "bg-primary", "text-primary-content", "hover:bg-base-200", "routerLink"], ["intersect", "", 1, "h-px", "w-full"], [1, "text-base-content/50", "bg-base-content/10", "col-span-full", "my-2", "p-2", "text-center", "text-xs"], ["matRipple", "", "queryParamsHandling", "merge", 1, "border-base-300", "relative", "z-0", "flex", "w-full", "cursor-pointer", "items-center", "gap-3", "border-b", "px-2", "py-2", "text-left", "no-underline", "transition-colors", 3, "routerLink"], [1, "shrink-0", "text-3xl", "opacity-60"], [1, "min-w-0", "flex-1", "pr-2"], [1, "truncate", "font-medium"], [1, "flex", "flex-wrap", "gap-1", "text-[0.625rem]", "font-medium", "uppercase"], [1, "bg-base-200", "text-base-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-warning", "text-warning-content", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "bg-base-300", "shrink-0", "rounded", "px-1.5", "py-0.5"], [1, "mt-0.5", "truncate", "text-xs", 3, "opacity-70", "opacity-90"], [1, "mt-0.5", "flex", "min-w-0", "items-center", "gap-1", "text-xs", 3, "opacity-70", "opacity-90", "title"], [1, "mt-0.5", "truncate", "text-xs"], [1, "mt-0.5", "flex", "min-w-0", "items-center", "gap-1", "text-xs", 3, "title"], [1, "shrink-0", "text-base"], [1, "shrink-0"], [1, "truncate"], ["intersect", "", 1, "h-px", "w-full", 3, "intersect"], [1, "text-6xl"]], template: function TemplateListComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "mat-form-field", 3)(3, "input", 4);
         \u0275\u0275pipe(4, "translate");
@@ -1423,6 +1455,31 @@ var TemplateListComponent = class _TemplateListComponent {
                                     {{ template.description }}
                                 </div>
                             }
+                            @if (template.shared_with.length) {
+                                <div
+                                    class="mt-0.5 flex min-w-0 items-center gap-1 text-xs"
+                                    [class.opacity-70]="
+                                        selected()?.id !== template.id
+                                    "
+                                    [class.opacity-90]="
+                                        selected()?.id === template.id
+                                    "
+                                    [title]="sharedGroupNames(template)"
+                                >
+                                    <icon class="shrink-0 text-base"
+                                        >groups</icon
+                                    >
+                                    <span class="shrink-0">
+                                        {{
+                                            'SIGNAGE_MANAGER.SHARED_WITH'
+                                                | translate
+                                        }}:
+                                    </span>
+                                    <span class="truncate">
+                                        {{ sharedGroupNames(template) }}
+                                    </span>
+                                </div>
+                            }
                         </div>
                     </a>
                 }
@@ -1461,16 +1518,16 @@ var TemplateListComponent = class _TemplateListComponent {
   }], () => [], { _template_items: [{ type: ViewChildren, args: ["template_item", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateListComponent, { className: "TemplateListComponent", filePath: "apps/signage-manager/src/app/templates/template-list.component.ts", lineNumber: 169 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplateListComponent, { className: "TemplateListComponent", filePath: "apps/signage-manager/src/app/templates/template-list.component.ts", lineNumber: 194 });
 })();
 
 // apps/signage-manager/src/app/templates/template-preview.component.ts
 var _forTrack03 = ($index, $item) => $item.id;
-function TemplatePreviewComponent_For_4_Template(rf, ctx) {
+function TemplatePreviewComponent_For_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 10);
-    \u0275\u0275listener("click", function TemplatePreviewComponent_For_4_Template_button_click_0_listener() {
+    \u0275\u0275elementStart(0, "button", 13);
+    \u0275\u0275listener("click", function TemplatePreviewComponent_For_5_Template_button_click_0_listener() {
       const option_r2 = \u0275\u0275restoreView(_r1).$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.aspect.set(option_r2));
@@ -1487,9 +1544,33 @@ function TemplatePreviewComponent_For_4_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", option_r2.label, " ");
   }
 }
-function TemplatePreviewComponent_Conditional_15_Template(rf, ctx) {
+function TemplatePreviewComponent_For_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "img", 7);
+    \u0275\u0275elementStart(0, "mat-option", 7);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const display_r4 = ctx.$implicit;
+    \u0275\u0275property("value", display_r4.id);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", display_r4.display_name || display_r4.name, " ");
+  }
+}
+function TemplatePreviewComponent_Conditional_18_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "iframe", 11);
+    \u0275\u0275pipe(1, "safe");
+    \u0275\u0275pipe(2, "translate");
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275property("src", \u0275\u0275pipeBind2(1, 2, ctx_r2.live_preview_url(), "resource"), \u0275\u0275sanitizeResourceUrl)("title", \u0275\u0275pipeBind1(2, 5, "SIGNAGE_MANAGER.TEMPLATE_LIVE_PREVIEW"));
+  }
+}
+function TemplatePreviewComponent_Conditional_19_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "img", 12);
     \u0275\u0275pipe(1, "translate");
   }
   if (rf & 2) {
@@ -1497,41 +1578,41 @@ function TemplatePreviewComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275property("source", ctx_r2.background_url())("alt", \u0275\u0275pipeBind1(1, 2, "SIGNAGE_MANAGER.TEMPLATE_BACKGROUND"));
   }
 }
-function TemplatePreviewComponent_For_17_Template(rf, ctx) {
+function TemplatePreviewComponent_Conditional_20_For_1_Template(rf, ctx) {
   if (rf & 1) {
-    const _r4 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 11);
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 16);
     \u0275\u0275pipe(1, "translate");
-    \u0275\u0275listener("click", function TemplatePreviewComponent_For_17_Template_button_click_0_listener() {
-      const $index_r5 = \u0275\u0275restoreView(_r4).$index;
-      const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.selectLayout($index_r5));
+    \u0275\u0275listener("click", function TemplatePreviewComponent_Conditional_20_For_1_Template_button_click_0_listener() {
+      const $index_r6 = \u0275\u0275restoreView(_r5).$index;
+      const ctx_r2 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r2.selectLayout($index_r6));
     });
-    \u0275\u0275elementStart(2, "div", 12);
+    \u0275\u0275elementStart(2, "div", 17);
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 13);
+    \u0275\u0275elementStart(5, "div", 18);
     \u0275\u0275text(6);
     \u0275\u0275pipe(7, "translate");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const item_r6 = ctx.$implicit;
-    const $index_r5 = ctx.$index;
-    const ctx_r2 = \u0275\u0275nextContext();
-    \u0275\u0275styleProp("left", item_r6.rect.left, "%")("top", item_r6.rect.top, "%")("width", item_r6.rect.width, "%")("height", item_r6.rect.height, "%");
-    \u0275\u0275classProp("border-primary", ctx_r2.selected_index() === $index_r5)("bg-primary/40", ctx_r2.selected_index() === $index_r5 && item_r6.layout.plugin_id)("bg-primary/15", ctx_r2.selected_index() === $index_r5 && !item_r6.layout.plugin_id)("z-10", ctx_r2.selected_index() === $index_r5)("border-white/60", ctx_r2.selected_index() !== $index_r5 && item_r6.layout.plugin_id)("border-white/40", ctx_r2.selected_index() !== $index_r5 && !item_r6.layout.plugin_id)("border-dashed", !item_r6.layout.plugin_id)("backdrop-blur-sm", item_r6.layout.plugin_id)("bg-black/60", ctx_r2.selected_index() !== $index_r5 && item_r6.layout.plugin_id)("bg-black/10", ctx_r2.selected_index() !== $index_r5 && !item_r6.layout.plugin_id)("hover:bg-black/70", ctx_r2.selected_index() !== $index_r5 && item_r6.layout.plugin_id)("hover:bg-black/20", ctx_r2.selected_index() !== $index_r5 && !item_r6.layout.plugin_id);
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 36, ctx_r2.positionLabel(item_r6.layout.position)))("aria-pressed", ctx_r2.selected_index() === $index_r5);
+    const item_r7 = ctx.$implicit;
+    const $index_r6 = ctx.$index;
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275styleProp("left", item_r7.rect.left, "%")("top", item_r7.rect.top, "%")("width", item_r7.rect.width, "%")("height", item_r7.rect.height, "%");
+    \u0275\u0275classProp("border-primary", ctx_r2.selected_index() === $index_r6)("bg-primary/40", ctx_r2.selected_index() === $index_r6 && item_r7.layout.plugin_id)("bg-primary/15", ctx_r2.selected_index() === $index_r6 && !item_r7.layout.plugin_id)("z-10", ctx_r2.selected_index() === $index_r6)("border-white/60", ctx_r2.selected_index() !== $index_r6 && item_r7.layout.plugin_id)("border-white/40", ctx_r2.selected_index() !== $index_r6 && !item_r7.layout.plugin_id)("border-dashed", !item_r7.layout.plugin_id)("backdrop-blur-sm", item_r7.layout.plugin_id)("bg-black/60", ctx_r2.selected_index() !== $index_r6 && item_r7.layout.plugin_id)("bg-black/10", ctx_r2.selected_index() !== $index_r6 && !item_r7.layout.plugin_id)("hover:bg-black/70", ctx_r2.selected_index() !== $index_r6 && item_r7.layout.plugin_id)("hover:bg-black/20", ctx_r2.selected_index() !== $index_r6 && !item_r7.layout.plugin_id);
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(1, 36, ctx_r2.positionLabel(item_r7.layout.position)))("aria-pressed", ctx_r2.selected_index() === $index_r6);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 38, ctx_r2.positionLabel(item_r6.layout.position)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 38, ctx_r2.positionLabel(item_r7.layout.position)), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", ctx_r2.pluginName(item_r6.layout.plugin_id) || \u0275\u0275pipeBind1(7, 40, "SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN"), " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r2.pluginName(item_r7.layout.plugin_id) || \u0275\u0275pipeBind1(7, 40, "SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN"), " ");
   }
 }
-function TemplatePreviewComponent_Conditional_18_Template(rf, ctx) {
+function TemplatePreviewComponent_Conditional_20_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 9);
+    \u0275\u0275elementStart(0, "div", 15);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
@@ -1539,6 +1620,18 @@ function TemplatePreviewComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 2) {
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "SIGNAGE_MANAGER.TEMPLATE_NO_LAYOUTS_HINT"), " ");
+  }
+}
+function TemplatePreviewComponent_Conditional_20_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275repeaterCreate(0, TemplatePreviewComponent_Conditional_20_For_1_Template, 8, 42, "button", 14, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275conditionalCreate(2, TemplatePreviewComponent_Conditional_20_Conditional_2_Template, 3, 3, "div", 15);
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275repeater(ctx_r2.layout_rects());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx_r2.layout_rects().length ? 2 : -1);
   }
 }
 var ASPECT_RATIOS = [
@@ -1559,6 +1652,21 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
         []
       )
     );
+    this.selected_display_id = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "selected_display_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.live_mode = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "live_mode" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.displays = this._service.displays;
     this.signage_path = settingSignal("signage_path");
     this.selected_index = this._service.selected_template_layout_index;
     this._layouts = this._service.template_layout_draft;
@@ -1586,15 +1694,35 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
         []
       )
     );
-    this.player_link = computed(
+    this.live_template_id = computed(
       () => {
-        const template_id = this._service.selected_template()?.id;
-        if (!template_id)
+        const template = this._service.selected_template();
+        return template?.live_template_id || template?.id || "";
+      },
+      ...ngDevMode ? [{ debugName: "live_template_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.live_preview_available = computed(
+      () => {
+        return !!this.live_template_id() && !!this.selected_display_id();
+      },
+      ...ngDevMode ? [{ debugName: "live_preview_available" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.live_preview_url = computed(
+      () => {
+        const template_id = this.live_template_id();
+        const display_id = this.selected_display_id();
+        if (!template_id || !display_id)
           return "";
         const signage_path = this.signage_path() || "/signage";
-        return `${signage_path.replace(/\/$/, "")}/#/template/${encodeURIComponent(template_id)}?debug=true`;
+        return `${signage_path.replace(/\/$/, "")}/#/template/${encodeURIComponent(template_id)}/${encodeURIComponent(display_id)}?debug=true`;
       },
-      ...ngDevMode ? [{ debugName: "player_link" }] : (
+      ...ngDevMode ? [{ debugName: "live_preview_url" }] : (
         /* istanbul ignore next */
         []
       )
@@ -1615,53 +1743,78 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatePreviewComponent, selectors: [["template-preview"]], decls: 19, vars: 17, consts: [[1, "flex", "h-full", "min-h-0", "flex-col"], ["role", "radiogroup", 1, "flex", "flex-wrap", "items-center", "gap-2", "px-4", "py-2"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "border-primary", "bg-primary", "text-primary-content", "border-base-300", "hover:bg-base-200"], [1, "w-px", "flex-1"], ["btn", "", "matRipple", "", "target", "_blank", "rel", "noopener noreferrer", 1, "border-base-300", "flex", "items-center", "gap-2", "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", 3, "matTooltip", "href"], [1, "preview-frame-container", "flex", "min-h-0", "flex-1", "items-center", "justify-center", "overflow-hidden", "p-4"], [1, "preview-frame", "relative", "overflow-hidden", "rounded-lg", "bg-neutral-900", "shadow-lg", "ring-1", "ring-black/20"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-cover", "opacity-80", 3, "source", "alt"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "overflow-hidden", "border-2", "transition-colors", "leading-none", 3, "border-primary", "bg-primary/40", "bg-primary/15", "z-10", "border-white/60", "border-white/40", "border-dashed", "backdrop-blur-sm", "bg-black/60", "bg-black/10", "hover:bg-black/70", "hover:bg-black/20", "left", "top", "width", "height"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center", "p-4", "text-center", "text-sm", "text-white/60"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "overflow-hidden", "border-2", "transition-colors", "leading-none", 3, "click"], [1, "truncate", "px-2", "text-sm", "font-semibold", "text-base-content", "uppercase", "text-shadow-lg", "text-shadow-base-100"], [1, "truncate", "px-2", "text-sm", "text-base-content/60", "text-shadow-lg", "text-shadow-base-100"]], template: function TemplatePreviewComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _TemplatePreviewComponent, selectors: [["template-preview"]], decls: 21, vars: 27, consts: [[1, "flex", "h-full", "min-h-0", "flex-col"], [1, "flex", "flex-wrap", "items-center", "gap-2", "px-4", "py-2"], ["role", "radiogroup", 1, "flex", "flex-wrap", "items-center", "gap-2"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "border-primary", "bg-primary", "text-primary-content", "border-base-300", "hover:bg-base-200"], [1, "min-w-4", "flex-1"], ["appearance", "outline", 1, "no-subscript", "w-full", "sm:w-64"], [3, "ngModelChange", "ngModel", "placeholder"], [3, "value"], [3, "ngModelChange", "toggle", "label", "info", "inline", "ngModel"], [1, "preview-frame-container", "flex", "min-h-0", "flex-1", "items-center", "justify-center", "overflow-hidden", "p-4"], [1, "preview-frame", "relative", "overflow-hidden", "rounded-lg", "bg-neutral-900", "shadow-lg", "ring-1", "ring-black/20"], ["allow", "autoplay; fullscreen", 1, "absolute", "inset-0", "h-full", "w-full", "border-0", 3, "src", "title"], ["auth", "", 1, "absolute", "inset-0", "h-full", "w-full", "object-cover", "opacity-80", 3, "source", "alt"], ["type", "button", "role", "radio", "matRipple", "", 1, "rounded-lg", "border", "px-3", "py-1.5", "text-sm", "font-medium", "transition-colors", 3, "click"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "overflow-hidden", "border-2", "leading-none", "transition-colors", 3, "border-primary", "bg-primary/40", "bg-primary/15", "z-10", "border-white/60", "border-white/40", "border-dashed", "backdrop-blur-sm", "bg-black/60", "bg-black/10", "hover:bg-black/70", "hover:bg-black/20", "left", "top", "width", "height"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center", "p-4", "text-center", "text-sm", "text-white/60"], ["type", "button", 1, "absolute", "flex", "flex-col", "items-center", "justify-center", "overflow-hidden", "border-2", "leading-none", "transition-colors", 3, "click"], [1, "text-base-content", "text-shadow-base-100", "truncate", "px-2", "text-sm", "font-semibold", "uppercase", "text-shadow-lg"], [1, "text-base-content/60", "text-shadow-base-100", "truncate", "px-2", "text-sm", "text-shadow-lg"]], template: function TemplatePreviewComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
-        \u0275\u0275pipe(2, "translate");
-        \u0275\u0275repeaterCreate(3, TemplatePreviewComponent_For_4_Template, 2, 12, "button", 2, _forTrack03);
-        \u0275\u0275element(5, "div", 3);
-        \u0275\u0275elementStart(6, "a", 4);
-        \u0275\u0275pipe(7, "translate");
-        \u0275\u0275pipe(8, "translate");
-        \u0275\u0275elementStart(9, "icon");
-        \u0275\u0275text(10, "open_in_new");
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1)(2, "div", 2);
+        \u0275\u0275pipe(3, "translate");
+        \u0275\u0275repeaterCreate(4, TemplatePreviewComponent_For_5_Template, 2, 12, "button", 3, _forTrack03);
         \u0275\u0275elementEnd();
-        \u0275\u0275text(11);
-        \u0275\u0275pipe(12, "translate");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(13, "div", 5)(14, "div", 6);
-        \u0275\u0275conditionalCreate(15, TemplatePreviewComponent_Conditional_15_Template, 2, 4, "img", 7);
-        \u0275\u0275repeaterCreate(16, TemplatePreviewComponent_For_17_Template, 8, 42, "button", 8, \u0275\u0275repeaterTrackByIndex);
-        \u0275\u0275conditionalCreate(18, TemplatePreviewComponent_Conditional_18_Template, 3, 3, "div", 9);
+        \u0275\u0275element(6, "div", 4);
+        \u0275\u0275elementStart(7, "mat-form-field", 5)(8, "mat-select", 6);
+        \u0275\u0275pipe(9, "translate");
+        \u0275\u0275pipe(10, "translate");
+        \u0275\u0275twoWayListener("ngModelChange", function TemplatePreviewComponent_Template_mat_select_ngModelChange_8_listener($event) {
+          \u0275\u0275twoWayBindingSet(ctx.selected_display_id, $event) || (ctx.selected_display_id = $event);
+          return $event;
+        });
+        \u0275\u0275repeaterCreate(11, TemplatePreviewComponent_For_12_Template, 2, 2, "mat-option", 7, _forTrack03);
+        \u0275\u0275elementEnd();
+        \u0275\u0275controlCreate();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(13, "settings-toggle", 8);
+        \u0275\u0275pipe(14, "translate");
+        \u0275\u0275pipe(15, "translate");
+        \u0275\u0275twoWayListener("ngModelChange", function TemplatePreviewComponent_Template_settings_toggle_ngModelChange_13_listener($event) {
+          \u0275\u0275twoWayBindingSet(ctx.live_mode, $event) || (ctx.live_mode = $event);
+          return $event;
+        });
+        \u0275\u0275elementEnd();
+        \u0275\u0275controlCreate();
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(16, "div", 9)(17, "div", 10);
+        \u0275\u0275conditionalCreate(18, TemplatePreviewComponent_Conditional_18_Template, 3, 7, "iframe", 11)(19, TemplatePreviewComponent_Conditional_19_Template, 2, 4, "img", 12);
+        \u0275\u0275conditionalCreate(20, TemplatePreviewComponent_Conditional_20_Template, 3, 1);
         \u0275\u0275elementEnd()()();
       }
       if (rf & 2) {
-        \u0275\u0275advance();
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 9, "SIGNAGE_MANAGER.TEMPLATE_ASPECT_RATIO"));
+        \u0275\u0275advance(2);
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 17, "SIGNAGE_MANAGER.TEMPLATE_ASPECT_RATIO"));
         \u0275\u0275advance(2);
         \u0275\u0275repeater(ctx.aspect_ratios);
+        \u0275\u0275advance(4);
+        \u0275\u0275twoWayProperty("ngModel", ctx.selected_display_id);
+        \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(9, 19, "SIGNAGE_MANAGER.TEMPLATE_SELECT_DISPLAY"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(10, 21, "SIGNAGE_MANAGER.TEMPLATE_SELECT_DISPLAY"));
+        \u0275\u0275control();
         \u0275\u0275advance(3);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(7, 11, "SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW"))("href", ctx.player_link(), \u0275\u0275sanitizeUrl);
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(8, 13, "SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW"));
-        \u0275\u0275advance(5);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(12, 15, "SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW"), " ");
-        \u0275\u0275advance(3);
+        \u0275\u0275repeater(ctx.displays());
+        \u0275\u0275advance(2);
+        \u0275\u0275classProp("opacity-50", !ctx.live_preview_available());
+        \u0275\u0275property("toggle", true)("label", \u0275\u0275pipeBind1(14, 23, "SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE"))("info", \u0275\u0275pipeBind1(15, 25, "SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE_HINT"))("inline", false);
+        \u0275\u0275twoWayProperty("ngModel", ctx.live_mode);
+        \u0275\u0275attribute("aria-disabled", !ctx.live_preview_available())("inert", !ctx.live_preview_available() ? "" : null);
+        \u0275\u0275control();
+        \u0275\u0275advance(4);
         \u0275\u0275styleProp("--ratio", ctx.aspect().ratio);
         \u0275\u0275advance();
-        \u0275\u0275conditional(ctx.background_url() ? 15 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275repeater(ctx.layout_rects());
+        \u0275\u0275conditional(ctx.live_mode() && ctx.live_preview_available() ? 18 : ctx.background_url() ? 19 : -1);
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.layout_rects().length ? 18 : -1);
+        \u0275\u0275conditional(!ctx.live_mode() ? 20 : -1);
       }
     }, dependencies: [
+      FormsModule,
+      NgControlStatus,
+      NgModel,
       MatRippleModule,
       MatRipple,
-      MatTooltipModule,
-      MatTooltip,
-      IconComponent,
+      MatFormFieldModule,
+      MatFormField,
+      MatSelectModule,
+      MatSelect,
+      MatOption,
+      SettingsToggleComponent,
       AuthenticatedImageDirective,
+      SafePipe,
       TranslatePipe
     ], styles: ["\n.preview-frame-container[_ngcontent-%COMP%] {\n  container-type: size;\n}\n.preview-frame[_ngcontent-%COMP%] {\n  width: min(100%, calc(100cqh * var(--ratio)));\n  aspect-ratio: var(--ratio);\n}\n/*# sourceMappingURL=template-preview.component.css.map */"] });
   }
@@ -1671,48 +1824,75 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
     type: Component,
     args: [{ selector: "template-preview", template: `
         <div class="flex h-full min-h-0 flex-col">
-            <div
-                class="flex flex-wrap items-center gap-2 px-4 py-2"
-                role="radiogroup"
-                [attr.aria-label]="
-                    'SIGNAGE_MANAGER.TEMPLATE_ASPECT_RATIO' | translate
-                "
-            >
-                @for (option of aspect_ratios; track option.id) {
-                    <button
-                        type="button"
-                        role="radio"
-                        matRipple
-                        class="rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors"
-                        [class.border-primary]="aspect().id === option.id"
-                        [class.bg-primary]="aspect().id === option.id"
-                        [class.text-primary-content]="aspect().id === option.id"
-                        [class.border-base-300]="aspect().id !== option.id"
-                        [class.hover:bg-base-200]="aspect().id !== option.id"
-                        (click)="aspect.set(option)"
-                        [attr.aria-checked]="aspect().id === option.id"
-                    >
-                        {{ option.label }}
-                    </button>
-                }
-                <div class="w-px flex-1"></div>
-                <a
-                    btn
-                    matRipple
-                    class="border-base-300 flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium"
-                    [matTooltip]="
-                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate
-                    "
-                    [href]="player_link()"
-                    target="_blank"
-                    rel="noopener noreferrer"
+            <div class="flex flex-wrap items-center gap-2 px-4 py-2">
+                <div
+                    class="flex flex-wrap items-center gap-2"
+                    role="radiogroup"
                     [attr.aria-label]="
-                        'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate
+                        'SIGNAGE_MANAGER.TEMPLATE_ASPECT_RATIO' | translate
                     "
                 >
-                    <icon>open_in_new</icon>
-                    {{ 'SIGNAGE_MANAGER.TEMPLATE_PLAYER_PREVIEW' | translate }}
-                </a>
+                    @for (option of aspect_ratios; track option.id) {
+                        <button
+                            type="button"
+                            role="radio"
+                            matRipple
+                            class="rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors"
+                            [class.border-primary]="aspect().id === option.id"
+                            [class.bg-primary]="aspect().id === option.id"
+                            [class.text-primary-content]="
+                                aspect().id === option.id
+                            "
+                            [class.border-base-300]="aspect().id !== option.id"
+                            [class.hover:bg-base-200]="
+                                aspect().id !== option.id
+                            "
+                            (click)="aspect.set(option)"
+                            [attr.aria-checked]="aspect().id === option.id"
+                        >
+                            {{ option.label }}
+                        </button>
+                    }
+                </div>
+                <div class="min-w-4 flex-1"></div>
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript w-full sm:w-64"
+                >
+                    <mat-select
+                        [(ngModel)]="selected_display_id"
+                        [placeholder]="
+                            'SIGNAGE_MANAGER.TEMPLATE_SELECT_DISPLAY'
+                                | translate
+                        "
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.TEMPLATE_SELECT_DISPLAY'
+                                | translate
+                        "
+                    >
+                        @for (display of displays(); track display.id) {
+                            <mat-option [value]="display.id">
+                                {{ display.display_name || display.name }}
+                            </mat-option>
+                        }
+                    </mat-select>
+                </mat-form-field>
+                <settings-toggle
+                    [toggle]="true"
+                    [label]="
+                        'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE' | translate
+                    "
+                    [info]="
+                        'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE_HINT' | translate
+                    "
+                    [inline]="false"
+                    [(ngModel)]="live_mode"
+                    [class.opacity-50]="!live_preview_available()"
+                    [attr.aria-disabled]="!live_preview_available()"
+                    [attr.inert]="
+                        !live_preview_available() ? '' : null
+                    "
+                />
             </div>
             <div
                 class="preview-frame-container flex min-h-0 flex-1 items-center justify-center overflow-hidden p-4"
@@ -1721,7 +1901,17 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
                     class="preview-frame relative overflow-hidden rounded-lg bg-neutral-900 shadow-lg ring-1 ring-black/20"
                     [style.--ratio]="aspect().ratio"
                 >
-                    @if (background_url()) {
+                    @if (live_mode() && live_preview_available()) {
+                        <iframe
+                            class="absolute inset-0 h-full w-full border-0"
+                            [src]="live_preview_url() | safe: 'resource'"
+                            [title]="
+                                'SIGNAGE_MANAGER.TEMPLATE_LIVE_PREVIEW'
+                                    | translate
+                            "
+                            allow="autoplay; fullscreen"
+                        ></iframe>
+                    } @else if (background_url()) {
                         <img
                             auth
                             class="absolute inset-0 h-full w-full object-cover opacity-80"
@@ -1732,97 +1922,109 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
                             "
                         />
                     }
-                    @for (item of layout_rects(); track $index) {
-                        <button
-                            type="button"
-                            class="absolute flex flex-col items-center justify-center overflow-hidden border-2 transition-colors leading-none"
-                            [class.border-primary]="selected_index() === $index"
-                            [class.bg-primary/40]="
-                                selected_index() === $index &&
-                                item.layout.plugin_id
-                            "
-                            [class.bg-primary/15]="
-                                selected_index() === $index &&
-                                !item.layout.plugin_id
-                            "
-                            [class.z-10]="selected_index() === $index"
-                            [class.border-white/60]="
-                                selected_index() !== $index &&
-                                item.layout.plugin_id
-                            "
-                            [class.border-white/40]="
-                                selected_index() !== $index &&
-                                !item.layout.plugin_id
-                            "
-                            [class.border-dashed]="!item.layout.plugin_id"
-                            [class.backdrop-blur-sm]="item.layout.plugin_id"
-                            [class.bg-black/60]="
-                                selected_index() !== $index &&
-                                item.layout.plugin_id
-                            "
-                            [class.bg-black/10]="
-                                selected_index() !== $index &&
-                                !item.layout.plugin_id
-                            "
-                            [class.hover:bg-black/70]="
-                                selected_index() !== $index &&
-                                item.layout.plugin_id
-                            "
-                            [class.hover:bg-black/20]="
-                                selected_index() !== $index &&
-                                !item.layout.plugin_id
-                            "
-                            [style.left.%]="item.rect.left"
-                            [style.top.%]="item.rect.top"
-                            [style.width.%]="item.rect.width"
-                            [style.height.%]="item.rect.height"
-                            (click)="selectLayout($index)"
-                            [attr.aria-label]="
-                                positionLabel(item.layout.position) | translate
-                            "
-                            [attr.aria-pressed]="selected_index() === $index"
-                        >
+                    @if (!live_mode()) {
+                        @for (item of layout_rects(); track $index) {
+                            <button
+                                type="button"
+                                class="absolute flex flex-col items-center justify-center overflow-hidden border-2 leading-none transition-colors"
+                                [class.border-primary]="
+                                    selected_index() === $index
+                                "
+                                [class.bg-primary/40]="
+                                    selected_index() === $index &&
+                                    item.layout.plugin_id
+                                "
+                                [class.bg-primary/15]="
+                                    selected_index() === $index &&
+                                    !item.layout.plugin_id
+                                "
+                                [class.z-10]="selected_index() === $index"
+                                [class.border-white/60]="
+                                    selected_index() !== $index &&
+                                    item.layout.plugin_id
+                                "
+                                [class.border-white/40]="
+                                    selected_index() !== $index &&
+                                    !item.layout.plugin_id
+                                "
+                                [class.border-dashed]="!item.layout.plugin_id"
+                                [class.backdrop-blur-sm]="item.layout.plugin_id"
+                                [class.bg-black/60]="
+                                    selected_index() !== $index &&
+                                    item.layout.plugin_id
+                                "
+                                [class.bg-black/10]="
+                                    selected_index() !== $index &&
+                                    !item.layout.plugin_id
+                                "
+                                [class.hover:bg-black/70]="
+                                    selected_index() !== $index &&
+                                    item.layout.plugin_id
+                                "
+                                [class.hover:bg-black/20]="
+                                    selected_index() !== $index &&
+                                    !item.layout.plugin_id
+                                "
+                                [style.left.%]="item.rect.left"
+                                [style.top.%]="item.rect.top"
+                                [style.width.%]="item.rect.width"
+                                [style.height.%]="item.rect.height"
+                                (click)="selectLayout($index)"
+                                [attr.aria-label]="
+                                    positionLabel(item.layout.position)
+                                        | translate
+                                "
+                                [attr.aria-pressed]="
+                                    selected_index() === $index
+                                "
+                            >
+                                <div
+                                    class="text-base-content text-shadow-base-100 truncate px-2 text-sm font-semibold uppercase text-shadow-lg"
+                                >
+                                    {{
+                                        positionLabel(item.layout.position)
+                                            | translate
+                                    }}
+                                </div>
+                                <div
+                                    class="text-base-content/60 text-shadow-base-100 truncate px-2 text-sm text-shadow-lg"
+                                >
+                                    {{
+                                        pluginName(item.layout.plugin_id) ||
+                                            ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
+                                                | translate)
+                                    }}
+                                </div>
+                            </button>
+                        }
+                        @if (!layout_rects().length) {
                             <div
-                                class="truncate px-2 text-sm font-semibold text-base-content uppercase text-shadow-lg text-shadow-base-100"
+                                class="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-white/60"
                             >
                                 {{
-                                    positionLabel(item.layout.position)
+                                    'SIGNAGE_MANAGER.TEMPLATE_NO_LAYOUTS_HINT'
                                         | translate
                                 }}
                             </div>
-                            <div class="truncate px-2 text-sm text-base-content/60 text-shadow-lg text-shadow-base-100">
-                                {{
-                                    pluginName(item.layout.plugin_id) ||
-                                        ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
-                                            | translate)
-                                }}
-                            </div>
-                        </button>
-                    }
-                    @if (!layout_rects().length) {
-                        <div
-                            class="absolute inset-0 flex items-center justify-center p-4 text-center text-sm text-white/60"
-                        >
-                            {{
-                                'SIGNAGE_MANAGER.TEMPLATE_NO_LAYOUTS_HINT'
-                                    | translate
-                            }}
-                        </div>
+                        }
                     }
                 </div>
             </div>
         </div>
     `, imports: [
+      FormsModule,
       MatRippleModule,
-      MatTooltipModule,
-      IconComponent,
+      MatFormFieldModule,
+      MatSelectModule,
+      SafePipe,
+      SettingsToggleComponent,
       TranslatePipe,
       AuthenticatedImageDirective
     ], styles: ["/* angular:styles/component:css;cf46aa844b6fe17cca3b562dcbc16f7d8d747cf1e5cb81b3a6bcee48c83c4f4f;/home/runner/work/user-interfaces/user-interfaces/apps/signage-manager/src/app/templates/template-preview.component.ts */\n.preview-frame-container {\n  container-type: size;\n}\n.preview-frame {\n  width: min(100%, calc(100cqh * var(--ratio)));\n  aspect-ratio: var(--ratio);\n}\n/*# sourceMappingURL=template-preview.component.css.map */\n"] }]
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatePreviewComponent, { className: "TemplatePreviewComponent", filePath: "apps/signage-manager/src/app/templates/template-preview.component.ts", lineNumber: 198 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TemplatePreviewComponent, { className: "TemplatePreviewComponent", filePath: "apps/signage-manager/src/app/templates/template-preview.component.ts", lineNumber: 250 });
 })();
 
 // apps/signage-manager/src/app/templates/templates.component.ts
@@ -2106,10 +2308,24 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
       if (!list.length)
         return;
       if (id) {
-        const match = list.find((t) => t.id === id);
+        const match = list.find((template) => template.id === id || template.live_template_id === id);
         if (match && this._service.selected_template() !== match) {
           this._service.selected_template.set(match);
           this._service.selected_template_layout_index.set(null);
+        }
+        if (match?.id && match.id !== id) {
+          void this._router.navigate(["/templates", match.id], {
+            queryParamsHandling: "merge",
+            replaceUrl: true
+          });
+        } else if (!match) {
+          const selected_template = this._service.selected_template();
+          if (selected_template?.id && list.some((template) => template.id === selected_template.id)) {
+            void this._router.navigate(["/templates", selected_template.id], {
+              queryParamsHandling: "merge",
+              replaceUrl: true
+            });
+          }
         }
         this._route_resolved = true;
       } else if (this._route_resolved) {
@@ -2515,4 +2731,4 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
 export {
   TemplatesSectionComponent
 };
-//# sourceMappingURL=templates.component-BD3TC2DU.js.map
+//# sourceMappingURL=templates.component-WTUTJXAM.js.map
