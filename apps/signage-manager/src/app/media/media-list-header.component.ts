@@ -16,6 +16,7 @@ import {
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
 import { SignageService } from '../signage.service';
+import { AiImageService } from '../ai/ai-image.service';
 
 function isValidUrl(url: string): boolean {
     try {
@@ -238,6 +239,23 @@ function isValidUrl(url: string): boolean {
                     <icon>add</icon>
                 </button>
                 <mat-menu #actions_menu="matMenu">
+                    @if (ai_enabled()) {
+                        <button
+                            mat-menu-item
+                            type="button"
+                            (click)="generateWithAI()"
+                        >
+                            <div class="flex items-center gap-2">
+                                <icon class="text-2xl">auto_awesome</icon>
+                                <div>
+                                    {{
+                                        'SIGNAGE_MANAGER.AI_CREATE_IMAGE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                    }
                     <button
                         mat-menu-item
                         type="button"
@@ -308,6 +326,7 @@ function isValidUrl(url: string): boolean {
 export class MediaListHeaderComponent {
     private readonly _service = inject(SignageService);
     private readonly _dialog = inject(MatDialog);
+    private readonly _ai = inject(AiImageService);
     private readonly _media = this._service.filtered_media;
     private readonly _all_media = this._service.media;
     public readonly link = signal('');
@@ -335,6 +354,12 @@ export class MediaListHeaderComponent {
 
     public readonly previewFile = (event) =>
         this._service.previewFileFromInput(event);
+
+    public readonly ai_enabled = this._ai.enabled;
+
+    public generateWithAI() {
+        this._service.generateMediaWithAI();
+    }
 
     public openAdd(mode: 'plugin' | 'link') {
         this._dialog.open(MediaAddModalComponent, {

@@ -22,7 +22,10 @@ import {
     UploadsService,
     userSignal,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import {
+    loadAuthenticatedImage,
+    openConfirmModal,
+} from '@placeos/components';
 import {
     addGroup,
     addGroupUser,
@@ -109,6 +112,10 @@ import { decodeEntityNames } from './shared/decode-entity-names.util';
 import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { GroupSelectModalComponent } from './shared/group-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
+import {
+    AiImageModalComponent,
+    AiImageModalData,
+} from './ai/ai-image-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
 import { MediaTagsModalComponent } from './shared/media-tags-modal.component';
 import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
@@ -3062,6 +3069,103 @@ export class SignageService {
             orientation: 'landscape',
         });
         await this.editMedia(media);
+    }
+
+    /**
+     * Create a media item from an image the backend already stored, without
+     * sending the bytes up a second time. Generated candidates arrive this way:
+     * the runner wrote them to the same bucket a browser upload lands in, so
+     * only a thumbnail and the item row are still missing.
+     */
+    public async addMediaFromUpload(
+        upload_id: string,
+        media_item: Partial<SignageMedia> = {},
+        playlist_id = '',
+    ) {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
+            )
+        ) {
+            throw new Error(i18n('SIGNAGE_MANAGER.SVC_PERMISSION_DENIED'));
+        }
+        const media_url = `${
+            location.origin
+        }/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
+
+        let thumbnail_id = '';
+        try {
+            const source = await loadAuthenticatedImage(
+                media_url,
+                '/api/engine/v2/uploads',
+            );
+            const response = await fetch(source);
+            const blob = await response.blob();
+            const file = new File(
+                [blob],
+                `${media_item.name || 'image'}.${blob.type.includes('png') ? 'png' : 'jpg'}`,
+                { type: blob.type || 'image/jpeg' },
+            );
+            const thumbnail = await this.generateThumbnailImage(file);
+            if (thumbnail) {
+                thumbnail_id = await this._uploadThumbnailImage(
+                    thumbnail,
+                    media_item.name || 'image',
+                );
+            }
+        } catch {
+            // a missing thumbnail is cosmetic, the item still works
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_FAILED'));
+        }
+
+        const data = {
+            ...new SignageMedia({
+                orientation: 'landscape',
+                ...media_item,
+                media_id: upload_id,
+                media_uri: media_url,
+                media_type: 'image',
+                thumbnail_id,
+            } as any),
+        };
+        for (const key in data) {
+            if (!data[key]) delete data[key];
+        }
+        const result = await this._addSignageMedia(data);
+        if (playlist_id && result?.id) {
+            await this.addMediaToPlaylist(playlist_id, result.id);
+        }
+        return result;
+    }
+
+    /** Open the AI image modal, either to create artwork or to change some */
+    public async generateMediaWithAI(options: AiImageModalData = {}) {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
+            )
+        )
+            return;
+        const ref = this._dialog.open(AiImageModalComponent, {
+            data: options,
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = await dialogClosed(ref);
+        this.changed();
+        return result;
+    }
+
+    public async editMediaWithAI(media: SignageMedia) {
+        if (!media?.media_id) return;
+        return this.generateMediaWithAI({
+            source_upload_id: media.media_id,
+            source_item_id: media.id,
+            source_name: media.name,
+            aspect_ratio:
+                media.orientation === 'portrait' ? '9:16' : '16:9',
+        });
     }
 
     public async addMediaFromPlugin(plugin: SignagePlugin) {
