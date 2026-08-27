@@ -68075,15 +68075,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "30e17d3",
-  "hash": "30e17d3",
+  "raw": "ea1e8e8",
+  "hash": "ea1e8e8",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "30e17d3",
+  "suffix": "ea1e8e8",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787799369796
+  "time": 1787804264083
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -137286,6 +137286,18 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
         []
       )
     );
+    this.host_name = computed(
+      () => {
+        const event = this.event();
+        const host_email = event.host.toLowerCase();
+        const host_attendee = event.attendees.find(({ email: email2 }) => email2.toLowerCase() === host_email);
+        return host_attendee?.name || event.host;
+      },
+      ...ngDevMode ? [{ debugName: "host_name" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.body = computed(
       () => (this.event().body || "").replace(/\\n\\n\[ID\|.*\]/gm, ""),
       ...ngDevMode ? [{ debugName: "body" }] : (
@@ -137643,7 +137655,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
         \u0275\u0275repeater(ctx.event().attendees);
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(77, 61, "FORM.HOST"), " ");
-        const host_r20 = \u0275\u0275pipeBind1(81, 66, \u0275\u0275pipeBind2(80, 63, ctx.event().host, "email-prefix"))?.name || ctx.event().host;
+        const host_r20 = \u0275\u0275pipeBind1(81, 66, \u0275\u0275pipeBind2(80, 63, ctx.event().host, "email-prefix"))?.name || ctx.host_name();
         \u0275\u0275advance(6);
         \u0275\u0275property("user", ctx.event().organiser);
         \u0275\u0275advance(3);
@@ -137986,7 +137998,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
                     <div class="flex items-center space-x-2 px-2" host>
                         @let host =
                             (event().host | user: 'email-prefix' | async)
-                                ?.name || event().host;
+                                ?.name || host_name();
                         <a-user-avatar
                             [user]="event().organiser"
                         ></a-user-avatar>
