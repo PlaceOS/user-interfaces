@@ -5,23 +5,36 @@ import {
     CdkDropList,
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
-import { Component, computed, inject, viewChild } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    resource,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
+import { i18n } from '@placeos/common';
 import {
+    AuthenticatedImageDirective,
     IconComponent,
     SchemaFormComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { CounterComponent } from '@placeos/form-fields';
 import {
+    mediaThumbnail,
     SignageTemplateLayout,
     SignageTemplateLayoutPosition,
+    SignageTemplateMapping,
 } from '@placeos/ts-client';
+import { playlistScheduleLabel } from '../signage-playlist.util';
 import { pluginSchema, schemaDefaults } from '../signage-plugin.util';
 import { SignageService } from '../signage.service';
 import {
@@ -29,11 +42,11 @@ import {
     FLOATING_DEFAULT_X_PC,
     FLOATING_DEFAULT_Y_PC,
     LAYOUT_POSITIONS,
-    SIDEBAR_WIDTH_PC,
     layoutPercentageToRatio,
     layoutPositionIcon,
     layoutPositionLabel,
     layoutRatioToPercentage,
+    SIDEBAR_WIDTH_PC,
 } from './template-layout.util';
 
 @Component({
@@ -43,258 +56,615 @@ import {
             class="bg-base-100 border-base-300 flex h-full w-full flex-col lg:w-96 lg:border-l"
         >
             <div
-                class="border-base-300 flex items-center gap-2 border-b px-4 py-3"
+                class="border-base-300 flex border-b"
+                role="tablist"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' | translate
+                "
             >
-                <h4 class="flex-1 text-lg font-medium">
+                <button
+                    #items_tab
+                    type="button"
+                    role="tab"
+                    class="flex-1 px-4 py-3 text-sm font-medium transition-colors"
+                    [class.border-primary]="view_tab() === 'items'"
+                    [class.border-b-2]="view_tab() === 'items'"
+                    [class.text-primary]="view_tab() === 'items'"
+                    [class.opacity-60]="view_tab() !== 'items'"
+                    (click)="setViewTab('items')"
+                    (keydown)="handleTabKeydown($event, items_tab, details_tab)"
+                    [attr.aria-selected]="view_tab() === 'items'"
+                    [tabIndex]="view_tab() === 'items' ? 0 : -1"
+                    aria-controls="template-layout-items-panel"
+                    id="template-layout-items-tab"
+                >
                     {{ 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' | translate }}
-                </h4>
-                @if (can_update()) {
-                    <button
-                        btn
-                        type="button"
-                        matRipple
-                        class="bg-secondary text-secondary-content flex items-center rounded-lg py-1.5 pr-4 pl-2"
-                        [matMenuTriggerFor]="position_menu"
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.TEMPLATE_ADD_LAYOUT' | translate
-                        "
-                    >
-                        <icon class="mr-1 text-2xl">add</icon>
-                        {{ 'SIGNAGE_MANAGER.TEMPLATE_ADD_LAYOUT' | translate }}
-                    </button>
-                    <mat-menu #position_menu="matMenu">
-                        @for (position of positions; track position) {
-                            <button
-                                type="button"
-                                mat-menu-item
-                                (click)="addLayout(position)"
-                            >
-                                <div class="flex items-center gap-2">
-                                    <icon class="text-2xl">{{
-                                        positionIcon(position)
-                                    }}</icon>
-                                    <span>{{
-                                        positionLabel(position) | translate
-                                    }}</span>
-                                </div>
-                            </button>
-                        }
-                    </mat-menu>
-                }
+                </button>
+                <button
+                    #details_tab
+                    type="button"
+                    role="tab"
+                    class="flex-1 px-4 py-3 text-sm font-medium transition-colors"
+                    [class.border-primary]="view_tab() === 'details'"
+                    [class.border-b-2]="view_tab() === 'details'"
+                    [class.text-primary]="view_tab() === 'details'"
+                    [class.opacity-60]="view_tab() !== 'details'"
+                    (click)="setViewTab('details')"
+                    (keydown)="handleTabKeydown($event, items_tab, details_tab)"
+                    [attr.aria-selected]="view_tab() === 'details'"
+                    [tabIndex]="view_tab() === 'details' ? 0 : -1"
+                    aria-controls="template-layout-details-panel"
+                    id="template-layout-details-tab"
+                >
+                    {{ 'COMMON.DETAILS' | translate }}
+                </button>
             </div>
-            <div
-                class="min-h-0 flex-1 overflow-auto px-3 py-2"
-                cdkDropList
-                role="list"
-                (cdkDropListDropped)="onDrop($event)"
-            >
-                @for (layout of layouts(); track $index) {
-                    <div
-                        cdkDrag
-                        [cdkDragDisabled]="!can_update()"
-                        role="listitem"
-                        class="border-base-300 bg-base-100 mb-2 rounded-lg border"
-                        [class.border-primary]="selected_index() === $index"
-                    >
-                        <div
-                            class="flex w-full cursor-pointer items-center gap-2 px-2 py-2"
-                            (click)="selectLayout($index)"
-                        >
-                            @if (can_update()) {
-                                <icon
-                                    cdkDragHandle
-                                    class="shrink-0 cursor-grab opacity-40"
-                                    >drag_indicator</icon
-                                >
-                            }
-                            <icon class="shrink-0 text-2xl opacity-70">{{
-                                positionIcon(layout.position)
-                            }}</icon>
-                            <div class="min-w-0 flex-1">
-                                <div class="truncate text-sm font-medium">
-                                    {{
-                                        positionLabel(layout.position)
-                                            | translate
-                                    }}
-                                </div>
-                                <div class="truncate text-xs opacity-60">
-                                    {{
-                                        pluginName(layout.plugin_id) ||
-                                            ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
-                                                | translate)
-                                    }}
-                                </div>
-                            </div>
-                            @if (can_update()) {
-                                <button
-                                    icon
-                                    default
-                                    error
-                                    type="button"
-                                    matRipple
-                                    (click)="removeLayout($event, $index)"
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.TEMPLATE_REMOVE_LAYOUT'
-                                            | translate
-                                    "
-                                >
-                                    <icon>delete</icon>
-                                </button>
-                            }
-                        </div>
-                        @if (selected_index() === $index) {
-                            <div
-                                class="border-base-300 flex flex-col gap-2 border-t px-3 py-3"
+            @if (view_tab() === 'items') {
+                <div
+                    id="template-layout-items-panel"
+                    role="tabpanel"
+                    aria-labelledby="template-layout-items-tab"
+                    class="flex min-h-0 flex-1 flex-col"
+                >
+                    @if (can_update()) {
+                        <div class="flex justify-end px-3 pt-3">
+                            <button
+                                btn
+                                type="button"
+                                matRipple
+                                class="bg-secondary text-secondary-content flex items-center rounded-lg py-1.5 pr-4 pl-2"
+                                [matMenuTriggerFor]="position_menu"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.TEMPLATE_ADD_LAYOUT'
+                                        | translate
+                                "
                             >
-                                <label [for]="'plugin-' + $index">{{
-                                    'SIGNAGE_MANAGER.SELECT_PLUGIN' | translate
-                                }}</label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="no-subscript w-full"
-                                >
-                                    <mat-select
-                                        [id]="'plugin-' + $index"
-                                        [ngModel]="layout.plugin_id || ''"
-                                        (ngModelChange)="
-                                            setPlugin($index, $event)
-                                        "
-                                        [disabled]="!can_update()"
-                                        [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.SELECT_PLUGIN_ARIA'
-                                                | translate
-                                        "
+                                <icon class="mr-1 text-2xl">add</icon>
+                                {{
+                                    'SIGNAGE_MANAGER.TEMPLATE_ADD_LAYOUT'
+                                        | translate
+                                }}
+                            </button>
+                            <mat-menu #position_menu="matMenu">
+                                @for (position of positions; track position) {
+                                    <button
+                                        type="button"
+                                        mat-menu-item
+                                        (click)="addLayout(position)"
                                     >
-                                        <mat-option value="">{{
-                                            'SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
-                                                | translate
-                                        }}</mat-option>
-                                        @for (
-                                            plugin of widgets();
-                                            track plugin.id
-                                        ) {
-                                            <mat-option [value]="plugin.id">{{
-                                                plugin.name
-                                            }}</mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                                <!-- Edge panels size along their consumed
-                                     axis; floating panels position their
-                                     top-left corner and fill from there -->
-                                <div class="flex gap-2">
-                                    @if (hasXValue(layout.position)) {
-                                        <label class="min-w-0 flex-1">
-                                            <div class="mb-1 text-sm">
-                                                {{
-                                                    xLabel(layout.position)
-                                                        | translate
-                                                }}
-                                            </div>
-                                            <a-counter
-                                                class="block"
-                                                [min]="0"
-                                                [max]="100"
-                                                [ngModel]="
-                                                    axisPercentage(
-                                                        layout,
-                                                        'x_pos'
-                                                    )
-                                                "
-                                                (ngModelChange)="
-                                                    setAxis(
-                                                        $index,
-                                                        'x_pos',
-                                                        $event
-                                                    )
-                                                "
-                                                [disabled]="!can_update()"
-                                                [render_fn]="renderPercent"
-                                                [attr.aria-label]="
-                                                    xLabel(layout.position)
-                                                        | translate
-                                                "
-                                            />
-                                        </label>
+                                        <div class="flex items-center gap-2">
+                                            <icon class="text-2xl">{{
+                                                positionIcon(position)
+                                            }}</icon>
+                                            <span>{{
+                                                positionLabel(position)
+                                                    | translate
+                                            }}</span>
+                                        </div>
+                                    </button>
+                                }
+                            </mat-menu>
+                        </div>
+                    }
+                    <div
+                        class="min-h-0 flex-1 overflow-auto px-3 py-2"
+                        cdkDropList
+                        role="list"
+                        (cdkDropListDropped)="onDrop($event)"
+                    >
+                        @for (layout of layouts(); track $index) {
+                            <div
+                                cdkDrag
+                                [cdkDragDisabled]="!can_update()"
+                                role="listitem"
+                                class="border-base-300 bg-base-100 mb-2 rounded-lg border"
+                                [class.border-primary]="
+                                    selected_index() === $index
+                                "
+                            >
+                                <div
+                                    class="flex w-full cursor-pointer items-center gap-2 px-2 py-2"
+                                    (click)="selectLayout($index)"
+                                >
+                                    @if (can_update()) {
+                                        <icon
+                                            cdkDragHandle
+                                            class="shrink-0 cursor-grab opacity-40"
+                                            >drag_indicator</icon
+                                        >
                                     }
-                                    @if (hasYValue(layout.position)) {
-                                        <label class="min-w-0 flex-1">
-                                            <div class="mb-1 text-sm">
-                                                {{
-                                                    yLabel(layout.position)
-                                                        | translate
-                                                }}
-                                            </div>
-                                            <a-counter
-                                                class="block"
-                                                [min]="0"
-                                                [max]="100"
-                                                [ngModel]="
-                                                    axisPercentage(
-                                                        layout,
-                                                        'y_pos'
-                                                    )
-                                                "
-                                                (ngModelChange)="
-                                                    setAxis(
-                                                        $index,
-                                                        'y_pos',
-                                                        $event
-                                                    )
-                                                "
-                                                [disabled]="!can_update()"
-                                                [render_fn]="renderPercent"
-                                                [attr.aria-label]="
-                                                    yLabel(layout.position)
-                                                        | translate
-                                                "
-                                            />
-                                        </label>
+                                    <icon
+                                        class="shrink-0 text-2xl opacity-70"
+                                        >{{
+                                            positionIcon(layout.position)
+                                        }}</icon
+                                    >
+                                    <div class="min-w-0 flex-1">
+                                        <div
+                                            class="truncate text-sm font-medium"
+                                        >
+                                            {{
+                                                positionLabel(layout.position)
+                                                    | translate
+                                            }}
+                                        </div>
+                                        <div
+                                            class="truncate text-xs opacity-60"
+                                        >
+                                            {{
+                                                pluginName(layout.plugin_id) ||
+                                                    ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
+                                                        | translate)
+                                            }}
+                                        </div>
+                                    </div>
+                                    @if (can_update()) {
+                                        <button
+                                            icon
+                                            default
+                                            error
+                                            type="button"
+                                            matRipple
+                                            (click)="
+                                                removeLayout($event, $index)
+                                            "
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.TEMPLATE_REMOVE_LAYOUT'
+                                                    | translate
+                                            "
+                                        >
+                                            <icon>delete</icon>
+                                        </button>
                                     }
                                 </div>
-                                @if (selected_plugin_schema()) {
-                                    <label>
-                                        {{
-                                            'SIGNAGE_MANAGER.PLUGIN_PARAMETERS'
-                                                | translate
-                                        }}
-                                    </label>
+                                @if (selected_index() === $index) {
                                     <div
-                                        class="bg-base-200/60 rounded-lg p-4"
-                                        [class.opacity-70]="!can_update()"
-                                        [attr.inert]="can_update() ? null : ''"
+                                        class="border-base-300 flex flex-col gap-2 border-t px-3 py-3"
                                     >
-                                        <schema-form
-                                            [schema]="selected_plugin_schema()"
-                                            [ngModel]="
-                                                layout.plugin_params || {}
-                                            "
-                                            (ngModelChange)="
-                                                setParams($index, $event)
-                                            "
-                                            [ngModelOptions]="{
-                                                standalone: true,
-                                            }"
-                                        ></schema-form>
+                                        <label [for]="'plugin-' + $index">{{
+                                            'SIGNAGE_MANAGER.SELECT_PLUGIN'
+                                                | translate
+                                        }}</label>
+                                        <mat-form-field
+                                            appearance="outline"
+                                            class="no-subscript w-full"
+                                        >
+                                            <mat-select
+                                                [id]="'plugin-' + $index"
+                                                [ngModel]="
+                                                    layout.plugin_id || ''
+                                                "
+                                                (ngModelChange)="
+                                                    setPlugin($index, $event)
+                                                "
+                                                [disabled]="!can_update()"
+                                                [attr.aria-label]="
+                                                    'SIGNAGE_MANAGER.SELECT_PLUGIN_ARIA'
+                                                        | translate
+                                                "
+                                            >
+                                                <mat-option value="">{{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
+                                                        | translate
+                                                }}</mat-option>
+                                                @for (
+                                                    plugin of widgets();
+                                                    track plugin.id
+                                                ) {
+                                                    <mat-option
+                                                        [value]="plugin.id"
+                                                        >{{
+                                                            plugin.name
+                                                        }}</mat-option
+                                                    >
+                                                }
+                                            </mat-select>
+                                        </mat-form-field>
+                                        <!-- Edge panels size along their
+                                             consumed axis; floating panels
+                                             position their top-left corner
+                                             and fill from there. -->
+                                        <div class="flex gap-2">
+                                            @if (hasXValue(layout.position)) {
+                                                <label class="min-w-0 flex-1">
+                                                    <div class="mb-1 text-sm">
+                                                        {{
+                                                            xLabel(
+                                                                layout.position
+                                                            ) | translate
+                                                        }}
+                                                    </div>
+                                                    <a-counter
+                                                        class="block"
+                                                        [min]="0"
+                                                        [max]="100"
+                                                        [ngModel]="
+                                                            axisPercentage(
+                                                                layout,
+                                                                'x_pos'
+                                                            )
+                                                        "
+                                                        (ngModelChange)="
+                                                            setAxis(
+                                                                $index,
+                                                                'x_pos',
+                                                                $event
+                                                            )
+                                                        "
+                                                        [disabled]="
+                                                            !can_update()
+                                                        "
+                                                        [render_fn]="
+                                                            renderPercent
+                                                        "
+                                                        [attr.aria-label]="
+                                                            xLabel(
+                                                                layout.position
+                                                            ) | translate
+                                                        "
+                                                    />
+                                                </label>
+                                            }
+                                            @if (hasYValue(layout.position)) {
+                                                <label class="min-w-0 flex-1">
+                                                    <div class="mb-1 text-sm">
+                                                        {{
+                                                            yLabel(
+                                                                layout.position
+                                                            ) | translate
+                                                        }}
+                                                    </div>
+                                                    <a-counter
+                                                        class="block"
+                                                        [min]="0"
+                                                        [max]="100"
+                                                        [ngModel]="
+                                                            axisPercentage(
+                                                                layout,
+                                                                'y_pos'
+                                                            )
+                                                        "
+                                                        (ngModelChange)="
+                                                            setAxis(
+                                                                $index,
+                                                                'y_pos',
+                                                                $event
+                                                            )
+                                                        "
+                                                        [disabled]="
+                                                            !can_update()
+                                                        "
+                                                        [render_fn]="
+                                                            renderPercent
+                                                        "
+                                                        [attr.aria-label]="
+                                                            yLabel(
+                                                                layout.position
+                                                            ) | translate
+                                                        "
+                                                    />
+                                                </label>
+                                            }
+                                        </div>
+                                        @if (selected_plugin_schema()) {
+                                            <label>
+                                                {{
+                                                    'SIGNAGE_MANAGER.PLUGIN_PARAMETERS'
+                                                        | translate
+                                                }}
+                                            </label>
+                                            <div
+                                                class="bg-base-200/60 rounded-lg p-4"
+                                                [class.opacity-70]="
+                                                    !can_update()
+                                                "
+                                                [attr.inert]="
+                                                    can_update() ? null : ''
+                                                "
+                                            >
+                                                <schema-form
+                                                    [schema]="
+                                                        selected_plugin_schema()
+                                                    "
+                                                    [ngModel]="
+                                                        layout.plugin_params ||
+                                                        {}
+                                                    "
+                                                    (ngModelChange)="
+                                                        setParams(
+                                                            $index,
+                                                            $event
+                                                        )
+                                                    "
+                                                    [ngModelOptions]="{
+                                                        standalone: true,
+                                                    }"
+                                                ></schema-form>
+                                            </div>
+                                        }
                                     </div>
                                 }
                             </div>
+                        } @empty {
+                            <div
+                                class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8 text-center"
+                            >
+                                <icon class="text-5xl">space_dashboard</icon>
+                                <p class="text-sm">
+                                    {{
+                                        'SIGNAGE_MANAGER.TEMPLATE_NO_LAYOUTS'
+                                            | translate
+                                    }}
+                                </p>
+                            </div>
                         }
                     </div>
-                } @empty {
-                    <div
-                        class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8 text-center"
-                    >
-                        <icon class="text-5xl">space_dashboard</icon>
-                        <p class="text-sm">
-                            {{
-                                'SIGNAGE_MANAGER.TEMPLATE_NO_LAYOUTS'
-                                    | translate
-                            }}
-                        </p>
-                    </div>
-                }
-            </div>
+                </div>
+            } @else {
+                <div
+                    id="template-layout-details-panel"
+                    role="tabpanel"
+                    aria-labelledby="template-layout-details-tab"
+                    class="min-h-0 flex-1 overflow-auto"
+                >
+                    @if (selected_template(); as template) {
+                        <div class="flex flex-col gap-5 p-4">
+                            <section>
+                                <h5
+                                    class="text-base-content/70 mb-2 flex items-center gap-2 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">tune</icon>
+                                    {{
+                                        'SIGNAGE_MANAGER.TEMPLATE_CONFIGURATION'
+                                            | translate
+                                    }}
+                                </h5>
+                                <dl
+                                    class="border-base-300 divide-base-300 divide-y rounded-lg border"
+                                >
+                                    <div class="px-3 py-2">
+                                        <dt
+                                            class="text-base-content/60 text-xs"
+                                        >
+                                            {{ 'FORM.NAME' | translate }}
+                                        </dt>
+                                        <dd class="mt-0.5 font-medium">
+                                            {{ template.name }}
+                                        </dd>
+                                    </div>
+                                    <div class="px-3 py-2">
+                                        <dt
+                                            class="text-base-content/60 text-xs"
+                                        >
+                                            {{
+                                                'COMMON.DESCRIPTION' | translate
+                                            }}
+                                        </dt>
+                                        <dd
+                                            class="mt-0.5 text-sm whitespace-pre-wrap"
+                                        >
+                                            {{
+                                                template.description ||
+                                                    ('COMMON.NONE' | translate)
+                                            }}
+                                        </dd>
+                                    </div>
+                                    <div class="px-3 py-2">
+                                        <dt
+                                            class="text-base-content/60 mb-1 text-xs"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND'
+                                                    | translate
+                                            }}
+                                        </dt>
+                                        @if (background_url(); as source) {
+                                            <dd class="flex items-center gap-2">
+                                                <img
+                                                    auth
+                                                    class="bg-base-200 h-12 w-20 rounded object-cover"
+                                                    [source]="source"
+                                                    [alt]="
+                                                        'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND'
+                                                            | translate
+                                                    "
+                                                />
+                                                <span class="text-sm">{{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND_SELECTED'
+                                                        | translate
+                                                }}</span>
+                                            </dd>
+                                        } @else {
+                                            <dd class="text-sm">
+                                                {{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND_EMPTY'
+                                                        | translate
+                                                }}
+                                            </dd>
+                                        }
+                                    </div>
+                                    <div
+                                        class="flex items-center justify-between gap-3 px-3 py-2"
+                                    >
+                                        <dt class="text-sm">
+                                            {{
+                                                'SIGNAGE_MANAGER.TEMPLATE_FULLSCREEN_TAKEOVER'
+                                                    | translate
+                                            }}
+                                        </dt>
+                                        <dd class="font-medium">
+                                            {{
+                                                (template.full_screen_takeover
+                                                    ? 'COMMON.YES'
+                                                    : 'COMMON.NO'
+                                                ) | translate
+                                            }}
+                                        </dd>
+                                    </div>
+                                </dl>
+                            </section>
+
+                            <section>
+                                <h5
+                                    class="text-base-content/70 mb-2 flex items-center gap-2 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">groups</icon>
+                                    {{
+                                        'SIGNAGE_MANAGER.SHARED_WITH'
+                                            | translate
+                                    }}
+                                </h5>
+                                @if (template.shared_with.length) {
+                                    <ul
+                                        class="border-base-300 divide-base-300 list-none divide-y rounded-lg border p-0"
+                                    >
+                                        @for (
+                                            group of template.shared_with;
+                                            track group.id
+                                        ) {
+                                            <li
+                                                class="flex items-center gap-2 px-3 py-2"
+                                            >
+                                                <icon
+                                                    class="text-base-content/60 text-xl"
+                                                    >group</icon
+                                                >
+                                                <span
+                                                    class="min-w-0 flex-1 truncate text-sm"
+                                                    >{{ group.name }}</span
+                                                >
+                                            </li>
+                                        }
+                                    </ul>
+                                } @else {
+                                    <div
+                                        class="border-base-300 text-base-content/70 rounded-lg border px-3 py-2 text-sm"
+                                    >
+                                        {{ 'COMMON.NONE' | translate }}
+                                    </div>
+                                }
+                            </section>
+
+                            <section>
+                                <h5
+                                    class="text-base-content/70 mb-2 flex items-center gap-2 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    <icon class="text-lg">link</icon>
+                                    {{
+                                        'SIGNAGE_MANAGER.TEMPLATE_MAPPINGS'
+                                            | translate
+                                    }}
+                                    @if (!mappings_loading()) {
+                                        <span>({{ mappings().length }})</span>
+                                    }
+                                </h5>
+                                @if (mappings_loading()) {
+                                    <div
+                                        class="border-base-300 text-base-content/70 rounded-lg border px-3 py-4 text-center text-sm"
+                                    >
+                                        {{ 'COMMON.LOADING' | translate }}
+                                    </div>
+                                } @else if (mappings_error()) {
+                                    <div
+                                        class="border-error text-error rounded-lg border px-3 py-3 text-sm"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.TEMPLATE_MAPPINGS_LOAD_ERROR'
+                                                | translate
+                                        }}
+                                    </div>
+                                } @else if (mappings().length) {
+                                    <ul
+                                        class="border-base-300 divide-base-300 list-none divide-y rounded-lg border p-0"
+                                    >
+                                        @for (
+                                            mapping of mappings();
+                                            track mapping.id
+                                        ) {
+                                            <li>
+                                                <a
+                                                    matRipple
+                                                    class="hover:bg-base-200 flex items-center gap-2 px-3 py-2 no-underline transition-colors"
+                                                    [routerLink]="
+                                                        mappingRoute(mapping)
+                                                    "
+                                                >
+                                                    <icon
+                                                        class="text-base-content/60 shrink-0 text-xl"
+                                                        >{{
+                                                            mappingIcon(mapping)
+                                                        }}</icon
+                                                    >
+                                                    <div class="min-w-0 flex-1">
+                                                        <div
+                                                            class="truncate text-sm font-medium"
+                                                            [title]="
+                                                                mappingTargetLabel(
+                                                                    mapping
+                                                                )
+                                                            "
+                                                        >
+                                                            {{
+                                                                mappingTargetLabel(
+                                                                    mapping
+                                                                )
+                                                            }}
+                                                        </div>
+                                                        <div
+                                                            class="text-base-content/60 text-xs"
+                                                        >
+                                                            {{
+                                                                mappingTargetType(
+                                                                    mapping
+                                                                ) | translate
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                    <span
+                                                        class="bg-base-200 max-w-36 truncate rounded px-2 py-1 text-xs"
+                                                        [title]="
+                                                            mappingSchedule(
+                                                                mapping
+                                                            )
+                                                        "
+                                                    >
+                                                        {{
+                                                            mappingSchedule(
+                                                                mapping
+                                                            )
+                                                        }}
+                                                    </span>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                } @else {
+                                    <div
+                                        class="border-base-300 text-base-content/70 rounded-lg border px-3 py-3 text-sm"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.TEMPLATE_NO_MAPPINGS'
+                                                | translate
+                                        }}
+                                    </div>
+                                }
+                            </section>
+                        </div>
+                    } @else {
+                        <div
+                            class="text-base-content/70 flex h-full flex-col items-center justify-center space-y-2 p-8 text-center"
+                        >
+                            <icon class="text-5xl">dashboard_customize</icon>
+                            <p class="text-sm">
+                                {{
+                                    'SIGNAGE_MANAGER.SELECT_TEMPLATE_HINT'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                    }
+                </div>
+            }
             @if (dirty()) {
                 <div
                     class="border-base-300 flex items-center gap-2 border-t px-4 py-3"
@@ -336,12 +706,14 @@ import {
         CdkDrag,
         CdkDragHandle,
         FormsModule,
+        RouterLink,
         MatRippleModule,
         MatFormFieldModule,
         MatMenuModule,
         MatSelectModule,
         MatTooltipModule,
         CounterComponent,
+        AuthenticatedImageDirective,
         IconComponent,
         SchemaFormComponent,
         TranslatePipe,
@@ -350,13 +722,40 @@ import {
 export class TemplateLayoutListComponent {
     private readonly _service = inject(SignageService);
 
+    public readonly view_tab = signal<'items' | 'details'>('items');
     public readonly positions = LAYOUT_POSITIONS;
     public readonly layouts = this._service.template_layout_draft;
+    public readonly selected_template = this._service.selected_template;
     public readonly selected_index =
         this._service.selected_template_layout_index;
     public readonly dirty = this._service.template_layout_dirty;
     public readonly can_update = this._service.can_update;
     public readonly widgets = this._service.widgets;
+    public readonly displays = this._service.displays;
+    public readonly zones = this._service.all_zones;
+    public readonly background_url = computed(() => {
+        const background_id = this.selected_template()?.background_item_id;
+        return background_id ? mediaThumbnail(background_id) : '';
+    });
+    private readonly _mappings = resource({
+        params: () => ({
+            template_id:
+                this.view_tab() === 'details'
+                    ? this.selected_template()?.live_template_id ||
+                      this.selected_template()?.id ||
+                      ''
+                    : '',
+        }),
+        loader: ({ params }) =>
+            params.template_id
+                ? this._service.listTemplateMappings({
+                      template_id: params.template_id,
+                  })
+                : Promise.resolve([]),
+    });
+    public readonly mappings = computed(() => this._mappings.value() || []);
+    public readonly mappings_loading = this._mappings.isLoading;
+    public readonly mappings_error = this._mappings.error;
     public readonly selected_plugin = computed(() => {
         const index = this.selected_index();
         const plugin_id =
@@ -390,6 +789,64 @@ export class TemplateLayoutListComponent {
             { position, plugin_params: {} },
         ]);
         this.selected_index.set(this.layouts().length - 1);
+    }
+
+    public setViewTab(tab: 'items' | 'details') {
+        this.view_tab.set(tab);
+    }
+
+    public handleTabKeydown(
+        event: KeyboardEvent,
+        items_tab: HTMLButtonElement,
+        details_tab: HTMLButtonElement,
+    ) {
+        let tab: 'items' | 'details' | null = null;
+        if (event.key === 'Home') tab = 'items';
+        else if (event.key === 'End') tab = 'details';
+        else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            tab = this.view_tab() === 'items' ? 'details' : 'items';
+        }
+        if (!tab) return;
+        event.preventDefault();
+        this.view_tab.set(tab);
+        (tab === 'items' ? items_tab : details_tab).focus();
+    }
+
+    public mappingTargetLabel(mapping: SignageTemplateMapping) {
+        if (mapping.control_system_id) {
+            const display = this.displays().find(
+                ({ id }) => id === mapping.control_system_id,
+            );
+            return (
+                display?.display_name ||
+                display?.name ||
+                mapping.control_system_id
+            );
+        }
+        const zone = this.zones().find(({ id }) => id === mapping.zone_id);
+        return zone?.name || mapping.zone_id;
+    }
+
+    public mappingTargetType(mapping: SignageTemplateMapping) {
+        return mapping.control_system_id
+            ? 'SIGNAGE_MANAGER.TEMPLATE_MAPPING_DISPLAY'
+            : 'SIGNAGE_MANAGER.TEMPLATE_MAPPING_ZONE';
+    }
+
+    public mappingIcon(mapping: SignageTemplateMapping) {
+        return mapping.control_system_id ? 'tv' : 'layers';
+    }
+
+    public mappingRoute(mapping: SignageTemplateMapping) {
+        return mapping.control_system_id
+            ? ['/displays', mapping.control_system_id]
+            : ['/zones', mapping.zone_id];
+    }
+
+    public mappingSchedule(mapping: SignageTemplateMapping) {
+        return mapping.schedule
+            ? playlistScheduleLabel(mapping.schedule)
+            : i18n('SIGNAGE_MANAGER.DEFAULT_TEMPLATE');
     }
 
     public removeLayout(event: Event, index: number) {
@@ -491,9 +948,7 @@ export class TemplateLayoutListComponent {
         const ratio = layoutPercentageToRatio(value);
         this.layouts.update((layouts) =>
             layouts.map((layout, item_index) =>
-                item_index === index
-                    ? { ...layout, [axis]: ratio }
-                    : layout,
+                item_index === index ? { ...layout, [axis]: ratio } : layout,
             ),
         );
     }

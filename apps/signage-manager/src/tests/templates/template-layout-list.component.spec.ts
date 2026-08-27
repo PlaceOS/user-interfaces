@@ -10,8 +10,11 @@ describe('TemplateLayoutListComponent', () => {
     const selected_template = signal<any>(null);
     const can_update = signal(true);
     const widgets = signal<any[]>([]);
+    const displays = signal<any[]>([]);
+    const zones = signal<any[]>([]);
     const save = vi.fn();
     const discard = vi.fn();
+    const list_mappings = vi.fn();
 
     const service_stub = {
         template_layout_draft: draft,
@@ -20,6 +23,9 @@ describe('TemplateLayoutListComponent', () => {
         selected_template,
         can_update,
         widgets,
+        displays,
+        all_zones: zones,
+        listTemplateMappings: list_mappings,
         saveTemplateLayouts: save,
         discardTemplateLayoutDraft: discard,
     };
@@ -44,6 +50,9 @@ describe('TemplateLayoutListComponent', () => {
         selected_template.set(null);
         can_update.set(true);
         widgets.set([]);
+        displays.set([]);
+        zones.set([]);
+        list_mappings.mockResolvedValue([]);
     });
 
     it('appends and selects a new layout item', async () => {
@@ -51,6 +60,79 @@ describe('TemplateLayoutListComponent', () => {
         component.addLayout('bottom');
         expect(draft()).toEqual([{ position: 'bottom', plugin_params: {} }]);
         expect(selected_index()).toBe(0);
+        expect(component.view_tab()).toBe('items');
+    });
+
+    it('expands a selected item in the layout items tab', async () => {
+        draft.set([{ position: 'top', plugin_params: {} }]);
+        const component = await make();
+
+        component.selectLayout(0);
+        expect(selected_index()).toBe(0);
+        expect(component.view_tab()).toBe('items');
+
+        component.selectLayout(0);
+        expect(selected_index()).toBeNull();
+    });
+
+    it('switches and focuses sidebar tabs with the arrow keys', async () => {
+        const component = await make();
+        const event = {
+            key: 'ArrowRight',
+            preventDefault: vi.fn(),
+        } as unknown as KeyboardEvent;
+        const items_tab = { focus: vi.fn() } as unknown as HTMLButtonElement;
+        const details_tab = {
+            focus: vi.fn(),
+        } as unknown as HTMLButtonElement;
+
+        component.handleTabKeydown(event, items_tab, details_tab);
+
+        expect(component.view_tab()).toBe('details');
+        expect(event.preventDefault).toHaveBeenCalled();
+        expect(details_tab.focus).toHaveBeenCalled();
+    });
+
+    it('loads and labels mappings for the selected template', async () => {
+        selected_template.set({
+            id: 'template-draft',
+            live_template_id: 'template-live',
+        });
+        displays.set([{ id: 'display-1', display_name: 'Reception display' }]);
+        zones.set([{ id: 'zone-1', name: 'Sydney' }]);
+        list_mappings.mockResolvedValue([
+            {
+                id: 'mapping-1',
+                control_system_id: 'display-1',
+                zone_id: '',
+                schedule: null,
+            },
+            {
+                id: 'mapping-2',
+                control_system_id: '',
+                zone_id: 'zone-1',
+                schedule: null,
+            },
+        ]);
+        const component = await make();
+        expect(list_mappings).not.toHaveBeenCalled();
+        component.setViewTab('details');
+
+        await vi.waitFor(() => expect(component.mappings()).toHaveLength(2));
+
+        expect(list_mappings).toHaveBeenCalledWith({
+            template_id: 'template-live',
+        });
+        expect(component.mappingTargetLabel(component.mappings()[0])).toBe(
+            'Reception display',
+        );
+        expect(component.mappingRoute(component.mappings()[1])).toEqual([
+            '/zones',
+            'zone-1',
+        ]);
+        expect(component.mappingSchedule(component.mappings()[0])).toBe(
+            'Default template',
+        );
     });
 
     it('shifts the selection when an earlier item is removed', async () => {
@@ -198,9 +280,7 @@ describe('TemplateLayoutListComponent', () => {
     });
 
     it('only allows widget plugins in template layouts', async () => {
-        widgets.set([
-            { id: 'widget-1', name: 'Clock', plugin_type: 'widget' },
-        ]);
+        widgets.set([{ id: 'widget-1', name: 'Clock', plugin_type: 'widget' }]);
         draft.set([{ position: 'top', plugin_params: {} }]);
         const component = await make();
 

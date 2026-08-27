@@ -149,6 +149,7 @@ import {
 import { markSignageSharedGroupsChanged } from './signage-shared-groups.util';
 import {
     HydratedSignageTemplateMapping,
+    SignageTemplateMappingQuery,
     SignageTemplateMappingTarget,
 } from './signage-template-mapping';
 import { applyLayoutPositionDefaults } from './templates/template-layout.util';
@@ -1156,11 +1157,13 @@ export class SignageService {
         return result.data;
     }
 
-    public async listTemplateMappings(target: SignageTemplateMappingTarget) {
+    public async listTemplateMappings(
+        query_params: SignageTemplateMappingQuery,
+    ) {
         if (!this._canQueryLists()) return [];
         const result = await query<HydratedSignageTemplateMapping>({
             path: 'signage/template_mappings',
-            query_params: { ...target, limit: 10_000 },
+            query_params: { ...query_params, limit: 10_000 },
             fn: (data) => new HydratedSignageTemplateMapping(data),
         });
         return result.data;
