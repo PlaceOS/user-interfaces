@@ -334,7 +334,8 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                     </h3>
                     <div class="flex items-center space-x-2 px-2" host>
                         @let host =
-                            (event().host | user | async)?.name || event().host;
+                            (event().host | user: 'email-prefix' | async)
+                                ?.name || event().host;
                         <a-user-avatar
                             [user]="event().organiser"
                         ></a-user-avatar>
