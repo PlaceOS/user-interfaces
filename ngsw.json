@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1787799395840,
+  "timestamp": 1787804293277,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -20,7 +20,7 @@
         "./chunk-Y4R37YMA.js",
         "./favicon.ico",
         "./index.html",
-        "./main-VJAITFCL.js",
+        "./main-T4SHJX74.js",
         "./manifest.webmanifest",
         "./styles-IUDEM4MC.css"
       ],
@@ -216,8 +216,8 @@
     "./chunk-JAODHKFU.js": "343d60170d3300e18a18901ad9438872649d8a26",
     "./chunk-Y4R37YMA.js": "e9e66716ac39c24be247b6e391868c43816126e9",
     "./favicon.ico": "dfc345494b2f49ee24e0f3d28fdc108fe205c7c3",
-    "./index.html": "9d58092342e626cc313c9bd7e98ea046f59f68d4",
-    "./main-VJAITFCL.js": "5fabc17773f3b803c8fdcba5e78a21a0b39f77c6",
+    "./index.html": "97c2b687f8c4e61854c424e6665bc30776501931",
+    "./main-T4SHJX74.js": "82131073f56f577b44e8030576511a055c2ff5f7",
     "./manifest.webmanifest": "4dc45db7bd3228ce62839eb66a94fd6986b18a1d",
     "./styles-IUDEM4MC.css": "b17597fb9ad0ce53d4e6cbf34cc5a376b0eb55b3"
   },
