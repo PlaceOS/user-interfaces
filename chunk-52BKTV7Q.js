@@ -19,7 +19,7 @@ import {
   saveAssetType,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-PBM5KKAM.js";
+} from "./chunk-7EWL75XW.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -331,7 +331,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-KLH36INZ.js";
+} from "./chunk-DTT5BZ2I.js";
 import {
   __objRest,
   __spreadProps,
@@ -3571,6 +3571,14 @@ async function searchStaff(q) {
     ].join(",")
   });
   const list = await p(`${STAFF_ENDPOINT}${q ? "?" + query : ""}`);
+  return list.map((item) => new StaffUser(item));
+}
+async function searchStaffByEmailPrefix(email_prefix) {
+  const escaped_prefix = email_prefix.replace(/'/g, "''");
+  const query = toQueryString({
+    filter: `startsWith(mail,'${escaped_prefix}')`
+  });
+  const list = await p(`${STAFF_ENDPOINT}?${query}`);
   return list.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
@@ -12355,6 +12363,7 @@ export {
   MatAutocompleteTrigger,
   MatAutocompleteModule,
   searchStaff,
+  searchStaffByEmailPrefix,
   showStaff,
   UserSearchFieldComponent,
   AssetStateService,
@@ -12369,4 +12378,4 @@ export {
   CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-5YS53VYY.js.map
+//# sourceMappingURL=chunk-52BKTV7Q.js.map

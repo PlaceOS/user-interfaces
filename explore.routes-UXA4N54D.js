@@ -39,10 +39,11 @@ import {
   requestSpacesForZone,
   rulesForResource,
   searchStaff,
+  searchStaffByEmailPrefix,
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-5YS53VYY.js";
+} from "./chunk-52BKTV7Q.js";
 import {
   FormField,
   MatCheckbox,
@@ -53,7 +54,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-PBM5KKAM.js";
+} from "./chunk-7EWL75XW.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -307,7 +308,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-KLH36INZ.js";
+} from "./chunk-DTT5BZ2I.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4220,7 +4221,12 @@ var MapLocation = class {
 var USER_LIST = [];
 var INFLIGHT_REQUESTS = /* @__PURE__ */ new Map();
 var EMPTY_USER = {};
-async function fetchUser(user_id) {
+async function fetchUser(user_id, lookup_mode) {
+  if (lookup_mode === "email-prefix") {
+    const email_prefix = user_id.split("@")[0];
+    const [staff] = await searchStaffByEmailPrefix(email_prefix).catch(() => []);
+    return staff ? new User({ name: staff.name, email: user_id }) : EMPTY_USER;
+  }
   let user = await showStaff(user_id).catch(() => null);
   if (user) {
     USER_LIST.push(user);
@@ -4237,18 +4243,22 @@ var UserPipe = class _UserPipe {
   /**
    * Get details of the user with the given ID
    * @param user_id ID or Email of the user
+   * @param lookup_mode Whether to match the full ID or an email prefix
    */
-  async transform(user_id) {
+  async transform(user_id, lookup_mode = "exact") {
     if (!user_id)
       return EMPTY_USER;
-    const user = USER_LIST.find(({ id, email }) => id === user_id || email === user_id);
-    if (user)
-      return user;
-    const existing = INFLIGHT_REQUESTS.get(user_id);
+    if (lookup_mode === "exact") {
+      const user = USER_LIST.find(({ id, email }) => id === user_id || email === user_id);
+      if (user)
+        return user;
+    }
+    const lookup_key = `${lookup_mode}:${user_id}`;
+    const existing = INFLIGHT_REQUESTS.get(lookup_key);
     if (existing)
       return existing;
-    const request = fetchUser(user_id).finally(() => INFLIGHT_REQUESTS.delete(user_id));
-    INFLIGHT_REQUESTS.set(user_id, request);
+    const request = fetchUser(user_id, lookup_mode).finally(() => INFLIGHT_REQUESTS.delete(lookup_key));
+    INFLIGHT_REQUESTS.set(lookup_key, request);
     return request;
   }
   static {
@@ -12000,4 +12010,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-LRZLHTNF.js.map
+//# sourceMappingURL=explore.routes-UXA4N54D.js.map
