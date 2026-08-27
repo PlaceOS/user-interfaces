@@ -55918,15 +55918,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "20f78e5",
-  "hash": "20f78e5",
+  "raw": "5e74d5d",
+  "hash": "5e74d5d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "20f78e5",
+  "suffix": "5e74d5d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787714075064
+  "time": 1787796486720
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -111397,6 +111397,14 @@ async function searchStaff(q2) {
   const list2 = await p(`${STAFF_ENDPOINT}${q2 ? "?" + query2 : ""}`);
   return list2.map((item) => new StaffUser(item));
 }
+async function searchStaffByEmailPrefix(email_prefix) {
+  const escaped_prefix = email_prefix.replace(/'/g, "''");
+  const query2 = toQueryString({
+    filter: `startsWith(mail,'${escaped_prefix}')`
+  });
+  const list2 = await p(`${STAFF_ENDPOINT}?${query2}`);
+  return list2.map((item) => new StaffUser(item));
+}
 async function showStaff(id) {
   return new StaffUser(await p(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
@@ -112098,7 +112106,12 @@ var MapLocation = class {
 var USER_LIST = [];
 var INFLIGHT_REQUESTS = /* @__PURE__ */ new Map();
 var EMPTY_USER2 = {};
-async function fetchUser(user_id) {
+async function fetchUser(user_id, lookup_mode) {
+  if (lookup_mode === "email-prefix") {
+    const email_prefix = user_id.split("@")[0];
+    const [staff] = await searchStaffByEmailPrefix(email_prefix).catch(() => []);
+    return staff ? new User({ name: staff.name, email: user_id }) : EMPTY_USER2;
+  }
   let user = await showStaff(user_id).catch(() => null);
   if (user) {
     USER_LIST.push(user);
@@ -112115,18 +112128,22 @@ var UserPipe = class _UserPipe {
   /**
    * Get details of the user with the given ID
    * @param user_id ID or Email of the user
+   * @param lookup_mode Whether to match the full ID or an email prefix
    */
-  async transform(user_id) {
+  async transform(user_id, lookup_mode = "exact") {
     if (!user_id)
       return EMPTY_USER2;
-    const user = USER_LIST.find(({ id, email: email2 }) => id === user_id || email2 === user_id);
-    if (user)
-      return user;
-    const existing = INFLIGHT_REQUESTS.get(user_id);
+    if (lookup_mode === "exact") {
+      const user = USER_LIST.find(({ id, email: email2 }) => id === user_id || email2 === user_id);
+      if (user)
+        return user;
+    }
+    const lookup_key = `${lookup_mode}:${user_id}`;
+    const existing = INFLIGHT_REQUESTS.get(lookup_key);
     if (existing)
       return existing;
-    const request = fetchUser(user_id).finally(() => INFLIGHT_REQUESTS.delete(user_id));
-    INFLIGHT_REQUESTS.set(user_id, request);
+    const request = fetchUser(user_id, lookup_mode).finally(() => INFLIGHT_REQUESTS.delete(lookup_key));
+    INFLIGHT_REQUESTS.set(lookup_key, request);
     return request;
   }
   static {
