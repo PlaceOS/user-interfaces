@@ -128,6 +128,11 @@ interface Candidate {
                             {{ quota_note() }}
                         </p>
                     }
+                    @if (engine_note()) {
+                        <p class="text-base-content/60 m-0 mt-1 text-xs">
+                            {{ engine_note() }}
+                        </p>
+                    }
                 }
                 @case ('generating') {
                     <div class="flex flex-col items-center gap-4 py-8">
@@ -338,6 +343,28 @@ export class AiImageModalComponent {
         const left = quota?.user_remaining_today;
         if (left === null || left === undefined) return '';
         return i18n('SIGNAGE_MANAGER.AI_QUOTA_LEFT', { count: `${left}` });
+    });
+
+    /**
+     * Which engine is behind the button. Normal for an AI feature to say, and
+     * it is the difference between "the model did badly" and "this domain is
+     * pointed at something that is not a model".
+     */
+    public readonly engine_note = computed(() => {
+        const capabilities = this._ai.capabilities();
+        if (!capabilities?.enabled) return '';
+        const provider =
+            capabilities.providers.find(
+                (p) => p.id === capabilities.default_provider_id,
+            ) || capabilities.providers[0];
+        if (!provider) return '';
+        const model = provider.models?.find(
+            (m) => m.id === provider.default_model,
+        );
+        return i18n('SIGNAGE_MANAGER.AI_ENGINE', {
+            model: model?.name || provider.default_model || '',
+            provider: provider.name,
+        });
     });
 
     public readonly heading = computed(() => {

@@ -32,6 +32,7 @@
         "AI_CREATE_IMAGE": "Create image with AI",
         "AI_DEFAULT_NAME": "AI image",
         "AI_EDIT_IMAGE": "Change image with AI",
+        "AI_ENGINE": "Images made by {{ model }}, via {{ provider }}",
         "AI_GENERATE": "Generate",
         "AI_HEADLINE": "Headline",
         "AI_INSTRUCTION": "What should change?",
