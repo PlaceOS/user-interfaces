@@ -68075,15 +68075,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "20f78e5",
-  "hash": "20f78e5",
+  "raw": "30e17d3",
+  "hash": "30e17d3",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "20f78e5",
+  "suffix": "30e17d3",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787714071470
+  "time": 1787799369796
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -110827,6 +110827,14 @@ async function searchStaff(q3) {
   const list = await p(`${STAFF_ENDPOINT}${q3 ? "?" + query2 : ""}`);
   return list.map((item) => new StaffUser(item));
 }
+async function searchStaffByEmailPrefix(email_prefix) {
+  const escaped_prefix = email_prefix.replace(/'/g, "''");
+  const query2 = toQueryString({
+    filter: `startsWith(mail,'${escaped_prefix}')`
+  });
+  const list = await p(`${STAFF_ENDPOINT}?${query2}`);
+  return list.map((item) => new StaffUser(item));
+}
 async function showStaff(id) {
   return new StaffUser(await p(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
@@ -113072,7 +113080,12 @@ var CounterComponent = class _CounterComponent {
 var USER_LIST = [];
 var INFLIGHT_REQUESTS = /* @__PURE__ */ new Map();
 var EMPTY_USER2 = {};
-async function fetchUser(user_id) {
+async function fetchUser(user_id, lookup_mode) {
+  if (lookup_mode === "email-prefix") {
+    const email_prefix = user_id.split("@")[0];
+    const [staff] = await searchStaffByEmailPrefix(email_prefix).catch(() => []);
+    return staff ? new User({ name: staff.name, email: user_id }) : EMPTY_USER2;
+  }
   let user = await showStaff(user_id).catch(() => null);
   if (user) {
     USER_LIST.push(user);
@@ -113089,18 +113102,22 @@ var UserPipe = class _UserPipe {
   /**
    * Get details of the user with the given ID
    * @param user_id ID or Email of the user
+   * @param lookup_mode Whether to match the full ID or an email prefix
    */
-  async transform(user_id) {
+  async transform(user_id, lookup_mode = "exact") {
     if (!user_id)
       return EMPTY_USER2;
-    const user = USER_LIST.find(({ id, email: email2 }) => id === user_id || email2 === user_id);
-    if (user)
-      return user;
-    const existing = INFLIGHT_REQUESTS.get(user_id);
+    if (lookup_mode === "exact") {
+      const user = USER_LIST.find(({ id, email: email2 }) => id === user_id || email2 === user_id);
+      if (user)
+        return user;
+    }
+    const lookup_key = `${lookup_mode}:${user_id}`;
+    const existing = INFLIGHT_REQUESTS.get(lookup_key);
     if (existing)
       return existing;
-    const request = fetchUser(user_id).finally(() => INFLIGHT_REQUESTS.delete(user_id));
-    INFLIGHT_REQUESTS.set(user_id, request);
+    const request = fetchUser(user_id, lookup_mode).finally(() => INFLIGHT_REQUESTS.delete(lookup_key));
+    INFLIGHT_REQUESTS.set(lookup_key, request);
     return request;
   }
   static {
@@ -117595,7 +117612,7 @@ function AttendeeListComponent_For_9_Conditional_0_Template(rf, ctx) {
   if (rf & 2) {
     const user_r3 = \u0275\u0275nextContext().$implicit;
     const ctx_r1 = \u0275\u0275nextContext();
-    const resolved_host_r4 = ctx_r1.host() === user_r3.email && (!user_r3.is_external || !user_r3.name) ? \u0275\u0275pipeBind1(3, 11, \u0275\u0275pipeBind1(2, 9, ctx_r1.host())) : null;
+    const resolved_host_r4 = ctx_r1.host() === user_r3.email && !user_r3.name ? \u0275\u0275pipeBind1(3, 12, \u0275\u0275pipeBind2(2, 9, ctx_r1.host(), "email-prefix")) : null;
     const usr_r5 = resolved_host_r4?.email ? resolved_host_r4 : user_r3;
     \u0275\u0275advance(4);
     \u0275\u0275property("user", usr_r5);
@@ -117607,12 +117624,12 @@ function AttendeeListComponent_For_9_Conditional_0_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.host() === user_r3.email ? 10 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275classProp("bg-success", user_r3.checked_in)("bg-pending", !user_r3.checked_in);
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(13, 13, user_r3.checked_in ? "COMMON.CHECKED_IN" : "COMMON.CHECKED_IN_NOT"));
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(13, 14, user_r3.checked_in ? "COMMON.CHECKED_IN" : "COMMON.CHECKED_IN_NOT"));
   }
 }
 function AttendeeListComponent_For_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, AttendeeListComponent_For_9_Conditional_0_Template, 14, 15, "div", 7);
+    \u0275\u0275conditionalCreate(0, AttendeeListComponent_For_9_Conditional_0_Template, 14, 16, "div", 7);
   }
   if (rf & 2) {
     const user_r3 = ctx.$implicit;
@@ -117756,9 +117773,8 @@ var AttendeeListComponent = class _AttendeeListComponent {
                             class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
                             @let resolved_host =
-                                host() === user.email &&
-                                (!user.is_external || !user.name)
-                                    ? (host() | user | async)
+                                host() === user.email && !user.name
+                                    ? (host() | user: 'email-prefix' | async)
                                     : null;
                             @let usr =
                                 resolved_host?.email ? resolved_host : user;
@@ -117807,7 +117823,7 @@ var AttendeeListComponent = class _AttendeeListComponent {
   }], null, { host: [{ type: Input, args: [{ isSignal: true, alias: "host", required: false }] }], show_host: [{ type: Input, args: [{ isSignal: true, alias: "show_host", required: false }] }], list: [{ type: Input, args: [{ isSignal: true, alias: "list", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], custom_title: [{ type: Input, args: [{ isSignal: true, alias: "custom_title", required: false }] }], close: [{ type: Output, args: ["close"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttendeeListComponent, { className: "AttendeeListComponent", filePath: "libs/events/src/lib/attendee-list.component.ts", lineNumber: 99 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttendeeListComponent, { className: "AttendeeListComponent", filePath: "libs/events/src/lib/attendee-list.component.ts", lineNumber: 98 });
 })();
 
 // libs/events/src/lib/events.fn.ts
@@ -137435,7 +137451,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EventDetailsModalComponent, selectors: [["event-details-modal"]], outputs: { action: "action" }, features: [\u0275\u0275ProvidersFeature([SpacePipe])], decls: 105, vars: 67, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm", "print:min-h-screen", "print:w-screen", "print:overflow-visible"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16", "print:border-none"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b", "print:hidden"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2", "print:hidden"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-3", "space-y-2", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "border-base-200", "mx-3", "flex", "items-center", "justify-between", "border-t", "sm:border-none"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", "print:hidden", 3, "click"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "hidden", "print:block"], [1, "border-base-200", "mx-3", "mt-2", "border-t", "pt-2", "text-lg", "font-medium"], ["host", "", 1, "flex", "items-center", "space-x-2", "px-2"], [3, "user"], [1, "w-px", "flex-1", "text-sm"], [1, "w-full", "truncate"], [1, "w-full", "truncate", "opacity-60", 3, "title"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:mt-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2", "print:hidden"], [1, "absolute", "inset-0", "z-50"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled"], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", 3, "bg-success", "border-none", "pointer-events-none"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "text-2xl"], [1, "pr-4"], ["matTooltip", "Created By"], ["matTooltip", "Visibility"], ["attendee", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "flex", "items-center", "space-x-2"], [1, "text-xs", "opacity-60"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "text-xs"], ["icon", "", "matRipple", "", 1, "print:hidden", 3, "click", "matTooltip"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "bg-info", "text-info-content", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "border-base-200", "mx-3", "border-t", "text-lg", "font-medium", "sm:border-none"], ["notes", "", 1, "mx-4", "max-w-full", "overflow-hidden", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "print:hidden", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "print:hidden"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"], [1, "flex", "items-center", "space-x-2", "pr-2", "text-base"], ["mat-menu-item", "", 3, "click"], [1, "text-error", "text-2xl"]], template: function EventDetailsModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _EventDetailsModalComponent, selectors: [["event-details-modal"]], outputs: { action: "action" }, features: [\u0275\u0275ProvidersFeature([SpacePipe])], decls: 105, vars: 68, consts: [["menu", "matMenu"], [1, "bg-base-100", "sm:bg-base-200", "h-screen", "w-screen", "space-y-2", "overflow-auto", "pb-2", "sm:relative", "sm:inset-auto", "sm:h-auto", "sm:max-h-[80vh]", "sm:w-204", "sm:rounded-sm", "print:min-h-screen", "print:w-screen", "print:overflow-visible"], [1, "border-base-200", "bg-base-100", "max-h-screen", "flex-col", "items-center", "pb-4", "sm:flex", "sm:max-h-[80vh]", "sm:border-b", "sm:px-16", "print:border-none"], ["binding", "", "mod", "Bookings", "bind", "status", 3, "modelChange", "model", "sys"], [1, "block", "h-8", "w-full", "sm:hidden"], [1, "bg-neutral", "h-64", "w-full", "overflow-hidden", "sm:rounded-b", "print:hidden"], ["title", "", 1, "mt-2", "w-full", "px-3", "text-xl", "font-medium"], [1, "w-full", "items-center", "justify-between", "sm:flex"], [1, "m-2", "flex", "items-center", "space-x-2"], [3, "status"], [1, "flex", "flex-col", "leading-tight"], [1, "text-xs", "opacity-30"], [1, "text-2xl", 3, "matTooltip"], ["actions", "", 1, "flex", "items-center", "space-x-2", "px-2", "print:hidden"], [1, "flex-wrap", "sm:flex", "sm:px-12"], [1, "border-base-200", "sm:bg-base-100", "min-w-1/3", "grow-3", "space-y-2", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "mt-2", "mb-2", "px-3", "text-lg", "font-medium"], [1, "flex", "items-center", "space-x-2", "px-2"], [1, "border-base-200", "sm:bg-base-100", "mt-4", "min-w-1/3", "grow-3", "rounded-sm", "sm:m-2", "sm:w-[16rem]", "sm:border", "sm:p-4"], [1, "border-base-200", "mx-3", "flex", "items-center", "justify-between", "border-t", "sm:border-none"], [1, "text-lg", "font-medium"], ["matRipple", "", "show-attendees", "", 1, "clear", "text-xs", "underline", "print:hidden", 3, "click"], [1, "flex", "items-center", "p-1"], [1, "flex", "flex-1", "flex-col", "items-center", "justify-center", "space-y-1"], [1, "text-lg"], [1, "text-sm", "uppercase"], [1, "hidden", "print:block"], [1, "border-base-200", "mx-3", "mt-2", "border-t", "pt-2", "text-lg", "font-medium"], ["host", "", 1, "flex", "items-center", "space-x-2", "px-2"], [3, "user"], [1, "w-px", "flex-1", "text-sm"], [1, "w-full", "truncate"], [1, "w-full", "truncate", "opacity-60", 3, "title"], ["map", "", 1, "border-base-200", "sm:bg-base-100", "relative", "m-2", "mt-4", "h-64", "w-[calc(100%-1rem)]", "min-w-1/3", "grow-3", "overflow-hidden", "rounded-sm", "border", "p-2", "sm:mt-2", "sm:h-48", "sm:w-[16rem]", 3, "click"], [1, "pointer-events-none", 3, "src", "features", "options"], ["icon", "", "default", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-2", "left-2", "print:hidden"], [1, "absolute", "inset-0", "z-50"], ["xPosition", "before"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "matTooltip", "disabled"], ["mat-menu-item", ""], [1, "h-64", "w-full", 3, "images"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", 3, "bg-success", "border-none", "pointer-events-none"], ["icon", "", "matRipple", "", 1, "bg-secondary", "h-12", "w-12", "rounded-sm", "text-white", 3, "matMenuTriggerFor"], ["btn", "", "matRipple", "", 1, "h-10", "flex-1", 3, "click"], [1, "flex", "items-center", "justify-center", "space-x-2"], [1, "text-2xl"], [1, "pr-4"], ["matTooltip", "Created By"], ["matTooltip", "Visibility"], ["attendee", "", 1, "flex", "items-center", "space-x-2", "px-2"], [1, "mx-3", "my-2", "text-lg", "font-medium"], [1, "flex", "flex-col", "space-y-2"], ["order", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], [1, "flex", "items-center", "space-x-2", "p-3"], [1, "flex-1"], [1, "text-sm"], [1, "flex", "items-center", "space-x-2"], [1, "text-xs", "opacity-60"], [1, "bg-base-200", "rounded-sm", "px-2", "py-1", "text-xs"], ["icon", "", "matRipple", "", 1, "print:hidden", 3, "click", "matTooltip"], [1, "divide-base-100", "bg-base-200", "flex", "flex-col", "divide-y"], [1, "flex", "items-center", "space-x-2", "px-3", "py-1", "hover:opacity-90"], [1, "flex", "flex-1", "items-center"], [1, "ml-4", "text-xs", "font-normal", "opacity-60", 3, "matTooltip"], [1, "bg-success", "text-success-content", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "bg-info", "text-info-content", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "border-base-200", "mx-3", "border-t", "text-lg", "font-medium", "sm:border-none"], ["notes", "", 1, "mx-4", "max-w-full", "overflow-hidden", 3, "innerHTML"], [1, "mx-3", "pt-2", "text-lg", "font-medium"], ["request", "", 1, "border-base-300", "bg-base-100", "overflow-hidden", "rounded-xl", "border"], ["matRipple", "", 1, "flex", "w-full", "items-center", "space-x-2", "p-3", 3, "click"], [1, "flex-1", "text-left"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "print:hidden", 3, "matTooltip"], [1, "flex", "h-8", "w-8", "items-center", "justify-center", "rounded-full", "print:hidden"], [3, "click", "list", "host"], ["mat-menu-item", "", "mat-dialog-close", "", 3, "click", "matTooltip", "disabled"], [1, "flex", "items-center", "space-x-2", "pr-2", "text-base"], ["mat-menu-item", "", 3, "click"], [1, "text-error", "text-2xl"]], template: function EventDetailsModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         const _r1 = \u0275\u0275getCurrentView();
         \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "i", 3);
@@ -137627,7 +137643,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
         \u0275\u0275repeater(ctx.event().attendees);
         \u0275\u0275advance(3);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(77, 61, "FORM.HOST"), " ");
-        const host_r20 = \u0275\u0275pipeBind1(81, 65, \u0275\u0275pipeBind1(80, 63, ctx.event().host))?.name || ctx.event().host;
+        const host_r20 = \u0275\u0275pipeBind1(81, 66, \u0275\u0275pipeBind2(80, 63, ctx.event().host, "email-prefix"))?.name || ctx.event().host;
         \u0275\u0275advance(6);
         \u0275\u0275property("user", ctx.event().organiser);
         \u0275\u0275advance(3);
@@ -137969,7 +137985,8 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
                     </h3>
                     <div class="flex items-center space-x-2 px-2" host>
                         @let host =
-                            (event().host | user | async)?.name || event().host;
+                            (event().host | user: 'email-prefix' | async)
+                                ?.name || event().host;
                         <a-user-avatar
                             [user]="event().organiser"
                         ></a-user-avatar>
@@ -138385,7 +138402,7 @@ var EventDetailsModalComponent = class _EventDetailsModalComponent {
   }], null, { action: [{ type: Output, args: ["action"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(EventDetailsModalComponent, { className: "EventDetailsModalComponent", filePath: "libs/events/src/lib/event-details-modal.component.ts", lineNumber: 755 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(EventDetailsModalComponent, { className: "EventDetailsModalComponent", filePath: "libs/events/src/lib/event-details-modal.component.ts", lineNumber: 756 });
 })();
 
 // libs/events/src/lib/event-card.component.ts
