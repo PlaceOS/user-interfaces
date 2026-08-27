@@ -11,6 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { AsyncHandler, OrganisationService, Space } from '@placeos/common';
 import { querySystems } from '@placeos/ts-client';
 
+import { queryAllPages } from '../query-all-pages';
 import { ViewEventDetailsComponent } from '../ui/view-event-details.component';
 import { DayviewSpaceComponent } from './dayview-space.component';
 import { EventsStateService } from './events-state.service';
@@ -143,10 +144,12 @@ export class DayviewTimelineComponent
         defaultValue: [] as Space[],
         loader: async ({ params: id }) => {
             if (!id) return [];
-            const { data } = await querySystems({
-                zone_id: id,
-                limit: 1000,
-            }).catch(() => ({ data: [] }));
+            const data = await queryAllPages(
+                querySystems({
+                    zone_id: id,
+                    limit: 200,
+                }),
+            ).catch(() => []);
             return data.map(
                 (_) =>
                     new Space({

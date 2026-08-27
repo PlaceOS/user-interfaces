@@ -244,7 +244,7 @@ describe('SiteAttendanceReportService', () => {
             expect.objectContaining({
                 query_params: expect.objectContaining({
                     zone_ids: 'building-1',
-                    limit: 1000,
+                    limit: 200,
                 }),
             }),
         );
@@ -263,7 +263,7 @@ describe('SiteAttendanceReportService', () => {
                     zones: 'building-1',
                     type: 'visitor',
                     include_checked_out: true,
-                    limit: 1000,
+                    limit: 200,
                 }),
             }),
         );

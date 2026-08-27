@@ -192,7 +192,7 @@ export class SiteAttendanceReportService {
                     ? queryAllEvents({
                           ...query,
                           zone_ids: booking_zones,
-                          limit: 1000,
+                          limit: 200,
                       }).catch(() => [])
                     : Promise.resolve([]),
                 enabled.desks
@@ -200,7 +200,7 @@ export class SiteAttendanceReportService {
                           ...bookings_query,
                           zones: booking_zones,
                           type: 'desk',
-                          limit: 1000,
+                          limit: 200,
                       }).catch(() => [])
                     : Promise.resolve([]),
                 enabled.parking
@@ -208,7 +208,7 @@ export class SiteAttendanceReportService {
                           ...bookings_query,
                           zones: booking_zones,
                           type: 'parking',
-                          limit: 1000,
+                          limit: 200,
                       }).catch(() => [])
                     : Promise.resolve([]),
                 enabled.lockers
@@ -216,7 +216,7 @@ export class SiteAttendanceReportService {
                           ...bookings_query,
                           zones: booking_zones,
                           type: 'locker',
-                          limit: 1000,
+                          limit: 200,
                       }).catch(() => [])
                     : Promise.resolve([]),
                 enabled.visitors
@@ -224,7 +224,7 @@ export class SiteAttendanceReportService {
                           ...bookings_query,
                           type: 'visitor',
                           zones: booking_zones,
-                          limit: 1000,
+                          limit: 200,
                       }).catch(() => [])
                     : Promise.resolve([]),
                 enabled.events

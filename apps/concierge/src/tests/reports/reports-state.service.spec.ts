@@ -185,7 +185,7 @@ describe('ReportsStateService', () => {
                 query_params: expect.objectContaining({
                     type: 'desk',
                     zones: 'z1',
-                    limit: 1000,
+                    limit: 200,
                 }),
             }),
         );

@@ -11,7 +11,7 @@ import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
-    queryBookings,
+    queryAllBookings,
     rejectBooking,
     setBookingCheckedIn,
     updateBooking,
@@ -115,14 +115,14 @@ export class VisitorsStateService extends AsyncHandler {
         const date = filters.date ? new Date(filters.date) : new Date();
         const start = addMinutes(startOfDay(date), this.tz_offset * 60);
         const end = addDays(start, filters.period || 1);
-        const list = await queryBookings({
+        const list = await queryAllBookings({
             type: 'visitor',
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
             zones: (filters.zones || []).join(',') || building.id,
             include_checked_out: true,
             include_deleted: true,
-            limit: 1000,
+            limit: 200,
         }).catch((_) => [] as Booking[]);
         this.bookings.set(list);
         this.loading.set(false);

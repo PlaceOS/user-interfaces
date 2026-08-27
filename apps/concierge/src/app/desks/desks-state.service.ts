@@ -313,7 +313,7 @@ export class DesksStateService extends AsyncHandler {
                 zones: zones.join(','),
                 include_checked_out: true,
                 include_deleted: true,
-                limit: 500,
+                limit: 200,
             } as any);
     }
 
@@ -343,11 +343,12 @@ export class DesksStateService extends AsyncHandler {
         if (token !== this._load_token) return;
         const { data = [], total = 0, next = null } = resp || {};
         const list = data.map((booking) => this._normaliseBooking(booking));
-        this._next_page_fn = next;
+        const has_next = list.length > 0 && !!next;
+        this._next_page_fn = has_next ? next : null;
         this._bookings_state.update((acc) =>
             reset
-                ? { list, total, has_next: list.length < total && !!next }
-                : { list: [...acc.list, ...list], total, has_next: !!next },
+                ? { list, total, has_next: list.length < total && has_next }
+                : { list: [...acc.list, ...list], total, has_next },
         );
         this._loading.set(false);
         this._last_updated.set(Date.now());

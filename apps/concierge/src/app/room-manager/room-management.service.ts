@@ -9,6 +9,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
+import { queryAllPages } from '../query-all-pages';
 import { RoomAlertModalComponent } from './room-alert-modal.component';
 import { RoomBookingHistoryModalComponent } from './room-booking-history-modal.component';
 import { RoomModalComponent } from './room-modal.component';
@@ -66,11 +67,9 @@ export class RoomManagementService {
             const zone_id =
                 (this._settings.get('app.use_region') ? params.region : '') ||
                 params.building;
-            const { data } = await querySystems({
-                zone_id,
-                limit: 2500,
-            }).catch(() => ({ data: [] }) as any);
-            const list: any[] = data || [];
+            const list: any[] = await queryAllPages(
+                querySystems({ zone_id, limit: 200 }),
+            ).catch(() => []);
             const alerts = params.alerts;
             for (const id in alerts) {
                 const [status, message] = alerts[id];

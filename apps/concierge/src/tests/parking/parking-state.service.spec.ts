@@ -349,6 +349,35 @@ describe('ParkingStateService', () => {
         expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
     });
 
+    it('should stop parking booking pagination when a page is empty', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            user_email: 'staff@example.com',
+            extension_data: {},
+        } as any);
+        const next_page = vi.fn();
+        const empty_page = vi.fn().mockResolvedValue({
+            data: [],
+            total: 3,
+            next: next_page,
+        });
+        const first_page = vi.fn().mockResolvedValue({
+            data: [booking],
+            total: 3,
+            next: empty_page,
+        });
+        (spectator.service as any)._first_page = first_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(first_page).toHaveBeenCalledTimes(1);
+        expect(empty_page).toHaveBeenCalledTimes(1);
+        expect(next_page).not.toHaveBeenCalled();
+        expect(spectator.service.bookings()).toEqual([booking]);
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
+    });
+
     it('should limit page loading when the backend always returns a next page', async () => {
         let booking_count = 0;
         const repeated_page = vi.fn().mockImplementation(async () => ({
@@ -1092,10 +1121,12 @@ describe('ParkingStateService', () => {
             close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        // _clearAssignedBooking -> queryBookings -> get -> existing booking
-        (ts_client.get as any).mockResolvedValue([
-            { id: 'booking-1', asset_id: 'space-1' },
-        ]);
+        // _clearAssignedBooking -> queryAllBookings -> query -> existing booking
+        (ts_client.query as any).mockResolvedValue({
+            data: [{ id: 'booking-1', asset_id: 'space-1' }],
+            total: 1,
+            next: null,
+        });
         // saveParkingSpace -> updateAsset (space has id)
         (ts_client.updateAsset as any)
             .mockResolvedValueOnce({ id: 'space-1', name: 'Bay 1' })

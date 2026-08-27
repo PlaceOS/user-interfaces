@@ -335,7 +335,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                     <div class="flex items-center space-x-2 px-2" host>
                         @let host =
                             (event().host | user: 'email-prefix' | async)
-                                ?.name || event().host;
+                                ?.name || host_name();
                         <a-user-avatar
                             [user]="event().organiser"
                         ></a-user-avatar>
@@ -872,6 +872,15 @@ export class EventDetailsModalComponent implements OnInit {
                 0,
             ) || 0,
     );
+
+    public readonly host_name = computed(() => {
+        const event = this.event();
+        const host_email = event.host.toLowerCase();
+        const host_attendee = event.attendees.find(
+            ({ email }) => email.toLowerCase() === host_email,
+        );
+        return host_attendee?.name || event.host;
+    });
 
     public readonly body = computed(() =>
         (this.event().body || '').replace(/\\n\\n\[ID\|.*\]/gm, ''),
