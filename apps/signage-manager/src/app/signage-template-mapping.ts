@@ -8,6 +8,14 @@ export type SignageTemplateMappingTarget =
     | { control_system_id: string; zone_id?: never }
     | { control_system_id?: never; zone_id: string };
 
+export type SignageTemplateMappingQuery =
+    | SignageTemplateMappingTarget
+    | {
+          control_system_id?: never;
+          zone_id?: never;
+          template_id: string;
+      };
+
 interface HydratedSignageTemplateData extends Partial<SignageTemplate> {
     background_media?: Partial<SignageMedia> | null;
 }
