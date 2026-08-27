@@ -49698,13 +49698,17 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_BACKGROUND_SEARCH: "Search media",
   TEMPLATE_BACKGROUND_SELECT: "Select background media",
   TEMPLATE_BACKGROUND_SELECTED: "Selected background",
+  TEMPLATE_CONFIGURATION: "Configuration",
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_MAPPING_DEFAULT_HINT: "Turn this off to make the template the default for this item.",
+  TEMPLATE_MAPPING_DISPLAY: "Display",
   TEMPLATE_MAPPING_EDIT: "Edit template schedule",
   TEMPLATE_MAPPING_SCHEDULE: "Schedule this template",
-  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load applied templates.",
+  TEMPLATE_MAPPING_ZONE: "Zone",
+  TEMPLATE_MAPPINGS: "Mappings",
+  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load template mappings.",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
@@ -49716,6 +49720,7 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_NO_LAYOUT_CHANGES: "No layout changes",
   TEMPLATE_NO_LAYOUTS: "No layout items yet. Add one to get started.",
   TEMPLATE_NO_LAYOUTS_HINT: "Add layout items to build this template.",
+  TEMPLATE_NO_MAPPINGS: "This template is not applied to any displays or zones.",
   TEMPLATE_NO_PLUGIN: "No plugin",
   TEMPLATE_PANEL_HEIGHT: "Height",
   TEMPLATE_PANEL_WIDTH: "Width",
@@ -56653,15 +56658,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "ea1e8e8",
-  "hash": "ea1e8e8",
+  "raw": "18a341f",
+  "hash": "18a341f",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "ea1e8e8",
+  "suffix": "18a341f",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787804267321
+  "time": 1787816707775
 };
 
 // libs/common/src/lib/settings.service.ts
