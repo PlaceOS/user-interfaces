@@ -68075,15 +68075,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "20f78e5",
-  "hash": "20f78e5",
+  "raw": "5e74d5d",
+  "hash": "5e74d5d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "20f78e5",
+  "suffix": "5e74d5d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787714071470
+  "time": 1787796472582
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -110827,6 +110827,14 @@ async function searchStaff(q3) {
   const list = await p(`${STAFF_ENDPOINT}${q3 ? "?" + query2 : ""}`);
   return list.map((item) => new StaffUser(item));
 }
+async function searchStaffByEmailPrefix(email_prefix) {
+  const escaped_prefix = email_prefix.replace(/'/g, "''");
+  const query2 = toQueryString({
+    filter: `startsWith(mail,'${escaped_prefix}')`
+  });
+  const list = await p(`${STAFF_ENDPOINT}?${query2}`);
+  return list.map((item) => new StaffUser(item));
+}
 async function showStaff(id) {
   return new StaffUser(await p(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
@@ -113072,7 +113080,12 @@ var CounterComponent = class _CounterComponent {
 var USER_LIST = [];
 var INFLIGHT_REQUESTS = /* @__PURE__ */ new Map();
 var EMPTY_USER2 = {};
-async function fetchUser(user_id) {
+async function fetchUser(user_id, lookup_mode) {
+  if (lookup_mode === "email-prefix") {
+    const email_prefix = user_id.split("@")[0];
+    const [staff] = await searchStaffByEmailPrefix(email_prefix).catch(() => []);
+    return staff ? new User({ name: staff.name, email: user_id }) : EMPTY_USER2;
+  }
   let user = await showStaff(user_id).catch(() => null);
   if (user) {
     USER_LIST.push(user);
@@ -113089,18 +113102,22 @@ var UserPipe = class _UserPipe {
   /**
    * Get details of the user with the given ID
    * @param user_id ID or Email of the user
+   * @param lookup_mode Whether to match the full ID or an email prefix
    */
-  async transform(user_id) {
+  async transform(user_id, lookup_mode = "exact") {
     if (!user_id)
       return EMPTY_USER2;
-    const user = USER_LIST.find(({ id, email: email2 }) => id === user_id || email2 === user_id);
-    if (user)
-      return user;
-    const existing = INFLIGHT_REQUESTS.get(user_id);
+    if (lookup_mode === "exact") {
+      const user = USER_LIST.find(({ id, email: email2 }) => id === user_id || email2 === user_id);
+      if (user)
+        return user;
+    }
+    const lookup_key = `${lookup_mode}:${user_id}`;
+    const existing = INFLIGHT_REQUESTS.get(lookup_key);
     if (existing)
       return existing;
-    const request = fetchUser(user_id).finally(() => INFLIGHT_REQUESTS.delete(user_id));
-    INFLIGHT_REQUESTS.set(user_id, request);
+    const request = fetchUser(user_id, lookup_mode).finally(() => INFLIGHT_REQUESTS.delete(lookup_key));
+    INFLIGHT_REQUESTS.set(lookup_key, request);
     return request;
   }
   static {
@@ -117595,7 +117612,7 @@ function AttendeeListComponent_For_9_Conditional_0_Template(rf, ctx) {
   if (rf & 2) {
     const user_r3 = \u0275\u0275nextContext().$implicit;
     const ctx_r1 = \u0275\u0275nextContext();
-    const resolved_host_r4 = ctx_r1.host() === user_r3.email && (!user_r3.is_external || !user_r3.name) ? \u0275\u0275pipeBind1(3, 11, \u0275\u0275pipeBind1(2, 9, ctx_r1.host())) : null;
+    const resolved_host_r4 = ctx_r1.host() === user_r3.email && !user_r3.name ? \u0275\u0275pipeBind1(3, 12, \u0275\u0275pipeBind2(2, 9, ctx_r1.host(), "email-prefix")) : null;
     const usr_r5 = resolved_host_r4?.email ? resolved_host_r4 : user_r3;
     \u0275\u0275advance(4);
     \u0275\u0275property("user", usr_r5);
@@ -117607,12 +117624,12 @@ function AttendeeListComponent_For_9_Conditional_0_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.host() === user_r3.email ? 10 : -1);
     \u0275\u0275advance(2);
     \u0275\u0275classProp("bg-success", user_r3.checked_in)("bg-pending", !user_r3.checked_in);
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(13, 13, user_r3.checked_in ? "COMMON.CHECKED_IN" : "COMMON.CHECKED_IN_NOT"));
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(13, 14, user_r3.checked_in ? "COMMON.CHECKED_IN" : "COMMON.CHECKED_IN_NOT"));
   }
 }
 function AttendeeListComponent_For_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275conditionalCreate(0, AttendeeListComponent_For_9_Conditional_0_Template, 14, 15, "div", 7);
+    \u0275\u0275conditionalCreate(0, AttendeeListComponent_For_9_Conditional_0_Template, 14, 16, "div", 7);
   }
   if (rf & 2) {
     const user_r3 = ctx.$implicit;
@@ -117756,9 +117773,8 @@ var AttendeeListComponent = class _AttendeeListComponent {
                             class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
                             @let resolved_host =
-                                host() === user.email &&
-                                (!user.is_external || !user.name)
-                                    ? (host() | user | async)
+                                host() === user.email && !user.name
+                                    ? (host() | user: 'email-prefix' | async)
                                     : null;
                             @let usr =
                                 resolved_host?.email ? resolved_host : user;
@@ -117807,7 +117823,7 @@ var AttendeeListComponent = class _AttendeeListComponent {
   }], null, { host: [{ type: Input, args: [{ isSignal: true, alias: "host", required: false }] }], show_host: [{ type: Input, args: [{ isSignal: true, alias: "show_host", required: false }] }], list: [{ type: Input, args: [{ isSignal: true, alias: "list", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], custom_title: [{ type: Input, args: [{ isSignal: true, alias: "custom_title", required: false }] }], close: [{ type: Output, args: ["close"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttendeeListComponent, { className: "AttendeeListComponent", filePath: "libs/events/src/lib/attendee-list.component.ts", lineNumber: 99 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttendeeListComponent, { className: "AttendeeListComponent", filePath: "libs/events/src/lib/attendee-list.component.ts", lineNumber: 98 });
 })();
 
 // libs/events/src/lib/events.fn.ts
