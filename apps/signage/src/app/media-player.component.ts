@@ -1438,11 +1438,7 @@ export class MediaPlayerComponent
         if (this.state() === 'PLAYING') this.togglePause();
         this.in_animation.set(true);
         if (this.active_item.animation === MediaAnimation.Cut) {
-            this.timeout(
-                're-start',
-                () => this._onTransitionEnd(resume_on_end, true),
-                500,
-            );
+            this._onTransitionEnd(resume_on_end, true);
             return;
         }
         const item = this.active_item;
