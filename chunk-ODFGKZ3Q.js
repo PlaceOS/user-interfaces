@@ -1,0 +1,531 @@
+import {
+  MapPinComponent
+} from "./chunk-AGZTAW7K.js";
+import {
+  InteractiveMapComponent
+} from "./chunk-VZLOOL6K.js";
+import {
+  UserPipe
+} from "./chunk-ADDHGGVA.js";
+import {
+  MatProgressSpinner,
+  MatProgressSpinnerModule,
+  UserAvatarComponent
+} from "./chunk-JISG2IWF.js";
+import {
+  AsyncHandler,
+  AsyncPipe,
+  Component,
+  IconComponent,
+  Input,
+  MAT_DIALOG_DATA,
+  MatDialogClose,
+  MatDialogModule,
+  MatRipple,
+  MatRippleModule,
+  MatTooltip,
+  MatTooltipModule,
+  OrganisationService,
+  Output,
+  TranslatePipe,
+  User,
+  computed,
+  inject,
+  input,
+  output,
+  setClassMetadata,
+  signal,
+  ɵsetClassDebugInfo,
+  ɵɵInheritDefinitionFeature,
+  ɵɵadvance,
+  ɵɵclassProp,
+  ɵɵconditional,
+  ɵɵconditionalCreate,
+  ɵɵdeclareLet,
+  ɵɵdefineComponent,
+  ɵɵelement,
+  ɵɵelementEnd,
+  ɵɵelementStart,
+  ɵɵgetCurrentView,
+  ɵɵlistener,
+  ɵɵnextContext,
+  ɵɵpipe,
+  ɵɵpipeBind1,
+  ɵɵpipeBind2,
+  ɵɵpipeBind3,
+  ɵɵproperty,
+  ɵɵpureFunction0,
+  ɵɵpureFunction1,
+  ɵɵrepeater,
+  ɵɵrepeaterCreate,
+  ɵɵrepeaterTrackByIdentity,
+  ɵɵresetView,
+  ɵɵrestoreView,
+  ɵɵtext,
+  ɵɵtextInterpolate,
+  ɵɵtextInterpolate1
+} from "./chunk-T2RSHA4K.js";
+
+// libs/components/src/lib/map-locate-modal.component.ts
+var _c0 = () => ({ disable_pan: true, disable_zoom: true });
+function MapLocateModalComponent_Conditional_11_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7)(1, "interactive-map", 8);
+    \u0275\u0275element(2, "mat-spinner", 9);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "div", 10);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("src", ctx_r0.level().map_id)("focus", ctx_r0.item().map_id)("features", ctx_r0.features())("options", \u0275\u0275pureFunction0(5, _c0));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", ctx_r0.level().display_name || ctx_r0.level().name, " ");
+  }
+}
+var MapLocateModalComponent = class _MapLocateModalComponent extends AsyncHandler {
+  constructor() {
+    super();
+    this._data = inject(MAT_DIALOG_DATA);
+    this._org = inject(OrganisationService);
+    this.event = output();
+    this.item = signal(
+      this._data.item,
+      ...ngDevMode ? [{ debugName: "item" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.features = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "features" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.style_map = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "style_map" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.level = computed(
+      () => this.item().level || this._org.levelWithID(this.item().zones || []),
+      ...ngDevMode ? [{ debugName: "level" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    console.log("Date:", this._data);
+    if (!this.item().level?.id) {
+      this.item.update((item) => {
+        delete item.level;
+        return item;
+      });
+    }
+  }
+  ngOnInit() {
+    this.timeout("init", () => {
+      this.processFeature();
+      this.processStyles();
+    }, 1e3);
+  }
+  processStyles() {
+    const styles = {};
+    if (this.item()?.map_id) {
+      styles[`#zones`] = { display: "none" };
+      styles[`#Zones`] = { display: "none" };
+    }
+    this.style_map.set(styles);
+  }
+  /** Point on map to focus on */
+  processFeature() {
+    const item = this.item();
+    if (!item)
+      return null;
+    const focus = {
+      location: item.map_id,
+      track_id: `focus_item`,
+      content: MapPinComponent,
+      data: {
+        name: item.name
+      },
+      z_index: 99,
+      zoom: 100
+    };
+    this.features.set([focus]);
+  }
+  static {
+    this.\u0275fac = function MapLocateModalComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _MapLocateModalComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapLocateModalComponent, selectors: [["map-locate-modal"]], outputs: { event: "event" }, features: [\u0275\u0275InheritDefinitionFeature], decls: 12, vars: 2, consts: [[1, "h-[calc(100vh-4rem)]", "w-screen", "sm:h-auto", "sm:w-auto"], [1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "min-w-[20rem]", "items-center", "space-x-2", "rounded", "border-none", "p-2"], [1, "text-2xl"], [1, "text-xl", "font-medium"], [1, "flex-1"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "px-2", "pb-2"], ["body", "", 1, "border-base-300", "relative", "h-[65vh]", "w-full", "overflow-hidden", "rounded-lg", "border", "sm:max-h-[65vh]"], [1, "pointer-events-none", 3, "src", "focus", "features", "options"], ["diameter", "64"], [1, "border-base-300", "bg-base-200", "absolute", "top-2", "right-2", "rounded-xl", "border", "px-4", "py-2", "font-medium"]], template: function MapLocateModalComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "icon", 2);
+        \u0275\u0275text(3, "place");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(4, "h2", 3);
+        \u0275\u0275text(5);
+        \u0275\u0275elementEnd();
+        \u0275\u0275element(6, "div", 4);
+        \u0275\u0275elementStart(7, "button", 5)(8, "icon");
+        \u0275\u0275text(9, "close");
+        \u0275\u0275elementEnd()()();
+        \u0275\u0275elementStart(10, "div", 6);
+        \u0275\u0275conditionalCreate(11, MapLocateModalComponent_Conditional_11_Template, 5, 6, "div", 7);
+        \u0275\u0275elementEnd()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance(5);
+        \u0275\u0275textInterpolate1(" ", ctx.item().display_name || ctx.item().name, " ");
+        \u0275\u0275advance(6);
+        \u0275\u0275conditional(ctx.level() ? 11 : -1);
+      }
+    }, dependencies: [
+      MatRippleModule,
+      MatRipple,
+      MatDialogModule,
+      MatDialogClose,
+      MatProgressSpinnerModule,
+      MatProgressSpinner,
+      IconComponent,
+      InteractiveMapComponent
+    ], styles: ["\n[body][_ngcontent-%COMP%] {\n  min-width: 80vw !important;\n}\n[_nghost-%COMP%] {\n  display: block;\n  width: 100%;\n  height: 100%;\n}\n/*# sourceMappingURL=map-locate-modal.component.css.map */"] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapLocateModalComponent, [{
+    type: Component,
+    args: [{ selector: "map-locate-modal", template: `
+        <div class="h-[calc(100vh-4rem)] w-screen sm:h-auto sm:w-auto">
+            <header
+                class="bg-base-200 sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] min-w-[20rem] items-center space-x-2 rounded border-none p-2"
+            >
+                <icon class="text-2xl">place</icon>
+                <h2 class="text-xl font-medium">
+                    {{ item().display_name || item().name }}
+                </h2>
+                <div class="flex-1"></div>
+                <button icon matRipple mat-dialog-close>
+                    <icon>close</icon>
+                </button>
+            </header>
+            <div class="px-2 pb-2">
+                @if (level()) {
+                    <div
+                        body
+                        class="border-base-300 relative h-[65vh] w-full overflow-hidden rounded-lg border sm:max-h-[65vh]"
+                    >
+                        <interactive-map
+                            class="pointer-events-none"
+                            [src]="level().map_id"
+                            [focus]="item().map_id"
+                            [features]="features()"
+                            [options]="{
+                                disable_pan: true,
+                                disable_zoom: true,
+                            }"
+                        >
+                            <mat-spinner diameter="64"></mat-spinner
+                        ></interactive-map>
+                        <div
+                            class="border-base-300 bg-base-200 absolute top-2 right-2 rounded-xl border px-4 py-2 font-medium"
+                        >
+                            {{ level().display_name || level().name }}
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    `, imports: [
+      MatRippleModule,
+      MatDialogModule,
+      MatProgressSpinnerModule,
+      IconComponent,
+      InteractiveMapComponent
+    ], styles: ["/* angular:styles/component:css;2baa1fda6ea3b96c7a4270190aaa6f907bbb8cb2cac1deb4c0fa4faa4357c97c;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/map-locate-modal.component.ts */\n[body] {\n  min-width: 80vw !important;\n}\n:host {\n  display: block;\n  width: 100%;\n  height: 100%;\n}\n/*# sourceMappingURL=map-locate-modal.component.css.map */\n"] }]
+  }], () => [], { event: [{ type: Output, args: ["event"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapLocateModalComponent, { className: "MapLocateModalComponent", filePath: "libs/components/src/lib/map-locate-modal.component.ts", lineNumber: 96 });
+})();
+
+// libs/events/src/lib/attendee-list.component.ts
+var _c02 = (a0) => ({ count: a0 });
+function AttendeeListComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 6);
+    \u0275\u0275listener("click", function AttendeeListComponent_Conditional_2_Template_button_click_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.close.emit());
+    });
+    \u0275\u0275elementStart(1, "icon");
+    \u0275\u0275text(2, "arrow_back");
+    \u0275\u0275elementEnd()();
+  }
+}
+function AttendeeListComponent_Conditional_6_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "div", 4);
+  }
+}
+function AttendeeListComponent_For_9_Conditional_0_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 12);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "translate");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "FORM.HOST"), " ");
+  }
+}
+function AttendeeListComponent_For_9_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 7);
+    \u0275\u0275declareLet(1);
+    \u0275\u0275pipe(2, "user");
+    \u0275\u0275pipe(3, "async");
+    \u0275\u0275element(4, "a-user-avatar", 8);
+    \u0275\u0275elementStart(5, "div", 9)(6, "div", 10);
+    \u0275\u0275text(7);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(8, "div", 11);
+    \u0275\u0275text(9);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275conditionalCreate(10, AttendeeListComponent_For_9_Conditional_0_Conditional_10_Template, 3, 3, "div", 12);
+    \u0275\u0275elementStart(11, "div", 13);
+    \u0275\u0275element(12, "div", 14);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const user_r3 = \u0275\u0275nextContext().$implicit;
+    const ctx_r1 = \u0275\u0275nextContext();
+    const resolved_host_r4 = ctx_r1.host() === user_r3.email && !user_r3.name ? \u0275\u0275pipeBind1(3, 12, \u0275\u0275pipeBind2(2, 9, ctx_r1.host(), "email-prefix")) : null;
+    const usr_r5 = resolved_host_r4?.email ? resolved_host_r4 : user_r3;
+    \u0275\u0275advance(4);
+    \u0275\u0275property("user", usr_r5);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate(usr_r5?.name);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", usr_r5?.email, " ");
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r1.host() === user_r3.email ? 10 : -1);
+    \u0275\u0275advance(2);
+    \u0275\u0275classProp("bg-success", user_r3.checked_in)("bg-pending", !user_r3.checked_in);
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(13, 14, user_r3.checked_in ? "COMMON.CHECKED_IN" : "COMMON.CHECKED_IN_NOT"));
+  }
+}
+function AttendeeListComponent_For_9_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, AttendeeListComponent_For_9_Conditional_0_Template, 14, 16, "div", 7);
+  }
+  if (rf & 2) {
+    const user_r3 = ctx.$implicit;
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(!user_r3.resource && (ctx_r1.host() !== user_r3.email || ctx_r1.show_host()) ? 0 : -1);
+  }
+}
+var AttendeeListComponent = class _AttendeeListComponent {
+  constructor() {
+    this.host = input(
+      "",
+      ...ngDevMode ? [{ debugName: "host" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.show_host = input(
+      true,
+      ...ngDevMode ? [{ debugName: "show_host" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.list = input(
+      [],
+      ...ngDevMode ? [{ debugName: "list" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.final_list = computed(
+      () => {
+        const attendee_list = this.list();
+        const host = this.host();
+        if (!this.show_host()) {
+          return attendee_list.filter((user) => user.email !== host);
+        }
+        if (!host || attendee_list.some((user) => user.email === host)) {
+          return attendee_list;
+        }
+        return [new User({ email: host }), ...attendee_list];
+      },
+      ...ngDevMode ? [{ debugName: "final_list" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hide_close = input(
+      false,
+      ...ngDevMode ? [{ debugName: "hide_close" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.custom_title = input(
+      "",
+      ...ngDevMode ? [{ debugName: "custom_title" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.close = output();
+  }
+  static {
+    this.\u0275fac = function AttendeeListComponent_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _AttendeeListComponent)();
+    };
+  }
+  static {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AttendeeListComponent, selectors: [["attendee-list"]], inputs: { host: [1, "host"], show_host: [1, "show_host"], list: [1, "list"], hide_close: [1, "hide_close"], custom_title: [1, "custom_title"] }, outputs: { close: "close" }, decls: 10, vars: 9, consts: [[1, "bg-base-100", "flex", "h-full", "w-full", "flex-col", "overflow-hidden"], [1, "border-base-200", "flex", "min-h-12", "items-center", "border-b", "p-2"], ["close", "", "icon", "", "matRipple", ""], [1, "flex-1", "text-center", "font-medium"], [1, "w-12"], [1, "w-full", "flex-1", "overflow-auto"], ["close", "", "icon", "", "matRipple", "", 3, "click"], ["attendee", "", 1, "even:bg-base-200/40", "hover:bg-base-200", "flex", "items-center", "space-x-2", "p-2"], [3, "user"], [1, "w-1/2", "flex-1"], [1, "truncate"], [1, "text-xs", "opacity-60"], [1, "bg-info-light", "rounded", "px-2", "py-1", "font-mono", "text-xs", "shadow"], [1, "p-2"], [1, "h-3", "w-3", "rounded-full", 3, "matTooltip"]], template: function AttendeeListComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275elementStart(0, "div", 0)(1, "div", 1);
+        \u0275\u0275conditionalCreate(2, AttendeeListComponent_Conditional_2_Template, 3, 0, "button", 2);
+        \u0275\u0275elementStart(3, "div", 3);
+        \u0275\u0275text(4);
+        \u0275\u0275pipe(5, "translate");
+        \u0275\u0275elementEnd();
+        \u0275\u0275conditionalCreate(6, AttendeeListComponent_Conditional_6_Template, 1, 0, "div", 4);
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(7, "div", 5);
+        \u0275\u0275repeaterCreate(8, AttendeeListComponent_For_9_Template, 1, 1, null, null, \u0275\u0275repeaterTrackByIdentity);
+        \u0275\u0275elementEnd()();
+      }
+      if (rf & 2) {
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(!ctx.hide_close() ? 2 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275textInterpolate1(" ", ctx.custom_title() ? ctx.custom_title() : \u0275\u0275pipeBind3(5, 3, "CALENDAR_EVENT.ATTENDEES_COUNT", \u0275\u0275pureFunction1(7, _c02, ctx.final_list().length), ctx.final_list().length), " ");
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(!ctx.hide_close() ? 6 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275repeater(ctx.final_list());
+      }
+    }, dependencies: [
+      MatRippleModule,
+      MatRipple,
+      IconComponent,
+      UserAvatarComponent,
+      MatTooltipModule,
+      MatTooltip,
+      TranslatePipe,
+      AsyncPipe,
+      UserPipe
+    ], encapsulation: 2 });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AttendeeListComponent, [{
+    type: Component,
+    args: [{ selector: "attendee-list", template: `
+        <div class="bg-base-100 flex h-full w-full flex-col overflow-hidden">
+            <div
+                class="border-base-200 flex min-h-12 items-center border-b p-2"
+            >
+                @if (!hide_close()) {
+                    <button close icon matRipple (click)="close.emit()">
+                        <icon>arrow_back</icon>
+                    </button>
+                }
+                <div class="flex-1 text-center font-medium">
+                    {{
+                        custom_title()
+                            ? custom_title()
+                            : ('CALENDAR_EVENT.ATTENDEES_COUNT'
+                              | translate
+                                  : { count: final_list().length }
+                                  : final_list().length)
+                    }}
+                </div>
+                @if (!hide_close()) {
+                    <div class="w-12"></div>
+                }
+            </div>
+            <div class="w-full flex-1 overflow-auto">
+                @for (user of final_list(); track user) {
+                    @if (
+                        !user.resource && (host() !== user.email || show_host())
+                    ) {
+                        <div
+                            attendee
+                            class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
+                        >
+                            @let resolved_host =
+                                host() === user.email && !user.name
+                                    ? (host() | user: 'email-prefix' | async)
+                                    : null;
+                            @let usr =
+                                resolved_host?.email ? resolved_host : user;
+                            <a-user-avatar [user]="usr"></a-user-avatar>
+                            <div class="w-1/2 flex-1">
+                                <div class="truncate">{{ usr?.name }}</div>
+                                <div class="text-xs opacity-60">
+                                    {{ usr?.email }}
+                                </div>
+                            </div>
+
+                            @if (host() === user.email) {
+                                <div
+                                    class="bg-info-light rounded px-2 py-1 font-mono text-xs shadow"
+                                >
+                                    {{ 'FORM.HOST' | translate }}
+                                </div>
+                            }
+                            <div class="p-2">
+                                <div
+                                    class="h-3 w-3 rounded-full"
+                                    [class.bg-success]="user.checked_in"
+                                    [class.bg-pending]="!user.checked_in"
+                                    [matTooltip]="
+                                        (user.checked_in
+                                            ? 'COMMON.CHECKED_IN'
+                                            : 'COMMON.CHECKED_IN_NOT'
+                                        ) | translate
+                                    "
+                                ></div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    `, imports: [
+      TranslatePipe,
+      MatRippleModule,
+      IconComponent,
+      UserAvatarComponent,
+      MatTooltipModule,
+      AsyncPipe,
+      UserPipe
+    ] }]
+  }], null, { host: [{ type: Input, args: [{ isSignal: true, alias: "host", required: false }] }], show_host: [{ type: Input, args: [{ isSignal: true, alias: "show_host", required: false }] }], list: [{ type: Input, args: [{ isSignal: true, alias: "list", required: false }] }], hide_close: [{ type: Input, args: [{ isSignal: true, alias: "hide_close", required: false }] }], custom_title: [{ type: Input, args: [{ isSignal: true, alias: "custom_title", required: false }] }], close: [{ type: Output, args: ["close"] }] });
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AttendeeListComponent, { className: "AttendeeListComponent", filePath: "libs/events/src/lib/attendee-list.component.ts", lineNumber: 98 });
+})();
+
+export {
+  MapLocateModalComponent,
+  AttendeeListComponent
+};
+//# sourceMappingURL=chunk-ODFGKZ3Q.js.map
