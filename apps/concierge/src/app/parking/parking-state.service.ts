@@ -29,7 +29,7 @@ import {
     approveBookingInstance,
     bookedResourceList,
     parkingRequestStatus,
-    queryBookings,
+    queryAllBookings,
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
@@ -426,7 +426,7 @@ export class ParkingStateService extends AsyncHandler {
                 zones: this._bookingQueryZone(options, bld),
                 include_checked_out: true,
                 include_deleted: true,
-                limit: 500,
+                limit: 200,
             } as any);
     }
 
@@ -470,6 +470,7 @@ export class ParkingStateService extends AsyncHandler {
             ? data.length
             : this._bookings_state().list.length + data.length;
         const has_next =
+            data.length > 0 &&
             !!next &&
             page_count < MAX_BOOKING_PAGES &&
             (!total || loaded_count < total);
@@ -1272,13 +1273,13 @@ export class ParkingStateService extends AsyncHandler {
 
     private async _clearAssignedBooking(resource: ParkingSpace) {
         const today = Date.now();
-        const booking_list = await queryBookings({
+        const booking_list = await queryAllBookings({
             period_start: getUnixTime(startOfDay(today)),
             period_end: getUnixTime(endOfDay(today)),
             type: 'parking',
             email: resource.assigned_to,
             include_checked_out: true,
-            limit: 1000,
+            limit: 200,
         });
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {

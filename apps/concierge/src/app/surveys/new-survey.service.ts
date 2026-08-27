@@ -10,7 +10,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { notifySuccess, OrganisationService } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
-    queryQuestions,
     removeQuestion,
     removeSurvey,
     showSurvey,
@@ -18,6 +17,7 @@ import {
     SurveyQuestion,
 } from '@placeos/ts-client';
 import { QuestionModalComponent } from './question-modal.component';
+import { queryAllSurveyQuestions } from '../query-all-pages';
 
 export interface QuestionFilters {
     search_text?: string;
@@ -54,7 +54,7 @@ export class NewSurveyService {
     private readonly _questions = resource({
         params: () => this._change(),
         defaultValue: [] as SurveyQuestion[],
-        loader: async () => queryQuestions({ limit: 1000 } as any),
+        loader: async () => queryAllSurveyQuestions({ limit: 200 }),
     });
     public readonly questions: Signal<SurveyQuestion[]> = this._questions.value;
 

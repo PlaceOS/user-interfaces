@@ -446,7 +446,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'desk',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'parking':
@@ -454,7 +454,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'parking',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'lockers':
@@ -462,7 +462,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'locker',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'assets':
@@ -470,7 +470,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'asset-request',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'catering':
@@ -478,7 +478,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...bookings_query,
                         zones,
                         type: 'catering-order',
-                        limit: 1000,
+                        limit: 200,
                     });
                     break;
                 case 'events':
@@ -486,7 +486,7 @@ export class ReportsStateService extends AsyncHandler {
                         ...query,
                         zone_ids: zones,
                         include_cancelled: true,
-                        limit: 1000,
+                        limit: 200,
                     }).catch(() => []);
                     break;
                 default:

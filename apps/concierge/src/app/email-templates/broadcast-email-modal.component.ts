@@ -322,7 +322,7 @@ export class BroadcastEmailModalComponent {
         const query = {
             period_start: getUnixTime(period_start),
             period_end: getUnixTime(period_end),
-            limit: 1000,
+            limit: 200,
         };
         const zone_ids = this._activeZoneIds().join(',');
         const rooms_request =

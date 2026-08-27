@@ -175,6 +175,30 @@ describe('LockerStateService', () => {
         expect(pagedBookingCalls()).toHaveLength(1);
     });
 
+    it('should stop locker booking pagination when a page is empty', async () => {
+        spectator = createService();
+        const next_page = vi.fn();
+        const empty_page = vi.fn().mockResolvedValue({
+            data: [],
+            total: 2,
+            next: next_page,
+        });
+        const booking = { id: 'booking-1' };
+        (spectator.service as any)._bookings_state.set({
+            list: [booking],
+            total: 2,
+            has_next: true,
+        });
+        (spectator.service as any)._next_page_fn = empty_page;
+
+        await (spectator.service as any)._loadPage(false);
+
+        expect(spectator.service.bookings()).toEqual([booking]);
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect((spectator.service as any)._next_page_fn).toBeNull();
+        expect(next_page).not.toHaveBeenCalled();
+    });
+
     it('should wait for locker banks before loading lockers', async () => {
         let resolve_banks: (value: any) => void;
         (ts_client.queryAssets as any).mockImplementation((q: any) => {

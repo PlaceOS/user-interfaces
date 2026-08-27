@@ -373,7 +373,7 @@ export class LockerStateService extends AsyncHandler {
                 type: 'locker',
                 zones: zones.join(','),
                 include_checked_out: true,
-                limit: 1000,
+                limit: 200,
             });
     }
 
@@ -402,11 +402,12 @@ export class LockerStateService extends AsyncHandler {
         }));
         if (token !== this._load_token) return;
         const { data = [], total = 0, next = null } = resp || {};
-        this._next_page_fn = next;
+        const has_next = data.length > 0 && !!next;
+        this._next_page_fn = has_next ? next : null;
         this._bookings_state.update((acc) =>
             reset
-                ? { list: data, total, has_next: !!next }
-                : { list: [...acc.list, ...data], total, has_next: !!next },
+                ? { list: data, total, has_next }
+                : { list: [...acc.list, ...data], total, has_next },
         );
         this.timeout(
             'stop-loading',
