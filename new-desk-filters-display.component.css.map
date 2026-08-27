@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["new-desk-filters-display.component.ts"],
-  "sourcesContent": ["\n            [filter-item] {\n                display: flex;\n                align-items: center;\n                padding: 0 1rem;\n                height: 2rem;\n                font-size: 0.875rem;\n                border: 1px solid rgba(0, 0, 0, 0.2);\n                border-radius: 1.25rem;\n                margin: 0.25rem;\n                background-color: var(--base-100);\n            }\n\n            [filter-item]:hover {\n                background: rgba(0, 0, 0, 0.1);\n            }\n\n            [filter-item] > * + * {\n                margin-left: 0.5rem;\n            }\n        "],
-  "mappings": "AACY,CAAA,aACI,QAAA,KACA,YAAA,eACA,EAAA,KACA,OAAA,KACA,UAAA,QACA,OAAA,IAAA,MAAA,KAAA,CAAA,CAAA,CAAA,CAAA,CAAA,CAAA,kBACA,eACA,OACA,iBAAA,IAAA,WACJ,CAEA,CAAA,YAAA,OACI,WAAA,SACJ,CAEA,CAAA,YAAA,CAAA,CAAA,CAAA,EACI,YAAA,KACJ",
-  "names": []
-}
