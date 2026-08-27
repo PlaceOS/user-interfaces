@@ -26,6 +26,7 @@ import { IntersectDirective } from '../shared/intersect.directive';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
+import { AiImageService } from '../ai/ai-image.service';
 
 // Sentinel folder for media items without any tags.
 const UNTAGGED = '\0untagged';
@@ -501,6 +502,22 @@ const UNTAGGED = '\0untagged';
                         </div>
                     </button>
                 }
+                @if (can_update() && ai_enabled() && isImage(media_item)) {
+                    <button
+                        type="button"
+                        mat-menu-item
+                        (click)="editItemWithAI(media_item)"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">auto_awesome</icon>
+                            <div class="pr-2">
+                                {{
+                                    'SIGNAGE_MANAGER.AI_EDIT_IMAGE' | translate
+                                }}
+                            </div>
+                        </div>
+                    </button>
+                }
                 @if (sidebar_hidden() && can_update()) {
                     <button
                         type="button"
@@ -671,6 +688,7 @@ const UNTAGGED = '\0untagged';
 })
 export class MediaListComponent implements OnInit {
     private readonly _service = inject(SignageService);
+    private readonly _ai = inject(AiImageService);
     private readonly _destroy = inject(DestroyRef);
 
     public readonly playlist_count = input(0);
@@ -867,6 +885,15 @@ export class MediaListComponent implements OnInit {
 
     public readonly editItem = (item: SignageMedia) =>
         this._service.editMedia(item);
+
+    public readonly ai_enabled = this._ai.enabled;
+
+    /** only an uploaded still can be sent back through the model */
+    public readonly isImage = (item: SignageMedia) =>
+        item?.media_type === 'image' && !!item?.media_id;
+
+    public readonly editItemWithAI = (item: SignageMedia) =>
+        this._service.editMediaWithAI(item);
 
     public readonly removeItem = (item: SignageMedia) =>
         this._service.removeMedia(item);
