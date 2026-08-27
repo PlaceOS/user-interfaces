@@ -103,6 +103,7 @@ export type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 
 const USER_PIPE = new UserPipe();
 const PARKING_SPACE_PIPE = new ParkingSpacePipe();
+const MAX_BOOKING_PAGES = 50;
 
 function csvList(value: unknown): string[] {
     const list = Array.isArray(value)
@@ -433,7 +434,7 @@ export class ParkingStateService extends AsyncHandler {
      * Load a page of parking bookings, either resetting the list or appending
      * the next page. Stale responses are discarded if a newer load started.
      */
-    private async _loadPage(reset: boolean) {
+    private async _loadPage(reset: boolean, page_count = 1) {
         const fetch = reset ? this._first_page : this._next_page_fn;
         if (!fetch) {
             if (reset) {
@@ -465,22 +466,29 @@ export class ParkingStateService extends AsyncHandler {
                     booking.extension_data.plate_number || user.plate_number;
             }
         }
-        this._next_page_fn = next;
+        const loaded_count = reset
+            ? data.length
+            : this._bookings_state().list.length + data.length;
+        const has_next =
+            !!next &&
+            page_count < MAX_BOOKING_PAGES &&
+            (!total || loaded_count < total);
+        this._next_page_fn = has_next ? next : null;
         this._bookings_state.update((acc) =>
             reset
                 ? {
                       list: data,
                       total,
-                      has_next: data.length < total && !!next,
+                      has_next,
                   }
                 : {
                       list: [...acc.list, ...data],
                       total,
-                      has_next: !!next,
+                      has_next,
                   },
         );
-        if (next) {
-            await this._loadPage(false);
+        if (has_next) {
+            await this._loadPage(false, page_count + 1);
             return;
         }
         this._bookings_loading.set(false);
