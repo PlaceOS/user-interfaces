@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1787802000610,
+  "timestamp": 1787802873184,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -69,7 +69,7 @@
         "./chunk-LA41ou2C.js",
         "./chunk-Zcbw8RvM.js",
         "./chunk-xdyXO5Ca.js",
-        "./day-view.routes-CuLZNheE.js",
+        "./day-view.routes-CHBHbMZO.js",
         "./deals.routes-aBNi_muE.js",
         "./desks.routes-U_Sy50S-.js",
         "./email-templates.routes-DwDuHh8Q.js",
@@ -347,7 +347,7 @@
     "./chunk-LA41ou2C.js": "ab45c7cd7ade7673ebd93dd555a8dac22b8541af",
     "./chunk-Zcbw8RvM.js": "2079c849cbf6f5ad121dd2a7f965c6b9c684267f",
     "./chunk-xdyXO5Ca.js": "a161cfc0836c52a66838778557e7cd73251639be",
-    "./day-view.routes-CuLZNheE.js": "277f2ec4893441d65819be9449f5fe9dbe033f89",
+    "./day-view.routes-CHBHbMZO.js": "bddfc1beb23f61f74327d4c56db6d85a23cc68fd",
     "./deals.routes-aBNi_muE.js": "393b09847e69e6e22d718f6ba6088737ad659b9f",
     "./desks.routes-U_Sy50S-.js": "f30537750451641a85122dabf9057ba0fdb13f89",
     "./email-templates.routes-DwDuHh8Q.js": "3eb7816cc6929114ec759e4df1766838b009c04f",
@@ -360,7 +360,7 @@
     "./it-CElwfVUf.js": "125b42ce66426ec1ea00aaa1db99aea750760a86",
     "./ja-CbRrZq6N.js": "8476992f9a2643aa47a2dcaaef2a80afe0c72852",
     "./lockers.routes-BcQ6-IJO.js": "246d99c3e7f4801f56ea1701bc9e33b1f92d085b",
-    "./main.js": "1ab9b903b054a16e99b6cc18767a7c077adfcb40",
+    "./main.js": "2f40e0b3944dd28f45ca04f745d1bd28e3efa85f",
     "./manifest.webmanifest": "5a30ca9dc18b90c55afe775cbb7f8ad4fa8f3feb",
     "./parking.routes-Bf0gy4sz.js": "93b02cea07ec241f47d6badf9fbeb565566ac80a",
     "./poi-manager.routes-n2hj3ijF.js": "b7347a14398e3dab1ce8a098c651ba51856bfcc9",
