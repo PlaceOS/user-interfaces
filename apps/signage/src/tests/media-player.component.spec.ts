@@ -861,6 +861,46 @@ describe('MediaPlayerComponent', () => {
         });
     });
 
+    it('should switch to a ready plugin immediately for a cut transition', () => {
+        vi.useFakeTimers();
+        const plugin_1 = {
+            id: 'plugin-1',
+            name: 'Weather',
+            uri: 'https://plugins.example/weather',
+        } as any;
+        const plugin_2 = {
+            id: 'plugin-2',
+            name: 'News',
+            uri: 'https://plugins.example/news',
+        } as any;
+        const items = [
+            create_item('plugin-item-1', {
+                type: 'plugin',
+                plugin: plugin_1,
+            }),
+            create_item('plugin-item-2', {
+                type: 'plugin',
+                plugin: plugin_2,
+            }),
+        ];
+        load_playlist(items);
+        spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        spectator.component.pending_output.set(0);
+        spectator.component['_output_items'] = [items[0], items[1]];
+        spectator.component['_item_output'].set(items[0].id, 0);
+        spectator.component['_item_output'].set(items[1].id, 1);
+        spectator.component['_ready_output_items'].add(
+            spectator.component['_outputKey'](1, items[1]),
+        );
+        spectator.component.output_plugins.set([plugin_1, plugin_2]);
+
+        spectator.component.setPlaylistItem(1);
+        vi.advanceTimersByTime(2_000);
+
+        expect(spectator.component.active_output()).toBe(1);
+    });
+
     it('should pause cleanly if replaying a looping video is blocked', async () => {
         load_playlist([create_item('video-1', { type: 'video' })]);
         spectator.component.index.set(0);
