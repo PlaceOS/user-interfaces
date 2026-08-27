@@ -49815,15 +49815,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "30e17d3",
-  "hash": "30e17d3",
+  "raw": "ea1e8e8",
+  "hash": "ea1e8e8",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "30e17d3",
+  "suffix": "ea1e8e8",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787799249839
+  "time": 1787804270761
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -84858,4 +84858,4 @@ export {
   getGuestCateringItem,
   setGuestCateringItem
 };
-//# sourceMappingURL=chunk-WT3YORXY.js.map
+//# sourceMappingURL=chunk-PEEEVI6B.js.map
