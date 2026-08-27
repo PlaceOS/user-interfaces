@@ -129,6 +129,29 @@ describe('EventDetailsModalComponent', () => {
         });
     });
 
+    it('should resolve the host name from attendee details when the user lookup has no name', async () => {
+        user_pipe_transform.mockResolvedValueOnce(
+            new User({ email: 'fallback.host@example.com' }),
+        );
+        spectator.component.event.set(
+            new CalendarEvent({
+                host: 'fallback.host@example.com',
+                attendees: [
+                    new User({
+                        email: 'FALLBACK.HOST@EXAMPLE.COM',
+                        name: 'Fallback Host',
+                    }),
+                ],
+            }),
+        );
+
+        await spectator.fixture.whenStable();
+        await vi.waitFor(() => {
+            spectator.detectChanges();
+            expect('[host]').toHaveText('Fallback Host');
+        });
+    });
+
     it('should show attendees', () => {
         expect('attendee-list').not.toExist();
         spectator.click('button[show-attendees]');
