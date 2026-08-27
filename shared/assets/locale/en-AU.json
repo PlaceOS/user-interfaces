@@ -52,7 +52,7 @@
         "AI_POS_TOP": "Top",
         "AI_POS_TOP_LEFT": "Top left",
         "AI_POS_TOP_RIGHT": "Top right",
-        "AI_QUOTA_LEFT": "{count} images left today",
+        "AI_QUOTA_LEFT": "{{ count }} images left today",
         "AI_REFINE": "Ask for a change",
         "AI_REFINE_ACTION": "Refine",
         "AI_REFINE_HINT": "Make the background darker",

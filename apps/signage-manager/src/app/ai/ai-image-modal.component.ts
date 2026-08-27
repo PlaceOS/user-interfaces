@@ -476,14 +476,25 @@ export class AiImageModalComponent {
     public async save() {
         const candidate = this.selected();
         if (!candidate) return;
+
+        // The shell swaps its projected content for a spinner while `loading`
+        // is set, which destroys the layer component. Take the composited image
+        // before that happens.
+        const name = this._name();
+        const blob =
+            this.state() === 'layer'
+                ? await this._layer()?.toBlob()
+                : undefined;
+        if (this.state() === 'layer' && !blob) {
+            notifyError(i18n('SIGNAGE_MANAGER.AI_NO_IMAGE'));
+            return;
+        }
+
         this.saving.set(true);
         try {
-            const name = this._name();
             let media: any;
 
-            if (this.state() === 'layer') {
-                const blob = await this._layer()?.toBlob();
-                if (!blob) throw new Error(i18n('SIGNAGE_MANAGER.AI_NO_IMAGE'));
+            if (blob) {
                 const file = new File([blob], `${name}.png`, {
                     type: 'image/png',
                 });
@@ -510,9 +521,21 @@ export class AiImageModalComponent {
                     candidate.upload_id,
                     media.id,
                 );
+                // the list paints as soon as the dialog closes; give the
+                // thumbnail a moment to become readable so the tile is not
+                // briefly empty
+                if (media.thumbnail_id) {
+                    await this._ai
+                        .loadImage(
+                            `/api/engine/v2/uploads/${media.thumbnail_id}/url`,
+                        )
+                        .catch(() => '');
+                }
             }
             this._dialog_ref.close(media);
         } catch (error) {
+            // eslint-disable-next-line no-console
+            console.error('signage AI save failed', error);
             notifyError(this._message(error));
         } finally {
             this.saving.set(false);

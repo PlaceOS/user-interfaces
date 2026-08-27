@@ -99,6 +99,25 @@ function isValidUrl(url: string): boolean {
                 />
             </mat-form-field>
             @if (can_create()) {
+                @if (ai_enabled()) {
+                    <button
+                        icon
+                        default
+                        type="button"
+                        matRipple
+                        class="text-xl max-sm:hidden"
+                        [matTooltip]="
+                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                        "
+                        matTooltipPosition="left"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                        "
+                        (click)="generateWithAI()"
+                    >
+                        <icon>auto_awesome</icon>
+                    </button>
+                }
                 <button
                     icon
                     default

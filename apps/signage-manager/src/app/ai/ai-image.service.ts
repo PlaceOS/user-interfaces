@@ -79,11 +79,14 @@ export class AiImageService extends AsyncHandler {
             },
         );
         if (capabilities?.enabled && org_zone_id) {
-            const metadata = await showMetadata(org_zone_id, {
-                name: 'signage_ai',
-            } as any).catch(() => null);
+            const metadata = await showMetadata(
+                org_zone_id,
+                'signage_ai',
+            ).catch(() => null);
             const details = (metadata as any)?.details;
-            if (details) this.brand_kit.set(details as AiBrandKit);
+            if (details && Object.keys(details).length) {
+                this.brand_kit.set(details as AiBrandKit);
+            }
         }
         return this.capabilities();
     }

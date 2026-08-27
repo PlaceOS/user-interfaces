@@ -42,17 +42,17 @@ const DEFAULT_STATE: AiLayerState = {
 @Component({
     selector: 'ai-layer',
     template: `
-        <div class="flex flex-col gap-4 lg:flex-row">
+        <div class="flex flex-col gap-4">
             <div
-                class="bg-base-200 flex flex-1 items-center justify-center overflow-hidden rounded p-2"
+                class="bg-base-200 flex w-full items-center justify-center overflow-hidden rounded p-2"
             >
                 <canvas
                     #canvas
-                    class="max-h-[60vh] max-w-full"
+                    class="max-h-[40vh] max-w-full"
                     [attr.aria-label]="'SIGNAGE_MANAGER.AI_LAYER_PREVIEW' | translate"
                 ></canvas>
             </div>
-            <div class="flex w-full flex-col gap-2 lg:w-80">
+            <div class="flex w-full flex-col gap-2">
                 <label for="ai-headline">{{
                     'SIGNAGE_MANAGER.AI_HEADLINE' | translate
                 }}</label>
