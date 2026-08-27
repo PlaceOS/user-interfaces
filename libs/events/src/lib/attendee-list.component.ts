@@ -45,9 +45,8 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
                             class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
                             @let resolved_host =
-                                host() === user.email &&
-                                (!user.is_external || !user.name)
-                                    ? (host() | user | async)
+                                host() === user.email && !user.name
+                                    ? (host() | user: 'email-prefix' | async)
                                     : null;
                             @let usr =
                                 resolved_host?.email ? resolved_host : user;

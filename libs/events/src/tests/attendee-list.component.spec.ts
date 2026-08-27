@@ -69,6 +69,62 @@ describe('AttendeeListComponent', () => {
         expect(ts_client.get).not.toHaveBeenCalled();
     });
 
+    it('should resolve an aliased host name by email prefix', async () => {
+        const staff_response = [
+            {
+                name: 'Katherine Savage',
+                email: 'katherine.savage@hio.com.au',
+            },
+        ] satisfies Partial<User>[];
+        vi.mocked(ts_client.get).mockResolvedValue(
+            staff_response as unknown as string,
+        );
+        spectator.setInput({
+            host: 'katherine.savage@royhill.com.au',
+            list: [
+                new User({
+                    name: 'Katherine Savage',
+                    email: 'katherine.savage@hio.com.au',
+                }),
+            ],
+        });
+
+        spectator.detectChanges();
+        await vi.waitFor(() =>
+            expect(ts_client.get).toHaveBeenCalledWith(
+                "/api/staff/v1/people?filter=startsWith(mail%2C'katherine.savage')",
+            ),
+        );
+        await spectator.fixture.whenStable();
+        await vi.waitFor(() => {
+            spectator.detectChanges();
+            const [host_row] = spectator.queryAll('[attendee]');
+            expect(host_row).toHaveText('Katherine Savage');
+            expect(host_row).toHaveText('katherine.savage@royhill.com.au');
+        });
+    });
+
+    it('should keep the host email when no prefix match exists', async () => {
+        vi.mocked(ts_client.get).mockRejectedValue(new Error('Not found'));
+        spectator.setInput({
+            host: 'missing.host@royhill.com.au',
+            list: [new User({ email: 'attendee@hio.com.au' })],
+        });
+
+        spectator.detectChanges();
+        await vi.waitFor(() =>
+            expect(ts_client.get).toHaveBeenCalledWith(
+                "/api/staff/v1/people?filter=startsWith(mail%2C'missing.host')",
+            ),
+        );
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+
+        const [host_row] = spectator.queryAll('[attendee]');
+        expect(host_row).toHaveText('missing.host@royhill.com.au');
+        expect(host_row).not.toHaveText('Not found');
+    });
+
     it('should not duplicate or show a hidden host', () => {
         const host = new User({ email: 'host@example.com' });
         const attendee = new User({ email: 'attendee@example.com' });
