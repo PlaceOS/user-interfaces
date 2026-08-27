@@ -4,7 +4,12 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService, User } from '@placeos/common';
+import {
+    CalendarEvent,
+    OrganisationService,
+    SettingsService,
+    User,
+} from '@placeos/common';
 import { UserPipe } from '@placeos/users';
 import { setHours, startOfDay, subWeeks } from 'date-fns';
 import { MockPipe, MockProvider } from 'ng-mocks';
@@ -143,6 +148,35 @@ describe('RoomWeekBookingsTimelineComponent', () => {
         await spectator.fixture.whenStable();
         spectator.detectChanges();
         expect('[date-blocks]').toHaveText('Katherine Savage');
+    });
+
+    it('should resolve the host name from attendee details when the user lookup has no name', async () => {
+        const noon = setHours(startOfDay(Date.now()), 12).valueOf();
+        user_pipe_transform.mockResolvedValueOnce(
+            new User({ email: 'fallback.host@example.com' }),
+        );
+        filtered.set([
+            new CalendarEvent({
+                id: 'fallback-host',
+                date: noon,
+                date_end: noon + 60 * 60 * 1000,
+                duration: 60,
+                title: 'Event',
+                host: 'fallback.host@example.com',
+                attendees: [
+                    new User({
+                        email: 'FALLBACK.HOST@EXAMPLE.COM',
+                        name: 'Fallback Host',
+                    }),
+                ],
+            }),
+        ]);
+
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+
+        expect('[date-blocks]').toHaveText('Fallback Host');
     });
 
     it('should exclude system events from the day map', () => {

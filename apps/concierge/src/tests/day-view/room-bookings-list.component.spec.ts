@@ -129,4 +129,28 @@ describe('RoomBookingsListComponent', () => {
         expect('[role="table"]').toHaveText('Katherine Savage');
         expect('[role="table"]').toHaveText('katherine.savage@royhill.com.au');
     });
+
+    it('should resolve the host name from attendee details when the user lookup has no name', async () => {
+        user_pipe_transform.mockResolvedValueOnce(
+            new User({ email: 'fallback.host@example.com' }),
+        );
+        filtered.set([
+            new CalendarEvent({
+                host: 'fallback.host@example.com',
+                attendees: [
+                    new User({
+                        email: 'FALLBACK.HOST@EXAMPLE.COM',
+                        name: 'Fallback Host',
+                    }),
+                ],
+            }),
+        ]);
+
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+
+        expect('[role="table"]').toHaveText('Fallback Host');
+        expect('[role="table"]').toHaveText('fallback.host@example.com');
+    });
 });
