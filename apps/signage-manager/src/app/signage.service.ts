@@ -9,7 +9,7 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
     i18n,
     notifyError,
@@ -3139,7 +3139,14 @@ export class SignageService {
         return result;
     }
 
-    /** Open the AI image modal, either to create artwork or to change some */
+    /**
+     * Open the AI image modal, either to create artwork or to change some.
+     *
+     * Only ever one at a time: the entry points are visible while the dialog is
+     * open, and a second one would stack a fresh dialog over a job in progress.
+     */
+    private _ai_modal_ref: MatDialogRef<AiImageModalComponent> | null = null;
+
     public async generateMediaWithAI(options: AiImageModalData = {}) {
         if (
             !this._requirePermission(
@@ -3148,13 +3155,19 @@ export class SignageService {
             )
         )
             return;
+        if (this._ai_modal_ref) return;
         const ref = this._dialog.open(AiImageModalComponent, {
             data: options,
             panelClass: 'mobile-fullscreen',
         });
-        const result = await dialogClosed(ref);
-        this.changed();
-        return result;
+        this._ai_modal_ref = ref;
+        try {
+            const result = await dialogClosed(ref);
+            this.changed();
+            return result;
+        } finally {
+            this._ai_modal_ref = null;
+        }
     }
 
     public async editMediaWithAI(media: SignageMedia) {
