@@ -132,7 +132,7 @@ import { EventsStateService } from './events-state.service';
                 </div>
             </ng-template>
             <ng-template #user_template let-email="data">
-                @let user = email | user | async;
+                @let user = email | user: 'email-prefix' | async;
                 <div class="flex flex-col justify-center px-4 py-2">
                     <div class="select-all">
                         {{ user?.name || user?.email || email }}

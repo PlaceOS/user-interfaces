@@ -170,8 +170,11 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
                                     </div>
                                     <div class="truncate text-xs opacity-30">
                                         {{
-                                            (event.host | user | async)?.name ||
+                                            (
                                                 event.host
+                                                | user: 'email-prefix'
+                                                | async
+                                            )?.name || event.host
                                         }}
                                     </div>
                                 </div>
