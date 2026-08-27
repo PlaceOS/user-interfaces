@@ -53417,15 +53417,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "20f78e5",
-  "hash": "20f78e5",
+  "raw": "ea1e8e8",
+  "hash": "ea1e8e8",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "20f78e5",
+  "suffix": "ea1e8e8",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787714144163
+  "time": 1787804337726
 };
 
 // libs/common/src/lib/settings.service.ts
