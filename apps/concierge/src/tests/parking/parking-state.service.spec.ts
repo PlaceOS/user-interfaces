@@ -327,6 +327,51 @@ describe('ParkingStateService', () => {
         expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
     });
 
+    it('should stop loading pages when the reported total is reached', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            user_email: 'staff@example.com',
+            extension_data: {},
+        } as any);
+        const repeated_page = vi.fn();
+        const first_page = vi.fn().mockResolvedValue({
+            data: [booking],
+            total: 1,
+            next: repeated_page,
+        });
+        (spectator.service as any)._first_page = first_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(first_page).toHaveBeenCalledTimes(1);
+        expect(repeated_page).not.toHaveBeenCalled();
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
+    });
+
+    it('should limit page loading when the backend always returns a next page', async () => {
+        let booking_count = 0;
+        const repeated_page = vi.fn().mockImplementation(async () => ({
+            data: [
+                new Booking({
+                    id: `booking-${++booking_count}`,
+                    user_email: 'staff@example.com',
+                    extension_data: {},
+                } as any),
+            ],
+            total: 0,
+            next: repeated_page,
+        }));
+        (spectator.service as any)._first_page = repeated_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(repeated_page).toHaveBeenCalledTimes(50);
+        expect(spectator.service.bookings()).toHaveLength(50);
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
+    });
+
     it('should use the building timezone for assigned parking bookings', async () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
         const assigned_start = setTimeInTimezone(
