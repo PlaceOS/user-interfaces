@@ -1,23 +1,41 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { CalendarEvent, SettingsService } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
+import { CalendarEvent, SettingsService, User } from '@placeos/common';
+import { UserPipe } from '@placeos/users';
+import { MockPipe, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
-import { RoomBookingsListComponent } from '../../app/day-view/room-bookings-list.component';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { EventsStateService } from '../../app/day-view/events-state.service';
+import { RoomBookingsListComponent } from '../../app/day-view/room-bookings-list.component';
 
 describe('RoomBookingsListComponent', () => {
     let spectator: Spectator<RoomBookingsListComponent>;
     const filtered = signal<CalendarEvent[]>([]);
     const spaces = signal<any[]>([]);
     const loading = signal(false);
+    const user_pipe_transform = vi.fn(
+        async (user_id: string, lookup_mode?: string) =>
+            new User({
+                email: user_id,
+                name: lookup_mode === 'email-prefix' ? 'Katherine Savage' : '',
+            }),
+    );
+    const MockUserPipe = MockPipe(UserPipe, user_pipe_transform);
     const createComponent = createComponentFactory({
         component: RoomBookingsListComponent,
         shallow: true,
         detectChanges: false,
+        overrideComponents: [
+            [
+                RoomBookingsListComponent,
+                {
+                    remove: { imports: [UserPipe] },
+                    add: { imports: [MockUserPipe] },
+                },
+            ],
+        ],
         providers: [
             MockProvider(EventsStateService, {
                 filtered,
@@ -44,6 +62,7 @@ describe('RoomBookingsListComponent', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
         filtered.set([]);
         spaces.set([]);
         loading.set(false);
@@ -64,10 +83,9 @@ describe('RoomBookingsListComponent', () => {
             }),
         ]);
 
-        expect(spectator.component.bookings().map((event) => event.id)).toEqual([
-            'booking',
-            'setup',
-        ]);
+        expect(spectator.component.bookings().map((event) => event.id)).toEqual(
+            ['booking', 'setup'],
+        );
     });
 
     it('should hide group events', () => {
@@ -80,9 +98,9 @@ describe('RoomBookingsListComponent', () => {
             }),
         ]);
 
-        expect(spectator.component.bookings().map((event) => event.id)).toEqual([
-            'booking',
-        ]);
+        expect(spectator.component.bookings().map((event) => event.id)).toEqual(
+            ['booking'],
+        );
     });
 
     it('should expose the state loading value', () => {
@@ -91,5 +109,24 @@ describe('RoomBookingsListComponent', () => {
         loading.set(true);
 
         expect(spectator.component.loading()).toBe(true);
+    });
+
+    it('should resolve an aliased host name by email prefix', async () => {
+        filtered.set([
+            new CalendarEvent({
+                host: 'katherine.savage@royhill.com.au',
+            }),
+        ]);
+
+        spectator.detectChanges();
+
+        expect(user_pipe_transform).toHaveBeenCalledWith(
+            'katherine.savage@royhill.com.au',
+            'email-prefix',
+        );
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        expect('[role="table"]').toHaveText('Katherine Savage');
+        expect('[role="table"]').toHaveText('katherine.savage@royhill.com.au');
     });
 });
