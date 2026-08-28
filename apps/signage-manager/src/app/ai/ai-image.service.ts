@@ -1,7 +1,13 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { AsyncHandler, i18n, notifyError, notifyInfo } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    notifyError,
+    notifyInfo,
+    UploadsService,
+} from '@placeos/common';
 import { loadAuthenticatedImage } from '@placeos/components';
-import { showMetadata } from '@placeos/ts-client';
+import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 import {
     cancelSignageAIJob,
@@ -53,7 +59,10 @@ export class AiImageService extends AsyncHandler {
         ),
     );
 
+    private readonly _uploads = inject(UploadsService);
+
     private _loaded = false;
+    private _org_zone = '';
 
     /**
      * Read what this domain can do. An older backend has no such route, which
@@ -63,6 +72,7 @@ export class AiImageService extends AsyncHandler {
     public async load(org_zone_id?: string) {
         if (this._loaded) return this.capabilities();
         this._loaded = true;
+        this._org_zone = org_zone_id || '';
         const capabilities = await signageAICapabilities().catch(() => null);
         this.capabilities.set(
             capabilities || {
@@ -89,6 +99,40 @@ export class AiImageService extends AsyncHandler {
             }
         }
         return this.capabilities();
+    }
+
+    /**
+     * Store a logo for the domain and remember it.
+     *
+     * There is nowhere in PlaceOS that a customer logo lives, so it is kept in
+     * the same brand kit metadata as the palette and the tone. Set once here
+     * and every later poster picks it up, rather than being re-attached each
+     * time.
+     */
+    public async uploadBrandLogo(file: File): Promise<string> {
+        if (!this._org_zone) {
+            throw new Error(i18n('SIGNAGE_MANAGER.AI_NO_ORG_ZONE'));
+        }
+
+        const upload_id = await this._uploads.uploadFileToCompletion(file);
+        const details = { ...(this.brand_kit() || {}), logo_upload_id: upload_id };
+
+        await updateMetadata(
+            this._org_zone,
+            {
+                name: 'signage_ai',
+                description: 'Brand kit used when generating signage artwork',
+                details,
+            } as any,
+            'patch',
+        );
+
+        this.brand_kit.set(details);
+        // the capability is read once at start up; keep it honest for this session
+        this.capabilities.update((current) =>
+            current ? { ...current, logo_layer: true } : current,
+        );
+        return upload_id;
     }
 
     /** the jobs the user started recently, so the list survives a reload */

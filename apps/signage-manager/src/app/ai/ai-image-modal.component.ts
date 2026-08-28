@@ -7,7 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { i18n, notifyError } from '@placeos/common';
+import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     FullscreenModalShellComponent,
@@ -265,7 +265,9 @@ interface Candidate {
                         [image_url]="selected_object_url()"
                         [logo_url]="logo_object_url()"
                         [brand]="brand()"
+                        [uploading]="uploading_logo()"
                         (changed)="layer_state.set($event)"
+                        (logoPicked)="uploadLogo($event)"
                     ></ai-layer>
                 }
             }
@@ -310,6 +312,7 @@ export class AiImageModalComponent {
     public readonly selected = signal<Candidate | null>(null);
     public readonly selected_object_url = signal('');
     public readonly logo_object_url = signal('');
+    public readonly uploading_logo = signal(false);
 
     public readonly brand = this._ai.brand_kit;
     public readonly is_edit = computed(() => !!this._data.source_upload_id);
@@ -529,6 +532,27 @@ export class AiImageModalComponent {
         const id = this.current_job_id();
         if (id) await this._ai.cancel(id);
         this.state.set('compose');
+    }
+
+    /**
+     * Keep a logo for the domain. Nothing in PlaceOS stores one, so the first
+     * person to want one on a poster is the person who supplies it, and it is
+     * remembered for everyone afterwards.
+     */
+    public async uploadLogo(file: File) {
+        this.uploading_logo.set(true);
+        try {
+            const upload_id = await this._ai.uploadBrandLogo(file);
+            const url = await this._ai
+                .loadImage(`/api/engine/v2/uploads/${upload_id}/url`)
+                .catch(() => '');
+            this.logo_object_url.set(url);
+            notifySuccess(i18n('SIGNAGE_MANAGER.AI_LOGO_SAVED'));
+        } catch (error) {
+            notifyError(this._message(error));
+        } finally {
+            this.uploading_logo.set(false);
+        }
     }
 
     public async openLayer() {

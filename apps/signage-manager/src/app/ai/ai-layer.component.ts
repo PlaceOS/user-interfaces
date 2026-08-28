@@ -207,10 +207,29 @@ function newBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
                     {{ 'SIGNAGE_MANAGER.AI_ADD_TEXT' | translate }}
                 </button>
 
-                @if (logo_url()) {
-                    <div
-                        class="border-base-content/10 flex flex-wrap items-center gap-3 rounded border p-3"
-                    >
+                <div
+                    class="border-base-content/10 flex flex-wrap items-center gap-3 rounded border p-3"
+                >
+                    @if (!logo_url()) {
+                        <!-- nothing in PlaceOS stores a customer logo, so this
+                             is where one gets added -->
+                        <span class="text-sm">{{
+                            'SIGNAGE_MANAGER.AI_NO_LOGO_YET' | translate
+                        }}</span>
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            [disabled]="uploading()"
+                            (click)="logo_input.click()"
+                        >
+                            {{
+                                (uploading()
+                                    ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
+                                    : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
+                                ) | translate
+                            }}
+                        </button>
+                    } @else {
                         <mat-slide-toggle
                             [ngModel]="state().logo"
                             (ngModelChange)="patch({ logo: $event })"
@@ -251,9 +270,31 @@ function newBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
                                     }}</mat-option>
                                 </mat-select>
                             </mat-form-field>
+                            <button
+                                mat-stroked-button
+                                type="button"
+                                [disabled]="uploading()"
+                                (click)="logo_input.click()"
+                            >
+                                {{
+                                    (uploading()
+                                        ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
+                                        : 'SIGNAGE_MANAGER.AI_REPLACE_LOGO'
+                                    ) | translate
+                                }}
+                            </button>
                         }
-                    </div>
-                }
+                    }
+                </div>
+
+                <input
+                    #logo_input
+                    type="file"
+                    class="sr-only"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    [attr.aria-label]="'SIGNAGE_MANAGER.AI_ADD_LOGO' | translate"
+                    (change)="pickLogo($event)"
+                />
             </div>
         </div>
     `,
@@ -276,6 +317,10 @@ export class AiLayerComponent {
     public readonly brand = input<AiBrandKit | null>(null);
 
     public readonly changed = output<AiLayerState>();
+    public readonly logoPicked = output<File>();
+
+    /** set by the parent while the upload is in flight */
+    public readonly uploading = input(false);
 
     public readonly anchors = ANCHORS;
 
@@ -312,6 +357,13 @@ export class AiLayerComponent {
             this.state();
             this._draw();
         });
+    }
+
+    public pickLogo(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        input.value = '';
+        if (file) this.logoPicked.emit(file);
     }
 
     public patch(changes: Partial<AiLayerState>) {
