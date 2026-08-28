@@ -14,21 +14,40 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { TranslatePipe } from '@placeos/components';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 
-import { AiBrandKit, AiLayerState } from './ai.types';
+import { AiAnchor, AiBrandKit, AiLayerState, AiTextBlock, AiTextRole } from './ai.types';
 
-const DEFAULT_STATE: AiLayerState = {
-    headline: '',
-    body: '',
-    position: 'top',
-    align: 'left',
-    colour: '#FFFFFF',
-    panel: true,
-    logo: true,
-    logo_position: 'bottom-right',
-    logo_scale: 0.14,
+/** share of the artwork's height each role is drawn at */
+const ROLE_SIZE: Record<AiTextRole, number> = {
+    headline: 0.11,
+    subheading: 0.055,
+    body: 0.038,
 };
+
+const ANCHORS: AiAnchor[] = [
+    'top-left',
+    'top-centre',
+    'top-right',
+    'centre-left',
+    'centre',
+    'centre-right',
+    'bottom-left',
+    'bottom-centre',
+    'bottom-right',
+];
+
+function newBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
+    return {
+        id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
+        text: '',
+        role,
+        anchor,
+        colour: '#FFFFFF',
+        panel: true,
+    };
+}
 
 /**
  * The words and the logo, drawn over the artwork in the browser.
@@ -38,6 +57,11 @@ const DEFAULT_STATE: AiLayerState = {
  * model drew is the one part of a poster a trademark claim would land on. Both
  * are composited here from real text and the customer's own logo file, at the
  * artwork's native size.
+ *
+ * Text is a list of blocks rather than a fixed headline and subheading: a
+ * poster usually wants a title, a date and a location, and they do not all
+ * belong in the same corner. Blocks sharing an anchor stack in order, so
+ * placement stays predictable without a drag surface.
  */
 @Component({
     selector: 'ai-layer',
@@ -49,139 +73,199 @@ const DEFAULT_STATE: AiLayerState = {
                 <canvas
                     #canvas
                     class="max-h-[40vh] max-w-full"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.AI_LAYER_PREVIEW' | translate"
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.AI_LAYER_PREVIEW' | translate
+                    "
                 ></canvas>
             </div>
-            <div class="flex w-full flex-col gap-2">
-                <label for="ai-headline">{{
-                    'SIGNAGE_MANAGER.AI_HEADLINE' | translate
-                }}</label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <input
-                        matInput
-                        id="ai-headline"
-                        [ngModel]="state().headline"
-                        (ngModelChange)="patch({ headline: $event })"
-                    />
-                </mat-form-field>
-                <label for="ai-body">{{
-                    'SIGNAGE_MANAGER.AI_SUBHEADING' | translate
-                }}</label>
-                <mat-form-field appearance="outline" class="w-full">
-                    <input
-                        matInput
-                        id="ai-body"
-                        [ngModel]="state().body"
-                        (ngModelChange)="patch({ body: $event })"
-                    />
-                </mat-form-field>
-                <div class="flex gap-2">
-                    <mat-form-field appearance="outline" class="flex-1">
-                        <mat-select
-                            [ngModel]="state().position"
-                            (ngModelChange)="patch({ position: $event })"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.AI_TEXT_POSITION' | translate
-                            "
-                        >
-                            <mat-option value="top">{{
-                                'SIGNAGE_MANAGER.AI_POS_TOP' | translate
-                            }}</mat-option>
-                            <mat-option value="centre">{{
-                                'SIGNAGE_MANAGER.AI_POS_CENTRE' | translate
-                            }}</mat-option>
-                            <mat-option value="bottom">{{
-                                'SIGNAGE_MANAGER.AI_POS_BOTTOM' | translate
-                            }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                    <mat-form-field appearance="outline" class="flex-1">
-                        <mat-select
-                            [ngModel]="state().align"
-                            (ngModelChange)="patch({ align: $event })"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.AI_TEXT_ALIGN' | translate
-                            "
-                        >
-                            <mat-option value="left">{{
-                                'SIGNAGE_MANAGER.AI_ALIGN_LEFT' | translate
-                            }}</mat-option>
-                            <mat-option value="centre">{{
-                                'SIGNAGE_MANAGER.AI_ALIGN_CENTRE' | translate
-                            }}</mat-option>
-                            <mat-option value="right">{{
-                                'SIGNAGE_MANAGER.AI_ALIGN_RIGHT' | translate
-                            }}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="text-sm">{{
-                        'SIGNAGE_MANAGER.AI_TEXT_COLOUR' | translate
-                    }}</span>
-                    @for (colour of palette(); track colour) {
-                        <button
-                            type="button"
-                            class="border-base-content/20 h-6 w-6 rounded-full border"
-                            [style.background]="colour"
-                            [class.ring-2]="state().colour === colour"
-                            (click)="patch({ colour })"
-                            [attr.aria-label]="colour"
-                        ></button>
-                    }
-                </div>
-                <mat-slide-toggle
-                    [ngModel]="state().panel"
-                    (ngModelChange)="patch({ panel: $event })"
-                >
-                    {{ 'SIGNAGE_MANAGER.AI_TEXT_PANEL' | translate }}
-                </mat-slide-toggle>
-                @if (logo_url()) {
-                    <mat-slide-toggle
-                        [ngModel]="state().logo"
-                        (ngModelChange)="patch({ logo: $event })"
+
+            <div class="flex w-full flex-col gap-3">
+                @for (block of state().blocks; track block.id; let i = $index) {
+                    <div
+                        class="border-base-content/10 flex flex-col gap-2 rounded border p-3"
                     >
-                        {{ 'SIGNAGE_MANAGER.AI_SHOW_LOGO' | translate }}
-                    </mat-slide-toggle>
-                    @if (state().logo) {
-                        <mat-form-field appearance="outline" class="w-full">
-                            <mat-select
-                                [ngModel]="state().logo_position"
-                                (ngModelChange)="patch({ logo_position: $event })"
-                                [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.AI_LOGO_POSITION' | translate
+                        <div class="flex items-center gap-2">
+                            <mat-form-field
+                                appearance="outline"
+                                class="flex-1"
+                                subscriptSizing="dynamic"
+                            >
+                                <input
+                                    matInput
+                                    [ngModel]="block.text"
+                                    (ngModelChange)="
+                                        patchBlock(block.id, { text: $event })
+                                    "
+                                    [placeholder]="
+                                        placeholderFor(block.role) | translate
+                                    "
+                                    [attr.aria-label]="
+                                        placeholderFor(block.role) | translate
+                                    "
+                                />
+                            </mat-form-field>
+                            <button
+                                icon
+                                default
+                                error
+                                type="button"
+                                [disabled]="state().blocks.length < 2"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.AI_REMOVE_TEXT' | translate
+                                "
+                                (click)="removeBlock(block.id)"
+                            >
+                                <icon>delete</icon>
+                            </button>
+                        </div>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-36"
+                                subscriptSizing="dynamic"
+                            >
+                                <mat-select
+                                    [ngModel]="block.role"
+                                    (ngModelChange)="
+                                        patchBlock(block.id, { role: $event })
+                                    "
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.AI_TEXT_SIZE'
+                                            | translate
+                                    "
+                                >
+                                    <mat-option value="headline">{{
+                                        'SIGNAGE_MANAGER.AI_ROLE_HEADLINE'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="subheading">{{
+                                        'SIGNAGE_MANAGER.AI_ROLE_SUBHEADING'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="body">{{
+                                        'SIGNAGE_MANAGER.AI_ROLE_BODY'
+                                            | translate
+                                    }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-40"
+                                subscriptSizing="dynamic"
+                            >
+                                <mat-select
+                                    [ngModel]="block.anchor"
+                                    (ngModelChange)="
+                                        patchBlock(block.id, { anchor: $event })
+                                    "
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.AI_TEXT_POSITION'
+                                            | translate
+                                    "
+                                >
+                                    @for (anchor of anchors; track anchor) {
+                                        <mat-option [value]="anchor">{{
+                                            anchorLabel(anchor) | translate
+                                        }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+
+                            @for (colour of palette(); track colour) {
+                                <button
+                                    type="button"
+                                    class="border-base-content/20 h-6 w-6 rounded-full border"
+                                    [style.background]="colour"
+                                    [class.ring-2]="block.colour === colour"
+                                    (click)="patchBlock(block.id, { colour })"
+                                    [attr.aria-label]="colour"
+                                ></button>
+                            }
+
+                            <mat-slide-toggle
+                                [ngModel]="block.panel"
+                                (ngModelChange)="
+                                    patchBlock(block.id, { panel: $event })
                                 "
                             >
-                                <mat-option value="bottom-right">{{
-                                    'SIGNAGE_MANAGER.AI_POS_BOTTOM_RIGHT'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option value="bottom-left">{{
-                                    'SIGNAGE_MANAGER.AI_POS_BOTTOM_LEFT'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option value="top-right">{{
-                                    'SIGNAGE_MANAGER.AI_POS_TOP_RIGHT'
-                                        | translate
-                                }}</mat-option>
-                                <mat-option value="top-left">{{
-                                    'SIGNAGE_MANAGER.AI_POS_TOP_LEFT'
-                                        | translate
-                                }}</mat-option>
-                            </mat-select>
-                        </mat-form-field>
-                    }
+                                {{
+                                    'SIGNAGE_MANAGER.AI_TEXT_PANEL' | translate
+                                }}
+                            </mat-slide-toggle>
+                        </div>
+                    </div>
+                }
+
+                <button
+                    mat-stroked-button
+                    type="button"
+                    class="self-start"
+                    (click)="addBlock()"
+                >
+                    {{ 'SIGNAGE_MANAGER.AI_ADD_TEXT' | translate }}
+                </button>
+
+                @if (logo_url()) {
+                    <div
+                        class="border-base-content/10 flex flex-wrap items-center gap-3 rounded border p-3"
+                    >
+                        <mat-slide-toggle
+                            [ngModel]="state().logo"
+                            (ngModelChange)="patch({ logo: $event })"
+                        >
+                            {{ 'SIGNAGE_MANAGER.AI_SHOW_LOGO' | translate }}
+                        </mat-slide-toggle>
+                        @if (state().logo) {
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-40"
+                                subscriptSizing="dynamic"
+                            >
+                                <mat-select
+                                    [ngModel]="state().logo_position"
+                                    (ngModelChange)="
+                                        patch({ logo_position: $event })
+                                    "
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.AI_LOGO_POSITION'
+                                            | translate
+                                    "
+                                >
+                                    <mat-option value="bottom-right">{{
+                                        'SIGNAGE_MANAGER.AI_POS_BOTTOM_RIGHT'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="bottom-left">{{
+                                        'SIGNAGE_MANAGER.AI_POS_BOTTOM_LEFT'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="top-right">{{
+                                        'SIGNAGE_MANAGER.AI_POS_TOP_RIGHT'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="top-left">{{
+                                        'SIGNAGE_MANAGER.AI_POS_TOP_LEFT'
+                                            | translate
+                                    }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                    </div>
                 }
             </div>
         </div>
     `,
     imports: [
         FormsModule,
+        IconComponent,
         MatButtonModule,
         MatFormFieldModule,
         MatInputModule,
         MatSelectModule,
         MatSlideToggleModule,
+        MatTooltipModule,
         TranslatePipe,
     ],
 })
@@ -193,7 +277,14 @@ export class AiLayerComponent {
 
     public readonly changed = output<AiLayerState>();
 
-    public readonly state = signal<AiLayerState>({ ...DEFAULT_STATE });
+    public readonly anchors = ANCHORS;
+
+    public readonly state = signal<AiLayerState>({
+        blocks: [newBlock('headline', 'top-left')],
+        logo: true,
+        logo_position: 'bottom-right',
+        logo_scale: 0.14,
+    });
 
     private readonly _canvas =
         viewChild<ElementRef<HTMLCanvasElement>>('canvas');
@@ -226,6 +317,45 @@ export class AiLayerComponent {
     public patch(changes: Partial<AiLayerState>) {
         this.state.update((state) => ({ ...state, ...changes }));
         this.changed.emit(this.state());
+    }
+
+    public patchBlock(id: string, changes: Partial<AiTextBlock>) {
+        this.patch({
+            blocks: this.state().blocks.map((block) =>
+                block.id === id ? { ...block, ...changes } : block,
+            ),
+        });
+    }
+
+    public addBlock() {
+        // a second block is usually the detail line under the title, and a
+        // third is usually somewhere else on the poster
+        const count = this.state().blocks.length;
+        const role: AiTextRole = count === 1 ? 'subheading' : 'body';
+        const anchor: AiAnchor =
+            count < 2 ? this.state().blocks[0]?.anchor || 'top-left' : 'bottom-left';
+        this.patch({ blocks: [...this.state().blocks, newBlock(role, anchor)] });
+    }
+
+    public removeBlock(id: string) {
+        if (this.state().blocks.length < 2) return;
+        this.patch({
+            blocks: this.state().blocks.filter((block) => block.id !== id),
+        });
+    }
+
+    public placeholderFor(role: AiTextRole) {
+        return role === 'headline'
+            ? 'SIGNAGE_MANAGER.AI_HEADLINE'
+            : role === 'subheading'
+              ? 'SIGNAGE_MANAGER.AI_SUBHEADING'
+              : 'SIGNAGE_MANAGER.AI_BODY_TEXT';
+    }
+
+    public anchorLabel(anchor: AiAnchor) {
+        return `SIGNAGE_MANAGER.AI_ANCHOR_${anchor
+            .toUpperCase()
+            .replace('-', '_')}`;
     }
 
     /** the composited image, at the artwork's native size */
@@ -274,80 +404,93 @@ export class AiLayerComponent {
         context.drawImage(artwork, 0, 0, width, height);
 
         const state = this.state();
-        this._drawText(context, width, height, state);
+        this._drawBlocks(context, width, height, state);
         if (state.logo) this._drawLogo(context, width, height, state);
     }
 
-    private _drawText(
+    /** blocks sharing an anchor are laid out as one stack, in order */
+    private _drawBlocks(
         context: CanvasRenderingContext2D,
         width: number,
         height: number,
         state: AiLayerState,
     ) {
-        const headline = state.headline.trim();
-        const body = state.body.trim();
-        if (!headline && !body) return;
-
         const margin = Math.round(width * 0.06);
-        const headline_size = Math.round(height * 0.11);
-        const body_size = Math.round(height * 0.05);
         const family = this._fontFamily();
+        const max_width = width - margin * 2;
 
-        const lines: { text: string; size: number; weight: string }[] = [];
-        if (headline) {
-            context.font = `700 ${headline_size}px ${family}`;
-            for (const line of this._wrap(
-                context,
-                headline,
-                width - margin * 2,
-            )) {
-                lines.push({ text: line, size: headline_size, weight: '700' });
-            }
-        }
-        if (body) {
-            context.font = `400 ${body_size}px ${family}`;
-            for (const line of this._wrap(context, body, width - margin * 2)) {
-                lines.push({ text: line, size: body_size, weight: '400' });
-            }
-        }
-
-        const spacing = Math.round(headline_size * 0.28);
-        const block =
-            lines.reduce((total, line) => total + line.size, 0) +
-            spacing * Math.max(0, lines.length - 1);
-
-        let top = margin;
-        if (state.position === 'centre') top = (height - block) / 2;
-        if (state.position === 'bottom') top = height - block - margin;
-
-        if (state.panel) {
-            const pad = Math.round(headline_size * 0.4);
-            context.fillStyle = this._panelColour(state.colour);
-            context.fillRect(
-                0,
-                Math.max(0, top - pad),
-                width,
-                block + pad * 2,
+        for (const anchor of ANCHORS) {
+            const blocks = state.blocks.filter(
+                (block) => block.anchor === anchor && block.text.trim(),
             );
-        }
+            if (!blocks.length) continue;
 
-        let x = margin;
-        context.textAlign = 'left';
-        if (state.align === 'centre') {
-            x = width / 2;
-            context.textAlign = 'center';
-        } else if (state.align === 'right') {
-            x = width - margin;
-            context.textAlign = 'right';
-        }
+            // measure the whole stack first so it can be placed as one unit
+            const lines: {
+                text: string;
+                size: number;
+                weight: string;
+                colour: string;
+                panel: boolean;
+            }[] = [];
+            for (const block of blocks) {
+                const size = Math.round(height * ROLE_SIZE[block.role]);
+                const weight = block.role === 'headline' ? '700' : '400';
+                context.font = `${weight} ${size}px ${family}`;
+                for (const text of this._wrap(
+                    context,
+                    block.text.trim(),
+                    max_width,
+                )) {
+                    lines.push({
+                        text,
+                        size,
+                        weight,
+                        colour: block.colour,
+                        panel: block.panel,
+                    });
+                }
+            }
 
-        context.fillStyle = state.colour;
-        context.textBaseline = 'top';
-        let y = top;
-        for (const line of lines) {
-            context.font = `${line.weight} ${line.size}px ${family}`;
-            context.fillText(line.text, x, y);
-            y += line.size + spacing;
+            const spacing = Math.round(height * 0.02);
+            const block_height =
+                lines.reduce((total, line) => total + line.size, 0) +
+                spacing * Math.max(0, lines.length - 1);
+
+            let top = margin;
+            if (anchor.startsWith('centre')) top = (height - block_height) / 2;
+            if (anchor.startsWith('bottom'))
+                top = height - block_height - margin;
+
+            const horizontal = anchor.endsWith('right')
+                ? 'right'
+                : anchor.endsWith('left')
+                  ? 'left'
+                  : 'center';
+            let x = margin;
+            if (horizontal === 'center') x = width / 2;
+            if (horizontal === 'right') x = width - margin;
+
+            if (lines.some((line) => line.panel)) {
+                const pad = Math.round(height * 0.022);
+                context.fillStyle = this._panelColour(lines[0].colour);
+                context.fillRect(
+                    0,
+                    Math.max(0, top - pad),
+                    width,
+                    block_height + pad * 2,
+                );
+            }
+
+            context.textAlign = horizontal as CanvasTextAlign;
+            context.textBaseline = 'top';
+            let y = top;
+            for (const line of lines) {
+                context.font = `${line.weight} ${line.size}px ${family}`;
+                context.fillStyle = line.colour;
+                context.fillText(line.text, x, y);
+                y += line.size + spacing;
+            }
         }
     }
 

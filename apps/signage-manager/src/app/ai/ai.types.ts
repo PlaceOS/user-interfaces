@@ -106,14 +106,33 @@ export interface AiBrandKit {
     font?: { url?: string; family?: string } | string;
 }
 
-/** what the layer editor produces, kept on the modal between states */
-export interface AiLayerState {
-    headline: string;
-    body: string;
-    position: 'top' | 'centre' | 'bottom';
-    align: 'left' | 'centre' | 'right';
+/** where a block or the logo sits. Blocks sharing an anchor stack in order. */
+export type AiAnchor =
+    | 'top-left'
+    | 'top-centre'
+    | 'top-right'
+    | 'centre-left'
+    | 'centre'
+    | 'centre-right'
+    | 'bottom-left'
+    | 'bottom-centre'
+    | 'bottom-right';
+
+/** drives the size the text is drawn at */
+export type AiTextRole = 'headline' | 'subheading' | 'body';
+
+export interface AiTextBlock {
+    id: string;
+    text: string;
+    role: AiTextRole;
+    anchor: AiAnchor;
     colour: string;
     panel: boolean;
+}
+
+/** what the layer editor produces, kept on the modal between states */
+export interface AiLayerState {
+    blocks: AiTextBlock[];
     logo: boolean;
     logo_position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
     logo_scale: number;
