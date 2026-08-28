@@ -131,6 +131,8 @@ export interface AiTextBlock {
     y: number;
     align: AiTextAlign;
     colour: string;
+    /** empty means the organisation's brand font */
+    font: string;
     panel: boolean;
 }
 

@@ -25,6 +25,14 @@ const ROLE_SIZE: Record<AiTextRole, number> = {
     body: 0.038,
 };
 
+/** line to line, as a multiple of the type size: tight for a headline, open
+ * enough for a paragraph to be read */
+const ROLE_LEADING: Record<AiTextRole, number> = {
+    headline: 1.12,
+    subheading: 1.3,
+    body: 1.45,
+};
+
 /** how far an arrow key moves a block, as a share of the artwork */
 const NUDGE = 0.005;
 const NUDGE_FAST = 0.02;
@@ -111,7 +119,8 @@ export class AiLayerComponent {
     /** pointer offset inside the block when the drag started */
     private _grab = { x: 0, y: 0 };
 
-    private readonly _family = computed(() => {
+    /** the organisation's face, used by any block that has not picked its own */
+    private readonly _brand_family = computed(() => {
         const font = this.brand()?.font;
         return typeof font === 'string' ? font : font?.family || '';
     });
@@ -131,8 +140,15 @@ export class AiLayerComponent {
         });
         effect(() => {
             // a face has to be in the document before a canvas can draw with it
-            const family = this._family();
-            if (family) ensureBrandFont(family).then(() => this._draw());
+            const families = new Set(
+                [
+                    this._brand_family(),
+                    ...this.state().blocks.map((block) => block.font),
+                ].filter(Boolean),
+            );
+            for (const family of families) {
+                ensureBrandFont(family).then(() => this._draw());
+            }
         });
         effect(() => {
             this.state();
@@ -321,7 +337,6 @@ export class AiLayerComponent {
         state: AiLayerState,
     ) {
         this._boxes.clear();
-        const family = this._fontFamily();
         const wrap_at = width * 0.88;
 
         for (const block of state.blocks) {
@@ -330,18 +345,17 @@ export class AiLayerComponent {
 
             const size = Math.round(height * ROLE_SIZE[block.role]);
             const weight = block.role === 'headline' ? '700' : '400';
-            context.font = `${weight} ${size}px ${family}`;
+            context.font = `${weight} ${size}px ${this._fontFamily(block.font)}`;
             const lines = this._wrap(context, text, wrap_at);
-            const spacing = Math.round(size * 0.22);
-            const line_height = size * 1.2;
+            const leading = Math.round(size * ROLE_LEADING[block.role]);
+            const line_height = Math.round(size * 1.2);
             const box: Box = {
                 left: block.x * width,
                 top: block.y * height,
                 width: Math.max(
                     ...lines.map((line) => context.measureText(line).width),
                 ),
-                height:
-                    lines.length * line_height + spacing * (lines.length - 1),
+                height: line_height + leading * (lines.length - 1),
             };
             this._boxes.set(block.id, box);
 
@@ -367,11 +381,10 @@ export class AiLayerComponent {
                       ? box.left + box.width
                       : box.left + box.width / 2;
             context.fillStyle = block.colour;
-            let y = box.top;
-            for (const line of lines) {
-                context.fillText(line, x, y + (line_height - size) / 2);
-                y += line_height + spacing;
-            }
+            const offset = (line_height - size) / 2;
+            lines.forEach((line, index) => {
+                context.fillText(line, x, box.top + offset + leading * index);
+            });
 
             if (this.hover_id() === block.id || this.drag_id() === block.id) {
                 this._outline(context, box, Math.round(size * 0.35));
@@ -488,31 +501,45 @@ export class AiLayerComponent {
         return (r * 299 + g * 587 + b * 114) / 1000 > 140;
     }
 
-    private _fontFamily() {
-        const family = this._family();
+    private _fontFamily(chosen?: string) {
+        const family = chosen || this._brand_family();
         return family
             ? `"${family}", system-ui, sans-serif`
             : 'system-ui, sans-serif';
     }
 
+    /**
+     * Line breaks the author typed are kept, including the empty ones, since a
+     * gap between two paragraphs is a decision rather than stray whitespace.
+     * Anything still too wide for the artwork is wrapped on top of that.
+     */
     private _wrap(
         context: CanvasRenderingContext2D,
         text: string,
         max_width: number,
     ) {
-        const words = text.split(/\s+/);
         const lines: string[] = [];
-        let current = '';
-        for (const word of words) {
-            const candidate = current ? `${current} ${word}` : word;
-            if (context.measureText(candidate).width > max_width && current) {
-                lines.push(current);
-                current = word;
-            } else {
-                current = candidate;
+        for (const paragraph of text.split('\n')) {
+            const words = paragraph.trim().split(/\s+/).filter(Boolean);
+            if (!words.length) {
+                lines.push('');
+                continue;
             }
+            let current = '';
+            for (const word of words) {
+                const candidate = current ? `${current} ${word}` : word;
+                if (
+                    context.measureText(candidate).width > max_width &&
+                    current
+                ) {
+                    lines.push(current);
+                    current = word;
+                } else {
+                    current = candidate;
+                }
+            }
+            if (current) lines.push(current);
         }
-        if (current) lines.push(current);
         return lines;
     }
 }

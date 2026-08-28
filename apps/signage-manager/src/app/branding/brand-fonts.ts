@@ -21,7 +21,7 @@ export const BRAND_FONTS = [
     { family: 'Playfair Display', label: 'Playfair Display' },
 ];
 
-const LOADED = new Set<string>();
+const LOADED = new Map<string, Promise<void>>();
 
 /**
  * Make a face available to the document, and so to a canvas.
@@ -29,21 +29,39 @@ const LOADED = new Set<string>();
  * Resolves either way: a face that will not load is a poster in the fallback
  * face, which is better than a preview that never renders.
  */
-export async function ensureBrandFont(family?: string | null): Promise<void> {
-    if (!family) return;
-    if (!LOADED.has(family)) {
-        LOADED.add(family);
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(
-            family,
-        )}:wght@400;700&display=swap`;
-        document.head.appendChild(link);
+export function ensureBrandFont(family?: string | null): Promise<void> {
+    if (!family) return Promise.resolve();
+    let loading = LOADED.get(family);
+    if (!loading) {
+        loading = load(family);
+        LOADED.set(family, loading);
     }
+    return loading;
+}
+
+async function load(family: string): Promise<void> {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(
+        family,
+    )}:wght@400;700&display=swap`;
+
+    // the stylesheet has to be parsed before the face has a name to load by:
+    // asking for it any earlier resolves against nothing, and a canvas that
+    // draws on the back of that quietly uses the fallback face instead
+    const parsed = new Promise<void>((resolve) => {
+        link.onload = () => resolve();
+        link.onerror = () => resolve();
+    });
+    document.head.appendChild(link);
+    await parsed;
+
+    const faces = (document as any).fonts;
+    if (!faces) return;
     try {
         await Promise.all([
-            (document as any).fonts?.load(`400 16px "${family}"`),
-            (document as any).fonts?.load(`700 16px "${family}"`),
+            faces.load(`400 16px "${family}"`),
+            faces.load(`700 16px "${family}"`),
         ]);
     } catch {
         // a face that will not load falls back, which is fine

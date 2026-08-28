@@ -8,6 +8,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
+import { BRAND_FONTS } from '../branding/brand-fonts';
 import { AiBrandKit, AiLayerState, AiTextBlock, AiTextRole } from './ai.types';
 
 /** first block sits under the top left margin, each next one below it */
@@ -23,6 +24,7 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
         y: FIRST_Y + BLOCK_GAP * index,
         align: 'left',
         colour: '#FFFFFF',
+        font: '',
         panel: true,
     };
 }
@@ -45,14 +47,15 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                 <div
                     class="border-base-content/10 flex flex-col gap-2 rounded border p-3"
                 >
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-start gap-2">
                         <mat-form-field
                             appearance="outline"
                             class="flex-1"
                             subscriptSizing="dynamic"
                         >
-                            <input
+                            <textarea
                                 matInput
+                                rows="2"
                                 [ngModel]="block.text"
                                 (ngModelChange)="
                                     patchBlock(block.id, { text: $event })
@@ -63,7 +66,7 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                 [attr.aria-label]="
                                     placeholderFor(block.role) | translate
                                 "
-                            />
+                            ></textarea>
                         </mat-form-field>
                         <button
                             icon
@@ -135,6 +138,33 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                 }}</mat-option>
                             </mat-select>
                         </mat-form-field>
+
+                        <mat-form-field
+                            appearance="outline"
+                            class="w-full"
+                            subscriptSizing="dynamic"
+                        >
+                            <mat-select
+                                [ngModel]="block.font"
+                                (ngModelChange)="
+                                    patchBlock(block.id, { font: $event })
+                                "
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.AI_TEXT_FONT' | translate
+                                "
+                            >
+                                <mat-option value="">{{
+                                    brand_font_label() | translate
+                                }}</mat-option>
+                                @for (option of fonts; track option.family) {
+                                    @if (option.family) {
+                                        <mat-option [value]="option.family">{{
+                                            option.label
+                                        }}</mat-option>
+                                    }
+                                }
+                            </mat-select>
+                        </mat-form-field>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-3">
@@ -148,6 +178,22 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                                 [attr.aria-label]="colour"
                             ></button>
                         }
+                        <input
+                            type="color"
+                            class="border-base-content/20 h-6 w-8 cursor-pointer rounded border bg-transparent p-0"
+                            [value]="block.colour"
+                            (input)="
+                                patchBlock(block.id, {
+                                    colour: $any($event.target).value,
+                                })
+                            "
+                            [matTooltip]="
+                                'SIGNAGE_MANAGER.AI_TEXT_ANY_COLOUR' | translate
+                            "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.AI_TEXT_ANY_COLOUR' | translate
+                            "
+                        />
                         <mat-slide-toggle
                             [ngModel]="block.panel"
                             (ngModelChange)="
@@ -306,6 +352,15 @@ export class AiLayerControlsComponent {
     public readonly has_both_logos = computed(
         () => !!this.logo_on_light() && !!this.logo_on_dark(),
     );
+
+    public readonly fonts = BRAND_FONTS;
+
+    /** names the face a block falls back to, so the default is not a mystery */
+    public readonly brand_font_label = computed(() => {
+        const font = this.brand()?.font;
+        const family = typeof font === 'string' ? font : font?.family;
+        return family || 'SIGNAGE_MANAGER.AI_TEXT_BRAND_FONT';
+    });
 
     public readonly palette = computed(() => {
         const colours = Object.values(this.brand()?.palette || {});
