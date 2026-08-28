@@ -48,12 +48,7 @@ export interface AiJobImage {
     item_id?: string;
 }
 
-export type AiJobState =
-    | 'queued'
-    | 'running'
-    | 'done'
-    | 'failed'
-    | 'cancelled';
+export type AiJobState = 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
 
 export interface AiJob {
     id: string;
@@ -101,31 +96,40 @@ export interface AiBrandKit {
     organisation?: string;
     palette?: Record<string, string>;
     tone?: string;
+    /**
+     * The logo to put on a light background, so dark ink. Keeps its original
+     * name because rest-api reads this key when it sends the logo to the model
+     * as a reference.
+     */
     logo_upload_id?: string;
+    /** the logo to put on a dark background, so light ink */
+    logo_dark_upload_id?: string;
+    /** which of the two was made by flipping the other, rather than uploaded */
+    logo_derived?: AiLogoSlot;
     never_include?: string[];
     font?: { url?: string; family?: string } | string;
 }
 
-/** where a block or the logo sits. Blocks sharing an anchor stack in order. */
-export type AiAnchor =
-    | 'top-left'
-    | 'top-centre'
-    | 'top-right'
-    | 'centre-left'
-    | 'centre'
-    | 'centre-right'
-    | 'bottom-left'
-    | 'bottom-centre'
-    | 'bottom-right';
+/** which background a logo file is meant to sit on */
+export type AiLogoSlot = 'on_light' | 'on_dark';
+
+/** on_light and on_dark pick a file; auto reads the artwork behind the logo */
+export type AiLogoChoice = 'auto' | AiLogoSlot;
 
 /** drives the size the text is drawn at */
 export type AiTextRole = 'headline' | 'subheading' | 'body';
+
+/** how the lines inside a block line up with each other */
+export type AiTextAlign = 'left' | 'centre' | 'right';
 
 export interface AiTextBlock {
     id: string;
     text: string;
     role: AiTextRole;
-    anchor: AiAnchor;
+    /** top left of the block, as a fraction of the artwork's width and height */
+    x: number;
+    y: number;
+    align: AiTextAlign;
     colour: string;
     panel: boolean;
 }
@@ -136,4 +140,5 @@ export interface AiLayerState {
     logo: boolean;
     logo_position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
     logo_scale: number;
+    logo_choice: AiLogoChoice;
 }

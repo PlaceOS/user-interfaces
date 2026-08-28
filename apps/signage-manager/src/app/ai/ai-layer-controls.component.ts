@@ -8,21 +8,20 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
-import { ANCHORS } from './ai-layer.component';
-import {
-    AiAnchor,
-    AiBrandKit,
-    AiLayerState,
-    AiTextBlock,
-    AiTextRole,
-} from './ai.types';
+import { AiBrandKit, AiLayerState, AiTextBlock, AiTextRole } from './ai.types';
 
-export function newTextBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
+/** first block sits under the top left margin, each next one below it */
+const FIRST_Y = 0.06;
+const BLOCK_GAP = 0.18;
+
+export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
     return {
         id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
         text: '',
         role,
-        anchor,
+        x: 0.06,
+        y: FIRST_Y + BLOCK_GAP * index,
+        align: 'left',
         colour: '#FFFFFF',
         panel: true,
     };
@@ -31,14 +30,17 @@ export function newTextBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
 /**
  * The words and the logo, as a sidebar panel beside the preview.
  *
- * Split from the canvas so the preview can hold the main pane: the person
- * writing a headline wants to see it at size while they type, not in a strip
- * above a stack of form fields.
+ * Position is not here: the words are dragged on the image itself, which is the
+ * only way to put a headline in the gap the artwork actually left for it.
  */
 @Component({
     selector: 'ai-layer-controls',
     template: `
         <div class="flex flex-col gap-3">
+            <p class="text-base-content/60 m-0 text-xs">
+                {{ 'SIGNAGE_MANAGER.AI_TEXT_DRAG_HINT' | translate }}
+            </p>
+
             @for (block of state().blocks; track block.id) {
                 <div
                     class="border-base-content/10 flex flex-col gap-2 rounded border p-3"
@@ -109,24 +111,28 @@ export function newTextBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
 
                         <mat-form-field
                             appearance="outline"
-                            class="w-36"
+                            class="w-32"
                             subscriptSizing="dynamic"
                         >
                             <mat-select
-                                [ngModel]="block.anchor"
+                                [ngModel]="block.align"
                                 (ngModelChange)="
-                                    patchBlock(block.id, { anchor: $event })
+                                    patchBlock(block.id, { align: $event })
                                 "
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.AI_TEXT_POSITION'
-                                        | translate
+                                    'SIGNAGE_MANAGER.AI_TEXT_ALIGN' | translate
                                 "
                             >
-                                @for (anchor of anchors; track anchor) {
-                                    <mat-option [value]="anchor">{{
-                                        anchorLabel(anchor) | translate
-                                    }}</mat-option>
-                                }
+                                <mat-option value="left">{{
+                                    'SIGNAGE_MANAGER.AI_ALIGN_LEFT' | translate
+                                }}</mat-option>
+                                <mat-option value="centre">{{
+                                    'SIGNAGE_MANAGER.AI_ALIGN_CENTRE'
+                                        | translate
+                                }}</mat-option>
+                                <mat-option value="right">{{
+                                    'SIGNAGE_MANAGER.AI_ALIGN_RIGHT' | translate
+                                }}</mat-option>
                             </mat-select>
                         </mat-form-field>
                     </div>
@@ -166,7 +172,7 @@ export function newTextBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
             <div
                 class="border-base-content/10 flex flex-wrap items-center gap-3 rounded border p-3"
             >
-                @if (!logo_url()) {
+                @if (!has_logo()) {
                     <span class="text-sm">{{
                         'SIGNAGE_MANAGER.AI_NO_LOGO_YET' | translate
                     }}</span>
@@ -224,6 +230,39 @@ export function newTextBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
                                 }}</mat-option>
                             </mat-select>
                         </mat-form-field>
+
+                        <!-- both versions exist, so which one is a real choice -->
+                        @if (has_both_logos()) {
+                            <mat-form-field
+                                appearance="outline"
+                                class="w-44"
+                                subscriptSizing="dynamic"
+                            >
+                                <mat-label>{{
+                                    'SIGNAGE_MANAGER.AI_LOGO_VERSION'
+                                        | translate
+                                }}</mat-label>
+                                <mat-select
+                                    [ngModel]="state().logo_choice"
+                                    (ngModelChange)="
+                                        patch({ logo_choice: $event })
+                                    "
+                                >
+                                    <mat-option value="auto">{{
+                                        'SIGNAGE_MANAGER.AI_LOGO_AUTO'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="on_light">{{
+                                        'SIGNAGE_MANAGER.BRAND_LOGO_ON_LIGHT'
+                                            | translate
+                                    }}</mat-option>
+                                    <mat-option value="on_dark">{{
+                                        'SIGNAGE_MANAGER.BRAND_LOGO_ON_DARK'
+                                            | translate
+                                    }}</mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        }
                     }
                 }
                 <input
@@ -253,14 +292,20 @@ export function newTextBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
 })
 export class AiLayerControlsComponent {
     public readonly state = input.required<AiLayerState>();
-    public readonly logo_url = input<string>('');
+    public readonly logo_on_light = input<string>('');
+    public readonly logo_on_dark = input<string>('');
     public readonly brand = input<AiBrandKit | null>(null);
     public readonly uploading = input(false);
 
     public readonly changed = output<AiLayerState>();
     public readonly logoPicked = output<File>();
 
-    public readonly anchors = ANCHORS;
+    public readonly has_logo = computed(
+        () => !!(this.logo_on_light() || this.logo_on_dark()),
+    );
+    public readonly has_both_logos = computed(
+        () => !!this.logo_on_light() && !!this.logo_on_dark(),
+    );
 
     public readonly palette = computed(() => {
         const colours = Object.values(this.brand()?.palette || {});
@@ -284,9 +329,7 @@ export class AiLayerControlsComponent {
     public addBlock() {
         const blocks = this.state().blocks;
         const role: AiTextRole = blocks.length === 1 ? 'subheading' : 'body';
-        const anchor: AiAnchor =
-            blocks.length < 2 ? blocks[0]?.anchor || 'top-left' : 'bottom-left';
-        this.patch({ blocks: [...blocks, newTextBlock(role, anchor)] });
+        this.patch({ blocks: [...blocks, newTextBlock(role, blocks.length)] });
     }
 
     public removeBlock(id: string) {
@@ -309,11 +352,5 @@ export class AiLayerControlsComponent {
             : role === 'subheading'
               ? 'SIGNAGE_MANAGER.AI_SUBHEADING'
               : 'SIGNAGE_MANAGER.AI_BODY_TEXT';
-    }
-
-    public anchorLabel(anchor: AiAnchor) {
-        return `SIGNAGE_MANAGER.AI_ANCHOR_${anchor
-            .toUpperCase()
-            .replace('-', '_')}`;
     }
 }

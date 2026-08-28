@@ -76,9 +76,11 @@ interface Candidate {
                                 class="h-full w-full"
                                 [class.opacity-40]="state() === 'generating'"
                                 [image_url]="selected_object_url()"
-                                [logo_url]="logo_object_url()"
+                                [logo_on_light]="logo_on_light()"
+                                [logo_on_dark]="logo_on_dark()"
                                 [brand]="brand()"
                                 [state]="layer_state()"
+                                (changed)="layer_state.set($event)"
                             ></ai-layer>
                         } @else if (source_url()) {
                             <img
@@ -321,7 +323,8 @@ interface Candidate {
                                 </p>
                                 <ai-layer-controls
                                     [state]="layer_state()"
-                                    [logo_url]="logo_object_url()"
+                                    [logo_on_light]="logo_on_light()"
+                                    [logo_on_dark]="logo_on_dark()"
                                     [brand]="brand()"
                                     [uploading]="uploading_logo()"
                                     (changed)="layer_state.set($event)"
@@ -424,17 +427,19 @@ export class AiImageModalComponent {
     public readonly include_logo = signal(!this._data.source_upload_id);
 
     public readonly layer_state = signal<AiLayerState>({
-        blocks: [newTextBlock('headline', 'top-left')],
+        blocks: [newTextBlock('headline')],
         logo: false,
         logo_position: 'bottom-right',
         logo_scale: 0.14,
+        logo_choice: 'auto',
     });
 
     /** the newest job; the rail walks back from here through its parents */
     public readonly current_job_id = signal('');
     public readonly selected = signal<Candidate | null>(null);
     public readonly selected_object_url = signal('');
-    public readonly logo_object_url = signal('');
+    public readonly logo_on_light = signal('');
+    public readonly logo_on_dark = signal('');
     public readonly uploading_logo = signal(false);
 
     public readonly brand = this._ai.brand_kit;
@@ -537,7 +542,7 @@ export class AiImageModalComponent {
     public readonly has_overlay = computed(() => {
         const state = this.layer_state();
         if (state.blocks.some((block) => block.text.trim())) return true;
-        return state.logo && !!this.logo_object_url();
+        return state.logo && !!(this.logo_on_light() || this.logo_on_dark());
     });
 
     public versionLabel(candidate: Candidate) {
@@ -621,11 +626,8 @@ export class AiImageModalComponent {
     public async uploadLogo(file: File) {
         this.uploading_logo.set(true);
         try {
-            const upload_id = await this._ai.uploadBrandLogo(file);
-            const url = await this._ai
-                .loadImage(`/api/engine/v2/uploads/${upload_id}/url`)
-                .catch(() => '');
-            this.logo_object_url.set(url);
+            await this._ai.uploadBrandLogo(file);
+            await this._loadBrandLogos();
             this.layer_state.set({ ...this.layer_state(), logo: true });
             notifySuccess(i18n('SIGNAGE_MANAGER.AI_LOGO_SAVED'));
         } catch (error) {
@@ -723,23 +725,31 @@ export class AiImageModalComponent {
                 (candidate) => candidate.job_id === id,
             );
             if (newest.length) this.select(newest[0]);
-            this._loadBrandLogo();
+            this._loadBrandLogos();
             this.state.set('review');
         };
         check();
     }
 
-    /** the saved logo, so the toggle in the sidebar has something to show */
-    private async _loadBrandLogo() {
-        const logo_id = this.brand()?.logo_upload_id;
-        if (!logo_id || this.logo_object_url()) return;
-        const url = await this._ai
-            .loadImage(`/api/engine/v2/uploads/${logo_id}/url`)
-            .catch(() => '');
-        this.logo_object_url.set(url);
-        if (url && this.include_logo()) {
+    /** both saved logos, so the toggle in the sidebar has something to show */
+    private async _loadBrandLogos() {
+        const brand = this.brand();
+        const [on_light, on_dark] = await Promise.all([
+            this._readUpload(brand?.logo_upload_id),
+            this._readUpload(brand?.logo_dark_upload_id),
+        ]);
+        this.logo_on_light.set(on_light);
+        this.logo_on_dark.set(on_dark);
+        if ((on_light || on_dark) && this.include_logo()) {
             this.layer_state.set({ ...this.layer_state(), logo: true });
         }
+    }
+
+    private _readUpload(id?: string) {
+        if (!id) return Promise.resolve('');
+        return this._ai
+            .loadImage(`/api/engine/v2/uploads/${encodeURIComponent(id)}/url`)
+            .catch(() => '');
     }
 
     private _name() {

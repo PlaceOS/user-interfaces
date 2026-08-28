@@ -4,11 +4,19 @@ import {
     effect,
     ElementRef,
     input,
+    output,
+    signal,
     viewChild,
 } from '@angular/core';
 
 import { ensureBrandFont } from '../branding/brand-fonts';
-import { AiAnchor, AiBrandKit, AiLayerState, AiTextRole } from './ai.types';
+import {
+    AiBrandKit,
+    AiLayerState,
+    AiLogoSlot,
+    AiTextBlock,
+    AiTextRole,
+} from './ai.types';
 
 /** share of the artwork's height each role is drawn at */
 const ROLE_SIZE: Record<AiTextRole, number> = {
@@ -17,17 +25,16 @@ const ROLE_SIZE: Record<AiTextRole, number> = {
     body: 0.038,
 };
 
-export const ANCHORS: AiAnchor[] = [
-    'top-left',
-    'top-centre',
-    'top-right',
-    'centre-left',
-    'centre',
-    'centre-right',
-    'bottom-left',
-    'bottom-centre',
-    'bottom-right',
-];
+/** how far an arrow key moves a block, as a share of the artwork */
+const NUDGE = 0.005;
+const NUDGE_FAST = 0.02;
+
+interface Box {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+}
 
 /**
  * The finished poster: the artwork with the words and the logo drawn over it,
@@ -37,16 +44,26 @@ export const ANCHORS: AiAnchor[] = [
  * because no image model spells reliably at small sizes and because a logo the
  * model drew is the one part of a poster a trademark claim would land on.
  *
- * This renders only. The controls live beside it in the modal's sidebar, so the
- * preview can hold the whole of the main pane.
+ * Words are placed by dragging them. Nine anchors were quicker to build and
+ * never put a headline quite where the artwork left room for it, which is the
+ * whole point of generating a background with a clear area.
  */
 @Component({
     selector: 'ai-layer',
     template: `
         <canvas
             #canvas
-            class="max-h-full max-w-full object-contain"
+            tabindex="0"
+            class="max-h-full max-w-full touch-none"
+            [class.cursor-grab]="hover_id() && !drag_id()"
+            [class.cursor-grabbing]="!!drag_id()"
             [attr.aria-label]="'Preview of the finished image'"
+            (pointerdown)="onPointerDown($event)"
+            (pointermove)="onPointerMove($event)"
+            (pointerup)="onPointerUp($event)"
+            (pointercancel)="onPointerUp($event)"
+            (pointerleave)="onPointerLeave()"
+            (keydown)="onKeyDown($event)"
         ></canvas>
     `,
     styles: [
@@ -58,19 +75,41 @@ export const ANCHORS: AiAnchor[] = [
                 min-height: 0;
                 min-width: 0;
             }
+            canvas:focus-visible {
+                outline: 2px solid currentColor;
+                outline-offset: 2px;
+            }
         `,
     ],
 })
 export class AiLayerComponent {
     public readonly image_url = input.required<string>();
-    public readonly logo_url = input<string>('');
+    /** the logo to use on a light background, so dark ink */
+    public readonly logo_on_light = input<string>('');
+    /** the logo to use on a dark background, so light ink */
+    public readonly logo_on_dark = input<string>('');
     public readonly brand = input<AiBrandKit | null>(null);
     public readonly state = input.required<AiLayerState>();
+
+    /** a block was dragged or nudged */
+    public readonly changed = output<AiLayerState>();
+
+    public readonly hover_id = signal('');
+    public readonly drag_id = signal('');
+    public readonly selected_id = signal('');
 
     private readonly _canvas =
         viewChild<ElementRef<HTMLCanvasElement>>('canvas');
     private _artwork: HTMLImageElement | null = null;
-    private _logo: HTMLImageElement | null = null;
+    private readonly _logos: Record<AiLogoSlot, HTMLImageElement | null> = {
+        on_light: null,
+        on_dark: null,
+    };
+
+    /** where each block ended up last draw, in artwork pixels, for hit testing */
+    private _boxes = new Map<string, Box>();
+    /** pointer offset inside the block when the drag started */
+    private _grab = { x: 0, y: 0 };
 
     private readonly _family = computed(() => {
         const font = this.brand()?.font;
@@ -83,8 +122,12 @@ export class AiLayerComponent {
             if (url) this._loadArtwork(url);
         });
         effect(() => {
-            const url = this.logo_url();
-            if (url) this._loadLogo(url);
+            const url = this.logo_on_light();
+            if (url) this._loadLogo('on_light', url);
+        });
+        effect(() => {
+            const url = this.logo_on_dark();
+            if (url) this._loadLogo('on_dark', url);
         });
         effect(() => {
             // a face has to be in the document before a canvas can draw with it
@@ -93,6 +136,8 @@ export class AiLayerComponent {
         });
         effect(() => {
             this.state();
+            this.hover_id();
+            this.drag_id();
             this._draw();
         });
     }
@@ -101,9 +146,130 @@ export class AiLayerComponent {
     public toBlob(): Promise<Blob | null> {
         const canvas = this._canvas()?.nativeElement;
         if (!canvas) return Promise.resolve(null);
+        // the outline is an editing aid, not part of the poster
+        const hovered = this.hover_id();
+        this.hover_id.set('');
+        this._draw();
         return new Promise((resolve) =>
-            canvas.toBlob((blob) => resolve(blob), 'image/png'),
+            canvas.toBlob((blob) => {
+                this.hover_id.set(hovered);
+                resolve(blob);
+            }, 'image/png'),
         );
+    }
+
+    public onPointerDown(event: PointerEvent) {
+        const point = this._toArtwork(event);
+        if (!point) return;
+        const block = this._blockAt(point.x, point.y);
+        this.selected_id.set(block?.id || '');
+        if (!block) return;
+        const box = this._boxes.get(block.id);
+        if (!box) return;
+        this._grab = { x: point.x - box.left, y: point.y - box.top };
+        this.drag_id.set(block.id);
+        this._canvas()?.nativeElement.setPointerCapture(event.pointerId);
+        event.preventDefault();
+    }
+
+    public onPointerMove(event: PointerEvent) {
+        const point = this._toArtwork(event);
+        if (!point) return;
+
+        const dragging = this.drag_id();
+        if (!dragging) {
+            this.hover_id.set(this._blockAt(point.x, point.y)?.id || '');
+            return;
+        }
+
+        const canvas = this._canvas()?.nativeElement;
+        const box = this._boxes.get(dragging);
+        if (!canvas || !box) return;
+        this._move(
+            dragging,
+            (point.x - this._grab.x) / canvas.width,
+            (point.y - this._grab.y) / canvas.height,
+            box,
+        );
+    }
+
+    public onPointerUp(event: PointerEvent) {
+        if (!this.drag_id()) return;
+        this._canvas()?.nativeElement.releasePointerCapture(event.pointerId);
+        this.drag_id.set('');
+    }
+
+    public onPointerLeave() {
+        if (!this.drag_id()) this.hover_id.set('');
+    }
+
+    /** the same moves without a mouse, for whoever cannot use one */
+    public onKeyDown(event: KeyboardEvent) {
+        const id = this.selected_id() || this.state().blocks[0]?.id;
+        const box = id ? this._boxes.get(id) : null;
+        const block = this.state().blocks.find((item) => item.id === id);
+        if (!box || !block) return;
+
+        const step = event.shiftKey ? NUDGE_FAST : NUDGE;
+        let x = block.x;
+        let y = block.y;
+        if (event.key === 'ArrowLeft') x -= step;
+        else if (event.key === 'ArrowRight') x += step;
+        else if (event.key === 'ArrowUp') y -= step;
+        else if (event.key === 'ArrowDown') y += step;
+        else return;
+
+        event.preventDefault();
+        this.selected_id.set(id);
+        this._move(id, x, y, box);
+    }
+
+    /** keep the whole block on the artwork, then write the new position out */
+    private _move(id: string, x: number, y: number, box: Box) {
+        const canvas = this._canvas()?.nativeElement;
+        if (!canvas) return;
+        const max_x = Math.max(0, 1 - box.width / canvas.width);
+        const max_y = Math.max(0, 1 - box.height / canvas.height);
+        const next = {
+            x: Math.min(Math.max(x, 0), max_x),
+            y: Math.min(Math.max(y, 0), max_y),
+        };
+        const state = this.state();
+        this.changed.emit({
+            ...state,
+            blocks: state.blocks.map((block) =>
+                block.id === id ? { ...block, ...next } : block,
+            ),
+        });
+    }
+
+    private _toArtwork(event: PointerEvent) {
+        const canvas = this._canvas()?.nativeElement;
+        if (!canvas) return null;
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return null;
+        return {
+            x: ((event.clientX - rect.left) / rect.width) * canvas.width,
+            y: ((event.clientY - rect.top) / rect.height) * canvas.height,
+        };
+    }
+
+    /** last drawn wins, so the block on top is the one you grab */
+    private _blockAt(x: number, y: number): AiTextBlock | null {
+        const blocks = this.state().blocks;
+        for (let index = blocks.length - 1; index >= 0; index--) {
+            const box = this._boxes.get(blocks[index].id);
+            if (!box) continue;
+            if (
+                x >= box.left &&
+                x <= box.left + box.width &&
+                y >= box.top &&
+                y <= box.top + box.height
+            ) {
+                return blocks[index];
+            }
+        }
+        return null;
     }
 
     private _loadArtwork(url: string) {
@@ -121,11 +287,11 @@ export class AiLayerComponent {
         image.src = url;
     }
 
-    private _loadLogo(url: string) {
+    private _loadLogo(slot: AiLogoSlot, url: string) {
         const image = new Image();
         image.crossOrigin = 'anonymous';
         image.onload = () => {
-            this._logo = image;
+            this._logos[slot] = image;
             this._draw();
         };
         image.src = url;
@@ -144,94 +310,88 @@ export class AiLayerComponent {
 
         const state = this.state();
         if (!state) return;
-        this._drawBlocks(context, width, height, state);
         if (state.logo) this._drawLogo(context, width, height, state);
+        this._drawBlocks(context, width, height, state);
     }
 
-    /** blocks sharing an anchor are laid out as one stack, in order */
     private _drawBlocks(
         context: CanvasRenderingContext2D,
         width: number,
         height: number,
         state: AiLayerState,
     ) {
-        const margin = Math.round(width * 0.06);
+        this._boxes.clear();
         const family = this._fontFamily();
-        const max_width = width - margin * 2;
+        const wrap_at = width * 0.88;
 
-        for (const anchor of ANCHORS) {
-            const blocks = state.blocks.filter(
-                (block) => block.anchor === anchor && block.text.trim(),
-            );
-            if (!blocks.length) continue;
+        for (const block of state.blocks) {
+            const text = block.text.trim();
+            if (!text) continue;
 
-            // measure the whole stack first so it can be placed as one unit
-            const lines: {
-                text: string;
-                size: number;
-                weight: string;
-                colour: string;
-                panel: boolean;
-            }[] = [];
-            for (const block of blocks) {
-                const size = Math.round(height * ROLE_SIZE[block.role]);
-                const weight = block.role === 'headline' ? '700' : '400';
-                context.font = `${weight} ${size}px ${family}`;
-                for (const text of this._wrap(
-                    context,
-                    block.text.trim(),
-                    max_width,
-                )) {
-                    lines.push({
-                        text,
-                        size,
-                        weight,
-                        colour: block.colour,
-                        panel: block.panel,
-                    });
-                }
-            }
+            const size = Math.round(height * ROLE_SIZE[block.role]);
+            const weight = block.role === 'headline' ? '700' : '400';
+            context.font = `${weight} ${size}px ${family}`;
+            const lines = this._wrap(context, text, wrap_at);
+            const spacing = Math.round(size * 0.22);
+            const line_height = size * 1.2;
+            const box: Box = {
+                left: block.x * width,
+                top: block.y * height,
+                width: Math.max(
+                    ...lines.map((line) => context.measureText(line).width),
+                ),
+                height:
+                    lines.length * line_height + spacing * (lines.length - 1),
+            };
+            this._boxes.set(block.id, box);
 
-            const spacing = Math.round(height * 0.02);
-            const block_height =
-                lines.reduce((total, line) => total + line.size, 0) +
-                spacing * Math.max(0, lines.length - 1);
-
-            let top = margin;
-            if (anchor.startsWith('centre')) top = (height - block_height) / 2;
-            if (anchor.startsWith('bottom'))
-                top = height - block_height - margin;
-
-            const horizontal = anchor.endsWith('right')
-                ? 'right'
-                : anchor.endsWith('left')
-                  ? 'left'
-                  : 'center';
-            let x = margin;
-            if (horizontal === 'center') x = width / 2;
-            if (horizontal === 'right') x = width - margin;
-
-            if (lines.some((line) => line.panel)) {
-                const pad = Math.round(height * 0.022);
-                context.fillStyle = this._panelColour(lines[0].colour);
+            if (block.panel) {
+                const pad = Math.round(size * 0.35);
+                context.fillStyle = this._panelColour(block.colour);
                 context.fillRect(
-                    0,
-                    Math.max(0, top - pad),
-                    width,
-                    block_height + pad * 2,
+                    box.left - pad,
+                    box.top - pad * 0.6,
+                    box.width + pad * 2,
+                    box.height + pad * 1.2,
                 );
             }
 
-            context.textAlign = horizontal as CanvasTextAlign;
+            context.textAlign = (
+                block.align === 'centre' ? 'center' : block.align
+            ) as CanvasTextAlign;
             context.textBaseline = 'top';
-            let y = top;
+            const x =
+                block.align === 'left'
+                    ? box.left
+                    : block.align === 'right'
+                      ? box.left + box.width
+                      : box.left + box.width / 2;
+            context.fillStyle = block.colour;
+            let y = box.top;
             for (const line of lines) {
-                context.font = `${line.weight} ${line.size}px ${family}`;
-                context.fillStyle = line.colour;
-                context.fillText(line.text, x, y);
-                y += line.size + spacing;
+                context.fillText(line, x, y + (line_height - size) / 2);
+                y += line_height + spacing;
+            }
+
+            if (this.hover_id() === block.id || this.drag_id() === block.id) {
+                this._outline(context, box, Math.round(size * 0.35));
             }
         }
+    }
+
+    /** shows what you are about to pick up; never drawn into the saved file */
+    private _outline(context: CanvasRenderingContext2D, box: Box, pad: number) {
+        context.save();
+        context.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+        context.lineWidth = Math.max(2, box.height * 0.02);
+        context.setLineDash([context.lineWidth * 3, context.lineWidth * 3]);
+        context.strokeRect(
+            box.left - pad,
+            box.top - pad * 0.6,
+            box.width + pad * 2,
+            box.height + pad * 1.2,
+        );
+        context.restore();
     }
 
     private _drawLogo(
@@ -240,14 +400,15 @@ export class AiLayerComponent {
         height: number,
         state: AiLayerState,
     ) {
-        const logo = this._logo;
-        if (!logo) return;
-
         const margin = Math.round(width * 0.04);
         const target_width = Math.round(width * state.logo_scale);
-        const scale = target_width / logo.naturalWidth;
-        const target_height = Math.round(logo.naturalHeight * scale);
 
+        // measured first, because which version to draw depends on what is
+        // behind it, and that is only known once the box is known
+        const sample = this._logos.on_light || this._logos.on_dark;
+        if (!sample) return;
+        const scale = target_width / (sample.naturalWidth || target_width);
+        const target_height = Math.round(sample.naturalHeight * scale);
         const left = state.logo_position.endsWith('left')
             ? margin
             : width - target_width - margin;
@@ -255,7 +416,60 @@ export class AiLayerComponent {
             ? margin
             : height - target_height - margin;
 
+        const logo = this._logoFor(state, context, {
+            left,
+            top,
+            width: target_width,
+            height: target_height,
+        });
+        if (!logo) return;
         context.drawImage(logo, left, top, target_width, target_height);
+    }
+
+    /**
+     * On auto, the artwork under the logo decides: a dark corner takes the
+     * light version and a light corner takes the dark one. Posters are
+     * generated, so the corner is different every time and asking the user to
+     * pick each time is asking them to do the machine's job.
+     */
+    private _logoFor(
+        state: AiLayerState,
+        context: CanvasRenderingContext2D,
+        box: Box,
+    ) {
+        const choice =
+            state.logo_choice === 'auto'
+                ? this._backgroundIsDark(context, box)
+                    ? 'on_dark'
+                    : 'on_light'
+                : state.logo_choice;
+        return (
+            this._logos[choice] || this._logos.on_light || this._logos.on_dark
+        );
+    }
+
+    private _backgroundIsDark(context: CanvasRenderingContext2D, box: Box) {
+        try {
+            const { data } = context.getImageData(
+                Math.max(0, Math.round(box.left)),
+                Math.max(0, Math.round(box.top)),
+                Math.max(1, Math.round(box.width)),
+                Math.max(1, Math.round(box.height)),
+            );
+            let total = 0;
+            let count = 0;
+            // every fourth pixel is plenty for an average and keeps this cheap
+            for (let index = 0; index < data.length; index += 16) {
+                total +=
+                    0.299 * data[index] +
+                    0.587 * data[index + 1] +
+                    0.114 * data[index + 2];
+                count++;
+            }
+            return count ? total / count < 140 : false;
+        } catch {
+            return false;
+        }
     }
 
     /** a translucent band behind the words, tinted away from the text colour */

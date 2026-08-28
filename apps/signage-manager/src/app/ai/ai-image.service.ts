@@ -9,6 +9,7 @@ import {
 import { loadAuthenticatedImage } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
+import { flipLightness, inkIsLight } from '../branding/logo-variant';
 import {
     cancelSignageAIJob,
     claimSignageAIImage,
@@ -24,9 +25,17 @@ import {
     AiEditRequest,
     AiGenerateRequest,
     AiJob,
+    AiLogoSlot,
 } from './ai.types';
 
 const FINAL_STATES = ['done', 'failed', 'cancelled'];
+
+/** the brand kit key each slot is stored under */
+export function logoKey(
+    slot: AiLogoSlot,
+): 'logo_upload_id' | 'logo_dark_upload_id' {
+    return slot === 'on_light' ? 'logo_upload_id' : 'logo_dark_upload_id';
+}
 
 /** how long a single long poll holds the connection open, server capped at 25 */
 const POLL_WAIT = 25;
@@ -108,15 +117,85 @@ export class AiImageService extends AsyncHandler {
      * the same brand kit metadata as the palette and the tone. Set once here
      * and every later poster picks it up, rather than being re-attached each
      * time.
+     *
+     * Which slot the file lands in is read off its own ink: dark ink is for
+     * light backgrounds and light ink is for dark ones. The other version is
+     * made from it, so a poster of either kind has a logo that reads, from one
+     * upload. Either can be replaced with a real file later.
      */
-    public async uploadBrandLogo(file: File): Promise<string> {
+    public async uploadBrandLogo(file: File): Promise<AiBrandKit> {
+        const slot: AiLogoSlot = (await inkIsLight(file).catch(() => false))
+            ? 'on_dark'
+            : 'on_light';
+        return this.replaceBrandLogo(slot, file, true);
+    }
+
+    /**
+     * Put a file in one of the two slots. `derive_other` fills the empty
+     * counterpart from it; an explicit upload into one slot leaves the other
+     * alone, since someone supplying their own file has said what they want.
+     */
+    public async replaceBrandLogo(
+        slot: AiLogoSlot,
+        file: File,
+        derive_other = false,
+    ): Promise<AiBrandKit> {
         const upload_id = await this._uploads.uploadFileToCompletion(file);
-        await this.saveBrandKit({ logo_upload_id: upload_id });
+        const changes: Partial<AiBrandKit> = { [logoKey(slot)]: upload_id };
+
+        const other = slot === 'on_light' ? 'on_dark' : 'on_light';
+        const other_id = this.brand_kit()?.[logoKey(other)];
+        const derived = this.brand_kit()?.logo_derived;
+        // a derived counterpart is a guess at this file, so it is remade rather
+        // than left pointing at the version of a logo that is no longer here
+        if (derive_other && (!other_id || derived === other)) {
+            const flipped = await this._flip(file, other).catch(() => null);
+            if (flipped) {
+                changes[logoKey(other)] = flipped;
+                changes.logo_derived = other;
+            }
+        } else if (derived === slot) {
+            changes.logo_derived = undefined;
+        }
+
+        const kit = await this.saveBrandKit(changes);
         // the capability is read once at start up; keep it honest for this session
         this.capabilities.update((current) =>
             current ? { ...current, logo_layer: true } : current,
         );
-        return upload_id;
+        return kit;
+    }
+
+    /** make one slot from the other, on request rather than on upload */
+    public async deriveBrandLogo(target: AiLogoSlot): Promise<AiBrandKit> {
+        const source_id =
+            this.brand_kit()?.[
+                logoKey(target === 'on_light' ? 'on_dark' : 'on_light')
+            ];
+        if (!source_id) throw new Error(i18n('SIGNAGE_MANAGER.AI_NO_LOGO_YET'));
+        const url = await this.loadImage(
+            `/api/engine/v2/uploads/${encodeURIComponent(source_id)}/url`,
+        );
+        const upload_id = await this._flip(url, target);
+        return this.saveBrandKit({
+            [logoKey(target)]: upload_id,
+            logo_derived: target,
+        });
+    }
+
+    private async _flip(
+        source: File | string,
+        target: AiLogoSlot,
+    ): Promise<string> {
+        const stem =
+            typeof source === 'string'
+                ? 'logo'
+                : source.name.replace(/\.[^.]+$/, '');
+        const file = await flipLightness(
+            source,
+            `${stem}-${target.replace('_', '-')}.png`,
+        );
+        return this._uploads.uploadFileToCompletion(file);
     }
 
     /**
@@ -126,7 +205,9 @@ export class AiImageService extends AsyncHandler {
      * each write their own part without clearing the other's, and so anything
      * set by hand outside this app survives.
      */
-    public async saveBrandKit(changes: Partial<AiBrandKit>): Promise<AiBrandKit> {
+    public async saveBrandKit(
+        changes: Partial<AiBrandKit>,
+    ): Promise<AiBrandKit> {
         if (!this._org_zone) {
             throw new Error(i18n('SIGNAGE_MANAGER.AI_NO_ORG_ZONE'));
         }
@@ -171,7 +252,9 @@ export class AiImageService extends AsyncHandler {
             () => [] as AiJob[],
         );
         this._merge(jobs);
-        jobs.filter((job) => !isFinal(job)).forEach((job) => this.watch(job.id));
+        jobs.filter((job) => !isFinal(job)).forEach((job) =>
+            this.watch(job.id),
+        );
         return jobs;
     }
 
@@ -202,7 +285,9 @@ export class AiImageService extends AsyncHandler {
     }
 
     public claim(id: string, upload_id: string, item_id: string) {
-        return claimSignageAIImage(id, { upload_id, item_id }).catch(() => null);
+        return claimSignageAIImage(id, { upload_id, item_id }).catch(
+            () => null,
+        );
     }
 
     public job(id: string) {
