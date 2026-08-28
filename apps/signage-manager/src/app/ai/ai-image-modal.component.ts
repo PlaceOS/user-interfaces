@@ -125,20 +125,32 @@ interface Candidate {
                         </mat-form-field>
                     </div>
 
-                    <mat-slide-toggle [(ngModel)]="add_text_with_layer">
-                        {{ 'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER' | translate }}
-                    </mat-slide-toggle>
-                    <p class="text-base-content/60 m-0 mt-1 text-xs">
-                        {{ 'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER_HINT' | translate }}
-                    </p>
-
-                    @if (has_logo()) {
-                        <mat-slide-toggle
-                            class="mt-2"
-                            [(ngModel)]="include_logo"
-                        >
-                            {{ 'SIGNAGE_MANAGER.AI_LEAVE_LOGO_SPACE' | translate }}
+                    <!-- both only shape a new picture: an edit keeps whatever
+                         the image already has -->
+                    @if (!is_edit()) {
+                        <mat-slide-toggle [(ngModel)]="add_text_with_layer">
+                            {{
+                                'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER' | translate
+                            }}
                         </mat-slide-toggle>
+                        <p class="text-base-content/60 m-0 mt-1 text-xs">
+                            {{
+                                'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER_HINT'
+                                    | translate
+                            }}
+                        </p>
+
+                        @if (has_logo()) {
+                            <mat-slide-toggle
+                                class="mt-2"
+                                [(ngModel)]="include_logo"
+                            >
+                                {{
+                                    'SIGNAGE_MANAGER.AI_LEAVE_LOGO_SPACE'
+                                        | translate
+                                }}
+                            </mat-slide-toggle>
+                        }
                     }
 
                     @if (quota_note()) {
@@ -286,8 +298,8 @@ export class AiImageModalComponent {
     public readonly refinement = signal('');
     public readonly aspect = signal(this._data.aspect_ratio || '16:9');
     public readonly candidates = signal(2);
-    public readonly add_text_with_layer = signal(true);
-    public readonly include_logo = signal(true);
+    public readonly add_text_with_layer = signal(!this._data.source_upload_id);
+    public readonly include_logo = signal(!this._data.source_upload_id);
     public readonly layer_state = signal<AiLayerState | null>(null);
 
     public readonly current_job_id = signal('');
