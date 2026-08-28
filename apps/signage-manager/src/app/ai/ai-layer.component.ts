@@ -4,20 +4,11 @@ import {
     effect,
     ElementRef,
     input,
-    output,
-    signal,
     viewChild,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { IconComponent, TranslatePipe } from '@placeos/components';
 
-import { AiAnchor, AiBrandKit, AiLayerState, AiTextBlock, AiTextRole } from './ai.types';
+import { ensureBrandFont } from '../branding/brand-fonts';
+import { AiAnchor, AiBrandKit, AiLayerState, AiTextRole } from './ai.types';
 
 /** share of the artwork's height each role is drawn at */
 const ROLE_SIZE: Record<AiTextRole, number> = {
@@ -26,7 +17,7 @@ const ROLE_SIZE: Record<AiTextRole, number> = {
     body: 0.038,
 };
 
-const ANCHORS: AiAnchor[] = [
+export const ANCHORS: AiAnchor[] = [
     'top-left',
     'top-centre',
     'top-right',
@@ -38,310 +29,52 @@ const ANCHORS: AiAnchor[] = [
     'bottom-right',
 ];
 
-function newBlock(role: AiTextRole, anchor: AiAnchor): AiTextBlock {
-    return {
-        id: `${Date.now()}-${Math.round(Math.random() * 1e6)}`,
-        text: '',
-        role,
-        anchor,
-        colour: '#FFFFFF',
-        panel: true,
-    };
-}
-
 /**
- * The words and the logo, drawn over the artwork in the browser.
+ * The finished poster: the artwork with the words and the logo drawn over it,
+ * at the artwork's native size.
  *
  * The model is asked for a background with a clear area and no lettering,
  * because no image model spells reliably at small sizes and because a logo the
- * model drew is the one part of a poster a trademark claim would land on. Both
- * are composited here from real text and the customer's own logo file, at the
- * artwork's native size.
+ * model drew is the one part of a poster a trademark claim would land on.
  *
- * Text is a list of blocks rather than a fixed headline and subheading: a
- * poster usually wants a title, a date and a location, and they do not all
- * belong in the same corner. Blocks sharing an anchor stack in order, so
- * placement stays predictable without a drag surface.
+ * This renders only. The controls live beside it in the modal's sidebar, so the
+ * preview can hold the whole of the main pane.
  */
 @Component({
     selector: 'ai-layer',
     template: `
-        <div class="flex flex-col gap-4">
-            <div
-                class="bg-base-200 flex w-full items-center justify-center overflow-hidden rounded p-2"
-            >
-                <canvas
-                    #canvas
-                    class="max-h-[40vh] max-w-full"
-                    [attr.aria-label]="
-                        'SIGNAGE_MANAGER.AI_LAYER_PREVIEW' | translate
-                    "
-                ></canvas>
-            </div>
-
-            <div class="flex w-full flex-col gap-3">
-                @for (block of state().blocks; track block.id; let i = $index) {
-                    <div
-                        class="border-base-content/10 flex flex-col gap-2 rounded border p-3"
-                    >
-                        <div class="flex items-center gap-2">
-                            <mat-form-field
-                                appearance="outline"
-                                class="flex-1"
-                                subscriptSizing="dynamic"
-                            >
-                                <input
-                                    matInput
-                                    [ngModel]="block.text"
-                                    (ngModelChange)="
-                                        patchBlock(block.id, { text: $event })
-                                    "
-                                    [placeholder]="
-                                        placeholderFor(block.role) | translate
-                                    "
-                                    [attr.aria-label]="
-                                        placeholderFor(block.role) | translate
-                                    "
-                                />
-                            </mat-form-field>
-                            <button
-                                icon
-                                default
-                                error
-                                type="button"
-                                [disabled]="state().blocks.length < 2"
-                                [matTooltip]="
-                                    'SIGNAGE_MANAGER.AI_REMOVE_TEXT' | translate
-                                "
-                                (click)="removeBlock(block.id)"
-                            >
-                                <icon>delete</icon>
-                            </button>
-                        </div>
-
-                        <div class="flex flex-wrap items-center gap-2">
-                            <mat-form-field
-                                appearance="outline"
-                                class="w-36"
-                                subscriptSizing="dynamic"
-                            >
-                                <mat-select
-                                    [ngModel]="block.role"
-                                    (ngModelChange)="
-                                        patchBlock(block.id, { role: $event })
-                                    "
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.AI_TEXT_SIZE'
-                                            | translate
-                                    "
-                                >
-                                    <mat-option value="headline">{{
-                                        'SIGNAGE_MANAGER.AI_ROLE_HEADLINE'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="subheading">{{
-                                        'SIGNAGE_MANAGER.AI_ROLE_SUBHEADING'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="body">{{
-                                        'SIGNAGE_MANAGER.AI_ROLE_BODY'
-                                            | translate
-                                    }}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-
-                            <mat-form-field
-                                appearance="outline"
-                                class="w-40"
-                                subscriptSizing="dynamic"
-                            >
-                                <mat-select
-                                    [ngModel]="block.anchor"
-                                    (ngModelChange)="
-                                        patchBlock(block.id, { anchor: $event })
-                                    "
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.AI_TEXT_POSITION'
-                                            | translate
-                                    "
-                                >
-                                    @for (anchor of anchors; track anchor) {
-                                        <mat-option [value]="anchor">{{
-                                            anchorLabel(anchor) | translate
-                                        }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-
-                            @for (colour of palette(); track colour) {
-                                <button
-                                    type="button"
-                                    class="border-base-content/20 h-6 w-6 rounded-full border"
-                                    [style.background]="colour"
-                                    [class.ring-2]="block.colour === colour"
-                                    (click)="patchBlock(block.id, { colour })"
-                                    [attr.aria-label]="colour"
-                                ></button>
-                            }
-
-                            <mat-slide-toggle
-                                [ngModel]="block.panel"
-                                (ngModelChange)="
-                                    patchBlock(block.id, { panel: $event })
-                                "
-                            >
-                                {{
-                                    'SIGNAGE_MANAGER.AI_TEXT_PANEL' | translate
-                                }}
-                            </mat-slide-toggle>
-                        </div>
-                    </div>
-                }
-
-                <button
-                    mat-stroked-button
-                    type="button"
-                    class="self-start"
-                    (click)="addBlock()"
-                >
-                    {{ 'SIGNAGE_MANAGER.AI_ADD_TEXT' | translate }}
-                </button>
-
-                <div
-                    class="border-base-content/10 flex flex-wrap items-center gap-3 rounded border p-3"
-                >
-                    @if (!logo_url()) {
-                        <!-- nothing in PlaceOS stores a customer logo, so this
-                             is where one gets added -->
-                        <span class="text-sm">{{
-                            'SIGNAGE_MANAGER.AI_NO_LOGO_YET' | translate
-                        }}</span>
-                        <button
-                            mat-stroked-button
-                            type="button"
-                            [disabled]="uploading()"
-                            (click)="logo_input.click()"
-                        >
-                            {{
-                                (uploading()
-                                    ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
-                                    : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
-                                ) | translate
-                            }}
-                        </button>
-                    } @else {
-                        <mat-slide-toggle
-                            [ngModel]="state().logo"
-                            (ngModelChange)="patch({ logo: $event })"
-                        >
-                            {{ 'SIGNAGE_MANAGER.AI_SHOW_LOGO' | translate }}
-                        </mat-slide-toggle>
-                        @if (state().logo) {
-                            <mat-form-field
-                                appearance="outline"
-                                class="w-40"
-                                subscriptSizing="dynamic"
-                            >
-                                <mat-select
-                                    [ngModel]="state().logo_position"
-                                    (ngModelChange)="
-                                        patch({ logo_position: $event })
-                                    "
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.AI_LOGO_POSITION'
-                                            | translate
-                                    "
-                                >
-                                    <mat-option value="bottom-right">{{
-                                        'SIGNAGE_MANAGER.AI_POS_BOTTOM_RIGHT'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="bottom-left">{{
-                                        'SIGNAGE_MANAGER.AI_POS_BOTTOM_LEFT'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="top-right">{{
-                                        'SIGNAGE_MANAGER.AI_POS_TOP_RIGHT'
-                                            | translate
-                                    }}</mat-option>
-                                    <mat-option value="top-left">{{
-                                        'SIGNAGE_MANAGER.AI_POS_TOP_LEFT'
-                                            | translate
-                                    }}</mat-option>
-                                </mat-select>
-                            </mat-form-field>
-                            <button
-                                mat-stroked-button
-                                type="button"
-                                [disabled]="uploading()"
-                                (click)="logo_input.click()"
-                            >
-                                {{
-                                    (uploading()
-                                        ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
-                                        : 'SIGNAGE_MANAGER.AI_REPLACE_LOGO'
-                                    ) | translate
-                                }}
-                            </button>
-                        }
-                    }
-                </div>
-
-                <input
-                    #logo_input
-                    type="file"
-                    class="sr-only"
-                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                    [attr.aria-label]="'SIGNAGE_MANAGER.AI_ADD_LOGO' | translate"
-                    (change)="pickLogo($event)"
-                />
-            </div>
-        </div>
+        <canvas
+            #canvas
+            class="max-h-full max-w-full object-contain"
+            [attr.aria-label]="'Preview of the finished image'"
+        ></canvas>
     `,
-    imports: [
-        FormsModule,
-        IconComponent,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatSelectModule,
-        MatSlideToggleModule,
-        MatTooltipModule,
-        TranslatePipe,
+    styles: [
+        `
+            :host {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 0;
+                min-width: 0;
+            }
+        `,
     ],
 })
 export class AiLayerComponent {
-    /** object URL for the chosen candidate */
     public readonly image_url = input.required<string>();
     public readonly logo_url = input<string>('');
     public readonly brand = input<AiBrandKit | null>(null);
-
-    public readonly changed = output<AiLayerState>();
-    public readonly logoPicked = output<File>();
-
-    /** set by the parent while the upload is in flight */
-    public readonly uploading = input(false);
-
-    public readonly anchors = ANCHORS;
-
-    public readonly state = signal<AiLayerState>({
-        blocks: [newBlock('headline', 'top-left')],
-        logo: true,
-        logo_position: 'bottom-right',
-        logo_scale: 0.14,
-    });
+    public readonly state = input.required<AiLayerState>();
 
     private readonly _canvas =
         viewChild<ElementRef<HTMLCanvasElement>>('canvas');
     private _artwork: HTMLImageElement | null = null;
     private _logo: HTMLImageElement | null = null;
 
-    public readonly palette = computed(() => {
-        const brand = this.brand();
-        const colours = Object.values(brand?.palette || {});
-        return ['#FFFFFF', '#1B2420', ...colours].filter(
-            (colour, index, all) => all.indexOf(colour) === index,
-        );
+    private readonly _family = computed(() => {
+        const font = this.brand()?.font;
+        return typeof font === 'string' ? font : font?.family || '';
     });
 
     constructor() {
@@ -354,60 +87,14 @@ export class AiLayerComponent {
             if (url) this._loadLogo(url);
         });
         effect(() => {
+            // a face has to be in the document before a canvas can draw with it
+            const family = this._family();
+            if (family) ensureBrandFont(family).then(() => this._draw());
+        });
+        effect(() => {
             this.state();
             this._draw();
         });
-    }
-
-    public pickLogo(event: Event) {
-        const input = event.target as HTMLInputElement;
-        const file = input.files?.[0];
-        input.value = '';
-        if (file) this.logoPicked.emit(file);
-    }
-
-    public patch(changes: Partial<AiLayerState>) {
-        this.state.update((state) => ({ ...state, ...changes }));
-        this.changed.emit(this.state());
-    }
-
-    public patchBlock(id: string, changes: Partial<AiTextBlock>) {
-        this.patch({
-            blocks: this.state().blocks.map((block) =>
-                block.id === id ? { ...block, ...changes } : block,
-            ),
-        });
-    }
-
-    public addBlock() {
-        // a second block is usually the detail line under the title, and a
-        // third is usually somewhere else on the poster
-        const count = this.state().blocks.length;
-        const role: AiTextRole = count === 1 ? 'subheading' : 'body';
-        const anchor: AiAnchor =
-            count < 2 ? this.state().blocks[0]?.anchor || 'top-left' : 'bottom-left';
-        this.patch({ blocks: [...this.state().blocks, newBlock(role, anchor)] });
-    }
-
-    public removeBlock(id: string) {
-        if (this.state().blocks.length < 2) return;
-        this.patch({
-            blocks: this.state().blocks.filter((block) => block.id !== id),
-        });
-    }
-
-    public placeholderFor(role: AiTextRole) {
-        return role === 'headline'
-            ? 'SIGNAGE_MANAGER.AI_HEADLINE'
-            : role === 'subheading'
-              ? 'SIGNAGE_MANAGER.AI_SUBHEADING'
-              : 'SIGNAGE_MANAGER.AI_BODY_TEXT';
-    }
-
-    public anchorLabel(anchor: AiAnchor) {
-        return `SIGNAGE_MANAGER.AI_ANCHOR_${anchor
-            .toUpperCase()
-            .replace('-', '_')}`;
     }
 
     /** the composited image, at the artwork's native size */
@@ -456,6 +143,7 @@ export class AiLayerComponent {
         context.drawImage(artwork, 0, 0, width, height);
 
         const state = this.state();
+        if (!state) return;
         this._drawBlocks(context, width, height, state);
         if (state.logo) this._drawLogo(context, width, height, state);
     }
@@ -587,9 +275,7 @@ export class AiLayerComponent {
     }
 
     private _fontFamily() {
-        const brand = this.brand();
-        const font = brand?.font;
-        const family = typeof font === 'string' ? font : font?.family;
+        const family = this._family();
         return family
             ? `"${family}", system-ui, sans-serif`
             : 'system-ui, sans-serif';

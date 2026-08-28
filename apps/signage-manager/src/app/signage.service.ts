@@ -3158,7 +3158,8 @@ export class SignageService {
         if (this._ai_modal_ref) return;
         const ref = this._dialog.open(AiImageModalComponent, {
             data: options,
-            panelClass: 'mobile-fullscreen',
+            panelClass: 'fullscreen-dialog',
+            autoFocus: false,
         });
         this._ai_modal_ref = ref;
         try {

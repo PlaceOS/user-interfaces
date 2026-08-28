@@ -1,22 +1,31 @@
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatRippleModule } from '@angular/material/core';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
-    FullscreenModalShellComponent,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 
 import { SignageService } from '../signage.service';
 import { AiImageService, isFinal } from './ai-image.service';
+import {
+    AiLayerControlsComponent,
+    newTextBlock,
+} from './ai-layer-controls.component';
 import { AiLayerComponent } from './ai-layer.component';
 import { AiJob, AiJobImage, AiLayerState } from './ai.types';
 
@@ -30,262 +39,369 @@ export interface AiImageModalData {
     source_name?: string;
 }
 
-type ModalState = 'compose' | 'generating' | 'choose' | 'layer';
+type ModalState = 'compose' | 'generating' | 'review';
 
 interface Candidate {
     job_id: string;
     index: number;
     upload_id: string;
     url: string;
+    /** position in the refine chain, 1 for the first generation */
+    version: number;
 }
 
 @Component({
     selector: 'ai-image-modal',
     template: `
-        <fullscreen-modal-shell
-            [heading]="heading() | translate"
-            [confirm_text]="confirm_text() | translate"
-            [confirm_disabled]="!can_confirm()"
-            [loading]="saving() ? ('SIGNAGE_MANAGER.AI_SAVING' | translate) : ''"
-            (confirm)="confirm()"
-        >
-            @switch (state()) {
-                @case ('compose') {
-                    @if (source_url()) {
-                        <p class="m-0 mb-1 text-xs uppercase opacity-60">
-                            {{ 'SIGNAGE_MANAGER.AI_CHANGING_THIS' | translate }}
-                        </p>
-                        <div
-                            class="border-base-content/10 bg-base-200 mb-4 overflow-hidden rounded border p-2"
-                        >
+        <div class="bg-base-200 flex h-full w-full flex-col overflow-hidden">
+            <header
+                class="border-base-content/10 bg-base-100 flex h-14 shrink-0 items-center justify-between border-b px-4"
+            >
+                <h2 class="m-0 text-lg font-medium">
+                    {{ heading() | translate }}
+                </h2>
+                <button icon mat-dialog-close [disabled]="saving()">
+                    <icon>close</icon>
+                </button>
+            </header>
+
+            <div class="flex min-h-0 flex-1 flex-col md:flex-row">
+                <!-- the picture, given the room -->
+                <section class="flex min-h-0 min-w-0 flex-1 flex-col gap-3 p-4">
+                    <div
+                        class="border-base-content/10 bg-base-300 relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded border"
+                    >
+                        @if (selected_object_url()) {
+                            <ai-layer
+                                class="h-full w-full"
+                                [class.opacity-40]="state() === 'generating'"
+                                [image_url]="selected_object_url()"
+                                [logo_url]="logo_object_url()"
+                                [brand]="brand()"
+                                [state]="layer_state()"
+                            ></ai-layer>
+                        } @else if (source_url()) {
                             <img
                                 auth
                                 [source]="source_url()"
-                                class="mx-auto block max-h-64 max-w-full"
+                                class="max-h-full max-w-full object-contain"
+                                [class.opacity-40]="state() === 'generating'"
                                 [alt]="
                                     'SIGNAGE_MANAGER.AI_CHANGING_THIS'
                                         | translate
                                 "
                             />
-                        </div>
-                    }
-                    <label for="ai-brief">{{
-                        (is_edit()
-                            ? 'SIGNAGE_MANAGER.AI_INSTRUCTION'
-                            : 'SIGNAGE_MANAGER.AI_BRIEF'
-                        ) | translate
-                    }}</label>
-                    <mat-form-field appearance="outline" class="w-full">
-                        <textarea
-                            matInput
-                            id="ai-brief"
-                            rows="3"
-                            [placeholder]="
-                                (is_edit()
-                                    ? 'SIGNAGE_MANAGER.AI_INSTRUCTION_HINT'
-                                    : 'SIGNAGE_MANAGER.AI_BRIEF_HINT'
-                                ) | translate
-                            "
-                            [(ngModel)]="brief"
-                        ></textarea>
-                    </mat-form-field>
-
-                    <div class="flex flex-wrap gap-2">
-                        <!-- an edit comes back at the source's own shape, so
-                             there is nothing here to choose -->
-                        @if (!is_edit()) {
-                            <mat-form-field appearance="outline" class="flex-1">
-                                <mat-select
-                                    [(ngModel)]="aspect"
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.AI_SHAPE' | translate
-                                    "
-                                >
-                                    @for (
-                                        option of aspect_options();
-                                        track option
-                                    ) {
-                                        <mat-option [value]="option">{{
-                                            option
-                                        }}</mat-option>
-                                    }
-                                </mat-select>
-                            </mat-form-field>
-                        }
-                        <mat-form-field appearance="outline" class="flex-1">
-                            <mat-select
-                                [(ngModel)]="candidates"
-                                [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.AI_OPTIONS_COUNT'
-                                        | translate
-                                "
-                            >
-                                @for (count of candidate_options(); track count) {
-                                    <mat-option [value]="count">{{
-                                        count
-                                    }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-
-                    <!-- both only shape a new picture: an edit keeps whatever
-                         the image already has -->
-                    @if (!is_edit()) {
-                        <mat-slide-toggle [(ngModel)]="add_text_with_layer">
-                            {{
-                                'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER' | translate
-                            }}
-                        </mat-slide-toggle>
-                        <p class="text-base-content/60 m-0 mt-1 text-xs">
-                            {{
-                                'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER_HINT'
-                                    | translate
-                            }}
-                        </p>
-
-                        @if (has_logo()) {
-                            <mat-slide-toggle
-                                class="mt-2"
-                                [(ngModel)]="include_logo"
-                            >
+                        } @else if (state() !== 'generating') {
+                            <p class="text-base-content/50 m-0 px-6 text-sm">
                                 {{
-                                    'SIGNAGE_MANAGER.AI_LEAVE_LOGO_SPACE'
+                                    'SIGNAGE_MANAGER.AI_PREVIEW_EMPTY'
                                         | translate
                                 }}
-                            </mat-slide-toggle>
+                            </p>
                         }
-                    }
 
-                    @if (quota_note()) {
-                        <p class="text-base-content/60 m-0 mt-3 text-xs">
-                            {{ quota_note() }}
-                        </p>
-                    }
-                    @if (engine_note()) {
-                        <p class="text-base-content/60 m-0 mt-1 text-xs">
-                            {{ engine_note() }}
-                        </p>
-                    }
-                }
-                @case ('generating') {
-                    <div class="flex flex-col items-center gap-4 py-8">
-                        <mat-spinner diameter="48"></mat-spinner>
-                        <p class="m-0 text-sm">
-                            {{ 'SIGNAGE_MANAGER.AI_WORKING' | translate }}
-                        </p>
-                        <p class="text-base-content/60 m-0 text-xs">
-                            {{ progress_note() }}
-                        </p>
-                        <button mat-stroked-button (click)="cancel()">
-                            {{ 'COMMON.CANCEL' | translate }}
-                        </button>
-                    </div>
-                }
-                @case ('choose') {
-                    <div class="grid grid-cols-2 gap-3">
-                        @for (candidate of candidates_list(); track candidate.upload_id) {
-                            <button
-                                type="button"
-                                class="border-base-content/10 relative overflow-hidden rounded border"
-                                [class.ring-2]="
-                                    selected()?.upload_id === candidate.upload_id
-                                "
-                                (click)="select(candidate)"
+                        @if (state() === 'generating') {
+                            <div
+                                class="absolute inset-0 flex flex-col items-center justify-center gap-3"
                             >
-                                <img
-                                    auth
-                                    [source]="candidate.url"
-                                    class="h-full w-full object-cover"
-                                    [alt]="'SIGNAGE_MANAGER.AI_OPTION' | translate"
-                                />
-                            </button>
+                                <mat-spinner diameter="48"></mat-spinner>
+                                <p class="m-0 text-sm">
+                                    {{
+                                        'SIGNAGE_MANAGER.AI_WORKING' | translate
+                                    }}
+                                </p>
+                                <p class="text-base-content/60 m-0 text-xs">
+                                    {{ progress_note() }}
+                                </p>
+                            </div>
                         }
                     </div>
 
-                    @if (versions().length > 1) {
-                        <div class="mt-4">
-                            <p class="m-0 mb-1 text-xs uppercase opacity-60">
+                    <!-- every candidate of every version, oldest first -->
+                    @if (rail().length) {
+                        <div class="flex shrink-0 flex-col gap-1">
+                            <p
+                                class="text-base-content/60 m-0 text-xs uppercase"
+                            >
                                 {{ 'SIGNAGE_MANAGER.AI_VERSIONS' | translate }}
                             </p>
                             <div class="flex gap-2 overflow-x-auto pb-1">
-                                @for (version of versions(); track version.job_id) {
+                                @for (
+                                    candidate of rail();
+                                    track candidate.job_id +
+                                        '-' +
+                                        candidate.index
+                                ) {
                                     <button
                                         type="button"
-                                        class="border-base-content/10 h-14 w-24 shrink-0 overflow-hidden rounded border"
+                                        class="border-base-content/10 h-16 w-28 shrink-0 overflow-hidden rounded border"
                                         [class.ring-2]="
-                                            current_job_id() === version.job_id
+                                            selected()?.upload_id ===
+                                            candidate.upload_id
                                         "
-                                        (click)="openVersion(version.job_id)"
+                                        [matTooltip]="versionLabel(candidate)"
+                                        (click)="select(candidate)"
                                     >
                                         <img
                                             auth
-                                            [source]="version.url"
+                                            [source]="candidate.url"
                                             class="h-full w-full object-cover"
-                                            [alt]="version.job_id"
+                                            [alt]="versionLabel(candidate)"
                                         />
                                     </button>
                                 }
                             </div>
                         </div>
                     }
+                </section>
 
-                    <div class="mt-4 flex flex-col gap-2">
-                        <label for="ai-refine">{{
-                            'SIGNAGE_MANAGER.AI_REFINE' | translate
-                        }}</label>
-                        <div class="flex gap-2">
-                            <mat-form-field appearance="outline" class="flex-1">
-                                <input
-                                    matInput
-                                    id="ai-refine"
-                                    [placeholder]="
-                                        'SIGNAGE_MANAGER.AI_REFINE_HINT'
+                <!-- everything that shapes it -->
+                <aside
+                    class="border-base-content/10 bg-base-100 flex w-full shrink-0 flex-col border-t md:w-96 md:border-t-0 md:border-l"
+                >
+                    <div class="flex-1 space-y-4 overflow-y-auto p-4">
+                        @if (!rail().length) {
+                            <div class="flex flex-col">
+                                <label for="ai-brief" class="mb-1 text-sm">{{
+                                    (is_edit()
+                                        ? 'SIGNAGE_MANAGER.AI_INSTRUCTION'
+                                        : 'SIGNAGE_MANAGER.AI_BRIEF'
+                                    ) | translate
+                                }}</label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <textarea
+                                        matInput
+                                        id="ai-brief"
+                                        rows="4"
+                                        [placeholder]="
+                                            (is_edit()
+                                                ? 'SIGNAGE_MANAGER.AI_INSTRUCTION_HINT'
+                                                : 'SIGNAGE_MANAGER.AI_BRIEF_HINT'
+                                            ) | translate
+                                        "
+                                        [(ngModel)]="brief"
+                                    ></textarea>
+                                </mat-form-field>
+                            </div>
+
+                            <div class="flex flex-col gap-3">
+                                <!-- an edit comes back at the source's own
+                                     shape, so there is nothing here to choose -->
+                                @if (!is_edit()) {
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                        subscriptSizing="dynamic"
+                                    >
+                                        <mat-label>{{
+                                            'SIGNAGE_MANAGER.AI_SHAPE'
+                                                | translate
+                                        }}</mat-label>
+                                        <mat-select [(ngModel)]="aspect">
+                                            @for (
+                                                option of aspect_options();
+                                                track option
+                                            ) {
+                                                <mat-option [value]="option">{{
+                                                    option
+                                                }}</mat-option>
+                                            }
+                                        </mat-select>
+                                    </mat-form-field>
+                                }
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                    subscriptSizing="dynamic"
+                                >
+                                    <mat-label>{{
+                                        'SIGNAGE_MANAGER.AI_OPTIONS_COUNT'
                                             | translate
+                                    }}</mat-label>
+                                    <mat-select [(ngModel)]="candidates">
+                                        @for (
+                                            count of candidate_options();
+                                            track count
+                                        ) {
+                                            <mat-option [value]="count">{{
+                                                count
+                                            }}</mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                            </div>
+
+                            <!-- both only shape a new picture: an edit keeps
+                                 whatever the image already has -->
+                            @if (!is_edit()) {
+                                <div class="flex flex-col gap-1">
+                                    <mat-slide-toggle
+                                        [(ngModel)]="add_text_with_layer"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER'
+                                                | translate
+                                        }}
+                                    </mat-slide-toggle>
+                                    <p class="text-base-content/60 m-0 text-xs">
+                                        {{
+                                            'SIGNAGE_MANAGER.AI_ADD_WORDS_LAYER_HINT'
+                                                | translate
+                                        }}
+                                    </p>
+                                </div>
+
+                                @if (has_logo()) {
+                                    <mat-slide-toggle
+                                        [(ngModel)]="include_logo"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.AI_LEAVE_LOGO_SPACE'
+                                                | translate
+                                        }}
+                                    </mat-slide-toggle>
+                                }
+                            }
+                        } @else {
+                            <!-- the brief has already been spent; from here the
+                                 box asks for a change to what is on screen -->
+                            @if (brief()) {
+                                <p
+                                    class="text-base-content/60 m-0 text-xs italic"
+                                >
+                                    &ldquo;{{ brief() }}&rdquo;
+                                </p>
+                            }
+                            <div class="flex flex-col">
+                                <label for="ai-refine" class="mb-1 text-sm">{{
+                                    'SIGNAGE_MANAGER.AI_REFINE' | translate
+                                }}</label>
+                                <mat-form-field
+                                    appearance="outline"
+                                    class="w-full"
+                                >
+                                    <textarea
+                                        matInput
+                                        id="ai-refine"
+                                        rows="2"
+                                        [placeholder]="
+                                            'SIGNAGE_MANAGER.AI_REFINE_HINT'
+                                                | translate
+                                        "
+                                        [(ngModel)]="refinement"
+                                    ></textarea>
+                                </mat-form-field>
+                                <button
+                                    mat-stroked-button
+                                    type="button"
+                                    class="self-start"
+                                    [disabled]="
+                                        !refinement().trim() ||
+                                        !selected() ||
+                                        state() === 'generating'
                                     "
-                                    [(ngModel)]="refinement"
-                                    (keyup.enter)="refine()"
-                                />
-                            </mat-form-field>
+                                    (click)="refine()"
+                                >
+                                    {{
+                                        'SIGNAGE_MANAGER.AI_REFINE_ACTION'
+                                            | translate
+                                    }}
+                                </button>
+                            </div>
+
+                            <div class="border-base-content/10 border-t pt-4">
+                                <p class="m-0 mb-2 text-sm font-medium">
+                                    {{
+                                        'SIGNAGE_MANAGER.AI_WORDS_AND_LOGO'
+                                            | translate
+                                    }}
+                                </p>
+                                <ai-layer-controls
+                                    [state]="layer_state()"
+                                    [logo_url]="logo_object_url()"
+                                    [brand]="brand()"
+                                    [uploading]="uploading_logo()"
+                                    (changed)="layer_state.set($event)"
+                                    (logoPicked)="uploadLogo($event)"
+                                ></ai-layer-controls>
+                            </div>
+                        }
+
+                        @if (quota_note()) {
+                            <p class="text-base-content/60 m-0 text-xs">
+                                {{ quota_note() }}
+                            </p>
+                        }
+                        @if (engine_note()) {
+                            <p class="text-base-content/60 m-0 text-xs">
+                                {{ engine_note() }}
+                            </p>
+                        }
+                    </div>
+
+                    <footer
+                        class="border-base-content/10 flex shrink-0 items-center justify-end gap-2 border-t p-4"
+                    >
+                        @if (state() === 'generating') {
                             <button
                                 mat-stroked-button
-                                [disabled]="!refinement().trim() || !selected()"
-                                (click)="refine()"
+                                type="button"
+                                (click)="cancel()"
                             >
-                                {{ 'SIGNAGE_MANAGER.AI_REFINE_ACTION' | translate }}
+                                {{ 'COMMON.CANCEL' | translate }}
                             </button>
-                        </div>
-                        <p class="text-base-content/60 m-0 text-xs">
-                            {{ 'SIGNAGE_MANAGER.AI_REFINE_NOTE' | translate }}
-                        </p>
-                    </div>
-                }
-                @case ('layer') {
-                    <ai-layer
-                        [image_url]="selected_object_url()"
-                        [logo_url]="logo_object_url()"
-                        [brand]="brand()"
-                        [uploading]="uploading_logo()"
-                        (changed)="layer_state.set($event)"
-                        (logoPicked)="uploadLogo($event)"
-                    ></ai-layer>
-                }
-            }
-        </fullscreen-modal-shell>
+                        } @else if (!rail().length) {
+                            <button
+                                btn
+                                matRipple
+                                class="min-w-32"
+                                [disabled]="!brief().trim()"
+                                (click)="start()"
+                            >
+                                {{ 'SIGNAGE_MANAGER.AI_GENERATE' | translate }}
+                            </button>
+                        } @else {
+                            <button
+                                btn
+                                matRipple
+                                class="flex min-w-32 items-center justify-center gap-2"
+                                [disabled]="!selected() || saving()"
+                                (click)="save()"
+                            >
+                                @if (saving()) {
+                                    <mat-spinner diameter="18"></mat-spinner>
+                                    {{
+                                        'SIGNAGE_MANAGER.AI_SAVING' | translate
+                                    }}
+                                } @else {
+                                    {{ 'COMMON.SAVE' | translate }}
+                                }
+                            </button>
+                        }
+                    </footer>
+                </aside>
+            </div>
+        </div>
     `,
     imports: [
         FormsModule,
         MatButtonModule,
+        MatDialogModule,
         MatFormFieldModule,
         MatInputModule,
         MatProgressSpinnerModule,
+        MatRippleModule,
         MatSelectModule,
         MatSlideToggleModule,
+        MatTooltipModule,
         AuthenticatedImageDirective,
-        FullscreenModalShellComponent,
         IconComponent,
         TranslatePipe,
         AiLayerComponent,
+        AiLayerControlsComponent,
     ],
 })
 export class AiImageModalComponent {
@@ -306,8 +422,15 @@ export class AiImageModalComponent {
     public readonly candidates = signal(2);
     public readonly add_text_with_layer = signal(!this._data.source_upload_id);
     public readonly include_logo = signal(!this._data.source_upload_id);
-    public readonly layer_state = signal<AiLayerState | null>(null);
 
+    public readonly layer_state = signal<AiLayerState>({
+        blocks: [newTextBlock('headline', 'top-left')],
+        logo: false,
+        logo_position: 'bottom-right',
+        logo_scale: 0.14,
+    });
+
+    /** the newest job; the rail walks back from here through its parents */
     public readonly current_job_id = signal('');
     public readonly selected = signal<Candidate | null>(null);
     public readonly selected_object_url = signal('');
@@ -320,9 +443,7 @@ export class AiImageModalComponent {
     /** the image being changed, so the brief is not written blind */
     public readonly source_url = computed(() => {
         const id = this._data.source_upload_id;
-        return id
-            ? `/api/engine/v2/uploads/${encodeURIComponent(id)}/url`
-            : '';
+        return id ? `/api/engine/v2/uploads/${encodeURIComponent(id)}/url` : '';
     });
     public readonly has_logo = computed(
         () => !!this._ai.capabilities()?.logo_layer,
@@ -340,41 +461,35 @@ export class AiImageModalComponent {
         () => this._ai.jobs()[this.current_job_id()],
     );
 
-    public readonly candidates_list = computed<Candidate[]>(() => {
-        const job = this.job();
-        if (!job) return [];
-        return (job.images || [])
-            .map((image, index) => ({ image, index }))
-            .filter(({ image }) => !!image?.upload_id)
-            .map(({ image, index }) => ({
-                job_id: job.id,
-                index,
-                upload_id: (image as AiJobImage).upload_id as string,
-                url: (image as AiJobImage).url as string,
-            }));
-    });
-
-    /** every job in the refine chain that produced something, oldest first */
-    public readonly versions = computed(() => {
-        const chain: Candidate[] = [];
+    /**
+     * Every candidate of every job in the refine chain, oldest first: the first
+     * generation's options and each round of changes since, so going back to a
+     * version you liked is one click rather than a re-generate.
+     */
+    public readonly rail = computed<Candidate[]>(() => {
         const jobs = this._ai.jobs();
-        let id = this.current_job_id();
+        const chain: AiJob[] = [];
         const seen = new Set<string>();
+        let id = this.current_job_id();
         while (id && jobs[id] && !seen.has(id)) {
             seen.add(id);
-            const job = jobs[id];
-            const first = (job.images || []).find((image) => image?.upload_id);
-            if (first) {
-                chain.unshift({
-                    job_id: job.id,
-                    index: 0,
-                    upload_id: first.upload_id as string,
-                    url: first.url as string,
-                });
-            }
-            id = job.parent_job_id || '';
+            chain.unshift(jobs[id]);
+            id = jobs[id].parent_job_id || '';
         }
-        return chain;
+        const rail: Candidate[] = [];
+        chain.forEach((job, version) => {
+            (job.images || []).forEach((image, index) => {
+                if (!image?.upload_id) return;
+                rail.push({
+                    job_id: job.id,
+                    index,
+                    upload_id: image.upload_id as string,
+                    url: (image as AiJobImage).url as string,
+                    version: version + 1,
+                });
+            });
+        });
+        return rail;
     });
 
     public readonly progress_note = computed(() => {
@@ -412,54 +527,24 @@ export class AiImageModalComponent {
         });
     });
 
-    public readonly heading = computed(() => {
-        if (this.state() === 'layer') return 'SIGNAGE_MANAGER.AI_ADD_WORDS';
-        if (this.state() === 'choose') return 'SIGNAGE_MANAGER.AI_PICK_ONE';
-        return this.is_edit()
+    public readonly heading = computed(() =>
+        this.is_edit()
             ? 'SIGNAGE_MANAGER.AI_EDIT_IMAGE'
-            : 'SIGNAGE_MANAGER.AI_CREATE_IMAGE';
+            : 'SIGNAGE_MANAGER.AI_CREATE_IMAGE',
+    );
+
+    /** whether anything is drawn over the artwork, and so has to be flattened */
+    public readonly has_overlay = computed(() => {
+        const state = this.layer_state();
+        if (state.blocks.some((block) => block.text.trim())) return true;
+        return state.logo && !!this.logo_object_url();
     });
 
-    public readonly confirm_text = computed(() => {
-        switch (this.state()) {
-            case 'compose':
-                return 'SIGNAGE_MANAGER.AI_GENERATE';
-            case 'choose':
-                return this.add_text_with_layer()
-                    ? 'SIGNAGE_MANAGER.AI_ADD_WORDS'
-                    : 'COMMON.SAVE';
-            case 'layer':
-                return 'COMMON.SAVE';
-            default:
-                return 'COMMON.CANCEL';
-        }
-    });
-
-    public readonly can_confirm = computed(() => {
-        if (this.saving()) return false;
-        switch (this.state()) {
-            case 'compose':
-                return !!this.brief().trim();
-            case 'choose':
-                return !!this.selected();
-            case 'layer':
-                return true;
-            default:
-                return false;
-        }
-    });
-
-    public confirm() {
-        switch (this.state()) {
-            case 'compose':
-                return this.start();
-            case 'choose':
-                return this.add_text_with_layer()
-                    ? this.openLayer()
-                    : this.save();
-            case 'layer':
-                return this.save();
-        }
+    public versionLabel(candidate: Candidate) {
+        return i18n('SIGNAGE_MANAGER.AI_VERSION_LABEL', {
+            version: `${candidate.version}`,
+            option: `${candidate.index + 1}`,
+        });
     }
 
     public async start() {
@@ -511,15 +596,9 @@ export class AiImageModalComponent {
             this.current_job_id.set(job.id);
             this._awaitJob(job.id);
         } catch (error) {
-            this.state.set('choose');
+            this.state.set('review');
             notifyError(this._message(error));
         }
-    }
-
-    public openVersion(job_id: string) {
-        this.current_job_id.set(job_id);
-        const first = this.candidates_list()[0];
-        if (first) this.select(first);
     }
 
     public async select(candidate: Candidate) {
@@ -531,7 +610,7 @@ export class AiImageModalComponent {
     public async cancel() {
         const id = this.current_job_id();
         if (id) await this._ai.cancel(id);
-        this.state.set('compose');
+        this.state.set(this.rail().length ? 'review' : 'compose');
     }
 
     /**
@@ -547,6 +626,7 @@ export class AiImageModalComponent {
                 .loadImage(`/api/engine/v2/uploads/${upload_id}/url`)
                 .catch(() => '');
             this.logo_object_url.set(url);
+            this.layer_state.set({ ...this.layer_state(), logo: true });
             notifySuccess(i18n('SIGNAGE_MANAGER.AI_LOGO_SAVED'));
         } catch (error) {
             notifyError(this._message(error));
@@ -555,30 +635,17 @@ export class AiImageModalComponent {
         }
     }
 
-    public async openLayer() {
-        const logo_id = this.brand()?.logo_upload_id;
-        if (logo_id && !this.logo_object_url()) {
-            const url = await this._ai
-                .loadImage(`/api/engine/v2/uploads/${logo_id}/url`)
-                .catch(() => '');
-            this.logo_object_url.set(url);
-        }
-        this.state.set('layer');
-    }
-
     public async save() {
         const candidate = this.selected();
         if (!candidate) return;
 
-        // The shell swaps its projected content for a spinner while `loading`
-        // is set, which destroys the layer component. Take the composited image
-        // before that happens.
+        // Take the composited image before the button swaps to a spinner: a
+        // change-detection pass that tears the canvas down mid-save would leave
+        // nothing to read it from.
         const name = this._name();
-        const blob =
-            this.state() === 'layer'
-                ? await this._layer()?.toBlob()
-                : undefined;
-        if (this.state() === 'layer' && !blob) {
+        const overlay = this.has_overlay();
+        const blob = overlay ? await this._layer()?.toBlob() : undefined;
+        if (overlay && !blob) {
             notifyError(i18n('SIGNAGE_MANAGER.AI_NO_IMAGE'));
             return;
         }
@@ -642,22 +709,37 @@ export class AiImageModalComponent {
             if (!job) return setTimeout(check, 250);
             if (!isFinal(job)) return setTimeout(check, 250);
             if (job.state === 'failed') {
-                this.state.set(this.versions().length ? 'choose' : 'compose');
+                this.state.set(this.rail().length ? 'review' : 'compose');
                 notifyError(
-                    job.error_message ||
-                        i18n('SIGNAGE_MANAGER.AI_JOB_FAILED'),
+                    job.error_message || i18n('SIGNAGE_MANAGER.AI_JOB_FAILED'),
                 );
                 return;
             }
             if (job.state === 'cancelled') {
-                this.state.set('compose');
+                this.state.set(this.rail().length ? 'review' : 'compose');
                 return;
             }
-            const first = this.candidates_list()[0];
-            if (first) this.select(first);
-            this.state.set('choose');
+            const newest = this.rail().filter(
+                (candidate) => candidate.job_id === id,
+            );
+            if (newest.length) this.select(newest[0]);
+            this._loadBrandLogo();
+            this.state.set('review');
         };
         check();
+    }
+
+    /** the saved logo, so the toggle in the sidebar has something to show */
+    private async _loadBrandLogo() {
+        const logo_id = this.brand()?.logo_upload_id;
+        if (!logo_id || this.logo_object_url()) return;
+        const url = await this._ai
+            .loadImage(`/api/engine/v2/uploads/${logo_id}/url`)
+            .catch(() => '');
+        this.logo_object_url.set(url);
+        if (url && this.include_logo()) {
+            this.layer_state.set({ ...this.layer_state(), logo: true });
+        }
     }
 
     private _name() {
