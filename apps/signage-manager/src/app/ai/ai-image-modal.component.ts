@@ -51,6 +51,24 @@ interface Candidate {
         >
             @switch (state()) {
                 @case ('compose') {
+                    @if (source_url()) {
+                        <p class="m-0 mb-1 text-xs uppercase opacity-60">
+                            {{ 'SIGNAGE_MANAGER.AI_CHANGING_THIS' | translate }}
+                        </p>
+                        <div
+                            class="border-base-content/10 bg-base-200 mb-4 overflow-hidden rounded border p-2"
+                        >
+                            <img
+                                auth
+                                [source]="source_url()"
+                                class="mx-auto block max-h-64 max-w-full"
+                                [alt]="
+                                    'SIGNAGE_MANAGER.AI_CHANGING_THIS'
+                                        | translate
+                                "
+                            />
+                        </div>
+                    }
                     <label for="ai-brief">{{
                         (is_edit()
                             ? 'SIGNAGE_MANAGER.AI_INSTRUCTION'
@@ -279,6 +297,14 @@ export class AiImageModalComponent {
 
     public readonly brand = this._ai.brand_kit;
     public readonly is_edit = computed(() => !!this._data.source_upload_id);
+
+    /** the image being changed, so the brief is not written blind */
+    public readonly source_url = computed(() => {
+        const id = this._data.source_upload_id;
+        return id
+            ? `/api/engine/v2/uploads/${encodeURIComponent(id)}/url`
+            : '';
+    });
     public readonly has_logo = computed(
         () => !!this._ai.capabilities()?.logo_layer,
     );
