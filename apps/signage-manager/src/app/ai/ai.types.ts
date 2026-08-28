@@ -116,6 +116,18 @@ export type AiLogoSlot = 'on_light' | 'on_dark';
 /** on_light and on_dark pick a file; auto reads the artwork behind the logo */
 export type AiLogoChoice = 'auto' | AiLogoSlot;
 
+/**
+ * An image attached to a request, numbered from 1 so a brief can name it.
+ *
+ * The thumbnail is the local file rather than the stored upload: it is already
+ * in the browser, so there is nothing to fetch.
+ */
+export interface AiReference {
+    id: string;
+    name: string;
+    url: string;
+}
+
 /** drives the size the text is drawn at */
 export type AiTextRole = 'headline' | 'subheading' | 'body';
 

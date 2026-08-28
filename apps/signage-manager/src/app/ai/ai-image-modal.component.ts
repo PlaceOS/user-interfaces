@@ -1,4 +1,11 @@
-import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    OnDestroy,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
@@ -27,7 +34,8 @@ import {
     newTextBlock,
 } from './ai-layer-controls.component';
 import { AiLayerComponent } from './ai-layer.component';
-import { AiJob, AiJobImage, AiLayerState } from './ai.types';
+import { AiReferencesComponent } from './ai-references.component';
+import { AiJob, AiJobImage, AiLayerState, AiReference } from './ai.types';
 
 export interface AiImageModalData {
     /** pre-set from the playlist a user opened this from */
@@ -267,6 +275,13 @@ interface Candidate {
                                     </mat-slide-toggle>
                                 }
                             }
+
+                            <ai-references
+                                [items]="references()"
+                                [uploading]="uploading_references()"
+                                (picked)="addReferences($event)"
+                                (removed)="removeReference($event)"
+                            ></ai-references>
                         } @else {
                             <!-- the brief has already been spent; from here the
                                  box asks for a change to what is on screen -->
@@ -313,6 +328,13 @@ interface Candidate {
                                     }}
                                 </button>
                             </div>
+
+                            <ai-references
+                                [items]="references()"
+                                [uploading]="uploading_references()"
+                                (picked)="addReferences($event)"
+                                (removed)="removeReference($event)"
+                            ></ai-references>
 
                             <div class="border-base-content/10 border-t pt-4">
                                 <p class="m-0 mb-2 text-sm font-medium">
@@ -405,9 +427,10 @@ interface Candidate {
         TranslatePipe,
         AiLayerComponent,
         AiLayerControlsComponent,
+        AiReferencesComponent,
     ],
 })
-export class AiImageModalComponent {
+export class AiImageModalComponent implements OnDestroy {
     private readonly _data = inject<AiImageModalData>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
         inject<MatDialogRef<AiImageModalComponent>>(MatDialogRef);
@@ -441,6 +464,9 @@ export class AiImageModalComponent {
     public readonly logo_on_light = signal('');
     public readonly logo_on_dark = signal('');
     public readonly uploading_logo = signal(false);
+
+    public readonly references = signal<AiReference[]>([]);
+    public readonly uploading_references = signal(false);
 
     public readonly brand = this._ai.brand_kit;
     public readonly is_edit = computed(() => !!this._data.source_upload_id);
@@ -566,6 +592,7 @@ export class AiImageModalComponent {
                       add_text_with_layer: this.add_text_with_layer(),
                       source_upload_id: this._data.source_upload_id,
                       source_item_id: this._data.source_item_id,
+                      references: this.reference_ids(),
                   })
                 : await this._ai.generate({
                       prompt,
@@ -573,6 +600,7 @@ export class AiImageModalComponent {
                       candidates: this.candidates(),
                       include_logo: this.include_logo(),
                       add_text_with_layer: this.add_text_with_layer(),
+                      references: this.reference_ids(),
                   });
             this.current_job_id.set(job.id);
             this._awaitJob(job.id);
@@ -597,6 +625,7 @@ export class AiImageModalComponent {
                 add_text_with_layer: this.add_text_with_layer(),
                 source_upload_id: source.upload_id,
                 parent_job_id: source.job_id,
+                references: this.reference_ids(),
             });
             this.current_job_id.set(job.id);
             this._awaitJob(job.id);
@@ -623,6 +652,56 @@ export class AiImageModalComponent {
      * person to want one on a poster is the person who supplies it, and it is
      * remembered for everyone afterwards.
      */
+    public readonly reference_ids = computed(() =>
+        this.references().map((item) => item.id),
+    );
+
+    /**
+     * Attach pictures for this request. They upload as they are picked so the
+     * number under each one is settled before the brief mentions it.
+     */
+    public async addReferences(files: File[]) {
+        if (!files.length) return;
+        this.uploading_references.set(true);
+        try {
+            for (const file of files) {
+                const id = await this._ai.uploadReference(file);
+                this.references.update((list) => [
+                    ...list,
+                    { id, name: file.name, url: URL.createObjectURL(file) },
+                ]);
+            }
+        } catch (error) {
+            notifyError(this._message(error));
+        } finally {
+            this.uploading_references.set(false);
+        }
+    }
+
+    public removeReference(id: string) {
+        const item = this.references().find((entry) => entry.id === id);
+        if (item) URL.revokeObjectURL(item.url);
+        this.references.update((list) =>
+            list.filter((entry) => entry.id !== id),
+        );
+        this._ai.removeReference(id);
+    }
+
+    /**
+     * The attachments existed for this dialog, so they go with it.
+     *
+     * Not while a job is still running: the server reads the bytes when the
+     * vendor call starts, and a job outlives this dialog by design. Those are
+     * left to the housekeeping sweep, which is what their tag is for.
+     */
+    public ngOnDestroy() {
+        const running = this.state() === 'generating';
+        for (const item of this.references()) {
+            URL.revokeObjectURL(item.url);
+            if (!running) this._ai.removeReference(item.id);
+        }
+    }
+
     public async uploadLogo(file: File) {
         this.uploading_logo.set(true);
         try {

@@ -16,6 +16,7 @@ import {
     editSignageImage,
     generateSignageImage,
     querySignageAIJobs,
+    removeSignageUpload,
     showSignageAIJob,
     signageAICapabilities,
 } from './ai.fn';
@@ -196,6 +197,22 @@ export class AiImageService extends AsyncHandler {
             `${stem}-${target.replace('_', '-')}.png`,
         );
         return this._uploads.uploadFileToCompletion(file);
+    }
+
+    /**
+     * Store an image the person wants a request to draw on.
+     *
+     * Kept private: a reference is often a photo of a colleague, and it exists
+     * for one poster rather than for the media library. The server tags it so
+     * housekeeping can clear it even if the browser never gets the chance to.
+     */
+    public uploadReference(file: File): Promise<string> {
+        return this._uploads.uploadFileToCompletion(file);
+    }
+
+    /** done with, once the image it was for has been made */
+    public removeReference(id: string) {
+        return removeSignageUpload(id).catch(() => null);
     }
 
     /**

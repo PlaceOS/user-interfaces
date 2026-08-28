@@ -19,6 +19,11 @@ function toQuery(params: Record<string, any>) {
     return pairs.length ? `?${pairs.join('&')}` : '';
 }
 
+/** an upload made for one request, cleared once the request is done with it */
+export function removeSignageUpload(id: string): Promise<void> {
+    return del(`${apiEndpoint()}/uploads/${encodeURIComponent(id)}`) as any;
+}
+
 export function signageAICapabilities(): Promise<AiCapabilities> {
     return get(`${AI_PATH()}/capabilities`) as Promise<any>;
 }
