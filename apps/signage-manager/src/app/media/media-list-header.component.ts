@@ -58,7 +58,7 @@ function isValidUrl(url: string): boolean {
             </div>
             <div class="w-px flex-1"></div>
             <div
-                class="border-base-300 bg-base-200 flex items-center rounded-lg border p-0.5"
+                class="border-base-300 bg-base-200 flex items-center rounded-lg border p-1"
                 role="group"
                 [attr.aria-label]="
                     'SIGNAGE_MANAGER.MEDIA_VIEW_ARIA' | translate
@@ -86,7 +86,7 @@ function isValidUrl(url: string): boolean {
             </div>
             <mat-form-field
                 appearance="outline"
-                class="no-subscript white order-last w-full sm:order-0 sm:w-80"
+                class="no-subscript toolbar-field white order-last w-full sm:order-0 sm:w-80"
             >
                 <input
                     matInput
