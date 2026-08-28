@@ -164,6 +164,7 @@ export class FeatureComponent {}
 - Use inline styles in the `styles` array
 - Host styling via `:host` selector
 - Selector naming: `app-*`, `placeos-*`, or feature-specific prefixes
+- Use `IconComponent` for icons
 
 ### Control Flow Syntax
 
@@ -255,6 +256,16 @@ export class FeatureComponent {
     public readonly has_feature = settingSignal('feature.enabled', false);
 }
 ```
+
+Bind writable signals directly when Angular supports two-way binding for the
+input:
+
+```html
+<input [(ngModel)]="search_query" />
+```
+
+Do not expand this binding into separate `[ngModel]` and `(ngModelChange)`
+bindings unless the change handler adds behavior.
 
 ---
 
