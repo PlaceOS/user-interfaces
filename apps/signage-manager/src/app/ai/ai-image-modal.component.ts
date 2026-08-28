@@ -91,23 +91,27 @@ interface Candidate {
                     </mat-form-field>
 
                     <div class="flex flex-wrap gap-2">
-                        <mat-form-field appearance="outline" class="flex-1">
-                            <mat-select
-                                [(ngModel)]="aspect"
-                                [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.AI_SHAPE' | translate
-                                "
-                            >
-                                @for (
-                                    option of aspect_options();
-                                    track option
-                                ) {
-                                    <mat-option [value]="option">{{
-                                        option
-                                    }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
+                        <!-- an edit comes back at the source's own shape, so
+                             there is nothing here to choose -->
+                        @if (!is_edit()) {
+                            <mat-form-field appearance="outline" class="flex-1">
+                                <mat-select
+                                    [(ngModel)]="aspect"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.AI_SHAPE' | translate
+                                    "
+                                >
+                                    @for (
+                                        option of aspect_options();
+                                        track option
+                                    ) {
+                                        <mat-option [value]="option">{{
+                                            option
+                                        }}</mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
                         <mat-form-field appearance="outline" class="flex-1">
                             <mat-select
                                 [(ngModel)]="candidates"
