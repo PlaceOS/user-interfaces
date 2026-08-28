@@ -79,6 +79,8 @@ export interface AiGenerateRequest {
     references?: string[];
     include_logo?: boolean;
     add_text_with_layer?: boolean;
+    /** false leaves the organisation's colours, face and tone out of it */
+    use_branding?: boolean;
     words?: string;
     provider_id?: string;
     model?: string;

@@ -86,7 +86,7 @@ interface Candidate {
                                 [image_url]="selected_object_url()"
                                 [logo_on_light]="logo_on_light()"
                                 [logo_on_dark]="logo_on_dark()"
-                                [brand]="brand()"
+                                [brand]="applied_brand()"
                                 [state]="layer_state()"
                                 (changed)="layer_state.set($event)"
                             ></ai-layer>
@@ -244,6 +244,25 @@ interface Candidate {
                                 </mat-form-field>
                             </div>
 
+                            @if (has_branding()) {
+                                <div class="flex flex-col gap-1">
+                                    <mat-slide-toggle
+                                        [(ngModel)]="use_branding"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.AI_USE_BRANDING'
+                                                | translate
+                                        }}
+                                    </mat-slide-toggle>
+                                    <p class="text-base-content/60 m-0 text-xs">
+                                        {{
+                                            'SIGNAGE_MANAGER.AI_USE_BRANDING_HINT'
+                                                | translate
+                                        }}
+                                    </p>
+                                </div>
+                            }
+
                             <!-- both only shape a new picture: an edit keeps
                                  whatever the image already has -->
                             @if (!is_edit()) {
@@ -347,7 +366,7 @@ interface Candidate {
                                     [state]="layer_state()"
                                     [logo_on_light]="logo_on_light()"
                                     [logo_on_dark]="logo_on_dark()"
-                                    [brand]="brand()"
+                                    [brand]="applied_brand()"
                                     [uploading]="uploading_logo()"
                                     (changed)="layer_state.set($event)"
                                     (logoPicked)="uploadLogo($event)"
@@ -448,6 +467,7 @@ export class AiImageModalComponent implements OnDestroy {
     public readonly candidates = signal(2);
     public readonly add_text_with_layer = signal(!this._data.source_upload_id);
     public readonly include_logo = signal(!this._data.source_upload_id);
+    public readonly use_branding = signal(true);
 
     public readonly layer_state = signal<AiLayerState>({
         blocks: [newTextBlock('headline')],
@@ -469,6 +489,31 @@ export class AiImageModalComponent implements OnDestroy {
     public readonly uploading_references = signal(false);
 
     public readonly brand = this._ai.brand_kit;
+
+    /** there is nothing to switch off if the organisation has set nothing */
+    public readonly has_branding = computed(() => {
+        const brand = this.brand();
+        if (!brand) return false;
+        const font =
+            typeof brand.font === 'string' ? brand.font : brand.font?.family;
+        return !!(
+            brand.organisation ||
+            font ||
+            Object.keys(brand.palette || {}).length
+        );
+    });
+
+    /**
+     * What the poster is actually dressed in.
+     *
+     * The same switch governs the words drawn in the browser as governs the
+     * prompt: a poster that is not in the organisation's colours should not
+     * offer its palette as the swatches either.
+     */
+    public readonly applied_brand = computed(() =>
+        this.use_branding() ? this.brand() : null,
+    );
+
     public readonly is_edit = computed(() => !!this._data.source_upload_id);
 
     /** the image being changed, so the brief is not written blind */
@@ -590,6 +635,7 @@ export class AiImageModalComponent implements OnDestroy {
                       candidates: this.candidates(),
                       include_logo: this.include_logo(),
                       add_text_with_layer: this.add_text_with_layer(),
+                      use_branding: this.use_branding(),
                       source_upload_id: this._data.source_upload_id,
                       source_item_id: this._data.source_item_id,
                       references: this.reference_ids(),
@@ -600,6 +646,7 @@ export class AiImageModalComponent implements OnDestroy {
                       candidates: this.candidates(),
                       include_logo: this.include_logo(),
                       add_text_with_layer: this.add_text_with_layer(),
+                      use_branding: this.use_branding(),
                       references: this.reference_ids(),
                   });
             this.current_job_id.set(job.id);
@@ -623,6 +670,7 @@ export class AiImageModalComponent implements OnDestroy {
                 candidates: 1,
                 include_logo: this.include_logo(),
                 add_text_with_layer: this.add_text_with_layer(),
+                use_branding: this.use_branding(),
                 source_upload_id: source.upload_id,
                 parent_job_id: source.job_id,
                 references: this.reference_ids(),
