@@ -10,6 +10,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignageService } from '../signage.service';
+import { AiImageService } from '../ai/ai-image.service';
 import { filterManageNavItems } from './nav-items';
 import { SignageGroupSelectorComponent } from './signage-group-selector.component';
 
@@ -152,6 +153,7 @@ export class NavSidebarComponent {
     private readonly _settings = inject(SettingsService);
     private readonly _locale = inject(LocaleService);
     private readonly _service = inject(SignageService);
+    private readonly _ai = inject(AiImageService);
     public readonly locales = this._settings.signal<
         { id: string; name: string; local?: string }[]
     >('locales', []);
@@ -165,6 +167,7 @@ export class NavSidebarComponent {
             this._service.can_manage_all_groups() ||
                 !!this._service.manageable_signage_groups().length,
             this._service.templates_enabled(),
+            this._ai.enabled(),
         ),
     );
     public readonly active_locale = computed(() => this._locale.locale);

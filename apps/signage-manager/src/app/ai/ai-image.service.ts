@@ -110,13 +110,34 @@ export class AiImageService extends AsyncHandler {
      * time.
      */
     public async uploadBrandLogo(file: File): Promise<string> {
+        const upload_id = await this._uploads.uploadFileToCompletion(file);
+        await this.saveBrandKit({ logo_upload_id: upload_id });
+        // the capability is read once at start up; keep it honest for this session
+        this.capabilities.update((current) =>
+            current ? { ...current, logo_layer: true } : current,
+        );
+        return upload_id;
+    }
+
+    /**
+     * Merge changes into the domain's brand kit.
+     *
+     * Merged rather than replaced so the branding page and the logo upload can
+     * each write their own part without clearing the other's, and so anything
+     * set by hand outside this app survives.
+     */
+    public async saveBrandKit(changes: Partial<AiBrandKit>): Promise<AiBrandKit> {
         if (!this._org_zone) {
             throw new Error(i18n('SIGNAGE_MANAGER.AI_NO_ORG_ZONE'));
         }
+        const details = { ...(this.brand_kit() || {}), ...changes };
+        for (const key of Object.keys(details)) {
+            if (details[key] === undefined) delete details[key];
+        }
 
-        const upload_id = await this._uploads.uploadFileToCompletion(file);
-        const details = { ...(this.brand_kit() || {}), logo_upload_id: upload_id };
-
+        // replace rather than merge: the API deep merges a PATCH, so a colour
+        // taken out of the palette would survive the save. The merge above is
+        // against the kit we loaded, so nothing else is lost.
         await updateMetadata(
             this._org_zone,
             {
@@ -124,15 +145,24 @@ export class AiImageService extends AsyncHandler {
                 description: 'Brand kit used when generating signage artwork',
                 details,
             } as any,
-            'patch',
+            'put',
         );
 
         this.brand_kit.set(details);
-        // the capability is read once at start up; keep it honest for this session
-        this.capabilities.update((current) =>
-            current ? { ...current, logo_layer: true } : current,
+        return details;
+    }
+
+    /** re-read the kit, for a page opened before start up finished */
+    public async reloadBrandKit(): Promise<AiBrandKit | null> {
+        if (!this._org_zone) return null;
+        const metadata = await showMetadata(this._org_zone, 'signage_ai').catch(
+            () => null,
         );
-        return upload_id;
+        const details = (metadata as any)?.details;
+        if (details && Object.keys(details).length) {
+            this.brand_kit.set(details as AiBrandKit);
+        }
+        return this.brand_kit();
     }
 
     /** the jobs the user started recently, so the list survives a reload */
