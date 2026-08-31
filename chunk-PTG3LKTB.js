@@ -35,7 +35,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-ZSOXKYEF.js";
+} from "./chunk-WX6MSD54.js";
 
 // apps/signage-manager/src/app/shared/group-breadcrumbs.component.ts
 var _c0 = (a0) => ({ name: a0 });
@@ -234,4 +234,4 @@ var GroupBreadcrumbsComponent = class _GroupBreadcrumbsComponent {
 export {
   GroupBreadcrumbsComponent
 };
-//# sourceMappingURL=chunk-W4Q7M6AS.js.map
+//# sourceMappingURL=chunk-PTG3LKTB.js.map

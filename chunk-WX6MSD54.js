@@ -54195,7 +54195,7 @@ var app = {
   show_media_group_tabs: false,
   default_animation_time: 1e3,
   media_allow_extended_video_codecs: false,
-  templates_enabled: false
+  templates_enabled: true
 };
 var DEFAULT_SETTINGS = {
   debug: true,
@@ -54950,15 +54950,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "6740181",
-  "hash": "6740181",
+  "raw": "1df4265",
+  "hash": "1df4265",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "6740181",
+  "suffix": "1df4265",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1788150241785
+  "time": 1788153433164
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -124467,4 +124467,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-ZSOXKYEF.js.map
+//# sourceMappingURL=chunk-WX6MSD54.js.map

@@ -1,7 +1,7 @@
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-ILMYTTRO.js";
+} from "./chunk-JYJXN535.js";
 import {
   AiImageService,
   AuthenticatedImageDirective,
@@ -67,7 +67,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-ZSOXKYEF.js";
+} from "./chunk-WX6MSD54.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/branding/branding.component.ts
@@ -1022,4 +1022,4 @@ var BrandingComponent = class _BrandingComponent {
 export {
   BrandingComponent
 };
-//# sourceMappingURL=branding.component-C3RPSCSX.js.map
+//# sourceMappingURL=branding.component-NP6FTEHK.js.map
