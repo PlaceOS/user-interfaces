@@ -10,6 +10,7 @@ import { loadAuthenticatedImage } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 
 import { flipLightness, inkIsLight } from '../branding/logo-variant';
+import { errorStatus } from './ai-image.util';
 import {
     cancelSignageAIJob,
     claimSignageAIImage,
@@ -31,9 +32,6 @@ import {
 
 const FINAL_STATES = ['done', 'failed', 'cancelled'];
 
-/** distinguishes "the read failed" from "the read returned nothing" */
-const FAILED = Symbol('metadata read failed');
-
 /** the brand kit key each slot is stored under */
 export function logoKey(
     slot: AiLogoSlot,
@@ -46,6 +44,9 @@ const POLL_WAIT = 25;
 
 /** consecutive failures before a job is given up on */
 const POLL_RETRIES = 10;
+
+/** Fast retries keep a saved candidate from being left unclaimed on a blip. */
+const CLAIM_RETRY_DELAYS = [0, 500, 1500];
 
 export function isFinal(job?: AiJob | null) {
     return !!job && FINAL_STATES.includes(job.state);
@@ -70,6 +71,32 @@ export class AiImageService extends AsyncHandler {
     public readonly jobs = signal<Record<string, AiJob>>({});
 
     public readonly enabled = computed(() => !!this.capabilities()?.enabled);
+    public readonly default_provider = computed(() => {
+        const capabilities = this.capabilities();
+        if (!capabilities?.enabled) return null;
+        return (
+            capabilities.providers.find(
+                (provider) => provider.id === capabilities.default_provider_id,
+            ) ||
+            capabilities.providers[0] ||
+            null
+        );
+    });
+    public readonly default_model = computed(() => {
+        const provider = this.default_provider();
+        if (!provider) return null;
+        return (
+            provider.models.find(
+                (model) => model.id === provider.default_model,
+            ) ||
+            provider.models[0] ||
+            null
+        );
+    });
+    public readonly can_generate = computed(
+        () => !!this.default_model()?.generate,
+    );
+    public readonly can_edit = computed(() => !!this.default_model()?.edit);
     public readonly running_count = computed(
         () => Object.values(this.jobs()).filter((job) => !isFinal(job)).length,
     );
@@ -251,8 +278,8 @@ export class AiImageService extends AsyncHandler {
             {
                 name: 'signage_ai',
                 description: 'Brand kit used when generating signage artwork',
-                details,
-            } as any,
+                details: details as unknown as Record<string, unknown>,
+            },
             'put',
         );
 
@@ -264,15 +291,15 @@ export class AiImageService extends AsyncHandler {
     public async reloadBrandKit(): Promise<AiBrandKit | null> {
         if (!this._org_zone) return null;
         const metadata = await showMetadata(this._org_zone, 'signage_ai').catch(
-            () => FAILED,
+            () => null,
         );
-        if (metadata === FAILED) {
+        if (!metadata) {
             this.brand_kit_read.set('failed');
             return this.brand_kit();
         }
-        const details = (metadata as any)?.details;
-        if (details && Object.keys(details).length) {
-            this.brand_kit.set(details as AiBrandKit);
+        const details = metadata.details;
+        if (details && !Array.isArray(details) && Object.keys(details).length) {
+            this.brand_kit.set(details as unknown as AiBrandKit);
         }
         // an empty answer is a real answer: the organisation has set nothing
         this.brand_kit_read.set('ok');
@@ -289,8 +316,8 @@ export class AiImageService extends AsyncHandler {
      */
     private readonly _intents = new Map<string, string>();
 
-    public intentKey(kind: string, subject: string) {
-        const id = `${kind}:${subject}`;
+    public intentKey(kind: 'generate' | 'edit', request: object) {
+        const id = `${kind}:${JSON.stringify(request)}`;
         let key = this._intents.get(id);
         if (!key) {
             key = crypto.randomUUID();
@@ -315,8 +342,8 @@ export class AiImageService extends AsyncHandler {
         // The caller owns the key: minting one here meant every retry looked
         // like a new request, which is the opposite of what the field is for.
         const job = await generateSignageImage({
-            idempotency_key: request.idempotency_key || crypto.randomUUID(),
             ...request,
+            idempotency_key: request.idempotency_key || crypto.randomUUID(),
         });
         this._merge([job]);
         this.watch(job.id);
@@ -325,8 +352,8 @@ export class AiImageService extends AsyncHandler {
 
     public async edit(request: AiEditRequest) {
         const job = await editSignageImage({
-            idempotency_key: request.idempotency_key || crypto.randomUUID(),
             ...request,
+            idempotency_key: request.idempotency_key || crypto.randomUUID(),
         });
         this._merge([job]);
         this.watch(job.id);
@@ -339,10 +366,21 @@ export class AiImageService extends AsyncHandler {
         return job;
     }
 
-    public claim(id: string, upload_id: string, item_id: string) {
-        return claimSignageAIImage(id, { upload_id, item_id }).catch(
-            () => null,
-        );
+    public async claim(id: string, upload_id: string, item_id: string) {
+        let last_error: unknown;
+        for (const delay of CLAIM_RETRY_DELAYS) {
+            if (delay) {
+                await new Promise<void>((resolve) =>
+                    setTimeout(resolve, delay),
+                );
+            }
+            try {
+                return await claimSignageAIImage(id, { upload_id, item_id });
+            } catch (error) {
+                last_error = error;
+            }
+        }
+        throw last_error;
     }
 
     public job(id: string) {
@@ -383,20 +421,21 @@ export class AiImageService extends AsyncHandler {
         if (!this._watching.has(id)) return;
 
         const known = this.jobs()[id]?.version ?? 0;
-        const job = await showSignageAIJob(id, {
+        const result: AiJob | { error: unknown } = await showSignageAIJob(id, {
             wait: POLL_WAIT,
             since: known,
-        }).catch((error) => ({ error }) as { error: any });
+        }).catch((error: unknown) => ({ error }));
 
-        if (!job || 'error' in job) {
-            const status = (job as any)?.error?.status;
+        if ('error' in result) {
+            const status = errorStatus(result.error);
             // 404 and 403 do not become true by asking again. Anything else is
             // treated as a dropped connection, which is normal on a long poll,
             // but not forever: an unreachable API used to be polled every two
             // seconds for the life of the page.
             const attempts = (this._attempts.get(id) || 0) + 1;
             this._attempts.set(id, attempts);
-            if (status === 404 || status === 403 || attempts > POLL_RETRIES) {
+            if (status === 404 || status === 403 || attempts >= POLL_RETRIES) {
+                this._failJob(id);
                 this.unwatch(id);
                 return;
             }
@@ -404,12 +443,13 @@ export class AiImageService extends AsyncHandler {
             return;
         }
 
+        const job = result;
         this._attempts.delete(id);
-        this._merge([job as AiJob]);
+        this._merge([job]);
 
-        if (isFinal(job as AiJob)) {
+        if (isFinal(job)) {
             this.unwatch(id);
-            this._announce(job as AiJob);
+            this._announce(job);
             this.refreshQuota();
             return;
         }
@@ -441,6 +481,19 @@ export class AiImageService extends AsyncHandler {
         } else if (job.state === 'done' && job.images_produced > 0) {
             notifyInfo(i18n('SIGNAGE_MANAGER.AI_JOB_DONE'));
         }
+    }
+
+    private _failJob(id: string) {
+        const current = this.jobs()[id];
+        if (!current || isFinal(current)) return;
+        const failed: AiJob = {
+            ...current,
+            state: 'failed',
+            version: current.version + 1,
+            error_message: i18n('SIGNAGE_MANAGER.AI_JOB_FAILED'),
+        };
+        this._merge([failed]);
+        this._announce(failed);
     }
 
     private _merge(jobs: AiJob[]) {

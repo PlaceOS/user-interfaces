@@ -3143,6 +3143,15 @@ export class SignageService {
         return result;
     }
 
+    /** Remove a media row when the generated upload could not be claimed. */
+    public async discardCreatedMedia(id: string) {
+        await removeSignageMedia(id);
+        this._media_items.update((items) =>
+            items.filter((item) => item.id !== id),
+        );
+        this._media_tags.reload();
+    }
+
     /**
      * Open the AI image modal, either to create artwork or to change some.
      *

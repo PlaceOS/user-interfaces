@@ -2,6 +2,7 @@ import {
     Component,
     computed,
     inject,
+    linkedSignal,
     OnDestroy,
     signal,
     viewChild,
@@ -26,16 +27,28 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { SignageMedia } from '@placeos/ts-client';
 
 import { SignageService } from '../signage.service';
 import { AiImageService, isFinal } from './ai-image.service';
+import { errorMessage } from './ai-image.util';
 import {
     AiLayerControlsComponent,
     newTextBlock,
 } from './ai-layer-controls.component';
 import { AiLayerComponent } from './ai-layer.component';
 import { AiReferencesComponent } from './ai-references.component';
-import { AiJob, AiJobImage, AiLayerState, AiReference } from './ai.types';
+import {
+    AiEditRequest,
+    AiGenerateRequest,
+    AiJob,
+    AiJobImage,
+    AiLayerState,
+    AiReference,
+} from './ai.types';
+
+/** A provider that cannot finish an image in this time has stopped responding. */
+const MAX_JOB_WAIT_MS = 30 * 60 * 1000;
 
 export interface AiImageModalData {
     /** pre-set from the playlist a user opened this from */
@@ -147,6 +160,7 @@ interface Candidate {
                                 ) {
                                     <button
                                         type="button"
+                                        [disabled]="claim_pending()"
                                         class="border-base-content/10 h-16 w-28 shrink-0 overflow-hidden rounded border"
                                         [class.ring-2]="
                                             selected()?.upload_id ===
@@ -301,6 +315,7 @@ interface Candidate {
                             <ai-references
                                 [items]="references()"
                                 [uploading]="uploading_references()"
+                                [max]="max_references()"
                                 (picked)="addReferences($event)"
                                 (removed)="removeReference($event)"
                             ></ai-references>
@@ -340,7 +355,8 @@ interface Candidate {
                                     [disabled]="
                                         !refinement().trim() ||
                                         !selected() ||
-                                        state() === 'generating'
+                                        state() === 'generating' ||
+                                        claim_pending()
                                     "
                                     (click)="refine()"
                                 >
@@ -354,6 +370,7 @@ interface Candidate {
                             <ai-references
                                 [items]="references()"
                                 [uploading]="uploading_references()"
+                                [max]="max_references()"
                                 (picked)="addReferences($event)"
                                 (removed)="removeReference($event)"
                             ></ai-references>
@@ -461,14 +478,41 @@ export class AiImageModalComponent implements OnDestroy {
     private readonly _ai = inject(AiImageService);
 
     private readonly _layer = viewChild(AiLayerComponent);
+    private readonly _aspect_options = computed(() => {
+        const capabilities = this._ai.capabilities();
+        const model_options = this._ai.default_model()?.aspect_ratios || [];
+        const domain_options = capabilities?.aspect_ratios || [];
+        const shared = domain_options.filter((option) =>
+            model_options.includes(option),
+        );
+        return shared.length
+            ? shared
+            : model_options.length
+              ? model_options
+              : domain_options;
+    });
+    private readonly _max_candidates = computed(() => {
+        const domain_max = this._ai.capabilities()?.max_candidates ?? 2;
+        const model_max =
+            this._ai.default_model()?.max_candidates ?? domain_max;
+        return Math.max(1, Math.min(domain_max, model_max));
+    });
 
     public readonly state = signal<ModalState>('compose');
     public readonly saving = signal(false);
 
     public readonly brief = signal('');
     public readonly refinement = signal('');
-    public readonly aspect = signal(this._data.aspect_ratio || '16:9');
-    public readonly candidates = signal(2);
+    public readonly aspect = linkedSignal(() => {
+        const options = this._aspect_options();
+        const requested = this._data.aspect_ratio || '';
+        return options.includes(requested)
+            ? requested
+            : options[0] || requested || '16:9';
+    });
+    public readonly candidates = linkedSignal(() => {
+        return Math.min(2, this._max_candidates());
+    });
     public readonly add_text_with_layer = signal(!this._data.source_upload_id);
     public readonly include_logo = signal(!this._data.source_upload_id);
     public readonly use_branding = signal(true);
@@ -491,6 +535,7 @@ export class AiImageModalComponent implements OnDestroy {
 
     public readonly references = signal<AiReference[]>([]);
     public readonly uploading_references = signal(false);
+    public readonly claim_pending = signal(false);
 
     public readonly brand = this._ai.brand_kit;
 
@@ -547,13 +592,14 @@ export class AiImageModalComponent implements OnDestroy {
         () => !!this._ai.capabilities()?.logo_layer,
     );
 
-    public readonly aspect_options = computed(
-        () => this._ai.capabilities()?.aspect_ratios || ['16:9', '9:16'],
-    );
+    public readonly aspect_options = this._aspect_options;
     public readonly candidate_options = computed(() => {
-        const max = this._ai.capabilities()?.max_candidates || 2;
+        const max = this._max_candidates();
         return Array.from({ length: max }, (_, index) => index + 1);
     });
+    public readonly max_references = computed(
+        () => this._ai.default_model()?.max_references ?? 8,
+    );
 
     public readonly job = computed<AiJob | undefined>(
         () => this._ai.jobs()[this.current_job_id()],
@@ -649,38 +695,44 @@ export class AiImageModalComponent implements OnDestroy {
         const prompt = this.brief().trim();
         if (!prompt) return;
         this.state.set('generating');
-        const key = this._intentKey('generate', prompt);
         try {
-            const job = this._data.source_upload_id
-                ? await this._ai.edit({
-                      prompt,
-                      aspect_ratio: this.aspect(),
-                      candidates: this.candidates(),
-                      include_logo: this.include_logo(),
-                      add_text_with_layer: this.add_text_with_layer(),
-                      use_branding: this.use_branding(),
-                      group_id: this.group_id(),
-                      idempotency_key: key,
-                      source_upload_id: this._data.source_upload_id,
-                      source_item_id: this._data.source_item_id,
-                      references: this.reference_ids(),
-                  })
-                : await this._ai.generate({
-                      prompt,
-                      aspect_ratio: this.aspect(),
-                      candidates: this.candidates(),
-                      include_logo: this.include_logo(),
-                      add_text_with_layer: this.add_text_with_layer(),
-                      use_branding: this.use_branding(),
-                      group_id: this.group_id(),
-                      idempotency_key: key,
-                      references: this.reference_ids(),
-                  });
+            const common = {
+                prompt,
+                candidates: this.candidates(),
+                include_logo: this.include_logo(),
+                add_text_with_layer: this.add_text_with_layer(),
+                use_branding: this.use_branding(),
+                group_id: this.group_id(),
+                references: this.reference_ids(),
+            };
+            let job: AiJob;
+            if (this._data.source_upload_id) {
+                const request: AiEditRequest = {
+                    ...common,
+                    source_upload_id: this._data.source_upload_id,
+                    source_item_id: this._data.source_item_id,
+                };
+                job = await this._ai.edit({
+                    ...request,
+                    idempotency_key: this._ai.intentKey('edit', request),
+                });
+            } else {
+                const request: AiGenerateRequest = {
+                    ...common,
+                    aspect_ratio: this.aspect(),
+                };
+                job = await this._ai.generate({
+                    ...request,
+                    idempotency_key: this._ai.intentKey('generate', request),
+                });
+            }
             this.current_job_id.set(job.id);
             this._awaitJob(job.id);
         } catch (error) {
             this.state.set('compose');
-            notifyError(this._message(error));
+            notifyError(
+                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+            );
         }
     }
 
@@ -688,34 +740,32 @@ export class AiImageModalComponent implements OnDestroy {
         const instruction = this.refinement().trim();
         const source = this.selected();
         if (!instruction || !source) return;
-        const key = this._intentKey('refine', instruction + source.upload_id);
         this.refinement.set('');
         this.state.set('generating');
         try {
-            const job = await this._ai.edit({
+            const request: AiEditRequest = {
                 prompt: instruction,
-                aspect_ratio: this.aspect(),
                 candidates: 1,
                 include_logo: this.include_logo(),
                 add_text_with_layer: this.add_text_with_layer(),
                 use_branding: this.use_branding(),
                 group_id: this.group_id(),
-                idempotency_key: key,
                 source_upload_id: source.upload_id,
                 parent_job_id: source.job_id,
                 references: this.reference_ids(),
+            };
+            const job = await this._ai.edit({
+                ...request,
+                idempotency_key: this._ai.intentKey('edit', request),
             });
             this.current_job_id.set(job.id);
             this._awaitJob(job.id);
         } catch (error) {
             this.state.set('review');
-            notifyError(this._message(error));
+            notifyError(
+                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+            );
         }
-    }
-
-    /** on the service, so it survives the dialog being closed and reopened */
-    private _intentKey(kind: string, subject: string) {
-        return this._ai.intentKey(kind, subject);
     }
 
     private _select_token = 0;
@@ -726,6 +776,7 @@ export class AiImageModalComponent implements OnDestroy {
     }
 
     public async select(candidate: Candidate) {
+        if (this.claim_pending()) return;
         // Clicking along the rail starts a fetch per click, and they can land
         // out of order. Without a token the preview, and the flattened file a
         // save produces, could end up showing a candidate other than the one
@@ -769,7 +820,9 @@ export class AiImageModalComponent implements OnDestroy {
                 ]);
             }
         } catch (error) {
-            notifyError(this._message(error));
+            notifyError(
+                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+            );
         } finally {
             this.uploading_references.set(false);
         }
@@ -815,7 +868,9 @@ export class AiImageModalComponent implements OnDestroy {
             this.layer_state.set({ ...this.layer_state(), logo: true });
             notifySuccess(i18n('SIGNAGE_MANAGER.AI_LOGO_SAVED'));
         } catch (error) {
-            notifyError(this._message(error));
+            notifyError(
+                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+            );
         } finally {
             this.uploading_logo.set(false);
         }
@@ -838,27 +893,45 @@ export class AiImageModalComponent implements OnDestroy {
 
         this.saving.set(true);
         try {
-            let media: any;
+            let media: SignageMedia | undefined;
 
             if (blob) {
                 const file = new File([blob], `${name}.png`, {
                     type: 'image/png',
                 });
-                media = await this._service.addMedia(file, {
-                    name,
-                    tags: this._tags(candidate),
-                } as any);
-            } else {
-                media = await this._service.addMediaFromUpload(
-                    candidate.upload_id,
-                    {
+                media = await this._service.addMedia(
+                    file,
+                    new SignageMedia({
                         name,
                         tags: this._tags(candidate),
-                        orientation:
-                            this.aspect() === '9:16' ? 'portrait' : 'landscape',
-                    },
-                    this._data.playlist_id,
+                    }),
                 );
+            } else {
+                media =
+                    this._pending_media ||
+                    (await this._service.addMediaFromUpload(
+                        candidate.upload_id,
+                        {
+                            name,
+                            tags: this._tags(candidate),
+                            orientation:
+                                this.aspect() === '9:16'
+                                    ? 'portrait'
+                                    : 'landscape',
+                        },
+                        this._data.playlist_id,
+                    ));
+                this._pending_media = media;
+                if (media?.id) {
+                    this.claim_pending.set(true);
+                    await this._ai.claim(
+                        candidate.job_id,
+                        candidate.upload_id,
+                        media.id,
+                    );
+                    this.claim_pending.set(false);
+                    this._pending_media = undefined;
+                }
             }
 
             // The flattened path goes through addMedia, which takes no
@@ -874,11 +947,6 @@ export class AiImageModalComponent implements OnDestroy {
             }
 
             if (media?.id) {
-                await this._ai.claim(
-                    candidate.job_id,
-                    candidate.upload_id,
-                    media.id,
-                );
                 // the list paints as soon as the dialog closes; give the
                 // thumbnail a moment to become readable so the tile is not
                 // briefly empty
@@ -892,29 +960,45 @@ export class AiImageModalComponent implements OnDestroy {
             }
             this._dialog_ref.close(media);
         } catch (error) {
-            notifyError(this._message(error));
+            if (!blob && this._pending_media?.id) {
+                await this._service
+                    .discardCreatedMedia(this._pending_media.id)
+                    .then(() => {
+                        this._pending_media = undefined;
+                        this.claim_pending.set(false);
+                    })
+                    .catch(() => null);
+            }
+            notifyError(
+                errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
+            );
         } finally {
+            if (!this._pending_media) this.claim_pending.set(false);
             this.saving.set(false);
         }
     }
 
-    private _await_timer: any = null;
+    private _pending_media: SignageMedia | undefined;
+    private _await_timer: ReturnType<typeof setTimeout> | null = null;
 
     /** poll until the job reaches a final state, then move on */
     private _awaitJob(id: string) {
+        const deadline = Date.now() + MAX_JOB_WAIT_MS;
         const check = () => {
             this._await_timer = null;
             if (this._closed) return;
             const job = this._ai.jobs()[id];
             if (!job || !isFinal(job)) {
+                if (Date.now() >= deadline) {
+                    this.state.set(this.rail().length ? 'review' : 'compose');
+                    notifyError(i18n('SIGNAGE_MANAGER.AI_JOB_FAILED'));
+                    return;
+                }
                 this._await_timer = setTimeout(check, 250);
                 return;
             }
             if (job.state === 'failed') {
                 this.state.set(this.rail().length ? 'review' : 'compose');
-                notifyError(
-                    job.error_message || i18n('SIGNAGE_MANAGER.AI_JOB_FAILED'),
-                );
                 return;
             }
             if (job.state === 'cancelled') {
@@ -967,14 +1051,5 @@ export class AiImageModalComponent implements OnDestroy {
      */
     private _tags(_candidate: Candidate) {
         return ['ai-generated'];
-    }
-
-    private _message(error: any) {
-        return (
-            error?.error?.error ||
-            error?.error ||
-            error?.message ||
-            i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')
-        );
     }
 }
