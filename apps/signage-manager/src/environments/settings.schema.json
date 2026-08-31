@@ -61,7 +61,7 @@
         },
         "templates_enabled": {
             "type": "boolean",
-            "description": "Whether the template management section is available. Defaults to `false` while the feature is in development."
+            "description": "Whether the template management section is available. Defaults to `true`."
         }
     },
     "$defs": {

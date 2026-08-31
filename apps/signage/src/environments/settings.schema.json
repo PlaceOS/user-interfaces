@@ -36,7 +36,7 @@
         },
         "templates_enabled": {
             "type": "boolean",
-            "description": "Whether template selection is available during signage bootstrap. Defaults to `false`."
+            "description": "Whether template selection is available during signage bootstrap. Defaults to `true`."
         }
     }
 }

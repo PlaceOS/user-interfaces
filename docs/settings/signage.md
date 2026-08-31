@@ -22,6 +22,7 @@ These settings control how the app identifies itself in the browser and what log
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
 | `default_animation_time` | number | `1000` | Duration in milliseconds of the media player's transition animation between playlist items. |
+| `templates_enabled` | boolean | `true` | Make template selection available during signage bootstrap. |
 
 ## Other
 
