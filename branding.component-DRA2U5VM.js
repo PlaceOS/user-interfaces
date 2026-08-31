@@ -1,7 +1,7 @@
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-JYJXN535.js";
+} from "./chunk-LUQSIZT3.js";
 import {
   AiImageService,
   AuthenticatedImageDirective,
@@ -28,6 +28,7 @@ import {
   ViewChild,
   computed,
   ensureBrandFont,
+  errorMessage,
   i18n,
   inject,
   notifyError,
@@ -67,7 +68,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-WX6MSD54.js";
+} from "./chunk-V37H3MCT.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/branding/branding.component.ts
@@ -116,7 +117,7 @@ function BrandingComponent_For_21_Template(rf, ctx) {
     \u0275\u0275listener("input", function BrandingComponent_For_21_Template_input_input_1_listener($event) {
       const $index_r3 = \u0275\u0275restoreView(_r2).$index;
       const ctx_r3 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r3.setColour($index_r3, $event.target.value));
+      return \u0275\u0275resetView(ctx_r3.setColourFromInput($index_r3, $event));
     });
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(3, "mat-form-field", 29)(4, "input", 30);
@@ -474,6 +475,12 @@ var BrandingComponent = class _BrandingComponent {
   setColour(index, value) {
     this.colours.update((list) => list.map((colour, i) => i === index ? value : colour));
   }
+  setColourFromInput(index, event) {
+    const input = event.target;
+    if (input instanceof HTMLInputElement) {
+      this.setColour(index, input.value);
+    }
+  }
   previewFont() {
     ensureBrandFont(this.font());
   }
@@ -508,7 +515,7 @@ var BrandingComponent = class _BrandingComponent {
       this._applyLogos(kit);
       notifySuccess(i18n("SIGNAGE_MANAGER.AI_LOGO_SAVED"));
     } catch (error) {
-      notifyError(this._message(error));
+      notifyError(errorMessage(error, i18n("SIGNAGE_MANAGER.BRAND_SAVE_FAILED")));
     } finally {
       this.busy.set("");
     }
@@ -523,7 +530,7 @@ var BrandingComponent = class _BrandingComponent {
       this._applyLogos(kit);
       notifySuccess(i18n("SIGNAGE_MANAGER.BRAND_LOGO_MADE"));
     } catch (error) {
-      notifyError(this._message(error));
+      notifyError(errorMessage(error, i18n("SIGNAGE_MANAGER.BRAND_SAVE_FAILED")));
     } finally {
       this.busy.set("");
     }
@@ -548,7 +555,7 @@ var BrandingComponent = class _BrandingComponent {
       });
       notifySuccess(i18n("SIGNAGE_MANAGER.BRAND_SAVED"));
     } catch (error) {
-      notifyError(this._message(error));
+      notifyError(errorMessage(error, i18n("SIGNAGE_MANAGER.BRAND_SAVE_FAILED")));
     } finally {
       this.saving.set(false);
     }
@@ -572,9 +579,6 @@ var BrandingComponent = class _BrandingComponent {
       on_dark: brand.logo_dark_upload_id || ""
     });
     this.derived.set(brand.logo_derived || "");
-  }
-  _message(error) {
-    return error?.error?.error || error?.error || error?.message || i18n("SIGNAGE_MANAGER.BRAND_SAVE_FAILED");
   }
   static {
     this.\u0275fac = function BrandingComponent_Factory(__ngFactoryType__) {
@@ -788,9 +792,7 @@ var BrandingComponent = class _BrandingComponent {
                                 [class.cursor-pointer]="can_edit()"
                                 [disabled]="!can_edit()"
                                 [value]="colour"
-                                (input)="
-                                    setColour($index, $any($event.target).value)
-                                "
+                                (input)="setColourFromInput($index, $event)"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
                                 "
@@ -1017,9 +1019,9 @@ var BrandingComponent = class _BrandingComponent {
   }], null, { _logo_input: [{ type: ViewChild, args: ["logo_input", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BrandingComponent, { className: "BrandingComponent", filePath: "apps/signage-manager/src/app/branding/branding.component.ts", lineNumber: 310 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BrandingComponent, { className: "BrandingComponent", filePath: "apps/signage-manager/src/app/branding/branding.component.ts", lineNumber: 309 });
 })();
 export {
   BrandingComponent
 };
-//# sourceMappingURL=branding.component-NP6FTEHK.js.map
+//# sourceMappingURL=branding.component-DRA2U5VM.js.map

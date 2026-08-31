@@ -58,7 +58,7 @@ import {
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
   ɵɵdefineService
-} from "./chunk-WX6MSD54.js";
+} from "./chunk-V37H3MCT.js";
 
 // node_modules/@angular/cdk/fesm2022/drag-drop.mjs
 function deepCloneNode(node) {
@@ -3392,4 +3392,4 @@ export {
   CdkDragPlaceholder,
   DragDropModule
 };
-//# sourceMappingURL=chunk-5KVOELRF.js.map
+//# sourceMappingURL=chunk-4ONBP4J2.js.map

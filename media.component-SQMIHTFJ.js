@@ -3,23 +3,23 @@ import {
   MatTabNav,
   MatTabNavPanel,
   MatTabsModule
-} from "./chunk-PBHWFBCA.js";
+} from "./chunk-QSTWGFM6.js";
 import {
   CdkDrag,
   CdkDragPlaceholder,
   CdkDropList,
   DragDropModule
-} from "./chunk-5KVOELRF.js";
+} from "./chunk-4ONBP4J2.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-Z2YUDEUA.js";
+} from "./chunk-RGI2HJ6B.js";
 import {
   GroupBreadcrumbsComponent
-} from "./chunk-PTG3LKTB.js";
+} from "./chunk-OZKPQDR3.js";
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-JYJXN535.js";
+} from "./chunk-LUQSIZT3.js";
 import {
   AiImageService,
   Component,
@@ -107,7 +107,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-WX6MSD54.js";
+} from "./chunk-V37H3MCT.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/shared/media-add-modal.component.ts
@@ -763,7 +763,7 @@ var MediaListHeaderComponent = class _MediaListHeaderComponent {
     this.file_accept = this._service.media_upload_accept;
     this.can_create = this._service.can_create;
     this.previewFile = (event) => this._service.previewFileFromInput(event);
-    this.ai_enabled = this._ai.enabled;
+    this.ai_enabled = this._ai.can_generate;
   }
   generateWithAI() {
     this._service.generateMediaWithAI();
@@ -1951,7 +1951,7 @@ function MediaListComponent_ng_template_5_Template(rf, ctx) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275conditional(ctx_r1.can_update() ? 0 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r1.can_update() && ctx_r1.ai_enabled() && ctx_r1.isImage(media_item_r19) ? 1 : -1);
+    \u0275\u0275conditional(ctx_r1.can_edit_with_ai() && ctx_r1.isImage(media_item_r19) ? 1 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r1.sidebar_hidden() && ctx_r1.can_update() ? 2 : -1);
     \u0275\u0275advance();
@@ -2207,7 +2207,13 @@ var MediaListComponent = class _MediaListComponent {
     this.previewFile = (event) => this._service.previewFileFromInput(event);
     this.previewItem = (item) => this._service.previewMedia(item);
     this.editItem = (item) => this._service.editMedia(item);
-    this.ai_enabled = this._ai.enabled;
+    this.can_edit_with_ai = computed(
+      () => this._service.can_create() && this._ai.can_edit(),
+      ...ngDevMode ? [{ debugName: "can_edit_with_ai" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.isImage = (item) => item?.media_type === "image" && !!item?.media_id;
     this.editItemWithAI = (item) => this._service.editMediaWithAI(item);
     this.removeItem = (item) => this._service.removeMedia(item);
@@ -2839,7 +2845,7 @@ var MediaListComponent = class _MediaListComponent {
                         </div>
                     </button>
                 }
-                @if (can_update() && ai_enabled() && isImage(media_item)) {
+                @if (can_edit_with_ai() && isImage(media_item)) {
                     <button
                         type="button"
                         mat-menu-item
@@ -3735,4 +3741,4 @@ var MediaSectionComponent = class _MediaSectionComponent {
 export {
   MediaSectionComponent
 };
-//# sourceMappingURL=media.component-RTGFXLFK.js.map
+//# sourceMappingURL=media.component-SQMIHTFJ.js.map

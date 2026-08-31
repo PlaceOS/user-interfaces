@@ -167,7 +167,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-WX6MSD54.js";
+} from "./chunk-V37H3MCT.js";
 import {
   __export,
   __spreadProps,
@@ -9554,7 +9554,7 @@ function registerMockSignage() {
 }
 function registerMockSignageAI() {
   const AI_JOBS = {};
-  const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.media_id);
+  const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
   const now = () => Math.floor(Date.now() / 1e3);
   function makeJob(request, kind) {
     const count = Math.min(Math.max(request.candidates || 2, 1), 4);
@@ -9569,7 +9569,7 @@ function registerMockSignageAI() {
       parent_job_id: request.parent_job_id,
       version: 0,
       prompt: request.prompt,
-      images: new Array(count).fill(null),
+      images: Array.from({ length: count }, () => null),
       created_at: now()
     };
     AI_JOBS[job.id] = job;
@@ -9698,41 +9698,6 @@ function registerMockSignageAI() {
         entry.item_id = request.body?.item_id;
       return job;
     }
-  });
-  to({
-    path: "/api/engine/v2/signage/ai/usage",
-    metadata: {},
-    method: "GET",
-    callback: () => [
-      {
-        provider: "OPENAI",
-        model: "gpt-image-2",
-        jobs: Object.keys(AI_JOBS).length,
-        candidates: Object.keys(AI_JOBS).length * 2,
-        images_produced: Object.keys(AI_JOBS).length * 2,
-        cost_units: Object.keys(AI_JOBS).length * 1e3
-      }
-    ]
-  });
-  to({
-    path: "/api/engine/v2/signage/ai/providers",
-    metadata: {},
-    method: "GET",
-    callback: () => [
-      {
-        id: "signage-ai-provider-1",
-        name: "Mock provider",
-        provider: "OPENAI",
-        authority_id: null,
-        default_model: "gpt-image-2",
-        allowed_models: [],
-        enabled: true,
-        is_default: true,
-        quotas: {},
-        created_at: now(),
-        updated_at: now()
-      }
-    ]
   });
 }
 
@@ -12219,7 +12184,9 @@ var AppComponent = class _AppComponent {
     setMocks(mocksInit);
     await this._placeos.init();
     this._uploads.init();
-    this._ai.load(It()?.config?.org_zone);
+    await this._ai.load(It()?.config?.org_zone);
+    if (this._ai.enabled())
+      await this._ai.loadRecent();
   }
   static {
     this.\u0275fac = function AppComponent_Factory(__ngFactoryType__) {
@@ -12328,53 +12295,53 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-RTGFXLFK.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-SQMIHTFJ.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-KBM367PV.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-Q5KWINMD.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-KBM367PV.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-Q5KWINMD.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-WIJ2ZOKI.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-N7CVV3ND.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-WIJ2ZOKI.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-N7CVV3ND.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-PAUDMQKO.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-SGMO7T63.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-U3YVATFG.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-HIV7VTHY.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-U3YVATFG.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-HIV7VTHY.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "branding",
-        loadComponent: () => import("./branding.component-NP6FTEHK.js").then((m) => m.BrandingComponent)
+        loadComponent: () => import("./branding.component-DRA2U5VM.js").then((m) => m.BrandingComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-UYJ6BS4O.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-7FRQWAV7.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-TDPJI4Y4.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-FEHTTISO.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-TDPJI4Y4.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-FEHTTISO.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
