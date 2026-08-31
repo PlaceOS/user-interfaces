@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["desk-booking.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background: #f0f0f0;\n            }\n\n            desk-flow-listing {\n                max-height: calc(100% - 4rem);\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,cAAA;AACJ;AAEA;AACI,cAAA,KAAA,KAAA,EAAA;AACJ;",
+  "names": []
+}
