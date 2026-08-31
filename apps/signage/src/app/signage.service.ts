@@ -16,6 +16,7 @@ import {
     SignageMedia,
     SignagePlaylist,
     SignagePlugin,
+    SignageTemplateMapping,
 } from '@placeos/ts-client';
 import {
     getLastCronRunTimestampInRange,
@@ -317,6 +318,11 @@ function playlistStartsWithin(
     );
 }
 
+function templateMappingCreatedAt(mapping: SignageTemplateMapping) {
+    const created_at = Date.parse(mapping.created_at);
+    return Number.isFinite(created_at) ? created_at : 0;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -363,6 +369,37 @@ export class SignageService extends AsyncHandler {
 
     /** Resolved display details for the active system */
     public readonly display = this._display_data.asReadonly();
+
+    /** Template mapping that applies to the display at the current time */
+    public readonly active_template = computed<SignageTemplateMapping | null>(
+        () => {
+            this._tick();
+            const mappings = this._display_data()?.template_schedules;
+            if (!Array.isArray(mappings)) return null;
+            const scheduled = mappings
+                .map((mapping: SignageTemplateMapping) => {
+                    if (!mapping?.template_id || !mapping.schedule) return null;
+                    const window = scheduledPlaylistWindow(mapping.schedule);
+                    return window
+                        ? { mapping, starts_at: window.starts_at }
+                        : null;
+                })
+                .filter((item) => !!item)
+                .sort(
+                    (a, b) =>
+                        b.starts_at - a.starts_at ||
+                        templateMappingCreatedAt(b.mapping) -
+                            templateMappingCreatedAt(a.mapping),
+                );
+            if (scheduled.length) return scheduled[0].mapping;
+            return (
+                mappings.find(
+                    (mapping: SignageTemplateMapping) =>
+                        mapping?.template_id && !mapping.schedule,
+                ) || null
+            );
+        },
+    );
 
     public readonly playlist = computed<MediaPlayerItem[]>(() => {
         this._tick();

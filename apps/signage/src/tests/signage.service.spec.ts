@@ -435,6 +435,84 @@ describe('SignageService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should select the latest active template schedule and break ties by creation time', async () => {
+        const now = new Date('2026-01-01T10:30:00Z');
+        vi.setSystemTime(now);
+        const play_at = (minutes_ago: number) =>
+            Math.floor((now.getTime() - minutes_ago * 60_000) / 1000);
+        (ts_client.showSignage as any).mockResolvedValue(
+            create_display({
+                template_schedules: [
+                    {
+                        template_id: 'template-default',
+                        created_at: '2026-01-01T08:00:00Z',
+                        schedule: null,
+                    },
+                    {
+                        template_id: 'template-older-start',
+                        created_at: '2026-01-01T09:00:00Z',
+                        schedule: { play_at: play_at(30), play_period: 60 },
+                    },
+                    {
+                        template_id: 'template-older-tie',
+                        created_at: '2026-01-01T09:10:00Z',
+                        schedule: { play_at: play_at(15), play_period: 60 },
+                    },
+                    {
+                        template_id: 'template-latest-tie',
+                        created_at: '2026-01-01T09:20:00Z',
+                        schedule: { play_at: play_at(15), play_period: 60 },
+                    },
+                ],
+            }) as any,
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.active_template()?.template_id).toBe(
+            'template-latest-tie',
+        );
+    });
+
+    it('should use the default template when no schedule is active', async () => {
+        const now = new Date('2026-01-01T10:00:00Z');
+        vi.setSystemTime(now);
+        (ts_client.showSignage as any).mockResolvedValue(
+            create_display({
+                template_schedules: [
+                    {
+                        template_id: 'template-default',
+                        schedule: null,
+                    },
+                    {
+                        template_id: 'template-future',
+                        schedule: {
+                            play_at: Math.floor(
+                                (now.getTime() + 15_000) / 1000,
+                            ),
+                            play_period: 1,
+                        },
+                    },
+                ],
+            }) as any,
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.active_template()?.template_id).toBe(
+            'template-default',
+        );
+
+        vi.advanceTimersByTime(15_000);
+        await flush();
+
+        expect(spectator.service.active_template()?.template_id).toBe(
+            'template-future',
+        );
+    });
+
     it('should keep polling the display while nothing is scheduled', async () => {
         (ts_client.showSignage as any).mockReturnValue(
             Promise.resolve(

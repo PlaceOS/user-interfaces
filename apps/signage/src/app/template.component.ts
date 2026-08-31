@@ -1,4 +1,5 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler, log } from '@placeos/common';
 import { PluginConfigPayload, PluginEmbedComponent } from '@placeos/components';
@@ -108,15 +109,15 @@ function backgroundPlayerItem(
                 [transparent]="true"
             />
         }
+        <signage-panel
+            class="absolute z-10"
+            [transparent]="true"
+            [style.left.%]="player_rect().left"
+            [style.top.%]="player_rect().top"
+            [style.width.%]="player_rect().width"
+            [style.height.%]="player_rect().height"
+        />
         @if (template()) {
-            <signage-panel
-                class="absolute z-10"
-                [transparent]="true"
-                [style.left.%]="player_rect().left"
-                [style.top.%]="player_rect().top"
-                [style.width.%]="player_rect().width"
-                [style.height.%]="player_rect().height"
-            />
             @for (item of layout_items(); track item.config.instance_id) {
                 <plugin-embed
                     class="absolute z-20 bg-transparent"
@@ -151,12 +152,22 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
     private readonly _media_cache = inject(MediaCacheService);
+    private readonly _signage = inject(SignageService);
     private readonly _plugins = signal<SignagePlugin[]>([]);
+    private readonly _route_template_id = signal('');
     private _load_id = 0;
 
-    public readonly debug = inject(SignageService).debug;
+    public readonly debug = this._signage.debug;
     public readonly template = signal<SignageTemplate | null>(null);
     public readonly background_playlist = signal<MediaPlayerItem[]>([]);
+
+    private readonly _template_id = computed(
+        () =>
+            this._route_template_id() ||
+            this._signage.active_template()?.template_id ||
+            '',
+    );
+    private readonly _template_id$ = toObservable(this._template_id);
 
     private readonly _layout = computed(() =>
         computeTemplateLayout(this.template()?.layouts || []),
@@ -194,13 +205,18 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
             this._route.paramMap.subscribe((params) => {
                 const template_id = params.get('template_id') || '';
                 const system_id = params.get('system_id') || '';
-                if (!template_id) return;
-                if (!system_id) {
+                if (template_id && !system_id) {
                     this._bootstrapTemplate(template_id);
                     return;
                 }
-                this._loadTemplate(template_id);
+                this._route_template_id.set(template_id);
             }),
+        );
+        this.subscription(
+            'template',
+            this._template_id$.subscribe((template_id) =>
+                this._loadTemplate(template_id),
+            ),
         );
     }
 
@@ -220,6 +236,12 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
 
     private async _loadTemplate(template_id: string) {
         const load_id = ++this._load_id;
+        if (!template_id) {
+            this._plugins.set([]);
+            this.template.set(null);
+            this.background_playlist.set([]);
+            return;
+        }
         try {
             const template = await showSignageTemplate(template_id, {
                 approved: true,

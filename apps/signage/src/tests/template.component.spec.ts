@@ -6,6 +6,7 @@ import {
 } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { SignageTemplateMapping } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import { MediaCacheService } from '../app/media-cache.service';
@@ -17,6 +18,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 describe('SignageTemplateComponent', () => {
     let spectator: SpectatorRouting<SignageTemplateComponent>;
     const debug = signal(false);
+    const active_template = signal<SignageTemplateMapping | null>(null);
 
     const create_component = createRoutingFactory({
         component: SignageTemplateComponent,
@@ -26,6 +28,7 @@ describe('SignageTemplateComponent', () => {
                 playlist: signal([]),
                 override_playlist: signal({ ends_at: 0, playlist: [] }),
                 debug,
+                active_template,
                 playing_id: signal(''),
                 setDisplay: vi.fn(),
                 clearPlaylistOverride: vi.fn(),
@@ -45,6 +48,7 @@ describe('SignageTemplateComponent', () => {
         vi.clearAllMocks();
         localStorage.clear();
         debug.set(false);
+        active_template.set(null);
         (ts_client.showSignageTemplate as any).mockResolvedValue({
             id: 'template-1',
             background_item_id: 'background-1',
@@ -123,6 +127,55 @@ describe('SignageTemplateComponent', () => {
             top: 20,
             width: 75,
             height: 80,
+        });
+    });
+
+    it('renders the media player full screen when no template is active', async () => {
+        spectator = create_component({
+            params: { system_id: 'display-1' },
+        });
+
+        await spectator.fixture.whenStable();
+
+        expect(ts_client.showSignageTemplate).not.toHaveBeenCalled();
+        expect(spectator.query('signage-panel')).toBeTruthy();
+        expect(spectator.component.player_rect()).toEqual({
+            left: 0,
+            top: 0,
+            width: 100,
+            height: 100,
+        });
+    });
+
+    it('loads a template selected by the display schedule', async () => {
+        spectator = create_component({
+            params: { system_id: 'display-1' },
+        });
+
+        active_template.set(
+            new SignageTemplateMapping({ template_id: 'template-1' }),
+        );
+        await vi.waitFor(() => {
+            expect(spectator.component.template()?.id).toBe('template-1');
+        });
+
+        expect(ts_client.showSignageTemplate).toHaveBeenCalledWith(
+            'template-1',
+            { approved: true },
+        );
+        expect(spectator.query('signage-panel')).toBeTruthy();
+
+        active_template.set(null);
+        await vi.waitFor(() => {
+            expect(spectator.component.template()).toBeNull();
+        });
+
+        expect(spectator.component.background_playlist()).toEqual([]);
+        expect(spectator.component.player_rect()).toEqual({
+            left: 0,
+            top: 0,
+            width: 100,
+            height: 100,
         });
     });
 
