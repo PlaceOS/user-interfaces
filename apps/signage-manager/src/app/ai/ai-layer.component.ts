@@ -240,9 +240,16 @@ export class AiLayerComponent {
             const blocks = this.state().blocks.filter((b) => b.text.trim());
             if (blocks.length < 2) return;
             const at = blocks.findIndex((b) => b.id === this.selected_id());
-            const next = event.shiftKey
-                ? (at <= 0 ? blocks.length : at) - 1
-                : (at + 1) % blocks.length;
+            const next = event.shiftKey ? at - 1 : at + 1;
+
+            // Off either end, let the browser have the key. Cycling forever
+            // would trap a keyboard user inside the canvas with no way out of
+            // the dialog, which is worse than the problem it solves.
+            if (next < 0 || next >= blocks.length) {
+                this.selected_id.set('');
+                return;
+            }
+
             event.preventDefault();
             this.selected_id.set(blocks[next].id);
             this._draw();

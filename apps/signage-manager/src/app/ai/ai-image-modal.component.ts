@@ -713,23 +713,9 @@ export class AiImageModalComponent implements OnDestroy {
         }
     }
 
-    private _intents = new Map<string, string>();
-
-    /**
-     * One key per thing the person asked for, not per call.
-     *
-     * The server replays a repeat rather than spending again, which only works
-     * if a retry of the same request carries the same key. A fresh key was
-     * being minted on every call, so the field could never do its job.
-     */
+    /** on the service, so it survives the dialog being closed and reopened */
     private _intentKey(kind: string, subject: string) {
-        const id = `${kind}:${subject}`;
-        let key = this._intents.get(id);
-        if (!key) {
-            key = crypto.randomUUID();
-            this._intents.set(id, key);
-        }
-        return key;
+        return this._ai.intentKey(kind, subject);
     }
 
     private _select_token = 0;

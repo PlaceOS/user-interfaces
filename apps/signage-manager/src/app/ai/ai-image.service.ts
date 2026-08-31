@@ -279,6 +279,26 @@ export class AiImageService extends AsyncHandler {
         return this.brand_kit();
     }
 
+    /**
+     * One key per thing a person asked for, held here rather than on the modal.
+     *
+     * The dialog is rebuilt on every open, so a key kept on the component died
+     * with it: closing a slow generation and asking for the same thing again
+     * minted a new key and paid twice, which is exactly the case the key exists
+     * to make free.
+     */
+    private readonly _intents = new Map<string, string>();
+
+    public intentKey(kind: string, subject: string) {
+        const id = `${kind}:${subject}`;
+        let key = this._intents.get(id);
+        if (!key) {
+            key = crypto.randomUUID();
+            this._intents.set(id, key);
+        }
+        return key;
+    }
+
     /** the jobs the user started recently, so the list survives a reload */
     public async loadRecent() {
         const jobs = await querySignageAIJobs({ mine: true, limit: 20 }).catch(
