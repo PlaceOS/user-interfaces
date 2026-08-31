@@ -124,6 +124,20 @@ describe('EventManageComponent', () => {
         expect(org.building).toBe(new_building);
     });
 
+    it('should update the event access from the publish select', async () => {
+        spectator.detectChanges();
+        spectator.click('mat-select');
+        await spectator.fixture.whenStable();
+
+        const options = Array.from(
+            document.querySelectorAll<HTMLElement>('mat-option'),
+        );
+        options[2].click();
+        await spectator.fixture.whenStable();
+
+        expect(spectator.component.model().view_access).toBe('PUBLIC');
+    });
+
     it('should resolve the level and building zones from the options', () => {
         expect(spectator.component.level_zone).toEqual({
             id: 'lvl-1',

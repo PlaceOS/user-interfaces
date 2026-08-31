@@ -968,7 +968,6 @@ export class EventFormService extends AsyncHandler {
                 query_calendar
             )
                 query.calendar = query_calendar;
-            if (force_calendar) delete query.system_id;
             const processed_assets = (this._model().assets || []).map((_) =>
                 new AssetRequest(_).toJSON(),
             );

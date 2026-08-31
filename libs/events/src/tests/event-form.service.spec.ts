@@ -829,6 +829,52 @@ describe('EventFormService', () => {
         );
     });
 
+    it('should keep the system when forcing a calendar for event metadata updates', async () => {
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            calendar: 'group-events@test.com',
+            creator: 'host@test.com',
+            title: 'Public event',
+            date,
+            duration: 60,
+            attendees: [],
+            resources: [
+                {
+                    id: 'sys-events',
+                    email: 'group-events@test.com',
+                    zones: [],
+                } as any,
+            ],
+            extension_data: { view_access: 'OPEN' },
+        });
+        const perform_booking_spy = vi
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(event);
+
+        service.newForm(event);
+        service.model.update((model) => ({
+            ...model,
+            view_access: 'PUBLIC',
+        }));
+
+        await service.postForm(true, ['group-events@test.com'], true, true);
+
+        const [saved_event, query] = perform_booking_spy.mock.calls[0] as [
+            CalendarEvent,
+            Record<string, string>,
+        ];
+        expect(saved_event.toJSON()).toMatchObject({
+            permission: 'PUBLIC',
+            extension_data: { view_access: 'PUBLIC' },
+        });
+        expect(query).toMatchObject({
+            calendar: 'group-events@test.com',
+            system_id: 'sys-events',
+        });
+    });
+
     it('should clear saved host changes after a permission error', async () => {
         const current_user = currentUser();
         const perform_booking_spy = vi
