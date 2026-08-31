@@ -22,10 +22,7 @@ import {
     UploadsService,
     userSignal,
 } from '@placeos/common';
-import {
-    loadAuthenticatedImage,
-    openConfirmModal,
-} from '@placeos/components';
+import { loadAuthenticatedImage, openConfirmModal } from '@placeos/components';
 import {
     addGroup,
     addGroupUser,
@@ -101,6 +98,10 @@ import {
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
+import {
+    AiImageModalComponent,
+    AiImageModalData,
+} from './ai/ai-image-modal.component';
 import { DisplayEditModalComponent } from './displays/display-edit-modal.component';
 import { displayZoneIds } from './displays/display-zones.util';
 import {
@@ -112,10 +113,6 @@ import { decodeEntityNames } from './shared/decode-entity-names.util';
 import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
 import { GroupSelectModalComponent } from './shared/group-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
-import {
-    AiImageModalComponent,
-    AiImageModalData,
-} from './ai/ai-image-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
 import { MediaTagsModalComponent } from './shared/media-tags-modal.component';
 import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
@@ -705,14 +702,21 @@ export class SignageService {
     public readonly managed_group_zones = computed(
         () => this._managed_group_zones.value() || [],
     );
-    private readonly _api_group_id = computed(
+    /**
+     * The group a write is made in.
+     *
+     * Public because the AI image endpoints need it too: a caller who is not
+     * support has to name the group they are acting in, and without it the API
+     * refuses every generate with "group_id required".
+     */
+    public readonly api_group_id = computed(
         () => this.selected_group()?.group.id || '',
     );
     // Group selection fans out to six heavy list queries (media, playlists,
     // displays, zones...). Debounce so clicking through the group tree doesn't
     // fire a full set of refetches per click.
     private readonly _api_group_id_debounced = debounced(
-        this._api_group_id,
+        this.api_group_id,
         300,
     );
     public readonly can_read = computed(() =>
@@ -739,7 +743,7 @@ export class SignageService {
     );
 
     private readonly _can_query_group_data = computed(() => {
-        const group_id = this._api_group_id();
+        const group_id = this.api_group_id();
         return this.is_sys_admin() || !!group_id;
     });
     // How many items to request per network page.
@@ -1645,7 +1649,7 @@ export class SignageService {
         const ref = this._dialog.open(PlaylistEditModalComponent, {
             data: {
                 playlist,
-                group_id: this._api_group_id(),
+                group_id: this.api_group_id(),
                 onEdit: (id: string, data: Partial<SignagePlaylist>) =>
                     updateSignagePlaylist(id, data),
             },
@@ -1728,7 +1732,7 @@ export class SignageService {
                 notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_PLAYLIST'));
                 return;
             }
-            const selected_group_id = this._api_group_id();
+            const selected_group_id = this.api_group_id();
             group =
                 groups.find((item) => item.group.id === selected_group_id) ||
                 groups[0];
@@ -2009,7 +2013,7 @@ export class SignageService {
         const ref = this._dialog.open(TemplateEditModalComponent, {
             data: {
                 template,
-                group_id: this._api_group_id(),
+                group_id: this.api_group_id(),
                 onEdit: (id: string, data: Partial<SignageTemplate>) =>
                     updateSignageTemplate(id, data),
             },
@@ -2124,7 +2128,7 @@ export class SignageService {
                 notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_TEMPLATE'));
                 return;
             }
-            const selected_group_id = this._api_group_id();
+            const selected_group_id = this.api_group_id();
             group =
                 groups.find((item) => item.group.id === selected_group_id) ||
                 groups[0];
@@ -2175,7 +2179,7 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        const group_id = this._api_group_id();
+        const group_id = this.api_group_id();
         await (group_id
             ? del(
                   `${apiEndpoint()}/signage/templates/${encodeURIComponent(template.id)}?group_id=${encodeURIComponent(group_id)}`,
@@ -2263,7 +2267,7 @@ export class SignageService {
     }
 
     private _addSignageTemplate(form_data: Partial<SignageTemplate>) {
-        const group_id = this._api_group_id();
+        const group_id = this.api_group_id();
         return addSignageTemplate(
             form_data,
             group_id ? { group_id } : undefined,
@@ -2499,7 +2503,7 @@ export class SignageService {
 
     private _groupQueryParams<T extends Record<string, any>>(
         query_params: T,
-        group_id = this._api_group_id(),
+        group_id = this.api_group_id(),
     ) {
         return {
             ...query_params,
@@ -2509,7 +2513,7 @@ export class SignageService {
 
     private _orgZoneQueryParams<T extends Record<string, any>>(
         query_params: T,
-        group_id = this._api_group_id(),
+        group_id = this.api_group_id(),
     ) {
         const org_zone_id = this._org.organisation?.id;
         let zone_params: { group_id?: string; zone_id?: string } = {};
@@ -2525,7 +2529,7 @@ export class SignageService {
     }
 
     private async _addSignageMedia(form_data: Partial<SignageMedia>) {
-        const group_id = this._api_group_id();
+        const group_id = this.api_group_id();
         const result = await retryMediaRequest(() =>
             group_id
                 ? post(
@@ -2555,7 +2559,7 @@ export class SignageService {
     }
 
     private _addSignagePlaylist(form_data: Partial<SignagePlaylist>) {
-        const group_id = this._api_group_id();
+        const group_id = this.api_group_id();
         if (!group_id) return addSignagePlaylist(form_data);
         return post(
             `${apiEndpoint()}/signage/playlists?group_id=${encodeURIComponent(group_id)}`,
@@ -2601,7 +2605,7 @@ export class SignageService {
 
     private async _playlistApprovalGroups(playlist: SignagePlaylist) {
         const groups = this.signage_groups();
-        const selected_group_id = this._api_group_id();
+        const selected_group_id = this.api_group_id();
         const matching_groups: PlaceCurrentGroup[] = [];
         for (const group of groups) {
             if (!group.group.id) continue;
@@ -2628,7 +2632,7 @@ export class SignageService {
 
     private async _templateApprovalGroups(template: SignageTemplate) {
         const groups = this.signage_groups();
-        const selected_group_id = this._api_group_id();
+        const selected_group_id = this.api_group_id();
         const matching_groups: PlaceCurrentGroup[] = [];
         for (const group of groups) {
             if (!group.group.id) continue;
@@ -2976,7 +2980,7 @@ export class SignageService {
                 ? await this._resolvePlugin(item.plugin_id)
                 : undefined;
         this._dialog.open(MediaPreviewModalComponent, {
-            data: { media: item, plugin, group_id: this._api_group_id() },
+            data: { media: item, plugin, group_id: this.api_group_id() },
             panelClass: 'fullscreen-dialog',
         });
     }
@@ -3177,8 +3181,7 @@ export class SignageService {
             source_upload_id: media.media_id,
             source_item_id: media.id,
             source_name: media.name,
-            aspect_ratio:
-                media.orientation === 'portrait' ? '9:16' : '16:9',
+            aspect_ratio: media.orientation === 'portrait' ? '9:16' : '16:9',
         });
     }
 
@@ -3250,7 +3253,7 @@ export class SignageService {
                 file_metadata,
                 file_thumbnail,
                 playlist_id,
-                group_id: this._api_group_id(),
+                group_id: this.api_group_id(),
                 plugin,
                 tag_options: this.media_tags(),
                 loadPlugin: load_plugin,
@@ -3780,7 +3783,7 @@ export class SignageService {
     }
 
     private async _defaultDisplayZoneIds() {
-        const group_id = this._api_group_id();
+        const group_id = this.api_group_id();
         const active_zone =
             this._org.building || this._org.region || this._org.organisation;
         let roots = group_id

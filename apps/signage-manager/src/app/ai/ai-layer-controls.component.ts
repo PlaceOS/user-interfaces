@@ -220,21 +220,26 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
             >
                 @if (!has_logo()) {
                     <span class="text-sm">{{
-                        'SIGNAGE_MANAGER.AI_NO_LOGO_YET' | translate
+                        (can_set_logo()
+                            ? 'SIGNAGE_MANAGER.AI_NO_LOGO_YET'
+                            : 'SIGNAGE_MANAGER.AI_NO_LOGO_ADMIN'
+                        ) | translate
                     }}</span>
-                    <button
-                        mat-stroked-button
-                        type="button"
-                        [disabled]="uploading()"
-                        (click)="logo_input.click()"
-                    >
-                        {{
-                            (uploading()
-                                ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
-                                : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
-                            ) | translate
-                        }}
-                    </button>
+                    @if (can_set_logo()) {
+                        <button
+                            mat-stroked-button
+                            type="button"
+                            [disabled]="uploading()"
+                            (click)="logo_input.click()"
+                        >
+                            {{
+                                (uploading()
+                                    ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
+                                    : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
+                                ) | translate
+                            }}
+                        </button>
+                    }
                 } @else {
                     <mat-slide-toggle
                         [ngModel]="state().logo"
@@ -342,6 +347,7 @@ export class AiLayerControlsComponent {
     public readonly logo_on_dark = input<string>('');
     public readonly brand = input<AiBrandKit | null>(null);
     public readonly uploading = input(false);
+    public readonly can_set_logo = input(true);
 
     public readonly changed = output<AiLayerState>();
     public readonly logoPicked = output<File>();

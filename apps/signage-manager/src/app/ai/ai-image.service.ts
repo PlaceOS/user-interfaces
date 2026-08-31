@@ -31,6 +31,9 @@ import {
 
 const FINAL_STATES = ['done', 'failed', 'cancelled'];
 
+/** distinguishes "the read failed" from "the read returned nothing" */
+const FAILED = Symbol('metadata read failed');
+
 /** the brand kit key each slot is stored under */
 export function logoKey(
     slot: AiLogoSlot,
@@ -40,6 +43,9 @@ export function logoKey(
 
 /** how long a single long poll holds the connection open, server capped at 25 */
 const POLL_WAIT = 25;
+
+/** consecutive failures before a job is given up on */
+const POLL_RETRIES = 10;
 
 export function isFinal(job?: AiJob | null) {
     return !!job && FINAL_STATES.includes(job.state);
@@ -57,6 +63,10 @@ export class AiImageService extends AsyncHandler {
     /** null until asked; `enabled: false` hides every entry point */
     public readonly capabilities = signal<AiCapabilities | null>(null);
     public readonly brand_kit = signal<AiBrandKit | null>(null);
+    /** whether the kit above is what the server holds, or just an empty start */
+    public readonly brand_kit_read = signal<'pending' | 'ok' | 'failed'>(
+        'pending',
+    );
     public readonly jobs = signal<Record<string, AiJob>>({});
 
     public readonly enabled = computed(() => !!this.capabilities()?.enabled);
@@ -99,14 +109,7 @@ export class AiImageService extends AsyncHandler {
             },
         );
         if (capabilities?.enabled && org_zone_id) {
-            const metadata = await showMetadata(
-                org_zone_id,
-                'signage_ai',
-            ).catch(() => null);
-            const details = (metadata as any)?.details;
-            if (details && Object.keys(details).length) {
-                this.brand_kit.set(details as AiBrandKit);
-            }
+            await this.reloadBrandKit();
         }
         return this.capabilities();
     }
@@ -228,6 +231,13 @@ export class AiImageService extends AsyncHandler {
         if (!this._org_zone) {
             throw new Error(i18n('SIGNAGE_MANAGER.AI_NO_ORG_ZONE'));
         }
+        // The write below replaces the whole document. If the read failed we
+        // hold an empty kit that looks exactly like an organisation with no
+        // branding, and saving would write that over the real one, taking the
+        // logo upload ids with it.
+        if (this.brand_kit_read() !== 'ok') {
+            throw new Error(i18n('SIGNAGE_MANAGER.BRAND_NOT_LOADED'));
+        }
         const details = { ...(this.brand_kit() || {}), ...changes };
         for (const key of Object.keys(details)) {
             if (details[key] === undefined) delete details[key];
@@ -254,12 +264,18 @@ export class AiImageService extends AsyncHandler {
     public async reloadBrandKit(): Promise<AiBrandKit | null> {
         if (!this._org_zone) return null;
         const metadata = await showMetadata(this._org_zone, 'signage_ai').catch(
-            () => null,
+            () => FAILED,
         );
+        if (metadata === FAILED) {
+            this.brand_kit_read.set('failed');
+            return this.brand_kit();
+        }
         const details = (metadata as any)?.details;
         if (details && Object.keys(details).length) {
             this.brand_kit.set(details as AiBrandKit);
         }
+        // an empty answer is a real answer: the organisation has set nothing
+        this.brand_kit_read.set('ok');
         return this.brand_kit();
     }
 
@@ -276,8 +292,10 @@ export class AiImageService extends AsyncHandler {
     }
 
     public async generate(request: AiGenerateRequest) {
+        // The caller owns the key: minting one here meant every retry looked
+        // like a new request, which is the opposite of what the field is for.
         const job = await generateSignageImage({
-            idempotency_key: crypto.randomUUID(),
+            idempotency_key: request.idempotency_key || crypto.randomUUID(),
             ...request,
         });
         this._merge([job]);
@@ -287,7 +305,7 @@ export class AiImageService extends AsyncHandler {
 
     public async edit(request: AiEditRequest) {
         const job = await editSignageImage({
-            idempotency_key: crypto.randomUUID(),
+            idempotency_key: request.idempotency_key || crypto.randomUUID(),
             ...request,
         });
         this._merge([job]);
@@ -317,33 +335,81 @@ export class AiImageService extends AsyncHandler {
      * it lands without polling in a tight circle. A job that outlives one wait
      * simply spans several requests.
      */
+    /**
+     * Watch a job until it finishes.
+     *
+     * The timer handle is cleared the moment the callback fires, so checking it
+     * did not stop a second `watch` starting another loop over the same job
+     * while the first was parked on a 25 second request. `_watching` is the
+     * flag that actually holds.
+     */
     public watch(id: string) {
-        if (this._timers[`watch-${id}`]) return;
+        if (this._watching.has(id)) return;
+        this._watching.add(id);
+        this._attempts.delete(id);
         this.timeout(`watch-${id}`, () => this._poll(id), 1);
     }
 
+    public unwatch(id: string) {
+        this._watching.delete(id);
+        this._attempts.delete(id);
+        this.clearTimeout(`watch-${id}`);
+    }
+
+    private readonly _watching = new Set<string>();
+    private readonly _attempts = new Map<string, number>();
+
     private async _poll(id: string) {
+        if (!this._watching.has(id)) return;
+
         const known = this.jobs()[id]?.version ?? 0;
         const job = await showSignageAIJob(id, {
             wait: POLL_WAIT,
             since: known,
-        }).catch(() => null);
+        }).catch((error) => ({ error }) as { error: any });
 
-        if (!job) {
-            // a dropped connection is normal on a long poll; try again shortly
+        if (!job || 'error' in job) {
+            const status = (job as any)?.error?.status;
+            // 404 and 403 do not become true by asking again. Anything else is
+            // treated as a dropped connection, which is normal on a long poll,
+            // but not forever: an unreachable API used to be polled every two
+            // seconds for the life of the page.
+            const attempts = (this._attempts.get(id) || 0) + 1;
+            this._attempts.set(id, attempts);
+            if (status === 404 || status === 403 || attempts > POLL_RETRIES) {
+                this.unwatch(id);
+                return;
+            }
             this.timeout(`watch-${id}`, () => this._poll(id), 2000);
             return;
         }
 
-        this._merge([job]);
+        this._attempts.delete(id);
+        this._merge([job as AiJob]);
 
-        if (isFinal(job)) {
-            this.clearTimeout(`watch-${id}`);
-            this._announce(job);
+        if (isFinal(job as AiJob)) {
+            this.unwatch(id);
+            this._announce(job as AiJob);
+            this.refreshQuota();
             return;
         }
 
         this.timeout(`watch-${id}`, () => this._poll(id), 1);
+    }
+
+    /**
+     * Re-read what is left of the allowance.
+     *
+     * It is otherwise read once at start up, so the number under the brief was
+     * stale from the first image onwards.
+     */
+    public async refreshQuota() {
+        const capabilities = await signageAICapabilities().catch(() => null);
+        if (capabilities?.quota) {
+            this.capabilities.update((current) =>
+                current ? { ...current, quota: capabilities.quota } : current,
+            );
+        }
     }
 
     /** told once, when a job the user may no longer be watching finishes */

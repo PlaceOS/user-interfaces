@@ -75,7 +75,9 @@ interface Candidate {
 
             <div class="flex min-h-0 flex-1 flex-col md:flex-row">
                 <!-- the picture, given the room -->
-                <section class="flex min-h-0 min-w-0 flex-1 flex-col gap-3 p-4">
+                <section
+                    class="flex min-h-48 min-w-0 flex-1 flex-col gap-3 p-4 md:min-h-0"
+                >
                     <div
                         class="border-base-content/10 bg-base-300 relative flex min-h-0 flex-1 items-center justify-center overflow-hidden rounded border"
                     >
@@ -89,6 +91,7 @@ interface Candidate {
                                 [brand]="applied_brand()"
                                 [state]="layer_state()"
                                 (changed)="layer_state.set($event)"
+                                (failed)="onArtworkFailed()"
                             ></ai-layer>
                         } @else if (source_url()) {
                             <img
@@ -167,7 +170,7 @@ interface Candidate {
 
                 <!-- everything that shapes it -->
                 <aside
-                    class="border-base-content/10 bg-base-100 flex w-full shrink-0 flex-col border-t md:w-96 md:border-t-0 md:border-l"
+                    class="border-base-content/10 bg-base-100 flex min-h-0 w-full flex-1 flex-col border-t md:w-96 md:flex-none md:shrink-0 md:border-t-0 md:border-l"
                 >
                     <div class="flex-1 space-y-4 overflow-y-auto p-4">
                         @if (!rail().length) {
@@ -367,6 +370,7 @@ interface Candidate {
                                     [logo_on_light]="logo_on_light()"
                                     [logo_on_dark]="logo_on_dark()"
                                     [brand]="applied_brand()"
+                                    [can_set_logo]="can_set_logo()"
                                     [uploading]="uploading_logo()"
                                     (changed)="layer_state.set($event)"
                                     (logoPicked)="uploadLogo($event)"
@@ -489,6 +493,24 @@ export class AiImageModalComponent implements OnDestroy {
     public readonly uploading_references = signal(false);
 
     public readonly brand = this._ai.brand_kit;
+
+    /**
+     * The group this request is made in.
+     *
+     * A caller who is not support has to name one or the API refuses the whole
+     * request. Sending an empty string is the same as not sending it, which is
+     * right for a support user browsing across every group.
+     */
+    /**
+     * The logo belongs to the organisation, so setting it from here is the same
+     * decision as setting it on the branding page, which is administrators
+     * only. Without this the modal was a way around that.
+     */
+    public readonly can_set_logo = this._service.is_sys_admin;
+
+    public readonly group_id = computed(
+        () => this._service.api_group_id() || undefined,
+    );
 
     /** there is nothing to switch off if the organisation has set nothing */
     public readonly has_branding = computed(() => {
@@ -627,6 +649,7 @@ export class AiImageModalComponent implements OnDestroy {
         const prompt = this.brief().trim();
         if (!prompt) return;
         this.state.set('generating');
+        const key = this._intentKey('generate', prompt);
         try {
             const job = this._data.source_upload_id
                 ? await this._ai.edit({
@@ -636,6 +659,8 @@ export class AiImageModalComponent implements OnDestroy {
                       include_logo: this.include_logo(),
                       add_text_with_layer: this.add_text_with_layer(),
                       use_branding: this.use_branding(),
+                      group_id: this.group_id(),
+                      idempotency_key: key,
                       source_upload_id: this._data.source_upload_id,
                       source_item_id: this._data.source_item_id,
                       references: this.reference_ids(),
@@ -647,6 +672,8 @@ export class AiImageModalComponent implements OnDestroy {
                       include_logo: this.include_logo(),
                       add_text_with_layer: this.add_text_with_layer(),
                       use_branding: this.use_branding(),
+                      group_id: this.group_id(),
+                      idempotency_key: key,
                       references: this.reference_ids(),
                   });
             this.current_job_id.set(job.id);
@@ -661,6 +688,7 @@ export class AiImageModalComponent implements OnDestroy {
         const instruction = this.refinement().trim();
         const source = this.selected();
         if (!instruction || !source) return;
+        const key = this._intentKey('refine', instruction + source.upload_id);
         this.refinement.set('');
         this.state.set('generating');
         try {
@@ -671,6 +699,8 @@ export class AiImageModalComponent implements OnDestroy {
                 include_logo: this.include_logo(),
                 add_text_with_layer: this.add_text_with_layer(),
                 use_branding: this.use_branding(),
+                group_id: this.group_id(),
+                idempotency_key: key,
                 source_upload_id: source.upload_id,
                 parent_job_id: source.job_id,
                 references: this.reference_ids(),
@@ -683,9 +713,42 @@ export class AiImageModalComponent implements OnDestroy {
         }
     }
 
+    private _intents = new Map<string, string>();
+
+    /**
+     * One key per thing the person asked for, not per call.
+     *
+     * The server replays a repeat rather than spending again, which only works
+     * if a retry of the same request carries the same key. A fresh key was
+     * being minted on every call, so the field could never do its job.
+     */
+    private _intentKey(kind: string, subject: string) {
+        const id = `${kind}:${subject}`;
+        let key = this._intents.get(id);
+        if (!key) {
+            key = crypto.randomUUID();
+            this._intents.set(id, key);
+        }
+        return key;
+    }
+
+    private _select_token = 0;
+
+    public onArtworkFailed() {
+        this.selected_object_url.set('');
+        notifyError(i18n('SIGNAGE_MANAGER.AI_IMAGE_UNREADABLE'));
+    }
+
     public async select(candidate: Candidate) {
+        // Clicking along the rail starts a fetch per click, and they can land
+        // out of order. Without a token the preview, and the flattened file a
+        // save produces, could end up showing a candidate other than the one
+        // highlighted.
+        const token = ++this._select_token;
         this.selected.set(candidate);
+        this.selected_object_url.set('');
         const url = await this._ai.loadImage(candidate.url).catch(() => '');
+        if (token !== this._select_token) return;
         this.selected_object_url.set(url);
     }
 
@@ -742,7 +805,14 @@ export class AiImageModalComponent implements OnDestroy {
      * vendor call starts, and a job outlives this dialog by design. Those are
      * left to the housekeeping sweep, which is what their tag is for.
      */
+    private _closed = false;
+
     public ngOnDestroy() {
+        // the loop below is a bare setTimeout, and without this it kept ticking
+        // for the life of the page and wrote into a destroyed component
+        this._closed = true;
+        if (this._await_timer) clearTimeout(this._await_timer);
+
         const running = this.state() === 'generating';
         for (const item of this.references()) {
             URL.revokeObjectURL(item.url);
@@ -751,6 +821,7 @@ export class AiImageModalComponent implements OnDestroy {
     }
 
     public async uploadLogo(file: File) {
+        if (!this.can_set_logo()) return;
         this.uploading_logo.set(true);
         try {
             await this._ai.uploadBrandLogo(file);
@@ -804,6 +875,18 @@ export class AiImageModalComponent implements OnDestroy {
                 );
             }
 
+            // The flattened path goes through addMedia, which takes no
+            // playlist, so a poster with words on it would land only in the
+            // library. Inert until something sets playlist_id: the entry point
+            // from a playlist is not built yet. Not swallowed, so that when it
+            // is, a failure here is not reported as a success.
+            if (blob && media?.id && this._data.playlist_id) {
+                await this._service.addMediaToPlaylist(
+                    this._data.playlist_id,
+                    media.id,
+                );
+            }
+
             if (media?.id) {
                 await this._ai.claim(
                     candidate.job_id,
@@ -823,20 +906,24 @@ export class AiImageModalComponent implements OnDestroy {
             }
             this._dialog_ref.close(media);
         } catch (error) {
-            // eslint-disable-next-line no-console
-            console.error('signage AI save failed', error);
             notifyError(this._message(error));
         } finally {
             this.saving.set(false);
         }
     }
 
+    private _await_timer: any = null;
+
     /** poll until the job reaches a final state, then move on */
     private _awaitJob(id: string) {
         const check = () => {
+            this._await_timer = null;
+            if (this._closed) return;
             const job = this._ai.jobs()[id];
-            if (!job) return setTimeout(check, 250);
-            if (!isFinal(job)) return setTimeout(check, 250);
+            if (!job || !isFinal(job)) {
+                this._await_timer = setTimeout(check, 250);
+                return;
+            }
             if (job.state === 'failed') {
                 this.state.set(this.rail().length ? 'review' : 'compose');
                 notifyError(
@@ -885,12 +972,15 @@ export class AiImageModalComponent implements OnDestroy {
         return words || i18n('SIGNAGE_MANAGER.AI_DEFAULT_NAME');
     }
 
-    private _tags(candidate: Candidate) {
-        const tags = ['ai-generated', `ai-job-${candidate.job_id}`];
-        if (this._data.source_upload_id) {
-            tags.push(`ai-source-${this._data.source_upload_id}`);
-        }
-        return tags;
+    /**
+     * Tags are what the media library builds its folders from, so only a label
+     * a person would want to browse by belongs here. The job and source ids
+     * used to be tags too, which gave every generated image its own folder of
+     * one. The job to item link lives on the job record instead, written by
+     * `claim`.
+     */
+    private _tags(_candidate: Candidate) {
+        return ['ai-generated'];
     }
 
     private _message(error: any) {

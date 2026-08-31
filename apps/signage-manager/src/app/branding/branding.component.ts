@@ -98,6 +98,10 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                     [ngModel]="colour"
                                     (ngModelChange)="setColour($index, $event)"
                                     [disabled]="!can_edit()"
+                                    [class.text-error]="colour_errors()[$index]"
+                                    [attr.aria-invalid]="
+                                        colour_errors()[$index] ? 'true' : null
+                                    "
                                     placeholder="#0E6E52"
                                 />
                             </mat-form-field>
@@ -382,6 +386,13 @@ export class BrandingComponent implements OnInit {
         this.colours.update((list) => list.filter((_, i) => i !== index));
     }
 
+    /** #rgb or #rrggbb, the only thing the canvas and the prompt can use */
+    public static readonly COLOUR = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
+
+    public readonly colour_errors = computed(() =>
+        this.colours().map((colour) => !BrandingComponent.COLOUR.test(colour)),
+    );
+
     public setColour(index: number, value: string) {
         this.colours.update((list) =>
             list.map((colour, i) => (i === index ? value : colour)),
@@ -453,6 +464,10 @@ export class BrandingComponent implements OnInit {
 
     public async save() {
         if (!this.can_edit()) return;
+        if (this.colour_errors().some(Boolean)) {
+            notifyError(i18n('SIGNAGE_MANAGER.BRAND_COLOUR_INVALID'));
+            return;
+        }
         this.saving.set(true);
         try {
             const palette: Record<string, string> = {};

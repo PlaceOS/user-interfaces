@@ -129,7 +129,7 @@ describe('SignageService media uploads', () => {
     }
 
     function selectApiGroup(service: SignageService, group_id: string) {
-        Object.defineProperty(service, '_api_group_id', {
+        Object.defineProperty(service, 'api_group_id', {
             value: () => group_id,
         });
     }

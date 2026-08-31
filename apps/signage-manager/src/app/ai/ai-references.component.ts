@@ -1,6 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 import { AiReference } from './ai.types';
@@ -32,9 +33,10 @@ import { AiReference } from './ai.types';
                             <img
                                 [src]="item.url"
                                 class="h-full w-full object-cover"
-                                [alt]="item.name"
+                                [alt]="numberedLabel(index, item.name)"
                             />
                             <span
+                                aria-hidden="true"
                                 class="bg-base-content text-base-100 absolute top-0 left-0 rounded-br px-1 text-xs font-bold"
                                 >{{ index + 1 }}</span
                             >
@@ -51,6 +53,12 @@ import { AiReference } from './ai.types';
                                         | translate
                                 "
                                 (click)="removed.emit(item.id)"
+                                [attr.aria-label]="
+                                    ('SIGNAGE_MANAGER.AI_REFERENCE_REMOVE'
+                                        | translate) +
+                                    ' ' +
+                                    numberedLabel(index, item.name)
+                                "
                             >
                                 <icon class="text-sm">close</icon>
                             </button>
@@ -96,6 +104,13 @@ export class AiReferencesComponent {
 
     public readonly picked = output<File[]>();
     public readonly removed = output<string>();
+
+    /** the number is the whole point of the thumbnail, so it has to be read out */
+    public numberedLabel(index: number, name: string) {
+        return `${i18n('SIGNAGE_MANAGER.AI_REFERENCE_NUMBER', {
+            number: `${index + 1}`,
+        })}: ${name}`;
+    }
 
     public pick(event: Event) {
         const input = event.target as HTMLInputElement;

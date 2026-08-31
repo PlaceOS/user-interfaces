@@ -9,6 +9,8 @@ import {
     viewChild,
 } from '@angular/core';
 
+import { TranslatePipe } from '@placeos/components';
+
 import { ensureBrandFont } from '../branding/brand-fonts';
 import {
     AiBrandKit,
@@ -65,7 +67,7 @@ interface Box {
             class="max-h-full max-w-full touch-none"
             [class.cursor-grab]="hover_id() && !drag_id()"
             [class.cursor-grabbing]="!!drag_id()"
-            [attr.aria-label]="'Preview of the finished image'"
+            [attr.aria-label]="'SIGNAGE_MANAGER.AI_LAYER_PREVIEW' | translate"
             (pointerdown)="onPointerDown($event)"
             (pointermove)="onPointerMove($event)"
             (pointerup)="onPointerUp($event)"
@@ -89,6 +91,7 @@ interface Box {
             }
         `,
     ],
+    imports: [TranslatePipe],
 })
 export class AiLayerComponent {
     public readonly image_url = input.required<string>();
@@ -101,6 +104,8 @@ export class AiLayerComponent {
 
     /** a block was dragged or nudged */
     public readonly changed = output<AiLayerState>();
+    /** the artwork could not be decoded, so there is nothing to composite */
+    public readonly failed = output<void>();
 
     public readonly hover_id = signal('');
     public readonly drag_id = signal('');
@@ -109,6 +114,7 @@ export class AiLayerComponent {
     private readonly _canvas =
         viewChild<ElementRef<HTMLCanvasElement>>('canvas');
     private _artwork: HTMLImageElement | null = null;
+    private _artwork_url = '';
     private readonly _logos: Record<AiLogoSlot, HTMLImageElement | null> = {
         on_light: null,
         on_dark: null,
@@ -154,6 +160,7 @@ export class AiLayerComponent {
             this.state();
             this.hover_id();
             this.drag_id();
+            this.selected_id();
             this._draw();
         });
     }
@@ -161,14 +168,20 @@ export class AiLayerComponent {
     /** the composited image, at the artwork's native size */
     public toBlob(): Promise<Blob | null> {
         const canvas = this._canvas()?.nativeElement;
-        if (!canvas) return Promise.resolve(null);
+        // Without the artwork the canvas is still its default 300x150 and
+        // `toBlob` hands back a perfectly valid blank image, which the caller
+        // then saves as the poster.
+        if (!canvas || !this._artwork) return Promise.resolve(null);
         // the outline is an editing aid, not part of the poster
         const hovered = this.hover_id();
+        const selected = this.selected_id();
         this.hover_id.set('');
+        this.selected_id.set('');
         this._draw();
         return new Promise((resolve) =>
             canvas.toBlob((blob) => {
                 this.hover_id.set(hovered);
+                this.selected_id.set(selected);
                 resolve(blob);
             }, 'image/png'),
         );
@@ -221,6 +234,21 @@ export class AiLayerComponent {
 
     /** the same moves without a mouse, for whoever cannot use one */
     public onKeyDown(event: KeyboardEvent) {
+        // Tab steps through the blocks, so a keyboard user can reach the second
+        // one. Without it the arrow keys only ever moved the first.
+        if (event.key === 'Tab') {
+            const blocks = this.state().blocks.filter((b) => b.text.trim());
+            if (blocks.length < 2) return;
+            const at = blocks.findIndex((b) => b.id === this.selected_id());
+            const next = event.shiftKey
+                ? (at <= 0 ? blocks.length : at) - 1
+                : (at + 1) % blocks.length;
+            event.preventDefault();
+            this.selected_id.set(blocks[next].id);
+            this._draw();
+            return;
+        }
+
         const id = this.selected_id() || this.state().blocks[0]?.id;
         const box = id ? this._boxes.get(id) : null;
         const block = this.state().blocks.find((item) => item.id === id);
@@ -291,7 +319,15 @@ export class AiLayerComponent {
     private _loadArtwork(url: string) {
         const image = new Image();
         image.crossOrigin = 'anonymous';
+        this._artwork = null;
+        this._artwork_url = url;
+        image.onerror = () => {
+            if (this._artwork_url !== url) return;
+            this._artwork = null;
+            this.failed.emit();
+        };
         image.onload = () => {
+            if (this._artwork_url !== url) return;
             this._artwork = image;
             const canvas = this._canvas()?.nativeElement;
             if (canvas) {
@@ -386,7 +422,11 @@ export class AiLayerComponent {
                 context.fillText(line, x, box.top + offset + leading * index);
             });
 
-            if (this.hover_id() === block.id || this.drag_id() === block.id) {
+            if (
+                this.hover_id() === block.id ||
+                this.drag_id() === block.id ||
+                this.selected_id() === block.id
+            ) {
                 this._outline(context, box, Math.round(size * 0.35));
             }
         }
@@ -418,10 +458,27 @@ export class AiLayerComponent {
 
         // measured first, because which version to draw depends on what is
         // behind it, and that is only known once the box is known
-        const sample = this._logos.on_light || this._logos.on_dark;
-        if (!sample) return;
-        const scale = target_width / (sample.naturalWidth || target_width);
-        const target_height = Math.round(sample.naturalHeight * scale);
+        // Measured from a nominal square so the sampling box does not depend on
+        // which variant loaded first, then measured again from the file that is
+        // actually drawn. Sampling with one file's shape and drawing another's
+        // stretched the logo whenever the two differed.
+        const probe = this._logos.on_light || this._logos.on_dark;
+        if (!probe) return;
+        const nominal = Math.round(width * state.logo_scale * 0.4);
+        const logo = this._logoFor(state, context, {
+            left: state.logo_position.endsWith('left')
+                ? margin
+                : width - target_width - margin,
+            top: state.logo_position.startsWith('top')
+                ? margin
+                : height - nominal - margin,
+            width: target_width,
+            height: nominal,
+        });
+        if (!logo) return;
+
+        const scale = target_width / (logo.naturalWidth || target_width);
+        const target_height = Math.round(logo.naturalHeight * scale);
         const left = state.logo_position.endsWith('left')
             ? margin
             : width - target_width - margin;
@@ -429,13 +486,6 @@ export class AiLayerComponent {
             ? margin
             : height - target_height - margin;
 
-        const logo = this._logoFor(state, context, {
-            left,
-            top,
-            width: target_width,
-            height: target_height,
-        });
-        if (!logo) return;
         context.drawImage(logo, left, top, target_width, target_height);
     }
 
