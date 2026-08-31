@@ -356,4 +356,27 @@ describe('ParkingTopbarComponent', () => {
             spectator.inject(ParkingStateService).setOptions,
         ).toHaveBeenCalledWith({ search: '' });
     });
+
+    it('should keep all levels selected when parking management is cleared', () => {
+        spectator = createComponent();
+        Object.defineProperty(spectator.component, 'all_levels', {
+            value: signal([{ id: 'lvl-1' }, { id: 'lvl-2' }]),
+            configurable: true,
+        });
+        const router = spectator.inject(Router);
+        Object.defineProperty(router, 'url', {
+            value: '/book/parking/manage/spaces',
+            configurable: true,
+        });
+        vi.spyOn(router, 'navigate').mockResolvedValue(true);
+        vi.mocked(spectator.inject(ParkingStateService).setOptions).mockClear();
+
+        spectator.component.updateZones([]);
+        (spectator.component as any)._updatePath();
+
+        expect(spectator.component.zones()).toEqual([]);
+        expect(
+            spectator.inject(ParkingStateService).setOptions,
+        ).not.toHaveBeenCalledWith({ zones: ['lvl-1'] });
+    });
 });

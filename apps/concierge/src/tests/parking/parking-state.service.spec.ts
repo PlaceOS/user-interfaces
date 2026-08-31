@@ -20,6 +20,7 @@ import { UserPipe } from '@placeos/users';
 import { MockProvider } from 'ng-mocks';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
+import { ParkingSpaceModalComponent } from '../../app/parking/parking-space-modal.component';
 import {
     ParkingStateService,
     type ParkingSpace,
@@ -495,7 +496,23 @@ describe('ParkingStateService', () => {
     });
 
     it('should set zone fields when creating a parking space', async () => {
-        spectator.service.setOptions({ zones: ['lvl-selected'] });
+        const levels = [
+            {
+                id: 'lvl-first',
+                parent_id: 'bld-1',
+                tags: ['parking'],
+            },
+            {
+                id: 'lvl-chosen',
+                parent_id: 'bld-1',
+                tags: ['parking'],
+            },
+        ];
+        Object.defineProperty(spectator.service, 'levels', {
+            value: () => levels,
+            configurable: true,
+        });
+        spectator.service.setOptions({ zones: [] });
         const dialog_ref = {
             afterClosed: () =>
                 of({
@@ -503,6 +520,7 @@ describe('ParkingStateService', () => {
                     metadata: {
                         identifier: 'Bay 1',
                         bookable: true,
+                        zone_id: 'lvl-chosen',
                     },
                 }),
             componentInstance: {
@@ -512,13 +530,53 @@ describe('ParkingStateService', () => {
             close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        (spectator.inject(MatDialog).open as any).mockClear();
 
         await spectator.service.editSpace();
 
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            ParkingSpaceModalComponent,
+            expect.objectContaining({
+                data: expect.objectContaining({ zone_id: 'lvl-first' }),
+            }),
+        );
         expect(ts_client.addAsset).toHaveBeenCalledWith(
             expect.objectContaining({
-                zone_id: 'lvl-selected',
-                zones: ['org-1', 'region-1', 'bld-1', 'lvl-selected'],
+                zone_id: 'lvl-chosen',
+                zones: ['org-1', 'region-1', 'bld-1', 'lvl-chosen'],
+            }),
+        );
+    });
+
+    it('should default a new parking space to the selected level', async () => {
+        const levels = [
+            {
+                id: 'lvl-selected',
+                parent_id: 'bld-1',
+                tags: ['parking'],
+            },
+        ];
+        Object.defineProperty(spectator.service, 'levels', {
+            value: () => levels,
+            configurable: true,
+        });
+        spectator.service.setOptions({ zones: ['lvl-selected'] });
+        const dialog_ref = {
+            afterClosed: () => of(undefined),
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        (spectator.inject(MatDialog).open as any).mockClear();
+
+        await spectator.service.editSpace();
+
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            ParkingSpaceModalComponent,
+            expect.objectContaining({
+                data: expect.objectContaining({ zone_id: 'lvl-selected' }),
             }),
         );
     });

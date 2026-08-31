@@ -1,12 +1,15 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { CateringOrdersService, CateringStateService } from '@placeos/catering';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { signal } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
@@ -61,6 +64,16 @@ describe('CateringTopbarComponent', () => {
         spectator.setRouteParam('view', 'orders');
         spectator.detectChanges();
         expect(spectator.component.page()).toBe('orders');
+    });
+
+    it('should keep selected levels as a flat list', () => {
+        spectator.component.updateZones(['lvl-1', 'lvl-2']);
+
+        expect(spectator.component.zones()).toEqual(['lvl-1', 'lvl-2']);
+        const filters = spectator.inject(CateringOrdersService).filters as {
+            zones?: string[];
+        };
+        expect(filters.zones).toEqual(['lvl-1', 'lvl-2']);
     });
 
     it('should clear the selected level when switching catering views', () => {

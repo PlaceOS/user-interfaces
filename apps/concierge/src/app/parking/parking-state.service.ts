@@ -762,17 +762,18 @@ export class ParkingStateService extends AsyncHandler {
 
     /** Add or update a space in the available list */
     public async editSpace(space: ParkingSpace = {} as any) {
+        const levels = this.levels();
+        const zone_id =
+            space.zone_id || this._options().zones[0] || levels[0]?.id || '';
         const ref = this._dialog.open(ParkingSpaceModalComponent, {
-            data: space,
+            data: { space, levels, zone_id },
         });
         const state = await this._waitForModalResult(ref);
         if (state?.reason !== 'done') return;
-        // Keep the space on its own level when no specific level is selected
-        // (viewing all levels), otherwise use the selected level.
-        const zone_id =
-            space.zone_id ||
-            this._options().zones[0] ||
-            this._org.levelsForBuilding()[0]?.id;
+        // Existing spaces stay on their current level. New spaces use the
+        // level selected in the modal.
+        const selected_zone_id =
+            space.zone_id || state.metadata.zone_id || zone_id;
         const asset_data: Partial<ParkingSpace> = {
             ...stripParkingZones(state.metadata),
             id: state.metadata.id || undefined,
@@ -819,10 +820,12 @@ export class ParkingStateService extends AsyncHandler {
             this._org.organisation.id,
             this._org.region?.id,
             this._org.building?.id,
-            zone_id,
+            selected_zone_id,
         ]);
         const saved = await saveParkingSpace(
-            space.id ? asset_data : { ...asset_data, zone_id, zones },
+            space.id
+                ? asset_data
+                : { ...asset_data, zone_id: selected_zone_id, zones },
         ).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {

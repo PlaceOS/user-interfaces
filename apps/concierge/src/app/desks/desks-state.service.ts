@@ -142,7 +142,7 @@ export class DesksStateService extends AsyncHandler {
     );
     private readonly _desk_params_debounced = debounced(this._desk_params, 300);
 
-    /** List of desks for the active management zone */
+    /** List of desks for the active management levels */
     private readonly _desks = resource({
         params: () => this._desk_params_debounced.value(),
         defaultValue: [] as Desk[],
@@ -151,18 +151,26 @@ export class DesksStateService extends AsyncHandler {
             this._loading.set(true);
             try {
                 const zones = this._getActiveZones(params.zones);
-                const all_zones = params.zones.includes('All');
                 let list: any[] = [];
-                if (zones.length && !all_zones) {
-                    const metadata = await showMetadata(
-                        zones[0],
-                        'desks',
-                    ).catch(() => ({ details: [] }) as any);
-                    list = (
-                        metadata.details instanceof Array
-                            ? metadata.details
-                            : []
-                    ).map((i) => ({ ...i, zone: { id: zones[0] } }));
+                if (zones.length && !params.zones.includes('All')) {
+                    const metadata = await Promise.all(
+                        zones.map(async (zone) => ({
+                            zone,
+                            details: await showMetadata(zone, 'desks')
+                                .then((item) =>
+                                    item.details instanceof Array
+                                        ? item.details
+                                        : [],
+                                )
+                                .catch(() => []),
+                        })),
+                    );
+                    list = metadata.flatMap(({ zone, details }) =>
+                        details.map((item) => ({
+                            ...item,
+                            zone: { id: zone },
+                        })),
+                    );
                 } else {
                     const metadata = await listChildMetadata(
                         this._org.building?.id,
@@ -449,7 +457,13 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async editDesk(desk: Desk = new Desk()) {
-        const ref = this._dialog.open(DeskModalComponent, { data: { desk } });
+        const levels = this._currentLevelList();
+        const selected_zones = this._getSelectedZones();
+        const zone_id =
+            desk.zone?.id || selected_zones[0] || levels[0]?.id || '';
+        const ref = this._dialog.open(DeskModalComponent, {
+            data: { desk, levels, zone_id },
+        });
         const state = await Promise.race([
             nextValueFrom(ref.afterClosed()),
             new Promise<any>((resolve) => {
@@ -461,19 +475,16 @@ export class DesksStateService extends AsyncHandler {
             }),
         ]);
         if (state?.reason !== 'done') return;
-        const selected_zones = this._getSelectedZones();
-        const all_zones = this._filters().zones?.includes('All');
-        const zone =
-            desk.zone?.id ||
-            (!all_zones && selected_zones.length ? selected_zones[0] : '');
+        const { zone_id: selected_zone_id, ...desk_metadata } = state.metadata;
+        const zone = desk.zone?.id || selected_zone_id || zone_id;
         if (!zone) {
             notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
             return;
         }
         const new_desk = {
-            ...state.metadata,
+            ...desk_metadata,
             id:
-                state.metadata.id ||
+                desk_metadata.id ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
         };
         // Only this desk's level is written, so scope the list to that zone.

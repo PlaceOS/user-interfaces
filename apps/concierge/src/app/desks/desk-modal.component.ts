@@ -18,9 +18,12 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { queryBookings } from '@placeos/bookings';
 import {
     Booking,
+    BuildingLevel,
     Desk,
     DialogEvent,
     notifyInfo,
@@ -29,8 +32,6 @@ import {
     unique,
     User,
 } from '@placeos/common';
-import { queryBookings } from '@placeos/bookings';
-import { addMonths, getUnixTime } from 'date-fns';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -41,9 +42,22 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
+import { addMonths, getUnixTime } from 'date-fns';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 const CHARS = '0123456789ABCDEF';
+
+type LevelOption = Pick<BuildingLevel, 'id' | 'name' | 'display_name'>;
+type DeskModalDesk = Partial<Desk> & {
+    assigned_name?: string;
+    notes?: string;
+};
+
+export interface DeskModalData {
+    desk?: DeskModalDesk;
+    levels?: readonly LevelOption[];
+    zone_id?: string;
+}
 
 @Component({
     selector: 'desk-modal',
@@ -68,6 +82,28 @@ const CHARS = '0123456789ABCDEF';
             </header>
             @if (!loading()) {
                 <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
+                    @if (is_new) {
+                        <label for="level">
+                            {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                [formField]="form.zone_id"
+                                [placeholder]="
+                                    'COMMON.LEVEL_SELECT' | translate
+                                "
+                            >
+                                @for (level of levels; track level.id) {
+                                    <mat-option [value]="level.id">
+                                        {{ level.display_name || level.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-error>{{
+                                'APP.CONCIERGE.ROOMS_LEVEL_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    }
                     <div class="w-full">
                         <label for="id">
                             {{ 'APP.CONCIERGE.DESKS_ID' | translate }}
@@ -171,7 +207,10 @@ const CHARS = '0123456789ABCDEF';
                                 {{
                                     'APP.CONCIERGE.ASSIGNED_FUTURE_DESK_BOOKINGS'
                                         | translate
-                                            : { count: future_bookings().length }
+                                            : {
+                                                  count: future_bookings()
+                                                      .length,
+                                              }
                                             : future_bookings().length
                                 }}
                             </p>
@@ -246,6 +285,7 @@ const CHARS = '0123456789ABCDEF';
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
         FormField,
         MatProgressSpinnerModule,
         ItemListFieldComponent,
@@ -255,9 +295,7 @@ const CHARS = '0123456789ABCDEF';
     ],
 })
 export class DeskModalComponent implements OnInit {
-    private _data = inject<{
-        desk?: Desk;
-    }>(MAT_DIALOG_DATA);
+    private _data = inject<DeskModalData>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<DeskModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
@@ -275,9 +313,12 @@ export class DeskModalComponent implements OnInit {
         return this._data?.desk?.id || '';
     }
 
-    public get desk(): Desk {
+    public get desk(): DeskModalDesk {
         return this._data?.desk;
     }
+
+    public readonly is_new = !this._data?.desk?.id;
+    public readonly levels = this._data?.levels || [];
 
     public readonly model = signal({
         id: ``,
@@ -291,11 +332,13 @@ export class DeskModalComponent implements OnInit {
         assigned_to: '',
         assigned_name: '',
         security: '',
+        zone_id: this._data?.zone_id || '',
     });
 
     public readonly form = form(this.model, (p) => {
         required(p.name);
         required(p.map_id);
+        if (this.is_new) required(p.zone_id);
     });
 
     constructor() {

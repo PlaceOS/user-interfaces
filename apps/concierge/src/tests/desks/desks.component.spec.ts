@@ -2,7 +2,10 @@ import { signal, WritableSignal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTabsModule } from '@angular/material/tabs';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { FormsModule } from '@angular/forms';
@@ -131,9 +134,10 @@ describe('DesksComponent', () => {
         spectator.component.path.set('manage');
         spectator.detectChanges();
 
-        expect(
-            spectator.component.levels().map((lvl: any) => lvl.id),
-        ).toEqual(['level-ground', 'level-parking']);
+        expect(spectator.component.levels().map((lvl: any) => lvl.id)).toEqual([
+            'level-ground',
+            'level-parking',
+        ]);
     });
 
     it('should default to all levels when the active building changes', () => {
@@ -186,6 +190,25 @@ describe('DesksComponent', () => {
         spectator.component.path.set('events');
         (spectator.component as any)._updateView();
 
+        expect(filters_signal().zones).toEqual([]);
+    });
+
+    it('should default desk management to all levels', () => {
+        filters_signal.set({ zones: ['level-a'], view: 'events' });
+
+        spectator.component.path.set('manage');
+        (spectator.component as any)._updateView();
+
+        expect(filters_signal().zones).toEqual([]);
+    });
+
+    it('should allow multiple or no desk management levels', () => {
+        spectator.component.path.set('manage');
+
+        spectator.component.updateZones(['level-a', 'level-b']);
+        expect(filters_signal().zones).toEqual(['level-a', 'level-b']);
+
+        spectator.component.updateZones([]);
         expect(filters_signal().zones).toEqual([]);
     });
 

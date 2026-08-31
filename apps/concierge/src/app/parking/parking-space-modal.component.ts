@@ -18,10 +18,10 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Booking, DialogEvent, User } from '@placeos/common';
 import { queryBookings } from '@placeos/bookings';
-import { addMonths, getUnixTime } from 'date-fns';
+import { Booking, BuildingLevel, DialogEvent, User } from '@placeos/common';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -32,7 +32,19 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
+import { addMonths, getUnixTime } from 'date-fns';
 import { ParkingSpace } from './parking-state.service';
+
+type LevelOption = Pick<BuildingLevel, 'id' | 'name' | 'display_name'>;
+type ParkingSpaceModalSpace = Partial<ParkingSpace> & {
+    map_rotation?: number;
+};
+
+export interface ParkingSpaceModalData {
+    space: ParkingSpaceModalSpace;
+    levels: readonly LevelOption[];
+    zone_id: string;
+}
 
 @Component({
     selector: 'parking-space-modal',
@@ -57,6 +69,28 @@ import { ParkingSpace } from './parking-state.service';
             </header>
             @if (!loading()) {
                 <main class="flex max-h-[65vh] flex-col overflow-auto p-4">
+                    @if (is_new) {
+                        <label for="level">
+                            {{ 'RESOURCE.LEVEL' | translate }}<span>*</span>
+                        </label>
+                        <mat-form-field appearance="outline">
+                            <mat-select
+                                [formField]="form.zone_id"
+                                [placeholder]="
+                                    'COMMON.LEVEL_SELECT' | translate
+                                "
+                            >
+                                @for (level of levels; track level.id) {
+                                    <mat-option [value]="level.id">
+                                        {{ level.display_name || level.name }}
+                                    </mat-option>
+                                }
+                            </mat-select>
+                            <mat-error>{{
+                                'APP.CONCIERGE.ROOMS_LEVEL_REQUIRED' | translate
+                            }}</mat-error>
+                        </mat-form-field>
+                    }
                     <label for="identifier">{{
                         'APP.CONCIERGE.PARKING_SPACE_NAME' | translate
                     }}</label>
@@ -118,7 +152,10 @@ import { ParkingSpace } from './parking-state.service';
                                 {{
                                     'APP.CONCIERGE.ASSIGNED_FUTURE_PARKING_BOOKINGS'
                                         | translate
-                                            : { count: future_bookings().length }
+                                            : {
+                                                  count: future_bookings()
+                                                      .length,
+                                              }
                                             : future_bookings().length
                                 }}
                             </p>
@@ -180,6 +217,7 @@ import { ParkingSpace } from './parking-state.service';
         MatProgressSpinnerModule,
         MatFormFieldModule,
         MatInputModule,
+        MatSelectModule,
         IconComponent,
         ItemListFieldComponent,
         SettingsToggleComponent,
@@ -189,7 +227,7 @@ import { ParkingSpace } from './parking-state.service';
     ],
 })
 export class ParkingSpaceModalComponent implements OnInit {
-    private _data = inject<ParkingSpace>(MAT_DIALOG_DATA);
+    private _data = inject<ParkingSpaceModalData>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<ParkingSpaceModalComponent>>(MatDialogRef);
 
@@ -202,8 +240,11 @@ export class ParkingSpaceModalComponent implements OnInit {
     private readonly _assigned_email = computed(() => this.model().assigned_to);
 
     public get id() {
-        return this._data?.id || '';
+        return this._data?.space?.id || '';
     }
+
+    public readonly is_new = !this._data?.space?.id;
+    public readonly levels = this._data?.levels || [];
 
     public readonly model = signal({
         id: '',
@@ -217,14 +258,16 @@ export class ParkingSpaceModalComponent implements OnInit {
         features: [] as string[],
         notes: '',
         map_rotation: 0,
+        zone_id: this._data?.zone_id || '',
     });
     public readonly form = form(this.model, (p) => {
         required(p.identifier);
         required(p.map_id);
+        if (this.is_new) required(p.zone_id);
     });
 
     constructor() {
-        const data = this._data as any;
+        const data = this._data?.space;
         if (data) {
             this.model.update((m) => ({
                 ...m,
@@ -269,8 +312,8 @@ export class ParkingSpaceModalComponent implements OnInit {
     }
 
     public async ngOnInit() {
-        if (this._data.assigned_to) {
-            const user = await showStaff(this._data.assigned_to);
+        if (this._data.space.assigned_to) {
+            const user = await showStaff(this._data.space.assigned_to);
             if (user) {
                 this.model.update((m) => ({
                     ...m,

@@ -24,6 +24,7 @@ import { NEVER, of } from 'rxjs';
 
 import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
+import { DeskModalComponent } from '../../app/desks/desk-modal.component';
 import { DesksStateService } from '../../app/desks/desks-state.service';
 import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
 import { captureDownloads } from '../reports/download-capture.helper';
@@ -146,6 +147,73 @@ describe('DesksStateService', () => {
                 width: '32rem',
                 maxWidth: '100vw',
             },
+        );
+    });
+
+    it('should default a new desk to the selected level and save the chosen level', async () => {
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'desk-new',
+                        name: 'New Desk',
+                        map_id: 'desk-new',
+                        zone_id: 'level-chosen',
+                    },
+                }),
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['level-selected'] });
+
+        await spectator.service.editDesk();
+
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            DeskModalComponent,
+            {
+                data: {
+                    desk: expect.any(Desk),
+                    levels: [{ id: 'bld-1-lvl-1' }],
+                    zone_id: 'level-selected',
+                },
+            },
+        );
+        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
+            'level-chosen',
+            expect.objectContaining({
+                details: [
+                    expect.objectContaining({
+                        id: 'desk-new',
+                        name: 'New Desk',
+                    }),
+                ],
+            }),
+        );
+    });
+
+    it('should default a new desk to the first level when none is selected', async () => {
+        const dialog_ref = {
+            afterClosed: () => of(undefined),
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: [] });
+
+        await spectator.service.editDesk();
+
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            DeskModalComponent,
+            expect.objectContaining({
+                data: expect.objectContaining({ zone_id: 'bld-1-lvl-1' }),
+            }),
         );
     });
 
