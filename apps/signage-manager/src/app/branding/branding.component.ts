@@ -21,7 +21,8 @@ import {
 } from '@placeos/components';
 
 import { AiImageService } from '../ai/ai-image.service';
-import { AiLogoSlot } from '../ai/ai.types';
+import { errorMessage } from '../ai/ai-image.util';
+import { AiBrandKit, AiLogoSlot } from '../ai/ai.types';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
@@ -81,9 +82,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                 [class.cursor-pointer]="can_edit()"
                                 [disabled]="!can_edit()"
                                 [value]="colour"
-                                (input)="
-                                    setColour($index, $any($event.target).value)
-                                "
+                                (input)="setColourFromInput($index, $event)"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
                                 "
@@ -399,6 +398,13 @@ export class BrandingComponent implements OnInit {
         );
     }
 
+    public setColourFromInput(index: number, event: Event) {
+        const input = event.target;
+        if (input instanceof HTMLInputElement) {
+            this.setColour(index, input.value);
+        }
+    }
+
     public previewFont() {
         ensureBrandFont(this.font());
     }
@@ -441,7 +447,9 @@ export class BrandingComponent implements OnInit {
             this._applyLogos(kit);
             notifySuccess(i18n('SIGNAGE_MANAGER.AI_LOGO_SAVED'));
         } catch (error) {
-            notifyError(this._message(error));
+            notifyError(
+                errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
+            );
         } finally {
             this.busy.set('');
         }
@@ -456,7 +464,9 @@ export class BrandingComponent implements OnInit {
             this._applyLogos(kit);
             notifySuccess(i18n('SIGNAGE_MANAGER.BRAND_LOGO_MADE'));
         } catch (error) {
-            notifyError(this._message(error));
+            notifyError(
+                errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
+            );
         } finally {
             this.busy.set('');
         }
@@ -481,13 +491,15 @@ export class BrandingComponent implements OnInit {
             });
             notifySuccess(i18n('SIGNAGE_MANAGER.BRAND_SAVED'));
         } catch (error) {
-            notifyError(this._message(error));
+            notifyError(
+                errorMessage(error, i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')),
+            );
         } finally {
             this.saving.set(false);
         }
     }
 
-    private _apply(brand: any) {
+    private _apply(brand: AiBrandKit) {
         this.organisation.set(brand.organisation || '');
         // named order first, then anything else, so loading and saving is stable
         const palette = brand.palette || {};
@@ -503,20 +515,11 @@ export class BrandingComponent implements OnInit {
         this._applyLogos(brand);
     }
 
-    private _applyLogos(brand: any) {
+    private _applyLogos(brand: AiBrandKit) {
         this.logos.set({
             on_light: brand.logo_upload_id || '',
             on_dark: brand.logo_dark_upload_id || '',
         });
         this.derived.set(brand.logo_derived || '');
-    }
-
-    private _message(error: any) {
-        return (
-            error?.error?.error ||
-            error?.error ||
-            error?.message ||
-            i18n('SIGNAGE_MANAGER.BRAND_SAVE_FAILED')
-        );
     }
 }

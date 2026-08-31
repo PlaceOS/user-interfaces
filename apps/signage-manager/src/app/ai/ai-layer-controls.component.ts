@@ -182,11 +182,7 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
                             type="color"
                             class="border-base-content/20 h-6 w-8 cursor-pointer rounded border bg-transparent p-0"
                             [value]="block.colour"
-                            (input)="
-                                patchBlock(block.id, {
-                                    colour: $any($event.target).value,
-                                })
-                            "
+                            (input)="setBlockColour(block.id, $event)"
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.AI_TEXT_ANY_COLOUR' | translate
                             "
@@ -350,7 +346,7 @@ export class AiLayerControlsComponent {
     public readonly can_set_logo = input(true);
 
     public readonly changed = output<AiLayerState>();
-    public readonly logoPicked = output<File>();
+    public readonly logo_picked = output<File>({ alias: 'logoPicked' });
 
     public readonly has_logo = computed(
         () => !!(this.logo_on_light() || this.logo_on_dark()),
@@ -387,6 +383,13 @@ export class AiLayerControlsComponent {
         });
     }
 
+    public setBlockColour(id: string, event: Event) {
+        const input = event.target;
+        if (input instanceof HTMLInputElement) {
+            this.patchBlock(id, { colour: input.value });
+        }
+    }
+
     public addBlock() {
         const blocks = this.state().blocks;
         const role: AiTextRole = blocks.length === 1 ? 'subheading' : 'body';
@@ -404,7 +407,7 @@ export class AiLayerControlsComponent {
         const input = event.target as HTMLInputElement;
         const file = input.files?.[0];
         input.value = '';
-        if (file) this.logoPicked.emit(file);
+        if (file) this.logo_picked.emit(file);
     }
 
     public placeholderFor(role: AiTextRole) {

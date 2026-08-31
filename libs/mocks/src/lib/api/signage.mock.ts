@@ -1813,15 +1813,50 @@ export function registerMockSignage() {
  * moment later. Images point at media already in the mock library, so the
  * modal renders something real.
  */
+interface MockAiRequest {
+    candidates?: number;
+    parent_job_id?: string;
+    prompt?: string;
+}
+
+interface MockAiJobImage {
+    state: 'done';
+    index: number;
+    upload_id: string;
+    url: string;
+    width: number;
+    height: number;
+    mime: string;
+    item_id?: string;
+}
+
+interface MockAiJob {
+    id: string;
+    state: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+    kind: 'generate' | 'edit';
+    provider: string;
+    model: string;
+    candidates: number;
+    images_produced: number;
+    parent_job_id?: string;
+    version: number;
+    prompt?: string;
+    images: (MockAiJobImage | null)[];
+    error_kind?: string;
+    error_message?: string;
+    created_at: number;
+    finished_at?: number;
+}
+
 function registerMockSignageAI() {
-    const AI_JOBS: Record<string, any> = {};
-    const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item: any) => item.media_id);
+    const AI_JOBS: Record<string, MockAiJob> = {};
+    const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
 
     const now = () => Math.floor(Date.now() / 1000);
 
-    function makeJob(request: any, kind: 'generate' | 'edit') {
+    function makeJob(request: MockAiRequest, kind: 'generate' | 'edit') {
         const count = Math.min(Math.max(request.candidates || 2, 1), 4);
-        const job = {
+        const job: MockAiJob = {
             id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
             state: 'queued',
             kind,
@@ -1832,16 +1867,17 @@ function registerMockSignageAI() {
             parent_job_id: request.parent_job_id,
             version: 0,
             prompt: request.prompt,
-            images: new Array(count).fill(null),
+            images: Array.from({ length: count }, () => null),
             created_at: now(),
-        } as any;
+        };
         AI_JOBS[job.id] = job;
 
         if (`${request.prompt}`.includes('trigger-moderation')) {
             setTimeout(() => {
                 job.state = 'failed';
                 job.error_kind = 'moderation';
-                job.error_message = 'The request was blocked by the safety system';
+                job.error_message =
+                    'The request was blocked by the safety system';
                 job.version += 1;
             }, 600);
             return job;
@@ -1852,7 +1888,8 @@ function registerMockSignageAI() {
             setTimeout(
                 () => {
                     const media_id =
-                        SAMPLE_IMAGES[index % SAMPLE_IMAGES.length] || 'upload-1';
+                        SAMPLE_IMAGES[index % SAMPLE_IMAGES.length] ||
+                        'upload-1';
                     job.images[index] = {
                         state: 'done',
                         index,
@@ -1967,48 +2004,11 @@ function registerMockSignageAI() {
             const job = AI_JOBS[request.route_params.id];
             if (!job) throw { status: 404, message: 'No such job' };
             const entry = job.images.find(
-                (image: any) => image?.upload_id === request.body?.upload_id,
+                (image) => image?.upload_id === request.body?.upload_id,
             );
             if (entry) entry.item_id = request.body?.item_id;
             return job;
         },
-    });
-
-    registerMockEndpoint({
-        path: '/api/engine/v2/signage/ai/usage',
-        metadata: {},
-        method: 'GET',
-        callback: () => [
-            {
-                provider: 'OPENAI',
-                model: 'gpt-image-2',
-                jobs: Object.keys(AI_JOBS).length,
-                candidates: Object.keys(AI_JOBS).length * 2,
-                images_produced: Object.keys(AI_JOBS).length * 2,
-                cost_units: Object.keys(AI_JOBS).length * 1000,
-            },
-        ],
-    });
-
-    registerMockEndpoint({
-        path: '/api/engine/v2/signage/ai/providers',
-        metadata: {},
-        method: 'GET',
-        callback: () => [
-            {
-                id: 'signage-ai-provider-1',
-                name: 'Mock provider',
-                provider: 'OPENAI',
-                authority_id: null,
-                default_model: 'gpt-image-2',
-                allowed_models: [],
-                enabled: true,
-                is_default: true,
-                quotas: {},
-                created_at: now(),
-                updated_at: now(),
-            },
-        ],
     });
 }
 

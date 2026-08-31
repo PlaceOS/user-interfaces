@@ -56,7 +56,7 @@ async function load(family: string): Promise<void> {
     document.head.appendChild(link);
     await parsed;
 
-    const faces = (document as any).fonts;
+    const faces = document.fonts;
     if (!faces) return;
     try {
         await Promise.all([

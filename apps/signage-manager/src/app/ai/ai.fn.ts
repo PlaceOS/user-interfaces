@@ -9,7 +9,9 @@ import {
 
 const AI_PATH = () => `${apiEndpoint()}/signage/ai`;
 
-function toQuery(params: Record<string, any>) {
+function toQuery(
+    params: Record<string, string | number | boolean | null | undefined>,
+) {
     const pairs = Object.entries(params)
         .filter(([, value]) => value !== undefined && value !== null)
         .map(
@@ -21,21 +23,25 @@ function toQuery(params: Record<string, any>) {
 
 /** an upload made for one request, cleared once the request is done with it */
 export function removeSignageUpload(id: string): Promise<void> {
-    return del(`${apiEndpoint()}/uploads/${encodeURIComponent(id)}`) as any;
+    return del(`${apiEndpoint()}/uploads/${encodeURIComponent(id)}`, {
+        response_type: 'void',
+    });
 }
 
 export function signageAICapabilities(): Promise<AiCapabilities> {
-    return get(`${AI_PATH()}/capabilities`) as Promise<any>;
+    return get(
+        `${AI_PATH()}/capabilities`,
+    ) as unknown as Promise<AiCapabilities>;
 }
 
 export function generateSignageImage(
     request: AiGenerateRequest,
 ): Promise<AiJob> {
-    return post(`${AI_PATH()}/generate`, request) as Promise<any>;
+    return post(`${AI_PATH()}/generate`, request) as unknown as Promise<AiJob>;
 }
 
 export function editSignageImage(request: AiEditRequest): Promise<AiJob> {
-    return post(`${AI_PATH()}/edit`, request) as Promise<any>;
+    return post(`${AI_PATH()}/edit`, request) as unknown as Promise<AiJob>;
 }
 
 /**
@@ -49,20 +55,22 @@ export function showSignageAIJob(
 ): Promise<AiJob> {
     return get(
         `${AI_PATH()}/jobs/${encodeURIComponent(id)}${toQuery(query)}`,
-    ) as Promise<any>;
+    ) as unknown as Promise<AiJob>;
 }
 
 export function querySignageAIJobs(
     query: { mine?: boolean; limit?: number } = {},
 ): Promise<AiJob[]> {
-    return get(`${AI_PATH()}/jobs${toQuery(query)}`) as Promise<any>;
+    return get(`${AI_PATH()}/jobs${toQuery(query)}`) as unknown as Promise<
+        AiJob[]
+    >;
 }
 
 export function cancelSignageAIJob(id: string): Promise<AiJob> {
     return post(
         `${AI_PATH()}/jobs/${encodeURIComponent(id)}/cancel`,
         {},
-    ) as Promise<any>;
+    ) as unknown as Promise<AiJob>;
 }
 
 export function claimSignageAIImage(
@@ -72,32 +80,5 @@ export function claimSignageAIImage(
     return post(
         `${AI_PATH()}/jobs/${encodeURIComponent(id)}/claim`,
         body,
-    ) as Promise<any>;
-}
-
-export function signageAIUsage(
-    query: { from?: number; to?: number } = {},
-): Promise<any[]> {
-    return get(`${AI_PATH()}/usage${toQuery(query)}`) as Promise<any>;
-}
-
-export function querySignageAIProviders(
-    query: { authority_id?: string; include_shared?: boolean } = {},
-): Promise<any[]> {
-    return get(`${AI_PATH()}/providers${toQuery(query)}`) as Promise<any>;
-}
-
-export function addSignageAIProvider(body: any): Promise<any> {
-    return post(`${AI_PATH()}/providers`, body) as Promise<any>;
-}
-
-export function removeSignageAIProvider(id: string): Promise<void> {
-    return del(`${AI_PATH()}/providers/${encodeURIComponent(id)}`) as any;
-}
-
-export function testSignageAIProvider(id: string): Promise<any> {
-    return post(
-        `${AI_PATH()}/providers/${encodeURIComponent(id)}/test`,
-        {},
-    ) as Promise<any>;
+    ) as unknown as Promise<AiJob>;
 }

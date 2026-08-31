@@ -1,3 +1,5 @@
+import { perceivedLightness } from '../ai/ai-image.util';
+
 /**
  * Making the other version of a logo.
  *
@@ -73,9 +75,7 @@ export async function inkIsLight(source: Blob | string): Promise<boolean> {
         const alpha = data[index + 3] / 255;
         if (alpha < 0.1) continue;
         const lightness =
-            (0.299 * data[index] +
-                0.587 * data[index + 1] +
-                0.114 * data[index + 2]) /
+            perceivedLightness(data[index], data[index + 1], data[index + 2]) /
             255;
         total += lightness * alpha;
         weight += alpha;

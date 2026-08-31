@@ -12,6 +12,7 @@ import {
 import { TranslatePipe } from '@placeos/components';
 
 import { ensureBrandFont } from '../branding/brand-fonts';
+import { perceivedLightness } from './ai-image.util';
 import {
     AiBrandKit,
     AiLayerState,
@@ -530,10 +531,11 @@ export class AiLayerComponent {
             let count = 0;
             // every fourth pixel is plenty for an average and keeps this cheap
             for (let index = 0; index < data.length; index += 16) {
-                total +=
-                    0.299 * data[index] +
-                    0.587 * data[index + 1] +
-                    0.114 * data[index + 2];
+                total += perceivedLightness(
+                    data[index],
+                    data[index + 1],
+                    data[index + 2],
+                );
                 count++;
             }
             return count ? total / count < 140 : false;
@@ -555,7 +557,7 @@ export class AiLayerComponent {
         const r = parseInt(value.slice(0, 2), 16);
         const g = parseInt(value.slice(2, 4), 16);
         const b = parseInt(value.slice(4, 6), 16);
-        return (r * 299 + g * 587 + b * 114) / 1000 > 140;
+        return perceivedLightness(r, g, b) > 140;
     }
 
     private _fontFamily(chosen?: string) {
