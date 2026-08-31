@@ -106,6 +106,7 @@ These act as fallbacks for the desk, parking and locker booking flows — a valu
 
 | Setting | Type | Default | Description |
 |---|---|---|---|
+| `desks.use_assets` | boolean | `false` | Read and manage desk resources through the assets API. When `false`, Concierge uses the legacy `desks` zone metadata. |
 | `desks.can_book_for_others` | boolean | `true` | Allow concierge users to create desk bookings on behalf of other users. |
 | `desks.max_assigned_count` | number | `0` | Maximum number of desks that can be assigned to a single user. `0` for unlimited. |
 | `desks.hide_user_list_download` | boolean | `true` | Hide the desk booking user list download action on the desks view. |

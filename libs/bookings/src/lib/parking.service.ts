@@ -6,7 +6,11 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { queryParkingSpacesForZones, queryParkingUsers } from '@placeos/assets';
+import {
+    queryDeskAssetsForZones,
+    queryParkingSpacesForZones,
+    queryParkingUsers,
+} from '@placeos/assets';
 import {
     AsyncHandler,
     currentUser,
@@ -167,9 +171,19 @@ export class ParkingService extends AsyncHandler {
     private async _loadHomeBuilding() {
         const buildings = this._org.building_list();
         if (!buildings?.length) return;
+        const use_desk_assets = this._settings.get('app.desks.use_assets');
         const results = await Promise.all(
-            buildings.map((bld) =>
-                listChildMetadata(bld.id, { name: 'desks' })
+            buildings.map(async (bld) => {
+                if (use_desk_assets) {
+                    const level_ids = this._org
+                        .levelsForBuilding(bld)
+                        .map((level) => level.id);
+                    const desks = await queryDeskAssetsForZones(
+                        level_ids,
+                    ).catch(() => []);
+                    return { building_id: bld.id, desks };
+                }
+                return listChildMetadata(bld.id, { name: 'desks' })
                     .then((data) => ({
                         building_id: bld.id,
                         desks: flatten<Desk>(
@@ -190,8 +204,8 @@ export class ParkingService extends AsyncHandler {
                     .catch(() => ({
                         building_id: bld.id,
                         desks: [] as Desk[],
-                    })),
-            ),
+                    }));
+            }),
         );
         const email = currentUser()?.email?.toLowerCase();
         if (!email) return this._home_building_id.set(null);

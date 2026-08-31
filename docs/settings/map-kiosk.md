@@ -76,6 +76,7 @@ Settings for the desk booking flow available from the kiosk.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
+| `desks.use_assets` | boolean | `false` | Read desk resources through the assets API. When `false`, Map Kiosk uses the legacy `desks` zone metadata. |
 | `desks.hide_reason` | boolean | `true` | Whether to disable the ability for the user to enter a reason for their desk booking. |
 | `desks.can_set_host` | boolean | `true` | Whether the user is allowed to make desk bookings on behalf of other people. |
 
@@ -84,6 +85,7 @@ Example:
 ```json
 {
     "desks": {
+        "use_assets": true,
         "hide_reason": false,
         "can_set_host": false
     }

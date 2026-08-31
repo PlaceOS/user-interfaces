@@ -28,7 +28,6 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { updateMetadata } from '@placeos/ts-client';
 import { DeskQrItem, DesksStateService } from './desks-state.service';
 
 const QR_CODES = {};
@@ -302,7 +301,6 @@ export class DesksManageComponent extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.close();
-        const desks = this.desks();
         const filters = this.filters();
         // Target the desk's own level so removing while viewing all levels
         // only rewrites the metadata of the zone the desk belongs to.
@@ -312,15 +310,8 @@ export class DesksManageComponent extends AsyncHandler {
             notifyError(i18n('APP.CONCIERGE.DESKS_SELECT_LEVEL'));
             return;
         }
-        const updated_desks = desks.filter(
-            (_) => (_.zone?.id || zone_id) === zone_id && _.id !== desk.id,
-        );
         this.loading.set(i18n('APP.CONCIERGE.DESKS_REMOVE_LOADING'));
-        await updateMetadata(zone_id, {
-            name: 'desks',
-            description: 'desks',
-            details: updated_desks,
-        }).catch((e) => {
+        await this._state.removeDesk(desk, zone_id).catch((e) => {
             this.loading.set('');
             notifyError(
                 i18n('APP.CONCIERGE.DESKS_REMOVE_ERROR', {

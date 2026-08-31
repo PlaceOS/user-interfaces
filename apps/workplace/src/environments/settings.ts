@@ -224,6 +224,7 @@ const app = {
         assigned_resource_booking: 'other_only',
     },
     desks: {
+        use_assets: false,
         can_book_lockers: true,
         can_book_for_others: true,
         // bookable_hours: { start: 8, end: 19 },

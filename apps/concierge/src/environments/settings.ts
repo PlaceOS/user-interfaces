@@ -36,6 +36,7 @@ const app = {
     has_uploads: true,
     custom_reports,
     desks: {
+        use_assets: false,
         can_book_for_others: true,
         max_assigned_count: 0,
         hide_user_list_download: true,

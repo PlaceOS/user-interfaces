@@ -204,6 +204,45 @@ describe('BookingFormService', () => {
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
     });
 
+    it('should load desk resources from assets when enabled', async () => {
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) => key === 'app.desks.use_assets',
+        );
+        const org = spectator.inject(OrganisationService) as any;
+        org.levelsForBuilding = vi.fn(() => [{ id: 'lvl-1' }]);
+        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'desk-category', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+            data: [{ id: 'desk-type', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client.queryAssets).mockResolvedValue({
+            data: [
+                {
+                    id: 'asset-desk-1',
+                    asset_type_id: 'desk-type',
+                    zone_id: 'lvl-1',
+                    identifier: 'Desk One',
+                    map_id: 'desk-map-1',
+                    bookable: true,
+                    place_groups: ['engineering'],
+                },
+            ],
+        } as any);
+
+        const desks = await spectator.service.loadResourceList('desks');
+
+        expect(desks).toEqual([
+            expect.objectContaining({
+                id: 'asset-desk-1',
+                name: 'Desk One',
+                map_id: 'desk-map-1',
+                groups: ['engineering'],
+            }),
+        ]);
+        expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
+    });
+
     it('should debounce identical booked resource queries', async () => {
         booked_result = ['desk-1'];
         const query = {

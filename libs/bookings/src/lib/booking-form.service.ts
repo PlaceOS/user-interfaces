@@ -12,7 +12,11 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { queryParkingSpacesForZones } from '@placeos/assets';
+import {
+    deskFromAsset,
+    queryDeskAssetsForZones,
+    queryParkingSpacesForZones,
+} from '@placeos/assets';
 import {
     AsyncHandler,
     Booking,
@@ -673,6 +677,20 @@ export class BookingFormService extends AsyncHandler {
         if (!(buildings?.length > 0)) return false;
         const email = user_email?.toLowerCase();
         if (!email) return false;
+        if (this._settings.get('app.desks.use_assets')) {
+            const building_ids = new Set(
+                buildings.map((building) => building.id),
+            );
+            const level_ids = this._org.levels
+                .filter((level) => building_ids.has(level.parent_id))
+                .map((level) => level.id);
+            const desks = await queryDeskAssetsForZones(level_ids).catch(
+                () => [],
+            );
+            return desks.some(
+                (desk) => desk.assigned_to?.toLowerCase() === email,
+            );
+        }
         const map_metadata = (meta) =>
             (meta?.metadata?.desks?.details instanceof Array
                 ? meta.metadata.desks.details
@@ -2557,7 +2575,24 @@ export class BookingFormService extends AsyncHandler {
         })) as BookingAsset[];
     }
 
+    /** Load desk resources from the assets API for the active scope. */
+    public async loadDeskResources(): Promise<BookingAsset[]> {
+        const use_region = this._settings.get('app.use_region');
+        const levels = use_region
+            ? this._org.levelsForRegion()
+            : this._org.levelsForBuilding();
+        const assets = await queryDeskAssetsForZones(
+            levels.map((level) => level.id),
+        );
+        return assets.map((asset) =>
+            deskFromAsset(asset, this._org.levelWithID([asset.zone_id])),
+        ) as BookingAsset[];
+    }
+
     public async loadResourceList(type: string): Promise<BookingAsset[]> {
+        if (type === 'desks' && this._settings.get('app.desks.use_assets')) {
+            return this.loadDeskResources();
+        }
         const use_region = this._settings.get('app.use_region');
         const map_metadata = (_) =>
             (_?.metadata[type]?.details instanceof Array

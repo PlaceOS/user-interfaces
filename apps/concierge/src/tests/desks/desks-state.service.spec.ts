@@ -135,6 +135,46 @@ describe('DesksStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should manage desk resources through assets when enabled', async () => {
+        settings_map['app.desks.use_assets'] = true;
+        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'desk-category', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
+            data: [{ id: 'desk-type', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client_mod.addAsset).mockResolvedValue({
+            id: 'asset-desk-1',
+        } as any);
+        vi.mocked(ts_client_mod.removeAsset).mockResolvedValue(
+            undefined as any,
+        );
+        spectator.service.setFilters({ zones: ['level-1'] });
+        const desk = new Desk({
+            id: 'desk-map-1',
+            map_id: 'desk-map-1',
+            name: 'Desk One',
+            zone: { id: 'level-1' } as any,
+        });
+
+        await spectator.service.addDesks([desk]);
+        await spectator.service.removeDesk(
+            new Desk({ ...desk, id: 'asset-desk-1' }),
+            'level-1',
+        );
+
+        expect(ts_client_mod.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                asset_type_id: 'desk-type',
+                zone_id: 'level-1',
+                identifier: 'Desk One',
+                map_id: 'desk-map-1',
+            }),
+        );
+        expect(ts_client_mod.removeAsset).toHaveBeenCalledWith('asset-desk-1');
+        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+    });
+
     it('should open the booking history modal for a desk booking', () => {
         const booking = new Booking({ id: 'booking-1' });
 

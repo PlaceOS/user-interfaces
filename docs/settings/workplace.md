@@ -229,6 +229,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
+| `desks.use_assets` | boolean | `false` | Read desk resources through the assets API. When `false`, Workplace uses the legacy `desks` zone metadata. |
 | `desks.bookable_hours` | object | – | Time window in which desks can be booked, as hours of the day, e.g. `{ "start": 8, "end": 19 }`. |
 | `desks.allow_all_day` | boolean | `true` | Make the "all day" option available for desk bookings. Overrides `bookings.allow_all_day`. |
 | `desks.allow_time_changes` | boolean | `true` | Allow users to change the time of desk bookings. |

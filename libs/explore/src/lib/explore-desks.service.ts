@@ -11,6 +11,7 @@ import {
     WritableSignal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { deskFromAsset, queryDeskAssets } from '@placeos/assets';
 import { showMetadata } from '@placeos/ts-client';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
@@ -100,15 +101,23 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
     private _desk_list = resource({
         params: () => this._state.level() || undefined,
-        loader: ({ params: lvl }) =>
-            showMetadata(lvl.id, 'desks')
+        loader: ({ params: lvl }) => {
+            if (this._settings.get('app.desks.use_assets')) {
+                return queryDeskAssets(lvl.id)
+                    .then((assets) =>
+                        assets.map((asset) => deskFromAsset(asset, lvl)),
+                    )
+                    .catch(() => [] as Desk[]);
+            }
+            return showMetadata(lvl.id, 'desks')
                 .catch(() => ({ details: [] }))
                 .then((i) =>
                     (i?.details instanceof Array ? i.details : []).map(
                         (j: Record<string, any>) =>
                             new Desk({ ...j, zone: lvl as any }),
                     ),
-                ),
+                );
+        },
     });
     public readonly desk_list = computed<Desk[]>(
         () => this._desk_list.value() ?? [],

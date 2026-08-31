@@ -86,6 +86,7 @@ These settings control the desk booking form (keys under `desks`).
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
+| `desks.use_assets` | boolean | `false` | Read desk resources through the assets API. When `false`, Outlook Add-in uses the legacy `desks` zone metadata. |
 | `desks.allow_all_day` | boolean | – | Show an "All Day" checkbox on the desk booking form. Defaults to off. |
 | `desks.can_book_lockers` | boolean | – | Show a "Require locker" checkbox so a locker can be requested along with the desk. Defaults to off. |
 | `desks.allow_assets` | boolean | – | Show a Request Asset step on the desk booking form for requesting equipment with the booking. Defaults to off. |

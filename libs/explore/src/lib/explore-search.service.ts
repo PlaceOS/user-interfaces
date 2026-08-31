@@ -7,6 +7,7 @@ import {
     resource,
     signal,
 } from '@angular/core';
+import { deskFromAsset, queryDeskAssetsForZones } from '@placeos/assets';
 import {
     Asset,
     AssetCategory,
@@ -282,8 +283,23 @@ export class ExploreSearchService {
 
     private _desk_search = resource({
         params: () => this._building() || undefined,
-        loader: ({ params: bld }) =>
-            listChildMetadata(bld.id, { name: 'desks' })
+        loader: ({ params: bld }) => {
+            if (this._settings.get('app.desks.use_assets')) {
+                const levels = this._org.levelsForBuilding(bld);
+                return queryDeskAssetsForZones(levels.map((level) => level.id))
+                    .then((assets) =>
+                        assets.map((asset) =>
+                            deskFromAsset(
+                                asset,
+                                levels.find(
+                                    (level) => level.id === asset.zone_id,
+                                ),
+                            ),
+                        ),
+                    )
+                    .catch(() => [] as Desk[]);
+            }
+            return listChildMetadata(bld.id, { name: 'desks' })
                 .then((i) =>
                     flatten(
                         i.map((j) =>
@@ -293,7 +309,8 @@ export class ExploreSearchService {
                         ),
                     ),
                 )
-                .catch(() => [] as Desk[]),
+                .catch(() => [] as Desk[]);
+        },
     });
 
     private _maps_people_search = resource({

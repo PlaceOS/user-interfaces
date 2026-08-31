@@ -1,6 +1,10 @@
 import { formatDate } from '@angular/common';
 import { inject, Injectable, signal } from '@angular/core';
-import { queryLockerAssets, queryParkingSpaces } from '@placeos/assets';
+import {
+    queryDeskAssets,
+    queryLockerAssets,
+    queryParkingSpaces,
+} from '@placeos/assets';
 import { queryAllBookings } from '@placeos/bookings';
 import {
     Booking,
@@ -363,9 +367,13 @@ export class SiteAttendanceReportService {
         if (!zones.length) return 0;
         const counts = await Promise.all(
             zones.map((zone) =>
-                showMetadata(zone, 'desks')
-                    .then((metadata) => metadata.details?.length || 0)
-                    .catch(() => 0),
+                this._settings.get('app.desks.use_assets')
+                    ? queryDeskAssets(zone)
+                          .then((desks) => desks.length)
+                          .catch(() => 0)
+                    : showMetadata(zone, 'desks')
+                          .then((metadata) => metadata.details?.length || 0)
+                          .catch(() => 0),
             ),
         );
         return counts.reduce((count, value) => count + value, 0);

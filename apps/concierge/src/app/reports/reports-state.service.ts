@@ -9,6 +9,7 @@ import {
     untracked,
 } from '@angular/core';
 import {
+    queryDeskAssets,
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
     queryParkingSpacesForZones,
@@ -258,6 +259,12 @@ export class ReportsStateService extends AsyncHandler {
                 return [zone_id, count];
             }
             case 'desks': {
+                if (this._settings.get('app.desks.use_assets')) {
+                    const desks = await queryDeskAssets(zone_id).catch(
+                        () => [],
+                    );
+                    return [zone_id, desks.length];
+                }
                 const metadata = await showMetadata(zone_id, 'desks').catch(
                     () => ({ details: [] }) as any,
                 );

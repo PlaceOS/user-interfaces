@@ -1,6 +1,7 @@
 const general = {};
 
 const desks = {
+    use_assets: false,
     hide_reason: true,
     can_set_host: true,
 };
