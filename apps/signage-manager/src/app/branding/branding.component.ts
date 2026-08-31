@@ -24,6 +24,7 @@ import { AiImageService } from '../ai/ai-image.service';
 import { AiLogoSlot } from '../ai/ai.types';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
+import { SignageService } from '../signage.service';
 import { BRAND_FONTS, ensureBrandFont } from './brand-fonts';
 
 /** the palette is stored named, so the prompt can say what each colour is for */
@@ -44,6 +45,15 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                     {{ 'SIGNAGE_MANAGER.BRAND_HINT' | translate }}
                 </p>
 
+                @if (!can_edit()) {
+                    <p
+                        class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded border p-3 text-sm"
+                    >
+                        <icon class="text-base-content/60">lock</icon>
+                        {{ 'SIGNAGE_MANAGER.BRAND_READ_ONLY' | translate }}
+                    </p>
+                }
+
                 <label for="brand-org">{{
                     'SIGNAGE_MANAGER.BRAND_ORGANISATION' | translate
                 }}</label>
@@ -52,6 +62,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                         matInput
                         id="brand-org"
                         [(ngModel)]="organisation"
+                        [disabled]="!can_edit()"
                         [placeholder]="
                             'SIGNAGE_MANAGER.BRAND_ORGANISATION' | translate
                         "
@@ -66,7 +77,9 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                         <div class="flex items-center gap-3">
                             <input
                                 type="color"
-                                class="border-base-content/20 h-10 w-14 cursor-pointer rounded border bg-transparent"
+                                class="border-base-content/20 h-10 w-14 rounded border bg-transparent disabled:cursor-not-allowed disabled:opacity-60"
+                                [class.cursor-pointer]="can_edit()"
+                                [disabled]="!can_edit()"
                                 [value]="colour"
                                 (input)="
                                     setColour($index, $any($event.target).value)
@@ -84,6 +97,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                     matInput
                                     [ngModel]="colour"
                                     (ngModelChange)="setColour($index, $event)"
+                                    [disabled]="!can_edit()"
                                     placeholder="#0E6E52"
                                 />
                             </mat-form-field>
@@ -91,23 +105,25 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                 class="text-base-content/60 text-xs uppercase"
                                 >{{ colourName($index) }}</span
                             >
-                            <button
-                                icon
-                                default
-                                error
-                                type="button"
-                                [disabled]="colours().length < 2"
-                                [matTooltip]="
-                                    'SIGNAGE_MANAGER.BRAND_REMOVE_COLOUR'
-                                        | translate
-                                "
-                                (click)="removeColour($index)"
-                            >
-                                <icon>delete</icon>
-                            </button>
+                            @if (can_edit()) {
+                                <button
+                                    icon
+                                    default
+                                    error
+                                    type="button"
+                                    [disabled]="colours().length < 2"
+                                    [matTooltip]="
+                                        'SIGNAGE_MANAGER.BRAND_REMOVE_COLOUR'
+                                            | translate
+                                    "
+                                    (click)="removeColour($index)"
+                                >
+                                    <icon>delete</icon>
+                                </button>
+                            }
                         </div>
                     }
-                    @if (colours().length < 3) {
+                    @if (can_edit() && colours().length < 3) {
                         <button
                             mat-stroked-button
                             type="button"
@@ -125,6 +141,7 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                     <mat-select
                         id="brand-font"
                         [(ngModel)]="font"
+                        [disabled]="!can_edit()"
                         (ngModelChange)="previewFont()"
                     >
                         @for (option of fonts; track option.family) {
@@ -146,9 +163,11 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                 <label class="mt-6">{{
                     'SIGNAGE_MANAGER.BRAND_LOGO' | translate
                 }}</label>
-                <p class="text-base-content/60 mb-2 text-sm">
-                    {{ 'SIGNAGE_MANAGER.BRAND_LOGO_HINT' | translate }}
-                </p>
+                @if (can_edit()) {
+                    <p class="text-base-content/60 mb-2 text-sm">
+                        {{ 'SIGNAGE_MANAGER.BRAND_LOGO_HINT' | translate }}
+                    </p>
+                }
                 <div class="flex flex-col gap-4 sm:flex-row">
                     @for (slot of slots; track slot.id) {
                         <div
@@ -196,38 +215,41 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                                 }
                             </div>
 
-                            <div class="flex flex-wrap gap-2">
-                                <button
-                                    mat-stroked-button
-                                    type="button"
-                                    [disabled]="!!busy()"
-                                    (click)="pick(slot.id)"
-                                >
-                                    {{
-                                        (busy() === slot.id
-                                            ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
-                                            : logoId(slot.id)
-                                              ? 'SIGNAGE_MANAGER.AI_REPLACE_LOGO'
-                                              : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
-                                        ) | translate
-                                    }}
-                                </button>
-                                @if (
-                                    !logoId(slot.id) && logoId(other(slot.id))
-                                ) {
+                            @if (can_edit()) {
+                                <div class="flex flex-wrap gap-2">
                                     <button
                                         mat-stroked-button
                                         type="button"
                                         [disabled]="!!busy()"
-                                        (click)="derive(slot.id)"
+                                        (click)="pick(slot.id)"
                                     >
                                         {{
-                                            'SIGNAGE_MANAGER.BRAND_LOGO_MAKE_IT'
-                                                | translate
+                                            (busy() === slot.id
+                                                ? 'SIGNAGE_MANAGER.AI_LOGO_UPLOADING'
+                                                : logoId(slot.id)
+                                                  ? 'SIGNAGE_MANAGER.AI_REPLACE_LOGO'
+                                                  : 'SIGNAGE_MANAGER.AI_ADD_LOGO'
+                                            ) | translate
                                         }}
                                     </button>
-                                }
-                            </div>
+                                    @if (
+                                        !logoId(slot.id) &&
+                                        logoId(other(slot.id))
+                                    ) {
+                                        <button
+                                            mat-stroked-button
+                                            type="button"
+                                            [disabled]="!!busy()"
+                                            (click)="derive(slot.id)"
+                                        >
+                                            {{
+                                                'SIGNAGE_MANAGER.BRAND_LOGO_MAKE_IT'
+                                                    | translate
+                                            }}
+                                        </button>
+                                    }
+                                </div>
+                            }
                         </div>
                     }
                     <input
@@ -243,18 +265,20 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                 </div>
 
                 <div class="mt-8 flex items-center gap-3">
-                    <button
-                        btn
-                        matRipple
-                        class="w-40"
-                        [disabled]="saving()"
-                        (click)="save()"
-                    >
-                        {{
-                            (saving() ? 'COMMON.SAVING' : 'COMMON.SAVE')
-                                | translate
-                        }}
-                    </button>
+                    @if (can_edit()) {
+                        <button
+                            btn
+                            matRipple
+                            class="w-40"
+                            [disabled]="saving()"
+                            (click)="save()"
+                        >
+                            {{
+                                (saving() ? 'COMMON.SAVING' : 'COMMON.SAVE')
+                                    | translate
+                            }}
+                        </button>
+                    }
                     @if (!enabled()) {
                         <span class="text-base-content/60 text-sm">{{
                             'SIGNAGE_MANAGER.BRAND_AI_OFF' | translate
@@ -281,9 +305,17 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
 })
 export class BrandingComponent implements OnInit {
     private readonly _ai = inject(AiImageService);
+    private readonly _service = inject(SignageService);
 
     public readonly fonts = BRAND_FONTS;
     public readonly enabled = this._ai.enabled;
+
+    /**
+     * The brand kit is one object for the whole domain, so a change here lands
+     * on every screen every group runs. That is an administrator's call, and
+     * everyone else gets to see what it is set to.
+     */
+    public readonly can_edit = this._service.is_sys_admin;
 
     public readonly organisation = signal('');
     public readonly colours = signal<string[]>(['#0E6E52']);
@@ -374,11 +406,13 @@ export class BrandingComponent implements OnInit {
     }
 
     public pick(slot: AiLogoSlot) {
+        if (!this.can_edit()) return;
         this._target = slot;
         this._logo_input()?.nativeElement.click();
     }
 
     public async pickLogo(event: Event) {
+        if (!this.can_edit()) return;
         const input = event.target as HTMLInputElement;
         const file = input.files?.[0];
         input.value = '';
@@ -404,6 +438,7 @@ export class BrandingComponent implements OnInit {
 
     /** make this slot from the other one */
     public async derive(slot: AiLogoSlot) {
+        if (!this.can_edit()) return;
         this.busy.set(slot);
         try {
             const kit = await this._ai.deriveBrandLogo(slot);
@@ -417,6 +452,7 @@ export class BrandingComponent implements OnInit {
     }
 
     public async save() {
+        if (!this.can_edit()) return;
         this.saving.set(true);
         try {
             const palette: Record<string, string> = {};

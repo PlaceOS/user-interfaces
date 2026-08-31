@@ -143,6 +143,7 @@
         "BRAND_LOGO_MAKE_IT": "Make it from the other one",
         "BRAND_LOGO_ON_DARK": "For dark backgrounds",
         "BRAND_LOGO_ON_LIGHT": "For light backgrounds",
+        "BRAND_READ_ONLY": "Branding is set for the whole organisation, so only an administrator can change it.",
         "BRAND_ORGANISATION": "Organisation name",
         "BRAND_REMOVE_COLOUR": "Remove this colour",
         "BRAND_SAVED": "Branding saved",
