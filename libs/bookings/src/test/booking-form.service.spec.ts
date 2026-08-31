@@ -3206,7 +3206,19 @@ describe('BookingFormService', () => {
                         ...m,
                         asset_id: 'desk-1',
                         asset_name: 'Desk 1',
-                        assets: [new AssetRequest({ id: 'asset-1' })],
+                        assets: [
+                            new AssetRequest({
+                                id: 'asset-request-1',
+                                items: [
+                                    {
+                                        id: 'asset-type-1',
+                                        name: 'Monitor',
+                                        quantity: 1,
+                                        item_ids: [],
+                                    },
+                                ],
+                            }),
+                        ],
                     }) as any,
             );
         };
@@ -3216,14 +3228,19 @@ describe('BookingFormService', () => {
             // Asset group availability is resolved from the asset APIs before
             // the requests are posted.
             vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-                data: [],
+                data: [{ id: 'asset-type-1', name: 'Monitors' }],
                 next: null,
-                total: 0,
+                total: 1,
             } as any);
             vi.mocked(ts_client.queryAssets).mockResolvedValue({
-                data: [],
+                data: [
+                    {
+                        id: 'asset-1',
+                        asset_type_id: 'asset-type-1',
+                    },
+                ],
                 next: null,
-                total: 0,
+                total: 1,
             } as any);
             postBookings();
         });
