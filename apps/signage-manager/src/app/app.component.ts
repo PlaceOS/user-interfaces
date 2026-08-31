@@ -62,6 +62,7 @@ export class AppComponent implements OnInit {
         this._uploads.init();
         // asks the backend once whether image generation is available here, so
         // the entry points can hide themselves on a domain without a provider
-        this._ai.load(authority()?.config?.org_zone);
+        await this._ai.load(authority()?.config?.org_zone);
+        if (this._ai.enabled()) await this._ai.loadRecent();
     }
 }
