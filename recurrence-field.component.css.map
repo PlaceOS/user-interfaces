@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["recurrence-field.component.ts"],
+  "sourcesContent": ["\n            [value] {\n                min-width: 3em;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,aAAA;AACJ;",
+  "names": []
+}
