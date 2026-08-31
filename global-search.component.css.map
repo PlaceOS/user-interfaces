@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["global-search.component.ts"],
+  "sourcesContent": ["\n            [search] {\n                clip-path: inset(0 0 0 calc(100% - 3rem) round 24px);\n                transition:\n                    clip-path 220ms cubic-bezier(0.2, 0.8, 0.2, 1),\n                    opacity 160ms ease-out;\n            }\n\n            [search].open {\n                clip-path: inset(0 0 0 0 round 24px);\n            }\n\n            @media (prefers-reduced-motion: reduce) {\n                [search] {\n                    transition: none;\n                }\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,aAAA,MAAA,EAAA,EAAA,EAAA,KAAA,KAAA,EAAA,MAAA,MAAA;AACA;AAGJ;AAEA,CAAA,OAAA,CAAA;AACI,aAAA,MAAA,EAAA,EAAA,EAAA,EAAA,MAAA;AACJ;AAEA,QAAA,wBAAA;AACI,GAAA;AACI,gBAAA;AACJ;AACJ;",
+  "names": []
+}
