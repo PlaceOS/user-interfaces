@@ -22,11 +22,11 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
+import { AiImageService } from '../ai/ai-image.service';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
-import { AiImageService } from '../ai/ai-image.service';
 
 // Sentinel folder for media items without any tags.
 const UNTAGGED = '\0untagged';
@@ -502,7 +502,7 @@ const UNTAGGED = '\0untagged';
                         </div>
                     </button>
                 }
-                @if (can_update() && ai_enabled() && isImage(media_item)) {
+                @if (can_edit_with_ai() && isImage(media_item)) {
                     <button
                         type="button"
                         mat-menu-item
@@ -886,7 +886,9 @@ export class MediaListComponent implements OnInit {
     public readonly editItem = (item: SignageMedia) =>
         this._service.editMedia(item);
 
-    public readonly ai_enabled = this._ai.enabled;
+    public readonly can_edit_with_ai = computed(
+        () => this._service.can_create() && this._ai.can_edit(),
+    );
 
     /** only an uploaded still can be sent back through the model */
     public readonly isImage = (item: SignageMedia) =>

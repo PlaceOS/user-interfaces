@@ -13,10 +13,10 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { AiImageService } from '../ai/ai-image.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
 import { SignageService } from '../signage.service';
-import { AiImageService } from '../ai/ai-image.service';
 
 function isValidUrl(url: string): boolean {
     try {
@@ -374,7 +374,7 @@ export class MediaListHeaderComponent {
     public readonly previewFile = (event) =>
         this._service.previewFileFromInput(event);
 
-    public readonly ai_enabled = this._ai.enabled;
+    public readonly ai_enabled = this._ai.can_generate;
 
     public generateWithAI() {
         this._service.generateMediaWithAI();

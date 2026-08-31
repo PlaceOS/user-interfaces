@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
+import { AiImageService } from '../../app/ai/ai-image.service';
 import { MediaListHeaderComponent } from '../../app/media/media-list-header.component';
 import { MediaAddModalComponent } from '../../app/shared/media-add-modal.component';
 import { SignageService } from '../../app/signage.service';
@@ -43,6 +44,10 @@ describe('MediaListHeaderComponent', () => {
             providers: [
                 { provide: SignageService, useValue: service_stub },
                 { provide: MatDialog, useValue: { open: dialog_open } },
+                {
+                    provide: AiImageService,
+                    useValue: { can_generate: signal(true) },
+                },
             ],
         })
             .overrideComponent(MediaListHeaderComponent, {
