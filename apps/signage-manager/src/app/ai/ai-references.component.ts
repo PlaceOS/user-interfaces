@@ -8,10 +8,6 @@ import { AiReference } from './ai.types';
 
 /**
  * Pictures to work from, numbered so the brief can name them.
- *
- * A number is the whole point: the vendor is handed a list of images with no
- * names, so "the person in image 2" only means something if what the person
- * sees and what the model is told agree on the order.
  */
 @Component({
     selector: 'ai-references',
@@ -105,7 +101,6 @@ export class AiReferencesComponent {
     public readonly picked = output<File[]>();
     public readonly removed = output<string>();
 
-    /** the number is the whole point of the thumbnail, so it has to be read out */
     public numberedLabel(index: number, name: string) {
         return `${i18n('SIGNAGE_MANAGER.AI_REFERENCE_NUMBER', {
             number: `${index + 1}`,

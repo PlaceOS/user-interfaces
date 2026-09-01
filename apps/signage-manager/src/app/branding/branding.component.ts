@@ -28,7 +28,6 @@ import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
 import { BRAND_FONTS, ensureBrandFont } from './brand-fonts';
 
-/** the palette is stored named, so the prompt can say what each colour is for */
 const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
 
 @Component({
@@ -313,11 +312,6 @@ export class BrandingComponent implements OnInit {
     public readonly fonts = BRAND_FONTS;
     public readonly enabled = this._ai.enabled;
 
-    /**
-     * The brand kit is one object for the whole domain, so a change here lands
-     * on every screen every group runs. That is an administrator's call, and
-     * everyone else gets to see what it is set to.
-     */
     public readonly can_edit = this._service.is_sys_admin;
 
     public readonly organisation = signal('');
@@ -362,7 +356,6 @@ export class BrandingComponent implements OnInit {
     public async ngOnInit() {
         const brand = this._ai.brand_kit();
         if (brand) this._apply(brand);
-        // the kit is loaded once at start up; if that has not happened yet, wait
         if (!brand) {
             await this._ai.reloadBrandKit();
             const loaded = this._ai.brand_kit();
@@ -437,8 +430,6 @@ export class BrandingComponent implements OnInit {
         const slot = this._target;
         this.busy.set(slot);
         try {
-            // filling the empty counterpart is only right when there is nothing
-            // there yet; replacing one slot leaves a real file in the other one
             const kit = await this._ai.replaceBrandLogo(
                 slot,
                 file,
@@ -501,7 +492,6 @@ export class BrandingComponent implements OnInit {
 
     private _apply(brand: AiBrandKit) {
         this.organisation.set(brand.organisation || '');
-        // named order first, then anything else, so loading and saving is stable
         const palette = brand.palette || {};
         const ordered = [
             ...COLOUR_NAMES.map((name) => palette[name]).filter(Boolean),

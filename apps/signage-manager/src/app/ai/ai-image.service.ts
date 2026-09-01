@@ -54,10 +54,6 @@ export function isFinal(job?: AiJob | null) {
 
 /**
  * Owns generation state for the app.
- *
- * The poll loop lives here rather than in the modal so a job survives the modal
- * being closed: the user can start four candidates, close the dialog, keep
- * working, and still be told when they land.
  */
 @Injectable({ providedIn: 'root' })
 export class AiImageService extends AsyncHandler {
@@ -112,9 +108,7 @@ export class AiImageService extends AsyncHandler {
     private _org_zone = '';
 
     /**
-     * Read what this domain can do. An older backend has no such route, which
-     * is indistinguishable from the feature being switched off, so both are
-     * treated as disabled rather than surfaced as an error.
+     * Read what this domain can do.
      */
     public async load(org_zone_id?: string) {
         if (this._loaded) return this.capabilities();
@@ -143,16 +137,6 @@ export class AiImageService extends AsyncHandler {
 
     /**
      * Store a logo for the domain and remember it.
-     *
-     * There is nowhere in PlaceOS that a customer logo lives, so it is kept in
-     * the same brand kit metadata as the palette and the tone. Set once here
-     * and every later poster picks it up, rather than being re-attached each
-     * time.
-     *
-     * Which slot the file lands in is read off its own ink: dark ink is for
-     * light backgrounds and light ink is for dark ones. The other version is
-     * made from it, so a poster of either kind has a logo that reads, from one
-     * upload. Either can be replaced with a real file later.
      */
     public async uploadBrandLogo(file: File): Promise<AiBrandKit> {
         const slot: AiLogoSlot = (await inkIsLight(file).catch(() => false))
@@ -164,7 +148,7 @@ export class AiImageService extends AsyncHandler {
     /**
      * Put a file in one of the two slots. `derive_other` fills the empty
      * counterpart from it; an explicit upload into one slot leaves the other
-     * alone, since someone supplying their own file has said what they want.
+     * alone.
      */
     public async replaceBrandLogo(
         slot: AiLogoSlot,
@@ -177,8 +161,6 @@ export class AiImageService extends AsyncHandler {
         const other = slot === 'on_light' ? 'on_dark' : 'on_light';
         const other_id = this.brand_kit()?.[logoKey(other)];
         const derived = this.brand_kit()?.logo_derived;
-        // a derived counterpart is a guess at this file, so it is remade rather
-        // than left pointing at the version of a logo that is no longer here
         if (derive_other && (!other_id || derived === other)) {
             const flipped = await this._flip(file, other).catch(() => null);
             if (flipped) {
@@ -231,10 +213,6 @@ export class AiImageService extends AsyncHandler {
 
     /**
      * Store an image the person wants a request to draw on.
-     *
-     * Kept private: a reference is often a photo of a colleague, and it exists
-     * for one poster rather than for the media library. The server tags it so
-     * housekeeping can clear it even if the browser never gets the chance to.
      */
     public uploadReference(file: File): Promise<string> {
         return this._uploads.uploadFileToCompletion(file);
@@ -247,10 +225,6 @@ export class AiImageService extends AsyncHandler {
 
     /**
      * Merge changes into the domain's brand kit.
-     *
-     * Merged rather than replaced so the branding page and the logo upload can
-     * each write their own part without clearing the other's, and so anything
-     * set by hand outside this app survives.
      */
     public async saveBrandKit(
         changes: Partial<AiBrandKit>,
@@ -258,10 +232,6 @@ export class AiImageService extends AsyncHandler {
         if (!this._org_zone) {
             throw new Error(i18n('SIGNAGE_MANAGER.AI_NO_ORG_ZONE'));
         }
-        // The write below replaces the whole document. If the read failed we
-        // hold an empty kit that looks exactly like an organisation with no
-        // branding, and saving would write that over the real one, taking the
-        // logo upload ids with it.
         if (this.brand_kit_read() !== 'ok') {
             throw new Error(i18n('SIGNAGE_MANAGER.BRAND_NOT_LOADED'));
         }
@@ -271,8 +241,7 @@ export class AiImageService extends AsyncHandler {
         }
 
         // replace rather than merge: the API deep merges a PATCH, so a colour
-        // taken out of the palette would survive the save. The merge above is
-        // against the kit we loaded, so nothing else is lost.
+        // taken out of the palette would survive the save.
         await updateMetadata(
             this._org_zone,
             {
@@ -308,11 +277,6 @@ export class AiImageService extends AsyncHandler {
 
     /**
      * One key per thing a person asked for, held here rather than on the modal.
-     *
-     * The dialog is rebuilt on every open, so a key kept on the component died
-     * with it: closing a slow generation and asking for the same thing again
-     * minted a new key and paid twice, which is exactly the case the key exists
-     * to make free.
      */
     private readonly _intents = new Map<string, string>();
 
@@ -339,8 +303,6 @@ export class AiImageService extends AsyncHandler {
     }
 
     public async generate(request: AiGenerateRequest) {
-        // The caller owns the key: minting one here meant every retry looked
-        // like a new request, which is the opposite of what the field is for.
         const job = await generateSignageImage({
             ...request,
             idempotency_key: request.idempotency_key || crypto.randomUUID(),
@@ -388,18 +350,7 @@ export class AiImageService extends AsyncHandler {
     }
 
     /**
-     * One loop per job. Each request holds open until the job's version moves
-     * or the wait runs out, so a candidate shows up about half a second after
-     * it lands without polling in a tight circle. A job that outlives one wait
-     * simply spans several requests.
-     */
-    /**
      * Watch a job until it finishes.
-     *
-     * The timer handle is cleared the moment the callback fires, so checking it
-     * did not stop a second `watch` starting another loop over the same job
-     * while the first was parked on a 25 second request. `_watching` is the
-     * flag that actually holds.
      */
     public watch(id: string) {
         if (this._watching.has(id)) return;
@@ -428,10 +379,6 @@ export class AiImageService extends AsyncHandler {
 
         if ('error' in result) {
             const status = errorStatus(result.error);
-            // 404 and 403 do not become true by asking again. Anything else is
-            // treated as a dropped connection, which is normal on a long poll,
-            // but not forever: an unreachable API used to be polled every two
-            // seconds for the life of the page.
             const attempts = (this._attempts.get(id) || 0) + 1;
             this._attempts.set(id, attempts);
             if (status === 404 || status === 403 || attempts >= POLL_RETRIES) {
@@ -459,9 +406,6 @@ export class AiImageService extends AsyncHandler {
 
     /**
      * Re-read what is left of the allowance.
-     *
-     * It is otherwise read once at start up, so the number under the brief was
-     * stale from the first image onwards.
      */
     public async refreshQuota() {
         const capabilities = await signageAICapabilities().catch(() => null);
@@ -507,9 +451,7 @@ export class AiImageService extends AsyncHandler {
 
     /**
      * Read a generated image back out as something an <img> or a canvas can
-     * take. Candidates are private uploads, so this goes through the same
-     * authenticated image path the media thumbnails use, which sets the cookie
-     * and caches the result.
+     * take.
      */
     public loadImage(url: string): Promise<string> {
         const source = url.startsWith('http')

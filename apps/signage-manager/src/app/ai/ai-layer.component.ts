@@ -28,8 +28,7 @@ const ROLE_SIZE: Record<AiTextRole, number> = {
     body: 0.038,
 };
 
-/** line to line, as a multiple of the type size: tight for a headline, open
- * enough for a paragraph to be read */
+/** line to line, as a multiple of the type size */
 const ROLE_LEADING: Record<AiTextRole, number> = {
     headline: 1.12,
     subheading: 1.3,
@@ -50,14 +49,6 @@ interface Box {
 /**
  * The finished poster: the artwork with the words and the logo drawn over it,
  * at the artwork's native size.
- *
- * The model is asked for a background with a clear area and no lettering,
- * because no image model spells reliably at small sizes and because a logo the
- * model drew is the one part of a poster a trademark claim would land on.
- *
- * Words are placed by dragging them. Nine anchors were quicker to build and
- * never put a headline quite where the artwork left room for it, which is the
- * whole point of generating a background with a clear area.
  */
 @Component({
     selector: 'ai-layer',
@@ -169,9 +160,8 @@ export class AiLayerComponent {
     /** the composited image, at the artwork's native size */
     public toBlob(): Promise<Blob | null> {
         const canvas = this._canvas()?.nativeElement;
-        // Without the artwork the canvas is still its default 300x150 and
-        // `toBlob` hands back a perfectly valid blank image, which the caller
-        // then saves as the poster.
+        // without artwork the canvas is still its default 300x150 and toBlob
+        // hands back a valid blank image rather than failing
         if (!canvas || !this._artwork) return Promise.resolve(null);
         // the outline is an editing aid, not part of the poster
         const hovered = this.hover_id();
@@ -235,17 +225,13 @@ export class AiLayerComponent {
 
     /** the same moves without a mouse, for whoever cannot use one */
     public onKeyDown(event: KeyboardEvent) {
-        // Tab steps through the blocks, so a keyboard user can reach the second
-        // one. Without it the arrow keys only ever moved the first.
         if (event.key === 'Tab') {
             const blocks = this.state().blocks.filter((b) => b.text.trim());
             if (blocks.length < 2) return;
             const at = blocks.findIndex((b) => b.id === this.selected_id());
             const next = event.shiftKey ? at - 1 : at + 1;
 
-            // Off either end, let the browser have the key. Cycling forever
-            // would trap a keyboard user inside the canvas with no way out of
-            // the dialog, which is worse than the problem it solves.
+            // Off either end, let the browser have the key.
             if (next < 0 || next >= blocks.length) {
                 this.selected_id.set('');
                 return;
@@ -464,12 +450,9 @@ export class AiLayerComponent {
         const margin = Math.round(width * 0.04);
         const target_width = Math.round(width * state.logo_scale);
 
-        // measured first, because which version to draw depends on what is
-        // behind it, and that is only known once the box is known
         // Measured from a nominal square so the sampling box does not depend on
         // which variant loaded first, then measured again from the file that is
-        // actually drawn. Sampling with one file's shape and drawing another's
-        // stretched the logo whenever the two differed.
+        // actually drawn.
         const probe = this._logos.on_light || this._logos.on_dark;
         if (!probe) return;
         const nominal = Math.round(width * state.logo_scale * 0.4);
@@ -499,9 +482,7 @@ export class AiLayerComponent {
 
     /**
      * On auto, the artwork under the logo decides: a dark corner takes the
-     * light version and a light corner takes the dark one. Posters are
-     * generated, so the corner is different every time and asking the user to
-     * pick each time is asking them to do the machine's job.
+     * light version and a light corner takes the dark one.
      */
     private _logoFor(
         state: AiLayerState,
@@ -568,8 +549,7 @@ export class AiLayerComponent {
     }
 
     /**
-     * Line breaks the author typed are kept, including the empty ones, since a
-     * gap between two paragraphs is a decision rather than stray whitespace.
+     * Line breaks the author typed are kept, including the empty ones.
      * Anything still too wide for the artwork is wrapped on top of that.
      */
     private _wrap(

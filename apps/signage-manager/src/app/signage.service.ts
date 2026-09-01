@@ -704,10 +704,6 @@ export class SignageService {
     );
     /**
      * The group a write is made in.
-     *
-     * Public because the AI image endpoints need it too: a caller who is not
-     * support has to name the group they are acting in, and without it the API
-     * refuses every generate with "group_id required".
      */
     public readonly api_group_id = computed(
         () => this.selected_group()?.group.id || '',
@@ -3077,9 +3073,7 @@ export class SignageService {
 
     /**
      * Create a media item from an image the backend already stored, without
-     * sending the bytes up a second time. Generated candidates arrive this way:
-     * the runner wrote them to the same bucket a browser upload lands in, so
-     * only a thumbnail and the item row are still missing.
+     * sending the bytes up a second time.
      */
     public async addMediaFromUpload(
         upload_id: string,
@@ -3119,7 +3113,6 @@ export class SignageService {
                 );
             }
         } catch {
-            // a missing thumbnail is cosmetic, the item still works
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_FAILED'));
         }
 
@@ -3152,14 +3145,10 @@ export class SignageService {
         this._media_tags.reload();
     }
 
-    /**
-     * Open the AI image modal, either to create artwork or to change some.
-     *
-     * Only ever one at a time: the entry points are visible while the dialog is
-     * open, and a second one would stack a fresh dialog over a job in progress.
-     */
+    /** guards against a second modal while one is open */
     private _ai_modal_ref: MatDialogRef<AiImageModalComponent> | null = null;
 
+    /** Open the AI image modal, either to create artwork or to change some. */
     public async generateMediaWithAI(options: AiImageModalData = {}) {
         if (
             !this._requirePermission(

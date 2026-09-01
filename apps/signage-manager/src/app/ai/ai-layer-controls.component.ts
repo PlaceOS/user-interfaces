@@ -31,9 +31,6 @@ export function newTextBlock(role: AiTextRole, index = 0): AiTextBlock {
 
 /**
  * The words and the logo, as a sidebar panel beside the preview.
- *
- * Position is not here: the words are dragged on the image itself, which is the
- * only way to put a headline in the gap the artwork actually left for it.
  */
 @Component({
     selector: 'ai-layer-controls',
@@ -357,7 +354,7 @@ export class AiLayerControlsComponent {
 
     public readonly fonts = BRAND_FONTS;
 
-    /** names the face a block falls back to, so the default is not a mystery */
+    /** names the face a block falls back to */
     public readonly brand_font_label = computed(() => {
         const font = this.brand()?.font;
         const family = typeof font === 'string' ? font : font?.family;

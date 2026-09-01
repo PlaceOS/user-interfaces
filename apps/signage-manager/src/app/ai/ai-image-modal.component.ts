@@ -539,18 +539,6 @@ export class AiImageModalComponent implements OnDestroy {
 
     public readonly brand = this._ai.brand_kit;
 
-    /**
-     * The group this request is made in.
-     *
-     * A caller who is not support has to name one or the API refuses the whole
-     * request. Sending an empty string is the same as not sending it, which is
-     * right for a support user browsing across every group.
-     */
-    /**
-     * The logo belongs to the organisation, so setting it from here is the same
-     * decision as setting it on the branding page, which is administrators
-     * only. Without this the modal was a way around that.
-     */
     public readonly can_set_logo = this._service.is_sys_admin;
 
     public readonly group_id = computed(
@@ -572,10 +560,6 @@ export class AiImageModalComponent implements OnDestroy {
 
     /**
      * What the poster is actually dressed in.
-     *
-     * The same switch governs the words drawn in the browser as governs the
-     * prompt: a poster that is not in the organisation's colours should not
-     * offer its palette as the swatches either.
      */
     public readonly applied_brand = computed(() =>
         this.use_branding() ? this.brand() : null,
@@ -607,8 +591,7 @@ export class AiImageModalComponent implements OnDestroy {
 
     /**
      * Every candidate of every job in the refine chain, oldest first: the first
-     * generation's options and each round of changes since, so going back to a
-     * version you liked is one click rather than a re-generate.
+     * generation's options and each round of changes since.
      */
     public readonly rail = computed<Candidate[]>(() => {
         const jobs = this._ai.jobs();
@@ -650,9 +633,7 @@ export class AiImageModalComponent implements OnDestroy {
     });
 
     /**
-     * Which engine is behind the button. Normal for an AI feature to say, and
-     * it is the difference between "the model did badly" and "this domain is
-     * pointed at something that is not a model".
+     * Which engine is behind the button.
      */
     public readonly engine_note = computed(() => {
         const capabilities = this._ai.capabilities();
@@ -777,10 +758,6 @@ export class AiImageModalComponent implements OnDestroy {
 
     public async select(candidate: Candidate) {
         if (this.claim_pending()) return;
-        // Clicking along the rail starts a fetch per click, and they can land
-        // out of order. Without a token the preview, and the flattened file a
-        // save produces, could end up showing a candidate other than the one
-        // highlighted.
         const token = ++this._select_token;
         this.selected.set(candidate);
         this.selected_object_url.set('');
@@ -796,17 +773,14 @@ export class AiImageModalComponent implements OnDestroy {
     }
 
     /**
-     * Keep a logo for the domain. Nothing in PlaceOS stores one, so the first
-     * person to want one on a poster is the person who supplies it, and it is
-     * remembered for everyone afterwards.
+     * Keep a logo for the domain.
      */
     public readonly reference_ids = computed(() =>
         this.references().map((item) => item.id),
     );
 
     /**
-     * Attach pictures for this request. They upload as they are picked so the
-     * number under each one is settled before the brief mentions it.
+     * Attach pictures for this request.
      */
     public async addReferences(files: File[]) {
         if (!files.length) return;
@@ -837,24 +811,17 @@ export class AiImageModalComponent implements OnDestroy {
         this._ai.removeReference(id);
     }
 
-    /**
-     * The attachments existed for this dialog, so they go with it.
-     *
-     * Not while a job is still running: the server reads the bytes when the
-     * vendor call starts, and a job outlives this dialog by design. Those are
-     * left to the housekeeping sweep, which is what their tag is for.
-     */
     private _closed = false;
 
     public ngOnDestroy() {
-        // the loop below is a bare setTimeout, and without this it kept ticking
-        // for the life of the page and wrote into a destroyed component
         this._closed = true;
         if (this._await_timer) clearTimeout(this._await_timer);
 
         const running = this.state() === 'generating';
         for (const item of this.references()) {
             URL.revokeObjectURL(item.url);
+            // a running job reads the reference bytes server side, so those are
+            // left for the housekeeping sweep to clear
             if (!running) this._ai.removeReference(item.id);
         }
     }
@@ -880,9 +847,7 @@ export class AiImageModalComponent implements OnDestroy {
         const candidate = this.selected();
         if (!candidate) return;
 
-        // Take the composited image before the button swaps to a spinner: a
-        // change-detection pass that tears the canvas down mid-save would leave
-        // nothing to read it from.
+        // Take the composited image before the button swaps to a spinner.
         const name = this._name();
         const overlay = this.has_overlay();
         const blob = overlay ? await this._layer()?.toBlob() : undefined;
@@ -934,11 +899,6 @@ export class AiImageModalComponent implements OnDestroy {
                 }
             }
 
-            // The flattened path goes through addMedia, which takes no
-            // playlist, so a poster with words on it would land only in the
-            // library. Inert until something sets playlist_id: the entry point
-            // from a playlist is not built yet. Not swallowed, so that when it
-            // is, a failure here is not reported as a success.
             if (blob && media?.id && this._data.playlist_id) {
                 await this._service.addMediaToPlaylist(
                     this._data.playlist_id,
@@ -1044,10 +1004,7 @@ export class AiImageModalComponent implements OnDestroy {
 
     /**
      * Tags are what the media library builds its folders from, so only a label
-     * a person would want to browse by belongs here. The job and source ids
-     * used to be tags too, which gave every generated image its own folder of
-     * one. The job to item link lives on the job record instead, written by
-     * `claim`.
+     * a person would want to browse by belongs here.
      */
     private _tags(_candidate: Candidate) {
         return ['ai-generated'];

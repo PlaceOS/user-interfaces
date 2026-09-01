@@ -1,9 +1,5 @@
 /**
  * Faces offered for signage artwork.
- *
- * Loaded from Google Fonts on demand rather than bundled: the app already
- * pulls Roboto from there, the list needs to be long enough to feel like a
- * choice, and a canvas can only draw a face the document has loaded.
  */
 export const BRAND_FONTS = [
     { family: '', label: 'SIGNAGE_MANAGER.BRAND_FONT_SYSTEM' },
@@ -24,10 +20,8 @@ export const BRAND_FONTS = [
 const LOADED = new Map<string, Promise<void>>();
 
 /**
- * Make a face available to the document, and so to a canvas.
- *
- * Resolves either way: a face that will not load is a poster in the fallback
- * face, which is better than a preview that never renders.
+ * Make a face available to the document, and so to a canvas. Resolves either
+ * way: a face that will not load falls back rather than rejecting.
  */
 export function ensureBrandFont(family?: string | null): Promise<void> {
     if (!family) return Promise.resolve();

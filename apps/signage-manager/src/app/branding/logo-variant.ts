@@ -2,22 +2,11 @@ import { perceivedLightness } from '../ai/ai-image.util';
 
 /**
  * Making the other version of a logo.
- *
- * A brand almost always has two: dark ink for light backgrounds, light ink for
- * dark ones. Only one usually turns up, and a poster is as likely to be one as
- * the other, so the missing one is made here rather than asked for.
- *
- * This is pixel work, not a model call. A logo is the one part of a poster that
- * has to come back identical, and an image model asked to recolour a wordmark
- * will quietly redraw the letters. Flipping lightness while keeping hue and
- * saturation turns black ink white and leaves a brand colour recognisably
- * itself, exactly, every time, in a few milliseconds and for nothing.
  */
 
 /** anything past this reads as light ink */
 const LIGHT_INK = 0.55;
 
-/** enough to judge colour and to redraw from; logos are not photographs */
 const MAX_EDGE = 1024;
 
 export async function loadBitmap(
@@ -61,9 +50,6 @@ function toCanvas(image: HTMLImageElement) {
 
 /**
  * Whether the logo's own ink is light.
- *
- * Weighted by how opaque each pixel is, so a mark's anti-aliased edges and any
- * transparent surround do not drag the answer toward the middle.
  */
 export async function inkIsLight(source: Blob | string): Promise<boolean> {
     const image = await loadBitmap(source);

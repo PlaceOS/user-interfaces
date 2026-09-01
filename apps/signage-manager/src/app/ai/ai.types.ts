@@ -98,11 +98,7 @@ export interface AiBrandKit {
     organisation?: string;
     palette?: Record<string, string>;
     tone?: string;
-    /**
-     * The logo to put on a light background, so dark ink. Keeps its original
-     * name because rest-api reads this key when it sends the logo to the model
-     * as a reference.
-     */
+    /** the logo for a light background, so dark ink; rest-api reads this exact key */
     logo_upload_id?: string;
     /** the logo to put on a dark background, so light ink */
     logo_dark_upload_id?: string;
@@ -120,9 +116,6 @@ export type AiLogoChoice = 'auto' | AiLogoSlot;
 
 /**
  * An image attached to a request, numbered from 1 so a brief can name it.
- *
- * The thumbnail is the local file rather than the stored upload: it is already
- * in the browser, so there is nothing to fetch.
  */
 export interface AiReference {
     id: string;

@@ -39,7 +39,6 @@ export function filterManageNavItems(
     return NAV_ITEMS.filter((item) => {
         if (item.route === '/groups') return can_manage_groups;
         if (item.route === '/templates') return templates_enabled;
-        // branding only feeds image generation today, so it is noise without it
         if (item.route === '/branding') return ai_enabled;
         return true;
     });
