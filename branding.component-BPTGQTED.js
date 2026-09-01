@@ -1,7 +1,7 @@
 import {
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-4574S4OT.js";
+} from "./chunk-XLAVIQNP.js";
 import {
   AiImageService,
   AuthenticatedImageDirective,
@@ -68,7 +68,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-I73XU2BS.js";
+} from "./chunk-ZDUYTDDL.js";
 import "./chunk-653SOEEV.js";
 
 // apps/signage-manager/src/app/branding/branding.component.ts
@@ -1019,9 +1019,9 @@ var BrandingComponent = class _BrandingComponent {
   }], null, { _logo_input: [{ type: ViewChild, args: ["logo_input", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BrandingComponent, { className: "BrandingComponent", filePath: "apps/signage-manager/src/app/branding/branding.component.ts", lineNumber: 309 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BrandingComponent, { className: "BrandingComponent", filePath: "apps/signage-manager/src/app/branding/branding.component.ts", lineNumber: 308 });
 })();
 export {
   BrandingComponent
 };
-//# sourceMappingURL=branding.component-EMREM3MD.js.map
+//# sourceMappingURL=branding.component-BPTGQTED.js.map

@@ -54950,15 +54950,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "69ae14d",
-  "hash": "69ae14d",
+  "raw": "304f770",
+  "hash": "304f770",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "69ae14d",
+  "suffix": "304f770",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1788227816772
+  "time": 1788241175580
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -99932,9 +99932,7 @@ var AiImageService = class _AiImageService extends AsyncHandler {
     this._attempts = /* @__PURE__ */ new Map();
   }
   /**
-   * Read what this domain can do. An older backend has no such route, which
-   * is indistinguishable from the feature being switched off, so both are
-   * treated as disabled rather than surfaced as an error.
+   * Read what this domain can do.
    */
   async load(org_zone_id) {
     if (this._loaded)
@@ -99961,16 +99959,6 @@ var AiImageService = class _AiImageService extends AsyncHandler {
   }
   /**
    * Store a logo for the domain and remember it.
-   *
-   * There is nowhere in PlaceOS that a customer logo lives, so it is kept in
-   * the same brand kit metadata as the palette and the tone. Set once here
-   * and every later poster picks it up, rather than being re-attached each
-   * time.
-   *
-   * Which slot the file lands in is read off its own ink: dark ink is for
-   * light backgrounds and light ink is for dark ones. The other version is
-   * made from it, so a poster of either kind has a logo that reads, from one
-   * upload. Either can be replaced with a real file later.
    */
   async uploadBrandLogo(file) {
     const slot = await inkIsLight(file).catch(() => false) ? "on_dark" : "on_light";
@@ -99979,7 +99967,7 @@ var AiImageService = class _AiImageService extends AsyncHandler {
   /**
    * Put a file in one of the two slots. `derive_other` fills the empty
    * counterpart from it; an explicit upload into one slot leaves the other
-   * alone, since someone supplying their own file has said what they want.
+   * alone.
    */
   async replaceBrandLogo(slot, file, derive_other = false) {
     const upload_id = await this._uploads.uploadFileToCompletion(file);
@@ -100019,10 +100007,6 @@ var AiImageService = class _AiImageService extends AsyncHandler {
   }
   /**
    * Store an image the person wants a request to draw on.
-   *
-   * Kept private: a reference is often a photo of a colleague, and it exists
-   * for one poster rather than for the media library. The server tags it so
-   * housekeeping can clear it even if the browser never gets the chance to.
    */
   uploadReference(file) {
     return this._uploads.uploadFileToCompletion(file);
@@ -100033,10 +100017,6 @@ var AiImageService = class _AiImageService extends AsyncHandler {
   }
   /**
    * Merge changes into the domain's brand kit.
-   *
-   * Merged rather than replaced so the branding page and the logo upload can
-   * each write their own part without clearing the other's, and so anything
-   * set by hand outside this app survives.
    */
   async saveBrandKit(changes) {
     if (!this._org_zone) {
@@ -100130,18 +100110,7 @@ var AiImageService = class _AiImageService extends AsyncHandler {
     return this.jobs()[id];
   }
   /**
-   * One loop per job. Each request holds open until the job's version moves
-   * or the wait runs out, so a candidate shows up about half a second after
-   * it lands without polling in a tight circle. A job that outlives one wait
-   * simply spans several requests.
-   */
-  /**
    * Watch a job until it finishes.
-   *
-   * The timer handle is cleared the moment the callback fires, so checking it
-   * did not stop a second `watch` starting another loop over the same job
-   * while the first was parked on a 25 second request. `_watching` is the
-   * flag that actually holds.
    */
   watch(id) {
     if (this._watching.has(id))
@@ -100188,9 +100157,6 @@ var AiImageService = class _AiImageService extends AsyncHandler {
   }
   /**
    * Re-read what is left of the allowance.
-   *
-   * It is otherwise read once at start up, so the number under the brief was
-   * stale from the first image onwards.
    */
   async refreshQuota() {
     const capabilities = await signageAICapabilities().catch(() => null);
@@ -100230,9 +100196,7 @@ var AiImageService = class _AiImageService extends AsyncHandler {
   }
   /**
    * Read a generated image back out as something an <img> or a canvas can
-   * take. Candidates are private uploads, so this goes through the same
-   * authenticated image path the media thumbnails use, which sets the cookie
-   * and caches the result.
+   * take.
    */
   loadImage(url) {
     const source = url.startsWith("http") ? url : `${location.origin}${url}`;
@@ -101625,7 +101589,7 @@ var AiLayerControlsComponent = class _AiLayerControlsComponent {
   }], null, { state: [{ type: Input, args: [{ isSignal: true, alias: "state", required: true }] }], logo_on_light: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_light", required: false }] }], logo_on_dark: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_dark", required: false }] }], brand: [{ type: Input, args: [{ isSignal: true, alias: "brand", required: false }] }], uploading: [{ type: Input, args: [{ isSignal: true, alias: "uploading", required: false }] }], can_set_logo: [{ type: Input, args: [{ isSignal: true, alias: "can_set_logo", required: false }] }], changed: [{ type: Output, args: ["changed"] }], logo_picked: [{ type: Output, args: ["logoPicked"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiLayerControlsComponent, { className: "AiLayerControlsComponent", filePath: "apps/signage-manager/src/app/ai/ai-layer-controls.component.ts", lineNumber: 340 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiLayerControlsComponent, { className: "AiLayerControlsComponent", filePath: "apps/signage-manager/src/app/ai/ai-layer-controls.component.ts", lineNumber: 337 });
 })();
 
 // apps/signage-manager/src/app/ai/ai-layer.component.ts
@@ -102015,9 +101979,7 @@ var AiLayerComponent = class _AiLayerComponent {
   }
   /**
    * On auto, the artwork under the logo decides: a dark corner takes the
-   * light version and a light corner takes the dark one. Posters are
-   * generated, so the corner is different every time and asking the user to
-   * pick each time is asking them to do the machine's job.
+   * light version and a light corner takes the dark one.
    */
   _logoFor(state, context2, box) {
     const choice = state.logo_choice === "auto" ? this._backgroundIsDark(context2, box) ? "on_dark" : "on_light" : state.logo_choice;
@@ -102055,8 +102017,7 @@ var AiLayerComponent = class _AiLayerComponent {
     return family ? `"${family}", system-ui, sans-serif` : "system-ui, sans-serif";
   }
   /**
-   * Line breaks the author typed are kept, including the empty ones, since a
-   * gap between two paragraphs is a decision rather than stray whitespace.
+   * Line breaks the author typed are kept, including the empty ones.
    * Anything still too wide for the artwork is wrapped on top of that.
    */
   _wrap(context2, text, max_width) {
@@ -102143,7 +102104,7 @@ var AiLayerComponent = class _AiLayerComponent {
   }], () => [], { image_url: [{ type: Input, args: [{ isSignal: true, alias: "image_url", required: true }] }], logo_on_light: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_light", required: false }] }], logo_on_dark: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_dark", required: false }] }], brand: [{ type: Input, args: [{ isSignal: true, alias: "brand", required: false }] }], state: [{ type: Input, args: [{ isSignal: true, alias: "state", required: true }] }], changed: [{ type: Output, args: ["changed"] }], failed: [{ type: Output, args: ["failed"] }], _canvas: [{ type: ViewChild, args: ["canvas", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiLayerComponent, { className: "AiLayerComponent", filePath: "apps/signage-manager/src/app/ai/ai-layer.component.ts", lineNumber: 97 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiLayerComponent, { className: "AiLayerComponent", filePath: "apps/signage-manager/src/app/ai/ai-layer.component.ts", lineNumber: 88 });
 })();
 
 // apps/signage-manager/src/app/ai/ai-references.component.ts
@@ -102219,7 +102180,6 @@ var AiReferencesComponent = class _AiReferencesComponent {
     this.picked = output();
     this.removed = output();
   }
-  /** the number is the whole point of the thumbnail, so it has to be read out */
   numberedLabel(index, name) {
     return `${i18n("SIGNAGE_MANAGER.AI_REFERENCE_NUMBER", {
       number: `${index + 1}`
@@ -102373,7 +102333,7 @@ var AiReferencesComponent = class _AiReferencesComponent {
   }], null, { items: [{ type: Input, args: [{ isSignal: true, alias: "items", required: true }] }], uploading: [{ type: Input, args: [{ isSignal: true, alias: "uploading", required: false }] }], max: [{ type: Input, args: [{ isSignal: true, alias: "max", required: false }] }], picked: [{ type: Output, args: ["picked"] }], removed: [{ type: Output, args: ["removed"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiReferencesComponent, { className: "AiReferencesComponent", filePath: "apps/signage-manager/src/app/ai/ai-references.component.ts", lineNumber: 99 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiReferencesComponent, { className: "AiReferencesComponent", filePath: "apps/signage-manager/src/app/ai/ai-references.component.ts", lineNumber: 95 });
 })();
 
 // apps/signage-manager/src/app/ai/ai-image-modal.component.ts
@@ -103349,8 +103309,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
     this.state.set(this.rail().length ? "review" : "compose");
   }
   /**
-   * Attach pictures for this request. They upload as they are picked so the
-   * number under each one is settled before the brief mentions it.
+   * Attach pictures for this request.
    */
   async addReferences(files) {
     if (!files.length)
@@ -103520,10 +103479,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
   }
   /**
    * Tags are what the media library builds its folders from, so only a label
-   * a person would want to browse by belongs here. The job and source ids
-   * used to be tags too, which gave every generated image its own folder of
-   * one. The job to item link lives on the job record instead, written by
-   * `claim`.
+   * a person would want to browse by belongs here.
    */
   _tags(_candidate) {
     return ["ai-generated"];
@@ -123435,9 +123391,7 @@ var SignageService = class _SignageService {
   }
   /**
    * Create a media item from an image the backend already stored, without
-   * sending the bytes up a second time. Generated candidates arrive this way:
-   * the runner wrote them to the same bucket a browser upload lands in, so
-   * only a thumbnail and the item row are still missing.
+   * sending the bytes up a second time.
    */
   async addMediaFromUpload(upload_id, media_item = {}, playlist_id = "") {
     if (!this._requirePermission(this.can_create(), i18n("SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA"))) {
@@ -123481,6 +123435,7 @@ var SignageService = class _SignageService {
     this._media_items.update((items) => items.filter((item) => item.id !== id));
     this._media_tags.reload();
   }
+  /** Open the AI image modal, either to create artwork or to change some. */
   async generateMediaWithAI(options = {}) {
     if (!this._requirePermission(this.can_create(), i18n("SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA")))
       return;
@@ -124639,4 +124594,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-I73XU2BS.js.map
+//# sourceMappingURL=chunk-ZDUYTDDL.js.map

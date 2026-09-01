@@ -167,7 +167,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-I73XU2BS.js";
+} from "./chunk-ZDUYTDDL.js";
 import {
   __export,
   __spreadProps,
@@ -12295,53 +12295,53 @@ var APP_ROUTES = [
     children: [
       {
         path: "media",
-        loadComponent: () => import("./media.component-RHG452BN.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-SADGT3G2.js").then((m) => m.MediaSectionComponent)
       },
       {
         path: "playlists/:id",
-        loadComponent: () => import("./playlists.component-JGCW5N3K.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-52EYT5PV.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "playlists",
-        loadComponent: () => import("./playlists.component-JGCW5N3K.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-52EYT5PV.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-KCUAZYVM.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-VQDG2I6B.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
-        loadComponent: () => import("./templates.component-KCUAZYVM.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-VQDG2I6B.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
-        loadComponent: () => import("./schedules.component-RE67S7RQ.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-IUGV67RI.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         path: "displays/:id",
-        loadComponent: () => import("./displays.component-KV4Y4GMS.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-PKHDU73V.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "displays",
-        loadComponent: () => import("./displays.component-KV4Y4GMS.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-PKHDU73V.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "branding",
-        loadComponent: () => import("./branding.component-EMREM3MD.js").then((m) => m.BrandingComponent)
+        loadComponent: () => import("./branding.component-BPTGQTED.js").then((m) => m.BrandingComponent)
       },
       {
         path: "groups",
-        loadComponent: () => import("./groups.component-KNGPFPZ4.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-34GGMXRI.js").then((m) => m.GroupsSectionComponent)
       },
       {
         path: "zones/:id",
-        loadComponent: () => import("./zones.component-JTCOG2XF.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-BESAACQN.js").then((m) => m.ZonesSectionComponent)
       },
       {
         path: "zones",
-        loadComponent: () => import("./zones.component-JTCOG2XF.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-BESAACQN.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
