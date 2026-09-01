@@ -49791,15 +49791,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "903a4ee",
-  "hash": "903a4ee",
+  "raw": "69ae14d",
+  "hash": "69ae14d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "903a4ee",
+  "suffix": "69ae14d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1788155109490
+  "time": 1788227821050
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -84823,4 +84823,4 @@ export {
   queryResourceAvailability,
   createBookingsForEvent
 };
-//# sourceMappingURL=chunk-NRV4P55O.js.map
+//# sourceMappingURL=chunk-EPSGOQ6B.js.map

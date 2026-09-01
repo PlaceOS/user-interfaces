@@ -46,7 +46,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-DFQRC2UB.js";
+} from "./chunk-XJTVOWKI.js";
 import {
   FormField,
   MatCheckbox,
@@ -57,7 +57,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-6TOFRHRD.js";
+} from "./chunk-O7FPIYDH.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -310,7 +310,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-NRV4P55O.js";
+} from "./chunk-EPSGOQ6B.js";
 import {
   __spreadProps,
   __spreadValues
@@ -5121,8 +5121,6 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const is_owner = owner_fields.some((_) => _?.toLowerCase?.() === user_email);
       if ((is_owner && !ignore_owner || force_calendar) && query_calendar)
         query.calendar = query_calendar;
-      if (force_calendar)
-        delete query.system_id;
       const processed_assets = (this._model().assets || []).map((_) => new AssetRequest(_).toJSON());
       const host = this._host(this._model().host, spaces[0]?.email);
       const ext = {
@@ -11990,4 +11988,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-P7P3JL2B.js.map
+//# sourceMappingURL=explore.routes-53DD35TE.js.map
