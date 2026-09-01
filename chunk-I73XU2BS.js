@@ -3139,13 +3139,13 @@ function formatRuntimeErrorCode(code) {
 }
 function formatRuntimeError(code, message2) {
   const fullCode = formatRuntimeErrorCode(code);
-  let errorMessage = `${fullCode}${message2 ? ": " + message2 : ""}`;
+  let errorMessage2 = `${fullCode}${message2 ? ": " + message2 : ""}`;
   if (ngDevMode && code < 0) {
-    const addPeriodSeparator = !errorMessage.match(/[.,;!?\n]$/);
+    const addPeriodSeparator = !errorMessage2.match(/[.,;!?\n]$/);
     const separator = addPeriodSeparator ? "." : "";
-    errorMessage = `${errorMessage}${separator} Find more at ${ERROR_DETAILS_PAGE_BASE_URL}/${fullCode}`;
+    errorMessage2 = `${errorMessage2}${separator} Find more at ${ERROR_DETAILS_PAGE_BASE_URL}/${fullCode}`;
   }
-  return errorMessage;
+  return errorMessage2;
 }
 function getClosureSafeProperty(objWithPropertyToExtract) {
   for (let key in objWithPropertyToExtract) {
@@ -3617,8 +3617,8 @@ function throwInvalidProviderError(ngModuleType, providers, provider) {
   }
 }
 function throwProviderNotFoundError(token, injectorName) {
-  const errorMessage = ngDevMode && `No provider for ${stringifyForError(token)} found${injectorName ? ` in ${injectorName}` : ""}`;
-  throw new RuntimeError(-201, errorMessage);
+  const errorMessage2 = ngDevMode && `No provider for ${stringifyForError(token)} found${injectorName ? ` in ${injectorName}` : ""}`;
+  throw new RuntimeError(-201, errorMessage2);
 }
 function prependTokenToDependencyPath(error2, token) {
   error2[NG_TOKEN_PATH] ??= [];
@@ -9193,9 +9193,9 @@ function \u0275\u0275sanitizeUrlOrResourceUrl(unsafeUrl, tag, prop) {
 }
 function validateAgainstEventProperties(name) {
   if (name.toLowerCase().startsWith("on")) {
-    const errorMessage = `Binding to event property '${name}' is disallowed for security reasons, please use (${name.slice(2)})=...
+    const errorMessage2 = `Binding to event property '${name}' is disallowed for security reasons, please use (${name.slice(2)})=...
 If '${name}' is a directive input, make sure the directive is imported by the current module.`;
-    throw new RuntimeError(306, errorMessage);
+    throw new RuntimeError(306, errorMessage2);
   }
 }
 function getSanitizer() {
@@ -9251,22 +9251,22 @@ function \u0275\u0275validateAttribute(value, tagName, attributeName) {
   const displayTagName = tagName[0] === ":" ? tagName.split(":").pop() : tagName;
   if (typeof validationConfig !== "boolean") {
     if (!tNode) {
-      const errorMessage2 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${tagName}> element. For security reasons, the \`${attributeName}\` can be set on the <${tagName}> element as a static attribute only. 
+      const errorMessage3 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${tagName}> element. For security reasons, the \`${attributeName}\` can be set on the <${tagName}> element as a static attribute only. 
 To fix this, switch the \`${attributeName}\` binding to a static attribute in a template or in host bindings section.`;
-      throw new RuntimeError(-910, errorMessage2);
+      throw new RuntimeError(-910, errorMessage3);
     }
     const element = getNativeByTNode(tNode, lView);
     const attributeNameValue = getSecuritySensitiveSVGAnimationAttributeName(element, validationConfig);
     if (attributeNameValue) {
-      const errorMessage2 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${getTemplateLocationDetails(lView)}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only when the "attributeName" is set to '${attributeNameValue}'. 
+      const errorMessage3 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${getTemplateLocationDetails(lView)}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only when the "attributeName" is set to '${attributeNameValue}'. 
 To fix this, switch the \`${attributeNameValue}\` binding to a static attribute in a template or in host bindings section.`;
-      throw new RuntimeError(-910, errorMessage2);
+      throw new RuntimeError(-910, errorMessage3);
     }
     return value;
   }
-  const errorMessage = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${tNode ? getTemplateLocationDetails(lView) : ""}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only. 
+  const errorMessage2 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${tNode ? getTemplateLocationDetails(lView) : ""}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only. 
 To fix this, switch the \`${attributeName}\` binding to a static attribute in a template or in host bindings section.`;
-  throw new RuntimeError(-910, errorMessage);
+  throw new RuntimeError(-910, errorMessage2);
 }
 function getSecuritySensitiveSVGAnimationAttributeName(element, validationConfig) {
   for (const attributeName of SVG_ANIMATION_ATTRIBUTE_NAME_CANDIDATES) {
@@ -17305,12 +17305,12 @@ function publishDefaultGlobalUtils() {
 }
 function publishSignalConfiguration() {
   setThrowInvalidWriteToSignalError(() => {
-    let errorMessage = "";
+    let errorMessage2 = "";
     if (ngDevMode) {
       const activeConsumer2 = getActiveConsumer();
-      errorMessage = activeConsumer2 && isReactiveLViewConsumer(activeConsumer2) ? "Writing to signals is not allowed while Angular renders the template (eg. interpolations)" : "Writing to signals is not allowed in a `computed`";
+      errorMessage2 = activeConsumer2 && isReactiveLViewConsumer(activeConsumer2) ? "Writing to signals is not allowed while Angular renders the template (eg. interpolations)" : "Writing to signals is not allowed in a `computed`";
     }
-    throw new RuntimeError(600, errorMessage);
+    throw new RuntimeError(600, errorMessage2);
   });
 }
 var MAXIMUM_REFRESH_RERUNS = 10;
@@ -17381,12 +17381,12 @@ var ApplicationRef = class _ApplicationRef {
       (typeof ngDevMode === "undefined" || ngDevMode) && warnIfDestroyed(this._destroyed);
       const initStatus = this._injector.get(ApplicationInitStatus);
       if (!initStatus.done) {
-        let errorMessage = "";
+        let errorMessage2 = "";
         if (typeof ngDevMode === "undefined" || ngDevMode) {
           const standalone = isStandalone(component);
-          errorMessage = "Cannot bootstrap as there are still asynchronous initializers running." + (standalone ? "" : " Bootstrap components in the `ngDoBootstrap` method of the root module.");
+          errorMessage2 = "Cannot bootstrap as there are still asynchronous initializers running." + (standalone ? "" : " Bootstrap components in the `ngDoBootstrap` method of the root module.");
         }
-        throw new RuntimeError(405, errorMessage);
+        throw new RuntimeError(405, errorMessage2);
       }
       const componentDef = getComponentDef(component);
       const ngModule = this._injector.get(NgModuleRef$1);
@@ -21963,8 +21963,8 @@ function getMultipleMatchingPipesMessage(name) {
   const hostIsStandalone = isHostComponentStandalone(lView);
   const componentInfoMessage = context2 ? ` in the '${context2.constructor.name}' component` : "";
   const verifyMessage = `check ${hostIsStandalone ? "'@Component.imports' of this component" : "the imports of this module"}`;
-  const errorMessage = `Multiple pipes match the name \`${name}\`${componentInfoMessage}. ${verifyMessage}`;
-  return errorMessage;
+  const errorMessage2 = `Multiple pipes match the name \`${name}\`${componentInfoMessage}. ${verifyMessage}`;
+  return errorMessage2;
 }
 function getPipeNotFoundErrorMessage(name) {
   const lView = getLView();
@@ -21973,8 +21973,8 @@ function getPipeNotFoundErrorMessage(name) {
   const hostIsStandalone = isHostComponentStandalone(lView);
   const componentInfoMessage = context2 ? ` in the '${context2.constructor.name}' component` : "";
   const verifyMessage = `Verify that it is ${hostIsStandalone ? "included in the '@Component.imports' of this component" : "declared or imported in this module"}`;
-  const errorMessage = `The pipe '${name}' could not be found${componentInfoMessage}. ${verifyMessage}`;
-  return errorMessage;
+  const errorMessage2 = `The pipe '${name}' could not be found${componentInfoMessage}. ${verifyMessage}`;
+  return errorMessage2;
 }
 function \u0275\u0275pipeBind1(index, offset, v1) {
   const adjustedIndex = index + HEADER_OFFSET;
@@ -28100,11 +28100,11 @@ var NgForOf = class _NgForOf {
           try {
             this._differ = this._differs.find(value).create(this.ngForTrackBy);
           } catch {
-            let errorMessage = `Cannot find a differ supporting object '${value}' of type '${getTypeName(value)}'. NgFor only supports binding to Iterables, such as Arrays.`;
+            let errorMessage2 = `Cannot find a differ supporting object '${value}' of type '${getTypeName(value)}'. NgFor only supports binding to Iterables, such as Arrays.`;
             if (typeof value === "object") {
-              errorMessage += " Did you mean to use the keyvalue pipe?";
+              errorMessage2 += " Did you mean to use the keyvalue pipe?";
             }
-            throw new RuntimeError(-2200, errorMessage);
+            throw new RuntimeError(-2200, errorMessage2);
           }
         } else {
           this._differ = this._differs.find(value).create(this.ngForTrackBy);
@@ -40550,11 +40550,11 @@ function isPresent(o) {
 function toObservable(value) {
   const obs = isPromise2(value) ? from(value) : value;
   if ((typeof ngDevMode === "undefined" || ngDevMode) && !isSubscribable(obs)) {
-    let errorMessage = `Expected async validator to return Promise or Observable.`;
+    let errorMessage2 = `Expected async validator to return Promise or Observable.`;
     if (typeof value === "object") {
-      errorMessage += " Are you using a synchronous validator where an async validator is expected?";
+      errorMessage2 += " Are you using a synchronous validator where an async validator is expected?";
     }
-    throw new RuntimeError(-1101, errorMessage);
+    throw new RuntimeError(-1101, errorMessage2);
   }
   return obs;
 }
@@ -54950,15 +54950,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "c61f0d3",
-  "hash": "c61f0d3",
+  "raw": "69ae14d",
+  "hash": "69ae14d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c61f0d3",
+  "suffix": "69ae14d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1788226402055
+  "time": 1788227816772
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -87841,6 +87841,45 @@ var AuthenticatedImageDirective = class _AuthenticatedImageDirective extends Asy
   }], () => [], { source: [{ type: Input, args: [{ isSignal: true, alias: "source", required: false }] }] });
 })();
 
+// apps/signage-manager/src/app/ai/ai-image.util.ts
+function errorMessage(error2, fallback) {
+  if (typeof error2 === "string")
+    return error2;
+  if (!isRecord(error2))
+    return fallback;
+  const nested = error2["error"];
+  if (typeof nested === "string")
+    return nested;
+  if (isRecord(nested)) {
+    const detail = nested["error"];
+    if (typeof detail === "string")
+      return detail;
+    const nested_message = nested["message"];
+    if (typeof nested_message === "string")
+      return nested_message;
+  }
+  const message2 = error2["message"];
+  return typeof message2 === "string" ? message2 : fallback;
+}
+function isRecord(value) {
+  return typeof value === "object" && value !== null;
+}
+function errorStatus(error2) {
+  if (!isRecord(error2))
+    return void 0;
+  const status = error2["status"];
+  if (typeof status === "number")
+    return status;
+  const nested = error2["error"];
+  if (!isRecord(nested))
+    return void 0;
+  const nested_status = nested["status"];
+  return typeof nested_status === "number" ? nested_status : void 0;
+}
+function perceivedLightness(red, green, blue) {
+  return (red * 299 + green * 587 + blue * 114) / 1e3;
+}
+
 // node_modules/@angular/material/fesm2022/menu.mjs
 var _c012 = [[["mat-icon"], ["", "matMenuItemIcon", ""]], "*"];
 var _c17 = ["mat-icon, [matMenuItemIcon]", "*"];
@@ -99675,7 +99714,7 @@ async function inkIsLight(source) {
     const alpha = data[index + 3] / 255;
     if (alpha < 0.1)
       continue;
-    const lightness = (0.299 * data[index] + 0.587 * data[index + 1] + 0.114 * data[index + 2]) / 255;
+    const lightness = perceivedLightness(data[index], data[index + 1], data[index + 2]) / 255;
     total += lightness * alpha;
     weight += alpha;
   }
@@ -99758,7 +99797,9 @@ function toQuery(params) {
   return pairs.length ? `?${pairs.join("&")}` : "";
 }
 function removeSignageUpload(id) {
-  return ee(`${u2()}/uploads/${encodeURIComponent(id)}`);
+  return ee(`${u2()}/uploads/${encodeURIComponent(id)}`, {
+    response_type: "void"
+  });
 }
 function signageAICapabilities() {
   return p(`${AI_PATH()}/capabilities`);
@@ -99784,12 +99825,12 @@ function claimSignageAIImage(id, body) {
 
 // apps/signage-manager/src/app/ai/ai-image.service.ts
 var FINAL_STATES = ["done", "failed", "cancelled"];
-var FAILED = /* @__PURE__ */ Symbol("metadata read failed");
 function logoKey(slot) {
   return slot === "on_light" ? "logo_upload_id" : "logo_dark_upload_id";
 }
 var POLL_WAIT = 25;
 var POLL_RETRIES = 10;
+var CLAIM_RETRY_DELAYS = [0, 500, 1500];
 function isFinal(job) {
   return !!job && FINAL_STATES.includes(job.state);
 }
@@ -99827,6 +99868,44 @@ var AiImageService = class _AiImageService extends AsyncHandler {
     this.enabled = computed(
       () => !!this.capabilities()?.enabled,
       ...ngDevMode ? [{ debugName: "enabled" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.default_provider = computed(
+      () => {
+        const capabilities = this.capabilities();
+        if (!capabilities?.enabled)
+          return null;
+        return capabilities.providers.find((provider) => provider.id === capabilities.default_provider_id) || capabilities.providers[0] || null;
+      },
+      ...ngDevMode ? [{ debugName: "default_provider" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.default_model = computed(
+      () => {
+        const provider = this.default_provider();
+        if (!provider)
+          return null;
+        return provider.models.find((model2) => model2.id === provider.default_model) || provider.models[0] || null;
+      },
+      ...ngDevMode ? [{ debugName: "default_model" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.can_generate = computed(
+      () => !!this.default_model()?.generate,
+      ...ngDevMode ? [{ debugName: "can_generate" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.can_edit = computed(
+      () => !!this.default_model()?.edit,
+      ...ngDevMode ? [{ debugName: "can_edit" }] : (
         /* istanbul ignore next */
         []
       )
@@ -99983,20 +100062,20 @@ var AiImageService = class _AiImageService extends AsyncHandler {
   async reloadBrandKit() {
     if (!this._org_zone)
       return null;
-    const metadata2 = await Vu(this._org_zone, "signage_ai").catch(() => FAILED);
-    if (metadata2 === FAILED) {
+    const metadata2 = await Vu(this._org_zone, "signage_ai").catch(() => null);
+    if (!metadata2) {
       this.brand_kit_read.set("failed");
       return this.brand_kit();
     }
-    const details = metadata2?.details;
-    if (details && Object.keys(details).length) {
+    const details = metadata2.details;
+    if (details && !Array.isArray(details) && Object.keys(details).length) {
       this.brand_kit.set(details);
     }
     this.brand_kit_read.set("ok");
     return this.brand_kit();
   }
-  intentKey(kind, subject) {
-    const id = `${kind}:${subject}`;
+  intentKey(kind, request) {
+    const id = `${kind}:${JSON.stringify(request)}`;
     let key = this._intents.get(id);
     if (!key) {
       key = crypto.randomUUID();
@@ -100012,17 +100091,17 @@ var AiImageService = class _AiImageService extends AsyncHandler {
     return jobs;
   }
   async generate(request) {
-    const job = await generateSignageImage(__spreadValues({
+    const job = await generateSignageImage(__spreadProps(__spreadValues({}, request), {
       idempotency_key: request.idempotency_key || crypto.randomUUID()
-    }, request));
+    }));
     this._merge([job]);
     this.watch(job.id);
     return job;
   }
   async edit(request) {
-    const job = await editSignageImage(__spreadValues({
+    const job = await editSignageImage(__spreadProps(__spreadValues({}, request), {
       idempotency_key: request.idempotency_key || crypto.randomUUID()
-    }, request));
+    }));
     this._merge([job]);
     this.watch(job.id);
     return job;
@@ -100033,8 +100112,19 @@ var AiImageService = class _AiImageService extends AsyncHandler {
       this._merge([job]);
     return job;
   }
-  claim(id, upload_id, item_id) {
-    return claimSignageAIImage(id, { upload_id, item_id }).catch(() => null);
+  async claim(id, upload_id, item_id) {
+    let last_error;
+    for (const delay2 of CLAIM_RETRY_DELAYS) {
+      if (delay2) {
+        await new Promise((resolve) => setTimeout(resolve, delay2));
+      }
+      try {
+        return await claimSignageAIImage(id, { upload_id, item_id });
+      } catch (error2) {
+        last_error = error2;
+      }
+    }
+    throw last_error;
   }
   job(id) {
     return this.jobs()[id];
@@ -100069,21 +100159,23 @@ var AiImageService = class _AiImageService extends AsyncHandler {
     if (!this._watching.has(id))
       return;
     const known = this.jobs()[id]?.version ?? 0;
-    const job = await showSignageAIJob(id, {
+    const result = await showSignageAIJob(id, {
       wait: POLL_WAIT,
       since: known
     }).catch((error2) => ({ error: error2 }));
-    if (!job || "error" in job) {
-      const status = job?.error?.status;
+    if ("error" in result) {
+      const status = errorStatus(result.error);
       const attempts = (this._attempts.get(id) || 0) + 1;
       this._attempts.set(id, attempts);
-      if (status === 404 || status === 403 || attempts > POLL_RETRIES) {
+      if (status === 404 || status === 403 || attempts >= POLL_RETRIES) {
+        this._failJob(id);
         this.unwatch(id);
         return;
       }
       this.timeout(`watch-${id}`, () => this._poll(id), 2e3);
       return;
     }
+    const job = result;
     this._attempts.delete(id);
     this._merge([job]);
     if (isFinal(job)) {
@@ -100113,6 +100205,18 @@ var AiImageService = class _AiImageService extends AsyncHandler {
     } else if (job.state === "done" && job.images_produced > 0) {
       notifyInfo(i18n("SIGNAGE_MANAGER.AI_JOB_DONE"));
     }
+  }
+  _failJob(id) {
+    const current = this.jobs()[id];
+    if (!current || isFinal(current))
+      return;
+    const failed = __spreadProps(__spreadValues({}, current), {
+      state: "failed",
+      version: current.version + 1,
+      error_message: i18n("SIGNAGE_MANAGER.AI_JOB_FAILED")
+    });
+    this._merge([failed]);
+    this._announce(failed);
   }
   _merge(jobs) {
     if (!jobs?.length)
@@ -100798,7 +100902,7 @@ function AiLayerControlsComponent_For_5_Template(rf, ctx) {
     \u0275\u0275listener("input", function AiLayerControlsComponent_For_5_Template_input_input_46_listener($event) {
       const block_r2 = \u0275\u0275restoreView(_r1).$implicit;
       const ctx_r2 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r2.patchBlock(block_r2.id, { colour: $event.target.value }));
+      return \u0275\u0275resetView(ctx_r2.setBlockColour(block_r2.id, $event));
     });
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(49, "mat-slide-toggle", 13);
@@ -101074,7 +101178,7 @@ var AiLayerControlsComponent = class _AiLayerControlsComponent {
       )
     );
     this.changed = output();
-    this.logoPicked = output();
+    this.logo_picked = output({ alias: "logoPicked" });
     this.has_logo = computed(
       () => !!(this.logo_on_light() || this.logo_on_dark()),
       ...ngDevMode ? [{ debugName: "has_logo" }] : (
@@ -101120,6 +101224,12 @@ var AiLayerControlsComponent = class _AiLayerControlsComponent {
       blocks: this.state().blocks.map((block) => block.id === id ? __spreadValues(__spreadValues({}, block), changes) : block)
     });
   }
+  setBlockColour(id, event) {
+    const input2 = event.target;
+    if (input2 instanceof HTMLInputElement) {
+      this.patchBlock(id, { colour: input2.value });
+    }
+  }
   addBlock() {
     const blocks = this.state().blocks;
     const role = blocks.length === 1 ? "subheading" : "body";
@@ -101137,7 +101247,7 @@ var AiLayerControlsComponent = class _AiLayerControlsComponent {
     const file = input2.files?.[0];
     input2.value = "";
     if (file)
-      this.logoPicked.emit(file);
+      this.logo_picked.emit(file);
   }
   placeholderFor(role) {
     return role === "headline" ? "SIGNAGE_MANAGER.AI_HEADLINE" : role === "subheading" ? "SIGNAGE_MANAGER.AI_SUBHEADING" : "SIGNAGE_MANAGER.AI_BODY_TEXT";
@@ -101148,7 +101258,7 @@ var AiLayerControlsComponent = class _AiLayerControlsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AiLayerControlsComponent, selectors: [["ai-layer-controls"]], inputs: { state: [1, "state"], logo_on_light: [1, "logo_on_light"], logo_on_dark: [1, "logo_on_dark"], brand: [1, "brand"], uploading: [1, "uploading"], can_set_logo: [1, "can_set_logo"] }, outputs: { changed: "changed", logoPicked: "logoPicked" }, decls: 15, vars: 10, consts: [["logo_input", ""], [1, "flex", "flex-col", "gap-3"], [1, "text-base-content/60", "m-0", "text-xs"], [1, "border-base-content/10", "flex", "flex-col", "gap-2", "rounded", "border", "p-3"], ["mat-stroked-button", "", "type", "button", 1, "self-start", 3, "click"], [1, "border-base-content/10", "flex", "flex-wrap", "items-center", "gap-3", "rounded", "border", "p-3"], ["type", "file", "accept", "image/png,image/jpeg,image/webp,image/svg+xml", 1, "sr-only", 3, "change"], [1, "flex", "items-start", "gap-2"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "flex-1"], ["matInput", "", "rows", "2", 3, "ngModelChange", "ngModel", "placeholder"], ["icon", "", "default", "", "error", "", "type", "button", 3, "click", "disabled", "matTooltip"], [1, "flex", "flex-wrap", "items-center", "gap-2"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-32"], [3, "ngModelChange", "ngModel"], ["value", "headline"], ["value", "subheading"], ["value", "body"], ["value", "left"], ["value", "centre"], ["value", "right"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-full"], ["value", ""], [1, "flex", "flex-wrap", "items-center", "gap-3"], ["type", "button", 1, "border-base-content/20", "h-6", "w-6", "rounded-full", "border", 3, "background", "ring-2"], ["type", "color", 1, "border-base-content/20", "h-6", "w-8", "cursor-pointer", "rounded", "border", "bg-transparent", "p-0", 3, "input", "value", "matTooltip"], [3, "value"], ["type", "button", 1, "border-base-content/20", "h-6", "w-6", "rounded-full", "border", 3, "click"], [1, "text-sm"], ["mat-stroked-button", "", "type", "button", 3, "disabled"], ["mat-stroked-button", "", "type", "button", 3, "click", "disabled"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-36"], ["value", "bottom-right"], ["value", "bottom-left"], ["value", "top-right"], ["value", "top-left"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-44"], ["value", "auto"], ["value", "on_light"], ["value", "on_dark"]], template: function AiLayerControlsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AiLayerControlsComponent, selectors: [["ai-layer-controls"]], inputs: { state: [1, "state"], logo_on_light: [1, "logo_on_light"], logo_on_dark: [1, "logo_on_dark"], brand: [1, "brand"], uploading: [1, "uploading"], can_set_logo: [1, "can_set_logo"] }, outputs: { changed: "changed", logo_picked: "logoPicked" }, decls: 15, vars: 10, consts: [["logo_input", ""], [1, "flex", "flex-col", "gap-3"], [1, "text-base-content/60", "m-0", "text-xs"], [1, "border-base-content/10", "flex", "flex-col", "gap-2", "rounded", "border", "p-3"], ["mat-stroked-button", "", "type", "button", 1, "self-start", 3, "click"], [1, "border-base-content/10", "flex", "flex-wrap", "items-center", "gap-3", "rounded", "border", "p-3"], ["type", "file", "accept", "image/png,image/jpeg,image/webp,image/svg+xml", 1, "sr-only", 3, "change"], [1, "flex", "items-start", "gap-2"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "flex-1"], ["matInput", "", "rows", "2", 3, "ngModelChange", "ngModel", "placeholder"], ["icon", "", "default", "", "error", "", "type", "button", 3, "click", "disabled", "matTooltip"], [1, "flex", "flex-wrap", "items-center", "gap-2"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-32"], [3, "ngModelChange", "ngModel"], ["value", "headline"], ["value", "subheading"], ["value", "body"], ["value", "left"], ["value", "centre"], ["value", "right"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-full"], ["value", ""], [1, "flex", "flex-wrap", "items-center", "gap-3"], ["type", "button", 1, "border-base-content/20", "h-6", "w-6", "rounded-full", "border", 3, "background", "ring-2"], ["type", "color", 1, "border-base-content/20", "h-6", "w-8", "cursor-pointer", "rounded", "border", "bg-transparent", "p-0", 3, "input", "value", "matTooltip"], [3, "value"], ["type", "button", 1, "border-base-content/20", "h-6", "w-6", "rounded-full", "border", 3, "click"], [1, "text-sm"], ["mat-stroked-button", "", "type", "button", 3, "disabled"], ["mat-stroked-button", "", "type", "button", 3, "click", "disabled"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-36"], ["value", "bottom-right"], ["value", "bottom-left"], ["value", "top-right"], ["value", "top-left"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-44"], ["value", "auto"], ["value", "on_light"], ["value", "on_dark"]], template: function AiLayerControlsComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 1)(1, "p", 2);
         \u0275\u0275text(2);
@@ -101357,11 +101467,7 @@ var AiLayerControlsComponent = class _AiLayerControlsComponent {
                             type="color"
                             class="border-base-content/20 h-6 w-8 cursor-pointer rounded border bg-transparent p-0"
                             [value]="block.colour"
-                            (input)="
-                                patchBlock(block.id, {
-                                    colour: $any($event.target).value,
-                                })
-                            "
+                            (input)="setBlockColour(block.id, $event)"
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.AI_TEXT_ANY_COLOUR' | translate
                             "
@@ -101516,10 +101622,10 @@ var AiLayerControlsComponent = class _AiLayerControlsComponent {
         TranslatePipe
       ]
     }]
-  }], null, { state: [{ type: Input, args: [{ isSignal: true, alias: "state", required: true }] }], logo_on_light: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_light", required: false }] }], logo_on_dark: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_dark", required: false }] }], brand: [{ type: Input, args: [{ isSignal: true, alias: "brand", required: false }] }], uploading: [{ type: Input, args: [{ isSignal: true, alias: "uploading", required: false }] }], can_set_logo: [{ type: Input, args: [{ isSignal: true, alias: "can_set_logo", required: false }] }], changed: [{ type: Output, args: ["changed"] }], logoPicked: [{ type: Output, args: ["logoPicked"] }] });
+  }], null, { state: [{ type: Input, args: [{ isSignal: true, alias: "state", required: true }] }], logo_on_light: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_light", required: false }] }], logo_on_dark: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_dark", required: false }] }], brand: [{ type: Input, args: [{ isSignal: true, alias: "brand", required: false }] }], uploading: [{ type: Input, args: [{ isSignal: true, alias: "uploading", required: false }] }], can_set_logo: [{ type: Input, args: [{ isSignal: true, alias: "can_set_logo", required: false }] }], changed: [{ type: Output, args: ["changed"] }], logo_picked: [{ type: Output, args: ["logoPicked"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiLayerControlsComponent, { className: "AiLayerControlsComponent", filePath: "apps/signage-manager/src/app/ai/ai-layer-controls.component.ts", lineNumber: 344 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiLayerControlsComponent, { className: "AiLayerControlsComponent", filePath: "apps/signage-manager/src/app/ai/ai-layer-controls.component.ts", lineNumber: 340 });
 })();
 
 // apps/signage-manager/src/app/ai/ai-layer.component.ts
@@ -101923,7 +102029,7 @@ var AiLayerComponent = class _AiLayerComponent {
       let total = 0;
       let count = 0;
       for (let index = 0; index < data.length; index += 16) {
-        total += 0.299 * data[index] + 0.587 * data[index + 1] + 0.114 * data[index + 2];
+        total += perceivedLightness(data[index], data[index + 1], data[index + 2]);
         count++;
       }
       return count ? total / count < 140 : false;
@@ -101942,7 +102048,7 @@ var AiLayerComponent = class _AiLayerComponent {
     const r = parseInt(value.slice(0, 2), 16);
     const g2 = parseInt(value.slice(2, 4), 16);
     const b2 = parseInt(value.slice(4, 6), 16);
-    return (r * 299 + g2 * 587 + b2 * 114) / 1e3 > 140;
+    return perceivedLightness(r, g2, b2) > 140;
   }
   _fontFamily(chosen) {
     const family = chosen || this._brand_family();
@@ -102037,7 +102143,7 @@ var AiLayerComponent = class _AiLayerComponent {
   }], () => [], { image_url: [{ type: Input, args: [{ isSignal: true, alias: "image_url", required: true }] }], logo_on_light: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_light", required: false }] }], logo_on_dark: [{ type: Input, args: [{ isSignal: true, alias: "logo_on_dark", required: false }] }], brand: [{ type: Input, args: [{ isSignal: true, alias: "brand", required: false }] }], state: [{ type: Input, args: [{ isSignal: true, alias: "state", required: true }] }], changed: [{ type: Output, args: ["changed"] }], failed: [{ type: Output, args: ["failed"] }], _canvas: [{ type: ViewChild, args: ["canvas", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiLayerComponent, { className: "AiLayerComponent", filePath: "apps/signage-manager/src/app/ai/ai-layer.component.ts", lineNumber: 96 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiLayerComponent, { className: "AiLayerComponent", filePath: "apps/signage-manager/src/app/ai/ai-layer.component.ts", lineNumber: 97 });
 })();
 
 // apps/signage-manager/src/app/ai/ai-references.component.ts
@@ -102352,7 +102458,7 @@ function AiImageModalComponent_Conditional_15_For_6_Template(rf, ctx) {
     const candidate_r4 = ctx.$implicit;
     const ctx_r1 = \u0275\u0275nextContext(2);
     \u0275\u0275classProp("ring-2", ctx_r1.selected()?.upload_id === candidate_r4.upload_id);
-    \u0275\u0275property("matTooltip", ctx_r1.versionLabel(candidate_r4));
+    \u0275\u0275property("disabled", ctx_r1.claim_pending())("matTooltip", ctx_r1.versionLabel(candidate_r4));
     \u0275\u0275advance();
     \u0275\u0275property("source", candidate_r4.url)("alt", ctx_r1.versionLabel(candidate_r4));
   }
@@ -102364,7 +102470,7 @@ function AiImageModalComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(4, "div", 24);
-    \u0275\u0275repeaterCreate(5, AiImageModalComponent_Conditional_15_For_6_Template, 2, 5, "button", 25, _forTrack05);
+    \u0275\u0275repeaterCreate(5, AiImageModalComponent_Conditional_15_For_6_Template, 2, 6, "button", 25, _forTrack05);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -102569,15 +102675,15 @@ function AiImageModalComponent_Conditional_18_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 10, ctx_r1.is_edit() ? "SIGNAGE_MANAGER.AI_INSTRUCTION" : "SIGNAGE_MANAGER.AI_BRIEF"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 11, ctx_r1.is_edit() ? "SIGNAGE_MANAGER.AI_INSTRUCTION" : "SIGNAGE_MANAGER.AI_BRIEF"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 12, ctx_r1.is_edit() ? "SIGNAGE_MANAGER.AI_INSTRUCTION_HINT" : "SIGNAGE_MANAGER.AI_BRIEF_HINT"));
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(6, 13, ctx_r1.is_edit() ? "SIGNAGE_MANAGER.AI_INSTRUCTION_HINT" : "SIGNAGE_MANAGER.AI_BRIEF_HINT"));
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.brief);
     \u0275\u0275control();
     \u0275\u0275advance(3);
     \u0275\u0275conditional(!ctx_r1.is_edit() ? 8 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 14, "SIGNAGE_MANAGER.AI_OPTIONS_COUNT"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(12, 15, "SIGNAGE_MANAGER.AI_OPTIONS_COUNT"));
     \u0275\u0275advance(2);
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.candidates);
     \u0275\u0275control();
@@ -102588,7 +102694,7 @@ function AiImageModalComponent_Conditional_18_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(!ctx_r1.is_edit() ? 17 : -1);
     \u0275\u0275advance();
-    \u0275\u0275property("items", ctx_r1.references())("uploading", ctx_r1.uploading_references());
+    \u0275\u0275property("items", ctx_r1.references())("uploading", ctx_r1.uploading_references())("max", ctx_r1.max_references());
   }
 }
 function AiImageModalComponent_Conditional_19_Conditional_0_Template(rf, ctx) {
@@ -102662,19 +102768,19 @@ function AiImageModalComponent_Conditional_19_Template(rf, ctx) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275conditional(ctx_r1.brief() ? 0 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 15, "SIGNAGE_MANAGER.AI_REFINE"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 16, "SIGNAGE_MANAGER.AI_REFINE"));
     \u0275\u0275advance(3);
-    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 17, "SIGNAGE_MANAGER.AI_REFINE_HINT"));
+    \u0275\u0275property("placeholder", \u0275\u0275pipeBind1(7, 18, "SIGNAGE_MANAGER.AI_REFINE_HINT"));
     \u0275\u0275twoWayProperty("ngModel", ctx_r1.refinement);
     \u0275\u0275control();
     \u0275\u0275advance(2);
-    \u0275\u0275property("disabled", !ctx_r1.refinement().trim() || !ctx_r1.selected() || ctx_r1.state() === "generating");
+    \u0275\u0275property("disabled", !ctx_r1.refinement().trim() || !ctx_r1.selected() || ctx_r1.state() === "generating" || ctx_r1.claim_pending());
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 19, "SIGNAGE_MANAGER.AI_REFINE_ACTION"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(10, 20, "SIGNAGE_MANAGER.AI_REFINE_ACTION"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275property("items", ctx_r1.references())("uploading", ctx_r1.uploading_references());
+    \u0275\u0275property("items", ctx_r1.references())("uploading", ctx_r1.uploading_references())("max", ctx_r1.max_references());
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(15, 21, "SIGNAGE_MANAGER.AI_WORDS_AND_LOGO"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(15, 22, "SIGNAGE_MANAGER.AI_WORDS_AND_LOGO"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275property("state", ctx_r1.layer_state())("logo_on_light", ctx_r1.logo_on_light())("logo_on_dark", ctx_r1.logo_on_dark())("brand", ctx_r1.applied_brand())("can_set_logo", ctx_r1.can_set_logo())("uploading", ctx_r1.uploading_logo());
   }
@@ -102780,6 +102886,7 @@ function AiImageModalComponent_Conditional_25_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r1.saving() ? 1 : 2);
   }
 }
+var MAX_JOB_WAIT_MS = 30 * 60 * 1e3;
 var AiImageModalComponent = class _AiImageModalComponent {
   constructor() {
     this._data = inject2(MAT_DIALOG_DATA);
@@ -102789,6 +102896,30 @@ var AiImageModalComponent = class _AiImageModalComponent {
     this._layer = viewChild(
       AiLayerComponent,
       ...ngDevMode ? [{ debugName: "_layer" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._aspect_options = computed(
+      () => {
+        const capabilities = this._ai.capabilities();
+        const model_options = this._ai.default_model()?.aspect_ratios || [];
+        const domain_options = capabilities?.aspect_ratios || [];
+        const shared = domain_options.filter((option) => model_options.includes(option));
+        return shared.length ? shared : model_options.length ? model_options : domain_options;
+      },
+      ...ngDevMode ? [{ debugName: "_aspect_options" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._max_candidates = computed(
+      () => {
+        const domain_max = this._ai.capabilities()?.max_candidates ?? 2;
+        const model_max = this._ai.default_model()?.max_candidates ?? domain_max;
+        return Math.max(1, Math.min(domain_max, model_max));
+      },
+      ...ngDevMode ? [{ debugName: "_max_candidates" }] : (
         /* istanbul ignore next */
         []
       )
@@ -102821,15 +102952,21 @@ var AiImageModalComponent = class _AiImageModalComponent {
         []
       )
     );
-    this.aspect = signal(
-      this._data.aspect_ratio || "16:9",
+    this.aspect = linkedSignal(
+      () => {
+        const options = this._aspect_options();
+        const requested = this._data.aspect_ratio || "";
+        return options.includes(requested) ? requested : options[0] || requested || "16:9";
+      },
       ...ngDevMode ? [{ debugName: "aspect" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.candidates = signal(
-      2,
+    this.candidates = linkedSignal(
+      () => {
+        return Math.min(2, this._max_candidates());
+      },
       ...ngDevMode ? [{ debugName: "candidates" }] : (
         /* istanbul ignore next */
         []
@@ -102925,6 +103062,13 @@ var AiImageModalComponent = class _AiImageModalComponent {
         []
       )
     );
+    this.claim_pending = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "claim_pending" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.brand = this._ai.brand_kit;
     this.can_set_logo = this._service.is_sys_admin;
     this.group_id = computed(
@@ -102978,19 +103122,20 @@ var AiImageModalComponent = class _AiImageModalComponent {
         []
       )
     );
-    this.aspect_options = computed(
-      () => this._ai.capabilities()?.aspect_ratios || ["16:9", "9:16"],
-      ...ngDevMode ? [{ debugName: "aspect_options" }] : (
+    this.aspect_options = this._aspect_options;
+    this.candidate_options = computed(
+      () => {
+        const max = this._max_candidates();
+        return Array.from({ length: max }, (_3, index) => index + 1);
+      },
+      ...ngDevMode ? [{ debugName: "candidate_options" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.candidate_options = computed(
-      () => {
-        const max = this._ai.capabilities()?.max_candidates || 2;
-        return Array.from({ length: max }, (_3, index) => index + 1);
-      },
-      ...ngDevMode ? [{ debugName: "candidate_options" }] : (
+    this.max_references = computed(
+      () => this._ai.default_model()?.max_references ?? 8,
+      ...ngDevMode ? [{ debugName: "max_references" }] : (
         /* istanbul ignore next */
         []
       )
@@ -103119,36 +103264,38 @@ var AiImageModalComponent = class _AiImageModalComponent {
     if (!prompt)
       return;
     this.state.set("generating");
-    const key = this._intentKey("generate", prompt);
     try {
-      const job = this._data.source_upload_id ? await this._ai.edit({
+      const common = {
         prompt,
-        aspect_ratio: this.aspect(),
         candidates: this.candidates(),
         include_logo: this.include_logo(),
         add_text_with_layer: this.add_text_with_layer(),
         use_branding: this.use_branding(),
         group_id: this.group_id(),
-        idempotency_key: key,
-        source_upload_id: this._data.source_upload_id,
-        source_item_id: this._data.source_item_id,
         references: this.reference_ids()
-      }) : await this._ai.generate({
-        prompt,
-        aspect_ratio: this.aspect(),
-        candidates: this.candidates(),
-        include_logo: this.include_logo(),
-        add_text_with_layer: this.add_text_with_layer(),
-        use_branding: this.use_branding(),
-        group_id: this.group_id(),
-        idempotency_key: key,
-        references: this.reference_ids()
-      });
+      };
+      let job;
+      if (this._data.source_upload_id) {
+        const request = __spreadProps(__spreadValues({}, common), {
+          source_upload_id: this._data.source_upload_id,
+          source_item_id: this._data.source_item_id
+        });
+        job = await this._ai.edit(__spreadProps(__spreadValues({}, request), {
+          idempotency_key: this._ai.intentKey("edit", request)
+        }));
+      } else {
+        const request = __spreadProps(__spreadValues({}, common), {
+          aspect_ratio: this.aspect()
+        });
+        job = await this._ai.generate(__spreadProps(__spreadValues({}, request), {
+          idempotency_key: this._ai.intentKey("generate", request)
+        }));
+      }
       this.current_job_id.set(job.id);
       this._awaitJob(job.id);
     } catch (error2) {
       this.state.set("compose");
-      notifyError(this._message(error2));
+      notifyError(errorMessage(error2, i18n("SIGNAGE_MANAGER.AI_JOB_FAILED")));
     }
   }
   async refine() {
@@ -103156,39 +103303,37 @@ var AiImageModalComponent = class _AiImageModalComponent {
     const source = this.selected();
     if (!instruction || !source)
       return;
-    const key = this._intentKey("refine", instruction + source.upload_id);
     this.refinement.set("");
     this.state.set("generating");
     try {
-      const job = await this._ai.edit({
+      const request = {
         prompt: instruction,
-        aspect_ratio: this.aspect(),
         candidates: 1,
         include_logo: this.include_logo(),
         add_text_with_layer: this.add_text_with_layer(),
         use_branding: this.use_branding(),
         group_id: this.group_id(),
-        idempotency_key: key,
         source_upload_id: source.upload_id,
         parent_job_id: source.job_id,
         references: this.reference_ids()
-      });
+      };
+      const job = await this._ai.edit(__spreadProps(__spreadValues({}, request), {
+        idempotency_key: this._ai.intentKey("edit", request)
+      }));
       this.current_job_id.set(job.id);
       this._awaitJob(job.id);
     } catch (error2) {
       this.state.set("review");
-      notifyError(this._message(error2));
+      notifyError(errorMessage(error2, i18n("SIGNAGE_MANAGER.AI_JOB_FAILED")));
     }
-  }
-  /** on the service, so it survives the dialog being closed and reopened */
-  _intentKey(kind, subject) {
-    return this._ai.intentKey(kind, subject);
   }
   onArtworkFailed() {
     this.selected_object_url.set("");
     notifyError(i18n("SIGNAGE_MANAGER.AI_IMAGE_UNREADABLE"));
   }
   async select(candidate) {
+    if (this.claim_pending())
+      return;
     const token = ++this._select_token;
     this.selected.set(candidate);
     this.selected_object_url.set("");
@@ -103220,7 +103365,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
         ]);
       }
     } catch (error2) {
-      notifyError(this._message(error2));
+      notifyError(errorMessage(error2, i18n("SIGNAGE_MANAGER.AI_JOB_FAILED")));
     } finally {
       this.uploading_references.set(false);
     }
@@ -103253,7 +103398,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
       this.layer_state.set(__spreadProps(__spreadValues({}, this.layer_state()), { logo: true }));
       notifySuccess(i18n("SIGNAGE_MANAGER.AI_LOGO_SAVED"));
     } catch (error2) {
-      notifyError(this._message(error2));
+      notifyError(errorMessage(error2, i18n("SIGNAGE_MANAGER.AI_JOB_FAILED")));
     } finally {
       this.uploading_logo.set(false);
     }
@@ -103276,47 +103421,66 @@ var AiImageModalComponent = class _AiImageModalComponent {
         const file = new File([blob], `${name}.png`, {
           type: "image/png"
         });
-        media = await this._service.addMedia(file, {
+        media = await this._service.addMedia(file, new Es({
           name,
           tags: this._tags(candidate)
-        });
+        }));
       } else {
-        media = await this._service.addMediaFromUpload(candidate.upload_id, {
+        media = this._pending_media || await this._service.addMediaFromUpload(candidate.upload_id, {
           name,
           tags: this._tags(candidate),
           orientation: this.aspect() === "9:16" ? "portrait" : "landscape"
         }, this._data.playlist_id);
+        this._pending_media = media;
+        if (media?.id) {
+          this.claim_pending.set(true);
+          await this._ai.claim(candidate.job_id, candidate.upload_id, media.id);
+          this.claim_pending.set(false);
+          this._pending_media = void 0;
+        }
       }
       if (blob && media?.id && this._data.playlist_id) {
         await this._service.addMediaToPlaylist(this._data.playlist_id, media.id);
       }
       if (media?.id) {
-        await this._ai.claim(candidate.job_id, candidate.upload_id, media.id);
         if (media.thumbnail_id) {
           await this._ai.loadImage(`/api/engine/v2/uploads/${media.thumbnail_id}/url`).catch(() => "");
         }
       }
       this._dialog_ref.close(media);
     } catch (error2) {
-      notifyError(this._message(error2));
+      if (!blob && this._pending_media?.id) {
+        await this._service.discardCreatedMedia(this._pending_media.id).then(() => {
+          this._pending_media = void 0;
+          this.claim_pending.set(false);
+        }).catch(() => null);
+      }
+      notifyError(errorMessage(error2, i18n("SIGNAGE_MANAGER.AI_JOB_FAILED")));
     } finally {
+      if (!this._pending_media)
+        this.claim_pending.set(false);
       this.saving.set(false);
     }
   }
   /** poll until the job reaches a final state, then move on */
   _awaitJob(id) {
+    const deadline = Date.now() + MAX_JOB_WAIT_MS;
     const check = () => {
       this._await_timer = null;
       if (this._closed)
         return;
       const job = this._ai.jobs()[id];
       if (!job || !isFinal(job)) {
+        if (Date.now() >= deadline) {
+          this.state.set(this.rail().length ? "review" : "compose");
+          notifyError(i18n("SIGNAGE_MANAGER.AI_JOB_FAILED"));
+          return;
+        }
         this._await_timer = setTimeout(check, 250);
         return;
       }
       if (job.state === "failed") {
         this.state.set(this.rail().length ? "review" : "compose");
-        notifyError(job.error_message || i18n("SIGNAGE_MANAGER.AI_JOB_FAILED"));
         return;
       }
       if (job.state === "cancelled") {
@@ -103364,9 +103528,6 @@ var AiImageModalComponent = class _AiImageModalComponent {
   _tags(_candidate) {
     return ["ai-generated"];
   }
-  _message(error2) {
-    return error2?.error?.error || error2?.error || error2?.message || i18n("SIGNAGE_MANAGER.AI_JOB_FAILED");
-  }
   static {
     this.\u0275fac = function AiImageModalComponent_Factory(__ngFactoryType__) {
       return new (__ngFactoryType__ || _AiImageModalComponent)();
@@ -103380,7 +103541,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
       if (rf & 2) {
         \u0275\u0275queryAdvance();
       }
-    }, decls: 26, vars: 11, consts: [[1, "bg-base-200", "flex", "h-full", "w-full", "flex-col", "overflow-hidden"], [1, "border-base-content/10", "bg-base-100", "flex", "h-14", "shrink-0", "items-center", "justify-between", "border-b", "px-4"], [1, "m-0", "text-lg", "font-medium"], ["icon", "", "mat-dialog-close", "", 3, "disabled"], [1, "flex", "min-h-0", "flex-1", "flex-col", "md:flex-row"], [1, "flex", "min-h-48", "min-w-0", "flex-1", "flex-col", "gap-3", "p-4", "md:min-h-0"], [1, "border-base-content/10", "bg-base-300", "relative", "flex", "min-h-0", "flex-1", "items-center", "justify-center", "overflow-hidden", "rounded", "border"], [1, "h-full", "w-full", 3, "opacity-40", "image_url", "logo_on_light", "logo_on_dark", "brand", "state"], ["auth", "", 1, "max-h-full", "max-w-full", "object-contain", 3, "source", "opacity-40", "alt"], [1, "text-base-content/50", "m-0", "px-6", "text-sm"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "gap-3"], [1, "flex", "shrink-0", "flex-col", "gap-1"], [1, "border-base-content/10", "bg-base-100", "flex", "min-h-0", "w-full", "flex-1", "flex-col", "border-t", "md:w-96", "md:flex-none", "md:shrink-0", "md:border-t-0", "md:border-l"], [1, "flex-1", "space-y-4", "overflow-y-auto", "p-4"], [1, "text-base-content/60", "m-0", "text-xs"], [1, "border-base-content/10", "flex", "shrink-0", "items-center", "justify-end", "gap-2", "border-t", "p-4"], ["mat-stroked-button", "", "type", "button"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "disabled"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "disabled"], [1, "h-full", "w-full", 3, "changed", "failed", "image_url", "logo_on_light", "logo_on_dark", "brand", "state"], ["auth", "", 1, "max-h-full", "max-w-full", "object-contain", 3, "source", "alt"], ["diameter", "48"], [1, "m-0", "text-sm"], [1, "text-base-content/60", "m-0", "text-xs", "uppercase"], [1, "flex", "gap-2", "overflow-x-auto", "pb-1"], ["type", "button", 1, "border-base-content/10", "h-16", "w-28", "shrink-0", "overflow-hidden", "rounded", "border", 3, "ring-2", "matTooltip"], ["type", "button", 1, "border-base-content/10", "h-16", "w-28", "shrink-0", "overflow-hidden", "rounded", "border", 3, "click", "matTooltip"], ["auth", "", 1, "h-full", "w-full", "object-cover", 3, "source", "alt"], [1, "flex", "flex-col"], ["for", "ai-brief", 1, "mb-1", "text-sm"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "id", "ai-brief", "rows", "4", 3, "ngModelChange", "placeholder", "ngModel"], [1, "flex", "flex-col", "gap-3"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-full"], [3, "ngModelChange", "ngModel"], [3, "value"], [1, "flex", "flex-col", "gap-1"], [3, "picked", "removed", "items", "uploading"], [3, "ngModel"], [1, "text-base-content/60", "m-0", "text-xs", "italic"], ["for", "ai-refine", 1, "mb-1", "text-sm"], ["matInput", "", "id", "ai-refine", "rows", "2", 3, "ngModelChange", "placeholder", "ngModel"], ["mat-stroked-button", "", "type", "button", 1, "self-start", 3, "click", "disabled"], [1, "border-base-content/10", "border-t", "pt-4"], [1, "m-0", "mb-2", "text-sm", "font-medium"], [3, "changed", "logoPicked", "state", "logo_on_light", "logo_on_dark", "brand", "can_set_logo", "uploading"], ["mat-stroked-button", "", "type", "button", 3, "click"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "click", "disabled"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "click", "disabled"], ["diameter", "18"]], template: function AiImageModalComponent_Template(rf, ctx) {
+    }, decls: 26, vars: 11, consts: [[1, "bg-base-200", "flex", "h-full", "w-full", "flex-col", "overflow-hidden"], [1, "border-base-content/10", "bg-base-100", "flex", "h-14", "shrink-0", "items-center", "justify-between", "border-b", "px-4"], [1, "m-0", "text-lg", "font-medium"], ["icon", "", "mat-dialog-close", "", 3, "disabled"], [1, "flex", "min-h-0", "flex-1", "flex-col", "md:flex-row"], [1, "flex", "min-h-48", "min-w-0", "flex-1", "flex-col", "gap-3", "p-4", "md:min-h-0"], [1, "border-base-content/10", "bg-base-300", "relative", "flex", "min-h-0", "flex-1", "items-center", "justify-center", "overflow-hidden", "rounded", "border"], [1, "h-full", "w-full", 3, "opacity-40", "image_url", "logo_on_light", "logo_on_dark", "brand", "state"], ["auth", "", 1, "max-h-full", "max-w-full", "object-contain", 3, "source", "opacity-40", "alt"], [1, "text-base-content/50", "m-0", "px-6", "text-sm"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "gap-3"], [1, "flex", "shrink-0", "flex-col", "gap-1"], [1, "border-base-content/10", "bg-base-100", "flex", "min-h-0", "w-full", "flex-1", "flex-col", "border-t", "md:w-96", "md:flex-none", "md:shrink-0", "md:border-t-0", "md:border-l"], [1, "flex-1", "space-y-4", "overflow-y-auto", "p-4"], [1, "text-base-content/60", "m-0", "text-xs"], [1, "border-base-content/10", "flex", "shrink-0", "items-center", "justify-end", "gap-2", "border-t", "p-4"], ["mat-stroked-button", "", "type", "button"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "disabled"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "disabled"], [1, "h-full", "w-full", 3, "changed", "failed", "image_url", "logo_on_light", "logo_on_dark", "brand", "state"], ["auth", "", 1, "max-h-full", "max-w-full", "object-contain", 3, "source", "alt"], ["diameter", "48"], [1, "m-0", "text-sm"], [1, "text-base-content/60", "m-0", "text-xs", "uppercase"], [1, "flex", "gap-2", "overflow-x-auto", "pb-1"], ["type", "button", 1, "border-base-content/10", "h-16", "w-28", "shrink-0", "overflow-hidden", "rounded", "border", 3, "disabled", "ring-2", "matTooltip"], ["type", "button", 1, "border-base-content/10", "h-16", "w-28", "shrink-0", "overflow-hidden", "rounded", "border", 3, "click", "disabled", "matTooltip"], ["auth", "", 1, "h-full", "w-full", "object-cover", 3, "source", "alt"], [1, "flex", "flex-col"], ["for", "ai-brief", 1, "mb-1", "text-sm"], ["appearance", "outline", 1, "w-full"], ["matInput", "", "id", "ai-brief", "rows", "4", 3, "ngModelChange", "placeholder", "ngModel"], [1, "flex", "flex-col", "gap-3"], ["appearance", "outline", "subscriptSizing", "dynamic", 1, "w-full"], [3, "ngModelChange", "ngModel"], [3, "value"], [1, "flex", "flex-col", "gap-1"], [3, "picked", "removed", "items", "uploading", "max"], [3, "ngModel"], [1, "text-base-content/60", "m-0", "text-xs", "italic"], ["for", "ai-refine", 1, "mb-1", "text-sm"], ["matInput", "", "id", "ai-refine", "rows", "2", 3, "ngModelChange", "placeholder", "ngModel"], ["mat-stroked-button", "", "type", "button", 1, "self-start", 3, "click", "disabled"], [1, "border-base-content/10", "border-t", "pt-4"], [1, "m-0", "mb-2", "text-sm", "font-medium"], [3, "changed", "logoPicked", "state", "logo_on_light", "logo_on_dark", "brand", "can_set_logo", "uploading"], ["mat-stroked-button", "", "type", "button", 3, "click"], ["btn", "", "matRipple", "", 1, "min-w-32", 3, "click", "disabled"], ["btn", "", "matRipple", "", 1, "flex", "min-w-32", "items-center", "justify-center", "gap-2", 3, "click", "disabled"], ["diameter", "18"]], template: function AiImageModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0)(1, "header", 1)(2, "h2", 2);
         \u0275\u0275text(3);
@@ -103396,7 +103557,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
         \u0275\u0275conditionalCreate(15, AiImageModalComponent_Conditional_15_Template, 7, 3, "div", 11);
         \u0275\u0275elementEnd();
         \u0275\u0275elementStart(16, "aside", 12)(17, "div", 13);
-        \u0275\u0275conditionalCreate(18, AiImageModalComponent_Conditional_18_Template, 19, 16)(19, AiImageModalComponent_Conditional_19_Template, 17, 23);
+        \u0275\u0275conditionalCreate(18, AiImageModalComponent_Conditional_18_Template, 19, 17)(19, AiImageModalComponent_Conditional_19_Template, 17, 24);
         \u0275\u0275conditionalCreate(20, AiImageModalComponent_Conditional_20_Template, 2, 1, "p", 14);
         \u0275\u0275conditionalCreate(21, AiImageModalComponent_Conditional_21_Template, 2, 1, "p", 14);
         \u0275\u0275elementEnd();
@@ -103550,6 +103711,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
                                 ) {
                                     <button
                                         type="button"
+                                        [disabled]="claim_pending()"
                                         class="border-base-content/10 h-16 w-28 shrink-0 overflow-hidden rounded border"
                                         [class.ring-2]="
                                             selected()?.upload_id ===
@@ -103704,6 +103866,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
                             <ai-references
                                 [items]="references()"
                                 [uploading]="uploading_references()"
+                                [max]="max_references()"
                                 (picked)="addReferences($event)"
                                 (removed)="removeReference($event)"
                             ></ai-references>
@@ -103743,7 +103906,8 @@ var AiImageModalComponent = class _AiImageModalComponent {
                                     [disabled]="
                                         !refinement().trim() ||
                                         !selected() ||
-                                        state() === 'generating'
+                                        state() === 'generating' ||
+                                        claim_pending()
                                     "
                                     (click)="refine()"
                                 >
@@ -103757,6 +103921,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
                             <ai-references
                                 [items]="references()"
                                 [uploading]="uploading_references()"
+                                [max]="max_references()"
                                 (picked)="addReferences($event)"
                                 (removed)="removeReference($event)"
                             ></ai-references>
@@ -103859,7 +104024,7 @@ var AiImageModalComponent = class _AiImageModalComponent {
   }], null, { _layer: [{ type: ViewChild, args: [forwardRef(() => AiLayerComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiImageModalComponent, { className: "AiImageModalComponent", filePath: "apps/signage-manager/src/app/ai/ai-image-modal.component.ts", lineNumber: 456 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AiImageModalComponent, { className: "AiImageModalComponent", filePath: "apps/signage-manager/src/app/ai/ai-image-modal.component.ts", lineNumber: 473 });
 })();
 
 // apps/signage-manager/src/app/shared/decode-entity-names.util.ts
@@ -111061,27 +111226,27 @@ function playlistScheduleNextPlayLabels(schedule, count = 5) {
 }
 
 // apps/signage-manager/src/app/signage-plugin.util.ts
-function isRecord(value) {
+function isRecord2(value) {
   return !!value && typeof value === "object" && !Array.isArray(value);
 }
 function objectHasKeys(value) {
-  return isRecord(value) && Object.keys(value).length > 0;
+  return isRecord2(value) && Object.keys(value).length > 0;
 }
 function pluginSchema(schema2) {
   if (!objectHasKeys(schema2))
     return null;
   if ("properties" in schema2)
     return schema2;
-  if (!Object.values(schema2).every(isRecord))
+  if (!Object.values(schema2).every(isRecord2))
     return null;
   return { type: "object", properties: schema2 };
 }
 function schemaDefaults(schema2) {
   const properties = schema2?.properties;
-  if (!isRecord(properties))
+  if (!isRecord2(properties))
     return {};
   return Object.entries(properties).reduce((defaults2, [key, property]) => {
-    if (isRecord(property) && "default" in property) {
+    if (isRecord2(property) && "default" in property) {
       defaults2[key] = property.default;
     }
     return defaults2;
@@ -123310,6 +123475,12 @@ var SignageService = class _SignageService {
     }
     return result;
   }
+  /** Remove a media row when the generated upload could not be claimed. */
+  async discardCreatedMedia(id) {
+    await gh(id);
+    this._media_items.update((items) => items.filter((item) => item.id !== id));
+    this._media_tags.reload();
+  }
   async generateMediaWithAI(options = {}) {
     if (!this._requirePermission(this.can_create(), i18n("SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA")))
       return;
@@ -124432,6 +124603,7 @@ export {
   SchemaFormComponent,
   MediaDurationPipe,
   CounterComponent,
+  errorMessage,
   AiImageService,
   BRAND_FONTS,
   ensureBrandFont,
@@ -124467,4 +124639,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-OKSJ2UNO.js.map
+//# sourceMappingURL=chunk-I73XU2BS.js.map

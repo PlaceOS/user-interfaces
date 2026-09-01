@@ -54,7 +54,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-OKSJ2UNO.js";
+} from "./chunk-I73XU2BS.js";
 
 // apps/signage-manager/src/app/shared/nav-items.ts
 var NAV_ITEMS = [
@@ -1035,4 +1035,4 @@ export {
   NavFooterComponent,
   NavSidebarComponent
 };
-//# sourceMappingURL=chunk-K5TERBG7.js.map
+//# sourceMappingURL=chunk-4574S4OT.js.map
