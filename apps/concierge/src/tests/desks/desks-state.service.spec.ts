@@ -527,13 +527,13 @@ describe('DesksStateService', () => {
     });
 
     it('should cancel overlapping bookings after assigning a desk', async () => {
-        const mock_now = new Date('2026-08-18T10:55:00+10:00').valueOf();
+        const mock_now = new Date('2026-08-18T10:55:00').valueOf();
         vi.spyOn(Date, 'now').mockReturnValue(mock_now);
         vi.mocked(ts_client_mod.post).mockResolvedValue({
             id: 'assigned-booking',
             booking_start:
-                new Date('2026-08-18T03:00:00+10:00').valueOf() / 1000,
-            booking_end: new Date('2026-08-18T23:00:00+10:00').valueOf() / 1000,
+                new Date('2026-08-18T03:00:00').valueOf() / 1000,
+            booking_end: new Date('2026-08-18T23:00:00').valueOf() / 1000,
             booking_type: 'desk',
             recurrence_type: 'daily',
             user_email: 'staff@example.com',
@@ -544,9 +544,9 @@ describe('DesksStateService', () => {
             {
                 id: 'ad-hoc-booking',
                 booking_start:
-                    new Date('2026-08-18T16:45:00+10:00').valueOf() / 1000,
+                    new Date('2026-08-18T16:45:00').valueOf() / 1000,
                 booking_end:
-                    new Date('2026-08-18T17:15:00+10:00').valueOf() / 1000,
+                    new Date('2026-08-18T17:15:00').valueOf() / 1000,
                 booking_type: 'desk',
                 approved: true,
                 asset_id: 'F-010',

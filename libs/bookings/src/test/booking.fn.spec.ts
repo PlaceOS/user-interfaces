@@ -282,15 +282,15 @@ describe('[Booking API]', () => {
 
     describe('cancelOverlappingRecurringBookings', () => {
         it('should cancel an overlapping desk booking on another floor', async () => {
-            const now = new Date('2026-08-18T10:55:00+10:00').valueOf();
+            const now = new Date('2026-08-18T10:55:00').valueOf();
             const now_spy = vi.spyOn(Date, 'now').mockReturnValue(now);
             vi.spyOn(ts_client, 'get').mockResolvedValue([
                 {
                     id: 'ad-hoc-booking',
                     booking_start:
-                        new Date('2026-08-18T16:45:00+10:00').valueOf() / 1000,
+                        new Date('2026-08-18T16:45:00').valueOf() / 1000,
                     booking_end:
-                        new Date('2026-08-18T17:15:00+10:00').valueOf() / 1000,
+                        new Date('2026-08-18T17:15:00').valueOf() / 1000,
                     booking_type: 'desk',
                     approved: true,
                     asset_id: 'F-010',
@@ -304,9 +304,9 @@ describe('[Booking API]', () => {
             const assignment = new Booking({
                 id: 'permanent-assignment',
                 booking_start:
-                    new Date('2026-08-18T03:00:00+10:00').valueOf() / 1000,
+                    new Date('2026-08-18T03:00:00').valueOf() / 1000,
                 booking_end:
-                    new Date('2026-08-18T23:00:00+10:00').valueOf() / 1000,
+                    new Date('2026-08-18T23:00:00').valueOf() / 1000,
                 booking_type: 'desk',
                 recurrence_type: 'daily',
                 user_email: 'staff@example.com',
