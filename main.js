@@ -55905,15 +55905,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "903a4ee",
-  "hash": "903a4ee",
+  "raw": "69ae14d",
+  "hash": "69ae14d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "903a4ee",
+  "suffix": "69ae14d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1788155117080
+  "time": 1788227815174
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -108594,8 +108594,6 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       });
       if ((is_owner && !ignore_owner || force_calendar) && query_calendar)
         query2.calendar = query_calendar;
-      if (force_calendar)
-        delete query2.system_id;
       const processed_assets = (this._model().assets || []).map((_2) => new AssetRequest(_2).toJSON());
       const host = this._host(this._model().host, (_g = spaces[0]) == null ? void 0 : _g.email);
       const ext = {
