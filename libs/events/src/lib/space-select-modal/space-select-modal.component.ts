@@ -71,73 +71,6 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     <icon>close</icon>
                 </button>
             </header>
-            @if (allow_multiple() && selected_locations().length) {
-                <section
-                    selected-spaces
-                    class="border-base-300 bg-base-100 flex shrink-0 flex-col gap-2 rounded-sm border p-2"
-                >
-                    <div class="flex items-center justify-between px-1">
-                        <h3 class="font-medium">
-                            {{
-                                'COMMON.SELECTED_COUNT'
-                                    | translate
-                                        : { count: selected_locations().length }
-                            }}
-                        </h3>
-                        <span class="text-xs opacity-60">
-                            {{ 'COMMON.ROOM_SELECT' | translate }}
-                        </span>
-                    </div>
-                    <div class="flex max-w-full gap-2 overflow-x-auto pb-1">
-                        @for (
-                            item of selected_locations();
-                            track item.space.id
-                        ) {
-                            <div
-                                selected-space
-                                class="border-base-300 bg-base-200 flex max-w-72 min-w-56 shrink-0 items-center rounded-sm border"
-                            >
-                                <button
-                                    type="button"
-                                    name="return-to-space"
-                                    class="min-w-0 flex-1 px-3 py-2 text-left"
-                                    (click)="returnToSpace(item.space)"
-                                >
-                                    <div class="truncate font-medium">
-                                        {{
-                                            item.space.display_name ||
-                                                item.space.name
-                                        }}
-                                    </div>
-                                    <div class="truncate text-xs opacity-60">
-                                        {{ item.location }}
-                                    </div>
-                                </button>
-                                <button
-                                    icon
-                                    matRipple
-                                    type="button"
-                                    name="remove-selected-space"
-                                    class="mr-1 shrink-0"
-                                    [attr.aria-label]="
-                                        'COMMON.REMOVE_ITEM'
-                                            | translate
-                                                : {
-                                                      item:
-                                                          item.space
-                                                              .display_name ||
-                                                          item.space.name,
-                                                  }
-                                    "
-                                    (click)="setSelected(item.space, false)"
-                                >
-                                    <icon>close</icon>
-                                </button>
-                            </div>
-                        }
-                    </div>
-                </section>
-            }
             <main
                 class="relative flex h-1/2 max-h-[calc(100vh-7rem)] flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
@@ -175,9 +108,12 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                             list
                             [active]="displayed()?.id"
                             [selected]="selected_ids()"
+                            [selected_spaces]="
+                                allow_multiple() ? selected_locations() : []
+                            "
                             [favorites]="favorites()"
                             (toggleFav)="toggleFavourite($event)"
-                            (onSelect)="displayed.set($event)"
+                            (onSelect)="selectSpace($event)"
                         ></space-list>
                     } @else {
                         <space-map
@@ -331,9 +267,7 @@ export class SpaceSelectModalComponent {
     public readonly is_safari = computed(() => isMobileSafari());
 
     public readonly selected_ids = computed(() =>
-        this.selected()
-            .map((_) => _.id)
-            .join(','),
+        this.selected().map((_) => _.id),
     );
 
     public readonly selected_locations = computed(() => {
@@ -419,6 +353,14 @@ export class SpaceSelectModalComponent {
                 ? !this.isSelected(this.displayed()?.id)
                 : true,
         );
+    }
+
+    public selectSpace(space: Space) {
+        if (this.isSelected(space.id)) {
+            void this.returnToSpace(space);
+            return;
+        }
+        this.displayed.set(space);
     }
 
     public async returnToSpace(space: Space) {

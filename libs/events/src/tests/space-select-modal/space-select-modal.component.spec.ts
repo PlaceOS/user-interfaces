@@ -121,7 +121,7 @@ describe('SpaceSelectModalComponent', () => {
         spectator.component.setSelected(new Space({ id: 'space-1' }), true);
         expect(spectator.component.selected_ids()).toContain('space-1');
         spectator.component.setSelected(new Space({ id: 'space-1' }), true);
-        expect(spectator.component.selected_ids()).toEqual('space-1');
+        expect(spectator.component.selected_ids()).toEqual(['space-1']);
         spectator.component.setSelected(new Space({ id: 'space-1' }), false);
         expect(spectator.component.selected_ids()).not.toContain('space-1');
     });
