@@ -42,6 +42,37 @@ test.describe('US-SGM-001: Access Signage Manager', () => {
 });
 
 test.describe('US-SGM-002: Switch Signage Groups', () => {
+    test('keeps desktop navigation within a short viewport', async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width: 1280, height: 600 });
+        await navigateWithMock(page, MEDIA_URL);
+
+        const navigation = page.locator('nav-sidebar nav');
+        const dimensions = await navigation.evaluate((element) => ({
+            client_height: element.clientHeight,
+            scroll_height: element.scrollHeight,
+        }));
+
+        expect(dimensions.scroll_height).toBeLessThanOrEqual(
+            dimensions.client_height,
+        );
+
+        const active_marker = navigation.locator('a.active [active]');
+        const active_marker_is_painted = await active_marker.evaluate(
+            (element) => {
+                const bounds = element.getBoundingClientRect();
+                const center_x = bounds.left + bounds.width / 2;
+                const center_y = bounds.top + bounds.height / 2;
+                return document
+                    .elementsFromPoint(center_x, center_y)
+                    .includes(element);
+            },
+        );
+
+        expect(active_marker_is_painted).toBe(true);
+    });
+
     test('exposes the story navigation routes', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
         await navigateWithMock(page, MEDIA_URL);
