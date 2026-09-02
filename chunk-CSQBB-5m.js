@@ -1,0 +1,1 @@
+import {m,D as Dd,dF as Wn}from'./main.js';var u=(()=>{class i{constructor(){this._org=m(Dd);}transform(r){return this._org.buildings.find(t=>r instanceof Array?r.includes(t.id):t.id===r)}static{this.\u0275fac=function(t){return new(t||i)};}static{this.\u0275pipe=Wn({name:"building",type:i,pure:true});}}return i})();export{u};//# sourceMappingURL=chunk-CSQBB-5m.js.map
