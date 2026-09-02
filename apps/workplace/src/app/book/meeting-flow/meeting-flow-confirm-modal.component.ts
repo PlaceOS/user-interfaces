@@ -201,8 +201,18 @@ import { SpacePipe } from '@placeos/events';
                                             class="flex items-center space-x-2 p-3"
                                         >
                                             <div
-                                                class="flex flex-1 items-center space-x-2"
+                                                class="flex flex-1 flex-wrap items-center gap-x-2"
                                             >
+                                                <div
+                                                    class="mb-1 flex w-full items-center space-x-1 text-xs opacity-60"
+                                                >
+                                                    <icon class="text-lg"
+                                                        >meeting_room</icon
+                                                    >
+                                                    <span>{{
+                                                        cateringRoomLabel(order)
+                                                    }}</span>
+                                                </div>
                                                 <div class="text-sm">
                                                     {{
                                                         'CALENDAR_EVENT.CATERING_ORDER_AT'
@@ -612,6 +622,20 @@ export class MeetingFlowConfirmModalComponent
     /** Get the region, building and level label for a room. */
     public spaceLocation(space: Space) {
         return this._org.locationWithID(space.zones).label;
+    }
+
+    public cateringRoomLabel(order: CateringOrder) {
+        if (!order.system_id) {
+            return i18n('CALENDAR_EVENT.ROOM_REQUIRED');
+        }
+        const room = this.event.resources.find(
+            (space) =>
+                space.id === order.system_id || space.email === order.system_id,
+        );
+        if (!room) return i18n('CALENDAR_EVENT.ROOM_REQUIRED');
+        return [this.spaceLocation(room), room.display_name || room.name]
+            .filter((_) => !!_)
+            .join(' / ');
     }
 
     /** Format a room's local time when it differs from the organiser's. */

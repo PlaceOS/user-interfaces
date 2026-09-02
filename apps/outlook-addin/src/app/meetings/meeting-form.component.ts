@@ -47,7 +47,12 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         <button
                             icon
                             matRipple
-                            (click)="hide_block.update((h) => ({ ...h, details: !h.details }))"
+                            (click)="
+                                hide_block.update((h) => ({
+                                    ...h,
+                                    details: !h.details,
+                                }))
+                            "
                         >
                             <icon>{{
                                 hide_block().details
@@ -109,9 +114,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             </div>
                             <div class="relative w-full sm:flex-1">
                                 <label for="date">Date<span>*</span></label>
-                                <a-date-field
-                                    [formField]="form.date"
-                                >
+                                <a-date-field [formField]="form.date">
                                     Date and time must be in the future
                                 </a-date-field>
                                 @if (allow_all_day()) {
@@ -193,7 +196,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 icon
                                 matRipple
                                 (click)="
-                                    hide_block.update((h) => ({ ...h, attendees: !h.attendees }))
+                                    hide_block.update((h) => ({
+                                        ...h,
+                                        attendees: !h.attendees,
+                                    }))
                                 "
                             >
                                 <icon>{{
@@ -227,7 +233,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             icon
                             matRipple
                             (click)="
-                                hide_block.update((h) => ({ ...h, resources: !h.resources }))
+                                hide_block.update((h) => ({
+                                    ...h,
+                                    resources: !h.resources,
+                                }))
                             "
                         >
                             <icon>{{
@@ -261,7 +270,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 icon
                                 matRipple
                                 (click)="
-                                    hide_block.update((h) => ({ ...h, catering: !h.catering }))
+                                    hide_block.update((h) => ({
+                                        ...h,
+                                        catering: !h.catering,
+                                    }))
                                 "
                             >
                                 <icon>{{
@@ -282,6 +294,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                     duration: model().duration,
                                     zone_id:
                                         model().resources[0]?.level?.parent_id,
+                                    resources: model().resources,
                                 }"
                             ></catering-list-field>
                         </div>
@@ -299,7 +312,12 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         <button
                             icon
                             matRipple
-                            (click)="hide_block.update((h) => ({ ...h, assets: !h.assets }))"
+                            (click)="
+                                hide_block.update((h) => ({
+                                    ...h,
+                                    assets: !h.assets,
+                                }))
+                            "
                         >
                             <icon>{{
                                 hide_block().assets

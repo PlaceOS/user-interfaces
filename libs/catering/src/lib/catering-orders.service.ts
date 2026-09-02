@@ -44,7 +44,13 @@ function checkOrder(
     filters: CateringOrderFilters,
 ): boolean {
     const s = (filters.search || '').toLowerCase();
-    const space = SPACE_PIPE.get(order.event?.extension_data.system_id);
+    const space =
+        (order as CateringOrder & { space?: ReturnType<SpacePipe['get']> })
+            .space ||
+        order.event?.system ||
+        SPACE_PIPE.get(
+            order.system_id || order.event?.extension_data.system_id,
+        );
     const location = order.event?.location || space.display_name || space.name;
     const host = order.event?.host || order.event?.organiser?.email || '';
     return !!order.items.find((item) => {
@@ -63,6 +69,16 @@ function checkOrder(
 }
 
 const BOOKINGS: Record<string, Booking> = {};
+
+/** Get the room used for catering metadata, including legacy order fallback. */
+export function cateringOrderSystemId(order: CateringOrder) {
+    return (
+        order.system_id ||
+        order.event?.resources[0]?.id ||
+        order.event?.system?.id ||
+        ''
+    );
+}
 
 @Injectable({
     providedIn: 'root',
@@ -179,8 +195,7 @@ export class CateringOrdersService extends AsyncHandler {
             ),
             updated_order,
         ].map((i) => new CateringOrder({ ...i }).toJSON());
-        const system_id =
-            order.event?.resources[0]?.id || order.event?.system?.id;
+        const system_id = cateringOrderSystemId(order);
         let booking: Booking;
         if (system_id) {
             const extension_data = await showEventMetadata(
@@ -244,13 +259,15 @@ export class CateringOrdersService extends AsyncHandler {
             period_start: start,
             period_end: end,
         }).catch(() => []);
-        return flatten(
+        const orders = flatten(
             events.map((event) =>
                 event.valid_catering.map(
                     (o) => new CateringOrder({ ...o, event }),
                 ),
             ),
         );
+        await Promise.all(orders.map((order) => this._attachOrderSpace(order)));
+        return orders;
     }
 
     private async _loadBookingOrders({ date, zones }: CateringOrderFilters) {
@@ -267,11 +284,11 @@ export class CateringOrdersService extends AsyncHandler {
             period_start: start,
             period_end: end,
         }).catch(() => [] as Booking[]);
-        return flatten(
+        const orders = flatten(
             bookings.map((bkn) => {
-                BOOKINGS[bkn.asset_id] = bkn;
                 const order = new CateringOrder({
                     ...bkn.extension_data.details,
+                    system_id: bkn.extension_data.details?.system_id,
                     event: bkn.linked_event
                         ? new CalendarEvent({
                               ...bkn.linked_event,
@@ -280,16 +297,22 @@ export class CateringOrdersService extends AsyncHandler {
                               (bkn.linked_bookings[0] as any) || bkn,
                           ),
                 });
-                if (bkn.linked_event) {
-                    this._space_pipe
-                        .transform(bkn.linked_event.system_id)
-                        .then((space) => {
-                            (order as any).space = space;
-                            (order.event as any).system = space;
-                        });
-                }
+                BOOKINGS[order.id] = bkn;
                 return order;
             }),
         );
+        await Promise.all(orders.map((order) => this._attachOrderSpace(order)));
+        return orders;
+    }
+
+    private async _attachOrderSpace(order: CateringOrder) {
+        const system_id =
+            order.system_id ||
+            order.event?.system?.id ||
+            order.event?.resources[0]?.id;
+        if (!system_id) return;
+        const space = await this._space_pipe.transform(system_id);
+        if (!space) return;
+        (order as CateringOrder & { space: typeof space }).space = space;
     }
 }

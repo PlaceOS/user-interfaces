@@ -8,7 +8,13 @@ import {
     CateringListFieldComponent,
     CateringOrderStateService,
 } from '@placeos/catering';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    CateringItem,
+    CateringOrder,
+    OrganisationService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
 import { EventFormService, generateEventForm } from '@placeos/events';
@@ -52,8 +58,12 @@ describe('MeetingFlowFormComponent', () => {
                 },
             },
             MockProvider(CateringOrderStateService, {
-                available_menu: signal([{ id: '1' }]),
+                available_menu: signal([{ id: '1', hide_for_zones: [] }]),
                 charge_codes: signal([]),
+                availability: signal([]),
+                setFilters: vi.fn(),
+                setOptions: vi.fn(),
+                orderAvailable: vi.fn(() => Promise.resolve(true)),
             } as any),
             MockProvider(MatBottomSheet, {
                 open: vi.fn(() => ({
@@ -61,10 +71,18 @@ describe('MeetingFlowFormComponent', () => {
                     afterDismissed: () => of('1'),
                 })),
             } as any),
-            MockProvider(OrganisationService, {
-                initialised: signal(true),
-                active_building: signal(null),
-            }),
+            {
+                provide: OrganisationService,
+                useValue: {
+                    initialised: signal(true),
+                    active_building: signal(null),
+                    levelWithID: vi.fn(() => ({ parent_id: 'building-1' })),
+                    locationWithID: vi.fn(() => ({
+                        building: { id: 'building-1' },
+                    })),
+                    waitUntilInitialised: vi.fn(() => Promise.resolve()),
+                } as unknown as OrganisationService,
+            },
             MockProvider(SettingsService, { get: vi.fn(() => false) } as any),
             MockProvider(MatDialog, {
                 open: vi.fn(() => ({
@@ -159,5 +177,71 @@ describe('MeetingFlowFormComponent', () => {
         expect(spectator.query('button[confirm]')).toExist();
         spectator.click('button[confirm]');
         // expect(spectator.inject(Router).navigate).toHaveBeenCalledTimes(1);
+    });
+
+    it('should remove catering when its assigned room is removed', () => {
+        const first_room = new Space({
+            id: 'room-1',
+            zones: ['building-1'],
+        });
+        const second_room = new Space({
+            id: 'room-2',
+            zones: ['building-1'],
+        });
+        spectator.component.model.update((model) => ({
+            ...model,
+            resources: [first_room, second_room],
+            catering: [
+                new CateringOrder({
+                    id: 'order-1',
+                    system_id: 'room-2',
+                    caterer: 'Cafe',
+                    items: [
+                        new CateringItem({
+                            id: 'coffee',
+                            caterer: 'Cafe',
+                            quantity: 1,
+                        }),
+                    ],
+                }),
+            ],
+        }));
+
+        (
+            spectator.component as unknown as {
+                _checkCatering: (rooms: Space[]) => void;
+            }
+        )._checkCatering([first_room]);
+
+        expect(spectator.component.model().catering).toEqual([]);
+    });
+
+    it('should reject legacy catering without a room assignment', async () => {
+        spectator.component.model.update((model) => ({
+            ...model,
+            resources: [new Space({ id: 'room-1' })],
+            catering: [
+                new CateringOrder({
+                    id: 'order-1',
+                    caterer: 'Cafe',
+                    items: [
+                        new CateringItem({
+                            id: 'coffee',
+                            caterer: 'Cafe',
+                            quantity: 1,
+                        }),
+                    ],
+                }),
+            ],
+        }));
+        expect(spectator.component.model().catering).toHaveLength(1);
+
+        await expect(
+            (
+                spectator.component as unknown as {
+                    _cateringOrdersAvailable: () => Promise<boolean>;
+                }
+            )._cateringOrdersAvailable(),
+        ).resolves.toBe(false);
     });
 });

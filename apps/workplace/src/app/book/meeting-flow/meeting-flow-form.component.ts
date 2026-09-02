@@ -284,6 +284,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                                 ? model()?.resources[0]?.level
                                                       ?.parent_id
                                                 : '',
+                                            resources: model().resources,
                                         }"
                                     ></catering-list-field>
                                     @if (
@@ -681,6 +682,9 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                     ).join(', '),
                 }),
             );
+        if (!(await this._cateringOrdersAvailable())) {
+            return notifyError(i18n('CALENDAR_EVENT.CATERING_UNAVAILABLE'));
+        }
         if (
             this._settings.get('app.events.no_standalone') &&
             !this.model().resources.length
@@ -789,6 +793,18 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             return;
         }
         const value = this.model();
+        const room_ids = new Set(
+            space_list.flatMap((space) => [space.id, space.email]),
+        );
+        const valid_orders = (value.catering || []).filter(
+            (order) => !order.system_id || room_ids.has(order.system_id),
+        );
+        if (valid_orders.length !== (value.catering || []).length) {
+            this.model.update((model) => ({
+                ...model,
+                catering: valid_orders,
+            }));
+        }
         this._catering.setFilters({
             search: '',
             date: value.date,
@@ -798,20 +814,18 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
             tags: [],
             categories: [],
         });
-        const menu = this._catering.filtered_menu();
+        const menu = this._catering.available_menu();
         const disabled_rooms = this._catering.availability();
-        const can_cater = space_list.every(
+        const can_cater = space_list.some(
             (space) =>
-                menu.filter(
+                !disabled_rooms.includes(space.id) &&
+                menu.some(
                     (_) =>
-                        !_.hide_for_zones.find((z) => space.zones.includes(z)),
-                ).length > 0,
+                        !_.hide_for_zones.some((z) => space.zones.includes(z)),
+                ),
         );
-        const available =
-            can_cater &&
-            !disabled_rooms.find((_) => space_list.find((i) => i.id === _));
-        this._catering_available.set(available);
-        if (available) return;
+        this._catering_available.set(can_cater);
+        if (can_cater) return;
         const event = this._state.event;
         const { id, catering, date, date_end } = this.model();
         const has_catering = !!catering?.length;
@@ -824,6 +838,31 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
                 notifyWarn(i18n('CALENDAR_EVENT.CATERING_UNAVAILABLE'));
             }
         }
+    }
+
+    private async _cateringOrdersAvailable() {
+        const { catering = [], date, duration, resources } = this.model();
+        for (const order of catering) {
+            if (!order.system_id) return false;
+            const room = resources.find(
+                (_) => _.id === order.system_id || _.email === order.system_id,
+            );
+            if (!room) return false;
+            const zone_id =
+                room.level?.parent_id ||
+                this._org.levelWithID(room.zones)?.parent_id ||
+                this._org.locationWithID(room.zones).building?.id;
+            if (
+                !(await this._catering.orderAvailable(order, room, {
+                    date,
+                    duration,
+                    zone_id,
+                }))
+            ) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public async ngOnInit() {
