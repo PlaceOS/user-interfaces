@@ -239,23 +239,9 @@ export class SpaceListFieldComponent
         if (this._dialog_ref) this._dialog_ref.close();
     }
 
-    public level(zones: string[]) {
-        return this._org.levelWithID(zones);
-    }
-
-    /** Region, building and level labels for a selected space */
+    /** Get the region, building and level label for a selected space. */
     public location(space: Space) {
-        const level = this.level(space.zones);
-        const building = this._org.buildings.find(
-            (_) => space.zones.includes(_.id) || _.id === level?.parent_id,
-        );
-        const region = this._org.regions.find(
-            (_) => _.id === building?.parent_id,
-        );
-        return [region, building, level]
-            .map((_) => _?.display_name || _?.name)
-            .filter((_) => !!_)
-            .join(' / ');
+        return this._org.locationWithID(space.zones).label;
     }
 
     /** Add or edit selected spaces */

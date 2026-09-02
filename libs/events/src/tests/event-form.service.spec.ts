@@ -12,6 +12,7 @@ import {
     setCurrentUser,
     SettingsService,
     Space,
+    User,
 } from '@placeos/common';
 import { Subject } from 'rxjs';
 
@@ -50,6 +51,18 @@ describe('EventFormService', () => {
                         buildingSettings: vi.fn(() => ({})),
                         regionSettings: vi.fn(() => ({})),
                         loadBuildingData: vi.fn(() => Promise.resolve()),
+                        loadBuildingsForZones: vi.fn(
+                            async (zone_lists: string[][]) =>
+                                zone_lists.map(
+                                    (zones) =>
+                                        new Building({
+                                            id:
+                                                zones.find((id) =>
+                                                    id.startsWith('bld-'),
+                                                ) || '',
+                                        }),
+                                ),
+                        ),
                         building_list: signal([]),
                         active_building: signal({}),
                         active_region: signal({}),
@@ -539,7 +552,7 @@ describe('EventFormService', () => {
         service.model.update((m) => ({
             ...m,
             host: 'host@test.com',
-            organiser: { email: 'host@test.com' } as any,
+            organiser: { email: 'host@test.com' } as User,
             creator: 'host@test.com',
             title: 'Boundary booking',
             date: start,
@@ -587,7 +600,7 @@ describe('EventFormService', () => {
         service.model.update((m) => ({
             ...m,
             host: 'host@test.com',
-            organiser: { email: 'host@test.com' } as any,
+            organiser: { email: 'host@test.com' } as User,
             creator: 'host@test.com',
             title: 'Moved booking',
             date: submitted_start,
@@ -706,7 +719,7 @@ describe('EventFormService', () => {
         service.model.update((model) => ({
             ...model,
             host: 'host@test.com',
-            organiser: { email: 'host@test.com' } as any,
+            organiser: new User({ email: 'host@test.com' }),
             creator: 'host@test.com',
             title: 'Cross-region meeting',
             date,
@@ -731,6 +744,33 @@ describe('EventFormService', () => {
         expect(result.resources.map((_) => _.id)).toEqual(['space-1']);
         expect(service.last_success()?.resources.map((_) => _.id)).toEqual([
             'space-1',
+        ]);
+    });
+
+    it('should treat an omitted room as failed in a multi-room response', () => {
+        const requested = [
+            new Space({ id: 'space-1', email: 'space-1@test.com' }),
+            new Space({ id: 'space-2', email: 'space-2@test.com' }),
+        ];
+        const saved = [
+            new Space({
+                ...requested[0],
+                response_status: 'accepted',
+            }),
+        ];
+
+        const resolved = (
+            service as unknown as {
+                _resolveResourceResponses: (
+                    requested: Space[],
+                    saved: Space[],
+                ) => Space[];
+            }
+        )._resolveResourceResponses(requested, saved);
+
+        expect(resolved.map((space) => space.response_status)).toEqual([
+            'accepted',
+            'declined',
         ]);
     });
 
@@ -1281,6 +1321,7 @@ describe('EventFormService', () => {
             buildingSettings: ReturnType<typeof vi.fn>;
             regionSettings: ReturnType<typeof vi.fn>;
             loadBuildingData: ReturnType<typeof vi.fn>;
+            loadBuildingsForZones: ReturnType<typeof vi.fn>;
         };
         org.buildings = [
             new Building({
@@ -1299,6 +1340,12 @@ describe('EventFormService', () => {
                 bookable_hours: { start: 9, end: 17 },
             },
         }));
+        org.loadBuildingsForZones.mockImplementation(
+            async (zone_lists: string[][]) =>
+                org.buildings.filter((building) =>
+                    zone_lists.some((zones) => zones.includes(building.id)),
+                ),
+        );
         const date = Date.UTC(2028, 5, 15, 0, 0, 0);
         const spaces = [
             new Space({ id: 'space-1', zones: ['bld-1'] }),
@@ -1328,11 +1375,18 @@ describe('EventFormService', () => {
     it('should enforce booking rules for rooms in different buildings', async () => {
         const org = TestBed.inject(OrganisationService) as unknown as {
             buildings: Building[];
+            loadBuildingsForZones: ReturnType<typeof vi.fn>;
         };
         org.buildings = [
             new Building({ id: 'bld-1' }),
             new Building({ id: 'bld-2' }),
         ];
+        org.loadBuildingsForZones.mockImplementation(
+            async (zone_lists: string[][]) =>
+                org.buildings.filter((building) =>
+                    zone_lists.some((zones) => zones.includes(building.id)),
+                ),
+        );
         vi.mocked(ts_client.showMetadata).mockImplementation((id: string) =>
             Promise.resolve({
                 details: [
@@ -1342,7 +1396,7 @@ describe('EventFormService', () => {
                         rules: { hidden: id === 'bld-2' },
                     },
                 ],
-            } as any),
+            } as unknown as Awaited<ReturnType<typeof ts_client.showMetadata>>),
         );
         const spaces = [
             new Space({ id: 'space-1', zones: ['bld-1'] }),
@@ -1380,6 +1434,7 @@ describe('EventFormService', () => {
         const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
         // Real findEventClashes runs; stub the ts-client POST beneath it so
         // it returns a clash on a later instance (not the first one).
+        vi.mocked(ts_client.post).mockClear();
         vi.mocked(ts_client.post).mockResolvedValue([
             {
                 asset_id: 'space-1',
@@ -1387,27 +1442,57 @@ describe('EventFormService', () => {
                 booking_end: Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
             },
         ] as any);
+        const event = new CalendarEvent({
+            id: 'event-1',
+            date,
+            duration: 60,
+            recurring: true,
+            recurrence: {
+                start: date,
+                end: date + 7 * 24 * 60 * 60 * 1000,
+                interval: 1,
+                pattern: 'daily',
+                days_of_week: [],
+            },
+            resources: [
+                new Space({
+                    id: 'space-1',
+                    email: 'space-1@example.com',
+                    name: 'Boardroom',
+                    zones: ['bld-1'],
+                }),
+                new Space({
+                    id: 'space-2',
+                    email: 'space-2@example.com',
+                    name: 'Training room',
+                    zones: ['bld-2'],
+                }),
+            ],
+        });
 
         await expect(
-            (service as any)._checkRecurringClashes({
-                id: 'event-1',
-                date,
-                duration: 60,
-                recurring: true,
-                resources: [
-                    {
-                        id: 'space-1',
-                        email: 'space-1@example.com',
-                        name: 'Boardroom',
-                        zones: ['bld-1'],
-                    },
-                ],
-                toJSON: () => ({ id: 'event-1', date, duration: 60 }),
-            } as any),
+            (
+                service as unknown as {
+                    _checkRecurringClashes: (
+                        event: CalendarEvent,
+                    ) => Promise<boolean>;
+                }
+            )._checkRecurringClashes(event),
         ).rejects.toBeTruthy();
         expect(ts_client.post).toHaveBeenCalledWith(
             expect.stringContaining('clashing-assets'),
-            expect.anything(),
+            expect.objectContaining({
+                attendees: expect.arrayContaining([
+                    expect.objectContaining({
+                        email: 'space-1@example.com',
+                        resource: true,
+                    }),
+                    expect.objectContaining({
+                        email: 'space-2@example.com',
+                        resource: true,
+                    }),
+                ]),
+            }),
         );
         expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
     });

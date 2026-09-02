@@ -47,6 +47,13 @@ interface CachedAuthority {
     metadata_cache_id: string;
 }
 
+export interface OrganisationLocation {
+    level?: BuildingLevel;
+    building?: Building;
+    region?: Region;
+    label: string;
+}
+
 /**
  * The authority is fetched from the backend, so it is not available on an
  * offline boot. Cached org data is namespaced by it, so the last known values
@@ -342,6 +349,50 @@ export class OrganisationService {
      */
     public levelWithID(id_list: string[]): BuildingLevel {
         return this.levels.find((lvl) => id_list?.includes(lvl.id));
+    }
+
+    /** Get the organisation location represented by a list of zone IDs. */
+    public locationWithID(id_list: string[]): OrganisationLocation {
+        const level = this.levelWithID(id_list);
+        const building = this.buildings.find(
+            (_) => id_list?.includes(_.id) || _.id === level?.parent_id,
+        );
+        const region = this.regions.find((_) => _.id === building?.parent_id);
+        const label = [region, building, level]
+            .map((_) => _?.display_name || _?.name)
+            .filter((_) => !!_)
+            .join(' / ');
+        return { level, building, region, label };
+    }
+
+    /** Load and return every building represented by the zone ID lists. */
+    public async loadBuildingsForZones(
+        zone_lists: string[][],
+    ): Promise<Building[]> {
+        const find_buildings = () =>
+            unique(
+                zone_lists
+                    .map((zones) =>
+                        this.buildings.find((building) =>
+                            zones.includes(building.id),
+                        ),
+                    )
+                    .filter((building): building is Building => !!building),
+                'id',
+            );
+        let buildings = find_buildings();
+        const has_missing_building = () =>
+            zone_lists.some(
+                (zones) =>
+                    !this.buildings.some((building) =>
+                        zones.includes(building.id),
+                    ),
+            );
+        if (has_missing_building()) {
+            await this._loadAllBuildings();
+            buildings = find_buildings();
+        }
+        return buildings;
     }
 
     /**

@@ -19,6 +19,7 @@ import {
     OrganisationService,
     Region,
     settingSignal,
+    SettingsService,
     unique,
 } from '@placeos/common';
 import { addDays, endOfDay, startOfDay } from 'date-fns';
@@ -30,6 +31,7 @@ import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.componen
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { SpacesService } from '../spaces.service';
+import { multipleSpacesSignal } from '../utilities';
 
 @Component({
     selector: `space-filters`,
@@ -351,6 +353,7 @@ export class SpaceFiltersComponent {
     private _org = inject(OrganisationService);
     private _spaces = inject(SpacesService);
     private _mapspeople = inject(MapsPeopleService);
+    private _settings = inject(SettingsService);
 
     public readonly multiday = input<boolean>(undefined);
     public readonly hide_levels = input<boolean>(undefined);
@@ -420,17 +423,7 @@ export class SpaceFiltersComponent {
         false,
     );
 
-    private readonly _multiple_spaces = settingSignal<boolean>(
-        'events.multiple_spaces',
-        false,
-    );
-    private readonly _legacy_multiple_spaces = settingSignal<boolean>(
-        'events.allow_multiple_spaces',
-        false,
-    );
-    private readonly _allow_multiple = computed(
-        () => !!this._multiple_spaces() || !!this._legacy_multiple_spaces(),
-    );
+    private readonly _allow_multiple = multipleSpacesSignal(this._settings);
 
     public readonly timezone = computed(() =>
         this._allow_multiple()

@@ -18,6 +18,7 @@ import { EventFormOptions, EventFormService } from '@placeos/events';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { multipleSpacesEnabled } from '../utilities';
 import { SpaceDetailsComponent } from './space-details.component';
 import { SpaceFiltersDisplayComponent } from './space-filters-display.component';
 import { SpaceFiltersComponent } from './space-filters.component';
@@ -271,19 +272,13 @@ export class SpaceSelectModalComponent {
     );
 
     public readonly selected_locations = computed(() => {
-        const levels = this._org.level_list();
-        const buildings = this._org.building_list();
-        const regions = this._org.region_list();
         return this.selected().map((space) => {
-            const level = levels.find((_) => space.zones.includes(_.id));
-            const building = buildings.find(
-                (_) => space.zones.includes(_.id) || _.id === level?.parent_id,
-            );
-            const region = regions.find((_) => _.id === building?.parent_id);
-            const location = [region, building, level]
-                .map((_) => _?.display_name || _?.name)
-                .filter((_) => !!_)
-                .join(' / ');
+            const {
+                level,
+                building,
+                region,
+                label: location,
+            } = this._org.locationWithID(space.zones);
             return { space, level, building, region, location };
         });
     });
@@ -296,22 +291,23 @@ export class SpaceSelectModalComponent {
 
     public readonly allow_multiple = computed(() => {
         this._settings.overrides();
-        return (
-            this._settings.get('app.events.multiple_spaces') === true ||
-            this._settings.get('app.events.allow_multiple_spaces') === true
-        );
+        return multipleSpacesEnabled(this._settings);
     });
 
     private readonly _remove_stale_selections = effect(() => {
-        const zone_id = this._event_form.loaded_space_zone();
-        const valid_ids = new Set(
-            this._event_form.spaces().map((space) => space.id),
-        );
-        if (!zone_id) return;
-        const stale = this.selected().filter(
-            (space) =>
-                space.zones.includes(zone_id) && !valid_ids.has(space.id),
-        );
+        const loaded_lists = {
+            ...this._event_form.loaded_space_lists(),
+            [this._event_form.loaded_space_zone()]: this._event_form.spaces(),
+        };
+        const stale = this.selected().filter((space) => {
+            const matching_lists = Object.entries(loaded_lists).filter(
+                ([zone_id]) => zone_id && space.zones.includes(zone_id),
+            );
+            return matching_lists.some(
+                ([, spaces]) =>
+                    !spaces.some((candidate) => candidate.id === space.id),
+            );
+        });
         if (!stale.length) return;
         const stale_ids = new Set(stale.map((space) => space.id));
         this.selected.update((spaces) =>
@@ -355,6 +351,7 @@ export class SpaceSelectModalComponent {
         );
     }
 
+    /** Show a selected room at its original organisation location. */
     public selectSpace(space: Space) {
         if (this.isSelected(space.id)) {
             void this.returnToSpace(space);
@@ -363,6 +360,7 @@ export class SpaceSelectModalComponent {
         this.displayed.set(space);
     }
 
+    /** Restore the filters for a selected room and open its details. */
     public async returnToSpace(space: Space) {
         const item = this.selected_locations().find(
             (_) => _.space.id === space.id,

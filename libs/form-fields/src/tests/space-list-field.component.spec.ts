@@ -20,9 +20,7 @@ describe('SpaceListFieldComponent', () => {
             } as any),
             MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(OrganisationService, {
-                levelWithID: vi.fn(),
-                buildings: [],
-                regions: [],
+                locationWithID: vi.fn(() => ({ label: '' })),
             }),
         ],
         declarations: [MockComponent(IconComponent)],

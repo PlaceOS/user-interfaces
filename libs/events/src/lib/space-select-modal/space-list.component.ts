@@ -166,12 +166,7 @@ import { EventFormService } from 'libs/events/src/lib/event-form.service';
                         <div class="flex items-center space-x-2 text-sm">
                             <icon class="text-info">place</icon>
                             <p class="truncate">
-                                {{
-                                    location ||
-                                        $any(space).location ||
-                                        level(space.zones)?.display_name ||
-                                        level(space.zones)?.name
-                                }}
+                                {{ location || spaceLocation(space) }}
                             </p>
                         </div>
                         <div class="flex items-center space-x-2 text-sm">
@@ -254,8 +249,13 @@ export class SpaceListComponent {
         );
     });
 
-    public level(zones: string[]) {
-        return this._org.levelWithID(zones);
+    /** Get the region, building and level label for a room. */
+    public spaceLocation(space: Space): string {
+        return (
+            this._org.locationWithID(space.zones).label ||
+            space.level?.display_name ||
+            space.level?.name
+        );
     }
 
     public ngOnInit() {

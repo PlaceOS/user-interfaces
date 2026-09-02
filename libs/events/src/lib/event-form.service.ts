@@ -27,11 +27,11 @@ import {
     getInvalidSignalFields,
     getItemWithKeys,
     getTimeInTimezone,
-    isEmptyUser,
-    onFieldChange,
     i18n,
+    isEmptyUser,
     isWithinBookableHours,
     notifyWarn,
+    onFieldChange,
     rulesForResource,
     setDefaultCreator,
     SettingsService,
@@ -54,8 +54,8 @@ import {
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
-import { EventLinkModalComponent } from './event-link-modal.component';
 import { CalendarService } from './calendar.service';
+import { EventLinkModalComponent } from './event-link-modal.component';
 import {
     findEventClashes,
     querySpaceAvailability,
@@ -65,6 +65,7 @@ import {
 import {
     eventFormValue,
     generateEventForm,
+    multipleSpacesEnabled,
     newCalendarEventFromBooking,
     type EventFormValue,
 } from './utilities';
@@ -155,10 +156,7 @@ export class EventFormService extends AsyncHandler {
     private _user_pipe = new UserPipe();
 
     private get timezone() {
-        const allow_multiple =
-            this._settings.get('app.events.multiple_spaces') === true ||
-            this._settings.get('app.events.allow_multiple_spaces') === true;
-        if (allow_multiple) {
+        if (multipleSpacesEnabled(this._settings)) {
             return (
                 this._model?.()?.timezone ||
                 Intl.DateTimeFormat().resolvedOptions().timeZone
@@ -183,6 +181,9 @@ export class EventFormService extends AsyncHandler {
     private _network_requested = false;
     private _network_consumed = signal(false);
     private _space_requests = new Map<string, Promise<Space[]>>();
+    private readonly _loaded_space_lists = signal<Record<string, Space[]>>({});
+    /** Bookable room lists loaded during the current selection session. */
+    public readonly loaded_space_lists = this._loaded_space_lists.asReadonly();
     private _availability_requests = new Map<string, Promise<boolean[]>>();
     private _form_ref = generateEventForm(
         undefined,
@@ -290,9 +291,11 @@ export class EventFormService extends AsyncHandler {
         },
     });
     /** Signal for the booking rules of the active buildings, grouped by id */
-    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(() => {
-        return this._booking_rules_resource.value() ?? {};
-    });
+    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(
+        () => {
+            return this._booking_rules_resource.value() ?? {};
+        },
+    );
 
     /** Active zone used to load the bookable space list */
     private readonly _space_zone = computed(() => {
@@ -301,11 +304,10 @@ export class EventFormService extends AsyncHandler {
             : this._org.active_building();
         return zone?.id || '';
     });
-    private readonly _space_zone_debounced = debounced(
-        this._space_zone,
-        300,
-        { injector: this._injector, equal: Object.is },
-    );
+    private readonly _space_zone_debounced = debounced(this._space_zone, 300, {
+        injector: this._injector,
+        equal: Object.is,
+    });
     /** Bookable spaces for the active zone */
     private readonly _spaces_resource = resource({
         params: () =>
@@ -315,12 +317,16 @@ export class EventFormService extends AsyncHandler {
         loader: ({ params: zone_id }) => {
             this.addLoadingTag(Tags.ListingRooms);
             return this._requestSpaces(zone_id)
-                .then((list) => ({
-                    zone_id,
-                    spaces: list.filter(
+                .then((list) => {
+                    const spaces = list.filter(
                         (_) => _.bookable && _.email && !_.room_booking_url,
-                    ),
-                }))
+                    );
+                    this._loaded_space_lists.update((loaded) => ({
+                        ...loaded,
+                        [zone_id]: spaces,
+                    }));
+                    return { zone_id, spaces };
+                })
                 .catch(
                     () => null as { zone_id: string; spaces: Space[] } | null,
                 )
@@ -516,7 +522,8 @@ export class EventFormService extends AsyncHandler {
         const previous = {};
         effect(
             () => {
-                const { date: raw_date, duration: raw_duration } = this._model();
+                const { date: raw_date, duration: raw_duration } =
+                    this._model();
                 if (
                     (raw_date && raw_date !== previous['date']) ||
                     (raw_duration && raw_duration !== previous['duration'])
@@ -600,12 +607,23 @@ export class EventFormService extends AsyncHandler {
         });
         const existing = this._availability_requests.get(key);
         if (existing) return existing;
-        const request = (this.book_internal
-            ? queryResourceAvailability(ids, date, duration, ignore, undefined)
-            : querySpaceAvailability(ids, date, duration, ignore, undefined, [
-                  event?.date,
-                  event?.duration,
-              ])
+        const request = (
+            this.book_internal
+                ? queryResourceAvailability(
+                      ids,
+                      date,
+                      duration,
+                      ignore,
+                      undefined,
+                  )
+                : querySpaceAvailability(
+                      ids,
+                      date,
+                      duration,
+                      ignore,
+                      undefined,
+                      [event?.date, event?.duration],
+                  )
         ).finally(() => this._availability_requests.delete(key));
         this._availability_requests.set(key, request);
         return request;
@@ -770,7 +788,10 @@ export class EventFormService extends AsyncHandler {
     public openEventLinkModal(force = false) {
         this._form().markAsTouched();
         if (!this._form().valid() && !force) return;
-        const event = new CalendarEvent({ ...(this._model() as any), assets: [] });
+        const event = new CalendarEvent({
+            ...(this._model() as any),
+            assets: [],
+        });
         const ref = this._dialog.open(EventLinkModalComponent, { data: event });
         ref.afterClosed().subscribe((d) =>
             d ? this._router.navigate(['/']) : '',
@@ -1010,18 +1031,10 @@ export class EventFormService extends AsyncHandler {
                 all_day_period.date_end ||
                 all_day_period.date + all_day_period.duration * 60 * 1000;
             const saved_resources = created_event.resources || [];
-            const resolved_resources = space_list.map((space) => {
-                const saved = saved_resources.find(
-                    (_) =>
-                        (_.email && _.email === space.email) ||
-                        (_.id && _.id === space.id),
-                );
-                return new Space({
-                    ...space,
-                    response_status:
-                        saved?.response_status || space.response_status,
-                });
-            });
+            const resolved_resources = this._resolveResourceResponses(
+                space_list,
+                saved_resources,
+            );
             const failed_resources = resolved_resources.filter(
                 (_) => _.response_status === 'declined',
             );
@@ -1235,6 +1248,28 @@ export class EventFormService extends AsyncHandler {
         return getItemWithKeys(keys, DEFAULT_SETTINGS) as T | undefined;
     }
 
+    private _resolveResourceResponses(
+        requested: Space[],
+        saved: Space[],
+    ): Space[] {
+        const require_saved_resource = requested.length > 1;
+        return requested.map((space) => {
+            const response = saved.find(
+                (_) =>
+                    (_.email && _.email === space.email) ||
+                    (_.id && _.id === space.id),
+            );
+            return new Space({
+                ...space,
+                response_status:
+                    response?.response_status ||
+                    (response || !require_saved_resource
+                        ? space.response_status
+                        : 'declined'),
+            });
+        });
+    }
+
     /** Check the event instant against every selected building's local hours. */
     private async _checkBuildingBookableHours(
         spaces: Space[],
@@ -1242,15 +1277,8 @@ export class EventFormService extends AsyncHandler {
         date_end: number,
         organiser_timezone: string,
     ) {
-        const buildings = unique(
-            spaces
-                .map((space) =>
-                    this._org.buildings.find((building) =>
-                        space.zones.includes(building.id),
-                    ),
-                )
-                .filter((building) => !!building),
-            'id',
+        const buildings = await this._org.loadBuildingsForZones(
+            spaces.map((space) => space.zones),
         );
         await Promise.all(
             buildings.map((building) => this._org.loadBuildingData(building)),
@@ -1300,14 +1328,15 @@ export class EventFormService extends AsyncHandler {
         const user = await this._bookingRulesHost(host);
         await this._whenSettled(this._booking_rules_resource);
         const rules = { ...this.booking_rules() };
+        const buildings = await this._org.loadBuildingsForZones(
+            spaces.map((space) => space.zones),
+        );
         // The booking panel does not eagerly load zone metadata, so the
         // reactive rules resource may still be empty when a booking is
         // submitted. Fetch any missing building rules on demand so they are
         // always enforced regardless of which app submitted the booking.
         for (const space of spaces) {
-            const bld = this._org.buildings.find((b) =>
-                space.zones.includes(b.id),
-            );
+            const bld = buildings.find((b) => space.zones.includes(b.id));
             if (!bld || rules[bld.id]) continue;
             const metadata = await showMetadata(
                 bld.id,
@@ -1317,9 +1346,7 @@ export class EventFormService extends AsyncHandler {
                 metadata.details instanceof Array ? metadata.details : [];
         }
         const space_rules = spaces.map((space) => {
-            const bld = this._org.buildings.find((b) =>
-                space.zones.includes(b.id),
-            );
+            const bld = buildings.find((b) => space.zones.includes(b.id));
             return rulesForResource(
                 {
                     date,
@@ -1496,8 +1523,7 @@ export class EventFormService extends AsyncHandler {
                 event.id,
                 event.resources.length
                     ? {
-                          calendar:
-                              this._model().host || currentUser()?.email,
+                          calendar: this._model().host || currentUser()?.email,
                           system_id: event.resources[0].id,
                       }
                     : {},

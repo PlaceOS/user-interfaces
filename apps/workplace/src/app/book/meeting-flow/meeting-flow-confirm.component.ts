@@ -21,7 +21,7 @@ import {
     i18n,
     notifyError,
 } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, multipleSpacesEnabled } from '@placeos/events';
 
 import {
     IconComponent,
@@ -110,11 +110,18 @@ import { SpacePipe } from '@placeos/events';
                         {{ 'APP.WORKPLACE.MEETING_BOOKED_ROOM' | translate }}
                     </h3>
                     @for (s of event.resources; track s) {
-                        <div class="flex items-center space-x-2">
+                        <div class="flex items-start space-x-2">
                             <icon class="text-2xl">meeting_room</icon>
-                            <div>
-                                {{ spaceLocation(s) }} /
-                                {{ s.display_name || s.name }}
+                            <div class="flex flex-col">
+                                <div>
+                                    {{ spaceLocation(s) }} /
+                                    {{ s.display_name || s.name }}
+                                </div>
+                                @if (roomTime(s); as room_time) {
+                                    <div room-time class="text-xs opacity-60">
+                                        {{ room_time }}
+                                    </div>
+                                }
                             </div>
                         </div>
                     }
@@ -244,6 +251,9 @@ export class MeetingFlowConfirmComponent
     }
 
     public get timezone() {
+        if (multipleSpacesEnabled(this._settings)) {
+            return this.event.timezone || '';
+        }
         return this._settings.get('app.events.use_building_timezone')
             ? this._org.building.timezone
             : '';
@@ -252,7 +262,7 @@ export class MeetingFlowConfirmComponent
     public get tz() {
         const tz = this.timezone;
         if (!tz) return '';
-        return getTimezoneOffsetString(tz);
+        return getTimezoneOffsetString(tz, new Date(this.event.date));
     }
 
     public get formatted_recurrence() {
@@ -278,18 +288,32 @@ export class MeetingFlowConfirmComponent
         return this._org.levelWithID(this.space.zones);
     }
 
+    /** Get the region, building and level label for a room. */
     public spaceLocation(space: Space) {
-        const level = this._org.levelWithID(space.zones);
-        const building = this._org.buildings.find(
-            (_) => space.zones.includes(_.id) || _.id === level?.parent_id,
-        );
-        const region = this._org.regions.find(
-            (_) => _.id === building?.parent_id,
-        );
-        return [region, building, level]
-            .map((_) => _?.display_name || _?.name)
-            .filter((_) => !!_)
-            .join(' / ');
+        return this._org.locationWithID(space.zones).label;
+    }
+
+    /** Format a room's local time when it differs from the organiser's. */
+    public roomTime(space: Space): string {
+        if (!multipleSpacesEnabled(this._settings) || this.event.all_day) {
+            return '';
+        }
+        const room_timezone = this._org.locationWithID(space.zones).building
+            ?.timezone;
+        const user_timezone =
+            this.event.timezone ||
+            Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (!room_timezone || !user_timezone) return '';
+        try {
+            const date = new Date(this.event.date);
+            const room_offset = getTimezoneOffsetString(room_timezone, date);
+            const user_offset = getTimezoneOffsetString(user_timezone, date);
+            return room_offset === user_offset
+                ? ''
+                : this.formattedTime(room_offset);
+        } catch {
+            return '';
+        }
     }
 
     public get location() {

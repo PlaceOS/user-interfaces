@@ -32,6 +32,7 @@ describe('SpaceSelectModalComponent', () => {
                 region_list: signal([]),
                 setRegion: vi.fn(),
                 setBuilding: vi.fn(),
+                locationWithID: vi.fn(() => ({ label: '' })),
             }),
             MockProvider(MAT_DIALOG_DATA, []),
             MockProvider(MatDialogRef, { close: vi.fn() }),
@@ -52,6 +53,7 @@ describe('SpaceSelectModalComponent', () => {
                         spaces$: new BehaviorSubject([]),
                         spaces: signal([]),
                         loaded_space_zone: signal(''),
+                        loaded_space_lists: signal({}),
                         model,
                         form,
                         filters: {},
@@ -141,6 +143,7 @@ describe('SpaceSelectModalComponent', () => {
             region_list: WritableSignal<Array<{ id: string; name: string }>>;
             setRegion: ReturnType<typeof vi.fn>;
             setBuilding: ReturnType<typeof vi.fn>;
+            locationWithID: ReturnType<typeof vi.fn>;
         };
         org.level_list.set([
             { id: 'level-1', parent_id: 'building-1', name: 'Level 1' },
@@ -149,6 +152,12 @@ describe('SpaceSelectModalComponent', () => {
             { id: 'building-1', parent_id: 'region-1', name: 'Sydney' },
         ]);
         org.region_list.set([{ id: 'region-1', name: 'Australia' }]);
+        org.locationWithID.mockReturnValue({
+            level: org.level_list()[0],
+            building: org.building_list()[0],
+            region: org.region_list()[0],
+            label: 'Australia / Sydney / Level 1',
+        });
         const space = new Space({
             id: 'space-1',
             name: 'Boardroom',
@@ -189,6 +198,20 @@ describe('SpaceSelectModalComponent', () => {
         ]);
     });
 
+    it('should remove stale rooms from a previously loaded location', async () => {
+        const form = spectator.inject(EventFormService) as unknown as {
+            loaded_space_lists: WritableSignal<Record<string, Space[]>>;
+        };
+        spectator.component.selected.set([
+            new Space({ id: 'stale', zones: ['building-2'] }),
+        ]);
+
+        form.loaded_space_lists.set({ 'building-2': [] });
+        await spectator.fixture.whenStable();
+
+        expect(spectator.component.selected()).toEqual([]);
+    });
+
     it('should allow favouriting a space', () => {
         spectator.component.toggleFavourite(new Space({ id: '1' }));
         expect(spectator.component.favorites()).toEqual(['1']);
@@ -224,6 +247,7 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
                 region_list: signal([]),
                 setRegion: vi.fn(),
                 setBuilding: vi.fn(),
+                locationWithID: vi.fn(() => ({ label: '' })),
             }),
             MockProvider(MAT_DIALOG_DATA, []),
             MockProvider(MatDialogRef, { close: vi.fn() }),
@@ -244,6 +268,7 @@ describe('SpaceSelectModalComponent (with favourites)', () => {
                         spaces$: new BehaviorSubject([]),
                         spaces: signal([]),
                         loaded_space_zone: signal(''),
+                        loaded_space_lists: signal({}),
                         model,
                         form,
                         filters: {},

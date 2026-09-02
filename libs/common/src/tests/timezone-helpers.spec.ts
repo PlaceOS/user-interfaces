@@ -2,6 +2,7 @@ import { fromZonedTime } from 'date-fns-tz';
 import {
     endOfDayInTimezone,
     getTimezoneOffsetInMinutes,
+    getTimezoneOffsetString,
     startOfDayInTimezone,
 } from '../lib/timezone-helpers';
 import { Booking } from '../lib/types/booking.class';
@@ -54,6 +55,21 @@ describe('timezone offset helpers', () => {
 
     afterEach(() => {
         Intl.DateTimeFormat = original_date_time_format;
+    });
+
+    it('should calculate an offset for the requested date', () => {
+        expect(
+            getTimezoneOffsetString(
+                'Australia/Sydney',
+                new Date('2026-01-15T00:00:00Z'),
+            ),
+        ).toBe('+1100');
+        expect(
+            getTimezoneOffsetString(
+                'Australia/Sydney',
+                new Date('2026-07-15T00:00:00Z'),
+            ),
+        ).toBe('+1000');
     });
 
     it('should fallback when shortOffset is not supported', () => {

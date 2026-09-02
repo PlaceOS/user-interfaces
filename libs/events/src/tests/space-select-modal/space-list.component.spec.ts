@@ -26,7 +26,9 @@ describe('SpaceListComponent', () => {
                 room_alerts: room_alerts as any,
                 setView: vi.fn(),
             }),
-            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
+            MockProvider(OrganisationService, {
+                locationWithID: vi.fn(() => ({ label: '' })),
+            }),
         ],
         declarations: [
             mockComponent(IconComponent),
