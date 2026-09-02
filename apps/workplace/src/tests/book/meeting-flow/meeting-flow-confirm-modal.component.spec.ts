@@ -3,8 +3,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { EventFormService, SpacePipe } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
@@ -95,7 +95,11 @@ describe('MeetingFlowConfirmModalComponent', () => {
                         address: '123 St',
                     },
                 ] as any,
-                building: { id: 'level-1', timezone: 'Australia/Sydney' } as any,
+                regions: [],
+                building: {
+                    id: 'level-1',
+                    timezone: 'Australia/Sydney',
+                } as any,
                 currency_code: 'USD',
             } as any),
             MockProvider(SettingsService, {
@@ -215,8 +219,12 @@ describe('MeetingFlowConfirmModalComponent', () => {
 
     it('should choose the clash vs time asset error tooltip', async () => {
         await init();
-        const clash = spectator.component.err_tooltip({ conflict: true } as any);
-        const time = spectator.component.err_tooltip({ conflict: false } as any);
+        const clash = spectator.component.err_tooltip({
+            conflict: true,
+        } as any);
+        const time = spectator.component.err_tooltip({
+            conflict: false,
+        } as any);
         expect(clash).not.toBe(time);
         expect(clash).toContain('CLASH');
         expect(time).toContain('TIME');

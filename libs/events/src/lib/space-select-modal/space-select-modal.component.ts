@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
@@ -9,6 +9,7 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     isMobileSafari,
+    OrganisationService,
     settingSignal,
     SettingsService,
     Space,
@@ -70,6 +71,73 @@ export const FAV_DESK_KEY = 'favourite_spaces';
                     <icon>close</icon>
                 </button>
             </header>
+            @if (allow_multiple() && selected_locations().length) {
+                <section
+                    selected-spaces
+                    class="border-base-300 bg-base-100 flex shrink-0 flex-col gap-2 rounded-sm border p-2"
+                >
+                    <div class="flex items-center justify-between px-1">
+                        <h3 class="font-medium">
+                            {{
+                                'COMMON.SELECTED_COUNT'
+                                    | translate
+                                        : { count: selected_locations().length }
+                            }}
+                        </h3>
+                        <span class="text-xs opacity-60">
+                            {{ 'COMMON.ROOM_SELECT' | translate }}
+                        </span>
+                    </div>
+                    <div class="flex max-w-full gap-2 overflow-x-auto pb-1">
+                        @for (
+                            item of selected_locations();
+                            track item.space.id
+                        ) {
+                            <div
+                                selected-space
+                                class="border-base-300 bg-base-200 flex max-w-72 min-w-56 shrink-0 items-center rounded-sm border"
+                            >
+                                <button
+                                    type="button"
+                                    name="return-to-space"
+                                    class="min-w-0 flex-1 px-3 py-2 text-left"
+                                    (click)="returnToSpace(item.space)"
+                                >
+                                    <div class="truncate font-medium">
+                                        {{
+                                            item.space.display_name ||
+                                                item.space.name
+                                        }}
+                                    </div>
+                                    <div class="truncate text-xs opacity-60">
+                                        {{ item.location }}
+                                    </div>
+                                </button>
+                                <button
+                                    icon
+                                    matRipple
+                                    type="button"
+                                    name="remove-selected-space"
+                                    class="mr-1 shrink-0"
+                                    [attr.aria-label]="
+                                        'COMMON.REMOVE_ITEM'
+                                            | translate
+                                                : {
+                                                      item:
+                                                          item.space
+                                                              .display_name ||
+                                                          item.space.name,
+                                                  }
+                                    "
+                                    (click)="setSelected(item.space, false)"
+                                >
+                                    <icon>close</icon>
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
             <main
                 class="relative flex h-1/2 max-h-[calc(100vh-7rem)] flex-1 sm:h-[65vh] sm:flex-none sm:space-x-2"
             >
@@ -246,6 +314,7 @@ export class SpaceSelectModalComponent {
         inject<MatDialogRef<SpaceSelectModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
     private _event_form = inject(EventFormService);
+    private _org = inject(OrganisationService);
     private _data = inject<{
         spaces: Space[];
         options: Partial<EventFormOptions>;
@@ -267,16 +336,54 @@ export class SpaceSelectModalComponent {
             .join(','),
     );
 
+    public readonly selected_locations = computed(() => {
+        const levels = this._org.level_list();
+        const buildings = this._org.building_list();
+        const regions = this._org.region_list();
+        return this.selected().map((space) => {
+            const level = levels.find((_) => space.zones.includes(_.id));
+            const building = buildings.find(
+                (_) => space.zones.includes(_.id) || _.id === level?.parent_id,
+            );
+            const region = regions.find((_) => _.id === building?.parent_id);
+            const location = [region, building, level]
+                .map((_) => _?.display_name || _?.name)
+                .filter((_) => !!_)
+                .join(' / ');
+            return { space, level, building, region, location };
+        });
+    });
+
     public readonly favorites = settingSignal<string[]>(
         'favourite_spaces',
         [],
         true,
     );
 
-    public readonly allow_multiple = settingSignal<boolean>(
-        'events.allow_multiple_spaces',
-        false,
-    );
+    public readonly allow_multiple = computed(() => {
+        this._settings.overrides();
+        return (
+            this._settings.get('app.events.multiple_spaces') === true ||
+            this._settings.get('app.events.allow_multiple_spaces') === true
+        );
+    });
+
+    private readonly _remove_stale_selections = effect(() => {
+        const zone_id = this._event_form.loaded_space_zone();
+        const valid_ids = new Set(
+            this._event_form.spaces().map((space) => space.id),
+        );
+        if (!zone_id) return;
+        const stale = this.selected().filter(
+            (space) =>
+                space.zones.includes(zone_id) && !valid_ids.has(space.id),
+        );
+        if (!stale.length) return;
+        const stale_ids = new Set(stale.map((space) => space.id));
+        this.selected.update((spaces) =>
+            spaces.filter((space) => !stale_ids.has(space.id)),
+        );
+    });
 
     constructor() {
         const _data = this._data;
@@ -291,7 +398,7 @@ export class SpaceSelectModalComponent {
     }
 
     public isSelected(id: string) {
-        return id && this.selected_ids().includes(id);
+        return !!id && this.selected().some((space) => space.id === id);
     }
 
     public setSelected(item: Space, state: boolean) {
@@ -312,6 +419,20 @@ export class SpaceSelectModalComponent {
                 ? !this.isSelected(this.displayed()?.id)
                 : true,
         );
+    }
+
+    public async returnToSpace(space: Space) {
+        const item = this.selected_locations().find(
+            (_) => _.space.id === space.id,
+        );
+        if (!item) return;
+        if (item.region) await this._org.setRegion(item.region);
+        if (item.building) this._org.setBuilding(item.building);
+        this._event_form.setOptions({
+            zones: item.level?.id ? [item.level.id] : [],
+        });
+        this.displayed.set(space);
+        this.show_filters.set(false);
     }
 
     public toggleFavourite(item: Space) {

@@ -14,6 +14,7 @@ import {
     CateringItem,
     OrganisationService,
     SettingsService,
+    Space,
     formatRecurrence,
     fromEventRecurrence,
     getTimezoneOffsetString,
@@ -101,7 +102,7 @@ import { SpacePipe } from '@placeos/events';
                 </div>
             </section>
         }
-        @if (space?.id) {
+        @if (event.resources?.length) {
             <section spaces class="mt-2 flex space-x-1 px-2">
                 <icon class="text-success mt-1">done</icon>
                 <div details class="leading-6">
@@ -112,15 +113,11 @@ import { SpacePipe } from '@placeos/events';
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">meeting_room</icon>
                             <div>
-                                {{ level?.display_name || level?.name }},
+                                {{ spaceLocation(s) }} /
                                 {{ s.display_name || s.name }}
                             </div>
                         </div>
                     }
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">place</icon>
-                        <div>{{ location }}</div>
-                    </div>
                 </div>
             </section>
         }
@@ -279,6 +276,20 @@ export class MeetingFlowConfirmComponent
 
     public get level() {
         return this._org.levelWithID(this.space.zones);
+    }
+
+    public spaceLocation(space: Space) {
+        const level = this._org.levelWithID(space.zones);
+        const building = this._org.buildings.find(
+            (_) => space.zones.includes(_.id) || _.id === level?.parent_id,
+        );
+        const region = this._org.regions.find(
+            (_) => _.id === building?.parent_id,
+        );
+        return [region, building, level]
+            .map((_) => _?.display_name || _?.name)
+            .filter((_) => !!_)
+            .join(' / ');
     }
 
     public get location() {

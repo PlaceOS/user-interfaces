@@ -37,7 +37,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     IconComponent,
-    LevelPipe,
     SanitizePipe,
     TranslatePipe,
     openConfirmModal,
@@ -119,19 +118,12 @@ import { SpacePipe } from '@placeos/events';
                     </div>
                     <div class="space-y-1 pl-10">
                         @for (s of event.resources; track s.email) {
-                            @let level = s.zones | level;
                             <div class="flex items-center space-x-2">
                                 <icon class="text-2xl">layers</icon>
                                 <div>
-                                    {{ level?.display_name || level?.name }},
+                                    {{ spaceLocation(s) }} /
                                     {{ s.display_name || s.name }}
                                 </div>
-                            </div>
-                        }
-                        @if (location) {
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">place</icon>
-                                <div>{{ location }}</div>
                             </div>
                         }
                     </div>
@@ -477,7 +469,6 @@ import { SpacePipe } from '@placeos/events';
         MatRippleModule,
         SanitizePipe,
         MatTooltipModule,
-        LevelPipe,
         MatProgressSpinnerModule,
         MatChipsModule,
         MatDialogModule,
@@ -603,6 +594,20 @@ export class MeetingFlowConfirmModalComponent
 
     public get level() {
         return this._org.levelWithID(this.space.zones);
+    }
+
+    public spaceLocation(space: Space) {
+        const level = this._org.levelWithID(space.zones);
+        const building = this._org.buildings.find(
+            (_) => space.zones.includes(_.id) || _.id === level?.parent_id,
+        );
+        const region = this._org.regions.find(
+            (_) => _.id === building?.parent_id,
+        );
+        return [region, building, level]
+            .map((_) => _?.display_name || _?.name)
+            .filter((_) => !!_)
+            .join(' / ');
     }
 
     public get location() {

@@ -420,10 +420,25 @@ export class SpaceFiltersComponent {
         false,
     );
 
+    private readonly _multiple_spaces = settingSignal<boolean>(
+        'events.multiple_spaces',
+        false,
+    );
+    private readonly _legacy_multiple_spaces = settingSignal<boolean>(
+        'events.allow_multiple_spaces',
+        false,
+    );
+    private readonly _allow_multiple = computed(
+        () => !!this._multiple_spaces() || !!this._legacy_multiple_spaces(),
+    );
+
     public readonly timezone = computed(() =>
-        this._use_building_tz()
-            ? this._org.active_building()?.timezone || ''
-            : '',
+        this._allow_multiple()
+            ? this.model().timezone ||
+              Intl.DateTimeFormat().resolvedOptions().timeZone
+            : this._use_building_tz()
+              ? this._org.active_building()?.timezone || ''
+              : '',
     );
 
     public readonly setOptions = (o) => this._event_form.setOptions(o);
@@ -439,10 +454,14 @@ export class SpaceFiltersComponent {
         return this._event_form.model;
     }
 
-    public readonly bookable_hours = settingSignal<{
+    private readonly _bookable_hours = settingSignal<{
         start: number;
         end: number;
     }>('events.bookable_hours', undefined);
+
+    public readonly bookable_hours = computed(() =>
+        this._allow_multiple() ? undefined : this._bookable_hours(),
+    );
 
     public readonly max_duration = settingSignal<number>(
         'events.max_duration',

@@ -4,8 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { EventFormService, SpacePipe } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
@@ -94,6 +94,7 @@ describe('MeetingFlowConfirmComponent', () => {
                         address: '123 St',
                     },
                 ] as any,
+                regions: [],
                 building: { timezone: 'Australia/Sydney' } as any,
             } as any),
             MockProvider(SettingsService, {
