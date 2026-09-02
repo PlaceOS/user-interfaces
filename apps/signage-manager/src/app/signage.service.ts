@@ -33,8 +33,10 @@ import {
     addSignageTemplateMapping,
     addSystem,
     apiEndpoint,
+    addZone as createZone,
     currentGroups,
     del,
+    removeZone as deleteZone,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
     listSignageTemplateApprovers,
@@ -152,6 +154,7 @@ import {
     SignageTemplateMappingTarget,
 } from './signage-template-mapping';
 import { applyLayoutPositionDefaults } from './templates/template-layout.util';
+import { ZoneEditModalComponent } from './zones/zone-edit-modal.component';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -730,6 +733,7 @@ export class SignageService {
     public readonly is_admin = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Manage),
     );
+    public readonly can_manage_zones = this.is_admin;
 
     private readonly _can_query_group_data = computed(() => {
         const group_id = this._api_group_id();
@@ -3554,6 +3558,147 @@ export class SignageService {
         this.selected_zone.set(updated);
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_ZONE'));
+    }
+
+    public async addZone() {
+        if (
+            !this._requirePermission(
+                this.can_manage_zones(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_ZONES'),
+            )
+        )
+            return null;
+        const ref = this._dialog.open(ZoneEditModalComponent, {
+            data: {
+                zone: new PlaceZone({}),
+                default_parent_id:
+                    this.selected_zone()?.id || this.root_zones()[0]?.id || '',
+                roots: this.root_zones,
+                zones: this.all_zones,
+                load_children: (parent_id: string) =>
+                    this.zoneChildren(parent_id),
+                query_zones: (search: string, parent_id: string) =>
+                    this.querySelectableZones(search, parent_id),
+                onSave: (
+                    zone: PlaceZone,
+                    data: Pick<
+                        PlaceZone,
+                        'display_name' | 'description' | 'parent_id'
+                    >,
+                ) => this.saveZone(zone, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = (await dialogClosed(ref)) as PlaceZone | null;
+        if (!result) return null;
+        this.selected_zone.set(result);
+        return result;
+    }
+
+    public async editZone(zone: PlaceZone) {
+        if (!zone.tags?.includes('signage')) return null;
+        if (
+            !this._requirePermission(
+                this.can_manage_zones(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_ZONES'),
+            )
+        )
+            return null;
+        const ref = this._dialog.open(ZoneEditModalComponent, {
+            data: {
+                zone,
+                roots: this.root_zones,
+                zones: this.all_zones,
+                load_children: (parent_id: string) =>
+                    this.zoneChildren(parent_id),
+                query_zones: (search: string, parent_id: string) =>
+                    this.querySelectableZones(search, parent_id),
+                onSave: (
+                    item: PlaceZone,
+                    data: Pick<
+                        PlaceZone,
+                        'display_name' | 'description' | 'parent_id'
+                    >,
+                ) => this.saveZone(item, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        return (await dialogClosed(ref)) as PlaceZone | null;
+    }
+
+    public async saveZone(
+        zone: PlaceZone,
+        data: Pick<PlaceZone, 'display_name' | 'description' | 'parent_id'>,
+    ) {
+        if (
+            !this._requirePermission(
+                this.can_manage_zones(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_ZONES'),
+            ) ||
+            !data.parent_id ||
+            data.parent_id === zone.id ||
+            (zone.id && !zone.tags?.includes('signage'))
+        ) {
+            return null;
+        }
+        const form_data: Partial<PlaceZone> = {
+            display_name: data.display_name,
+            name: `SIGNAGE ${data.display_name}`,
+            description: data.description,
+            parent_id: data.parent_id,
+            tags: [...new Set([...(zone.tags || []), 'signage'])],
+            ...(zone.id ? { version: zone.version } : {}),
+        };
+        const result = zone.id
+            ? await updateZone(zone.id, form_data)
+            : await createZone(form_data);
+        this._cacheZone(result);
+        this.zone_tree_children_cache.set({});
+        this.selected_zone.set(result);
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_SAVED'));
+        return result;
+    }
+
+    public async removeZone(zone: PlaceZone) {
+        if (!zone?.id || !zone.tags?.includes('signage')) return false;
+        if (
+            !this._requirePermission(
+                this.can_manage_zones(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_ZONES'),
+            )
+        )
+            return false;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_SIGNAGE_ZONE_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
+                    name: zone.display_name || zone.name,
+                }),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        await deleteZone(zone.id);
+        result.close();
+        this._zone_overrides.update((overrides) => {
+            const next = { ...overrides };
+            delete next[zone.id];
+            return next;
+        });
+        this.zone_tree_children_cache.set({});
+        this.zone_tree_expanded.update((expanded) => {
+            const next = { ...expanded };
+            delete next[zone.id];
+            return next;
+        });
+        if (this.selected_zone()?.id === zone.id) {
+            this.selected_zone.set(null);
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_REMOVED'));
+        return true;
     }
 
     public async addDisplay() {

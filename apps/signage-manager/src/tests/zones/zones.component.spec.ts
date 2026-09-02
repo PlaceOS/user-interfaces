@@ -10,6 +10,9 @@ describe('ZonesSectionComponent', () => {
     const playlists = signal<any[]>([]);
     const displays = signal<any[]>([]);
     const templates_enabled = signal(true);
+    const can_manage_zones = signal(false);
+    const edit_zone = vi.fn();
+    const remove_zone = vi.fn();
     const navigate = vi.fn();
     const service_stub = {
         selected_zone,
@@ -17,6 +20,9 @@ describe('ZonesSectionComponent', () => {
         playlists,
         displays,
         templates_enabled,
+        can_manage_zones,
+        editZone: edit_zone,
+        removeZone: remove_zone,
     };
     const router_stub = { navigate };
 
@@ -46,6 +52,8 @@ describe('ZonesSectionComponent', () => {
         playlists.set([]);
         displays.set([]);
         templates_enabled.set(true);
+        can_manage_zones.set(false);
+        remove_zone.mockResolvedValue(false);
     });
 
     it('counts playlists on the zone and displays that reference it', async () => {
@@ -128,6 +136,33 @@ describe('ZonesSectionComponent', () => {
         component.deselectZone();
 
         expect(selected_zone()).toBeNull();
+        expect(navigate).toHaveBeenCalledWith(['/zones'], {});
+    });
+
+    it('allows managers to edit only signage-tagged zones', async () => {
+        can_manage_zones.set(true);
+        const [component] = await make();
+
+        selected_zone.set({ id: 'parent', tags: [] });
+        expect(component.can_manage_selected_zone()).toBe(false);
+
+        const zone = { id: 'signage', tags: ['signage'] };
+        selected_zone.set(zone);
+        expect(component.can_manage_selected_zone()).toBe(true);
+
+        component.editZone();
+        expect(edit_zone).toHaveBeenCalledWith(zone);
+    });
+
+    it('returns to the list after deleting a signage zone', async () => {
+        const zone = { id: 'signage', tags: ['signage'] };
+        selected_zone.set(zone);
+        remove_zone.mockResolvedValue(true);
+        const [component] = await make();
+
+        await component.removeZone();
+
+        expect(remove_zone).toHaveBeenCalledWith(zone);
         expect(navigate).toHaveBeenCalledWith(['/zones'], {});
     });
 });

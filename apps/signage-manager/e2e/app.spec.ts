@@ -371,20 +371,27 @@ test.describe('US-SGM-010: Manage Zone Assignments', () => {
         ).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
+        await page.getByRole('button', { name: /create new zone/i }).click();
         await expect(
-            page.getByRole('textbox', { name: /search zones/i }),
+            page.getByRole('heading', { name: /new zone/i }),
         ).toBeVisible();
+        await expect(
+            page.getByRole('textbox', { name: /zone name/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /parent zone/i }),
+        ).toBeVisible();
+        await closeDialog(page);
     });
 
     test('covers zone search, selection, tabs, and assignment workflows', async ({
         page,
     }) => {
-        await navigateWithMock(page, ZONES_URL);
-
-        await page.getByRole('textbox', { name: /search zones/i }).fill('hub');
-        await expect(page.getByRole('link', { name: /open zone/i }).first()).toBeVisible();
-
         await openFirstZone(page);
+        const zone_search = page.getByRole('textbox', { name: /search in /i });
+        await zone_search.fill('hub');
+        await expect(zone_search).toHaveValue('hub');
+        await zone_search.fill('');
         await expect(page.getByText(/playlists/i).first()).toBeVisible();
         const displays_tab = page.getByRole('tab', { name: /displays/i });
         if (await displays_tab.isVisible().catch(() => false)) {

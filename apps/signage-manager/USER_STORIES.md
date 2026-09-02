@@ -14,7 +14,7 @@ These stories cover the current app workflows:
 - Media library: search, filtered counts, grid/list/folder views backed by media tags, group tabs, file upload entry point, add from link, plugin catalogue selection, preview, edit, item share, item delete action, multi-select, bulk delete confirmation, bulk share, and bulk add to playlist.
 - Playlists: search, create, select, edit details, item preview, item schedules, approval request or approval, share group selection, delete confirmation, and display or zone assignment.
 - Templates: search, create, select, edit layouts, preview, approval request or approval, and delete confirmation.
-- Zones: search, direct selection, playlist tab, display tab, add playlist, and add display.
+- Zones: search, direct selection, create, edit, delete, playlist tab, display tab, add playlist, and add display.
 - Displays: search, direct selection, player link when available, schedule tab, playlist tab, zone tab, and add playlist.
 - Schedules: display and zone timeline tabs, previous day, next day, today, search, clear search, empty states, and row links.
 - Signage groups: searchable group tree, create, edit, delete entry point, user assignment, user permission editing, zone assignment, zone permission editing, and deny-state editing.
@@ -213,6 +213,9 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The zones page lists signage zones and supports direct routes to a selected zone.
+- System administrators and signage group managers can create, edit, and delete signage zones.
+- New and edited signage zones keep the `signage` tag and require a parent from the active group's accessible zone tree.
+- Zone management controls are not shown for untagged parent zones in the tree.
 - Selecting a zone shows playlist and display tabs.
 - The playlist tab shows playlists assigned to the zone and their status.
 - Users with update permission can add or remove playlists from the zone.
