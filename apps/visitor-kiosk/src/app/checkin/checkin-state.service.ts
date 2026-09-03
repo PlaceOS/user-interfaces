@@ -171,7 +171,11 @@ export class CheckinStateService {
         const guest = this._guest();
         const event = this._booking() || guest.extension_data.event;
         if (!guest || !event) return;
-        await updateBookingInductionStatus(event.id, 'accepted');
+        const updated_booking = await updateBookingInductionStatus(
+            event.id,
+            'accepted',
+        );
+        this._booking.set(updated_booking);
     }
 
     public async declineInduction() {
