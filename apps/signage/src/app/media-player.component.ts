@@ -842,6 +842,33 @@ export class MediaPlayerComponent
         resume_if_paused: boolean,
         should_transition: boolean,
     ) {
+        if (item.type === 'plugin') {
+            this._playPreparedPlugin(item);
+            // Keep the old output visible until Angular forwards `play` to the
+            // prepared plugin on the next render frame.
+            requestAnimationFrame(() => {
+                if (
+                    this.active_item?.id !== item.id ||
+                    this._deferred_reveal_item_id !== item.id
+                ) {
+                    return;
+                }
+                this._activatePreparedItem(
+                    item,
+                    resume_if_paused,
+                    should_transition,
+                );
+            });
+            return;
+        }
+        this._activatePreparedItem(item, resume_if_paused, should_transition);
+    }
+
+    private _activatePreparedItem(
+        item: MediaPlayerItem,
+        resume_if_paused: boolean,
+        should_transition: boolean,
+    ) {
         this._clearDeferredReveal();
         this.playing_id.emit(item.id);
         if (!should_transition) {
@@ -849,26 +876,18 @@ export class MediaPlayerComponent
             this._resetTransitionState();
             if (resume_if_paused && this.state() === 'PAUSED')
                 this.togglePause();
-            this._playPreparedPlugin(item);
             this._cleanupInactiveOutputs();
             return;
         }
         this._transition(resume_if_paused);
-        this._playPreparedPlugin(item);
     }
 
     private _playPreparedPlugin(item: MediaPlayerItem) {
         if (item.type !== 'plugin') return;
         const output = this._item_output.get(item.id) ?? this.active_output();
-        this.timeout(
-            'plugin-play',
-            () => {
-                const value = time();
-                this._setOutputPluginPlay(output, value);
-                this.plugin_play.set(value);
-            },
-            100,
-        );
+        const value = time();
+        this._setOutputPluginPlay(output, value);
+        this.plugin_play.set(value);
     }
 
     private _startDisplayAttempt(item: MediaPlayerItem, output: 0 | 1) {
@@ -878,7 +897,7 @@ export class MediaPlayerComponent
         const output_item = this._output_items[output];
         if (output_item?.id !== item.id) {
             this._clearOutput(output);
-        } else {
+        } else if (item.type !== 'plugin') {
             this._hideMediaElements(output);
         }
         this._output_items[output] = item;
