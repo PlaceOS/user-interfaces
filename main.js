@@ -1,32 +1,32 @@
 import {
   MatProgressBar,
   MatProgressBarModule
-} from "./chunk-O7ZGCMGK.js";
+} from "./chunk-2TCLBB2G.js";
 import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-ZOS7UIBB.js";
+} from "./chunk-XV3D7P3M.js";
 import {
   subMinutes
-} from "./chunk-HFTGBTNU.js";
-import "./chunk-WFZBYXRE.js";
-import "./chunk-I4LF72KZ.js";
-import "./chunk-LVPYA6GN.js";
-import "./chunk-RAACOWXO.js";
-import "./chunk-S2J34CKV.js";
-import "./chunk-3SWFUPEY.js";
+} from "./chunk-WHR6ZRMK.js";
+import "./chunk-SBGYZRZC.js";
+import "./chunk-LROOLUT4.js";
+import "./chunk-ZF6RDJ6W.js";
+import "./chunk-BAQQMQIN.js";
+import "./chunk-DOSJYTUP.js";
+import "./chunk-GINQHFO3.js";
 import {
   CustomTooltipComponent,
   MatTooltip,
   MatTooltipModule
-} from "./chunk-F6HLMSGY.js";
+} from "./chunk-IIZSAZAC.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-VIFVETLR.js";
-import "./chunk-7B6GKRRT.js";
-import "./chunk-D2OXQSQX.js";
+} from "./chunk-W32S5YJL.js";
+import "./chunk-PIBPWDFS.js";
+import "./chunk-REESCUD7.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -84,7 +84,7 @@ import {
   style,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-I3HIYV2O.js";
+} from "./chunk-C7WVCQQJ.js";
 import {
   ANIMATION_MODULE_TYPE,
   ActivatedRoute,
@@ -129,27 +129,27 @@ import {
   TranslatePipe,
   Ve,
   ViewChild,
-  X,
-  ad,
   addDays,
   addMilliseconds,
   addMinutes,
   bootstrapApplication,
   capitalizeFirstLetter,
   computed,
-  da,
+  dd,
   differenceInMinutes,
+  ee,
   effect,
   enableProdMode,
-  fd,
   firstTruthyValueFrom,
   format,
+  gd,
   hi,
   importProvidersFrom,
   inject,
   input,
   log,
   output,
+  pa,
   padString,
   performanceMarkFeature,
   predictableRandomInt,
@@ -225,7 +225,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-7MJI2IHH.js";
+} from "./chunk-BNHBVNSC.js";
 import {
   __export,
   __objRest,
@@ -366,7 +366,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ve()}`;
+    const auth = ee() !== "x-api-key" ? `bearer_token=${encodeURIComponent(ee())}` : `x-api-key=${Ve()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -448,7 +448,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = fd(id, "LLM");
+    const mod = gd(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -1879,7 +1879,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     this.online.set(Qr());
     this.interval("has_token", () => {
       this.online.set(Qr());
-      if (!It() || !X())
+      if (!It() || !ee())
         return;
       this.loading.set(false);
       this.online.set(Qr());
@@ -2669,7 +2669,7 @@ var BindingDebugPanelComponent = class _BindingDebugPanelComponent extends Async
       },
       loader: async ({ params }) => Object.fromEntries(await Promise.all(params.map(async (id) => {
         if (!system_name_cache.has(id)) {
-          const system = await da(id).catch(() => null);
+          const system = await pa(id).catch(() => null);
           system_name_cache.set(id, system?.display_name || system?.name || id);
         }
         return [id, system_name_cache.get(id)];
@@ -4482,7 +4482,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
 var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
 function hasCachedCredentials() {
   try {
-    return !!X();
+    return !!ee();
   } catch {
     return false;
   }
@@ -12185,7 +12185,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  ad(space.id, {
+  dd(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -13983,7 +13983,7 @@ var AppComponent = class _AppComponent {
 
 // node_modules/@angular/animations/fesm2022/_util-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -14261,7 +14261,7 @@ function _convertTimeValueToMS(value, unit) {
   }
 }
 function resolveTiming(timings, errors, allowNegativeValues) {
-  return timings.hasOwnProperty("duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
+  return typeof timings === "object" && timings !== null && Object.hasOwn(timings, "duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
 }
 var PARSE_TIME_EXPRESSION_REGEX = /^(-?[\.\d]+)(m?s)(?:\s+(-?[\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?$/i;
 function parseTimeExpression(exp, errors, allowNegativeValues) {
@@ -14347,7 +14347,7 @@ function validateStyleParams(value, options, errors) {
   const matches = extractStyleParams(value);
   if (matches.length) {
     matches.forEach((varName) => {
-      if (!params.hasOwnProperty(varName)) {
+      if (!Object.hasOwn(params, varName)) {
         errors.push(invalidStyleParams(varName));
       }
     });
@@ -14444,7 +14444,7 @@ function computeStyle(element, prop) {
 
 // node_modules/@angular/animations/fesm2022/browser.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -14662,7 +14662,7 @@ var AnimationAstBuilderVisitor = class {
         if (style2 instanceof Map) {
           style2.forEach((value) => {
             extractStyleParams(value).forEach((sub) => {
-              if (!params.hasOwnProperty(sub)) {
+              if (!Object.hasOwn(params, sub)) {
                 missingSubs.add(sub);
               }
             });
@@ -14999,7 +14999,7 @@ function consumeOffset(styles) {
   return offset;
 }
 function constructTimingAst(value, errors) {
-  if (value.hasOwnProperty("duration")) {
+  if (typeof value === "object" && value !== null && Object.hasOwn(value, "duration")) {
     return value;
   }
   if (typeof value == "number") {
@@ -15368,7 +15368,7 @@ var AnimationTimelineContext = class _AnimationTimelineContext {
         paramsToUpdate = this.options.params = {};
       }
       Object.keys(newParams).forEach((name) => {
-        if (!skipIfExists || !paramsToUpdate.hasOwnProperty(name)) {
+        if (!skipIfExists || !Object.hasOwn(paramsToUpdate, name)) {
           paramsToUpdate[name] = interpolateParams(newParams[name], paramsToUpdate, this.errors);
         }
       });
@@ -16071,7 +16071,7 @@ var StateValue = class {
   }
   constructor(input2, namespaceId = "") {
     this.namespaceId = namespaceId;
-    const isObj = input2 && input2.hasOwnProperty("value");
+    const isObj = input2 && Object.hasOwn(input2, "value");
     const value = isObj ? input2["value"] : input2;
     this.value = normalizeTriggerValue(value);
     if (isObj) {
@@ -16179,7 +16179,7 @@ var AnimationTransitionNamespace = class {
     }
     let fromState = triggersWithStates.get(triggerName);
     const toState = new StateValue(value, this.id);
-    const isObj = value && value.hasOwnProperty("value");
+    const isObj = value && Object.hasOwn(value, "value");
     if (!isObj && fromState) {
       toState.absorbOptions(fromState.options);
     }
@@ -17316,7 +17316,7 @@ function objEquals(a, b) {
   if (k1.length != k2.length) return false;
   for (let i = 0; i < k1.length; i++) {
     const prop = k1[i];
-    if (!b.hasOwnProperty(prop) || a[prop] !== b[prop]) return false;
+    if (!Object.hasOwn(b, prop) || a[prop] !== b[prop]) return false;
   }
   return true;
 }
@@ -17976,7 +17976,7 @@ var AnimationRendererFactory = class {
 
 // node_modules/@angular/platform-browser/fesm2022/animations.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -18248,56 +18248,56 @@ var routes = [
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./landing.routes-AHV7X54W.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./landing.routes-G3YM4V6Y.js").then((m) => m.ROUTES)
   },
   {
     path: "book",
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-SHJITS67.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-VII6OZYF.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-X2VEGZYP.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-53ZQKWEH.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-V5XYVID5.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-EUZ6UOV4.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-DZXVPQHN.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-YT7MFFWM.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-EJ6QYPC3.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-RSSDTRIA.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-T4CXHAIM.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-FVEM2ISR.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-GKO6SD6A.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-NN7HU5PP.js").then((m) => m.ROUTES)
   },
   {
     path: "embedded/:id",
@@ -18343,4 +18343,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
+//# debugId=676748b1-501d-5137-89df-df422deceb13
 //# sourceMappingURL=main.js.map
