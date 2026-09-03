@@ -113,6 +113,12 @@ All notable changes to this project will be documented in this file.
 - Highlight disabled playlists
 - Add signage tag management PPT-2766
 
+### Performance
+
+#### Signage
+
+- Revalidate display polls with ETags
+
 ## [2608.1] - 2026-08-20
 
 ### Bug Fixes
