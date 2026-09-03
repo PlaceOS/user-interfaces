@@ -111,8 +111,8 @@ import { statusList } from './catering.vars';
                     </div>
                 </div>
             </ng-template>
-            <ng-template #location_template let-data="data">
-                @let space = data?.system;
+            <ng-template #location_template let-data="data" let-row="row">
+                @let space = row?.space || data?.system;
                 @if (space || !data?.location) {
                     <div class="px-4 py-2">
                         {{ space?.display_name || space?.name || '' }}

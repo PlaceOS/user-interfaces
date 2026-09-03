@@ -1,4 +1,8 @@
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/vitest';
+import {
+    SpectatorService,
+    createServiceFactory,
+} from '@ngneat/spectator/vitest';
+import { Booking } from '@placeos/common';
 import { get, patch, post, put, query } from '@placeos/ts-client';
 
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
@@ -57,9 +61,7 @@ describe('CheckinStateService', () => {
 
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
         // showBooking -> get on the bookings endpoint with the event id
-        expect(get).toHaveBeenCalledWith(
-            expect.stringContaining('event-1234'),
-        );
+        expect(get).toHaveBeenCalledWith(expect.stringContaining('event-1234'));
     });
 
     it('should allow updating guests', async () => {
@@ -67,6 +69,37 @@ describe('CheckinStateService', () => {
         await spectator.service.updateGuest({ one: true });
         // updateBooking issues a patch under the hood
         expect(patch).toHaveBeenCalled();
+    });
+
+    it('keeps an accepted induction when updating guest details', async () => {
+        const post_json = vi.mocked(
+            post as (
+                url: string,
+                body: unknown,
+            ) => Promise<Record<string, unknown>>,
+        );
+        spectator.service.setBooking(
+            new Booking({
+                id: 'event-1234',
+                asset_id: 'a@b.com',
+                user_email: 'host@b.com',
+                induction: 'declined',
+            }),
+        );
+        post_json.mockResolvedValueOnce({
+            id: 'event-1234',
+            asset_id: 'a@b.com',
+            user_email: 'host@b.com',
+            induction: 'accepted',
+        });
+
+        await spectator.service.completeInduction();
+        await spectator.service.updateGuest();
+
+        expect(patch).toHaveBeenLastCalledWith(
+            expect.stringContaining('event-1234'),
+            expect.objectContaining({ induction: 'accepted' }),
+        );
     });
 
     it('should allow checking in guests', async () => {

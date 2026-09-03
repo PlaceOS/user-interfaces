@@ -1,5 +1,4 @@
-import { Injector, signal, WritableSignal } from '@angular/core';
-import { inject } from '@angular/core';
+import { inject, Injector, signal, WritableSignal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
@@ -9,8 +8,8 @@ import {
     User,
 } from '@placeos/common';
 import { generateEventForm } from '@placeos/events';
-import { MockProvider } from 'ng-mocks';
 import * as ts_client from '@placeos/ts-client';
+import { MockProvider } from 'ng-mocks';
 import { EventFormService } from '../lib/event-form.service';
 import { MeetingFormDetailsComponent } from '../lib/meeting-form-details.component';
 
@@ -242,6 +241,23 @@ describe('MeetingFormDetailsComponent', () => {
         expect(spectator.component.timezone()).toBe('');
         setting_signals['events.use_building_timezone'].set(true);
         expect(spectator.component.timezone()).toBe('Australia/Sydney');
+    });
+
+    it('should use a selected organiser timezone for multiple rooms', async () => {
+        setting_signals['events.multiple_spaces'].set(true);
+        spectator.component.model.update((model) => ({
+            ...model,
+            timezone: 'Australia/Sydney',
+            organiser: new User({
+                email: 'perth@place.tech',
+                extension_data: { timezone: 'Australia/Perth' },
+            }),
+        }));
+
+        await flush();
+
+        expect(spectator.component.model().timezone).toBe('Australia/Perth');
+        expect(spectator.component.timezone()).toBe('Australia/Perth');
     });
 
     it('should provide duration info for same day end times', () => {

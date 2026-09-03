@@ -110,6 +110,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "signage-manager:build"
@@ -118,8 +119,7 @@
                 "production": {
                     "buildTarget": "signage-manager:build:production"
                 }
-            },
-            "continuous": true
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint",
@@ -151,7 +151,9 @@
         "e2e": {
             "executor": "@nx/playwright:playwright",
             "dependsOn": ["build"],
-            "outputs": ["{workspaceRoot}/dist/.playwright/apps/signage-manager"],
+            "outputs": [
+                "{workspaceRoot}/dist/.playwright/apps/signage-manager"
+            ],
             "options": {
                 "config": "apps/signage-manager/playwright.config.ts"
             }

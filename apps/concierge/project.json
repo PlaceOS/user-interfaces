@@ -110,6 +110,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "concierge:build"
@@ -118,8 +119,7 @@
                 "production": {
                     "buildTarget": "concierge:build:production"
                 }
-            },
-            "continuous": true
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint",

@@ -23,6 +23,7 @@ import {
     BuildingLevel,
     CalendarEvent,
     CateringItem,
+    CateringOrder,
     formatRecurrence,
     fromEventRecurrence,
     getTimezoneOffsetString,
@@ -370,6 +371,16 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                         class="flex items-center space-x-2 p-3"
                                     >
                                         <div class="flex-1">
+                                            <div
+                                                class="mb-1 flex items-center space-x-1 text-xs opacity-60"
+                                            >
+                                                <icon class="text-lg"
+                                                    >meeting_room</icon
+                                                >
+                                                <span>{{
+                                                    cateringRoomLabel(order)
+                                                }}</span>
+                                            </div>
                                             <div class="text-sm">
                                                 {{
                                                     'CALENDAR_EVENT.CATERING_ORDER_AT'
@@ -795,6 +806,21 @@ export class EventDetailsModalComponent implements OnInit {
     public readonly has_catering = computed(
         () => this.event()?.ext('catering')?.length > 0,
     );
+
+    public cateringRoomLabel(order: CateringOrder) {
+        if (!order.system_id) {
+            return i18n('CALENDAR_EVENT.ROOM_REQUIRED');
+        }
+        const room = this.event().resources.find(
+            (space) =>
+                space.id === order.system_id || space.email === order.system_id,
+        );
+        if (!room) return i18n('CALENDAR_EVENT.ROOM_REQUIRED');
+        const location = this._org.locationWithID(room.zones).label;
+        return [location, room.display_name || room.name]
+            .filter((_) => !!_)
+            .join(' / ');
+    }
     public readonly has_assets = computed(
         () =>
             !!this.event()?.linked_bookings?.find(

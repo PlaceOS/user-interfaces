@@ -13,6 +13,7 @@ import {
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
@@ -22,11 +23,13 @@ import {
     OrganisationService,
     randomString,
     SettingsService,
+    Space,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { CateringOrderStateService } from './catering-order-modal/catering-order-state.service';
 import { CateringSelectModalComponent } from './catering-select-modal/catering-select-modal.component';
 
 const EMPTY_FAVS = [];
@@ -44,6 +47,28 @@ const EMPTY_FAVS = [];
                 >
                     <div class="flex items-center space-x-2 p-4">
                         <div class="flex-1">
+                            <button
+                                room
+                                class="mb-1 flex items-center space-x-1 text-left text-sm"
+                                [disabled]="disabled()"
+                                [matMenuTriggerFor]="room_menu"
+                            >
+                                <icon class="text-lg">meeting_room</icon>
+                                <span>{{ roomLabel(order) }}</span>
+                                @if (!disabled()) {
+                                    <icon class="text-lg">arrow_drop_down</icon>
+                                }
+                            </button>
+                            <mat-menu #room_menu="matMenu">
+                                @for (room of rooms(); track room.id) {
+                                    <button
+                                        mat-menu-item
+                                        (click)="editOrder(order, room)"
+                                    >
+                                        {{ spaceLabel(room) }}
+                                    </button>
+                                }
+                            </mat-menu>
                             <div class="flex items-center space-x-4">
                                 <div>
                                     {{
@@ -228,8 +253,11 @@ const EMPTY_FAVS = [];
             matRipple
             name="add-catering-item"
             class="inverse mt-2 w-full"
-            [disabled]="disabled()"
-            (click)="editOrder()"
+            [disabled]="disabled() || !rooms().length"
+            [matMenuTriggerFor]="
+                requires_room_selection() ? add_room_menu : null
+            "
+            (click)="addOrder()"
         >
             <div class="flex items-center justify-center space-x-2">
                 <icon>search</icon>
@@ -238,6 +266,13 @@ const EMPTY_FAVS = [];
                 </span>
             </div>
         </button>
+        <mat-menu #add_room_menu="matMenu">
+            @for (room of rooms(); track room.id) {
+                <button mat-menu-item (click)="addOrder(room)">
+                    {{ spaceLabel(room) }}
+                </button>
+            }
+        </mat-menu>
     `,
     styles: [``],
     animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
@@ -256,6 +291,7 @@ const EMPTY_FAVS = [];
         MatRippleModule,
         MatTooltipModule,
         MatDialogModule,
+        MatMenuModule,
     ],
 })
 export class CateringListFieldComponent
@@ -264,13 +300,23 @@ export class CateringListFieldComponent
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
+    private _state = inject(CateringOrderStateService);
 
     public readonly options = input<{
         date?: number;
         duration?: number;
         all_day?: boolean;
         zone_id?: string;
+        resources?: readonly Space[];
     }>({});
+    public readonly rooms = computed(() => this.options().resources || []);
+    public readonly multiple_spaces = this._settings.signal<boolean>(
+        'events.multiple_spaces',
+        false,
+    );
+    public readonly requires_room_selection = computed(
+        () => this.rooms().length > 1 && !!this.multiple_spaces(),
+    );
     public readonly orders = signal<CateringOrder[]>([]);
     public readonly show_order = signal<Record<string, boolean>>({});
     public readonly disabled = signal(false);
@@ -322,11 +368,20 @@ export class CateringListFieldComponent
 
     public ngOnChanges(changes: SimpleChanges) {
         if (changes.options) {
-            const orders = this.orders().map(
-                (_) =>
-                    new CateringOrder({ ..._, event: this.options() as any }),
+            const options = this.options();
+            const room_ids = new Set(
+                (options.resources || []).flatMap((_) => [_.id, _.email]),
             );
-            this.orders.set(orders);
+            const orders = this.orders()
+                .filter(
+                    (_) =>
+                        !('resources' in options) ||
+                        !_.system_id ||
+                        room_ids.has(_.system_id),
+                )
+                .map((_) => new CateringOrder({ ..._, event: options as any }));
+            if (orders.length !== this.orders().length) this.setValue(orders);
+            else this.orders.set(orders);
         }
     }
 
@@ -361,6 +416,15 @@ export class CateringListFieldComponent
         this.setValue([...this.orders(), new_order]);
     }
 
+    public addOrder(room?: Space) {
+        const assigned_room = room || this._defaultRoom();
+        if (!assigned_room) return;
+        this.editOrder(
+            new CateringOrder({ system_id: assigned_room.id }),
+            assigned_room,
+        );
+    }
+
     public removeOrderItem(order: CateringOrder, item: CateringItem) {
         const new_order = new CateringOrder({
             ...order,
@@ -372,15 +436,30 @@ export class CateringListFieldComponent
         } else this.setValue(updated_list);
     }
 
-    public editOrder(order: CateringOrder = new CateringOrder()) {
+    public editOrder(order: CateringOrder = new CateringOrder(), room?: Space) {
+        const assigned_room =
+            room || this.roomFor(order) || this._defaultRoom();
+        if (!assigned_room) return;
         const options = this.options();
         const optionsValue = this.options();
+        const location = this._org.locationWithID(assigned_room.zones);
+        const zone_id =
+            assigned_room.level?.parent_id ||
+            this._org.levelWithID(assigned_room.zones)?.parent_id ||
+            location.building?.id ||
+            options.zone_id;
+        this._state.setOptions({
+            building: location.building?.id,
+            zone: zone_id,
+        });
         const ref = this._dialog.open(CateringSelectModalComponent, {
             data: {
                 caterer: order.items[0]?.caterer,
                 items: order.items,
                 details: {
                     ...this.options(),
+                    resources: [assigned_room],
+                    zone_id,
                     date: options.all_day
                         ? startOfDay(options.date).valueOf()
                         : options.date,
@@ -418,6 +497,7 @@ export class CateringListFieldComponent
             const offset_day = this.readDialogValue(modal.offset_day);
             const new_order = new CateringOrder({
                 ...order,
+                system_id: assigned_room.id,
                 items,
                 caterer: items[0].caterer,
                 event: this.options() as any,
@@ -433,6 +513,33 @@ export class CateringListFieldComponent
             }
             this.setValue([...orders, new_order]);
         });
+    }
+
+    public roomFor(order: CateringOrder) {
+        if (!order.system_id) return undefined;
+        return this.rooms().find(
+            (_) => _.id === order.system_id || _.email === order.system_id,
+        );
+    }
+
+    public roomLabel(order: CateringOrder) {
+        const room = this.roomFor(order);
+        return room
+            ? this.spaceLabel(room)
+            : i18n('CALENDAR_EVENT.ROOM_REQUIRED');
+    }
+
+    public spaceLabel(room: Space) {
+        const location = this._org.locationWithID(room.zones)?.label;
+        const room_name = room.display_name || room.name;
+        return [location, room_name].filter((_) => !!_).join(' / ');
+    }
+
+    private _defaultRoom() {
+        const rooms = this.rooms();
+        return rooms.length === 1 || !this.multiple_spaces()
+            ? rooms[0]
+            : undefined;
     }
 
     private readDialogValue<T>(value: T | (() => T)): T {

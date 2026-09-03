@@ -34,7 +34,9 @@
             "@placeos/payments": ["libs/payments/src/index.ts"],
             "@placeos/users": ["libs/users/src/index.ts"]
         },
-        "types": ["google.maps"]
+        "types": ["google.maps"],
+        "noUncheckedSideEffectImports": false,
+        "esModuleInterop": false
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false,

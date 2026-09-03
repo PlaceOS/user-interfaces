@@ -71,7 +71,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                         }}
                     </h2>
                 </div>
-                <button btn matRipple class="w-32">
+                <button btn matRipple class="w-32" (click)="saveSurvey()">
                     {{ 'COMMON.SAVE' | translate }}
                 </button>
             </div>

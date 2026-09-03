@@ -42,6 +42,37 @@ test.describe('US-SGM-001: Access Signage Manager', () => {
 });
 
 test.describe('US-SGM-002: Switch Signage Groups', () => {
+    test('keeps desktop navigation within a short viewport', async ({
+        page,
+    }) => {
+        await page.setViewportSize({ width: 1280, height: 600 });
+        await navigateWithMock(page, MEDIA_URL);
+
+        const navigation = page.locator('nav-sidebar nav');
+        const dimensions = await navigation.evaluate((element) => ({
+            client_height: element.clientHeight,
+            scroll_height: element.scrollHeight,
+        }));
+
+        expect(dimensions.scroll_height).toBeLessThanOrEqual(
+            dimensions.client_height,
+        );
+
+        const active_marker = navigation.locator('a.active [active]');
+        const active_marker_is_painted = await active_marker.evaluate(
+            (element) => {
+                const bounds = element.getBoundingClientRect();
+                const center_x = bounds.left + bounds.width / 2;
+                const center_y = bounds.top + bounds.height / 2;
+                return document
+                    .elementsFromPoint(center_x, center_y)
+                    .includes(element);
+            },
+        );
+
+        expect(active_marker_is_painted).toBe(true);
+    });
+
     test('exposes the story navigation routes', async ({ page }) => {
         await page.setViewportSize({ width: 1280, height: 900 });
         await navigateWithMock(page, MEDIA_URL);
@@ -371,20 +402,27 @@ test.describe('US-SGM-010: Manage Zone Assignments', () => {
         ).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
+        await page.getByRole('button', { name: /create new zone/i }).click();
         await expect(
-            page.getByRole('textbox', { name: /search zones/i }),
+            page.getByRole('heading', { name: /new zone/i }),
         ).toBeVisible();
+        await expect(
+            page.getByRole('textbox', { name: /zone name/i }),
+        ).toBeVisible();
+        await expect(
+            page.getByRole('heading', { name: /parent zone/i }),
+        ).toBeVisible();
+        await closeDialog(page);
     });
 
     test('covers zone search, selection, tabs, and assignment workflows', async ({
         page,
     }) => {
-        await navigateWithMock(page, ZONES_URL);
-
-        await page.getByRole('textbox', { name: /search zones/i }).fill('hub');
-        await expect(page.getByRole('link', { name: /open zone/i }).first()).toBeVisible();
-
         await openFirstZone(page);
+        const zone_search = page.getByRole('textbox', { name: /search in /i });
+        await zone_search.fill('hub');
+        await expect(zone_search).toHaveValue('hub');
+        await zone_search.fill('');
         await expect(page.getByText(/playlists/i).first()).toBeVisible();
         const displays_tab = page.getByRole('tab', { name: /displays/i });
         if (await displays_tab.isVisible().catch(() => false)) {

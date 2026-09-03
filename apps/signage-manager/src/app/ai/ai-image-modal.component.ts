@@ -542,7 +542,7 @@ export class AiImageModalComponent implements OnDestroy {
     public readonly can_set_logo = this._service.is_sys_admin;
 
     public readonly group_id = computed(
-        () => this._service.api_group_id() || undefined,
+        () => this._service.selected_group()?.group.id || undefined,
     );
 
     /** there is nothing to switch off if the organisation has set nothing */

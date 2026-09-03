@@ -19,16 +19,19 @@ import {
     currentUser,
     currentUserIsLoaded,
     currentUserLoaded,
+    DEFAULT_SETTINGS,
     filterResourcesFromRules,
     firstValueWhere,
     flatten,
     getAllDayTimeRange,
     getInvalidSignalFields,
+    getItemWithKeys,
     getTimeInTimezone,
-    isEmptyUser,
-    onFieldChange,
     i18n,
+    isEmptyUser,
     isWithinBookableHours,
+    notifyWarn,
+    onFieldChange,
     rulesForResource,
     setDefaultCreator,
     SettingsService,
@@ -51,8 +54,8 @@ import {
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
-import { EventLinkModalComponent } from './event-link-modal.component';
 import { CalendarService } from './calendar.service';
+import { EventLinkModalComponent } from './event-link-modal.component';
 import {
     findEventClashes,
     querySpaceAvailability,
@@ -62,6 +65,7 @@ import {
 import {
     eventFormValue,
     generateEventForm,
+    multipleSpacesEnabled,
     newCalendarEventFromBooking,
     type EventFormValue,
 } from './utilities';
@@ -152,6 +156,12 @@ export class EventFormService extends AsyncHandler {
     private _user_pipe = new UserPipe();
 
     private get timezone() {
+        if (multipleSpacesEnabled(this._settings)) {
+            return (
+                this._model?.()?.timezone ||
+                Intl.DateTimeFormat().resolvedOptions().timeZone
+            );
+        }
         return this._settings.get('app.events.use_building_timezone')
             ? this._org.building?.timezone || ''
             : '';
@@ -171,6 +181,9 @@ export class EventFormService extends AsyncHandler {
     private _network_requested = false;
     private _network_consumed = signal(false);
     private _space_requests = new Map<string, Promise<Space[]>>();
+    private readonly _loaded_space_lists = signal<Record<string, Space[]>>({});
+    /** Bookable room lists loaded during the current selection session. */
+    public readonly loaded_space_lists = this._loaded_space_lists.asReadonly();
     private _availability_requests = new Map<string, Promise<boolean[]>>();
     private _form_ref = generateEventForm(
         undefined,
@@ -278,9 +291,11 @@ export class EventFormService extends AsyncHandler {
         },
     });
     /** Signal for the booking rules of the active buildings, grouped by id */
-    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(() => {
-        return this._booking_rules_resource.value() ?? {};
-    });
+    public readonly booking_rules = computed<Record<string, BookingRuleset[]>>(
+        () => {
+            return this._booking_rules_resource.value() ?? {};
+        },
+    );
 
     /** Active zone used to load the bookable space list */
     private readonly _space_zone = computed(() => {
@@ -289,11 +304,10 @@ export class EventFormService extends AsyncHandler {
             : this._org.active_building();
         return zone?.id || '';
     });
-    private readonly _space_zone_debounced = debounced(
-        this._space_zone,
-        300,
-        { injector: this._injector, equal: Object.is },
-    );
+    private readonly _space_zone_debounced = debounced(this._space_zone, 300, {
+        injector: this._injector,
+        equal: Object.is,
+    });
     /** Bookable spaces for the active zone */
     private readonly _spaces_resource = resource({
         params: () =>
@@ -303,18 +317,29 @@ export class EventFormService extends AsyncHandler {
         loader: ({ params: zone_id }) => {
             this.addLoadingTag(Tags.ListingRooms);
             return this._requestSpaces(zone_id)
-                .then((list) =>
-                    list.filter(
+                .then((list) => {
+                    const spaces = list.filter(
                         (_) => _.bookable && _.email && !_.room_booking_url,
-                    ),
+                    );
+                    this._loaded_space_lists.update((loaded) => ({
+                        ...loaded,
+                        [zone_id]: spaces,
+                    }));
+                    return { zone_id, spaces };
+                })
+                .catch(
+                    () => null as { zone_id: string; spaces: Space[] } | null,
                 )
-                .catch(() => [] as Space[])
                 .finally(() => this.removeLoadingTag(Tags.ListingRooms));
         },
     });
+    /** Active zone after its bookable space list has loaded successfully */
+    public readonly loaded_space_zone = computed(
+        () => this._spaces_resource.value()?.zone_id || '',
+    );
     /** Signal for the list of bookable spaces in the active zone */
     public readonly spaces = computed<Space[]>(() => {
-        return this._spaces_resource.value() ?? [];
+        return this._spaces_resource.value()?.spaces ?? [];
     });
 
     /** Signal for the available features across the loaded spaces */
@@ -497,7 +522,8 @@ export class EventFormService extends AsyncHandler {
         const previous = {};
         effect(
             () => {
-                const { date: raw_date, duration: raw_duration } = this._model();
+                const { date: raw_date, duration: raw_duration } =
+                    this._model();
                 if (
                     (raw_date && raw_date !== previous['date']) ||
                     (raw_duration && raw_duration !== previous['duration'])
@@ -581,12 +607,23 @@ export class EventFormService extends AsyncHandler {
         });
         const existing = this._availability_requests.get(key);
         if (existing) return existing;
-        const request = (this.book_internal
-            ? queryResourceAvailability(ids, date, duration, ignore, undefined)
-            : querySpaceAvailability(ids, date, duration, ignore, undefined, [
-                  event?.date,
-                  event?.duration,
-              ])
+        const request = (
+            this.book_internal
+                ? queryResourceAvailability(
+                      ids,
+                      date,
+                      duration,
+                      ignore,
+                      undefined,
+                  )
+                : querySpaceAvailability(
+                      ids,
+                      date,
+                      duration,
+                      ignore,
+                      undefined,
+                      [event?.date, event?.duration],
+                  )
         ).finally(() => this._availability_requests.delete(key));
         this._availability_requests.set(key, request);
         return request;
@@ -751,7 +788,10 @@ export class EventFormService extends AsyncHandler {
     public openEventLinkModal(force = false) {
         this._form().markAsTouched();
         if (!this._form().valid() && !force) return;
-        const event = new CalendarEvent({ ...(this._model() as any), assets: [] });
+        const event = new CalendarEvent({
+            ...(this._model() as any),
+            assets: [],
+        });
         const ref = this._dialog.open(EventLinkModalComponent, { data: event });
         ref.afterClosed().subscribe((d) =>
             d ? this._router.navigate(['/']) : '',
@@ -810,6 +850,11 @@ export class EventFormService extends AsyncHandler {
             const changed_spaces = spaces.filter(
                 (_) => !event.resources.find((s) => s.id === _.id),
             );
+            const resources_changed =
+                !!changed_spaces.length ||
+                event.resources.some(
+                    (space) => !spaces.some((_) => _.id === space.id),
+                );
             const all_day_period = raw_value.all_day
                 ? this._allDayTimeRange(raw_value.date)
                 : {
@@ -821,65 +866,46 @@ export class EventFormService extends AsyncHandler {
                 !event.id ||
                 event.date !== raw_value.date ||
                 event.duration !== raw_value.duration;
+            const organiser_timezone = this.timezone || raw_value.timezone;
             this._model.update((m) => ({
                 ...m,
-                timezone: this.timezone || raw_value.timezone,
+                timezone: organiser_timezone,
             }));
-            const bookable_hours = this._settings.get(
-                'app.events.bookable_hours',
+            await this._checkBuildingBookableHours(
+                spaces,
+                all_day_period.date,
+                all_day_period.date_end ||
+                    all_day_period.date + all_day_period.duration * 60 * 1000,
+                organiser_timezone,
             );
-            if (
-                !isWithinBookableHours(
-                    raw_value.date,
-                    bookable_hours,
-                    raw_value.timezone,
-                )
-            ) {
-                throw i18n('FORM.BOOKABLE_HOURS_ERROR');
-            }
-            // For multiday bookings, also validate the end time.
-            // The end wall-clock may land exactly on the configured
-            // closing hour, which is valid even though start times use
-            // an exclusive end bound.
-            if (
-                raw_value.date_end &&
-                raw_value.duration > 24 * 60 &&
-                bookable_hours
-            ) {
-                const { hours, minutes } = getTimeInTimezone(
-                    raw_value.date_end,
-                    raw_value.timezone,
-                );
-                const end_minutes = hours * 60 + minutes;
-                const within_end_window =
-                    end_minutes >= bookable_hours.start * 60 &&
-                    end_minutes <= bookable_hours.end * 60;
-                if (!within_end_window) {
-                    throw i18n('FORM.BOOKABLE_HOURS_ERROR');
-                }
-            }
 
-            // Validate that all selected room resource are available
-            if (spaces.length && has_time_changed) {
-                const space_list = await Promise.all(
-                    changed_spaces.map((_) =>
-                        this._space_pipe.transform(_.email),
-                    ),
-                );
+            // Validate every room's local rules. Availability only needs to be
+            // rechecked for a changed time or newly added rooms.
+            if (spaces.length && (has_time_changed || resources_changed)) {
                 const date = raw_value.all_day
                     ? all_day_period.date
                     : raw_value.date;
                 const duration = raw_value.all_day
                     ? all_day_period.duration
                     : raw_value.duration;
-                await this._checkResourcesAvailable(
-                    space_list,
-                    date,
-                    duration,
-                    event.ical_uid || event.id || '',
-                ).catch(on_error);
+                const availability_candidates = has_time_changed
+                    ? spaces
+                    : changed_spaces;
+                if (availability_candidates.length) {
+                    const availability_spaces = await Promise.all(
+                        availability_candidates.map((space) =>
+                            this._space_pipe.transform(space.email),
+                        ),
+                    );
+                    await this._checkResourcesAvailable(
+                        availability_spaces,
+                        date,
+                        duration,
+                        event.ical_uid || event.id || '',
+                    ).catch(on_error);
+                }
                 await this._checkResourceRules(
-                    space_list,
+                    spaces,
                     date,
                     duration,
                     this._host(this._model().host, spaces[0]?.email),
@@ -987,6 +1013,7 @@ export class EventFormService extends AsyncHandler {
                     duration: all_day_period.duration,
                     date_end: all_day_period.date_end,
                     old_system: event?.system,
+                    system: null,
                     host,
                     title: this._model().title || 'Space Booking',
                     attendees: this._model().attendees.map((_: any) => {
@@ -1003,6 +1030,18 @@ export class EventFormService extends AsyncHandler {
             const date_end =
                 all_day_period.date_end ||
                 all_day_period.date + all_day_period.duration * 60 * 1000;
+            const saved_resources = created_event.resources || [];
+            const resolved_resources = this._resolveResourceResponses(
+                space_list,
+                saved_resources,
+            );
+            const failed_resources = resolved_resources.filter(
+                (_) => _.response_status === 'declined',
+            );
+            const booked_resources = resolved_resources.filter(
+                (_) => _.response_status !== 'declined',
+            );
+            spaces = booked_resources;
             created_event = new CalendarEvent({
                 ...created_event,
                 event_start: Math.floor(all_day_period.date / 1000),
@@ -1010,9 +1049,21 @@ export class EventFormService extends AsyncHandler {
                 date: all_day_period.date,
                 duration: all_day_period.duration,
                 date_end,
-                resources: space_list,
-                system: space_list[0] || null,
+                resources: booked_resources,
             });
+            if (failed_resources.length) {
+                const names = failed_resources
+                    .map((_) => _.display_name || _.name || _.email)
+                    .join(', ');
+                notifyWarn(
+                    i18n(
+                        failed_resources.length > 1
+                            ? 'CALENDAR_EVENT.SPACES_UNAVAILABLE'
+                            : 'CALENDAR_EVENT.SPACE_UNAVAILABLE',
+                        { spaces: names },
+                    ),
+                );
+            }
             // Create visitor bookings for external attendees
             const domain = (currentUser()?.email || '@').split('@')[1];
             const visitors = this._model().attendees.filter(
@@ -1178,6 +1229,96 @@ export class EventFormService extends AsyncHandler {
         return true;
     }
 
+    /** Resolve an app setting against one building's override stack. */
+    private _buildingSetting<T>(
+        key: string,
+        building: { id: string; parent_id?: string },
+    ): T | undefined {
+        const keys = key.split('.');
+        const override_keys = keys[0] === 'app' ? keys.slice(1) : keys;
+        const overrides = [
+            this._org.buildingSettings(building.id),
+            this._org.regionSettings(building.parent_id),
+            ...(this._org.settings || []),
+        ];
+        for (const override of overrides) {
+            const value = getItemWithKeys(override_keys, override);
+            if (value != null) return value as T;
+        }
+        return getItemWithKeys(keys, DEFAULT_SETTINGS) as T | undefined;
+    }
+
+    private _resolveResourceResponses(
+        requested: Space[],
+        saved: Space[],
+    ): Space[] {
+        const require_saved_resource = requested.length > 1;
+        return requested.map((space) => {
+            const response = saved.find(
+                (_) =>
+                    (_.email && _.email === space.email) ||
+                    (_.id && _.id === space.id),
+            );
+            return new Space({
+                ...space,
+                response_status:
+                    response?.response_status ||
+                    (response || !require_saved_resource
+                        ? space.response_status
+                        : 'declined'),
+            });
+        });
+    }
+
+    /** Check the event instant against every selected building's local hours. */
+    private async _checkBuildingBookableHours(
+        spaces: Space[],
+        date: number,
+        date_end: number,
+        organiser_timezone: string,
+    ) {
+        const buildings = await this._org.loadBuildingsForZones(
+            spaces.map((space) => space.zones),
+        );
+        await Promise.all(
+            buildings.map((building) => this._org.loadBuildingData(building)),
+        );
+        const policies = buildings.length
+            ? buildings.map((building) => ({
+                  hours: this._buildingSetting<{
+                      start: number;
+                      end: number;
+                  }>('app.events.bookable_hours', building),
+                  timezone: building.timezone || organiser_timezone,
+              }))
+            : [
+                  {
+                      hours: this._settings.get<{
+                          start: number;
+                          end: number;
+                      }>('app.events.bookable_hours'),
+                      timezone: organiser_timezone,
+                  },
+              ];
+        for (const { hours, timezone } of policies) {
+            if (!hours) continue;
+            const { hours: end_hour, minutes: end_minute } = getTimeInTimezone(
+                date_end,
+                timezone,
+            );
+            const end_minutes = end_hour * 60 + end_minute;
+            const end_is_valid =
+                end_minutes >= hours.start * 60 &&
+                end_minutes <= hours.end * 60;
+            if (
+                !isWithinBookableHours(date, hours, timezone) ||
+                !end_is_valid
+            ) {
+                throw i18n('FORM.BOOKABLE_HOURS_ERROR');
+            }
+        }
+    }
+
     private async _checkResourceRules(
         spaces: Space[],
         date: number,
@@ -1187,14 +1328,15 @@ export class EventFormService extends AsyncHandler {
         const user = await this._bookingRulesHost(host);
         await this._whenSettled(this._booking_rules_resource);
         const rules = { ...this.booking_rules() };
+        const buildings = await this._org.loadBuildingsForZones(
+            spaces.map((space) => space.zones),
+        );
         // The booking panel does not eagerly load zone metadata, so the
         // reactive rules resource may still be empty when a booking is
         // submitted. Fetch any missing building rules on demand so they are
         // always enforced regardless of which app submitted the booking.
         for (const space of spaces) {
-            const bld = this._org.buildings.find((b) =>
-                space.zones.includes(b.id),
-            );
+            const bld = buildings.find((b) => space.zones.includes(b.id));
             if (!bld || rules[bld.id]) continue;
             const metadata = await showMetadata(
                 bld.id,
@@ -1204,9 +1346,7 @@ export class EventFormService extends AsyncHandler {
                 metadata.details instanceof Array ? metadata.details : [];
         }
         const space_rules = spaces.map((space) => {
-            const bld = this._org.buildings.find((b) =>
-                space.zones.includes(b.id),
-            );
+            const bld = buildings.find((b) => space.zones.includes(b.id));
             return rulesForResource(
                 {
                     date,
@@ -1383,8 +1523,7 @@ export class EventFormService extends AsyncHandler {
                 event.id,
                 event.resources.length
                     ? {
-                          calendar:
-                              this._model().host || currentUser()?.email,
+                          calendar: this._model().host || currentUser()?.email,
                           system_id: event.resources[0].id,
                       }
                     : {},

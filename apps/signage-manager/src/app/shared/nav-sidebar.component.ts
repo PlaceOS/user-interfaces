@@ -23,7 +23,7 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
         >
             <div
                 logo
-                class="bg-base-300/20 mx-auto flex h-20 w-20 items-center justify-center rounded-xl"
+                class="bg-base-300/20 mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-xl"
             >
                 @if (logo_src; as logo) {
                     <img
@@ -38,11 +38,13 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                     </div>
                 }
             </div>
-            <div class="flex flex-1 flex-col gap-4 p-2">
+            <div
+                class="flex min-h-0 w-[calc(100%+0.5rem)] flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-2"
+            >
                 @for (item of nav_items(); track item.route) {
                     <a
                         #route_active="routerLinkActive"
-                        class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 flex-col items-center justify-center rounded-xl"
+                        class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 shrink-0 flex-col items-center justify-center rounded-xl"
                         [routerLink]="item.route"
                         routerLinkActive="active bg-primary/30"
                         [attr.aria-label]="item.label | translate"
@@ -61,7 +63,7 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                     </a>
                 }
             </div>
-            <div class="p-2">
+            <div class="shrink-0 p-2">
                 @if (show_locale_selector() && locales().length > 1) {
                     <button
                         type="button"

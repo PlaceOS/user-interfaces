@@ -14,7 +14,8 @@ describe('MediaListComponent folders', () => {
     const media_tag_counts = signal<Record<string, number>>({});
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
     const signage_groups = signal<any[]>([]);
-    const is_sys_admin = signal(false);
+    const can_manage_all_groups = signal(false);
+    const can_update_media_tags = signal(true);
     const show_media_group_tabs = signal(true);
     const set_selected_group = vi.fn();
     const service_stub = {
@@ -25,13 +26,16 @@ describe('MediaListComponent folders', () => {
         media_has_more: signal(false),
         signage_groups,
         selected_group_id: signal(''),
-        is_sys_admin,
+        can_manage_all_groups,
         show_media_group_tabs,
+        can_update_media_tags,
         can_update: signal(true),
         can_create: signal(true),
         can_delete: signal(true),
         can_share: signal(true),
         addMediaTags: vi.fn(),
+        renameMediaTag: vi.fn(),
+        removeMediaTag: vi.fn(),
         setSelectedGroup: set_selected_group,
         loadMoreMedia: vi.fn(),
     };
@@ -67,7 +71,8 @@ describe('MediaListComponent folders', () => {
         media_tag_counts.set({});
         media_view_mode.set('folder');
         signage_groups.set([]);
-        is_sys_admin.set(false);
+        can_manage_all_groups.set(false);
+        can_update_media_tags.set(true);
         show_media_group_tabs.set(true);
         set_selected_group.mockReset();
     });
@@ -93,6 +98,17 @@ describe('MediaListComponent folders', () => {
         service_stub.can_create.set(false);
 
         expect(component.can_edit_with_ai()).toBe(false);
+    });
+
+    it('offers the all-groups view to an all-group manager', () => {
+        signage_groups.set([{ group: { id: 'a', name: 'Alpha' } }]);
+        const component = make();
+
+        expect(component.can_switch_groups()).toBe(false);
+
+        can_manage_all_groups.set(true);
+
+        expect(component.can_switch_groups()).toBe(true);
     });
 
     it('builds one folder per endpoint tag with loaded counts plus an untagged bucket', () => {
@@ -181,5 +197,15 @@ describe('MediaListComponent folders', () => {
             expect.objectContaining({ id: 'c' }),
         ]);
         expect(component.selected_count()).toBe(0);
+    });
+
+    it('forwards tag folder actions to the service', async () => {
+        const component = make();
+
+        await component.renameTag('news', 2);
+        await component.removeTag('news', 2);
+
+        expect(service_stub.renameMediaTag).toHaveBeenCalledWith('news', 2);
+        expect(service_stub.removeMediaTag).toHaveBeenCalledWith('news', 2);
     });
 });

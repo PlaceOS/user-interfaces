@@ -7,6 +7,7 @@ import {
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
@@ -76,6 +77,43 @@ function parseZoneTab(
                                         </div>
                                     }
                                 </div>
+                                @if (can_manage_selected_zone()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.EDIT_ZONE_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="editZone()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.EDIT_SELECTED_ZONE'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>edit</icon>
+                                    </button>
+                                    <button
+                                        icon
+                                        default
+                                        error
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.DELETE_ZONE_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="removeZone()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.DELETE_SELECTED_ZONE'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>delete</icon>
+                                    </button>
+                                }
                             </div>
                             <div
                                 class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"
@@ -209,6 +247,7 @@ function parseZoneTab(
         ZoneListComponent,
         ZoneContentComponent,
         MatRippleModule,
+        MatTooltipModule,
         IconComponent,
         TranslatePipe,
     ],
@@ -225,6 +264,13 @@ export class ZonesSectionComponent {
         'playlists',
     );
     public readonly selected_zone = this._service.selected_zone;
+    public readonly can_manage_selected_zone = computed(() => {
+        const zone = this.selected_zone();
+        return (
+            this._service.can_manage_zones() &&
+            !!zone?.tags?.includes('signage')
+        );
+    });
 
     private readonly _zones = this._service.all_zones;
     private readonly _playlists = this._service.playlists;
@@ -277,6 +323,17 @@ export class ZonesSectionComponent {
     public deselectZone() {
         this._service.selected_zone.set(null);
         this._router.navigate(['/zones'], {});
+    }
+
+    public editZone() {
+        const zone = this.selected_zone();
+        if (zone) this._service.editZone(zone);
+    }
+
+    public async removeZone() {
+        const zone = this.selected_zone();
+        if (!zone || !(await this._service.removeZone(zone))) return;
+        await this._router.navigate(['/zones'], {});
     }
 
     public setViewTab(tab: 'playlists' | 'displays' | 'templates') {

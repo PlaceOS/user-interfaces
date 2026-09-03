@@ -1,5 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { MediaAnimation } from '@placeos/ts-client';
+import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 
 import { setMockTime } from '../app/media-helpers';
 import { MediaPlayerComponent } from '../app/media-player.component';
@@ -861,7 +861,7 @@ describe('MediaPlayerComponent', () => {
         });
     });
 
-    it('should switch to a ready plugin immediately for a cut transition', () => {
+    it('should switch to a ready plugin on the next frame for a cut transition', () => {
         vi.useFakeTimers();
         const plugin_1 = {
             id: 'plugin-1',
@@ -897,6 +897,72 @@ describe('MediaPlayerComponent', () => {
 
         spectator.component.setPlaylistItem(1);
         vi.advanceTimersByTime(2_000);
+        vi.advanceTimersToNextFrame();
+
+        expect(spectator.component.active_output()).toBe(1);
+    });
+
+    it('should keep the current plugin visible until the next config starts playing', () => {
+        vi.useFakeTimers();
+        const plugin = new SignagePlugin({
+            id: 'plugin-1',
+            name: 'Weather',
+            uri: 'https://plugins.example/weather',
+        });
+        const items = [
+            create_item('plugin-item-1', {
+                type: 'plugin',
+                plugin,
+                plugin_params: { location: 'Sydney' },
+            }),
+            create_item('plugin-item-2', {
+                type: 'plugin',
+                plugin,
+                plugin_params: { location: 'Melbourne' },
+            }),
+        ];
+        const next_config = {
+            instance_id: 'plugin-item-2',
+            config: { location: 'Melbourne' },
+            timing: { scheduled_duration_ms: 15_000 },
+        };
+        load_playlist(items);
+        spectator.component.index.set(0);
+        spectator.component.active_output.set(0);
+        spectator.component.pending_output.set(0);
+        spectator.component['_output_items'] = [items[0], items[1]];
+        spectator.component['_item_output'].set(items[0].id, 0);
+        spectator.component['_item_output'].set(items[1].id, 1);
+        spectator.component['_ready_output_items'].add(
+            spectator.component['_outputKey'](1, items[1]),
+        );
+        spectator.component.output_plugins.set([plugin, plugin]);
+        spectator.component.output_plugin_configs.set([
+            {
+                instance_id: 'plugin-item-1',
+                config: { location: 'Sydney' },
+                timing: { scheduled_duration_ms: 15_000 },
+            },
+            next_config,
+        ]);
+
+        spectator.component.setPlaylistItem(1);
+        vi.advanceTimersByTime(1_999);
+
+        expect(spectator.component.output_plugin_configs()[1]).toEqual(
+            next_config,
+        );
+        expect(spectator.component.output_plugin_plays()[1]).toBe(0);
+        expect(spectator.component.active_output()).toBe(0);
+        expect(spectator.component.output_plugins()[0]).toBe(plugin);
+
+        vi.advanceTimersByTime(1);
+
+        expect(spectator.component.output_plugin_plays()[1]).toBeGreaterThan(0);
+        expect(spectator.component.active_output()).toBe(0);
+        expect(spectator.component.output_plugins()[0]).toBe(plugin);
+
+        vi.advanceTimersToNextFrame();
 
         expect(spectator.component.active_output()).toBe(1);
     });
@@ -943,9 +1009,8 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.plugin_play()).toBe(0);
 
         vi.advanceTimersByTime(2000);
+        vi.advanceTimersToNextFrame();
         expect(spectator.component.defer_reveal()).toBe(false);
-
-        vi.advanceTimersByTime(101);
         expect(spectator.component.plugin_play()).toBeGreaterThan(0);
         vi.useRealTimers();
     });
@@ -972,9 +1037,8 @@ describe('MediaPlayerComponent', () => {
         });
 
         vi.advanceTimersByTime(2000);
+        vi.advanceTimersToNextFrame();
         expect(spectator.component.defer_reveal()).toBe(false);
-
-        vi.advanceTimersByTime(101);
         expect(spectator.component.plugin_play()).toBeGreaterThan(0);
         vi.useRealTimers();
     });
@@ -1005,9 +1069,8 @@ describe('MediaPlayerComponent', () => {
         });
 
         vi.advanceTimersByTime(2000);
+        vi.advanceTimersToNextFrame();
         expect(spectator.component.defer_reveal()).toBe(false);
-
-        vi.advanceTimersByTime(101);
         expect(spectator.component.plugin_play()).toBeGreaterThan(0);
         vi.useRealTimers();
     });
@@ -1179,6 +1242,7 @@ describe('MediaPlayerComponent', () => {
         spectator.component.setPlaylistItem(0);
         spectator.component.onPluginLoad(0);
         vi.advanceTimersByTime(2000);
+        vi.advanceTimersToNextFrame();
         expect(spectator.component.output_plugins()[0]).toBe(
             plugin_item.plugin,
         );

@@ -1,14 +1,36 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
-import { CateringOrdersService } from '../lib/catering-orders.service';
+import { signal } from '@angular/core';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
+import {
+    CateringOrdersService,
+    cateringOrderSystemId,
+} from '../lib/catering-orders.service';
 
-import { SettingsService } from '@placeos/common';
+import {
+    CalendarEvent,
+    CateringItem,
+    CateringOrder,
+    OrganisationService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 describe('CateringOrdersService', () => {
     let spectator: SpectatorService<CateringOrdersService>;
     const createService = createServiceFactory({
         service: CateringOrdersService,
-        providers: [MockProvider(SettingsService, { get: vi.fn() })],
+        providers: [
+            MockProvider(SettingsService, { get: vi.fn() }),
+            {
+                provide: OrganisationService,
+                useValue: {
+                    active_building: signal({}),
+                } as unknown as OrganisationService,
+            },
+        ],
     });
 
     beforeEach(() => (spectator = createService()));
@@ -35,5 +57,53 @@ describe('CateringOrdersService', () => {
         spectator.service.filters = { caterer: 'Acme' };
         expect(spectator.service.filters.caterer).toBe('Acme');
         expect(spectator.service.order_filters().caterer).toBe('Acme');
+    });
+
+    it('should use the assigned room for order metadata', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            resources: [
+                new Space({ id: 'room-1' }),
+                new Space({ id: 'room-2' }),
+            ],
+            extension_data: { catering: [] },
+        });
+        const order = new CateringOrder({
+            id: 'order-1',
+            system_id: 'room-2',
+            event,
+            caterer: 'Cafe',
+            items: [
+                new CateringItem({
+                    id: 'coffee',
+                    caterer: 'Cafe',
+                    quantity: 1,
+                }),
+            ],
+        });
+
+        expect(cateringOrderSystemId(order)).toBe('room-2');
+    });
+
+    it('should use the event room for legacy order metadata', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            resources: [new Space({ id: 'room-1' })],
+            extension_data: { catering: [] },
+        });
+        const order = new CateringOrder({
+            id: 'order-1',
+            event,
+            caterer: 'Cafe',
+            items: [
+                new CateringItem({
+                    id: 'coffee',
+                    caterer: 'Cafe',
+                    quantity: 1,
+                }),
+            ],
+        });
+
+        expect(cateringOrderSystemId(order)).toBe('room-1');
     });
 });

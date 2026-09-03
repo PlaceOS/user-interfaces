@@ -19,7 +19,9 @@ describe('SpaceListFieldComponent', () => {
                 open: vi.fn(() => ({ afterClosed: () => of([{}]) })),
             } as any),
             MockProvider(SettingsService, { get: vi.fn() }),
-            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
+            MockProvider(OrganisationService, {
+                locationWithID: vi.fn(() => ({ label: '' })),
+            }),
         ],
         declarations: [MockComponent(IconComponent)],
         imports: [MockModule(MatRadioModule), FormsModule],

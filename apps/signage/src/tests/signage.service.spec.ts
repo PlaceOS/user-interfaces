@@ -158,6 +158,7 @@ describe('SignageService', () => {
         (ts_client.querySignagePlugins as any).mockReturnValue(
             Promise.resolve({ data: [] } as any),
         );
+        (ts_client.responseHeaders as any).mockReturnValue({});
         trigger_binding = {
             bindThenSubscribe: vi.fn(() => ({ unsubscribe: vi.fn() })),
         };
@@ -649,15 +650,82 @@ describe('SignageService', () => {
     it('should only ask for a preview when debug is enabled', async () => {
         spectator.service.setDisplay('display-1');
         await flush();
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith('display-1', {});
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            {},
+            { headers: {}, cache: 'no-store' },
+        );
 
         spectator.service.debug.set(true);
         vi.advanceTimersByTime(60_000);
         await flush();
 
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith('display-1', {
-            preview: true,
-        });
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            { preview: true },
+            { headers: {}, cache: 'no-store' },
+        );
+    });
+
+    it('should carry display validators across item-specific polls', async () => {
+        const first_validators = {
+            etag: '"display-v1"',
+            'last-modified': 'Thu, 03 Sep 2026 01:02:03 GMT',
+        };
+        const next_validators = {
+            etag: 'W/"display-v2"',
+            'last-modified': 'Thu, 03 Sep 2026 01:03:04 GMT',
+        };
+        (ts_client.responseHeaders as any)
+            .mockReturnValueOnce(first_validators)
+            .mockReturnValueOnce(next_validators);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        spectator.service.playing_id.set('media / 1');
+
+        await (spectator.service as any)._reloadDisplay();
+        await flush();
+
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            { item_id: 'media / 1' },
+            {
+                headers: {
+                    'If-None-Match': first_validators.etag,
+                    'If-Modified-Since': first_validators['last-modified'],
+                },
+                cache: 'no-store',
+            },
+        );
+        expect(ts_client.responseHeaders).toHaveBeenLastCalledWith(
+            expect.stringContaining(
+                '/signage/display-1?item_id=media%20%2F%201',
+            ),
+        );
+
+        localStorage.clear();
+        spectator.service.playing_id.set('media-2');
+        const parse = vi.spyOn(spectator.service as any, '_parseDisplay');
+        (ts_client.showSignage as any).mockRejectedValueOnce(
+            new Response(null, { status: 304 }),
+        );
+
+        await (spectator.service as any)._reloadDisplay();
+        await flush();
+
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            { item_id: 'media-2' },
+            {
+                headers: {
+                    'If-None-Match': next_validators.etag,
+                    'If-Modified-Since': next_validators['last-modified'],
+                },
+                cache: 'no-store',
+            },
+        );
+        expect(parse).not.toHaveBeenCalled();
+        expect(spectator.service.display()?.id).toBe('display-1');
     });
 
     it('should not reload the display when the payload is unchanged', async () => {
@@ -1344,6 +1412,7 @@ describe('SignageService', () => {
         expect(ts_client.showSignage).toHaveBeenLastCalledWith(
             'display-1',
             expect.any(Object),
+            { headers: {}, cache: 'no-store' },
         );
     });
 

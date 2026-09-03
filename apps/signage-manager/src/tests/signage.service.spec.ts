@@ -10,12 +10,17 @@ import {
 import {
     addSignageMedia,
     addSignageTemplateMapping,
+    addZone,
     del,
     listSignagePlaylistMedia,
     listSignageTemplateApprovers,
+    PlaceZone,
     query,
     querySignagePlugins,
     removeSignageMedia,
+    removeSignageMediaTag,
+    removeZone,
+    renameSignageMediaTag,
     requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
     shareSignagePlaylists,
@@ -31,9 +36,11 @@ import {
     updateSignagePlaylistMediaSchedule,
     updateSignageTemplate,
     updateSignageTemplateMapping,
+    updateZone,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
 import { MediaPreviewModalComponent } from '../app/shared/media-preview-modal.component';
+import { MediaTagModalComponent } from '../app/shared/media-tag-modal.component';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
 import { SignageSharedWithComponent } from '../app/shared/signage-shared-with.component';
@@ -128,8 +135,19 @@ describe('SignageService media uploads', () => {
         });
     }
 
+    function closeNextDialogWith(value: unknown) {
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (result: unknown) => void) => {
+                    Promise.resolve().then(() => handler(value));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+    }
+
     function selectApiGroup(service: SignageService, group_id: string) {
-        Object.defineProperty(service, 'api_group_id', {
+        Object.defineProperty(service, '_api_group_id', {
             value: () => group_id,
         });
     }
@@ -439,6 +457,92 @@ describe('SignageService media uploads', () => {
         expect(updateSignageMedia).toHaveBeenCalledWith('media-2', {
             tags: ['news', 'lobby'],
         });
+    });
+
+    it('renames a media tag in the selected group', async () => {
+        closeNextDialogWith({ action: 'rename', new_tag: 'updates' });
+        (renameSignageMediaTag as any).mockResolvedValue(undefined);
+        const service = createService();
+        selectApiGroup(service, 'group-1');
+
+        const renamed = await service.renameMediaTag('news', 4);
+
+        expect(dialog.open).toHaveBeenCalledWith(MediaTagModalComponent, {
+            data: {
+                action: 'rename',
+                tag: 'news',
+                count: 4,
+                can_delete_media: false,
+            },
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        expect(renameSignageMediaTag).toHaveBeenCalledWith({
+            current_tag: 'news',
+            new_tag: 'updates',
+            group_id: 'group-1',
+        });
+        expect(renamed).toBe(true);
+    });
+
+    it('renames a media tag across all groups without a group option', async () => {
+        closeNextDialogWith({ action: 'rename', new_tag: 'company news' });
+        (renameSignageMediaTag as any).mockResolvedValue(undefined);
+        const service = createService();
+        selectApiGroup(service, '');
+        Object.defineProperty(service, 'can_update_media_tags', {
+            value: () => true,
+        });
+
+        const renamed = await service.renameMediaTag('news', 4);
+
+        expect(renameSignageMediaTag).toHaveBeenCalledWith({
+            current_tag: 'news',
+            new_tag: 'company news',
+        });
+        expect(renamed).toBe(true);
+    });
+
+    it('removes a media tag and its media in the selected group', async () => {
+        closeNextDialogWith({ action: 'remove', remove_media: true });
+        (removeSignageMediaTag as any).mockResolvedValue(undefined);
+        const service = createService();
+        selectApiGroup(service, 'group-1');
+        Object.defineProperty(service, 'can_delete_tagged_media', {
+            value: () => true,
+        });
+
+        const removed = await service.removeMediaTag('news', 4);
+
+        expect(dialog.open).toHaveBeenCalledWith(MediaTagModalComponent, {
+            data: {
+                action: 'remove',
+                tag: 'news',
+                count: 4,
+                can_delete_media: true,
+            },
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        expect(removeSignageMediaTag).toHaveBeenCalledWith({
+            tag: 'news',
+            remove_media: true,
+            group_id: 'group-1',
+        });
+        expect(removed).toBe(true);
+    });
+
+    it('removes a media tag across all groups without deleting media', async () => {
+        closeNextDialogWith({ action: 'remove', remove_media: false });
+        (removeSignageMediaTag as any).mockResolvedValue(undefined);
+        const service = createService();
+        selectApiGroup(service, '');
+        Object.defineProperty(service, 'can_update_media_tags', {
+            value: () => true,
+        });
+
+        const removed = await service.removeMediaTag('news', 4);
+
+        expect(removeSignageMediaTag).toHaveBeenCalledWith({ tag: 'news' });
+        expect(removed).toBe(true);
     });
 
     it('waits for the upload to commit before creating the media record', async () => {
@@ -1094,5 +1198,100 @@ describe('SignageService media uploads', () => {
         expect(updateSignageTemplateMapping).toHaveBeenCalledWith('mapping-1', {
             schedule: null,
         });
+    });
+
+    it('creates signage zones under an accessible parent', async () => {
+        const service = createService();
+        const saved_zone = new PlaceZone({
+            id: 'zone-new',
+            display_name: 'Reception',
+            parent_id: 'building-1',
+            tags: ['signage'],
+        });
+        vi.mocked(addZone).mockResolvedValue(saved_zone);
+
+        const result = await service.saveZone(new PlaceZone({}), {
+            display_name: 'Reception',
+            description: 'Reception displays',
+            parent_id: 'building-1',
+        });
+
+        expect(addZone).toHaveBeenCalledWith({
+            display_name: 'Reception',
+            name: 'SIGNAGE Reception',
+            description: 'Reception displays',
+            parent_id: 'building-1',
+            tags: ['signage'],
+        });
+        expect(result).toBe(saved_zone);
+        expect(service.selected_zone()).toBe(saved_zone);
+    });
+
+    it('updates only signage zones and preserves their tags and version', async () => {
+        const service = createService();
+        const zone = new PlaceZone({
+            id: 'zone-1',
+            display_name: 'Old name',
+            parent_id: 'building-1',
+            tags: ['signage', 'public'],
+            version: 7,
+        });
+        const saved_zone = new PlaceZone({
+            ...zone,
+            display_name: 'Lobby',
+            parent_id: 'building-2',
+        });
+        vi.mocked(updateZone).mockResolvedValue(saved_zone);
+
+        await service.saveZone(zone, {
+            display_name: 'Lobby',
+            description: 'Main lobby',
+            parent_id: 'building-2',
+        });
+
+        expect(updateZone).toHaveBeenCalledWith('zone-1', {
+            display_name: 'Lobby',
+            name: 'SIGNAGE Lobby',
+            description: 'Main lobby',
+            parent_id: 'building-2',
+            tags: ['signage', 'public'],
+            version: 7,
+        });
+
+        vi.mocked(updateZone).mockClear();
+        await service.saveZone(
+            new PlaceZone({ id: 'building-1', tags: ['building'] }),
+            {
+                display_name: 'Building',
+                description: '',
+                parent_id: 'org-1',
+            },
+        );
+        expect(updateZone).not.toHaveBeenCalled();
+    });
+
+    it('deletes only signage-tagged zones after confirmation', async () => {
+        confirmNextDialog();
+        const service = createService();
+        const zone = new PlaceZone({
+            id: 'zone-1',
+            display_name: 'Lobby',
+            tags: ['signage'],
+        });
+        service.selected_zone.set(zone);
+        vi.mocked(removeZone).mockResolvedValue({});
+
+        const removed = await service.removeZone(zone);
+
+        expect(removeZone).toHaveBeenCalledWith('zone-1');
+        expect(removed).toBe(true);
+        expect(service.selected_zone()).toBeNull();
+
+        vi.mocked(removeZone).mockClear();
+        const untagged_removed = await service.removeZone(
+            new PlaceZone({ id: 'building-1', tags: ['building'] }),
+        );
+        expect(untagged_removed).toBe(false);
+        expect(removeZone).not.toHaveBeenCalled();
     });
 });

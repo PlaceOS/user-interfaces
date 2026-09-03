@@ -1,5 +1,8 @@
 import { Router } from '@angular/router';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -7,6 +10,7 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from '../lib/org/organisation.service';
 import { Building, Region } from '../lib/types/org.classes';
 
+import type { PlaceZone } from '@placeos/ts-client';
 import * as ts_client from '@placeos/ts-client';
 
 // Real ts-client helpers run for real; only the API layer touched by this
@@ -66,8 +70,9 @@ describe('OrganisationService', () => {
 
         vi.mocked(ts_client.authority).mockReturnValue(undefined as any);
 
-        expect(service._getCachedItem(service._zoneCacheKey({ tags: 'org' })))
-            .toEqual([{ id: 'zone-1' }]);
+        expect(
+            service._getCachedItem(service._zoneCacheKey({ tags: 'org' })),
+        ).toEqual([{ id: 'zone-1' }]);
     });
 
     it('should keep retrying and initialise once the backend returns', async () => {
@@ -97,6 +102,75 @@ describe('OrganisationService', () => {
 
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should describe a location from its zone IDs', () => {
+        spectator.service.addZone({
+            id: 'region-1',
+            tags: ['region'],
+            name: 'Australia',
+        } as PlaceZone);
+        spectator.service.addZone({
+            id: 'bld-1',
+            parent_id: 'region-1',
+            tags: ['building'],
+            name: 'Sydney',
+        } as PlaceZone);
+        spectator.service.addZone({
+            id: 'lvl-1',
+            parent_id: 'bld-1',
+            tags: ['level'],
+            name: 'Level 1',
+        } as PlaceZone);
+
+        expect(
+            spectator.service.locationWithID(['bld-1', 'lvl-1']),
+        ).toMatchObject({
+            building: { id: 'bld-1' },
+            level: { id: 'lvl-1' },
+            region: { id: 'region-1' },
+            label: 'Australia / Sydney / Level 1',
+        });
+    });
+
+    it('should load remote buildings represented by selected zones', async () => {
+        const region_1 = new Region({ id: 'region-1' });
+        const region_2 = new Region({ id: 'region-2' });
+        const building_1 = new Building({
+            id: 'bld-1',
+            parent_id: region_1.id,
+        });
+        const building_2 = new Building({
+            id: 'bld-2',
+            parent_id: region_2.id,
+        });
+        spectator.service.addZone({
+            id: region_1.id,
+            tags: ['region'],
+        } as PlaceZone);
+        spectator.service.addZone({
+            id: region_2.id,
+            tags: ['region'],
+        } as PlaceZone);
+        spectator.service.addZone({
+            id: building_1.id,
+            parent_id: region_1.id,
+            tags: ['building'],
+        } as PlaceZone);
+        vi.spyOn(spectator.service, 'loadBuildings').mockImplementation(
+            async (parent_id?: string) =>
+                parent_id === region_2.id ? [building_2] : [building_1],
+        );
+
+        const buildings = await spectator.service.loadBuildingsForZones([
+            ['bld-1'],
+            ['bld-2'],
+        ]);
+
+        expect(buildings.map((building) => building.id)).toEqual([
+            'bld-1',
+            'bld-2',
+        ]);
     });
 
     it('should sort levels by parent, name then display name', () => {
@@ -253,9 +327,7 @@ describe('OrganisationService', () => {
         vi.mocked(ts_client.queryZones).mockResolvedValue({
             data: [{ id: 'bld-1', tags: ['building'] }],
         } as any);
-        vi.spyOn(spectator.service as any, 'load').mockResolvedValue(
-            undefined,
-        );
+        vi.spyOn(spectator.service as any, 'load').mockResolvedValue(undefined);
 
         await spectator.service.loadBuildings('org-1');
         await spectator.service.loadBuildings('org-1');
@@ -287,8 +359,7 @@ describe('OrganisationService', () => {
     it('should fall back to individual metadata requests when bulk returns 404', async () => {
         vi.mocked(ts_client.bulkMetadata).mockRejectedValue({ status: 404 });
         vi.mocked(ts_client.showMetadata).mockImplementation(
-            (id, name) =>
-                Promise.resolve({ details: { name } }) as any,
+            (id, name) => Promise.resolve({ details: { name } }) as any,
         );
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
@@ -297,7 +368,10 @@ describe('OrganisationService', () => {
             'bld_1',
             'workplace_app',
         );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith('bld_1', 'bindings');
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld_1',
+            'bindings',
+        );
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'bld_1',
             'booking_rules',
@@ -349,8 +423,14 @@ describe('OrganisationService', () => {
     });
 
     it('should apply the configured default building from another region', async () => {
-        const region_1 = new Region({ id: 'region-1', tags: ['region'] } as any);
-        const region_2 = new Region({ id: 'region-2', tags: ['region'] } as any);
+        const region_1 = new Region({
+            id: 'region-1',
+            tags: ['region'],
+        } as any);
+        const region_2 = new Region({
+            id: 'region-2',
+            tags: ['region'],
+        } as any);
         const first_building = new Building({
             id: 'bld-1',
             parent_id: region_1.id,
@@ -369,7 +449,9 @@ describe('OrganisationService', () => {
         (spectator.service as any)._building_list.set([first_building]);
         vi.spyOn(spectator.service, 'loadBuildings').mockImplementation(
             async (parent_id?: string) =>
-                parent_id === region_2.id ? [default_building] : [first_building],
+                parent_id === region_2.id
+                    ? [default_building]
+                    : [first_building],
         );
         vi.spyOn(spectator.service, 'loadRegionData').mockResolvedValue(
             undefined,
@@ -382,7 +464,10 @@ describe('OrganisationService', () => {
     });
 
     it('should fall back to the first building when no stored or timezone building matches', async () => {
-        const building = new Building({ id: 'bld-1', tags: ['building'] } as any);
+        const building = new Building({
+            id: 'bld-1',
+            tags: ['building'],
+        } as any);
         (spectator.service as any)._building_list.set([building]);
         vi.spyOn(
             spectator.service as any,

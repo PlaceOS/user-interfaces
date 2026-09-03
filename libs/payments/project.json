@@ -8,14 +8,10 @@
     "targets": {
         "test": {
             "executor": "@angular/build:unit-test",
-            "outputs": [
-                "{workspaceRoot}/coverage/libs/payments"
-            ],
+            "outputs": ["{workspaceRoot}/coverage/libs/payments"],
             "options": {
                 "tsConfig": "libs/payments/tsconfig.spec.json",
-                "setupFiles": [
-                    "libs/payments/src/test-setup.ts"
-                ],
+                "setupFiles": ["libs/payments/src/test-setup.ts"],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "payments:test-build:development"

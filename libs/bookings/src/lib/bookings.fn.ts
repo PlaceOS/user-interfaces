@@ -767,11 +767,27 @@ export async function createBookingsForEvent(
         // Linked booking creation updates the parent event, so process each
         // request in order to avoid concurrent writes to the same event.
         for (const item of resources) {
-            const booking = bookings.find((_) =>
-                _.asset_ids.find((id) =>
-                    item.items?.find((i) => i.item_ids.includes(id)),
-                ),
+            const booking = bookings.find(
+                (_) =>
+                    _.extension_data?.details?.id === item.id ||
+                    _.asset_ids.find((id) =>
+                        item.items?.find((i) => i.item_ids.includes(id)),
+                    ),
             );
+            const assigned_space =
+                type === 'catering-order' && item.system_id
+                    ? event.resources.find(
+                          (_) =>
+                              _.id === item.system_id ||
+                              _.email === item.system_id,
+                      )
+                    : undefined;
+            const resource_id =
+                assigned_space?.id || item.system_id || item.email || item.id;
+            const resource_name =
+                assigned_space?.display_name ||
+                assigned_space?.name ||
+                (item as any).name;
             created_bookings.push(
                 await createBooking(
                     new Booking({
@@ -781,19 +797,19 @@ export async function createBookingsForEvent(
                         duration: event.duration,
                         description: event.title || (item as any).name,
                         user_email: event.host,
-                        asset_id: item.email || item.id,
-                        asset_name: (item as any).name,
+                        asset_id: resource_id,
+                        asset_name: resource_name,
                         title: event.title,
                         attendees: item.email ? [new User(item)] : [],
                         approved: booking?.approved && !item._changed,
                         rejected: booking?.rejected && !item._changed,
                         extension_data: {
                             parent_id: event.id,
-                            name: (item as any).name,
-                            location_id: event.location,
+                            name: resource_name,
+                            location_id: assigned_space?.id || event.location,
                             details: item,
                         },
-                        zones,
+                        zones: assigned_space?.zones || zones,
                     }).toJSON(),
                     { ical_uid: event.ical_uid, event_id: event.id },
                 ),

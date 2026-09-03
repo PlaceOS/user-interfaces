@@ -9,6 +9,7 @@
         "build": {
             "executor": "@angular/build:application",
             "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
             "options": {
                 "outputPath": "dist/apps/public",
                 "browser": "apps/public/src/main.ts",
@@ -51,12 +52,12 @@
                     "extractLicenses": false,
                     "sourceMap": true
                 }
-            },
-            "defaultConfiguration": "production"
+            }
         },
         "serve": {
             "continuous": true,
             "executor": "@angular/build:dev-server",
+            "defaultConfiguration": "development",
             "configurations": {
                 "production": {
                     "proxyConfig": "config/proxy.conf.js",
@@ -66,8 +67,7 @@
                     "proxyConfig": "config/proxy.conf.js",
                     "buildTarget": "public:build:development"
                 }
-            },
-            "defaultConfiguration": "development"
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint"

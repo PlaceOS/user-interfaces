@@ -2,6 +2,7 @@ import { computed, effect, inject, Injectable, signal } from '@angular/core';
 import { queryCateringItems } from '@placeos/assets';
 import {
     CateringItem,
+    CateringOrder,
     OrganisationService,
     SettingsService,
     Space,
@@ -14,6 +15,7 @@ import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 export interface CateringOrderSelectOptions {
     // Affects backend requests
     zone?: string;
+    building?: string;
 }
 
 export interface CateringOrderSelectFilters {
@@ -74,10 +76,11 @@ export class CateringOrderStateService {
     constructor() {
         effect(() => {
             const bld = this._org.active_building();
-            const { zone } = this._options();
-            if (!bld?.id) return;
-            this._loadSettings(bld.id);
-            this._loadMenu(zone || bld.id);
+            const { zone, building } = this._options();
+            const building_id = building || bld?.id;
+            if (!building_id) return;
+            this._loadSettings(building_id);
+            this._loadMenu(zone || building_id);
         });
         effect(() => {
             const filters = this._filters();
@@ -96,6 +99,37 @@ export class CateringOrderStateService {
 
     public getFilters() {
         return { ...this._filters() };
+    }
+
+    /** Check that every item in an order is available for its assigned room. */
+    public async orderAvailable(
+        order: CateringOrder,
+        resource: Space,
+        details: Pick<
+            CateringOrderSelectFilters,
+            'date' | 'duration' | 'zone_id'
+        >,
+    ) {
+        if (this.availability().includes(resource.id)) return false;
+        const rules = await getCateringRulesForZone(details.zone_id);
+        const available_items = this._available_menu().filter(
+            (item) =>
+                !item.hide_for_zones.some((zone) =>
+                    resource.zones.includes(zone),
+                ) &&
+                cateringItemAvailable(item, rules, {
+                    date: details.date,
+                    duration: details.duration,
+                    resources: [resource],
+                } as any),
+        );
+        return order.items.every((order_item) =>
+            available_items.some(
+                (item) =>
+                    item.id === order_item.id &&
+                    item.caterer === order_item.caterer,
+            ),
+        );
     }
 
     private async _loadSettings(building_id: string) {

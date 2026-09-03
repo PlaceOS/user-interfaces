@@ -73,7 +73,7 @@ describe('AiImageModalComponent', () => {
         };
         const signage = {
             is_sys_admin: signal(false),
-            api_group_id: signal('group-1'),
+            selected_group: signal({ group: { id: 'group-1' } }),
         };
         await TestBed.configureTestingModule({
             imports: [AiImageModalComponent],

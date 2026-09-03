@@ -26,7 +26,9 @@ describe('SpaceListComponent', () => {
                 room_alerts: room_alerts as any,
                 setView: vi.fn(),
             }),
-            MockProvider(OrganisationService, { levelWithID: vi.fn() }),
+            MockProvider(OrganisationService, {
+                locationWithID: vi.fn(() => ({ label: '' })),
+            }),
         ],
         declarations: [
             mockComponent(IconComponent),
@@ -56,6 +58,43 @@ describe('SpaceListComponent', () => {
         available_spaces.set(spaces);
         spectator.detectChanges();
         expect(spectator.queryAll('li[space]')).toHaveLength(2);
+    });
+
+    it('should hide selected spaces from results', async () => {
+        available_spaces.set(spaces);
+        spectator.setInput({
+            selected: ['space-1'],
+            selected_spaces: [
+                {
+                    space: spaces[0],
+                    location: 'Australia / Sydney / Level 1',
+                },
+            ],
+        });
+        await spectator.fixture.whenStable();
+
+        expect(spectator.queryAll('[selected-spaces] li[space]')).toHaveLength(
+            1,
+        );
+        expect(spectator.queryAll('[results] li[space]')).toHaveLength(1);
+        expect(spectator.query('[selected-spaces]')).toHaveText(
+            'Australia / Sydney / Level 1',
+        );
+        expect(spectator.query('[results]')).not.toHaveText('Space One');
+        expect(spectator.query('[results]')).toHaveText('Space Two');
+    });
+
+    it('should emit a selected space when its list item is opened', () => {
+        spectator.setInput({
+            selected: ['space-1'],
+            selected_spaces: [{ space: spaces[0], location: 'Sydney' }],
+        });
+        const emit = vi.fn();
+        spectator.component.onSelect.subscribe(emit);
+
+        spectator.click('[selected-spaces] [name="select-space"]');
+
+        expect(emit).toHaveBeenCalledWith(spaces[0]);
     });
 
     it('should emit the selected space', () => {

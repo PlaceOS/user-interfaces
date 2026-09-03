@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     AssetRequest,
+    Building,
     CalendarEvent,
     currentUser,
     i18n,
@@ -11,14 +12,15 @@ import {
     setCurrentUser,
     SettingsService,
     Space,
+    User,
 } from '@placeos/common';
 import { Subject } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
+import * as ts_client from '@placeos/ts-client';
 import { CalendarService } from '../lib/calendar.service';
 import { EventFormService } from '../lib/event-form.service';
-import * as ts_client from '@placeos/ts-client';
 
 // Only the ts-client API layer is stubbed; the real events.fn wrappers run
 // (findEventClashes is steered by stubbing the ts-client `post` beneath it).
@@ -45,6 +47,22 @@ describe('EventFormService', () => {
                     useValue: {
                         building: { id: 'bld-1', timezone: 'Australia/Sydney' },
                         buildings: [{ id: 'bld-1' }],
+                        settings: [],
+                        buildingSettings: vi.fn(() => ({})),
+                        regionSettings: vi.fn(() => ({})),
+                        loadBuildingData: vi.fn(() => Promise.resolve()),
+                        loadBuildingsForZones: vi.fn(
+                            async (zone_lists: string[][]) =>
+                                zone_lists.map(
+                                    (zones) =>
+                                        new Building({
+                                            id:
+                                                zones.find((id) =>
+                                                    id.startsWith('bld-'),
+                                                ) || '',
+                                        }),
+                                ),
+                        ),
                         building_list: signal([]),
                         active_building: signal({}),
                         active_region: signal({}),
@@ -534,7 +552,7 @@ describe('EventFormService', () => {
         service.model.update((m) => ({
             ...m,
             host: 'host@test.com',
-            organiser: { email: 'host@test.com' } as any,
+            organiser: { email: 'host@test.com' } as User,
             creator: 'host@test.com',
             title: 'Boundary booking',
             date: start,
@@ -582,7 +600,7 @@ describe('EventFormService', () => {
         service.model.update((m) => ({
             ...m,
             host: 'host@test.com',
-            organiser: { email: 'host@test.com' } as any,
+            organiser: { email: 'host@test.com' } as User,
             creator: 'host@test.com',
             title: 'Moved booking',
             date: submitted_start,
@@ -606,6 +624,236 @@ describe('EventFormService', () => {
             Math.floor(submitted_start / 1000),
         );
         expect(last_success.event_end).toBe(Math.floor(submitted_end / 1000));
+    });
+
+    it('should save all rooms and keep a partial booking when one declines', async () => {
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const spaces = [
+            new Space({
+                id: 'space-1',
+                email: 'space-1@test.com',
+                name: 'Sydney room',
+                zones: ['bld-1'],
+            }),
+            new Space({
+                id: 'space-2',
+                email: 'space-2@test.com',
+                name: 'Perth room',
+                zones: ['bld-2'],
+            }),
+        ];
+        vi.spyOn(
+            service as unknown as {
+                _checkBuildingBookableHours: (
+                    spaces: Space[],
+                    date: number,
+                    date_end: number,
+                    timezone: string,
+                ) => Promise<void>;
+            },
+            '_checkBuildingBookableHours',
+        ).mockResolvedValue();
+        vi.spyOn(
+            service as unknown as {
+                _checkResourcesAvailable: (
+                    spaces: Space[],
+                    date: number,
+                    duration: number,
+                    ignore?: string,
+                ) => Promise<boolean>;
+            },
+            '_checkResourcesAvailable',
+        ).mockResolvedValue(true);
+        vi.spyOn(
+            service as unknown as {
+                _checkResourceRules: (
+                    spaces: Space[],
+                    date: number,
+                    duration: number,
+                    host: string,
+                ) => Promise<boolean>;
+            },
+            '_checkResourceRules',
+        ).mockResolvedValue(true);
+        vi.spyOn(
+            (
+                service as unknown as {
+                    _space_pipe: {
+                        transform: (email: string) => Promise<Space>;
+                    };
+                }
+            )._space_pipe,
+            'transform',
+        ).mockImplementation((email: string) =>
+            Promise.resolve(spaces.find((_) => _.email === email)!),
+        );
+        const perform_booking = vi
+            .spyOn(
+                service as unknown as {
+                    _performBooking: (
+                        event: CalendarEvent,
+                        query: Record<string, string | number>,
+                    ) => Promise<CalendarEvent>;
+                },
+                '_performBooking',
+            )
+            .mockResolvedValue(
+                new CalendarEvent({
+                    id: 'event-1',
+                    title: 'Cross-region meeting',
+                    date,
+                    duration: 60,
+                    resources: [
+                        new Space({
+                            ...spaces[0],
+                            response_status: 'accepted',
+                        }),
+                        new Space({
+                            ...spaces[1],
+                            response_status: 'declined',
+                        }),
+                    ],
+                }),
+            );
+        service.newForm();
+        service.model.update((model) => ({
+            ...model,
+            host: 'host@test.com',
+            organiser: new User({ email: 'host@test.com' }),
+            creator: 'host@test.com',
+            title: 'Cross-region meeting',
+            date,
+            duration: 60,
+            attendees: [],
+            resources: spaces,
+        }));
+
+        const result = await service.postForm(true);
+        const submitted_event = perform_booking.mock.calls[0][0];
+
+        expect(submitted_event.resources.map((_) => _.id)).toEqual([
+            'space-1',
+            'space-2',
+        ]);
+        expect(
+            submitted_event
+                .toJSON()
+                .attendees.filter((_) => _.resource)
+                .map((_) => _.email),
+        ).toEqual(['space-1@test.com', 'space-2@test.com']);
+        expect(result.resources.map((_) => _.id)).toEqual(['space-1']);
+        expect(service.last_success()?.resources.map((_) => _.id)).toEqual([
+            'space-1',
+        ]);
+    });
+
+    it('should treat an omitted room as failed in a multi-room response', () => {
+        const requested = [
+            new Space({ id: 'space-1', email: 'space-1@test.com' }),
+            new Space({ id: 'space-2', email: 'space-2@test.com' }),
+        ];
+        const saved = [
+            new Space({
+                ...requested[0],
+                response_status: 'accepted',
+            }),
+        ];
+
+        const resolved = (
+            service as unknown as {
+                _resolveResourceResponses: (
+                    requested: Space[],
+                    saved: Space[],
+                ) => Space[];
+            }
+        )._resolveResourceResponses(requested, saved);
+
+        expect(resolved.map((space) => space.response_status)).toEqual([
+            'accepted',
+            'declined',
+        ]);
+    });
+
+    it('should remove a room when editing a multi-room meeting', async () => {
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const first = new Space({
+            id: 'space-1',
+            email: 'space-1@test.com',
+            zones: ['bld-1'],
+        });
+        const second = new Space({
+            id: 'space-2',
+            email: 'space-2@test.com',
+            zones: ['bld-2'],
+        });
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            creator: 'host@test.com',
+            title: 'Cross-region meeting',
+            date,
+            duration: 60,
+            resources: [first, second],
+        });
+        vi.spyOn(
+            service as unknown as {
+                _checkBuildingBookableHours: (
+                    spaces: Space[],
+                    date: number,
+                    date_end: number,
+                    timezone: string,
+                ) => Promise<void>;
+            },
+            '_checkBuildingBookableHours',
+        ).mockResolvedValue();
+        vi.spyOn(
+            service as unknown as {
+                _checkResourceRules: (
+                    spaces: Space[],
+                    date: number,
+                    duration: number,
+                    host: string,
+                ) => Promise<boolean>;
+            },
+            '_checkResourceRules',
+        ).mockResolvedValue(true);
+        vi.spyOn(
+            (
+                service as unknown as {
+                    _space_pipe: {
+                        transform: (email: string) => Promise<Space>;
+                    };
+                }
+            )._space_pipe,
+            'transform',
+        ).mockResolvedValue(second);
+        const perform_booking = vi
+            .spyOn(
+                service as unknown as {
+                    _performBooking: (
+                        event: CalendarEvent,
+                        query: Record<string, string | number>,
+                    ) => Promise<CalendarEvent>;
+                },
+                '_performBooking',
+            )
+            .mockResolvedValue(
+                new CalendarEvent({ ...event, resources: [second] }),
+            );
+        service.newForm(event);
+        service.model.update((model) => ({
+            ...model,
+            resources: [second],
+        }));
+
+        await service.postForm(true);
+
+        expect(
+            perform_booking.mock.calls[0][0].resources.map((_) => _.id),
+        ).toEqual(['space-2']);
+        expect(perform_booking.mock.calls[0][1]).toEqual(
+            expect.objectContaining({ system_id: 'space-1' }),
+        );
     });
 
     function prepareRoomAssetBooking(item_ids?: string[]) {
@@ -723,15 +971,7 @@ describe('EventFormService', () => {
                 0,
                 0,
             ).valueOf();
-            const submitted_end = new Date(
-                2028,
-                5,
-                16,
-                17,
-                0,
-                0,
-                0,
-            ).valueOf();
+            const submitted_end = new Date(2028, 5, 16, 17, 0, 0, 0).valueOf();
             const perform_booking_spy = vi
                 .spyOn(service as any, '_performBooking')
                 .mockResolvedValue(
@@ -1075,10 +1315,126 @@ describe('EventFormService', () => {
         ).resolves.toBe(true);
     });
 
+    it('should reject a meeting outside any selected building hours', async () => {
+        const org = TestBed.inject(OrganisationService) as unknown as {
+            buildings: Building[];
+            buildingSettings: ReturnType<typeof vi.fn>;
+            regionSettings: ReturnType<typeof vi.fn>;
+            loadBuildingData: ReturnType<typeof vi.fn>;
+            loadBuildingsForZones: ReturnType<typeof vi.fn>;
+        };
+        org.buildings = [
+            new Building({
+                id: 'bld-1',
+                parent_id: 'region-1',
+                timezone: 'Australia/Sydney',
+            }),
+            new Building({
+                id: 'bld-2',
+                parent_id: 'region-2',
+                timezone: 'Australia/Perth',
+            }),
+        ];
+        org.buildingSettings.mockImplementation(() => ({
+            events: {
+                bookable_hours: { start: 9, end: 17 },
+            },
+        }));
+        org.loadBuildingsForZones.mockImplementation(
+            async (zone_lists: string[][]) =>
+                org.buildings.filter((building) =>
+                    zone_lists.some((zones) => zones.includes(building.id)),
+                ),
+        );
+        const date = Date.UTC(2028, 5, 15, 0, 0, 0);
+        const spaces = [
+            new Space({ id: 'space-1', zones: ['bld-1'] }),
+            new Space({ id: 'space-2', zones: ['bld-2'] }),
+        ];
+
+        await expect(
+            (
+                service as unknown as {
+                    _checkBuildingBookableHours: (
+                        spaces: Space[],
+                        date: number,
+                        date_end: number,
+                        timezone: string,
+                    ) => Promise<void>;
+                }
+            )._checkBuildingBookableHours(
+                spaces,
+                date,
+                date + 60 * 60 * 1000,
+                'Australia/Sydney',
+            ),
+        ).rejects.toBeTruthy();
+        expect(org.loadBuildingData).toHaveBeenCalledTimes(2);
+    });
+
+    it('should enforce booking rules for rooms in different buildings', async () => {
+        const org = TestBed.inject(OrganisationService) as unknown as {
+            buildings: Building[];
+            loadBuildingsForZones: ReturnType<typeof vi.fn>;
+        };
+        org.buildings = [
+            new Building({ id: 'bld-1' }),
+            new Building({ id: 'bld-2' }),
+        ];
+        org.loadBuildingsForZones.mockImplementation(
+            async (zone_lists: string[][]) =>
+                org.buildings.filter((building) =>
+                    zone_lists.some((zones) => zones.includes(building.id)),
+                ),
+        );
+        vi.mocked(ts_client.showMetadata).mockImplementation((id: string) =>
+            Promise.resolve({
+                details: [
+                    {
+                        zone: '*',
+                        conditions: {},
+                        rules: { hidden: id === 'bld-2' },
+                    },
+                ],
+            } as unknown as Awaited<ReturnType<typeof ts_client.showMetadata>>),
+        );
+        const spaces = [
+            new Space({ id: 'space-1', zones: ['bld-1'] }),
+            new Space({ id: 'space-2', zones: ['bld-2'] }),
+        ];
+
+        await expect(
+            (
+                service as unknown as {
+                    _checkResourceRules: (
+                        spaces: Space[],
+                        date: number,
+                        duration: number,
+                        host: string,
+                    ) => Promise<boolean>;
+                }
+            )._checkResourceRules(
+                spaces,
+                Date.UTC(2028, 5, 15, 0, 0, 0),
+                60,
+                currentUser().email,
+            ),
+        ).rejects.toBeTruthy();
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld-1',
+            'room_booking_rules',
+        );
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld-2',
+            'room_booking_rules',
+        );
+    });
+
     it('should block recurring room bookings that clash by default', async () => {
         const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
         // Real findEventClashes runs; stub the ts-client POST beneath it so
         // it returns a clash on a later instance (not the first one).
+        vi.mocked(ts_client.post).mockClear();
         vi.mocked(ts_client.post).mockResolvedValue([
             {
                 asset_id: 'space-1',
@@ -1086,27 +1442,57 @@ describe('EventFormService', () => {
                 booking_end: Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
             },
         ] as any);
+        const event = new CalendarEvent({
+            id: 'event-1',
+            date,
+            duration: 60,
+            recurring: true,
+            recurrence: {
+                start: date,
+                end: date + 7 * 24 * 60 * 60 * 1000,
+                interval: 1,
+                pattern: 'daily',
+                days_of_week: [],
+            },
+            resources: [
+                new Space({
+                    id: 'space-1',
+                    email: 'space-1@example.com',
+                    name: 'Boardroom',
+                    zones: ['bld-1'],
+                }),
+                new Space({
+                    id: 'space-2',
+                    email: 'space-2@example.com',
+                    name: 'Training room',
+                    zones: ['bld-2'],
+                }),
+            ],
+        });
 
         await expect(
-            (service as any)._checkRecurringClashes({
-                id: 'event-1',
-                date,
-                duration: 60,
-                recurring: true,
-                resources: [
-                    {
-                        id: 'space-1',
-                        email: 'space-1@example.com',
-                        name: 'Boardroom',
-                        zones: ['bld-1'],
-                    },
-                ],
-                toJSON: () => ({ id: 'event-1', date, duration: 60 }),
-            } as any),
+            (
+                service as unknown as {
+                    _checkRecurringClashes: (
+                        event: CalendarEvent,
+                    ) => Promise<boolean>;
+                }
+            )._checkRecurringClashes(event),
         ).rejects.toBeTruthy();
         expect(ts_client.post).toHaveBeenCalledWith(
             expect.stringContaining('clashing-assets'),
-            expect.anything(),
+            expect.objectContaining({
+                attendees: expect.arrayContaining([
+                    expect.objectContaining({
+                        email: 'space-1@example.com',
+                        resource: true,
+                    }),
+                    expect.objectContaining({
+                        email: 'space-2@example.com',
+                        resource: true,
+                    }),
+                ]),
+            }),
         );
         expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
     });

@@ -1,6 +1,8 @@
 import {
     Booking,
     CalendarEvent,
+    CateringItem,
+    CateringOrder,
     setCurrentUser,
     Space,
     StaffUser,
@@ -196,6 +198,67 @@ describe('[Booking API]', () => {
                 { response_type: 'void' },
             );
         });
+
+        it('should create catering bookings against the assigned room', async () => {
+            const catering_event = new CalendarEvent({
+                id: 'event-1',
+                event_start: 1_800_000_000,
+                event_end: 1_800_003_600,
+                host: user_email,
+                title: 'Catering meeting',
+                ical_uid: 'event-1@example.com',
+                resources: [
+                    new Space({
+                        id: 'space-1',
+                        email: 'space-1@example.com',
+                        name: 'Boardroom',
+                        zones: ['building-1', 'level-1'],
+                    }),
+                    new Space({
+                        id: 'space-2',
+                        email: 'space-2@example.com',
+                        name: 'Training room',
+                        zones: ['building-1', 'level-2'],
+                    }),
+                ],
+            });
+            const order = new CateringOrder({
+                id: 'order-1',
+                system_id: 'space-2',
+                caterer: 'Cafe',
+                items: [
+                    new CateringItem({
+                        id: 'coffee',
+                        caterer: 'Cafe',
+                        quantity: 1,
+                    }),
+                ],
+            });
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'catering-booking-1' } as never);
+
+            await createBookingsForEvent(catering_event, 'catering-order', [
+                order,
+            ]);
+
+            expect(post_spy).toHaveBeenCalledWith(
+                expect.stringContaining('/api/staff/v1/bookings'),
+                expect.objectContaining({
+                    asset_id: 'space-2',
+                    asset_name: 'Training room',
+                    zones: ['building-1', 'level-2'],
+                    extension_data: expect.objectContaining({
+                        location_id: 'space-2',
+                        details: expect.objectContaining({
+                            id: 'order-1',
+                            system_id: 'space-2',
+                        }),
+                    }),
+                }),
+            );
+        });
     });
 
     describe('updateBooking', () => {
@@ -303,10 +366,8 @@ describe('[Booking API]', () => {
             const post_spy = vi.spyOn(ts_client, 'post');
             const assignment = new Booking({
                 id: 'permanent-assignment',
-                booking_start:
-                    new Date('2026-08-18T03:00:00').valueOf() / 1000,
-                booking_end:
-                    new Date('2026-08-18T23:00:00').valueOf() / 1000,
+                booking_start: new Date('2026-08-18T03:00:00').valueOf() / 1000,
+                booking_end: new Date('2026-08-18T23:00:00').valueOf() / 1000,
                 booking_type: 'desk',
                 recurrence_type: 'daily',
                 user_email: 'staff@example.com',
