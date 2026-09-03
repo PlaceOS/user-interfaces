@@ -1804,7 +1804,12 @@ export class BookingFormService extends AsyncHandler {
 
     public async loadGroupSiblings(booking: Booking): Promise<Booking[]> {
         if (!booking?.id) return [];
-        const parent_id = booking.parent_id || booking.id;
+        const stored_booking = this._booking();
+        // Form values can contain the new period. Find the group at its stored
+        // period so every existing sibling is updated instead of recreated.
+        const lookup_booking =
+            stored_booking?.id === booking.id ? stored_booking : booking;
+        const parent_id = lookup_booking.parent_id || lookup_booking.id;
         // Groups made before group containers existed have no parent link. Every
         // member still carries the same generated group reference
         // (`host@email[yyyy-MM-dd]`) in `extension_data.group`, so match on that
@@ -1813,16 +1818,20 @@ export class BookingFormService extends AsyncHandler {
         // retained members get duplicated). The query is already bounded to this
         // booking's exact period, so a same-host/same-day group at another time
         // cannot be pulled in.
-        const group_ref = `${booking.group || ''}`.trim();
+        const group_ref = `${lookup_booking.group || ''}`.trim();
         // Older groups again: some only ever shared a generated `grp-*`
         // description.
-        const legacy_group = `${booking.description || ''}`.startsWith('grp-')
-            ? booking.description
+        const legacy_group = `${lookup_booking.description || ''}`.startsWith(
+            'grp-',
+        )
+            ? lookup_booking.description
             : '';
         const { type } = this._options();
         const list = await queryBookings({
-            period_start: getUnixTime(booking.date),
-            period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
+            period_start: getUnixTime(lookup_booking.date),
+            period_end: getUnixTime(
+                addMinutes(lookup_booking.date, lookup_booking.duration),
+            ),
             type,
             include_booked_by: true,
         });

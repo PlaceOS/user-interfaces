@@ -2920,6 +2920,43 @@ describe('BookingFormService', () => {
         );
     });
 
+    it('should use the stored period when loading siblings after the booking period changes', async () => {
+        const original_date = new Date('2026-09-10T09:00:00.000Z').valueOf();
+        const booking = new Booking({
+            id: 'booking-one',
+            parent_id: 'booking-group',
+            booking_type: 'desk',
+            date: original_date,
+            duration: 60,
+        });
+        spectator.service.newForm('desk', booking);
+        spectator.service.model.update((form) => ({
+            ...form,
+            date: original_date + 60 * 60 * 1000,
+            duration: 90,
+        }));
+
+        const changed_form = spectator.service.model();
+        await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: changed_form.id,
+                parent_id: changed_form.parent_id,
+                booking_type: changed_form.booking_type,
+                date: changed_form.date,
+                duration: changed_form.duration,
+            }),
+        );
+
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining(`period_start=${original_date / 1000}`),
+        );
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining(
+                `period_end=${original_date / 1000 + 60 * 60}`,
+            ),
+        );
+    });
+
     it('should save each visitor against their own asset on group edit', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         spectator.service.newForm(
