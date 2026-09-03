@@ -147,6 +147,7 @@ All notable changes to this project will be documented in this file.
 - A switch for whether the poster wears the branding
 - Branding is read only unless you are a sys admin
 - Separate images to include from the style reference
+- Show source zone for template mappings
 
 ### Performance
 
