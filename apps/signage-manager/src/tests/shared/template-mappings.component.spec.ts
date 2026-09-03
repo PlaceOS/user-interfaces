@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { TemplateMappingsComponent } from '../../app/shared/template-mappings.component';
 import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
 import { SignageService } from '../../app/signage.service';
@@ -9,6 +10,7 @@ describe('TemplateMappingsComponent', () => {
         id: 'mapping-1',
         template_id: 'template-1',
         control_system_id: 'display-1',
+        zone_id: 'zone-1',
         schedule: {
             play_cron: '0 9 * * 1-5',
             play_period: 30,
@@ -33,6 +35,9 @@ describe('TemplateMappingsComponent', () => {
     const remove_mapping = vi.fn();
     const service_stub = {
         can_update: signal(true),
+        all_zones: signal([
+            { id: 'zone-1', name: 'Level 1', display_name: 'First floor' },
+        ]),
         listTemplateMappings: list_mappings,
         editTemplateMapping: edit_mapping,
         removeTemplateMapping: remove_mapping,
@@ -45,7 +50,10 @@ describe('TemplateMappingsComponent', () => {
     ) {
         let test_module = TestBed.configureTestingModule({
             imports: [TemplateMappingsComponent],
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                provideRouter([]),
+                { provide: SignageService, useValue: service_stub },
+            ],
         });
         if (!render_template) {
             test_module = test_module.overrideComponent(
@@ -86,7 +94,7 @@ describe('TemplateMappingsComponent', () => {
         );
     });
 
-    it('renders the hydrated template preview and mapping actions', async () => {
+    it('links inherited zone mappings without showing delete', async () => {
         const { fixture } = await setup('display', 'display-1', true);
         await fixture.whenStable();
 
@@ -95,9 +103,33 @@ describe('TemplateMappingsComponent', () => {
             fixture.nativeElement.querySelector('[role="img"]'),
         ).toBeTruthy();
         expect(fixture.nativeElement.textContent).toContain('Welcome');
+        const zone_link = fixture.nativeElement.querySelector(
+            'a[href="/zones/zone-1"]',
+        );
+        expect(zone_link?.textContent).toContain('First floor');
+        expect(zone_link?.textContent).not.toContain('zone-1');
         expect(fixture.nativeElement.textContent).toContain('Weekdays at');
         expect(fixture.nativeElement.textContent).toContain('for 30 minutes');
-        expect(fixture.nativeElement.querySelectorAll('button').length).toBe(3);
+        expect(fixture.nativeElement.querySelectorAll('button').length).toBe(2);
+        expect(fixture.nativeElement.querySelector('button[error]')).toBeNull();
+    });
+
+    it('shows delete for a direct display mapping', async () => {
+        list_mappings.mockResolvedValue([
+            new HydratedSignageTemplateMapping({
+                id: 'mapping-2',
+                template_id: 'template-2',
+                control_system_id: 'display-1',
+                template_details: { name: 'Direct template' },
+            }),
+        ]);
+
+        const { fixture } = await setup('display', 'display-1', true);
+        await fixture.whenStable();
+
+        expect(
+            fixture.nativeElement.querySelector('button[error]'),
+        ).toBeTruthy();
     });
 
     it('opens a new zone mapping and reloads after save', async () => {

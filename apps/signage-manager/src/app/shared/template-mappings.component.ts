@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterLink } from '@angular/router';
 import { i18n } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -153,6 +154,26 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                 }}
                                             </h6>
                                             @if (
+                                                target_type() === 'display' &&
+                                                    card.mapping.zone_id;
+                                                as zone_id
+                                            ) {
+                                                <div
+                                                    class="text-base-content/60 text-xs"
+                                                >
+                                                    Configured on zone:
+                                                    <a
+                                                        class="text-primary mt-1 block truncate hover:underline"
+                                                        [routerLink]="[
+                                                            '/zones',
+                                                            zone_id,
+                                                        ]"
+                                                    >
+                                                        {{ card.zone_name }}
+                                                    </a>
+                                                </div>
+                                            }
+                                            @if (
                                                 card.mapping.template_details
                                                     .description
                                             ) {
@@ -190,28 +211,33 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                 >
                                                     <icon>edit</icon>
                                                 </button>
-                                                <button
-                                                    icon
-                                                    default
-                                                    error
-                                                    type="button"
-                                                    matRipple
-                                                    [matTooltip]="
-                                                        'COMMON.REMOVE'
-                                                            | translate
-                                                    "
-                                                    (click)="
-                                                        removeMapping(
-                                                            card.mapping
-                                                        )
-                                                    "
-                                                    [attr.aria-label]="
-                                                        'COMMON.REMOVE'
-                                                            | translate
-                                                    "
-                                                >
-                                                    <icon>delete</icon>
-                                                </button>
+                                                @if (
+                                                    target_type() === 'zone' ||
+                                                    !card.mapping.zone_id
+                                                ) {
+                                                    <button
+                                                        icon
+                                                        default
+                                                        error
+                                                        type="button"
+                                                        matRipple
+                                                        [matTooltip]="
+                                                            'COMMON.REMOVE'
+                                                                | translate
+                                                        "
+                                                        (click)="
+                                                            removeMapping(
+                                                                card.mapping
+                                                            )
+                                                        "
+                                                        [attr.aria-label]="
+                                                            'COMMON.REMOVE'
+                                                                | translate
+                                                        "
+                                                    >
+                                                        <icon>delete</icon>
+                                                    </button>
+                                                }
                                             </div>
                                         }
                                     </div>
@@ -287,6 +313,7 @@ export type TemplateMappingTargetType = 'display' | 'zone';
         MatTooltipModule,
         AuthenticatedImageDirective,
         IconComponent,
+        RouterLink,
         TranslatePipe,
     ],
 })
@@ -312,20 +339,29 @@ export class TemplateMappingsComponent {
     public readonly mappings = computed(() => this._mappings.value() || []);
     public readonly loading = this._mappings.isLoading;
     public readonly load_error = this._mappings.error;
-    public readonly mapping_cards = computed(() =>
-        this.mappings().map((mapping) => {
+    public readonly mapping_cards = computed(() => {
+        const zone_names = new Map(
+            this._service
+                .all_zones()
+                .map((zone) => [
+                    zone.id,
+                    zone.display_name || zone.name || zone.id,
+                ]),
+        );
+        return this.mappings().map((mapping) => {
             const layouts = mapping.template_details.layouts || [];
             const rects = computeTemplateLayoutRects(layouts);
             return {
                 mapping,
+                zone_name: zone_names.get(mapping.zone_id) || mapping.zone_id,
                 layout_items: layouts.map((layout, index) => ({
                     index,
                     plugin_id: layout.plugin_id,
                     ...rects[index],
                 })),
             };
-        }),
-    );
+        });
+    });
 
     public backgroundUrl(mapping: HydratedSignageTemplateMapping) {
         const template = mapping.template_details;
