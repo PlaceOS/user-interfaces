@@ -70,6 +70,7 @@ All notable changes to this project will be documented in this file.
 #### Visitor-kiosk
 
 - Retain accepted induction status PPT-2763
+- Improve QR code scanning
 
 #### Workplace
 
