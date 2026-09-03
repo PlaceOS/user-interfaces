@@ -1,1 +1,0 @@
-import {du as K,a_ as wu}from'./main.js';function u(e,r){let t=K(e,r?.in);return t.setDate(1),t.setHours(0,0,0,0),t}function m(e,r,t){let[o,a]=wu(t?.in,e,r);return o.getFullYear()===a.getFullYear()&&o.getMonth()===a.getMonth()}export{m,u};//# sourceMappingURL=chunk-C5OveLrP.js.map
