@@ -1,1 +1,0 @@
-import {m,D as Dd,dF as Wn}from'./main.js';var f=(()=>{class t{constructor(){this._org=m(Dd);}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.\u0275fac=function(n){return new(n||t)};}static{this.\u0275pipe=Wn({name:"level",type:t,pure:true});}}return t})();export{f};//# sourceMappingURL=chunk-5tB3bi_1.js.map
