@@ -18,7 +18,9 @@ import {
     query,
     querySignagePlugins,
     removeSignageMedia,
+    removeSignageMediaTag,
     removeZone,
+    renameSignageMediaTag,
     requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
     shareSignagePlaylists,
@@ -38,6 +40,7 @@ import {
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
 import { MediaPreviewModalComponent } from '../app/shared/media-preview-modal.component';
+import { MediaTagModalComponent } from '../app/shared/media-tag-modal.component';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
 import { PlaylistItemScheduleModalComponent } from '../app/shared/playlist-item-schedule-modal.component';
 import { SignageSharedWithComponent } from '../app/shared/signage-shared-with.component';
@@ -129,6 +132,17 @@ describe('SignageService media uploads', () => {
             },
             afterClosed: () => NEVER,
             close: vi.fn(),
+        });
+    }
+
+    function closeNextDialogWith(value: unknown) {
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (result: unknown) => void) => {
+                    Promise.resolve().then(() => handler(value));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
         });
     }
 
@@ -443,6 +457,92 @@ describe('SignageService media uploads', () => {
         expect(updateSignageMedia).toHaveBeenCalledWith('media-2', {
             tags: ['news', 'lobby'],
         });
+    });
+
+    it('renames a media tag in the selected group', async () => {
+        closeNextDialogWith({ action: 'rename', new_tag: 'updates' });
+        (renameSignageMediaTag as any).mockResolvedValue(undefined);
+        const service = createService();
+        selectApiGroup(service, 'group-1');
+
+        const renamed = await service.renameMediaTag('news', 4);
+
+        expect(dialog.open).toHaveBeenCalledWith(MediaTagModalComponent, {
+            data: {
+                action: 'rename',
+                tag: 'news',
+                count: 4,
+                can_delete_media: false,
+            },
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        expect(renameSignageMediaTag).toHaveBeenCalledWith({
+            current_tag: 'news',
+            new_tag: 'updates',
+            group_id: 'group-1',
+        });
+        expect(renamed).toBe(true);
+    });
+
+    it('renames a media tag across all groups without a group option', async () => {
+        closeNextDialogWith({ action: 'rename', new_tag: 'company news' });
+        (renameSignageMediaTag as any).mockResolvedValue(undefined);
+        const service = createService();
+        selectApiGroup(service, '');
+        Object.defineProperty(service, 'can_update_media_tags', {
+            value: () => true,
+        });
+
+        const renamed = await service.renameMediaTag('news', 4);
+
+        expect(renameSignageMediaTag).toHaveBeenCalledWith({
+            current_tag: 'news',
+            new_tag: 'company news',
+        });
+        expect(renamed).toBe(true);
+    });
+
+    it('removes a media tag and its media in the selected group', async () => {
+        closeNextDialogWith({ action: 'remove', remove_media: true });
+        (removeSignageMediaTag as any).mockResolvedValue(undefined);
+        const service = createService();
+        selectApiGroup(service, 'group-1');
+        Object.defineProperty(service, 'can_delete_tagged_media', {
+            value: () => true,
+        });
+
+        const removed = await service.removeMediaTag('news', 4);
+
+        expect(dialog.open).toHaveBeenCalledWith(MediaTagModalComponent, {
+            data: {
+                action: 'remove',
+                tag: 'news',
+                count: 4,
+                can_delete_media: true,
+            },
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        expect(removeSignageMediaTag).toHaveBeenCalledWith({
+            tag: 'news',
+            remove_media: true,
+            group_id: 'group-1',
+        });
+        expect(removed).toBe(true);
+    });
+
+    it('removes a media tag across all groups without deleting media', async () => {
+        closeNextDialogWith({ action: 'remove', remove_media: false });
+        (removeSignageMediaTag as any).mockResolvedValue(undefined);
+        const service = createService();
+        selectApiGroup(service, '');
+        Object.defineProperty(service, 'can_update_media_tags', {
+            value: () => true,
+        });
+
+        const removed = await service.removeMediaTag('news', 4);
+
+        expect(removeSignageMediaTag).toHaveBeenCalledWith({ tag: 'news' });
+        expect(removed).toBe(true);
     });
 
     it('waits for the upload to commit before creating the media record', async () => {

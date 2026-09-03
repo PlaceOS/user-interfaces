@@ -49,7 +49,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The active signage group selector is available from the navigation.
-- System administrators can view all groups.
+- System administrators and support users can view all groups.
 - Non-system administrators can switch between their assigned signage groups.
 - Switching groups refreshes scoped media, playlists, zones, displays, and permissions.
 - Media selection and open tag folders are cleared when the active group changes.
@@ -70,6 +70,9 @@ These stories cover the current app workflows:
 - Users can search media.
 - Users can switch between grid, list, and folder views.
 - Folder view groups media by tag and includes an Untagged folder.
+- Users with update permission can rename tags or remove them from all media in the active group.
+- Users with delete permission can also remove the media that uses a deleted tag.
+- System administrators and support users can manage tags across all groups from the All Groups view.
 - Media cards show type, thumbnail or fallback icon, duration, tags, and expired state where available.
 - The list loads additional media as the user scrolls.
 

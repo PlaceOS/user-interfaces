@@ -65,10 +65,12 @@ import {
     removeGroupUser,
     removeGroupZone,
     removeSignageMedia,
+    removeSignageMediaTag,
     removeSignagePlaylist,
     removeSignageTemplate,
     removeSignageTemplateMapping,
     removeSystem,
+    renameSignageMediaTag,
     requestApprovalSignagePlaylist,
     requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
@@ -112,6 +114,10 @@ import { DisplaySelectModalComponent } from './shared/display-select-modal.compo
 import { GroupSelectModalComponent } from './shared/group-select-modal.component';
 import { MediaEditModalComponent } from './shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
+import {
+    MediaTagModalComponent,
+    type MediaTagModalResult,
+} from './shared/media-tag-modal.component';
 import { MediaTagsModalComponent } from './shared/media-tags-modal.component';
 import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
 import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
@@ -723,6 +729,12 @@ export class SignageService {
     public readonly can_delete = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Delete),
     );
+    public readonly can_update_media_tags = computed(() =>
+        this._api_group_id() ? this.can_update() : this.can_manage_all_groups(),
+    );
+    public readonly can_delete_tagged_media = computed(() =>
+        this._api_group_id() ? this.can_delete() : this.can_manage_all_groups(),
+    );
     public readonly can_delete_displays = this.is_sys_admin;
     public readonly can_approve = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Approve),
@@ -737,7 +749,7 @@ export class SignageService {
 
     private readonly _can_query_group_data = computed(() => {
         const group_id = this._api_group_id();
-        return this.is_sys_admin() || !!group_id;
+        return this.can_manage_all_groups() || !!group_id;
     });
     // How many items to request per network page.
     private static readonly PAGE_SIZE = 200;
@@ -1577,7 +1589,7 @@ export class SignageService {
                 return;
             }
             this.selected_group_id.set(
-                this.is_sys_admin() ? '' : groups[0].group.id,
+                this.can_manage_all_groups() ? '' : groups[0].group.id,
             );
         });
 
@@ -3485,6 +3497,94 @@ export class SignageService {
         }
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.MEDIA_SAVE_SUCCESS'));
+        return true;
+    }
+
+    public async renameMediaTag(tag: string, count: number) {
+        if (!tag) return false;
+        if (
+            !this._requirePermission(
+                this.can_update_media_tags(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA'),
+            )
+        )
+            return false;
+        const ref = this._dialog.open(MediaTagModalComponent, {
+            data: {
+                action: 'rename',
+                tag,
+                count,
+                can_delete_media: false,
+            },
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        const result = await dialogClosed<MediaTagModalResult>(ref);
+        if (result?.action !== 'rename') return false;
+        try {
+            const group_id = this._api_group_id();
+            await renameSignageMediaTag({
+                current_tag: tag,
+                new_tag: result.new_tag,
+                ...(group_id ? { group_id } : {}),
+            });
+        } catch (error) {
+            notifyError(
+                i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_ERROR', {
+                    error: error instanceof Error ? error.message : `${error}`,
+                }),
+            );
+            return false;
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_RENAMED'));
+        return true;
+    }
+
+    public async removeMediaTag(tag: string, count: number) {
+        if (!tag) return false;
+        if (
+            !this._requirePermission(
+                this.can_update_media_tags(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_MEDIA'),
+            )
+        )
+            return false;
+        const ref = this._dialog.open(MediaTagModalComponent, {
+            data: {
+                action: 'remove',
+                tag,
+                count,
+                can_delete_media: this.can_delete_tagged_media(),
+            },
+            width: 'min(28rem, calc(100vw - 2rem))',
+        });
+        const result = await dialogClosed<MediaTagModalResult>(ref);
+        if (result?.action !== 'remove') return false;
+        if (
+            result.remove_media &&
+            !this._requirePermission(
+                this.can_delete_tagged_media(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_MEDIA'),
+            )
+        )
+            return false;
+        try {
+            const group_id = this._api_group_id();
+            await removeSignageMediaTag({
+                tag,
+                ...(result.remove_media ? { remove_media: true } : {}),
+                ...(group_id ? { group_id } : {}),
+            });
+        } catch (error) {
+            notifyError(
+                i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_ERROR', {
+                    error: error instanceof Error ? error.message : `${error}`,
+                }),
+            );
+            return false;
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_REMOVED'));
         return true;
     }
 

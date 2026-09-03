@@ -42,7 +42,7 @@ const UNTAGGED = '\0untagged';
                 "
                 [tabPanel]="group_tabs_panel"
             >
-                @if (is_sys_admin()) {
+                @if (can_manage_all_groups()) {
                     <button
                         mat-tab-link
                         type="button"
@@ -74,38 +74,62 @@ const UNTAGGED = '\0untagged';
                     role="list"
                 >
                     @for (folder of folders(); track folder.id) {
-                        <button
-                            type="button"
+                        <div
                             role="listitem"
-                            matRipple
-                            class="border-base-300 bg-base-100 hover:border-info flex flex-col items-center justify-center rounded-lg border p-4 hover:shadow-xl"
-                            (click)="openFolder(folder.id)"
+                            class="border-base-300 bg-base-100 hover:border-info relative flex rounded-lg border hover:shadow-xl"
                         >
-                            <icon class="text-warning -my-2 text-8xl">{{
-                                folder.untagged ? 'folder_open' : 'folder'
-                            }}</icon>
-                            <div
-                                class="text-base-content w-full truncate text-center font-medium"
-                                [matTooltip]="
-                                    folder.untagged
-                                        ? ('SIGNAGE_MANAGER.UNTAGGED'
-                                          | translate)
-                                        : folder.id
-                                "
+                            <button
+                                type="button"
+                                matRipple
+                                class="flex min-w-0 flex-1 flex-col items-center justify-center rounded-lg p-4"
+                                (click)="openFolder(folder.id)"
                             >
-                                @if (folder.untagged) {
-                                    {{ 'SIGNAGE_MANAGER.UNTAGGED' | translate }}
-                                } @else {
-                                    {{ folder.id }}
-                                }
-                            </div>
-                            <div class="text-base-content/60 text-xs">
-                                {{
-                                    'COMMON.ITEM_COUNT'
-                                        | translate: { count: folder.count }
-                                }}
-                            </div>
-                        </button>
+                                <icon class="text-warning -my-2 text-8xl">{{
+                                    folder.untagged ? 'folder_open' : 'folder'
+                                }}</icon>
+                                <div
+                                    class="text-base-content w-full truncate text-center font-medium"
+                                    [matTooltip]="
+                                        folder.untagged
+                                            ? ('SIGNAGE_MANAGER.UNTAGGED'
+                                              | translate)
+                                            : folder.id
+                                    "
+                                >
+                                    @if (folder.untagged) {
+                                        {{
+                                            'SIGNAGE_MANAGER.UNTAGGED'
+                                                | translate
+                                        }}
+                                    } @else {
+                                        {{ folder.id }}
+                                    }
+                                </div>
+                                <div class="text-base-content/60 text-xs">
+                                    {{
+                                        'COMMON.ITEM_COUNT'
+                                            | translate: { count: folder.count }
+                                    }}
+                                </div>
+                            </button>
+                            @if (!folder.untagged && can_update_media_tags()) {
+                                <button
+                                    icon
+                                    default
+                                    type="button"
+                                    matRipple
+                                    class="absolute top-2 right-2 z-10 text-sm"
+                                    [matMenuTriggerFor]="folder_menu"
+                                    [matMenuTriggerData]="{ folder }"
+                                    [attr.aria-label]="
+                                        'SIGNAGE_MANAGER.MEDIA_TAG_ACTIONS'
+                                            | translate: { tag: folder.id }
+                                    "
+                                >
+                                    <icon>more_vert</icon>
+                                </button>
+                            }
+                        </div>
                     }
                 </div>
             } @else if (loading()) {
@@ -484,6 +508,35 @@ const UNTAGGED = '\0untagged';
             }
         }
 
+        <mat-menu #folder_menu="matMenu">
+            <ng-template matMenuContent let-folder="folder">
+                <button
+                    type="button"
+                    mat-menu-item
+                    (click)="renameTag(folder.id, folder.count)"
+                >
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-2xl">edit</icon>
+                        <div class="pr-2">
+                            {{ 'SIGNAGE_MANAGER.RENAME_MEDIA_TAG' | translate }}
+                        </div>
+                    </div>
+                </button>
+                <button
+                    type="button"
+                    mat-menu-item
+                    (click)="removeTag(folder.id, folder.count)"
+                >
+                    <div class="flex items-center space-x-2">
+                        <icon class="text-error text-2xl">delete</icon>
+                        <div class="pr-2">
+                            {{ 'SIGNAGE_MANAGER.REMOVE_MEDIA_TAG' | translate }}
+                        </div>
+                    </div>
+                </button>
+            </ng-template>
+        </mat-menu>
+
         <!-- Shared media actions menu (data passed per item) -->
         <mat-menu #menu="matMenu">
             <ng-template matMenuContent let-media_item="item">
@@ -715,11 +768,11 @@ export class MediaListComponent implements OnInit {
     public readonly view_mode = this._service.media_view_mode;
     public readonly groups = this._service.signage_groups;
     public readonly selected_group_id = this._service.selected_group_id;
-    public readonly is_sys_admin = this._service.is_sys_admin;
+    public readonly can_manage_all_groups = this._service.can_manage_all_groups;
     public readonly can_switch_groups = computed(
         () =>
             this._service.show_media_group_tabs() &&
-            (this.is_sys_admin()
+            (this.can_manage_all_groups()
                 ? this.groups().length > 0
                 : this.groups().length > 1),
     );
@@ -871,6 +924,12 @@ export class MediaListComponent implements OnInit {
     public readonly removeItem = (item: SignageMedia) =>
         this._service.removeMedia(item);
 
+    public readonly renameTag = (tag: string, count: number) =>
+        this._service.renameMediaTag(tag, count);
+
+    public readonly removeTag = (tag: string, count: number) =>
+        this._service.removeMediaTag(tag, count);
+
     public readonly addToPlaylist = (media_id: string) =>
         this._service.openPlaylistSelectModal(media_id);
 
@@ -903,6 +962,7 @@ export class MediaListComponent implements OnInit {
     }
 
     public readonly can_update = this._service.can_update;
+    public readonly can_update_media_tags = this._service.can_update_media_tags;
     public readonly can_delete = this._service.can_delete;
     public readonly can_share = this._service.can_share;
 
