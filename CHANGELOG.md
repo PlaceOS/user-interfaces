@@ -6,9 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+#### Assets
+
+- Restrict selection for disabled rooms PPT-2745
+
 #### Bookings
 
 - Show cancel series by default PPT-2682
+- Use stored period for group edits PPT-2740
 
 #### Build
 
