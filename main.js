@@ -7,7 +7,7 @@ import {
 
 // node_modules/@angular/core/fesm2022/_effect-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -66,11 +66,12 @@ function producerAccessed(node) {
     if (nextProducerLink !== void 0 && nextProducerLink.producer === node) {
       activeConsumer.producersTail = nextProducerLink;
       nextProducerLink.lastReadVersion = node.version;
+      nextProducerLink.knownValidAtEpoch = epoch;
       return;
     }
   }
   const prevConsumerLink = node.consumersTail;
-  if (prevConsumerLink !== void 0 && prevConsumerLink.consumer === activeConsumer && (!isRecomputing || isValidLink(prevConsumerLink, activeConsumer))) {
+  if (prevConsumerLink !== void 0 && prevConsumerLink.consumer === activeConsumer && (!isRecomputing || prevConsumerLink.knownValidAtEpoch === epoch)) {
     return;
   }
   const isLive = consumerIsLive(activeConsumer);
@@ -79,6 +80,7 @@ function producerAccessed(node) {
     consumer: activeConsumer,
     nextProducer: nextProducerLink,
     prevConsumer: void 0,
+    knownValidAtEpoch: epoch,
     lastReadVersion: node.version,
     nextConsumer: void 0
   };
@@ -144,6 +146,14 @@ function consumerBeforeComputation(node) {
   return setActiveConsumer(node);
 }
 function resetConsumerBeforeComputation(node) {
+  var _a10;
+  if (((_a10 = node.producersTail) == null ? void 0 : _a10.knownValidAtEpoch) === epoch) {
+    let producer = node.producers;
+    while (producer !== void 0) {
+      producer.knownValidAtEpoch = null;
+      producer = producer.nextProducer;
+    }
+  }
   node.producersTail = void 0;
   node.recomputing = true;
 }
@@ -243,24 +253,8 @@ function consumerIsLive(node) {
 function runPostProducerCreatedFn(node) {
   postProducerCreatedFn == null ? void 0 : postProducerCreatedFn(node);
 }
-function isValidLink(checkLink, consumer) {
-  const producersTail = consumer.producersTail;
-  if (producersTail !== void 0) {
-    let link2 = consumer.producers;
-    do {
-      if (link2 === checkLink) {
-        return true;
-      }
-      if (link2 === producersTail) {
-        break;
-      }
-      link2 = link2.nextProducer;
-    } while (link2 !== void 0);
-  }
-  return false;
-}
-function defaultEquals(a, b2) {
-  return Object.is(a, b2);
+function defaultEquals(a, b) {
+  return Object.is(a, b);
 }
 function createComputed(computation, equal) {
   const node = Object.create(COMPUTED_NODE);
@@ -406,7 +400,7 @@ function runEffect(node) {
 
 // node_modules/@angular/core/fesm2022/_not_found-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -426,7 +420,7 @@ function isNotFound(e) {
 
 // node_modules/@angular/core/fesm2022/_untracked-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -522,7 +516,7 @@ function untracked(nonReactiveReadsFn) {
 
 // node_modules/@angular/core/fesm2022/primitives-signals.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -629,7 +623,7 @@ if (typeof ngDevMode === "undefined" || ngDevMode) {
 
 // node_modules/@angular/core/fesm2022/primitives-di.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -1891,8 +1885,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function verb(n, f2) {
     if (g2[n]) {
       i[n] = function(v) {
-        return new Promise(function(a, b2) {
-          q2.push([n, v, a, b2]) > 1 || resume(n, v);
+        return new Promise(function(a, b) {
+          q2.push([n, v, a, b]) > 1 || resume(n, v);
         });
       };
       if (f2) i[n] = f2(i[n]);
@@ -2440,7 +2434,7 @@ function mergeInternals(source, subscriber, project, concurrent, onBeforeNext, e
 // node_modules/rxjs/dist/esm/internal/operators/mergeMap.js
 function mergeMap(project, resultSelector, concurrent = Infinity) {
   if (isFunction(resultSelector)) {
-    return mergeMap((a, i) => map((b2, ii2) => resultSelector(a, b2, i, ii2))(innerFrom(project(a, i))), concurrent);
+    return mergeMap((a, i) => map((b, ii2) => resultSelector(a, b, i, ii2))(innerFrom(project(a, i))), concurrent);
   } else if (typeof resultSelector === "number") {
     concurrent = resultSelector;
   }
@@ -2734,8 +2728,8 @@ function distinctUntilChanged(comparator, keySelector = identity) {
     }));
   });
 }
-function defaultCompare(a, b2) {
-  return a === b2;
+function defaultCompare(a, b) {
+  return a === b;
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/throwIfEmpty.js
@@ -3048,7 +3042,7 @@ function tap(observerOrNext, error2, complete) {
 
 // node_modules/@angular/core/fesm2022/_pending_tasks-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -3065,7 +3059,7 @@ var Version = class {
     this.patch = parts.slice(2).join(".");
   }
 };
-var VERSION = /* @__PURE__ */ new Version("22.0.1");
+var VERSION = /* @__PURE__ */ new Version("22.1.5");
 var DOC_PAGE_BASE_URL = (() => {
   const full = VERSION.full;
   const isPreRelease = full.includes("-next") || full.includes("-rc") || full === "0.0.0-PLACEHOLDER";
@@ -3106,7 +3100,7 @@ function getClosureSafeProperty(objWithPropertyToExtract) {
 }
 function fillProperties(target, source) {
   for (const key in source) {
-    if (source.hasOwnProperty(key) && !target.hasOwnProperty(key)) {
+    if (Object.hasOwn(source, key) && !Object.hasOwn(target, key)) {
       target[key] = source[key];
     }
   }
@@ -3159,7 +3153,7 @@ function resolveForwardRef(type) {
   return isForwardRef(type) ? type() : type;
 }
 function isForwardRef(fn) {
-  return typeof fn === "function" && fn.hasOwnProperty(__forward_ref__) && fn.__forward_ref__ === forwardRef;
+  return typeof fn === "function" && Object.hasOwn(fn, __forward_ref__) && fn.__forward_ref__ === forwardRef;
 }
 function assertNumber(actual, msg) {
   if (!(typeof actual === "number")) {
@@ -3276,7 +3270,7 @@ function isInjectable(type) {
   return getInjectableDef(type) !== null;
 }
 function getOwnDefinition(type, field) {
-  return type.hasOwnProperty(field) && type[field] || null;
+  return Object.hasOwn(type, field) && type[field] || null;
 }
 function getInheritedInjectableDef(type) {
   const def2 = (type == null ? void 0 : type[NG_PROV_DEF]) ?? null;
@@ -3289,7 +3283,7 @@ This will become an error in a future version of Angular. Please add @Injectable
   }
 }
 function getInjectorDef(type) {
-  return type && type.hasOwnProperty(NG_INJ_DEF) ? type[NG_INJ_DEF] : null;
+  return type && Object.hasOwn(type, NG_INJ_DEF) ? type[NG_INJ_DEF] : null;
 }
 var NG_PROV_DEF = getClosureSafeProperty({
   \u0275prov: getClosureSafeProperty
@@ -3766,17 +3760,17 @@ function getInjectFlag(token) {
   return token[DI_DECORATOR_FLAG];
 }
 function getFactoryDef(type, throwNotFound) {
-  const hasFactoryDef = type.hasOwnProperty(NG_FACTORY_DEF);
+  const hasFactoryDef = Object.hasOwn(type, NG_FACTORY_DEF);
   if (!hasFactoryDef && throwNotFound === true && ngDevMode) {
     throw new Error(`Type ${stringify(type)} does not have '\u0275fac' property.`);
   }
   return hasFactoryDef ? type[NG_FACTORY_DEF] : null;
 }
-function arrayEquals(a, b2, identityAccessor) {
-  if (a.length !== b2.length) return false;
+function arrayEquals(a, b, identityAccessor) {
+  if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) {
     let valueA = a[i];
-    let valueB = b2[i];
+    let valueB = b[i];
     if (identityAccessor) {
       valueA = identityAccessor(valueA);
       valueB = identityAccessor(valueB);
@@ -4174,7 +4168,7 @@ var R3Injector = class extends EnvironmentInjector {
   }
   get(token, notFoundValue = THROW_IF_NOT_FOUND, options2) {
     assertNotDestroyed(this);
-    if (token.hasOwnProperty(NG_ENV_ID)) {
+    if (Object.hasOwn(token, NG_ENV_ID)) {
       return token[NG_ENV_ID](this);
     }
     const flags = convertToBitFlags(options2);
@@ -4557,7 +4551,7 @@ function assertTNodeForTView(tNode, tView) {
 }
 function assertTNode(tNode) {
   assertDefined(tNode, "TNode must be defined");
-  if (!(tNode && typeof tNode === "object" && tNode.hasOwnProperty("directiveStylingLast"))) {
+  if (!(tNode && typeof tNode === "object" && Object.hasOwn(tNode, "directiveStylingLast"))) {
     throwError2("Not of type TNode, got: " + tNode);
   }
 }
@@ -4630,8 +4624,77 @@ function assertNodeInjector(lView, injectorIndex) {
   assertNumber(lView[injectorIndex + 7], "injectorIndex should point to a bloom filter");
   assertNumber(lView[injectorIndex + 8], "injectorIndex should point to parent injector");
 }
+var SecurityContext;
+(function(SecurityContext3) {
+  SecurityContext3[SecurityContext3["NONE"] = 0] = "NONE";
+  SecurityContext3[SecurityContext3["HTML"] = 1] = "HTML";
+  SecurityContext3[SecurityContext3["STYLE"] = 2] = "STYLE";
+  SecurityContext3[SecurityContext3["SCRIPT"] = 3] = "SCRIPT";
+  SecurityContext3[SecurityContext3["URL"] = 4] = "URL";
+  SecurityContext3[SecurityContext3["RESOURCE_URL"] = 5] = "RESOURCE_URL";
+  SecurityContext3[SecurityContext3["ATTRIBUTE_NO_BINDING"] = 6] = "ATTRIBUTE_NO_BINDING";
+})(SecurityContext || (SecurityContext = {}));
+var _SECURITY_SCHEMA;
 var SVG_NAMESPACE = "svg";
 var MATH_ML_NAMESPACE = "math";
+var NO_NAMESPACE = "";
+var MATCH_ALL_ELEMENTS = "*";
+var createNullObj = () => /* @__PURE__ */ Object.create(null);
+function SECURITY_SCHEMA() {
+  if (_SECURITY_SCHEMA) {
+    return _SECURITY_SCHEMA;
+  }
+  _SECURITY_SCHEMA = createNullObj();
+  registerContext(SecurityContext.HTML, void 0, [["iframe", ["srcdoc"]], ["*", ["innerHTML", "outerHTML"]]]);
+  registerContext(SecurityContext.STYLE, void 0, [["*", ["style"]]]);
+  registerContext(SecurityContext.URL, void 0, [["*", ["formAction"]], ["area", ["href"]], ["a", ["href", "xlink:href"]], ["form", ["action"]], ["img", ["src"]], ["video", ["src"]]]);
+  registerContext(SecurityContext.URL, MATH_ML_NAMESPACE, [["*", ["href", "xlink:href"]]]);
+  registerContext(SecurityContext.RESOURCE_URL, void 0, [["base", ["href"]], ["embed", ["src"]], ["frame", ["src"]], ["iframe", ["src"]], ["link", ["href"]], ["object", ["codebase", "data"]]]);
+  registerContext(SecurityContext.URL, SVG_NAMESPACE, [["a", ["href", "xlink:href"]]]);
+  registerContext(SecurityContext.ATTRIBUTE_NO_BINDING, SVG_NAMESPACE, [["animate", ["attributeName", "values", "to", "from"]], ["set", ["to", "attributeName"]], ["animateMotion", ["attributeName"]], ["animateTransform", ["attributeName"]]]);
+  registerContext(SecurityContext.ATTRIBUTE_NO_BINDING, void 0, [["unknown", ["attributeName", "values", "to", "from", "sandbox", "allow", "allowFullscreen", "referrerPolicy", "csp", "fetchPriority", "credentialless"]], ["iframe", ["sandbox", "allow", "allowFullscreen", "referrerPolicy", "csp", "fetchPriority", "credentialless"]]]);
+  return _SECURITY_SCHEMA;
+}
+function registerContext(ctx, namespace, specs) {
+  const nsKey = namespace ?? NO_NAMESPACE;
+  for (const [element, attributeNames] of specs) {
+    const tagName = element.toLowerCase();
+    for (const attr of attributeNames) {
+      const attrLower = attr.toLowerCase();
+      const attrSchema = _SECURITY_SCHEMA[attrLower] ??= createNullObj();
+      const nsSchema = attrSchema[nsKey] ??= createNullObj();
+      nsSchema[tagName] = ctx;
+    }
+  }
+}
+function checkSecurityContext(tagName, propName, namespace) {
+  const securitySchema = SECURITY_SCHEMA();
+  const attrSchema = securitySchema[propName.toLowerCase()];
+  if (!attrSchema) {
+    return SecurityContext.NONE;
+  }
+  const tagLower = tagName.toLowerCase();
+  let context2;
+  if (namespace) {
+    const nsSchema = attrSchema[namespace];
+    if (nsSchema) {
+      context2 = nsSchema[tagLower] ?? nsSchema[MATCH_ALL_ELEMENTS];
+    }
+  }
+  if (context2 === void 0) {
+    const defaultSchema = attrSchema[NO_NAMESPACE];
+    if (defaultSchema) {
+      context2 = defaultSchema[tagLower] ?? defaultSchema[MATCH_ALL_ELEMENTS];
+    }
+  }
+  if (context2 === void 0 && (!namespace || namespace === NO_NAMESPACE)) {
+    const svgSchema = attrSchema[SVG_NAMESPACE];
+    if (svgSchema) {
+      context2 = svgSchema[tagLower];
+    }
+  }
+  return context2 ?? SecurityContext.NONE;
+}
 function unwrapRNode(value) {
   while (Array.isArray(value)) {
     value = value[HOST];
@@ -5729,6 +5792,9 @@ var IMAGE_CONFIG = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevM
 function makeStateKey(key) {
   return key;
 }
+function createDictionary() {
+  return /* @__PURE__ */ Object.create(null);
+}
 var TransferState = class _TransferState {
   static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
     token: _TransferState,
@@ -5741,10 +5807,14 @@ var TransferState = class _TransferState {
       return transferState;
     }
   });
-  store = {};
-  onSerializeCallbacks = {};
+  store = createDictionary();
+  onSerializeCallbacks = createDictionary();
   get(key, defaultValue) {
-    return this.store[key] !== void 0 ? this.store[key] : defaultValue;
+    if (!Object.hasOwn(this.store, key)) {
+      return defaultValue;
+    }
+    const value = this.store[key];
+    return value !== void 0 ? value : defaultValue;
   }
   set(key, value) {
     this.store[key] = value;
@@ -5753,7 +5823,7 @@ var TransferState = class _TransferState {
     delete this.store[key];
   }
   hasKey(key) {
-    return this.store.hasOwnProperty(key);
+    return Object.hasOwn(this.store, key);
   }
   get isEmpty() {
     return Object.keys(this.store).length === 0;
@@ -5763,7 +5833,7 @@ var TransferState = class _TransferState {
   }
   toJson() {
     for (const key in this.onSerializeCallbacks) {
-      if (this.onSerializeCallbacks.hasOwnProperty(key)) {
+      if (Object.hasOwn(this.onSerializeCallbacks, key)) {
         try {
           this.store[key] = this.onSerializeCallbacks[key]();
         } catch (e) {
@@ -5778,12 +5848,12 @@ function retrieveTransferredState(doc, appId) {
   const script = doc.getElementById(appId + "-state");
   if ((script == null ? void 0 : script.tagName) === "SCRIPT" && script.textContent) {
     try {
-      return JSON.parse(script.textContent);
+      return Object.assign(createDictionary(), JSON.parse(script.textContent));
     } catch (e) {
       console.warn("Exception while restoring TransferState for app " + appId, e);
     }
   }
-  return {};
+  return createDictionary();
 }
 function assertNotInReactiveContext(debugFn, extraContext) {
   if (getActiveConsumer() !== null) {
@@ -6061,7 +6131,7 @@ var PendingTasks = class _PendingTasks {
 
 // node_modules/@angular/core/fesm2022/_attribute-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -6071,15 +6141,53 @@ var Attribute = {
 
 // node_modules/@angular/core/fesm2022/_debug_node-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
+var REQUIRED_UNSET_VALUE = /* @__PURE__ */ Symbol("InputSignalNode#UNSET");
+var INPUT_SIGNAL_NODE = /* @__PURE__ */ (() => {
+  return __spreadProps(__spreadValues({}, SIGNAL_NODE), {
+    transformFn: void 0,
+    applyValueToInputSignal(node, value) {
+      signalSetFn(node, value);
+    }
+  });
+})();
 function noSideEffects(fn) {
   return {
     toString: fn
   }.toString();
 }
+var ProfilerEvent;
+(function(ProfilerEvent2) {
+  ProfilerEvent2[ProfilerEvent2["TemplateCreateStart"] = 0] = "TemplateCreateStart";
+  ProfilerEvent2[ProfilerEvent2["TemplateCreateEnd"] = 1] = "TemplateCreateEnd";
+  ProfilerEvent2[ProfilerEvent2["TemplateUpdateStart"] = 2] = "TemplateUpdateStart";
+  ProfilerEvent2[ProfilerEvent2["TemplateUpdateEnd"] = 3] = "TemplateUpdateEnd";
+  ProfilerEvent2[ProfilerEvent2["LifecycleHookStart"] = 4] = "LifecycleHookStart";
+  ProfilerEvent2[ProfilerEvent2["LifecycleHookEnd"] = 5] = "LifecycleHookEnd";
+  ProfilerEvent2[ProfilerEvent2["OutputStart"] = 6] = "OutputStart";
+  ProfilerEvent2[ProfilerEvent2["OutputEnd"] = 7] = "OutputEnd";
+  ProfilerEvent2[ProfilerEvent2["BootstrapApplicationStart"] = 8] = "BootstrapApplicationStart";
+  ProfilerEvent2[ProfilerEvent2["BootstrapApplicationEnd"] = 9] = "BootstrapApplicationEnd";
+  ProfilerEvent2[ProfilerEvent2["BootstrapComponentStart"] = 10] = "BootstrapComponentStart";
+  ProfilerEvent2[ProfilerEvent2["BootstrapComponentEnd"] = 11] = "BootstrapComponentEnd";
+  ProfilerEvent2[ProfilerEvent2["ChangeDetectionStart"] = 12] = "ChangeDetectionStart";
+  ProfilerEvent2[ProfilerEvent2["ChangeDetectionEnd"] = 13] = "ChangeDetectionEnd";
+  ProfilerEvent2[ProfilerEvent2["ChangeDetectionSyncStart"] = 14] = "ChangeDetectionSyncStart";
+  ProfilerEvent2[ProfilerEvent2["ChangeDetectionSyncEnd"] = 15] = "ChangeDetectionSyncEnd";
+  ProfilerEvent2[ProfilerEvent2["AfterRenderHooksStart"] = 16] = "AfterRenderHooksStart";
+  ProfilerEvent2[ProfilerEvent2["AfterRenderHooksEnd"] = 17] = "AfterRenderHooksEnd";
+  ProfilerEvent2[ProfilerEvent2["ComponentStart"] = 18] = "ComponentStart";
+  ProfilerEvent2[ProfilerEvent2["ComponentEnd"] = 19] = "ComponentEnd";
+  ProfilerEvent2[ProfilerEvent2["DeferBlockStateStart"] = 20] = "DeferBlockStateStart";
+  ProfilerEvent2[ProfilerEvent2["DeferBlockStateEnd"] = 21] = "DeferBlockStateEnd";
+  ProfilerEvent2[ProfilerEvent2["DynamicComponentStart"] = 22] = "DynamicComponentStart";
+  ProfilerEvent2[ProfilerEvent2["DynamicComponentEnd"] = 23] = "DynamicComponentEnd";
+  ProfilerEvent2[ProfilerEvent2["HostBindingsUpdateStart"] = 24] = "HostBindingsUpdateStart";
+  ProfilerEvent2[ProfilerEvent2["HostBindingsUpdateEnd"] = 25] = "HostBindingsUpdateEnd";
+})(ProfilerEvent || (ProfilerEvent = {}));
 var SimpleChange = class {
   previousValue;
   currentValue;
@@ -6100,11 +6208,16 @@ function applyValueToInputField(instance, inputSignalNode, privateName, value) {
     instance[privateName] = value;
   }
 }
+var _ngOnChangesFeatureImpl = null;
 var \u0275\u0275NgOnChangesFeature = /* @__PURE__ */ (() => {
+  _ngOnChangesFeatureImpl = NgOnChangesFeatureImpl;
   const \u0275\u0275NgOnChangesFeatureImpl = () => NgOnChangesFeatureImpl;
   \u0275\u0275NgOnChangesFeatureImpl.ngInherit = true;
   return \u0275\u0275NgOnChangesFeatureImpl;
 })();
+function getNgOnChangesFeatureImpl() {
+  return _ngOnChangesFeatureImpl;
+}
 function NgOnChangesFeatureImpl(definition) {
   if (definition.type.prototype.ngOnChanges) {
     definition.setInput = ngOnChangesSetInput;
@@ -6173,35 +6286,6 @@ var profiler = function(event, instance = null, eventFn) {
     profilerCallback(event, instance, eventFn);
   }
 };
-var ProfilerEvent;
-(function(ProfilerEvent2) {
-  ProfilerEvent2[ProfilerEvent2["TemplateCreateStart"] = 0] = "TemplateCreateStart";
-  ProfilerEvent2[ProfilerEvent2["TemplateCreateEnd"] = 1] = "TemplateCreateEnd";
-  ProfilerEvent2[ProfilerEvent2["TemplateUpdateStart"] = 2] = "TemplateUpdateStart";
-  ProfilerEvent2[ProfilerEvent2["TemplateUpdateEnd"] = 3] = "TemplateUpdateEnd";
-  ProfilerEvent2[ProfilerEvent2["LifecycleHookStart"] = 4] = "LifecycleHookStart";
-  ProfilerEvent2[ProfilerEvent2["LifecycleHookEnd"] = 5] = "LifecycleHookEnd";
-  ProfilerEvent2[ProfilerEvent2["OutputStart"] = 6] = "OutputStart";
-  ProfilerEvent2[ProfilerEvent2["OutputEnd"] = 7] = "OutputEnd";
-  ProfilerEvent2[ProfilerEvent2["BootstrapApplicationStart"] = 8] = "BootstrapApplicationStart";
-  ProfilerEvent2[ProfilerEvent2["BootstrapApplicationEnd"] = 9] = "BootstrapApplicationEnd";
-  ProfilerEvent2[ProfilerEvent2["BootstrapComponentStart"] = 10] = "BootstrapComponentStart";
-  ProfilerEvent2[ProfilerEvent2["BootstrapComponentEnd"] = 11] = "BootstrapComponentEnd";
-  ProfilerEvent2[ProfilerEvent2["ChangeDetectionStart"] = 12] = "ChangeDetectionStart";
-  ProfilerEvent2[ProfilerEvent2["ChangeDetectionEnd"] = 13] = "ChangeDetectionEnd";
-  ProfilerEvent2[ProfilerEvent2["ChangeDetectionSyncStart"] = 14] = "ChangeDetectionSyncStart";
-  ProfilerEvent2[ProfilerEvent2["ChangeDetectionSyncEnd"] = 15] = "ChangeDetectionSyncEnd";
-  ProfilerEvent2[ProfilerEvent2["AfterRenderHooksStart"] = 16] = "AfterRenderHooksStart";
-  ProfilerEvent2[ProfilerEvent2["AfterRenderHooksEnd"] = 17] = "AfterRenderHooksEnd";
-  ProfilerEvent2[ProfilerEvent2["ComponentStart"] = 18] = "ComponentStart";
-  ProfilerEvent2[ProfilerEvent2["ComponentEnd"] = 19] = "ComponentEnd";
-  ProfilerEvent2[ProfilerEvent2["DeferBlockStateStart"] = 20] = "DeferBlockStateStart";
-  ProfilerEvent2[ProfilerEvent2["DeferBlockStateEnd"] = 21] = "DeferBlockStateEnd";
-  ProfilerEvent2[ProfilerEvent2["DynamicComponentStart"] = 22] = "DynamicComponentStart";
-  ProfilerEvent2[ProfilerEvent2["DynamicComponentEnd"] = 23] = "DynamicComponentEnd";
-  ProfilerEvent2[ProfilerEvent2["HostBindingsUpdateStart"] = 24] = "HostBindingsUpdateStart";
-  ProfilerEvent2[ProfilerEvent2["HostBindingsUpdateEnd"] = 25] = "HostBindingsUpdateEnd";
-})(ProfilerEvent || (ProfilerEvent = {}));
 function registerPreOrderHooks(directiveIndex, directiveDef, tView) {
   ngDevMode && assertFirstCreatePass(tView);
   const {
@@ -6210,7 +6294,7 @@ function registerPreOrderHooks(directiveIndex, directiveDef, tView) {
     ngDoCheck
   } = directiveDef.type.prototype;
   if (ngOnChanges) {
-    const wrappedOnChanges = NgOnChangesFeatureImpl(directiveDef);
+    const wrappedOnChanges = getNgOnChangesFeatureImpl()(directiveDef);
     (tView.preOrderHooks ??= []).push(directiveIndex, wrappedOnChanges);
     (tView.preOrderCheckHooks ??= []).push(directiveIndex, wrappedOnChanges);
   }
@@ -6512,7 +6596,7 @@ function bloomAdd(injectorIndex, tView, type) {
   let id;
   if (typeof type === "string") {
     id = type.charCodeAt(0) || 0;
-  } else if (type.hasOwnProperty(NG_ELEMENT_ID)) {
+  } else if (Object.hasOwn(type, NG_ELEMENT_ID)) {
     id = type[NG_ELEMENT_ID];
   }
   if (id == null) {
@@ -6806,7 +6890,7 @@ function bloomHashBitOrFactory(token) {
   if (typeof token === "string") {
     return token.charCodeAt(0) || 0;
   }
-  const tokenId = token.hasOwnProperty(NG_ELEMENT_ID) ? token[NG_ELEMENT_ID] : void 0;
+  const tokenId = Object.hasOwn(token, NG_ELEMENT_ID) ? token[NG_ELEMENT_ID] : void 0;
   if (typeof tokenId === "number") {
     if (tokenId >= 0) {
       return tokenId & BLOOM_MASK;
@@ -6939,7 +7023,7 @@ function makeDecorator(name, props, parentClass, additionalProcessing, typeFn) {
       const annotationInstance = new DecoratorFactory(...args);
       return function TypeDecorator(cls) {
         if (typeFn) typeFn(cls, ...args);
-        const annotations = cls.hasOwnProperty(ANNOTATIONS) ? cls[ANNOTATIONS] : Object.defineProperty(cls, ANNOTATIONS, {
+        const annotations = Object.hasOwn(cls, ANNOTATIONS) ? cls[ANNOTATIONS] : Object.defineProperty(cls, ANNOTATIONS, {
           value: []
         })[ANNOTATIONS];
         annotations.push(annotationInstance);
@@ -6976,7 +7060,7 @@ function makeParamDecorator(name, props, parentClass) {
       ParamDecorator.annotation = annotationInstance;
       return ParamDecorator;
       function ParamDecorator(cls, unusedKey, index) {
-        const parameters = cls.hasOwnProperty(PARAMETERS) ? cls[PARAMETERS] : Object.defineProperty(cls, PARAMETERS, {
+        const parameters = Object.hasOwn(cls, PARAMETERS) ? cls[PARAMETERS] : Object.defineProperty(cls, PARAMETERS, {
           value: []
         })[PARAMETERS];
         while (parameters.length <= index) {
@@ -7005,10 +7089,10 @@ function makePropDecorator(name, props, parentClass, additionalProcessing) {
           throw new Error("Standard Angular field decorators are not supported in JIT mode.");
         }
         const constructor = target.constructor;
-        const meta = constructor.hasOwnProperty(PROP_METADATA) ? constructor[PROP_METADATA] : Object.defineProperty(constructor, PROP_METADATA, {
+        const meta = Object.hasOwn(constructor, PROP_METADATA) ? constructor[PROP_METADATA] : Object.defineProperty(constructor, PROP_METADATA, {
           value: {}
         })[PROP_METADATA];
-        meta[name2] = meta.hasOwnProperty(name2) && meta[name2] || [];
+        meta[name2] = Object.hasOwn(meta, name2) && meta[name2] || [];
         meta[name2].unshift(decoratorInstance);
       }
       return PropDecorator;
@@ -7122,7 +7206,7 @@ var ReflectionCapabilities = class {
       const paramAnnotations2 = ctorParameters.map((ctorParam) => ctorParam && convertTsickleDecoratorIntoMetadata(ctorParam.decorators));
       return this._zipTypesAndAnnotations(paramTypes2, paramAnnotations2);
     }
-    const paramAnnotations = type.hasOwnProperty(PARAMETERS) && type[PARAMETERS];
+    const paramAnnotations = Object.hasOwn(type, PARAMETERS) && type[PARAMETERS];
     const paramTypes = this._reflect && this._reflect.getOwnMetadata && this._reflect.getOwnMetadata("design:paramtypes", type);
     if (paramTypes || paramAnnotations) {
       return this._zipTypesAndAnnotations(paramTypes, paramAnnotations);
@@ -7151,7 +7235,7 @@ var ReflectionCapabilities = class {
     if (typeOrFunc.decorators && typeOrFunc.decorators !== parentCtor.decorators) {
       return convertTsickleDecoratorIntoMetadata(typeOrFunc.decorators);
     }
-    if (typeOrFunc.hasOwnProperty(ANNOTATIONS)) {
+    if (Object.hasOwn(typeOrFunc, ANNOTATIONS)) {
       return typeOrFunc[ANNOTATIONS];
     }
     return null;
@@ -7181,7 +7265,7 @@ var ReflectionCapabilities = class {
       });
       return propMetadata;
     }
-    if (typeOrFunc.hasOwnProperty(PROP_METADATA)) {
+    if (Object.hasOwn(typeOrFunc, PROP_METADATA)) {
       return typeOrFunc[PROP_METADATA];
     }
     return null;
@@ -7202,7 +7286,7 @@ var ReflectionCapabilities = class {
     if (ownPropMetadata) {
       Object.keys(ownPropMetadata).forEach((propName) => {
         const decorators = [];
-        if (propMetadata.hasOwnProperty(propName)) {
+        if (Object.hasOwn(propMetadata, propName)) {
           decorators.push(...propMetadata[propName]);
         }
         decorators.push(...ownPropMetadata[propName]);
@@ -7303,7 +7387,7 @@ function reflectDependency(dep) {
 function compileInjectable(type, meta) {
   let ngInjectableDef = null;
   let ngFactoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
+  if (!Object.hasOwn(type, NG_PROV_DEF)) {
     Object.defineProperty(type, NG_PROV_DEF, {
       get: () => {
         if (ngInjectableDef === null) {
@@ -7318,7 +7402,7 @@ function compileInjectable(type, meta) {
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
+  if (!Object.hasOwn(type, NG_FACTORY_DEF)) {
     Object.defineProperty(type, NG_FACTORY_DEF, {
       get: () => {
         if (ngFactoryDef === null) {
@@ -7385,7 +7469,7 @@ var Injectable = makeDecorator("Injectable", void 0, void 0, void 0, (type, meta
 function compileService(type, meta) {
   let def2 = null;
   let factoryDef = null;
-  if (!type.hasOwnProperty(NG_PROV_DEF)) {
+  if (!Object.hasOwn(type, NG_PROV_DEF)) {
     Object.defineProperty(type, NG_PROV_DEF, {
       get: () => {
         if (def2 === null) {
@@ -7400,7 +7484,7 @@ function compileService(type, meta) {
       }
     });
   }
-  if (!type.hasOwnProperty(NG_FACTORY_DEF)) {
+  if (!Object.hasOwn(type, NG_FACTORY_DEF)) {
     Object.defineProperty(type, NG_FACTORY_DEF, {
       get: () => {
         if (factoryDef === null) {
@@ -7970,9 +8054,9 @@ function getListeners(element) {
   listeners.sort(sortListeners);
   return listeners;
 }
-function sortListeners(a, b2) {
-  if (a.name == b2.name) return 0;
-  return a.name < b2.name ? -1 : 1;
+function sortListeners(a, b) {
+  if (a.name == b.name) return 0;
+  return a.name < b.name ? -1 : 1;
 }
 function assertDomElement(value) {
   if (typeof Element !== "undefined" && !(value instanceof Element)) {
@@ -7982,7 +8066,7 @@ function assertDomElement(value) {
 function extractInputDebugMetadata(inputs) {
   const res = {};
   for (const key in inputs) {
-    if (inputs.hasOwnProperty(key)) {
+    if (Object.hasOwn(inputs, key)) {
       const value = inputs[key];
       if (value !== void 0) {
         res[key] = value[0];
@@ -8604,6 +8688,10 @@ function matchingSchemas(schemas, tagName) {
   }
   return false;
 }
+var NAMESPACE_URIS = {
+  "http://www.w3.org/2000/svg": SVG_NAMESPACE,
+  "http://www.w3.org/1998/Math/MathML": MATH_ML_NAMESPACE
+};
 var policy$1;
 function getPolicy$1() {
   if (policy$1 === void 0) {
@@ -8775,15 +8863,15 @@ function _sanitizeUrl(url) {
   return "unsafe:" + url;
 }
 function tagSet(tags) {
-  const res = {};
+  const res = /* @__PURE__ */ Object.create(null);
   for (const t of tags.split(",")) res[t] = true;
   return res;
 }
 function merge2(...sets) {
-  const res = {};
+  const res = /* @__PURE__ */ Object.create(null);
   for (const s of sets) {
     for (const v in s) {
-      if (s.hasOwnProperty(v)) res[v] = true;
+      if (Object.hasOwn(s, v)) res[v] = true;
     }
   }
   return res;
@@ -8836,9 +8924,9 @@ var SanitizingHtmlSerializer = class {
   }
   startElement(element) {
     const tagName = getNodeName(element).toLowerCase();
-    if (!VALID_ELEMENTS.hasOwnProperty(tagName)) {
+    if (!Object.hasOwn(VALID_ELEMENTS, tagName)) {
       this.sanitizedSomething = true;
-      return !SKIP_TRAVERSING_CONTENT_IF_INVALID_ELEMENTS.hasOwnProperty(tagName);
+      return !Object.hasOwn(SKIP_TRAVERSING_CONTENT_IF_INVALID_ELEMENTS, tagName);
     }
     this.buf.push("<");
     this.buf.push(tagName);
@@ -8847,7 +8935,7 @@ var SanitizingHtmlSerializer = class {
       const elAttr = elAttrs.item(i);
       const attrName = elAttr.name;
       const lower = attrName.toLowerCase();
-      if (!VALID_ATTRS.hasOwnProperty(lower)) {
+      if (!Object.hasOwn(VALID_ATTRS, lower)) {
         this.sanitizedSomething = true;
         continue;
       }
@@ -8860,7 +8948,7 @@ var SanitizingHtmlSerializer = class {
   }
   endElement(current) {
     const tagName = getNodeName(current).toLowerCase();
-    if (VALID_ELEMENTS.hasOwnProperty(tagName) && !VOID_ELEMENTS.hasOwnProperty(tagName)) {
+    if (Object.hasOwn(VALID_ELEMENTS, tagName) && !Object.hasOwn(VOID_ELEMENTS, tagName)) {
       this.buf.push("</");
       this.buf.push(tagName);
       this.buf.push(">");
@@ -9013,58 +9101,24 @@ function enforceIframeSecurity(iframe) {
   iframe.srcdoc = trustedHTMLFromString("");
   nativeRemoveNode(lView[RENDERER], iframe);
 }
-var SecurityContext;
-(function(SecurityContext3) {
-  SecurityContext3[SecurityContext3["NONE"] = 0] = "NONE";
-  SecurityContext3[SecurityContext3["HTML"] = 1] = "HTML";
-  SecurityContext3[SecurityContext3["STYLE"] = 2] = "STYLE";
-  SecurityContext3[SecurityContext3["SCRIPT"] = 3] = "SCRIPT";
-  SecurityContext3[SecurityContext3["URL"] = 4] = "URL";
-  SecurityContext3[SecurityContext3["RESOURCE_URL"] = 5] = "RESOURCE_URL";
-  SecurityContext3[SecurityContext3["ATTRIBUTE_NO_BINDING"] = 6] = "ATTRIBUTE_NO_BINDING";
-})(SecurityContext || (SecurityContext = {}));
-var _SECURITY_SCHEMA;
-var SVG_NAMESPACE2 = "svg";
-var MATH_ML_NAMESPACE2 = "math";
-function SECURITY_SCHEMA() {
-  if (!_SECURITY_SCHEMA) {
-    _SECURITY_SCHEMA = {};
-    registerContext(SecurityContext.HTML, void 0, [["iframe", ["srcdoc"]], ["*", ["innerHTML", "outerHTML"]]]);
-    registerContext(SecurityContext.STYLE, void 0, [["*", ["style"]]]);
-    registerContext(SecurityContext.URL, void 0, [["*", ["formAction"]], ["area", ["href"]], ["a", ["href", "xlink:href"]], ["form", ["action"]], ["img", ["src"]], ["video", ["src"]]]);
-    registerContext(SecurityContext.URL, MATH_ML_NAMESPACE2, [["*", ["href", "xlink:href"]]]);
-    registerContext(SecurityContext.RESOURCE_URL, void 0, [["base", ["href"]], ["embed", ["src"]], ["frame", ["src"]], ["iframe", ["src"]], ["link", ["href"]], ["object", ["codebase", "data"]]]);
-    registerContext(SecurityContext.URL, SVG_NAMESPACE2, [["a", ["href", "xlink:href"]]]);
-    registerContext(SecurityContext.ATTRIBUTE_NO_BINDING, SVG_NAMESPACE2, [["animate", ["attributeName", "values", "to", "from"]], ["set", ["to", "attributeName"]], ["animateMotion", ["attributeName"]], ["animateTransform", ["attributeName"]]]);
-    registerContext(SecurityContext.ATTRIBUTE_NO_BINDING, void 0, [["unknown", ["attributeName", "values", "to", "from", "sandbox", "allow", "allowFullscreen", "referrerPolicy", "csp", "fetchPriority"]], ["iframe", ["sandbox", "allow", "allowFullscreen", "referrerPolicy", "csp", "fetchPriority"]]]);
+function splitNsName(elementName, fatal = true) {
+  if (elementName[0] != ":") {
+    return [null, elementName];
   }
-  return _SECURITY_SCHEMA;
-}
-function registerContext(ctx, namespace, specs) {
-  for (const [element, attributeNames] of specs) {
-    let tagName = element;
-    if (namespace && element !== "unknown") {
-      tagName = `:${namespace}:${element}`;
-    }
-    tagName = tagName.toLowerCase();
-    for (const attr of attributeNames) {
-      _SECURITY_SCHEMA[`${tagName}|${attr.toLowerCase()}`] = ctx;
+  const colonIndex = elementName.indexOf(":", 1);
+  if (colonIndex === -1) {
+    if (fatal) {
+      throw new Error(`Unsupported format "${elementName}" expecting ":namespace:name"`);
+    } else {
+      return [null, elementName];
     }
   }
+  return [elementName.slice(1, colonIndex), elementName.slice(colonIndex + 1)];
 }
-function checkSecurityContext(tagName, propName, namespace) {
-  const securitySchema = SECURITY_SCHEMA();
-  propName = propName.toLowerCase();
-  tagName = tagName.toLowerCase();
-  let namespacedTag = tagName;
-  let nsWildcardTag;
-  if (namespace === SVG_NAMESPACE2 || namespace === MATH_ML_NAMESPACE2) {
-    namespacedTag = `:${namespace}:${tagName}`;
-    nsWildcardTag = `:${namespace}:*`;
+function \u0275\u0275sanitizeHtml(unsafeHtml, tagName, propName) {
+  if (tagName !== void 0 && propName !== void 0 && getSecurityContext(tagName, propName) !== SecurityContext.HTML) {
+    return unsafeHtml;
   }
-  return securitySchema[namespacedTag + "|" + propName] ?? (nsWildcardTag !== void 0 ? securitySchema[nsWildcardTag + "|" + propName] : void 0) ?? securitySchema["*|" + propName] ?? SecurityContext.NONE;
-}
-function \u0275\u0275sanitizeHtml(unsafeHtml) {
   const sanitizer = getSanitizer();
   if (sanitizer) {
     return trustedHTMLFromStringBypass(sanitizer.sanitize(SecurityContext.HTML, unsafeHtml) || "");
@@ -9126,37 +9180,19 @@ function \u0275\u0275trustConstantResourceUrl(url) {
   }
   return trustedScriptURLFromString(url[0]);
 }
-var RESOURCE_MAP = {
-  "embed": {
-    "src": true
-  },
-  "frame": {
-    "src": true
-  },
-  "iframe": {
-    "src": true
-  },
-  "media": {
-    "src": true
-  },
-  "base": {
-    "href": true
-  },
-  "link": {
-    "href": true
-  },
-  "object": {
-    "data": true,
-    "codebase": true
-  }
-};
 function getUrlSanitizer(tag2, prop) {
-  var _a10;
-  const isResource = ((_a10 = RESOURCE_MAP[tag2.toLowerCase()]) == null ? void 0 : _a10[prop.toLowerCase()]) === true;
-  return isResource ? \u0275\u0275sanitizeResourceUrl : \u0275\u0275sanitizeUrl;
+  switch (getSecurityContext(tag2, prop)) {
+    case SecurityContext.RESOURCE_URL:
+      return \u0275\u0275sanitizeResourceUrl;
+    case SecurityContext.URL:
+      return \u0275\u0275sanitizeUrl;
+    default:
+      return null;
+  }
 }
 function \u0275\u0275sanitizeUrlOrResourceUrl(unsafeUrl, tag2, prop) {
-  return getUrlSanitizer(tag2, prop)(unsafeUrl);
+  var _a10;
+  return ((_a10 = getUrlSanitizer(tag2, prop)) == null ? void 0 : _a10(unsafeUrl)) ?? unsafeUrl;
 }
 function validateAgainstEventProperties(name) {
   if (name.toLowerCase().startsWith("on")) {
@@ -9169,75 +9205,82 @@ function getSanitizer() {
   const lView = getLView();
   return lView && lView[ENVIRONMENT].sanitizer;
 }
+function getSecurityContext(tagName, propName) {
+  const [namespace, resolvedTagName] = resolveElement(tagName);
+  return checkSecurityContext(resolvedTagName, propName, namespace);
+}
+function resolveElement(tagName) {
+  tagName = tagName.toLowerCase();
+  const splitResult = splitNsName(tagName, false);
+  if (splitResult[0]) {
+    return splitResult;
+  }
+  const index = getSelectedIndex();
+  const tNode = index === -1 ? null : getSelectedTNode();
+  let namespace = tNode == null ? void 0 : tNode.namespace;
+  if (tagName === "#host" && (tNode == null ? void 0 : tNode.type) === 2) {
+    const element = getNativeByTNode(tNode, getLView());
+    if (element.tagName) {
+      tagName = element.tagName.toLowerCase();
+    }
+    if (namespace == null) {
+      const namespaceURI = element.namespaceURI;
+      namespace = namespaceURI && NAMESPACE_URIS[namespaceURI];
+    }
+  }
+  return [namespace, tagName];
+}
 var SECURITY_SENSITIVE_ATTRIBUTE_NAMES = /* @__PURE__ */ new Set(["href", "xlink:href"]);
-var SVG_ANIMATION_ATTRIBUTE_NAME_CANDIDATES = ["attributeName", "attributename"];
-var SECURITY_SENSITIVE_ELEMENTS = {
-  "iframe": {
-    "sandbox": true,
-    "allow": true,
-    "allowfullscreen": true,
-    "referrerpolicy": true,
-    "csp": true,
-    "fetchpriority": true
-  },
-  ":svg:animate": {
-    "attributename": true,
+var SVG_ANIMATION_SENSITIVE_STATIC_VALUES = {
+  "animate": {
     "to": SECURITY_SENSITIVE_ATTRIBUTE_NAMES,
     "values": SECURITY_SENSITIVE_ATTRIBUTE_NAMES,
     "from": SECURITY_SENSITIVE_ATTRIBUTE_NAMES
   },
-  ":svg:set": {
-    "attributename": true,
+  "set": {
     "to": SECURITY_SENSITIVE_ATTRIBUTE_NAMES
-  },
-  ":svg:animatemotion": {
-    "attributename": true
-  },
-  ":svg:animatetransform": {
-    "attributename": true
   }
 };
 function \u0275\u0275validateAttribute(value, tagName, attributeName) {
   var _a10;
-  const lowerCaseTagName = tagName.toLowerCase();
-  const lowerCaseAttrName = attributeName.toLowerCase();
   const index = getSelectedIndex();
   const tNode = index === -1 ? null : getSelectedTNode();
   if (tNode && tNode.type !== 2) {
     return value;
   }
-  const fullTagName = lowerCaseTagName[0] !== ":" && (tNode == null ? void 0 : tNode.namespace) ? `:${tNode.namespace}:${lowerCaseTagName}` : lowerCaseTagName;
-  const validationConfig = (_a10 = SECURITY_SENSITIVE_ELEMENTS[fullTagName]) == null ? void 0 : _a10[lowerCaseAttrName];
-  if (!validationConfig) {
+  const [namespace, resolvedTagName] = resolveElement(tagName);
+  const securityContext = checkSecurityContext(resolvedTagName, attributeName, namespace);
+  if (securityContext !== SecurityContext.ATTRIBUTE_NO_BINDING) {
     return value;
   }
   const lView = getLView();
-  if (tNode && lowerCaseTagName === "iframe") {
-    const element = getNativeByTNode(tNode, lView);
-    enforceIframeSecurity(element);
-  }
-  const displayTagName = tagName[0] === ":" ? tagName.split(":").pop() : tagName;
-  if (typeof validationConfig !== "boolean") {
-    if (!tNode) {
-      const errorMessage2 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${tagName}> element. For security reasons, the \`${attributeName}\` can be set on the <${tagName}> element as a static attribute only. 
-To fix this, switch the \`${attributeName}\` binding to a static attribute in a template or in host bindings section.`;
-      throw new RuntimeError(-910, errorMessage2);
-    }
-    const element = getNativeByTNode(tNode, lView);
-    const attributeNameValue = getSecuritySensitiveSVGAnimationAttributeName(element, validationConfig);
-    if (attributeNameValue) {
-      const errorMessage2 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${getTemplateLocationDetails(lView)}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only when the "attributeName" is set to '${attributeNameValue}'. 
+  if (tNode) {
+    if (resolvedTagName === "iframe") {
+      const element = getNativeByTNode(tNode, lView);
+      enforceIframeSecurity(element);
+    } else if (namespace === SVG_NAMESPACE || !namespace) {
+      const config2 = (_a10 = SVG_ANIMATION_SENSITIVE_STATIC_VALUES[resolvedTagName]) == null ? void 0 : _a10[attributeName.toLowerCase()];
+      if (config2) {
+        const element = getNativeByTNode(tNode, lView);
+        const attributeNameValue = getSecuritySensitiveSVGAnimationAttributeName(element, config2);
+        if (attributeNameValue) {
+          const errorMessage2 = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${resolvedTagName}> element${getTemplateLocationDetails(lView)}. For security reasons, the \`${attributeName}\` can be set on the <${resolvedTagName}> element as a static attribute only when the "attributeName" is set to '${attributeNameValue}'. 
 To fix this, switch the \`${attributeNameValue}\` binding to a static attribute in a template or in host bindings section.`;
-      throw new RuntimeError(-910, errorMessage2);
+          throw new RuntimeError(-910, errorMessage2);
+        }
+        return value;
+      }
     }
-    return value;
   }
-  const errorMessage = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${displayTagName}> element${tNode ? getTemplateLocationDetails(lView) : ""}. For security reasons, the \`${attributeName}\` can be set on the <${displayTagName}> element as a static attribute only. 
+  const errorMessage = ngDevMode && `Angular has detected that the \`${attributeName}\` was applied as a binding to the <${resolvedTagName}> element${tNode ? getTemplateLocationDetails(lView) : ""}. For security reasons, the \`${attributeName}\` can be set on the <${resolvedTagName}> element as a static attribute only. 
 To fix this, switch the \`${attributeName}\` binding to a static attribute in a template or in host bindings section.`;
   throw new RuntimeError(-910, errorMessage);
 }
 function getSecuritySensitiveSVGAnimationAttributeName(element, validationConfig) {
-  for (const attributeName of SVG_ANIMATION_ATTRIBUTE_NAME_CANDIDATES) {
+  for (const attributeName of element.getAttributeNames()) {
+    if (attributeName.toLowerCase() !== "attributename") {
+      continue;
+    }
     const attributeNameValue = element.getAttribute(attributeName);
     if (attributeNameValue !== null && validationConfig.has(attributeNameValue.toLowerCase())) {
       return attributeNameValue;
@@ -9334,18 +9377,18 @@ function constructDetailsForInterpolation(lView, rootIndex, expressionIndex, met
 }
 function getExpressionChangedErrorDetails(lView, bindingIndex, oldValue, newValue) {
   const tData = lView[TVIEW].data;
-  const metadata = tData[bindingIndex];
-  if (typeof metadata === "string") {
-    if (metadata.indexOf(INTERPOLATION_DELIMITER) > -1) {
-      return constructDetailsForInterpolation(lView, bindingIndex, bindingIndex, metadata, newValue);
+  const metadata2 = tData[bindingIndex];
+  if (typeof metadata2 === "string") {
+    if (metadata2.indexOf(INTERPOLATION_DELIMITER) > -1) {
+      return constructDetailsForInterpolation(lView, bindingIndex, bindingIndex, metadata2, newValue);
     }
     return {
-      propName: metadata,
+      propName: metadata2,
       oldValue,
       newValue
     };
   }
-  if (metadata === null) {
+  if (metadata2 === null) {
     let idx = bindingIndex - 1;
     while (typeof tData[idx] !== "string" && tData[idx + 1] === null) {
       idx--;
@@ -9640,169 +9683,6 @@ var MAX_ANIMATION_TIMEOUT = new InjectionToken(typeof ngDevMode !== "undefined" 
   factory: () => MAX_ANIMATION_TIMEOUT_DEFAULT
 });
 var MAX_ANIMATION_TIMEOUT_DEFAULT = 4e3;
-var DEFAULT_ANIMATIONS_DISABLED = false;
-var _a;
-var areAnimationSupported = typeof document !== "undefined" && typeof ((_a = document == null ? void 0 : document.documentElement) == null ? void 0 : _a.getAnimations) === "function";
-function areAnimationsDisabled(lView) {
-  const injector = lView[INJECTOR];
-  return injector.get(ANIMATIONS_DISABLED, DEFAULT_ANIMATIONS_DISABLED);
-}
-function assertAnimationTypes(value, instruction) {
-  if (value == null || typeof value !== "string" && typeof value !== "function") {
-    throw new RuntimeError(650, `'${instruction}' value must be a string of CSS classes or an animation function, got ${stringify(value)}`);
-  }
-}
-function assertElementNodes(nativeElement, instruction) {
-  if (nativeElement.nodeType !== Node.ELEMENT_NODE) {
-    throw new RuntimeError(650, `'${instruction}' can only be used on an element node, got ${stringify(nativeElement.nodeType)}`);
-  }
-}
-function trackEnterClasses(el, classList, cleanupFns) {
-  const elementData = enterClassMap.get(el);
-  if (elementData) {
-    for (const klass of classList) {
-      elementData.classList.push(klass);
-    }
-    for (const fn of cleanupFns) {
-      elementData.cleanupFns.push(fn);
-    }
-  } else {
-    enterClassMap.set(el, {
-      classList,
-      cleanupFns
-    });
-  }
-}
-function cleanupEnterClassData(element) {
-  const elementData = enterClassMap.get(element);
-  if (elementData) {
-    for (const fn of elementData.cleanupFns) {
-      fn();
-    }
-    enterClassMap.delete(element);
-  }
-  longestAnimations.delete(element);
-}
-var noOpAnimationComplete = () => {
-};
-var enterClassMap = /* @__PURE__ */ new WeakMap();
-var longestAnimations = /* @__PURE__ */ new WeakMap();
-var leavingNodes = /* @__PURE__ */ new WeakMap();
-var reusedNodes = /* @__PURE__ */ new WeakSet();
-function clearLeavingNodes(tNode, el) {
-  const nodes = leavingNodes.get(tNode);
-  if (nodes && nodes.length > 0) {
-    const ix = nodes.findIndex((node) => node === el);
-    if (ix > -1) nodes.splice(ix, 1);
-  }
-  if ((nodes == null ? void 0 : nodes.length) === 0) {
-    leavingNodes.delete(tNode);
-  }
-}
-function cancelLeavingNodes(tNode, newElement) {
-  var _a10;
-  const nodes = leavingNodes.get(tNode);
-  if (!nodes || nodes.length === 0) return;
-  const newParent = newElement.parentNode;
-  const prevSibling = newElement.previousSibling;
-  for (let i = nodes.length - 1; i >= 0; i--) {
-    const leavingEl = nodes[i];
-    const leavingParent = leavingEl.parentNode;
-    if (leavingEl === newElement) {
-      nodes.splice(i, 1);
-      reusedNodes.add(leavingEl);
-      leavingEl.dispatchEvent(new CustomEvent("animationend", {
-        detail: {
-          cancel: true
-        }
-      }));
-    } else if (prevSibling && leavingEl === prevSibling || leavingParent && newParent && leavingParent !== newParent) {
-      nodes.splice(i, 1);
-      leavingEl.dispatchEvent(new CustomEvent("animationend", {
-        detail: {
-          cancel: true
-        }
-      }));
-      (_a10 = leavingEl.parentNode) == null ? void 0 : _a10.removeChild(leavingEl);
-    }
-  }
-}
-function trackLeavingNodes(tNode, el) {
-  const nodes = leavingNodes.get(tNode);
-  if (nodes) {
-    if (!nodes.includes(el)) {
-      nodes.push(el);
-    }
-  } else {
-    leavingNodes.set(tNode, [el]);
-  }
-}
-function getLViewEnterAnimations(lView) {
-  const animationData = lView[ANIMATIONS] ??= {};
-  return animationData.enter ??= /* @__PURE__ */ new Map();
-}
-function getLViewLeaveAnimations(lView) {
-  const animationData = lView[ANIMATIONS] ??= {};
-  return animationData.leave ??= /* @__PURE__ */ new Map();
-}
-function getClassListFromValue(value) {
-  const classes = typeof value === "function" ? value() : value;
-  let classList = Array.isArray(classes) ? classes : null;
-  if (typeof classes === "string") {
-    classList = classes.trim().split(/\s+/).filter((k) => k);
-  }
-  return classList;
-}
-function cancelAnimationsIfRunning(element, renderer) {
-  if (!areAnimationSupported) return;
-  const elementData = enterClassMap.get(element);
-  if (elementData && elementData.classList.length > 0 && elementHasClassList(element, elementData.classList)) {
-    for (const klass of elementData.classList) {
-      renderer.removeClass(element, klass);
-    }
-  }
-  cleanupEnterClassData(element);
-}
-function elementHasClassList(element, classList) {
-  for (const className of classList) {
-    if (element.classList.contains(className)) return true;
-  }
-  return false;
-}
-function getEventTarget(event) {
-  return event.composedPath ? event.composedPath()[0] : event.target;
-}
-function isLongestAnimation(event, nativeElement) {
-  const longestAnimation = longestAnimations.get(nativeElement);
-  if (longestAnimation === void 0) return true;
-  return nativeElement === getEventTarget(event) && (longestAnimation.animationName !== void 0 && event.animationName === longestAnimation.animationName || longestAnimation.propertyName !== void 0 && (longestAnimation.propertyName === "all" || event.propertyName === longestAnimation.propertyName));
-}
-function addAnimationToLView(animations, tNode, fn) {
-  const nodeAnimations = animations.get(tNode.index) ?? {
-    animateFns: []
-  };
-  nodeAnimations.animateFns.push(fn);
-  animations.set(tNode.index, nodeAnimations);
-}
-function cleanupAfterLeaveAnimations(resolvers, cleanupFns) {
-  if (resolvers) {
-    for (const fn of resolvers) {
-      fn();
-    }
-  }
-  for (const fn of cleanupFns) {
-    fn();
-  }
-}
-function clearLViewNodeAnimationResolvers(lView, tNode) {
-  const nodeAnimations = getLViewLeaveAnimations(lView).get(tNode.index);
-  if (nodeAnimations) nodeAnimations.resolvers = void 0;
-}
-function leaveAnimationFunctionCleanup(lView, tNode, nativeElement, resolvers, cleanupFns) {
-  clearLeavingNodes(tNode, nativeElement);
-  cleanupAfterLeaveAnimations(resolvers, cleanupFns);
-  clearLViewNodeAnimationResolvers(lView, tNode);
-}
 function parseCssTimeUnitsToMs(value) {
   if (!value) return 0;
   const multiplier = value.toLowerCase().indexOf("ms") > -1 ? 1 : 1e3;
@@ -9856,6 +9736,18 @@ function isShorterThanExistingAnimation(existing, longest) {
 function longestExists(longest) {
   return (longest.animationName != void 0 || longest.propertyName != void 0) && longest.duration > 0;
 }
+function getAnimationDuration(animation) {
+  var _a10;
+  const timing = (_a10 = animation.effect) == null ? void 0 : _a10.getTiming();
+  if (timing === void 0) return void 0;
+  const animationDuration = typeof timing.duration === "number" ? timing.duration : 0;
+  let duration = (timing.delay ?? 0) + animationDuration;
+  const playbackRate = animation.playbackRate;
+  if (playbackRate !== void 0 && playbackRate !== 0 && playbackRate !== 1) {
+    duration /= Math.abs(playbackRate);
+  }
+  return duration;
+}
 function determineLongestAnimationFromComputedStyles(el, animationsMap) {
   const computedStyle = getComputedStyle(el);
   const longestAnimation = getLongestComputedAnimation(computedStyle);
@@ -9883,12 +9775,7 @@ function determineLongestAnimationFromElementAnimations(el, animationsMap, anima
     if ((timing == null ? void 0 : timing.iterations) === Infinity) {
       continue;
     }
-    const animDuration = typeof (timing == null ? void 0 : timing.duration) === "number" ? timing.duration : 0;
-    let duration = ((timing == null ? void 0 : timing.delay) ?? 0) + animDuration;
-    const playbackRate = animation.playbackRate;
-    if (playbackRate !== void 0 && playbackRate !== 0 && playbackRate !== 1) {
-      duration /= Math.abs(playbackRate);
-    }
+    const duration = getAnimationDuration(animation) ?? 0;
     let propertyName;
     let animationName;
     if (animation.animationName) {
@@ -9910,6 +9797,210 @@ function determineLongestAnimationFromElementAnimations(el, animationsMap, anima
   }
 }
 var allLeavingAnimations = /* @__PURE__ */ new Set();
+var DEFAULT_ANIMATIONS_DISABLED = false;
+var ANIMATION_DURATION_TOLERANCE_MS = 1;
+var _a;
+var areAnimationSupported = typeof document !== "undefined" && typeof ((_a = document == null ? void 0 : document.documentElement) == null ? void 0 : _a.getAnimations) === "function";
+function areAnimationsDisabled(lView) {
+  const injector = lView[INJECTOR];
+  return injector.get(ANIMATIONS_DISABLED, DEFAULT_ANIMATIONS_DISABLED);
+}
+function assertAnimationTypes(value, instruction) {
+  if (value == null || typeof value !== "string" && typeof value !== "function") {
+    throw new RuntimeError(650, `'${instruction}' value must be a string of CSS classes or an animation function, got ${stringify(value)}`);
+  }
+}
+function assertElementNodes(nativeElement, instruction) {
+  if (nativeElement.nodeType !== Node.ELEMENT_NODE) {
+    throw new RuntimeError(650, `'${instruction}' can only be used on an element node, got ${stringify(nativeElement.nodeType)}`);
+  }
+}
+function trackEnterClasses(el, classList, cleanupFns) {
+  const elementData = enterClassMap.get(el);
+  if (elementData) {
+    for (const klass of classList) {
+      elementData.classList.push(klass);
+    }
+    for (const fn of cleanupFns) {
+      elementData.cleanupFns.push(fn);
+    }
+  } else {
+    enterClassMap.set(el, {
+      classList,
+      cleanupFns
+    });
+  }
+}
+function cleanupEnterClassData(element) {
+  const elementData = enterClassMap.get(element);
+  if (elementData) {
+    for (const fn of elementData.cleanupFns) {
+      fn();
+    }
+    enterClassMap.delete(element);
+  }
+  longestAnimations.delete(element);
+}
+var noOpAnimationComplete = () => {
+};
+var enterClassMap = /* @__PURE__ */ new WeakMap();
+var longestAnimations = /* @__PURE__ */ new WeakMap();
+var leavingNodes = /* @__PURE__ */ new WeakMap();
+function getDeclarationView(lView) {
+  if (!lView) return null;
+  return lView[DECLARATION_VIEW] ?? lView;
+}
+var reusedNodes = /* @__PURE__ */ new WeakSet();
+function clearLeavingNodes(tNode, el) {
+  const nodes = leavingNodes.get(tNode);
+  if (nodes && nodes.length > 0) {
+    const ix = nodes.findIndex((node) => node.el === el);
+    if (ix > -1) nodes.splice(ix, 1);
+  }
+  if ((nodes == null ? void 0 : nodes.length) === 0) {
+    leavingNodes.delete(tNode);
+  }
+}
+function cancelLeavingNodes(tNode, newElement, newLView) {
+  var _a10, _b4;
+  const nodes = leavingNodes.get(tNode);
+  if (!nodes || nodes.length === 0) return;
+  const newParent = newElement.parentNode;
+  const prevSibling = newElement.previousSibling;
+  const newDeclarationView = getDeclarationView(newLView);
+  for (let i = nodes.length - 1; i >= 0; i--) {
+    const {
+      el: leavingEl,
+      declarationView: leavingDeclarationView
+    } = nodes[i];
+    const leavingParent = leavingEl.parentNode;
+    if (leavingEl === newElement) {
+      nodes.splice(i, 1);
+      reusedNodes.add(leavingEl);
+      leavingEl.dispatchEvent(new CustomEvent("animationend", {
+        detail: {
+          cancel: true
+        }
+      }));
+    } else if (prevSibling && leavingEl === prevSibling) {
+      nodes.splice(i, 1);
+      leavingEl.dispatchEvent(new CustomEvent("animationend", {
+        detail: {
+          cancel: true
+        }
+      }));
+      (_a10 = leavingEl.parentNode) == null ? void 0 : _a10.removeChild(leavingEl);
+    } else if (leavingParent && newParent && leavingParent !== newParent) {
+      const sameLogicalView = newDeclarationView === null || leavingDeclarationView === null || newDeclarationView === leavingDeclarationView;
+      if (sameLogicalView) {
+        nodes.splice(i, 1);
+        leavingEl.dispatchEvent(new CustomEvent("animationend", {
+          detail: {
+            cancel: true
+          }
+        }));
+        (_b4 = leavingEl.parentNode) == null ? void 0 : _b4.removeChild(leavingEl);
+      }
+    }
+  }
+}
+function trackLeavingNodes(tNode, el, lView) {
+  const declarationView = getDeclarationView(lView);
+  const nodes = leavingNodes.get(tNode);
+  if (nodes) {
+    if (!nodes.some((node) => node.el === el)) {
+      nodes.push({
+        el,
+        declarationView
+      });
+    }
+  } else {
+    leavingNodes.set(tNode, [{
+      el,
+      declarationView
+    }]);
+  }
+}
+function getLViewEnterAnimations(lView) {
+  const animationData = lView[ANIMATIONS] ??= {};
+  return animationData.enter ??= /* @__PURE__ */ new Map();
+}
+function getLViewLeaveAnimations(lView) {
+  const animationData = lView[ANIMATIONS] ??= {};
+  return animationData.leave ??= /* @__PURE__ */ new Map();
+}
+function getClassListFromValue(value) {
+  const classes = typeof value === "function" ? value() : value;
+  let classList = Array.isArray(classes) ? classes : null;
+  if (typeof classes === "string") {
+    classList = classes.trim().split(/\s+/).filter((k) => k);
+  }
+  return classList;
+}
+function cancelAnimationsIfRunning(element, renderer) {
+  if (!areAnimationSupported) return;
+  const elementData = enterClassMap.get(element);
+  if (elementData && elementData.classList.length > 0 && elementHasClassList(element, elementData.classList)) {
+    for (const klass of elementData.classList) {
+      renderer.removeClass(element, klass);
+    }
+  }
+  cleanupEnterClassData(element);
+}
+function elementHasClassList(element, classList) {
+  for (const className of classList) {
+    if (element.classList.contains(className)) return true;
+  }
+  return false;
+}
+function getEventTarget(event) {
+  return event.composedPath ? event.composedPath()[0] : event.target;
+}
+function isLongestAnimation(event, nativeElement) {
+  const longestAnimation = longestAnimations.get(nativeElement);
+  if (longestAnimation === void 0) return true;
+  if (nativeElement !== getEventTarget(event)) return false;
+  const eventAnimation = event.animation;
+  if (eventAnimation) {
+    const eventAnimationDuration = getAnimationDuration(eventAnimation);
+    if (eventAnimationDuration !== void 0 && eventAnimationDuration + ANIMATION_DURATION_TOLERANCE_MS < longestAnimation.duration) {
+      return false;
+    }
+  }
+  if (longestAnimation.animationName !== void 0) {
+    return event.animationName === longestAnimation.animationName;
+  }
+  if (longestAnimation.propertyName !== void 0) {
+    return longestAnimation.propertyName === "all" || event.propertyName === longestAnimation.propertyName;
+  }
+  return false;
+}
+function addAnimationToLView(animations, tNode, fn) {
+  const nodeAnimations = animations.get(tNode.index) ?? {
+    animateFns: []
+  };
+  nodeAnimations.animateFns.push(fn);
+  animations.set(tNode.index, nodeAnimations);
+}
+function cleanupAfterLeaveAnimations(resolvers, cleanupFns) {
+  if (resolvers) {
+    for (const fn of resolvers) {
+      fn();
+    }
+  }
+  for (const fn of cleanupFns) {
+    fn();
+  }
+}
+function clearLViewNodeAnimationResolvers(lView, tNode) {
+  const nodeAnimations = getLViewLeaveAnimations(lView).get(tNode.index);
+  if (nodeAnimations) nodeAnimations.resolvers = void 0;
+}
+function leaveAnimationFunctionCleanup(lView, tNode, nativeElement, resolvers, cleanupFns) {
+  clearLeavingNodes(tNode, nativeElement);
+  cleanupAfterLeaveAnimations(resolvers, cleanupFns);
+  clearLViewNodeAnimationResolvers(lView, tNode);
+}
 var TracingAction;
 (function(TracingAction2) {
   TracingAction2[TracingAction2["CHANGE_DETECTION"] = 0] = "CHANGE_DETECTION";
@@ -10347,10 +10438,10 @@ function applyToElementOrContainer(action, renderer, injector, parent, lNodeToHa
     } else if (action === 1 && parent !== null) {
       maybeQueueEnterAnimation(parentLView, parent, tNode, injector);
       nativeInsertBefore(renderer, parent, rNode, beforeNode || null, true);
-      cancelLeavingNodes(tNode, rNode);
+      cancelLeavingNodes(tNode, rNode, parentLView);
     } else if (action === 2) {
       if ((_b4 = (_a10 = parentLView == null ? void 0 : parentLView[ANIMATIONS]) == null ? void 0 : _a10.leave) == null ? void 0 : _b4.has(tNode.index)) {
-        trackLeavingNodes(tNode, rNode);
+        trackLeavingNodes(tNode, rNode, parentLView);
       }
       reusedNodes.delete(rNode);
       runLeaveAnimationsWithCallback(parentLView, tNode, injector, (nodeHasLeaveAnimations) => {
@@ -10535,6 +10626,9 @@ function executeOnDestroys(tView, lView) {
   }
 }
 function getParentRElement(tView, tNode, lView) {
+  if (tNode === null) {
+    throw new RuntimeError(510, ngDevMode && "getParentRElement() was called with a null TNode, so no parent element could be resolved. This usually means a TNode was never created for this node, or was already destroyed.");
+  }
   return getClosestRElement(tView, tNode.parent, lView);
 }
 function getClosestRElement(tView, tNode, lView) {
@@ -10692,7 +10786,45 @@ function applyNodes(renderer, action, tNode, lView, parentRElement, beforeNode, 
   }
 }
 function applyView(tView, lView, renderer, action, parentRElement, beforeNode) {
-  applyNodes(renderer, action, tView.firstChild, lView, parentRElement, beforeNode, false);
+  if (tView.type === 3) {
+    applyForeignNodes(renderer, action, lView, parentRElement, beforeNode);
+  } else {
+    applyNodes(renderer, action, tView.firstChild, lView, parentRElement, beforeNode, false);
+  }
+}
+function applyForeignNodes(renderer, action, lView, parent, beforeNode) {
+  const tView = lView[TVIEW];
+  const headTNode = tView.firstChild;
+  const tailTNode = headTNode.next;
+  const head = unwrapRNode(lView[headTNode.index]);
+  const tail = unwrapRNode(lView[tailTNode.index]);
+  const fragmentSlotIndex = tailTNode.index + 1;
+  let fragment = lView[fragmentSlotIndex];
+  if (action === 1 || action === 0) {
+    if (parent !== null) {
+      if (fragment && fragment.hasChildNodes()) {
+        nativeInsertBefore(renderer, parent, fragment, beforeNode, true);
+      } else {
+        nativeInsertBefore(renderer, parent, head, beforeNode, true);
+        nativeInsertBefore(renderer, parent, tail, beforeNode, true);
+      }
+    }
+  } else if (action === 2) {
+    if (!fragment) {
+      fragment = document.createDocumentFragment();
+      lView[fragmentSlotIndex] = fragment;
+    }
+    if (head && head.parentNode === fragment) {
+      return;
+    }
+    let current = head;
+    while (current !== null) {
+      const next = current.nextSibling;
+      fragment.appendChild(current);
+      if (current === tail) break;
+      current = next;
+    }
+  }
 }
 function applyProjection(tView, lView, tProjectionNode) {
   const renderer = lView[RENDERER];
@@ -10726,6 +10858,9 @@ function applyContainer(renderer, action, injector, lContainer, tNode, parentREl
   const native = unwrapRNode(lContainer);
   if (anchor !== native) {
     applyToElementOrContainer(action, renderer, injector, parentRElement, anchor, tNode, beforeNode);
+  }
+  if ((lContainer[FLAGS] & 4) !== 0) {
+    return;
   }
   for (let i = CONTAINER_HEADER_OFFSET; i < lContainer.length; i++) {
     const lView = lContainer[i];
@@ -10909,7 +11044,7 @@ function writeToDirectiveInput(def2, instance, publicName, value) {
   const prevConsumer = setActiveConsumer(null);
   try {
     if (ngDevMode) {
-      if (!def2.inputs.hasOwnProperty(publicName)) {
+      if (!Object.hasOwn(def2.inputs, publicName)) {
         throw new Error(`ASSERTION ERROR: Directive ${def2.type.name} does not have an input with a public name of "${publicName}"`);
       }
       if (instance instanceof NodeInjectorFactory) {
@@ -10974,9 +11109,6 @@ function locateHostElement(renderer, elementOrSelector, encapsulation, injector)
   const preserveHostContent = injector.get(PRESERVE_HOST_CONTENT, PRESERVE_HOST_CONTENT_DEFAULT);
   const preserveContent = preserveHostContent || encapsulation === ViewEncapsulation.ShadowDom || encapsulation === ViewEncapsulation.ExperimentalIsolatedShadowDom;
   const rootElement = renderer.selectRootElement(elementOrSelector, preserveContent);
-  if (rootElement.tagName.toLowerCase() === "script") {
-    throw new RuntimeError(905, ngDevMode && `"<script>" tag is not allowed as a component host element.`);
-  }
   applyRootElementTransform(rootElement);
   return rootElement;
 }
@@ -11277,7 +11409,7 @@ function setAllInputsForProperty(tNode, tView, lView, publicName, value) {
   return hasMatch;
 }
 function setDirectiveInput(tNode, tView, lView, target, publicName, value) {
-  var _a10, _b4;
+  var _a10;
   let hostIndex = null;
   let hostDirectivesStart = null;
   let hostDirectivesEnd = null;
@@ -11291,7 +11423,7 @@ function setDirectiveInput(tNode, tView, lView, target, publicName, value) {
   } else {
     [hostIndex, hostDirectivesStart, hostDirectivesEnd] = data;
   }
-  if (hostDirectivesStart !== null && hostDirectivesEnd !== null && ((_b4 = tNode.hostDirectiveInputs) == null ? void 0 : _b4.hasOwnProperty(publicName))) {
+  if (hostDirectivesStart !== null && hostDirectivesEnd !== null && tNode.hostDirectiveInputs && Object.hasOwn(tNode.hostDirectiveInputs, publicName)) {
     const hostDirectiveInputs = tNode.hostDirectiveInputs[publicName];
     for (let i = 0; i < hostDirectiveInputs.length; i += 2) {
       const index = hostDirectiveInputs[i];
@@ -11306,7 +11438,7 @@ function setDirectiveInput(tNode, tView, lView, target, publicName, value) {
       }
     }
   }
-  if (hostIndex !== null && target.inputs.hasOwnProperty(publicName)) {
+  if (hostIndex !== null && Object.hasOwn(target.inputs, publicName)) {
     ngDevMode && assertIndexInRange(lView, hostIndex);
     writeToDirectiveInput(target, lView[hostIndex], publicName, value);
     hasSet = true;
@@ -11406,6 +11538,19 @@ function shouldAddViewToDom(tNode, dehydratedView) {
 var USE_EXHAUSTIVE_CHECK_NO_CHANGES_DEFAULT = false;
 var UseExhaustiveCheckNoChanges = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "exhaustive checkNoChanges" : "");
 function collectNativeNodes(tView, lView, tNode, result, isProjection = false) {
+  if (tView.type === 3) {
+    const headTNode = tView.firstChild;
+    const tailTNode = headTNode.next;
+    const head = unwrapRNode(lView[headTNode.index]);
+    const tail = unwrapRNode(lView[tailTNode.index]);
+    let current = head;
+    while (current !== null) {
+      result.push(current);
+      if (current === tail) break;
+      current = current.nextSibling;
+    }
+    return result;
+  }
   while (tNode !== null) {
     if (tNode.type === 128) {
       tNode = isProjection ? tNode.projectionNext : tNode.next;
@@ -11414,10 +11559,18 @@ function collectNativeNodes(tView, lView, tNode, result, isProjection = false) {
     ngDevMode && assertTNodeType(tNode, 3 | 12 | 16 | 32);
     const lNode = lView[tNode.index];
     if (lNode !== null) {
-      result.push(unwrapRNode(lNode));
-    }
-    if (isLContainer(lNode)) {
-      collectNativeNodesInLContainer(lNode, result);
+      if (isLContainer(lNode)) {
+        const anchor = lNode[NATIVE];
+        if (anchor !== lNode[HOST]) {
+          result.push(unwrapRNode(lNode));
+        }
+        if (!(lNode[FLAGS] & 4)) {
+          collectNativeNodesInLContainer(lNode, result);
+        }
+        result.push(anchor);
+      } else {
+        result.push(unwrapRNode(lNode));
+      }
     }
     const tNodeType = tNode.type;
     if (tNodeType & 8) {
@@ -11449,9 +11602,6 @@ function collectNativeNodesInLContainer(lContainer, result) {
     if (lViewFirstChildTNode !== null) {
       collectNativeNodes(lViewInAContainer[TVIEW], lViewInAContainer, lViewFirstChildTNode, result);
     }
-  }
-  if (lContainer[NATIVE] !== lContainer[HOST]) {
-    result.push(lContainer[NATIVE]);
   }
 }
 function addAfterRenderSequencesForView(lView) {
@@ -11532,6 +11682,9 @@ function runEffectsInView(view) {
         effect2.run();
       } else {
         effect2.zone.run(() => effect2.run());
+      }
+      if (view[EFFECTS] === null) {
+        return;
       }
     }
     tryFlushEffects = foundDirtyEffect && !!(view[FLAGS] & 8192);
@@ -12235,6 +12388,11 @@ function shorten(input2, maxLength = 50) {
   input2 = stripNewlines(input2);
   return input2.length > maxLength ? `${input2.substring(0, maxLength - 1)}\u2026` : input2;
 }
+function describeDomNode(node) {
+  var _a10;
+  const textContent = (_a10 = node.textContent) == null ? void 0 : _a10.slice(0, 50);
+  return textContent ? `${node.nodeName} ("${textContent}")` : node.nodeName;
+}
 function getInsertInFrontOfRNodeWithI18n(parentTNode, currentTNode, lView) {
   const tNodeInsertBeforeIndex = currentTNode.insertBeforeIndex;
   const insertBeforeIndex = Array.isArray(tNodeInsertBeforeIndex) ? tNodeInsertBeforeIndex[0] : tNodeInsertBeforeIndex;
@@ -12397,19 +12555,25 @@ function setInsertBeforeIndex(tNode, value) {
     tNode.insertBeforeIndex = value;
   }
 }
+var CURRENT_CASE_LVIEW_INDEX = getClosureSafeProperty({
+  currentCaseLViewIndex: getClosureSafeProperty
+});
+var TVIEW2 = getClosureSafeProperty({
+  tView: getClosureSafeProperty
+});
 function getTIcu(tView, index) {
   const value = tView.data[index];
   if (value === null || typeof value === "string") return null;
-  if (ngDevMode && !(value.hasOwnProperty("tView") || value.hasOwnProperty("currentCaseLViewIndex"))) {
+  if (ngDevMode && !(Object.hasOwn(value, TVIEW2) || Object.hasOwn(value, CURRENT_CASE_LVIEW_INDEX))) {
     throwError2("We expect to get 'null'|'TIcu'|'TIcuContainer', but got: " + value);
   }
-  const tIcu = value.hasOwnProperty("currentCaseLViewIndex") ? value : value.value;
+  const tIcu = Object.hasOwn(value, CURRENT_CASE_LVIEW_INDEX) ? value : value.value;
   ngDevMode && assertTIcu(tIcu);
   return tIcu;
 }
 function setTIcu(tView, index, tIcu) {
   const tNode = tView.data[index];
-  ngDevMode && assertEqual(tNode === null || tNode.hasOwnProperty("tView"), true, "We expect to get 'null'|'TIcuContainer'");
+  ngDevMode && assertEqual(tNode === null || Object.hasOwn(tNode, TVIEW2), true, "We expect to get 'null'|'TIcuContainer'");
   if (tNode === null) {
     tView.data[index] = tIcu;
   } else {
@@ -12679,6 +12843,13 @@ var Sanitizer = class _Sanitizer {
     factory: () => null
   });
 };
+var RENDER = /* @__PURE__ */ Symbol("RENDER");
+var ON_DESTROY = /* @__PURE__ */ Symbol("ON_DESTROY");
+var CONTENT_ADAPTER = /* @__PURE__ */ Symbol("CONTENT_ADAPTER");
+var GET_CONTEXT = /* @__PURE__ */ Symbol("GET_CONTEXT");
+function isForeignComponent(value) {
+  return typeof value === "object" && value !== null && RENDER in value;
+}
 function isModuleWithProviders(value) {
   return value.ngModule !== void 0;
 }
@@ -12717,6 +12888,8 @@ function verifyStandaloneImport(depType, importingType) {
     } else {
       if (isModuleWithProviders(depType)) {
         throw new Error(`A module with providers was imported from "${stringifyForError(importingType)}". Modules with providers are not supported in standalone components imports.`);
+      } else if (isForeignComponent(depType)) {
+        throw new Error(`A foreign component, imported from "${stringifyForError(importingType)}", cannot be imported using 'imports'. Foreign components are only supported in AOT mode and must be registered in 'foreignImports'.`);
       } else {
         throw new Error(`The "${stringifyForError(depType)}" type, imported from "${stringifyForError(importingType)}", must be a standalone component / directive / pipe or an NgModule. Did you forget to add the required @Component / @Directive / @Pipe or @NgModule annotation?`);
       }
@@ -12936,9 +13109,9 @@ function isListLikeIterable(obj) {
   if (!isJsObject(obj)) return false;
   return Array.isArray(obj) || !(obj instanceof Map) && Symbol.iterator in obj;
 }
-function areIterablesEqual(a, b2, comparator) {
+function areIterablesEqual(a, b, comparator) {
   const iterator1 = a[Symbol.iterator]();
-  const iterator2 = b2[Symbol.iterator]();
+  const iterator2 = b[Symbol.iterator]();
   while (true) {
     const item1 = iterator1.next();
     const item2 = iterator2.next();
@@ -12963,18 +13136,18 @@ function iterateListLike(obj, fn) {
 function isJsObject(o) {
   return o !== null && (typeof o === "function" || typeof o === "object");
 }
-function devModeEqual(a, b2) {
+function devModeEqual(a, b) {
   const isListLikeIterableA = isListLikeIterable(a);
-  const isListLikeIterableB = isListLikeIterable(b2);
+  const isListLikeIterableB = isListLikeIterable(b);
   if (isListLikeIterableA && isListLikeIterableB) {
-    return areIterablesEqual(a, b2, devModeEqual);
+    return areIterablesEqual(a, b, devModeEqual);
   } else {
     const isAObject = a && (typeof a === "object" || typeof a === "function");
-    const isBObject = b2 && (typeof b2 === "object" || typeof b2 === "function");
+    const isBObject = b && (typeof b === "object" || typeof b === "function");
     if (!isListLikeIterableA && isAObject && !isListLikeIterableB && isBObject) {
       return true;
     } else {
-      return Object.is(a, b2);
+      return Object.is(a, b);
     }
   }
 }
@@ -13106,7 +13279,7 @@ function storeListenerCleanup(indexOrTargetGetter, tView, lView, eventName, list
   tCleanup && tCleanup.push(eventName, indexOrTargetGetter, index, (index + 1) * (isOutput ? -1 : 1));
 }
 function listenToDirectiveOutput(tNode, lView, target, eventName, listenerFn) {
-  var _a10, _b4;
+  var _a10;
   let hostIndex = null;
   let hostDirectivesStart = null;
   let hostDirectivesEnd = null;
@@ -13120,7 +13293,7 @@ function listenToDirectiveOutput(tNode, lView, target, eventName, listenerFn) {
   } else {
     [hostIndex, hostDirectivesStart, hostDirectivesEnd] = data;
   }
-  if (hostDirectivesStart !== null && hostDirectivesEnd !== null && ((_b4 = tNode.hostDirectiveOutputs) == null ? void 0 : _b4.hasOwnProperty(eventName))) {
+  if (hostDirectivesStart !== null && hostDirectivesEnd !== null && tNode.hostDirectiveOutputs && Object.hasOwn(tNode.hostDirectiveOutputs, eventName)) {
     const hostDirectiveOutputs = tNode.hostDirectiveOutputs[eventName];
     for (let i = 0; i < hostDirectiveOutputs.length; i += 2) {
       const index = hostDirectiveOutputs[i];
@@ -13133,7 +13306,7 @@ function listenToDirectiveOutput(tNode, lView, target, eventName, listenerFn) {
       }
     }
   }
-  if (target.outputs.hasOwnProperty(eventName)) {
+  if (Object.hasOwn(target.outputs, eventName)) {
     ngDevMode && assertIndexInRange(lView, hostIndex);
     hasOutput2 = true;
     listenToOutput(tNode, lView, hostIndex, eventName, eventName, listenerFn);
@@ -13228,7 +13401,7 @@ var ControlDirectiveHostImpl = class {
   listenToDom(eventName, listener) {
     listenToDomEvent(this.tNode, this.tView, this.lView, void 0, this.lView[RENDERER], eventName, listener, wrapListener(this.tNode, this.lView, listener));
   }
-  setInputOnDirectives(inputName, value) {
+  setInputOnDirectives(inputName, value, writePredicate) {
     var _a10, _b4;
     const directiveIndices = (_a10 = this.tNode.inputs) == null ? void 0 : _a10[inputName];
     const hostDirectiveInputs = (_b4 = this.tNode.hostDirectiveInputs) == null ? void 0 : _b4[inputName];
@@ -13241,10 +13414,13 @@ var ControlDirectiveHostImpl = class {
         if (index === this.tNode.controlDirectiveIndex) {
           continue;
         }
-        const directiveDef = this.tView.data[index];
         const directive = this.lView[index];
-        writeToDirectiveInput(directiveDef, directive, inputName, value);
-        wasSet = true;
+        const directiveDef = this.tView.data[index];
+        const matchesPredicate = !writePredicate || writePredicate(readInputFromDirective(directive, directiveDef, inputName));
+        if (matchesPredicate) {
+          writeToDirectiveInput(directiveDef, directive, inputName, value);
+          wasSet = true;
+        }
       }
     }
     if (hostDirectiveInputs) {
@@ -13253,11 +13429,14 @@ var ControlDirectiveHostImpl = class {
         if (index === this.tNode.controlDirectiveIndex) {
           continue;
         }
+        const directive = this.lView[index];
         const internalName = hostDirectiveInputs[i + 1];
         const directiveDef = this.tView.data[index];
-        const directive = this.lView[index];
-        writeToDirectiveInput(directiveDef, directive, internalName, value);
-        wasSet = true;
+        const matchesPredicate = !writePredicate || writePredicate(readInputFromDirective(directive, directiveDef, inputName));
+        if (matchesPredicate) {
+          writeToDirectiveInput(directiveDef, directive, internalName, value);
+          wasSet = true;
+        }
       }
     }
     return wasSet;
@@ -13319,6 +13498,18 @@ function getHostDirectives(directiveType) {
     return directiveType.\u0275dir.hostDirectives ?? null;
   }
   return null;
+}
+function readInputFromDirective(instance, directiveDef, inputName) {
+  if (!directiveDef.inputs || !Object.hasOwn(directiveDef.inputs, inputName)) {
+    return void 0;
+  }
+  const [privateName, flags] = directiveDef.inputs[inputName];
+  if ((flags & InputFlags.SignalBased) !== 0) {
+    const field = instance[privateName];
+    const node = field[SIGNAL];
+    return node.value === REQUIRED_UNSET_VALUE ? void 0 : node.value;
+  }
+  return instance[privateName];
 }
 function initializeControlFirstCreatePass(tView, tNode, lView) {
   var _a10, _b4;
@@ -13555,7 +13746,7 @@ function initializeInputAndOutputAliases(tView, tNode, hostDirectiveDefs) {
 function setupSelectorMatchedInputsOrOutputs(mode, tNode, def2, directiveIndex) {
   const aliasMap = mode === 0 ? def2.inputs : def2.outputs;
   for (const publicName in aliasMap) {
-    if (aliasMap.hasOwnProperty(publicName)) {
+    if (Object.hasOwn(aliasMap, publicName)) {
       let bindings;
       if (mode === 0) {
         bindings = tNode.inputs ??= {};
@@ -13571,7 +13762,7 @@ function setupSelectorMatchedInputsOrOutputs(mode, tNode, def2, directiveIndex) 
 function setupHostDirectiveInputsOrOutputs(mode, tNode, config2, directiveIndex) {
   const aliasMap = mode === 0 ? config2.inputs : config2.outputs;
   for (const initialName in aliasMap) {
-    if (aliasMap.hasOwnProperty(initialName)) {
+    if (Object.hasOwn(aliasMap, initialName)) {
       const publicName = aliasMap[initialName];
       let bindings;
       if (mode === 0) {
@@ -13616,7 +13807,7 @@ function setupInitialInputs(tNode, directiveIndex, isHostDirective) {
     } else if (typeof attrName === "number") {
       break;
     }
-    if (!isHostDirective && inputs.hasOwnProperty(attrName)) {
+    if (!isHostDirective && Object.hasOwn(inputs, attrName)) {
       const inputConfig = inputs[attrName];
       for (const index of inputConfig) {
         if (index === directiveIndex) {
@@ -13625,7 +13816,7 @@ function setupInitialInputs(tNode, directiveIndex, isHostDirective) {
           break;
         }
       }
-    } else if (isHostDirective && hostDirectiveInputs.hasOwnProperty(attrName)) {
+    } else if (isHostDirective && Object.hasOwn(hostDirectiveInputs, attrName)) {
       const config2 = hostDirectiveInputs[attrName];
       for (let j = 0; j < config2.length; j += 2) {
         if (config2[j] === directiveIndex) {
@@ -13814,10 +14005,16 @@ function createRootLViewEnvironment(rootLViewInjector) {
     tracingService
   };
 }
-function createHostElement(componentDef, renderer) {
+function createHostElement(componentDef, renderer, hostElementNamespace) {
   const tagName = inferTagNameFromDefinition(componentDef);
-  const namespace = tagName === "svg" ? SVG_NAMESPACE : tagName === "math" ? MATH_ML_NAMESPACE : null;
+  const namespace = tagName === "svg" ? SVG_NAMESPACE : tagName === "math" ? MATH_ML_NAMESPACE : hostElementNamespace;
   return createElementNode(renderer, tagName, namespace);
+}
+function assertNotScriptHostElement(element) {
+  const elementName = element && "localName" in element && typeof element.localName === "string" ? element.localName : element == null ? void 0 : element.tagName;
+  if ((elementName == null ? void 0 : elementName.toLowerCase()) === "script") {
+    throw new RuntimeError(905, ngDevMode && `"<script>" tag is not allowed as a component host element.`);
+  }
 }
 function inferTagNameFromDefinition(componentDef) {
   return (componentDef.selectors[0][0] || "div").toLowerCase();
@@ -13847,7 +14044,7 @@ var ComponentFactory = class {
     this.ngContentSelectors = componentDef.ngContentSelectors ?? [];
     this.isBoundToModule = !!ngModule;
   }
-  create(injector, projectableNodes, rootSelectorOrNode, environmentInjector, directives, componentBindings) {
+  create(injector, projectableNodes, rootSelectorOrNode, environmentInjector, directives, componentBindings, hostElementNamespace) {
     profiler(ProfilerEvent.DynamicComponentStart);
     const prevConsumer = setActiveConsumer(null);
     try {
@@ -13857,19 +14054,20 @@ var ComponentFactory = class {
       const environment2 = createRootLViewEnvironment(rootViewInjector);
       const tracingService = environment2.tracingService;
       if (tracingService && tracingService.componentCreate) {
-        return tracingService.componentCreate(getComponentName(cmpDef), () => this.createComponentRef(environment2, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings));
+        return tracingService.componentCreate(getComponentName(cmpDef), () => this.createComponentRef(environment2, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings, hostElementNamespace));
       } else {
-        return this.createComponentRef(environment2, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings);
+        return this.createComponentRef(environment2, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings, hostElementNamespace);
       }
     } finally {
       setActiveConsumer(prevConsumer);
     }
   }
-  createComponentRef(environment2, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings) {
+  createComponentRef(environment2, rootViewInjector, projectableNodes, rootSelectorOrNode, directives, componentBindings, hostElementNamespace) {
     const cmpDef = this.componentDef;
     const rootTView = createRootTView(rootSelectorOrNode, cmpDef, componentBindings, directives);
     const hostRenderer = environment2.rendererFactory.createRenderer(null, cmpDef);
-    const hostElement = rootSelectorOrNode ? locateHostElement(hostRenderer, rootSelectorOrNode, cmpDef.encapsulation, rootViewInjector) : createHostElement(cmpDef, hostRenderer);
+    const hostElement = rootSelectorOrNode ? locateHostElement(hostRenderer, rootSelectorOrNode, cmpDef.encapsulation, rootViewInjector) : createHostElement(cmpDef, hostRenderer, hostElementNamespace ?? null);
+    assertNotScriptHostElement(hostElement);
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
@@ -13910,7 +14108,7 @@ var ComponentFactory = class {
   }
 };
 function createRootTView(rootSelectorOrNode, componentDef, componentBindings, directives) {
-  const tAttributes = rootSelectorOrNode ? ["ng-version", "22.0.1"] : extractAttrsAndClassesFromSelector(componentDef.selectors[0]);
+  const tAttributes = rootSelectorOrNode ? ["ng-version", "22.1.5"] : extractAttrsAndClassesFromSelector(componentDef.selectors[0]);
   let creationBindings = null;
   let updateBindings = null;
   let varsToAllocate = 0;
@@ -14144,9 +14342,19 @@ var R3ViewContainerRef = class _R3ViewContainerRef extends ViewContainerRef {
     const componentDef = getComponentDef(componentFactory.componentType ?? {});
     const dehydratedView = findMatchingDehydratedView(this._lContainer, (componentDef == null ? void 0 : componentDef.id) ?? null);
     const rNode = (dehydratedView == null ? void 0 : dehydratedView.firstChild) ?? null;
-    const componentRef = componentFactory.create(contextInjector, projectableNodes, rNode, environmentInjector, directives, bindings);
+    const componentRef = componentFactory.create(contextInjector, projectableNodes, rNode, environmentInjector, directives, bindings, this._getHostElementNamespace());
     this.insertImpl(componentRef.hostView, index, shouldAddViewToDom(this._hostTNode, dehydratedView));
     return componentRef;
+  }
+  _getHostElementNamespace() {
+    if (this._hostTNode.type & 2) {
+      const parentTNode = this._hostTNode.parent ?? this._hostLView[T_HOST];
+      if (parentTNode !== null && parentTNode.type & 2 && typeof parentTNode.value === "string" && parentTNode.value.toLowerCase() === "foreignobject") {
+        return null;
+      }
+      return (parentTNode == null ? void 0 : parentTNode.namespace) ?? null;
+    }
+    return this._hostTNode.namespace;
   }
   insert(viewRef, index) {
     return this.insertImpl(viewRef, index, true);
@@ -14371,8 +14579,8 @@ var TQuery_ = class _TQuery_ {
   crossesNgTemplate = false;
   _declarationNodeIndex;
   _appliesToNextNode = true;
-  constructor(metadata, nodeIndex = -1) {
-    this.metadata = metadata;
+  constructor(metadata2, nodeIndex = -1) {
+    this.metadata = metadata2;
     this._declarationNodeIndex = nodeIndex;
   }
   elementStart(tView, tNode) {
@@ -14579,9 +14787,9 @@ function createContentQuery(directiveIndex, predicate, flags, read) {
 function splitQueryMultiSelectors(locator) {
   return locator.split(",").map((s) => s.trim());
 }
-function createTQuery(tView, metadata, nodeIndex) {
+function createTQuery(tView, metadata2, nodeIndex) {
   if (tView.queries === null) tView.queries = new TQueries_();
-  tView.queries.track(new TQuery_(metadata, nodeIndex));
+  tView.queries.track(new TQuery_(metadata2, nodeIndex));
 }
 function saveContentQueryAndDirectiveIndex(tView, directiveIndex) {
   const tViewContentQueries = tView.contentQueries || (tView.contentQueries = []);
@@ -14789,7 +14997,6 @@ function \u0275\u0275defineComponent(componentDefinition) {
     (typeof ngDevMode === "undefined" || ngDevMode) && initNgDevMode();
     const baseDef = getNgDirectiveDef(componentDefinition);
     const def2 = __spreadProps(__spreadValues({}, baseDef), {
-      type: componentDefinition.type,
       decls: componentDefinition.decls,
       vars: componentDefinition.vars,
       template: componentDefinition.template,
@@ -14845,7 +15052,7 @@ function parseAndConvertInputsForDefinition(obj, declaredInputs) {
   if (obj == null) return EMPTY_OBJ;
   const newLookup = {};
   for (const minifiedKey in obj) {
-    if (obj.hasOwnProperty(minifiedKey)) {
+    if (Object.hasOwn(obj, minifiedKey)) {
       const value = obj[minifiedKey];
       let publicName;
       let declaredName;
@@ -14872,7 +15079,7 @@ function parseAndConvertOutputsForDefinition(obj) {
   if (obj == null) return EMPTY_OBJ;
   const newLookup = {};
   for (const minifiedKey in obj) {
-    if (obj.hasOwnProperty(minifiedKey)) {
+    if (Object.hasOwn(obj, minifiedKey)) {
       newLookup[obj[minifiedKey]] = minifiedKey;
     }
   }
@@ -14975,7 +15182,7 @@ function setClassMetadata(type, decorators, ctorParameters, propDecorators) {
   return noSideEffects(() => {
     const clazz = type;
     if (decorators !== null) {
-      if (clazz.hasOwnProperty("decorators") && clazz.decorators !== void 0) {
+      if (Object.hasOwn(clazz, "decorators") && clazz.decorators !== void 0) {
         clazz.decorators.push(...decorators);
       } else {
         clazz.decorators = decorators;
@@ -14985,7 +15192,7 @@ function setClassMetadata(type, decorators, ctorParameters, propDecorators) {
       clazz.ctorParameters = ctorParameters;
     }
     if (propDecorators !== null) {
-      if (clazz.hasOwnProperty("propDecorators") && clazz.propDecorators !== void 0) {
+      if (Object.hasOwn(clazz, "propDecorators") && clazz.propDecorators !== void 0) {
         clazz.propDecorators = __spreadValues(__spreadValues({}, clazz.propDecorators), propDecorators);
       } else {
         clazz.propDecorators = propDecorators;
@@ -15113,15 +15320,15 @@ async function resolveComponentResources(resourceResolver) {
   });
   await Promise.all(resolutionPromises);
 }
-function maybeQueueResolutionOfComponentResources(type, metadata) {
-  if (componentNeedsResolution(metadata)) {
-    componentResourceResolutionQueue.set(type, metadata);
+function maybeQueueResolutionOfComponentResources(type, metadata2) {
+  if (componentNeedsResolution(metadata2)) {
+    componentResourceResolutionQueue.set(type, metadata2);
     componentDefPendingResolution.add(type);
   }
 }
 function componentNeedsResolution(component) {
   var _a10;
-  return !!(component.templateUrl && !component.hasOwnProperty("template") || ((_a10 = component.styleUrls) == null ? void 0 : _a10.length) || component.styleUrl);
+  return !!(component.templateUrl && !Object.hasOwn(component, "template") || ((_a10 = component.styleUrls) == null ? void 0 : _a10.length) || component.styleUrl);
 }
 function isComponentResourceResolutionQueueEmpty() {
   return componentResourceResolutionQueue.size === 0;
@@ -15238,7 +15445,7 @@ function mergeBindingMaps(existingDef, newMap, kind) {
   const targetMap = kind === "input" ? existingDef.inputs : existingDef.outputs;
   Object.keys(newMap).forEach((publicName) => {
     const alias = newMap[publicName];
-    if (!targetMap.hasOwnProperty(publicName) || targetMap[publicName] === alias) {
+    if (!Object.hasOwn(targetMap, publicName) || targetMap[publicName] === alias) {
       targetMap[publicName] = alias;
     } else if (typeof ngDevMode === "undefined" || ngDevMode) {
       const message2 = `${kind === "input" ? "Input" : "Output"} "${publicName}" from ${existingDef.directive.name} is exposed under the following conflicting names: "${targetMap[publicName]}" and "${alias}". An ${kind} can only be exposed under a single name.`;
@@ -15268,10 +15475,10 @@ function bindingArrayToMap(bindings) {
 }
 function patchDeclaredInputs(declaredInputs, exposedInputs) {
   for (const publicName in exposedInputs) {
-    if (exposedInputs.hasOwnProperty(publicName)) {
+    if (Object.hasOwn(exposedInputs, publicName)) {
       const remappedPublicName = exposedInputs[publicName];
       const privateName = declaredInputs[publicName];
-      if ((typeof ngDevMode === "undefined" || ngDevMode) && declaredInputs.hasOwnProperty(remappedPublicName)) {
+      if ((typeof ngDevMode === "undefined" || ngDevMode) && Object.hasOwn(declaredInputs, remappedPublicName)) {
         assertEqual(declaredInputs[remappedPublicName], declaredInputs[publicName], `Conflicting host directive input alias ${publicName}.`);
       }
       declaredInputs[remappedPublicName] = privateName;
@@ -15296,12 +15503,12 @@ function validateMappings(bindingType, def2, hostDirectiveBindings) {
   const className = def2.type.name;
   const bindings = bindingType === "input" ? def2.inputs : def2.outputs;
   for (const publicName in hostDirectiveBindings) {
-    if (hostDirectiveBindings.hasOwnProperty(publicName)) {
-      if (!bindings.hasOwnProperty(publicName)) {
+    if (Object.hasOwn(hostDirectiveBindings, publicName)) {
+      if (!Object.hasOwn(bindings, publicName)) {
         throw new RuntimeError(311, `Directive ${className} does not have an ${bindingType} with a public name of ${publicName}.`);
       }
       const remappedPublicName = hostDirectiveBindings[publicName];
-      if (bindings.hasOwnProperty(remappedPublicName) && remappedPublicName !== publicName) {
+      if (Object.hasOwn(bindings, remappedPublicName) && remappedPublicName !== publicName) {
         throw new RuntimeError(312, `Cannot alias ${bindingType} ${publicName} of host directive ${className} to ${remappedPublicName}, because it already has a different ${bindingType} with the same public name.`);
       }
     }
@@ -15314,15 +15521,17 @@ function \u0275\u0275InheritDefinitionFeature(definition) {
   let superType = getSuperType(definition.type);
   let shouldInheritFields = true;
   const inheritanceChain = [definition];
-  while (superType) {
+  while (superType && superType !== Function.prototype && superType !== Object.prototype) {
     let superDef = void 0;
+    const cmpDef = Object.hasOwn(superType, NG_COMP_DEF) ? superType[NG_COMP_DEF] : void 0;
+    const dirDef = Object.hasOwn(superType, NG_DIR_DEF) ? superType[NG_DIR_DEF] : void 0;
     if (isComponentDef(definition)) {
-      superDef = superType.\u0275cmp || superType.\u0275dir;
+      superDef = cmpDef ?? dirDef;
     } else {
-      if (superType.\u0275cmp) {
+      if (cmpDef) {
         throw new RuntimeError(903, ngDevMode && `Directives cannot inherit Components. Directive ${stringifyForError(definition.type)} is attempting to extend component ${stringifyForError(superType)}`);
       }
-      superDef = superType.\u0275dir;
+      superDef = dirDef;
     }
     if (superDef) {
       if (shouldInheritFields) {
@@ -15363,10 +15572,10 @@ function \u0275\u0275InheritDefinitionFeature(definition) {
 }
 function mergeInputsWithTransforms(target, source) {
   for (const key in source.inputs) {
-    if (!source.inputs.hasOwnProperty(key)) {
+    if (!Object.hasOwn(source.inputs, key)) {
       continue;
     }
-    if (target.inputs.hasOwnProperty(key)) {
+    if (Object.hasOwn(target.inputs, key)) {
       continue;
     }
     const value = source.inputs[key];
@@ -16369,8 +16578,8 @@ var forLoopFinder = ({
   if (!isRepeaterMetadata(slot)) {
     return null;
   }
-  const metadata = slot;
-  const liveCollection = metadata.liveCollection;
+  const metadata2 = slot;
+  const liveCollection = metadata2.liveCollection;
   const items = [];
   if (liveCollection) {
     for (let j = 0; j < liveCollection.length; j++) {
@@ -16393,10 +16602,10 @@ var forLoopFinder = ({
   return {
     type: ControlFlowBlockType.For,
     items,
-    hasEmptyBlock: metadata.hasEmptyBlock,
+    hasEmptyBlock: metadata2.hasEmptyBlock,
     rootNodes,
     hostNode: lContainer[HOST],
-    trackExpression: getTrackExpression(metadata)
+    trackExpression: getTrackExpression(metadata2)
   };
 };
 var CONTROL_FLOW_BLOCK_FINDERS = [deferBlockFinder, forLoopFinder];
@@ -16463,8 +16672,8 @@ function getRendererLView(lContainer) {
 function isRepeaterMetadata(value) {
   return value !== null && typeof value === "object" && "hasEmptyBlock" in value && "trackByFn" in value && typeof value.trackByFn === "function";
 }
-function getTrackExpression(metadata) {
-  const trackByFn = metadata.trackByFn;
+function getTrackExpression(metadata2) {
+  const trackByFn = metadata2.trackByFn;
   if (trackByFn.name === "\u0275\u0275repeaterTrackByIndex") {
     return "$index";
   }
@@ -16891,10 +17100,29 @@ function getSignalGraph(injector) {
 var changeDetectionRuns = 0;
 var changeDetectionSyncRuns = 0;
 var counter = 0;
+var nextInstanceDeepLinkId = 0;
+var instanceDeepLinkIds = /* @__PURE__ */ new WeakMap();
+function getComponentInstanceDeepLinkId(instance) {
+  return instanceDeepLinkIds.get(instance);
+}
+function assignComponentInstanceDeepLinkId(instance) {
+  const id = nextInstanceDeepLinkId++;
+  instanceDeepLinkIds.set(instance, id);
+  return id;
+}
+var DEEP_LINK_SCHEME = "angular-devtools";
+function getDeepLinkProperties(instance) {
+  if (typeof __NG_DEVTOOLS_CONNECTED__ === "undefined" || !__NG_DEVTOOLS_CONNECTED__) return void 0;
+  const instanceId = getComponentInstanceDeepLinkId(instance) ?? assignComponentInstanceDeepLinkId(instance);
+  return {
+    url: `${DEEP_LINK_SCHEME}://component/${instanceId}`,
+    description: "Component"
+  };
+}
 var eventsStack = [];
 function getBaseDocUrl() {
   const full = VERSION.full;
-  const isPreRelease = full.includes("-next") || full.includes("-rc") || full === "22.0.1";
+  const isPreRelease = full.includes("-next") || full.includes("-rc") || full === "22.1.5";
   const prefix = isPreRelease ? "next" : `v${VERSION.major}`;
   return `https://${prefix}.angular.dev`;
 }
@@ -16925,21 +17153,27 @@ function getProfilerEventDocUrl(event, entryName) {
       return void 0;
   }
 }
+function resolveTimestampDetail(detail, docUrl) {
+  if (!docUrl) return detail;
+  if (!detail) return {
+    description: "Documentation",
+    url: docUrl
+  };
+  return detail;
+}
 function measureStart(startEvent) {
   eventsStack.push([startEvent, counter]);
   console.timeStamp("Event_" + startEvent + "_" + counter++);
 }
-function measureEnd(startEvent, entryName, color) {
+function measureEnd(startEvent, entryName, color, detail) {
   let top;
   do {
     top = eventsStack.pop();
     assertDefined(top, "Profiling error: could not find start event entry " + startEvent);
   } while (top[0] !== startEvent);
   const docUrl = getProfilerEventDocUrl(startEvent, entryName);
-  console.timeStamp(entryName, "Event_" + top[0] + "_" + top[1], void 0, "\u{1F170}\uFE0F Angular", void 0, color, docUrl ? {
-    description: "Documentation",
-    url: docUrl
-  } : void 0);
+  const resolvedDetail = resolveTimestampDetail(detail, docUrl);
+  console.timeStamp(entryName, "Event_" + top[0] + "_" + top[1], void 0, "\u{1F170}\uFE0F Angular", void 0, color, resolvedDetail);
 }
 var chromeDevToolsInjectorProfiler = (event) => {
   const eventType = event.type;
@@ -16991,7 +17225,7 @@ var devToolsProfiler = (event, instance, eventFn) => {
     }
     case ProfilerEvent.ComponentEnd: {
       const typeName = getComponentMeasureName(instance);
-      measureEnd(ProfilerEvent.ComponentStart, typeName, "primary-light");
+      measureEnd(ProfilerEvent.ComponentStart, typeName, "primary-light", getDeepLinkProperties(instance));
       break;
     }
     case ProfilerEvent.DeferBlockStateEnd: {
@@ -17074,6 +17308,7 @@ var externalCoreGlobalUtils = {
   "\u0275getSignalGraph": getSignalGraph,
   "\u0275getControlFlowBlocks": getControlFlowBlocks,
   "\u0275getTransferState": getTransferState,
+  "\u0275getComponentInstanceDeepLinkId": getComponentInstanceDeepLinkId,
   getDirectiveMetadata: getDirectiveMetadata$1,
   getComponent,
   getContext,
@@ -17667,7 +17902,6 @@ var IdleScheduler = class _IdleScheduler {
     }
     const key = getIdleRequestKey(options2);
     const callback = (deadline) => {
-      this.cancelBucket(bucket);
       for (const cb of bucket.queue) {
         cb();
         this.applicationRef._tick();
@@ -17677,6 +17911,7 @@ var IdleScheduler = class _IdleScheduler {
           break;
         }
       }
+      bucket.idleId = null;
       if (bucket.queue.size > 0) {
         this.scheduleBucket(bucket, options2);
       } else {
@@ -17952,7 +18187,7 @@ function cleanupParentContainer(currentBlockIdx, hydrationQueue, dehydratedBlock
 function cleanupRemainingHydrationQueue(hydrationQueue, dehydratedBlockRegistry) {
   var _a10;
   const blocksBeingHydrated = dehydratedBlockRegistry.hydrating;
-  for (const dehydratedBlockId in hydrationQueue) {
+  for (const dehydratedBlockId of hydrationQueue) {
     (_a10 = blocksBeingHydrated.get(dehydratedBlockId)) == null ? void 0 : _a10.reject();
   }
   dehydratedBlockRegistry.cleanup(hydrationQueue);
@@ -18938,7 +19173,7 @@ function reconcile(liveCollection, newCollection, trackByFn, reactiveConsumer) {
     let duplicatedKeysMsg = [];
     for (const [key, idxSet] of duplicateKeys) {
       if (idxSet.size > 1) {
-        const idx = [...idxSet].sort((a, b2) => a - b2);
+        const idx = [...idxSet].sort((a, b) => a - b);
         for (let i = 1; i < idx.length; i++) {
           duplicatedKeysMsg.push(`key "${stringifyForError(key)}" at index "${idx[i - 1]}" and "${idx[i]}"`);
         }
@@ -19110,8 +19345,8 @@ function \u0275\u0275repeaterCreate(index, templateFn, decls, vars, tagName, att
   const hasEmptyBlock = emptyTemplateFn !== void 0;
   const hostLView = getLView();
   const boundTrackBy = trackByUsesComponentInstance ? trackByFn.bind(hostLView[DECLARATION_COMPONENT_VIEW][CONTEXT]) : trackByFn;
-  const metadata = new RepeaterMetadata(hasEmptyBlock, boundTrackBy);
-  hostLView[HEADER_OFFSET + index] = metadata;
+  const metadata2 = new RepeaterMetadata(hasEmptyBlock, boundTrackBy);
+  hostLView[HEADER_OFFSET + index] = metadata2;
   declareNoDirectiveHostTemplate(lView, tView, index + 1, templateFn, decls, vars, tagName, getConstant(tView.consts, attrsIndex), 256);
   if (hasEmptyBlock) {
     ngDevMode && assertDefined(emptyDecls, "Missing number of declarations for the empty repeater block.");
@@ -19208,23 +19443,23 @@ function \u0275\u0275repeater(collection) {
   try {
     const hostLView = getLView();
     const hostTView = hostLView[TVIEW];
-    const metadata = hostLView[metadataSlotIdx];
+    const metadata2 = hostLView[metadataSlotIdx];
     const containerIndex = metadataSlotIdx + 1;
     const lContainer = getLContainer(hostLView, containerIndex);
-    if (metadata.liveCollection === void 0) {
+    if (metadata2.liveCollection === void 0) {
       const itemTemplateTNode = getExistingTNode(hostTView, containerIndex);
-      metadata.liveCollection = new LiveCollectionLContainerImpl(lContainer, hostLView, itemTemplateTNode);
+      metadata2.liveCollection = new LiveCollectionLContainerImpl(lContainer, hostLView, itemTemplateTNode);
     } else {
-      metadata.liveCollection.reset();
+      metadata2.liveCollection.reset();
     }
-    const liveCollection = metadata.liveCollection;
-    reconcile(liveCollection, collection, metadata.trackByFn, prevConsumer);
-    if (ngDevMode && metadata.trackByFn === \u0275\u0275repeaterTrackByIdentity && ((_a10 = liveCollection.operationsCounter) == null ? void 0 : _a10.wasReCreated(liveCollection.length)) && isViewExpensiveToRecreate(getExistingLViewFromLContainer(lContainer, 0))) {
+    const liveCollection = metadata2.liveCollection;
+    reconcile(liveCollection, collection, metadata2.trackByFn, prevConsumer);
+    if (ngDevMode && metadata2.trackByFn === \u0275\u0275repeaterTrackByIdentity && ((_a10 = liveCollection.operationsCounter) == null ? void 0 : _a10.wasReCreated(liveCollection.length)) && isViewExpensiveToRecreate(getExistingLViewFromLContainer(lContainer, 0))) {
       const message2 = formatRuntimeError(-956, `The configured tracking expression (track by identity) caused re-creation of the entire collection of size ${liveCollection.length}. This is an expensive operation requiring destruction and subsequent creation of DOM nodes, directives, components etc. Please review the "track expression" and make sure that it uniquely identifies items in a collection.`);
       console.warn(message2);
     }
     liveCollection.updateIndexes();
-    if (metadata.hasEmptyBlock) {
+    if (metadata2.hasEmptyBlock) {
       const bindingIndex = nextBindingIndex();
       const isCollectionEmpty = liveCollection.length === 0;
       if (bindingUpdated(hostLView, bindingIndex, isCollectionEmpty)) {
@@ -19459,6 +19694,159 @@ var _locateOrCreateElementContainerNode = (tView, lView, tNode, commentText, ind
   lastNodeWasCreated(true);
   return createCommentNode(lView[RENDERER], ngDevMode ? commentText : "");
 };
+var FOREIGN_CONTEXT = new InjectionToken("FOREIGN_CONTEXT");
+var ForeignViewRef = class extends ViewRef {
+  get head() {
+    const lView = this._lView;
+    const tView = lView[TVIEW];
+    return lView[tView.firstChild.index];
+  }
+  get tail() {
+    const lView = this._lView;
+    const tView = lView[TVIEW];
+    return lView[tView.firstChild.next.index];
+  }
+};
+function createForeignView(lContainer, index) {
+  const declLView = lContainer[PARENT];
+  const declTNode = lContainer[T_HOST];
+  const renderer = declLView[RENDERER];
+  const tView = createTView(3, declTNode, null, 3, 0, null, null, null, null, null, null);
+  const headTNode = tView.data[HEADER_OFFSET] = createTNode(tView, null, 2, HEADER_OFFSET, "", null);
+  const tailTNode = tView.data[HEADER_OFFSET + 1] = createTNode(tView, null, 2, HEADER_OFFSET + 1, "", null);
+  tView.firstChild = headTNode;
+  headTNode.next = tailTNode;
+  tailTNode.prev = headTNode;
+  const lView = createLView(declLView, tView, null, 0, null, null, null, renderer, null, null, null);
+  const headComment = lView[headTNode.index] = renderer.createComment(ngDevMode ? "foreign-view-head" : "");
+  const tailComment = lView[tailTNode.index] = renderer.createComment(ngDevMode ? "foreign-view-tail" : "");
+  lView[FLAGS] &= -5;
+  const viewRef = new ForeignViewRef(lView);
+  addLViewToLContainer(lContainer, lView, index);
+  if (!headComment.parentNode) {
+    const fragment = document.createDocumentFragment();
+    fragment.appendChild(headComment);
+    fragment.appendChild(tailComment);
+    const fragmentSlotIndex = tailTNode.index + 1;
+    lView[fragmentSlotIndex] = fragment;
+  }
+  return viewRef;
+}
+function \u0275\u0275foreignComponent(index, foreignComponentIndex, props) {
+  const lView = getLView();
+  const tView = getTView();
+  const adjustedIndex = index + HEADER_OFFSET;
+  const foreignComponent = getConstant(tView.consts, foreignComponentIndex);
+  let tNode;
+  if (tView.firstCreatePass) {
+    tNode = getOrCreateTNode(tView, adjustedIndex, 4, null, null);
+    setCurrentTNodeAsNotParent();
+  } else {
+    tNode = tView.data[adjustedIndex];
+    setCurrentTNode(tNode, false);
+  }
+  const renderer = lView[RENDERER];
+  const comment = renderer.createComment(ngDevMode ? "foreign-component" : "");
+  appendChild(tView, lView, comment, tNode);
+  attachPatchData(comment, lView);
+  const lContainer = createLContainer(comment, lView, comment, tNode);
+  lView[adjustedIndex] = lContainer;
+  addToEndOfViewTree(lView, lContainer);
+  const viewRef = createForeignView(lContainer, 0);
+  const node = createViewEffect(lView, lView[ENVIRONMENT].changeDetectionScheduler, () => {
+    node.destroy();
+    if (isDestroyed(lView)) {
+      return;
+    }
+    const prevConsumer = setActiveConsumer(null);
+    try {
+      const resolvedProps = props ? props() : void 0;
+      const context2 = getOrCreateInjectable(tNode, lView, FOREIGN_CONTEXT, 8);
+      const [nodes, dispose] = foreignComponent[RENDER](resolvedProps, context2 ?? void 0);
+      const tail = viewRef.tail;
+      const parent = tail.parentNode;
+      if (parent) {
+        for (let i = 0; i < nodes.length; i++) {
+          nativeInsertBefore(renderer, parent, nodes[i], tail, false);
+        }
+      }
+      if (dispose) {
+        viewRef.onDestroy(dispose);
+      }
+    } finally {
+      setActiveConsumer(prevConsumer);
+    }
+  });
+}
+var ForeignContextInjector = class {
+  context;
+  constructor(context2) {
+    this.context = context2;
+  }
+  get(token, notFoundValue) {
+    return token === FOREIGN_CONTEXT ? this.context : notFoundValue;
+  }
+};
+function resolveForeignContentContainer(index, foreignComponentConstIndex) {
+  const lView = getLView();
+  const adjustedIndex = index + HEADER_OFFSET;
+  const lContainer = lView[adjustedIndex];
+  ngDevMode && assertLContainer(lContainer);
+  lContainer[FLAGS] |= 4;
+  const tView = getTView();
+  const tNode = tView.data[adjustedIndex];
+  const foreignComponent = getConstant(tView.consts, foreignComponentConstIndex);
+  ngDevMode && assertDefined(foreignComponent, "Foreign component must be defined in constant pool.");
+  return [lView, lContainer, tNode, foreignComponent];
+}
+function \u0275\u0275foreignContent(index, foreignComponentConstIndex) {
+  const [lView, lContainer, tNode, foreignComponent] = resolveForeignContentContainer(index, foreignComponentConstIndex);
+  const adapter = foreignComponent[CONTENT_ADAPTER];
+  const onDestroy = foreignComponent[ON_DESTROY];
+  const getContext2 = foreignComponent[GET_CONTEXT];
+  const producer = () => {
+    const options2 = getContext2 ? {
+      embeddedViewInjector: new ForeignContextInjector(getContext2())
+    } : void 0;
+    const embeddedLView = createAndRenderEmbeddedLView(lView, tNode, null, options2);
+    addLViewToLContainer(lContainer, embeddedLView, lContainer.length - CONTAINER_HEADER_OFFSET, false);
+    onDestroy(() => {
+      if (!isDestroyed(embeddedLView)) {
+        const embeddedLViewIndex = lContainer.indexOf(embeddedLView, CONTAINER_HEADER_OFFSET);
+        ngDevMode && assertNotSame(embeddedLViewIndex, -1, "Embedded view not found in container");
+        removeLViewFromLContainer(lContainer, embeddedLViewIndex - CONTAINER_HEADER_OFFSET);
+      }
+    });
+    const embeddedTView = embeddedLView[TVIEW];
+    return collectNativeNodes(embeddedTView, embeddedLView, embeddedTView.firstChild, []);
+  };
+  return adapter(producer);
+}
+function \u0275\u0275foreignContentFn(index, foreignComponentConstIndex) {
+  const [lView, lContainer, tNode, foreignComponent] = resolveForeignContentContainer(index, foreignComponentConstIndex);
+  const adapter = foreignComponent[CONTENT_ADAPTER];
+  const onDestroy = foreignComponent[ON_DESTROY];
+  const getContext2 = foreignComponent[GET_CONTEXT];
+  return (...args) => {
+    const producer = () => {
+      const options2 = getContext2 ? {
+        embeddedViewInjector: new ForeignContextInjector(getContext2())
+      } : void 0;
+      const embeddedLView = createAndRenderEmbeddedLView(lView, tNode, args, options2);
+      addLViewToLContainer(lContainer, embeddedLView, lContainer.length - CONTAINER_HEADER_OFFSET, false);
+      onDestroy(() => {
+        if (!isDestroyed(embeddedLView)) {
+          const embeddedLViewIndex = lContainer.indexOf(embeddedLView, CONTAINER_HEADER_OFFSET);
+          ngDevMode && assertNotSame(embeddedLViewIndex, -1, "Embedded view not found in container");
+          removeLViewFromLContainer(lContainer, embeddedLViewIndex - CONTAINER_HEADER_OFFSET);
+        }
+      });
+      const embeddedTView = embeddedLView[TVIEW];
+      return collectNativeNodes(embeddedTView, embeddedLView, embeddedTView.firstChild, []);
+    };
+    return adapter(producer);
+  };
+}
 function \u0275\u0275getCurrentView() {
   return getLView();
 }
@@ -19516,7 +19904,11 @@ function getLocalePluralCase(locale) {
 }
 function getLocaleData(normalizedLocale) {
   if (!(normalizedLocale in LOCALE_DATA)) {
-    LOCALE_DATA[normalizedLocale] = _global.ng && _global.ng.common && _global.ng.common.locales && _global.ng.common.locales[normalizedLocale];
+    const globalLocaleData = _global.ng && _global.ng.common && _global.ng.common.locales && _global.ng.common.locales[normalizedLocale];
+    if (globalLocaleData !== void 0) {
+      LOCALE_DATA[normalizedLocale] = globalLocaleData;
+    }
+    return globalLocaleData;
   }
   return LOCALE_DATA[normalizedLocale];
 }
@@ -20356,7 +20748,7 @@ function walkIcuTree(ast, tView, tIcu, lView, sharedUpdateOpCodes, create, remov
       case Node.ELEMENT_NODE:
         const element = currentNode;
         const tagName = element.tagName.toLowerCase();
-        if (VALID_ELEMENTS.hasOwnProperty(tagName)) {
+        if (Object.hasOwn(VALID_ELEMENTS, tagName)) {
           addCreateNodeAndAppend(create, ELEMENT_MARKER, tagName, parentIdx, newIndex);
           tView.data[newIndex] = tagName;
           const elAttrs = element.attributes;
@@ -20364,10 +20756,11 @@ function walkIcuTree(ast, tView, tIcu, lView, sharedUpdateOpCodes, create, remov
             const attr = elAttrs.item(i);
             const lowerAttrName = attr.name.toLowerCase();
             const hasBinding2 = !!attr.value.match(BINDING_REGEXP);
-            const elementNS = element.namespaceURI;
-            const tagNameWithNamespace = elementNS === "http://www.w3.org/2000/svg" ? `:svg:${tagName}` : elementNS === "http://www.w3.org/1998/Math/MathML" ? `:math:${tagName}` : tagName;
+            const namespaceUri = element.namespaceURI;
+            const namespace = namespaceUri && NAMESPACE_URIS[namespaceUri];
+            const tagNameWithNamespace = namespace ? `:${namespace}:${tagName}` : tagName;
             if (hasBinding2) {
-              if (VALID_ATTRS.hasOwnProperty(lowerAttrName)) {
+              if (Object.hasOwn(VALID_ATTRS, lowerAttrName)) {
                 generateBindingUpdateOpCodes(update2, attr.value, newIndex, attr.name, 0, i18nResolveSanitizer(lowerAttrName, tagNameWithNamespace));
               } else {
                 ngDevMode && console.warn(`WARNING: ignoring unsafe attribute value ${lowerAttrName} on element ${tagName} (see ${XSS_SECURITY_URL})`);
@@ -20453,22 +20846,8 @@ function addCreateNodeAndAppend(create, marker, text, appendToParentIdx, createA
 function addCreateAttribute(create, newIndex, attrName, attrValue) {
   create.push(newIndex << 1 | 1, attrName, attrValue);
 }
-function splitNsName(elementName, fatal = true) {
-  if (elementName[0] != ":") {
-    return [null, elementName];
-  }
-  const colonIndex = elementName.indexOf(":", 1);
-  if (colonIndex === -1) {
-    if (fatal) {
-      throw new Error(`Unsupported format "${elementName}" expecting ":namespace:name"`);
-    } else {
-      return [null, elementName];
-    }
-  }
-  return [elementName.slice(1, colonIndex), elementName.slice(colonIndex + 1)];
-}
 function i18nResolveSanitizer(attrName, tagName) {
-  let schemaContext = SecurityContext.NONE;
+  let schemaContext;
   if (tagName) {
     const [ns2, name] = splitNsName(tagName, false);
     schemaContext = checkSecurityContext(name, attrName, ns2);
@@ -20542,13 +20921,13 @@ function i18nPostprocess(message2, replacements = {}) {
     return result;
   }
   result = result.replace(PP_ICU_VARS_REGEXP, (match3, start, key, _type, _idx, end) => {
-    return replacements.hasOwnProperty(key) ? `${start}${replacements[key]}${end}` : match3;
+    return Object.hasOwn(replacements, key) ? `${start}${replacements[key]}${end}` : match3;
   });
   result = result.replace(PP_ICU_PLACEHOLDERS_REGEXP, (match3, key) => {
-    return replacements.hasOwnProperty(key) ? replacements[key] : match3;
+    return Object.hasOwn(replacements, key) ? replacements[key] : match3;
   });
   result = result.replace(PP_ICUS_REGEXP, (match3, key) => {
-    if (replacements.hasOwnProperty(key)) {
+    if (Object.hasOwn(replacements, key)) {
       const list2 = replacements[key];
       if (!list2.length) {
         throw new Error(`i18n postprocess: unmatched ICU - ${match3} with key: ${key}`);
@@ -21063,8 +21442,24 @@ function checkStylingProperty(prop, value, suffix, isClassBased) {
     stylingFirstUpdatePass(tView, prop, bindingIndex, isClassBased);
   }
   if (value !== NO_CHANGE && bindingUpdated(lView, bindingIndex, value)) {
+    if (ngDevMode && !isClassBased) {
+      warnInvalidStylePropValue(prop, value);
+    }
     const tNode = tView.data[getSelectedIndex()];
     updateStyling(tView, tNode, lView, lView[RENDERER], prop, lView[bindingIndex + 1] = normalizeSuffix(value, suffix), isClassBased, bindingIndex);
+  }
+}
+function warnInvalidStylePropValue(prop, value) {
+  if (value == null || typeof value === "string" || typeof value === "number" || getSanitizationBypassType(value) === "Style") {
+    return;
+  }
+  console.warn(formatRuntimeError(-318, `\`[style.${prop}]\` was bound to an invalid value. Expected a string, number, SafeValue, null, or undefined, but received \`${typeof value}\` (\`${stringifyInvalidStylePropValue(value)}\`).`));
+}
+function stringifyInvalidStylePropValue(value) {
+  try {
+    return stringify(value);
+  } catch {
+    return "[unstringifiable value]";
   }
 }
 function checkStylingMap(keyValueArraySet2, stringParser, value, isClassBased) {
@@ -21230,6 +21625,7 @@ function toStylingKeyValueArray(keyValueArraySet2, stringParser, value) {
   return styleKeyValueArray;
 }
 function styleKeyValueArraySet(keyValueArray, key, value) {
+  ngDevMode && warnInvalidStylePropValue(key, value);
   keyValueArraySet(keyValueArray, key, unwrapSafeValue(value));
 }
 function classKeyValueArraySet(keyValueArray, key, value) {
@@ -21332,7 +21728,7 @@ function isStylingValuePresent(value) {
 function normalizeSuffix(value, suffix) {
   if (value == null || value === "") ;
   else if (typeof suffix === "string") {
-    value = value + suffix;
+    value = unwrapSafeValue(value) + suffix;
   } else if (typeof value === "object") {
     value = stringify(unwrapSafeValue(value));
   }
@@ -21829,20 +22225,35 @@ var _dehydratedBlockRegistryFactory = () => null;
 var _runIncrementalHydrationBootstrap = () => {
 };
 var isIncrementalHydrationRuntimeActive = false;
-function \u0275\u0275enableIncrementalHydrationRuntime() {
-  if (isIncrementalHydrationRuntimeActive) {
-    return;
+var INCREMENTAL_HYDRATION_BOOTSTRAP = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "INCREMENTAL_HYDRATION_BOOTSTRAP" : "");
+function runIncrementalHydrationBootstrap(state) {
+  if (state.requested && state.activated) {
+    _runIncrementalHydrationBootstrap(state.injector, state.document);
   }
-  isIncrementalHydrationRuntimeActive = true;
-  enableRetrieveDeferBlockDataImpl();
-  performanceMarkFeature("NgIncrementalHydration");
-  _dehydratedBlockRegistryFactory = () => new DehydratedBlockRegistry();
-  _runIncrementalHydrationBootstrap = (injector, doc) => {
-    const deferBlockData = processBlockData(injector);
-    const commentsByBlockId = gatherDeferBlocksCommentNodes(doc, doc.body);
-    processAndInitTriggers(injector, deferBlockData, commentsByBlockId);
-    appendDeferBlocksToJSActionMap(doc, injector);
-  };
+}
+function \u0275\u0275enableIncrementalHydrationRuntime() {
+  if (!isIncrementalHydrationRuntimeActive) {
+    isIncrementalHydrationRuntimeActive = true;
+    enableRetrieveDeferBlockDataImpl();
+    performanceMarkFeature("NgIncrementalHydration");
+    _dehydratedBlockRegistryFactory = () => new DehydratedBlockRegistry();
+    _runIncrementalHydrationBootstrap = (injector, doc) => {
+      const deferBlockData = processBlockData(injector);
+      const commentsByBlockId = gatherDeferBlocksCommentNodes(doc, doc.body);
+      processAndInitTriggers(injector, deferBlockData, commentsByBlockId);
+      appendDeferBlocksToJSActionMap(doc, injector);
+    };
+  }
+  if (true) {
+    const injector = getLView()[INJECTOR];
+    const state = injector.get(INCREMENTAL_HYDRATION_BOOTSTRAP, null, {
+      optional: true
+    });
+    if (state !== null && !state.activated) {
+      state.activated = true;
+      runIncrementalHydrationBootstrap(state);
+    }
+  }
 }
 function \u0275\u0275pureFunction0(slotOffset, pureFn) {
   const bindingIndex = getBindingRoot() + slotOffset;
@@ -22220,6 +22631,9 @@ var angularCoreEnv = /* @__PURE__ */ (() => ({
   "\u0275\u0275elementStart": \u0275\u0275elementStart,
   "\u0275\u0275elementEnd": \u0275\u0275elementEnd,
   "\u0275\u0275element": \u0275\u0275element,
+  "\u0275\u0275foreignComponent": \u0275\u0275foreignComponent,
+  "\u0275\u0275foreignContent": \u0275\u0275foreignContent,
+  "\u0275\u0275foreignContentFn": \u0275\u0275foreignContentFn,
   "\u0275\u0275elementContainerStart": \u0275\u0275elementContainerStart,
   "\u0275\u0275elementContainerEnd": \u0275\u0275elementContainerEnd,
   "\u0275\u0275domElement": \u0275\u0275domElement,
@@ -22553,13 +22967,13 @@ function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRo
   function verifyDirectivesHaveSelector(type) {
     type = resolveForwardRef(type);
     const def2 = getDirectiveDef(type);
-    if (!getComponentDef(type) && def2 && def2.selectors.length == 0) {
+    if (!getComponentDef(type) && !getPipeDef(type) && def2 && def2.selectors.length == 0) {
       errors.push(`Directive ${stringifyForError(type)} has no selector, please add it!`);
     }
   }
   function verifyNotStandalone(type, moduleType2) {
     type = resolveForwardRef(type);
-    const def2 = getComponentDef(type) || getDirectiveDef(type) || getPipeDef(type);
+    const def2 = getPipeDef(type) || getComponentDef(type) || getDirectiveDef(type);
     if (def2 == null ? void 0 : def2.standalone) {
       const location2 = `"${stringifyForError(moduleType2)}" NgModule`;
       errors.push(generateStandaloneInDeclarationsError(type, location2));
@@ -22665,17 +23079,17 @@ function setScopeOnDeclaredComponents(moduleType, ngModule) {
   const transitiveScopes = transitiveScopesFor(moduleType);
   declarations.forEach((declaration) => {
     declaration = resolveForwardRef(declaration);
-    if (declaration.hasOwnProperty(NG_COMP_DEF)) {
+    if (Object.hasOwn(declaration, NG_COMP_DEF)) {
       const component = declaration;
       const componentDef = getComponentDef(component);
       patchComponentDefWithScope(componentDef, transitiveScopes);
-    } else if (!declaration.hasOwnProperty(NG_DIR_DEF) && !declaration.hasOwnProperty(NG_PIPE_DEF)) {
+    } else if (!Object.hasOwn(declaration, NG_DIR_DEF) && !Object.hasOwn(declaration, NG_PIPE_DEF)) {
       declaration.ngSelectorScope = moduleType;
     }
   });
 }
 function patchComponentDefWithScope(componentDef, transitiveScopes) {
-  componentDef.directiveDefs = () => Array.from(transitiveScopes.compilation.directives).map((dir) => dir.hasOwnProperty(NG_COMP_DEF) ? getComponentDef(dir) : getDirectiveDef(dir)).filter((def2) => !!def2);
+  componentDef.directiveDefs = () => Array.from(transitiveScopes.compilation.directives).map((dir) => Object.hasOwn(dir, NG_COMP_DEF) ? getComponentDef(dir) : getDirectiveDef(dir)).filter((def2) => !!def2);
   componentDef.pipeDefs = () => Array.from(transitiveScopes.compilation.pipes).map((pipe2) => getPipeDef(pipe2));
   componentDef.schemas = transitiveScopes.schemas;
   componentDef.tView = null;
@@ -22726,11 +23140,11 @@ function expandModuleWithProviders(value) {
   return value;
 }
 var compilationDepth = 0;
-function compileComponent(type, metadata) {
+function compileComponent(type, metadata2) {
   (typeof ngDevMode === "undefined" || ngDevMode) && initNgDevMode();
   let ngComponentDef = null;
-  maybeQueueResolutionOfComponentResources(type, metadata);
-  addDirectiveFactoryDef(type, metadata);
+  maybeQueueResolutionOfComponentResources(type, metadata2);
+  addDirectiveFactoryDef(type, metadata2);
   Object.defineProperty(type, NG_COMP_DEF, {
     get: () => {
       if (ngComponentDef === null) {
@@ -22739,22 +23153,25 @@ function compileComponent(type, metadata) {
           kind: "component",
           type
         });
-        if (componentNeedsResolution(metadata)) {
+        if (metadata2.foreignImports !== void 0) {
+          throw new Error(`Foreign components are not supported in JIT mode. Component '${type.name}' cannot specify 'foreignImports'.`);
+        }
+        if (componentNeedsResolution(metadata2)) {
           const error2 = [`Component '${type.name}' is not resolved:`];
-          if (metadata.templateUrl) {
-            error2.push(` - templateUrl: ${metadata.templateUrl}`);
+          if (metadata2.templateUrl) {
+            error2.push(` - templateUrl: ${metadata2.templateUrl}`);
           }
-          if (metadata.styleUrls && metadata.styleUrls.length) {
-            error2.push(` - styleUrls: ${JSON.stringify(metadata.styleUrls)}`);
+          if (metadata2.styleUrls && metadata2.styleUrls.length) {
+            error2.push(` - styleUrls: ${JSON.stringify(metadata2.styleUrls)}`);
           }
-          if (metadata.styleUrl) {
-            error2.push(` - styleUrl: ${metadata.styleUrl}`);
+          if (metadata2.styleUrl) {
+            error2.push(` - styleUrl: ${metadata2.styleUrl}`);
           }
           error2.push(`Did you run and wait for 'resolveComponentResources()'?`);
           throw new Error(error2.join("\n"));
         }
         const options2 = getJitOptions();
-        let preserveWhitespaces = metadata.preserveWhitespaces;
+        let preserveWhitespaces = metadata2.preserveWhitespaces;
         if (preserveWhitespaces === void 0) {
           if (options2 !== null && options2.preserveWhitespaces !== void 0) {
             preserveWhitespaces = options2.preserveWhitespaces;
@@ -22762,7 +23179,7 @@ function compileComponent(type, metadata) {
             preserveWhitespaces = false;
           }
         }
-        let encapsulation = metadata.encapsulation;
+        let encapsulation = metadata2.encapsulation;
         if (encapsulation === void 0) {
           if (options2 !== null && options2.defaultEncapsulation !== void 0) {
             encapsulation = options2.defaultEncapsulation;
@@ -22770,19 +23187,19 @@ function compileComponent(type, metadata) {
             encapsulation = ViewEncapsulation.Emulated;
           }
         }
-        const templateUrl = metadata.templateUrl || `ng:///${type.name}/template.html`;
-        const baseMeta = directiveMetadata(type, metadata);
+        const templateUrl = metadata2.templateUrl || `ng:///${type.name}/template.html`;
+        const baseMeta = directiveMetadata(type, metadata2);
         const meta = __spreadProps(__spreadValues({}, baseMeta), {
           typeSourceSpan: compiler.createParseSourceSpan("Component", type.name, templateUrl),
-          template: metadata.template || "",
+          template: metadata2.template || "",
           preserveWhitespaces,
-          styles: typeof metadata.styles === "string" ? [metadata.styles] : metadata.styles || EMPTY_ARRAY,
-          animations: metadata.animations,
+          styles: typeof metadata2.styles === "string" ? [metadata2.styles] : metadata2.styles || EMPTY_ARRAY,
+          animations: metadata2.animations,
           declarations: [],
-          changeDetection: metadata.changeDetection,
+          changeDetection: metadata2.changeDetection,
           encapsulation,
-          viewProviders: metadata.viewProviders || null,
-          hasDirectiveDependencies: !baseMeta.isStandalone || metadata.imports != null && metadata.imports.length > 0
+          viewProviders: metadata2.viewProviders || null,
+          hasDirectiveDependencies: !baseMeta.isStandalone || metadata2.imports != null && metadata2.imports.length > 0
         });
         compilationDepth++;
         try {
@@ -22791,7 +23208,7 @@ function compileComponent(type, metadata) {
           }
           ngComponentDef = compiler.compileComponent(angularCoreEnv, templateUrl, meta);
           if (meta.isStandalone) {
-            const imports = flatten(metadata.imports || EMPTY_ARRAY);
+            const imports = flatten(metadata2.imports || EMPTY_ARRAY);
             const {
               directiveDefs,
               pipeDefs
@@ -22810,9 +23227,9 @@ function compileComponent(type, metadata) {
           const scopes = transitiveScopesFor(type.ngSelectorScope);
           patchComponentDefWithScope(ngComponentDef, scopes);
         }
-        if (metadata.schemas) {
+        if (metadata2.schemas) {
           if (meta.isStandalone) {
-            ngComponentDef.schemas = metadata.schemas;
+            ngComponentDef.schemas = metadata2.schemas;
           } else {
             throw new Error(`The 'schemas' was specified for the ${stringifyForError(type)} but is only valid on a component that is standalone.`);
           }
@@ -22880,7 +23297,7 @@ function compileDirective(type, directive) {
     configurable: !!ngDevMode
   });
 }
-function getDirectiveMetadata(type, metadata) {
+function getDirectiveMetadata(type, metadata2) {
   const name = type && type.name;
   const sourceMapUrl = `ng:///${name}/\u0275dir.js`;
   const compiler = getCompilerFacade({
@@ -22888,7 +23305,7 @@ function getDirectiveMetadata(type, metadata) {
     kind: "directive",
     type
   });
-  const facade = directiveMetadata(type, metadata);
+  const facade = directiveMetadata(type, metadata2);
   facade.typeSourceSpan = compiler.createParseSourceSpan("Directive", name, sourceMapUrl);
   if (facade.usesInheritance) {
     addDirectiveDefToUndecoratedParents(type);
@@ -22898,12 +23315,12 @@ function getDirectiveMetadata(type, metadata) {
     sourceMapUrl
   };
 }
-function addDirectiveFactoryDef(type, metadata) {
+function addDirectiveFactoryDef(type, metadata2) {
   let ngFactoryDef = null;
   Object.defineProperty(type, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const meta = getDirectiveMetadata(type, metadata);
+        const meta = getDirectiveMetadata(type, metadata2);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "directive",
@@ -22925,7 +23342,7 @@ function addDirectiveFactoryDef(type, metadata) {
 function extendsDirectlyFromObject(type) {
   return Object.getPrototypeOf(type.prototype) === Object.prototype;
 }
-function directiveMetadata(type, metadata) {
+function directiveMetadata(type, metadata2) {
   var _a10;
   const reflect = getReflect();
   const propMetadata = reflect.ownPropMetadata(type);
@@ -22933,11 +23350,11 @@ function directiveMetadata(type, metadata) {
     name: type.name,
     legacyOptionalChaining: false,
     type,
-    selector: metadata.selector !== void 0 ? metadata.selector : null,
-    host: metadata.host || EMPTY_OBJ,
+    selector: metadata2.selector !== void 0 ? metadata2.selector : null,
+    host: metadata2.host || EMPTY_OBJ,
     propMetadata,
-    inputs: metadata.inputs || EMPTY_ARRAY,
-    outputs: metadata.outputs || EMPTY_ARRAY,
+    inputs: metadata2.inputs || EMPTY_ARRAY,
+    outputs: metadata2.outputs || EMPTY_ARRAY,
     queries: extractQueriesMetadata(type, propMetadata, isContentQuery),
     lifecycle: {
       usesOnChanges: reflect.hasLifecycleHook(type, "ngOnChanges")
@@ -22947,12 +23364,12 @@ function directiveMetadata(type, metadata) {
     } : null,
     typeSourceSpan: null,
     usesInheritance: !extendsDirectlyFromObject(type),
-    exportAs: extractExportAs(metadata.exportAs),
-    providers: metadata.providers || null,
+    exportAs: extractExportAs(metadata2.exportAs),
+    providers: metadata2.providers || null,
     viewQueries: extractQueriesMetadata(type, propMetadata, isViewQuery),
-    isStandalone: metadata.standalone === void 0 ? true : !!metadata.standalone,
-    isSignal: !!metadata.signals,
-    hostDirectives: ((_a10 = metadata.hostDirectives) == null ? void 0 : _a10.map((directive) => typeof directive === "function" ? {
+    isStandalone: metadata2.standalone === void 0 ? true : !!metadata2.standalone,
+    isSignal: !!metadata2.signals,
+    hostDirectives: ((_a10 = metadata2.hostDirectives) == null ? void 0 : _a10.map((directive) => typeof directive === "function" ? {
       directive
     } : directive)) || null
   };
@@ -22986,7 +23403,7 @@ function extractQueriesMetadata(type, propMetadata, isQueryAnn) {
   const signalQueriesMeta = [];
   const decoratorQueriesMeta = [];
   for (const field in propMetadata) {
-    if (propMetadata.hasOwnProperty(field)) {
+    if (Object.hasOwn(propMetadata, field)) {
       const annotations = propMetadata[field];
       annotations.forEach((ann) => {
         if (isQueryAnn(ann)) {
@@ -23050,15 +23467,15 @@ function compilePipe(type, meta) {
   Object.defineProperty(type, NG_FACTORY_DEF, {
     get: () => {
       if (ngFactoryDef === null) {
-        const metadata = getPipeMetadata(type, meta);
+        const metadata2 = getPipeMetadata(type, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
-          type: metadata.type
+          type: metadata2.type
         });
-        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${metadata.name}/\u0275fac.js`, {
-          name: metadata.name,
-          type: metadata.type,
+        ngFactoryDef = compiler.compileFactory(angularCoreEnv, `ng:///${metadata2.name}/\u0275fac.js`, {
+          name: metadata2.name,
+          type: metadata2.type,
           typeArgumentCount: 0,
           deps: reflectDependencies(type),
           target: compiler.FactoryTarget.Pipe
@@ -23071,13 +23488,13 @@ function compilePipe(type, meta) {
   Object.defineProperty(type, NG_PIPE_DEF, {
     get: () => {
       if (ngPipeDef === null) {
-        const metadata = getPipeMetadata(type, meta);
+        const metadata2 = getPipeMetadata(type, meta);
         const compiler = getCompilerFacade({
           usage: 0,
           kind: "pipe",
-          type: metadata.type
+          type: metadata2.type
         });
-        ngPipeDef = compiler.compilePipe(angularCoreEnv, `ng:///${metadata.name}/\u0275pipe.js`, metadata);
+        ngPipeDef = compiler.compilePipe(angularCoreEnv, `ng:///${metadata2.name}/\u0275pipe.js`, metadata2);
       }
       return ngPipeDef;
     },
@@ -23391,7 +23808,7 @@ var MissingTranslationStrategy;
 
 // node_modules/@angular/core/fesm2022/_resource-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -23401,6 +23818,8 @@ var OutputEmitterRef = class {
   errorHandler = inject2(ErrorHandler, {
     optional: true
   });
+  isEmitting = false;
+  hasNullListeners = false;
   destroyRef = inject2(DestroyRef);
   constructor() {
     this.destroyRef.onDestroy(() => {
@@ -23415,10 +23834,14 @@ var OutputEmitterRef = class {
     (this.listeners ??= []).push(callback);
     return {
       unsubscribe: () => {
-        var _a10, _b4;
-        const idx = (_a10 = this.listeners) == null ? void 0 : _a10.indexOf(callback);
-        if (idx !== void 0 && idx !== -1) {
-          (_b4 = this.listeners) == null ? void 0 : _b4.splice(idx, 1);
+        const index = this.listeners ? this.listeners.indexOf(callback) : -1;
+        if (index > -1) {
+          if (this.isEmitting) {
+            this.hasNullListeners = true;
+            this.listeners[index] = null;
+          } else {
+            this.listeners.splice(index, 1);
+          }
         }
       }
     };
@@ -23432,20 +23855,37 @@ var OutputEmitterRef = class {
     if (this.listeners === null) {
       return;
     }
+    this.isEmitting = true;
     const previousConsumer = setActiveConsumer(null);
     try {
       for (const listenerFn of this.listeners) {
         try {
-          listenerFn(value);
+          if (listenerFn !== null) {
+            listenerFn(value);
+          }
         } catch (err) {
           (_a10 = this.errorHandler) == null ? void 0 : _a10.handleError(err);
         }
       }
     } finally {
+      if (this.hasNullListeners) {
+        this.hasNullListeners = false;
+        this.listeners && removeNullValues(this.listeners);
+      }
       setActiveConsumer(previousConsumer);
+      this.isEmitting = false;
     }
   }
 };
+function removeNullValues(arr) {
+  let i = arr.length - 1;
+  while (i > -1) {
+    if (arr[i] === null) {
+      arr.splice(i, 1);
+    }
+    i--;
+  }
+}
 var CACHE_ACTIVE = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "STATE_CACHE_ACTIVE" : "");
 function computed(computation, options2) {
   const getter = createComputed(computation, options2 == null ? void 0 : options2.equal);
@@ -23481,21 +23921,27 @@ var identityFn = (v) => v;
 function linkedSignal(optionsOrComputation, options2) {
   if (typeof optionsOrComputation === "function") {
     const getter = createLinkedSignal(optionsOrComputation, identityFn, options2 == null ? void 0 : options2.equal);
-    return upgradeLinkedSignalGetter(getter, options2 == null ? void 0 : options2.debugName);
+    return upgradeLinkedSignalGetter(getter, options2 == null ? void 0 : options2.debugName, options2 == null ? void 0 : options2.set);
   } else {
     const getter = createLinkedSignal(optionsOrComputation.source, optionsOrComputation.computation, optionsOrComputation.equal);
-    return upgradeLinkedSignalGetter(getter, optionsOrComputation.debugName);
+    return upgradeLinkedSignalGetter(getter, optionsOrComputation.debugName, optionsOrComputation.set);
   }
 }
-function upgradeLinkedSignalGetter(getter, debugName) {
+function upgradeLinkedSignalGetter(getter, debugName, customSet) {
   if (typeof ngDevMode !== "undefined" && ngDevMode) {
     getter[SIGNAL].debugName = debugName;
     getter.toString = () => `[LinkedSignal${debugName ? " (" + debugName + ")" : ""}: ${getter()}]`;
   }
   const node = getter[SIGNAL];
   const upgradedGetter = getter;
-  upgradedGetter.set = (newValue) => linkedSignalSetFn(node, newValue);
-  upgradedGetter.update = (updateFn) => linkedSignalUpdateFn(node, updateFn);
+  if (customSet !== void 0) {
+    const rawSet = (newValue) => linkedSignalSetFn(node, newValue);
+    upgradedGetter.set = (newValue) => customSet(newValue, rawSet);
+    upgradedGetter.update = (updateFn) => customSet(updateFn(untracked2(getter)), rawSet);
+  } else {
+    upgradedGetter.set = (newValue) => linkedSignalSetFn(node, newValue);
+    upgradedGetter.update = (updateFn) => linkedSignalUpdateFn(node, updateFn);
+  }
   upgradedGetter.asReadonly = signalAsReadonlyFn.bind(getter);
   return upgradedGetter;
 }
@@ -23825,7 +24271,7 @@ var ResourceImpl = class extends BaseWritableResource {
   }
 };
 function wrapEqualityFn(equal) {
-  return (a, b2) => a === void 0 || b2 === void 0 ? a === b2 : equal(a, b2);
+  return (a, b) => a === void 0 || b === void 0 ? a === b : equal(a, b);
 }
 function getLoader(options2) {
   if (isStreamingResourceOptions(options2)) {
@@ -23920,19 +24366,10 @@ function rethrowFatalErrors(error2) {
 
 // node_modules/@angular/core/fesm2022/core.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
-var REQUIRED_UNSET_VALUE = /* @__PURE__ */ Symbol("InputSignalNode#UNSET");
-var INPUT_SIGNAL_NODE = /* @__PURE__ */ (() => {
-  return __spreadProps(__spreadValues({}, SIGNAL_NODE), {
-    transformFn: void 0,
-    applyValueToInputSignal(node, value) {
-      signalSetFn(node, value);
-    }
-  });
-})();
 function createInputSignal(initialValue, options2) {
   const node = Object.create(INPUT_SIGNAL_NODE);
   node.value = initialValue;
@@ -25355,8 +25792,8 @@ var PlatformRef = class _PlatformRef {
   }], null);
 })();
 function serializeInjector(injector) {
-  const metadata = getInjectorMetadata(injector);
-  if ((metadata == null ? void 0 : metadata.type) === "null") {
+  const metadata2 = getInjectorMetadata(injector);
+  if ((metadata2 == null ? void 0 : metadata2.type) === "null") {
     return {
       name: "Null Injector",
       type: "null",
@@ -25365,7 +25802,7 @@ function serializeInjector(injector) {
     };
   }
   let allProviders = [];
-  if ((metadata == null ? void 0 : metadata.type) === "element" || (metadata == null ? void 0 : metadata.type) === "environment") {
+  if ((metadata2 == null ? void 0 : metadata2.type) === "element" || (metadata2 == null ? void 0 : metadata2.type) === "environment") {
     allProviders = getInjectorProviders(injector).map((record) => {
       return {
         token: record.token,
@@ -25376,7 +25813,7 @@ function serializeInjector(injector) {
       };
     });
   }
-  if ((metadata == null ? void 0 : metadata.type) === "element") {
+  if ((metadata2 == null ? void 0 : metadata2.type) === "element") {
     const tNode = getNodeInjectorTNode(injector);
     const viewProvidersCount = tNode ? tNode.providerIndexes >> 20 : 0;
     const viewProviders = allProviders.slice(0, viewProvidersCount);
@@ -25387,11 +25824,11 @@ function serializeInjector(injector) {
       providers: resolvedProviders,
       viewProviders,
       children: [],
-      hostElement: metadata.source
+      hostElement: metadata2.source
     };
   }
   return {
-    name: (metadata == null ? void 0 : metadata.source) ?? injector.constructor.name ?? "Unknown Injector",
+    name: (metadata2 == null ? void 0 : metadata2.source) ?? injector.constructor.name ?? "Unknown Injector",
     type: "environment",
     providers: allProviders,
     children: []
@@ -25975,7 +26412,15 @@ function debounced(source, wait, options2) {
   const injector = (options2 == null ? void 0 : options2.injector) ?? inject2(Injector);
   let active;
   let pendingValue;
+  let activeTimer;
+  const cancelTimer = () => {
+    if (activeTimer !== void 0) {
+      clearTimeout(activeTimer);
+      activeTimer = void 0;
+    }
+  };
   injector.get(DestroyRef).onDestroy(() => {
+    cancelTimer();
     active = void 0;
   });
   const state = linkedSignal({
@@ -26023,6 +26468,7 @@ function debounced(source, wait, options2) {
         status: "error",
         error: err
       });
+      cancelTimer();
       active = pendingValue = void 0;
       return;
     } finally {
@@ -26035,7 +26481,13 @@ function debounced(source, wait, options2) {
     } else if (currentState.status === "resolved") {
       if (equal(value, currentState.value)) return;
     }
-    const waitFn = typeof wait === "number" ? () => new Promise((resolve) => setTimeout(resolve, wait)) : wait;
+    cancelTimer();
+    const waitFn = typeof wait === "number" ? () => new Promise((resolve) => {
+      activeTimer = setTimeout(() => {
+        activeTimer = void 0;
+        resolve();
+      }, wait);
+    }) : wait;
     const result = waitFn(value, currentState);
     if (result === void 0) {
       state.set({
@@ -26078,7 +26530,7 @@ function enableProdMode() {
 
 // node_modules/@angular/common/fesm2022/_platform_location-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -26199,7 +26651,7 @@ var BrowserPlatformLocation = class _BrowserPlatformLocation extends PlatformLoc
 
 // node_modules/@angular/common/fesm2022/_location-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -26390,12 +26842,16 @@ var Location = class _Location {
     const baseHref = this._locationStrategy.getBaseHref();
     this._basePath = _stripOrigin(stripTrailingSlash(_stripIndexHtml(baseHref)));
     this._locationStrategy.onPopState((ev) => {
-      this._subject.next({
+      const popStateEvent = {
         "url": this.path(true),
         "pop": true,
         "state": ev.state,
         "type": ev.type
-      });
+      };
+      if (ev.hasUAVisualTransition) {
+        popStateEvent.hasUAVisualTransition = true;
+      }
+      this._subject.next(popStateEvent);
     });
   }
   ngOnDestroy() {
@@ -26514,7 +26970,7 @@ function _stripOrigin(baseHref) {
 
 // node_modules/@angular/common/fesm2022/_common_module-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -26913,7 +27369,7 @@ function getNumberOfCurrencyDigits(code) {
   return typeof digits === "number" ? digits : DEFAULT_NB_OF_CURRENCY_DIGITS;
 }
 var ISO8601_DATE_REGEX = /^(\d{4,})-?(\d\d)-?(\d\d)(?:T(\d\d)(?::?(\d\d)(?::?(\d\d)(?:\.(\d+))?)?)?(Z|([+-])(\d\d):?(\d\d))?)?$/;
-var NAMED_FORMATS = {};
+var NAMED_FORMATS = /* @__PURE__ */ Object.create(null);
 var DATE_FORMATS_SPLIT = /((?:[^BEGHLMOSWYZabcdhmswyz']+)|(?:'(?:[^']|'')*')|(?:G{1,5}|y{1,4}|Y{1,4}|M{1,5}|L{1,5}|w{1,2}|W{1}|d{1,2}|E{1,6}|c{1,6}|a{1,5}|b{1,5}|B{1,5}|h{1,2}|H{1,2}|m{1,2}|s{1,2}|S{1,3}|z{1,4}|Z{1,5}|O{1,4}))([\s\S]*)/;
 var MAX_DATE_FORMAT_LENGTH = 256;
 function formatDate(value, format3, locale, timezone) {
@@ -26975,7 +27431,7 @@ function createDate(year, month, date) {
 }
 function getNamedFormat(locale, format3) {
   const localeId = getLocaleId2(locale);
-  NAMED_FORMATS[localeId] ??= {};
+  NAMED_FORMATS[localeId] ??= /* @__PURE__ */ Object.create(null);
   if (NAMED_FORMATS[localeId][format3]) {
     return NAMED_FORMATS[localeId][format3];
   }
@@ -27206,7 +27662,7 @@ function weekNumberingYearGetter(size, trim = false) {
     return padNumber(weekNumberingYear, size, getLocaleNumberSymbol(locale, NumberSymbol.MinusSign), trim);
   };
 }
-var DATE_FORMATS = {};
+var DATE_FORMATS = /* @__PURE__ */ Object.create(null);
 function getDateFormatter(format3) {
   if (DATE_FORMATS[format3]) {
     return DATE_FORMATS[format3];
@@ -27490,7 +27946,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
   let formattedText = "";
   let isZero = false;
   if (!isFinite(value)) {
-    formattedText = getLocaleNumberSymbol(locale, NumberSymbol.Infinity);
+    formattedText = getLocaleNumberSymbol(locale, Number.isNaN(value) ? NumberSymbol.NaN : NumberSymbol.Infinity);
   } else {
     let parsedNumber = parseNumber(value);
     if (isPercent) {
@@ -29014,10 +29470,10 @@ var I18nSelectPipe = class _I18nSelectPipe {
     if (typeof mapping !== "object" || typeof value !== "string") {
       throw invalidPipeArgumentError(_I18nSelectPipe, mapping);
     }
-    if (mapping.hasOwnProperty(value)) {
+    if (Object.hasOwn(mapping, value)) {
       return mapping[value];
     }
-    if (mapping.hasOwnProperty("other")) {
+    if (Object.hasOwn(mapping, "other")) {
       return mapping["other"];
     }
     return "";
@@ -29120,21 +29576,21 @@ var KeyValuePipe = class _KeyValuePipe {
 })();
 function defaultComparator(keyValueA, keyValueB) {
   const a = keyValueA.key;
-  const b2 = keyValueB.key;
-  if (a === b2) return 0;
+  const b = keyValueB.key;
+  if (a === b) return 0;
   if (a == null) return 1;
-  if (b2 == null) return -1;
-  if (typeof a == "string" && typeof b2 == "string") {
-    return a < b2 ? -1 : 1;
+  if (b == null) return -1;
+  if (typeof a == "string" && typeof b == "string") {
+    return a < b ? -1 : 1;
   }
-  if (typeof a == "number" && typeof b2 == "number") {
-    return a - b2;
+  if (typeof a == "number" && typeof b == "number") {
+    return a - b;
   }
-  if (typeof a == "boolean" && typeof b2 == "boolean") {
-    return a < b2 ? -1 : 1;
+  if (typeof a == "boolean" && typeof b == "boolean") {
+    return a < b ? -1 : 1;
   }
   const aString = String(a);
-  const bString = String(b2);
+  const bString = String(b);
   return aString == bString ? 0 : aString < bString ? -1 : 1;
 }
 var DecimalPipe = class _DecimalPipe {
@@ -29336,7 +29792,7 @@ var CommonModule = class _CommonModule {
 
 // node_modules/@angular/common/fesm2022/_platform_navigation-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -29367,7 +29823,7 @@ var PlatformNavigation = class _PlatformNavigation {
 
 // node_modules/@angular/common/fesm2022/_xhr-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -29376,9 +29832,18 @@ function parseCookieValue(cookieStr, name) {
   for (const cookie of cookieStr.split(";")) {
     const eqIndex = cookie.indexOf("=");
     const [cookieName, cookieValue] = eqIndex == -1 ? [cookie, ""] : [cookie.slice(0, eqIndex), cookie.slice(eqIndex + 1)];
-    if (cookieName.trim() === name) {
-      return decodeURIComponent(cookieValue);
+    if (cookieName.trim() !== name) {
+      continue;
     }
+    let value = cookieValue;
+    try {
+      value = decodeURIComponent(cookieValue);
+    } catch {
+    }
+    if (value.length > 1 && value[0] === '"' && value[value.length - 1] === '"') {
+      value = value.slice(1, -1);
+    }
+    return value;
   }
   return null;
 }
@@ -29429,7 +29894,7 @@ var XhrFactory = class _XhrFactory {
 
 // node_modules/@angular/common/fesm2022/common.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -29566,7 +30031,7 @@ function findAnchorFromDocument(document2, target) {
     while (currentNode) {
       const shadowRoot = currentNode.shadowRoot;
       if (shadowRoot) {
-        const result = shadowRoot.getElementById(target) || shadowRoot.querySelector(`[name="${target}"]`);
+        const result = shadowRoot.getElementById(target) || shadowRoot.querySelector(`[name="${CSS.escape(target)}"]`);
         if (result) {
           return result;
         }
@@ -29966,20 +30431,24 @@ var PreloadLinkCreator = class _PreloadLinkCreator {
   preloadedImages = inject2(PRELOADED_IMAGES);
   document = inject2(DOCUMENT);
   errorShown = false;
-  createPreloadLinkTag(renderer, src, srcset, sizes) {
+  createPreloadLinkTag(renderer, src, srcset, sizes, crossOrigin) {
+    const preloadKey = `${src}:${getCrossOriginMode(crossOrigin)}`;
     if (ngDevMode && !this.errorShown && this.preloadedImages.size >= DEFAULT_PRELOADED_IMAGES_LIMIT) {
       this.errorShown = true;
       console.warn(formatRuntimeError(2961, `The \`NgOptimizedImage\` directive has detected that more than ${DEFAULT_PRELOADED_IMAGES_LIMIT} images were marked as priority. This might negatively affect an overall performance of the page. To fix this, remove the "priority" attribute from images with less priority.`));
     }
-    if (this.preloadedImages.has(src)) {
+    if (this.preloadedImages.has(preloadKey)) {
       return;
     }
-    this.preloadedImages.add(src);
+    this.preloadedImages.add(preloadKey);
     const preload = renderer.createElement("link");
     renderer.setAttribute(preload, "as", "image");
     renderer.setAttribute(preload, "href", src);
     renderer.setAttribute(preload, "rel", "preload");
     renderer.setAttribute(preload, "fetchpriority", "high");
+    if (crossOrigin != null) {
+      renderer.setAttribute(preload, "crossorigin", crossOrigin);
+    }
     if (sizes) {
       renderer.setAttribute(preload, "imageSizes", sizes);
     }
@@ -30001,6 +30470,12 @@ var PreloadLinkCreator = class _PreloadLinkCreator {
     type: Service
   }], null, null);
 })();
+function getCrossOriginMode(crossOrigin) {
+  if (crossOrigin == null) {
+    return null;
+  }
+  return crossOrigin.toLowerCase() === "use-credentials" ? "use-credentials" : "anonymous";
+}
 var BASE64_IMG_MAX_LENGTH_IN_ERROR = 50;
 var VALID_WIDTH_DESCRIPTOR_SRCSET = /^((\s*\d+w\s*(,|$)){1,})$/;
 var VALID_DENSITY_DESCRIPTOR_SRCSET = /^((\s*\d+(\.\d+)?x\s*(,|$)){1,})$/;
@@ -30131,7 +30606,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
     }
     if (false) {
       const preloadLinkCreator = this.injector.get(PreloadLinkCreator);
-      preloadLinkCreator.createPreloadLinkTag(this.renderer, this.getRewrittenSrc(), rewrittenSrcset, this.sizes);
+      preloadLinkCreator.createPreloadLinkTag(this.renderer, this.getRewrittenSrc(), rewrittenSrcset, this.sizes, this.imgElement.getAttribute("crossorigin"));
     }
   }
   ngOnChanges(changes) {
@@ -30278,7 +30753,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
     return null;
   }
   shouldBlurPlaceholder(placeholderConfig) {
-    if (!placeholderConfig || !placeholderConfig.hasOwnProperty("blur")) {
+    if (!placeholderConfig || !Object.hasOwn(placeholderConfig, "blur")) {
       return true;
     }
     return Boolean(placeholderConfig.blur);
@@ -30424,7 +30899,7 @@ var NgOptimizedImage = class _NgOptimizedImage {
 function processConfig(config2) {
   let sortedBreakpoints = {};
   if (config2.breakpoints) {
-    sortedBreakpoints.breakpoints = config2.breakpoints.sort((a, b2) => a - b2);
+    sortedBreakpoints.breakpoints = config2.breakpoints.sort((a, b) => a - b);
   }
   return Object.assign({}, IMAGE_CONFIG_DEFAULTS, config2, sortedBreakpoints);
 }
@@ -30522,7 +30997,7 @@ function postInitInputChangeError(dir, inputName) {
 }
 function assertNoPostInitInputChange(dir, changes, inputs) {
   inputs.forEach((input2) => {
-    const isUpdated = changes.hasOwnProperty(input2);
+    const isUpdated = Object.hasOwn(changes, input2);
     if (isUpdated && !changes[input2].isFirstChange()) {
       if (input2 === "ngSrc") {
         dir = {
@@ -30715,7 +31190,7 @@ function booleanOrUrlAttribute(value) {
 
 // node_modules/@angular/platform-browser/fesm2022/_dom_renderer-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -30791,7 +31266,7 @@ var EventManager = class _EventManager {
     const plugins = this._plugins;
     plugin = plugins.find((plugin2) => plugin2.supports(eventName));
     if (!plugin) {
-      throw new RuntimeError(5101, (typeof ngDevMode === "undefined" || ngDevMode) && `No event manager plugin found for event ${eventName}`);
+      throw new RuntimeError(-5101, (typeof ngDevMode === "undefined" || ngDevMode) && `No event manager plugin found for event ${eventName}`);
     }
     this._eventNameToPlugin.set(eventName, plugin);
     return plugin;
@@ -30988,7 +31463,7 @@ var SharedStylesHost = class _SharedStylesHost {
     }]
   }], null);
 })();
-var NAMESPACE_URIS = {
+var NAMESPACE_URIS2 = {
   "svg": "http://www.w3.org/2000/svg",
   "xhtml": "http://www.w3.org/1999/xhtml",
   "xlink": "http://www.w3.org/1999/xlink",
@@ -30997,7 +31472,7 @@ var NAMESPACE_URIS = {
   "math": "http://www.w3.org/1998/Math/MathML"
 };
 var COMPONENT_REGEX = /%COMP%/g;
-var SOURCEMAP_URL_REGEXP = /\/\*#\s*sourceMappingURL=(.+?)\s*\*\//;
+var SOURCEMAP_URL_REGEXP = /\/\*#\s*sourceMappingURL=([^\s*]+)\s*\*\//;
 var PROTOCOL_REGEXP = /^https?:/;
 var COMPONENT_VARIABLE = "%COMP%";
 var HOST_ATTR = `_nghost-${COMPONENT_VARIABLE}`;
@@ -31006,6 +31481,7 @@ var REMOVE_STYLES_ON_COMPONENT_DESTROY_DEFAULT = true;
 var REMOVE_STYLES_ON_COMPONENT_DESTROY = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "RemoveStylesOnCompDestroy" : "", {
   factory: () => REMOVE_STYLES_ON_COMPONENT_DESTROY_DEFAULT
 });
+var CSS_VAR_NAMESPACE = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "CSS_VAR_NAMESPACE" : "");
 function shimContentAttribute(componentShortId) {
   return CONTENT_ATTR.replace(COMPONENT_REGEX, componentShortId);
 }
@@ -31046,7 +31522,8 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
   tracingService;
   rendererByCompId = /* @__PURE__ */ new Map();
   defaultRenderer;
-  constructor(eventManager, sharedStylesHost, appId, removeStylesOnCompDestroy, doc, ngZone, nonce = null, tracingService = null) {
+  cssVarNamespace;
+  constructor(eventManager, sharedStylesHost, appId, removeStylesOnCompDestroy, doc, ngZone, nonce = null, tracingService = null, cssVarNamespace = null) {
     this.eventManager = eventManager;
     this.sharedStylesHost = sharedStylesHost;
     this.appId = appId;
@@ -31055,7 +31532,8 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     this.ngZone = ngZone;
     this.nonce = nonce;
     this.tracingService = tracingService;
-    this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.tracingService);
+    this.cssVarNamespace = cssVarNamespace ?? "";
+    this.defaultRenderer = new DefaultDomRenderer2(eventManager, doc, ngZone, this.tracingService, this.cssVarNamespace);
   }
   createRenderer(element, type) {
     if (!element || !type) {
@@ -31086,14 +31564,14 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
       const tracingService = this.tracingService;
       switch (type.encapsulation) {
         case ViewEncapsulation.Emulated:
-          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new EmulatedEncapsulationDomRenderer2(eventManager, sharedStylesHost, type, this.appId, removeStylesOnCompDestroy, doc, ngZone, tracingService, this.cssVarNamespace);
           break;
         case ViewEncapsulation.ShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, sharedStylesHost);
+          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, this.cssVarNamespace, sharedStylesHost);
         case ViewEncapsulation.ExperimentalIsolatedShadowDom:
-          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService);
+          return new ShadowDomRenderer(eventManager, element, type, doc, ngZone, this.nonce, tracingService, this.cssVarNamespace);
         default:
-          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, tracingService);
+          renderer = new NoneEncapsulationDomRenderer(eventManager, sharedStylesHost, type, removeStylesOnCompDestroy, doc, ngZone, tracingService, this.cssVarNamespace);
           break;
       }
       rendererByCompId.set(type.id, renderer);
@@ -31107,7 +31585,7 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     this.rendererByCompId.delete(componentId);
   }
   static \u0275fac = function DomRendererFactory2_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _DomRendererFactory2)(\u0275\u0275inject(EventManager), \u0275\u0275inject(SHARED_STYLES_HOST), \u0275\u0275inject(APP_ID), \u0275\u0275inject(REMOVE_STYLES_ON_COMPONENT_DESTROY), \u0275\u0275inject(DOCUMENT), \u0275\u0275inject(NgZone), \u0275\u0275inject(CSP_NONCE), \u0275\u0275inject(TracingService, 8));
+    return new (__ngFactoryType__ || _DomRendererFactory2)(\u0275\u0275inject(EventManager), \u0275\u0275inject(SHARED_STYLES_HOST), \u0275\u0275inject(APP_ID), \u0275\u0275inject(REMOVE_STYLES_ON_COMPONENT_DESTROY), \u0275\u0275inject(DOCUMENT), \u0275\u0275inject(NgZone), \u0275\u0275inject(CSP_NONCE), \u0275\u0275inject(TracingService, 8), \u0275\u0275inject(CSS_VAR_NAMESPACE, 8));
   };
   static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
     token: _DomRendererFactory2,
@@ -31159,6 +31637,14 @@ var DomRendererFactory2 = class _DomRendererFactory2 {
     }, {
       type: Optional
     }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Inject,
+      args: [CSS_VAR_NAMESPACE]
+    }, {
+      type: Optional
+    }]
   }], null);
 })();
 var DefaultDomRenderer2 = class {
@@ -31166,20 +31652,22 @@ var DefaultDomRenderer2 = class {
   doc;
   ngZone;
   tracingService;
+  cssVarNamespace;
   data = /* @__PURE__ */ Object.create(null);
   throwOnSyntheticProps = true;
-  constructor(eventManager, doc, ngZone, tracingService) {
+  constructor(eventManager, doc, ngZone, tracingService, cssVarNamespace = "") {
     this.eventManager = eventManager;
     this.doc = doc;
     this.ngZone = ngZone;
     this.tracingService = tracingService;
+    this.cssVarNamespace = cssVarNamespace;
   }
   destroy() {
   }
   destroyNode = null;
   createElement(name, namespace) {
     if (namespace) {
-      return this.doc.createElementNS(NAMESPACE_URIS[namespace] || namespace, name);
+      return this.doc.createElementNS(NAMESPACE_URIS2[namespace] || namespace, name);
     }
     return this.doc.createElement(name);
   }
@@ -31196,6 +31684,9 @@ var DefaultDomRenderer2 = class {
   insertBefore(parent, newChild, refChild) {
     if (parent) {
       const targetParent = isTemplateNode(parent) ? parent.content : parent;
+      if (refChild != null && refChild.parentNode !== targetParent) {
+        throw new RuntimeError(-5106, ngDevMode && `Angular could not insert a node before ${describeDomNode(refChild)} because it is no longer a child of ${describeDomNode(targetParent)}. This can happen when code outside of Angular's control (for example, a browser extension or a script that directly manipulates the DOM) has moved or removed a node that Angular is still managing.`);
+      }
       targetParent.insertBefore(newChild, refChild);
     }
   }
@@ -31221,7 +31712,7 @@ var DefaultDomRenderer2 = class {
   setAttribute(el, name, value, namespace) {
     if (namespace) {
       name = namespace + ":" + name;
-      const namespaceUri = NAMESPACE_URIS[namespace];
+      const namespaceUri = NAMESPACE_URIS2[namespace];
       if (namespaceUri) {
         el.setAttributeNS(namespaceUri, name, value);
       } else {
@@ -31233,7 +31724,7 @@ var DefaultDomRenderer2 = class {
   }
   removeAttribute(el, name, namespace) {
     if (namespace) {
-      const namespaceUri = NAMESPACE_URIS[namespace];
+      const namespaceUri = NAMESPACE_URIS2[namespace];
       if (namespaceUri) {
         el.removeAttributeNS(namespaceUri, name);
       } else {
@@ -31250,14 +31741,22 @@ var DefaultDomRenderer2 = class {
     el.classList.remove(name);
   }
   setStyle(el, style2, value, flags) {
-    if (flags & (RendererStyleFlags2.DashCase | RendererStyleFlags2.Important)) {
+    const isVariable = style2.startsWith("--");
+    if (isVariable) {
+      style2 = style2.replace("%NS%", this.cssVarNamespace);
+    }
+    if (isVariable || flags & (RendererStyleFlags2.DashCase | RendererStyleFlags2.Important)) {
       el.style.setProperty(style2, value, flags & RendererStyleFlags2.Important ? "important" : "");
     } else {
       el.style[style2] = value;
     }
   }
   removeStyle(el, style2, flags) {
-    if (flags & RendererStyleFlags2.DashCase) {
+    const isVariable = style2.startsWith("--");
+    if (isVariable) {
+      style2 = style2.replace("%NS%", this.cssVarNamespace);
+    }
+    if (isVariable || flags & RendererStyleFlags2.DashCase) {
       el.style.removeProperty(style2);
     } else {
       el.style[style2] = "";
@@ -31279,7 +31778,7 @@ var DefaultDomRenderer2 = class {
     if (typeof target === "string") {
       target = getDOM().getGlobalEventTarget(this.doc, target);
       if (!target) {
-        throw new RuntimeError(5102, (typeof ngDevMode === "undefined" || ngDevMode) && `Unsupported event target ${target} for event ${event}`);
+        throw new RuntimeError(-5102, (typeof ngDevMode === "undefined" || ngDevMode) && `Unsupported event target ${target} for event ${event}`);
       }
     }
     let wrappedCallback = this.decoratePreventDefault(callback);
@@ -31316,9 +31815,9 @@ var ShadowDomRenderer = class extends DefaultDomRenderer2 {
   hostEl;
   sharedStylesHost;
   shadowRoot;
-  constructor(eventManager, hostEl, component, doc, ngZone, nonce, tracingService, sharedStylesHost) {
+  constructor(eventManager, hostEl, component, doc, ngZone, nonce, tracingService, cssVarNamespace, sharedStylesHost) {
     var _a10;
-    super(eventManager, doc, ngZone, tracingService);
+    super(eventManager, doc, ngZone, tracingService, cssVarNamespace);
     this.hostEl = hostEl;
     this.sharedStylesHost = sharedStylesHost;
     this.shadowRoot = hostEl.attachShadow({
@@ -31332,7 +31831,7 @@ var ShadowDomRenderer = class extends DefaultDomRenderer2 {
       const baseHref = getDOM().getBaseHref(doc) ?? "";
       styles = addBaseHrefToCssSourceMap(baseHref, styles);
     }
-    styles = shimStylesContent(component.id, styles);
+    styles = shimStylesContent(component.id, styles).map((s) => s.replace(/%NS%/g, cssVarNamespace));
     for (const style2 of styles) {
       const styleEl = document.createElement("style");
       if (nonce) {
@@ -31378,9 +31877,9 @@ var NoneEncapsulationDomRenderer = class extends DefaultDomRenderer2 {
   removeStylesOnCompDestroy;
   styles;
   styleUrls;
-  constructor(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, compId) {
+  constructor(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, cssVarNamespace, compId) {
     var _a10;
-    super(eventManager, doc, ngZone, tracingService);
+    super(eventManager, doc, ngZone, tracingService, cssVarNamespace);
     this.sharedStylesHost = sharedStylesHost;
     this.removeStylesOnCompDestroy = removeStylesOnCompDestroy;
     let styles = component.styles;
@@ -31388,7 +31887,8 @@ var NoneEncapsulationDomRenderer = class extends DefaultDomRenderer2 {
       const baseHref = getDOM().getBaseHref(doc) ?? "";
       styles = addBaseHrefToCssSourceMap(baseHref, styles);
     }
-    this.styles = compId ? shimStylesContent(compId, styles) : styles;
+    const shimmed = compId ? shimStylesContent(compId, styles) : styles;
+    this.styles = shimmed.map((s) => s.replace(/%NS%/g, cssVarNamespace));
     this.styleUrls = (_a10 = component.getExternalStyles) == null ? void 0 : _a10.call(component, compId);
   }
   applyStyles() {
@@ -31406,9 +31906,9 @@ var NoneEncapsulationDomRenderer = class extends DefaultDomRenderer2 {
 var EmulatedEncapsulationDomRenderer2 = class extends NoneEncapsulationDomRenderer {
   contentAttr;
   hostAttr;
-  constructor(eventManager, sharedStylesHost, component, appId, removeStylesOnCompDestroy, doc, ngZone, tracingService) {
+  constructor(eventManager, sharedStylesHost, component, appId, removeStylesOnCompDestroy, doc, ngZone, tracingService, cssVarNamespace) {
     const compId = appId + "-" + component.id;
-    super(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, compId);
+    super(eventManager, sharedStylesHost, component, removeStylesOnCompDestroy, doc, ngZone, tracingService, cssVarNamespace, compId);
     this.contentAttr = shimContentAttribute(compId);
     this.hostAttr = shimHostAttribute(compId);
   }
@@ -31425,7 +31925,7 @@ var EmulatedEncapsulationDomRenderer2 = class extends NoneEncapsulationDomRender
 
 // node_modules/@angular/platform-browser/fesm2022/_browser-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -31774,7 +32274,7 @@ var BrowserModule = class _BrowserModule {
 
 // node_modules/@angular/common/fesm2022/_module-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -31874,10 +32374,10 @@ var HttpHeaders = class _HttpHeaders {
   }
   copyFrom(other) {
     other.init();
-    Array.from(other.headers.keys()).forEach((key) => {
-      this.headers.set(key, other.headers.get(key));
+    for (const [key, values] of other.headers.entries()) {
+      this.headers.set(key, values);
       this.normalizedNames.set(key, other.normalizedNames.get(key));
-    });
+    }
   }
   clone(update2) {
     const clone = new _HttpHeaders();
@@ -31898,21 +32398,22 @@ var HttpHeaders = class _HttpHeaders {
           return;
         }
         this.maybeSetNormalizedName(update2.name, key);
-        const base = (update2.op === "a" ? this.headers.get(key) : void 0) || [];
+        const base = update2.op === "a" ? (this.headers.get(key) || []).slice() : [];
         base.push(...value);
         this.headers.set(key, base);
         break;
       case "d":
         const toDelete = update2.value;
-        if (!toDelete) {
+        if (toDelete === void 0) {
           this.headers.delete(key);
           this.normalizedNames.delete(key);
         } else {
+          const valuesToDelete = Array.isArray(toDelete) ? toDelete : [toDelete];
           let existing = this.headers.get(key);
           if (!existing) {
             return;
           }
-          existing = existing.filter((value2) => toDelete.indexOf(value2) === -1);
+          existing = existing.filter((value2) => valuesToDelete.indexOf(value2) === -1);
           if (existing.length === 0) {
             this.headers.delete(key);
             this.normalizedNames.delete(key);
@@ -32122,18 +32623,20 @@ var HttpParams = class _HttpParams {
     }
     if (this.cloneFrom !== null) {
       this.cloneFrom.init();
-      this.cloneFrom.keys().forEach((key) => this.map.set(key, this.cloneFrom.map.get(key)));
+      for (const [key, values] of this.cloneFrom.map.entries()) {
+        this.map.set(key, values);
+      }
       this.updates.forEach((update2) => {
         switch (update2.op) {
           case "a":
           case "s":
-            const base = (update2.op === "a" ? this.map.get(update2.param) : void 0) || [];
+            const base = update2.op === "a" ? (this.map.get(update2.param) || []).slice() : [];
             base.push(valueToString(update2.value));
             this.map.set(update2.param, base);
             break;
           case "d":
             if (update2.value !== void 0) {
-              let base2 = this.map.get(update2.param) || [];
+              const base2 = (this.map.get(update2.param) || []).slice();
               const idx = base2.indexOf(valueToString(update2.value));
               if (idx !== -1) {
                 base2.splice(idx, 1);
@@ -32540,7 +33043,24 @@ var FetchBackend = class _FetchBackend {
   handle(request) {
     return new Observable((observer) => {
       const aborter = new AbortController();
-      this.doRequest(request, aborter.signal, observer).then(noop3, (error2) => observer.error(new HttpErrorResponse({
+      let done = false;
+      const wrappedObserver = {
+        next: (val) => {
+          if (val.type === HttpEventType.Response) {
+            done = true;
+          }
+          observer.next(val);
+        },
+        error: (err) => {
+          done = true;
+          observer.error(err);
+        },
+        complete: () => {
+          done = true;
+          observer.complete();
+        }
+      };
+      this.doRequest(request, aborter.signal, wrappedObserver).then(noop3, (error2) => wrappedObserver.error(new HttpErrorResponse({
         error: error2
       })));
       let timeoutId;
@@ -32555,7 +33075,9 @@ var FetchBackend = class _FetchBackend {
         if (timeoutId !== void 0) {
           clearTimeout(timeoutId);
         }
-        aborter.abort();
+        if (!done && !aborter.signal.aborted) {
+          aborter.abort();
+        }
       };
     });
   }
@@ -32596,9 +33118,11 @@ var FetchBackend = class _FetchBackend {
       }));
     }
     if (response.body) {
+      const contentType = response.headers.get(CONTENT_TYPE_HEADER) ?? "";
       const contentLength = response.headers.get("content-length");
       const contentLengthValue = contentLength !== null ? Number(contentLength) : NaN;
       if (this.maxResponseSize !== null && Number.isFinite(contentLengthValue) && contentLengthValue > this.maxResponseSize) {
+        await response.body.cancel();
         throwBodyTooLargeError(this.maxResponseSize);
       }
       const chunks = [];
@@ -32629,7 +33153,7 @@ var FetchBackend = class _FetchBackend {
             throwBodyTooLargeError(this.maxResponseSize);
           }
           if (reportDownloadProgress) {
-            partialText = request.responseType === "text" ? (partialText ?? "") + (decoder ??= new TextDecoder()).decode(value, {
+            partialText = request.responseType === "text" ? (partialText ?? "") + (decoder ??= getTextDecoder(contentType)).decode(value, {
               stream: true
             }) : void 0;
             const reportProgress = () => observer.next({
@@ -32648,7 +33172,6 @@ var FetchBackend = class _FetchBackend {
       }
       const chunksAll = this.concatChunks(chunks, receivedLength);
       try {
-        const contentType = response.headers.get(CONTENT_TYPE_HEADER) ?? "";
         body = this.parseBody(request, chunksAll, contentType, status);
       } catch (error2) {
         observer.error(new HttpErrorResponse({
@@ -32706,7 +33229,7 @@ var FetchBackend = class _FetchBackend {
           throw e;
         }
       case "text":
-        return new TextDecoder().decode(binContent);
+        return getTextDecoder(contentType).decode(binContent);
       case "blob":
         return new Blob([binContent], {
           type: contentType
@@ -32786,8 +33309,133 @@ function silenceSuperfluousUnhandledPromiseRejection(promise) {
   promise.then(noop3, noop3);
 }
 function throwBodyTooLargeError(maxResponseSize) {
-  throw new RuntimeError(2825, ngDevMode && `Fetch response body exceeded the configured buffer limit (${maxResponseSize} bytes).`);
+  throw new RuntimeError(-2825, ngDevMode && `Fetch response body exceeded the configured buffer limit (${maxResponseSize} bytes).`);
 }
+var CHARSET_REGEX = /charset=\s*["']?([^;"'\s]+)["']?/i;
+function getTextDecoder(contentType) {
+  const match3 = contentType.match(CHARSET_REGEX);
+  if (match3 !== null) {
+    try {
+      return new TextDecoder(match3[1]);
+    } catch {
+    }
+  }
+  return new TextDecoder();
+}
+var XSRF_ENABLED = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "XSRF_ENABLED" : "", {
+  factory: () => true
+});
+var XSRF_DEFAULT_COOKIE_NAME = "XSRF-TOKEN";
+var XSRF_COOKIE_NAME = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "XSRF_COOKIE_NAME" : "", {
+  factory: () => XSRF_DEFAULT_COOKIE_NAME
+});
+var XSRF_DEFAULT_HEADER_NAME = "X-XSRF-TOKEN";
+var XSRF_HEADER_NAME = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "XSRF_HEADER_NAME" : "", {
+  factory: () => XSRF_DEFAULT_HEADER_NAME
+});
+var HttpXsrfCookieExtractor = class _HttpXsrfCookieExtractor {
+  cookieName = inject2(XSRF_COOKIE_NAME);
+  doc = inject2(DOCUMENT);
+  lastCookieString = "";
+  lastToken = null;
+  parseCount = 0;
+  getToken() {
+    if (false) {
+      return null;
+    }
+    const cookieString = this.doc.cookie || "";
+    if (cookieString !== this.lastCookieString) {
+      this.parseCount++;
+      this.lastToken = parseCookieValue(cookieString, this.cookieName);
+      this.lastCookieString = cookieString;
+    }
+    return this.lastToken;
+  }
+  static \u0275fac = function HttpXsrfCookieExtractor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HttpXsrfCookieExtractor)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
+    token: _HttpXsrfCookieExtractor,
+    factory: _HttpXsrfCookieExtractor.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfCookieExtractor, [{
+    type: Service
+  }], null, null);
+})();
+var HttpXsrfTokenExtractor = class _HttpXsrfTokenExtractor {
+  static \u0275fac = function HttpXsrfTokenExtractor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HttpXsrfTokenExtractor)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _HttpXsrfTokenExtractor,
+    factory: function HttpXsrfTokenExtractor_Factory(__ngFactoryType__) {
+      let __ngConditionalFactory__ = null;
+      if (__ngFactoryType__) {
+        __ngConditionalFactory__ = new (__ngFactoryType__ || _HttpXsrfTokenExtractor)();
+      } else {
+        __ngConditionalFactory__ = \u0275\u0275inject(HttpXsrfCookieExtractor);
+      }
+      return __ngConditionalFactory__;
+    },
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfTokenExtractor, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root",
+      useExisting: HttpXsrfCookieExtractor
+    }]
+  }], null, null);
+})();
+function xsrfInterceptorFn(req, next) {
+  if (!inject2(XSRF_ENABLED) || req.method === "GET" || req.method === "HEAD") {
+    return next(req);
+  }
+  try {
+    const locationHref = inject2(PlatformLocation).href;
+    const {
+      origin: locationOrigin
+    } = new URL(locationHref);
+    const {
+      origin: requestOrigin2
+    } = new URL(req.url, locationOrigin);
+    if (locationOrigin !== requestOrigin2) {
+      return next(req);
+    }
+  } catch {
+    return next(req);
+  }
+  const token = inject2(HttpXsrfTokenExtractor).getToken();
+  const headerName = inject2(XSRF_HEADER_NAME);
+  if (token != null && !req.headers.has(headerName)) {
+    req = req.clone({
+      headers: req.headers.set(headerName, token)
+    });
+  }
+  return next(req);
+}
+var HttpXsrfInterceptor = class _HttpXsrfInterceptor {
+  injector = inject2(EnvironmentInjector);
+  intercept(initialRequest, next) {
+    return runInInjectionContext(this.injector, () => xsrfInterceptorFn(initialRequest, (downstreamRequest) => next.handle(downstreamRequest)));
+  }
+  static \u0275fac = function HttpXsrfInterceptor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _HttpXsrfInterceptor)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _HttpXsrfInterceptor,
+    factory: _HttpXsrfInterceptor.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfInterceptor, [{
+    type: Injectable
+  }], null, null);
+})();
 function interceptorChainEndFn(req, finalHandlerFn) {
   return finalHandlerFn(req);
 }
@@ -32801,7 +33449,7 @@ function chainedInterceptorFn(chainTailFn, interceptorFn, injector) {
 }
 var HTTP_INTERCEPTORS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "HTTP_INTERCEPTORS" : "");
 var HTTP_INTERCEPTOR_FNS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "HTTP_INTERCEPTOR_FNS" : "", {
-  factory: () => []
+  factory: () => [xsrfInterceptorFn]
 });
 var HTTP_ROOT_INTERCEPTOR_FNS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "HTTP_ROOT_INTERCEPTOR_FNS" : "");
 var REQUESTS_CONTRIBUTE_TO_STABILITY = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "REQUESTS_CONTRIBUTE_TO_STABILITY" : "", {
@@ -32873,14 +33521,22 @@ var HttpInterceptorHandler = class _HttpInterceptorHandler {
   }
   handle(initialRequest) {
     if (this.chain === null) {
-      const dedupedInterceptorFns = Array.from(/* @__PURE__ */ new Set([...this.injector.get(HTTP_INTERCEPTOR_FNS), ...this.injector.get(HTTP_ROOT_INTERCEPTOR_FNS, [])]));
+      const parentHandler = this.injector.get(HttpHandler, null, {
+        skipSelf: true
+      });
+      const isDelegating = parentHandler !== null && this.backend === parentHandler;
+      const rootInterceptorFns = this.injector.get(HTTP_ROOT_INTERCEPTOR_FNS, [], isDelegating ? {
+        self: true
+      } : void 0);
+      const dedupedInterceptorFns = Array.from(/* @__PURE__ */ new Set([...this.injector.get(HTTP_INTERCEPTOR_FNS), ...rootInterceptorFns]));
       this.chain = dedupedInterceptorFns.reduceRight((nextSequencedFn, interceptorFn) => chainedInterceptorFn(nextSequencedFn, interceptorFn, this.injector), interceptorChainEndFn);
     }
+    const chain2 = this.chain;
     if (this.contributeToStability) {
       const removeTask = this.pendingTasks.add();
-      return this.chain(initialRequest, (downstreamRequest) => this.backend.handle(downstreamRequest)).pipe(finalize(removeTask));
+      return untracked2(() => chain2(initialRequest, (downstreamRequest) => this.backend.handle(downstreamRequest))).pipe(finalize(removeTask));
     } else {
-      return this.chain(initialRequest, (downstreamRequest) => this.backend.handle(downstreamRequest));
+      return untracked2(() => chain2(initialRequest, (downstreamRequest) => this.backend.handle(downstreamRequest)));
     }
   }
   static \u0275fac = function HttpInterceptorHandler_Factory(__ngFactoryType__) {
@@ -33095,6 +33751,9 @@ var JsonpClientBackend = class _JsonpClientBackend {
   constructor(callbackMap, document2) {
     this.callbackMap = callbackMap;
     this.document = document2;
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      console.warn("JSONP support is deprecated as it can cause XSS vulnerabilities, and will be removed in a future version of Angular. Please use standard HTTP requests instead.");
+    }
   }
   nextCallback() {
     return `ng_jsonp_callback_${nextRequestId++}`;
@@ -33490,120 +34149,6 @@ var HttpXhrBackend = class _HttpXhrBackend {
     type: XhrFactory
   }], null);
 })();
-var XSRF_ENABLED = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "XSRF_ENABLED" : "", {
-  factory: () => true
-});
-var XSRF_DEFAULT_COOKIE_NAME = "XSRF-TOKEN";
-var XSRF_COOKIE_NAME = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "XSRF_COOKIE_NAME" : "", {
-  factory: () => XSRF_DEFAULT_COOKIE_NAME
-});
-var XSRF_DEFAULT_HEADER_NAME = "X-XSRF-TOKEN";
-var XSRF_HEADER_NAME = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "XSRF_HEADER_NAME" : "", {
-  factory: () => XSRF_DEFAULT_HEADER_NAME
-});
-var HttpXsrfCookieExtractor = class _HttpXsrfCookieExtractor {
-  cookieName = inject2(XSRF_COOKIE_NAME);
-  doc = inject2(DOCUMENT);
-  lastCookieString = "";
-  lastToken = null;
-  parseCount = 0;
-  getToken() {
-    if (false) {
-      return null;
-    }
-    const cookieString = this.doc.cookie || "";
-    if (cookieString !== this.lastCookieString) {
-      this.parseCount++;
-      this.lastToken = parseCookieValue(cookieString, this.cookieName);
-      this.lastCookieString = cookieString;
-    }
-    return this.lastToken;
-  }
-  static \u0275fac = function HttpXsrfCookieExtractor_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _HttpXsrfCookieExtractor)();
-  };
-  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
-    token: _HttpXsrfCookieExtractor,
-    factory: _HttpXsrfCookieExtractor.\u0275fac
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfCookieExtractor, [{
-    type: Service
-  }], null, null);
-})();
-var HttpXsrfTokenExtractor = class _HttpXsrfTokenExtractor {
-  static \u0275fac = function HttpXsrfTokenExtractor_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _HttpXsrfTokenExtractor)();
-  };
-  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-    token: _HttpXsrfTokenExtractor,
-    factory: function HttpXsrfTokenExtractor_Factory(__ngFactoryType__) {
-      let __ngConditionalFactory__ = null;
-      if (__ngFactoryType__) {
-        __ngConditionalFactory__ = new (__ngFactoryType__ || _HttpXsrfTokenExtractor)();
-      } else {
-        __ngConditionalFactory__ = \u0275\u0275inject(HttpXsrfCookieExtractor);
-      }
-      return __ngConditionalFactory__;
-    },
-    providedIn: "root"
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfTokenExtractor, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root",
-      useExisting: HttpXsrfCookieExtractor
-    }]
-  }], null, null);
-})();
-function xsrfInterceptorFn(req, next) {
-  if (!inject2(XSRF_ENABLED) || req.method === "GET" || req.method === "HEAD") {
-    return next(req);
-  }
-  try {
-    const locationHref = inject2(PlatformLocation).href;
-    const {
-      origin: locationOrigin
-    } = new URL(locationHref);
-    const {
-      origin: requestOrigin2
-    } = new URL(req.url, locationOrigin);
-    if (locationOrigin !== requestOrigin2) {
-      return next(req);
-    }
-  } catch {
-    return next(req);
-  }
-  const token = inject2(HttpXsrfTokenExtractor).getToken();
-  const headerName = inject2(XSRF_HEADER_NAME);
-  if (token != null && !req.headers.has(headerName)) {
-    req = req.clone({
-      headers: req.headers.set(headerName, token)
-    });
-  }
-  return next(req);
-}
-var HttpXsrfInterceptor = class _HttpXsrfInterceptor {
-  injector = inject2(EnvironmentInjector);
-  intercept(initialRequest, next) {
-    return runInInjectionContext(this.injector, () => xsrfInterceptorFn(initialRequest, (downstreamRequest) => next.handle(downstreamRequest)));
-  }
-  static \u0275fac = function HttpXsrfInterceptor_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _HttpXsrfInterceptor)();
-  };
-  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
-    token: _HttpXsrfInterceptor,
-    factory: _HttpXsrfInterceptor.\u0275fac
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HttpXsrfInterceptor, [{
-    type: Injectable
-  }], null, null);
-})();
 var HttpFeatureKind;
 (function(HttpFeatureKind2) {
   HttpFeatureKind2[HttpFeatureKind2["Interceptors"] = 0] = "Interceptors";
@@ -33625,7 +34170,11 @@ function provideHttpClient(...features) {
   if (ngDevMode) {
     const featureKinds = new Set(features.map((f2) => f2.\u0275kind));
     if (featureKinds.has(HttpFeatureKind.NoXsrfProtection) && featureKinds.has(HttpFeatureKind.CustomXsrfConfiguration)) {
-      throw new Error(ngDevMode ? `Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.` : "");
+      throw new Error(`Configuration error: found both withXsrfConfiguration() and withNoXsrfProtection() in the same call to provideHttpClient(), which is a contradiction.`);
+    }
+    const hasBackendOverride = featureKinds.has(HttpFeatureKind.Fetch) || featureKinds.has(HttpFeatureKind.Xhr);
+    if (featureKinds.has(HttpFeatureKind.RequestsMadeViaParent) && hasBackendOverride) {
+      throw new Error(`Configuration error: withRequestsMadeViaParent() cannot be combined with withFetch() or withXhr() in the same call to provideHttpClient().`);
     }
   }
   const providers = [HttpClient, FetchBackend, HttpInterceptorHandler, {
@@ -33796,7 +34345,7 @@ var HttpClientJsonpModule = class _HttpClientJsonpModule {
 
 // node_modules/@angular/common/fesm2022/http.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -33810,17 +34359,19 @@ var RESPONSE_TYPE = "rt";
 var CACHE_OPTIONS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "HTTP_TRANSFER_STATE_CACHE_OPTIONS" : "");
 var ALLOWED_METHODS = ["GET", "HEAD"];
 function canUseOrCacheRequest(req, options2) {
-  var _b4;
-  const _a10 = options2, {
-    isCacheActive
-  } = _a10, globalOptions = __objRest(_a10, [
-    "isCacheActive"
-  ]);
+  const {
+    isCacheActive,
+    filter: filter2,
+    includePostRequests,
+    includeRequestsWithAuthHeaders,
+    includeRequestsWithCredentials,
+    includeNonCacheableRequests
+  } = options2;
   const {
     transferCache: requestOptions,
     method: requestMethod
   } = req;
-  if (!isCacheActive || requestOptions === false || req.withCredentials || requestMethod === "POST" && !globalOptions.includePostRequests && !requestOptions || requestMethod !== "POST" && !ALLOWED_METHODS.includes(requestMethod) || !globalOptions.includeRequestsWithAuthHeaders && hasAuthHeaders(req) || ((_b4 = globalOptions.filter) == null ? void 0 : _b4.call(globalOptions, req)) === false) {
+  if (!isCacheActive || requestOptions === false || requestMethod === "POST" && !includePostRequests && !requestOptions || requestMethod !== "POST" && !ALLOWED_METHODS.includes(requestMethod) || !includeRequestsWithAuthHeaders && hasAuthHeaders(req) || !includeRequestsWithCredentials && hasOutgoingCredentials(req) || !includeNonCacheableRequests && (hasUncacheableCacheControl(req.headers) || isNonCacheableRequest(req.cache)) || (filter2 == null ? void 0 : filter2(req)) === false) {
     return false;
   }
   return true;
@@ -33880,8 +34431,31 @@ function hasAuthHeaders(req) {
   const headers = req.headers;
   return headers.has("authorization") || headers.has("proxy-authorization") || headers.has("cookie");
 }
+var UNCACHEABLE_CACHE_CONTROL_DIRECTIVES = /* @__PURE__ */ new Set(["no-store", "private", "no-cache"]);
+function hasUncacheableCacheControl(headers) {
+  const cacheControl = headers.get("cache-control");
+  if (!cacheControl) {
+    return false;
+  }
+  return cacheControl.split(",").some((directive) => {
+    const directiveName = directive.split("=", 1)[0].trim().toLowerCase();
+    return UNCACHEABLE_CACHE_CONTROL_DIRECTIVES.has(directiveName);
+  });
+}
+function isNonCacheableRequest(cache) {
+  return cache === "no-cache" || cache === "no-store";
+}
+function hasOutgoingCredentials(req) {
+  const {
+    withCredentials,
+    credentials
+  } = req;
+  return withCredentials || credentials === "include" || credentials === "same-origin";
+}
 function sortAndConcatParams(params) {
-  return [...params.keys()].sort().map((k) => `${k}=${params.getAll(k)}`).join("&");
+  const searchParams = new URLSearchParams(params instanceof URLSearchParams ? params : params.toString());
+  searchParams.sort();
+  return searchParams.toString();
 }
 function makeCacheKey(request, mappedRequestUrl) {
   const {
@@ -33896,7 +34470,7 @@ function makeCacheKey(request, mappedRequestUrl) {
   } else if (typeof serializedBody !== "string") {
     serializedBody = "";
   }
-  const key = [method, responseType, mappedRequestUrl, serializedBody, encodedParams].join("|");
+  const key = [method, responseType, mappedRequestUrl, serializedBody, encodedParams].join("\0");
   const hash = generateHash(key);
   return makeStateKey(hash);
 }
@@ -34156,7 +34730,7 @@ var HttpResourceImpl = class extends ResourceImpl {
         complete: () => {
           if (resolve) {
             send({
-              error: new RuntimeError(991, ngDevMode && "Resource completed before producing a value")
+              error: new RuntimeError(-991, ngDevMode && "Resource completed before producing a value")
             });
           }
           abortSignal.removeEventListener("abort", onAbort);
@@ -34179,46 +34753,38 @@ var HttpResourceImpl = class extends ResourceImpl {
 
 // node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
 var Meta = class _Meta {
-  _doc;
-  _dom;
-  constructor(_doc) {
-    this._doc = _doc;
-    this._dom = getDOM();
-  }
+  _doc = inject2(DOCUMENT);
+  _dom = getDOM();
+  _cachedHead;
   addTag(tag2, forceCreation = false) {
     if (!tag2) return null;
     return this._getOrCreateElement(tag2, forceCreation);
   }
   addTags(tags, forceCreation = false) {
-    if (!tags) return [];
-    return tags.reduce((result, tag2) => {
-      if (tag2) {
-        result.push(this._getOrCreateElement(tag2, forceCreation));
-      }
-      return result;
-    }, []);
+    return tags.filter((tag2) => !!tag2).map((tag2) => this._getOrCreateElement(tag2, forceCreation));
   }
   getTag(attrSelector) {
     if (!attrSelector) return null;
-    const meta = this._doc.querySelector(`meta[${attrSelector}]`);
-    return (meta == null ? void 0 : meta.nodeName.toLowerCase()) === "meta" ? meta : null;
+    const meta = this._doc.querySelector(buildMetaSelector(attrSelector));
+    return isMetaTag(meta) ? meta : null;
   }
   getTags(attrSelector) {
     if (!attrSelector) return [];
-    const list2 = this._doc.querySelectorAll(`meta[${attrSelector}]`);
-    return list2 ? [].slice.call(list2).filter((elem) => elem.nodeName.toLowerCase() === "meta") : [];
+    const list2 = this._doc.querySelectorAll(buildMetaSelector(attrSelector));
+    return list2 ? Array.from(list2).filter((elem) => isMetaTag(elem)) : [];
   }
   updateTag(tag2, selector) {
-    if (!tag2) return null;
-    selector = selector || this._parseSelector(tag2);
+    validateMetaDefinition(tag2);
+    selector ??= parseSelector(tag2);
     const meta = this.getTag(selector);
     if (meta) {
-      return this._setMetaElementAttributes(tag2, meta);
+      setMetaElementAttributes(tag2, meta);
+      return meta;
     }
     return this._getOrCreateElement(tag2, true);
   }
@@ -34231,57 +34797,61 @@ var Meta = class _Meta {
     }
   }
   _getOrCreateElement(meta, forceCreation = false) {
+    validateMetaDefinition(meta);
     if (!forceCreation) {
-      const selector = this._parseSelector(meta);
-      const elem = this.getTags(selector).filter((elem2) => this._containsAttributes(meta, elem2))[0];
+      const selector = parseSelector(meta);
+      const elem = this.getTags(selector).filter((elem2) => containsAttributes(meta, elem2))[0];
       if (elem !== void 0) return elem;
     }
     const element = this._dom.createElement("meta");
-    this._setMetaElementAttributes(meta, element);
+    setMetaElementAttributes(meta, element);
     const head = this._doc.getElementsByTagName("head")[0];
     head.appendChild(element);
     return element;
   }
-  _setMetaElementAttributes(tag2, el) {
-    Object.keys(tag2).forEach((prop) => el.setAttribute(this._getMetaKeyMap(prop), tag2[prop]));
-    return el;
-  }
-  _parseSelector(tag2) {
-    const attr = tag2.name ? "name" : "property";
-    return `${attr}=${this._escapeSelectorValue(String(tag2[attr]))}`;
-  }
-  _escapeSelectorValue(value) {
-    return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
-  }
-  _containsAttributes(tag2, elem) {
-    return Object.keys(tag2).every((key) => elem.getAttribute(this._getMetaKeyMap(key)) === tag2[key]);
-  }
-  _getMetaKeyMap(prop) {
-    return META_KEYS_MAP[prop] || prop;
-  }
   static \u0275fac = function Meta_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _Meta)(\u0275\u0275inject(DOCUMENT));
+    return new (__ngFactoryType__ || _Meta)();
   };
-  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
     token: _Meta,
-    factory: _Meta.\u0275fac,
-    providedIn: "root"
+    factory: _Meta.\u0275fac
   });
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Meta, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [{
-    type: void 0,
-    decorators: [{
-      type: Inject,
-      args: [DOCUMENT]
-    }]
-  }], null);
+    type: Service
+  }], null, null);
 })();
+function buildMetaSelector(attrSelector) {
+  return `meta[${attrSelector}]`;
+}
+function setMetaElementAttributes(tag2, el) {
+  Object.keys(tag2).forEach((prop) => el.setAttribute(getMetaKeyMap(prop), tag2[prop]));
+}
+function validateMetaDefinition(tag2) {
+  for (const prop of Object.keys(tag2)) {
+    const attributeName = getMetaKeyMap(prop);
+    if (attributeName.toLowerCase().startsWith("on")) {
+      throw new RuntimeError(5203, (typeof ngDevMode === "undefined" || ngDevMode) && `The Meta service does not allow setting event handler attribute '${attributeName}' for security reasons.`);
+    }
+  }
+}
+function parseSelector(tag2) {
+  const attr = tag2.name ? "name" : "property";
+  return `${attr}=${escapeSelectorValue(String(tag2[attr]))}`;
+}
+function escapeSelectorValue(value) {
+  return `"${value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
+}
+function containsAttributes(tag2, elem) {
+  return Object.keys(tag2).every((key) => elem.getAttribute(getMetaKeyMap(key)) === tag2[key]);
+}
+function getMetaKeyMap(prop) {
+  return Object.hasOwn(META_KEYS_MAP, prop) ? META_KEYS_MAP[prop] : prop;
+}
+function isMetaTag(tag2) {
+  return (tag2 == null ? void 0 : tag2.nodeName.toLowerCase()) === "meta";
+}
 var META_KEYS_MAP = {
   httpEquiv: "http-equiv"
 };
@@ -34318,6 +34888,32 @@ var Title = class _Title {
       args: [DOCUMENT]
     }]
   }], null);
+})();
+var CssVarNamespacer = class _CssVarNamespacer {
+  namespacePrefix = inject2(CSS_VAR_NAMESPACE, {
+    optional: true
+  }) ?? "";
+  namespace(name) {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      if (!name.startsWith("--")) {
+        throw new Error(`CSS variable names passed to \`CssVarNamespacer\` must start with '--', got: '${name}'`);
+      }
+    }
+    if (!this.namespacePrefix) return name;
+    return `--${this.namespacePrefix}${name.substring("--".length)}`;
+  }
+  static \u0275fac = function CssVarNamespacer_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _CssVarNamespacer)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
+    token: _CssVarNamespacer,
+    factory: _CssVarNamespacer.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CssVarNamespacer, [{
+    type: Service
+  }], null, null);
 })();
 var HydrationFeatureKind;
 (function(HydrationFeatureKind2) {
@@ -34386,7 +34982,7 @@ var DomSanitizerImpl = class _DomSanitizerImpl extends DomSanitizer {
         if (allowSanitizationBypassAndThrow(value, "ResourceURL")) {
           return unwrapSafeValue(value);
         }
-        throw new RuntimeError(5201, (typeof ngDevMode === "undefined" || ngDevMode) && `unsafe value used in a resource URL context (see ${XSS_SECURITY_URL})`);
+        throw new RuntimeError(-5201, (typeof ngDevMode === "undefined" || ngDevMode) && `unsafe value used in a resource URL context (see ${XSS_SECURITY_URL})`);
       default:
         throw new RuntimeError(5202, (typeof ngDevMode === "undefined" || ngDevMode) && `Unexpected SecurityContext ${ctx} (see ${XSS_SECURITY_URL})`);
     }
@@ -34422,7 +35018,7 @@ var DomSanitizerImpl = class _DomSanitizerImpl extends DomSanitizer {
 
 // node_modules/@angular/animations/fesm2022/_private_export-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -34679,7 +35275,7 @@ var \u0275PRE_STYLE = "!";
 
 // node_modules/@angular/animations/fesm2022/_util-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -34957,7 +35553,7 @@ function _convertTimeValueToMS(value, unit) {
   }
 }
 function resolveTiming(timings, errors, allowNegativeValues) {
-  return timings.hasOwnProperty("duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
+  return typeof timings === "object" && timings !== null && Object.hasOwn(timings, "duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
 }
 var PARSE_TIME_EXPRESSION_REGEX = /^(-?[\.\d]+)(m?s)(?:\s+(-?[\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?$/i;
 function parseTimeExpression(exp, errors, allowNegativeValues) {
@@ -35043,7 +35639,7 @@ function validateStyleParams(value, options2, errors) {
   const matches = extractStyleParams(value);
   if (matches.length) {
     matches.forEach((varName) => {
-      if (!params.hasOwnProperty(varName)) {
+      if (!Object.hasOwn(params, varName)) {
         errors.push(invalidStyleParams(varName));
       }
     });
@@ -35140,7 +35736,7 @@ function computeStyle(element, prop) {
 
 // node_modules/@angular/animations/fesm2022/browser.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -35285,8 +35881,8 @@ function makeLambdaFromStates(lhs, rhs) {
 }
 var SELF_TOKEN = ":self";
 var SELF_TOKEN_REGEX = /* @__PURE__ */ new RegExp(`s*${SELF_TOKEN}s*,?`, "g");
-function buildAnimationAst(driver, metadata, errors, warnings) {
-  return new AnimationAstBuilderVisitor(driver).build(metadata, errors, warnings);
+function buildAnimationAst(driver, metadata2, errors, warnings) {
+  return new AnimationAstBuilderVisitor(driver).build(metadata2, errors, warnings);
 }
 var ROOT_SELECTOR = "";
 var AnimationAstBuilderVisitor = class {
@@ -35294,10 +35890,10 @@ var AnimationAstBuilderVisitor = class {
   constructor(_driver) {
     this._driver = _driver;
   }
-  build(metadata, errors, warnings) {
+  build(metadata2, errors, warnings) {
     const context2 = new AnimationAstBuilderContext(errors);
     this._resetContextStyleTimingState(context2);
-    const ast = visitDslNode(this, normalizeAnimationEntry(metadata), context2);
+    const ast = visitDslNode(this, normalizeAnimationEntry(metadata2), context2);
     if (typeof ngDevMode === "undefined" || ngDevMode) {
       if (context2.unsupportedCSSPropertiesFound.size) {
         pushUnrecognizedPropertiesWarning(warnings, [...context2.unsupportedCSSPropertiesFound.keys()]);
@@ -35311,15 +35907,15 @@ var AnimationAstBuilderVisitor = class {
     context2.collectedStyles.set(ROOT_SELECTOR, /* @__PURE__ */ new Map());
     context2.currentTime = 0;
   }
-  visitTrigger(metadata, context2) {
+  visitTrigger(metadata2, context2) {
     let queryCount = context2.queryCount = 0;
     let depCount = context2.depCount = 0;
     const states = [];
     const transitions = [];
-    if (metadata.name.charAt(0) == "@") {
+    if (metadata2.name.charAt(0) == "@") {
       context2.errors.push(invalidTrigger());
     }
-    metadata.definitions.forEach((def2) => {
+    metadata2.definitions.forEach((def2) => {
       this._resetContextStyleTimingState(context2);
       if (def2.type == AnimationMetadataType.State) {
         const stateDef = def2;
@@ -35340,7 +35936,7 @@ var AnimationAstBuilderVisitor = class {
     });
     return {
       type: AnimationMetadataType.Trigger,
-      name: metadata.name,
+      name: metadata2.name,
       states,
       transitions,
       queryCount,
@@ -35348,9 +35944,9 @@ var AnimationAstBuilderVisitor = class {
       options: null
     };
   }
-  visitState(metadata, context2) {
-    const styleAst = this.visitStyle(metadata.styles, context2);
-    const astParams = metadata.options && metadata.options.params || null;
+  visitState(metadata2, context2) {
+    const styleAst = this.visitStyle(metadata2.styles, context2);
+    const astParams = metadata2.options && metadata2.options.params || null;
     if (styleAst.containsDynamicStyles) {
       const missingSubs = /* @__PURE__ */ new Set();
       const params = astParams || {};
@@ -35358,7 +35954,7 @@ var AnimationAstBuilderVisitor = class {
         if (style2 instanceof Map) {
           style2.forEach((value) => {
             extractStyleParams(value).forEach((sub) => {
-              if (!params.hasOwnProperty(sub)) {
+              if (!Object.hasOwn(params, sub)) {
                 missingSubs.add(sub);
               }
             });
@@ -35366,43 +35962,43 @@ var AnimationAstBuilderVisitor = class {
         }
       });
       if (missingSubs.size) {
-        context2.errors.push(invalidState(metadata.name, [...missingSubs.values()]));
+        context2.errors.push(invalidState(metadata2.name, [...missingSubs.values()]));
       }
     }
     return {
       type: AnimationMetadataType.State,
-      name: metadata.name,
+      name: metadata2.name,
       style: styleAst,
       options: astParams ? {
         params: astParams
       } : null
     };
   }
-  visitTransition(metadata, context2) {
+  visitTransition(metadata2, context2) {
     context2.queryCount = 0;
     context2.depCount = 0;
-    const animation = visitDslNode(this, normalizeAnimationEntry(metadata.animation), context2);
-    const matchers = parseTransitionExpr(metadata.expr, context2.errors);
+    const animation = visitDslNode(this, normalizeAnimationEntry(metadata2.animation), context2);
+    const matchers = parseTransitionExpr(metadata2.expr, context2.errors);
     return {
       type: AnimationMetadataType.Transition,
       matchers,
       animation,
       queryCount: context2.queryCount,
       depCount: context2.depCount,
-      options: normalizeAnimationOptions(metadata.options)
+      options: normalizeAnimationOptions(metadata2.options)
     };
   }
-  visitSequence(metadata, context2) {
+  visitSequence(metadata2, context2) {
     return {
       type: AnimationMetadataType.Sequence,
-      steps: metadata.steps.map((s) => visitDslNode(this, s, context2)),
-      options: normalizeAnimationOptions(metadata.options)
+      steps: metadata2.steps.map((s) => visitDslNode(this, s, context2)),
+      options: normalizeAnimationOptions(metadata2.options)
     };
   }
-  visitGroup(metadata, context2) {
+  visitGroup(metadata2, context2) {
     const currentTime = context2.currentTime;
     let furthestTime = 0;
-    const steps = metadata.steps.map((step) => {
+    const steps = metadata2.steps.map((step) => {
       context2.currentTime = currentTime;
       const innerAst = visitDslNode(this, step, context2);
       furthestTime = Math.max(furthestTime, context2.currentTime);
@@ -35412,18 +36008,18 @@ var AnimationAstBuilderVisitor = class {
     return {
       type: AnimationMetadataType.Group,
       steps,
-      options: normalizeAnimationOptions(metadata.options)
+      options: normalizeAnimationOptions(metadata2.options)
     };
   }
-  visitAnimate(metadata, context2) {
-    const timingAst = constructTimingAst(metadata.timings, context2.errors);
+  visitAnimate(metadata2, context2) {
+    const timingAst = constructTimingAst(metadata2.timings, context2.errors);
     context2.currentAnimateTimings = timingAst;
     let styleAst;
-    let styleMetadata = metadata.styles ? metadata.styles : style({});
+    let styleMetadata = metadata2.styles ? metadata2.styles : style({});
     if (styleMetadata.type == AnimationMetadataType.Keyframes) {
       styleAst = this.visitKeyframes(styleMetadata, context2);
     } else {
-      let styleMetadata2 = metadata.styles;
+      let styleMetadata2 = metadata2.styles;
       let isEmpty = false;
       if (!styleMetadata2) {
         isEmpty = true;
@@ -35446,14 +36042,14 @@ var AnimationAstBuilderVisitor = class {
       options: null
     };
   }
-  visitStyle(metadata, context2) {
-    const ast = this._makeStyleAst(metadata, context2);
+  visitStyle(metadata2, context2) {
+    const ast = this._makeStyleAst(metadata2, context2);
     this._validateStyleAst(ast, context2);
     return ast;
   }
-  _makeStyleAst(metadata, context2) {
+  _makeStyleAst(metadata2, context2) {
     const styles = [];
-    const metadataStyles = Array.isArray(metadata.styles) ? metadata.styles : [metadata.styles];
+    const metadataStyles = Array.isArray(metadata2.styles) ? metadata2.styles : [metadata2.styles];
     for (let styleTuple of metadataStyles) {
       if (typeof styleTuple === "string") {
         if (styleTuple === AUTO_STYLE) {
@@ -35487,7 +36083,7 @@ var AnimationAstBuilderVisitor = class {
       type: AnimationMetadataType.Style,
       styles,
       easing: collectedEasing,
-      offset: metadata.offset,
+      offset: metadata2.offset,
       containsDynamicStyles,
       options: null
     };
@@ -35531,7 +36127,7 @@ var AnimationAstBuilderVisitor = class {
       });
     });
   }
-  visitKeyframes(metadata, context2) {
+  visitKeyframes(metadata2, context2) {
     const ast = {
       type: AnimationMetadataType.Keyframes,
       styles: [],
@@ -35547,7 +36143,7 @@ var AnimationAstBuilderVisitor = class {
     let offsetsOutOfOrder = false;
     let keyframesOutOfRange = false;
     let previousOffset = 0;
-    const keyframes = metadata.steps.map((styles) => {
+    const keyframes = metadata2.steps.map((styles) => {
       const style2 = this._makeStyleAst(styles, context2);
       let offsetVal = style2.offset != null ? style2.offset : consumeOffset(style2.styles);
       let offset = 0;
@@ -35567,7 +36163,7 @@ var AnimationAstBuilderVisitor = class {
     if (offsetsOutOfOrder) {
       context2.errors.push(keyframeOffsetsOutOfOrder());
     }
-    const length = metadata.steps.length;
+    const length = metadata2.steps.length;
     let generatedOffset = 0;
     if (totalKeyframesWithOffsets > 0 && totalKeyframesWithOffsets < length) {
       context2.errors.push(keyframesMissingOffsets());
@@ -35589,36 +36185,36 @@ var AnimationAstBuilderVisitor = class {
     });
     return ast;
   }
-  visitReference(metadata, context2) {
+  visitReference(metadata2, context2) {
     return {
       type: AnimationMetadataType.Reference,
-      animation: visitDslNode(this, normalizeAnimationEntry(metadata.animation), context2),
-      options: normalizeAnimationOptions(metadata.options)
+      animation: visitDslNode(this, normalizeAnimationEntry(metadata2.animation), context2),
+      options: normalizeAnimationOptions(metadata2.options)
     };
   }
-  visitAnimateChild(metadata, context2) {
+  visitAnimateChild(metadata2, context2) {
     context2.depCount++;
     return {
       type: AnimationMetadataType.AnimateChild,
-      options: normalizeAnimationOptions(metadata.options)
+      options: normalizeAnimationOptions(metadata2.options)
     };
   }
-  visitAnimateRef(metadata, context2) {
+  visitAnimateRef(metadata2, context2) {
     return {
       type: AnimationMetadataType.AnimateRef,
-      animation: this.visitReference(metadata.animation, context2),
-      options: normalizeAnimationOptions(metadata.options)
+      animation: this.visitReference(metadata2.animation, context2),
+      options: normalizeAnimationOptions(metadata2.options)
     };
   }
-  visitQuery(metadata, context2) {
+  visitQuery(metadata2, context2) {
     const parentSelector = context2.currentQuerySelector;
-    const options2 = metadata.options || {};
+    const options2 = metadata2.options || {};
     context2.queryCount++;
-    context2.currentQuery = metadata;
-    const [selector, includeSelf] = normalizeSelector(metadata.selector);
+    context2.currentQuery = metadata2;
+    const [selector, includeSelf] = normalizeSelector(metadata2.selector);
     context2.currentQuerySelector = parentSelector.length ? parentSelector + " " + selector : selector;
     getOrSetDefaultValue(context2.collectedStyles, context2.currentQuerySelector, /* @__PURE__ */ new Map());
-    const animation = visitDslNode(this, normalizeAnimationEntry(metadata.animation), context2);
+    const animation = visitDslNode(this, normalizeAnimationEntry(metadata2.animation), context2);
     context2.currentQuery = null;
     context2.currentQuerySelector = parentSelector;
     return {
@@ -35628,22 +36224,22 @@ var AnimationAstBuilderVisitor = class {
       optional: !!options2.optional,
       includeSelf,
       animation,
-      originalSelector: metadata.selector,
-      options: normalizeAnimationOptions(metadata.options)
+      originalSelector: metadata2.selector,
+      options: normalizeAnimationOptions(metadata2.options)
     };
   }
-  visitStagger(metadata, context2) {
+  visitStagger(metadata2, context2) {
     if (!context2.currentQuery) {
       context2.errors.push(invalidStagger());
     }
-    const timings = metadata.timings === "full" ? {
+    const timings = metadata2.timings === "full" ? {
       duration: 0,
       delay: 0,
       easing: "full"
-    } : resolveTiming(metadata.timings, context2.errors, true);
+    } : resolveTiming(metadata2.timings, context2.errors, true);
     return {
       type: AnimationMetadataType.Stagger,
-      animation: visitDslNode(this, normalizeAnimationEntry(metadata.animation), context2),
+      animation: visitDslNode(this, normalizeAnimationEntry(metadata2.animation), context2),
       timings,
       options: null
     };
@@ -35695,7 +36291,7 @@ function consumeOffset(styles) {
   return offset;
 }
 function constructTimingAst(value, errors) {
-  if (value.hasOwnProperty("duration")) {
+  if (typeof value === "object" && value !== null && Object.hasOwn(value, "duration")) {
     return value;
   }
   if (typeof value == "number") {
@@ -36064,7 +36660,7 @@ var AnimationTimelineContext = class _AnimationTimelineContext {
         paramsToUpdate = this.options.params = {};
       }
       Object.keys(newParams).forEach((name) => {
-        if (!skipIfExists || !paramsToUpdate.hasOwnProperty(name)) {
+        if (!skipIfExists || !Object.hasOwn(paramsToUpdate, name)) {
           paramsToUpdate[name] = interpolateParams(newParams[name], paramsToUpdate, this.errors);
         }
       });
@@ -36623,10 +37219,10 @@ var TimelineAnimationEngine = class {
     this._driver = _driver;
     this._normalizer = _normalizer;
   }
-  register(id, metadata) {
+  register(id, metadata2) {
     const errors = [];
     const warnings = [];
-    const ast = buildAnimationAst(this._driver, metadata, errors, warnings);
+    const ast = buildAnimationAst(this._driver, metadata2, errors, warnings);
     if (errors.length) {
       throw registerFailed(errors);
     } else {
@@ -36768,7 +37364,7 @@ var StateValue = class {
   }
   constructor(input2, namespaceId = "") {
     this.namespaceId = namespaceId;
-    const isObj = input2 && input2.hasOwnProperty("value");
+    const isObj = input2 && Object.hasOwn(input2, "value");
     const value = isObj ? input2["value"] : input2;
     this.value = normalizeTriggerValue(value);
     if (isObj) {
@@ -36876,7 +37472,7 @@ var AnimationTransitionNamespace = class {
     }
     let fromState = triggersWithStates.get(triggerName);
     const toState = new StateValue(value, this.id);
-    const isObj = value && value.hasOwnProperty("value");
+    const isObj = value && Object.hasOwn(value, "value");
     if (!isObj && fromState) {
       toState.absorbOptions(fromState.options);
     }
@@ -37091,13 +37687,13 @@ var AnimationTransitionNamespace = class {
       }
     });
     this._queue = [];
-    return instructions.sort((a, b2) => {
+    return instructions.sort((a, b) => {
       const d0 = a.transition.ast.depCount;
-      const d1 = b2.transition.ast.depCount;
+      const d1 = b.transition.ast.depCount;
       if (d0 == 0 || d1 == 0) {
         return d0 - d1;
       }
-      return this._engine.driver.containsElement(a.element, b2.element) ? 1 : -1;
+      return this._engine.driver.containsElement(a.element, b.element) ? 1 : -1;
     });
   }
   destroy(context2) {
@@ -38010,13 +38606,13 @@ function _flattenGroupPlayersRecur(players, finalPlayers) {
     }
   }
 }
-function objEquals(a, b2) {
+function objEquals(a, b) {
   const k1 = Object.keys(a);
-  const k2 = Object.keys(b2);
+  const k2 = Object.keys(b);
   if (k1.length != k2.length) return false;
   for (let i = 0; i < k1.length; i++) {
     const prop = k1[i];
-    if (!b2.hasOwnProperty(prop) || a[prop] !== b2[prop]) return false;
+    if (!Object.hasOwn(b, prop) || a[prop] !== b[prop]) return false;
   }
   return true;
 }
@@ -38047,13 +38643,13 @@ var AnimationEngine = class {
     this._timelineEngine = new TimelineAnimationEngine(doc.body, _driver, _normalizer);
     this._transitionEngine.onRemovalComplete = (element, context2) => this.onRemovalComplete(element, context2);
   }
-  registerTrigger(componentId, namespaceId, hostElement, name, metadata) {
+  registerTrigger(componentId, namespaceId, hostElement, name, metadata2) {
     const cacheKey = componentId + "-" + name;
     let trigger = this._triggerCache[cacheKey];
     if (!trigger) {
       const errors = [];
       const warnings = [];
-      const ast = buildAnimationAst(this._driver, metadata, errors, warnings);
+      const ast = buildAnimationAst(this._driver, metadata2, errors, warnings);
       if (errors.length) {
         throw triggerBuildFailed(name, errors);
       }
@@ -38683,7 +39279,7 @@ var AnimationRendererFactory = class {
 
 // node_modules/@angular/platform-browser/fesm2022/animations.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -38804,7 +39400,7 @@ var NoopAnimationsModule = class _NoopAnimationsModule {
 
 // node_modules/@angular/router/fesm2022/_router-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -38816,7 +39412,7 @@ var ParamsAsMap = class {
     this.params = params || {};
   }
   has(name) {
-    return Object.prototype.hasOwnProperty.call(this.params, name);
+    return Object.hasOwn(this.params, name);
   }
   get(name) {
     if (this.has(name)) {
@@ -38903,23 +39499,23 @@ function firstValueFrom(source) {
     });
   });
 }
-function shallowEqualArrays(a, b2) {
-  if (a.length !== b2.length) return false;
+function shallowEqualArrays(a, b) {
+  if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; ++i) {
-    if (!shallowEqual(a[i], b2[i])) return false;
+    if (!shallowEqual(a[i], b[i])) return false;
   }
   return true;
 }
-function shallowEqual(a, b2) {
+function shallowEqual(a, b) {
   const k1 = a ? getDataKeys(a) : void 0;
-  const k2 = b2 ? getDataKeys(b2) : void 0;
+  const k2 = b ? getDataKeys(b) : void 0;
   if (!k1 || !k2 || k1.length != k2.length) {
     return false;
   }
   let key;
   for (let i = 0; i < k1.length; i++) {
     key = k1[i];
-    if (!equalArraysOrString(a[key], b2[key])) {
+    if (!equalArraysOrString(a[key], b[key])) {
       return false;
     }
   }
@@ -38928,14 +39524,14 @@ function shallowEqual(a, b2) {
 function getDataKeys(obj) {
   return [...Object.keys(obj), ...Object.getOwnPropertySymbols(obj)];
 }
-function equalArraysOrString(a, b2) {
-  if (Array.isArray(a) && Array.isArray(b2)) {
-    if (a.length !== b2.length) return false;
+function equalArraysOrString(a, b) {
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return false;
     const aSorted = [...a].sort();
-    const bSorted = [...b2].sort();
+    const bSorted = [...b].sort();
     return aSorted.every((val, index) => bSorted[index] === val);
   } else {
-    return a === b2;
+    return a === b;
   }
 }
 function last2(a) {
@@ -39331,7 +39927,7 @@ var UrlParser = class {
     }
     const decodedKey = decodeQuery(key);
     const decodedVal = decodeQuery(value);
-    if (params.hasOwnProperty(decodedKey)) {
+    if (Object.hasOwn(params, decodedKey)) {
       let currentVal = params[decodedKey];
       if (!Array.isArray(currentVal)) {
         currentVal = [currentVal];
@@ -39343,7 +39939,7 @@ var UrlParser = class {
     }
   }
   parseParens(allowPrimary, depth) {
-    const segments = {};
+    const segments = /* @__PURE__ */ Object.create(null);
     this.capture("(");
     while (!this.consumeOptional(")") && this.remaining.length > 0) {
       const path = matchSegments(this.remaining);
@@ -39387,7 +39983,7 @@ function createRoot(rootCandidate) {
   }) : rootCandidate;
 }
 function squashSegmentGroup(segmentGroup) {
-  const newChildren = {};
+  const newChildren = /* @__PURE__ */ Object.create(null);
   for (const [childOutlet, child] of Object.entries(segmentGroup.children)) {
     const childCandidate = squashSegmentGroup(child);
     if (childOutlet === PRIMARY_OUTLET && childCandidate.segments.length === 0 && childCandidate.hasChildren()) {
@@ -39478,7 +40074,7 @@ function tree(oldRoot, oldSegmentGroup, newSegmentGroup, queryParams, fragment, 
   return new UrlTree(newRoot, qp, fragment);
 }
 function replaceSegment(current, oldSegment, newSegment) {
-  const children = {};
+  const children = /* @__PURE__ */ Object.create(null);
   Object.entries(current.children).forEach(([outletName, c2]) => {
     if (c2 === oldSegment) {
       children[outletName] = newSegment;
@@ -39576,16 +40172,16 @@ function findStartingPositionForTargetGroup(nav, root, target) {
 function createPositionApplyingDoubleDots(group, index, numberOfDoubleDots) {
   let g2 = group;
   let ci = index;
-  let dd = numberOfDoubleDots;
-  while (dd > ci) {
-    dd -= ci;
+  let dd2 = numberOfDoubleDots;
+  while (dd2 > ci) {
+    dd2 -= ci;
     g2 = g2.parent;
     if (!g2) {
       throw new RuntimeError(4005, (typeof ngDevMode === "undefined" || ngDevMode) && "Invalid number of '../'");
     }
     ci = g2.segments.length;
   }
-  return new Position(g2, false, ci - dd);
+  return new Position(g2, false, ci - dd2);
 }
 function getOutlets(commands) {
   if (isCommandWithOutlets(commands[0])) {
@@ -39621,7 +40217,7 @@ function updateSegmentGroupChildren(segmentGroup, startIndex, commands) {
     return new UrlSegmentGroup(segmentGroup.segments, {});
   } else {
     const outlets = getOutlets(commands);
-    const children = {};
+    const children = /* @__PURE__ */ Object.create(null);
     if (Object.keys(outlets).some((o) => o !== PRIMARY_OUTLET) && segmentGroup.children[PRIMARY_OUTLET] && segmentGroup.numberOfChildren === 1 && segmentGroup.children[PRIMARY_OUTLET].segments.length === 0) {
       const childrenOfEmptyChild = updateSegmentGroupChildren(segmentGroup.children[PRIMARY_OUTLET], startIndex, commands);
       return new UrlSegmentGroup(segmentGroup.segments, childrenOfEmptyChild.children);
@@ -40217,6 +40813,15 @@ var ActivatedRoute = class {
   queryParams;
   fragment;
   data;
+  resources;
+  _localInjector;
+  pending;
+  paramsSignal;
+  queryParamsSignal;
+  paramMapSignal;
+  queryParamMapSignal;
+  fragmentSignal;
+  dataSignal;
   constructor(urlSubject, paramsSubject, queryParamsSubject, fragmentSubject, dataSubject, outlet, component, futureSnapshot) {
     var _a10;
     this.urlSubject = urlSubject;
@@ -40263,6 +40868,11 @@ var ActivatedRoute = class {
   toString() {
     return this.snapshot ? this.snapshot.toString() : `Future(${this._futureSnapshot})`;
   }
+  _setPending(snapshot) {
+    var _a10;
+    this._futureSnapshot = snapshot;
+    (_a10 = this.pending) == null ? void 0 : _a10.set(true);
+  }
 };
 var DEFAULT_PARAMS_INHERITANCE_STRATEGY = "always";
 function getInherited(route, parent, paramsInheritanceStrategy) {
@@ -40304,6 +40914,7 @@ var ActivatedRouteSnapshot = class {
   _paramMap;
   _queryParamMap;
   _environmentInjector;
+  resources;
   get title() {
     var _a10;
     return (_a10 = this.data) == null ? void 0 : _a10[RouteTitleKey];
@@ -40393,10 +41004,10 @@ function advanceActivatedRoute(route) {
     route.dataSubject.next(route._futureSnapshot.data);
   }
 }
-function equalParamsAndUrlSegments(a, b2) {
-  const equalUrlParams = shallowEqual(a.params, b2.params) && equalSegments(a.url, b2.url);
-  const parentsMismatch = !a.parent !== !b2.parent;
-  return equalUrlParams && !parentsMismatch && (!a.parent || equalParamsAndUrlSegments(a.parent, b2.parent));
+function equalParamsAndUrlSegments(a, b) {
+  const equalUrlParams = shallowEqual(a.params, b.params) && equalSegments(a.url, b.url);
+  const parentsMismatch = !a.parent !== !b.parent;
+  return equalUrlParams && !parentsMismatch && (!a.parent || equalParamsAndUrlSegments(a.parent, b.parent));
 }
 function hasStaticTitle(config2) {
   return typeof config2.title === "string" || config2.title === null;
@@ -40498,7 +41109,7 @@ var RouterOutlet = class _RouterOutlet {
     this.activated = ref;
     this._activatedRoute = activatedRoute;
     this.location.insert(ref.hostView);
-    (_a10 = this.inputBinder) == null ? void 0 : _a10.bindActivatedRouteToOutletComponent(this);
+    (_a10 = this.inputBinder) == null ? void 0 : _a10.bindActivatedRouteToOutletComponent(this, this.location.injector);
     this.attachEvents.emit(ref.instance);
   }
   deactivate() {
@@ -40527,7 +41138,7 @@ var RouterOutlet = class _RouterOutlet {
       environmentInjector
     });
     this.changeDetector.markForCheck();
-    (_a10 = this.inputBinder) == null ? void 0 : _a10.bindActivatedRouteToOutletComponent(this);
+    (_a10 = this.inputBinder) == null ? void 0 : _a10.bindActivatedRouteToOutletComponent(this, this.location.injector);
     this.activateEvents.emit(this.activated.instance);
   }
   static \u0275fac = function RouterOutlet_Factory(__ngFactoryType__) {
@@ -40614,28 +41225,47 @@ var OutletInjector = class {
 var INPUT_BINDER = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "Router Input Binder" : "");
 var RoutedComponentInputBinder = class _RoutedComponentInputBinder {
   options;
+  feature;
   outletDataSubscriptions = /* @__PURE__ */ new Map();
   outletSeenKeys = /* @__PURE__ */ new Map();
-  constructor(options2) {
+  outletEffects = /* @__PURE__ */ new Map();
+  constructor(options2, feature = null) {
     this.options = options2;
+    this.feature = feature;
     this.options.queryParams ??= true;
   }
-  bindActivatedRouteToOutletComponent(outlet) {
+  bindActivatedRouteToOutletComponent(outlet, injector) {
     this.unsubscribeFromRouteData(outlet);
-    this.subscribeToRouteData(outlet);
+    this.subscribeToRouteData(outlet, injector);
   }
   unsubscribeFromRouteData(outlet) {
-    var _a10;
+    var _a10, _b4;
     (_a10 = this.outletDataSubscriptions.get(outlet)) == null ? void 0 : _a10.unsubscribe();
     this.outletDataSubscriptions.delete(outlet);
     this.outletSeenKeys.delete(outlet);
+    (_b4 = this.outletEffects.get(outlet)) == null ? void 0 : _b4.forEach((effect2) => effect2.destroy());
+    this.outletEffects.delete(outlet);
   }
-  subscribeToRouteData(outlet) {
+  subscribeToRouteData(outlet, injector) {
+    var _a10;
     const {
       activatedRoute
     } = outlet;
+    const effects = [];
+    let keysBoundToBlockingResources = [];
+    if (((_a10 = this.feature) == null ? void 0 : _a10.createResourceOutletBindingEffects) && outlet.activatedComponentRef) {
+      const {
+        handledKeys,
+        createdEffects
+      } = this.feature.createResourceOutletBindingEffects(outlet.activatedComponentRef, activatedRoute, injector);
+      effects.push(...createdEffects);
+      keysBoundToBlockingResources = handledKeys;
+    }
+    if (effects.length > 0) {
+      this.outletEffects.set(outlet, effects);
+    }
     const dataSubscription = combineLatest([this.options.queryParams ? activatedRoute.queryParams : of({}), activatedRoute.params, activatedRoute.data]).pipe(switchMap(([queryParams, params, data], index) => {
-      data = __spreadValues(__spreadValues(__spreadValues({}, queryParams), params), data);
+      data = __spreadValues(__spreadValues(__spreadValues(__spreadValues({}, queryParams), params), data), activatedRoute.resources || {});
       if (index === 0) {
         return of(data);
       }
@@ -40645,8 +41275,8 @@ var RoutedComponentInputBinder = class _RoutedComponentInputBinder {
         this.unsubscribeFromRouteData(outlet);
         return;
       }
-      const mirror = reflectComponentType(activatedRoute.component);
-      if (!mirror) {
+      const currentMirror = reflectComponentType(activatedRoute.component);
+      if (!currentMirror) {
         this.unsubscribeFromRouteData(outlet);
         return;
       }
@@ -40661,7 +41291,10 @@ var RoutedComponentInputBinder = class _RoutedComponentInputBinder {
       const behavior = this.options.unmatchedInputBehavior ?? "alwaysUndefined";
       for (const {
         templateName
-      } of mirror.inputs) {
+      } of currentMirror.inputs) {
+        if (keysBoundToBlockingResources.includes(templateName)) {
+          continue;
+        }
         const value = data[templateName];
         if (value !== void 0 || behavior === "alwaysUndefined" || seenKeys.has(templateName)) {
           outlet.activatedComponentRef.setInput(templateName, value);
@@ -40682,6 +41315,8 @@ var RoutedComponentInputBinder = class _RoutedComponentInputBinder {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RoutedComponentInputBinder, [{
     type: Injectable
   }], () => [{
+    type: void 0
+  }, {
     type: void 0
   }], null);
 })();
@@ -40727,38 +41362,44 @@ function standardizeConfig(r) {
   return c2;
 }
 function createRouterState(routeReuseStrategy, curr, prevState) {
-  const root = createNode(routeReuseStrategy, curr._root, prevState ? prevState._root : void 0);
-  return new RouterState(root, curr);
+  const newlyCreatedRoutes = /* @__PURE__ */ new Set();
+  const root = createNode(routeReuseStrategy, curr._root, prevState ? prevState._root : void 0, newlyCreatedRoutes);
+  return {
+    newlyCreatedRoutes,
+    state: new RouterState(root, curr)
+  };
 }
-function createNode(routeReuseStrategy, curr, prevState) {
+function createNode(routeReuseStrategy, curr, prevState, newlyCreatedRoutes) {
   if (prevState && routeReuseStrategy.shouldReuseRoute(curr.value, prevState.value.snapshot)) {
     const value = prevState.value;
-    value._futureSnapshot = curr.value;
-    const children = createOrReuseChildren(routeReuseStrategy, curr, prevState);
+    value._setPending(curr.value);
+    const children = createOrReuseChildren(routeReuseStrategy, curr, prevState, newlyCreatedRoutes);
     return new TreeNode(value, children);
   } else {
     if (routeReuseStrategy.shouldAttach(curr.value)) {
       const detachedRouteHandle = routeReuseStrategy.retrieve(curr.value);
       if (detachedRouteHandle !== null) {
         const tree2 = detachedRouteHandle.route;
-        tree2.value._futureSnapshot = curr.value;
-        tree2.children = curr.children.map((c2) => createNode(routeReuseStrategy, c2));
+        tree2.value._setPending(curr.value);
+        tree2.children = curr.children.map((c2) => createNode(routeReuseStrategy, c2, void 0, newlyCreatedRoutes));
         return tree2;
       }
     }
     const value = createActivatedRoute(curr.value);
-    const children = curr.children.map((c2) => createNode(routeReuseStrategy, c2));
+    value._setPending(curr.value);
+    newlyCreatedRoutes.add(value);
+    const children = curr.children.map((c2) => createNode(routeReuseStrategy, c2, void 0, newlyCreatedRoutes));
     return new TreeNode(value, children);
   }
 }
-function createOrReuseChildren(routeReuseStrategy, curr, prevState) {
+function createOrReuseChildren(routeReuseStrategy, curr, prevState, newlyCreatedRoutes) {
   return curr.children.map((child) => {
     for (const p2 of prevState.children) {
       if (routeReuseStrategy.shouldReuseRoute(child.value, p2.value.snapshot)) {
-        return createNode(routeReuseStrategy, child, p2);
+        return createNode(routeReuseStrategy, child, p2, newlyCreatedRoutes);
       }
     }
-    return createNode(routeReuseStrategy, child);
+    return createNode(routeReuseStrategy, child, void 0, newlyCreatedRoutes);
   });
 }
 function createActivatedRoute(c2) {
@@ -40873,6 +41514,7 @@ var ActivateRoutes = class {
     }
   }
   deactivateRouteAndOutlet(route, parentContexts) {
+    var _a10;
     const context2 = parentContexts.getContext(route.value.outlet);
     const contexts = context2 && route.value.component ? context2.children : parentContexts;
     const children = nodeChildrenAsMap(route);
@@ -40887,6 +41529,7 @@ var ActivateRoutes = class {
       context2.attachRef = null;
       context2.route = null;
     }
+    (_a10 = route.value._localInjector) == null ? void 0 : _a10.destroy();
   }
   activateChildRoutes(futureNode, currNode, contexts) {
     const children = nodeChildrenAsMap(currNode);
@@ -40995,7 +41638,7 @@ function getChildRouteGuards(futureNode, currNode, contexts, futurePath, checks 
     getRouteGuards(c2, prevChildren[c2.value.outlet], contexts, futurePath.concat([c2.value]), checks);
     delete prevChildren[c2.value.outlet];
   });
-  Object.entries(prevChildren).forEach(([k, v]) => deactivateRouteAndItsChildren(v, contexts.getContext(k), checks));
+  Object.entries(prevChildren).forEach(([k, v]) => deactivateRouteAndItsChildren(v, contexts.getContext(k), contexts, checks));
   return checks;
 }
 function getRouteGuards(futureNode, currNode, parentContexts, futurePath, checks = {
@@ -41023,7 +41666,7 @@ function getRouteGuards(futureNode, currNode, parentContexts, futurePath, checks
     }
   } else {
     if (curr) {
-      deactivateRouteAndItsChildren(currNode, context2, checks);
+      deactivateRouteAndItsChildren(currNode, context2, parentContexts, checks);
     }
     checks.canActivateChecks.push(new CanActivate(futurePath));
     if (future.component) {
@@ -41052,16 +41695,16 @@ function shouldRunGuardsAndResolvers(curr, future, mode) {
       return !equalParamsAndUrlSegments(curr, future);
   }
 }
-function deactivateRouteAndItsChildren(route, context2, checks) {
+function deactivateRouteAndItsChildren(route, context2, parentContexts, checks) {
   const children = nodeChildrenAsMap(route);
   const r = route.value;
   Object.entries(children).forEach(([childName, node]) => {
     if (!r.component) {
-      deactivateRouteAndItsChildren(node, context2, checks);
+      deactivateRouteAndItsChildren(node, parentContexts ? parentContexts.getContext(childName) : null, parentContexts, checks);
     } else if (context2) {
-      deactivateRouteAndItsChildren(node, context2.children.getContext(childName), checks);
+      deactivateRouteAndItsChildren(node, context2.children.getContext(childName), context2.children, checks);
     } else {
-      deactivateRouteAndItsChildren(node, null, checks);
+      deactivateRouteAndItsChildren(node, null, null, checks);
     }
   });
   if (!r.component) {
@@ -41320,7 +41963,7 @@ var ApplyRedirects = class {
   }
   createSegmentGroup(redirectTo, group, segments, posParams) {
     const updatedSegments = this.createSegments(redirectTo, group.segments, segments, posParams);
-    let children = {};
+    let children = /* @__PURE__ */ Object.create(null);
     Object.entries(group.children).forEach(([name, child]) => {
       children[name] = this.createSegmentGroup(redirectTo, child, segments, posParams);
     });
@@ -41818,10 +42461,10 @@ This is currently a dev mode only error but will become a call stack size exceed
   }
 };
 function sortActivatedRouteSnapshots(nodes) {
-  nodes.sort((a, b2) => {
+  nodes.sort((a, b) => {
     if (a.value.outlet === PRIMARY_OUTLET) return -1;
-    if (b2.value.outlet === PRIMARY_OUTLET) return 1;
-    return a.value.outlet.localeCompare(b2.value.outlet);
+    if (b.value.outlet === PRIMARY_OUTLET) return 1;
+    return a.value.outlet.localeCompare(b.value.outlet);
   });
 }
 function hasEmptyPathConfig(node) {
@@ -41950,6 +42593,7 @@ function getResolver(injectionToken, futureARS, futureRSS) {
   const resolverValue = resolver.resolve ? resolver.resolve(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => resolver(futureARS, futureRSS));
   return wrapIntoObservable(resolverValue);
 }
+var ROUTER_RESOURCES_FEATURE = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "Router Resources Feature" : "");
 function switchTap(next) {
   return switchMap((v) => {
     const nextResult = next(v);
@@ -42181,9 +42825,13 @@ var DefaultUrlHandlingStrategy = class _DefaultUrlHandlingStrategy {
 })();
 var CREATE_VIEW_TRANSITION = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "view transition helper" : "");
 var VIEW_TRANSITION_OPTIONS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "view transition options" : "");
-function createViewTransition(injector, from2, to2) {
+function createViewTransition(injector, from2, to2, hasUAVisualTransition) {
   const transitionOptions = injector.get(VIEW_TRANSITION_OPTIONS);
   const document2 = injector.get(DOCUMENT);
+  if (hasUAVisualTransition) {
+    transitionOptions.skipNextTransition = false;
+    return;
+  }
   if (!document2.startViewTransition || transitionOptions.skipNextTransition) {
     transitionOptions.skipNextTransition = false;
     return new Promise((resolve) => setTimeout(resolve));
@@ -42268,6 +42916,9 @@ var NavigationTransitions = class _NavigationTransitions {
   navigationErrorHandler = inject2(NAVIGATION_ERROR_HANDLER, {
     optional: true
   });
+  routerResourcesFeature = inject2(ROUTER_RESOURCES_FEATURE, {
+    optional: true
+  });
   navigationId = 0;
   get hasRequestedNavigation() {
     return this.navigationId !== 0;
@@ -42311,12 +42962,13 @@ var NavigationTransitions = class _NavigationTransitions {
   setupNavigations(router) {
     this.transitions = new BehaviorSubject(null);
     return this.transitions.pipe(filter((t) => t !== null), switchMap((overallTransitionState) => {
+      var _a10;
       let abortable = true;
       let completedOrAborted = false;
       const abortController = new AbortController();
       const shouldContinueNavigation = () => {
-        var _a10;
-        return !completedOrAborted && ((_a10 = this.currentTransition) == null ? void 0 : _a10.id) === overallTransitionState.id;
+        var _a11;
+        return !completedOrAborted && ((_a11 = this.currentTransition) == null ? void 0 : _a11.id) === overallTransitionState.id;
       };
       return of(overallTransitionState).pipe(switchMap((t) => {
         if (this.navigationId > overallTransitionState.id) {
@@ -42441,9 +43093,9 @@ var NavigationTransitions = class _NavigationTransitions {
         }));
       }), switchTap((t) => {
         const loadComponents = (route) => {
-          var _a10, _b4, _c9;
+          var _a11, _b4, _c9;
           const loaders2 = [];
-          if ((_a10 = route.routeConfig) == null ? void 0 : _a10._loadedComponent) {
+          if ((_a11 = route.routeConfig) == null ? void 0 : _a11._loadedComponent) {
             route.component = (_b4 = route.routeConfig) == null ? void 0 : _b4._loadedComponent;
           } else if ((_c9 = route.routeConfig) == null ? void 0 : _c9.loadComponent) {
             const injector = route._environmentInjector;
@@ -42459,22 +43111,26 @@ var NavigationTransitions = class _NavigationTransitions {
         const loaders = loadComponents(t.targetSnapshot.root);
         return loaders.length === 0 ? of(t) : from(Promise.all(loaders).then(() => t));
       }), switchMap((t) => {
-        const targetRouterState = createRouterState(router.routeReuseStrategy, t.targetSnapshot, t.currentRouterState);
+        const {
+          newlyCreatedRoutes,
+          state
+        } = createRouterState(router.routeReuseStrategy, t.targetSnapshot, t.currentRouterState);
         this.currentTransition = overallTransitionState = t = __spreadProps(__spreadValues({}, t), {
-          targetRouterState
+          targetRouterState: state,
+          newlyCreatedRoutes
         });
         this.currentNavigation.update((nav) => {
-          nav.targetRouterState = targetRouterState;
+          nav.targetRouterState = state;
           return nav;
         });
         return of(t);
-      }), switchTap(() => this.afterPreactivation()), switchMap(() => {
-        var _a10;
+      }), ((_a10 = this.routerResourcesFeature) == null ? void 0 : _a10.setupAndRunResources(abortController.signal)) ?? ((t) => t), switchTap(() => this.afterPreactivation()), switchMap(() => {
+        var _a11;
         const {
           currentSnapshot,
           targetSnapshot
         } = overallTransitionState;
-        const viewTransitionStarted = (_a10 = this.createViewTransition) == null ? void 0 : _a10.call(this, this.environmentInjector, currentSnapshot.root, targetSnapshot.root);
+        const viewTransitionStarted = (_a11 = this.createViewTransition) == null ? void 0 : _a11.call(this, this.environmentInjector, currentSnapshot.root, targetSnapshot.root, overallTransitionState.hasUAVisualTransition);
         return viewTransitionStarted ? from(viewTransitionStarted).pipe(map(() => overallTransitionState)) : of(overallTransitionState);
       }), take(1), switchMap((t) => {
         abortable = false;
@@ -42482,11 +43138,13 @@ var NavigationTransitions = class _NavigationTransitions {
         const deferred = overallTransitionState.beforeActivateHandler.deferredHandle;
         return deferred ? from(deferred.then(() => t)) : of(t);
       }), tap((t) => {
-        var _a10;
+        var _a11, _b4;
         new ActivateRoutes(router.routeReuseStrategy, overallTransitionState.targetRouterState, overallTransitionState.currentRouterState, (evt) => this.events.next(evt), this.inputBindingEnabled).activate(this.rootContexts);
+        (_a11 = t.newlyCreatedRoutes) == null ? void 0 : _a11.clear();
         if (!shouldContinueNavigation()) {
           return;
         }
+        resetPendingRoutes(t.targetRouterState);
         completedOrAborted = true;
         this.currentNavigation.update((nav) => {
           nav.abort = noop4;
@@ -42494,7 +43152,7 @@ var NavigationTransitions = class _NavigationTransitions {
         });
         this.lastSuccessfulNavigation.set(untracked2(this.currentNavigation));
         this.events.next(new NavigationEnd(t.id, this.urlSerializer.serialize(t.extractedUrl), this.urlSerializer.serialize(t.urlAfterRedirects)));
-        (_a10 = this.titleStrategy) == null ? void 0 : _a10.updateTitle(t.targetRouterState.snapshot);
+        (_b4 = this.titleStrategy) == null ? void 0 : _b4.updateTitle(t.targetRouterState.snapshot);
         t.resolve(true);
       }), takeUntil(abortSignalToObservable(abortController.signal).pipe(filter(() => !completedOrAborted && abortable), tap(() => {
         this.cancelNavigationTransition(overallTransitionState, abortController.signal.reason + "", NavigationCancellationCode.Aborted);
@@ -42505,18 +43163,19 @@ var NavigationTransitions = class _NavigationTransitions {
       }), takeUntil(this.transitionAbortWithErrorSubject.pipe(tap((err) => {
         throw err;
       }))), finalize(() => {
-        var _a10;
+        var _a11;
         abortController.abort();
         if (!completedOrAborted) {
           const cancelationReason = typeof ngDevMode === "undefined" || ngDevMode ? `Navigation ID ${overallTransitionState.id} is not equal to the current navigation id ${this.navigationId}` : "";
           this.cancelNavigationTransition(overallTransitionState, cancelationReason, NavigationCancellationCode.SupersededByNewNavigation);
         }
-        if (((_a10 = this.currentTransition) == null ? void 0 : _a10.id) === overallTransitionState.id) {
+        if (((_a11 = this.currentTransition) == null ? void 0 : _a11.id) === overallTransitionState.id) {
           this.currentNavigation.set(null);
           this.currentTransition = null;
         }
       }), catchError((e) => {
         completedOrAborted = true;
+        rollbackState(overallTransitionState);
         if (this.destroyed) {
           overallTransitionState.resolve(false);
           return EMPTY;
@@ -42532,8 +43191,8 @@ var NavigationTransitions = class _NavigationTransitions {
           const navigationError = new NavigationError(overallTransitionState.id, this.urlSerializer.serialize(overallTransitionState.extractedUrl), e, overallTransitionState.targetSnapshot ?? void 0);
           try {
             const navigationErrorHandlerResult = runInInjectionContext(this.environmentInjector, () => {
-              var _a10;
-              return (_a10 = this.navigationErrorHandler) == null ? void 0 : _a10.call(this, navigationError);
+              var _a11;
+              return (_a11 = this.navigationErrorHandler) == null ? void 0 : _a11.call(this, navigationError);
             });
             if (navigationErrorHandlerResult instanceof RedirectCommand) {
               const {
@@ -42559,6 +43218,7 @@ var NavigationTransitions = class _NavigationTransitions {
     }));
   }
   cancelNavigationTransition(t, reason, code) {
+    rollbackState(t);
     const navCancel = new NavigationCancel(t.id, this.urlSerializer.serialize(t.extractedUrl), reason, code);
     this.events.next(navCancel);
     t.resolve(false);
@@ -42588,6 +43248,25 @@ var NavigationTransitions = class _NavigationTransitions {
 })();
 function isBrowserTriggeredNavigation(source) {
   return source !== IMPERATIVE_NAVIGATION;
+}
+function rollbackState(t) {
+  var _a10;
+  for (const r of t.newlyCreatedRoutes ?? []) {
+    (_a10 = r._localInjector) == null ? void 0 : _a10.destroy();
+    r._localInjector = void 0;
+  }
+  resetPendingRoutes(t.targetRouterState);
+}
+function resetPendingRoutes(targetRouterState) {
+  if (!targetRouterState) {
+    return;
+  }
+  const traverse = (node) => {
+    var _a10;
+    (_a10 = node.value.pending) == null ? void 0 : _a10.set(false);
+    node.children.forEach(traverse);
+  };
+  traverse(targetRouterState._root);
 }
 var ROUTE_INJECTOR_CLEANUP = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "RouteInjectorCleanup" : "");
 var RouteReuseStrategy = class _RouteReuseStrategy {
@@ -42741,7 +43420,7 @@ var HistoryStateManager = class _HistoryStateManager extends StateManager {
         setTimeout(() => {
           listener(event["url"], event.state, "popstate", {
             replaceUrl: true
-          });
+          }, event.hasUAVisualTransition);
         });
       }
     });
@@ -42925,7 +43604,7 @@ var Router = class _Router {
               skipLocationChange: currentTransition.extras.skipLocationChange,
               replaceUrl: currentTransition.extras.replaceUrl || this.urlUpdateStrategy === "eager" || isBrowserTriggeredNavigation(currentTransition.source)
             }, opts);
-            this.scheduleNavigation(mergedTree, IMPERATIVE_NAVIGATION, null, extras, {
+            this.scheduleNavigation(mergedTree, IMPERATIVE_NAVIGATION, null, extras, currentTransition.hasUAVisualTransition, {
               resolve: currentTransition.resolve,
               reject: currentTransition.reject,
               promise: currentTransition.promise
@@ -42954,11 +43633,11 @@ var Router = class _Router {
     }
   }
   setUpLocationChangeListener() {
-    this.nonRouterCurrentEntryChangeSubscription ??= this.stateManager.registerNonRouterCurrentEntryChangeListener((url, state, source, extras) => {
-      this.navigateToSyncWithBrowser(url, source, state, extras);
+    this.nonRouterCurrentEntryChangeSubscription ??= this.stateManager.registerNonRouterCurrentEntryChangeListener((url, state, source, extras, hasUAVisualTransition) => {
+      this.navigateToSyncWithBrowser(url, source, state, extras, hasUAVisualTransition);
     });
   }
-  navigateToSyncWithBrowser(url, source, state, extras) {
+  navigateToSyncWithBrowser(url, source, state, extras, hasUAVisualTransition) {
     const restoredState = (state == null ? void 0 : state.navigationId) ? state : null;
     const routerUrl = (state == null ? void 0 : state.\u0275routerUrl) ?? url;
     if (state == null ? void 0 : state.\u0275routerUrl) {
@@ -42976,7 +43655,7 @@ var Router = class _Router {
       }
     }
     const urlTree = this.parseUrl(routerUrl);
-    this.scheduleNavigation(urlTree, source, restoredState, extras).catch((e) => {
+    this.scheduleNavigation(urlTree, source, restoredState, extras, hasUAVisualTransition).catch((e) => {
       if (this.disposed) {
         return;
       }
@@ -43092,7 +43771,7 @@ var Router = class _Router {
       return result;
     }, {});
   }
-  scheduleNavigation(rawUrl, source, restoredState, extras, priorPromise) {
+  scheduleNavigation(rawUrl, source, restoredState, extras, hasUAVisualTransition, priorPromise) {
     if (this.disposed) {
       return Promise.resolve(false);
     }
@@ -43120,6 +43799,7 @@ var Router = class _Router {
       currentRawUrl: this.currentUrlTree,
       rawUrl,
       extras,
+      hasUAVisualTransition,
       resolve,
       reject,
       promise,
@@ -43152,7 +43832,7 @@ function validateCommands(commands) {
 
 // node_modules/@angular/router/fesm2022/_router_module-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -43439,7 +44119,7 @@ var RouterLink = class _RouterLink {
   }, __spreadProps(__spreadValues({}, ngDevMode ? {
     debugName: "_urlTree"
   } : {}), {
-    equal: (a, b2) => this.computeHref(a) === this.computeHref(b2)
+    equal: (a, b) => this.computeHref(a) === this.computeHref(b)
   }));
   get urlTree() {
     return untracked2(this._urlTree);
@@ -43614,6 +44294,10 @@ var RouterLinkActive = class _RouterLinkActive {
     });
   }
   set routerLinkActive(data) {
+    if (data == null) {
+      this.classes = [];
+      return;
+    }
     const classes = Array.isArray(data) ? data : data.split(" ");
     this.classes = classes.filter((c2) => !!c2);
   }
@@ -43627,6 +44311,7 @@ var RouterLinkActive = class _RouterLinkActive {
   }
   update() {
     if (!this.links || !this.router.navigated) return;
+    if (this.routerLinkActiveOptions === null && !this._isActive) return;
     queueMicrotask(() => {
       const hasActiveLinks = this.hasActiveLinks();
       this.classes.forEach((c2) => {
@@ -43649,7 +44334,20 @@ var RouterLinkActive = class _RouterLinkActive {
     });
   }
   isLinkActive(router) {
-    const options2 = isActiveMatchOptions(this.routerLinkActiveOptions) ? this.routerLinkActiveOptions : this.routerLinkActiveOptions.exact ?? false ? __spreadValues({}, exactMatchOptions) : __spreadValues({}, subsetMatchOptions);
+    const opts = this.routerLinkActiveOptions;
+    if (opts === null) {
+      return () => false;
+    }
+    let options2;
+    if (opts === void 0) {
+      options2 = __spreadValues({}, subsetMatchOptions);
+    } else if (isActiveMatchOptions(opts)) {
+      options2 = opts;
+    } else if (opts.exact ?? false) {
+      options2 = __spreadValues({}, exactMatchOptions);
+    } else {
+      options2 = __spreadValues({}, subsetMatchOptions);
+    }
     return (link2) => {
       const urlTree = link2.urlTree;
       return urlTree ? untracked2(isActive(urlTree, router, options2)) : false;
@@ -44007,11 +44705,12 @@ var NavigationStateManager = class _NavigationStateManager extends StateManager 
     this.activeHistoryEntry = this.navigation.currentEntry;
     this.nonRouterEntryChangeListener = this.nonRouterCurrentEntryChangeSubject.subscribe(({
       path,
-      state
+      state,
+      hasUAVisualTransition
     }) => {
       listener(path, state, "popstate", !this.precommitHandlerSupported ? {
         replaceUrl: true
-      } : {});
+      } : {}, hasUAVisualTransition);
     });
     return this.nonRouterEntryChangeListener;
   }
@@ -44265,7 +44964,8 @@ var NavigationStateManager = class _NavigationStateManager extends StateManager 
     const state = event.destination.getState();
     this.nonRouterCurrentEntryChangeSubject.next({
       path,
-      state
+      state,
+      hasUAVisualTransition: event.hasUAVisualTransition
     });
   }
   eventAndRouterDestinationsMatch(navigateEvent, transition) {
@@ -44457,7 +45157,9 @@ function withHashLocation() {
 function withComponentInputBinding(options2 = {}) {
   const providers = [{
     provide: INPUT_BINDER,
-    useFactory: () => new RoutedComponentInputBinder(options2)
+    useFactory: () => new RoutedComponentInputBinder(options2, inject2(ROUTER_RESOURCES_FEATURE, {
+      optional: true
+    }))
   }];
   return routerFeature(8, providers);
 }
@@ -44591,14 +45293,14 @@ function provideRouterInitializer() {
 
 // node_modules/@angular/router/fesm2022/router.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
 
 // node_modules/@angular/service-worker/fesm2022/service-worker.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -45063,6 +45765,14 @@ var ShowOnDirtyErrorStateMatcher = class _ShowOnDirtyErrorStateMatcher {
   isErrorState(control, form) {
     return !!(control && control.invalid && (control.dirty || form && form.submitted));
   }
+  isSignalErrorState(field) {
+    if (!field) {
+      return false;
+    }
+    const invalid = field().invalid();
+    const dirty = field().dirty();
+    return invalid && dirty;
+  }
   static \u0275fac = function ShowOnDirtyErrorStateMatcher_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ShowOnDirtyErrorStateMatcher)();
   };
@@ -45083,6 +45793,14 @@ var ShowOnDirtyErrorStateMatcher = class _ShowOnDirtyErrorStateMatcher {
 var ErrorStateMatcher = class _ErrorStateMatcher {
   isErrorState(control, form) {
     return !!(control && control.invalid && (control.touched || form && form.submitted));
+  }
+  isSignalErrorState(field) {
+    if (!field) {
+      return false;
+    }
+    const invalid = field().invalid();
+    const touched = field().touched();
+    return invalid && touched;
   }
   static \u0275fac = function ErrorStateMatcher_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _ErrorStateMatcher)();
@@ -45180,7 +45898,7 @@ function createEmptyStyleRule(query, nonce) {
       document.head.appendChild(mediaQueryStyleNode);
     }
     if (mediaQueryStyleNode.sheet) {
-      mediaQueryStyleNode.sheet.insertRule(`@media ${query} {body{ }}`, 0);
+      mediaQueryStyleNode.sheet.insertRule(`@media ${query.replace(/[{}]/g, "")} {body{ }}`, 0);
       mediaQueriesForWebkitCompatibility.add(query);
     }
   } catch (e) {
@@ -45386,7 +46104,13 @@ function _getFocusedElementPierceShadowDom() {
   return activeElement;
 }
 function _getEventTarget(event) {
-  return event.composedPath ? event.composedPath()[0] : event.target;
+  if (event.composedPath) {
+    try {
+      return event.composedPath()[0];
+    } catch {
+    }
+  }
+  return event.target;
 }
 
 // node_modules/@angular/cdk/fesm2022/_passive-listeners-chunk.mjs
@@ -45867,9 +46591,13 @@ function getPolicy2() {
     if (typeof window !== "undefined") {
       const ttWindow = window;
       if (ttWindow.trustedTypes !== void 0) {
-        policy2 = ttWindow.trustedTypes.createPolicy("angular#components", {
-          createHTML: (s) => s
-        });
+        try {
+          policy2 = ttWindow.trustedTypes.createPolicy("angular#components", {
+            createHTML: (s) => s
+          });
+        } catch (error2) {
+          console.error(error2);
+        }
       }
     }
   }
@@ -46234,8 +46962,18 @@ var FocusTrap = class {
   _startAnchor = null;
   _endAnchor = null;
   _hasAttached = false;
-  startAnchorListener = () => this.focusLastTabbableElement();
-  endAnchorListener = () => this.focusFirstTabbableElement();
+  startAnchorListener = () => {
+    const isSuccess = this.focusLastTabbableElement();
+    if (!isSuccess && this._checker.isFocusable(this._element)) {
+      this._element.focus();
+    }
+  };
+  endAnchorListener = () => {
+    const isSuccess = this.focusFirstTabbableElement();
+    if (!isSuccess && this._checker.isFocusable(this._element)) {
+      this._element.focus();
+    }
+  };
   get enabled() {
     return this._enabled;
   }
@@ -47732,7 +48470,7 @@ var _MatRippleStylesLoader = class __MatRippleStylesLoader {
     vars: 0,
     template: function _MatRippleStylesLoader_Template(rf, ctx) {
     },
-    styles: [".mat-ripple {\n  overflow: hidden;\n  position: relative;\n}\n.mat-ripple:not(:empty) {\n  transform: translateZ(0);\n}\n\n.mat-ripple.mat-ripple-unbounded {\n  overflow: visible;\n}\n\n.mat-ripple-element {\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n  transition: opacity, transform 0ms cubic-bezier(0, 0, 0.2, 1);\n  transform: scale3d(0, 0, 0);\n  background-color: var(--mat-ripple-color, color-mix(in srgb, var(--mat-sys-on-surface) 10%, transparent));\n}\n@media (forced-colors: active) {\n  .mat-ripple-element {\n    display: none;\n  }\n}\n.cdk-drag-preview .mat-ripple-element, .cdk-drag-placeholder .mat-ripple-element {\n  display: none;\n}\n"],
+    styles: [".mat-ripple {\n  overflow: hidden;\n  position: relative;\n}\n.mat-ripple:not(:empty) {\n  transform: translateZ(0);\n}\n\n.mat-ripple.mat-ripple-unbounded {\n  overflow: visible;\n}\n\n.mat-ripple-element {\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n  transition: opacity, transform 0ms cubic-bezier(0, 0, 0.2, 1);\n  transform: scale3d(0, 0, 0);\n  background-color: var(--%NS%mat-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 10%, transparent));\n}\n@media (forced-colors: active) {\n  .mat-ripple-element {\n    display: none;\n  }\n}\n.cdk-drag-preview .mat-ripple-element, .cdk-drag-placeholder .mat-ripple-element {\n  display: none;\n}\n"],
     encapsulation: 2
   });
 };
@@ -48147,7 +48885,7 @@ var MatPseudoCheckbox = class _MatPseudoCheckbox {
     vars: 0,
     template: function MatPseudoCheckbox_Template(rf, ctx) {
     },
-    styles: ['.mat-pseudo-checkbox {\n  border-radius: 2px;\n  cursor: pointer;\n  display: inline-block;\n  vertical-align: middle;\n  box-sizing: border-box;\n  position: relative;\n  flex-shrink: 0;\n  transition: border-color 90ms cubic-bezier(0, 0, 0.2, 0.1), background-color 90ms cubic-bezier(0, 0, 0.2, 0.1);\n}\n.mat-pseudo-checkbox::after {\n  position: absolute;\n  opacity: 0;\n  content: "";\n  border-bottom: 2px solid currentColor;\n  transition: opacity 90ms cubic-bezier(0, 0, 0.2, 0.1);\n}\n.mat-pseudo-checkbox._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-pseudo-checkbox._mat-animation-noopable::after {\n  transition: none;\n}\n\n.mat-pseudo-checkbox-disabled {\n  cursor: default;\n}\n\n.mat-pseudo-checkbox-indeterminate::after {\n  left: 1px;\n  opacity: 1;\n  border-radius: 2px;\n}\n\n.mat-pseudo-checkbox-checked::after {\n  left: 1px;\n  border-left: 2px solid currentColor;\n  transform: rotate(-45deg);\n  opacity: 1;\n  box-sizing: content-box;\n}\n\n.mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after, .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-indeterminate::after {\n  color: var(--mat-pseudo-checkbox-minimal-selected-checkmark-color, var(--mat-sys-primary));\n}\n.mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked.mat-pseudo-checkbox-disabled::after, .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-indeterminate.mat-pseudo-checkbox-disabled::after {\n  color: var(--mat-pseudo-checkbox-minimal-disabled-selected-checkmark-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-pseudo-checkbox-full {\n  border-color: var(--mat-pseudo-checkbox-full-unselected-icon-color, var(--mat-sys-on-surface-variant));\n  border-width: 2px;\n  border-style: solid;\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-disabled {\n  border-color: var(--mat-pseudo-checkbox-full-disabled-unselected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked, .mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate {\n  background-color: var(--mat-pseudo-checkbox-full-selected-icon-color, var(--mat-sys-primary));\n  border-color: transparent;\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked::after, .mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate::after {\n  color: var(--mat-pseudo-checkbox-full-selected-checkmark-color, var(--mat-sys-on-primary));\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked.mat-pseudo-checkbox-disabled, .mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate.mat-pseudo-checkbox-disabled {\n  background-color: var(--mat-pseudo-checkbox-full-disabled-selected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked.mat-pseudo-checkbox-disabled::after, .mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate.mat-pseudo-checkbox-disabled::after {\n  color: var(--mat-pseudo-checkbox-full-disabled-selected-checkmark-color, var(--mat-sys-surface));\n}\n\n.mat-pseudo-checkbox {\n  width: 18px;\n  height: 18px;\n}\n\n.mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after {\n  width: 14px;\n  height: 6px;\n  transform-origin: center;\n  top: -4.2426406871px;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  margin: auto;\n}\n.mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-indeterminate::after {\n  top: 8px;\n  width: 16px;\n}\n\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked::after {\n  width: 10px;\n  height: 4px;\n  transform-origin: center;\n  top: -2.8284271247px;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  margin: auto;\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate::after {\n  top: 6px;\n  width: 12px;\n}\n'],
+    styles: ['.mat-pseudo-checkbox {\n  border-radius: 2px;\n  cursor: pointer;\n  display: inline-block;\n  vertical-align: middle;\n  box-sizing: border-box;\n  position: relative;\n  flex-shrink: 0;\n  transition: border-color 90ms cubic-bezier(0, 0, 0.2, 0.1), background-color 90ms cubic-bezier(0, 0, 0.2, 0.1);\n}\n.mat-pseudo-checkbox::after {\n  position: absolute;\n  opacity: 0;\n  content: "";\n  border-bottom: 2px solid currentColor;\n  transition: opacity 90ms cubic-bezier(0, 0, 0.2, 0.1);\n}\n.mat-pseudo-checkbox._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-pseudo-checkbox._mat-animation-noopable::after {\n  transition: none;\n}\n\n.mat-pseudo-checkbox-disabled {\n  cursor: default;\n}\n\n.mat-pseudo-checkbox-indeterminate::after {\n  left: 1px;\n  opacity: 1;\n  border-radius: 2px;\n}\n\n.mat-pseudo-checkbox-checked::after {\n  left: 1px;\n  border-left: 2px solid currentColor;\n  transform: rotate(-45deg);\n  opacity: 1;\n  box-sizing: content-box;\n}\n\n.mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after, .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-indeterminate::after {\n  color: var(--%NS%mat-pseudo-checkbox-minimal-selected-checkmark-color, var(--%NS%mat-sys-primary));\n}\n.mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked.mat-pseudo-checkbox-disabled::after, .mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-indeterminate.mat-pseudo-checkbox-disabled::after {\n  color: var(--%NS%mat-pseudo-checkbox-minimal-disabled-selected-checkmark-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-pseudo-checkbox-full {\n  border-color: var(--%NS%mat-pseudo-checkbox-full-unselected-icon-color, var(--%NS%mat-sys-on-surface-variant));\n  border-width: 2px;\n  border-style: solid;\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-disabled {\n  border-color: var(--%NS%mat-pseudo-checkbox-full-disabled-unselected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked, .mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate {\n  background-color: var(--%NS%mat-pseudo-checkbox-full-selected-icon-color, var(--%NS%mat-sys-primary));\n  border-color: transparent;\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked::after, .mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate::after {\n  color: var(--%NS%mat-pseudo-checkbox-full-selected-checkmark-color, var(--%NS%mat-sys-on-primary));\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked.mat-pseudo-checkbox-disabled, .mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate.mat-pseudo-checkbox-disabled {\n  background-color: var(--%NS%mat-pseudo-checkbox-full-disabled-selected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked.mat-pseudo-checkbox-disabled::after, .mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate.mat-pseudo-checkbox-disabled::after {\n  color: var(--%NS%mat-pseudo-checkbox-full-disabled-selected-checkmark-color, var(--%NS%mat-sys-surface));\n}\n\n.mat-pseudo-checkbox {\n  width: 18px;\n  height: 18px;\n}\n\n.mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-checked::after {\n  width: 14px;\n  height: 6px;\n  transform-origin: center;\n  top: -4.2426406871px;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  margin: auto;\n}\n.mat-pseudo-checkbox-minimal.mat-pseudo-checkbox-indeterminate::after {\n  top: 8px;\n  width: 16px;\n}\n\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-checked::after {\n  width: 10px;\n  height: 4px;\n  transform-origin: center;\n  top: -2.8284271247px;\n  left: 0;\n  bottom: 0;\n  right: 0;\n  margin: auto;\n}\n.mat-pseudo-checkbox-full.mat-pseudo-checkbox-indeterminate::after {\n  top: 6px;\n  width: 12px;\n}\n'],
     encapsulation: 2
   });
 };
@@ -48194,7 +48932,7 @@ var _StructuralStylesLoader = class __StructuralStylesLoader {
     vars: 0,
     template: function _StructuralStylesLoader_Template(rf, ctx) {
     },
-    styles: ['.mat-focus-indicator {\n  position: relative;\n}\n.mat-focus-indicator::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  box-sizing: border-box;\n  pointer-events: none;\n  display: var(--mat-focus-indicator-display, none);\n  border-width: var(--mat-focus-indicator-border-width, 3px);\n  border-style: var(--mat-focus-indicator-border-style, solid);\n  border-color: var(--mat-focus-indicator-border-color, transparent);\n  border-radius: var(--mat-focus-indicator-border-radius, 4px);\n}\n.mat-focus-indicator:focus-visible::before {\n  content: "";\n}\n\n@media (forced-colors: active) {\n  html {\n    --mat-focus-indicator-display: block;\n  }\n}\n'],
+    styles: ['.mat-focus-indicator {\n  position: relative;\n}\n.mat-focus-indicator::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  box-sizing: border-box;\n  pointer-events: none;\n  display: var(--%NS%mat-focus-indicator-display, none);\n  border-width: var(--%NS%mat-focus-indicator-border-width, 3px);\n  border-style: var(--%NS%mat-focus-indicator-border-style, solid);\n  border-color: var(--%NS%mat-focus-indicator-border-color, transparent);\n  border-radius: var(--%NS%mat-focus-indicator-border-radius, 4px);\n}\n.mat-focus-indicator:focus-visible::before {\n  content: "";\n}\n\n@media (forced-colors: active) {\n  html {\n    --%NS%mat-focus-indicator-display: block;\n    --%NS%mat-focus-indicator-fallback-border-style: none;\n  }\n}\n'],
     encapsulation: 2
   });
 };
@@ -48205,7 +48943,7 @@ var _StructuralStylesLoader = class __StructuralStylesLoader {
       selector: "structural-styles",
       encapsulation: ViewEncapsulation.None,
       template: "",
-      styles: ['.mat-focus-indicator {\n  position: relative;\n}\n.mat-focus-indicator::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  box-sizing: border-box;\n  pointer-events: none;\n  display: var(--mat-focus-indicator-display, none);\n  border-width: var(--mat-focus-indicator-border-width, 3px);\n  border-style: var(--mat-focus-indicator-border-style, solid);\n  border-color: var(--mat-focus-indicator-border-color, transparent);\n  border-radius: var(--mat-focus-indicator-border-radius, 4px);\n}\n.mat-focus-indicator:focus-visible::before {\n  content: "";\n}\n\n@media (forced-colors: active) {\n  html {\n    --mat-focus-indicator-display: block;\n  }\n}\n']
+      styles: ['.mat-focus-indicator {\n  position: relative;\n}\n.mat-focus-indicator::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  box-sizing: border-box;\n  pointer-events: none;\n  display: var(--mat-focus-indicator-display, none);\n  border-width: var(--mat-focus-indicator-border-width, 3px);\n  border-style: var(--mat-focus-indicator-border-style, solid);\n  border-color: var(--mat-focus-indicator-border-color, transparent);\n  border-radius: var(--mat-focus-indicator-border-radius, 4px);\n}\n.mat-focus-indicator:focus-visible::before {\n  content: "";\n}\n\n@media (forced-colors: active) {\n  html {\n    --mat-focus-indicator-display: block;\n    --mat-focus-indicator-fallback-border-style: none;\n  }\n}\n']
     }]
   }], null, null);
 })();
@@ -48301,7 +49039,7 @@ var MatOptgroup = class _MatOptgroup {
         \u0275\u0275textInterpolate1("", ctx.label, " ");
       }
     },
-    styles: [".mat-mdc-optgroup {\n  color: var(--mat-optgroup-label-text-color, var(--mat-sys-on-surface-variant));\n  font-family: var(--mat-optgroup-label-text-font, var(--mat-sys-title-small-font));\n  line-height: var(--mat-optgroup-label-text-line-height, var(--mat-sys-title-small-line-height));\n  font-size: var(--mat-optgroup-label-text-size, var(--mat-sys-title-small-size));\n  letter-spacing: var(--mat-optgroup-label-text-tracking, var(--mat-sys-title-small-tracking));\n  font-weight: var(--mat-optgroup-label-text-weight, var(--mat-sys-title-small-weight));\n}\n\n.mat-mdc-optgroup-label {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  min-height: 48px;\n  padding: 0 16px;\n  outline: none;\n}\n.mat-mdc-optgroup-label.mdc-list-item--disabled {\n  opacity: 0.38;\n}\n.mat-mdc-optgroup-label .mdc-list-item__primary-text {\n  font-size: inherit;\n  font-weight: inherit;\n  letter-spacing: inherit;\n  line-height: inherit;\n  font-family: inherit;\n  text-decoration: inherit;\n  text-transform: inherit;\n  white-space: normal;\n  color: inherit;\n}\n"],
+    styles: [".mat-mdc-optgroup {\n  color: var(--%NS%mat-optgroup-label-text-color, var(--%NS%mat-sys-on-surface-variant));\n  font-family: var(--%NS%mat-optgroup-label-text-font, var(--%NS%mat-sys-title-small-font));\n  line-height: var(--%NS%mat-optgroup-label-text-line-height, var(--%NS%mat-sys-title-small-line-height));\n  font-size: var(--%NS%mat-optgroup-label-text-size, var(--%NS%mat-sys-title-small-size));\n  letter-spacing: var(--%NS%mat-optgroup-label-text-tracking, var(--%NS%mat-sys-title-small-tracking));\n  font-weight: var(--%NS%mat-optgroup-label-text-weight, var(--%NS%mat-sys-title-small-weight));\n}\n\n.mat-mdc-optgroup-label {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  min-height: 48px;\n  padding: 0 16px;\n  outline: none;\n}\n.mat-mdc-optgroup-label.mdc-list-item--disabled {\n  opacity: 0.38;\n}\n.mat-mdc-optgroup-label .mdc-list-item__primary-text {\n  font-size: inherit;\n  font-weight: inherit;\n  letter-spacing: inherit;\n  line-height: inherit;\n  font-family: inherit;\n  text-decoration: inherit;\n  text-transform: inherit;\n  white-space: normal;\n  color: inherit;\n}\n"],
     encapsulation: 2
   });
 };
@@ -48540,7 +49278,7 @@ var MatOption = class _MatOption {
       }
     },
     dependencies: [MatPseudoCheckbox, MatRipple],
-    styles: ['.mat-mdc-option {\n  -webkit-user-select: none;\n  user-select: none;\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  min-height: 48px;\n  padding: 0 16px;\n  cursor: pointer;\n  -webkit-tap-highlight-color: transparent;\n  color: var(--mat-option-label-text-color, var(--mat-sys-on-surface));\n  font-family: var(--mat-option-label-text-font, var(--mat-sys-label-large-font));\n  line-height: var(--mat-option-label-text-line-height, var(--mat-sys-label-large-line-height));\n  font-size: var(--mat-option-label-text-size, var(--mat-sys-body-large-size));\n  letter-spacing: var(--mat-option-label-text-tracking, var(--mat-sys-label-large-tracking));\n  font-weight: var(--mat-option-label-text-weight, var(--mat-sys-body-large-weight));\n}\n.mat-mdc-option:hover:not(.mdc-list-item--disabled) {\n  background-color: var(--mat-option-hover-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-option:focus.mdc-list-item, .mat-mdc-option.mat-mdc-option-active.mdc-list-item {\n  background-color: var(--mat-option-focus-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-focus-state-layer-opacity) * 100%), transparent));\n  outline: 0;\n}\n.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled):not(.mat-mdc-option-active, .mat-mdc-option-multiple, :focus, :hover) {\n  background-color: var(--mat-option-selected-state-layer-color, var(--mat-sys-secondary-container));\n}\n.mat-mdc-option.mdc-list-item--selected:not(.mdc-list-item--disabled):not(.mat-mdc-option-active, .mat-mdc-option-multiple, :focus, :hover) .mdc-list-item__primary-text {\n  color: var(--mat-option-selected-state-label-text-color, var(--mat-sys-on-secondary-container));\n}\n.mat-mdc-option .mat-pseudo-checkbox {\n  --mat-pseudo-checkbox-minimal-selected-checkmark-color: var(--mat-option-selected-state-label-text-color, var(--mat-sys-on-secondary-container));\n}\n.mat-mdc-option.mdc-list-item {\n  align-items: center;\n  background: transparent;\n}\n.mat-mdc-option.mdc-list-item--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-option.mdc-list-item--disabled .mat-mdc-option-pseudo-checkbox, .mat-mdc-option.mdc-list-item--disabled .mdc-list-item__primary-text, .mat-mdc-option.mdc-list-item--disabled > mat-icon {\n  opacity: 0.38;\n}\n.mat-mdc-optgroup .mat-mdc-option:not(.mat-mdc-option-multiple) {\n  padding-left: 32px;\n}\n[dir=rtl] .mat-mdc-optgroup .mat-mdc-option:not(.mat-mdc-option-multiple) {\n  padding-left: 16px;\n  padding-right: 32px;\n}\n.mat-mdc-option .mat-icon,\n.mat-mdc-option .mat-pseudo-checkbox-full {\n  margin-right: 16px;\n  flex-shrink: 0;\n}\n[dir=rtl] .mat-mdc-option .mat-icon,\n[dir=rtl] .mat-mdc-option .mat-pseudo-checkbox-full {\n  margin-right: 0;\n  margin-left: 16px;\n}\n.mat-mdc-option .mat-pseudo-checkbox-minimal {\n  margin-left: 16px;\n  flex-shrink: 0;\n}\n[dir=rtl] .mat-mdc-option .mat-pseudo-checkbox-minimal {\n  margin-right: 16px;\n  margin-left: 0;\n}\n.mat-mdc-option .mat-mdc-option-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n.mat-mdc-option .mdc-list-item__primary-text {\n  white-space: normal;\n  font-size: inherit;\n  font-weight: inherit;\n  letter-spacing: inherit;\n  line-height: inherit;\n  font-family: inherit;\n  text-decoration: inherit;\n  text-transform: inherit;\n  margin-right: auto;\n}\n[dir=rtl] .mat-mdc-option .mdc-list-item__primary-text {\n  margin-right: 0;\n  margin-left: auto;\n}\n@media (forced-colors: active) {\n  .mat-mdc-option.mdc-list-item--selected:not(:has(.mat-mdc-option-pseudo-checkbox))::after {\n    content: "";\n    position: absolute;\n    top: 50%;\n    right: 16px;\n    transform: translateY(-50%);\n    width: 10px;\n    height: 0;\n    border-bottom: solid 10px;\n    border-radius: 10px;\n  }\n  [dir=rtl] .mat-mdc-option.mdc-list-item--selected:not(:has(.mat-mdc-option-pseudo-checkbox))::after {\n    right: auto;\n    left: 16px;\n  }\n}\n\n.mat-mdc-option-multiple {\n  --mat-list-list-item-selected-container-color: var(--mat-list-list-item-container-color, transparent);\n}\n\n.mat-mdc-option-active .mat-focus-indicator::before {\n  content: "";\n}\n'],
+    styles: ['.mat-mdc-option {\n  -webkit-user-select: none;\n  user-select: none;\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  min-height: 48px;\n  padding: 0 16px;\n  cursor: pointer;\n  -webkit-tap-highlight-color: transparent;\n  color: var(--%NS%mat-option-label-text-color, var(--%NS%mat-sys-on-surface));\n  font-family: var(--%NS%mat-option-label-text-font, var(--%NS%mat-sys-label-large-font));\n  line-height: var(--%NS%mat-option-label-text-line-height, var(--%NS%mat-sys-label-large-line-height));\n  font-size: var(--%NS%mat-option-label-text-size, var(--%NS%mat-sys-body-large-size));\n  letter-spacing: var(--%NS%mat-option-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  font-weight: var(--%NS%mat-option-label-text-weight, var(--%NS%mat-sys-body-large-weight));\n}\n.mat-mdc-option:hover:not(.mdc-list-item--disabled) {\n  background-color: var(--%NS%mat-option-hover-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-option:focus.mdc-list-item, .mat-mdc-option.mat-mdc-option-active.mdc-list-item {\n  background-color: var(--%NS%mat-option-focus-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-focus-state-layer-opacity) * 100%), transparent));\n  outline: 0;\n}\n.mat-mdc-option.mdc-list-item--%NS%selected:not(.mdc-list-item--disabled):not(.mat-mdc-option-active, .mat-mdc-option-multiple, :focus, :hover) {\n  background-color: var(--%NS%mat-option-selected-state-layer-color, var(--%NS%mat-sys-secondary-container));\n}\n.mat-mdc-option.mdc-list-item--%NS%selected:not(.mdc-list-item--disabled):not(.mat-mdc-option-active, .mat-mdc-option-multiple, :focus, :hover) .mdc-list-item__primary-text {\n  color: var(--%NS%mat-option-selected-state-label-text-color, var(--%NS%mat-sys-on-secondary-container));\n}\n.mat-mdc-option .mat-pseudo-checkbox {\n  --%NS%mat-pseudo-checkbox-minimal-selected-checkmark-color: var(--%NS%mat-option-selected-state-label-text-color, var(--%NS%mat-sys-on-secondary-container));\n}\n.mat-mdc-option.mdc-list-item {\n  align-items: center;\n  background: transparent;\n}\n.mat-mdc-option.mdc-list-item--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-option.mdc-list-item--disabled .mat-mdc-option-pseudo-checkbox, .mat-mdc-option.mdc-list-item--disabled .mdc-list-item__primary-text, .mat-mdc-option.mdc-list-item--disabled > mat-icon {\n  opacity: 0.38;\n}\n.mat-mdc-optgroup .mat-mdc-option:not(.mat-mdc-option-multiple) {\n  padding-left: 32px;\n}\n[dir=rtl] .mat-mdc-optgroup .mat-mdc-option:not(.mat-mdc-option-multiple) {\n  padding-left: 16px;\n  padding-right: 32px;\n}\n.mat-mdc-option .mat-icon,\n.mat-mdc-option .mat-pseudo-checkbox-full {\n  margin-right: 16px;\n  flex-shrink: 0;\n}\n[dir=rtl] .mat-mdc-option .mat-icon,\n[dir=rtl] .mat-mdc-option .mat-pseudo-checkbox-full {\n  margin-right: 0;\n  margin-left: 16px;\n}\n.mat-mdc-option .mat-pseudo-checkbox-minimal {\n  margin-left: 16px;\n  flex-shrink: 0;\n}\n[dir=rtl] .mat-mdc-option .mat-pseudo-checkbox-minimal {\n  margin-right: 16px;\n  margin-left: 0;\n}\n.mat-mdc-option .mat-mdc-option-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n.mat-mdc-option .mdc-list-item__primary-text {\n  white-space: normal;\n  font-size: inherit;\n  font-weight: inherit;\n  letter-spacing: inherit;\n  line-height: inherit;\n  font-family: inherit;\n  text-decoration: inherit;\n  text-transform: inherit;\n  margin-right: auto;\n}\n[dir=rtl] .mat-mdc-option .mdc-list-item__primary-text {\n  margin-right: 0;\n  margin-left: auto;\n}\n@media (forced-colors: active) {\n  .mat-mdc-option.mdc-list-item--%NS%selected:not(:has(.mat-mdc-option-pseudo-checkbox))::after {\n    content: "";\n    position: absolute;\n    top: 50%;\n    right: 16px;\n    transform: translateY(-50%);\n    width: 10px;\n    height: 0;\n    border-bottom: solid 10px;\n    border-radius: 10px;\n  }\n  [dir=rtl] .mat-mdc-option.mdc-list-item--%NS%selected:not(:has(.mat-mdc-option-pseudo-checkbox))::after {\n    right: auto;\n    left: 16px;\n  }\n}\n\n.mat-mdc-option-multiple {\n  --%NS%mat-list-list-item-selected-container-color: var(--%NS%mat-list-list-item-container-color, transparent);\n}\n\n.mat-mdc-option-active .mat-focus-indicator::before {\n  content: "";\n}\n'],
     encapsulation: 2
   });
 };
@@ -48995,29 +49733,43 @@ var MatRippleLoader = class _MatRippleLoader {
 // node_modules/@angular/material/fesm2022/_error-state-chunk.mjs
 var _ErrorStateTracker = class {
   _defaultMatcher;
-  ngControl;
   _parentFormGroup;
   _parentForm;
   _stateChanges;
   errorState = false;
   matcher;
-  constructor(_defaultMatcher, ngControl, _parentFormGroup, _parentForm, _stateChanges) {
+  ngControl;
+  formField;
+  constructor(_defaultMatcher, directive, _parentFormGroup, _parentForm, _stateChanges) {
     this._defaultMatcher = _defaultMatcher;
-    this.ngControl = ngControl;
     this._parentFormGroup = _parentFormGroup;
     this._parentForm = _parentForm;
     this._stateChanges = _stateChanges;
+    if (!directive) {
+      this.ngControl = this.formField = null;
+    } else if (isSignal2(directive.field) && !directive.updateValueAndValidity) {
+      this.formField = directive;
+      this.ngControl = null;
+    } else {
+      this.formField = null;
+      this.ngControl = directive;
+    }
   }
   updateErrorState() {
     const oldState = this.errorState;
-    const parent = this._parentFormGroup || this._parentForm;
-    const matcher = this.matcher || this._defaultMatcher;
-    const control = this.ngControl ? this.ngControl.control : null;
-    const newState = (matcher == null ? void 0 : matcher.isErrorState(control, parent)) ?? false;
+    const newState = this._getCurrentErrorState(this.matcher || this._defaultMatcher);
     if (newState !== oldState) {
       this.errorState = newState;
       this._stateChanges.next();
     }
+  }
+  _getCurrentErrorState(matcher) {
+    if (this.formField && (matcher == null ? void 0 : matcher.isSignalErrorState)) {
+      return matcher.isSignalErrorState(this.formField.field()) ?? false;
+    }
+    const parent = this._parentFormGroup || this._parentForm;
+    const control = this.ngControl ? this.ngControl.control : null;
+    return (matcher == null ? void 0 : matcher.isErrorState(control, parent)) ?? false;
   }
 };
 
@@ -49030,7 +49782,7 @@ var _MatInternalFormField = class __MatInternalFormField {
   };
   static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
     type: __MatInternalFormField,
-    selectors: [["div", "mat-internal-form-field", ""]],
+    selectors: [["", "mat-internal-form-field", ""]],
     hostAttrs: [1, "mdc-form-field", "mat-internal-form-field"],
     hostVars: 2,
     hostBindings: function _MatInternalFormField_HostBindings(rf, ctx) {
@@ -49050,7 +49802,7 @@ var _MatInternalFormField = class __MatInternalFormField {
         \u0275\u0275projection(0);
       }
     },
-    styles: [".mat-internal-form-field {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  display: inline-flex;\n  align-items: center;\n  vertical-align: middle;\n}\n.mat-internal-form-field > label {\n  margin-left: 0;\n  margin-right: auto;\n  padding-left: 4px;\n  padding-right: 0;\n  order: 0;\n}\n[dir=rtl] .mat-internal-form-field > label {\n  margin-left: auto;\n  margin-right: 0;\n  padding-left: 0;\n  padding-right: 4px;\n}\n\n.mdc-form-field--align-end > label {\n  margin-left: auto;\n  margin-right: 0;\n  padding-left: 0;\n  padding-right: 4px;\n  order: -1;\n}\n[dir=rtl] .mdc-form-field--align-end .mdc-form-field--align-end label {\n  margin-left: 0;\n  margin-right: auto;\n  padding-left: 4px;\n  padding-right: 0;\n}\n"],
+    styles: [".mat-internal-form-field {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  display: inline-flex;\n  align-items: center;\n  vertical-align: middle;\n}\n.mat-internal-form-field > label, .mat-internal-form-field > .mat-internal-form-field-label {\n  margin-left: 0;\n  margin-right: auto;\n  padding-left: 4px;\n  padding-right: 0;\n  order: 0;\n}\n[dir=rtl] .mat-internal-form-field > label, [dir=rtl] .mat-internal-form-field > .mat-internal-form-field-label {\n  margin-left: auto;\n  margin-right: 0;\n  padding-left: 0;\n  padding-right: 4px;\n}\n\n.mdc-form-field--align-end > label, .mdc-form-field--align-end > .mat-internal-form-field-label {\n  margin-left: auto;\n  margin-right: 0;\n  padding-left: 0;\n  padding-right: 4px;\n  order: -1;\n}\n[dir=rtl] .mdc-form-field--align-end .mdc-form-field--align-end label, [dir=rtl] .mdc-form-field--align-end .mdc-form-field--align-end .mat-internal-form-field-label {\n  margin-left: 0;\n  margin-right: auto;\n  padding-left: 4px;\n  padding-right: 0;\n}\n"],
     encapsulation: 2
   });
 };
@@ -49058,14 +49810,14 @@ var _MatInternalFormField = class __MatInternalFormField {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(_MatInternalFormField, [{
     type: Component,
     args: [{
-      selector: "div[mat-internal-form-field]",
+      selector: "[mat-internal-form-field]",
       template: "<ng-content></ng-content>",
       encapsulation: ViewEncapsulation.None,
       host: {
         "class": "mdc-form-field mat-internal-form-field",
         "[class.mdc-form-field--align-end]": 'labelPosition === "before"'
       },
-      styles: [".mat-internal-form-field {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  display: inline-flex;\n  align-items: center;\n  vertical-align: middle;\n}\n.mat-internal-form-field > label {\n  margin-left: 0;\n  margin-right: auto;\n  padding-left: 4px;\n  padding-right: 0;\n  order: 0;\n}\n[dir=rtl] .mat-internal-form-field > label {\n  margin-left: auto;\n  margin-right: 0;\n  padding-left: 0;\n  padding-right: 4px;\n}\n\n.mdc-form-field--align-end > label {\n  margin-left: auto;\n  margin-right: 0;\n  padding-left: 0;\n  padding-right: 4px;\n  order: -1;\n}\n[dir=rtl] .mdc-form-field--align-end .mdc-form-field--align-end label {\n  margin-left: 0;\n  margin-right: auto;\n  padding-left: 4px;\n  padding-right: 0;\n}\n"]
+      styles: [".mat-internal-form-field {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  display: inline-flex;\n  align-items: center;\n  vertical-align: middle;\n}\n.mat-internal-form-field > label, .mat-internal-form-field > .mat-internal-form-field-label {\n  margin-left: 0;\n  margin-right: auto;\n  padding-left: 4px;\n  padding-right: 0;\n  order: 0;\n}\n[dir=rtl] .mat-internal-form-field > label, [dir=rtl] .mat-internal-form-field > .mat-internal-form-field-label {\n  margin-left: auto;\n  margin-right: 0;\n  padding-left: 0;\n  padding-right: 4px;\n}\n\n.mdc-form-field--align-end > label, .mdc-form-field--align-end > .mat-internal-form-field-label {\n  margin-left: auto;\n  margin-right: 0;\n  padding-left: 0;\n  padding-right: 4px;\n  order: -1;\n}\n[dir=rtl] .mdc-form-field--align-end .mdc-form-field--align-end label, [dir=rtl] .mdc-form-field--align-end .mdc-form-field--align-end .mat-internal-form-field-label {\n  margin-left: 0;\n  margin-right: auto;\n  padding-left: 4px;\n  padding-right: 0;\n}\n"]
     }]
   }], null, {
     labelPosition: [{
@@ -49078,7 +49830,7 @@ var _MatInternalFormField = class __MatInternalFormField {
 })();
 
 // node_modules/@angular/material/fesm2022/core.mjs
-var VERSION2 = new Version("22.0.1");
+var VERSION2 = new Version("22.1.5");
 var ISO_8601_REGEX = /^\d{4}-\d{2}-\d{2}(?:T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|(?:(?:\+|-)\d{2}:\d{2}))?)?$/;
 var TIME_REGEX = /^(\d?\d)[:.](\d?\d)(?:[:.](\d?\d))?\s*(AM|PM)?$/i;
 function range(length, valueFunction) {
@@ -49535,7 +50287,7 @@ var MatProgressSpinner = class _MatProgressSpinner {
       if (rf & 2) {
         \u0275\u0275attribute("aria-valuemin", 0)("aria-valuemax", 100)("aria-valuenow", ctx.mode === "determinate" ? ctx.value : null)("mode", ctx.mode);
         \u0275\u0275classMap("mat-" + ctx.color);
-        \u0275\u0275styleProp("width", ctx.diameter, "px")("height", ctx.diameter, "px")("--mat-progress-spinner-size", ctx.diameter + "px")("--mat-progress-spinner-active-indicator-width", ctx.diameter + "px");
+        \u0275\u0275styleProp("width", ctx.diameter, "px")("height", ctx.diameter, "px")("--%NS%mat-progress-spinner-size", ctx.diameter + "px")("--%NS%mat-progress-spinner-active-indicator-width", ctx.diameter + "px");
         \u0275\u0275classProp("_mat-animation-noopable", ctx._noopAnimations)("mdc-circular-progress--indeterminate", ctx.mode === "indeterminate");
       }
     },
@@ -49585,7 +50337,7 @@ var MatProgressSpinner = class _MatProgressSpinner {
       }
     },
     dependencies: [NgTemplateOutlet],
-    styles: [".mat-mdc-progress-spinner {\n  --mat-progress-spinner-animation-multiplier: 1;\n  display: block;\n  overflow: hidden;\n  line-height: 0;\n  position: relative;\n  direction: ltr;\n  transition: opacity 250ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mat-mdc-progress-spinner circle {\n  stroke-width: var(--mat-progress-spinner-active-indicator-width, 4px);\n}\n.mat-mdc-progress-spinner._mat-animation-noopable, .mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__determinate-circle {\n  transition: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-circle-graphic,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__spinner-layer,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container {\n  animation: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container circle {\n  stroke-dasharray: 0 !important;\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic,\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle {\n    stroke: currentColor;\n    stroke: CanvasText;\n  }\n}\n\n.mat-progress-spinner-reduced-motion {\n  --mat-progress-spinner-animation-multiplier: 1.25;\n}\n\n.mdc-circular-progress__determinate-container,\n.mdc-circular-progress__indeterminate-circle-graphic,\n.mdc-circular-progress__indeterminate-container,\n.mdc-circular-progress__spinner-layer {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n}\n\n.mdc-circular-progress__determinate-container {\n  transform: rotate(-90deg);\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__determinate-container {\n  opacity: 0;\n}\n\n.mdc-circular-progress__indeterminate-container {\n  font-size: 0;\n  letter-spacing: 0;\n  white-space: nowrap;\n  opacity: 0;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__indeterminate-container {\n  opacity: 1;\n  animation: mdc-circular-progress-container-rotate calc(1568.2352941176ms * var(--mat-progress-spinner-animation-multiplier)) linear infinite;\n}\n\n.mdc-circular-progress__determinate-circle-graphic,\n.mdc-circular-progress__indeterminate-circle-graphic {\n  fill: transparent;\n}\n\n.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n.mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n  stroke: var(--mat-progress-spinner-active-indicator-color, var(--mat-sys-primary));\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n    stroke: CanvasText;\n  }\n}\n\n.mdc-circular-progress__determinate-circle {\n  transition: stroke-dashoffset 500ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mdc-circular-progress__gap-patch {\n  position: absolute;\n  top: 0;\n  left: 47.5%;\n  box-sizing: border-box;\n  width: 5%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress__gap-patch .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -900%;\n  width: 2000%;\n  transform: rotate(180deg);\n}\n.mdc-circular-progress__circle-clipper .mdc-circular-progress__indeterminate-circle-graphic {\n  width: 200%;\n}\n.mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -100%;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-left .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-left-spin calc(1333ms * var(--mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-right-spin calc(1333ms * var(--mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n.mdc-circular-progress__circle-clipper {\n  display: inline-flex;\n  position: relative;\n  width: 50%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress--indeterminate .mdc-circular-progress__spinner-layer {\n  animation: mdc-circular-progress-spinner-layer-rotate calc(5332ms * var(--mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n@keyframes mdc-circular-progress-container-rotate {\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes mdc-circular-progress-spinner-layer-rotate {\n  12.5% {\n    transform: rotate(135deg);\n  }\n  25% {\n    transform: rotate(270deg);\n  }\n  37.5% {\n    transform: rotate(405deg);\n  }\n  50% {\n    transform: rotate(540deg);\n  }\n  62.5% {\n    transform: rotate(675deg);\n  }\n  75% {\n    transform: rotate(810deg);\n  }\n  87.5% {\n    transform: rotate(945deg);\n  }\n  100% {\n    transform: rotate(1080deg);\n  }\n}\n@keyframes mdc-circular-progress-left-spin {\n  from {\n    transform: rotate(265deg);\n  }\n  50% {\n    transform: rotate(130deg);\n  }\n  to {\n    transform: rotate(265deg);\n  }\n}\n@keyframes mdc-circular-progress-right-spin {\n  from {\n    transform: rotate(-265deg);\n  }\n  50% {\n    transform: rotate(-130deg);\n  }\n  to {\n    transform: rotate(-265deg);\n  }\n}\n"],
+    styles: [".mat-mdc-progress-spinner {\n  --%NS%mat-progress-spinner-animation-multiplier: 1;\n  display: block;\n  overflow: hidden;\n  line-height: 0;\n  position: relative;\n  direction: ltr;\n  transition: opacity 250ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mat-mdc-progress-spinner circle {\n  stroke-width: var(--%NS%mat-progress-spinner-active-indicator-width, 4px);\n}\n.mat-mdc-progress-spinner._mat-animation-noopable, .mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__determinate-circle {\n  transition: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-circle-graphic,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__spinner-layer,\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container {\n  animation: none !important;\n}\n.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container circle {\n  stroke-dasharray: 0 !important;\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic,\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle {\n    stroke: currentColor;\n    stroke: CanvasText;\n  }\n}\n\n.mat-progress-spinner-reduced-motion {\n  --%NS%mat-progress-spinner-animation-multiplier: 1.25;\n}\n\n.mdc-circular-progress__determinate-container,\n.mdc-circular-progress__indeterminate-circle-graphic,\n.mdc-circular-progress__indeterminate-container,\n.mdc-circular-progress__spinner-layer {\n  position: absolute;\n  width: 100%;\n  height: 100%;\n}\n\n.mdc-circular-progress__determinate-container {\n  transform: rotate(-90deg);\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__determinate-container {\n  opacity: 0;\n}\n\n.mdc-circular-progress__indeterminate-container {\n  font-size: 0;\n  letter-spacing: 0;\n  white-space: nowrap;\n  opacity: 0;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__indeterminate-container {\n  opacity: 1;\n  animation: mdc-circular-progress-container-rotate calc(1568.2352941176ms * var(--%NS%mat-progress-spinner-animation-multiplier)) linear infinite;\n}\n\n.mdc-circular-progress__determinate-circle-graphic,\n.mdc-circular-progress__indeterminate-circle-graphic {\n  fill: transparent;\n}\n\n.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n.mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n  stroke: var(--%NS%mat-progress-spinner-active-indicator-color, var(--%NS%mat-sys-primary));\n}\n@media (forced-colors: active) {\n  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,\n  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {\n    stroke: CanvasText;\n  }\n}\n\n.mdc-circular-progress__determinate-circle {\n  transition: stroke-dashoffset 500ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mdc-circular-progress__gap-patch {\n  position: absolute;\n  top: 0;\n  left: 47.5%;\n  box-sizing: border-box;\n  width: 5%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress__gap-patch .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -900%;\n  width: 2000%;\n  transform: rotate(180deg);\n}\n.mdc-circular-progress__circle-clipper .mdc-circular-progress__indeterminate-circle-graphic {\n  width: 200%;\n}\n.mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  left: -100%;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-left .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-left-spin calc(1333ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {\n  animation: mdc-circular-progress-right-spin calc(1333ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n.mdc-circular-progress__circle-clipper {\n  display: inline-flex;\n  position: relative;\n  width: 50%;\n  height: 100%;\n  overflow: hidden;\n}\n\n.mdc-circular-progress--indeterminate .mdc-circular-progress__spinner-layer {\n  animation: mdc-circular-progress-spinner-layer-rotate calc(5332ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;\n}\n\n@keyframes mdc-circular-progress-container-rotate {\n  to {\n    transform: rotate(360deg);\n  }\n}\n@keyframes mdc-circular-progress-spinner-layer-rotate {\n  12.5% {\n    transform: rotate(135deg);\n  }\n  25% {\n    transform: rotate(270deg);\n  }\n  37.5% {\n    transform: rotate(405deg);\n  }\n  50% {\n    transform: rotate(540deg);\n  }\n  62.5% {\n    transform: rotate(675deg);\n  }\n  75% {\n    transform: rotate(810deg);\n  }\n  87.5% {\n    transform: rotate(945deg);\n  }\n  100% {\n    transform: rotate(1080deg);\n  }\n}\n@keyframes mdc-circular-progress-left-spin {\n  from {\n    transform: rotate(265deg);\n  }\n  50% {\n    transform: rotate(130deg);\n  }\n  to {\n    transform: rotate(265deg);\n  }\n}\n@keyframes mdc-circular-progress-right-spin {\n  from {\n    transform: rotate(-265deg);\n  }\n  50% {\n    transform: rotate(-130deg);\n  }\n  to {\n    transform: rotate(-265deg);\n  }\n}\n"],
     encapsulation: 2
   });
 };
@@ -50751,7 +51503,7 @@ var CdkVirtualScrollViewport = class _CdkVirtualScrollViewport extends CdkVirtua
         \u0275\u0275styleProp("width", ctx._totalContentWidth())("height", ctx._totalContentHeight());
       }
     },
-    styles: ["cdk-virtual-scroll-viewport {\n  display: block;\n  position: relative;\n  transform: translateZ(0);\n}\n\n.cdk-virtual-scrollable {\n  overflow: auto;\n  will-change: scroll-position;\n  contain: strict;\n}\n\n.cdk-virtual-scroll-content-wrapper {\n  position: absolute;\n  top: 0;\n  left: 0;\n  contain: content;\n}\n[dir=rtl] .cdk-virtual-scroll-content-wrapper {\n  right: 0;\n  left: auto;\n}\n\n.cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper {\n  min-height: 100%;\n}\n.cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > dl:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > ol:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > table:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > ul:not([cdkVirtualFor]) {\n  padding-left: 0;\n  padding-right: 0;\n  margin-left: 0;\n  margin-right: 0;\n  border-left-width: 0;\n  border-right-width: 0;\n  outline: none;\n}\n\n.cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {\n  min-width: 100%;\n}\n.cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > dl:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > ol:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > table:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > ul:not([cdkVirtualFor]) {\n  padding-top: 0;\n  padding-bottom: 0;\n  margin-top: 0;\n  margin-bottom: 0;\n  border-top-width: 0;\n  border-bottom-width: 0;\n  outline: none;\n}\n\n.cdk-virtual-scroll-spacer {\n  height: 1px;\n  transform-origin: 0 0;\n  flex: 0 0 auto;\n}\n[dir=rtl] .cdk-virtual-scroll-spacer {\n  transform-origin: 100% 0;\n}\n"],
+    styles: ["cdk-virtual-scroll-viewport {\n  display: block;\n  position: relative;\n  transform: translateZ(0);\n}\n\n.cdk-virtual-scrollable {\n  overflow: auto;\n  will-change: scroll-position;\n  contain: strict;\n  overflow-anchor: none;\n  scroll-behavior: auto;\n}\n\n.cdk-virtual-scroll-content-wrapper {\n  position: absolute;\n  top: 0;\n  left: 0;\n  contain: content;\n}\n[dir=rtl] .cdk-virtual-scroll-content-wrapper {\n  right: 0;\n  left: auto;\n}\n\n.cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper {\n  min-height: 100%;\n}\n.cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > dl:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > ol:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > table:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > ul:not([cdkVirtualFor]) {\n  padding-left: 0;\n  padding-right: 0;\n  margin-left: 0;\n  margin-right: 0;\n  border-left-width: 0;\n  border-right-width: 0;\n  outline: none;\n}\n\n.cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {\n  min-width: 100%;\n}\n.cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > dl:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > ol:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > table:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > ul:not([cdkVirtualFor]) {\n  padding-top: 0;\n  padding-bottom: 0;\n  margin-top: 0;\n  margin-bottom: 0;\n  border-top-width: 0;\n  border-bottom-width: 0;\n  outline: none;\n}\n\n.cdk-virtual-scroll-spacer {\n  height: 1px;\n  transform-origin: 0 0;\n  flex: 0 0 auto;\n}\n[dir=rtl] .cdk-virtual-scroll-spacer {\n  transform-origin: 100% 0;\n}\n"],
     encapsulation: 2
   });
 };
@@ -50776,7 +51528,7 @@ var CdkVirtualScrollViewport = class _CdkVirtualScrollViewport extends CdkVirtua
         useExisting: CdkVirtualScrollViewport
       }],
       template: '<!--\n  Wrap the rendered content in an element that will be used to offset it based on the scroll\n  position.\n-->\n<div #contentWrapper class="cdk-virtual-scroll-content-wrapper">\n  <ng-content></ng-content>\n</div>\n<!--\n  Spacer used to force the scrolling container to the correct size for the *total* number of items\n  so that the scrollbar captures the size of the entire data set.\n-->\n<div class="cdk-virtual-scroll-spacer"\n     [style.width]="_totalContentWidth()" [style.height]="_totalContentHeight()"></div>\n',
-      styles: ["cdk-virtual-scroll-viewport {\n  display: block;\n  position: relative;\n  transform: translateZ(0);\n}\n\n.cdk-virtual-scrollable {\n  overflow: auto;\n  will-change: scroll-position;\n  contain: strict;\n}\n\n.cdk-virtual-scroll-content-wrapper {\n  position: absolute;\n  top: 0;\n  left: 0;\n  contain: content;\n}\n[dir=rtl] .cdk-virtual-scroll-content-wrapper {\n  right: 0;\n  left: auto;\n}\n\n.cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper {\n  min-height: 100%;\n}\n.cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > dl:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > ol:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > table:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > ul:not([cdkVirtualFor]) {\n  padding-left: 0;\n  padding-right: 0;\n  margin-left: 0;\n  margin-right: 0;\n  border-left-width: 0;\n  border-right-width: 0;\n  outline: none;\n}\n\n.cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {\n  min-width: 100%;\n}\n.cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > dl:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > ol:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > table:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > ul:not([cdkVirtualFor]) {\n  padding-top: 0;\n  padding-bottom: 0;\n  margin-top: 0;\n  margin-bottom: 0;\n  border-top-width: 0;\n  border-bottom-width: 0;\n  outline: none;\n}\n\n.cdk-virtual-scroll-spacer {\n  height: 1px;\n  transform-origin: 0 0;\n  flex: 0 0 auto;\n}\n[dir=rtl] .cdk-virtual-scroll-spacer {\n  transform-origin: 100% 0;\n}\n"]
+      styles: ["cdk-virtual-scroll-viewport {\n  display: block;\n  position: relative;\n  transform: translateZ(0);\n}\n\n.cdk-virtual-scrollable {\n  overflow: auto;\n  will-change: scroll-position;\n  contain: strict;\n  overflow-anchor: none;\n  scroll-behavior: auto;\n}\n\n.cdk-virtual-scroll-content-wrapper {\n  position: absolute;\n  top: 0;\n  left: 0;\n  contain: content;\n}\n[dir=rtl] .cdk-virtual-scroll-content-wrapper {\n  right: 0;\n  left: auto;\n}\n\n.cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper {\n  min-height: 100%;\n}\n.cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > dl:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > ol:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > table:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-horizontal .cdk-virtual-scroll-content-wrapper > ul:not([cdkVirtualFor]) {\n  padding-left: 0;\n  padding-right: 0;\n  margin-left: 0;\n  margin-right: 0;\n  border-left-width: 0;\n  border-right-width: 0;\n  outline: none;\n}\n\n.cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper {\n  min-width: 100%;\n}\n.cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > dl:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > ol:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > table:not([cdkVirtualFor]), .cdk-virtual-scroll-orientation-vertical .cdk-virtual-scroll-content-wrapper > ul:not([cdkVirtualFor]) {\n  padding-top: 0;\n  padding-bottom: 0;\n  margin-top: 0;\n  margin-bottom: 0;\n  border-top-width: 0;\n  border-bottom-width: 0;\n  outline: none;\n}\n\n.cdk-virtual-scroll-spacer {\n  height: 1px;\n  transform-origin: 0 0;\n  flex: 0 0 auto;\n}\n[dir=rtl] .cdk-virtual-scroll-spacer {\n  transform-origin: 100% 0;\n}\n"]
     }]
   }], () => [], {
     orientation: [{
@@ -53236,11 +53988,11 @@ function getRoundedBoundingClientRect(clientRect) {
     height: Math.floor(clientRect.height)
   };
 }
-function compareScrollVisibility(a, b2) {
-  if (a === b2) {
+function compareScrollVisibility(a, b) {
+  if (a === b) {
     return true;
   }
-  return a.isOriginClipped === b2.isOriginClipped && a.isOriginOutsideView === b2.isOriginOutsideView && a.isOverlayClipped === b2.isOverlayClipped && a.isOverlayOutsideView === b2.isOverlayOutsideView;
+  return a.isOriginClipped === b.isOriginClipped && a.isOriginOutsideView === b.isOriginOutsideView && a.isOverlayClipped === b.isOverlayClipped && a.isOverlayOutsideView === b.isOverlayOutsideView;
 }
 var wrapperClass = "cdk-global-overlay-wrapper";
 function createGlobalPositionStrategy(_injector) {
@@ -53439,7 +54191,7 @@ function createOverlayRef(injector, config2) {
     optional: true
   })) == null ? void 0 : _a10.usePopover) ?? true;
   overlayConfig.direction = overlayConfig.direction || directionality.value;
-  if (!("showPopover" in doc.body)) {
+  if (!doc.body || !("showPopover" in doc.body)) {
     overlayConfig.usePopover = false;
   } else {
     overlayConfig.usePopover = (config2 == null ? void 0 : config2.usePopover) ?? defaultUsePopover;
@@ -54892,7 +55644,7 @@ var MatDialogContainer = class _MatDialogContainer extends CdkDialogContainer {
       }
     },
     dependencies: [CdkPortalOutlet],
-    styles: ['.mat-mdc-dialog-container {\n  width: 100%;\n  height: 100%;\n  display: block;\n  box-sizing: border-box;\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n  outline: 0;\n}\n\n.cdk-overlay-pane.mat-mdc-dialog-panel {\n  max-width: var(--mat-dialog-container-max-width, 560px);\n  min-width: var(--mat-dialog-container-min-width, 280px);\n}\n@media (max-width: 599px) {\n  .cdk-overlay-pane.mat-mdc-dialog-panel {\n    max-width: var(--mat-dialog-container-small-max-width, calc(100vw - 32px));\n  }\n}\n\n.mat-mdc-dialog-inner-container {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-around;\n  box-sizing: border-box;\n  height: 100%;\n  opacity: 0;\n  transition: opacity linear var(--mat-dialog-transition-duration, 0ms);\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n}\n.mdc-dialog--closing .mat-mdc-dialog-inner-container {\n  transition: opacity 75ms linear;\n  transform: none;\n}\n.mdc-dialog--open .mat-mdc-dialog-inner-container {\n  opacity: 1;\n}\n._mat-animation-noopable .mat-mdc-dialog-inner-container {\n  transition: none;\n}\n\n.mat-mdc-dialog-surface {\n  display: flex;\n  flex-direction: column;\n  flex-grow: 0;\n  flex-shrink: 0;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow-y: auto;\n  outline: 0;\n  transform: scale(0.8);\n  transition: transform var(--mat-dialog-transition-duration, 0ms) cubic-bezier(0, 0, 0.2, 1);\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n  box-shadow: var(--mat-dialog-container-elevation-shadow, none);\n  border-radius: var(--mat-dialog-container-shape, var(--mat-sys-corner-extra-large, 4px));\n  background-color: var(--mat-dialog-container-color, var(--mat-sys-surface, white));\n}\n[dir=rtl] .mat-mdc-dialog-surface {\n  text-align: right;\n}\n.mdc-dialog--open .mat-mdc-dialog-surface, .mdc-dialog--closing .mat-mdc-dialog-surface {\n  transform: none;\n}\n._mat-animation-noopable .mat-mdc-dialog-surface {\n  transition: none;\n}\n.mat-mdc-dialog-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 2px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n\n.mat-mdc-dialog-title {\n  display: block;\n  position: relative;\n  flex-shrink: 0;\n  box-sizing: border-box;\n  margin: 0 0 1px;\n  padding: var(--mat-dialog-headline-padding, 6px 24px 13px);\n}\n.mat-mdc-dialog-title::before {\n  display: inline-block;\n  width: 0;\n  height: 40px;\n  content: "";\n  vertical-align: 0;\n}\n[dir=rtl] .mat-mdc-dialog-title {\n  text-align: right;\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-title {\n  color: var(--mat-dialog-subhead-color, var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87)));\n  font-family: var(--mat-dialog-subhead-font, var(--mat-sys-headline-small-font, inherit));\n  line-height: var(--mat-dialog-subhead-line-height, var(--mat-sys-headline-small-line-height, 1.5rem));\n  font-size: var(--mat-dialog-subhead-size, var(--mat-sys-headline-small-size, 1rem));\n  font-weight: var(--mat-dialog-subhead-weight, var(--mat-sys-headline-small-weight, 400));\n  letter-spacing: var(--mat-dialog-subhead-tracking, var(--mat-sys-headline-small-tracking, 0.03125em));\n}\n\n.mat-mdc-dialog-content {\n  display: block;\n  flex-grow: 1;\n  box-sizing: border-box;\n  margin: 0;\n  overflow: auto;\n  max-height: 65vh;\n}\n.mat-mdc-dialog-content > :first-child {\n  margin-top: 0;\n}\n.mat-mdc-dialog-content > :last-child {\n  margin-bottom: 0;\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-content {\n  color: var(--mat-dialog-supporting-text-color, var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6)));\n  font-family: var(--mat-dialog-supporting-text-font, var(--mat-sys-body-medium-font, inherit));\n  line-height: var(--mat-dialog-supporting-text-line-height, var(--mat-sys-body-medium-line-height, 1.5rem));\n  font-size: var(--mat-dialog-supporting-text-size, var(--mat-sys-body-medium-size, 1rem));\n  font-weight: var(--mat-dialog-supporting-text-weight, var(--mat-sys-body-medium-weight, 400));\n  letter-spacing: var(--mat-dialog-supporting-text-tracking, var(--mat-sys-body-medium-tracking, 0.03125em));\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-content {\n  padding: var(--mat-dialog-content-padding, 20px 24px);\n}\n.mat-mdc-dialog-container-with-actions .mat-mdc-dialog-content {\n  padding: var(--mat-dialog-with-actions-content-padding, 20px 24px 0);\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content {\n  padding-top: 0;\n}\n\n.mat-mdc-dialog-actions {\n  display: flex;\n  position: relative;\n  flex-shrink: 0;\n  flex-wrap: wrap;\n  align-items: center;\n  box-sizing: border-box;\n  min-height: 52px;\n  margin: 0;\n  border-top: 1px solid transparent;\n  padding: var(--mat-dialog-actions-padding, 16px 24px);\n  justify-content: var(--mat-dialog-actions-alignment, flex-end);\n}\n@media (forced-colors: active) {\n  .mat-mdc-dialog-actions {\n    border-top-color: CanvasText;\n  }\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-start, .mat-mdc-dialog-actions[align=start] {\n  justify-content: start;\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-center, .mat-mdc-dialog-actions[align=center] {\n  justify-content: center;\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-end, .mat-mdc-dialog-actions[align=end] {\n  justify-content: flex-end;\n}\n.mat-mdc-dialog-actions .mat-button-base + .mat-button-base,\n.mat-mdc-dialog-actions .mat-mdc-button-base + .mat-mdc-button-base {\n  margin-left: 8px;\n}\n[dir=rtl] .mat-mdc-dialog-actions .mat-button-base + .mat-button-base,\n[dir=rtl] .mat-mdc-dialog-actions .mat-mdc-button-base + .mat-mdc-button-base {\n  margin-left: 0;\n  margin-right: 8px;\n}\n\n.mat-mdc-dialog-component-host {\n  display: contents;\n}\n'],
+    styles: ['.mat-mdc-dialog-container {\n  width: 100%;\n  height: 100%;\n  display: block;\n  box-sizing: border-box;\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n  outline: 0;\n}\n\n.cdk-overlay-pane.mat-mdc-dialog-panel {\n  max-width: var(--%NS%mat-dialog-container-max-width, 560px);\n  min-width: var(--%NS%mat-dialog-container-min-width, 280px);\n}\n@media (max-width: 599px) {\n  .cdk-overlay-pane.mat-mdc-dialog-panel {\n    max-width: var(--%NS%mat-dialog-container-small-max-width, calc(100vw - 32px));\n  }\n}\n\n.mat-mdc-dialog-inner-container {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-around;\n  box-sizing: border-box;\n  height: 100%;\n  opacity: 0;\n  transition: opacity linear var(--%NS%mat-dialog-transition-duration, 0ms);\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n}\n.mdc-dialog--closing .mat-mdc-dialog-inner-container {\n  transition: opacity 75ms linear;\n  transform: none;\n}\n.mdc-dialog--open .mat-mdc-dialog-inner-container {\n  opacity: 1;\n}\n._mat-animation-noopable .mat-mdc-dialog-inner-container {\n  transition: none;\n}\n\n.mat-mdc-dialog-surface {\n  display: flex;\n  flex-direction: column;\n  flex-grow: 0;\n  flex-shrink: 0;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow-y: auto;\n  outline: 0;\n  transform: scale(0.8);\n  transition: transform var(--%NS%mat-dialog-transition-duration, 0ms) cubic-bezier(0, 0, 0.2, 1);\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n  box-shadow: var(--%NS%mat-dialog-container-elevation-shadow, none);\n  border-radius: var(--%NS%mat-dialog-container-shape, var(--%NS%mat-sys-corner-extra-large, 4px));\n  background-color: var(--%NS%mat-dialog-container-color, var(--%NS%mat-sys-surface, white));\n}\n[dir=rtl] .mat-mdc-dialog-surface {\n  text-align: right;\n}\n.mdc-dialog--open .mat-mdc-dialog-surface, .mdc-dialog--closing .mat-mdc-dialog-surface {\n  transform: none;\n}\n._mat-animation-noopable .mat-mdc-dialog-surface {\n  transition: none;\n}\n.mat-mdc-dialog-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 2px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n\n.mat-mdc-dialog-title {\n  display: block;\n  position: relative;\n  flex-shrink: 0;\n  box-sizing: border-box;\n  margin: 0 0 1px;\n  padding: var(--%NS%mat-dialog-headline-padding, 6px 24px 13px);\n}\n.mat-mdc-dialog-title::before {\n  display: inline-block;\n  width: 0;\n  height: 40px;\n  content: "";\n  vertical-align: 0;\n}\n[dir=rtl] .mat-mdc-dialog-title {\n  text-align: right;\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-title {\n  color: var(--%NS%mat-dialog-subhead-color, var(--%NS%mat-sys-on-surface, rgba(0, 0, 0, 0.87)));\n  font-family: var(--%NS%mat-dialog-subhead-font, var(--%NS%mat-sys-headline-small-font, inherit));\n  line-height: var(--%NS%mat-dialog-subhead-line-height, var(--%NS%mat-sys-headline-small-line-height, 1.5rem));\n  font-size: var(--%NS%mat-dialog-subhead-size, var(--%NS%mat-sys-headline-small-size, 1rem));\n  font-weight: var(--%NS%mat-dialog-subhead-weight, var(--%NS%mat-sys-headline-small-weight, 400));\n  letter-spacing: var(--%NS%mat-dialog-subhead-tracking, var(--%NS%mat-sys-headline-small-tracking, 0.03125em));\n}\n\n.mat-mdc-dialog-content {\n  display: block;\n  flex-grow: 1;\n  box-sizing: border-box;\n  margin: 0;\n  overflow: auto;\n  max-height: 65vh;\n}\n.mat-mdc-dialog-content > :first-child {\n  margin-top: 0;\n}\n.mat-mdc-dialog-content > :last-child {\n  margin-bottom: 0;\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-content {\n  color: var(--%NS%mat-dialog-supporting-text-color, var(--%NS%mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6)));\n  font-family: var(--%NS%mat-dialog-supporting-text-font, var(--%NS%mat-sys-body-medium-font, inherit));\n  line-height: var(--%NS%mat-dialog-supporting-text-line-height, var(--%NS%mat-sys-body-medium-line-height, 1.5rem));\n  font-size: var(--%NS%mat-dialog-supporting-text-size, var(--%NS%mat-sys-body-medium-size, 1rem));\n  font-weight: var(--%NS%mat-dialog-supporting-text-weight, var(--%NS%mat-sys-body-medium-weight, 400));\n  letter-spacing: var(--%NS%mat-dialog-supporting-text-tracking, var(--%NS%mat-sys-body-medium-tracking, 0.03125em));\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-content {\n  padding: var(--%NS%mat-dialog-content-padding, 20px 24px);\n}\n.mat-mdc-dialog-container-with-actions .mat-mdc-dialog-content {\n  padding: var(--%NS%mat-dialog-with-actions-content-padding, 20px 24px 0);\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content {\n  padding-top: 0;\n}\n\n.mat-mdc-dialog-actions {\n  display: flex;\n  position: relative;\n  flex-shrink: 0;\n  flex-wrap: wrap;\n  align-items: center;\n  box-sizing: border-box;\n  min-height: 52px;\n  margin: 0;\n  border-top: 1px solid transparent;\n  padding: var(--%NS%mat-dialog-actions-padding, 16px 24px);\n  justify-content: var(--%NS%mat-dialog-actions-alignment, flex-end);\n}\n@media (forced-colors: active) {\n  .mat-mdc-dialog-actions {\n    border-top-color: CanvasText;\n  }\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-start, .mat-mdc-dialog-actions[align=start] {\n  justify-content: start;\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-center, .mat-mdc-dialog-actions[align=center] {\n  justify-content: center;\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-end, .mat-mdc-dialog-actions[align=end] {\n  justify-content: flex-end;\n}\n.mat-mdc-dialog-actions .mat-button-base + .mat-button-base,\n.mat-mdc-dialog-actions .mat-mdc-button-base + .mat-mdc-button-base {\n  margin-left: 8px;\n}\n[dir=rtl] .mat-mdc-dialog-actions .mat-button-base + .mat-button-base,\n[dir=rtl] .mat-mdc-dialog-actions .mat-mdc-button-base + .mat-mdc-button-base {\n  margin-left: 0;\n  margin-right: 8px;\n}\n\n.mat-mdc-dialog-component-host {\n  display: contents;\n}\n'],
     encapsulation: 2,
     changeDetection: 1
   });
@@ -55143,6 +55895,9 @@ var MatDialog = class _MatDialog {
         }, {
           provide: this._dialogRefConstructor,
           useValue: dialogRef
+        }, {
+          provide: DialogRef,
+          useValue: null
         }];
       }
     }));
@@ -57399,7 +58154,7 @@ var AsyncHandler = _AsyncHandler;
 
 // node_modules/@angular/forms/fesm2022/forms.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -57975,7 +58730,7 @@ var ngModelWithFormGroupExample = `
       <input [(ngModel)]="showMoreControls" [ngModelOptions]="{standalone: true}">
   </div>
 `;
-var VERSION3 = /* @__PURE__ */ new Version("22.0.1");
+var VERSION3 = /* @__PURE__ */ new Version("22.1.5");
 function controlParentException(nameOrIndex) {
   return new RuntimeError(1050, `formControlName must be used with a parent formGroup or formArray directive. You'll want to add a formGroup/formArray
       directive and pass it an existing FormGroup/FormArray instance (you can create one in your class).
@@ -58642,6 +59397,16 @@ function hasOwnControl(controls, name) {
 function isNativeFormElement2(element) {
   return element.tagName === "INPUT" || element.tagName === "SELECT" || element.tagName === "TEXTAREA";
 }
+function elementAcceptsMinMax(element) {
+  if (element.tagName !== "INPUT") {
+    return false;
+  }
+  const type = element.type;
+  return type === "number" || type === "range" || type === "date" || type === "month";
+}
+function isTextualFormElement(element) {
+  return element.tagName === "INPUT" || element.tagName === "TEXTAREA";
+}
 function setNativeDomProperty(renderer, element, name, value) {
   switch (name) {
     case "name":
@@ -59268,7 +60033,7 @@ function _throwInvalidValueAccessorError(dir) {
   throw new RuntimeError(1200, `Value accessor was not provided as an array for form control with ${loc}. Check that the \`NG_VALUE_ACCESSOR\` token is configured as a \`multi: true\` provider.`);
 }
 function isPropertyUpdated(changes, viewModel) {
-  if (!changes.hasOwnProperty("model")) return false;
+  if (!Object.hasOwn(changes, "model")) return false;
   const change = changes["model"];
   if (change.isFirstChange()) return true;
   return !Object.is(viewModel, change.currentValue);
@@ -60182,6 +60947,9 @@ function formGroupNameException() {
 
     ${ngModelGroupExample}`);
 }
+function ngModelInChildComponentWarning(containerTypeName) {
+  return formatRuntimeError(-1354, `ngModel on a form control inside a child component cannot register with the ${containerTypeName} in the parent component because @Host() stops injection at the component boundary. To register this control with the parent form, add viewProviders to the child component: @Component({ ..., viewProviders: [{ provide: ControlContainer, useExisting: ${containerTypeName} }] }). Or, to opt out of form registration, use [ngModelOptions]="{standalone: true}".`);
+}
 function missingNameException() {
   return new RuntimeError(1352, `If ngModel is used within a form tag, either the name attribute must be set or the form
     control must be defined as 'standalone' in ngModelOptions.
@@ -60275,6 +61043,266 @@ var NgModelGroup = class _NgModelGroup extends AbstractFormGroupDirective {
     }]
   });
 })();
+var AbstractFormDirective = class _AbstractFormDirective extends ControlContainer {
+  callSetDisabledState;
+  get submitted() {
+    return untracked2(this._submittedReactive);
+  }
+  set submitted(value) {
+    this._submittedReactive.set(value);
+  }
+  _submitted = computed(() => this._submittedReactive(), ...ngDevMode ? [{
+    debugName: "_submitted"
+  }] : []);
+  _submittedReactive = signal(false, ...ngDevMode ? [{
+    debugName: "_submittedReactive"
+  }] : []);
+  _oldForm;
+  _onCollectionChange = () => this._updateDomValue();
+  directives = [];
+  constructor(validators, asyncValidators, callSetDisabledState) {
+    super();
+    this.callSetDisabledState = callSetDisabledState;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  ngOnChanges(changes) {
+    this.onChanges(changes);
+  }
+  ngOnDestroy() {
+    this.onDestroy();
+  }
+  onChanges(changes) {
+    this._checkFormPresent();
+    if (Object.hasOwn(changes, "form")) {
+      this._updateValidators();
+      this._updateDomValue();
+      this._updateRegistrations();
+      this._oldForm = this.form;
+    }
+  }
+  onDestroy() {
+    if (this.form) {
+      cleanUpValidators(this.form, this);
+      if (this.form._onCollectionChange === this._onCollectionChange) {
+        this.form._registerOnCollectionChange(() => {
+        });
+      }
+    }
+  }
+  get formDirective() {
+    return this;
+  }
+  get path() {
+    return [];
+  }
+  addControl(dir) {
+    const ctrl = this.form.get(dir.path);
+    dir._setupWithForm(ctrl, this.callSetDisabledState);
+    ctrl.updateValueAndValidity({
+      emitEvent: false
+    });
+    this.directives.push(dir);
+    return ctrl;
+  }
+  getControl(dir) {
+    return this.form.get(dir.path);
+  }
+  removeControl(dir) {
+    cleanUpControl(dir.control || null, dir, false);
+    removeListItem$1(this.directives, dir);
+  }
+  addFormGroup(dir) {
+    this._setUpFormContainer(dir);
+  }
+  removeFormGroup(dir) {
+    this._cleanUpFormContainer(dir);
+  }
+  getFormGroup(dir) {
+    return this.form.get(dir.path);
+  }
+  getFormArray(dir) {
+    return this.form.get(dir.path);
+  }
+  addFormArray(dir) {
+    this._setUpFormContainer(dir);
+  }
+  removeFormArray(dir) {
+    this._cleanUpFormContainer(dir);
+  }
+  updateModel(dir, value) {
+    const ctrl = this.form.get(dir.path);
+    ctrl.setValue(value);
+  }
+  onReset() {
+    this.resetForm();
+  }
+  resetForm(value = void 0, options2 = {}) {
+    this.form.reset(value, options2);
+    this._submittedReactive.set(false);
+  }
+  onSubmit($event) {
+    var _a10;
+    this.submitted = true;
+    syncPendingControls(this.form, this.directives);
+    this.ngSubmit.emit($event);
+    this.form._events.next(new FormSubmittedEvent(this.control));
+    return ((_a10 = $event == null ? void 0 : $event.target) == null ? void 0 : _a10.method) === "dialog";
+  }
+  _updateDomValue() {
+    this.directives.forEach((dir) => {
+      const oldCtrl = dir.control;
+      const newCtrl = this.form.get(dir.path);
+      if (oldCtrl !== newCtrl) {
+        cleanUpControl(oldCtrl || null, dir);
+        if (isFormControl(newCtrl)) {
+          dir._setupWithForm(newCtrl, this.callSetDisabledState);
+        }
+      }
+    });
+    this.form._updateTreeValidity({
+      emitEvent: false
+    });
+  }
+  _setUpFormContainer(dir) {
+    const ctrl = this.form.get(dir.path);
+    setUpFormContainer(ctrl, dir);
+    ctrl.updateValueAndValidity({
+      emitEvent: false
+    });
+  }
+  _cleanUpFormContainer(dir) {
+    var _a10;
+    const ctrl = (_a10 = this.form) == null ? void 0 : _a10.get(dir.path);
+    if (ctrl) {
+      const isControlUpdated = cleanUpFormContainer(ctrl, dir);
+      if (isControlUpdated) {
+        ctrl.updateValueAndValidity({
+          emitEvent: false
+        });
+      }
+    }
+  }
+  _updateRegistrations() {
+    var _a10;
+    this.form._registerOnCollectionChange(this._onCollectionChange);
+    (_a10 = this._oldForm) == null ? void 0 : _a10._registerOnCollectionChange(() => {
+    });
+  }
+  _updateValidators() {
+    setUpValidators(this.form, this);
+    if (this._oldForm) {
+      cleanUpValidators(this._oldForm, this);
+    }
+  }
+  _checkFormPresent() {
+    if (!this.form && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw missingFormException();
+    }
+  }
+  static \u0275fac = function AbstractFormDirective_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _AbstractFormDirective)(\u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _AbstractFormDirective,
+    features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AbstractFormDirective, [{
+    type: Directive
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [CALL_SET_DISABLED_STATE]
+    }]
+  }], null);
+})();
+var formDirectiveProvider$1 = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => FormGroupDirective)
+};
+var FormGroupDirective = class _FormGroupDirective extends AbstractFormDirective {
+  form = null;
+  ngSubmit = new EventEmitter();
+  get control() {
+    return this.form;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275FormGroupDirective_BaseFactory;
+    return function FormGroupDirective_Factory(__ngFactoryType__) {
+      return (\u0275FormGroupDirective_BaseFactory || (\u0275FormGroupDirective_BaseFactory = \u0275\u0275getInheritedFactory(_FormGroupDirective)))(__ngFactoryType__ || _FormGroupDirective);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormGroupDirective,
+    selectors: [["", "formGroup", ""]],
+    hostBindings: function FormGroupDirective_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("submit", function FormGroupDirective_submit_HostBindingHandler($event) {
+          return ctx.onSubmit($event);
+        })("reset", function FormGroupDirective_reset_HostBindingHandler() {
+          return ctx.onReset();
+        });
+      }
+    },
+    inputs: {
+      form: [0, "formGroup", "form"]
+    },
+    outputs: {
+      ngSubmit: "ngSubmit"
+    },
+    exportAs: ["ngForm"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formDirectiveProvider$1]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormGroupDirective, [{
+    type: Directive,
+    args: [{
+      selector: "[formGroup]",
+      providers: [formDirectiveProvider$1],
+      host: {
+        "(submit)": "onSubmit($event)",
+        "(reset)": "onReset()"
+      },
+      exportAs: "ngForm",
+      standalone: false
+    }]
+  }], null, {
+    form: [{
+      type: Input,
+      args: ["formGroup"]
+    }],
+    ngSubmit: [{
+      type: Output
+    }]
+  });
+})();
 var formControlBinding$1 = {
   provide: NgControl,
   useExisting: forwardRef(() => NgModel)
@@ -60286,6 +61314,7 @@ var NgModel = class _NgModel extends NgControl {
   control = new FormControl();
   static ngAcceptInputType_isDisabled;
   _registered = false;
+  _ngModelInjector;
   viewModel;
   name = "";
   isDisabled;
@@ -60297,10 +61326,21 @@ var NgModel = class _NgModel extends NgControl {
     this._changeDetectorRef = _changeDetectorRef;
     this.callSetDisabledState = callSetDisabledState;
     this._parent = parent;
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      this._ngModelInjector = injector;
+    }
     this._setValidators(validators);
     this._setAsyncValidators(asyncValidators);
   }
   ngOnChanges(changes) {
+    var _a10, _b4;
+    if (!this._registered && (typeof ngDevMode === "undefined" || ngDevMode) && this._parent === null && !((_a10 = this.options) == null ? void 0 : _a10.standalone)) {
+      const parentContainer = (_b4 = this._ngModelInjector) == null ? void 0 : _b4.get(ControlContainer, null);
+      if (parentContainer != null) {
+        const typeName = parentContainer instanceof NgForm ? "NgForm" : parentContainer instanceof FormGroupDirective ? "FormGroupDirective" : parentContainer instanceof NgModelGroup ? "NgModelGroup" : parentContainer.constructor.name || "ControlContainer";
+        console.warn(ngModelInChildComponentWarning(typeName));
+      }
+    }
     this._checkForErrors();
     if (!this._registered || "name" in changes) {
       if (this._registered) {
@@ -60678,6 +61718,13 @@ var RadioControlValueAccessor = class _RadioControlValueAccessor extends BuiltIn
     this._registry = _registry;
     this._injector = _injector;
   }
+  ngOnChanges(changes) {
+    var _a10;
+    const control = (_a10 = this._control) == null ? void 0 : _a10.control;
+    if (changes["value"] && control) {
+      this.writeValue(control.value);
+    }
+  }
   ngOnInit() {
     this._control = this._injector.get(NgControl);
     this._checkName();
@@ -60733,7 +61780,7 @@ var RadioControlValueAccessor = class _RadioControlValueAccessor extends BuiltIn
       value: "value"
     },
     standalone: false,
-    features: [\u0275\u0275ProvidersFeature([RADIO_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+    features: [\u0275\u0275ProvidersFeature([RADIO_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature]
   });
 };
 (() => {
@@ -60977,205 +62024,7 @@ var FormArray = class extends AbstractControl {
     return this.at(name) ?? null;
   }
 };
-var AbstractFormDirective = class _AbstractFormDirective extends ControlContainer {
-  callSetDisabledState;
-  get submitted() {
-    return untracked2(this._submittedReactive);
-  }
-  set submitted(value) {
-    this._submittedReactive.set(value);
-  }
-  _submitted = computed(() => this._submittedReactive(), ...ngDevMode ? [{
-    debugName: "_submitted"
-  }] : []);
-  _submittedReactive = signal(false, ...ngDevMode ? [{
-    debugName: "_submittedReactive"
-  }] : []);
-  _oldForm;
-  _onCollectionChange = () => this._updateDomValue();
-  directives = [];
-  constructor(validators, asyncValidators, callSetDisabledState) {
-    super();
-    this.callSetDisabledState = callSetDisabledState;
-    this._setValidators(validators);
-    this._setAsyncValidators(asyncValidators);
-  }
-  ngOnChanges(changes) {
-    this.onChanges(changes);
-  }
-  ngOnDestroy() {
-    this.onDestroy();
-  }
-  onChanges(changes) {
-    this._checkFormPresent();
-    if (changes.hasOwnProperty("form")) {
-      this._updateValidators();
-      this._updateDomValue();
-      this._updateRegistrations();
-      this._oldForm = this.form;
-    }
-  }
-  onDestroy() {
-    if (this.form) {
-      cleanUpValidators(this.form, this);
-      if (this.form._onCollectionChange === this._onCollectionChange) {
-        this.form._registerOnCollectionChange(() => {
-        });
-      }
-    }
-  }
-  get formDirective() {
-    return this;
-  }
-  get path() {
-    return [];
-  }
-  addControl(dir) {
-    const ctrl = this.form.get(dir.path);
-    dir._setupWithForm(ctrl, this.callSetDisabledState);
-    ctrl.updateValueAndValidity({
-      emitEvent: false
-    });
-    this.directives.push(dir);
-    return ctrl;
-  }
-  getControl(dir) {
-    return this.form.get(dir.path);
-  }
-  removeControl(dir) {
-    cleanUpControl(dir.control || null, dir, false);
-    removeListItem$1(this.directives, dir);
-  }
-  addFormGroup(dir) {
-    this._setUpFormContainer(dir);
-  }
-  removeFormGroup(dir) {
-    this._cleanUpFormContainer(dir);
-  }
-  getFormGroup(dir) {
-    return this.form.get(dir.path);
-  }
-  getFormArray(dir) {
-    return this.form.get(dir.path);
-  }
-  addFormArray(dir) {
-    this._setUpFormContainer(dir);
-  }
-  removeFormArray(dir) {
-    this._cleanUpFormContainer(dir);
-  }
-  updateModel(dir, value) {
-    const ctrl = this.form.get(dir.path);
-    ctrl.setValue(value);
-  }
-  onReset() {
-    this.resetForm();
-  }
-  resetForm(value = void 0, options2 = {}) {
-    this.form.reset(value, options2);
-    this._submittedReactive.set(false);
-  }
-  onSubmit($event) {
-    var _a10;
-    this.submitted = true;
-    syncPendingControls(this.form, this.directives);
-    this.ngSubmit.emit($event);
-    this.form._events.next(new FormSubmittedEvent(this.control));
-    return ((_a10 = $event == null ? void 0 : $event.target) == null ? void 0 : _a10.method) === "dialog";
-  }
-  _updateDomValue() {
-    this.directives.forEach((dir) => {
-      const oldCtrl = dir.control;
-      const newCtrl = this.form.get(dir.path);
-      if (oldCtrl !== newCtrl) {
-        cleanUpControl(oldCtrl || null, dir);
-        if (isFormControl(newCtrl)) {
-          dir._setupWithForm(newCtrl, this.callSetDisabledState);
-        }
-      }
-    });
-    this.form._updateTreeValidity({
-      emitEvent: false
-    });
-  }
-  _setUpFormContainer(dir) {
-    const ctrl = this.form.get(dir.path);
-    setUpFormContainer(ctrl, dir);
-    ctrl.updateValueAndValidity({
-      emitEvent: false
-    });
-  }
-  _cleanUpFormContainer(dir) {
-    var _a10;
-    const ctrl = (_a10 = this.form) == null ? void 0 : _a10.get(dir.path);
-    if (ctrl) {
-      const isControlUpdated = cleanUpFormContainer(ctrl, dir);
-      if (isControlUpdated) {
-        ctrl.updateValueAndValidity({
-          emitEvent: false
-        });
-      }
-    }
-  }
-  _updateRegistrations() {
-    var _a10;
-    this.form._registerOnCollectionChange(this._onCollectionChange);
-    (_a10 = this._oldForm) == null ? void 0 : _a10._registerOnCollectionChange(() => {
-    });
-  }
-  _updateValidators() {
-    setUpValidators(this.form, this);
-    if (this._oldForm) {
-      cleanUpValidators(this._oldForm, this);
-    }
-  }
-  _checkFormPresent() {
-    if (!this.form && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throw missingFormException();
-    }
-  }
-  static \u0275fac = function AbstractFormDirective_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _AbstractFormDirective)(\u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8));
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _AbstractFormDirective,
-    features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AbstractFormDirective, [{
-    type: Directive
-  }], () => [{
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Self
-    }, {
-      type: Inject,
-      args: [NG_VALIDATORS]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Self
-    }, {
-      type: Inject,
-      args: [NG_ASYNC_VALIDATORS]
-    }]
-  }, {
-    type: void 0,
-    decorators: [{
-      type: Optional
-    }, {
-      type: Inject,
-      args: [CALL_SET_DISABLED_STATE]
-    }]
-  }], null);
-})();
-var formDirectiveProvider$1 = {
+var formDirectiveProvider = {
   provide: ControlContainer,
   useExisting: forwardRef(() => FormArrayDirective)
 };
@@ -61211,7 +62060,7 @@ var FormArrayDirective = class _FormArrayDirective extends AbstractFormDirective
     },
     exportAs: ["ngForm"],
     standalone: false,
-    features: [\u0275\u0275ProvidersFeature([formDirectiveProvider$1]), \u0275\u0275InheritDefinitionFeature]
+    features: [\u0275\u0275ProvidersFeature([formDirectiveProvider]), \u0275\u0275InheritDefinitionFeature]
   });
 };
 (() => {
@@ -61219,7 +62068,7 @@ var FormArrayDirective = class _FormArrayDirective extends AbstractFormDirective
     type: Directive,
     args: [{
       selector: "[formArray]",
-      providers: [formDirectiveProvider$1],
+      providers: [formDirectiveProvider],
       host: {
         "(submit)": "onSubmit($event)",
         "(reset)": "onReset()"
@@ -61304,7 +62153,7 @@ var FormControlDirective = class _FormControlDirective extends NgControl {
     this.update.emit(newValue);
   }
   _isControlChanged(changes) {
-    return changes.hasOwnProperty("form");
+    return Object.hasOwn(changes, "form");
   }
   \u0275ngControlCreate(host) {
     super.ngControlCreate(host);
@@ -61766,68 +62615,6 @@ function checkParentType(parent, name) {
     throw controlParentException(name);
   }
 }
-var formDirectiveProvider = {
-  provide: ControlContainer,
-  useExisting: forwardRef(() => FormGroupDirective)
-};
-var FormGroupDirective = class _FormGroupDirective extends AbstractFormDirective {
-  form = null;
-  ngSubmit = new EventEmitter();
-  get control() {
-    return this.form;
-  }
-  static \u0275fac = /* @__PURE__ */ (() => {
-    let \u0275FormGroupDirective_BaseFactory;
-    return function FormGroupDirective_Factory(__ngFactoryType__) {
-      return (\u0275FormGroupDirective_BaseFactory || (\u0275FormGroupDirective_BaseFactory = \u0275\u0275getInheritedFactory(_FormGroupDirective)))(__ngFactoryType__ || _FormGroupDirective);
-    };
-  })();
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _FormGroupDirective,
-    selectors: [["", "formGroup", ""]],
-    hostBindings: function FormGroupDirective_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("submit", function FormGroupDirective_submit_HostBindingHandler($event) {
-          return ctx.onSubmit($event);
-        })("reset", function FormGroupDirective_reset_HostBindingHandler() {
-          return ctx.onReset();
-        });
-      }
-    },
-    inputs: {
-      form: [0, "formGroup", "form"]
-    },
-    outputs: {
-      ngSubmit: "ngSubmit"
-    },
-    exportAs: ["ngForm"],
-    standalone: false,
-    features: [\u0275\u0275ProvidersFeature([formDirectiveProvider]), \u0275\u0275InheritDefinitionFeature]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormGroupDirective, [{
-    type: Directive,
-    args: [{
-      selector: "[formGroup]",
-      providers: [formDirectiveProvider],
-      host: {
-        "(submit)": "onSubmit($event)",
-        "(reset)": "onReset()"
-      },
-      exportAs: "ngForm",
-      standalone: false
-    }]
-  }], null, {
-    form: [{
-      type: Input,
-      args: ["formGroup"]
-    }],
-    ngSubmit: [{
-      type: Output
-    }]
-  });
-})();
 var SELECT_VALUE_ACCESSOR = {
   provide: NG_VALUE_ACCESSOR,
   useExisting: forwardRef(() => SelectControlValueAccessor),
@@ -63139,6 +63926,7 @@ var SIGNAGE_MANAGER = {
   CREATE_NEW_DISPLAY: "Create new display",
   CREATE_NEW_PLAYLIST: "Create new playlist",
   CREATE_NEW_TEMPLATE: "Create new template",
+  CREATE_NEW_ZONE: "Create new zone",
   CUSTOM_SCHEDULE: "Custom schedule",
   DAYS_OF_MONTH_ARIA: "Recurring schedule days of month",
   DAYS_OF_WEEK_ARIA: "Recurring schedule days of week",
@@ -63153,7 +63941,11 @@ var SIGNAGE_MANAGER = {
   DELETE_SELECTED_DISPLAY: "Delete selected display",
   DELETE_SELECTED_PLAYLIST: "Delete selected playlist",
   DELETE_SELECTED_TEMPLATE: "Delete selected template",
+  DELETE_SELECTED_ZONE: "Delete selected zone",
+  DELETE_TAGGED_MEDIA: "Also delete tagged media",
+  DELETE_TAGGED_MEDIA_HINT: "This removes every media item that uses this tag. In a group, shared media is unlinked from that group.",
   DELETE_TEMPLATE_TOOLTIP: "Delete template",
+  DELETE_ZONE_TOOLTIP: "Delete zone",
   DENIED: "\xB7 Denied",
   DISPLAYS_COUNT: "Displays ({{ count }})",
   DISPLAYS_COUNT_1: "Display ({{ count }})",
@@ -63183,7 +63975,9 @@ var SIGNAGE_MANAGER = {
   EDIT_SELECTED_DISPLAY: "Edit selected display",
   EDIT_SELECTED_PLAYLIST: "Edit selected playlist",
   EDIT_SELECTED_TEMPLATE: "Edit selected template",
+  EDIT_SELECTED_ZONE: "Edit selected zone",
   EDIT_TEMPLATE_TOOLTIP: "Edit template",
+  EDIT_ZONE_TOOLTIP: "Edit zone",
   EDIT_USER_PERMS: "Edit user permissions",
   EDIT_ZONE_PERMS: "Edit zone permissions",
   EVERY_DAY: "Every day",
@@ -63224,6 +64018,7 @@ var SIGNAGE_MANAGER = {
   MEDIA_SAVE_SUCCESS: "Successfully saved media item.",
   MEDIA_SAVING: "Saving Media Item...",
   MEDIA_SEARCH: "Search",
+  MEDIA_TAG_ACTIONS: "Actions for the {{ tag }} tag",
   MEDIA_TITLE: "Signage Media",
   MEDIA_URL_ARIA: "Media URL",
   MEDIA_VIEW_ARIA: "Media view mode",
@@ -63244,6 +64039,7 @@ var SIGNAGE_MANAGER = {
   NEW_DISPLAY: "New Display",
   NEW_PLAYLIST: "New Playlist",
   NEW_TEMPLATE: "New Template",
+  NEW_ZONE: "New Zone",
   NEXT_5_PLAYS: "Next 5 Plays",
   NEXT_DAY: "Next day",
   NEXT_WEEK: "Next week",
@@ -63341,11 +64137,15 @@ var SIGNAGE_MANAGER = {
   PREV_WEEK_ARIA: "Show previous week",
   PRIMARY_NAV: "Primary navigation",
   RECURRING_SCHEDULE: "Recurring schedule",
+  RENAME_MEDIA_TAG: "Rename tag",
   REMOVE_DISPLAY: "Remove display",
   REMOVE_DISPLAY_FROM_PLAYLIST: "Remove display {{ name }} from playlist",
   REMOVE_DISPLAY_ZONE: "Remove zone {{ name }} from display",
   REMOVE_FROM_PLAYLIST: "Remove from Playlist",
   REMOVE_GROUP_TOOLTIP: "Remove group",
+  REMOVE_MEDIA_TAG: "Remove tag",
+  REMOVE_MEDIA_TAG_DESCRIPTION: 'Remove the "{{ tag }}" tag from {{ count }} media items?',
+  REMOVE_MEDIA_TAG_DESCRIPTION_1: 'Remove the "{{ tag }}" tag from {{ count }} media item?',
   REMOVE_PLAYLIST_FROM_DISPLAY: "Remove playlist {{ name }} from display",
   REMOVE_PLAYLIST_FROM_ZONE: "Remove playlist {{ name }} from zone",
   REMOVE_PLAYLIST_TOOLTIP: "Remove playlist",
@@ -63457,6 +64257,9 @@ var SIGNAGE_MANAGER = {
   SVC_ITEM_REMOVED: "Item removed from playlist",
   SVC_MEDIA_ALREADY_IN: "Selected media is already in this playlist.",
   SVC_MEDIA_REMOVED: "Media removed",
+  SVC_MEDIA_TAG_ERROR: "Unable to update tag: {{ error }}",
+  SVC_MEDIA_TAG_REMOVED: "Tag removed",
+  SVC_MEDIA_TAG_RENAMED: "Tag renamed",
   SVC_MEDIA_SHARED: "Media shared",
   SVC_MEDIA_UPLOAD_CANCELLED: "Media upload was cancelled.",
   SVC_MEDIA_UPLOAD_FAILED: "Media upload failed. Please try again.",
@@ -63467,6 +64270,7 @@ var SIGNAGE_MANAGER = {
   SVC_NO_CREATE_MEDIA: "You cannot create media in this group.",
   SVC_NO_CREATE_PLAYLISTS: "You cannot create playlists in this group.",
   SVC_NO_CREATE_TEMPLATES: "You cannot create templates in this group.",
+  SVC_NO_MANAGE_ZONES: "Only system administrators and signage group managers can manage zones.",
   SVC_NO_DELETE_DISPLAYS: "Only system administrators can delete displays.",
   SVC_NO_DELETE_MEDIA: "You cannot delete media in this group.",
   SVC_NO_DELETE_PLAYLISTS: "You cannot delete playlists in this group.",
@@ -63494,6 +64298,7 @@ var SIGNAGE_MANAGER = {
   SVC_PLAYLIST_UPDATED: "Playlist updated",
   SVC_REMOVE_DISPLAY_TITLE: "Remove display?",
   SVC_REMOVE_GROUP_TITLE: "Remove signage group?",
+  SVC_REMOVE_SIGNAGE_ZONE_TITLE: "Remove signage zone?",
   SVC_REMOVE_MEDIA_TITLE: "Remove media?",
   SVC_REMOVE_NAMED_FROM_GROUP: 'Remove "{{ name }}" from this group?',
   SVC_REMOVE_PLAYLIST_ITEMS_TITLE: "Remove playlist items?",
@@ -63529,11 +64334,14 @@ var SIGNAGE_MANAGER = {
   SVC_ZONE_REMOVED: "Group zone removed",
   SVC_ZONE_REMOVED_PLAYLIST: "Zone removed from playlist",
   SVC_ZONE_UPDATED: "Group zone updated",
+  SVC_SIGNAGE_ZONE_REMOVED: "Signage zone removed",
+  SVC_SIGNAGE_ZONE_SAVED: "Signage zone saved",
   TAB_ITEMS: "Items",
   TAB_USERS: "Users",
   TAB_ZONES: "Zones",
   TAKEOVER_PLAYBACK: "Takeover playback",
   TAKEOVER_SUFFIX: " \xB7 takeover",
+  TAG_NAME: "Tag name",
   TEMPLATES_PAGE_TITLE: "Signage Templates",
   TEMPLATE_ADD_LAYOUT: "Add layout",
   TEMPLATE_APPROVED: "Template approved",
@@ -63627,7 +64435,13 @@ var SIGNAGE_MANAGER = {
   ZONE_COUNT_LABEL: "{{ count }} zones",
   ZONE_COUNT_LABEL_1: "{{ count }} zone",
   ZONE_DETAILS_TABS: "Zone details tabs",
+  ZONE_EDIT: "Edit Zone",
+  ZONE_NAME_ARIA: "Zone name",
+  ZONE_PARENT: "Parent zone",
+  ZONE_PARENT_HINT: "Select a parent from the zones available to the active signage group.",
+  ZONE_PARENT_REQUIRED: "Parent zone is required",
   ZONE_PERMISSIONS: "Zone permissions",
+  ZONE_SAVING: "Saving zone...",
   ZONE_SELECT_DETAILS: "Select a zone to view its details."
 };
 var COMMON = {
@@ -65874,7 +66688,7 @@ var en_AU_default = {
 };
 
 // node_modules/@placeos/ts-client/dist/index.es.js
-var ce = [
+var he = [
   "A",
   "B",
   "C",
@@ -66076,8 +66890,8 @@ function St(t) {
 function ts(t) {
   let e = "", n, s = t.length;
   for (n = 2; n < s; n += 3)
-    e += ce[t[n - 2] >> 2], e += ce[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ce[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ce[t[n] & 63];
-  return n === s + 1 && (e += ce[t[n - 2] >> 2], e += ce[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ce[t[n - 2] >> 2], e += ce[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ce[(t[n - 1] & 15) << 2], e += "="), e;
+    e += he[t[n - 2] >> 2], e += he[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += he[(t[n - 1] & 15) << 2 | t[n] >> 6], e += he[t[n] & 63];
+  return n === s + 1 && (e += he[t[n - 2] >> 2], e += he[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += he[t[n - 2] >> 2], e += he[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += he[(t[n - 1] & 15) << 2], e += "="), e;
 }
 function Gs(t) {
   if (t.length % 4 !== 0)
@@ -66173,15 +66987,15 @@ function Qs() {
         3204031479,
         3329325298
       ]);
-      function s(v, c2, l, d, C2) {
-        for (var P2, U2, k, Q2, D2, E2, se, H2, j, z, We, Qe, kt; C2 >= 64; ) {
-          for (P2 = c2[0], U2 = c2[1], k = c2[2], Q2 = c2[3], D2 = c2[4], E2 = c2[5], se = c2[6], H2 = c2[7], z = 0; z < 16; z++)
+      function s(v, c2, l, d, O2) {
+        for (var P2, U2, k, Q2, D2, E2, re, H2, j, z, We, Qe, kt; O2 >= 64; ) {
+          for (P2 = c2[0], U2 = c2[1], k = c2[2], Q2 = c2[3], D2 = c2[4], E2 = c2[5], re = c2[6], H2 = c2[7], z = 0; z < 16; z++)
             We = d + z * 4, v[z] = (l[We] & 255) << 24 | (l[We + 1] & 255) << 16 | (l[We + 2] & 255) << 8 | l[We + 3] & 255;
           for (z = 16; z < 64; z++)
             j = v[z - 2], Qe = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = v[z - 15], kt = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, v[z] = (Qe + v[z - 7] | 0) + (kt + v[z - 16] | 0);
           for (z = 0; z < 64; z++)
-            Qe = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & se) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, kt = ((P2 >>> 2 | P2 << 30) ^ (P2 >>> 13 | P2 << 19) ^ (P2 >>> 22 | P2 << 10)) + (P2 & U2 ^ P2 & k ^ U2 & k) | 0, H2 = se, se = E2, E2 = D2, D2 = Q2 + Qe | 0, Q2 = k, k = U2, U2 = P2, P2 = Qe + kt | 0;
-          c2[0] += P2, c2[1] += U2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, d += 64, C2 -= 64;
+            Qe = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & re) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, kt = ((P2 >>> 2 | P2 << 30) ^ (P2 >>> 13 | P2 << 19) ^ (P2 >>> 22 | P2 << 10)) + (P2 & U2 ^ P2 & k ^ U2 & k) | 0, H2 = re, re = E2, E2 = D2, D2 = Q2 + Qe | 0, Q2 = k, k = U2, U2 = P2, P2 = Qe + kt | 0;
+          c2[0] += P2, c2[1] += U2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += re, c2[7] += H2, d += 64, O2 -= 64;
         }
         return d;
       }
@@ -66213,11 +67027,11 @@ function Qs() {
             return this;
           }, v.prototype.finish = function(c2) {
             if (!this.finished) {
-              var l = this.bytesHashed, d = this.bufferLength, C2 = l / 536870912 | 0, P2 = l << 3, U2 = l % 64 < 56 ? 64 : 128;
+              var l = this.bytesHashed, d = this.bufferLength, O2 = l / 536870912 | 0, P2 = l << 3, U2 = l % 64 < 56 ? 64 : 128;
               this.buffer[d] = 128;
               for (var k = d + 1; k < U2 - 8; k++)
                 this.buffer[k] = 0;
-              this.buffer[U2 - 8] = C2 >>> 24 & 255, this.buffer[U2 - 7] = C2 >>> 16 & 255, this.buffer[U2 - 6] = C2 >>> 8 & 255, this.buffer[U2 - 5] = C2 >>> 0 & 255, this.buffer[U2 - 4] = P2 >>> 24 & 255, this.buffer[U2 - 3] = P2 >>> 16 & 255, this.buffer[U2 - 2] = P2 >>> 8 & 255, this.buffer[U2 - 1] = P2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, U2), this.finished = true;
+              this.buffer[U2 - 8] = O2 >>> 24 & 255, this.buffer[U2 - 7] = O2 >>> 16 & 255, this.buffer[U2 - 6] = O2 >>> 8 & 255, this.buffer[U2 - 5] = O2 >>> 0 & 255, this.buffer[U2 - 4] = P2 >>> 24 & 255, this.buffer[U2 - 3] = P2 >>> 16 & 255, this.buffer[U2 - 2] = P2 >>> 8 & 255, this.buffer[U2 - 1] = P2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, U2), this.finished = true;
             }
             for (var k = 0; k < 8; k++)
               c2[k * 4 + 0] = this.state[k] >>> 24 & 255, c2[k * 4 + 1] = this.state[k] >>> 16 & 255, c2[k * 4 + 2] = this.state[k] >>> 8 & 255, c2[k * 4 + 3] = this.state[k] >>> 0 & 255;
@@ -66283,28 +67097,28 @@ function Qs() {
         return l.clean(), d;
       }
       e.hmac = h2;
-      function $(v, c2, l, d) {
-        var C2 = d[0];
-        if (C2 === 0)
+      function b(v, c2, l, d) {
+        var O2 = d[0];
+        if (O2 === 0)
           throw new Error("hkdf: cannot expand more");
-        c2.reset(), C2 > 1 && c2.update(v), l && c2.update(l), c2.update(d), c2.finish(v), d[0]++;
+        c2.reset(), O2 > 1 && c2.update(v), l && c2.update(l), c2.update(d), c2.finish(v), d[0]++;
       }
       var L2 = new Uint8Array(e.digestLength);
       function R2(v, c2, l, d) {
         c2 === void 0 && (c2 = L2), d === void 0 && (d = 32);
-        for (var C2 = new Uint8Array([1]), P2 = h2(c2, v), U2 = new r(P2), k = new Uint8Array(U2.digestLength), Q2 = k.length, D2 = new Uint8Array(d), E2 = 0; E2 < d; E2++)
-          Q2 === k.length && ($(k, U2, l, C2), Q2 = 0), D2[E2] = k[Q2++];
-        return U2.clean(), k.fill(0), C2.fill(0), D2;
+        for (var O2 = new Uint8Array([1]), P2 = h2(c2, v), U2 = new r(P2), k = new Uint8Array(U2.digestLength), Q2 = k.length, D2 = new Uint8Array(d), E2 = 0; E2 < d; E2++)
+          Q2 === k.length && (b(k, U2, l, O2), Q2 = 0), D2[E2] = k[Q2++];
+        return U2.clean(), k.fill(0), O2.fill(0), D2;
       }
       e.hkdf = R2;
       function W2(v, c2, l, d) {
-        for (var C2 = new r(v), P2 = C2.digestLength, U2 = new Uint8Array(4), k = new Uint8Array(P2), Q2 = new Uint8Array(P2), D2 = new Uint8Array(d), E2 = 0; E2 * P2 < d; E2++) {
-          var se = E2 + 1;
-          U2[0] = se >>> 24 & 255, U2[1] = se >>> 16 & 255, U2[2] = se >>> 8 & 255, U2[3] = se >>> 0 & 255, C2.reset(), C2.update(c2), C2.update(U2), C2.finish(Q2);
+        for (var O2 = new r(v), P2 = O2.digestLength, U2 = new Uint8Array(4), k = new Uint8Array(P2), Q2 = new Uint8Array(P2), D2 = new Uint8Array(d), E2 = 0; E2 * P2 < d; E2++) {
+          var re = E2 + 1;
+          U2[0] = re >>> 24 & 255, U2[1] = re >>> 16 & 255, U2[2] = re >>> 8 & 255, U2[3] = re >>> 0 & 255, O2.reset(), O2.update(c2), O2.update(U2), O2.finish(Q2);
           for (var H2 = 0; H2 < P2; H2++)
             k[H2] = Q2[H2];
           for (var H2 = 2; H2 <= l; H2++) {
-            C2.reset(), C2.update(Q2).finish(Q2);
+            O2.reset(), O2.update(Q2).finish(Q2);
             for (var j = 0; j < P2; j++)
               k[j] ^= Q2[j];
           }
@@ -66315,7 +67129,7 @@ function Qs() {
           k[E2] = Q2[E2] = 0;
         for (var E2 = 0; E2 < 4; E2++)
           U2[E2] = 0;
-        return C2.clean(), D2;
+        return O2.clean(), D2;
       }
       e.pbkdf2 = W2;
     });
@@ -66481,8 +67295,8 @@ var K2 = class _K {
     else {
       const h2 = o.toString(16).match(/(.*?)(.{0,8})$/);
       if (h2 === null) return e ? Zs : "";
-      const $ = parseInt(h2[2], 16), L2 = parseInt(h2[1], 16) || 0;
-      i[14] = $, i[15] = L2;
+      const b = parseInt(h2[2], 16), L2 = parseInt(h2[1], 16) || 0;
+      i[14] = b, i[15] = L2;
     }
     return _K._md5cycle(this._state, i), e ? this._state : _K._hex(this._state);
   }
@@ -66551,13 +67365,13 @@ function is() {
   if (t)
     if (t.indexOf("?") >= 0) {
       const i = t.split("?");
-      n = Ee(i[0]), e || (e = i[1]);
+      n = Me(i[0]), e || (e = i[1]);
     } else
-      n = Ee(t);
+      n = Me(t);
   let s = {};
-  return e && (s = Ee(e)), __spreadValues(__spreadValues({}, n), s);
+  return e && (s = Me(e)), __spreadValues(__spreadValues({}, n), s);
 }
-function Ee(t) {
+function Me(t) {
   const e = {}, n = t.split("&");
   for (const s of n) {
     const i = s.split("=");
@@ -66586,7 +67400,7 @@ function rs(t = 40) {
     );
   return e;
 }
-function ie(t) {
+function oe(t) {
   var _a10, _b4, _c9, _d2, _e2;
   const e = (((_a10 = window.location) == null ? void 0 : _a10.hash) || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/#&/g, "#").replace(/&$/g, "#"), n = (((_b4 = window.location) == null ? void 0 : _b4.search) || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/\?&/g, "#").replace(/&$/g, "#");
   ((_c9 = window.history) == null ? void 0 : _c9.replaceState) && ((_e2 = window.history) == null ? void 0 : _e2.replaceState(
@@ -66635,7 +67449,7 @@ var oi = class {
     Pt("Stub", "Aborted");
   }
 };
-function b(t) {
+function y(t) {
   let e = "";
   if (t)
     for (const n in t)
@@ -66645,9 +67459,9 @@ function b(t) {
   return e;
 }
 var Ae = {};
-function re(t, e, n = 300) {
+function ue(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    ye(t), Ae[t] = setTimeout(() => {
+    $e(t), Ae[t] = setTimeout(() => {
       e(), delete Ae[t];
     }, n);
   else
@@ -66655,7 +67469,7 @@ function re(t, e, n = 300) {
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function ye(t) {
+function $e(t) {
   Ae[t] && (clearTimeout(Ae[t]), delete Ae[t]);
 }
 function ne(t) {
@@ -66704,10 +67518,10 @@ var w;
 var g = {};
 var I2 = "";
 var be = "";
-var $e = ne("");
+var ve = ne("");
 var Ye = ne("");
 var An = "/api/engine/v2";
-var ge = ne(false);
+var ye = ne(false);
 var qn = ne(false);
 var Rt = 0;
 function os() {
@@ -66715,9 +67529,9 @@ function os() {
   if (!T2) return false;
   if (Ve() && !m.ignore_api_key) return true;
   const t = T2.getItem(`${I2}_expires_at`) || "";
-  return ss(+t, /* @__PURE__ */ new Date()) ? false : !!($e.value || T2.getItem(`${I2}_access_token`));
+  return ss(+t, /* @__PURE__ */ new Date()) ? false : !!(ve.value || T2.getItem(`${I2}_access_token`));
 }
-function Ce() {
+function we() {
   qn.set(os());
 }
 function us(t) {
@@ -66747,14 +67561,14 @@ function Ve() {
   return Et("x-api-key", false) || "";
 }
 function _i(t, e = Vs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  m.ignore_api_key && t === "x-api-key" || (T2.setItem(`${I2}_expires_at`, `${e}`), T2.setItem(`${I2}_access_token`, t), $e.set(t), Ce());
+  m.ignore_api_key && t === "x-api-key" || (T2.setItem(`${I2}_expires_at`, `${e}`), T2.setItem(`${I2}_access_token`, t), ve.set(t), we());
 }
-function X2(t = true) {
+function ee(t = true) {
   if (m.mock) return "mock-token";
   if (!T2) return "";
   if (Ve() && !m.ignore_api_key) return "x-api-key";
-  const e = T2.getItem(`${I2}_expires_at`) || "", n = $e.value;
-  return ss(+e, /* @__PURE__ */ new Date()) && (_("Token expired. Requesting new token..."), Un(), g.load_authority || (Rt += 1, re(
+  const e = T2.getItem(`${I2}_expires_at`) || "", n = ve.value;
+  return ss(+e, /* @__PURE__ */ new Date()) && (_("Token expired. Requesting new token..."), Un(), g.load_authority || (Rt += 1, ue(
     "re-authorise",
     async () => {
       delete g.authorise, await zt().catch(
@@ -66772,13 +67586,13 @@ function xn() {
   return m.host || ((_a10 = window.location) == null ? void 0 : _a10.host);
 }
 function mi() {
-  return Ce(), qn.asReadonly();
+  return we(), qn.asReadonly();
 }
 function It() {
   return w;
 }
 function Qr() {
-  return ge.value;
+  return ye.value;
 }
 function Pn() {
   return !!m.mock;
@@ -66787,7 +67601,7 @@ function gi() {
   return !!m.secure;
 }
 function Kr() {
-  return ge.asReadonly();
+  return ye.asReadonly();
 }
 function Tn() {
   return Et("trust") === "true" || Et("trusted") === "true";
@@ -66808,9 +67622,9 @@ async function Zr(t) {
 }
 var Mt = false;
 function yi() {
-  Mt || (Mt = true, window.addEventListener("focus", Ot), document.addEventListener("visibilitychange", Ot));
+  Mt || (Mt = true, window.addEventListener("focus", Ct), document.addEventListener("visibilitychange", Ct));
 }
-async function Ot() {
+async function Ct() {
   if (document.visibilityState === "hidden" || m.mock || !w || w.session || os()) return;
   if (delete g.check_params, await ls().catch(() => false) || be || Ut()) {
     _("Application focused with new credentials. Authorising..."), Oe = false, delete g.authorise, await zt().catch(
@@ -66826,7 +67640,7 @@ function Rn() {
   return _("Refreshing authorty."), w = void 0, In();
 }
 function Un() {
-  _("Invalidating tokens."), T2.removeItem(`${I2}_access_token`), T2.removeItem(`${I2}_expires_at`), $e.value && $e.set(""), Ce();
+  _("Invalidating tokens."), T2.removeItem(`${I2}_access_token`), T2.removeItem(`${I2}_expires_at`), ve.value && ve.set(""), we();
 }
 function zt(t, e = w) {
   return g.authorise || (g.authorise = new Promise((n, s) => {
@@ -66834,12 +67648,12 @@ function zt(t, e = w) {
       return delete g.authorise, s("Authority is not loaded");
     _("Authorising user...");
     const i = () => {
-      if (X2(false))
-        _("Valid token found."), delete g.authorise, n(X2());
+      if (ee(false))
+        _("Valid token found."), delete g.authorise, n(ee());
       else {
         const r = [
           () => {
-            _("Successfully generated token."), n(X2()), delete g.authorise;
+            _("Successfully generated token."), n(ee()), delete g.authorise;
           },
           () => {
             _.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete g.authorise, 200);
@@ -66856,7 +67670,7 @@ function zt(t, e = w) {
         else if (e.session)
           _(
             "Users has session. Authorising application..."
-          ), $i(t).then(...r);
+          ), bi(t).then(...r);
         else {
           _("No user session"), s("No user session"), setTimeout(() => delete g.authorise, 200);
           try {
@@ -66872,13 +67686,13 @@ function zt(t, e = w) {
 function In(t = 0) {
   return g.load_authority || (g.load_authority = new Promise((e) => {
     var _a10;
-    if (ge.set(false), m.mock) {
-      w = di, _("System in mock mode"), ge.set(true), e();
+    if (ye.set(false), m.mock) {
+      w = di, _("System in mock mode"), ye.set(true), e();
       return;
     }
     _(`Fixed: ${as()} | Trusted: ${Tn()}`), _("Loading authority...");
     const n = m.secure || ((_a10 = window.location) == null ? void 0 : _a10.protocol.indexOf("https")) >= 0, s = (i) => {
-      _.error(`Failed to load authority(${i})`), ge.set(false), re(
+      _.error(`Failed to load authority(${i})`), ye.set(false), ue(
         "load_authority",
         () => {
           delete g.load_authority, In(t).then((r) => e());
@@ -66897,13 +67711,13 @@ function In(t = 0) {
         `Config Keys: ${Object.keys(w.config || {}).length}`
       )), _.groupEnd("");
       const r = () => {
-        ge.set(true), _("Application set online."), e();
+        ye.set(true), _("Application set online."), e();
       };
       delete g.load_authority, zt("").then(r, r);
     }, s);
   })), g.load_authority;
 }
-async function $i(t) {
+async function bi(t) {
   var _a10;
   const e = Si(t);
   if (m.use_iframe)
@@ -66919,26 +67733,26 @@ function vi2(t) {
       var _a10;
       if (o.origin === ((_a10 = window.location) == null ? void 0 : _a10.origin) && o.data.type === "place-os") {
         const h2 = o.data;
-        if (_("Received credentials from iFrame..."), document.body.removeChild(s), ye("iframe_auth"), window.removeEventListener("message", i), delete g.iframe_auth, h2.token)
+        if (_("Received credentials from iFrame..."), document.body.removeChild(s), $e("iframe_auth"), window.removeEventListener("message", i), delete g.iframe_auth, h2.token)
           return e(), En(__spreadValues({
             access_token: h2.token
           }, h2));
         be = h2.code || "", ds().then(
-          ($) => e($),
-          ($) => n($)
+          (b) => e(b),
+          (b) => n(b)
         );
       }
     }, r = () => {
       window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete g.iframe_auth;
     };
-    re(
+    ue(
       "iframe_auth",
       () => {
         _.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      _.error("iFrame error.", o), ye("iframe_auth"), r(), n();
+      _.error("iFrame error.", o), $e("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
   })), g.iframe_auth;
 }
@@ -66963,7 +67777,7 @@ function hs(t) {
 }
 function ki() {
   return g.check_token || (g.check_token = new Promise(async (t, e) => {
-    X2() ? (_("Valid token found."), t(X2())) : (_("No token. Checking URL for auth credentials..."), await ls() ? t(true) : e()), delete g.check_token;
+    ee() ? (_("Valid token found."), t(ee())) : (_("No token. Checking URL for auth credentials..."), await ls() ? t(true) : e()), delete g.check_token;
   })), g.check_token;
 }
 function ls() {
@@ -66974,15 +67788,15 @@ function ls() {
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
     ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
       const n = T2.getItem(`${I2}_nonce`) || "", s = (e.state || "").split(";");
-      ie("state"), ie("token_type");
+      oe("state"), oe("token_type");
       const i = s[0];
-      n === i ? (e.code && (be = e.code, ie("code")), e.refresh_token && (T2.setItem(
+      n === i ? (e.code && (be = e.code, oe("code")), e.refresh_token && (T2.setItem(
         `${I2}_refresh_token`,
         e.refresh_token
-      ), ie("refresh_token")), En(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
+      ), oe("refresh_token")), En(e), t(!!e.access_token)) : (oe("code"), oe("access_token"), oe("refresh_token"), t(false));
     } else
       t(false);
-    re(
+    ue(
       "check_params_promise",
       () => delete g.check_params,
       50
@@ -67018,7 +67832,7 @@ function Ai() {
   return [e, n];
 }
 function qi(t) {
-  const e = t.token_uri || "/auth/token", n = b({
+  const e = t.token_uri || "/auth/token", n = y({
     grant_type: "password",
     client_id: I2,
     client_secret: t.client_secret,
@@ -67040,7 +67854,7 @@ function ps(t, e = "") {
   return g.generate_tokens || (g.generate_tokens = new Promise((n, s) => {
     _("Generating new token...");
     const i = (r) => {
-      _.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T2.removeItem(`${I2}_refresh_token`), Ye.set("")), Ce(), s(), delete g.generate_tokens;
+      _.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T2.removeItem(`${I2}_refresh_token`), Ye.set("")), we(), s(), delete g.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -67063,10 +67877,10 @@ function En(t) {
   _("Tokens generated storing..."), Tn() && (t.access_token && (T2.setItem(
     `${I2}_access_token`,
     t.access_token
-  ), ie("access_token")), t.refresh_token && (T2.setItem(
+  ), oe("access_token")), t.refresh_token && (T2.setItem(
     `${I2}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (T2.setItem(`${I2}_expires_at`, `${e.valueOf()}`), ie("expires_in")), ge.set(true), $e.set(t.access_token || ""), Ye.set(t.refresh_token || ""), Ce();
+  ), oe("refresh_token"))), t.expires_in && (T2.setItem(`${I2}_expires_at`, `${e.valueOf()}`), oe("expires_in")), ye.set(true), ve.set(t.access_token || ""), Ye.set(t.refresh_token || ""), we();
 }
 function Ti() {
   const t = rs();
@@ -67111,8 +67925,8 @@ function Ii(t, e, n = Ft) {
   for (const o of r)
     if (o.path_structure.length === i.length) {
       let h2 = true;
-      for (let $ = 0; $ < o.path_structure.length; $++)
-        if (!o.path_structure[$] && o.path_parts[$] !== i[$]) {
+      for (let b = 0; b < o.path_structure.length; b++)
+        if (!o.path_structure[b] && o.path_parts[b] !== i[b]) {
           h2 = false;
           break;
         }
@@ -67122,17 +67936,17 @@ function Ii(t, e, n = Ft) {
   return null;
 }
 function Ei(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Ee(r), h2 = i.split("/"), $ = {};
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Me(r), h2 = i.split("/"), b = {};
   for (let R2 = 0; R2 < e.path_structure.length; R2++) {
     const W2 = e.path_structure[R2];
-    W2 && ($[W2] = h2[R2]);
+    W2 && (b[W2] = h2[R2]);
   }
   const L2 = {
     url: t,
     path: e.path,
     method: e.method,
     metadata: e.metadata,
-    route_params: $,
+    route_params: b,
     query_params: o,
     body: n
   };
@@ -67150,18 +67964,18 @@ function Mi(t, e) {
     setTimeout(() => o(n), Math.max(200, r));
   });
 }
-var Oi = Ht("HTTP");
+var Ci = Ht("HTTP");
 var _s = {};
-function Ci(t, e = _s) {
+function Oi(t, e = _s) {
   return e[t] || {};
 }
 function p(t, e, n = Xe) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
-function ae(t, e, n, s = Xe) {
+function le(t, e, n, s = Xe) {
   return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function he(t, e, n, s = Xe) {
+function se(t, e, n, s = Xe) {
   return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
 async function wi(t, e, n = _s) {
@@ -67203,20 +68017,20 @@ function Xe(t, e, n, s = Pn, i = Ui, r = wi) {
     });
     return delete R2.response_type, delete R2.skip_auth, delete R2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (R2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, R2);
   }, h2 = async () => {
-    n.skip_auth || (await hi(mi(), Boolean), X2() === "x-api-key" ? n.headers["X-API-Key"] = Ve() : n.headers.Authorization = `Bearer ${X2()}`);
+    n.skip_auth || (await hi(mi(), Boolean), ee() === "x-api-key" ? n.headers["X-API-Key"] = Ve() : n.headers.Authorization = `Bearer ${ee()}`);
     const R2 = await o();
     if (R2.ok) return r(R2, n.response_type);
     throw R2;
-  }, $ = 4, L2 = async (R2) => {
+  }, b = 4, L2 = async (R2) => {
     try {
       return await h2();
     } catch (W2) {
-      if (R2 >= $) throw W2 || {};
+      if (R2 >= b) throw W2 || {};
       if (n.skip_auth || n.skip_auth_flow) throw W2 || {};
       if (W2.status === 511)
         throw hs(It()), W2;
       if (W2.status !== 401) throw W2 || {};
-      return Oi.warn("Auth error:", W2), await ms().catch(() => {
+      return Ci.warn("Auth error:", W2), await ms().catch(() => {
         throw W2;
       }), L2(R2 + 1);
     }
@@ -67250,45 +68064,45 @@ var ys = {};
 var Zn = "";
 var jt = (t) => t;
 var zi = 300;
-var Ie = {};
-function y(t) {
-  const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Ie[o]) return Ie[o].promise;
-  const h2 = p(o).then(($) => {
+var Ee = {};
+function $(t) {
+  const { query_params: e, fn: n, path: s, endpoint: i } = t, r = y(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
+  if (Ee[o]) return Ee[o].promise;
+  const h2 = p(o).then((b) => {
     const L2 = Fi(o, r, s);
     return {
       total: L2.total || 0,
-      next: L2.next ? () => y({
+      next: L2.next ? () => $({
         query_params: L2.next,
         fn: n,
         endpoint: i,
         path: s
       }) : null,
-      data: $ && $ instanceof Array ? $.map((R2) => (n || jt)(R2)) : $ && !($ instanceof Array) && $.results ? $.results.map((R2) => R2) : []
+      data: b && b instanceof Array ? b.map((R2) => (n || jt)(R2)) : b && !(b instanceof Array) && b.results ? b.results.map((R2) => R2) : []
     };
   });
-  return Ie[o] = {
+  return Ee[o] = {
     promise: h2,
-    timeout: setTimeout(() => delete Ie[o], zi)
+    timeout: setTimeout(() => delete Ee[o], zi)
   }, h2.catch(() => {
     var _a10;
-    clearTimeout((_a10 = Ie[o]) == null ? void 0 : _a10.timeout), delete Ie[o];
+    clearTimeout((_a10 = Ee[o]) == null ? void 0 : _a10.timeout), delete Ee[o];
   }), h2;
 }
 function f(t) {
-  const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), h2 = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return p(h2, r).then(($) => (i || jt)($));
+  const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = y(e), h2 = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
+  return p(h2, r).then((b) => (i || jt)(b));
 }
 function q(t) {
-  const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, h2 = b(__spreadProps(__spreadValues({}, n), {
+  const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, h2 = y(__spreadProps(__spreadValues({}, n), {
     version: s.version || 0
-  })), $ = `${u2()}/${r}/${e}${h2 ? "?" + h2 : ""}`;
-  return (i === "put" ? ae : he)($, s).then(
+  })), b = `${u2()}/${r}/${e}${h2 ? "?" + h2 : ""}`;
+  return (i === "put" ? le : se)(b, s).then(
     (L2) => (o || jt)(L2)
   );
 }
 function Fi(t, e, n) {
-  const s = Ci(
+  const s = Oi(
     t[0] === "/" ? `${location.origin}${t}` : t
   ), i = {
     total: 0,
@@ -67298,7 +68112,7 @@ function Fi(t, e, n) {
     const r = +(s["x-total-count"] || 0);
     (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (gs[n] = r), ys[n] = r, i.total = r;
   }
-  return s && s.link && (Zn = ti(s.link || "").next, i.next = Ee(Zn.split("?")[1])), i;
+  return s && s.link && (Zn = ti(s.link || "").next, i.next = Me(Zn.split("?")[1])), i;
 }
 var Mn = class extends F13 {
   /** Hash of the email address of the user */
@@ -67359,7 +68173,7 @@ var Mn = class extends F13 {
     super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true;
   }
 };
-var ze = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(ze || {});
+var Fe = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(Fe || {});
 var Pe = class extends F13 {
   /** ID of the parent zone/system/module/driver */
   parent_id;
@@ -67378,10 +68192,10 @@ var Pe = class extends F13 {
     return this.settings_string;
   }
   constructor(e = {}) {
-    super(e), this.parent_id = e.parent_id || "", this.updated_at = e.updated_at || Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3), this.settings_string = e.settings_string || "", this.encryption_level = e.encryption_level || ze.None, this.keys = e.keys || [], this.modified_by_id = e.modified_by_id || "";
+    super(e), this.parent_id = e.parent_id || "", this.updated_at = e.updated_at || Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3), this.settings_string = e.settings_string || "", this.encryption_level = e.encryption_level || Fe.None, this.keys = e.keys || [], this.modified_by_id = e.modified_by_id || "";
   }
 };
-var Ct = /* @__PURE__ */ ((t) => (t[t.SSH = 0] = "SSH", t[t.Device = 1] = "Device", t[t.Service = 2] = "Service", t[t.Websocket = 3] = "Websocket", t[t.Logic = 99] = "Logic", t))(Ct || {});
+var Ot = /* @__PURE__ */ ((t) => (t[t.SSH = 0] = "SSH", t[t.Device = 1] = "Device", t[t.Service = 2] = "Service", t[t.Websocket = 3] = "Websocket", t[t.Logic = 99] = "Logic", t))(Ot || {});
 var vs = class extends F13 {
   /** Place class name of the driver */
   class_name;
@@ -67411,15 +68225,15 @@ var vs = class extends F13 {
   /** Tuple of user settings of differring encryption levels for the driver */
   settings;
   constructor(e = {}) {
-    super(e), this.description = e.description || "", this.module_name = e.module_name || "", this.role = e.role ?? Ct.Logic, this.default_uri = e.default_uri || "", this.default_port = e.default_port || 1, this.ignore_connected = e.ignore_connected || false, this.class_name = e.class_name || "", this.repository_id = e.repository_id || "", this.file_name = e.file_name || "", this.commit = e.commit || "", this.update_available = e.update_available || false, this.update_info = e.update_info, this.alert_level = e.alert_level || "medium", this.settings = e.settings || [null, null, null, null], typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in ze)
+    super(e), this.description = e.description || "", this.module_name = e.module_name || "", this.role = e.role ?? Ot.Logic, this.default_uri = e.default_uri || "", this.default_port = e.default_port || 1, this.ignore_connected = e.ignore_connected || false, this.class_name = e.class_name || "", this.repository_id = e.repository_id || "", this.file_name = e.file_name || "", this.commit = e.commit || "", this.update_available = e.update_available || false, this.update_info = e.update_info, this.alert_level = e.alert_level || "medium", this.settings = e.settings || [null, null, null, null], typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in Fe)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
         parent_id: this.id,
         encryption_level: +n
       }));
   }
 };
-var On = class {
+var Cn = class {
   /** ISO8601 timestamp of the creation time of the group */
   created_at;
   /** ISO8601 timestamp of the last update time of the group */
@@ -67442,12 +68256,12 @@ var On = class {
     this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.subsystems = e.subsystems || [], this.authority_id = e.authority_id || "", this.parent_id = e.parent_id || "", isFinite(Number(e.children_count)) && (this.children_count = e.children_count);
   }
 };
-var Fe = "groups";
+var Le = "groups";
 function rt(t) {
-  return new On(t);
+  return new Cn(t);
 }
 function xu(t = {}) {
-  const e = b(t), n = `${u2()}/${Fe}/current${e ? "?" + e : ""}`;
+  const e = y(t), n = `${u2()}/${Le}/current${e ? "?" + e : ""}`;
   return p(n).then(
     (s) => (s || []).map((i) => ({
       group: rt(i.group || {}),
@@ -67455,7 +68269,7 @@ function xu(t = {}) {
     }))
   );
 }
-var de = class extends F13 {
+var pe = class extends F13 {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -67558,19 +68372,21 @@ var Yt = class extends F13 {
   trigger_list = [];
   constructor(e = {}) {
     super(e), this.description = e.description || "", this.tags = e.tags || [], this.triggers = e.triggers || [], this.settings = e.settings || [null, null, null, null], this.parent_id = e.parent_id || "", this.location = e.location || "", this.display_name = e.display_name || "", this.code = e.code || "", this.type = e.type || "", this.count = e.count || 0, this.capacity = e.capacity || 0, this.map_id = e.map_id || "", this.timezone = e.timezone || "", this.images = e.images || [], this.playlists = e.playlists || [], isFinite(Number(e.children_count)) && (this.children_count = e.children_count), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in ze)
+    for (const n in Fe)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
         parent_id: this.id,
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new de(n)
+      (n) => new pe(n)
     ));
   }
 };
 var As = class {
   /** ID of the parent resource associated with the metadata */
   id;
+  /** ID of the parent resource associated with the metadata */
+  parent_id;
   /** Name/ID of the zone metadata */
   name;
   /** Description of what this metadata represents */
@@ -67581,6 +68397,10 @@ var As = class {
   editors;
   /** JSON schema associated with the metadata details */
   schema;
+  /** ID of the schema associated with the metadata details */
+  schema_id;
+  /** Unix timestamp that the metadata was created at */
+  created_at;
   /** Unix timestamp that the metadata was last modified at */
   updated_at;
   /** ID of the user that last modified the metadata */
@@ -67588,25 +68408,25 @@ var As = class {
   /** Version of the data */
   version;
   constructor(e = {}) {
-    this.id = e.id || e.parent_id || "", this.name = e.name || "", this.description = e.description || "";
+    this.parent_id = e.parent_id || e.id || "", this.id = this.parent_id, this.name = e.name || "", this.description = e.description || "";
     try {
       this.details = (typeof e.details == "string" ? JSON.parse(e.details) : e.details) || {};
     } catch {
       this.details = e.details || {};
     }
-    this.editors = e.editors || [], this.schema = e.schema || "", this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
+    this.editors = e.editors || [], this.schema_id = e.schema_id || e.schema || "", this.schema = this.schema_id, this.created_at = (e.created_at || 0) * 1e3 || Date.now(), this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
   }
 };
-var ve = "metadata";
-function Le(t) {
+var fe = "metadata";
+function Te(t) {
   return new As(t);
 }
 function Vu(t, e) {
   return f({
     id: t,
     query_params: { name: e },
-    fn: (n) => Le(n[e]),
-    path: ve
+    fn: (n) => Te(n[e]),
+    path: fe
   });
 }
 function Xu(t, e, n = "put") {
@@ -67615,15 +68435,15 @@ function Xu(t, e, n = "put") {
     form_data: e,
     query_params: {},
     method: n,
-    fn: Le,
-    path: ve
+    fn: Te,
+    path: fe
   });
 }
-function sc(t, e) {
-  const n = b(e), s = `${u2()}/${ve}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
+function ic(t, e) {
+  const n = y(e), s = `${u2()}/${fe}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
   return p(s).then(
     (i) => Object.keys(i || {}).reduce(
-      (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Le(i[o]) }),
+      (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Te(i[o]) }),
       {}
     )
   );
@@ -67689,7 +68509,7 @@ var qs = class extends F13 {
   orientation;
   constructor(e = {}) {
     super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || Sn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in ze)
+    for (const n in Fe)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
         parent_id: this.id,
         encryption_level: +n
@@ -67749,10 +68569,10 @@ var Ps = class extends F13 {
     return this.control_system_id;
   }
   constructor(e = {}) {
-    super(e), this.driver_id = e.driver_id || e.dependency_id || "", this.control_system_id = e.control_system_id || "", this.edge_id = e.edge_id || "", this.ip = e.ip || "", this.tls = e.tls || false, this.udp = e.udp || false, this.port = e.port || 1, this.makebreak = e.makebreak || false, this.uri = e.uri || "", this.custom_name = e.custom_name || "", this.role = e.role ?? Ct.Logic, this.notes = e.notes || "", this.ignore_connected = e.ignore_connected || false, this.connected = e.connected, this.running = e.running || false, this.updated_at = e.updated_at || 0, this.system = new qs(
+    super(e), this.driver_id = e.driver_id || e.dependency_id || "", this.control_system_id = e.control_system_id || "", this.edge_id = e.edge_id || "", this.ip = e.ip || "", this.tls = e.tls || false, this.udp = e.udp || false, this.port = e.port || 1, this.makebreak = e.makebreak || false, this.uri = e.uri || "", this.custom_name = e.custom_name || "", this.role = e.role ?? Ot.Logic, this.notes = e.notes || "", this.ignore_connected = e.ignore_connected || false, this.connected = e.connected, this.running = e.running || false, this.updated_at = e.updated_at || 0, this.system = new qs(
       e.control_system || e.system
     ), this.has_runtime_error = e.has_runtime_error || false, this.error_timestamp = e.error_timestamp || 0, this.driver = new vs(e.dependency || e.driver), this.settings = e.settings || [null, null, null, null], this.alert_level = e.alert_level || "medium", typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in ze)
+    for (const n in Fe)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
         parent_id: this.id,
         encryption_level: +n
@@ -67763,45 +68583,45 @@ var Ps = class extends F13 {
    */
   toJSON(e = false) {
     const n = super.toJSON();
-    return (n.role !== Ct.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
+    return (n.role !== Ot.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
   }
 };
 var M2 = "systems";
-function Te(t) {
+function Re(t) {
   return new qs(t);
 }
-function ha(t = {}) {
-  return y({ query_params: t, fn: Te, path: M2 });
+function la(t = {}) {
+  return $({ query_params: t, fn: Re, path: M2 });
 }
-function la(t) {
-  return y({ query_params: t, fn: Te, path: `${M2}/with_emails` });
+function da(t) {
+  return $({ query_params: t, fn: Re, path: `${M2}/with_emails` });
 }
-function da(t, e = {}) {
-  return f({ id: t, query_params: e, fn: Te, path: M2 });
+function pa(t, e = {}) {
+  return f({ id: t, query_params: e, fn: Re, path: M2 });
 }
-var Y2 = "users";
-function Re(t) {
+var V2 = "users";
+function Ue(t) {
   return new Mn(t);
 }
-function La(t, e = {}) {
-  return f({ id: t, query_params: e, fn: Re, path: Y2 });
+function ja(t, e = {}) {
+  return f({ id: t, query_params: e, fn: Ue, path: V2 });
 }
-function Ga(t, e, n = "patch") {
+function Ba(t, e, n = "patch") {
   return q({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
-    fn: Re,
-    path: Y2
+    fn: Ue,
+    path: V2
   });
 }
-var pe = "zones";
+var _e = "zones";
 function on(t) {
   return new Yt(t);
 }
-function eh(t = {}) {
-  return y({ query_params: t, fn: on, path: pe });
+function th(t = {}) {
+  return $({ query_params: t, fn: on, path: _e });
 }
 var ws = class {
   _listeners = /* @__PURE__ */ new Set();
@@ -67929,16 +68749,16 @@ var xr = class {
   }
 };
 var wt = {};
-function ad(t, e) {
+function dd(t, e) {
   return wt[t] = new xr(e), wt[t];
 }
 function Ar(t) {
   return wt[t];
 }
-var O2 = Ht("WS");
+var C2 = Ht("WS");
 var Ds = 15;
-var $t = 0;
-var V2;
+var bt = 0;
+var X2;
 var Hs = 0;
 var G2 = {};
 var Fn = {};
@@ -67946,14 +68766,14 @@ var qr = {};
 var xe = ne(false);
 var zs = ne([0, 0]);
 var Fs = Date.now();
-var Me;
+var Ce;
 var Nt = 0;
-var _e = null;
+var me = null;
 var At;
 var Ln = 0;
 var vt = 10 * 1e3;
 var Pr = ne(null);
-function $n() {
+function bn() {
   return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${cs()}/systems/control`;
 }
 function Ls() {
@@ -67973,21 +68793,21 @@ function Ur(t, e = Fn) {
 }
 function Jn(t, e = 0, n = Be) {
   const s = __spreadValues({
-    id: ++$t,
+    id: ++bt,
     cmd: "bind"
   }, t);
   return n(s, e);
 }
 function Ir(t, e = 0, n = Be) {
   const s = __spreadValues({
-    id: ++$t,
+    id: ++bt,
     cmd: "unbind"
   }, t);
   return n(s, e);
 }
 function Er(t, e = vt, n = Be) {
   const s = __spreadValues({
-    id: ++$t,
+    id: ++bt,
     cmd: "exec"
   }, t);
   return n(s, e);
@@ -67995,30 +68815,30 @@ function Er(t, e = vt, n = Be) {
 function Be(t, e = vt, n = 0) {
   const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ri()}`;
   if (G2[s])
-    O2("Request already in progress. Waiting...", t);
+    C2("Request already in progress. Waiting...", t);
   else {
     const i = __spreadProps(__spreadValues({}, t), { key: s });
     i.promise = new Promise((r, o) => {
       const h2 = () => {
         delete G2[s], G2[s] = null, Be(t, e, n).then(
-          ($) => r($),
-          ($) => o($)
+          (b) => r(b),
+          (b) => o(b)
         );
       };
-      if (V2 && Ls()) {
-        Pn() && Hr(t, V2, qr), i.resolve = r, i.reject = o;
-        const $ = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-        O2(
-          `[${t.cmd.toUpperCase()}](${t.id}) ${$}`,
+      if (X2 && Ls()) {
+        Pn() && Hr(t, X2, qr), i.resolve = r, i.reject = o;
+        const b = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
+        C2(
+          `[${t.cmd.toUpperCase()}](${t.id}) ${b}`,
           t.args
-        ), V2.next(t), e > 0 && re(
+        ), X2.next(t), e > 0 && ue(
           `${s}`,
           () => {
             o("Request timed out."), delete G2[s], G2[s] = null;
           },
           e
         );
-      } else _e ? setTimeout(() => h2(), 1e3) : jn().then(() => h2());
+      } else me ? setTimeout(() => h2(), 1e3) : jn().then(() => h2());
     }), G2[s] = i;
   }
   return G2[s].promise;
@@ -68026,11 +68846,11 @@ function Be(t, e = vt, n = 0) {
 function js(t) {
   if (t !== "pong" && t instanceof Object) {
     if (t.type === "notify" && t.meta)
-      Cr(t.meta, t.value);
+      Or(t.meta, t.value);
     else if (t.type === "success")
       Mr(t);
     else if (t.type === "debug") {
-      O2(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
+      C2(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
       const e = t.meta || { mod: "", index: "" };
       Pr.set({
         mod_id: t.mod || "<empty>",
@@ -68040,15 +68860,15 @@ function js(t) {
         level: t.level || Ns.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
-    } else t.type === "error" ? Or(t) : t.cmd || O2.error("Invalid websocket message", t);
-    ye(`${t.id}`);
-  } else t === "pong" && (Ln = Date.now(), O2("Pong!"));
+    } else t.type === "error" ? Cr(t) : t.cmd || C2.error("Invalid websocket message", t);
+    $e(`${t.id}`);
+  } else t === "pong" && (Ln = Date.now(), C2("Pong!"));
 }
 function Mr(t) {
   const e = Object.keys(G2).map((n) => G2[n]).find((n) => (n == null ? void 0 : n.id) === t.id);
-  O2(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G2[e.key]);
+  C2(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G2[e.key]);
 }
-function Or(t) {
+function Cr(t) {
   let e = "UNEXPECTED FAILURE";
   switch (t.code) {
     case te.ACCESS_DENIED:
@@ -68073,61 +68893,61 @@ function Or(t) {
       e = "UNKNOWN COMMAND";
       break;
   }
-  O2.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
+  C2.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G2).map((s) => G2[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), ye(`${n.key}`), delete G2[n.key]);
+  n && n.reject && (n.reject(t), $e(`${n.key}`), delete G2[n.key]);
 }
-function Cr(t, e, n = Fn) {
+function Or(t, e, n = Fn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   n[s] || (n[s] = ne(null));
   const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-  O2(`[NOTIFY] ${i} changed`, [
+  C2(`[NOTIFY] ${i} changed`, [
     n[s].value,
     "\u2192",
     e
   ]), n[s].set(e);
 }
 function jn(t = 0) {
-  return _e == null && (_e = new Promise((e) => {
+  return me == null && (me = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    Nt++, Fs = Date.now(), V2 = Pn() ? Dr() : wr(), V2 ? (O2.debug("Authority:", It()), O2("Connecting to websocket..."), V2.subscribe(
+    Nt++, Fs = Date.now(), X2 = Pn() ? Dr() : wr(), X2 ? (C2.debug("Authority:", It()), C2("Connecting to websocket..."), X2.subscribe(
       (n) => {
-        xe.value || (O2("Connection established."), e()), xe.set(true), Nt = 0, vn(), js(n);
+        xe.value || (C2("Connection established."), e()), xe.set(true), Nt = 0, vn(), js(n);
       },
       (n) => {
-        V2 = void 0, _e = null, Xn(), vn(), Nr(n);
+        X2 = void 0, me = null, Xn(), vn(), Nr(n);
       },
       () => {
-        V2 = void 0, _e = null, Xn(), O2("Connection closed by browser."), xe.set(false), Dt();
+        X2 = void 0, me = null, Xn(), C2("Connection closed by browser."), xe.set(false), Dt();
       }
-    ), Me && clearInterval(Me), Ln = Date.now(), Yn(), Me = setInterval(
+    ), Ce && clearInterval(Ce), Ln = Date.now(), Yn(), Ce = setInterval(
       () => Yn(),
       Ds * 1e3
     ), vn(), Hs += 1, At = setTimeout(() => {
-      O2("Unhealthy connection. Reconnecting..."), xe.set(false), _e = null, Dt();
-    }, 30 * 1e3)) : (V2 ? O2(
+      C2("Unhealthy connection. Reconnecting..."), xe.set(false), me = null, Dt();
+    }, 30 * 1e3)) : (X2 ? C2(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!X2(), !!It()],
+      [!!ee(), !!It()],
       "info"
-    ) : O2.error(
+    ) : C2.error(
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
-        _e = null, jn(t).then((n) => e(n));
+        me = null, jn(t).then((n) => e(n));
       },
       1e3 * Math.min(10, ++t)
     ));
-  })), _e;
+  })), me;
 }
 function wr() {
-  if (!It() || !X2()) return null;
+  if (!It() || !ee()) return null;
   const t = gi() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${xn()}${$n()}${as() ? "?fixed_device=true" : ""}`;
-  const n = X2();
+  let e = `ws${t ? "s" : ""}://${xn()}${bn()}${as() ? "?fixed_device=true" : ""}`;
+  const n = ee();
   let s = n === "x-api-key" ? `api-key=${Ve()}` : `bearer_token=${n}`;
-  return !pi() && !si() ? (O2("Authenticating through cookie..."), s += `;max-age=120;path=${$n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O2("Cookies:", [document.cookie, s])) : (O2("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O2(
-    `Creating websocket connection to ws${t ? "s" : ""}://${xn()}${$n()}`
+  return !pi() && !si() ? (C2("Authenticating through cookie..."), s += `;max-age=120;path=${bn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, C2("Cookies:", [document.cookie, s])) : (C2("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), C2(
+    `Creating websocket connection to ws${t ? "s" : ""}://${xn()}${bn()}`
   ), kr({
     url: e,
     serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
@@ -68143,12 +68963,12 @@ function wr() {
   });
 }
 function Dt() {
-  zs.set([Hs, Date.now() - Fs]), V2 && Ls() && (V2.complete(), Me && (clearInterval(Me), Me = void 0)), O2(
+  zs.set([Hs, Date.now() - Fs]), X2 && Ls() && (X2.complete(), Ce && (clearInterval(Ce), Ce = void 0)), C2(
     `Reconnecting in ${Math.min(
       5e3,
       Nt * 300 || 1e3
     )}ms...`
-  ), re(
+  ), ue(
     "reconnect",
     () => jn(),
     Math.min(5e3, (Nt + 1) * 300 || 1e3)
@@ -68157,10 +68977,10 @@ function Dt() {
 function Yn() {
   if (Date.now() - Ln > 4 * Ds * 1e3)
     return Dt();
-  V2 == null ? void 0 : V2.next("ping");
+  X2 == null ? void 0 : X2.next("ping");
 }
 function Nr(t) {
-  xe.set(false), O2.error("Websocket error:", t), t.status === 401 && Un(), Rn(), Dt();
+  xe.set(false), C2.error("Websocket error:", t), t.status === 401 && Un(), Rn(), Dt();
 }
 function vn() {
   At && (clearTimeout(At), At = void 0);
@@ -68201,18 +69021,18 @@ function Hr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], ye(`${s}`));
+          n[s] && (n[s](), delete n[s], $e(`${s}`));
           break;
       }
     } catch (o) {
-      O2.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
+      C2.error(`[MOCK ERROR](${t.id}) request failed`, o), ue(
         `${t.id}-error`,
         () => e.next(Vn(t, o)),
         10
       );
       return;
     }
-    re(
+    ue(
       `${t.id}-response`,
       () => {
         try {
@@ -68223,7 +69043,7 @@ function Hr(t, e, n) {
           };
           e.next(o);
         } catch (o) {
-          O2.error(
+          C2.error(
             `[MOCK ERROR](${t.id}) execute failed`,
             o
           ), e.next(Vn(t, o));
@@ -68232,7 +69052,7 @@ function Hr(t, e, n) {
       10
     );
   } else
-    re(
+    ue(
       `${t.id}-error`,
       () => e.next({
         id: t.id,
@@ -68249,7 +69069,7 @@ function Xn() {
 var es = class {
   constructor(e, n) {
     this._module = e, this.name = n, Tr().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Pt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (ye(`rebind:${JSON.stringify(this.binding())}`), Pt(
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Pt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || ($e(`rebind:${JSON.stringify(this.binding())}`), Pt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -68325,7 +69145,7 @@ var es = class {
    * Rebind to the status variable
    */
   async rebind() {
-    !this._stale_bindings && this._pending !== 1 || re(
+    !this._stale_bindings && this._pending !== 1 || ue(
       `rebind:${JSON.stringify(this.binding())}`,
       async () => {
         await Jn(this.binding()), this._binding_count = this._stale_bindings || 1, this._stale_bindings = 0;
@@ -68434,7 +69254,7 @@ var kn = {};
 function Lr(t) {
   return kn[t] || (kn[t] = new Fr(t)), kn[t];
 }
-function fd(t, e, n = 1) {
+function gd(t, e, n = 1) {
   return Lr(t).module(e, n);
 }
 
@@ -68749,15 +69569,15 @@ function xmur3(str) {
     return (h2 ^= h2 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c2, d) {
+function sfc32(a, b, c2, d) {
   return function() {
     a >>>= 0;
-    b2 >>>= 0;
+    b >>>= 0;
     c2 >>>= 0;
     d >>>= 0;
-    let t = a + b2 | 0;
-    a = b2 ^ b2 >>> 9;
-    b2 = c2 + (c2 << 3) | 0;
+    let t = a + b | 0;
+    a = b ^ b >>> 9;
+    b = c2 + (c2 << 3) | 0;
     c2 = c2 << 21 | c2 >>> 11;
     d = d + 1 | 0;
     t = t + d | 0;
@@ -69256,10 +70076,10 @@ var CateringItem = class {
   }
   /** String list of selected option ids */
   get options_string() {
-    return this.option_list.map((_2) => _2.id || "").sort((a, b2) => a.localeCompare(b2)).join(",");
+    return this.option_list.map((_2) => _2.id || "").sort((a, b) => a.localeCompare(b)).join(",");
   }
   get custom_id() {
-    const options2 = this.option_list.map((_2) => _2.id).sort((a, b2) => a.localeCompare(b2)).join("+");
+    const options2 = this.option_list.map((_2) => _2.id).sort((a, b) => a.localeCompare(b)).join("+");
     return `${this.id}[${options2}]${!this.in_order ? "menu" : ""}`;
   }
   constructor(data = {}) {
@@ -70010,7 +70830,7 @@ function isTestRuntime() {
 var USER_CACHE_KEY = "PLACEOS.user";
 var MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1e3;
 function tokenID() {
-  const value = X2() || "";
+  const value = ee() || "";
   let hash = 0;
   for (let i = 0; i < value.length; i++) {
     hash = hash * 31 + value.charCodeAt(i) | 0;
@@ -70124,7 +70944,7 @@ function initialiseUser() {
   const is_public_mode = isPublicMode();
   if (!is_public_mode)
     applyCachedUserData();
-  const user_request = combineLatest([La("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
+  const user_request = combineLatest([ja("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
       console.warn("User loading failed in public mode, using local public user data.", error2);
@@ -70149,7 +70969,7 @@ function initialiseUser() {
 function reloadUserData() {
   setTimeout(async () => {
     try {
-      const p_user = await La("current");
+      const p_user = await ja("current");
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
@@ -70189,15 +71009,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "69ae14d",
-  "hash": "69ae14d",
+  "raw": "5e8622f",
+  "hash": "5e8622f",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "69ae14d",
+  "suffix": "5e8622f",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1788227826017
+  "time": 1788412606763
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -70401,8 +71221,8 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
       return getItemWithKeys(keys, this._pending_settings) ?? getItemWithKeys(keys, this._user_settings()) ?? getItemWithKeys(keys, DEFAULT_SETTINGS);
     }
     const override_settings = [...this._overrides()];
-    for (const override of override_settings) {
-      const value = getItemWithKeys(keys.slice(1), override);
+    for (const override2 of override_settings) {
+      const value = getItemWithKeys(keys.slice(1), override2);
       if (value != null) {
         return value;
       }
@@ -70419,7 +71239,7 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
     this.timeout("save_settings", () => this._savePendingChanges(), 2400);
   }
   async updateLocatable(locatable) {
-    await Ga(currentUser().id, { locatable }, "patch");
+    await Ba(currentUser().id, { locatable }, "patch");
     reloadUserData();
   }
   overrideCssVariable(key, value, important = false) {
@@ -71712,7 +72532,7 @@ var MatIconButton = class _MatIconButton extends MatButtonBase {
         \u0275\u0275conditional(ctx.showProgress() ? 2 : -1);
       }
     },
-    styles: ['.mat-mdc-icon-button {\n  -webkit-user-select: none;\n  user-select: none;\n  display: inline-block;\n  position: relative;\n  box-sizing: border-box;\n  border: none;\n  outline: none;\n  background-color: transparent;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  z-index: 0;\n  overflow: visible;\n  border-radius: var(--mat-icon-button-container-shape, var(--mat-sys-corner-full, 50%));\n  flex-shrink: 0;\n  text-align: center;\n  width: var(--mat-icon-button-state-layer-size, 40px);\n  height: var(--mat-icon-button-state-layer-size, 40px);\n  padding: calc(calc(var(--mat-icon-button-state-layer-size, 40px) - var(--mat-icon-button-icon-size, 24px)) / 2);\n  font-size: var(--mat-icon-button-icon-size, 24px);\n  color: var(--mat-icon-button-icon-color, var(--mat-sys-on-surface-variant));\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-icon-button .mat-mdc-button-ripple,\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-icon-button .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-icon-button .mdc-button__label,\n.mat-mdc-icon-button .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-icon-button .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: inherit;\n}\n.mat-mdc-icon-button:focus-visible > .mat-focus-indicator::before {\n  content: "";\n  border-radius: inherit;\n}\n.mat-mdc-icon-button .mat-ripple-element {\n  background-color: var(--mat-icon-button-ripple-color, color-mix(in srgb, var(--mat-sys-on-surface-variant) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-icon-button-state-layer-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-icon-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-icon-button-disabled-state-layer-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-icon-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-icon-button-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-icon-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-icon-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-icon-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-icon-button-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-icon-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-icon-button-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-icon-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-icon-button-touch-target-size, 48px);\n  display: var(--mat-icon-button-touch-target-display, block);\n  left: 50%;\n  width: var(--mat-icon-button-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-icon-button._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-icon-button[disabled], .mat-mdc-icon-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-icon-button-disabled-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-icon-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-icon-button img,\n.mat-mdc-icon-button svg {\n  width: var(--mat-icon-button-icon-size, 24px);\n  height: var(--mat-icon-button-icon-size, 24px);\n  vertical-align: baseline;\n}\n.mat-mdc-icon-button .mat-mdc-button-progress-indicator-container .mdc-circular-progress__determinate-circle-graphic {\n  width: inherit;\n  height: inherit;\n}\n.mat-mdc-icon-button .mat-mdc-button-progress-indicator-container .mdc-circular-progress__indeterminate-circle-graphic {\n  height: 100%;\n}\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {\n  border-radius: var(--mat-icon-button-container-shape, var(--mat-sys-corner-full, 50%));\n}\n.mat-mdc-icon-button[hidden] {\n  display: none;\n}\n.mat-mdc-icon-button.mat-unthemed:not(.mdc-ripple-upgraded):focus::before, .mat-mdc-icon-button.mat-primary:not(.mdc-ripple-upgraded):focus::before, .mat-mdc-icon-button.mat-accent:not(.mdc-ripple-upgraded):focus::before, .mat-mdc-icon-button.mat-warn:not(.mdc-ripple-upgraded):focus::before {\n  background: transparent;\n  opacity: 1;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  inset-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon {\n  visibility: hidden;\n}\n', "@media (forced-colors: active) {\n  .mat-mdc-button:not(.mdc-button--outlined),\n  .mat-mdc-unelevated-button:not(.mdc-button--outlined),\n  .mat-mdc-raised-button:not(.mdc-button--outlined),\n  .mat-mdc-outlined-button:not(.mdc-button--outlined),\n  .mat-mdc-button-base.mat-tonal-button,\n  .mat-mdc-icon-button.mat-mdc-icon-button,\n  .mat-mdc-outlined-button .mdc-button__ripple {\n    outline: solid 1px;\n  }\n}\n"],
+    styles: ['.mat-mdc-icon-button {\n  -webkit-user-select: none;\n  user-select: none;\n  display: inline-block;\n  position: relative;\n  box-sizing: border-box;\n  border: none;\n  outline: none;\n  background-color: transparent;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  z-index: 0;\n  overflow: visible;\n  border-radius: var(--%NS%mat-icon-button-container-shape, var(--%NS%mat-sys-corner-full, 50%));\n  flex-shrink: 0;\n  text-align: center;\n  width: var(--%NS%mat-icon-button-state-layer-size, 40px);\n  height: var(--%NS%mat-icon-button-state-layer-size, 40px);\n  padding: calc(calc(var(--%NS%mat-icon-button-state-layer-size, 40px) - var(--%NS%mat-icon-button-icon-size, 24px)) / 2);\n  font-size: var(--%NS%mat-icon-button-icon-size, 24px);\n  color: var(--%NS%mat-icon-button-icon-color, var(--%NS%mat-sys-on-surface-variant));\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-icon-button .mat-mdc-button-ripple,\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-icon-button .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-icon-button .mdc-button__label,\n.mat-mdc-icon-button .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-icon-button .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: inherit;\n}\n.mat-mdc-icon-button:focus-visible > .mat-focus-indicator::before {\n  content: "";\n  border-radius: inherit;\n}\n.mat-mdc-icon-button .mat-ripple-element {\n  background-color: var(--%NS%mat-icon-button-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface-variant) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-icon-button-state-layer-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-icon-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-icon-button-disabled-state-layer-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-icon-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-icon-button-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-icon-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-icon-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-icon-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-icon-button-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-icon-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-icon-button-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-icon-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-icon-button-touch-target-size, 48px);\n  display: var(--%NS%mat-icon-button-touch-target-display, block);\n  left: 50%;\n  width: var(--%NS%mat-icon-button-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-icon-button._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-icon-button[disabled], .mat-mdc-icon-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-icon-button-disabled-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-icon-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-icon-button img,\n.mat-mdc-icon-button svg {\n  width: var(--%NS%mat-icon-button-icon-size, 24px);\n  height: var(--%NS%mat-icon-button-icon-size, 24px);\n  vertical-align: baseline;\n}\n.mat-mdc-icon-button .mat-mdc-button-progress-indicator-container .mdc-circular-progress__determinate-circle-graphic {\n  width: inherit;\n  height: inherit;\n}\n.mat-mdc-icon-button .mat-mdc-button-progress-indicator-container .mdc-circular-progress__indeterminate-circle-graphic {\n  height: 100%;\n}\n.mat-mdc-icon-button .mat-mdc-button-persistent-ripple {\n  border-radius: var(--%NS%mat-icon-button-container-shape, var(--%NS%mat-sys-corner-full, 50%));\n}\n.mat-mdc-icon-button[hidden] {\n  display: none;\n}\n.mat-mdc-icon-button.mat-unthemed:not(.mdc-ripple-upgraded):focus::before, .mat-mdc-icon-button.mat-primary:not(.mdc-ripple-upgraded):focus::before, .mat-mdc-icon-button.mat-accent:not(.mdc-ripple-upgraded):focus::before, .mat-mdc-icon-button.mat-warn:not(.mdc-ripple-upgraded):focus::before {\n  background: transparent;\n  opacity: 1;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  inset-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon {\n  visibility: hidden;\n}\n', "@media (forced-colors: active) {\n  .mat-mdc-button:not(.mdc-button--outlined),\n  .mat-mdc-unelevated-button:not(.mdc-button--outlined),\n  .mat-mdc-raised-button:not(.mdc-button--outlined),\n  .mat-mdc-outlined-button:not(.mdc-button--outlined),\n  .mat-mdc-button-base.mat-tonal-button,\n  .mat-mdc-icon-button.mat-mdc-icon-button,\n  .mat-mdc-outlined-button .mdc-button__ripple {\n    outline: solid 1px;\n  }\n}\n"],
     encapsulation: 2
   });
 };
@@ -71773,7 +72593,7 @@ function MatMiniFabButton_Conditional_5_Template(rf, ctx) {
     \u0275\u0275domElementEnd();
   }
 }
-var _c22 = '.mat-mdc-fab-base {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  padding: 0;\n  border: none;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  overflow: visible;\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 15ms linear 30ms, transform 270ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  flex-shrink: 0;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-fab-base .mdc-button__label,\n.mat-mdc-fab-base .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-fab-base .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n}\n.mat-mdc-fab-base:focus-visible > .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-fab-base._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-fab-base::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mat-mdc-fab-base[hidden] {\n  display: none;\n}\n.mat-mdc-fab-base::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mat-mdc-fab-base:active, .mat-mdc-fab-base:focus {\n  outline: none;\n}\n.mat-mdc-fab-base:hover {\n  cursor: pointer;\n}\n.mat-mdc-fab-base > svg {\n  width: 100%;\n}\n.mat-mdc-fab-base .mat-icon, .mat-mdc-fab-base .material-icons {\n  transition: transform 180ms 90ms cubic-bezier(0, 0, 0.2, 1);\n  fill: currentColor;\n  will-change: transform;\n}\n.mat-mdc-fab-base .mat-focus-indicator::before {\n  margin: calc(calc(var(--mat-focus-indicator-border-width, 3px) + 2px) * -1);\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base[disabled]:focus, .mat-mdc-fab-base.mat-mdc-button-disabled, .mat-mdc-fab-base.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-fab-base.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-fab {\n  background-color: var(--mat-fab-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-container-shape, var(--mat-sys-corner-large));\n  color: var(--mat-fab-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-fab:hover {\n    box-shadow: var(--mat-fab-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-fab:focus {\n  box-shadow: var(--mat-fab-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab:active, .mat-mdc-fab:focus:active {\n  box-shadow: var(--mat-fab-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab[disabled], .mat-mdc-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-touch-target-size, 48px);\n  display: var(--mat-fab-touch-target-display, block);\n  left: 50%;\n  width: var(--mat-fab-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-fab .mat-ripple-element {\n  background-color: var(--mat-fab-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-disabled-state-layer-color);\n}\n.mat-mdc-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-mini-fab {\n  width: 40px;\n  height: 40px;\n  background-color: var(--mat-fab-small-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-small-container-shape, var(--mat-sys-corner-medium));\n  color: var(--mat-fab-small-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-small-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-mini-fab:hover {\n    box-shadow: var(--mat-fab-small-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-mini-fab:focus {\n  box-shadow: var(--mat-fab-small-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab:active, .mat-mdc-mini-fab:focus:active {\n  box-shadow: var(--mat-fab-small-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab[disabled], .mat-mdc-mini-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-small-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-small-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-mini-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-small-touch-target-size, 48px);\n  display: var(--mat-fab-small-touch-target-display);\n  left: 50%;\n  width: var(--mat-fab-small-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-mini-fab .mat-ripple-element {\n  background-color: var(--mat-fab-small-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-mini-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-disabled-state-layer-color);\n}\n.mat-mdc-mini-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-mini-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-mini-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-extended-fab {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  padding-left: 20px;\n  padding-right: 20px;\n  width: auto;\n  max-width: 100%;\n  line-height: normal;\n  box-shadow: var(--mat-fab-extended-container-elevation-shadow, var(--mat-sys-level3));\n  height: var(--mat-fab-extended-container-height, 56px);\n  border-radius: var(--mat-fab-extended-container-shape, var(--mat-sys-corner-large));\n  font-family: var(--mat-fab-extended-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-fab-extended-label-text-size, var(--mat-sys-label-large-size));\n  font-weight: var(--mat-fab-extended-label-text-weight, var(--mat-sys-label-large-weight));\n  letter-spacing: var(--mat-fab-extended-label-text-tracking, var(--mat-sys-label-large-tracking));\n}\n@media (hover: hover) {\n  .mat-mdc-extended-fab:hover {\n    box-shadow: var(--mat-fab-extended-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-extended-fab:focus {\n  box-shadow: var(--mat-fab-extended-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab:active, .mat-mdc-extended-fab:focus:active {\n  box-shadow: var(--mat-fab-extended-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab[disabled]:focus, .mat-mdc-extended-fab.mat-mdc-button-disabled, .mat-mdc-extended-fab.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-extended-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n[dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .mat-icon, [dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .material-icons,\n.mat-mdc-extended-fab > .mat-icon,\n.mat-mdc-extended-fab > .material-icons {\n  margin-left: -8px;\n  margin-right: 12px;\n}\n.mat-mdc-extended-fab .mdc-button__label + .mat-icon,\n.mat-mdc-extended-fab .mdc-button__label + .material-icons, [dir=rtl] .mat-mdc-extended-fab > .mat-icon, [dir=rtl] .mat-mdc-extended-fab > .material-icons {\n  margin-left: 12px;\n  margin-right: -8px;\n}\n.mat-mdc-extended-fab .mat-mdc-button-touch-target {\n  width: 100%;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  margin-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n';
+var _c22 = '.mat-mdc-fab-base {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  padding: 0;\n  border: none;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  overflow: visible;\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 15ms linear 30ms, transform 270ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  flex-shrink: 0;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-fab-base .mdc-button__label,\n.mat-mdc-fab-base .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-fab-base .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n}\n.mat-mdc-fab-base:focus-visible > .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-fab-base._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-fab-base::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mat-mdc-fab-base[hidden] {\n  display: none;\n}\n.mat-mdc-fab-base::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mat-mdc-fab-base:active, .mat-mdc-fab-base:focus {\n  outline: none;\n}\n.mat-mdc-fab-base:hover {\n  cursor: pointer;\n}\n.mat-mdc-fab-base > svg {\n  width: 100%;\n}\n.mat-mdc-fab-base .mat-icon, .mat-mdc-fab-base .material-icons {\n  transition: transform 180ms 90ms cubic-bezier(0, 0, 0.2, 1);\n  fill: currentColor;\n  will-change: transform;\n}\n.mat-mdc-fab-base .mat-focus-indicator::before {\n  margin: calc(calc(var(--%NS%mat-focus-indicator-border-width, 3px) + 2px) * -1);\n  border-radius: calc(var(--%NS%mat-fab-container-shape, var(--%NS%mat-sys-corner-large)) + calc(var(--%NS%mat-focus-indicator-border-width, 3px) + 2px));\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base[disabled]:focus, .mat-mdc-fab-base.mat-mdc-button-disabled, .mat-mdc-fab-base.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-fab-base.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-fab {\n  background-color: var(--%NS%mat-fab-container-color, var(--%NS%mat-sys-primary-container));\n  border-radius: var(--%NS%mat-fab-container-shape, var(--%NS%mat-sys-corner-large));\n  color: var(--%NS%mat-fab-foreground-color, var(--%NS%mat-sys-on-primary-container, inherit));\n  box-shadow: var(--%NS%mat-fab-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-fab:hover {\n    box-shadow: var(--%NS%mat-fab-hover-container-elevation-shadow, var(--%NS%mat-sys-level4));\n  }\n}\n.mat-mdc-fab:focus {\n  box-shadow: var(--%NS%mat-fab-focus-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-fab:active, .mat-mdc-fab:focus:active {\n  box-shadow: var(--%NS%mat-fab-pressed-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-fab[disabled], .mat-mdc-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-fab-disabled-state-foreground-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  background-color: var(--%NS%mat-fab-disabled-state-container-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-fab-touch-target-size, 48px);\n  display: var(--%NS%mat-fab-touch-target-display, block);\n  left: 50%;\n  width: var(--%NS%mat-fab-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-fab .mat-ripple-element {\n  background-color: var(--%NS%mat-fab-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-on-primary-container) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-fab-state-layer-color, var(--%NS%mat-sys-on-primary-container));\n}\n.mat-mdc-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-fab-disabled-state-layer-color);\n}\n.mat-mdc-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-mini-fab {\n  width: 40px;\n  height: 40px;\n  background-color: var(--%NS%mat-fab-small-container-color, var(--%NS%mat-sys-primary-container));\n  border-radius: var(--%NS%mat-fab-small-container-shape, var(--%NS%mat-sys-corner-medium));\n  color: var(--%NS%mat-fab-small-foreground-color, var(--%NS%mat-sys-on-primary-container, inherit));\n  box-shadow: var(--%NS%mat-fab-small-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-mini-fab:hover {\n    box-shadow: var(--%NS%mat-fab-small-hover-container-elevation-shadow, var(--%NS%mat-sys-level4));\n  }\n}\n.mat-mdc-mini-fab:focus {\n  box-shadow: var(--%NS%mat-fab-small-focus-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-mini-fab:active, .mat-mdc-mini-fab:focus:active {\n  box-shadow: var(--%NS%mat-fab-small-pressed-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-mini-fab .mat-focus-indicator::before {\n  border-radius: calc(var(--%NS%mat-fab-small-container-shape, var(--%NS%mat-sys-corner-medium)) + calc(var(--%NS%mat-focus-indicator-border-width, 3px) + 2px));\n}\n.mat-mdc-mini-fab[disabled], .mat-mdc-mini-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-fab-small-disabled-state-foreground-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  background-color: var(--%NS%mat-fab-small-disabled-state-container-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-mini-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-fab-small-touch-target-size, 48px);\n  display: var(--%NS%mat-fab-small-touch-target-display);\n  left: 50%;\n  width: var(--%NS%mat-fab-small-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-mini-fab .mat-ripple-element {\n  background-color: var(--%NS%mat-fab-small-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-on-primary-container) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-mini-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-fab-small-state-layer-color, var(--%NS%mat-sys-on-primary-container));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-fab-small-disabled-state-layer-color);\n}\n.mat-mdc-mini-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-small-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-mini-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-small-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-mini-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-small-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-extended-fab {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  padding-left: 20px;\n  padding-right: 20px;\n  width: auto;\n  max-width: 100%;\n  line-height: normal;\n  box-shadow: var(--%NS%mat-fab-extended-container-elevation-shadow, var(--%NS%mat-sys-level3));\n  height: var(--%NS%mat-fab-extended-container-height, 56px);\n  border-radius: var(--%NS%mat-fab-extended-container-shape, var(--%NS%mat-sys-corner-large));\n  font-family: var(--%NS%mat-fab-extended-label-text-font, var(--%NS%mat-sys-label-large-font));\n  font-size: var(--%NS%mat-fab-extended-label-text-size, var(--%NS%mat-sys-label-large-size));\n  font-weight: var(--%NS%mat-fab-extended-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n  letter-spacing: var(--%NS%mat-fab-extended-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n}\n@media (hover: hover) {\n  .mat-mdc-extended-fab:hover {\n    box-shadow: var(--%NS%mat-fab-extended-hover-container-elevation-shadow, var(--%NS%mat-sys-level4));\n  }\n}\n.mat-mdc-extended-fab:focus {\n  box-shadow: var(--%NS%mat-fab-extended-focus-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-extended-fab:active, .mat-mdc-extended-fab:focus:active {\n  box-shadow: var(--%NS%mat-fab-extended-pressed-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab[disabled]:focus, .mat-mdc-extended-fab.mat-mdc-button-disabled, .mat-mdc-extended-fab.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-extended-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n[dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .mat-icon, [dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .material-icons,\n.mat-mdc-extended-fab > .mat-icon,\n.mat-mdc-extended-fab > .material-icons {\n  margin-left: -8px;\n  margin-right: 12px;\n}\n.mat-mdc-extended-fab .mdc-button__label + .mat-icon,\n.mat-mdc-extended-fab .mdc-button__label + .material-icons, [dir=rtl] .mat-mdc-extended-fab > .mat-icon, [dir=rtl] .mat-mdc-extended-fab > .material-icons {\n  margin-left: 12px;\n  margin-right: -8px;\n}\n.mat-mdc-extended-fab .mat-mdc-button-touch-target {\n  width: 100%;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  margin-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n';
 var APPEARANCE_CLASSES = /* @__PURE__ */ new Map([["text", ["mat-mdc-button"]], ["filled", ["mdc-button--unelevated", "mat-mdc-unelevated-button"]], ["elevated", ["mdc-button--raised", "mat-mdc-raised-button"]], ["outlined", ["mdc-button--outlined", "mat-mdc-outlined-button"]], ["tonal", ["mat-tonal-button"]]]);
 var MatButton = class _MatButton extends MatButtonBase {
   get appearance() {
@@ -71841,7 +72661,7 @@ var MatButton = class _MatButton extends MatButtonBase {
         \u0275\u0275conditional(ctx.showProgress() ? 5 : -1);
       }
     },
-    styles: ['.mat-mdc-button-base {\n  text-decoration: none;\n}\n.mat-mdc-button-base .mat-icon {\n  min-height: fit-content;\n  flex-shrink: 0;\n}\n@media (hover: none) {\n  .mat-mdc-button-base:hover > span.mat-mdc-button-persistent-ripple::before {\n    opacity: 0;\n  }\n}\n\n.mdc-button {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  min-width: 64px;\n  border: none;\n  outline: none;\n  line-height: inherit;\n  -webkit-appearance: none;\n  overflow: visible;\n  vertical-align: middle;\n  background: transparent;\n  padding: 0 8px;\n}\n.mdc-button::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mdc-button:active {\n  outline: none;\n}\n.mdc-button:hover {\n  cursor: pointer;\n}\n.mdc-button:disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mdc-button[hidden] {\n  display: none;\n}\n.mdc-button .mdc-button__label {\n  position: relative;\n}\n\n.mat-mdc-button {\n  padding: 0 var(--mat-button-text-horizontal-padding, 12px);\n  height: var(--mat-button-text-container-height, 40px);\n  font-family: var(--mat-button-text-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-button-text-label-text-size, var(--mat-sys-label-large-size));\n  letter-spacing: var(--mat-button-text-label-text-tracking, var(--mat-sys-label-large-tracking));\n  text-transform: var(--mat-button-text-label-text-transform);\n  font-weight: var(--mat-button-text-label-text-weight, var(--mat-sys-label-large-weight));\n}\n.mat-mdc-button, .mat-mdc-button .mdc-button__ripple {\n  border-radius: var(--mat-button-text-container-shape, var(--mat-sys-corner-full));\n}\n.mat-mdc-button:not(:disabled) {\n  color: var(--mat-button-text-label-text-color, var(--mat-sys-primary));\n}\n.mat-mdc-button[disabled], .mat-mdc-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-button-text-disabled-label-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-button:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding: 0 var(--mat-button-text-with-icon-horizontal-padding, 16px);\n}\n.mat-mdc-button > .mat-icon {\n  margin-right: var(--mat-button-text-icon-spacing, 8px);\n  margin-left: var(--mat-button-text-icon-offset, -4px);\n}\n[dir=rtl] .mat-mdc-button > .mat-icon {\n  margin-right: var(--mat-button-text-icon-offset, -4px);\n  margin-left: var(--mat-button-text-icon-spacing, 8px);\n}\n.mat-mdc-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-text-icon-offset, -4px);\n  margin-left: var(--mat-button-text-icon-spacing, 8px);\n}\n[dir=rtl] .mat-mdc-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-text-icon-spacing, 8px);\n  margin-left: var(--mat-button-text-icon-offset, -4px);\n}\n.mat-mdc-button .mat-ripple-element {\n  background-color: var(--mat-button-text-ripple-color, color-mix(in srgb, var(--mat-sys-primary) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-text-state-layer-color, var(--mat-sys-primary));\n}\n.mat-mdc-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-text-disabled-state-layer-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-text-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-text-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-text-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-button-text-touch-target-size, 48px);\n  display: var(--mat-button-text-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n\n.mat-mdc-unelevated-button {\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);\n  height: var(--mat-button-filled-container-height, 40px);\n  font-family: var(--mat-button-filled-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-button-filled-label-text-size, var(--mat-sys-label-large-size));\n  letter-spacing: var(--mat-button-filled-label-text-tracking, var(--mat-sys-label-large-tracking));\n  text-transform: var(--mat-button-filled-label-text-transform);\n  font-weight: var(--mat-button-filled-label-text-weight, var(--mat-sys-label-large-weight));\n  padding: 0 var(--mat-button-filled-horizontal-padding, 24px);\n}\n.mat-mdc-unelevated-button > .mat-icon {\n  margin-right: var(--mat-button-filled-icon-spacing, 8px);\n  margin-left: var(--mat-button-filled-icon-offset, -8px);\n}\n[dir=rtl] .mat-mdc-unelevated-button > .mat-icon {\n  margin-right: var(--mat-button-filled-icon-offset, -8px);\n  margin-left: var(--mat-button-filled-icon-spacing, 8px);\n}\n.mat-mdc-unelevated-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-filled-icon-offset, -8px);\n  margin-left: var(--mat-button-filled-icon-spacing, 8px);\n}\n[dir=rtl] .mat-mdc-unelevated-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-filled-icon-spacing, 8px);\n  margin-left: var(--mat-button-filled-icon-offset, -8px);\n}\n.mat-mdc-unelevated-button .mat-ripple-element {\n  background-color: var(--mat-button-filled-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-unelevated-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-filled-state-layer-color, var(--mat-sys-on-primary));\n}\n.mat-mdc-unelevated-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-filled-disabled-state-layer-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-unelevated-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-filled-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-unelevated-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-unelevated-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-unelevated-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-filled-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-unelevated-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-filled-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-unelevated-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-button-filled-touch-target-size, 48px);\n  display: var(--mat-button-filled-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n.mat-mdc-unelevated-button:not(:disabled) {\n  color: var(--mat-button-filled-label-text-color, var(--mat-sys-on-primary));\n  background-color: var(--mat-button-filled-container-color, var(--mat-sys-primary));\n}\n.mat-mdc-unelevated-button, .mat-mdc-unelevated-button .mdc-button__ripple {\n  border-radius: var(--mat-button-filled-container-shape, var(--mat-sys-corner-full));\n}\n.mat-mdc-unelevated-button .mat-mdc-button-progress-indicator-container {\n  --mat-progress-spinner-active-indicator-color: var(--mat-button-filled-progress-active-indicator-color, var(--mat-sys-on-primary));\n}\n.mat-mdc-unelevated-button[disabled], .mat-mdc-unelevated-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-button-filled-disabled-label-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-button-filled-disabled-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-unelevated-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-raised-button {\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);\n  box-shadow: var(--mat-button-protected-container-elevation-shadow, var(--mat-sys-level1));\n  height: var(--mat-button-protected-container-height, 40px);\n  font-family: var(--mat-button-protected-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-button-protected-label-text-size, var(--mat-sys-label-large-size));\n  letter-spacing: var(--mat-button-protected-label-text-tracking, var(--mat-sys-label-large-tracking));\n  text-transform: var(--mat-button-protected-label-text-transform);\n  font-weight: var(--mat-button-protected-label-text-weight, var(--mat-sys-label-large-weight));\n  padding: 0 var(--mat-button-protected-horizontal-padding, 24px);\n}\n.mat-mdc-raised-button > .mat-icon {\n  margin-right: var(--mat-button-protected-icon-spacing, 8px);\n  margin-left: var(--mat-button-protected-icon-offset, -8px);\n}\n[dir=rtl] .mat-mdc-raised-button > .mat-icon {\n  margin-right: var(--mat-button-protected-icon-offset, -8px);\n  margin-left: var(--mat-button-protected-icon-spacing, 8px);\n}\n.mat-mdc-raised-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-protected-icon-offset, -8px);\n  margin-left: var(--mat-button-protected-icon-spacing, 8px);\n}\n[dir=rtl] .mat-mdc-raised-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-protected-icon-spacing, 8px);\n  margin-left: var(--mat-button-protected-icon-offset, -8px);\n}\n.mat-mdc-raised-button .mat-ripple-element {\n  background-color: var(--mat-button-protected-ripple-color, color-mix(in srgb, var(--mat-sys-primary) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-raised-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-protected-state-layer-color, var(--mat-sys-primary));\n}\n.mat-mdc-raised-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-protected-disabled-state-layer-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-raised-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-protected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-raised-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-raised-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-raised-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-protected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-raised-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-protected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-raised-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-button-protected-touch-target-size, 48px);\n  display: var(--mat-button-protected-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n.mat-mdc-raised-button:not(:disabled) {\n  color: var(--mat-button-protected-label-text-color, var(--mat-sys-primary));\n  background-color: var(--mat-button-protected-container-color, var(--mat-sys-surface));\n}\n.mat-mdc-raised-button, .mat-mdc-raised-button .mdc-button__ripple {\n  border-radius: var(--mat-button-protected-container-shape, var(--mat-sys-corner-full));\n}\n@media (hover: hover) {\n  .mat-mdc-raised-button:hover {\n    box-shadow: var(--mat-button-protected-hover-container-elevation-shadow, var(--mat-sys-level2));\n  }\n}\n.mat-mdc-raised-button:focus {\n  box-shadow: var(--mat-button-protected-focus-container-elevation-shadow, var(--mat-sys-level1));\n}\n.mat-mdc-raised-button:active, .mat-mdc-raised-button:focus:active {\n  box-shadow: var(--mat-button-protected-pressed-container-elevation-shadow, var(--mat-sys-level1));\n}\n.mat-mdc-raised-button[disabled], .mat-mdc-raised-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-button-protected-disabled-label-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-button-protected-disabled-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-raised-button[disabled].mat-mdc-button-disabled, .mat-mdc-raised-button.mat-mdc-button-disabled.mat-mdc-button-disabled {\n  box-shadow: var(--mat-button-protected-disabled-container-elevation-shadow, var(--mat-sys-level0));\n}\n.mat-mdc-raised-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-outlined-button {\n  border-style: solid;\n  transition: border 280ms cubic-bezier(0.4, 0, 0.2, 1);\n  height: var(--mat-button-outlined-container-height, 40px);\n  font-family: var(--mat-button-outlined-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-button-outlined-label-text-size, var(--mat-sys-label-large-size));\n  letter-spacing: var(--mat-button-outlined-label-text-tracking, var(--mat-sys-label-large-tracking));\n  text-transform: var(--mat-button-outlined-label-text-transform);\n  font-weight: var(--mat-button-outlined-label-text-weight, var(--mat-sys-label-large-weight));\n  border-radius: var(--mat-button-outlined-container-shape, var(--mat-sys-corner-full));\n  border-width: var(--mat-button-outlined-outline-width, 1px);\n  padding: 0 var(--mat-button-outlined-horizontal-padding, 24px);\n}\n.mat-mdc-outlined-button > .mat-icon {\n  margin-right: var(--mat-button-outlined-icon-spacing, 8px);\n  margin-left: var(--mat-button-outlined-icon-offset, -8px);\n}\n[dir=rtl] .mat-mdc-outlined-button > .mat-icon {\n  margin-right: var(--mat-button-outlined-icon-offset, -8px);\n  margin-left: var(--mat-button-outlined-icon-spacing, 8px);\n}\n.mat-mdc-outlined-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-outlined-icon-offset, -8px);\n  margin-left: var(--mat-button-outlined-icon-spacing, 8px);\n}\n[dir=rtl] .mat-mdc-outlined-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-outlined-icon-spacing, 8px);\n  margin-left: var(--mat-button-outlined-icon-offset, -8px);\n}\n.mat-mdc-outlined-button .mat-ripple-element {\n  background-color: var(--mat-button-outlined-ripple-color, color-mix(in srgb, var(--mat-sys-primary) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-outlined-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-outlined-state-layer-color, var(--mat-sys-primary));\n}\n.mat-mdc-outlined-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-outlined-disabled-state-layer-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-outlined-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-outlined-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-outlined-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-outlined-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-outlined-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-outlined-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-outlined-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-outlined-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-outlined-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-button-outlined-touch-target-size, 48px);\n  display: var(--mat-button-outlined-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n.mat-mdc-outlined-button:not(:disabled) {\n  color: var(--mat-button-outlined-label-text-color, var(--mat-sys-primary));\n  border-color: var(--mat-button-outlined-outline-color, var(--mat-sys-outline));\n}\n.mat-mdc-outlined-button[disabled], .mat-mdc-outlined-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-button-outlined-disabled-label-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  border-color: var(--mat-button-outlined-disabled-outline-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-outlined-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-tonal-button {\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);\n  height: var(--mat-button-tonal-container-height, 40px);\n  font-family: var(--mat-button-tonal-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-button-tonal-label-text-size, var(--mat-sys-label-large-size));\n  letter-spacing: var(--mat-button-tonal-label-text-tracking, var(--mat-sys-label-large-tracking));\n  text-transform: var(--mat-button-tonal-label-text-transform);\n  font-weight: var(--mat-button-tonal-label-text-weight, var(--mat-sys-label-large-weight));\n  padding: 0 var(--mat-button-tonal-horizontal-padding, 24px);\n}\n.mat-tonal-button:not(:disabled) {\n  color: var(--mat-button-tonal-label-text-color, var(--mat-sys-on-secondary-container));\n  background-color: var(--mat-button-tonal-container-color, var(--mat-sys-secondary-container));\n}\n.mat-tonal-button, .mat-tonal-button .mdc-button__ripple {\n  border-radius: var(--mat-button-tonal-container-shape, var(--mat-sys-corner-full));\n}\n.mat-tonal-button[disabled], .mat-tonal-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-button-tonal-disabled-label-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-button-tonal-disabled-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-tonal-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-tonal-button > .mat-icon {\n  margin-right: var(--mat-button-tonal-icon-spacing, 8px);\n  margin-left: var(--mat-button-tonal-icon-offset, -8px);\n}\n[dir=rtl] .mat-tonal-button > .mat-icon {\n  margin-right: var(--mat-button-tonal-icon-offset, -8px);\n  margin-left: var(--mat-button-tonal-icon-spacing, 8px);\n}\n.mat-tonal-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-tonal-icon-offset, -8px);\n  margin-left: var(--mat-button-tonal-icon-spacing, 8px);\n}\n[dir=rtl] .mat-tonal-button .mdc-button__label + .mat-icon {\n  margin-right: var(--mat-button-tonal-icon-spacing, 8px);\n  margin-left: var(--mat-button-tonal-icon-offset, -8px);\n}\n.mat-tonal-button .mat-ripple-element {\n  background-color: var(--mat-button-tonal-ripple-color, color-mix(in srgb, var(--mat-sys-on-secondary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-tonal-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-tonal-state-layer-color, var(--mat-sys-on-secondary-container));\n}\n.mat-tonal-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-button-tonal-disabled-state-layer-color, var(--mat-sys-on-surface-variant));\n}\n.mat-tonal-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-tonal-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-tonal-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-tonal-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-tonal-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-tonal-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-tonal-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-button-tonal-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n.mat-tonal-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-button-tonal-touch-target-size, 48px);\n  display: var(--mat-button-tonal-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n\n.mat-mdc-button,\n.mat-mdc-unelevated-button,\n.mat-mdc-raised-button,\n.mat-mdc-outlined-button,\n.mat-tonal-button {\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-button .mat-mdc-button-ripple,\n.mat-mdc-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-unelevated-button .mat-mdc-button-ripple,\n.mat-mdc-unelevated-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-unelevated-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-raised-button .mat-mdc-button-ripple,\n.mat-mdc-raised-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-raised-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-outlined-button .mat-mdc-button-ripple,\n.mat-mdc-outlined-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-outlined-button .mat-mdc-button-persistent-ripple::before,\n.mat-tonal-button .mat-mdc-button-ripple,\n.mat-tonal-button .mat-mdc-button-persistent-ripple,\n.mat-tonal-button .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-button .mat-mdc-button-ripple,\n.mat-mdc-unelevated-button .mat-mdc-button-ripple,\n.mat-mdc-raised-button .mat-mdc-button-ripple,\n.mat-mdc-outlined-button .mat-mdc-button-ripple,\n.mat-tonal-button .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-unelevated-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-raised-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-outlined-button .mat-mdc-button-persistent-ripple::before,\n.mat-tonal-button .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-button .mdc-button__label,\n.mat-mdc-button .mat-icon,\n.mat-mdc-unelevated-button .mdc-button__label,\n.mat-mdc-unelevated-button .mat-icon,\n.mat-mdc-raised-button .mdc-button__label,\n.mat-mdc-raised-button .mat-icon,\n.mat-mdc-outlined-button .mdc-button__label,\n.mat-mdc-outlined-button .mat-icon,\n.mat-tonal-button .mdc-button__label,\n.mat-tonal-button .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-button .mat-focus-indicator,\n.mat-mdc-unelevated-button .mat-focus-indicator,\n.mat-mdc-raised-button .mat-focus-indicator,\n.mat-mdc-outlined-button .mat-focus-indicator,\n.mat-tonal-button .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: inherit;\n}\n.mat-mdc-button:focus-visible > .mat-focus-indicator::before,\n.mat-mdc-unelevated-button:focus-visible > .mat-focus-indicator::before,\n.mat-mdc-raised-button:focus-visible > .mat-focus-indicator::before,\n.mat-mdc-outlined-button:focus-visible > .mat-focus-indicator::before,\n.mat-tonal-button:focus-visible > .mat-focus-indicator::before {\n  content: "";\n  border-radius: inherit;\n}\n.mat-mdc-button._mat-animation-noopable,\n.mat-mdc-unelevated-button._mat-animation-noopable,\n.mat-mdc-raised-button._mat-animation-noopable,\n.mat-mdc-outlined-button._mat-animation-noopable,\n.mat-tonal-button._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-button > .mat-icon,\n.mat-mdc-unelevated-button > .mat-icon,\n.mat-mdc-raised-button > .mat-icon,\n.mat-mdc-outlined-button > .mat-icon,\n.mat-tonal-button > .mat-icon {\n  display: inline-block;\n  position: relative;\n  vertical-align: top;\n  font-size: 1.125rem;\n  height: 1.125rem;\n  width: 1.125rem;\n}\n\n.mat-mdc-outlined-button .mat-mdc-button-ripple,\n.mat-mdc-outlined-button .mdc-button__ripple {\n  top: -1px;\n  left: -1px;\n  bottom: -1px;\n  right: -1px;\n}\n\n.mat-mdc-unelevated-button .mat-focus-indicator::before,\n.mat-tonal-button .mat-focus-indicator::before,\n.mat-mdc-raised-button .mat-focus-indicator::before {\n  margin: calc(calc(var(--mat-focus-indicator-border-width, 3px) + 2px) * -1);\n}\n\n.mat-mdc-outlined-button .mat-focus-indicator::before {\n  margin: calc(calc(var(--mat-focus-indicator-border-width, 3px) + 3px) * -1);\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  inset-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n', "@media (forced-colors: active) {\n  .mat-mdc-button:not(.mdc-button--outlined),\n  .mat-mdc-unelevated-button:not(.mdc-button--outlined),\n  .mat-mdc-raised-button:not(.mdc-button--outlined),\n  .mat-mdc-outlined-button:not(.mdc-button--outlined),\n  .mat-mdc-button-base.mat-tonal-button,\n  .mat-mdc-icon-button.mat-mdc-icon-button,\n  .mat-mdc-outlined-button .mdc-button__ripple {\n    outline: solid 1px;\n  }\n}\n"],
+    styles: ['.mat-mdc-button-base {\n  text-decoration: none;\n}\n.mat-mdc-button-base .mat-icon {\n  min-height: fit-content;\n  flex-shrink: 0;\n}\n@media (hover: none) {\n  .mat-mdc-button-base:hover > span.mat-mdc-button-persistent-ripple::before {\n    opacity: 0;\n  }\n}\n\n.mdc-button {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  min-width: 64px;\n  border: none;\n  outline: none;\n  line-height: inherit;\n  -webkit-appearance: none;\n  overflow: visible;\n  vertical-align: middle;\n  background: transparent;\n  padding: 0 8px;\n}\n.mdc-button::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mdc-button:active {\n  outline: none;\n}\n.mdc-button:hover {\n  cursor: pointer;\n}\n.mdc-button:disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mdc-button[hidden] {\n  display: none;\n}\n.mdc-button .mdc-button__label {\n  position: relative;\n}\n\n.mat-mdc-button {\n  padding: 0 var(--%NS%mat-button-text-horizontal-padding, 12px);\n  height: var(--%NS%mat-button-text-container-height, 40px);\n  font-family: var(--%NS%mat-button-text-label-text-font, var(--%NS%mat-sys-label-large-font));\n  font-size: var(--%NS%mat-button-text-label-text-size, var(--%NS%mat-sys-label-large-size));\n  letter-spacing: var(--%NS%mat-button-text-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  text-transform: var(--%NS%mat-button-text-label-text-transform);\n  font-weight: var(--%NS%mat-button-text-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n}\n.mat-mdc-button, .mat-mdc-button .mdc-button__ripple {\n  border-radius: var(--%NS%mat-button-text-container-shape, var(--%NS%mat-sys-corner-full));\n}\n.mat-mdc-button:not(:disabled) {\n  color: var(--%NS%mat-button-text-label-text-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-button[disabled], .mat-mdc-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-button-text-disabled-label-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-button:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding: 0 var(--%NS%mat-button-text-with-icon-horizontal-padding, 16px);\n}\n.mat-mdc-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-text-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-text-icon-offset, -4px);\n}\n[dir=rtl] .mat-mdc-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-text-icon-offset, -4px);\n  margin-left: var(--%NS%mat-button-text-icon-spacing, 8px);\n}\n.mat-mdc-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-text-icon-offset, -4px);\n  margin-left: var(--%NS%mat-button-text-icon-spacing, 8px);\n}\n[dir=rtl] .mat-mdc-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-text-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-text-icon-offset, -4px);\n}\n.mat-mdc-button .mat-ripple-element {\n  background-color: var(--%NS%mat-button-text-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-primary) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-text-state-layer-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-text-disabled-state-layer-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-text-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-text-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-text-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-button-text-touch-target-size, 48px);\n  display: var(--%NS%mat-button-text-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n\n.mat-mdc-unelevated-button {\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);\n  height: var(--%NS%mat-button-filled-container-height, 40px);\n  font-family: var(--%NS%mat-button-filled-label-text-font, var(--%NS%mat-sys-label-large-font));\n  font-size: var(--%NS%mat-button-filled-label-text-size, var(--%NS%mat-sys-label-large-size));\n  letter-spacing: var(--%NS%mat-button-filled-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  text-transform: var(--%NS%mat-button-filled-label-text-transform);\n  font-weight: var(--%NS%mat-button-filled-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n  padding: 0 var(--%NS%mat-button-filled-horizontal-padding, 24px);\n}\n.mat-mdc-unelevated-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-filled-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-filled-icon-offset, -8px);\n}\n[dir=rtl] .mat-mdc-unelevated-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-filled-icon-offset, -8px);\n  margin-left: var(--%NS%mat-button-filled-icon-spacing, 8px);\n}\n.mat-mdc-unelevated-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-filled-icon-offset, -8px);\n  margin-left: var(--%NS%mat-button-filled-icon-spacing, 8px);\n}\n[dir=rtl] .mat-mdc-unelevated-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-filled-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-filled-icon-offset, -8px);\n}\n.mat-mdc-unelevated-button .mat-ripple-element {\n  background-color: var(--%NS%mat-button-filled-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-on-primary) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-unelevated-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-filled-state-layer-color, var(--%NS%mat-sys-on-primary));\n}\n.mat-mdc-unelevated-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-filled-disabled-state-layer-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-unelevated-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-filled-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-unelevated-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-unelevated-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-unelevated-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-filled-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-unelevated-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-filled-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-unelevated-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-button-filled-touch-target-size, 48px);\n  display: var(--%NS%mat-button-filled-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n.mat-mdc-unelevated-button:not(:disabled) {\n  color: var(--%NS%mat-button-filled-label-text-color, var(--%NS%mat-sys-on-primary));\n  background-color: var(--%NS%mat-button-filled-container-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-unelevated-button, .mat-mdc-unelevated-button .mdc-button__ripple {\n  border-radius: var(--%NS%mat-button-filled-container-shape, var(--%NS%mat-sys-corner-full));\n}\n.mat-mdc-unelevated-button .mat-mdc-button-progress-indicator-container {\n  --%NS%mat-progress-spinner-active-indicator-color: var(--%NS%mat-button-filled-progress-active-indicator-color, var(--%NS%mat-sys-on-primary));\n}\n.mat-mdc-unelevated-button[disabled], .mat-mdc-unelevated-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-button-filled-disabled-label-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  background-color: var(--%NS%mat-button-filled-disabled-container-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-unelevated-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-raised-button {\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);\n  box-shadow: var(--%NS%mat-button-protected-container-elevation-shadow, var(--%NS%mat-sys-level1));\n  height: var(--%NS%mat-button-protected-container-height, 40px);\n  font-family: var(--%NS%mat-button-protected-label-text-font, var(--%NS%mat-sys-label-large-font));\n  font-size: var(--%NS%mat-button-protected-label-text-size, var(--%NS%mat-sys-label-large-size));\n  letter-spacing: var(--%NS%mat-button-protected-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  text-transform: var(--%NS%mat-button-protected-label-text-transform);\n  font-weight: var(--%NS%mat-button-protected-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n  padding: 0 var(--%NS%mat-button-protected-horizontal-padding, 24px);\n}\n.mat-mdc-raised-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-protected-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-protected-icon-offset, -8px);\n}\n[dir=rtl] .mat-mdc-raised-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-protected-icon-offset, -8px);\n  margin-left: var(--%NS%mat-button-protected-icon-spacing, 8px);\n}\n.mat-mdc-raised-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-protected-icon-offset, -8px);\n  margin-left: var(--%NS%mat-button-protected-icon-spacing, 8px);\n}\n[dir=rtl] .mat-mdc-raised-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-protected-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-protected-icon-offset, -8px);\n}\n.mat-mdc-raised-button .mat-ripple-element {\n  background-color: var(--%NS%mat-button-protected-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-primary) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-raised-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-protected-state-layer-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-raised-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-protected-disabled-state-layer-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-raised-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-protected-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-raised-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-raised-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-raised-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-protected-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-raised-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-protected-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-raised-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-button-protected-touch-target-size, 48px);\n  display: var(--%NS%mat-button-protected-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n.mat-mdc-raised-button:not(:disabled) {\n  color: var(--%NS%mat-button-protected-label-text-color, var(--%NS%mat-sys-primary));\n  background-color: var(--%NS%mat-button-protected-container-color, var(--%NS%mat-sys-surface));\n}\n.mat-mdc-raised-button, .mat-mdc-raised-button .mdc-button__ripple {\n  border-radius: var(--%NS%mat-button-protected-container-shape, var(--%NS%mat-sys-corner-full));\n}\n@media (hover: hover) {\n  .mat-mdc-raised-button:hover {\n    box-shadow: var(--%NS%mat-button-protected-hover-container-elevation-shadow, var(--%NS%mat-sys-level2));\n  }\n}\n.mat-mdc-raised-button:focus {\n  box-shadow: var(--%NS%mat-button-protected-focus-container-elevation-shadow, var(--%NS%mat-sys-level1));\n}\n.mat-mdc-raised-button:active, .mat-mdc-raised-button:focus:active {\n  box-shadow: var(--%NS%mat-button-protected-pressed-container-elevation-shadow, var(--%NS%mat-sys-level1));\n}\n.mat-mdc-raised-button[disabled], .mat-mdc-raised-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-button-protected-disabled-label-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  background-color: var(--%NS%mat-button-protected-disabled-container-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-raised-button[disabled].mat-mdc-button-disabled, .mat-mdc-raised-button.mat-mdc-button-disabled.mat-mdc-button-disabled {\n  box-shadow: var(--%NS%mat-button-protected-disabled-container-elevation-shadow, var(--%NS%mat-sys-level0));\n}\n.mat-mdc-raised-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-outlined-button {\n  border-style: solid;\n  transition: border 280ms cubic-bezier(0.4, 0, 0.2, 1);\n  height: var(--%NS%mat-button-outlined-container-height, 40px);\n  font-family: var(--%NS%mat-button-outlined-label-text-font, var(--%NS%mat-sys-label-large-font));\n  font-size: var(--%NS%mat-button-outlined-label-text-size, var(--%NS%mat-sys-label-large-size));\n  letter-spacing: var(--%NS%mat-button-outlined-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  text-transform: var(--%NS%mat-button-outlined-label-text-transform);\n  font-weight: var(--%NS%mat-button-outlined-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n  border-radius: var(--%NS%mat-button-outlined-container-shape, var(--%NS%mat-sys-corner-full));\n  border-width: var(--%NS%mat-button-outlined-outline-width, 1px);\n  padding: 0 var(--%NS%mat-button-outlined-horizontal-padding, 24px);\n}\n.mat-mdc-outlined-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-outlined-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-outlined-icon-offset, -8px);\n}\n[dir=rtl] .mat-mdc-outlined-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-outlined-icon-offset, -8px);\n  margin-left: var(--%NS%mat-button-outlined-icon-spacing, 8px);\n}\n.mat-mdc-outlined-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-outlined-icon-offset, -8px);\n  margin-left: var(--%NS%mat-button-outlined-icon-spacing, 8px);\n}\n[dir=rtl] .mat-mdc-outlined-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-outlined-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-outlined-icon-offset, -8px);\n}\n.mat-mdc-outlined-button .mat-ripple-element {\n  background-color: var(--%NS%mat-button-outlined-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-primary) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-outlined-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-outlined-state-layer-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-outlined-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-outlined-disabled-state-layer-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-outlined-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-outlined-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-outlined-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-outlined-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-outlined-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-outlined-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-outlined-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-outlined-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n.mat-mdc-outlined-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-button-outlined-touch-target-size, 48px);\n  display: var(--%NS%mat-button-outlined-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n.mat-mdc-outlined-button:not(:disabled) {\n  color: var(--%NS%mat-button-outlined-label-text-color, var(--%NS%mat-sys-primary));\n  border-color: var(--%NS%mat-button-outlined-outline-color, var(--%NS%mat-sys-outline));\n}\n.mat-mdc-outlined-button[disabled], .mat-mdc-outlined-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-button-outlined-disabled-label-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  border-color: var(--%NS%mat-button-outlined-disabled-outline-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-outlined-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-tonal-button {\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);\n  height: var(--%NS%mat-button-tonal-container-height, 40px);\n  font-family: var(--%NS%mat-button-tonal-label-text-font, var(--%NS%mat-sys-label-large-font));\n  font-size: var(--%NS%mat-button-tonal-label-text-size, var(--%NS%mat-sys-label-large-size));\n  letter-spacing: var(--%NS%mat-button-tonal-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  text-transform: var(--%NS%mat-button-tonal-label-text-transform);\n  font-weight: var(--%NS%mat-button-tonal-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n  padding: 0 var(--%NS%mat-button-tonal-horizontal-padding, 24px);\n}\n.mat-tonal-button:not(:disabled) {\n  color: var(--%NS%mat-button-tonal-label-text-color, var(--%NS%mat-sys-on-secondary-container));\n  background-color: var(--%NS%mat-button-tonal-container-color, var(--%NS%mat-sys-secondary-container));\n}\n.mat-tonal-button, .mat-tonal-button .mdc-button__ripple {\n  border-radius: var(--%NS%mat-button-tonal-container-shape, var(--%NS%mat-sys-corner-full));\n}\n.mat-tonal-button[disabled], .mat-tonal-button.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-button-tonal-disabled-label-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  background-color: var(--%NS%mat-button-tonal-disabled-container-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 12%, transparent));\n}\n.mat-tonal-button.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-tonal-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-tonal-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-tonal-icon-offset, -8px);\n}\n[dir=rtl] .mat-tonal-button > .mat-icon {\n  margin-right: var(--%NS%mat-button-tonal-icon-offset, -8px);\n  margin-left: var(--%NS%mat-button-tonal-icon-spacing, 8px);\n}\n.mat-tonal-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-tonal-icon-offset, -8px);\n  margin-left: var(--%NS%mat-button-tonal-icon-spacing, 8px);\n}\n[dir=rtl] .mat-tonal-button .mdc-button__label + .mat-icon {\n  margin-right: var(--%NS%mat-button-tonal-icon-spacing, 8px);\n  margin-left: var(--%NS%mat-button-tonal-icon-offset, -8px);\n}\n.mat-tonal-button .mat-ripple-element {\n  background-color: var(--%NS%mat-button-tonal-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-on-secondary-container) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-tonal-button .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-tonal-state-layer-color, var(--%NS%mat-sys-on-secondary-container));\n}\n.mat-tonal-button.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-button-tonal-disabled-state-layer-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-tonal-button:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-tonal-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-tonal-button.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-tonal-button.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-tonal-button.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-tonal-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-tonal-button:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-button-tonal-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n.mat-tonal-button .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-button-tonal-touch-target-size, 48px);\n  display: var(--%NS%mat-button-tonal-touch-target-display, block);\n  left: 0;\n  right: 0;\n  transform: translateY(-50%);\n}\n\n.mat-mdc-button,\n.mat-mdc-unelevated-button,\n.mat-mdc-raised-button,\n.mat-mdc-outlined-button,\n.mat-tonal-button {\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-button .mat-mdc-button-ripple,\n.mat-mdc-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-unelevated-button .mat-mdc-button-ripple,\n.mat-mdc-unelevated-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-unelevated-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-raised-button .mat-mdc-button-ripple,\n.mat-mdc-raised-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-raised-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-outlined-button .mat-mdc-button-ripple,\n.mat-mdc-outlined-button .mat-mdc-button-persistent-ripple,\n.mat-mdc-outlined-button .mat-mdc-button-persistent-ripple::before,\n.mat-tonal-button .mat-mdc-button-ripple,\n.mat-tonal-button .mat-mdc-button-persistent-ripple,\n.mat-tonal-button .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-button .mat-mdc-button-ripple,\n.mat-mdc-unelevated-button .mat-mdc-button-ripple,\n.mat-mdc-raised-button .mat-mdc-button-ripple,\n.mat-mdc-outlined-button .mat-mdc-button-ripple,\n.mat-tonal-button .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-unelevated-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-raised-button .mat-mdc-button-persistent-ripple::before,\n.mat-mdc-outlined-button .mat-mdc-button-persistent-ripple::before,\n.mat-tonal-button .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-button .mdc-button__label,\n.mat-mdc-button .mat-icon,\n.mat-mdc-unelevated-button .mdc-button__label,\n.mat-mdc-unelevated-button .mat-icon,\n.mat-mdc-raised-button .mdc-button__label,\n.mat-mdc-raised-button .mat-icon,\n.mat-mdc-outlined-button .mdc-button__label,\n.mat-mdc-outlined-button .mat-icon,\n.mat-tonal-button .mdc-button__label,\n.mat-tonal-button .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-button .mat-focus-indicator,\n.mat-mdc-unelevated-button .mat-focus-indicator,\n.mat-mdc-raised-button .mat-focus-indicator,\n.mat-mdc-outlined-button .mat-focus-indicator,\n.mat-tonal-button .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: inherit;\n}\n.mat-mdc-button:focus-visible > .mat-focus-indicator::before,\n.mat-mdc-unelevated-button:focus-visible > .mat-focus-indicator::before,\n.mat-mdc-raised-button:focus-visible > .mat-focus-indicator::before,\n.mat-mdc-outlined-button:focus-visible > .mat-focus-indicator::before,\n.mat-tonal-button:focus-visible > .mat-focus-indicator::before {\n  content: "";\n  border-radius: inherit;\n}\n.mat-mdc-button._mat-animation-noopable,\n.mat-mdc-unelevated-button._mat-animation-noopable,\n.mat-mdc-raised-button._mat-animation-noopable,\n.mat-mdc-outlined-button._mat-animation-noopable,\n.mat-tonal-button._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-button > .mat-icon,\n.mat-mdc-unelevated-button > .mat-icon,\n.mat-mdc-raised-button > .mat-icon,\n.mat-mdc-outlined-button > .mat-icon,\n.mat-tonal-button > .mat-icon {\n  display: inline-block;\n  position: relative;\n  vertical-align: top;\n  font-size: 1.125rem;\n  height: 1.125rem;\n  width: 1.125rem;\n}\n\n.mat-mdc-outlined-button .mat-mdc-button-ripple,\n.mat-mdc-outlined-button .mdc-button__ripple {\n  top: -1px;\n  left: -1px;\n  bottom: -1px;\n  right: -1px;\n}\n\n.mat-mdc-unelevated-button .mat-focus-indicator::before,\n.mat-tonal-button .mat-focus-indicator::before,\n.mat-mdc-raised-button .mat-focus-indicator::before {\n  margin: calc(calc(var(--%NS%mat-focus-indicator-border-width, 3px) + 2px) * -1);\n}\n\n.mat-mdc-outlined-button .mat-focus-indicator::before {\n  margin: calc(calc(var(--%NS%mat-focus-indicator-border-width, 3px) + 3px) * -1);\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  inset-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n', "@media (forced-colors: active) {\n  .mat-mdc-button:not(.mdc-button--outlined),\n  .mat-mdc-unelevated-button:not(.mdc-button--outlined),\n  .mat-mdc-raised-button:not(.mdc-button--outlined),\n  .mat-mdc-outlined-button:not(.mdc-button--outlined),\n  .mat-mdc-button-base.mat-tonal-button,\n  .mat-mdc-icon-button.mat-mdc-icon-button,\n  .mat-mdc-outlined-button .mdc-button__ripple {\n    outline: solid 1px;\n  }\n}\n"],
     encapsulation: 2
   });
 };
@@ -71973,7 +72793,7 @@ var MatFabButton = class _MatFabButton extends MatButtonBase {
         \u0275\u0275conditional(ctx.showProgress() ? 5 : -1);
       }
     },
-    styles: ['.mat-mdc-fab-base {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  padding: 0;\n  border: none;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  overflow: visible;\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 15ms linear 30ms, transform 270ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  flex-shrink: 0;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-fab-base .mdc-button__label,\n.mat-mdc-fab-base .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-fab-base .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n}\n.mat-mdc-fab-base:focus-visible > .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-fab-base._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-fab-base::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mat-mdc-fab-base[hidden] {\n  display: none;\n}\n.mat-mdc-fab-base::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mat-mdc-fab-base:active, .mat-mdc-fab-base:focus {\n  outline: none;\n}\n.mat-mdc-fab-base:hover {\n  cursor: pointer;\n}\n.mat-mdc-fab-base > svg {\n  width: 100%;\n}\n.mat-mdc-fab-base .mat-icon, .mat-mdc-fab-base .material-icons {\n  transition: transform 180ms 90ms cubic-bezier(0, 0, 0.2, 1);\n  fill: currentColor;\n  will-change: transform;\n}\n.mat-mdc-fab-base .mat-focus-indicator::before {\n  margin: calc(calc(var(--mat-focus-indicator-border-width, 3px) + 2px) * -1);\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base[disabled]:focus, .mat-mdc-fab-base.mat-mdc-button-disabled, .mat-mdc-fab-base.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-fab-base.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-fab {\n  background-color: var(--mat-fab-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-container-shape, var(--mat-sys-corner-large));\n  color: var(--mat-fab-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-fab:hover {\n    box-shadow: var(--mat-fab-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-fab:focus {\n  box-shadow: var(--mat-fab-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab:active, .mat-mdc-fab:focus:active {\n  box-shadow: var(--mat-fab-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab[disabled], .mat-mdc-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-touch-target-size, 48px);\n  display: var(--mat-fab-touch-target-display, block);\n  left: 50%;\n  width: var(--mat-fab-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-fab .mat-ripple-element {\n  background-color: var(--mat-fab-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-disabled-state-layer-color);\n}\n.mat-mdc-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-mini-fab {\n  width: 40px;\n  height: 40px;\n  background-color: var(--mat-fab-small-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-small-container-shape, var(--mat-sys-corner-medium));\n  color: var(--mat-fab-small-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-small-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-mini-fab:hover {\n    box-shadow: var(--mat-fab-small-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-mini-fab:focus {\n  box-shadow: var(--mat-fab-small-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab:active, .mat-mdc-mini-fab:focus:active {\n  box-shadow: var(--mat-fab-small-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab[disabled], .mat-mdc-mini-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-small-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-small-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-mini-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-small-touch-target-size, 48px);\n  display: var(--mat-fab-small-touch-target-display);\n  left: 50%;\n  width: var(--mat-fab-small-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-mini-fab .mat-ripple-element {\n  background-color: var(--mat-fab-small-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-mini-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-disabled-state-layer-color);\n}\n.mat-mdc-mini-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-mini-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-mini-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-extended-fab {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  padding-left: 20px;\n  padding-right: 20px;\n  width: auto;\n  max-width: 100%;\n  line-height: normal;\n  box-shadow: var(--mat-fab-extended-container-elevation-shadow, var(--mat-sys-level3));\n  height: var(--mat-fab-extended-container-height, 56px);\n  border-radius: var(--mat-fab-extended-container-shape, var(--mat-sys-corner-large));\n  font-family: var(--mat-fab-extended-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-fab-extended-label-text-size, var(--mat-sys-label-large-size));\n  font-weight: var(--mat-fab-extended-label-text-weight, var(--mat-sys-label-large-weight));\n  letter-spacing: var(--mat-fab-extended-label-text-tracking, var(--mat-sys-label-large-tracking));\n}\n@media (hover: hover) {\n  .mat-mdc-extended-fab:hover {\n    box-shadow: var(--mat-fab-extended-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-extended-fab:focus {\n  box-shadow: var(--mat-fab-extended-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab:active, .mat-mdc-extended-fab:focus:active {\n  box-shadow: var(--mat-fab-extended-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab[disabled]:focus, .mat-mdc-extended-fab.mat-mdc-button-disabled, .mat-mdc-extended-fab.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-extended-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n[dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .mat-icon, [dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .material-icons,\n.mat-mdc-extended-fab > .mat-icon,\n.mat-mdc-extended-fab > .material-icons {\n  margin-left: -8px;\n  margin-right: 12px;\n}\n.mat-mdc-extended-fab .mdc-button__label + .mat-icon,\n.mat-mdc-extended-fab .mdc-button__label + .material-icons, [dir=rtl] .mat-mdc-extended-fab > .mat-icon, [dir=rtl] .mat-mdc-extended-fab > .material-icons {\n  margin-left: 12px;\n  margin-right: -8px;\n}\n.mat-mdc-extended-fab .mat-mdc-button-touch-target {\n  width: 100%;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  margin-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n'],
+    styles: ['.mat-mdc-fab-base {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  padding: 0;\n  border: none;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  overflow: visible;\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 15ms linear 30ms, transform 270ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  flex-shrink: 0;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-fab-base .mdc-button__label,\n.mat-mdc-fab-base .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-fab-base .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n}\n.mat-mdc-fab-base:focus-visible > .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-fab-base._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-fab-base::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mat-mdc-fab-base[hidden] {\n  display: none;\n}\n.mat-mdc-fab-base::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mat-mdc-fab-base:active, .mat-mdc-fab-base:focus {\n  outline: none;\n}\n.mat-mdc-fab-base:hover {\n  cursor: pointer;\n}\n.mat-mdc-fab-base > svg {\n  width: 100%;\n}\n.mat-mdc-fab-base .mat-icon, .mat-mdc-fab-base .material-icons {\n  transition: transform 180ms 90ms cubic-bezier(0, 0, 0.2, 1);\n  fill: currentColor;\n  will-change: transform;\n}\n.mat-mdc-fab-base .mat-focus-indicator::before {\n  margin: calc(calc(var(--%NS%mat-focus-indicator-border-width, 3px) + 2px) * -1);\n  border-radius: calc(var(--%NS%mat-fab-container-shape, var(--%NS%mat-sys-corner-large)) + calc(var(--%NS%mat-focus-indicator-border-width, 3px) + 2px));\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base[disabled]:focus, .mat-mdc-fab-base.mat-mdc-button-disabled, .mat-mdc-fab-base.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-fab-base.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-fab {\n  background-color: var(--%NS%mat-fab-container-color, var(--%NS%mat-sys-primary-container));\n  border-radius: var(--%NS%mat-fab-container-shape, var(--%NS%mat-sys-corner-large));\n  color: var(--%NS%mat-fab-foreground-color, var(--%NS%mat-sys-on-primary-container, inherit));\n  box-shadow: var(--%NS%mat-fab-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-fab:hover {\n    box-shadow: var(--%NS%mat-fab-hover-container-elevation-shadow, var(--%NS%mat-sys-level4));\n  }\n}\n.mat-mdc-fab:focus {\n  box-shadow: var(--%NS%mat-fab-focus-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-fab:active, .mat-mdc-fab:focus:active {\n  box-shadow: var(--%NS%mat-fab-pressed-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-fab[disabled], .mat-mdc-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-fab-disabled-state-foreground-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  background-color: var(--%NS%mat-fab-disabled-state-container-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-fab-touch-target-size, 48px);\n  display: var(--%NS%mat-fab-touch-target-display, block);\n  left: 50%;\n  width: var(--%NS%mat-fab-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-fab .mat-ripple-element {\n  background-color: var(--%NS%mat-fab-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-on-primary-container) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-fab-state-layer-color, var(--%NS%mat-sys-on-primary-container));\n}\n.mat-mdc-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-fab-disabled-state-layer-color);\n}\n.mat-mdc-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-mini-fab {\n  width: 40px;\n  height: 40px;\n  background-color: var(--%NS%mat-fab-small-container-color, var(--%NS%mat-sys-primary-container));\n  border-radius: var(--%NS%mat-fab-small-container-shape, var(--%NS%mat-sys-corner-medium));\n  color: var(--%NS%mat-fab-small-foreground-color, var(--%NS%mat-sys-on-primary-container, inherit));\n  box-shadow: var(--%NS%mat-fab-small-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-mini-fab:hover {\n    box-shadow: var(--%NS%mat-fab-small-hover-container-elevation-shadow, var(--%NS%mat-sys-level4));\n  }\n}\n.mat-mdc-mini-fab:focus {\n  box-shadow: var(--%NS%mat-fab-small-focus-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-mini-fab:active, .mat-mdc-mini-fab:focus:active {\n  box-shadow: var(--%NS%mat-fab-small-pressed-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-mini-fab .mat-focus-indicator::before {\n  border-radius: calc(var(--%NS%mat-fab-small-container-shape, var(--%NS%mat-sys-corner-medium)) + calc(var(--%NS%mat-focus-indicator-border-width, 3px) + 2px));\n}\n.mat-mdc-mini-fab[disabled], .mat-mdc-mini-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--%NS%mat-fab-small-disabled-state-foreground-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  background-color: var(--%NS%mat-fab-small-disabled-state-container-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-mini-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--%NS%mat-fab-small-touch-target-size, 48px);\n  display: var(--%NS%mat-fab-small-touch-target-display);\n  left: 50%;\n  width: var(--%NS%mat-fab-small-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-mini-fab .mat-ripple-element {\n  background-color: var(--%NS%mat-fab-small-ripple-color, color-mix(in srgb, var(--%NS%mat-sys-on-primary-container) calc(var(--%NS%mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-mini-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-fab-small-state-layer-color, var(--%NS%mat-sys-on-primary-container));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--%NS%mat-fab-small-disabled-state-layer-color);\n}\n.mat-mdc-mini-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-small-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-mini-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-small-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-mini-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--%NS%mat-fab-small-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-extended-fab {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  padding-left: 20px;\n  padding-right: 20px;\n  width: auto;\n  max-width: 100%;\n  line-height: normal;\n  box-shadow: var(--%NS%mat-fab-extended-container-elevation-shadow, var(--%NS%mat-sys-level3));\n  height: var(--%NS%mat-fab-extended-container-height, 56px);\n  border-radius: var(--%NS%mat-fab-extended-container-shape, var(--%NS%mat-sys-corner-large));\n  font-family: var(--%NS%mat-fab-extended-label-text-font, var(--%NS%mat-sys-label-large-font));\n  font-size: var(--%NS%mat-fab-extended-label-text-size, var(--%NS%mat-sys-label-large-size));\n  font-weight: var(--%NS%mat-fab-extended-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n  letter-spacing: var(--%NS%mat-fab-extended-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n}\n@media (hover: hover) {\n  .mat-mdc-extended-fab:hover {\n    box-shadow: var(--%NS%mat-fab-extended-hover-container-elevation-shadow, var(--%NS%mat-sys-level4));\n  }\n}\n.mat-mdc-extended-fab:focus {\n  box-shadow: var(--%NS%mat-fab-extended-focus-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-extended-fab:active, .mat-mdc-extended-fab:focus:active {\n  box-shadow: var(--%NS%mat-fab-extended-pressed-container-elevation-shadow, var(--%NS%mat-sys-level3));\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab[disabled]:focus, .mat-mdc-extended-fab.mat-mdc-button-disabled, .mat-mdc-extended-fab.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-extended-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n[dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .mat-icon, [dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .material-icons,\n.mat-mdc-extended-fab > .mat-icon,\n.mat-mdc-extended-fab > .material-icons {\n  margin-left: -8px;\n  margin-right: 12px;\n}\n.mat-mdc-extended-fab .mdc-button__label + .mat-icon,\n.mat-mdc-extended-fab .mdc-button__label + .material-icons, [dir=rtl] .mat-mdc-extended-fab > .mat-icon, [dir=rtl] .mat-mdc-extended-fab > .material-icons {\n  margin-left: 12px;\n  margin-right: -8px;\n}\n.mat-mdc-extended-fab .mat-mdc-button-touch-target {\n  width: 100%;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  margin-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n'],
     encapsulation: 2
   });
 };
@@ -72021,7 +72841,7 @@ var MatFabButton = class _MatFabButton extends MatButtonBase {
 
 <span class="mat-mdc-button-touch-target"></span>
 `,
-      styles: ['.mat-mdc-fab-base {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  padding: 0;\n  border: none;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  overflow: visible;\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 15ms linear 30ms, transform 270ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  flex-shrink: 0;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-fab-base .mdc-button__label,\n.mat-mdc-fab-base .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-fab-base .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n}\n.mat-mdc-fab-base:focus-visible > .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-fab-base._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-fab-base::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mat-mdc-fab-base[hidden] {\n  display: none;\n}\n.mat-mdc-fab-base::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mat-mdc-fab-base:active, .mat-mdc-fab-base:focus {\n  outline: none;\n}\n.mat-mdc-fab-base:hover {\n  cursor: pointer;\n}\n.mat-mdc-fab-base > svg {\n  width: 100%;\n}\n.mat-mdc-fab-base .mat-icon, .mat-mdc-fab-base .material-icons {\n  transition: transform 180ms 90ms cubic-bezier(0, 0, 0.2, 1);\n  fill: currentColor;\n  will-change: transform;\n}\n.mat-mdc-fab-base .mat-focus-indicator::before {\n  margin: calc(calc(var(--mat-focus-indicator-border-width, 3px) + 2px) * -1);\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base[disabled]:focus, .mat-mdc-fab-base.mat-mdc-button-disabled, .mat-mdc-fab-base.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-fab-base.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-fab {\n  background-color: var(--mat-fab-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-container-shape, var(--mat-sys-corner-large));\n  color: var(--mat-fab-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-fab:hover {\n    box-shadow: var(--mat-fab-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-fab:focus {\n  box-shadow: var(--mat-fab-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab:active, .mat-mdc-fab:focus:active {\n  box-shadow: var(--mat-fab-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab[disabled], .mat-mdc-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-touch-target-size, 48px);\n  display: var(--mat-fab-touch-target-display, block);\n  left: 50%;\n  width: var(--mat-fab-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-fab .mat-ripple-element {\n  background-color: var(--mat-fab-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-disabled-state-layer-color);\n}\n.mat-mdc-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-mini-fab {\n  width: 40px;\n  height: 40px;\n  background-color: var(--mat-fab-small-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-small-container-shape, var(--mat-sys-corner-medium));\n  color: var(--mat-fab-small-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-small-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-mini-fab:hover {\n    box-shadow: var(--mat-fab-small-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-mini-fab:focus {\n  box-shadow: var(--mat-fab-small-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab:active, .mat-mdc-mini-fab:focus:active {\n  box-shadow: var(--mat-fab-small-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab[disabled], .mat-mdc-mini-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-small-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-small-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-mini-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-small-touch-target-size, 48px);\n  display: var(--mat-fab-small-touch-target-display);\n  left: 50%;\n  width: var(--mat-fab-small-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-mini-fab .mat-ripple-element {\n  background-color: var(--mat-fab-small-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-mini-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-disabled-state-layer-color);\n}\n.mat-mdc-mini-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-mini-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-mini-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-extended-fab {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  padding-left: 20px;\n  padding-right: 20px;\n  width: auto;\n  max-width: 100%;\n  line-height: normal;\n  box-shadow: var(--mat-fab-extended-container-elevation-shadow, var(--mat-sys-level3));\n  height: var(--mat-fab-extended-container-height, 56px);\n  border-radius: var(--mat-fab-extended-container-shape, var(--mat-sys-corner-large));\n  font-family: var(--mat-fab-extended-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-fab-extended-label-text-size, var(--mat-sys-label-large-size));\n  font-weight: var(--mat-fab-extended-label-text-weight, var(--mat-sys-label-large-weight));\n  letter-spacing: var(--mat-fab-extended-label-text-tracking, var(--mat-sys-label-large-tracking));\n}\n@media (hover: hover) {\n  .mat-mdc-extended-fab:hover {\n    box-shadow: var(--mat-fab-extended-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-extended-fab:focus {\n  box-shadow: var(--mat-fab-extended-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab:active, .mat-mdc-extended-fab:focus:active {\n  box-shadow: var(--mat-fab-extended-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab[disabled]:focus, .mat-mdc-extended-fab.mat-mdc-button-disabled, .mat-mdc-extended-fab.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-extended-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n[dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .mat-icon, [dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .material-icons,\n.mat-mdc-extended-fab > .mat-icon,\n.mat-mdc-extended-fab > .material-icons {\n  margin-left: -8px;\n  margin-right: 12px;\n}\n.mat-mdc-extended-fab .mdc-button__label + .mat-icon,\n.mat-mdc-extended-fab .mdc-button__label + .material-icons, [dir=rtl] .mat-mdc-extended-fab > .mat-icon, [dir=rtl] .mat-mdc-extended-fab > .material-icons {\n  margin-left: 12px;\n  margin-right: -8px;\n}\n.mat-mdc-extended-fab .mat-mdc-button-touch-target {\n  width: 100%;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  margin-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n']
+      styles: ['.mat-mdc-fab-base {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  padding: 0;\n  border: none;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  overflow: visible;\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 15ms linear 30ms, transform 270ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  flex-shrink: 0;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-fab-base .mdc-button__label,\n.mat-mdc-fab-base .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-fab-base .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n}\n.mat-mdc-fab-base:focus-visible > .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-fab-base._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-fab-base::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mat-mdc-fab-base[hidden] {\n  display: none;\n}\n.mat-mdc-fab-base::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mat-mdc-fab-base:active, .mat-mdc-fab-base:focus {\n  outline: none;\n}\n.mat-mdc-fab-base:hover {\n  cursor: pointer;\n}\n.mat-mdc-fab-base > svg {\n  width: 100%;\n}\n.mat-mdc-fab-base .mat-icon, .mat-mdc-fab-base .material-icons {\n  transition: transform 180ms 90ms cubic-bezier(0, 0, 0.2, 1);\n  fill: currentColor;\n  will-change: transform;\n}\n.mat-mdc-fab-base .mat-focus-indicator::before {\n  margin: calc(calc(var(--mat-focus-indicator-border-width, 3px) + 2px) * -1);\n  border-radius: calc(var(--mat-fab-container-shape, var(--mat-sys-corner-large)) + calc(var(--mat-focus-indicator-border-width, 3px) + 2px));\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base[disabled]:focus, .mat-mdc-fab-base.mat-mdc-button-disabled, .mat-mdc-fab-base.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-fab-base.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-fab {\n  background-color: var(--mat-fab-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-container-shape, var(--mat-sys-corner-large));\n  color: var(--mat-fab-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-fab:hover {\n    box-shadow: var(--mat-fab-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-fab:focus {\n  box-shadow: var(--mat-fab-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab:active, .mat-mdc-fab:focus:active {\n  box-shadow: var(--mat-fab-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab[disabled], .mat-mdc-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-touch-target-size, 48px);\n  display: var(--mat-fab-touch-target-display, block);\n  left: 50%;\n  width: var(--mat-fab-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-fab .mat-ripple-element {\n  background-color: var(--mat-fab-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-disabled-state-layer-color);\n}\n.mat-mdc-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-mini-fab {\n  width: 40px;\n  height: 40px;\n  background-color: var(--mat-fab-small-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-small-container-shape, var(--mat-sys-corner-medium));\n  color: var(--mat-fab-small-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-small-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-mini-fab:hover {\n    box-shadow: var(--mat-fab-small-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-mini-fab:focus {\n  box-shadow: var(--mat-fab-small-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab:active, .mat-mdc-mini-fab:focus:active {\n  box-shadow: var(--mat-fab-small-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab .mat-focus-indicator::before {\n  border-radius: calc(var(--mat-fab-small-container-shape, var(--mat-sys-corner-medium)) + calc(var(--mat-focus-indicator-border-width, 3px) + 2px));\n}\n.mat-mdc-mini-fab[disabled], .mat-mdc-mini-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-small-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-small-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-mini-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-small-touch-target-size, 48px);\n  display: var(--mat-fab-small-touch-target-display);\n  left: 50%;\n  width: var(--mat-fab-small-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-mini-fab .mat-ripple-element {\n  background-color: var(--mat-fab-small-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-mini-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-disabled-state-layer-color);\n}\n.mat-mdc-mini-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-mini-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-mini-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-extended-fab {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  padding-left: 20px;\n  padding-right: 20px;\n  width: auto;\n  max-width: 100%;\n  line-height: normal;\n  box-shadow: var(--mat-fab-extended-container-elevation-shadow, var(--mat-sys-level3));\n  height: var(--mat-fab-extended-container-height, 56px);\n  border-radius: var(--mat-fab-extended-container-shape, var(--mat-sys-corner-large));\n  font-family: var(--mat-fab-extended-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-fab-extended-label-text-size, var(--mat-sys-label-large-size));\n  font-weight: var(--mat-fab-extended-label-text-weight, var(--mat-sys-label-large-weight));\n  letter-spacing: var(--mat-fab-extended-label-text-tracking, var(--mat-sys-label-large-tracking));\n}\n@media (hover: hover) {\n  .mat-mdc-extended-fab:hover {\n    box-shadow: var(--mat-fab-extended-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-extended-fab:focus {\n  box-shadow: var(--mat-fab-extended-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab:active, .mat-mdc-extended-fab:focus:active {\n  box-shadow: var(--mat-fab-extended-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab[disabled]:focus, .mat-mdc-extended-fab.mat-mdc-button-disabled, .mat-mdc-extended-fab.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-extended-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n[dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .mat-icon, [dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .material-icons,\n.mat-mdc-extended-fab > .mat-icon,\n.mat-mdc-extended-fab > .material-icons {\n  margin-left: -8px;\n  margin-right: 12px;\n}\n.mat-mdc-extended-fab .mdc-button__label + .mat-icon,\n.mat-mdc-extended-fab .mdc-button__label + .material-icons, [dir=rtl] .mat-mdc-extended-fab > .mat-icon, [dir=rtl] .mat-mdc-extended-fab > .material-icons {\n  margin-left: 12px;\n  margin-right: -8px;\n}\n.mat-mdc-extended-fab .mat-mdc-button-touch-target {\n  width: 100%;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  margin-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n']
     }]
   }], () => [], {
     extended: [{
@@ -72119,7 +72939,7 @@ var MatMiniFabButton = class _MatMiniFabButton extends MatButtonBase {
 
 <span class="mat-mdc-button-touch-target"></span>
 `,
-      styles: ['.mat-mdc-fab-base {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  padding: 0;\n  border: none;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  overflow: visible;\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 15ms linear 30ms, transform 270ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  flex-shrink: 0;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-fab-base .mdc-button__label,\n.mat-mdc-fab-base .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-fab-base .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n}\n.mat-mdc-fab-base:focus-visible > .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-fab-base._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-fab-base::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mat-mdc-fab-base[hidden] {\n  display: none;\n}\n.mat-mdc-fab-base::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mat-mdc-fab-base:active, .mat-mdc-fab-base:focus {\n  outline: none;\n}\n.mat-mdc-fab-base:hover {\n  cursor: pointer;\n}\n.mat-mdc-fab-base > svg {\n  width: 100%;\n}\n.mat-mdc-fab-base .mat-icon, .mat-mdc-fab-base .material-icons {\n  transition: transform 180ms 90ms cubic-bezier(0, 0, 0.2, 1);\n  fill: currentColor;\n  will-change: transform;\n}\n.mat-mdc-fab-base .mat-focus-indicator::before {\n  margin: calc(calc(var(--mat-focus-indicator-border-width, 3px) + 2px) * -1);\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base[disabled]:focus, .mat-mdc-fab-base.mat-mdc-button-disabled, .mat-mdc-fab-base.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-fab-base.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-fab {\n  background-color: var(--mat-fab-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-container-shape, var(--mat-sys-corner-large));\n  color: var(--mat-fab-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-fab:hover {\n    box-shadow: var(--mat-fab-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-fab:focus {\n  box-shadow: var(--mat-fab-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab:active, .mat-mdc-fab:focus:active {\n  box-shadow: var(--mat-fab-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab[disabled], .mat-mdc-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-touch-target-size, 48px);\n  display: var(--mat-fab-touch-target-display, block);\n  left: 50%;\n  width: var(--mat-fab-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-fab .mat-ripple-element {\n  background-color: var(--mat-fab-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-disabled-state-layer-color);\n}\n.mat-mdc-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-mini-fab {\n  width: 40px;\n  height: 40px;\n  background-color: var(--mat-fab-small-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-small-container-shape, var(--mat-sys-corner-medium));\n  color: var(--mat-fab-small-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-small-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-mini-fab:hover {\n    box-shadow: var(--mat-fab-small-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-mini-fab:focus {\n  box-shadow: var(--mat-fab-small-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab:active, .mat-mdc-mini-fab:focus:active {\n  box-shadow: var(--mat-fab-small-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab[disabled], .mat-mdc-mini-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-small-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-small-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-mini-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-small-touch-target-size, 48px);\n  display: var(--mat-fab-small-touch-target-display);\n  left: 50%;\n  width: var(--mat-fab-small-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-mini-fab .mat-ripple-element {\n  background-color: var(--mat-fab-small-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-mini-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-disabled-state-layer-color);\n}\n.mat-mdc-mini-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-mini-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-mini-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-extended-fab {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  padding-left: 20px;\n  padding-right: 20px;\n  width: auto;\n  max-width: 100%;\n  line-height: normal;\n  box-shadow: var(--mat-fab-extended-container-elevation-shadow, var(--mat-sys-level3));\n  height: var(--mat-fab-extended-container-height, 56px);\n  border-radius: var(--mat-fab-extended-container-shape, var(--mat-sys-corner-large));\n  font-family: var(--mat-fab-extended-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-fab-extended-label-text-size, var(--mat-sys-label-large-size));\n  font-weight: var(--mat-fab-extended-label-text-weight, var(--mat-sys-label-large-weight));\n  letter-spacing: var(--mat-fab-extended-label-text-tracking, var(--mat-sys-label-large-tracking));\n}\n@media (hover: hover) {\n  .mat-mdc-extended-fab:hover {\n    box-shadow: var(--mat-fab-extended-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-extended-fab:focus {\n  box-shadow: var(--mat-fab-extended-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab:active, .mat-mdc-extended-fab:focus:active {\n  box-shadow: var(--mat-fab-extended-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab[disabled]:focus, .mat-mdc-extended-fab.mat-mdc-button-disabled, .mat-mdc-extended-fab.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-extended-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n[dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .mat-icon, [dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .material-icons,\n.mat-mdc-extended-fab > .mat-icon,\n.mat-mdc-extended-fab > .material-icons {\n  margin-left: -8px;\n  margin-right: 12px;\n}\n.mat-mdc-extended-fab .mdc-button__label + .mat-icon,\n.mat-mdc-extended-fab .mdc-button__label + .material-icons, [dir=rtl] .mat-mdc-extended-fab > .mat-icon, [dir=rtl] .mat-mdc-extended-fab > .material-icons {\n  margin-left: 12px;\n  margin-right: -8px;\n}\n.mat-mdc-extended-fab .mat-mdc-button-touch-target {\n  width: 100%;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  margin-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n']
+      styles: ['.mat-mdc-fab-base {\n  -webkit-user-select: none;\n  user-select: none;\n  position: relative;\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 56px;\n  height: 56px;\n  padding: 0;\n  border: none;\n  fill: currentColor;\n  text-decoration: none;\n  cursor: pointer;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  overflow: visible;\n  transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1), opacity 15ms linear 30ms, transform 270ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  flex-shrink: 0;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple,\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n  border-radius: inherit;\n}\n.mat-mdc-fab-base .mat-mdc-button-ripple {\n  overflow: hidden;\n}\n.mat-mdc-fab-base .mat-mdc-button-persistent-ripple::before {\n  content: "";\n  opacity: 0;\n}\n.mat-mdc-fab-base .mdc-button__label,\n.mat-mdc-fab-base .mat-icon {\n  z-index: 1;\n  position: relative;\n}\n.mat-mdc-fab-base .mat-focus-indicator {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n}\n.mat-mdc-fab-base:focus-visible > .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-fab-base._mat-animation-noopable {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-fab-base::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mat-mdc-fab-base[hidden] {\n  display: none;\n}\n.mat-mdc-fab-base::-moz-focus-inner {\n  padding: 0;\n  border: 0;\n}\n.mat-mdc-fab-base:active, .mat-mdc-fab-base:focus {\n  outline: none;\n}\n.mat-mdc-fab-base:hover {\n  cursor: pointer;\n}\n.mat-mdc-fab-base > svg {\n  width: 100%;\n}\n.mat-mdc-fab-base .mat-icon, .mat-mdc-fab-base .material-icons {\n  transition: transform 180ms 90ms cubic-bezier(0, 0, 0.2, 1);\n  fill: currentColor;\n  will-change: transform;\n}\n.mat-mdc-fab-base .mat-focus-indicator::before {\n  margin: calc(calc(var(--mat-focus-indicator-border-width, 3px) + 2px) * -1);\n  border-radius: calc(var(--mat-fab-container-shape, var(--mat-sys-corner-large)) + calc(var(--mat-focus-indicator-border-width, 3px) + 2px));\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-fab-base[disabled], .mat-mdc-fab-base[disabled]:focus, .mat-mdc-fab-base.mat-mdc-button-disabled, .mat-mdc-fab-base.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-fab-base.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mat-mdc-fab {\n  background-color: var(--mat-fab-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-container-shape, var(--mat-sys-corner-large));\n  color: var(--mat-fab-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-fab:hover {\n    box-shadow: var(--mat-fab-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-fab:focus {\n  box-shadow: var(--mat-fab-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab:active, .mat-mdc-fab:focus:active {\n  box-shadow: var(--mat-fab-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-fab[disabled], .mat-mdc-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-touch-target-size, 48px);\n  display: var(--mat-fab-touch-target-display, block);\n  left: 50%;\n  width: var(--mat-fab-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-fab .mat-ripple-element {\n  background-color: var(--mat-fab-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-disabled-state-layer-color);\n}\n.mat-mdc-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-mini-fab {\n  width: 40px;\n  height: 40px;\n  background-color: var(--mat-fab-small-container-color, var(--mat-sys-primary-container));\n  border-radius: var(--mat-fab-small-container-shape, var(--mat-sys-corner-medium));\n  color: var(--mat-fab-small-foreground-color, var(--mat-sys-on-primary-container, inherit));\n  box-shadow: var(--mat-fab-small-container-elevation-shadow, var(--mat-sys-level3));\n}\n@media (hover: hover) {\n  .mat-mdc-mini-fab:hover {\n    box-shadow: var(--mat-fab-small-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-mini-fab:focus {\n  box-shadow: var(--mat-fab-small-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab:active, .mat-mdc-mini-fab:focus:active {\n  box-shadow: var(--mat-fab-small-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-mini-fab .mat-focus-indicator::before {\n  border-radius: calc(var(--mat-fab-small-container-shape, var(--mat-sys-corner-medium)) + calc(var(--mat-focus-indicator-border-width, 3px) + 2px));\n}\n.mat-mdc-mini-fab[disabled], .mat-mdc-mini-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n  color: var(--mat-fab-small-disabled-state-foreground-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  background-color: var(--mat-fab-small-disabled-state-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-mini-fab .mat-mdc-button-touch-target {\n  position: absolute;\n  top: 50%;\n  height: var(--mat-fab-small-touch-target-size, 48px);\n  display: var(--mat-fab-small-touch-target-display);\n  left: 50%;\n  width: var(--mat-fab-small-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n}\n.mat-mdc-mini-fab .mat-ripple-element {\n  background-color: var(--mat-fab-small-ripple-color, color-mix(in srgb, var(--mat-sys-on-primary-container) calc(var(--mat-sys-pressed-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-mini-fab .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-state-layer-color, var(--mat-sys-on-primary-container));\n}\n.mat-mdc-mini-fab.mat-mdc-button-disabled .mat-mdc-button-persistent-ripple::before {\n  background-color: var(--mat-fab-small-disabled-state-layer-color);\n}\n.mat-mdc-mini-fab:hover > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-mini-fab.cdk-program-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.cdk-keyboard-focused > .mat-mdc-button-persistent-ripple::before, .mat-mdc-mini-fab.mat-mdc-button-disabled-interactive:focus > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mat-mdc-mini-fab:active > .mat-mdc-button-persistent-ripple::before {\n  opacity: var(--mat-fab-small-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n}\n\n.mat-mdc-extended-fab {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  padding-left: 20px;\n  padding-right: 20px;\n  width: auto;\n  max-width: 100%;\n  line-height: normal;\n  box-shadow: var(--mat-fab-extended-container-elevation-shadow, var(--mat-sys-level3));\n  height: var(--mat-fab-extended-container-height, 56px);\n  border-radius: var(--mat-fab-extended-container-shape, var(--mat-sys-corner-large));\n  font-family: var(--mat-fab-extended-label-text-font, var(--mat-sys-label-large-font));\n  font-size: var(--mat-fab-extended-label-text-size, var(--mat-sys-label-large-size));\n  font-weight: var(--mat-fab-extended-label-text-weight, var(--mat-sys-label-large-weight));\n  letter-spacing: var(--mat-fab-extended-label-text-tracking, var(--mat-sys-label-large-tracking));\n}\n@media (hover: hover) {\n  .mat-mdc-extended-fab:hover {\n    box-shadow: var(--mat-fab-extended-hover-container-elevation-shadow, var(--mat-sys-level4));\n  }\n}\n.mat-mdc-extended-fab:focus {\n  box-shadow: var(--mat-fab-extended-focus-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab:active, .mat-mdc-extended-fab:focus:active {\n  box-shadow: var(--mat-fab-extended-pressed-container-elevation-shadow, var(--mat-sys-level3));\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab.mat-mdc-button-disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mat-mdc-extended-fab[disabled], .mat-mdc-extended-fab[disabled]:focus, .mat-mdc-extended-fab.mat-mdc-button-disabled, .mat-mdc-extended-fab.mat-mdc-button-disabled:focus {\n  box-shadow: none;\n}\n.mat-mdc-extended-fab.mat-mdc-button-disabled-interactive {\n  pointer-events: auto;\n}\n[dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .mat-icon, [dir=rtl] .mat-mdc-extended-fab .mdc-button__label + .material-icons,\n.mat-mdc-extended-fab > .mat-icon,\n.mat-mdc-extended-fab > .material-icons {\n  margin-left: -8px;\n  margin-right: 12px;\n}\n.mat-mdc-extended-fab .mdc-button__label + .mat-icon,\n.mat-mdc-extended-fab .mdc-button__label + .material-icons, [dir=rtl] .mat-mdc-extended-fab > .mat-icon, [dir=rtl] .mat-mdc-extended-fab > .material-icons {\n  margin-left: 12px;\n  margin-right: -8px;\n}\n.mat-mdc-extended-fab .mat-mdc-button-touch-target {\n  width: 100%;\n}\n\n.mat-mdc-button-progress-indicator-container {\n  position: absolute;\n  inset-inline-start: 0;\n  margin-block-start: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 100%;\n  height: 100%;\n  box-sizing: border-box;\n}\n\n.mat-mdc-button-progress-indicator-shown mat-icon,\n.mat-mdc-button-progress-indicator-shown [matButtonIcon],\n.mat-mdc-button-progress-indicator-shown .mdc-button__label {\n  visibility: hidden;\n}\n']
     }]
   }], () => [], null);
 })();
@@ -72612,7 +73432,7 @@ var MatSnackBarContainer = class _MatSnackBarContainer extends BasePortalOutlet 
       }
     },
     dependencies: [CdkPortalOutlet],
-    styles: ["@keyframes _mat-snack-bar-enter {\n  from {\n    transform: scale(0.8);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n@keyframes _mat-snack-bar-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-snack-bar-container {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  margin: 8px;\n}\n.mat-mdc-snack-bar-handset .mat-mdc-snack-bar-container {\n  width: 100vw;\n}\n\n.mat-snack-bar-container-animations-enabled {\n  opacity: 0;\n}\n.mat-snack-bar-container-animations-enabled.mat-snack-bar-fallback-visible {\n  opacity: 1;\n}\n.mat-snack-bar-container-animations-enabled.mat-snack-bar-container-enter {\n  animation: _mat-snack-bar-enter 150ms cubic-bezier(0, 0, 0.2, 1) forwards;\n}\n.mat-snack-bar-container-animations-enabled.mat-snack-bar-container-exit {\n  animation: _mat-snack-bar-exit 75ms cubic-bezier(0.4, 0, 1, 1) forwards;\n}\n\n.mat-mdc-snackbar-surface {\n  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);\n  display: flex;\n  align-items: center;\n  justify-content: flex-start;\n  box-sizing: border-box;\n  padding-left: 0;\n  padding-right: 8px;\n}\n[dir=rtl] .mat-mdc-snackbar-surface {\n  padding-right: 0;\n  padding-left: 8px;\n}\n.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {\n  min-width: 344px;\n  max-width: 672px;\n}\n.mat-mdc-snack-bar-handset .mat-mdc-snackbar-surface {\n  width: 100%;\n  min-width: 0;\n}\n@media (forced-colors: active) {\n  .mat-mdc-snackbar-surface {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {\n  color: var(--mat-snack-bar-supporting-text-color, var(--mat-sys-inverse-on-surface));\n  border-radius: var(--mat-snack-bar-container-shape, var(--mat-sys-corner-extra-small));\n  background-color: var(--mat-snack-bar-container-color, var(--mat-sys-inverse-surface));\n}\n\n.mdc-snackbar__label {\n  width: 100%;\n  flex-grow: 1;\n  box-sizing: border-box;\n  margin: 0;\n  padding: 14px 8px 14px 16px;\n}\n[dir=rtl] .mdc-snackbar__label {\n  padding-left: 8px;\n  padding-right: 16px;\n}\n.mat-mdc-snack-bar-container .mdc-snackbar__label {\n  font-family: var(--mat-snack-bar-supporting-text-font, var(--mat-sys-body-medium-font));\n  font-size: var(--mat-snack-bar-supporting-text-size, var(--mat-sys-body-medium-size));\n  font-weight: var(--mat-snack-bar-supporting-text-weight, var(--mat-sys-body-medium-weight));\n  line-height: var(--mat-snack-bar-supporting-text-line-height, var(--mat-sys-body-medium-line-height));\n}\n\n.mat-mdc-snack-bar-actions {\n  display: flex;\n  flex-shrink: 0;\n  align-items: center;\n  box-sizing: border-box;\n}\n\n.mat-mdc-snack-bar-handset,\n.mat-mdc-snack-bar-container,\n.mat-mdc-snack-bar-label {\n  flex: 1 1 auto;\n}\n\n.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled).mat-unthemed {\n  color: var(--mat-snack-bar-button-color, var(--mat-sys-inverse-primary));\n}\n.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled) {\n  --mat-button-text-state-layer-color: currentColor;\n  --mat-button-text-ripple-color: currentColor;\n}\n.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled) .mat-ripple-element {\n  opacity: 0.1;\n}\n"],
+    styles: ["@keyframes _mat-snack-bar-enter {\n  from {\n    transform: scale(0.8);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n@keyframes _mat-snack-bar-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-snack-bar-container {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  margin: 8px;\n}\n.mat-mdc-snack-bar-handset .mat-mdc-snack-bar-container {\n  width: 100vw;\n}\n\n.mat-snack-bar-container-animations-enabled {\n  opacity: 0;\n}\n.mat-snack-bar-container-animations-enabled.mat-snack-bar-fallback-visible {\n  opacity: 1;\n}\n.mat-snack-bar-container-animations-enabled.mat-snack-bar-container-enter {\n  animation: _mat-snack-bar-enter 150ms cubic-bezier(0, 0, 0.2, 1) forwards;\n}\n.mat-snack-bar-container-animations-enabled.mat-snack-bar-container-exit {\n  animation: _mat-snack-bar-exit 75ms cubic-bezier(0.4, 0, 1, 1) forwards;\n}\n\n.mat-mdc-snackbar-surface {\n  box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2), 0px 6px 10px 0px rgba(0, 0, 0, 0.14), 0px 1px 18px 0px rgba(0, 0, 0, 0.12);\n  display: flex;\n  align-items: center;\n  justify-content: flex-start;\n  box-sizing: border-box;\n  padding-left: 0;\n  padding-right: 8px;\n}\n[dir=rtl] .mat-mdc-snackbar-surface {\n  padding-right: 0;\n  padding-left: 8px;\n}\n.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {\n  min-width: 344px;\n  max-width: 672px;\n}\n.mat-mdc-snack-bar-handset .mat-mdc-snackbar-surface {\n  width: 100%;\n  min-width: 0;\n}\n@media (forced-colors: active) {\n  .mat-mdc-snackbar-surface {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-snack-bar-container .mat-mdc-snackbar-surface {\n  color: var(--%NS%mat-snack-bar-supporting-text-color, var(--%NS%mat-sys-inverse-on-surface));\n  border-radius: var(--%NS%mat-snack-bar-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  background-color: var(--%NS%mat-snack-bar-container-color, var(--%NS%mat-sys-inverse-surface));\n}\n\n.mdc-snackbar__label {\n  width: 100%;\n  flex-grow: 1;\n  box-sizing: border-box;\n  margin: 0;\n  padding: 14px 8px 14px 16px;\n}\n[dir=rtl] .mdc-snackbar__label {\n  padding-left: 8px;\n  padding-right: 16px;\n}\n.mat-mdc-snack-bar-container .mdc-snackbar__label {\n  font-family: var(--%NS%mat-snack-bar-supporting-text-font, var(--%NS%mat-sys-body-medium-font));\n  font-size: var(--%NS%mat-snack-bar-supporting-text-size, var(--%NS%mat-sys-body-medium-size));\n  font-weight: var(--%NS%mat-snack-bar-supporting-text-weight, var(--%NS%mat-sys-body-medium-weight));\n  line-height: var(--%NS%mat-snack-bar-supporting-text-line-height, var(--%NS%mat-sys-body-medium-line-height));\n}\n\n.mat-mdc-snack-bar-actions {\n  display: flex;\n  flex-shrink: 0;\n  align-items: center;\n  box-sizing: border-box;\n}\n\n.mat-mdc-snack-bar-handset,\n.mat-mdc-snack-bar-container,\n.mat-mdc-snack-bar-label {\n  flex: 1 1 auto;\n}\n\n.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled).mat-unthemed {\n  color: var(--%NS%mat-snack-bar-button-color, var(--%NS%mat-sys-inverse-primary));\n}\n.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled) {\n  --%NS%mat-button-text-state-layer-color: currentColor;\n  --%NS%mat-button-text-ripple-color: currentColor;\n}\n.mat-mdc-snack-bar-container .mat-mdc-button.mat-mdc-snack-bar-action:not(:disabled) .mat-ripple-element {\n  opacity: 0.1;\n}\n"],
     encapsulation: 2,
     changeDetection: 1
   });
@@ -72958,7 +73778,7 @@ var UNKNOWN_FUNCTION = "?";
 var WEBPACK_ERROR_REGEXP = /\(error: (.*)\)/;
 var STRIP_FRAME_REGEXP = /captureMessage|captureException/;
 function createStackParser(...parsers) {
-  const sortedParsers = parsers.sort((a, b2) => a[0] - b2[0]).map((p2) => p2[1]);
+  const sortedParsers = parsers.sort((a, b) => a[0] - b[0]).map((p2) => p2[1]);
   return (stack, skipFirstLines = 0, framesToPop = 0) => {
     const frames = [];
     const lines = stack.split("\n");
@@ -75600,18 +76420,18 @@ function _enhanceEventWithSdkInfo(event, newSdkInfo) {
   });
   return event;
 }
-function createSessionEnvelope(session, dsn, metadata, tunnel) {
-  const sdkInfo = getSdkMetadataForEnvelopeHeader(metadata);
+function createSessionEnvelope(session, dsn, metadata2, tunnel) {
+  const sdkInfo = getSdkMetadataForEnvelopeHeader(metadata2);
   const envelopeHeaders = __spreadValues(__spreadValues({
     sent_at: (/* @__PURE__ */ new Date()).toISOString()
   }, sdkInfo && { sdk: sdkInfo }), !!tunnel && dsn && { dsn: dsnToString(dsn) });
   const envelopeItem = "aggregates" in session ? [{ type: "sessions" }, session] : [{ type: "session" }, session.toJSON()];
   return createEnvelope(envelopeHeaders, [envelopeItem]);
 }
-function createEventEnvelope(event, dsn, metadata, tunnel) {
-  const sdkInfo = getSdkMetadataForEnvelopeHeader(metadata);
+function createEventEnvelope(event, dsn, metadata2, tunnel) {
+  const sdkInfo = getSdkMetadataForEnvelopeHeader(metadata2);
   const eventType = event.type && event.type !== "replay_event" ? event.type : "event";
-  _enhanceEventWithSdkInfo(event, metadata == null ? void 0 : metadata.sdk);
+  _enhanceEventWithSdkInfo(event, metadata2 == null ? void 0 : metadata2.sdk);
   const envelopeHeaders = createEventEnvelopeHeaders(event, sdkInfo, tunnel, dsn);
   delete event.sdkProcessingMetadata;
   const eventItem = [{ type: eventType }, event];
@@ -75991,7 +76811,7 @@ var SentrySpan = class {
       spans: (
         // spans.sort() mutates the array, but `spans` is already a copy so we can safely do this here
         // we do not use spans anymore after this point
-        spans.length > MAX_SPAN_COUNT ? spans.sort((a, b2) => a.start_timestamp - b2.start_timestamp).slice(0, MAX_SPAN_COUNT) : spans
+        spans.length > MAX_SPAN_COUNT ? spans.sort((a, b) => a.start_timestamp - b.start_timestamp).slice(0, MAX_SPAN_COUNT) : spans
       ),
       start_timestamp: this._startTime,
       timestamp: this._endTime,
@@ -76975,8 +77795,8 @@ function normalizeEvent(event, depth, maxBreadth) {
     return null;
   }
   const normalized = __spreadValues(__spreadValues(__spreadValues(__spreadValues(__spreadValues({}, event), event.breadcrumbs && {
-    breadcrumbs: event.breadcrumbs.map((b2) => __spreadValues(__spreadValues({}, b2), b2.data && {
-      data: normalize(b2.data, depth, maxBreadth)
+    breadcrumbs: event.breadcrumbs.map((b) => __spreadValues(__spreadValues({}, b), b.data && {
+      data: normalize(b.data, depth, maxBreadth)
     }))
   }), event.user && {
     user: normalize(event.user, depth, maxBreadth)
@@ -77257,12 +78077,12 @@ function createLogContainerEnvelopeItem(items) {
     }
   ];
 }
-function createLogEnvelope(logs, metadata, tunnel, dsn) {
+function createLogEnvelope(logs, metadata2, tunnel, dsn) {
   const headers = {};
-  if (metadata == null ? void 0 : metadata.sdk) {
+  if (metadata2 == null ? void 0 : metadata2.sdk) {
     headers.sdk = {
-      name: metadata.sdk.name,
-      version: metadata.sdk.version
+      name: metadata2.sdk.name,
+      version: metadata2.sdk.version
     };
   }
   if (!!tunnel && !!dsn) {
@@ -77303,12 +78123,12 @@ function createMetricContainerEnvelopeItem(items) {
     }
   ];
 }
-function createMetricEnvelope(metrics, metadata, tunnel, dsn) {
+function createMetricEnvelope(metrics, metadata2, tunnel, dsn) {
   const headers = {};
-  if (metadata == null ? void 0 : metadata.sdk) {
+  if (metadata2 == null ? void 0 : metadata2.sdk) {
     headers.sdk = {
-      name: metadata.sdk.name,
-      version: metadata.sdk.version
+      name: metadata2.sdk.name,
+      version: metadata2.sdk.version
     };
   }
   if (!!tunnel && !!dsn) {
@@ -80263,7 +81083,7 @@ var InteractionManager = class _InteractionManager {
         this._longestInteractionMap.set(interaction.id, interaction);
         this._longestInteractionList.push(interaction);
       }
-      this._longestInteractionList.sort((a, b2) => b2._latency - a._latency);
+      this._longestInteractionList.sort((a, b) => b._latency - a._latency);
       if (this._longestInteractionList.length > MAX_INTERACTIONS_TO_CONSIDER) {
         const removedInteractions = this._longestInteractionList.splice(MAX_INTERACTIONS_TO_CONSIDER);
         for (const interaction2 of removedInteractions) {
@@ -84366,7 +85186,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       notifySuccess("Toggled dark mode.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
-      this._clipboard.copy(`${X2()}|${Ut()}`);
+      this._clipboard.copy(`${ee()}|${Ut()}`);
       notifySuccess("Successfully copied token.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
@@ -84409,7 +85229,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query = Ee(START_QUERY.substring(1));
+      const query = Me(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query
@@ -84475,13 +85295,13 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeApiKey();
       DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
     }
-    if (isNativeApp() && !X2(false)) {
+    if (isNativeApp() && !ee(false)) {
       const boot_params = new URLSearchParams(START_QUERY);
       if (boot_params.has("code")) {
         console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${fi()}_nonce`)}"`);
       }
     }
-    if (isNativeApp() && !X2(false) && !Ut() && It()) {
+    if (isNativeApp() && !ee(false) && !Ut() && It()) {
       const auth_error = consumeNativeAuthError();
       if (auth_error) {
         setLoadingMessage("Waiting for sign in...");
@@ -84536,7 +85356,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeDomain();
       localStorage.removeItem(`${fi()}_x-api-key`);
       Un();
-    } else if (!X2(false))
+    } else if (!ee(false))
       Un();
     requestInitReload();
   }
@@ -84602,14 +85422,14 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     }
     this.timeout("set_building+region", async () => {
       const building_list = this._org.building_list();
-      let bld = building_list.find((b2) => b2.id === this._zone);
+      let bld = building_list.find((b) => b.id === this._zone);
       const target_region_id = this._region || (bld == null ? void 0 : bld.parent_id);
-      const region = this._org.regions.find((b2) => b2.id === target_region_id);
+      const region = this._org.regions.find((b) => b.id === target_region_id);
       if (region)
         await this._org.setRegion(region);
       if (!bld && this._zone) {
         const building_list2 = this._org.building_list();
-        bld = building_list2.find((b2) => b2.id === this._zone);
+        bld = building_list2.find((b) => b.id === this._zone);
       }
       if (bld)
         this._org.setBuilding(bld, true);
@@ -84777,7 +85597,7 @@ var _OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : fd(system_id, mod_id);
+    return !system_id || !mod_id ? null : gd(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -84923,6 +85743,25 @@ var _OrganisationService = class _OrganisationService {
   levelWithID(id_list) {
     return this.levels.find((lvl) => id_list == null ? void 0 : id_list.includes(lvl.id));
   }
+  /** Get the organisation location represented by a list of zone IDs. */
+  locationWithID(id_list) {
+    const level = this.levelWithID(id_list);
+    const building = this.buildings.find((_2) => (id_list == null ? void 0 : id_list.includes(_2.id)) || _2.id === (level == null ? void 0 : level.parent_id));
+    const region = this.regions.find((_2) => _2.id === (building == null ? void 0 : building.parent_id));
+    const label = [region, building, level].map((_2) => (_2 == null ? void 0 : _2.display_name) || (_2 == null ? void 0 : _2.name)).filter((_2) => !!_2).join(" / ");
+    return { level, building, region, label };
+  }
+  /** Load and return every building represented by the zone ID lists. */
+  async loadBuildingsForZones(zone_lists) {
+    const find_buildings = () => unique(zone_lists.map((zones) => this.buildings.find((building) => zones.includes(building.id))).filter((building) => !!building), "id");
+    let buildings = find_buildings();
+    const has_missing_building = () => zone_lists.some((zones) => !this.buildings.some((building) => zones.includes(building.id)));
+    if (has_missing_building()) {
+      await this._loadAllBuildings();
+      buildings = find_buildings();
+    }
+    return buildings;
+  }
   /**
    * Get list of levels for the given building
    * @param bld Building to list levels for
@@ -84955,7 +85794,7 @@ var _OrganisationService = class _OrganisationService {
       const bld = new Building(zone);
       let buildings = this._building_list().filter((_2) => _2.id !== bld.id);
       buildings.push(bld);
-      buildings = buildings.sort((a, b2) => (a.name || "").localeCompare(b2.name || ""));
+      buildings = buildings.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
       this._building_list.set(buildings);
     } else if (zone.tags.includes("level")) {
       const lvl = new BuildingLevel(zone);
@@ -84968,7 +85807,7 @@ var _OrganisationService = class _OrganisationService {
     }
   }
   _sortLevels(levels) {
-    return [...levels].sort((a, b2) => (a.parent_id || "").localeCompare(b2.parent_id || "") || (a.name || "").localeCompare(b2.name || "") || (a.display_name || "").localeCompare(b2.display_name || ""));
+    return [...levels].sort((a, b) => (a.parent_id || "").localeCompare(b.parent_id || "") || (a.name || "").localeCompare(b.name || "") || (a.display_name || "").localeCompare(b.display_name || ""));
   }
   removeZone(zone) {
     if (zone.tags.includes("region")) {
@@ -85233,7 +86072,7 @@ var _OrganisationService = class _OrganisationService {
       this._router.navigate(["/misconfigured"]);
     }
     let levels = level_list.map((lvl) => new BuildingLevel(lvl));
-    levels = levels.sort((a, b2) => (a.name || "").localeCompare(b2.name || ""));
+    levels = levels.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
     this._level_list.set(levels);
   }
   async loadSettings() {
@@ -85387,10 +86226,10 @@ var _OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata = await sc(name, { parent_ids }).catch((err) => (err == null ? void 0 : err.status) === 404 ? this._individualMetadata(name, ids) : {});
+    const metadata2 = await ic(name, { parent_ids }).catch((err) => (err == null ? void 0 : err.status) === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       var _a10;
-      map2[id] = ((_a10 = metadata[id]) == null ? void 0 : _a10.details) || {};
+      map2[id] = ((_a10 = metadata2[id]) == null ? void 0 : _a10.details) || {};
       return map2;
     }, {});
     this._setCachedItem(cache_key, metadata_details);
@@ -85399,19 +86238,19 @@ var _OrganisationService = class _OrganisationService {
   /** Fallback for backends without the bulk metadata endpoint (404) */
   async _individualMetadata(name, ids) {
     const items = await Promise.all(ids.filter(Boolean).map((id) => Vu(id, name).then((item) => [id, item], () => [id, null])));
-    const metadata = {};
+    const metadata2 = {};
     for (const [id, item] of items) {
       if (item)
-        metadata[id] = item;
+        metadata2[id] = item;
     }
-    return metadata;
+    return metadata2;
   }
   async _queryZones(params) {
     const cache_key = this._zoneCacheKey(params);
     const cached_zones = this._getCachedItem(cache_key);
     if (cached_zones)
       return cached_zones;
-    const zones = (await eh(__spreadProps(__spreadValues({}, params), {
+    const zones = (await th(__spreadProps(__spreadValues({}, params), {
       authority_id: It().id
     }))).data || [];
     this._setCachedItem(cache_key, zones);
@@ -86378,6 +87217,7 @@ var MatFormField = class _MatFormField {
         this._previousControlValidatorFn = this._control.ngControl.control.validator;
       }
       this._previousControl = this._control;
+      this._changeDetectorRef.markForCheck();
     }
     if (this._control.ngControl && this._control.ngControl.control) {
       const validatorFn = this._control.ngControl.control.validator;
@@ -86754,7 +87594,7 @@ var MatFormField = class _MatFormField {
       }
     },
     dependencies: [MatFormFieldFloatingLabel, MatFormFieldNotchedOutline, NgTemplateOutlet, MatFormFieldLineRipple, MatHint],
-    styles: ['.mdc-text-field {\n  display: inline-flex;\n  align-items: baseline;\n  padding: 0 16px;\n  position: relative;\n  box-sizing: border-box;\n  overflow: hidden;\n  will-change: opacity, transform, color;\n  border-top-left-radius: 4px;\n  border-top-right-radius: 4px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.mdc-text-field__input {\n  width: 100%;\n  min-width: 0;\n  border: none;\n  border-radius: 0;\n  background: none;\n  padding: 0;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  height: 28px;\n}\n.mdc-text-field__input::-webkit-calendar-picker-indicator, .mdc-text-field__input::-webkit-search-cancel-button {\n  display: none;\n}\n.mdc-text-field__input::-ms-clear {\n  display: none;\n}\n.mdc-text-field__input:focus {\n  outline: none;\n}\n.mdc-text-field__input:invalid {\n  box-shadow: none;\n}\n.mdc-text-field__input::placeholder {\n  opacity: 0;\n}\n.mdc-text-field__input::-moz-placeholder {\n  opacity: 0;\n}\n.mdc-text-field__input::-webkit-input-placeholder {\n  opacity: 0;\n}\n.mdc-text-field__input:-ms-input-placeholder {\n  opacity: 0;\n}\n.mdc-text-field--no-label .mdc-text-field__input::placeholder, .mdc-text-field--focused .mdc-text-field__input::placeholder {\n  opacity: 1;\n}\n.mdc-text-field--no-label .mdc-text-field__input::-moz-placeholder, .mdc-text-field--focused .mdc-text-field__input::-moz-placeholder {\n  opacity: 1;\n}\n.mdc-text-field--no-label .mdc-text-field__input::-webkit-input-placeholder, .mdc-text-field--focused .mdc-text-field__input::-webkit-input-placeholder {\n  opacity: 1;\n}\n.mdc-text-field--no-label .mdc-text-field__input:-ms-input-placeholder, .mdc-text-field--focused .mdc-text-field__input:-ms-input-placeholder {\n  opacity: 1;\n}\n.mdc-text-field--disabled:not(.mdc-text-field--no-label) .mdc-text-field__input.mat-mdc-input-disabled-interactive::placeholder {\n  opacity: 0;\n}\n.mdc-text-field--disabled:not(.mdc-text-field--no-label) .mdc-text-field__input.mat-mdc-input-disabled-interactive::-moz-placeholder {\n  opacity: 0;\n}\n.mdc-text-field--disabled:not(.mdc-text-field--no-label) .mdc-text-field__input.mat-mdc-input-disabled-interactive::-webkit-input-placeholder {\n  opacity: 0;\n}\n.mdc-text-field--disabled:not(.mdc-text-field--no-label) .mdc-text-field__input.mat-mdc-input-disabled-interactive:-ms-input-placeholder {\n  opacity: 0;\n}\n.mdc-text-field--outlined .mdc-text-field__input, .mdc-text-field--filled.mdc-text-field--no-label .mdc-text-field__input {\n  height: 100%;\n}\n.mdc-text-field--outlined .mdc-text-field__input {\n  display: flex;\n  border: none !important;\n  background-color: transparent;\n}\n.mdc-text-field--disabled .mdc-text-field__input {\n  pointer-events: auto;\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input {\n  color: var(--mat-form-field-filled-input-text-color, var(--mat-sys-on-surface));\n  caret-color: var(--mat-form-field-filled-caret-color, var(--mat-sys-primary));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input::placeholder {\n  color: var(--mat-form-field-filled-input-text-placeholder-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input::-moz-placeholder {\n  color: var(--mat-form-field-filled-input-text-placeholder-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input::-webkit-input-placeholder {\n  color: var(--mat-form-field-filled-input-text-placeholder-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-text-field__input:-ms-input-placeholder {\n  color: var(--mat-form-field-filled-input-text-placeholder-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input {\n  color: var(--mat-form-field-outlined-input-text-color, var(--mat-sys-on-surface));\n  caret-color: var(--mat-form-field-outlined-caret-color, var(--mat-sys-primary));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input::placeholder {\n  color: var(--mat-form-field-outlined-input-text-placeholder-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input::-moz-placeholder {\n  color: var(--mat-form-field-outlined-input-text-placeholder-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input::-webkit-input-placeholder {\n  color: var(--mat-form-field-outlined-input-text-placeholder-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-text-field__input:-ms-input-placeholder {\n  color: var(--mat-form-field-outlined-input-text-placeholder-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--filled.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-text-field__input {\n  caret-color: var(--mat-form-field-filled-error-caret-color, var(--mat-sys-error));\n}\n.mdc-text-field--outlined.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-text-field__input {\n  caret-color: var(--mat-form-field-outlined-error-caret-color, var(--mat-sys-error));\n}\n.mdc-text-field--filled.mdc-text-field--disabled .mdc-text-field__input {\n  color: var(--mat-form-field-filled-disabled-input-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mdc-text-field--outlined.mdc-text-field--disabled .mdc-text-field__input {\n  color: var(--mat-form-field-outlined-disabled-input-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-text-field--disabled .mdc-text-field__input {\n    background-color: Window;\n  }\n}\n\n.mdc-text-field--filled {\n  height: 56px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: var(--mat-form-field-filled-container-shape, var(--mat-sys-corner-extra-small));\n  border-top-right-radius: var(--mat-form-field-filled-container-shape, var(--mat-sys-corner-extra-small));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled) {\n  background-color: var(--mat-form-field-filled-container-color, var(--mat-sys-surface-variant));\n}\n.mdc-text-field--filled.mdc-text-field--disabled {\n  background-color: var(--mat-form-field-filled-disabled-container-color, color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent));\n}\n\n.mdc-text-field--outlined {\n  height: 56px;\n  overflow: visible;\n  padding-right: max(16px, var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small)));\n  padding-left: max(16px, var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small)) + 4px);\n}\n[dir=rtl] .mdc-text-field--outlined {\n  padding-right: max(16px, var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small)) + 4px);\n  padding-left: max(16px, var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small)));\n}\n\n.mdc-floating-label {\n  position: absolute;\n  left: 0;\n  transform-origin: left top;\n  line-height: 1.15rem;\n  text-align: left;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  cursor: text;\n  overflow: hidden;\n  will-change: transform;\n}\n[dir=rtl] .mdc-floating-label {\n  right: 0;\n  left: auto;\n  transform-origin: right top;\n  text-align: right;\n}\n.mdc-text-field .mdc-floating-label {\n  top: 50%;\n  transform: translateY(-50%);\n  pointer-events: none;\n}\n.mdc-notched-outline .mdc-floating-label {\n  display: inline-block;\n  position: relative;\n  max-width: 100%;\n}\n.mdc-text-field--outlined .mdc-floating-label {\n  left: 4px;\n  right: auto;\n}\n[dir=rtl] .mdc-text-field--outlined .mdc-floating-label {\n  left: auto;\n  right: 4px;\n}\n.mdc-text-field--filled .mdc-floating-label {\n  left: 16px;\n  right: auto;\n}\n[dir=rtl] .mdc-text-field--filled .mdc-floating-label {\n  left: auto;\n  right: 16px;\n}\n.mdc-text-field--disabled .mdc-floating-label {\n  cursor: default;\n}\n@media (forced-colors: active) {\n  .mdc-text-field--disabled .mdc-floating-label {\n    z-index: 1;\n  }\n}\n.mdc-text-field--filled.mdc-text-field--no-label .mdc-floating-label {\n  display: none;\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-floating-label {\n  color: var(--mat-form-field-filled-label-text-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-floating-label {\n  color: var(--mat-form-field-filled-focus-label-text-color, var(--mat-sys-primary));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-floating-label {\n  color: var(--mat-form-field-filled-hover-label-text-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--filled.mdc-text-field--disabled .mdc-floating-label {\n  color: var(--mat-form-field-filled-disabled-label-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled).mdc-text-field--invalid .mdc-floating-label {\n  color: var(--mat-form-field-filled-error-label-text-color, var(--mat-sys-error));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled).mdc-text-field--invalid.mdc-text-field--focused .mdc-floating-label {\n  color: var(--mat-form-field-filled-error-focus-label-text-color, var(--mat-sys-error));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled).mdc-text-field--invalid:not(.mdc-text-field--disabled):hover .mdc-floating-label {\n  color: var(--mat-form-field-filled-error-hover-label-text-color, var(--mat-sys-on-error-container));\n}\n.mdc-text-field--filled .mdc-floating-label {\n  font-family: var(--mat-form-field-filled-label-text-font, var(--mat-sys-body-large-font));\n  font-size: var(--mat-form-field-filled-label-text-size, var(--mat-sys-body-large-size));\n  font-weight: var(--mat-form-field-filled-label-text-weight, var(--mat-sys-body-large-weight));\n  letter-spacing: var(--mat-form-field-filled-label-text-tracking, var(--mat-sys-body-large-tracking));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-floating-label {\n  color: var(--mat-form-field-outlined-label-text-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-floating-label {\n  color: var(--mat-form-field-outlined-focus-label-text-color, var(--mat-sys-primary));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-floating-label {\n  color: var(--mat-form-field-outlined-hover-label-text-color, var(--mat-sys-on-surface));\n}\n.mdc-text-field--outlined.mdc-text-field--disabled .mdc-floating-label {\n  color: var(--mat-form-field-outlined-disabled-label-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid .mdc-floating-label {\n  color: var(--mat-form-field-outlined-error-label-text-color, var(--mat-sys-error));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid.mdc-text-field--focused .mdc-floating-label {\n  color: var(--mat-form-field-outlined-error-focus-label-text-color, var(--mat-sys-error));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid:not(.mdc-text-field--disabled):hover .mdc-floating-label {\n  color: var(--mat-form-field-outlined-error-hover-label-text-color, var(--mat-sys-on-error-container));\n}\n.mdc-text-field--outlined .mdc-floating-label {\n  font-family: var(--mat-form-field-outlined-label-text-font, var(--mat-sys-body-large-font));\n  font-size: var(--mat-form-field-outlined-label-text-size, var(--mat-sys-body-large-size));\n  font-weight: var(--mat-form-field-outlined-label-text-weight, var(--mat-sys-body-large-weight));\n  letter-spacing: var(--mat-form-field-outlined-label-text-tracking, var(--mat-sys-body-large-tracking));\n}\n\n.mdc-floating-label--float-above {\n  cursor: auto;\n  transform: translateY(-106%) scale(0.75);\n}\n.mdc-text-field--filled .mdc-floating-label--float-above {\n  transform: translateY(-106%) scale(0.75);\n}\n.mdc-text-field--outlined .mdc-floating-label--float-above {\n  transform: translateY(-37.25px) scale(1);\n  font-size: 0.75rem;\n}\n.mdc-notched-outline .mdc-floating-label--float-above {\n  text-overflow: clip;\n}\n.mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  max-width: 133.3333333333%;\n}\n.mdc-text-field--outlined.mdc-notched-outline--upgraded .mdc-floating-label--float-above, .mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  transform: translateY(-34.75px) scale(0.75);\n}\n.mdc-text-field--outlined.mdc-notched-outline--upgraded .mdc-floating-label--float-above, .mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  font-size: 1rem;\n}\n\n.mdc-floating-label--required:not(.mdc-floating-label--hide-required-marker)::after {\n  margin-left: 1px;\n  margin-right: 0;\n  content: "*";\n}\n[dir=rtl] .mdc-floating-label--required:not(.mdc-floating-label--hide-required-marker)::after {\n  margin-left: 0;\n  margin-right: 1px;\n}\n\n.mdc-notched-outline {\n  display: flex;\n  position: absolute;\n  top: 0;\n  right: 0;\n  left: 0;\n  box-sizing: border-box;\n  width: 100%;\n  max-width: 100%;\n  height: 100%;\n  text-align: left;\n  pointer-events: none;\n}\n[dir=rtl] .mdc-notched-outline {\n  text-align: right;\n}\n.mdc-text-field--outlined .mdc-notched-outline {\n  z-index: 1;\n}\n\n.mat-mdc-notch-piece {\n  box-sizing: border-box;\n  height: 100%;\n  pointer-events: none;\n  border: none;\n  border-top: 1px solid;\n  border-bottom: 1px solid;\n}\n.mdc-text-field--focused .mat-mdc-notch-piece {\n  border-width: 2px;\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mat-mdc-notch-piece {\n  border-color: var(--mat-form-field-outlined-outline-color, var(--mat-sys-outline));\n  border-width: var(--mat-form-field-outlined-outline-width, 1px);\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mat-mdc-notch-piece {\n  border-color: var(--mat-form-field-outlined-hover-outline-color, var(--mat-sys-on-surface));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mat-mdc-notch-piece {\n  border-color: var(--mat-form-field-outlined-focus-outline-color, var(--mat-sys-primary));\n}\n.mdc-text-field--outlined.mdc-text-field--disabled .mat-mdc-notch-piece {\n  border-color: var(--mat-form-field-outlined-disabled-outline-color, color-mix(in srgb, var(--mat-sys-on-surface) 12%, transparent));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid .mat-mdc-notch-piece {\n  border-color: var(--mat-form-field-outlined-error-outline-color, var(--mat-sys-error));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid:not(.mdc-text-field--focused):hover .mdc-notched-outline .mat-mdc-notch-piece {\n  border-color: var(--mat-form-field-outlined-error-hover-outline-color, var(--mat-sys-on-error-container));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid.mdc-text-field--focused .mat-mdc-notch-piece {\n  border-color: var(--mat-form-field-outlined-error-focus-outline-color, var(--mat-sys-error));\n}\n.mdc-text-field--outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline .mat-mdc-notch-piece {\n  border-width: var(--mat-form-field-outlined-focus-outline-width, 2px);\n}\n\n.mdc-notched-outline__leading {\n  border-left: 1px solid;\n  border-right: none;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n  border-top-left-radius: var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small));\n  border-bottom-left-radius: var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small));\n}\n.mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {\n  width: max(12px, var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small)));\n}\n[dir=rtl] .mdc-notched-outline__leading {\n  border-left: none;\n  border-right: 1px solid;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0;\n  border-top-right-radius: var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small));\n  border-bottom-right-radius: var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small));\n}\n\n.mdc-notched-outline__trailing {\n  flex-grow: 1;\n  border-left: none;\n  border-right: 1px solid;\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-right-radius: var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small));\n  border-bottom-right-radius: var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small));\n}\n[dir=rtl] .mdc-notched-outline__trailing {\n  border-left: 1px solid;\n  border-right: none;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n  border-top-left-radius: var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small));\n  border-bottom-left-radius: var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small));\n}\n\n.mdc-notched-outline__notch {\n  flex: 0 0 auto;\n  width: auto;\n}\n.mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__notch {\n  max-width: min(var(--mat-form-field-notch-max-width, 100%), calc(100% - max(12px, var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small))) * 2));\n}\n.mdc-text-field--outlined .mdc-notched-outline--notched .mdc-notched-outline__notch {\n  max-width: min(100%, calc(100% - max(12px, var(--mat-form-field-outlined-container-shape, var(--mat-sys-corner-extra-small))) * 2));\n}\n.mdc-text-field--outlined .mdc-notched-outline--notched .mdc-notched-outline__notch {\n  padding-top: 1px;\n}\n.mdc-text-field--focused.mdc-text-field--outlined .mdc-notched-outline--notched .mdc-notched-outline__notch {\n  padding-top: 2px;\n}\n.mdc-notched-outline--notched .mdc-notched-outline__notch {\n  padding-left: 0;\n  padding-right: 8px;\n  border-top: none;\n}\n[dir=rtl] .mdc-notched-outline--notched .mdc-notched-outline__notch {\n  padding-left: 8px;\n  padding-right: 0;\n}\n.mdc-notched-outline--no-label .mdc-notched-outline__notch {\n  display: none;\n}\n\n.mdc-line-ripple::before, .mdc-line-ripple::after {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  border-bottom-style: solid;\n  content: "";\n}\n.mdc-line-ripple::before {\n  z-index: 1;\n  border-bottom-width: var(--mat-form-field-filled-active-indicator-height, 1px);\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-line-ripple::before {\n  border-bottom-color: var(--mat-form-field-filled-active-indicator-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-line-ripple::before {\n  border-bottom-color: var(--mat-form-field-filled-hover-active-indicator-color, var(--mat-sys-on-surface));\n}\n.mdc-text-field--filled.mdc-text-field--disabled .mdc-line-ripple::before {\n  border-bottom-color: var(--mat-form-field-filled-disabled-active-indicator-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled).mdc-text-field--invalid .mdc-line-ripple::before {\n  border-bottom-color: var(--mat-form-field-filled-error-active-indicator-color, var(--mat-sys-error));\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled).mdc-text-field--invalid:not(.mdc-text-field--focused):hover .mdc-line-ripple::before {\n  border-bottom-color: var(--mat-form-field-filled-error-hover-active-indicator-color, var(--mat-sys-on-error-container));\n}\n.mdc-line-ripple::after {\n  transform: scaleX(0);\n  opacity: 0;\n  z-index: 2;\n}\n.mdc-text-field--filled .mdc-line-ripple::after {\n  border-bottom-width: var(--mat-form-field-filled-focus-active-indicator-height, 2px);\n}\n.mdc-text-field--filled:not(.mdc-text-field--disabled) .mdc-line-ripple::after {\n  border-bottom-color: var(--mat-form-field-filled-focus-active-indicator-color, var(--mat-sys-primary));\n}\n.mdc-text-field--filled.mdc-text-field--invalid:not(.mdc-text-field--disabled) .mdc-line-ripple::after {\n  border-bottom-color: var(--mat-form-field-filled-error-focus-active-indicator-color, var(--mat-sys-error));\n}\n\n.mdc-line-ripple--active::after {\n  transform: scaleX(1);\n  opacity: 1;\n}\n\n.mdc-line-ripple--deactivating::after {\n  opacity: 0;\n}\n\n.mdc-text-field--disabled {\n  pointer-events: none;\n}\n\n.mat-mdc-form-field-textarea-control {\n  vertical-align: middle;\n  resize: vertical;\n  box-sizing: border-box;\n  height: auto;\n  margin: 0;\n  padding: 0;\n  border: none;\n  overflow: auto;\n}\n\n.mat-mdc-form-field-input-control.mat-mdc-form-field-input-control {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  font: inherit;\n  letter-spacing: inherit;\n  text-decoration: inherit;\n  text-transform: inherit;\n  border: none;\n}\n\n.mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  line-height: normal;\n  pointer-events: all;\n  will-change: auto;\n}\n\n.mat-mdc-form-field:not(.mat-form-field-disabled) .mat-mdc-floating-label.mdc-floating-label {\n  cursor: inherit;\n}\n\n.mdc-text-field--no-label:not(.mdc-text-field--textarea) .mat-mdc-form-field-input-control.mdc-text-field__input,\n.mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control {\n  height: auto;\n}\n\n.mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control.mdc-text-field__input[type=color] {\n  height: 23px;\n}\n\n.mat-mdc-text-field-wrapper {\n  height: auto;\n  flex: auto;\n  will-change: auto;\n}\n\n.mat-mdc-form-field-has-icon-prefix .mat-mdc-text-field-wrapper {\n  padding-left: 0;\n  --mat-mdc-form-field-label-offset-x: -16px;\n}\n\n.mat-mdc-form-field-has-icon-suffix .mat-mdc-text-field-wrapper {\n  padding-right: 0;\n}\n\n[dir=rtl] .mat-mdc-text-field-wrapper {\n  padding-left: 16px;\n  padding-right: 16px;\n}\n[dir=rtl] .mat-mdc-form-field-has-icon-suffix .mat-mdc-text-field-wrapper {\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-form-field-has-icon-prefix .mat-mdc-text-field-wrapper {\n  padding-right: 0;\n}\n\n.mat-form-field-disabled .mdc-text-field__input::placeholder {\n  color: var(--mat-form-field-disabled-input-text-placeholder-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-form-field-disabled .mdc-text-field__input::-moz-placeholder {\n  color: var(--mat-form-field-disabled-input-text-placeholder-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-form-field-disabled .mdc-text-field__input::-webkit-input-placeholder {\n  color: var(--mat-form-field-disabled-input-text-placeholder-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-form-field-disabled .mdc-text-field__input:-ms-input-placeholder {\n  color: var(--mat-form-field-disabled-input-text-placeholder-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-mdc-form-field-label-always-float .mdc-text-field__input::placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n  opacity: 1;\n}\n\n.mat-mdc-text-field-wrapper .mat-mdc-form-field-infix .mat-mdc-floating-label {\n  left: auto;\n  right: auto;\n}\n\n.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-text-field__input {\n  display: inline-block;\n}\n\n.mat-mdc-form-field .mat-mdc-text-field-wrapper.mdc-text-field .mdc-notched-outline__notch {\n  padding-top: 0;\n}\n\n.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field .mdc-notched-outline__notch {\n  border-left: 1px solid transparent;\n}\n\n[dir=rtl] .mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field .mdc-notched-outline__notch {\n  border-left: none;\n  border-right: 1px solid transparent;\n}\n\n.mat-mdc-form-field-infix {\n  min-height: var(--mat-form-field-container-height, 56px);\n  padding-top: var(--mat-form-field-filled-with-label-container-padding-top, 24px);\n  padding-bottom: var(--mat-form-field-filled-with-label-container-padding-bottom, 8px);\n}\n.mdc-text-field--outlined .mat-mdc-form-field-infix, .mdc-text-field--no-label .mat-mdc-form-field-infix {\n  padding-top: var(--mat-form-field-container-vertical-padding, 16px);\n  padding-bottom: var(--mat-form-field-container-vertical-padding, 16px);\n}\n\n.mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {\n  top: calc(var(--mat-form-field-container-height, 56px) / 2);\n}\n\n.mdc-text-field--filled .mat-mdc-floating-label {\n  display: var(--mat-form-field-filled-label-display, block);\n}\n\n.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  --mat-mdc-form-field-label-transform: translateY(calc(calc(6.75px + var(--mat-form-field-container-height, 56px) / 2) * -1))\n    scale(var(--mat-mdc-form-field-floating-label-scale, 0.75));\n  transform: var(--mat-mdc-form-field-label-transform);\n}\n\n@keyframes _mat-form-field-subscript-animation {\n  from {\n    opacity: 0;\n    transform: translateY(-5px);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n.mat-mdc-form-field-subscript-wrapper {\n  box-sizing: border-box;\n  width: 100%;\n  position: relative;\n}\n\n.mat-mdc-form-field-hint-wrapper,\n.mat-mdc-form-field-error-wrapper {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  padding: 0 16px;\n  opacity: 1;\n  transform: translateY(0);\n  animation: _mat-form-field-subscript-animation 0ms cubic-bezier(0.55, 0, 0.55, 0.2);\n}\n\n.mat-mdc-form-field-subscript-dynamic-size .mat-mdc-form-field-hint-wrapper,\n.mat-mdc-form-field-subscript-dynamic-size .mat-mdc-form-field-error-wrapper {\n  position: static;\n}\n\n.mat-mdc-form-field-bottom-align::before {\n  content: "";\n  display: inline-block;\n  height: 16px;\n}\n\n.mat-mdc-form-field-bottom-align.mat-mdc-form-field-subscript-dynamic-size::before {\n  content: unset;\n}\n\n.mat-mdc-form-field-hint-end {\n  order: 1;\n}\n\n.mat-mdc-form-field-hint-wrapper {\n  display: flex;\n}\n\n.mat-mdc-form-field-hint-spacer {\n  flex: 1 0 1em;\n}\n\n.mat-mdc-form-field-error {\n  display: block;\n  color: var(--mat-form-field-error-text-color, var(--mat-sys-error));\n}\n\n.mat-mdc-form-field-subscript-wrapper,\n.mat-mdc-form-field-bottom-align::before {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  font-family: var(--mat-form-field-subscript-text-font, var(--mat-sys-body-small-font));\n  line-height: var(--mat-form-field-subscript-text-line-height, var(--mat-sys-body-small-line-height));\n  font-size: var(--mat-form-field-subscript-text-size, var(--mat-sys-body-small-size));\n  letter-spacing: var(--mat-form-field-subscript-text-tracking, var(--mat-sys-body-small-tracking));\n  font-weight: var(--mat-form-field-subscript-text-weight, var(--mat-sys-body-small-weight));\n}\n\n.mat-mdc-form-field-focus-overlay {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  opacity: 0;\n  pointer-events: none;\n  background-color: var(--mat-form-field-state-layer-color, var(--mat-sys-on-surface));\n}\n.mat-mdc-text-field-wrapper:hover .mat-mdc-form-field-focus-overlay {\n  opacity: var(--mat-form-field-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-form-field.mat-focused .mat-mdc-form-field-focus-overlay {\n  opacity: var(--mat-form-field-focus-state-layer-opacity, 0);\n}\n\nselect.mat-mdc-form-field-input-control {\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  background-color: transparent;\n  display: inline-flex;\n  box-sizing: border-box;\n}\nselect.mat-mdc-form-field-input-control:not(:disabled) {\n  cursor: pointer;\n}\nselect.mat-mdc-form-field-input-control:not(.mat-mdc-native-select-inline) option {\n  color: var(--mat-form-field-select-option-text-color, var(--mat-sys-neutral10));\n}\nselect.mat-mdc-form-field-input-control:not(.mat-mdc-native-select-inline) option:disabled {\n  color: var(--mat-form-field-select-disabled-option-text-color, color-mix(in srgb, var(--mat-sys-neutral10) 38%, transparent));\n}\n\n.mat-mdc-form-field-type-mat-native-select .mat-mdc-form-field-infix::after {\n  content: "";\n  width: 0;\n  height: 0;\n  border-left: 5px solid transparent;\n  border-right: 5px solid transparent;\n  border-top: 5px solid;\n  position: absolute;\n  right: 0;\n  top: 50%;\n  margin-top: -2.5px;\n  pointer-events: none;\n  color: var(--mat-form-field-enabled-select-arrow-color, var(--mat-sys-on-surface-variant));\n}\n[dir=rtl] .mat-mdc-form-field-type-mat-native-select .mat-mdc-form-field-infix::after {\n  right: auto;\n  left: 0;\n}\n.mat-mdc-form-field-type-mat-native-select.mat-focused .mat-mdc-form-field-infix::after {\n  color: var(--mat-form-field-focus-select-arrow-color, var(--mat-sys-primary));\n}\n.mat-mdc-form-field-type-mat-native-select.mat-form-field-disabled .mat-mdc-form-field-infix::after {\n  color: var(--mat-form-field-disabled-select-arrow-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-form-field-type-mat-native-select .mat-mdc-form-field-input-control {\n  padding-right: 15px;\n}\n[dir=rtl] .mat-mdc-form-field-type-mat-native-select .mat-mdc-form-field-input-control {\n  padding-right: 0;\n  padding-left: 15px;\n}\n\n@media (forced-colors: active) {\n  .mat-form-field-appearance-fill .mat-mdc-text-field-wrapper {\n    outline: solid 1px;\n  }\n}\n@media (forced-colors: active) {\n  .mat-form-field-appearance-fill.mat-form-field-disabled .mat-mdc-text-field-wrapper {\n    outline-color: GrayText;\n  }\n}\n\n@media (forced-colors: active) {\n  .mat-form-field-appearance-fill.mat-focused .mat-mdc-text-field-wrapper {\n    outline: dashed 3px;\n  }\n}\n\n@media (forced-colors: active) {\n  .mat-mdc-form-field.mat-focused .mdc-notched-outline {\n    border: dashed 3px;\n  }\n}\n\n.mat-mdc-form-field-input-control[type=date], .mat-mdc-form-field-input-control[type=datetime], .mat-mdc-form-field-input-control[type=datetime-local], .mat-mdc-form-field-input-control[type=month], .mat-mdc-form-field-input-control[type=week], .mat-mdc-form-field-input-control[type=time] {\n  line-height: 1;\n}\n.mat-mdc-form-field-input-control::-webkit-datetime-edit {\n  line-height: 1;\n  padding: 0;\n  margin-bottom: -2px;\n}\n\n.mat-mdc-form-field {\n  --mat-mdc-form-field-floating-label-scale: 0.75;\n  display: inline-flex;\n  flex-direction: column;\n  min-width: 0;\n  text-align: left;\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  font-family: var(--mat-form-field-container-text-font, var(--mat-sys-body-large-font));\n  line-height: var(--mat-form-field-container-text-line-height, var(--mat-sys-body-large-line-height));\n  font-size: var(--mat-form-field-container-text-size, var(--mat-sys-body-large-size));\n  letter-spacing: var(--mat-form-field-container-text-tracking, var(--mat-sys-body-large-tracking));\n  font-weight: var(--mat-form-field-container-text-weight, var(--mat-sys-body-large-weight));\n}\n.mat-mdc-form-field .mdc-text-field--outlined .mdc-floating-label--float-above {\n  font-size: calc(var(--mat-form-field-outlined-label-text-populated-size) * var(--mat-mdc-form-field-floating-label-scale));\n}\n.mat-mdc-form-field .mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  font-size: var(--mat-form-field-outlined-label-text-populated-size);\n}\n[dir=rtl] .mat-mdc-form-field {\n  text-align: right;\n}\n\n.mat-mdc-form-field-flex {\n  display: inline-flex;\n  align-items: baseline;\n  box-sizing: border-box;\n  width: 100%;\n}\n\n.mat-mdc-text-field-wrapper {\n  width: 100%;\n  z-index: 0;\n}\n\n.mat-mdc-form-field-icon-prefix,\n.mat-mdc-form-field-icon-suffix {\n  align-self: center;\n  line-height: 0;\n  pointer-events: auto;\n  position: relative;\n  z-index: 1;\n}\n.mat-mdc-form-field-icon-prefix > .mat-icon,\n.mat-mdc-form-field-icon-suffix > .mat-icon {\n  padding: 0 12px;\n  box-sizing: content-box;\n}\n\n.mat-mdc-form-field-icon-prefix {\n  color: var(--mat-form-field-leading-icon-color, var(--mat-sys-on-surface-variant));\n}\n.mat-form-field-disabled .mat-mdc-form-field-icon-prefix {\n  color: var(--mat-form-field-disabled-leading-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-mdc-form-field-icon-suffix {\n  color: var(--mat-form-field-trailing-icon-color, var(--mat-sys-on-surface-variant));\n}\n.mat-form-field-disabled .mat-mdc-form-field-icon-suffix {\n  color: var(--mat-form-field-disabled-trailing-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-form-field-invalid .mat-mdc-form-field-icon-suffix {\n  color: var(--mat-form-field-error-trailing-icon-color, var(--mat-sys-error));\n}\n.mat-form-field-invalid:not(.mat-focused):not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper:hover .mat-mdc-form-field-icon-suffix {\n  color: var(--mat-form-field-error-hover-trailing-icon-color, var(--mat-sys-on-error-container));\n}\n.mat-form-field-invalid.mat-focused .mat-mdc-text-field-wrapper .mat-mdc-form-field-icon-suffix {\n  color: var(--mat-form-field-error-focus-trailing-icon-color, var(--mat-sys-error));\n}\n\n.mat-mdc-form-field-icon-prefix,\n[dir=rtl] .mat-mdc-form-field-icon-suffix {\n  padding: 0 4px 0 0;\n}\n\n.mat-mdc-form-field-icon-suffix,\n[dir=rtl] .mat-mdc-form-field-icon-prefix {\n  padding: 0 0 0 4px;\n}\n\n.mat-mdc-form-field-subscript-wrapper .mat-icon,\n.mat-mdc-form-field label .mat-icon {\n  width: 1em;\n  height: 1em;\n  font-size: inherit;\n}\n\n.mat-mdc-form-field-infix {\n  flex: auto;\n  min-width: 0;\n  width: 180px;\n  position: relative;\n  box-sizing: border-box;\n}\n.mat-mdc-form-field-infix:has(textarea[cols]) {\n  width: auto;\n}\n\n.mat-mdc-form-field .mdc-notched-outline__notch {\n  margin-left: -1px;\n  -webkit-clip-path: inset(-9em -999em -9em 1px);\n  clip-path: inset(-9em -999em -9em 1px);\n}\n[dir=rtl] .mat-mdc-form-field .mdc-notched-outline__notch {\n  margin-left: 0;\n  margin-right: -1px;\n  -webkit-clip-path: inset(-9em 1px -9em -999em);\n  clip-path: inset(-9em 1px -9em -999em);\n}\n\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-floating-label {\n  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input {\n  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input::placeholder {\n  transition: opacity 67ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input::-moz-placeholder {\n  transition: opacity 67ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input::-webkit-input-placeholder {\n  transition: opacity 67ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input:-ms-input-placeholder {\n  transition: opacity 67ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--no-label .mdc-text-field__input::placeholder, .mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--focused .mdc-text-field__input::placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--no-label .mdc-text-field__input::-moz-placeholder, .mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--focused .mdc-text-field__input::-moz-placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--no-label .mdc-text-field__input::-webkit-input-placeholder, .mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--focused .mdc-text-field__input::-webkit-input-placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--no-label .mdc-text-field__input:-ms-input-placeholder, .mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--focused .mdc-text-field__input:-ms-input-placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field--filled:not(.mdc-ripple-upgraded):focus .mdc-text-field__ripple::before {\n  transition-duration: 75ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-line-ripple::after {\n  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1), opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mat-mdc-form-field-hint-wrapper,\n.mat-mdc-form-field.mat-form-field-animations-enabled .mat-mdc-form-field-error-wrapper {\n  animation-duration: 300ms;\n}\n\n.mdc-notched-outline .mdc-floating-label {\n  max-width: calc(100% + 1px);\n}\n\n.mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  max-width: calc(133.3333333333% + 1px);\n}\n'],
+    styles: ['.mdc-text-field {\n  display: inline-flex;\n  align-items: baseline;\n  padding: 0 16px;\n  position: relative;\n  box-sizing: border-box;\n  overflow: hidden;\n  will-change: opacity, transform, color;\n  border-top-left-radius: 4px;\n  border-top-right-radius: 4px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n}\n\n.mdc-text-field__input {\n  width: 100%;\n  min-width: 0;\n  border: none;\n  border-radius: 0;\n  background: none;\n  padding: 0;\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  height: 28px;\n}\n.mdc-text-field__input::-webkit-calendar-picker-indicator, .mdc-text-field__input::-webkit-search-cancel-button {\n  display: none;\n}\n.mdc-text-field__input::-ms-clear {\n  display: none;\n}\n.mdc-text-field__input:focus {\n  outline: none;\n}\n.mdc-text-field__input:invalid {\n  box-shadow: none;\n}\n.mdc-text-field__input::placeholder {\n  opacity: 0;\n}\n.mdc-text-field__input::-moz-placeholder {\n  opacity: 0;\n}\n.mdc-text-field__input::-webkit-input-placeholder {\n  opacity: 0;\n}\n.mdc-text-field__input:-ms-input-placeholder {\n  opacity: 0;\n}\n.mdc-text-field--no-label .mdc-text-field__input::placeholder, .mdc-text-field--focused .mdc-text-field__input::placeholder {\n  opacity: 1;\n}\n.mdc-text-field--no-label .mdc-text-field__input::-moz-placeholder, .mdc-text-field--focused .mdc-text-field__input::-moz-placeholder {\n  opacity: 1;\n}\n.mdc-text-field--no-label .mdc-text-field__input::-webkit-input-placeholder, .mdc-text-field--focused .mdc-text-field__input::-webkit-input-placeholder {\n  opacity: 1;\n}\n.mdc-text-field--no-label .mdc-text-field__input:-ms-input-placeholder, .mdc-text-field--focused .mdc-text-field__input:-ms-input-placeholder {\n  opacity: 1;\n}\n.mdc-text-field--%NS%disabled:not(.mdc-text-field--no-label) .mdc-text-field__input.mat-mdc-input-disabled-interactive::placeholder {\n  opacity: 0;\n}\n.mdc-text-field--%NS%disabled:not(.mdc-text-field--no-label) .mdc-text-field__input.mat-mdc-input-disabled-interactive::-moz-placeholder {\n  opacity: 0;\n}\n.mdc-text-field--%NS%disabled:not(.mdc-text-field--no-label) .mdc-text-field__input.mat-mdc-input-disabled-interactive::-webkit-input-placeholder {\n  opacity: 0;\n}\n.mdc-text-field--%NS%disabled:not(.mdc-text-field--no-label) .mdc-text-field__input.mat-mdc-input-disabled-interactive:-ms-input-placeholder {\n  opacity: 0;\n}\n.mdc-text-field--outlined .mdc-text-field__input, .mdc-text-field--filled.mdc-text-field--no-label .mdc-text-field__input {\n  height: 100%;\n}\n.mdc-text-field--outlined .mdc-text-field__input {\n  display: flex;\n  border: none !important;\n  background-color: transparent;\n}\n.mdc-text-field--disabled .mdc-text-field__input {\n  pointer-events: auto;\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled) .mdc-text-field__input {\n  color: var(--%NS%mat-form-field-filled-input-text-color, var(--%NS%mat-sys-on-surface));\n  caret-color: var(--%NS%mat-form-field-filled-caret-color, var(--%NS%mat-sys-primary));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled) .mdc-text-field__input::placeholder {\n  color: var(--%NS%mat-form-field-filled-input-text-placeholder-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled) .mdc-text-field__input::-moz-placeholder {\n  color: var(--%NS%mat-form-field-filled-input-text-placeholder-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled) .mdc-text-field__input::-webkit-input-placeholder {\n  color: var(--%NS%mat-form-field-filled-input-text-placeholder-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled) .mdc-text-field__input:-ms-input-placeholder {\n  color: var(--%NS%mat-form-field-filled-input-text-placeholder-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled) .mdc-text-field__input {\n  color: var(--%NS%mat-form-field-outlined-input-text-color, var(--%NS%mat-sys-on-surface));\n  caret-color: var(--%NS%mat-form-field-outlined-caret-color, var(--%NS%mat-sys-primary));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled) .mdc-text-field__input::placeholder {\n  color: var(--%NS%mat-form-field-outlined-input-text-placeholder-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled) .mdc-text-field__input::-moz-placeholder {\n  color: var(--%NS%mat-form-field-outlined-input-text-placeholder-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled) .mdc-text-field__input::-webkit-input-placeholder {\n  color: var(--%NS%mat-form-field-outlined-input-text-placeholder-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled) .mdc-text-field__input:-ms-input-placeholder {\n  color: var(--%NS%mat-form-field-outlined-input-text-placeholder-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--filled.mdc-text-field--%NS%invalid:not(.mdc-text-field--disabled) .mdc-text-field__input {\n  caret-color: var(--%NS%mat-form-field-filled-error-caret-color, var(--%NS%mat-sys-error));\n}\n.mdc-text-field--outlined.mdc-text-field--%NS%invalid:not(.mdc-text-field--disabled) .mdc-text-field__input {\n  caret-color: var(--%NS%mat-form-field-outlined-error-caret-color, var(--%NS%mat-sys-error));\n}\n.mdc-text-field--filled.mdc-text-field--disabled .mdc-text-field__input {\n  color: var(--%NS%mat-form-field-filled-disabled-input-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mdc-text-field--outlined.mdc-text-field--disabled .mdc-text-field__input {\n  color: var(--%NS%mat-form-field-outlined-disabled-input-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-text-field--disabled .mdc-text-field__input {\n    background-color: Window;\n  }\n}\n\n.mdc-text-field--filled {\n  height: 56px;\n  border-bottom-right-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: var(--%NS%mat-form-field-filled-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  border-top-right-radius: var(--%NS%mat-form-field-filled-container-shape, var(--%NS%mat-sys-corner-extra-small));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled) {\n  background-color: var(--%NS%mat-form-field-filled-container-color, var(--%NS%mat-sys-surface-variant));\n}\n.mdc-text-field--filled.mdc-text-field--disabled {\n  background-color: var(--%NS%mat-form-field-filled-disabled-container-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 4%, transparent));\n}\n\n.mdc-text-field--outlined {\n  height: 56px;\n  overflow: visible;\n  padding-right: max(16px, var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small)));\n  padding-left: max(16px, var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small)) + 4px);\n}\n[dir=rtl] .mdc-text-field--outlined {\n  padding-right: max(16px, var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small)) + 4px);\n  padding-left: max(16px, var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small)));\n}\n\n.mdc-floating-label {\n  position: absolute;\n  left: 0;\n  transform-origin: left top;\n  line-height: 1.15rem;\n  text-align: left;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n  cursor: text;\n  overflow: hidden;\n  will-change: transform;\n}\n[dir=rtl] .mdc-floating-label {\n  right: 0;\n  left: auto;\n  transform-origin: right top;\n  text-align: right;\n}\n.mdc-text-field .mdc-floating-label {\n  top: 50%;\n  transform: translateY(-50%);\n  pointer-events: none;\n}\n.mdc-notched-outline .mdc-floating-label {\n  display: inline-block;\n  position: relative;\n  max-width: 100%;\n}\n.mdc-text-field--outlined .mdc-floating-label {\n  left: 4px;\n  right: auto;\n}\n[dir=rtl] .mdc-text-field--outlined .mdc-floating-label {\n  left: auto;\n  right: 4px;\n}\n.mdc-text-field--filled .mdc-floating-label {\n  left: 16px;\n  right: auto;\n}\n[dir=rtl] .mdc-text-field--filled .mdc-floating-label {\n  left: auto;\n  right: 16px;\n}\n.mdc-text-field--disabled .mdc-floating-label {\n  cursor: default;\n}\n@media (forced-colors: active) {\n  .mdc-text-field--disabled .mdc-floating-label {\n    z-index: 1;\n  }\n}\n.mdc-text-field--filled.mdc-text-field--no-label .mdc-floating-label {\n  display: none;\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled) .mdc-floating-label {\n  color: var(--%NS%mat-form-field-filled-label-text-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-floating-label {\n  color: var(--%NS%mat-form-field-filled-focus-label-text-color, var(--%NS%mat-sys-primary));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-floating-label {\n  color: var(--%NS%mat-form-field-filled-hover-label-text-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--filled.mdc-text-field--disabled .mdc-floating-label {\n  color: var(--%NS%mat-form-field-filled-disabled-label-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled).mdc-text-field--invalid .mdc-floating-label {\n  color: var(--%NS%mat-form-field-filled-error-label-text-color, var(--%NS%mat-sys-error));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled).mdc-text-field--invalid.mdc-text-field--focused .mdc-floating-label {\n  color: var(--%NS%mat-form-field-filled-error-focus-label-text-color, var(--%NS%mat-sys-error));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled).mdc-text-field--%NS%invalid:not(.mdc-text-field--disabled):hover .mdc-floating-label {\n  color: var(--%NS%mat-form-field-filled-error-hover-label-text-color, var(--%NS%mat-sys-on-error-container));\n}\n.mdc-text-field--filled .mdc-floating-label {\n  font-family: var(--%NS%mat-form-field-filled-label-text-font, var(--%NS%mat-sys-body-large-font));\n  font-size: var(--%NS%mat-form-field-filled-label-text-size, var(--%NS%mat-sys-body-large-size));\n  font-weight: var(--%NS%mat-form-field-filled-label-text-weight, var(--%NS%mat-sys-body-large-weight));\n  letter-spacing: var(--%NS%mat-form-field-filled-label-text-tracking, var(--%NS%mat-sys-body-large-tracking));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled) .mdc-floating-label {\n  color: var(--%NS%mat-form-field-outlined-label-text-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-floating-label {\n  color: var(--%NS%mat-form-field-outlined-focus-label-text-color, var(--%NS%mat-sys-primary));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-floating-label {\n  color: var(--%NS%mat-form-field-outlined-hover-label-text-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-text-field--outlined.mdc-text-field--disabled .mdc-floating-label {\n  color: var(--%NS%mat-form-field-outlined-disabled-label-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid .mdc-floating-label {\n  color: var(--%NS%mat-form-field-outlined-error-label-text-color, var(--%NS%mat-sys-error));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid.mdc-text-field--focused .mdc-floating-label {\n  color: var(--%NS%mat-form-field-outlined-error-focus-label-text-color, var(--%NS%mat-sys-error));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled).mdc-text-field--%NS%invalid:not(.mdc-text-field--disabled):hover .mdc-floating-label {\n  color: var(--%NS%mat-form-field-outlined-error-hover-label-text-color, var(--%NS%mat-sys-on-error-container));\n}\n.mdc-text-field--outlined .mdc-floating-label {\n  font-family: var(--%NS%mat-form-field-outlined-label-text-font, var(--%NS%mat-sys-body-large-font));\n  font-size: var(--%NS%mat-form-field-outlined-label-text-size, var(--%NS%mat-sys-body-large-size));\n  font-weight: var(--%NS%mat-form-field-outlined-label-text-weight, var(--%NS%mat-sys-body-large-weight));\n  letter-spacing: var(--%NS%mat-form-field-outlined-label-text-tracking, var(--%NS%mat-sys-body-large-tracking));\n}\n\n.mdc-floating-label--float-above {\n  cursor: auto;\n  transform: translateY(-106%) scale(0.75);\n}\n.mdc-text-field--filled .mdc-floating-label--float-above {\n  transform: translateY(-106%) scale(0.75);\n}\n.mdc-text-field--outlined .mdc-floating-label--float-above {\n  transform: translateY(-37.25px) scale(1);\n  font-size: 0.75rem;\n}\n.mdc-notched-outline .mdc-floating-label--float-above {\n  text-overflow: clip;\n}\n.mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  max-width: 133.3333333333%;\n}\n.mdc-text-field--outlined.mdc-notched-outline--upgraded .mdc-floating-label--float-above, .mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  transform: translateY(-34.75px) scale(0.75);\n}\n.mdc-text-field--outlined.mdc-notched-outline--upgraded .mdc-floating-label--float-above, .mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  font-size: 1rem;\n}\n\n.mdc-floating-label--%NS%required:not(.mdc-floating-label--hide-required-marker)::after {\n  margin-left: 1px;\n  margin-right: 0;\n  content: "*";\n}\n[dir=rtl] .mdc-floating-label--%NS%required:not(.mdc-floating-label--hide-required-marker)::after {\n  margin-left: 0;\n  margin-right: 1px;\n}\n\n.mdc-notched-outline {\n  display: flex;\n  position: absolute;\n  top: 0;\n  right: 0;\n  left: 0;\n  box-sizing: border-box;\n  width: 100%;\n  max-width: 100%;\n  height: 100%;\n  text-align: left;\n  pointer-events: none;\n}\n[dir=rtl] .mdc-notched-outline {\n  text-align: right;\n}\n.mdc-text-field--outlined .mdc-notched-outline {\n  z-index: 1;\n}\n\n.mat-mdc-notch-piece {\n  box-sizing: border-box;\n  height: 100%;\n  pointer-events: none;\n  border: none;\n  border-top: 1px solid;\n  border-bottom: 1px solid;\n}\n.mdc-text-field--focused .mat-mdc-notch-piece {\n  border-width: 2px;\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled) .mat-mdc-notch-piece {\n  border-color: var(--%NS%mat-form-field-outlined-outline-color, var(--%NS%mat-sys-outline));\n  border-width: var(--%NS%mat-form-field-outlined-outline-width, 1px);\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mat-mdc-notch-piece {\n  border-color: var(--%NS%mat-form-field-outlined-hover-outline-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mat-mdc-notch-piece {\n  border-color: var(--%NS%mat-form-field-outlined-focus-outline-color, var(--%NS%mat-sys-primary));\n}\n.mdc-text-field--outlined.mdc-text-field--disabled .mat-mdc-notch-piece {\n  border-color: var(--%NS%mat-form-field-outlined-disabled-outline-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 12%, transparent));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid .mat-mdc-notch-piece {\n  border-color: var(--%NS%mat-form-field-outlined-error-outline-color, var(--%NS%mat-sys-error));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled).mdc-text-field--%NS%invalid:not(.mdc-text-field--focused):hover .mdc-notched-outline .mat-mdc-notch-piece {\n  border-color: var(--%NS%mat-form-field-outlined-error-hover-outline-color, var(--%NS%mat-sys-on-error-container));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled).mdc-text-field--invalid.mdc-text-field--focused .mat-mdc-notch-piece {\n  border-color: var(--%NS%mat-form-field-outlined-error-focus-outline-color, var(--%NS%mat-sys-error));\n}\n.mdc-text-field--%NS%outlined:not(.mdc-text-field--disabled).mdc-text-field--focused .mdc-notched-outline .mat-mdc-notch-piece {\n  border-width: var(--%NS%mat-form-field-outlined-focus-outline-width, 2px);\n}\n\n.mdc-notched-outline__leading {\n  border-left: 1px solid;\n  border-right: none;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n  border-top-left-radius: var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  border-bottom-left-radius: var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small));\n}\n.mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__leading {\n  width: max(12px, var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small)));\n}\n[dir=rtl] .mdc-notched-outline__leading {\n  border-left: none;\n  border-right: 1px solid;\n  border-bottom-left-radius: 0;\n  border-top-left-radius: 0;\n  border-top-right-radius: var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  border-bottom-right-radius: var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small));\n}\n\n.mdc-notched-outline__trailing {\n  flex-grow: 1;\n  border-left: none;\n  border-right: 1px solid;\n  border-top-left-radius: 0;\n  border-bottom-left-radius: 0;\n  border-top-right-radius: var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  border-bottom-right-radius: var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small));\n}\n[dir=rtl] .mdc-notched-outline__trailing {\n  border-left: 1px solid;\n  border-right: none;\n  border-top-right-radius: 0;\n  border-bottom-right-radius: 0;\n  border-top-left-radius: var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  border-bottom-left-radius: var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small));\n}\n\n.mdc-notched-outline__notch {\n  flex: 0 0 auto;\n  width: auto;\n}\n.mdc-text-field--outlined .mdc-notched-outline .mdc-notched-outline__notch {\n  max-width: min(var(--%NS%mat-form-field-notch-max-width, 100%), calc(100% - max(12px, var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small))) * 2));\n}\n.mdc-text-field--outlined .mdc-notched-outline--notched .mdc-notched-outline__notch {\n  max-width: min(100%, calc(100% - max(12px, var(--%NS%mat-form-field-outlined-container-shape, var(--%NS%mat-sys-corner-extra-small))) * 2));\n}\n.mdc-text-field--outlined .mdc-notched-outline--notched .mdc-notched-outline__notch {\n  padding-top: 1px;\n}\n.mdc-text-field--focused.mdc-text-field--outlined .mdc-notched-outline--notched .mdc-notched-outline__notch {\n  padding-top: 2px;\n}\n.mdc-notched-outline--notched .mdc-notched-outline__notch {\n  padding-left: 0;\n  padding-right: 8px;\n  border-top: none;\n}\n[dir=rtl] .mdc-notched-outline--notched .mdc-notched-outline__notch {\n  padding-left: 8px;\n  padding-right: 0;\n}\n.mdc-notched-outline--no-label .mdc-notched-outline__notch {\n  display: none;\n}\n\n.mdc-line-ripple::before, .mdc-line-ripple::after {\n  position: absolute;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  border-bottom-style: solid;\n  content: "";\n}\n.mdc-line-ripple::before {\n  z-index: 1;\n  border-bottom-width: var(--%NS%mat-form-field-filled-active-indicator-height, 1px);\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled) .mdc-line-ripple::before {\n  border-bottom-color: var(--%NS%mat-form-field-filled-active-indicator-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled):not(.mdc-text-field--focused):hover .mdc-line-ripple::before {\n  border-bottom-color: var(--%NS%mat-form-field-filled-hover-active-indicator-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-text-field--filled.mdc-text-field--disabled .mdc-line-ripple::before {\n  border-bottom-color: var(--%NS%mat-form-field-filled-disabled-active-indicator-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled).mdc-text-field--invalid .mdc-line-ripple::before {\n  border-bottom-color: var(--%NS%mat-form-field-filled-error-active-indicator-color, var(--%NS%mat-sys-error));\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled).mdc-text-field--%NS%invalid:not(.mdc-text-field--focused):hover .mdc-line-ripple::before {\n  border-bottom-color: var(--%NS%mat-form-field-filled-error-hover-active-indicator-color, var(--%NS%mat-sys-on-error-container));\n}\n.mdc-line-ripple::after {\n  transform: scaleX(0);\n  opacity: 0;\n  z-index: 2;\n}\n.mdc-text-field--filled .mdc-line-ripple::after {\n  border-bottom-width: var(--%NS%mat-form-field-filled-focus-active-indicator-height, 2px);\n}\n.mdc-text-field--%NS%filled:not(.mdc-text-field--disabled) .mdc-line-ripple::after {\n  border-bottom-color: var(--%NS%mat-form-field-filled-focus-active-indicator-color, var(--%NS%mat-sys-primary));\n}\n.mdc-text-field--filled.mdc-text-field--%NS%invalid:not(.mdc-text-field--disabled) .mdc-line-ripple::after {\n  border-bottom-color: var(--%NS%mat-form-field-filled-error-focus-active-indicator-color, var(--%NS%mat-sys-error));\n}\n\n.mdc-line-ripple--%NS%active::after {\n  transform: scaleX(1);\n  opacity: 1;\n}\n\n.mdc-line-ripple--%NS%deactivating::after {\n  opacity: 0;\n}\n\n.mdc-text-field--disabled {\n  pointer-events: none;\n}\n\n.mat-mdc-form-field-textarea-control {\n  vertical-align: middle;\n  resize: vertical;\n  box-sizing: border-box;\n  height: auto;\n  margin: 0;\n  padding: 0;\n  border: none;\n  overflow: auto;\n}\n\n.mat-mdc-form-field-input-control.mat-mdc-form-field-input-control {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  font: inherit;\n  letter-spacing: inherit;\n  text-decoration: inherit;\n  text-transform: inherit;\n  border: none;\n}\n\n.mat-mdc-form-field .mat-mdc-floating-label.mdc-floating-label {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  line-height: normal;\n  pointer-events: all;\n  will-change: auto;\n}\n\n.mat-mdc-form-field:not(.mat-form-field-disabled) .mat-mdc-floating-label.mdc-floating-label {\n  cursor: inherit;\n}\n\n.mdc-text-field--%NS%no-label:not(.mdc-text-field--textarea) .mat-mdc-form-field-input-control.mdc-text-field__input,\n.mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control {\n  height: auto;\n}\n\n.mat-mdc-text-field-wrapper .mat-mdc-form-field-input-control.mdc-text-field__input[type=color] {\n  height: 23px;\n}\n\n.mat-mdc-text-field-wrapper {\n  height: auto;\n  flex: auto;\n  will-change: auto;\n}\n\n.mat-mdc-form-field-has-icon-prefix .mat-mdc-text-field-wrapper {\n  padding-left: 0;\n  --%NS%mat-mdc-form-field-label-offset-x: -16px;\n}\n\n.mat-mdc-form-field-has-icon-suffix .mat-mdc-text-field-wrapper {\n  padding-right: 0;\n}\n\n[dir=rtl] .mat-mdc-text-field-wrapper {\n  padding-left: 16px;\n  padding-right: 16px;\n}\n[dir=rtl] .mat-mdc-form-field-has-icon-suffix .mat-mdc-text-field-wrapper {\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-form-field-has-icon-prefix .mat-mdc-text-field-wrapper {\n  padding-right: 0;\n}\n\n.mat-form-field-disabled .mdc-text-field__input::placeholder {\n  color: var(--%NS%mat-form-field-disabled-input-text-placeholder-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-form-field-disabled .mdc-text-field__input::-moz-placeholder {\n  color: var(--%NS%mat-form-field-disabled-input-text-placeholder-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-form-field-disabled .mdc-text-field__input::-webkit-input-placeholder {\n  color: var(--%NS%mat-form-field-disabled-input-text-placeholder-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-form-field-disabled .mdc-text-field__input:-ms-input-placeholder {\n  color: var(--%NS%mat-form-field-disabled-input-text-placeholder-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-mdc-form-field-label-always-float .mdc-text-field__input::placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n  opacity: 1;\n}\n\n.mat-mdc-text-field-wrapper .mat-mdc-form-field-infix .mat-mdc-floating-label {\n  left: auto;\n  right: auto;\n}\n\n.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-text-field__input {\n  display: inline-block;\n}\n\n.mat-mdc-form-field .mat-mdc-text-field-wrapper.mdc-text-field .mdc-notched-outline__notch {\n  padding-top: 0;\n}\n\n.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field .mdc-notched-outline__notch {\n  border-left: 1px solid transparent;\n}\n\n[dir=rtl] .mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field.mat-mdc-form-field .mdc-notched-outline__notch {\n  border-left: none;\n  border-right: 1px solid transparent;\n}\n\n.mat-mdc-form-field-infix {\n  min-height: var(--%NS%mat-form-field-container-height, 56px);\n  padding-top: var(--%NS%mat-form-field-filled-with-label-container-padding-top, 24px);\n  padding-bottom: var(--%NS%mat-form-field-filled-with-label-container-padding-bottom, 8px);\n}\n.mdc-text-field--outlined .mat-mdc-form-field-infix, .mdc-text-field--no-label .mat-mdc-form-field-infix {\n  padding-top: var(--%NS%mat-form-field-container-vertical-padding, 16px);\n  padding-bottom: var(--%NS%mat-form-field-container-vertical-padding, 16px);\n}\n\n.mat-mdc-text-field-wrapper .mat-mdc-form-field-flex .mat-mdc-floating-label {\n  top: calc(var(--%NS%mat-form-field-container-height, 56px) / 2);\n}\n\n.mdc-text-field--filled .mat-mdc-floating-label {\n  display: var(--%NS%mat-form-field-filled-label-display, block);\n}\n\n.mat-mdc-text-field-wrapper.mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  --%NS%mat-mdc-form-field-label-transform: translateY(calc(calc(6.75px + var(--%NS%mat-form-field-container-height, 56px) / 2) * -1))\n    scale(var(--%NS%mat-mdc-form-field-floating-label-scale, 0.75));\n  transform: var(--%NS%mat-mdc-form-field-label-transform);\n}\n\n@keyframes _mat-form-field-subscript-animation {\n  from {\n    opacity: 0;\n    transform: translateY(-5px);\n  }\n  to {\n    opacity: 1;\n    transform: translateY(0);\n  }\n}\n.mat-mdc-form-field-subscript-wrapper {\n  box-sizing: border-box;\n  width: 100%;\n  position: relative;\n}\n\n.mat-mdc-form-field-hint-wrapper,\n.mat-mdc-form-field-error-wrapper {\n  position: absolute;\n  top: 0;\n  left: 0;\n  right: 0;\n  padding: 0 16px;\n  opacity: 1;\n  transform: translateY(0);\n  animation: _mat-form-field-subscript-animation 0ms cubic-bezier(0.55, 0, 0.55, 0.2);\n}\n\n.mat-mdc-form-field-subscript-dynamic-size .mat-mdc-form-field-hint-wrapper,\n.mat-mdc-form-field-subscript-dynamic-size .mat-mdc-form-field-error-wrapper {\n  position: static;\n}\n\n.mat-mdc-form-field-bottom-align::before {\n  content: "";\n  display: inline-block;\n  height: 16px;\n}\n\n.mat-mdc-form-field-bottom-align.mat-mdc-form-field-subscript-dynamic-size::before {\n  content: unset;\n}\n\n.mat-mdc-form-field-hint-end {\n  order: 1;\n}\n\n.mat-mdc-form-field-hint-wrapper {\n  display: flex;\n}\n\n.mat-mdc-form-field-hint-spacer {\n  flex: 1 0 1em;\n}\n\n.mat-mdc-form-field-error {\n  display: block;\n  color: var(--%NS%mat-form-field-error-text-color, var(--%NS%mat-sys-error));\n}\n\n.mat-mdc-form-field-subscript-wrapper,\n.mat-mdc-form-field-bottom-align::before {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  font-family: var(--%NS%mat-form-field-subscript-text-font, var(--%NS%mat-sys-body-small-font));\n  line-height: var(--%NS%mat-form-field-subscript-text-line-height, var(--%NS%mat-sys-body-small-line-height));\n  font-size: var(--%NS%mat-form-field-subscript-text-size, var(--%NS%mat-sys-body-small-size));\n  letter-spacing: var(--%NS%mat-form-field-subscript-text-tracking, var(--%NS%mat-sys-body-small-tracking));\n  font-weight: var(--%NS%mat-form-field-subscript-text-weight, var(--%NS%mat-sys-body-small-weight));\n}\n\n.mat-mdc-form-field-focus-overlay {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  opacity: 0;\n  pointer-events: none;\n  background-color: var(--%NS%mat-form-field-state-layer-color, var(--%NS%mat-sys-on-surface));\n}\n.mat-mdc-text-field-wrapper:hover .mat-mdc-form-field-focus-overlay {\n  opacity: var(--%NS%mat-form-field-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mat-mdc-form-field.mat-focused .mat-mdc-form-field-focus-overlay {\n  opacity: var(--%NS%mat-form-field-focus-state-layer-opacity, 0);\n}\n\nselect.mat-mdc-form-field-input-control {\n  -moz-appearance: none;\n  -webkit-appearance: none;\n  background-color: transparent;\n  display: inline-flex;\n  box-sizing: border-box;\n}\nselect.mat-mdc-form-field-input-control:not(:disabled) {\n  cursor: pointer;\n}\nselect.mat-mdc-form-field-input-control:not(.mat-mdc-native-select-inline) option {\n  color: var(--%NS%mat-form-field-select-option-text-color, var(--%NS%mat-sys-neutral10));\n}\nselect.mat-mdc-form-field-input-control:not(.mat-mdc-native-select-inline) option:disabled {\n  color: var(--%NS%mat-form-field-select-disabled-option-text-color, color-mix(in srgb, var(--%NS%mat-sys-neutral10) 38%, transparent));\n}\n\n.mat-mdc-form-field-type-mat-native-select .mat-mdc-form-field-infix::after {\n  content: "";\n  width: 0;\n  height: 0;\n  border-left: 5px solid transparent;\n  border-right: 5px solid transparent;\n  border-top: 5px solid;\n  position: absolute;\n  right: 0;\n  top: 50%;\n  margin-top: -2.5px;\n  pointer-events: none;\n  color: var(--%NS%mat-form-field-enabled-select-arrow-color, var(--%NS%mat-sys-on-surface-variant));\n}\n[dir=rtl] .mat-mdc-form-field-type-mat-native-select .mat-mdc-form-field-infix::after {\n  right: auto;\n  left: 0;\n}\n.mat-mdc-form-field-type-mat-native-select.mat-focused .mat-mdc-form-field-infix::after {\n  color: var(--%NS%mat-form-field-focus-select-arrow-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-form-field-type-mat-native-select.mat-form-field-disabled .mat-mdc-form-field-infix::after {\n  color: var(--%NS%mat-form-field-disabled-select-arrow-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-form-field-type-mat-native-select .mat-mdc-form-field-input-control {\n  padding-right: 15px;\n}\n[dir=rtl] .mat-mdc-form-field-type-mat-native-select .mat-mdc-form-field-input-control {\n  padding-right: 0;\n  padding-left: 15px;\n}\n\n@media (forced-colors: active) {\n  .mat-form-field-appearance-fill .mat-mdc-text-field-wrapper {\n    outline: solid 1px;\n  }\n}\n@media (forced-colors: active) {\n  .mat-form-field-appearance-fill.mat-form-field-disabled .mat-mdc-text-field-wrapper {\n    outline-color: GrayText;\n  }\n}\n\n@media (forced-colors: active) {\n  .mat-form-field-appearance-fill.mat-focused .mat-mdc-text-field-wrapper {\n    outline: dashed 3px;\n  }\n}\n\n@media (forced-colors: active) {\n  .mat-mdc-form-field.mat-focused .mdc-notched-outline {\n    border: dashed 3px;\n  }\n}\n\n.mat-mdc-form-field-input-control[type=date], .mat-mdc-form-field-input-control[type=datetime], .mat-mdc-form-field-input-control[type=datetime-local], .mat-mdc-form-field-input-control[type=month], .mat-mdc-form-field-input-control[type=week], .mat-mdc-form-field-input-control[type=time] {\n  line-height: 1;\n}\n.mat-mdc-form-field-input-control::-webkit-datetime-edit {\n  line-height: 1;\n  padding: 0;\n  margin-bottom: -2px;\n}\n\n.mat-mdc-form-field {\n  --%NS%mat-mdc-form-field-floating-label-scale: 0.75;\n  display: inline-flex;\n  flex-direction: column;\n  min-width: 0;\n  text-align: left;\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  font-family: var(--%NS%mat-form-field-container-text-font, var(--%NS%mat-sys-body-large-font));\n  line-height: var(--%NS%mat-form-field-container-text-line-height, var(--%NS%mat-sys-body-large-line-height));\n  font-size: var(--%NS%mat-form-field-container-text-size, var(--%NS%mat-sys-body-large-size));\n  letter-spacing: var(--%NS%mat-form-field-container-text-tracking, var(--%NS%mat-sys-body-large-tracking));\n  font-weight: var(--%NS%mat-form-field-container-text-weight, var(--%NS%mat-sys-body-large-weight));\n}\n.mat-mdc-form-field .mdc-text-field--outlined .mdc-floating-label--float-above {\n  font-size: calc(var(--%NS%mat-form-field-outlined-label-text-populated-size) * var(--%NS%mat-mdc-form-field-floating-label-scale));\n}\n.mat-mdc-form-field .mdc-text-field--outlined .mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  font-size: var(--%NS%mat-form-field-outlined-label-text-populated-size);\n}\n[dir=rtl] .mat-mdc-form-field {\n  text-align: right;\n}\n\n.mat-mdc-form-field-flex {\n  display: inline-flex;\n  align-items: baseline;\n  box-sizing: border-box;\n  width: 100%;\n}\n\n.mat-mdc-text-field-wrapper {\n  width: 100%;\n  z-index: 0;\n}\n\n.mat-mdc-form-field-icon-prefix,\n.mat-mdc-form-field-icon-suffix {\n  align-self: center;\n  line-height: 0;\n  pointer-events: auto;\n  position: relative;\n  z-index: 1;\n}\n.mat-mdc-form-field-icon-prefix > .mat-icon,\n.mat-mdc-form-field-icon-suffix > .mat-icon {\n  padding: 0 12px;\n  box-sizing: content-box;\n}\n\n.mat-mdc-form-field-icon-prefix {\n  color: var(--%NS%mat-form-field-leading-icon-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-form-field-disabled .mat-mdc-form-field-icon-prefix {\n  color: var(--%NS%mat-form-field-disabled-leading-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-mdc-form-field-icon-suffix {\n  color: var(--%NS%mat-form-field-trailing-icon-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-form-field-disabled .mat-mdc-form-field-icon-suffix {\n  color: var(--%NS%mat-form-field-disabled-trailing-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-form-field-invalid .mat-mdc-form-field-icon-suffix {\n  color: var(--%NS%mat-form-field-error-trailing-icon-color, var(--%NS%mat-sys-error));\n}\n.mat-form-field-invalid:not(.mat-focused):not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper:hover .mat-mdc-form-field-icon-suffix {\n  color: var(--%NS%mat-form-field-error-hover-trailing-icon-color, var(--%NS%mat-sys-on-error-container));\n}\n.mat-form-field-invalid.mat-focused .mat-mdc-text-field-wrapper .mat-mdc-form-field-icon-suffix {\n  color: var(--%NS%mat-form-field-error-focus-trailing-icon-color, var(--%NS%mat-sys-error));\n}\n\n.mat-mdc-form-field-icon-prefix,\n[dir=rtl] .mat-mdc-form-field-icon-suffix {\n  padding: 0 4px 0 0;\n}\n\n.mat-mdc-form-field-icon-suffix,\n[dir=rtl] .mat-mdc-form-field-icon-prefix {\n  padding: 0 0 0 4px;\n}\n\n.mat-mdc-form-field-subscript-wrapper .mat-icon,\n.mat-mdc-form-field label .mat-icon {\n  width: 1em;\n  height: 1em;\n  font-size: inherit;\n}\n\n.mat-mdc-form-field-infix {\n  flex: auto;\n  min-width: 0;\n  width: 180px;\n  position: relative;\n  box-sizing: border-box;\n}\n.mat-mdc-form-field-infix:has(textarea[cols]) {\n  width: auto;\n}\n\n.mat-mdc-form-field .mdc-notched-outline__notch {\n  margin-left: -1px;\n  -webkit-clip-path: inset(-9em -999em -9em 1px);\n  clip-path: inset(-9em -999em -9em 1px);\n}\n[dir=rtl] .mat-mdc-form-field .mdc-notched-outline__notch {\n  margin-left: 0;\n  margin-right: -1px;\n  -webkit-clip-path: inset(-9em 1px -9em -999em);\n  clip-path: inset(-9em 1px -9em -999em);\n}\n\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-floating-label {\n  transition: transform 150ms cubic-bezier(0.4, 0, 0.2, 1), color 150ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input {\n  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input::placeholder {\n  transition: opacity 67ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input::-moz-placeholder {\n  transition: opacity 67ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input::-webkit-input-placeholder {\n  transition: opacity 67ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field__input:-ms-input-placeholder {\n  transition: opacity 67ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--no-label .mdc-text-field__input::placeholder, .mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--focused .mdc-text-field__input::placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--no-label .mdc-text-field__input::-moz-placeholder, .mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--focused .mdc-text-field__input::-moz-placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--no-label .mdc-text-field__input::-webkit-input-placeholder, .mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--focused .mdc-text-field__input::-webkit-input-placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--no-label .mdc-text-field__input:-ms-input-placeholder, .mat-mdc-form-field.mat-form-field-animations-enabled.mdc-text-field--focused .mdc-text-field__input:-ms-input-placeholder {\n  transition-delay: 40ms;\n  transition-duration: 110ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-text-field--%NS%filled:not(.mdc-ripple-upgraded):focus .mdc-text-field__ripple::before {\n  transition-duration: 75ms;\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mdc-line-ripple::after {\n  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1), opacity 180ms cubic-bezier(0.4, 0, 0.2, 1);\n}\n.mat-mdc-form-field.mat-form-field-animations-enabled .mat-mdc-form-field-hint-wrapper,\n.mat-mdc-form-field.mat-form-field-animations-enabled .mat-mdc-form-field-error-wrapper {\n  animation-duration: 300ms;\n}\n\n.mdc-notched-outline .mdc-floating-label {\n  max-width: calc(100% + 1px);\n}\n\n.mdc-notched-outline--upgraded .mdc-floating-label--float-above {\n  max-width: calc(133.3333333333% + 1px);\n}\n'],
     encapsulation: 2
   });
 };
@@ -87343,6 +88183,1079 @@ var TextFieldModule = class _TextFieldModule {
   }], null, null);
 })();
 
+// node_modules/@angular/forms/fesm2022/_validation_errors-chunk.mjs
+/**
+ * @license Angular v22.1.5
+ * (c) 2010-2026 Google LLC. https://angular.dev/
+ * License: MIT
+ */
+function isArray3(value) {
+  return Array.isArray(value);
+}
+var MetadataReducer = {
+  list() {
+    return {
+      reduce: (acc, item) => item === void 0 ? acc : [...acc, item],
+      getInitial: () => []
+    };
+  },
+  min() {
+    return {
+      reduce: (acc, item) => {
+        if (acc === void 0 || item === void 0) {
+          return acc ?? item;
+        }
+        return item < acc ? item : acc;
+      },
+      getInitial: () => void 0
+    };
+  },
+  max() {
+    return {
+      reduce: (acc, item) => {
+        if (acc === void 0 || item === void 0) {
+          return acc ?? item;
+        }
+        return item > acc ? item : acc;
+      },
+      getInitial: () => void 0
+    };
+  },
+  or() {
+    return {
+      reduce: (prev, next) => prev || next,
+      getInitial: () => false
+    };
+  },
+  and() {
+    return {
+      reduce: (prev, next) => prev && next,
+      getInitial: () => true
+    };
+  },
+  override
+};
+function override(getInitial) {
+  return {
+    reduce: (_2, item) => item,
+    getInitial: () => getInitial == null ? void 0 : getInitial()
+  };
+}
+var IS_ASYNC_VALIDATION_RESOURCE = /* @__PURE__ */ Symbol("IS_ASYNC_VALIDATION_RESOURCE");
+var MetadataKey = class {
+  reducer;
+  create;
+  brand;
+  [IS_ASYNC_VALIDATION_RESOURCE];
+  constructor(reducer, create) {
+    this.reducer = reducer;
+    this.create = create;
+  }
+};
+function createMetadataKey(reducer) {
+  return new MetadataKey(reducer ?? MetadataReducer.override());
+}
+function createLimitSelectionKey() {
+  return createMetadataKey();
+}
+var REQUIRED = createMetadataKey(MetadataReducer.or());
+var MIN = createLimitSelectionKey();
+var MIN_DATE = createMetadataKey(MetadataReducer.max());
+var MIN_NUMBER = createMetadataKey(MetadataReducer.max());
+var MAX = createLimitSelectionKey();
+var MAX_DATE = createMetadataKey(MetadataReducer.min());
+var MAX_NUMBER = createMetadataKey(MetadataReducer.min());
+var MIN_LENGTH = createMetadataKey(MetadataReducer.max());
+var MAX_LENGTH = createMetadataKey(MetadataReducer.min());
+var PATTERN = createMetadataKey(MetadataReducer.list());
+function shallowArrayEquals(a, b) {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (!Object.is(a[i], b[i])) return false;
+  }
+  return true;
+}
+function addDefaultField(errors, fieldTree) {
+  if (isArray3(errors)) {
+    for (const error2 of errors) {
+      error2.fieldTree ??= fieldTree;
+    }
+  } else if (errors) {
+    errors.fieldTree ??= fieldTree;
+  }
+  return errors;
+}
+var DEBOUNCER = createMetadataKey();
+var FALSE_SIGNAL = computed(() => false, ...ngDevMode ? [{
+  debugName: "FALSE_SIGNAL"
+}] : []);
+var ROOT_PATH_KEYS = computed(() => [], ...ngDevMode ? [{
+  debugName: "ROOT_PATH_KEYS"
+}] : []);
+var ROOT_KEY_IN_PARENT = computed(() => {
+  throw new RuntimeError(1905, ngDevMode && "The top-level field in the form has no parent.");
+}, ...ngDevMode ? [{
+  debugName: "ROOT_KEY_IN_PARENT"
+}] : []);
+var EMPTY2 = computed(() => [], ...ngDevMode ? [{
+  debugName: "EMPTY"
+}] : []);
+var FALSE = computed(() => false, ...ngDevMode ? [{
+  debugName: "FALSE"
+}] : []);
+var REGISTER_WEBMCP_FORM = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "REGISTER_WEBMCP_FORM" : "");
+async function submit(form, options2) {
+  const node = untracked2(form);
+  if (untracked2(node.submitState.submitting)) {
+    return false;
+  }
+  const field = options2 === void 0 ? node.structure.root.fieldProxy : form;
+  const detail = {
+    root: node.structure.root.fieldProxy,
+    submitted: form
+  };
+  options2 = typeof options2 === "function" ? {
+    action: options2
+  } : options2 ?? node.structure.fieldManager.submitOptions;
+  const action = options2 == null ? void 0 : options2.action;
+  if (!action) {
+    throw new RuntimeError(1915, (typeof ngDevMode === "undefined" || ngDevMode) && "Cannot submit form with no submit action. Specify the action when creating the form, or as an additional argument to `submit()`.");
+  }
+  node.markAsTouched();
+  const onInvalid = options2 == null ? void 0 : options2.onInvalid;
+  const shouldRun = shouldRunAction(node, options2 == null ? void 0 : options2.ignoreValidators);
+  try {
+    if (shouldRun) {
+      node.submitState.selfSubmitting.set(true);
+      const errors = await untracked2(() => action == null ? void 0 : action(field, detail));
+      errors && setSubmissionErrors(node, errors);
+      return !errors || isArray3(errors) && errors.length === 0;
+    } else {
+      untracked2(() => onInvalid == null ? void 0 : onInvalid(field, detail));
+    }
+    return false;
+  } finally {
+    node.submitState.selfSubmitting.set(false);
+  }
+}
+function shouldRunAction(node, ignoreValidators) {
+  switch (ignoreValidators) {
+    case "all":
+      return true;
+    case "none":
+      return untracked2(node.valid);
+    default:
+      return !untracked2(node.invalid);
+  }
+}
+function setSubmissionErrors(submittedField, errors) {
+  if (!isArray3(errors)) {
+    errors = [errors];
+  }
+  const errorsByField = /* @__PURE__ */ new Map();
+  for (const error2 of errors) {
+    const errorWithField = addDefaultField(error2, submittedField.fieldTree);
+    const field = errorWithField.fieldTree();
+    let fieldErrors = errorsByField.get(field);
+    if (!fieldErrors) {
+      fieldErrors = [];
+      errorsByField.set(field, fieldErrors);
+    }
+    fieldErrors.push(errorWithField);
+  }
+  for (const [field, fieldErrors] of errorsByField) {
+    field.submitState.submissionErrors.set(fieldErrors);
+  }
+}
+var CompatValidationError = class {
+  kind = "compat";
+  control;
+  fieldTree;
+  context;
+  message;
+  constructor({
+    context: context2,
+    kind,
+    control
+  }) {
+    this.context = context2;
+    this.kind = kind;
+    this.control = control;
+  }
+};
+function signalErrorsToValidationErrors(errors) {
+  if (errors.length === 0) {
+    return null;
+  }
+  const errObj = {};
+  for (const error2 of errors) {
+    errObj[error2.kind] = error2 instanceof CompatValidationError ? error2.context : error2;
+  }
+  return errObj;
+}
+function reactiveErrorsToSignalErrors(errors, control) {
+  if (errors === null) {
+    return [];
+  }
+  return Object.entries(errors).map(([kind, context2]) => {
+    return new CompatValidationError({
+      context: context2,
+      kind,
+      control
+    });
+  });
+}
+
+// node_modules/@angular/forms/fesm2022/signals.mjs
+/**
+ * @license Angular v22.1.5
+ * (c) 2010-2026 Google LLC. https://angular.dev/
+ * License: MIT
+ */
+var SIGNAL_FORMS_CONFIG = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "SIGNAL_FORMS_CONFIG" : "");
+function normalizeErrors(error2) {
+  if (error2 === void 0) {
+    return [];
+  }
+  if (Array.isArray(error2)) {
+    return error2;
+  }
+  return [error2];
+}
+var BaseNgValidationError = class {
+  __brand = void 0;
+  kind = "";
+  fieldTree;
+  message;
+  constructor(options2) {
+    if (options2) {
+      Object.assign(this, options2);
+    }
+  }
+};
+var NativeInputParseError = class extends BaseNgValidationError {
+  kind = "parse";
+};
+function createParser(getValue, setValue, parse2) {
+  const errors = linkedSignal(__spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "errors"
+  } : {}), {
+    source: getValue,
+    computation: () => [],
+    equal: shallowArrayEquals
+  }));
+  const setRawValue = (rawValue) => {
+    const result = parse2(rawValue);
+    errors.set(normalizeErrors(result.error));
+    if (result.value !== void 0) {
+      setValue(result.value);
+    }
+    errors.set(normalizeErrors(result.error));
+  };
+  const reset = () => {
+    errors.set([]);
+  };
+  return {
+    errors: errors.asReadonly(),
+    setRawValue,
+    reset
+  };
+}
+var InteropNgControl = class {
+  field;
+  constructor(field) {
+    this.field = field;
+  }
+  control = this;
+  get value() {
+    return this.field().controlValue();
+  }
+  get valid() {
+    return this.field().valid();
+  }
+  get invalid() {
+    return this.field().invalid();
+  }
+  get pending() {
+    return this.field().pending();
+  }
+  get disabled() {
+    return this.field().disabled();
+  }
+  get enabled() {
+    return !this.field().disabled();
+  }
+  get errors() {
+    return signalErrorsToValidationErrors(this.field().errors());
+  }
+  get pristine() {
+    return !this.field().dirty();
+  }
+  get dirty() {
+    return this.field().dirty();
+  }
+  get touched() {
+    return this.field().touched();
+  }
+  get untouched() {
+    return !this.field().touched();
+  }
+  get status() {
+    if (this.field().disabled()) {
+      return "DISABLED";
+    }
+    if (this.field().valid()) {
+      return "VALID";
+    }
+    if (this.field().invalid()) {
+      return "INVALID";
+    }
+    if (this.field().pending()) {
+      return "PENDING";
+    }
+    throw new RuntimeError(1910, ngDevMode && "Unknown form control status");
+  }
+  valueAccessor = null;
+  hasValidator(validator) {
+    if (validator === Validators.required) {
+      return this.field().required();
+    }
+    return false;
+  }
+  updateValueAndValidity() {
+  }
+};
+var FIELD_STATE_KEY_TO_CONTROL_BINDING = {
+  disabled: "disabled",
+  disabledReasons: "disabledReasons",
+  dirty: "dirty",
+  errors: "errors",
+  hidden: "hidden",
+  invalid: "invalid",
+  max: "max",
+  maxLength: "maxLength",
+  min: "min",
+  minLength: "minLength",
+  name: "name",
+  pattern: "pattern",
+  pending: "pending",
+  readonly: "readonly",
+  required: "required",
+  touched: "touched"
+};
+var CONTROL_BINDING_TO_FIELD_STATE_KEY = /* @__PURE__ */ (() => {
+  const map2 = {};
+  for (const key of Object.keys(FIELD_STATE_KEY_TO_CONTROL_BINDING)) {
+    map2[FIELD_STATE_KEY_TO_CONTROL_BINDING[key]] = key;
+  }
+  return map2;
+})();
+function readFieldStateBindingValue(fieldState, key) {
+  var _a10;
+  const property = CONTROL_BINDING_TO_FIELD_STATE_KEY[key];
+  return (_a10 = fieldState[property]) == null ? void 0 : _a10.call(fieldState);
+}
+var CONTROL_BINDING_NAMES = /* @__PURE__ */ (() => Object.values(FIELD_STATE_KEY_TO_CONTROL_BINDING))();
+function createBindings() {
+  return {};
+}
+function bindingUpdated5(bindings, key, value) {
+  if (bindings[key] !== value) {
+    bindings[key] = value;
+    return true;
+  }
+  return false;
+}
+function getNativeControlValue(element, currentValue, validityMonitor) {
+  let modelValue;
+  if (isInput(element) && validityMonitor.isBadInput(element)) {
+    return {
+      error: new NativeInputParseError()
+    };
+  }
+  switch (element.type) {
+    case "checkbox":
+      return {
+        value: element.checked
+      };
+    case "number":
+    case "range":
+    case "datetime-local":
+      modelValue = untracked2(currentValue);
+      if (typeof modelValue === "number" || modelValue === null) {
+        return {
+          value: element.value === "" ? null : element.valueAsNumber
+        };
+      }
+      break;
+    case "date":
+    case "month":
+    case "time":
+    case "week":
+      modelValue = untracked2(currentValue);
+      if (modelValue === null || modelValue instanceof Date) {
+        return {
+          value: element.valueAsDate
+        };
+      } else if (typeof modelValue === "number") {
+        return {
+          value: element.valueAsNumber
+        };
+      }
+      break;
+  }
+  if (element.tagName === "INPUT" && element.type === "text") {
+    modelValue ??= untracked2(currentValue);
+    if (typeof modelValue === "number" || modelValue === null) {
+      if (element.value === "") {
+        return {
+          value: null
+        };
+      }
+      const parsed = Number(element.value);
+      if (Number.isNaN(parsed)) {
+        return {
+          error: new NativeInputParseError()
+        };
+      }
+      return {
+        value: parsed
+      };
+    }
+  }
+  return {
+    value: element.value
+  };
+}
+function setNativeControlValue(element, value) {
+  switch (element.type) {
+    case "checkbox":
+      element.checked = value;
+      return;
+    case "radio":
+      element.checked = value === element.value;
+      return;
+    case "number":
+    case "range":
+    case "datetime-local":
+      if (typeof value === "number") {
+        setNativeNumberControlValue(element, value);
+        return;
+      } else if (value === null) {
+        element.value = "";
+        return;
+      }
+      break;
+    case "date":
+    case "month":
+    case "time":
+    case "week":
+      if (value === null || value instanceof Date) {
+        element.valueAsDate = value;
+        return;
+      } else if (typeof value === "number") {
+        setNativeNumberControlValue(element, value);
+        return;
+      }
+  }
+  if (element.tagName === "INPUT" && element.type === "text") {
+    if (typeof value === "number") {
+      element.value = isNaN(value) ? "" : String(value);
+      return;
+    }
+    if (value === null) {
+      if (typeof ngDevMode !== "undefined" && ngDevMode) {
+        console.warn(formatRuntimeError(1921, `The text input ${element.name} received a null value. Text inputs should use empty strings to represent null values.  The input's value will be set to an empty string instead.`));
+      }
+      element.value = "";
+      return;
+    }
+  }
+  element.value = value;
+}
+function setNativeNumberControlValue(element, value) {
+  if (isNaN(value)) {
+    element.value = "";
+  } else {
+    element.valueAsNumber = value;
+  }
+}
+function isInput(element) {
+  return element.tagName === "INPUT";
+}
+function inputRequiresValidityTracking(input2) {
+  return input2.type === "date" || input2.type === "datetime-local" || input2.type === "month" || input2.type === "time" || input2.type === "week";
+}
+function formatDateForInput(date, type) {
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  if (type === "month") {
+    return `${year}-${month}`;
+  }
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+function formatDateForMinMax(name, value, type) {
+  if (value instanceof Date && (name === "min" || name === "max") && (type === "date" || type === "month")) {
+    return formatDateForInput(value, type);
+  }
+  return value;
+}
+function customControlCreate(host, parent) {
+  host.listenToCustomControlModel((value) => parent.state().controlValue.set(value));
+  host.listenToCustomControlOutput("touch", () => parent.state().markAsTouched());
+  parent.registerAsBinding(host.customControl);
+  const bindings = createBindings();
+  return () => {
+    const state = parent.state();
+    const controlValue = state.controlValue();
+    if (bindingUpdated5(bindings, "controlValue", controlValue)) {
+      host.setCustomControlModelInput(controlValue);
+    }
+    for (const name of CONTROL_BINDING_NAMES) {
+      let value;
+      if (name === "errors") {
+        value = parent.errors();
+      } else {
+        value = readFieldStateBindingValue(state, name);
+      }
+      if (bindingUpdated5(bindings, name, value)) {
+        host.setInputOnDirectives(name, value);
+        if (parent.elementAcceptsNativeProperty(name) && !host.customControlHasInput(name)) {
+          const domValue = formatDateForMinMax(name, value, parent.nativeFormElement.type);
+          setNativeDomProperty(parent.renderer, parent.nativeFormElement, name, domValue);
+        }
+      }
+    }
+  };
+}
+function isValidatorObject(v) {
+  return typeof v === "object" && v !== null;
+}
+function cvaControlCreate(host, parent) {
+  const bindings = createBindings();
+  parent.controlValueAccessor.registerOnChange((value) => {
+    bindings["controlValue"] = value;
+    parent.state().controlValue.set(value);
+  });
+  parent.controlValueAccessor.registerOnTouched(() => parent.state().markAsTouched());
+  const legacyValidators = parent.injector.get(NG_VALIDATORS, null, {
+    optional: true,
+    self: true
+  });
+  if (legacyValidators) {
+    let version;
+    for (const v of legacyValidators) {
+      if (isValidatorObject(v) && v.registerOnValidatorChange) {
+        version ??= signal(0);
+        v.registerOnValidatorChange(() => {
+          version.update((n) => n + 1);
+        });
+      }
+    }
+    const validatorFns = legacyValidators.map((v) => typeof v === "function" ? v : v.validate.bind(v));
+    const mergedValidator = Validators.compose(validatorFns);
+    const parseErrors = computed(() => {
+      version == null ? void 0 : version();
+      const errors = mergedValidator ? mergedValidator(parent.interopNgControl.control) : null;
+      return reactiveErrorsToSignalErrors(errors, parent.interopNgControl.control);
+    }, ...ngDevMode ? [{
+      debugName: "parseErrors"
+    }] : []);
+    parent.parseErrorsSource.set(parseErrors);
+  }
+  parent.registerAsBinding({
+    reset: () => {
+      const value = parent.state().value();
+      bindings["controlValue"] = value;
+      untracked2(() => parent.controlValueAccessor.writeValue(value));
+    }
+  });
+  return () => {
+    const fieldState = parent.state();
+    const controlValue = fieldState.controlValue();
+    if (bindingUpdated5(bindings, "controlValue", controlValue)) {
+      untracked2(() => parent.controlValueAccessor.writeValue(controlValue));
+    }
+    for (const name of CONTROL_BINDING_NAMES) {
+      const value = readFieldStateBindingValue(fieldState, name);
+      if (bindingUpdated5(bindings, name, value)) {
+        const propertyWasSet = host.setInputOnDirectives(name, value, name === "name" ? isDefinedPredicate : void 0);
+        if (name === "disabled" && parent.controlValueAccessor.setDisabledState) {
+          untracked2(() => parent.controlValueAccessor.setDisabledState(value));
+        } else if (!propertyWasSet && parent.elementAcceptsNativeProperty(name)) {
+          setNativeDomProperty(parent.renderer, parent.nativeFormElement, name, value);
+        }
+      }
+    }
+  };
+}
+function isDefinedPredicate(value) {
+  return value == null;
+}
+function observeSelectMutations(select, onMutation, destroyRef) {
+  if (typeof MutationObserver !== "function") {
+    return;
+  }
+  const observer = new MutationObserver((mutations) => {
+    if (mutations.some((m2) => isRelevantSelectMutation(m2))) {
+      onMutation();
+    }
+  });
+  observer.observe(select, {
+    attributes: true,
+    attributeFilter: ["value"],
+    characterData: true,
+    childList: true,
+    subtree: true
+  });
+  destroyRef.onDestroy(() => observer.disconnect());
+}
+function isRelevantSelectMutation(mutation) {
+  if (mutation.type === "childList" || mutation.type === "characterData") {
+    if (mutation.target instanceof Comment) {
+      return false;
+    }
+    for (const node of mutation.addedNodes) {
+      if (!(node instanceof Comment)) {
+        return true;
+      }
+    }
+    for (const node of mutation.removedNodes) {
+      if (!(node instanceof Comment)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  if (mutation.type === "attributes" && mutation.target instanceof HTMLOptionElement) {
+    return true;
+  }
+  return false;
+}
+function nativeControlCreate(host, parent, parseErrorsSource, validityMonitor) {
+  let updateMode = false;
+  const input2 = parent.nativeFormElement;
+  const parser2 = createParser(() => parent.state().value(), (rawValue) => parent.state().controlValue.set(rawValue), (_rawValue) => getNativeControlValue(input2, parent.state().value, validityMonitor));
+  parseErrorsSource.set(parser2.errors);
+  parent.onReset = () => {
+    parser2.reset();
+    const value = parent.state().value();
+    bindings["controlValue"] = value;
+    setNativeControlValue(input2, value);
+  };
+  host.listenToDom("input", () => parser2.setRawValue(void 0));
+  host.listenToDom("blur", () => parent.state().markAsTouched());
+  if (isInput(input2) && inputRequiresValidityTracking(input2)) {
+    validityMonitor.watchValidity(parent.destroyRef, input2, () => parser2.setRawValue(void 0));
+  }
+  parent.registerAsBinding();
+  if (input2.tagName === "SELECT") {
+    observeSelectMutations(input2, () => {
+      if (!updateMode) {
+        return;
+      }
+      input2.value = parent.state().controlValue();
+    }, parent.destroyRef);
+  }
+  const bindings = createBindings();
+  return () => {
+    const state = parent.state();
+    for (const name of CONTROL_BINDING_NAMES) {
+      const value = readFieldStateBindingValue(state, name);
+      if (bindingUpdated5(bindings, name, value)) {
+        host.setInputOnDirectives(name, value);
+        if (parent.elementAcceptsNativeProperty(name)) {
+          const domValue = formatDateForMinMax(name, value, input2.type);
+          setNativeDomProperty(parent.renderer, input2, name, domValue);
+        }
+      }
+    }
+    const controlValue = state.controlValue();
+    const controlValueChanged = bindingUpdated5(bindings, "controlValue", controlValue);
+    const radioValueChanged = input2.type === "radio" && bindingUpdated5(bindings, "radioValue", input2.value);
+    if (controlValueChanged || radioValueChanged) {
+      setNativeControlValue(input2, controlValue);
+    }
+    updateMode = true;
+  };
+}
+var InputValidityMonitor = class _InputValidityMonitor {
+  static \u0275fac = function InputValidityMonitor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _InputValidityMonitor)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _InputValidityMonitor,
+    factory: (__ngFactoryType__) => AnimationInputValidityMonitor.\u0275fac(__ngFactoryType__),
+    providedIn: "root"
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(InputValidityMonitor, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root",
+      useClass: forwardRef(() => AnimationInputValidityMonitor)
+    }]
+  }], null, null);
+})();
+var AnimationInputValidityMonitor = class _AnimationInputValidityMonitor extends InputValidityMonitor {
+  document = inject2(DOCUMENT);
+  cspNonce = inject2(CSP_NONCE, {
+    optional: true
+  });
+  injectedStyles = /* @__PURE__ */ new WeakMap();
+  watchValidity(destroyRef, element, callback) {
+    if (false) {
+      return;
+    }
+    const rootNode = element.getRootNode();
+    if (!this.injectedStyles.has(rootNode)) {
+      this.injectedStyles.set(rootNode, this.createTransitionStyle(rootNode));
+    }
+    const onAnimationStart = (event) => {
+      const animationEvent = event;
+      if (animationEvent.animationName === "ng-valid" || animationEvent.animationName === "ng-invalid") {
+        callback();
+      }
+    };
+    element.addEventListener("animationstart", onAnimationStart);
+    destroyRef.onDestroy(() => {
+      element.removeEventListener("animationstart", onAnimationStart);
+    });
+  }
+  isBadInput(element) {
+    var _a10;
+    return ((_a10 = element.validity) == null ? void 0 : _a10.badInput) ?? false;
+  }
+  createTransitionStyle(rootNode) {
+    var _a10;
+    const element = this.document.createElement("style");
+    if (this.cspNonce) {
+      element.nonce = this.cspNonce;
+    }
+    element.textContent = `
+      @keyframes ng-valid {}
+      @keyframes ng-invalid {}
+      input:valid, textarea:valid {
+        animation: ng-valid 0.001s;
+      }
+      input:invalid, textarea:invalid {
+        animation: ng-invalid 0.001s;
+      }
+    `;
+    if (rootNode.nodeType === 9) {
+      (_a10 = rootNode.head) == null ? void 0 : _a10.appendChild(element);
+    } else {
+      rootNode.appendChild(element);
+    }
+    return element;
+  }
+  ngOnDestroy() {
+    var _a10;
+    (_a10 = this.injectedStyles.get(this.document)) == null ? void 0 : _a10.remove();
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275AnimationInputValidityMonitor_BaseFactory;
+    return function AnimationInputValidityMonitor_Factory(__ngFactoryType__) {
+      return (\u0275AnimationInputValidityMonitor_BaseFactory || (\u0275AnimationInputValidityMonitor_BaseFactory = \u0275\u0275getInheritedFactory(_AnimationInputValidityMonitor)))(__ngFactoryType__ || _AnimationInputValidityMonitor);
+    };
+  })();
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _AnimationInputValidityMonitor,
+    factory: _AnimationInputValidityMonitor.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AnimationInputValidityMonitor, [{
+    type: Injectable
+  }], null, null);
+})();
+var \u0275NgFieldDirective = /* @__PURE__ */ Symbol();
+var FORM_FIELD = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "FORM_FIELD" : "");
+var FormField = class _FormField {
+  field = input.required(__spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "field"
+  } : {}), {
+    alias: "formField"
+  }));
+  state = computed(() => this.field()(), ...ngDevMode ? [{
+    debugName: "state"
+  }] : []);
+  renderer = inject2(Renderer2);
+  destroyRef = inject2(DestroyRef);
+  injector = inject2(Injector);
+  element = inject2(ElementRef).nativeElement;
+  elementIsNativeFormElement = isNativeFormElement2(this.element);
+  elementAcceptsTextualValues = isTextualFormElement(this.element);
+  _elementAcceptsMinMax;
+  nativeFormElement = this.elementIsNativeFormElement ? this.element : void 0;
+  focuser = (options2) => this.element.focus(options2);
+  controlValueAccessors = inject2(NG_VALUE_ACCESSOR, {
+    optional: true,
+    self: true
+  });
+  config = inject2(SIGNAL_FORMS_CONFIG, {
+    optional: true
+  });
+  validityMonitor = inject2(InputValidityMonitor);
+  parseErrorsSource = signal(void 0, ...ngDevMode ? [{
+    debugName: "parseErrorsSource"
+  }] : []);
+  _interopNgControl;
+  get interopNgControl() {
+    return this._interopNgControl ??= new InteropNgControl(this.state);
+  }
+  parseErrors = computed(() => {
+    var _a10;
+    return ((_a10 = this.parseErrorsSource()) == null ? void 0 : _a10().map((err) => __spreadProps(__spreadValues({}, err), {
+      fieldTree: untracked2(this.state).fieldTree,
+      formField: this
+    }))) ?? [];
+  }, __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "parseErrors"
+  } : {}), {
+    equal: shallowArrayEquals
+  }));
+  errors = computed(() => this.state().errors().filter((err) => !err.formField || err.formField === this), __spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "errors"
+  } : {}), {
+    equal: shallowArrayEquals
+  }));
+  isFieldBinding = false;
+  resetter = () => {
+  };
+  parseErrorsResetCallback;
+  setParseErrors(source) {
+    this.parseErrorsSource.set(source);
+  }
+  set onReset(callback) {
+    this.parseErrorsResetCallback = callback;
+  }
+  get onReset() {
+    return this.parseErrorsResetCallback;
+  }
+  get controlValueAccessor() {
+    var _a10;
+    if (!this.controlValueAccessors || this.controlValueAccessors.length === 0) {
+      return ((_a10 = this.interopNgControl) == null ? void 0 : _a10.valueAccessor) ?? void 0;
+    }
+    return selectValueAccessor(this.interopNgControl, this.controlValueAccessors) ?? void 0;
+  }
+  installClassBindingEffect() {
+    var _a10;
+    const classes = Object.entries(((_a10 = this.config) == null ? void 0 : _a10.classes) ?? {}).map(([className, computation]) => [className, computed(() => computation(this))]);
+    if (classes.length === 0) {
+      return;
+    }
+    const bindings = createBindings();
+    afterRenderEffect({
+      write: () => {
+        for (const [className, computation] of classes) {
+          const active = computation();
+          if (bindingUpdated5(bindings, className, active)) {
+            if (active) {
+              this.renderer.addClass(this.element, className);
+            } else {
+              this.renderer.removeClass(this.element, className);
+            }
+          }
+        }
+      }
+    }, {
+      injector: this.injector
+    });
+  }
+  focus(options2) {
+    this.focuser(options2);
+  }
+  reset() {
+    var _a10;
+    this.resetter();
+    (_a10 = this.parseErrorsResetCallback) == null ? void 0 : _a10.call(this, this.state().value());
+  }
+  registerAsBinding(bindingOptions) {
+    if (this.isFieldBinding) {
+      throw new RuntimeError(1913, typeof ngDevMode !== "undefined" && ngDevMode && "FormField already registered as a binding");
+    }
+    this.isFieldBinding = true;
+    this.installClassBindingEffect();
+    if (bindingOptions == null ? void 0 : bindingOptions.focus) {
+      this.focuser = (focusOptions) => bindingOptions.focus(focusOptions);
+    }
+    if (bindingOptions == null ? void 0 : bindingOptions.reset) {
+      this.resetter = () => bindingOptions.reset();
+    }
+    effect((onCleanup) => {
+      const fieldNode = this.state();
+      fieldNode.nodeState.formFieldBindings.update((controls) => [...controls, this]);
+      onCleanup(() => {
+        fieldNode.nodeState.formFieldBindings.update((controls) => controls.filter((c2) => c2 !== this));
+      });
+    }, {
+      injector: this.injector
+    });
+    if (typeof ngDevMode !== "undefined" && ngDevMode) {
+      effect(() => {
+        const fieldNode = this.state();
+        if (fieldNode.hidden()) {
+          const path = fieldNode.structure.pathKeys().join(".") || "<root>";
+          console.warn(formatRuntimeError(1916, `Field '${path}' is hidden but is being rendered. Hidden fields should be removed from the DOM using @if.`));
+        }
+      }, {
+        injector: this.injector
+      });
+    }
+  }
+  [\u0275NgFieldDirective];
+  \u0275ngControlCreate(host) {
+    if (host.hasPassThrough) {
+      return;
+    }
+    if (this.controlValueAccessor) {
+      this.\u0275ngControlUpdate = cvaControlCreate(host, this);
+    } else if (host.customControl) {
+      this.\u0275ngControlUpdate = customControlCreate(host, this);
+    } else if (this.elementIsNativeFormElement) {
+      this.\u0275ngControlUpdate = nativeControlCreate(host, this, this.parseErrorsSource, this.validityMonitor);
+    } else {
+      throw new RuntimeError(1914, typeof ngDevMode !== "undefined" && ngDevMode && `${host.descriptor} is an invalid [formField] directive host. The host must be a native form control (such as <input>', '<select>', or '<textarea>') or a custom form control with a 'value' or 'checked' model.`);
+    }
+  }
+  \u0275ngControlUpdate;
+  elementAcceptsNativeProperty(key) {
+    if (!this.elementIsNativeFormElement) {
+      return false;
+    }
+    switch (key) {
+      case "min":
+      case "max":
+        return this._elementAcceptsMinMax ??= elementAcceptsMinMax(this.element);
+      case "minLength":
+      case "maxLength":
+        return this.elementAcceptsTextualValues;
+      case "disabled":
+      case "required":
+      case "readonly":
+      case "name":
+        return true;
+      default:
+        return false;
+    }
+  }
+  static \u0275fac = function FormField_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormField)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormField,
+    selectors: [["", "formField", ""]],
+    inputs: {
+      field: [1, "formField", "field"]
+    },
+    exportAs: ["formField"],
+    features: [\u0275\u0275ProvidersFeature([{
+      provide: FORM_FIELD,
+      useExisting: _FormField
+    }, {
+      provide: NgControl,
+      useFactory: () => inject2(_FormField).interopNgControl
+    }, {
+      provide: \u0275FORM_CONTROL_INTEGRATION,
+      useFactory: () => inject2(FORM_FIELD, {
+        self: true
+      })
+    }]), \u0275\u0275ControlFeature("formField")]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormField, [{
+    type: Directive,
+    args: [{
+      selector: "[formField]",
+      exportAs: "formField",
+      providers: [{
+        provide: FORM_FIELD,
+        useExisting: FormField
+      }, {
+        provide: NgControl,
+        useFactory: () => inject2(FormField).interopNgControl
+      }, {
+        provide: \u0275FORM_CONTROL_INTEGRATION,
+        useFactory: () => inject2(FORM_FIELD, {
+          self: true
+        })
+      }]
+    }]
+  }], null, {
+    field: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "formField",
+        required: true
+      }]
+    }]
+  });
+})();
+var FormRoot = class _FormRoot {
+  fieldTree = input.required(__spreadProps(__spreadValues({}, ngDevMode ? {
+    debugName: "fieldTree"
+  } : {}), {
+    alias: "formRoot"
+  }));
+  onSubmit(event) {
+    event.preventDefault();
+    untracked2(() => {
+      const fieldTree = this.fieldTree();
+      const node = fieldTree();
+      if (node.structure.fieldManager.submitOptions) {
+        submit(fieldTree);
+      }
+    });
+  }
+  static \u0275fac = function FormRoot_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormRoot)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormRoot,
+    selectors: [["form", "formRoot", ""]],
+    hostAttrs: ["novalidate", ""],
+    hostBindings: function FormRoot_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("submit", function FormRoot_submit_HostBindingHandler($event) {
+          return ctx.onSubmit($event);
+        });
+      }
+    },
+    inputs: {
+      fieldTree: [1, "formRoot", "fieldTree"]
+    }
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormRoot, [{
+    type: Directive,
+    args: [{
+      selector: "form[formRoot]",
+      host: {
+        "novalidate": "",
+        "(submit)": "onSubmit($event)"
+      }
+    }]
+  }], null, {
+    fieldTree: [{
+      type: Input,
+      args: [{
+        isSignal: true,
+        alias: "formRoot",
+        required: true
+      }]
+    }]
+  });
+})();
+
 // node_modules/@angular/material/fesm2022/_input-value-accessor-chunk.mjs
 var MAT_INPUT_VALUE_ACCESSOR = new InjectionToken("MAT_INPUT_VALUE_ACCESSOR");
 
@@ -87471,6 +89384,10 @@ var MatInput = class _MatInput {
       optional: true,
       self: true
     });
+    const formField = inject2(FORM_FIELD, {
+      optional: true,
+      self: true
+    });
     const element = this._elementRef.nativeElement;
     const nodeName = element.nodeName.toLowerCase();
     if (accessor) {
@@ -87489,7 +89406,7 @@ var MatInput = class _MatInput {
         this._cleanupIosKeyup = this._renderer.listen(element, "keyup", this._iOSKeyupListener);
       });
     }
-    this._errorStateTracker = new _ErrorStateTracker(defaultErrorStateMatcher, this.ngControl, parentFormGroup, parentForm, this.stateChanges);
+    this._errorStateTracker = new _ErrorStateTracker(defaultErrorStateMatcher, formField || this.ngControl, parentFormGroup, parentForm, this.stateChanges);
     this._isServer = !this._platform.isBrowser;
     this._isNativeSelect = nodeName === "select";
     this._isTextarea = nodeName === "textarea";
@@ -88374,7 +90291,7 @@ var MatMenu = class _MatMenu {
         \u0275\u0275domTemplate(0, MatMenu_ng_template_0_Template, 3, 12, "ng-template");
       }
     },
-    styles: ['mat-menu {\n  display: none;\n}\n\n.mat-mdc-menu-content {\n  margin: 0;\n  padding: 8px 0;\n  outline: 0;\n}\n.mat-mdc-menu-content,\n.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  flex: 1;\n  white-space: normal;\n  font-family: var(--mat-menu-item-label-text-font, var(--mat-sys-label-large-font));\n  line-height: var(--mat-menu-item-label-text-line-height, var(--mat-sys-label-large-line-height));\n  font-size: var(--mat-menu-item-label-text-size, var(--mat-sys-label-large-size));\n  letter-spacing: var(--mat-menu-item-label-text-tracking, var(--mat-sys-label-large-tracking));\n  font-weight: var(--mat-menu-item-label-text-weight, var(--mat-sys-label-large-weight));\n}\n\n@keyframes _mat-menu-enter {\n  from {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-menu-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-menu-panel {\n  min-width: 112px;\n  max-width: 280px;\n  overflow: auto;\n  box-sizing: border-box;\n  outline: 0;\n  animation: _mat-menu-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n  border-radius: var(--mat-menu-container-shape, var(--mat-sys-corner-extra-small));\n  background-color: var(--mat-menu-container-color, var(--mat-sys-surface-container));\n  box-shadow: var(--mat-menu-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  will-change: transform, opacity;\n}\n.mat-mdc-menu-panel.mat-menu-panel-exit-animation {\n  animation: _mat-menu-exit 100ms 25ms linear forwards;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animations-disabled {\n  animation: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating {\n  pointer-events: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating:has(.mat-mdc-menu-content:empty) {\n  display: none;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-panel {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-menu-panel .mat-divider {\n  border-top-color: var(--mat-menu-divider-color, var(--mat-sys-surface-variant));\n  margin-bottom: var(--mat-menu-divider-bottom-spacing, 8px);\n  margin-top: var(--mat-menu-divider-top-spacing, 8px);\n}\n\n.mat-mdc-menu-item {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  padding: 0;\n  cursor: pointer;\n  width: 100%;\n  text-align: left;\n  box-sizing: border-box;\n  color: inherit;\n  font-size: inherit;\n  background: none;\n  text-decoration: none;\n  margin: 0;\n  min-height: 48px;\n  padding-left: var(--mat-menu-item-leading-spacing, 12px);\n  padding-right: var(--mat-menu-item-trailing-spacing, 12px);\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: pointer;\n  outline: none;\n  border: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-menu-item::-moz-focus-inner {\n  border: 0;\n}\n[dir=rtl] .mat-mdc-menu-item {\n  padding-left: var(--mat-menu-item-trailing-spacing, 12px);\n  padding-right: var(--mat-menu-item-leading-spacing, 12px);\n}\n.mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--mat-menu-item-with-icon-leading-spacing, 12px);\n  padding-right: var(--mat-menu-item-with-icon-trailing-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--mat-menu-item-with-icon-trailing-spacing, 12px);\n  padding-right: var(--mat-menu-item-with-icon-leading-spacing, 12px);\n}\n.mat-mdc-menu-item, .mat-mdc-menu-item:visited, .mat-mdc-menu-item:link {\n  color: var(--mat-menu-item-label-text-color, var(--mat-sys-on-surface));\n}\n.mat-mdc-menu-item .mat-icon-no-color,\n.mat-mdc-menu-item .mat-mdc-menu-submenu-icon {\n  color: var(--mat-menu-item-icon-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-menu-item[disabled] {\n  cursor: default;\n  opacity: 0.38;\n}\n.mat-mdc-menu-item[disabled]::after {\n  display: block;\n  position: absolute;\n  content: "";\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.mat-mdc-menu-item:focus {\n  outline: 0;\n}\n.mat-mdc-menu-item .mat-icon {\n  flex-shrink: 0;\n  margin-right: var(--mat-menu-item-spacing, 12px);\n  height: var(--mat-menu-item-icon-size, 24px);\n  width: var(--mat-menu-item-icon-size, 24px);\n}\n[dir=rtl] .mat-mdc-menu-item {\n  text-align: right;\n}\n[dir=rtl] .mat-mdc-menu-item .mat-icon {\n  margin-right: 0;\n  margin-left: var(--mat-menu-item-spacing, 12px);\n}\n.mat-mdc-menu-item:not([disabled]):hover {\n  background-color: var(--mat-menu-item-hover-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-menu-item:not([disabled]).cdk-program-focused, .mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused, .mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted {\n  background-color: var(--mat-menu-item-focus-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-focus-state-layer-opacity) * 100%), transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-item {\n    margin-top: 1px;\n  }\n}\n\n.mat-mdc-menu-submenu-icon {\n  width: var(--mat-menu-item-icon-size, 24px);\n  height: 10px;\n  fill: currentColor;\n  padding-left: var(--mat-menu-item-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon {\n  padding-right: var(--mat-menu-item-spacing, 12px);\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon polygon {\n  transform: scaleX(-1);\n  transform-origin: center;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-submenu-icon {\n    fill: CanvasText;\n  }\n}\n\n.mat-mdc-menu-item .mat-mdc-menu-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n'],
+    styles: ['mat-menu {\n  display: none;\n}\n\n.mat-mdc-menu-content {\n  margin: 0;\n  padding: 8px 0;\n  outline: 0;\n}\n.mat-mdc-menu-content,\n.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  flex: 1;\n  white-space: normal;\n  font-family: var(--%NS%mat-menu-item-label-text-font, var(--%NS%mat-sys-label-large-font));\n  line-height: var(--%NS%mat-menu-item-label-text-line-height, var(--%NS%mat-sys-label-large-line-height));\n  font-size: var(--%NS%mat-menu-item-label-text-size, var(--%NS%mat-sys-label-large-size));\n  letter-spacing: var(--%NS%mat-menu-item-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  font-weight: var(--%NS%mat-menu-item-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n}\n\n@keyframes _mat-menu-enter {\n  from {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-menu-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-menu-panel {\n  min-width: 112px;\n  max-width: 280px;\n  overflow: auto;\n  box-sizing: border-box;\n  outline: 0;\n  animation: _mat-menu-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n  border-radius: var(--%NS%mat-menu-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  background-color: var(--%NS%mat-menu-container-color, var(--%NS%mat-sys-surface-container));\n  box-shadow: var(--%NS%mat-menu-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  will-change: transform, opacity;\n}\n.mat-mdc-menu-panel.mat-menu-panel-exit-animation {\n  animation: _mat-menu-exit 100ms 25ms linear forwards;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animations-disabled {\n  animation: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating {\n  pointer-events: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating:has(.mat-mdc-menu-content:empty) {\n  display: none;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-panel {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-menu-panel .mat-divider {\n  border-top-color: var(--%NS%mat-menu-divider-color, var(--%NS%mat-sys-surface-variant));\n  margin-bottom: var(--%NS%mat-menu-divider-bottom-spacing, 8px);\n  margin-top: var(--%NS%mat-menu-divider-top-spacing, 8px);\n}\n\n.mat-mdc-menu-item {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  padding: 0;\n  cursor: pointer;\n  width: 100%;\n  text-align: left;\n  box-sizing: border-box;\n  color: inherit;\n  font-size: inherit;\n  background: none;\n  text-decoration: none;\n  margin: 0;\n  min-height: 48px;\n  padding-left: var(--%NS%mat-menu-item-leading-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-trailing-spacing, 12px);\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: pointer;\n  outline: none;\n  border: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-menu-item::-moz-focus-inner {\n  border: 0;\n}\n[dir=rtl] .mat-mdc-menu-item {\n  padding-left: var(--%NS%mat-menu-item-trailing-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-leading-spacing, 12px);\n}\n.mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--%NS%mat-menu-item-with-icon-leading-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-with-icon-trailing-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--%NS%mat-menu-item-with-icon-trailing-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-with-icon-leading-spacing, 12px);\n}\n.mat-mdc-menu-item, .mat-mdc-menu-item:visited, .mat-mdc-menu-item:link {\n  color: var(--%NS%mat-menu-item-label-text-color, var(--%NS%mat-sys-on-surface));\n}\n.mat-mdc-menu-item .mat-icon-no-color,\n.mat-mdc-menu-item .mat-mdc-menu-submenu-icon {\n  color: var(--%NS%mat-menu-item-icon-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-menu-item[disabled] {\n  cursor: default;\n  opacity: 0.38;\n}\n.mat-mdc-menu-item[disabled]::after {\n  display: block;\n  position: absolute;\n  content: "";\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.mat-mdc-menu-item:focus {\n  outline: 0;\n}\n.mat-mdc-menu-item .mat-icon {\n  flex-shrink: 0;\n  margin-right: var(--%NS%mat-menu-item-spacing, 12px);\n  height: var(--%NS%mat-menu-item-icon-size, 24px);\n  width: var(--%NS%mat-menu-item-icon-size, 24px);\n}\n[dir=rtl] .mat-mdc-menu-item {\n  text-align: right;\n}\n[dir=rtl] .mat-mdc-menu-item .mat-icon {\n  margin-right: 0;\n  margin-left: var(--%NS%mat-menu-item-spacing, 12px);\n}\n.mat-mdc-menu-item:not([disabled]):hover {\n  background-color: var(--%NS%mat-menu-item-hover-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-menu-item:not([disabled]).cdk-program-focused, .mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused, .mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted {\n  background-color: var(--%NS%mat-menu-item-focus-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-focus-state-layer-opacity) * 100%), transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-item {\n    margin-top: 1px;\n  }\n}\n\n.mat-mdc-menu-submenu-icon {\n  width: var(--%NS%mat-menu-item-icon-size, 24px);\n  height: 10px;\n  fill: currentColor;\n  padding-left: var(--%NS%mat-menu-item-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon {\n  padding-right: var(--%NS%mat-menu-item-spacing, 12px);\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon polygon {\n  transform: scaleX(-1);\n  transform-origin: center;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-submenu-icon {\n    fill: CanvasText;\n  }\n}\n\n.mat-mdc-menu-item .mat-mdc-menu-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n'],
     encapsulation: 2
   });
 };
@@ -89201,6 +91118,11 @@ var SelectionModel = class {
     return this._selected;
   }
   changed = new Subject();
+  bulk = {
+    select: (values) => this._select(values),
+    deselect: (values) => this._deselect(values),
+    setSelection: (values) => this._setSelection(values)
+  };
   constructor(_multiple = false, initiallySelectedValues, _emitChanges = true, compareWith) {
     this._multiple = _multiple;
     this._emitChanges = _emitChanges;
@@ -89215,28 +91137,13 @@ var SelectionModel = class {
     }
   }
   select(...values) {
-    this._verifyValueAssignment(values);
-    values.forEach((value) => this._markSelected(value));
-    const changed = this._hasQueuedChanges();
-    this._emitChangeEvent();
-    return changed;
+    return this._select(values);
   }
   deselect(...values) {
-    this._verifyValueAssignment(values);
-    values.forEach((value) => this._unmarkSelected(value));
-    const changed = this._hasQueuedChanges();
-    this._emitChangeEvent();
-    return changed;
+    return this._deselect(values);
   }
   setSelection(...values) {
-    this._verifyValueAssignment(values);
-    const oldValues = this.selected;
-    const newSelectedSet = new Set(values.map((value) => this._getConcreteValue(value)));
-    values.forEach((value) => this._markSelected(value));
-    oldValues.filter((value) => !newSelectedSet.has(this._getConcreteValue(value, newSelectedSet))).forEach((value) => this._unmarkSelected(value));
-    const changed = this._hasQueuedChanges();
-    this._emitChangeEvent();
-    return changed;
+    return this._setSelection(values);
   }
   toggle(value) {
     return this.isSelected(value) ? this.deselect(value) : this.select(value);
@@ -89265,6 +91172,30 @@ var SelectionModel = class {
   }
   isMultipleSelection() {
     return this._multiple;
+  }
+  _select(values) {
+    this._verifyValueAssignment(values);
+    values.forEach((value) => this._markSelected(value));
+    const changed = this._hasQueuedChanges();
+    this._emitChangeEvent();
+    return changed;
+  }
+  _deselect(values) {
+    this._verifyValueAssignment(values);
+    values.forEach((value) => this._unmarkSelected(value));
+    const changed = this._hasQueuedChanges();
+    this._emitChangeEvent();
+    return changed;
+  }
+  _setSelection(values) {
+    this._verifyValueAssignment(values);
+    const oldValues = this.selected;
+    const newSelectedSet = new Set(values.map((value) => this._getConcreteValue(value)));
+    values.forEach((value) => this._markSelected(value));
+    oldValues.filter((value) => !newSelectedSet.has(this._getConcreteValue(value, newSelectedSet))).forEach((value) => this._unmarkSelected(value));
+    const changed = this._hasQueuedChanges();
+    this._emitChangeEvent();
+    return changed;
   }
   _emitChangeEvent() {
     this._selected = null;
@@ -89649,13 +91580,17 @@ var MatSelect = class _MatSelect {
     const defaultPopoverConfig = inject2(OVERLAY_DEFAULT_CONFIG, {
       optional: true
     });
+    const formField = inject2(FORM_FIELD, {
+      optional: true,
+      self: true
+    });
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
     if (((_a10 = this._defaultOptions) == null ? void 0 : _a10.typeaheadDebounceInterval) != null) {
       this.typeaheadDebounceInterval = this._defaultOptions.typeaheadDebounceInterval;
     }
-    this._errorStateTracker = new _ErrorStateTracker(defaultErrorStateMatcher, this.ngControl, parentFormGroup, parentForm, this.stateChanges);
+    this._errorStateTracker = new _ErrorStateTracker(defaultErrorStateMatcher, formField || this.ngControl, parentFormGroup, parentForm, this.stateChanges);
     this._scrollStrategy = this._scrollStrategyFactory();
     this.tabIndex = tabIndex == null ? 0 : parseInt(tabIndex) || 0;
     this._popoverLocation = (defaultPopoverConfig == null ? void 0 : defaultPopoverConfig.usePopover) === false ? null : "inline";
@@ -90046,8 +91981,8 @@ var MatSelect = class _MatSelect {
   _sortValues() {
     if (this.multiple) {
       const options2 = this.options.toArray();
-      this._selectionModel.sort((a, b2) => {
-        return this.sortComparator ? this.sortComparator(a, b2, options2) : options2.indexOf(a) - options2.indexOf(b2);
+      this._selectionModel.sort((a, b) => {
+        return this.sortComparator ? this.sortComparator(a, b, options2) : options2.indexOf(a) - options2.indexOf(b);
       });
       this.stateChanges.next();
     }
@@ -90263,7 +92198,7 @@ var MatSelect = class _MatSelect {
       }
     },
     dependencies: [CdkOverlayOrigin, CdkConnectedOverlay],
-    styles: ['@keyframes _mat-select-enter {\n  from {\n    opacity: 0;\n    transform: scaleY(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-select-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-select {\n  display: inline-block;\n  width: 100%;\n  outline: none;\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  color: var(--mat-select-enabled-trigger-text-color, var(--mat-sys-on-surface));\n  font-family: var(--mat-select-trigger-text-font, var(--mat-sys-body-large-font));\n  line-height: var(--mat-select-trigger-text-line-height, var(--mat-sys-body-large-line-height));\n  font-size: var(--mat-select-trigger-text-size, var(--mat-sys-body-large-size));\n  font-weight: var(--mat-select-trigger-text-weight, var(--mat-sys-body-large-weight));\n  letter-spacing: var(--mat-select-trigger-text-tracking, var(--mat-sys-body-large-tracking));\n}\n\ndiv.mat-mdc-select-panel {\n  box-shadow: var(--mat-select-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n}\n\n.mat-mdc-select-disabled {\n  color: var(--mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-select-disabled .mat-mdc-select-placeholder {\n  color: var(--mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-mdc-select-trigger {\n  display: inline-flex;\n  align-items: center;\n  cursor: pointer;\n  position: relative;\n  box-sizing: border-box;\n  width: 100%;\n}\n.mat-mdc-select-disabled .mat-mdc-select-trigger {\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: default;\n}\n\n.mat-mdc-select-value {\n  width: 100%;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.mat-mdc-select-value-text {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.mat-mdc-select-arrow-wrapper {\n  height: 24px;\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: center;\n}\n.mat-form-field-appearance-fill .mdc-text-field--no-label .mat-mdc-select-arrow-wrapper {\n  transform: none;\n}\n\n.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-invalid .mat-mdc-select-arrow,\n.mat-form-field-invalid:not(.mat-form-field-disabled) .mat-mdc-form-field-infix::after {\n  color: var(--mat-select-invalid-arrow-color, var(--mat-sys-error));\n}\n\n.mat-mdc-select-arrow {\n  width: 10px;\n  height: 5px;\n  position: relative;\n  color: var(--mat-select-enabled-arrow-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-form-field.mat-focused .mat-mdc-select-arrow {\n  color: var(--mat-select-focused-arrow-color, var(--mat-sys-primary));\n}\n.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-disabled .mat-mdc-select-arrow {\n  color: var(--mat-select-disabled-arrow-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n.mat-select-open .mat-mdc-select-arrow {\n  transform: rotate(180deg);\n}\n.mat-form-field-animations-enabled .mat-mdc-select-arrow {\n  transition: transform 80ms linear;\n}\n.mat-mdc-select-arrow svg {\n  fill: currentColor;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n@media (forced-colors: active) {\n  .mat-mdc-select-arrow svg {\n    fill: CanvasText;\n  }\n  .mat-mdc-select-disabled .mat-mdc-select-arrow svg {\n    fill: GrayText;\n  }\n}\n\ndiv.mat-mdc-select-panel {\n  width: 100%;\n  max-height: 275px;\n  outline: 0;\n  overflow: auto;\n  padding: 8px 0;\n  box-sizing: border-box;\n  transform-origin: top center;\n  border-radius: 0 0 4px 4px;\n  position: relative;\n  background-color: var(--mat-select-panel-background-color, var(--mat-sys-surface-container));\n}\n.mat-mdc-select-panel-above div.mat-mdc-select-panel {\n  border-radius: 4px 4px 0 0;\n  transform-origin: bottom center;\n}\n@media (forced-colors: active) {\n  div.mat-mdc-select-panel {\n    outline: solid 1px;\n  }\n}\n\n.mat-select-panel-animations-enabled {\n  animation: _mat-select-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n}\n.mat-select-panel-animations-enabled.mat-select-panel-exit {\n  animation: _mat-select-exit 100ms linear;\n}\n\n.mat-mdc-select-placeholder {\n  transition: color 400ms 133.3333333333ms cubic-bezier(0.25, 0.8, 0.25, 1);\n  color: var(--mat-select-placeholder-text-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-form-field:not(.mat-form-field-animations-enabled) .mat-mdc-select-placeholder, ._mat-animation-noopable .mat-mdc-select-placeholder {\n  transition: none;\n}\n.mat-form-field-hide-placeholder .mat-mdc-select-placeholder {\n  color: transparent;\n  -webkit-text-fill-color: transparent;\n  transition: none;\n  display: block;\n}\n\n.mat-mdc-form-field-type-mat-select:not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper {\n  cursor: pointer;\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mat-mdc-floating-label {\n  max-width: calc(100% - 18px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mdc-floating-label--float-above {\n  max-width: calc(100% / 0.75 - 24px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-notched-outline__notch {\n  max-width: calc(100% - 60px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-text-field--label-floating .mdc-notched-outline__notch {\n  max-width: calc(100% - 24px);\n}\n\n.mat-mdc-select-min-line:empty::before {\n  content: " ";\n  white-space: pre;\n  width: 1px;\n  display: inline-block;\n  visibility: hidden;\n}\n\n.mat-form-field-appearance-fill .mat-mdc-select-arrow-wrapper {\n  transform: var(--mat-select-arrow-transform, translateY(-8px));\n}\n'],
+    styles: ['@keyframes _mat-select-enter {\n  from {\n    opacity: 0;\n    transform: scaleY(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-select-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-select {\n  display: inline-block;\n  width: 100%;\n  outline: none;\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  color: var(--%NS%mat-select-enabled-trigger-text-color, var(--%NS%mat-sys-on-surface));\n  font-family: var(--%NS%mat-select-trigger-text-font, var(--%NS%mat-sys-body-large-font));\n  line-height: var(--%NS%mat-select-trigger-text-line-height, var(--%NS%mat-sys-body-large-line-height));\n  font-size: var(--%NS%mat-select-trigger-text-size, var(--%NS%mat-sys-body-large-size));\n  font-weight: var(--%NS%mat-select-trigger-text-weight, var(--%NS%mat-sys-body-large-weight));\n  letter-spacing: var(--%NS%mat-select-trigger-text-tracking, var(--%NS%mat-sys-body-large-tracking));\n}\n\ndiv.mat-mdc-select-panel {\n  box-shadow: var(--%NS%mat-select-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n}\n\n.mat-mdc-select-disabled {\n  color: var(--%NS%mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-mdc-select-disabled .mat-mdc-select-placeholder {\n  color: var(--%NS%mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n\n.mat-mdc-select-trigger {\n  display: inline-flex;\n  align-items: center;\n  cursor: pointer;\n  position: relative;\n  box-sizing: border-box;\n  width: 100%;\n}\n.mat-mdc-select-disabled .mat-mdc-select-trigger {\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: default;\n}\n\n.mat-mdc-select-value {\n  width: 100%;\n  overflow: hidden;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.mat-mdc-select-value-text {\n  white-space: nowrap;\n  overflow: hidden;\n  text-overflow: ellipsis;\n}\n\n.mat-mdc-select-arrow-wrapper {\n  height: 24px;\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: center;\n}\n.mat-form-field-appearance-fill .mdc-text-field--no-label .mat-mdc-select-arrow-wrapper {\n  transform: none;\n}\n\n.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-invalid .mat-mdc-select-arrow,\n.mat-form-field-invalid:not(.mat-form-field-disabled) .mat-mdc-form-field-infix::after {\n  color: var(--%NS%mat-select-invalid-arrow-color, var(--%NS%mat-sys-error));\n}\n\n.mat-mdc-select-arrow {\n  width: 10px;\n  height: 5px;\n  position: relative;\n  color: var(--%NS%mat-select-enabled-arrow-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-form-field.mat-focused .mat-mdc-select-arrow {\n  color: var(--%NS%mat-select-focused-arrow-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-disabled .mat-mdc-select-arrow {\n  color: var(--%NS%mat-select-disabled-arrow-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n.mat-select-open .mat-mdc-select-arrow {\n  transform: rotate(180deg);\n}\n.mat-form-field-animations-enabled .mat-mdc-select-arrow {\n  transition: transform 80ms linear;\n}\n.mat-mdc-select-arrow svg {\n  fill: currentColor;\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n}\n@media (forced-colors: active) {\n  .mat-mdc-select-arrow svg {\n    fill: CanvasText;\n  }\n  .mat-mdc-select-disabled .mat-mdc-select-arrow svg {\n    fill: GrayText;\n  }\n}\n\ndiv.mat-mdc-select-panel {\n  width: 100%;\n  max-height: 275px;\n  outline: 0;\n  overflow: auto;\n  padding: 8px 0;\n  box-sizing: border-box;\n  transform-origin: top center;\n  border-radius: 0 0 4px 4px;\n  position: relative;\n  background-color: var(--%NS%mat-select-panel-background-color, var(--%NS%mat-sys-surface-container));\n}\n.mat-mdc-select-panel-above div.mat-mdc-select-panel {\n  border-radius: 4px 4px 0 0;\n  transform-origin: bottom center;\n}\n@media (forced-colors: active) {\n  div.mat-mdc-select-panel {\n    outline: solid 1px;\n  }\n}\n\n.mat-select-panel-animations-enabled {\n  animation: _mat-select-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n}\n.mat-select-panel-animations-enabled.mat-select-panel-exit {\n  animation: _mat-select-exit 100ms linear;\n}\n\n.mat-mdc-select-placeholder {\n  transition: color 400ms 133.3333333333ms cubic-bezier(0.25, 0.8, 0.25, 1);\n  color: var(--%NS%mat-select-placeholder-text-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-form-field:not(.mat-form-field-animations-enabled) .mat-mdc-select-placeholder, ._mat-animation-noopable .mat-mdc-select-placeholder {\n  transition: none;\n}\n.mat-form-field-hide-placeholder .mat-mdc-select-placeholder {\n  color: transparent;\n  -webkit-text-fill-color: transparent;\n  transition: none;\n  display: block;\n}\n\n.mat-mdc-form-field-type-mat-select:not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper {\n  cursor: pointer;\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mat-mdc-floating-label {\n  max-width: calc(100% - 18px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mdc-floating-label--float-above {\n  max-width: calc(100% / 0.75 - 24px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-notched-outline__notch {\n  max-width: calc(100% - 60px);\n}\n.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-text-field--label-floating .mdc-notched-outline__notch {\n  max-width: calc(100% - 24px);\n}\n\n.mat-mdc-select-min-line:empty::before {\n  content: " ";\n  white-space: pre;\n  width: 1px;\n  display: inline-block;\n  visibility: hidden;\n}\n\n.mat-form-field-appearance-fill .mat-mdc-select-arrow-wrapper {\n  transform: var(--%NS%mat-select-arrow-transform, translateY(-8px));\n}\n'],
     encapsulation: 2
   });
 };
@@ -90562,8 +92497,7 @@ var MatSelectModule = class _MatSelectModule {
 
 // node_modules/@angular/material/fesm2022/checkbox.mjs
 var _c012 = ["input"];
-var _c18 = ["label"];
-var _c26 = ["*"];
+var _c18 = ["*"];
 var checkboxDefaults = {
   color: "accent",
   clickAction: "check-indeterminate",
@@ -90632,7 +92566,6 @@ var MatCheckbox = class _MatCheckbox {
   value;
   disableRipple = false;
   _inputElement;
-  _labelElement;
   tabIndex;
   color;
   disabledInteractive;
@@ -90818,14 +92751,8 @@ var MatCheckbox = class _MatCheckbox {
   _onInputClick() {
     this._handleInputClick();
   }
-  _onTouchTargetClick() {
-    this._handleInputClick();
-    if (!this.disabled) {
-      this._inputElement.nativeElement.focus();
-    }
-  }
   _preventBubblingFromLabel(event) {
-    if (!!event.target && this._labelElement.nativeElement.contains(event.target)) {
+    if (event.target && this._inputElement && event.target !== this._inputElement.nativeElement) {
       event.stopPropagation();
     }
   }
@@ -90837,12 +92764,11 @@ var MatCheckbox = class _MatCheckbox {
     selectors: [["mat-checkbox"]],
     viewQuery: function MatCheckbox_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c012, 5)(_c18, 5);
+        \u0275\u0275viewQuery(_c012, 5);
       }
       if (rf & 2) {
         let _t;
         \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._inputElement = _t.first);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._labelElement = _t.first);
       }
     },
     hostAttrs: [1, "mat-mdc-checkbox"],
@@ -90889,22 +92815,19 @@ var MatCheckbox = class _MatCheckbox {
       useExisting: _MatCheckbox,
       multi: true
     }]), \u0275\u0275NgOnChangesFeature],
-    ngContentSelectors: _c26,
+    ngContentSelectors: _c18,
     decls: 15,
     vars: 23,
-    consts: [["checkbox", ""], ["input", ""], ["label", ""], ["mat-internal-form-field", "", 3, "click", "labelPosition"], [1, "mdc-checkbox"], ["aria-hidden", "true", 1, "mat-mdc-checkbox-touch-target", 3, "click"], ["type", "checkbox", 1, "mdc-checkbox__native-control", 3, "blur", "click", "change", "checked", "indeterminate", "disabled", "id", "required", "tabIndex"], ["aria-hidden", "true", 1, "mdc-checkbox__ripple"], ["aria-hidden", "true", 1, "mdc-checkbox__background"], ["focusable", "false", "viewBox", "0 0 24 24", 1, "mdc-checkbox__checkmark"], ["fill", "none", "d", "M1.73,12.91 8.1,19.28 22.79,4.59", 1, "mdc-checkbox__checkmark-path"], [1, "mdc-checkbox__mixedmark"], ["mat-ripple", "", "aria-hidden", "true", 1, "mat-mdc-checkbox-ripple", "mat-focus-indicator", 3, "matRippleTrigger", "matRippleDisabled", "matRippleCentered"], [1, "mdc-label", 3, "for"]],
+    consts: [["checkbox", ""], ["input", ""], ["label", ""], ["mat-internal-form-field", "", 3, "click", "labelPosition", "for"], [1, "mdc-checkbox"], ["aria-hidden", "true", 1, "mat-mdc-checkbox-touch-target"], ["type", "checkbox", 1, "mdc-checkbox__native-control", 3, "blur", "click", "change", "checked", "indeterminate", "disabled", "id", "required", "tabIndex"], ["aria-hidden", "true", 1, "mdc-checkbox__ripple"], ["aria-hidden", "true", 1, "mdc-checkbox__background"], ["focusable", "false", "viewBox", "0 0 24 24", 1, "mdc-checkbox__checkmark"], ["fill", "none", "d", "M1.73,12.91 8.1,19.28 22.79,4.59", 1, "mdc-checkbox__checkmark-path"], [1, "mdc-checkbox__mixedmark"], ["mat-ripple", "", "aria-hidden", "true", 1, "mat-mdc-checkbox-ripple", "mat-focus-indicator", 3, "matRippleTrigger", "matRippleDisabled", "matRippleCentered"], [1, "mat-internal-form-field-label", "mdc-label"]],
     template: function MatCheckbox_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
-        \u0275\u0275elementStart(0, "div", 3);
-        \u0275\u0275listener("click", function MatCheckbox_Template_div_click_0_listener($event) {
+        \u0275\u0275elementStart(0, "label", 3);
+        \u0275\u0275listener("click", function MatCheckbox_Template_label_click_0_listener($event) {
           return ctx._preventBubblingFromLabel($event);
         });
-        \u0275\u0275elementStart(1, "div", 4, 0)(3, "div", 5);
-        \u0275\u0275listener("click", function MatCheckbox_Template_div_click_3_listener() {
-          return ctx._onTouchTargetClick();
-        });
-        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(1, "span", 4, 0);
+        \u0275\u0275element(3, "span", 5);
         \u0275\u0275elementStart(4, "input", 6, 1);
         \u0275\u0275listener("blur", function MatCheckbox_Template_input_blur_4_listener() {
           return ctx._onBlur();
@@ -90914,36 +92837,34 @@ var MatCheckbox = class _MatCheckbox {
           return ctx._onInteractionEvent($event);
         });
         \u0275\u0275elementEnd();
-        \u0275\u0275element(6, "div", 7);
-        \u0275\u0275elementStart(7, "div", 8);
+        \u0275\u0275element(6, "span", 7);
+        \u0275\u0275elementStart(7, "span", 8);
         \u0275\u0275namespaceSVG();
         \u0275\u0275elementStart(8, "svg", 9);
         \u0275\u0275element(9, "path", 10);
         \u0275\u0275elementEnd();
         \u0275\u0275namespaceHTML();
-        \u0275\u0275element(10, "div", 11);
+        \u0275\u0275element(10, "span", 11);
         \u0275\u0275elementEnd();
-        \u0275\u0275element(11, "div", 12);
+        \u0275\u0275element(11, "span", 12);
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(12, "label", 13, 2);
+        \u0275\u0275elementStart(12, "span", 13, 2);
         \u0275\u0275projection(14);
         \u0275\u0275elementEnd()();
       }
       if (rf & 2) {
         const checkbox_r1 = \u0275\u0275reference(2);
-        \u0275\u0275property("labelPosition", ctx.labelPosition);
+        \u0275\u0275property("labelPosition", ctx.labelPosition)("for", ctx.inputId);
         \u0275\u0275advance(4);
         \u0275\u0275classProp("mdc-checkbox--selected", ctx.checked);
         \u0275\u0275property("checked", ctx.checked)("indeterminate", ctx.indeterminate)("disabled", ctx.disabled && !ctx.disabledInteractive)("id", ctx.inputId)("required", ctx.required)("tabIndex", ctx.disabled && !ctx.disabledInteractive ? -1 : ctx.tabIndex);
         \u0275\u0275attribute("aria-label", ctx.ariaLabel || null)("aria-labelledby", ctx.ariaLabelledby)("aria-describedby", ctx.ariaDescribedby)("aria-checked", ctx.indeterminate ? "mixed" : null)("aria-controls", ctx.ariaControls)("aria-disabled", ctx.disabled && ctx.disabledInteractive ? true : null)("aria-expanded", ctx.ariaExpanded)("aria-owns", ctx.ariaOwns)("name", ctx.name)("value", ctx.value);
         \u0275\u0275advance(7);
         \u0275\u0275property("matRippleTrigger", checkbox_r1)("matRippleDisabled", ctx.disableRipple || ctx.disabled)("matRippleCentered", true);
-        \u0275\u0275advance();
-        \u0275\u0275property("for", ctx.inputId);
       }
     },
     dependencies: [MatRipple, _MatInternalFormField],
-    styles: ['.mdc-checkbox {\n  display: inline-block;\n  position: relative;\n  flex: 0 0 18px;\n  box-sizing: content-box;\n  width: 18px;\n  height: 18px;\n  line-height: 0;\n  white-space: nowrap;\n  cursor: pointer;\n  vertical-align: bottom;\n  padding: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n  margin: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n}\n.mdc-checkbox:hover > .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-unselected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n  background-color: var(--mat-checkbox-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox:hover > .mat-mdc-checkbox-ripple > .mat-ripple-element {\n  background-color: var(--mat-checkbox-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-unselected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n  background-color: var(--mat-checkbox-unselected-focus-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-unselected-focus-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-unselected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  background-color: var(--mat-checkbox-unselected-pressed-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-unselected-pressed-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-selected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n  background-color: var(--mat-checkbox-selected-hover-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-selected-hover-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus:checked + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-selected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n  background-color: var(--mat-checkbox-selected-focus-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-selected-focus-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-selected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  background-color: var(--mat-checkbox-selected-pressed-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-selected-pressed-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control + .mdc-checkbox__ripple {\n  background-color: var(--mat-checkbox-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control {\n  position: absolute;\n  margin: 0;\n  padding: 0;\n  opacity: 0;\n  cursor: inherit;\n  z-index: 1;\n  width: var(--mat-checkbox-state-layer-size, 40px);\n  height: var(--mat-checkbox-state-layer-size, 40px);\n  top: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n  right: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n  left: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n}\n\n.mdc-checkbox--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n\n.mdc-checkbox__background {\n  display: inline-flex;\n  position: absolute;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 18px;\n  height: 18px;\n  border: 2px solid currentColor;\n  border-radius: 2px;\n  background-color: transparent;\n  pointer-events: none;\n  will-change: background-color, border-color;\n  transition: background-color 90ms cubic-bezier(0.4, 0, 0.6, 1), border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);\n  -webkit-print-color-adjust: exact;\n  color-adjust: exact;\n  border-color: var(--mat-checkbox-unselected-icon-color, var(--mat-sys-on-surface-variant));\n  top: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n  left: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n}\n\n.mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-selected-icon-color, var(--mat-sys-primary));\n  background-color: var(--mat-checkbox-selected-icon-color, var(--mat-sys-primary));\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {\n  background-color: var(--mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  border-color: transparent;\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,\n  .mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:checked) ~ .mdc-checkbox__background,\n.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:indeterminate) ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-unselected-hover-icon-color, var(--mat-sys-on-surface));\n  background-color: transparent;\n}\n\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox:hover > .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-selected-hover-icon-color, var(--mat-sys-primary));\n  background-color: var(--mat-checkbox-selected-hover-icon-color, var(--mat-sys-primary));\n}\n\n.mdc-checkbox__native-control:focus:focus:not(:checked) ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:focus:focus:not(:indeterminate) ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-unselected-focus-icon-color, var(--mat-sys-on-surface));\n}\n\n.mdc-checkbox__native-control:focus:focus:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:focus:focus:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-selected-focus-icon-color, var(--mat-sys-primary));\n  background-color: var(--mat-checkbox-selected-focus-icon-color, var(--mat-sys-primary));\n}\n\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  background-color: var(--mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  border-color: transparent;\n}\n\n.mdc-checkbox__checkmark {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  opacity: 0;\n  transition: opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);\n  color: var(--mat-checkbox-selected-checkmark-color, var(--mat-sys-on-primary));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__checkmark {\n    color: CanvasText;\n  }\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {\n  color: var(--mat-checkbox-disabled-selected-checkmark-color, var(--mat-sys-surface));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {\n    color: GrayText;\n  }\n}\n\n.mdc-checkbox__checkmark-path {\n  transition: stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);\n  stroke: currentColor;\n  stroke-width: 3.12px;\n  stroke-dashoffset: 29.7833385;\n  stroke-dasharray: 29.7833385;\n}\n\n.mdc-checkbox__mixedmark {\n  width: 100%;\n  height: 0;\n  transform: scaleX(0) rotate(0deg);\n  border-width: 1px;\n  border-style: solid;\n  opacity: 0;\n  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);\n  border-color: var(--mat-checkbox-selected-checkmark-color, var(--mat-sys-on-primary));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__mixedmark {\n    margin: 0 1px;\n  }\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {\n  border-color: var(--mat-checkbox-disabled-selected-checkmark-color, var(--mat-sys-surface));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,\n.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,\n.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,\n.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background {\n  animation-duration: 180ms;\n  animation-timing-function: linear;\n}\n\n.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path {\n  animation: mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path {\n  animation: mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark {\n  animation: mdc-checkbox-checked-indeterminate-checkmark 90ms linear;\n  transition: none;\n}\n.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark {\n  animation: mdc-checkbox-indeterminate-checked-checkmark 500ms linear;\n  transition: none;\n}\n.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;\n  transition: none;\n}\n\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  transition: border-color 90ms cubic-bezier(0, 0, 0.2, 1), background-color 90ms cubic-bezier(0, 0, 0.2, 1);\n}\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path {\n  stroke-dashoffset: 0;\n}\n\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {\n  transition: opacity 180ms cubic-bezier(0, 0, 0.2, 1), transform 180ms cubic-bezier(0, 0, 0.2, 1);\n  opacity: 1;\n}\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transform: scaleX(1) rotate(-45deg);\n}\n\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {\n  transform: rotate(45deg);\n  opacity: 0;\n  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transform: scaleX(1) rotate(0deg);\n  opacity: 1;\n}\n\n@keyframes mdc-checkbox-unchecked-checked-checkmark-path {\n  0%, 50% {\n    stroke-dashoffset: 29.7833385;\n  }\n  50% {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n  }\n  100% {\n    stroke-dashoffset: 0;\n  }\n}\n@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark {\n  0%, 68.2% {\n    transform: scaleX(0);\n  }\n  68.2% {\n    animation-timing-function: cubic-bezier(0, 0, 0, 1);\n  }\n  100% {\n    transform: scaleX(1);\n  }\n}\n@keyframes mdc-checkbox-checked-unchecked-checkmark-path {\n  from {\n    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);\n    opacity: 1;\n    stroke-dashoffset: 0;\n  }\n  to {\n    opacity: 0;\n    stroke-dashoffset: -29.7833385;\n  }\n}\n@keyframes mdc-checkbox-checked-indeterminate-checkmark {\n  from {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n  to {\n    transform: rotate(45deg);\n    opacity: 0;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-checked-checkmark {\n  from {\n    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);\n    transform: rotate(45deg);\n    opacity: 0;\n  }\n  to {\n    transform: rotate(360deg);\n    opacity: 1;\n  }\n}\n@keyframes mdc-checkbox-checked-indeterminate-mixedmark {\n  from {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n    transform: rotate(-45deg);\n    opacity: 0;\n  }\n  to {\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-checked-mixedmark {\n  from {\n    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n  to {\n    transform: rotate(315deg);\n    opacity: 0;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark {\n  0% {\n    animation-timing-function: linear;\n    transform: scaleX(1);\n    opacity: 1;\n  }\n  32.8%, 100% {\n    transform: scaleX(0);\n    opacity: 0;\n  }\n}\n.mat-mdc-checkbox {\n  display: inline-block;\n  position: relative;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-touch-target,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__native-control,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__ripple,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-ripple::before,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-checkbox label {\n  cursor: pointer;\n}\n.mat-mdc-checkbox .mat-internal-form-field {\n  color: var(--mat-checkbox-label-text-color, var(--mat-sys-on-surface));\n  font-family: var(--mat-checkbox-label-text-font, var(--mat-sys-body-medium-font));\n  line-height: var(--mat-checkbox-label-text-line-height, var(--mat-sys-body-medium-line-height));\n  font-size: var(--mat-checkbox-label-text-size, var(--mat-sys-body-medium-size));\n  letter-spacing: var(--mat-checkbox-label-text-tracking, var(--mat-sys-body-medium-tracking));\n  font-weight: var(--mat-checkbox-label-text-weight, var(--mat-sys-body-medium-weight));\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive input {\n  cursor: default;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled label {\n  cursor: default;\n  color: var(--mat-checkbox-disabled-label-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-checkbox.mat-mdc-checkbox-disabled label {\n    color: GrayText;\n  }\n}\n.mat-mdc-checkbox label:empty {\n  display: none;\n}\n.mat-mdc-checkbox .mdc-checkbox__ripple {\n  opacity: 0;\n}\n\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple,\n.mdc-checkbox__ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n}\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple:not(:empty),\n.mdc-checkbox__ripple:not(:empty) {\n  transform: translateZ(0);\n}\n\n.mat-mdc-checkbox-ripple .mat-ripple-element {\n  opacity: 0.1;\n}\n\n.mat-mdc-checkbox-touch-target {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  height: var(--mat-checkbox-touch-target-size, 48px);\n  width: var(--mat-checkbox-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n  display: var(--mat-checkbox-touch-target-display, block);\n}\n\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple::before {\n  border-radius: 50%;\n}\n\n.mdc-checkbox__native-control:focus-visible ~ .mat-focus-indicator::before {\n  content: "";\n}\n'],
+    styles: ['.mdc-checkbox {\n  display: inline-block;\n  position: relative;\n  flex: 0 0 18px;\n  box-sizing: content-box;\n  width: 18px;\n  height: 18px;\n  line-height: 0;\n  white-space: nowrap;\n  cursor: pointer;\n  vertical-align: bottom;\n  padding: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n  margin: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - var(--%NS%mat-checkbox-state-layer-size, 40px)) / 2);\n}\n.mdc-checkbox:hover > .mdc-checkbox__ripple {\n  opacity: var(--%NS%mat-checkbox-unselected-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n  background-color: var(--%NS%mat-checkbox-unselected-hover-state-layer-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-checkbox:hover > .mat-mdc-checkbox-ripple > .mat-ripple-element {\n  background-color: var(--%NS%mat-checkbox-unselected-hover-state-layer-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus + .mdc-checkbox__ripple {\n  opacity: var(--%NS%mat-checkbox-unselected-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n  background-color: var(--%NS%mat-checkbox-unselected-focus-state-layer-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--%NS%mat-checkbox-unselected-focus-state-layer-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control + .mdc-checkbox__ripple {\n  opacity: var(--%NS%mat-checkbox-unselected-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n  background-color: var(--%NS%mat-checkbox-unselected-pressed-state-layer-color, var(--%NS%mat-sys-primary));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--%NS%mat-checkbox-unselected-pressed-state-layer-color, var(--%NS%mat-sys-primary));\n}\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {\n  opacity: var(--%NS%mat-checkbox-selected-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n  background-color: var(--%NS%mat-checkbox-selected-hover-state-layer-color, var(--%NS%mat-sys-primary));\n}\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--%NS%mat-checkbox-selected-hover-state-layer-color, var(--%NS%mat-sys-primary));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus:checked + .mdc-checkbox__ripple {\n  opacity: var(--%NS%mat-checkbox-selected-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n  background-color: var(--%NS%mat-checkbox-selected-focus-state-layer-color, var(--%NS%mat-sys-primary));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--%NS%mat-checkbox-selected-focus-state-layer-color, var(--%NS%mat-sys-primary));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {\n  opacity: var(--%NS%mat-checkbox-selected-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n  background-color: var(--%NS%mat-checkbox-selected-pressed-state-layer-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--%NS%mat-checkbox-selected-pressed-state-layer-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control + .mdc-checkbox__ripple {\n  background-color: var(--%NS%mat-checkbox-unselected-hover-state-layer-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control {\n  position: absolute;\n  margin: 0;\n  padding: 0;\n  opacity: 0;\n  cursor: inherit;\n  z-index: 1;\n  width: var(--%NS%mat-checkbox-state-layer-size, 40px);\n  height: var(--%NS%mat-checkbox-state-layer-size, 40px);\n  top: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - var(--%NS%mat-checkbox-state-layer-size, 40px)) / 2);\n  right: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - var(--%NS%mat-checkbox-state-layer-size, 40px)) / 2);\n  left: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - var(--%NS%mat-checkbox-state-layer-size, 40px)) / 2);\n}\n\n.mdc-checkbox--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n\n.mdc-checkbox__background {\n  display: inline-flex;\n  position: absolute;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 18px;\n  height: 18px;\n  border: 2px solid currentColor;\n  border-radius: 2px;\n  background-color: transparent;\n  pointer-events: none;\n  will-change: background-color, border-color;\n  transition: background-color 90ms cubic-bezier(0.4, 0, 0.6, 1), border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);\n  -webkit-print-color-adjust: exact;\n  color-adjust: exact;\n  border-color: var(--%NS%mat-checkbox-unselected-icon-color, var(--%NS%mat-sys-on-surface-variant));\n  top: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n  left: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n}\n\n.mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--%NS%mat-checkbox-selected-icon-color, var(--%NS%mat-sys-primary));\n  background-color: var(--%NS%mat-checkbox-selected-icon-color, var(--%NS%mat-sys-primary));\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__background {\n  border-color: var(--%NS%mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {\n  background-color: var(--%NS%mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  border-color: transparent;\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,\n  .mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:checked) ~ .mdc-checkbox__background,\n.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:indeterminate) ~ .mdc-checkbox__background {\n  border-color: var(--%NS%mat-checkbox-unselected-hover-icon-color, var(--%NS%mat-sys-on-surface));\n  background-color: transparent;\n}\n\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox:hover > .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--%NS%mat-checkbox-selected-hover-icon-color, var(--%NS%mat-sys-primary));\n  background-color: var(--%NS%mat-checkbox-selected-hover-icon-color, var(--%NS%mat-sys-primary));\n}\n\n.mdc-checkbox__native-control:focus:focus:not(:checked) ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:focus:focus:not(:indeterminate) ~ .mdc-checkbox__background {\n  border-color: var(--%NS%mat-checkbox-unselected-focus-icon-color, var(--%NS%mat-sys-on-surface));\n}\n\n.mdc-checkbox__native-control:focus:focus:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:focus:focus:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--%NS%mat-checkbox-selected-focus-icon-color, var(--%NS%mat-sys-primary));\n  background-color: var(--%NS%mat-checkbox-selected-focus-icon-color, var(--%NS%mat-sys-primary));\n}\n\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {\n  border-color: var(--%NS%mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  background-color: var(--%NS%mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n  border-color: transparent;\n}\n\n.mdc-checkbox__checkmark {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  opacity: 0;\n  transition: opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);\n  color: var(--%NS%mat-checkbox-selected-checkmark-color, var(--%NS%mat-sys-on-primary));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__checkmark {\n    color: CanvasText;\n  }\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {\n  color: var(--%NS%mat-checkbox-disabled-selected-checkmark-color, var(--%NS%mat-sys-surface));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {\n    color: GrayText;\n  }\n}\n\n.mdc-checkbox__checkmark-path {\n  transition: stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);\n  stroke: currentColor;\n  stroke-width: 3.12px;\n  stroke-dashoffset: 29.7833385;\n  stroke-dasharray: 29.7833385;\n}\n\n.mdc-checkbox__mixedmark {\n  width: 100%;\n  height: 0;\n  transform: scaleX(0) rotate(0deg);\n  border-width: 1px;\n  border-style: solid;\n  opacity: 0;\n  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);\n  border-color: var(--%NS%mat-checkbox-selected-checkmark-color, var(--%NS%mat-sys-on-primary));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__mixedmark {\n    margin: 0 1px;\n  }\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {\n  border-color: var(--%NS%mat-checkbox-disabled-selected-checkmark-color, var(--%NS%mat-sys-surface));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,\n.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,\n.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,\n.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background {\n  animation-duration: 180ms;\n  animation-timing-function: linear;\n}\n\n.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path {\n  animation: mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path {\n  animation: mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark {\n  animation: mdc-checkbox-checked-indeterminate-checkmark 90ms linear;\n  transition: none;\n}\n.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark {\n  animation: mdc-checkbox-indeterminate-checked-checkmark 500ms linear;\n  transition: none;\n}\n.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;\n  transition: none;\n}\n\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  transition: border-color 90ms cubic-bezier(0, 0, 0.2, 1), background-color 90ms cubic-bezier(0, 0, 0.2, 1);\n}\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path {\n  stroke-dashoffset: 0;\n}\n\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {\n  transition: opacity 180ms cubic-bezier(0, 0, 0.2, 1), transform 180ms cubic-bezier(0, 0, 0.2, 1);\n  opacity: 1;\n}\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transform: scaleX(1) rotate(-45deg);\n}\n\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {\n  transform: rotate(45deg);\n  opacity: 0;\n  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transform: scaleX(1) rotate(0deg);\n  opacity: 1;\n}\n\n@keyframes mdc-checkbox-unchecked-checked-checkmark-path {\n  0%, 50% {\n    stroke-dashoffset: 29.7833385;\n  }\n  50% {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n  }\n  100% {\n    stroke-dashoffset: 0;\n  }\n}\n@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark {\n  0%, 68.2% {\n    transform: scaleX(0);\n  }\n  68.2% {\n    animation-timing-function: cubic-bezier(0, 0, 0, 1);\n  }\n  100% {\n    transform: scaleX(1);\n  }\n}\n@keyframes mdc-checkbox-checked-unchecked-checkmark-path {\n  from {\n    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);\n    opacity: 1;\n    stroke-dashoffset: 0;\n  }\n  to {\n    opacity: 0;\n    stroke-dashoffset: -29.7833385;\n  }\n}\n@keyframes mdc-checkbox-checked-indeterminate-checkmark {\n  from {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n  to {\n    transform: rotate(45deg);\n    opacity: 0;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-checked-checkmark {\n  from {\n    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);\n    transform: rotate(45deg);\n    opacity: 0;\n  }\n  to {\n    transform: rotate(360deg);\n    opacity: 1;\n  }\n}\n@keyframes mdc-checkbox-checked-indeterminate-mixedmark {\n  from {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n    transform: rotate(-45deg);\n    opacity: 0;\n  }\n  to {\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-checked-mixedmark {\n  from {\n    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n  to {\n    transform: rotate(315deg);\n    opacity: 0;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark {\n  0% {\n    animation-timing-function: linear;\n    transform: scaleX(1);\n    opacity: 1;\n  }\n  32.8%, 100% {\n    transform: scaleX(0);\n    opacity: 0;\n  }\n}\n.mat-mdc-checkbox {\n  display: inline-block;\n  position: relative;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-touch-target,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__native-control,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__ripple,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-ripple::before,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-checkbox label {\n  cursor: pointer;\n}\n.mat-mdc-checkbox .mat-internal-form-field {\n  color: var(--%NS%mat-checkbox-label-text-color, var(--%NS%mat-sys-on-surface));\n  font-family: var(--%NS%mat-checkbox-label-text-font, var(--%NS%mat-sys-body-medium-font));\n  line-height: var(--%NS%mat-checkbox-label-text-line-height, var(--%NS%mat-sys-body-medium-line-height));\n  font-size: var(--%NS%mat-checkbox-label-text-size, var(--%NS%mat-sys-body-medium-size));\n  letter-spacing: var(--%NS%mat-checkbox-label-text-tracking, var(--%NS%mat-sys-body-medium-tracking));\n  font-weight: var(--%NS%mat-checkbox-label-text-weight, var(--%NS%mat-sys-body-medium-weight));\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive input {\n  cursor: default;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled label {\n  cursor: default;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled .mat-internal-form-field-label {\n  color: var(--%NS%mat-checkbox-disabled-label-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-checkbox.mat-mdc-checkbox-disabled .mat-internal-form-field-label {\n    color: GrayText;\n  }\n}\n.mat-mdc-checkbox .mat-internal-form-field-label:empty {\n  display: none;\n}\n.mat-mdc-checkbox .mdc-checkbox__ripple {\n  opacity: 0;\n}\n\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple,\n.mdc-checkbox__ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n}\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple:not(:empty),\n.mdc-checkbox__ripple:not(:empty) {\n  transform: translateZ(0);\n}\n\n.mat-mdc-checkbox-ripple .mat-ripple-element {\n  opacity: 0.1;\n}\n\n.mat-mdc-checkbox-touch-target {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  height: var(--%NS%mat-checkbox-touch-target-size, 48px);\n  width: var(--%NS%mat-checkbox-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n  display: var(--%NS%mat-checkbox-touch-target-display, block);\n}\n\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple::before {\n  border-radius: 50%;\n}\n\n.mdc-checkbox__native-control:focus-visible ~ .mat-focus-indicator::before {\n  content: "";\n}\n'],
     encapsulation: 2
   });
 };
@@ -90977,13 +92898,14 @@ var MatCheckbox = class _MatCheckbox {
       exportAs: "matCheckbox",
       encapsulation: ViewEncapsulation.None,
       imports: [MatRipple, _MatInternalFormField],
-      template: `<div mat-internal-form-field [labelPosition]="labelPosition" (click)="_preventBubblingFromLabel($event)">
-  <div #checkbox class="mdc-checkbox">
+      template: `<label
+  mat-internal-form-field
+  [labelPosition]="labelPosition"
+  [for]="inputId"
+  (click)="_preventBubblingFromLabel($event)">
+  <span #checkbox class="mdc-checkbox">
     <!-- Render this element first so the input is on top. -->
-    <div
-      class="mat-mdc-checkbox-touch-target"
-      (click)="_onTouchTargetClick()"
-      aria-hidden="true"></div>
+    <span class="mat-mdc-checkbox-touch-target" aria-hidden="true"></span>
     <input #input
            type="checkbox"
            class="mdc-checkbox__native-control"
@@ -91007,8 +92929,8 @@ var MatCheckbox = class _MatCheckbox {
            (blur)="_onBlur()"
            (click)="_onInputClick()"
            (change)="_onInteractionEvent($event)"/>
-    <div class="mdc-checkbox__ripple" aria-hidden="true"></div>
-    <div class="mdc-checkbox__background" aria-hidden="true">
+    <span class="mdc-checkbox__ripple" aria-hidden="true"></span>
+    <span class="mdc-checkbox__background" aria-hidden="true">
       <svg class="mdc-checkbox__checkmark"
            focusable="false"
            viewBox="0 0 24 24">
@@ -91016,26 +92938,22 @@ var MatCheckbox = class _MatCheckbox {
               fill="none"
               d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
       </svg>
-      <div class="mdc-checkbox__mixedmark"></div>
-    </div>
-    <div class="mat-mdc-checkbox-ripple mat-focus-indicator"
+      <span class="mdc-checkbox__mixedmark"></span>
+    </span>
+    <span class="mat-mdc-checkbox-ripple mat-focus-indicator"
       mat-ripple
       aria-hidden="true"
       [matRippleTrigger]="checkbox"
       [matRippleDisabled]="disableRipple || disabled"
-      [matRippleCentered]="true"></div>
-  </div>
-  <!--
-    Avoid putting a click handler on the <label/> to fix duplicate navigation stop on Talk Back
-    (#14385). Putting a click handler on the <label/> caused this bug because the browser produced
-    an unnecessary accessibility tree node.
-  -->
-  <label class="mdc-label" #label [for]="inputId">
+      [matRippleCentered]="true"></span>
+  </span>
+
+  <span #label class="mat-internal-form-field-label mdc-label">
     <ng-content></ng-content>
-  </label>
-</div>
+  </span>
+</label>
 `,
-      styles: ['.mdc-checkbox {\n  display: inline-block;\n  position: relative;\n  flex: 0 0 18px;\n  box-sizing: content-box;\n  width: 18px;\n  height: 18px;\n  line-height: 0;\n  white-space: nowrap;\n  cursor: pointer;\n  vertical-align: bottom;\n  padding: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n  margin: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n}\n.mdc-checkbox:hover > .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-unselected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n  background-color: var(--mat-checkbox-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox:hover > .mat-mdc-checkbox-ripple > .mat-ripple-element {\n  background-color: var(--mat-checkbox-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-unselected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n  background-color: var(--mat-checkbox-unselected-focus-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-unselected-focus-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-unselected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  background-color: var(--mat-checkbox-unselected-pressed-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-unselected-pressed-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-selected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n  background-color: var(--mat-checkbox-selected-hover-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-selected-hover-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus:checked + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-selected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n  background-color: var(--mat-checkbox-selected-focus-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-selected-focus-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-selected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  background-color: var(--mat-checkbox-selected-pressed-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-selected-pressed-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control + .mdc-checkbox__ripple {\n  background-color: var(--mat-checkbox-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control {\n  position: absolute;\n  margin: 0;\n  padding: 0;\n  opacity: 0;\n  cursor: inherit;\n  z-index: 1;\n  width: var(--mat-checkbox-state-layer-size, 40px);\n  height: var(--mat-checkbox-state-layer-size, 40px);\n  top: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n  right: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n  left: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n}\n\n.mdc-checkbox--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n\n.mdc-checkbox__background {\n  display: inline-flex;\n  position: absolute;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 18px;\n  height: 18px;\n  border: 2px solid currentColor;\n  border-radius: 2px;\n  background-color: transparent;\n  pointer-events: none;\n  will-change: background-color, border-color;\n  transition: background-color 90ms cubic-bezier(0.4, 0, 0.6, 1), border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);\n  -webkit-print-color-adjust: exact;\n  color-adjust: exact;\n  border-color: var(--mat-checkbox-unselected-icon-color, var(--mat-sys-on-surface-variant));\n  top: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n  left: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n}\n\n.mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-selected-icon-color, var(--mat-sys-primary));\n  background-color: var(--mat-checkbox-selected-icon-color, var(--mat-sys-primary));\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {\n  background-color: var(--mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  border-color: transparent;\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,\n  .mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:checked) ~ .mdc-checkbox__background,\n.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:indeterminate) ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-unselected-hover-icon-color, var(--mat-sys-on-surface));\n  background-color: transparent;\n}\n\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox:hover > .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-selected-hover-icon-color, var(--mat-sys-primary));\n  background-color: var(--mat-checkbox-selected-hover-icon-color, var(--mat-sys-primary));\n}\n\n.mdc-checkbox__native-control:focus:focus:not(:checked) ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:focus:focus:not(:indeterminate) ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-unselected-focus-icon-color, var(--mat-sys-on-surface));\n}\n\n.mdc-checkbox__native-control:focus:focus:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:focus:focus:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-selected-focus-icon-color, var(--mat-sys-primary));\n  background-color: var(--mat-checkbox-selected-focus-icon-color, var(--mat-sys-primary));\n}\n\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  background-color: var(--mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  border-color: transparent;\n}\n\n.mdc-checkbox__checkmark {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  opacity: 0;\n  transition: opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);\n  color: var(--mat-checkbox-selected-checkmark-color, var(--mat-sys-on-primary));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__checkmark {\n    color: CanvasText;\n  }\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {\n  color: var(--mat-checkbox-disabled-selected-checkmark-color, var(--mat-sys-surface));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {\n    color: GrayText;\n  }\n}\n\n.mdc-checkbox__checkmark-path {\n  transition: stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);\n  stroke: currentColor;\n  stroke-width: 3.12px;\n  stroke-dashoffset: 29.7833385;\n  stroke-dasharray: 29.7833385;\n}\n\n.mdc-checkbox__mixedmark {\n  width: 100%;\n  height: 0;\n  transform: scaleX(0) rotate(0deg);\n  border-width: 1px;\n  border-style: solid;\n  opacity: 0;\n  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);\n  border-color: var(--mat-checkbox-selected-checkmark-color, var(--mat-sys-on-primary));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__mixedmark {\n    margin: 0 1px;\n  }\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {\n  border-color: var(--mat-checkbox-disabled-selected-checkmark-color, var(--mat-sys-surface));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,\n.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,\n.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,\n.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background {\n  animation-duration: 180ms;\n  animation-timing-function: linear;\n}\n\n.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path {\n  animation: mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path {\n  animation: mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark {\n  animation: mdc-checkbox-checked-indeterminate-checkmark 90ms linear;\n  transition: none;\n}\n.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark {\n  animation: mdc-checkbox-indeterminate-checked-checkmark 500ms linear;\n  transition: none;\n}\n.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;\n  transition: none;\n}\n\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  transition: border-color 90ms cubic-bezier(0, 0, 0.2, 1), background-color 90ms cubic-bezier(0, 0, 0.2, 1);\n}\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path {\n  stroke-dashoffset: 0;\n}\n\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {\n  transition: opacity 180ms cubic-bezier(0, 0, 0.2, 1), transform 180ms cubic-bezier(0, 0, 0.2, 1);\n  opacity: 1;\n}\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transform: scaleX(1) rotate(-45deg);\n}\n\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {\n  transform: rotate(45deg);\n  opacity: 0;\n  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transform: scaleX(1) rotate(0deg);\n  opacity: 1;\n}\n\n@keyframes mdc-checkbox-unchecked-checked-checkmark-path {\n  0%, 50% {\n    stroke-dashoffset: 29.7833385;\n  }\n  50% {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n  }\n  100% {\n    stroke-dashoffset: 0;\n  }\n}\n@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark {\n  0%, 68.2% {\n    transform: scaleX(0);\n  }\n  68.2% {\n    animation-timing-function: cubic-bezier(0, 0, 0, 1);\n  }\n  100% {\n    transform: scaleX(1);\n  }\n}\n@keyframes mdc-checkbox-checked-unchecked-checkmark-path {\n  from {\n    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);\n    opacity: 1;\n    stroke-dashoffset: 0;\n  }\n  to {\n    opacity: 0;\n    stroke-dashoffset: -29.7833385;\n  }\n}\n@keyframes mdc-checkbox-checked-indeterminate-checkmark {\n  from {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n  to {\n    transform: rotate(45deg);\n    opacity: 0;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-checked-checkmark {\n  from {\n    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);\n    transform: rotate(45deg);\n    opacity: 0;\n  }\n  to {\n    transform: rotate(360deg);\n    opacity: 1;\n  }\n}\n@keyframes mdc-checkbox-checked-indeterminate-mixedmark {\n  from {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n    transform: rotate(-45deg);\n    opacity: 0;\n  }\n  to {\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-checked-mixedmark {\n  from {\n    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n  to {\n    transform: rotate(315deg);\n    opacity: 0;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark {\n  0% {\n    animation-timing-function: linear;\n    transform: scaleX(1);\n    opacity: 1;\n  }\n  32.8%, 100% {\n    transform: scaleX(0);\n    opacity: 0;\n  }\n}\n.mat-mdc-checkbox {\n  display: inline-block;\n  position: relative;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-touch-target,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__native-control,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__ripple,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-ripple::before,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-checkbox label {\n  cursor: pointer;\n}\n.mat-mdc-checkbox .mat-internal-form-field {\n  color: var(--mat-checkbox-label-text-color, var(--mat-sys-on-surface));\n  font-family: var(--mat-checkbox-label-text-font, var(--mat-sys-body-medium-font));\n  line-height: var(--mat-checkbox-label-text-line-height, var(--mat-sys-body-medium-line-height));\n  font-size: var(--mat-checkbox-label-text-size, var(--mat-sys-body-medium-size));\n  letter-spacing: var(--mat-checkbox-label-text-tracking, var(--mat-sys-body-medium-tracking));\n  font-weight: var(--mat-checkbox-label-text-weight, var(--mat-sys-body-medium-weight));\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive input {\n  cursor: default;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled label {\n  cursor: default;\n  color: var(--mat-checkbox-disabled-label-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-checkbox.mat-mdc-checkbox-disabled label {\n    color: GrayText;\n  }\n}\n.mat-mdc-checkbox label:empty {\n  display: none;\n}\n.mat-mdc-checkbox .mdc-checkbox__ripple {\n  opacity: 0;\n}\n\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple,\n.mdc-checkbox__ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n}\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple:not(:empty),\n.mdc-checkbox__ripple:not(:empty) {\n  transform: translateZ(0);\n}\n\n.mat-mdc-checkbox-ripple .mat-ripple-element {\n  opacity: 0.1;\n}\n\n.mat-mdc-checkbox-touch-target {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  height: var(--mat-checkbox-touch-target-size, 48px);\n  width: var(--mat-checkbox-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n  display: var(--mat-checkbox-touch-target-display, block);\n}\n\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple::before {\n  border-radius: 50%;\n}\n\n.mdc-checkbox__native-control:focus-visible ~ .mat-focus-indicator::before {\n  content: "";\n}\n']
+      styles: ['.mdc-checkbox {\n  display: inline-block;\n  position: relative;\n  flex: 0 0 18px;\n  box-sizing: content-box;\n  width: 18px;\n  height: 18px;\n  line-height: 0;\n  white-space: nowrap;\n  cursor: pointer;\n  vertical-align: bottom;\n  padding: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n  margin: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n}\n.mdc-checkbox:hover > .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-unselected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n  background-color: var(--mat-checkbox-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox:hover > .mat-mdc-checkbox-ripple > .mat-ripple-element {\n  background-color: var(--mat-checkbox-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-unselected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n  background-color: var(--mat-checkbox-unselected-focus-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-unselected-focus-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-unselected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  background-color: var(--mat-checkbox-unselected-pressed-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-unselected-pressed-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-selected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n  background-color: var(--mat-checkbox-selected-hover-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-selected-hover-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus:checked + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-selected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n  background-color: var(--mat-checkbox-selected-focus-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox .mdc-checkbox__native-control:focus:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-selected-focus-state-layer-color, var(--mat-sys-primary));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {\n  opacity: var(--mat-checkbox-selected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  background-color: var(--mat-checkbox-selected-pressed-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox:active > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {\n  background-color: var(--mat-checkbox-selected-pressed-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control + .mdc-checkbox__ripple {\n  background-color: var(--mat-checkbox-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n}\n.mdc-checkbox .mdc-checkbox__native-control {\n  position: absolute;\n  margin: 0;\n  padding: 0;\n  opacity: 0;\n  cursor: inherit;\n  z-index: 1;\n  width: var(--mat-checkbox-state-layer-size, 40px);\n  height: var(--mat-checkbox-state-layer-size, 40px);\n  top: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n  right: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n  left: calc((var(--mat-checkbox-state-layer-size, 40px) - var(--mat-checkbox-state-layer-size, 40px)) / 2);\n}\n\n.mdc-checkbox--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n\n.mdc-checkbox__background {\n  display: inline-flex;\n  position: absolute;\n  align-items: center;\n  justify-content: center;\n  box-sizing: border-box;\n  width: 18px;\n  height: 18px;\n  border: 2px solid currentColor;\n  border-radius: 2px;\n  background-color: transparent;\n  pointer-events: none;\n  will-change: background-color, border-color;\n  transition: background-color 90ms cubic-bezier(0.4, 0, 0.6, 1), border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);\n  -webkit-print-color-adjust: exact;\n  color-adjust: exact;\n  border-color: var(--mat-checkbox-unselected-icon-color, var(--mat-sys-on-surface-variant));\n  top: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n  left: calc((var(--mat-checkbox-state-layer-size, 40px) - 18px) / 2);\n}\n\n.mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-selected-icon-color, var(--mat-sys-primary));\n  background-color: var(--mat-checkbox-selected-icon-color, var(--mat-sys-primary));\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {\n  background-color: var(--mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  border-color: transparent;\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,\n  .mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:checked) ~ .mdc-checkbox__background,\n.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:indeterminate) ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-unselected-hover-icon-color, var(--mat-sys-on-surface));\n  background-color: transparent;\n}\n\n.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox:hover > .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-selected-hover-icon-color, var(--mat-sys-primary));\n  background-color: var(--mat-checkbox-selected-hover-icon-color, var(--mat-sys-primary));\n}\n\n.mdc-checkbox__native-control:focus:focus:not(:checked) ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:focus:focus:not(:indeterminate) ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-unselected-focus-icon-color, var(--mat-sys-on-surface));\n}\n\n.mdc-checkbox__native-control:focus:focus:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:focus:focus:indeterminate ~ .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-selected-focus-icon-color, var(--mat-sys-primary));\n  background-color: var(--mat-checkbox-selected-focus-icon-color, var(--mat-sys-primary));\n}\n\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {\n  border-color: var(--mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,\n  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {\n    border-color: GrayText;\n  }\n}\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  background-color: var(--mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n  border-color: transparent;\n}\n\n.mdc-checkbox__checkmark {\n  position: absolute;\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  width: 100%;\n  opacity: 0;\n  transition: opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);\n  color: var(--mat-checkbox-selected-checkmark-color, var(--mat-sys-on-primary));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__checkmark {\n    color: CanvasText;\n  }\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {\n  color: var(--mat-checkbox-disabled-selected-checkmark-color, var(--mat-sys-surface));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {\n    color: GrayText;\n  }\n}\n\n.mdc-checkbox__checkmark-path {\n  transition: stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);\n  stroke: currentColor;\n  stroke-width: 3.12px;\n  stroke-dashoffset: 29.7833385;\n  stroke-dasharray: 29.7833385;\n}\n\n.mdc-checkbox__mixedmark {\n  width: 100%;\n  height: 0;\n  transform: scaleX(0) rotate(0deg);\n  border-width: 1px;\n  border-style: solid;\n  opacity: 0;\n  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);\n  border-color: var(--mat-checkbox-selected-checkmark-color, var(--mat-sys-on-primary));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox__mixedmark {\n    margin: 0 1px;\n  }\n}\n\n.mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {\n  border-color: var(--mat-checkbox-disabled-selected-checkmark-color, var(--mat-sys-surface));\n}\n@media (forced-colors: active) {\n  .mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {\n    border-color: GrayText;\n  }\n}\n\n.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,\n.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,\n.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,\n.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background {\n  animation-duration: 180ms;\n  animation-timing-function: linear;\n}\n\n.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path {\n  animation: mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path {\n  animation: mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark {\n  animation: mdc-checkbox-checked-indeterminate-checkmark 90ms linear;\n  transition: none;\n}\n.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark {\n  animation: mdc-checkbox-indeterminate-checked-checkmark 500ms linear;\n  transition: none;\n}\n.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;\n  transition: none;\n}\n\n.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark {\n  animation: mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;\n  transition: none;\n}\n\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {\n  transition: border-color 90ms cubic-bezier(0, 0, 0.2, 1), background-color 90ms cubic-bezier(0, 0, 0.2, 1);\n}\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path {\n  stroke-dashoffset: 0;\n}\n\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {\n  transition: opacity 180ms cubic-bezier(0, 0, 0.2, 1), transform 180ms cubic-bezier(0, 0, 0.2, 1);\n  opacity: 1;\n}\n.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transform: scaleX(1) rotate(-45deg);\n}\n\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {\n  transform: rotate(45deg);\n  opacity: 0;\n  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);\n}\n.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transform: scaleX(1) rotate(0deg);\n  opacity: 1;\n}\n\n@keyframes mdc-checkbox-unchecked-checked-checkmark-path {\n  0%, 50% {\n    stroke-dashoffset: 29.7833385;\n  }\n  50% {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n  }\n  100% {\n    stroke-dashoffset: 0;\n  }\n}\n@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark {\n  0%, 68.2% {\n    transform: scaleX(0);\n  }\n  68.2% {\n    animation-timing-function: cubic-bezier(0, 0, 0, 1);\n  }\n  100% {\n    transform: scaleX(1);\n  }\n}\n@keyframes mdc-checkbox-checked-unchecked-checkmark-path {\n  from {\n    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);\n    opacity: 1;\n    stroke-dashoffset: 0;\n  }\n  to {\n    opacity: 0;\n    stroke-dashoffset: -29.7833385;\n  }\n}\n@keyframes mdc-checkbox-checked-indeterminate-checkmark {\n  from {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n  to {\n    transform: rotate(45deg);\n    opacity: 0;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-checked-checkmark {\n  from {\n    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);\n    transform: rotate(45deg);\n    opacity: 0;\n  }\n  to {\n    transform: rotate(360deg);\n    opacity: 1;\n  }\n}\n@keyframes mdc-checkbox-checked-indeterminate-mixedmark {\n  from {\n    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);\n    transform: rotate(-45deg);\n    opacity: 0;\n  }\n  to {\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-checked-mixedmark {\n  from {\n    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);\n    transform: rotate(0deg);\n    opacity: 1;\n  }\n  to {\n    transform: rotate(315deg);\n    opacity: 0;\n  }\n}\n@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark {\n  0% {\n    animation-timing-function: linear;\n    transform: scaleX(1);\n    opacity: 1;\n  }\n  32.8%, 100% {\n    transform: scaleX(0);\n    opacity: 0;\n  }\n}\n.mat-mdc-checkbox {\n  display: inline-block;\n  position: relative;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-touch-target,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__native-control,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__ripple,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-ripple::before,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,\n.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__mixedmark {\n  transition: none !important;\n  animation: none !important;\n}\n.mat-mdc-checkbox label {\n  cursor: pointer;\n}\n.mat-mdc-checkbox .mat-internal-form-field {\n  color: var(--mat-checkbox-label-text-color, var(--mat-sys-on-surface));\n  font-family: var(--mat-checkbox-label-text-font, var(--mat-sys-body-medium-font));\n  line-height: var(--mat-checkbox-label-text-line-height, var(--mat-sys-body-medium-line-height));\n  font-size: var(--mat-checkbox-label-text-size, var(--mat-sys-body-medium-size));\n  letter-spacing: var(--mat-checkbox-label-text-tracking, var(--mat-sys-body-medium-tracking));\n  font-weight: var(--mat-checkbox-label-text-weight, var(--mat-sys-body-medium-weight));\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive {\n  pointer-events: auto;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive input {\n  cursor: default;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled label {\n  cursor: default;\n}\n.mat-mdc-checkbox.mat-mdc-checkbox-disabled .mat-internal-form-field-label {\n  color: var(--mat-checkbox-disabled-label-color, color-mix(in srgb, var(--mat-sys-on-surface) 38%, transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-checkbox.mat-mdc-checkbox-disabled .mat-internal-form-field-label {\n    color: GrayText;\n  }\n}\n.mat-mdc-checkbox .mat-internal-form-field-label:empty {\n  display: none;\n}\n.mat-mdc-checkbox .mdc-checkbox__ripple {\n  opacity: 0;\n}\n\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple,\n.mdc-checkbox__ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n}\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple:not(:empty),\n.mdc-checkbox__ripple:not(:empty) {\n  transform: translateZ(0);\n}\n\n.mat-mdc-checkbox-ripple .mat-ripple-element {\n  opacity: 0.1;\n}\n\n.mat-mdc-checkbox-touch-target {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  height: var(--mat-checkbox-touch-target-size, 48px);\n  width: var(--mat-checkbox-touch-target-size, 48px);\n  transform: translate(-50%, -50%);\n  display: var(--mat-checkbox-touch-target-display, block);\n}\n\n.mat-mdc-checkbox .mat-mdc-checkbox-ripple::before {\n  border-radius: 50%;\n}\n\n.mdc-checkbox__native-control:focus-visible ~ .mat-focus-indicator::before {\n  content: "";\n}\n']
     }]
   }], () => [], {
     ariaLabel: [{
@@ -91098,10 +93016,6 @@ var MatCheckbox = class _MatCheckbox {
     _inputElement: [{
       type: ViewChild,
       args: ["input"]
-    }],
-    _labelElement: [{
-      type: ViewChild,
-      args: ["label"]
     }],
     tabIndex: [{
       type: Input,
@@ -91964,7 +93878,7 @@ var TooltipComponent = class _TooltipComponent {
         \u0275\u0275textInterpolate(ctx.message);
       }
     },
-    styles: ['.mat-mdc-tooltip {\n  position: relative;\n  transform: scale(0);\n  display: inline-flex;\n}\n.mat-mdc-tooltip::before {\n  content: "";\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  z-index: -1;\n  position: absolute;\n}\n.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before {\n  top: -8px;\n}\n.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before {\n  bottom: -8px;\n}\n.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before {\n  left: -8px;\n}\n.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before {\n  right: -8px;\n}\n.mat-mdc-tooltip._mat-animation-noopable {\n  animation: none;\n  transform: scale(1);\n}\n\n.mat-mdc-tooltip-surface {\n  word-break: normal;\n  overflow-wrap: anywhere;\n  padding: 4px 8px;\n  min-width: 40px;\n  max-width: 200px;\n  min-height: 24px;\n  max-height: 40vh;\n  box-sizing: border-box;\n  overflow: hidden;\n  text-align: center;\n  will-change: transform, opacity;\n  background-color: var(--mat-tooltip-container-color, var(--mat-sys-inverse-surface));\n  color: var(--mat-tooltip-supporting-text-color, var(--mat-sys-inverse-on-surface));\n  border-radius: var(--mat-tooltip-container-shape, var(--mat-sys-corner-extra-small));\n  font-family: var(--mat-tooltip-supporting-text-font, var(--mat-sys-body-small-font));\n  font-size: var(--mat-tooltip-supporting-text-size, var(--mat-sys-body-small-size));\n  font-weight: var(--mat-tooltip-supporting-text-weight, var(--mat-sys-body-small-weight));\n  line-height: var(--mat-tooltip-supporting-text-line-height, var(--mat-sys-body-small-line-height));\n  letter-spacing: var(--mat-tooltip-supporting-text-tracking, var(--mat-sys-body-small-tracking));\n}\n.mat-mdc-tooltip-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: left;\n}\n[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: right;\n}\n\n.mat-mdc-tooltip-panel {\n  line-height: normal;\n}\n.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive {\n  pointer-events: none;\n}\n\n@keyframes mat-mdc-tooltip-show {\n  0% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n@keyframes mat-mdc-tooltip-hide {\n  0% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n}\n.mat-mdc-tooltip-show {\n  animation: mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards;\n}\n\n.mat-mdc-tooltip-hide {\n  animation: mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards;\n}\n'],
+    styles: ['.mat-mdc-tooltip {\n  position: relative;\n  transform: scale(0);\n  display: inline-flex;\n}\n.mat-mdc-tooltip::before {\n  content: "";\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  z-index: -1;\n  position: absolute;\n}\n.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before {\n  top: -8px;\n}\n.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before {\n  bottom: -8px;\n}\n.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before {\n  left: -8px;\n}\n.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before {\n  right: -8px;\n}\n.mat-mdc-tooltip._mat-animation-noopable {\n  animation: none;\n  transform: scale(1);\n}\n\n.mat-mdc-tooltip-surface {\n  word-break: normal;\n  overflow-wrap: anywhere;\n  padding: 4px 8px;\n  min-width: 40px;\n  max-width: 200px;\n  min-height: 24px;\n  max-height: 40vh;\n  box-sizing: border-box;\n  overflow: hidden;\n  text-align: center;\n  will-change: transform, opacity;\n  background-color: var(--%NS%mat-tooltip-container-color, var(--%NS%mat-sys-inverse-surface));\n  color: var(--%NS%mat-tooltip-supporting-text-color, var(--%NS%mat-sys-inverse-on-surface));\n  border-radius: var(--%NS%mat-tooltip-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  font-family: var(--%NS%mat-tooltip-supporting-text-font, var(--%NS%mat-sys-body-small-font));\n  font-size: var(--%NS%mat-tooltip-supporting-text-size, var(--%NS%mat-sys-body-small-size));\n  font-weight: var(--%NS%mat-tooltip-supporting-text-weight, var(--%NS%mat-sys-body-small-weight));\n  line-height: var(--%NS%mat-tooltip-supporting-text-line-height, var(--%NS%mat-sys-body-small-line-height));\n  letter-spacing: var(--%NS%mat-tooltip-supporting-text-tracking, var(--%NS%mat-sys-body-small-tracking));\n}\n.mat-mdc-tooltip-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: left;\n}\n[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: right;\n}\n\n.mat-mdc-tooltip-panel {\n  line-height: normal;\n}\n.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive {\n  pointer-events: none;\n}\n\n@keyframes mat-mdc-tooltip-show {\n  0% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n@keyframes mat-mdc-tooltip-hide {\n  0% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n}\n.mat-mdc-tooltip-show {\n  animation: mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards;\n}\n\n.mat-mdc-tooltip-hide {\n  animation: mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards;\n}\n'],
     encapsulation: 2
   });
 };
@@ -92333,11 +94247,11 @@ async function storeSessionCachedResponse(source, response) {
   }
 }
 function setAuthCookie(cookie_path) {
-  const tkn = X2();
+  const tkn = ee();
   document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ve()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
-  const tkn = X2();
+  const tkn = ee();
   return tkn === "x-api-key" ? { "X-API-Key": Ve() } : { Authorization: `Bearer ${tkn}` };
 }
 async function responseToObjectUrl(source, response) {
@@ -92493,7 +94407,7 @@ var AuthenticatedImageDirective = _AuthenticatedImageDirective;
 
 // node_modules/@angular/core/fesm2022/rxjs-interop.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -92557,7 +94471,7 @@ function toSignal(source, options2) {
   }, ngDevMode ? createDebugNameObject2(options2 == null ? void 0 : options2.debugName, "source") : void 0));
 }
 function makeToSignalEqual(userEquality = Object.is) {
-  return (a, b2) => a.kind === 1 && b2.kind === 1 && userEquality(a.value, b2.value);
+  return (a, b) => a.kind === 1 && b.kind === 1 && userEquality(a.value, b.value);
 }
 function createDebugNameObject2(toSignalDebugName, internalSignalDebugName) {
   return {
@@ -92617,7 +94531,7 @@ var _SpacePipe = class _SpacePipe {
     if (ATTEMPT_COUNT[space_id])
       return EMPTY_SPACE;
     if (!is_email) {
-      const system = await da(space_id).catch((_2) => null);
+      const system = await pa(space_id).catch((_2) => null);
       if (system) {
         space = new Space(__spreadProps(__spreadValues({}, system), {
           level: (_a10 = this.org) == null ? void 0 : _a10.levelWithID([...system.zones])
@@ -92626,7 +94540,7 @@ var _SpacePipe = class _SpacePipe {
         return space;
       }
     }
-    const systems = (await la({
+    const systems = (await da({
       in: space_id
     })).data;
     if (systems.length === 1) {
@@ -92824,17 +94738,17 @@ function rtrim(str, c2, invert) {
   }
   return str.slice(0, l - suffLen);
 }
-function findClosingBracket(str, b2) {
-  if (str.indexOf(b2[1]) === -1) {
+function findClosingBracket(str, b) {
+  if (str.indexOf(b[1]) === -1) {
     return -1;
   }
   let level = 0;
   for (let i = 0; i < str.length; i++) {
     if (str[i] === "\\") {
       i++;
-    } else if (str[i] === b2[0]) {
+    } else if (str[i] === b[0]) {
       level++;
-    } else if (str[i] === b2[1]) {
+    } else if (str[i] === b[1]) {
       level--;
       if (level < 0) {
         return i;
@@ -95447,7 +97361,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = X2() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X2())}` : `x-api-key=${Ve()}`;
+    const auth = ee() !== "x-api-key" ? `bearer_token=${encodeURIComponent(ee())}` : `x-api-key=${Ve()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -95531,7 +97445,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = fd(id, "LLM");
+    const mod = gd(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -95938,9 +97852,10 @@ var _CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler
       )
     );
     this._overlay_ref = null;
-    this._portal_content = viewChild.required("portal_content", {
-      read: TemplateRef
-    });
+    this._portal_content = viewChild.required("portal_content", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_portal_content" } : (
+      /* istanbul ignore next */
+      {}
+    )), { read: TemplateRef }));
     this._update_injector = effect(
       () => {
         this.injector = Injector.create({
@@ -96378,7 +98293,7 @@ var MatProgressBar = class _MatProgressBar {
         \u0275\u0275styleProp("transform", ctx._getPrimaryBarTransform());
       }
     },
-    styles: [".mat-mdc-progress-bar {\n  --mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--mat-progress-bar-track-height, 4px), var(--mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--mat-progress-bar-active-indicator-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--mat-progress-bar-track-height, 4px);\n  border-radius: var(--mat-progress-bar-track-shape, var(--mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant)) calc(var(--mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--mat-progress-bar-track-color, var(--mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"],
+    styles: [".mat-mdc-progress-bar {\n  --%NS%mat-progress-bar-animation-multiplier: 1;\n  display: block;\n  text-align: start;\n}\n.mat-mdc-progress-bar[mode=query] {\n  transform: scaleX(-1);\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-dots,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__secondary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__bar-inner.mdc-linear-progress__bar-inner {\n  animation: none;\n}\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__primary-bar,\n.mat-mdc-progress-bar._mat-animation-noopable .mdc-linear-progress__buffer-bar {\n  transition: transform 1ms;\n}\n\n.mat-progress-bar-reduced-motion {\n  --%NS%mat-progress-bar-animation-multiplier: 2;\n}\n\n.mdc-linear-progress {\n  position: relative;\n  width: 100%;\n  transform: translateZ(0);\n  outline: 1px solid transparent;\n  overflow-x: hidden;\n  transition: opacity 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: max(var(--%NS%mat-progress-bar-track-height, 4px), var(--%NS%mat-progress-bar-active-indicator-height, 4px));\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress {\n    outline-color: CanvasText;\n  }\n}\n\n.mdc-linear-progress__bar {\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  animation: none;\n  transform-origin: top left;\n  transition: transform 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  height: var(--%NS%mat-progress-bar-active-indicator-height, 4px);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__bar {\n  transition: none;\n}\n[dir=rtl] .mdc-linear-progress__bar {\n  right: 0;\n  transform-origin: center right;\n}\n\n.mdc-linear-progress__bar-inner {\n  display: inline-block;\n  position: absolute;\n  width: 100%;\n  animation: none;\n  border-top-style: solid;\n  border-color: var(--%NS%mat-progress-bar-active-indicator-color, var(--%NS%mat-sys-primary));\n  border-top-width: var(--%NS%mat-progress-bar-active-indicator-height, 4px);\n}\n\n.mdc-linear-progress__buffer {\n  display: flex;\n  position: absolute;\n  top: 0;\n  bottom: 0;\n  margin: auto 0;\n  width: 100%;\n  overflow: hidden;\n  height: var(--%NS%mat-progress-bar-track-height, 4px);\n  border-radius: var(--%NS%mat-progress-bar-track-shape, var(--%NS%mat-sys-corner-none));\n}\n\n.mdc-linear-progress__buffer-dots {\n  background-image: radial-gradient(circle, var(--%NS%mat-progress-bar-track-color, var(--%NS%mat-sys-surface-variant)) calc(var(--%NS%mat-progress-bar-track-height, 4px) / 2), transparent 0);\n  background-repeat: repeat-x;\n  background-size: calc(calc(var(--%NS%mat-progress-bar-track-height, 4px) / 2) * 5);\n  background-position: left;\n  flex: auto;\n  transform: rotate(180deg);\n  animation: mdc-linear-progress-buffering calc(250ms * var(--%NS%mat-progress-bar-animation-multiplier)) infinite linear;\n}\n@media (forced-colors: active) {\n  .mdc-linear-progress__buffer-dots {\n    background-color: ButtonBorder;\n  }\n}\n[dir=rtl] .mdc-linear-progress__buffer-dots {\n  animation: mdc-linear-progress-buffering-reverse calc(250ms * var(--%NS%mat-progress-bar-animation-multiplier)) infinite linear;\n  transform: rotate(0);\n}\n\n.mdc-linear-progress__buffer-bar {\n  flex: 0 1 100%;\n  transition: flex-basis 250ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  background-color: var(--%NS%mat-progress-bar-track-color, var(--%NS%mat-sys-surface-variant));\n}\n\n.mdc-linear-progress__primary-bar {\n  transform: scaleX(0);\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  left: -145.166611%;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation: mdc-linear-progress-primary-indeterminate-translate calc(2s * var(--%NS%mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-primary-indeterminate-scale calc(2s * var(--%NS%mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__primary-bar {\n  animation-name: mdc-linear-progress-primary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__primary-bar {\n  right: -145.166611%;\n  left: auto;\n}\n\n.mdc-linear-progress__secondary-bar {\n  display: none;\n}\n.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  left: -54.888891%;\n  display: block;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation: mdc-linear-progress-secondary-indeterminate-translate calc(2s * var(--%NS%mat-progress-bar-animation-multiplier)) infinite linear;\n}\n.mdc-linear-progress--indeterminate.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar > .mdc-linear-progress__bar-inner {\n  animation: mdc-linear-progress-secondary-indeterminate-scale calc(2s * var(--%NS%mat-progress-bar-animation-multiplier)) infinite linear;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--animation-ready .mdc-linear-progress__secondary-bar {\n  animation-name: mdc-linear-progress-secondary-indeterminate-translate-reverse;\n}\n[dir=rtl] .mdc-linear-progress.mdc-linear-progress--indeterminate .mdc-linear-progress__secondary-bar {\n  right: -54.888891%;\n  left: auto;\n}\n\n@keyframes mdc-linear-progress-buffering {\n  from {\n    transform: rotate(180deg) translateX(calc(var(--%NS%mat-progress-bar-track-height, 4px) * -2.5));\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(83.67142%);\n  }\n  100% {\n    transform: translateX(200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-scale {\n  0% {\n    transform: scaleX(0.08);\n  }\n  36.65% {\n    animation-timing-function: cubic-bezier(0.334731, 0.12482, 0.785844, 1);\n    transform: scaleX(0.08);\n  }\n  69.15% {\n    animation-timing-function: cubic-bezier(0.06, 0.11, 0.6, 1);\n    transform: scaleX(0.661479);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(84.386165%);\n  }\n  100% {\n    transform: translateX(160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-scale {\n  0% {\n    animation-timing-function: cubic-bezier(0.205028, 0.057051, 0.57661, 0.453971);\n    transform: scaleX(0.08);\n  }\n  19.15% {\n    animation-timing-function: cubic-bezier(0.152313, 0.196432, 0.648374, 1.004315);\n    transform: scaleX(0.457104);\n  }\n  44.15% {\n    animation-timing-function: cubic-bezier(0.257759, -0.003163, 0.211762, 1.38179);\n    transform: scaleX(0.72796);\n  }\n  100% {\n    transform: scaleX(0.08);\n  }\n}\n@keyframes mdc-linear-progress-primary-indeterminate-translate-reverse {\n  0% {\n    transform: translateX(0);\n  }\n  20% {\n    animation-timing-function: cubic-bezier(0.5, 0, 0.701732, 0.495819);\n    transform: translateX(0);\n  }\n  59.15% {\n    animation-timing-function: cubic-bezier(0.302435, 0.381352, 0.55, 0.956352);\n    transform: translateX(-83.67142%);\n  }\n  100% {\n    transform: translateX(-200.611057%);\n  }\n}\n@keyframes mdc-linear-progress-secondary-indeterminate-translate-reverse {\n  0% {\n    animation-timing-function: cubic-bezier(0.15, 0, 0.515058, 0.409685);\n    transform: translateX(0);\n  }\n  25% {\n    animation-timing-function: cubic-bezier(0.31033, 0.284058, 0.8, 0.733712);\n    transform: translateX(-37.651913%);\n  }\n  48.35% {\n    animation-timing-function: cubic-bezier(0.4, 0.627035, 0.6, 0.902026);\n    transform: translateX(-84.386165%);\n  }\n  100% {\n    transform: translateX(-160.277782%);\n  }\n}\n@keyframes mdc-linear-progress-buffering-reverse {\n  from {\n    transform: translateX(-10px);\n  }\n}\n"],
     encapsulation: 2
   });
 };
@@ -97146,7 +99061,7 @@ var _GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler
     this.online.set(Qr());
     this.interval("has_token", () => {
       this.online.set(Qr());
-      if (!It() || !X2())
+      if (!It() || !ee())
         return;
       this.loading.set(false);
       this.online.set(Qr());
@@ -97314,7 +99229,7 @@ function MatSliderVisualThumb_Conditional_0_Template(rf, ctx) {
     \u0275\u0275textInterpolate(ctx_r0.valueIndicatorText);
   }
 }
-var _c27 = ["trackActive"];
+var _c26 = ["trackActive"];
 var _c34 = ["*"];
 function MatSlider_Conditional_6_Conditional_2_For_1_Template(rf, ctx) {
   if (rf & 1) {
@@ -98214,7 +100129,7 @@ var MatSlider = class _MatSlider {
     },
     viewQuery: function MatSlider_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c27, 5)(MAT_SLIDER_VISUAL_THUMB, 5);
+        \u0275\u0275viewQuery(_c26, 5)(MAT_SLIDER_VISUAL_THUMB, 5);
       }
       if (rf & 2) {
         let _t;
@@ -98274,7 +100189,7 @@ var MatSlider = class _MatSlider {
       }
     },
     dependencies: [MatSliderVisualThumb],
-    styles: ['.mdc-slider__track {\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%);\n  width: 100%;\n  pointer-events: none;\n  height: var(--mat-slider-inactive-track-height, 4px);\n}\n\n.mdc-slider__track--active,\n.mdc-slider__track--inactive {\n  display: flex;\n  height: 100%;\n  position: absolute;\n  width: 100%;\n}\n\n.mdc-slider__track--active {\n  overflow: hidden;\n  border-radius: var(--mat-slider-active-track-shape, var(--mat-sys-corner-full));\n  height: var(--mat-slider-active-track-height, 4px);\n  top: calc((var(--mat-slider-inactive-track-height, 4px) - var(--mat-slider-active-track-height, 4px)) / 2);\n}\n\n.mdc-slider__track--active_fill {\n  border-top-style: solid;\n  box-sizing: border-box;\n  height: 100%;\n  width: 100%;\n  position: relative;\n  transform-origin: left;\n  transition: transform 80ms ease;\n  border-color: var(--mat-slider-active-track-color, var(--mat-sys-primary));\n  border-top-width: var(--mat-slider-active-track-height, 4px);\n}\n.mdc-slider--disabled .mdc-slider__track--active_fill {\n  border-color: var(--mat-slider-disabled-active-track-color, var(--mat-sys-on-surface));\n}\n[dir=rtl] .mdc-slider__track--active_fill {\n  -webkit-transform-origin: right;\n  transform-origin: right;\n}\n\n.mdc-slider__track--inactive {\n  left: 0;\n  top: 0;\n  opacity: 0.24;\n  background-color: var(--mat-slider-inactive-track-color, var(--mat-sys-surface-variant));\n  height: var(--mat-slider-inactive-track-height, 4px);\n  border-radius: var(--mat-slider-inactive-track-shape, var(--mat-sys-corner-full));\n}\n.mdc-slider--disabled .mdc-slider__track--inactive {\n  background-color: var(--mat-slider-disabled-inactive-track-color, var(--mat-sys-on-surface));\n  opacity: 0.24;\n}\n.mdc-slider__track--inactive::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n@media (forced-colors: active) {\n  .mdc-slider__track--inactive::before {\n    border-color: CanvasText;\n  }\n}\n\n.mdc-slider__value-indicator-container {\n  bottom: 44px;\n  left: 50%;\n  pointer-events: none;\n  position: absolute;\n  transform: var(--mat-slider-value-indicator-container-transform, translateX(-50%) rotate(-45deg));\n}\n.mdc-slider__thumb--with-indicator .mdc-slider__value-indicator-container {\n  pointer-events: auto;\n}\n\n.mdc-slider__value-indicator {\n  display: flex;\n  align-items: center;\n  transform: scale(0);\n  transform-origin: var(--mat-slider-value-indicator-transform-origin, 0 28px);\n  transition: transform 100ms cubic-bezier(0.4, 0, 1, 1);\n  word-break: normal;\n  background-color: var(--mat-slider-label-container-color, var(--mat-sys-primary));\n  color: var(--mat-slider-label-label-text-color, var(--mat-sys-on-primary));\n  width: var(--mat-slider-value-indicator-width, 28px);\n  height: var(--mat-slider-value-indicator-height, 28px);\n  padding: var(--mat-slider-value-indicator-padding, 0);\n  opacity: var(--mat-slider-value-indicator-opacity, 1);\n  border-radius: var(--mat-slider-value-indicator-border-radius, 50% 50% 50% 0);\n}\n.mdc-slider__thumb--with-indicator .mdc-slider__value-indicator {\n  transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);\n  transform: scale(1);\n}\n.mdc-slider__value-indicator::before {\n  border-left: 6px solid transparent;\n  border-right: 6px solid transparent;\n  border-top: 6px solid;\n  bottom: -5px;\n  content: "";\n  height: 0;\n  left: 50%;\n  position: absolute;\n  transform: translateX(-50%);\n  width: 0;\n  display: var(--mat-slider-value-indicator-caret-display, none);\n  border-top-color: var(--mat-slider-label-container-color, var(--mat-sys-primary));\n}\n.mdc-slider__value-indicator::after {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n@media (forced-colors: active) {\n  .mdc-slider__value-indicator::after {\n    border-color: CanvasText;\n  }\n}\n\n.mdc-slider__value-indicator-text {\n  text-align: center;\n  width: var(--mat-slider-value-indicator-width, 28px);\n  transform: var(--mat-slider-value-indicator-text-transform, rotate(45deg));\n  font-family: var(--mat-slider-label-label-text-font, var(--mat-sys-label-medium-font));\n  font-size: var(--mat-slider-label-label-text-size, var(--mat-sys-label-medium-size));\n  font-weight: var(--mat-slider-label-label-text-weight, var(--mat-sys-label-medium-weight));\n  line-height: var(--mat-slider-label-label-text-line-height, var(--mat-sys-label-medium-line-height));\n  letter-spacing: var(--mat-slider-label-label-text-tracking, var(--mat-sys-label-medium-tracking));\n}\n\n.mdc-slider__thumb {\n  -webkit-user-select: none;\n  user-select: none;\n  display: flex;\n  left: -24px;\n  outline: none;\n  position: absolute;\n  height: 48px;\n  width: 48px;\n  pointer-events: none;\n}\n.mdc-slider--discrete .mdc-slider__thumb {\n  transition: transform 80ms ease;\n}\n.mdc-slider--disabled .mdc-slider__thumb {\n  pointer-events: none;\n}\n\n.mdc-slider__thumb--top {\n  z-index: 1;\n}\n\n.mdc-slider__thumb-knob {\n  position: absolute;\n  box-sizing: border-box;\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  border-style: solid;\n  width: var(--mat-slider-handle-width, 20px);\n  height: var(--mat-slider-handle-height, 20px);\n  border-width: calc(var(--mat-slider-handle-height, 20px) / 2) calc(var(--mat-slider-handle-width, 20px) / 2);\n  box-shadow: var(--mat-slider-handle-elevation, var(--mat-sys-level1));\n  background-color: var(--mat-slider-handle-color, var(--mat-sys-primary));\n  border-color: var(--mat-slider-handle-color, var(--mat-sys-primary));\n  border-radius: var(--mat-slider-handle-shape, var(--mat-sys-corner-full));\n}\n.mdc-slider__thumb:hover .mdc-slider__thumb-knob {\n  background-color: var(--mat-slider-hover-handle-color, var(--mat-sys-primary));\n  border-color: var(--mat-slider-hover-handle-color, var(--mat-sys-primary));\n}\n.mdc-slider__thumb--focused .mdc-slider__thumb-knob {\n  background-color: var(--mat-slider-focus-handle-color, var(--mat-sys-primary));\n  border-color: var(--mat-slider-focus-handle-color, var(--mat-sys-primary));\n}\n.mdc-slider--disabled .mdc-slider__thumb-knob {\n  background-color: var(--mat-slider-disabled-handle-color, var(--mat-sys-on-surface));\n  border-color: var(--mat-slider-disabled-handle-color, var(--mat-sys-on-surface));\n}\n.mdc-slider__thumb--top .mdc-slider__thumb-knob, .mdc-slider__thumb--top.mdc-slider__thumb:hover .mdc-slider__thumb-knob, .mdc-slider__thumb--top.mdc-slider__thumb--focused .mdc-slider__thumb-knob {\n  border: solid 1px #fff;\n  box-sizing: content-box;\n  border-color: var(--mat-slider-with-overlap-handle-outline-color, var(--mat-sys-on-primary));\n  border-width: var(--mat-slider-with-overlap-handle-outline-width, 1px);\n}\n\n.mdc-slider__tick-marks {\n  align-items: center;\n  box-sizing: border-box;\n  display: flex;\n  height: 100%;\n  justify-content: space-between;\n  padding: 0 1px;\n  position: absolute;\n  width: 100%;\n}\n\n.mdc-slider__tick-mark--active,\n.mdc-slider__tick-mark--inactive {\n  width: var(--mat-slider-with-tick-marks-container-size, 2px);\n  height: var(--mat-slider-with-tick-marks-container-size, 2px);\n  border-radius: var(--mat-slider-with-tick-marks-container-shape, var(--mat-sys-corner-full));\n}\n\n.mdc-slider__tick-mark--inactive {\n  opacity: var(--mat-slider-with-tick-marks-inactive-container-opacity, 0.38);\n  background-color: var(--mat-slider-with-tick-marks-inactive-container-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-slider--disabled .mdc-slider__tick-mark--inactive {\n  opacity: var(--mat-slider-with-tick-marks-inactive-container-opacity, 0.38);\n  background-color: var(--mat-slider-with-tick-marks-disabled-container-color, var(--mat-sys-on-surface));\n}\n\n.mdc-slider__tick-mark--active {\n  opacity: var(--mat-slider-with-tick-marks-active-container-opacity, 0.38);\n  background-color: var(--mat-slider-with-tick-marks-active-container-color, var(--mat-sys-on-primary));\n}\n\n.mdc-slider__input {\n  cursor: pointer;\n  left: 2px;\n  margin: 0;\n  height: 44px;\n  opacity: 0;\n  position: absolute;\n  top: 2px;\n  width: 44px;\n  box-sizing: content-box;\n}\n.mdc-slider__input.mat-mdc-slider-input-no-pointer-events {\n  pointer-events: none;\n}\n.mdc-slider__input.mat-slider__right-input {\n  left: auto;\n  right: 0;\n}\n\n.mat-mdc-slider {\n  display: inline-block;\n  box-sizing: border-box;\n  outline: none;\n  vertical-align: middle;\n  cursor: pointer;\n  height: 48px;\n  margin: 0 8px;\n  position: relative;\n  touch-action: pan-y;\n  width: auto;\n  min-width: 112px;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-slider.mdc-slider--disabled {\n  cursor: auto;\n  opacity: 0.38;\n}\n.mat-mdc-slider.mdc-slider--disabled .mdc-slider__input {\n  cursor: auto;\n}\n.mat-mdc-slider .mdc-slider__thumb,\n.mat-mdc-slider .mdc-slider__track--active_fill {\n  transition-duration: 0ms;\n}\n.mat-mdc-slider.mat-mdc-slider-with-animation .mdc-slider__thumb,\n.mat-mdc-slider.mat-mdc-slider-with-animation .mdc-slider__track--active_fill {\n  transition-duration: 80ms;\n}\n.mat-mdc-slider.mdc-slider--discrete .mdc-slider__thumb,\n.mat-mdc-slider.mdc-slider--discrete .mdc-slider__track--active_fill {\n  transition-duration: 0ms;\n}\n.mat-mdc-slider.mat-mdc-slider-with-animation .mdc-slider__thumb,\n.mat-mdc-slider.mat-mdc-slider-with-animation .mdc-slider__track--active_fill {\n  transition-duration: 80ms;\n}\n.mat-mdc-slider .mat-ripple .mat-ripple-element {\n  background-color: var(--mat-slider-ripple-color, var(--mat-sys-primary));\n}\n.mat-mdc-slider .mat-ripple .mat-mdc-slider-hover-ripple {\n  background-color: var(--mat-slider-hover-state-layer-color, color-mix(in srgb, var(--mat-sys-primary) 5%, transparent));\n}\n.mat-mdc-slider .mat-ripple .mat-mdc-slider-focus-ripple,\n.mat-mdc-slider .mat-ripple .mat-mdc-slider-active-ripple {\n  background-color: var(--mat-slider-focus-state-layer-color, color-mix(in srgb, var(--mat-sys-primary) 20%, transparent));\n}\n.mat-mdc-slider._mat-animation-noopable.mdc-slider--discrete .mdc-slider__thumb, .mat-mdc-slider._mat-animation-noopable.mdc-slider--discrete .mdc-slider__track--active_fill,\n.mat-mdc-slider._mat-animation-noopable .mdc-slider__value-indicator {\n  transition: none;\n}\n.mat-mdc-slider .mat-focus-indicator::before {\n  border-radius: 50%;\n}\n\n.mdc-slider__thumb--focused .mat-focus-indicator::before {\n  content: "";\n}\n'],
+    styles: ['.mdc-slider__track {\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%);\n  width: 100%;\n  pointer-events: none;\n  height: var(--%NS%mat-slider-inactive-track-height, 4px);\n}\n\n.mdc-slider__track--active,\n.mdc-slider__track--inactive {\n  display: flex;\n  height: 100%;\n  position: absolute;\n  width: 100%;\n}\n\n.mdc-slider__track--active {\n  overflow: hidden;\n  border-radius: var(--%NS%mat-slider-active-track-shape, var(--%NS%mat-sys-corner-full));\n  height: var(--%NS%mat-slider-active-track-height, 4px);\n  top: calc((var(--%NS%mat-slider-inactive-track-height, 4px) - var(--%NS%mat-slider-active-track-height, 4px)) / 2);\n}\n\n.mdc-slider__track--active_fill {\n  border-top-style: solid;\n  box-sizing: border-box;\n  height: 100%;\n  width: 100%;\n  position: relative;\n  transform-origin: left;\n  transition: transform 80ms ease;\n  border-color: var(--%NS%mat-slider-active-track-color, var(--%NS%mat-sys-primary));\n  border-top-width: var(--%NS%mat-slider-active-track-height, 4px);\n}\n.mdc-slider--disabled .mdc-slider__track--active_fill {\n  border-color: var(--%NS%mat-slider-disabled-active-track-color, var(--%NS%mat-sys-on-surface));\n}\n[dir=rtl] .mdc-slider__track--active_fill {\n  -webkit-transform-origin: right;\n  transform-origin: right;\n}\n\n.mdc-slider__track--inactive {\n  left: 0;\n  top: 0;\n  opacity: 0.24;\n  background-color: var(--%NS%mat-slider-inactive-track-color, var(--%NS%mat-sys-surface-variant));\n  height: var(--%NS%mat-slider-inactive-track-height, 4px);\n  border-radius: var(--%NS%mat-slider-inactive-track-shape, var(--%NS%mat-sys-corner-full));\n}\n.mdc-slider--disabled .mdc-slider__track--inactive {\n  background-color: var(--%NS%mat-slider-disabled-inactive-track-color, var(--%NS%mat-sys-on-surface));\n  opacity: 0.24;\n}\n.mdc-slider__track--%NS%inactive::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n@media (forced-colors: active) {\n  .mdc-slider__track--%NS%inactive::before {\n    border-color: CanvasText;\n  }\n}\n\n.mdc-slider__value-indicator-container {\n  bottom: 44px;\n  left: 50%;\n  pointer-events: none;\n  position: absolute;\n  transform: var(--%NS%mat-slider-value-indicator-container-transform, translateX(-50%) rotate(-45deg));\n}\n.mdc-slider__thumb--with-indicator .mdc-slider__value-indicator-container {\n  pointer-events: auto;\n}\n\n.mdc-slider__value-indicator {\n  display: flex;\n  align-items: center;\n  transform: scale(0);\n  transform-origin: var(--%NS%mat-slider-value-indicator-transform-origin, 0 28px);\n  transition: transform 100ms cubic-bezier(0.4, 0, 1, 1);\n  word-break: normal;\n  background-color: var(--%NS%mat-slider-label-container-color, var(--%NS%mat-sys-primary));\n  color: var(--%NS%mat-slider-label-label-text-color, var(--%NS%mat-sys-on-primary));\n  width: var(--%NS%mat-slider-value-indicator-width, 28px);\n  height: var(--%NS%mat-slider-value-indicator-height, 28px);\n  padding: var(--%NS%mat-slider-value-indicator-padding, 0);\n  opacity: var(--%NS%mat-slider-value-indicator-opacity, 1);\n  border-radius: var(--%NS%mat-slider-value-indicator-border-radius, 50% 50% 50% 0);\n}\n.mdc-slider__thumb--with-indicator .mdc-slider__value-indicator {\n  transition: transform 100ms cubic-bezier(0, 0, 0.2, 1);\n  transform: scale(1);\n}\n.mdc-slider__value-indicator::before {\n  border-left: 6px solid transparent;\n  border-right: 6px solid transparent;\n  border-top: 6px solid;\n  bottom: -5px;\n  content: "";\n  height: 0;\n  left: 50%;\n  position: absolute;\n  transform: translateX(-50%);\n  width: 0;\n  display: var(--%NS%mat-slider-value-indicator-caret-display, none);\n  border-top-color: var(--%NS%mat-slider-label-container-color, var(--%NS%mat-sys-primary));\n}\n.mdc-slider__value-indicator::after {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n@media (forced-colors: active) {\n  .mdc-slider__value-indicator::after {\n    border-color: CanvasText;\n  }\n}\n\n.mdc-slider__value-indicator-text {\n  text-align: center;\n  width: var(--%NS%mat-slider-value-indicator-width, 28px);\n  transform: var(--%NS%mat-slider-value-indicator-text-transform, rotate(45deg));\n  font-family: var(--%NS%mat-slider-label-label-text-font, var(--%NS%mat-sys-label-medium-font));\n  font-size: var(--%NS%mat-slider-label-label-text-size, var(--%NS%mat-sys-label-medium-size));\n  font-weight: var(--%NS%mat-slider-label-label-text-weight, var(--%NS%mat-sys-label-medium-weight));\n  line-height: var(--%NS%mat-slider-label-label-text-line-height, var(--%NS%mat-sys-label-medium-line-height));\n  letter-spacing: var(--%NS%mat-slider-label-label-text-tracking, var(--%NS%mat-sys-label-medium-tracking));\n}\n\n.mdc-slider__thumb {\n  -webkit-user-select: none;\n  user-select: none;\n  display: flex;\n  left: -24px;\n  outline: none;\n  position: absolute;\n  height: 48px;\n  width: 48px;\n  pointer-events: none;\n}\n.mdc-slider--discrete .mdc-slider__thumb {\n  transition: transform 80ms ease;\n}\n.mdc-slider--disabled .mdc-slider__thumb {\n  pointer-events: none;\n}\n\n.mdc-slider__thumb--top {\n  z-index: 1;\n}\n\n.mdc-slider__thumb-knob {\n  position: absolute;\n  box-sizing: border-box;\n  left: 50%;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  border-style: solid;\n  width: var(--%NS%mat-slider-handle-width, 20px);\n  height: var(--%NS%mat-slider-handle-height, 20px);\n  border-width: calc(var(--%NS%mat-slider-handle-height, 20px) / 2) calc(var(--%NS%mat-slider-handle-width, 20px) / 2);\n  box-shadow: var(--%NS%mat-slider-handle-elevation, var(--%NS%mat-sys-level1));\n  background-color: var(--%NS%mat-slider-handle-color, var(--%NS%mat-sys-primary));\n  border-color: var(--%NS%mat-slider-handle-color, var(--%NS%mat-sys-primary));\n  border-radius: var(--%NS%mat-slider-handle-shape, var(--%NS%mat-sys-corner-full));\n}\n.mdc-slider__thumb:hover .mdc-slider__thumb-knob {\n  background-color: var(--%NS%mat-slider-hover-handle-color, var(--%NS%mat-sys-primary));\n  border-color: var(--%NS%mat-slider-hover-handle-color, var(--%NS%mat-sys-primary));\n}\n.mdc-slider__thumb--focused .mdc-slider__thumb-knob {\n  background-color: var(--%NS%mat-slider-focus-handle-color, var(--%NS%mat-sys-primary));\n  border-color: var(--%NS%mat-slider-focus-handle-color, var(--%NS%mat-sys-primary));\n}\n.mdc-slider--disabled .mdc-slider__thumb-knob {\n  background-color: var(--%NS%mat-slider-disabled-handle-color, var(--%NS%mat-sys-on-surface));\n  border-color: var(--%NS%mat-slider-disabled-handle-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-slider__thumb--top .mdc-slider__thumb-knob, .mdc-slider__thumb--top.mdc-slider__thumb:hover .mdc-slider__thumb-knob, .mdc-slider__thumb--top.mdc-slider__thumb--focused .mdc-slider__thumb-knob {\n  border: solid 1px #fff;\n  box-sizing: content-box;\n  border-color: var(--%NS%mat-slider-with-overlap-handle-outline-color, var(--%NS%mat-sys-on-primary));\n  border-width: var(--%NS%mat-slider-with-overlap-handle-outline-width, 1px);\n}\n\n.mdc-slider__tick-marks {\n  align-items: center;\n  box-sizing: border-box;\n  display: flex;\n  height: 100%;\n  justify-content: space-between;\n  padding: 0 1px;\n  position: absolute;\n  width: 100%;\n}\n\n.mdc-slider__tick-mark--active,\n.mdc-slider__tick-mark--inactive {\n  width: var(--%NS%mat-slider-with-tick-marks-container-size, 2px);\n  height: var(--%NS%mat-slider-with-tick-marks-container-size, 2px);\n  border-radius: var(--%NS%mat-slider-with-tick-marks-container-shape, var(--%NS%mat-sys-corner-full));\n}\n\n.mdc-slider__tick-mark--inactive {\n  opacity: var(--%NS%mat-slider-with-tick-marks-inactive-container-opacity, 0.38);\n  background-color: var(--%NS%mat-slider-with-tick-marks-inactive-container-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-slider--disabled .mdc-slider__tick-mark--inactive {\n  opacity: var(--%NS%mat-slider-with-tick-marks-inactive-container-opacity, 0.38);\n  background-color: var(--%NS%mat-slider-with-tick-marks-disabled-container-color, var(--%NS%mat-sys-on-surface));\n}\n\n.mdc-slider__tick-mark--active {\n  opacity: var(--%NS%mat-slider-with-tick-marks-active-container-opacity, 0.38);\n  background-color: var(--%NS%mat-slider-with-tick-marks-active-container-color, var(--%NS%mat-sys-on-primary));\n}\n\n.mdc-slider__input {\n  cursor: pointer;\n  left: 2px;\n  margin: 0;\n  height: 44px;\n  opacity: 0;\n  position: absolute;\n  top: 2px;\n  width: 44px;\n  box-sizing: content-box;\n}\n.mdc-slider__input.mat-mdc-slider-input-no-pointer-events {\n  pointer-events: none;\n}\n.mdc-slider__input.mat-slider__right-input {\n  left: auto;\n  right: 0;\n}\n\n.mat-mdc-slider {\n  display: inline-block;\n  box-sizing: border-box;\n  outline: none;\n  vertical-align: middle;\n  cursor: pointer;\n  height: 48px;\n  margin: 0 8px;\n  position: relative;\n  touch-action: pan-y;\n  width: auto;\n  min-width: 112px;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-slider.mdc-slider--disabled {\n  cursor: auto;\n  opacity: 0.38;\n}\n.mat-mdc-slider.mdc-slider--disabled .mdc-slider__input {\n  cursor: auto;\n}\n.mat-mdc-slider .mdc-slider__thumb,\n.mat-mdc-slider .mdc-slider__track--active_fill {\n  transition-duration: 0ms;\n}\n.mat-mdc-slider.mat-mdc-slider-with-animation .mdc-slider__thumb,\n.mat-mdc-slider.mat-mdc-slider-with-animation .mdc-slider__track--active_fill {\n  transition-duration: 80ms;\n}\n.mat-mdc-slider.mdc-slider--discrete .mdc-slider__thumb,\n.mat-mdc-slider.mdc-slider--discrete .mdc-slider__track--active_fill {\n  transition-duration: 0ms;\n}\n.mat-mdc-slider.mat-mdc-slider-with-animation .mdc-slider__thumb,\n.mat-mdc-slider.mat-mdc-slider-with-animation .mdc-slider__track--active_fill {\n  transition-duration: 80ms;\n}\n.mat-mdc-slider .mat-ripple .mat-ripple-element {\n  background-color: var(--%NS%mat-slider-ripple-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-slider .mat-ripple .mat-mdc-slider-hover-ripple {\n  background-color: var(--%NS%mat-slider-hover-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-primary) 5%, transparent));\n}\n.mat-mdc-slider .mat-ripple .mat-mdc-slider-focus-ripple,\n.mat-mdc-slider .mat-ripple .mat-mdc-slider-active-ripple {\n  background-color: var(--%NS%mat-slider-focus-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-primary) 20%, transparent));\n}\n.mat-mdc-slider._mat-animation-noopable.mdc-slider--discrete .mdc-slider__thumb, .mat-mdc-slider._mat-animation-noopable.mdc-slider--discrete .mdc-slider__track--active_fill,\n.mat-mdc-slider._mat-animation-noopable .mdc-slider__value-indicator {\n  transition: none;\n}\n.mat-mdc-slider .mat-focus-indicator::before {\n  border-radius: 50%;\n}\n\n.mdc-slider__thumb--focused .mat-focus-indicator::before {\n  content: "";\n}\n'],
     encapsulation: 2
   });
 };
@@ -98619,7 +100534,7 @@ var MatSliderThumb = class _MatSliderThumb {
     (_a10 = this._onChangeFn) == null ? void 0 : _a10.call(this, this.value);
     if (this._slider.step || !this._isActive) {
       this._updateThumbUIByValue({
-        withAnimation: true
+        withAnimation: !this._isActive
       });
     }
     this._slider._onValueChange(this);
@@ -99052,7 +100967,7 @@ var MatSliderModule = class _MatSliderModule {
 var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
 function hasCachedCredentials() {
   try {
-    return !!X2();
+    return !!ee();
   } catch {
     return false;
   }
@@ -99282,7 +101197,7 @@ var _BindingDirective = class _BindingDirective extends AsyncHandler {
   bindVariable() {
     if (It() && this.bind() && this.sys() && this.mod() && !this._binding) {
       this.timeout("bind", () => {
-        const module2 = fd(this.sys(), this.mod(), this.index());
+        const module2 = gd(this.sys(), this.mod(), this.index());
         const binding = module2.variable(this.bind());
         this._binding = true;
         this.subscription("on_changes", binding.bindThenSubscribe((value) => {
@@ -99304,7 +101219,7 @@ var _BindingDirective = class _BindingDirective extends AsyncHandler {
   execute() {
     if (It() && this.exec() && this.sys() && this.mod() && !this._timers["execute"]) {
       this.timeout("execute", () => {
-        const module2 = fd(this.sys(), this.mod(), this.index());
+        const module2 = gd(this.sys(), this.mod(), this.index());
         let params = this.params();
         if (this.bind())
           params = this.params() || [this.model()];
@@ -101917,7 +103832,7 @@ var MatAutocomplete = class _MatAutocomplete {
         \u0275\u0275domTemplate(0, MatAutocomplete_ng_template_0_Template, 3, 17, "ng-template");
       }
     },
-    styles: ["div.mat-mdc-autocomplete-panel {\n  width: 100%;\n  max-height: 256px;\n  visibility: hidden;\n  transform-origin: center top;\n  overflow: auto;\n  padding: 8px 0;\n  box-sizing: border-box;\n  position: relative;\n  border-radius: var(--mat-autocomplete-container-shape, var(--mat-sys-corner-extra-small));\n  box-shadow: var(--mat-autocomplete-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  background-color: var(--mat-autocomplete-background-color, var(--mat-sys-surface-container));\n}\n@media (forced-colors: active) {\n  div.mat-mdc-autocomplete-panel {\n    outline: solid 1px;\n  }\n}\n.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel {\n  border-top-left-radius: 0;\n  border-top-right-radius: 0;\n}\n.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel {\n  border-bottom-left-radius: 0;\n  border-bottom-right-radius: 0;\n  transform-origin: center bottom;\n}\ndiv.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible {\n  visibility: visible;\n}\n\ndiv.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden,\n.cdk-overlay-pane:has(> .mat-mdc-autocomplete-hidden) {\n  visibility: hidden;\n  pointer-events: none;\n}\n\n@keyframes _mat-autocomplete-enter {\n  from {\n    opacity: 0;\n    transform: scaleY(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n.mat-autocomplete-panel-animations-enabled {\n  animation: _mat-autocomplete-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n}\n\nmat-autocomplete {\n  display: none;\n}\n"],
+    styles: ["div.mat-mdc-autocomplete-panel {\n  width: 100%;\n  max-height: 256px;\n  visibility: hidden;\n  transform-origin: center top;\n  overflow: auto;\n  padding: 8px 0;\n  box-sizing: border-box;\n  position: relative;\n  border-radius: var(--%NS%mat-autocomplete-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  box-shadow: var(--%NS%mat-autocomplete-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  background-color: var(--%NS%mat-autocomplete-background-color, var(--%NS%mat-sys-surface-container));\n}\n@media (forced-colors: active) {\n  div.mat-mdc-autocomplete-panel {\n    outline: solid 1px;\n  }\n}\n.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel {\n  border-top-left-radius: 0;\n  border-top-right-radius: 0;\n}\n.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel {\n  border-bottom-left-radius: 0;\n  border-bottom-right-radius: 0;\n  transform-origin: center bottom;\n}\ndiv.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible {\n  visibility: visible;\n}\n\ndiv.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden,\n.cdk-overlay-pane:has(> .mat-mdc-autocomplete-hidden) {\n  visibility: hidden;\n  pointer-events: none;\n}\n\n@keyframes _mat-autocomplete-enter {\n  from {\n    opacity: 0;\n    transform: scaleY(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n.mat-autocomplete-panel-animations-enabled {\n  animation: _mat-autocomplete-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n}\n\nmat-autocomplete {\n  display: none;\n}\n"],
     encapsulation: 2
   });
 };
@@ -102866,7 +104781,7 @@ var _SpacesService = class _SpacesService {
     return this.space_list.filter((_2) => predicate(_2));
   }
   async loadSpace(space_id) {
-    const system = await da(space_id);
+    const system = await pa(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -102880,7 +104795,7 @@ var _SpacesService = class _SpacesService {
     return this.space_list.find(({ id }) => space_id === id);
   }
   async loadSpaces() {
-    const systems = (await ha({
+    const systems = (await la({
       zone_id: this._org.organisation.id,
       limit: 5e3
     })).data;
@@ -103572,7 +105487,7 @@ var getCapacityForRoomType = (roomType) => {
   return predictableRandomInt(range2.max - range2.min, range2.min);
 };
 var getZoneHierarchy = (buildingId, levelId) => {
-  const building = MOCK_BUILDINGS.find((b2) => b2.id === buildingId);
+  const building = MOCK_BUILDINGS.find((b) => b.id === buildingId);
   if (!building)
     return ["zone-org", "region-sydney", buildingId, levelId];
   const region = MOCK_REGIONS.find((r) => r.id === building.parent_id);
@@ -103883,7 +105798,7 @@ var MOCK_BOOKINGS = (() => {
     });
     bookings.push(booking);
   }
-  return bookings.sort((a, b2) => a.booking_start - b2.booking_start);
+  return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
 var generateCateringOrderBooking = (day, index, user) => {
   const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
@@ -103973,7 +105888,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
       bookings.push(booking);
     }
   }
-  return bookings.sort((a, b2) => a.booking_start - b2.booking_start);
+  return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
 
 // libs/mocks/src/lib/api/bookings.mock.ts
@@ -104156,7 +106071,7 @@ function registerMockBookings() {
     metadata: {},
     method: "POST",
     callback: (req) => {
-      const booking = ALL_BOOKINGS.find((b2) => `${b2.id}` === `${req.route_params.id}`);
+      const booking = ALL_BOOKINGS.find((b) => `${b.id}` === `${req.route_params.id}`);
       if (!booking)
         throw {
           status: 404,
@@ -104172,7 +106087,7 @@ function registerMockBookings() {
     metadata: {},
     method: "POST",
     callback: (req) => {
-      const booking = ALL_BOOKINGS.find((b2) => `${b2.id}` === `${req.route_params.id}`);
+      const booking = ALL_BOOKINGS.find((b) => `${b.id}` === `${req.route_params.id}`);
       if (!booking)
         throw {
           status: 404,
@@ -104189,7 +106104,7 @@ function registerMockBookings() {
     method: "POST",
     callback: (req) => {
       var _a10;
-      const booking = ALL_BOOKINGS.find((b2) => `${b2.id}` === `${req.route_params.id}`);
+      const booking = ALL_BOOKINGS.find((b) => `${b.id}` === `${req.route_params.id}`);
       if (!booking)
         throw {
           status: 404,
@@ -104211,7 +106126,7 @@ function registerMockBookings() {
     metadata: {},
     method: "POST",
     callback: (req) => {
-      const booking = ALL_BOOKINGS.find((b2) => `${b2.id}` === `${req.route_params.id}`);
+      const booking = ALL_BOOKINGS.find((b) => `${b.id}` === `${req.route_params.id}`);
       if (!booking)
         throw {
           status: 404,
@@ -104578,7 +106493,7 @@ var MOCK_EVENTS = (() => {
     }
   }
   const uniqueEvents = events.filter((event, index, array) => index === array.findIndex((e) => e.id === event.id));
-  return uniqueEvents.sort((a, b2) => a.event_start - b2.event_start);
+  return uniqueEvents.sort((a, b) => a.event_start - b.event_start);
 })();
 var event_spaces = MOCK_SPACES.map((space) => space.id);
 
@@ -108032,7 +109947,7 @@ function updateBookings(space, mod) {
       return u3.email === space.email || u3.id === space.id || ((_a12 = event.system) == null ? void 0 : _a12.id) === space.id;
     });
   }) || [];
-  bookings.sort((a, b2) => a.event_start - b2.event_start);
+  bookings.sort((a, b) => a.event_start - b.event_start);
   mod.bookings = bookings;
   mod.current_booking = bookings.find((_2) => timePeriodsIntersect(Date.now(), Date.now(), _2.event_start * 1e3, _2.event_end * 1e3));
   mod.next_booking = bookings.find((_2) => _2.event_start * 1e3 > Date.now());
@@ -108202,7 +110117,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  ad(space.id, {
+  dd(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -108936,7 +110851,7 @@ var _BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
           return [];
         this.loading.set("search");
         try {
-          const { data } = await ha({
+          const { data } = await la({
             q: search,
             limit: 20,
             fields: ["id", "name", "display_name", "email"].join(","),
@@ -109349,7 +111264,7 @@ _HelpModalComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ ty
   IconComponent,
   AuthenticatedImageDirective,
   SafePipe
-], styles: ["\nli.active[_ngcontent-%COMP%] {\n  background-color: var(--base-100);\n  color: var(--base-content);\n  overflow: visible !important;\n}\n/*# sourceMappingURL=help-modal.component.css.map */"] });
+], styles: ["\nli.active[_ngcontent-%COMP%] {\n  background-color: var(--%NS%base-100);\n  color: var(--%NS%base-content);\n  overflow: visible !important;\n}\n/*# sourceMappingURL=help-modal.component.css.map */"] });
 var HelpModalComponent = _HelpModalComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HelpModalComponent, [{
@@ -110241,7 +112156,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
           return new Space(new qs());
         log("Panel", `Loading system "${id}"...`);
         try {
-          const system = await da(id);
+          const system = await pa(id);
           return new Space(system);
         } catch (error2) {
           const { status, message: message2 } = error2 || {};
@@ -110565,7 +112480,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
   }
   /** Execute driver method */
   _execute(name, params = [], mod_name = "System") {
-    const mod = fd(this._id(), mod_name);
+    const mod = gd(this._id(), mod_name);
     if (!mod)
       return;
     return mod.execute(name, params);
@@ -110657,7 +112572,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
   }
   /** List to binding */
   bindTo(id, name, mod = "System", on_change = (v) => this.updateProperty(name, v)) {
-    const module2 = fd(id, mod).variable(name);
+    const module2 = gd(id, mod).variable(name);
     this.subscription(`listen:${name}`, module2.bindThenSubscribe(on_change));
   }
   /** Update properties of the system data */
@@ -110684,7 +112599,7 @@ var _ControlStateService = class _ControlStateService extends AsyncHandler {
         value.set(initial);
         return;
       }
-      const binding = fd(id, mod).variable(name);
+      const binding = gd(id, mod).variable(name);
       const unbind = binding.bind();
       const listener = binding.listen();
       const update2 = () => value.set(listener() ?? initial);
@@ -112045,7 +113960,7 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
   }
   selectCamera(camera) {
     this.active_camera.set(camera);
-    const mod = fd(this.id, "System");
+    const mod = gd(this.id, "System");
     if (!mod)
       return;
     mod.execute("selected_camera", [camera.id]);
@@ -112054,7 +113969,7 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
     const camera = this.active_camera();
     if (!(camera == null ? void 0 : camera.mod))
       return;
-    const mod = fd(this.id, camera.mod);
+    const mod = gd(this.id, camera.mod);
     if (!mod)
       return;
     mod.execute("recall", [preset]);
@@ -112063,7 +113978,7 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
     const camera = this.active_camera();
     if (!camera)
       return;
-    const mod = fd(this.id, "System");
+    const mod = gd(this.id, "System");
     if (!mod)
       return;
     mod.execute("add_preset", [preset, camera.id]);
@@ -112072,7 +113987,7 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
     const camera = this.active_camera();
     if (!camera)
       return;
-    const mod = fd(this.id, "System");
+    const mod = gd(this.id, "System");
     if (!mod)
       return;
     mod.execute("remove_preset", [preset, camera.id]);
@@ -112084,7 +113999,7 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
     clearTimeout(this._move_timeout);
     this._move_timeout = setTimeout(async () => {
       const { index } = camera;
-      const mod = fd(this.id, camera.mod);
+      const mod = gd(this.id, camera.mod);
       if (!mod)
         return;
       if (this.tilt !== JoystickTilt.Stop) {
@@ -112102,7 +114017,7 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
     const camera = this.active_camera();
     if (!(camera == null ? void 0 : camera.mod))
       return;
-    const mod = fd(this.id, camera.mod);
+    const mod = gd(this.id, camera.mod);
     if (!mod)
       return;
     this.zoom = dir === "in" ? ZoomDirection.In : ZoomDirection.Out;
@@ -112117,7 +114032,7 @@ var _CameraTooltipComponent = class _CameraTooltipComponent {
       const camera = this.active_camera();
       if (!(camera == null ? void 0 : camera.mod))
         return;
-      const mod = fd(this.id, camera.mod);
+      const mod = gd(this.id, camera.mod);
       if (!mod)
         return;
       const { index } = camera;
@@ -112549,7 +114464,7 @@ var _LightingLevelsTooltipComponent = class _LightingLevelsTooltipComponent {
       const sys_id = this.system();
       if (!sys_id)
         return;
-      const mod = fd(sys_id, "Lighting");
+      const mod = gd(sys_id, "Lighting");
       if (!mod)
         return;
       await mod.execute("set_lighting_level", [value, level == null ? void 0 : level.area]);
@@ -112690,7 +114605,7 @@ var _LightingSceneTooltipComponent = class _LightingSceneTooltipComponent {
     return this._state.id;
   }
   setScene(name) {
-    const mod = fd(this.id, "System");
+    const mod = gd(this.id, "System");
     if (!mod)
       return;
     mod.execute("select_lighting_scene", [name]);
@@ -113221,7 +115136,7 @@ var _MicrophoneTooltipComponent = class _MicrophoneTooltipComponent {
     return this._state.id;
   }
   setRoomMute(mic_name, room_name, state) {
-    const mod = fd(this.id, "System");
+    const mod = gd(this.id, "System");
     if (!mod)
       return;
     mod.execute("mic_room_selection", [mic_name, room_name, state]);
@@ -113584,7 +115499,7 @@ _DialpadComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx.backspace() ? 3 : -1);
   }
-}, dependencies: [MatRippleModule, MatRipple, TranslatePipe], styles: ["\n[digit][_ngcontent-%COMP%] {\n  box-shadow: 0px 4px 0px 0px var(--base-300);\n  border: 2px solid var(--base-300);\n  transition:\n    top 200ms,\n    bottom 200ms,\n    box-shadow 200ms;\n}\n[digit][_ngcontent-%COMP%]:active {\n  box-shadow: none;\n}\n/*# sourceMappingURL=dialpad.component.css.map */"] });
+}, dependencies: [MatRippleModule, MatRipple, TranslatePipe], styles: ["\n[digit][_ngcontent-%COMP%] {\n  box-shadow: 0px 4px 0px 0px var(--%NS%base-300);\n  border: 2px solid var(--%NS%base-300);\n  transition:\n    top 200ms,\n    bottom 200ms,\n    box-shadow 200ms;\n}\n[digit][_ngcontent-%COMP%]:active {\n  box-shadow: none;\n}\n/*# sourceMappingURL=dialpad.component.css.map */"] });
 var DialpadComponent = _DialpadComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DialpadComponent, [{
@@ -113696,11 +115611,11 @@ var _PhoneDiallingTooltipComponent = class _PhoneDiallingTooltipComponent {
     return this._state.id;
   }
   async handleInput(char) {
-    const mod = fd(this._state.id, "System");
+    const mod = gd(this._state.id, "System");
     await mod.execute("qsc_dial_pad", [char]);
   }
   async action(method) {
-    const mod = fd(this._state.id, "System");
+    const mod = gd(this._state.id, "System");
     await mod.execute(method);
   }
 };
@@ -113941,7 +115856,7 @@ var _RoomAccessoryTooltipComponent = class _RoomAccessoryTooltipComponent {
     return this._state.id;
   }
   performAction(name, method) {
-    const mod = fd(this.id, "System");
+    const mod = gd(this.id, "System");
     if (!mod)
       return;
     mod.execute("accessory_exec", [name, method]);
@@ -114053,37 +115968,37 @@ var _VideoCallStateService = class _VideoCallStateService extends AsyncHandler {
     const id = this._control.id;
     if (!id)
       return;
-    return fd(id, "VidConf").execute("show_camera_pip", [state]);
+    return gd(id, "VidConf").execute("show_camera_pip", [state]);
   }
   async muteMicrophone(state) {
     const id = this._control.id;
     if (!id)
       return;
-    return fd(id, "VidConf").execute("mic_mute", [state]);
+    return gd(id, "VidConf").execute("mic_mute", [state]);
   }
   async setVideoLayout(layout) {
     const id = this._control.id;
     if (!id)
       return;
-    return fd(id, "VidConf").execute("video_layout", [layout]);
+    return gd(id, "VidConf").execute("video_layout", [layout]);
   }
   async setPresentationMode(mod) {
     const id = this._control.id;
     if (!id)
       return;
-    return fd(id, "VidConf").execute("presentation_mode", [mod]);
+    return gd(id, "VidConf").execute("presentation_mode", [mod]);
   }
   async hangup() {
     const id = this._control.id;
     if (!id)
       return;
-    return fd(id, "VidConf").execute("hangup", []);
+    return gd(id, "VidConf").execute("hangup", []);
   }
   async sendDTMF(digit) {
     const id = this._control.id;
     if (!id)
       return;
-    return fd(id, "VidConf").execute("dtmf_send", [digit]);
+    return gd(id, "VidConf").execute("dtmf_send", [digit]);
   }
   async toggleCallOnHold() {
     const id = this._control.id;
@@ -114092,7 +116007,7 @@ var _VideoCallStateService = class _VideoCallStateService extends AsyncHandler {
     const call = this.call();
     if (!call)
       return;
-    return fd(id, "VidConf").execute(call.Status === "OnHold" ? "call_resume" : "call_place_on_hold", []);
+    return gd(id, "VidConf").execute(call.Status === "OnHold" ? "call_resume" : "call_place_on_hold", []);
   }
   /**
    * Create an Angular signal that mirrors a video conferencing status
@@ -114112,7 +116027,7 @@ var _VideoCallStateService = class _VideoCallStateService extends AsyncHandler {
         value.set(null);
         return;
       }
-      const binding = fd(id, mod_name).variable(name);
+      const binding = gd(id, mod_name).variable(name);
       const unbind = binding.bind();
       const listener = binding.listen();
       const update2 = () => value.set(listener() ?? null);
@@ -114282,7 +116197,7 @@ var _VideoCallDialViewComponent = class _VideoCallDialViewComponent {
     if (!dial_number)
       return;
     const system_id = this._control.id;
-    const mod = fd(system_id, "VidConf");
+    const mod = gd(system_id, "VidConf");
     this.loading.set(true);
     await mod.execute("dial", [dial_number]);
     this.loading.set(false);
@@ -114414,7 +116329,7 @@ var VideoCallDialViewComponent = _VideoCallDialViewComponent;
 // apps/control/src/app/ui/video-conf-tooltip.component.ts
 var _c025 = (a0) => ["/panel", a0, "call"];
 var _c112 = (a0) => ["/panel", a0];
-var _c28 = () => ({ exact: true });
+var _c27 = () => ({ exact: true });
 function VideoConferenceTooltipComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -114451,7 +116366,7 @@ function VideoConferenceTooltipComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 8, "APP.CONTROL.VC_VIEW_CALL"), " ");
     \u0275\u0275advance(2);
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(14, _c112, ctx_r1.id))("routerLinkActiveOptions", \u0275\u0275pureFunction0(16, _c28));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction1(14, _c112, ctx_r1.id))("routerLinkActiveOptions", \u0275\u0275pureFunction0(16, _c27));
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(9, 10, "APP.CONTROL.VC_VIEW_INPUTS"), " ");
   }
@@ -115785,7 +117700,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
   }
   selectCamera(camera) {
     this.active_camera.set(camera);
-    const mod = fd(this.id, "System");
+    const mod = gd(this.id, "System");
     if (!mod)
       return;
     mod.execute("selected_camera", [camera.id]);
@@ -115794,7 +117709,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     const cam = this.active_camera();
     if (!cam)
       return;
-    const mod = fd(this.id, cam.mod);
+    const mod = gd(this.id, cam.mod);
     if (!mod)
       return;
     mod.execute("recall", [preset]);
@@ -115803,7 +117718,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     const cam = this.active_camera();
     if (!cam)
       return;
-    const mod = fd(this.id, "System");
+    const mod = gd(this.id, "System");
     if (!mod)
       return;
     mod.execute("add_preset", [preset, cam.id]);
@@ -115812,7 +117727,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     const cam = this.active_camera();
     if (!cam)
       return;
-    const mod = fd(this.id, "System");
+    const mod = gd(this.id, "System");
     if (!mod)
       return;
     mod.execute("remove_preset", [preset, cam.id]);
@@ -115824,7 +117739,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     clearTimeout(this._move_timeout);
     this._move_timeout = setTimeout(async () => {
       const { index } = cam;
-      const mod = fd(this.id, cam.mod);
+      const mod = gd(this.id, cam.mod);
       if (!mod)
         return;
       await mod.execute("stop", index ? [index] : []);
@@ -115838,7 +117753,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
     const cam = this.active_camera();
     if (!cam)
       return;
-    const mod = fd(this.id, cam.mod);
+    const mod = gd(this.id, cam.mod);
     if (!mod)
       return;
     this.zoom.set(dir === "in" ? ZoomDirection2.In : ZoomDirection2.Out);
@@ -115853,7 +117768,7 @@ var _CameraControlsComponent = class _CameraControlsComponent {
       const cam = this.active_camera();
       if (!cam)
         return;
-      const mod = fd(this.id, cam.mod);
+      const mod = gd(this.id, cam.mod);
       if (!mod)
         return;
       const { index } = cam;
@@ -116351,7 +118266,7 @@ var _VideoCallPageComponent = class _VideoCallPageComponent extends AsyncHandler
     this.clearTimeout("check_call");
   }
   selectCamera(camera) {
-    const mod = fd(this._control.id, "System");
+    const mod = gd(this._control.id, "System");
     if (!mod)
       return;
     mod.execute("selected_camera", [camera]);
@@ -116890,7 +118805,7 @@ var _TVControlsComponent = class _TVControlsComponent extends AsyncHandler {
     return this._state.id;
   }
   setChannel(url) {
-    const mod = fd(this._state.id, this.mod());
+    const mod = gd(this._state.id, this.mod());
     mod.execute("channel", [url]);
   }
 };
@@ -118050,7 +119965,7 @@ _ControlVideoCallViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineCom
   height: 100%;
 }
 [_nghost-%COMP%]    > div[_ngcontent-%COMP%] {
-  background-color: var(--primary);
+  background-color: var(--%NS%primary);
   color: #fff;
 }
 [name=loader][_ngcontent-%COMP%] {
@@ -118195,4 +120110,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
+//# debugId=2d82f71f-5620-56d1-8be2-7d165f0d4bf8
 //# sourceMappingURL=main.js.map
