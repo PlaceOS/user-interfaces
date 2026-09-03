@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1788401331437,
+  "timestamp": 1788409336639,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -11,18 +11,18 @@
         "ignoreVary": true
       },
       "urls": [
-        "./ar-N74WDL7D.js",
-        "./es-FYG5SIKZ.js",
+        "./ar-LMOMQ4BE.js",
+        "./es-Y5IJRW72.js",
         "./favicon.ico",
-        "./fr-MX3JKNBO.js",
+        "./fr-UHNE3VOV.js",
         "./index.html",
-        "./it-PSZVI2G5.js",
-        "./ja-QCBHSDFU.js",
+        "./it-DP3AYVRR.js",
+        "./ja-KPFTZVOP.js",
         "./main.js",
         "./manifest.webmanifest",
-        "./squire-UEXJSOBZ.js",
+        "./squire-7BCJDNZA.js",
         "./styles.css",
-        "./zh-3TYXFMTP.js"
+        "./zh-7PPY3HOC.js"
       ],
       "patterns": []
     },
@@ -138,7 +138,7 @@
   ],
   "dataGroups": [],
   "hashTable": {
-    "./ar-N74WDL7D.js": "dc59bae5c73de807a0a59fe69ef34bc2e5ffde40",
+    "./ar-LMOMQ4BE.js": "8f5c51d3f94ea8bf59bd05e479e3dca077572500",
     "./assets/favicon.svg": "796425d032b57687c752ea41cb46f0ab9410e3a9",
     "./assets/icons/ai-avatar.jpg": "97fe6757d753c8459e5bf3b5bedbea291e435fac",
     "./assets/icons/amex.svg": "3530eff717af33317b79bdd1d0ec96abfa884287",
@@ -235,17 +235,17 @@
     "./assets/vosk-model-small-en-us-0.15.tar.gz": "794444c437006135a4a3eccfcf5ce9bf49782ac2",
     "./assets/yolov8n_litert_model/metadata.yaml": "b1a29dc18ee0c4b5f0f7240d2d92cd8b2fa03318",
     "./assets/yolov8n_litert_model/model.tflite": "b7dee43b5c9c67ccb12e998261a845fd67dfe91b",
-    "./es-FYG5SIKZ.js": "3e3f67130cac03fc2984bcb2bc7a889a0b63b9c6",
+    "./es-Y5IJRW72.js": "6e35a1190de7ef3f02cc693c3c7359076f526ad0",
     "./favicon.ico": "4982786b7412938d9aac5f576c2430cd34c6d462",
-    "./fr-MX3JKNBO.js": "80cbb64e27a24490c5a96eaddfa78035955e536b",
-    "./index.html": "0d9e609ad38b32ac25430a2ce63a241a4af64b68",
-    "./it-PSZVI2G5.js": "314eeb606d4f266c7b7d2df7379e92a729ac8e8d",
-    "./ja-QCBHSDFU.js": "c7aaa38bebad0cbd02c6c971323ba7fc40c44f9c",
-    "./main.js": "3b45cb0a32f667f8dc88dc7bab419a5b2fd0f0d9",
+    "./fr-UHNE3VOV.js": "96f8d0ebb90c35401a477d4a7be882206f0bc3b5",
+    "./index.html": "316859f2e3e604b580f04d1b746c90a1435b02d0",
+    "./it-DP3AYVRR.js": "ee62a3cf464843d157a1df98ecc7ab58712ba2a6",
+    "./ja-KPFTZVOP.js": "b1b88a5e25fc6aad4bb41cdb86a03766fb9598a9",
+    "./main.js": "23197dacbd79dc9a4f000acc00c8b0e88a1ad048",
     "./manifest.webmanifest": "047e55066e03de6e21fc077592da3b119c5ff5c8",
-    "./squire-UEXJSOBZ.js": "ed67433d5f119e0610538bb868bf3543ede4d8b0",
-    "./styles.css": "672d75a91535d4b8e660710a64d8726ad9e4840c",
-    "./zh-3TYXFMTP.js": "fedbeb8a31c963cd38f21dfc862e0941f92d6fee"
+    "./squire-7BCJDNZA.js": "94e1264d3bba40b17587c819229731d20b5a6776",
+    "./styles.css": "019a2490bfff85abd287593f6ef2814e21df346c",
+    "./zh-7PPY3HOC.js": "7892070adb4b61f717b74ad03d93922da8e356bd"
   },
   "navigationUrls": [
     {
