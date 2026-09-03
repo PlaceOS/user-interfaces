@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["checkin-qr-scan.component.ts"],
-  "sourcesContent": ["\n            video {\n                width: 34rem;\n                height: 24rem;\n            }\n\n            .status-dot {\n                background: #22c55e;\n                border-radius: 9999px;\n                width: 0.5rem;\n                height: 0.5rem;\n                display: inline-block;\n            }\n\n            a {\n                position: absolute;\n            }\n        "],
-  "mappings": "AACY,MACI,MAAA,MACA,OAAA,KACJ,CAEA,CAAA,WACI,WAAA,sBACA,OACA,MAAA,MACA,OAAA,MACA,QAAA,YACJ,CAEA,EACI,SAAA,QACJ",
+  "sourcesContent": ["\n            video {\n                width: 34rem;\n                height: 24rem;\n            }\n\n            .status-dot {\n                background: #22c55e;\n                border-radius: 9999px;\n                width: 0.5rem;\n                height: 0.5rem;\n                display: inline-block;\n            }\n\n            .qr-guide {\n                box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.14);\n            }\n\n            a {\n                position: absolute;\n            }\n        "],
+  "mappings": "AACY,MACI,MAAA,MACA,OAAA,KACJ,CAEA,CAAA,WACI,WAAA,sBACA,OACA,MAAA,MACA,OAAA,MACA,QAAA,YACJ,CAEA,CAAA,SACI,WAAA,EAAA,EAAA,EAAA,QAAA,SACJ,CAEA,EACI,SAAA,QACJ",
   "names": []
 }
