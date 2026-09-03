@@ -19,7 +19,7 @@ import {
   updateBooking,
   updateBookingInductionStatus,
   ɵɵdefineInjectable
-} from "./chunk-EPSGOQ6B.js";
+} from "./chunk-DQSCG2Y5.js";
 import {
   __spreadProps,
   __spreadValues
@@ -163,7 +163,8 @@ var CheckinStateService = class _CheckinStateService {
     const event = this._booking() || guest.extension_data.event;
     if (!guest || !event)
       return;
-    await updateBookingInductionStatus(event.id, "accepted");
+    const updated_booking = await updateBookingInductionStatus(event.id, "accepted");
+    this._booking.set(updated_booking);
   }
   async declineInduction() {
     const guest = this._guest();
@@ -220,4 +221,5 @@ var CheckinStateService = class _CheckinStateService {
 export {
   CheckinStateService
 };
-//# sourceMappingURL=chunk-UM3G5RHV.js.map
+//# debugId=fc76fbe3-271f-50b7-a186-6f330f6daad6
+//# sourceMappingURL=chunk-UL5436G5.js.map

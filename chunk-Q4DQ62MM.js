@@ -1885,4 +1885,5 @@ export {
   encodeQR,
   decode_default
 };
+//# debugId=8cf7fe1d-2cbb-5152-980b-682ae5322a1e
 //# sourceMappingURL=chunk-Q4DQ62MM.js.map

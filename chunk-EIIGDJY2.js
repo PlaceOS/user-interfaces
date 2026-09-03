@@ -16,4 +16,5 @@ function generateQRCode(code, colorLight = "#fff0", colorDark = "#000") {
 export {
   generateQRCode
 };
+//# debugId=b4961b74-24d4-5655-8c2a-af9fc26634bb
 //# sourceMappingURL=chunk-EIIGDJY2.js.map
