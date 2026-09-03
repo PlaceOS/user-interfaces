@@ -83,6 +83,7 @@ const EMPTY_FAVS: string[] = [];
                             <button
                                 icon
                                 matRipple
+                                [disabled]="disabled()"
                                 [matTooltip]="
                                     'FORM.ASSETS_DUPLICATE' | translate
                                 "
@@ -93,6 +94,7 @@ const EMPTY_FAVS: string[] = [];
                             <button
                                 icon
                                 matRipple
+                                [disabled]="disabled()"
                                 [matTooltip]="'FORM.ASSETS_EDIT' | translate"
                                 (click)="editRequest(request)"
                             >
@@ -267,7 +269,16 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     }>({});
     public readonly rejected_ids = input<string[]>([]);
     public readonly asset_requests = signal<AssetRequest[]>([]);
-    public readonly disabled = signal(false);
+    private readonly _form_disabled = signal(false);
+    public readonly disabled = computed(() => {
+        if (this._form_disabled()) return true;
+        const disabled_rooms = this._state.disabled_rooms();
+        return (
+            this.options().resources?.some((space) =>
+                disabled_rooms.includes(space.id),
+            ) || false
+        );
+    });
     public readonly show_request = signal<Record<string, boolean>>({});
     public err_tooltip(request: AssetRequest) {
         return this.rejected_ids().includes(request.id) || request.conflict
@@ -344,7 +355,8 @@ export class AssetListFieldComponent implements ControlValueAccessor {
         (this._onChange = fn);
     public readonly registerOnTouched = (fn: (_: AssetRequest[]) => void) =>
         (this._onTouch = fn);
-    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
+    public readonly setDisabledState = (s: boolean) =>
+        this._form_disabled.set(s);
 
     public toggleRequest(request_id: string) {
         this.show_request.update((state) => ({
@@ -354,6 +366,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     }
 
     public editRequest(order: AssetRequest = new AssetRequest()) {
+        if (this.disabled()) return;
         const order_list = this.asset_requests().filter(
             (_) => _.id !== order.id,
         );
