@@ -9,7 +9,7 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
     i18n,
     notifyError,
@@ -22,7 +22,7 @@ import {
     UploadsService,
     userSignal,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import { loadAuthenticatedImage, openConfirmModal } from '@placeos/components';
 import {
     addGroup,
     addGroupUser,
@@ -102,6 +102,10 @@ import {
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
+import {
+    AiImageModalComponent,
+    AiImageModalData,
+} from './ai/ai-image-modal.component';
 import { DisplayEditModalComponent } from './displays/display-edit-modal.component';
 import { displayZoneIds } from './displays/display-zones.util';
 import {
@@ -3078,6 +3082,118 @@ export class SignageService {
             orientation: 'landscape',
         });
         await this.editMedia(media);
+    }
+
+    /**
+     * Create a media item from an image the backend already stored, without
+     * sending the bytes up a second time.
+     */
+    public async addMediaFromUpload(
+        upload_id: string,
+        media_item: Partial<SignageMedia> = {},
+        playlist_id = '',
+    ) {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
+            )
+        ) {
+            throw new Error(i18n('SIGNAGE_MANAGER.SVC_PERMISSION_DENIED'));
+        }
+        const media_url = `${
+            location.origin
+        }/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
+
+        let thumbnail_id = '';
+        try {
+            const source = await loadAuthenticatedImage(
+                media_url,
+                '/api/engine/v2/uploads',
+            );
+            const response = await fetch(source);
+            const blob = await response.blob();
+            const file = new File(
+                [blob],
+                `${media_item.name || 'image'}.${blob.type.includes('png') ? 'png' : 'jpg'}`,
+                { type: blob.type || 'image/jpeg' },
+            );
+            const thumbnail = await this.generateThumbnailImage(file);
+            if (thumbnail) {
+                thumbnail_id = await this._uploadThumbnailImage(
+                    thumbnail,
+                    media_item.name || 'image',
+                );
+            }
+        } catch {
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_FAILED'));
+        }
+
+        const data = {
+            ...new SignageMedia({
+                orientation: 'landscape',
+                ...media_item,
+                media_id: upload_id,
+                media_uri: media_url,
+                media_type: 'image',
+                thumbnail_id,
+            } as any),
+        };
+        for (const key in data) {
+            if (!data[key]) delete data[key];
+        }
+        const result = await this._addSignageMedia(data);
+        if (playlist_id && result?.id) {
+            await this.addMediaToPlaylist(playlist_id, result.id);
+        }
+        return result;
+    }
+
+    /** Remove a media row when the generated upload could not be claimed. */
+    public async discardCreatedMedia(id: string) {
+        await removeSignageMedia(id);
+        this._media_items.update((items) =>
+            items.filter((item) => item.id !== id),
+        );
+        this._media_tags.reload();
+    }
+
+    /** guards against a second modal while one is open */
+    private _ai_modal_ref: MatDialogRef<AiImageModalComponent> | null = null;
+
+    /** Open the AI image modal, either to create artwork or to change some. */
+    public async generateMediaWithAI(options: AiImageModalData = {}) {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
+            )
+        )
+            return;
+        if (this._ai_modal_ref) return;
+        const ref = this._dialog.open(AiImageModalComponent, {
+            data: options,
+            panelClass: 'fullscreen-dialog',
+            autoFocus: false,
+        });
+        this._ai_modal_ref = ref;
+        try {
+            const result = await dialogClosed(ref);
+            this.changed();
+            return result;
+        } finally {
+            this._ai_modal_ref = null;
+        }
+    }
+
+    public async editMediaWithAI(media: SignageMedia) {
+        if (!media?.media_id) return;
+        return this.generateMediaWithAI({
+            source_upload_id: media.media_id,
+            source_item_id: media.id,
+            source_name: media.name,
+            aspect_ratio: media.orientation === 'portrait' ? '9:16' : '16:9',
+        });
     }
 
     public async addMediaFromPlugin(plugin: SignagePlugin) {

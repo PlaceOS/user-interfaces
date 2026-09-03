@@ -8,6 +8,9 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { mocksInit } from '@placeos/mocks';
+import { authority } from '@placeos/ts-client';
+
+import { AiImageService } from './ai/ai-image.service';
 
 import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
 
@@ -51,10 +54,15 @@ export class AppComponent implements OnInit {
 
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
+    private _ai = inject(AiImageService);
 
     public async ngOnInit() {
         setMocks(mocksInit);
         await this._placeos.init();
         this._uploads.init();
+        // asks the backend once whether image generation is available here, so
+        // the entry points can hide themselves on a domain without a provider
+        await this._ai.load(authority()?.config?.org_zone);
+        if (this._ai.enabled()) await this._ai.loadRecent();
     }
 }

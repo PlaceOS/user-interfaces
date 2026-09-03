@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { dialogClosed, SignageService } from '../signage.service';
+import { AiImageService } from '../ai/ai-image.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
 import { filterManageNavItems } from './nav-items';
 
@@ -129,6 +130,7 @@ import { filterManageNavItems } from './nav-items';
 })
 export class NavFooterComponent {
     private readonly _service = inject(SignageService);
+    private readonly _ai = inject(AiImageService);
     private readonly _dialog = inject(MatDialog);
 
     private readonly can_manage_groups = computed(
@@ -142,12 +144,14 @@ export class NavFooterComponent {
         filterManageNavItems(
             this.can_manage_groups(),
             this._service.templates_enabled(),
+            this._ai.enabled(),
         ).filter((item) => !this.MORE_MENU_ROUTES.includes(item.route)),
     );
     public readonly more_nav_items = computed(() =>
         filterManageNavItems(
             this.can_manage_groups(),
             this._service.templates_enabled(),
+            this._ai.enabled(),
         ).filter((item) => this.MORE_MENU_ROUTES.includes(item.route)),
     );
     public readonly groups = this._service.signage_groups;

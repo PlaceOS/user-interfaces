@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { AiImageService } from '../../app/ai/ai-image.service';
 import { MediaListComponent } from '../../app/media/media-list.component';
 import { SignageService } from '../../app/signage.service';
 
@@ -29,6 +30,7 @@ describe('MediaListComponent folders', () => {
         show_media_group_tabs,
         can_update_media_tags,
         can_update: signal(true),
+        can_create: signal(true),
         can_delete: signal(true),
         can_share: signal(true),
         addMediaTags: vi.fn(),
@@ -40,7 +42,13 @@ describe('MediaListComponent folders', () => {
 
     function make() {
         TestBed.configureTestingModule({
-            providers: [{ provide: SignageService, useValue: service_stub }],
+            providers: [
+                { provide: SignageService, useValue: service_stub },
+                {
+                    provide: AiImageService,
+                    useValue: { can_edit: signal(true) },
+                },
+            ],
         });
         return TestBed.createComponent(MediaListComponent).componentInstance;
     }
@@ -81,6 +89,15 @@ describe('MediaListComponent folders', () => {
         show_media_group_tabs.set(false);
 
         expect(component.can_switch_groups()).toBe(false);
+    });
+
+    it('offers AI edits only when the user can create the derived image', () => {
+        const component = make();
+        expect(component.can_edit_with_ai()).toBe(true);
+
+        service_stub.can_create.set(false);
+
+        expect(component.can_edit_with_ai()).toBe(false);
     });
 
     it('offers the all-groups view to an all-group manager', () => {

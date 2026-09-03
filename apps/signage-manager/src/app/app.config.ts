@@ -91,6 +91,13 @@ const APP_ROUTES: Routes = [
                     ),
             },
             {
+                path: 'branding',
+                loadComponent: () =>
+                    import('./branding/branding.component').then(
+                        (m) => m.BrandingComponent,
+                    ),
+            },
+            {
                 path: 'groups',
                 loadComponent: () =>
                     import('./groups/groups.component').then(

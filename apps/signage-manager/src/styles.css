@@ -50,6 +50,19 @@ select:focus-visible,
         opacity var(--transition-delay) ease-out;
 }
 
+/*
+ * A search field standing in a row of icon buttons.
+ *
+ * The app's form fields are 48px and the icon buttons are 50, so a toolbar that
+ * mixes the two lines up on the centre and nowhere else. This gives the field
+ * the missing 2px rather than resizing a button used all over the app.
+ */
+/* the app's own rule for this is under #placeos, so this one has to be too */
+#placeos .toolbar-field .mat-mdc-form-field-infix {
+    padding-top: 13px;
+    padding-bottom: 13px;
+}
+
 .fullscreen-dialog {
     max-width: 100vw !important;
     max-height: 100vh !important;

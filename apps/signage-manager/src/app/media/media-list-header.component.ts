@@ -13,6 +13,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { AiImageService } from '../ai/ai-image.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
 import { SignageService } from '../signage.service';
@@ -57,7 +58,7 @@ function isValidUrl(url: string): boolean {
             </div>
             <div class="w-px flex-1"></div>
             <div
-                class="border-base-300 bg-base-200 flex items-center rounded-lg border p-0.5"
+                class="border-base-300 bg-base-200 flex items-center rounded-lg border p-1"
                 role="group"
                 [attr.aria-label]="
                     'SIGNAGE_MANAGER.MEDIA_VIEW_ARIA' | translate
@@ -85,7 +86,7 @@ function isValidUrl(url: string): boolean {
             </div>
             <mat-form-field
                 appearance="outline"
-                class="no-subscript white order-last w-full sm:order-0 sm:w-80"
+                class="no-subscript toolbar-field white order-last w-full sm:order-0 sm:w-80"
             >
                 <input
                     matInput
@@ -98,6 +99,25 @@ function isValidUrl(url: string): boolean {
                 />
             </mat-form-field>
             @if (can_create()) {
+                @if (ai_enabled()) {
+                    <button
+                        icon
+                        default
+                        type="button"
+                        matRipple
+                        class="text-xl max-sm:hidden"
+                        [matTooltip]="
+                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                        "
+                        matTooltipPosition="left"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.AI_CREATE_IMAGE' | translate
+                        "
+                        (click)="generateWithAI()"
+                    >
+                        <icon>auto_awesome</icon>
+                    </button>
+                }
                 <button
                     icon
                     default
@@ -238,6 +258,23 @@ function isValidUrl(url: string): boolean {
                     <icon>add</icon>
                 </button>
                 <mat-menu #actions_menu="matMenu">
+                    @if (ai_enabled()) {
+                        <button
+                            mat-menu-item
+                            type="button"
+                            (click)="generateWithAI()"
+                        >
+                            <div class="flex items-center gap-2">
+                                <icon class="text-2xl">auto_awesome</icon>
+                                <div>
+                                    {{
+                                        'SIGNAGE_MANAGER.AI_CREATE_IMAGE'
+                                            | translate
+                                    }}
+                                </div>
+                            </div>
+                        </button>
+                    }
                     <button
                         mat-menu-item
                         type="button"
@@ -308,6 +345,7 @@ function isValidUrl(url: string): boolean {
 export class MediaListHeaderComponent {
     private readonly _service = inject(SignageService);
     private readonly _dialog = inject(MatDialog);
+    private readonly _ai = inject(AiImageService);
     private readonly _media = this._service.filtered_media;
     private readonly _all_media = this._service.media;
     public readonly link = signal('');
@@ -335,6 +373,12 @@ export class MediaListHeaderComponent {
 
     public readonly previewFile = (event) =>
         this._service.previewFileFromInput(event);
+
+    public readonly ai_enabled = this._ai.can_generate;
+
+    public generateWithAI() {
+        this._service.generateMediaWithAI();
+    }
 
     public openAdd(mode: 'plugin' | 'link') {
         this._dialog.open(MediaAddModalComponent, {
