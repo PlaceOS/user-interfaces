@@ -82,6 +82,7 @@ All notable changes to this project will be documented in this file.
 - Harden AI image jobs
 - Restore recent AI jobs
 - Enforce AI action capabilities
+- Tweak display templates zone link
 
 #### Visitor-kiosk
 
