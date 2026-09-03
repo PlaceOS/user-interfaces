@@ -1,0 +1,46 @@
+import nx from '@nx/eslint-plugin';
+import playwright from 'eslint-plugin-playwright';
+import baseConfig, {
+    angularPresetRuleOverrides,
+    basePresetRuleOverrides,
+} from '../../eslint.config.mjs';
+
+export default [
+    ...baseConfig,
+    playwright.configs['flat/recommended'],
+    ...nx.configs['flat/angular'],
+    {
+        files: ['**/*.ts'],
+        rules: {
+            '@angular-eslint/directive-selector': [
+                'error',
+                {
+                    type: 'attribute',
+                    prefix: 'placeos',
+                    style: 'camelCase',
+                },
+            ],
+            '@angular-eslint/component-selector': [
+                'error',
+                {
+                    type: 'element',
+                    prefix: 'placeos',
+                    style: 'kebab-case',
+                },
+            ],
+            '@angular-eslint/prefer-standalone': 'off',
+        },
+    },
+    ...nx.configs['flat/angular-template'],
+    basePresetRuleOverrides,
+    ...angularPresetRuleOverrides,
+    {
+        files: ['**/*.{ts,js,tsx,jsx}'],
+        // Keep the pre-migration Playwright rule set.
+        rules: {
+            'playwright/missing-playwright-await': 'off',
+            'playwright/no-networkidle': 'off',
+            'playwright/no-standalone-expect': 'off',
+        },
+    },
+];

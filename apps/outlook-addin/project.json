@@ -124,6 +124,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "ssl": true,
@@ -136,8 +137,7 @@
                 "development": {
                     "buildTarget": "outlook-addin:build:development"
                 }
-            },
-            "continuous": true
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint",
