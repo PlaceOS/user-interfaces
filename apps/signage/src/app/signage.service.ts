@@ -8,10 +8,12 @@ import {
     shuffleArray,
 } from '@placeos/common';
 import {
+    apiEndpoint,
     cleanObject,
     getModule,
     post,
     querySignagePlugins,
+    responseHeaders,
     showSignage,
     SignageMedia,
     SignagePlaylist,
@@ -147,6 +149,16 @@ function isNestedPlayerWindow() {
 
 function displayCacheKey(id: string) {
     return `${DISPLAY_KEY}.${id}`;
+}
+
+function displayRequestURL(
+    id: string,
+    query_params: Record<string, boolean | string>,
+) {
+    const query_string = Object.entries(query_params)
+        .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+        .join('&');
+    return `${apiEndpoint()}/signage/${id}${query_string ? `?${query_string}` : ''}`;
 }
 
 function playlistSchedules(playlist: SignagePlaylist): PlaylistSchedule[] {
@@ -338,6 +350,9 @@ export class SignageService extends AsyncHandler {
     /** Counter incremented on the schedule timer to re-evaluate time windows */
     private readonly _tick = signal(0);
     private _display_signature = '';
+    /** Validators from the last successful display response */
+    private _etag = '';
+    private _last_modified = '';
     /** Signature of the media set the cache was last synced against */
     private _media_signature = '';
     /** Whether a media cache sync is currently running */
@@ -451,6 +466,10 @@ export class SignageService extends AsyncHandler {
     });
 
     public setDisplay(system_id: string) {
+        if (system_id !== this._display()) {
+            this._etag = '';
+            this._last_modified = '';
+        }
         this._display.set(system_id);
         this._poll();
         // Re-arm the schedule timer so its cadence reflects the current debug
@@ -538,6 +557,7 @@ export class SignageService extends AsyncHandler {
         const id = this._display();
         if (!id) return;
         const value = await this._fetchDisplay(id);
+        if (value === null) return;
         const display_signature = `${id}:${JSON.stringify(value || {})}`;
         if (
             display_signature === this._display_signature &&
@@ -570,24 +590,40 @@ export class SignageService extends AsyncHandler {
     }
 
     private async _fetchDisplay(id: string) {
+        const query_params = cleanObject(
+            {
+                preview: this.debug() || undefined,
+                item_id: this.playing_id(),
+            },
+            [undefined, null, ''],
+        ) as Record<string, boolean | string>;
+        const headers: Record<string, string> = {};
+        if (this._etag) headers['If-None-Match'] = this._etag;
+        if (this._last_modified) {
+            headers['If-Modified-Since'] = this._last_modified;
+        }
+        const request_options = {
+            headers,
+            cache: 'no-store' as const,
+        };
+
         // A request that never settles would otherwise leave the poll waiting
         // forever, so it is abandoned and retried on the next interval.
-        let d: any = await this._withTimeout(
-            showSignage(
-                id,
-                cleanObject(
-                    {
-                        preview: this.debug() || undefined,
-                        item_id: this.playing_id(),
-                    },
-                    [undefined, null, ''],
-                ),
-            ),
-            DISPLAY_FETCH_TIMEOUT_MS,
-        ).catch((e) => {
+        let d: any;
+        try {
+            d = await this._withTimeout(
+                showSignage(id, query_params, request_options),
+                DISPLAY_FETCH_TIMEOUT_MS,
+            );
+            const response_headers = responseHeaders(
+                displayRequestURL(id, query_params),
+            );
+            this._etag = response_headers.etag || '';
+            this._last_modified = response_headers['last-modified'] || '';
+        } catch (e) {
+            if (e instanceof Response && e.status === 304) return null;
             log.warn('Failed to fetch display details.', e);
-            return null;
-        });
+        }
         if (!d) {
             const display_key = displayCacheKey(id);
             d = JSON.parse(
