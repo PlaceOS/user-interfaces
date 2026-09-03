@@ -313,10 +313,24 @@ interface Candidate {
                             }
 
                             <ai-references
-                                [items]="references()"
+                                [items]="include_references()"
                                 [uploading]="uploading_references()"
-                                [max]="max_references()"
-                                (picked)="addReferences($event)"
+                                [max]="include_max()"
+                                title="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES"
+                                hint="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES_HINT"
+                                (picked)="addReferences($event, 'include')"
+                                (removed)="removeReference($event)"
+                            ></ai-references>
+
+                            <ai-references
+                                [items]="style_items()"
+                                [uploading]="uploading_references()"
+                                [max]="style_max()"
+                                [offset]="include_references().length"
+                                title="SIGNAGE_MANAGER.AI_STYLE_REFERENCE"
+                                hint="SIGNAGE_MANAGER.AI_STYLE_REFERENCE_HINT"
+                                add_label="SIGNAGE_MANAGER.AI_REFERENCE_ADD_ONE"
+                                (picked)="addReferences($event, 'style')"
                                 (removed)="removeReference($event)"
                             ></ai-references>
                         } @else {
@@ -368,10 +382,24 @@ interface Candidate {
                             </div>
 
                             <ai-references
-                                [items]="references()"
+                                [items]="include_references()"
                                 [uploading]="uploading_references()"
-                                [max]="max_references()"
-                                (picked)="addReferences($event)"
+                                [max]="include_max()"
+                                title="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES"
+                                hint="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES_HINT"
+                                (picked)="addReferences($event, 'include')"
+                                (removed)="removeReference($event)"
+                            ></ai-references>
+
+                            <ai-references
+                                [items]="style_items()"
+                                [uploading]="uploading_references()"
+                                [max]="style_max()"
+                                [offset]="include_references().length"
+                                title="SIGNAGE_MANAGER.AI_STYLE_REFERENCE"
+                                hint="SIGNAGE_MANAGER.AI_STYLE_REFERENCE_HINT"
+                                add_label="SIGNAGE_MANAGER.AI_REFERENCE_ADD_ONE"
+                                (picked)="addReferences($event, 'style')"
                                 (removed)="removeReference($event)"
                             ></ai-references>
 
@@ -533,8 +561,21 @@ export class AiImageModalComponent implements OnDestroy {
     public readonly logo_on_dark = signal('');
     public readonly uploading_logo = signal(false);
 
-    public readonly references = signal<AiReference[]>([]);
+    public readonly include_references = signal<AiReference[]>([]);
+    public readonly style_reference = signal<AiReference | null>(null);
     public readonly uploading_references = signal(false);
+
+    /** every attached image, in the order it is sent: includes first */
+    public readonly references = computed(() => {
+        const style = this.style_reference();
+        return style
+            ? [...this.include_references(), style]
+            : this.include_references();
+    });
+    public readonly style_items = computed(() => {
+        const style = this.style_reference();
+        return style ? [style] : [];
+    });
     public readonly claim_pending = signal(false);
 
     public readonly brand = this._ai.brand_kit;
@@ -583,6 +624,12 @@ export class AiImageModalComponent implements OnDestroy {
     });
     public readonly max_references = computed(
         () => this._ai.default_model()?.max_references ?? 8,
+    );
+    public readonly include_max = computed(
+        () => this.max_references() - (this.style_reference() ? 1 : 0),
+    );
+    public readonly style_max = computed(() =>
+        Math.min(1, this.max_references() - this.include_references().length),
     );
 
     public readonly job = computed<AiJob | undefined>(
@@ -673,8 +720,9 @@ export class AiImageModalComponent implements OnDestroy {
     }
 
     public async start() {
-        const prompt = this.brief().trim();
-        if (!prompt) return;
+        const brief = this.brief().trim();
+        if (!brief) return;
+        const prompt = this.withReferenceRoles(brief);
         this.state.set('generating');
         try {
             const common = {
@@ -725,7 +773,7 @@ export class AiImageModalComponent implements OnDestroy {
         this.state.set('generating');
         try {
             const request: AiEditRequest = {
-                prompt: instruction,
+                prompt: this.withReferenceRoles(instruction),
                 candidates: 1,
                 include_logo: this.include_logo(),
                 add_text_with_layer: this.add_text_with_layer(),
@@ -780,18 +828,58 @@ export class AiImageModalComponent implements OnDestroy {
     );
 
     /**
+     * Say what each attached image is for, after the person's own words. The
+     * numbering matches the order the images are sent: the pictures to
+     * include first, the style reference last.
+     */
+    public withReferenceRoles(text: string): string {
+        const includes = this.include_references().length;
+        const style = this.style_reference();
+        const lines: string[] = [];
+        if (includes === 1) {
+            lines.push('Include image 1 in the artwork.');
+        } else if (includes > 1) {
+            lines.push(
+                `Include images 1 to ${includes} in the artwork, arranged so the result is aesthetically pleasing and practical.`,
+            );
+        }
+        if (style) {
+            lines.push(
+                `Use image ${includes + 1} as a style guide for how the artwork should look: match its overall look and feel, but do not include image ${includes + 1} or anything from it in the artwork.`,
+            );
+        }
+        if (lines.length) {
+            lines.push(
+                'Where the description above says more about any of these images, follow the description.',
+            );
+        }
+        return [text, lines.join(' ')].filter(Boolean).join('\n\n');
+    }
+
+    /**
      * Attach pictures for this request.
      */
-    public async addReferences(files: File[]) {
+    public async addReferences(files: File[], kind: 'include' | 'style') {
         if (!files.length) return;
         this.uploading_references.set(true);
         try {
-            for (const file of files) {
+            for (const file of kind === 'style' ? files.slice(0, 1) : files) {
                 const id = await this._ai.uploadReference(file);
-                this.references.update((list) => [
-                    ...list,
-                    { id, name: file.name, url: URL.createObjectURL(file) },
-                ]);
+                const item = {
+                    id,
+                    name: file.name,
+                    url: URL.createObjectURL(file),
+                };
+                if (kind === 'style') {
+                    const previous = this.style_reference();
+                    if (previous) {
+                        URL.revokeObjectURL(previous.url);
+                        this._ai.removeReference(previous.id);
+                    }
+                    this.style_reference.set(item);
+                } else {
+                    this.include_references.update((list) => [...list, item]);
+                }
             }
         } catch (error) {
             notifyError(
@@ -805,7 +893,8 @@ export class AiImageModalComponent implements OnDestroy {
     public removeReference(id: string) {
         const item = this.references().find((entry) => entry.id === id);
         if (item) URL.revokeObjectURL(item.url);
-        this.references.update((list) =>
+        if (this.style_reference()?.id === id) this.style_reference.set(null);
+        this.include_references.update((list) =>
             list.filter((entry) => entry.id !== id),
         );
         this._ai.removeReference(id);
