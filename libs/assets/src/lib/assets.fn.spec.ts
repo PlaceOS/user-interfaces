@@ -8,6 +8,14 @@ import * as ts_client from '@placeos/ts-client';
 //   bookings.removeBooking     -> ts_client.del
 vi.mock('@placeos/ts-client', { spy: true });
 
+type BulkPost = (
+    url: string,
+    body: string,
+    options: Record<string, never>,
+) => Promise<Partial<ts_client.PlaceAsset>[]>;
+
+const bulk_post = vi.mocked(ts_client.post as unknown as BulkPost);
+
 function response(data: any[]) {
     return Promise.resolve({
         data,
@@ -196,10 +204,18 @@ describe('[Assets]', () => {
 
         it('should add in bulk when any asset is new', async () => {
             const { assets_fn } = await load_modules();
-            vi.mocked(ts_client.addAssets).mockResolvedValue(['ok'] as any);
+            const assets = [{ id: 'a' }, { name: 'new' }];
+            vi.mocked(ts_client.apiEndpoint).mockReturnValue(
+                'https://example.com/api/engine/v2',
+            );
+            bulk_post.mockResolvedValue([]);
 
-            await assets_fn.saveAssetsInBulk([{ id: 'a' }, { name: 'new' }]);
-            expect(ts_client.addAssets).toHaveBeenCalled();
+            await assets_fn.saveAssetsInBulk(assets);
+            expect(bulk_post).toHaveBeenCalledWith(
+                'https://example.com/api/engine/v2/assets/bulk',
+                JSON.stringify(assets),
+                {},
+            );
             expect(ts_client.updateAssets).not.toHaveBeenCalled();
         });
     });
