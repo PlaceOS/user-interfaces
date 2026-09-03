@@ -17,4 +17,5 @@ var zh_default = ["zh", [["\u4E0A\u5348", "\u4E0B\u5348"]], u, [["\u65E5", "\u4E
 export {
   zh_default as default
 };
+//# debugId=b2bfc3bc-97af-5964-96ae-8ba761dc8bc8
 //# sourceMappingURL=zh-JAPPBIO4.js.map

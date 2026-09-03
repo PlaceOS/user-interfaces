@@ -21,4 +21,5 @@ var fr_default = ["fr", [["AM", "PM"]], u, [["D", "L", "M", "M", "J", "V", "S"],
 export {
   fr_default as default
 };
+//# debugId=110bfd06-9481-591b-a185-2efdf9119deb
 //# sourceMappingURL=fr-DZMTSPTM.js.map
