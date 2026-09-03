@@ -66,6 +66,17 @@ All notable changes to this project will be documented in this file.
 - Refresh playlist share details
 - Show display zones in details
 - Prevent sidebar overflow
+- Brand kit, layer layout and the save race
+- Do not stack AI dialogs
+- Drop the creation-only options from an edit
+- Drop the shape selector from an edit
+- One gutter around the playlists panel
+- One height across the media toolbar
+- The frontend defects found in the pre-push audit
+- Let Tab out of the canvas, and keep the key across dialogs
+- Harden AI image jobs
+- Restore recent AI jobs
+- Enforce AI action capabilities
 
 #### Visitor-kiosk
 
@@ -96,6 +107,10 @@ All notable changes to this project will be documented in this file.
 
 - Support multi-location room bookings PPT-2572
 
+#### Mocks
+
+- Signage AI endpoints
+
 #### Signage
 
 - Add editable debug overlay layout PPT-2691
@@ -113,12 +128,31 @@ All notable changes to this project will be documented in this file.
 - Allow managers to manage zones PPT-2758
 - Highlight disabled playlists
 - Add signage tag management PPT-2766
+- Create and edit signage artwork with AI
+- Name the engine behind the images
+- Change an existing image with AI
+- Show the image being changed
+- As many blocks of text as the poster needs
+- Let a logo be added, since nothing stores one
+- A branding page for the organisation
+- Full screen AI modal, preview left, settings right
+- A light and a dark logo, and words you drag
+- Paragraphs, and any colour or face per block
+- Attach images to a request and name them in the brief
+- A switch for whether the poster wears the branding
+- Branding is read only unless you are a sys admin
 
 ### Performance
 
 #### Signage
 
 - Revalidate display polls with ETags
+
+### Refactor
+
+#### Signage-manager
+
+- Clean up AI support code
 
 ## [2608.1] - 2026-08-20
 
