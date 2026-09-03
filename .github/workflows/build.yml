@@ -77,6 +77,38 @@ jobs:
               run: |
                   echo ${{ steps.affected_apps.outputs.affected_apps }}
 
+            - name: Fetch changelog history
+              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              run: git fetch --force --prune --tags --unshallow
+
+            - name: Resolve production version tag
+              if: ${{ steps.build_ext.outputs.deploy_branch == 'prod' && fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              run: |
+                  version_tag="$(git tag --points-at HEAD --list 'v[0-9]*' --sort=-version:refname | head -n 1)"
+                  if [[ -z "${version_tag}" ]]; then
+                      echo '::error::The production commit does not have a version tag.'
+                      exit 1
+                  fi
+                  echo "Generating production changelog for ${version_tag}."
+
+            - name: Generate changelog
+              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              uses: orhun/git-cliff-action@v4
+              with:
+                  config: cliff.toml
+                  args: --verbose
+              env:
+                  OUTPUT: ${{ runner.temp }}/CHANGELOG.md
+                  GITHUB_REPO: ${{ github.repository }}
+
+            - name: Upload changelog
+              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: changelog-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/CHANGELOG.md
+                  retention-days: 1
+
         outputs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
             affected_units: ${{ steps.affected_apps.outputs.affected_units }}
@@ -186,6 +218,12 @@ jobs:
             - name: Build affected applications
               run: |
                   bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
+
+            - name: Add changelog to build
+              uses: actions/download-artifact@v4
+              with:
+                  name: changelog-${{ github.run_attempt }}
+                  path: dist/apps/${{ matrix.package }}/browser
 
             - name: Deploy the application(${{ matrix.package }})
               run: .github/scripts/publish-subdir.sh
