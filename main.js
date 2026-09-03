@@ -1,27 +1,27 @@
 import {
   subMinutes
-} from "./chunk-NUMMVMVY.js";
+} from "./chunk-2YQQGVDN.js";
 import {
   subDays
-} from "./chunk-CRWJTK7M.js";
+} from "./chunk-MXDDOTII.js";
 import {
   subMonths
-} from "./chunk-IJ3C5WFH.js";
+} from "./chunk-GQMWBDJ7.js";
 import {
   setMinutes
-} from "./chunk-YQ22B2RL.js";
+} from "./chunk-VKIYDF6W.js";
 import {
   MatProgressBar,
   MatProgressBarModule
-} from "./chunk-YOB27ZDB.js";
+} from "./chunk-DLT523RV.js";
 import {
   setHours
-} from "./chunk-5VGY72EP.js";
+} from "./chunk-JZKN5SYF.js";
 import {
   generateMockSpace
-} from "./chunk-J575H5GA.js";
-import "./chunk-WWENTSZY.js";
-import "./chunk-YC3UXNUJ.js";
+} from "./chunk-NG5AAEU2.js";
+import "./chunk-2TKYPQAV.js";
+import "./chunk-AZBWZFNB.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
@@ -94,8 +94,6 @@ import {
   User,
   Ve,
   ViewChild,
-  X,
-  ad,
   addDays,
   addMilliseconds,
   addMinutes,
@@ -106,14 +104,15 @@ import {
   createErrorHandler,
   currentUser,
   current_user,
-  da,
+  dd,
   differenceInMinutes,
+  ee,
   effect,
   enableProdMode,
-  fd,
   firstTruthyValueFrom,
   firstValueWhere,
   format,
+  gd,
   getLoadingMessage,
   getNativeApiKey,
   getNativeDomain,
@@ -131,6 +130,7 @@ import {
   needsNativeDomain,
   normaliseNativeDomain,
   output,
+  pa,
   padString,
   parse,
   performanceMarkFeature,
@@ -219,7 +219,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-VR5QVDIH.js";
+} from "./chunk-MG5PZBML.js";
 import {
   __export,
   __objRest,
@@ -350,7 +350,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ve()}`;
+    const auth = ee() !== "x-api-key" ? `bearer_token=${encodeURIComponent(ee())}` : `x-api-key=${Ve()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -432,7 +432,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = fd(id, "LLM");
+    const mod = gd(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -1863,7 +1863,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     this.online.set(Qr());
     this.interval("has_token", () => {
       this.online.set(Qr());
-      if (!It() || !X())
+      if (!It() || !ee())
         return;
       this.loading.set(false);
       this.online.set(Qr());
@@ -2596,7 +2596,7 @@ var BindingDebugPanelComponent = class _BindingDebugPanelComponent extends Async
       },
       loader: async ({ params }) => Object.fromEntries(await Promise.all(params.map(async (id) => {
         if (!system_name_cache.has(id)) {
-          const system = await da(id).catch(() => null);
+          const system = await pa(id).catch(() => null);
           system_name_cache.set(id, system?.display_name || system?.name || id);
         }
         return [id, system_name_cache.get(id)];
@@ -4409,7 +4409,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
 var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
 function hasCachedCredentials() {
   try {
-    return !!X();
+    return !!ee();
   } catch {
     return false;
   }
@@ -12112,7 +12112,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  ad(space.id, {
+  dd(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -13431,7 +13431,7 @@ var AppComponent = class _AppComponent {
 
 // node_modules/@angular/animations/fesm2022/_util-chunk.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -13709,7 +13709,7 @@ function _convertTimeValueToMS(value, unit) {
   }
 }
 function resolveTiming(timings, errors, allowNegativeValues) {
-  return timings.hasOwnProperty("duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
+  return typeof timings === "object" && timings !== null && Object.hasOwn(timings, "duration") ? timings : parseTimeExpression(timings, errors, allowNegativeValues);
 }
 var PARSE_TIME_EXPRESSION_REGEX = /^(-?[\.\d]+)(m?s)(?:\s+(-?[\.\d]+)(m?s))?(?:\s+([-a-z]+(?:\(.+?\))?))?$/i;
 function parseTimeExpression(exp, errors, allowNegativeValues) {
@@ -13795,7 +13795,7 @@ function validateStyleParams(value, options, errors) {
   const matches = extractStyleParams(value);
   if (matches.length) {
     matches.forEach((varName) => {
-      if (!params.hasOwnProperty(varName)) {
+      if (!Object.hasOwn(params, varName)) {
         errors.push(invalidStyleParams(varName));
       }
     });
@@ -13892,7 +13892,7 @@ function computeStyle(element, prop) {
 
 // node_modules/@angular/animations/fesm2022/browser.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -14110,7 +14110,7 @@ var AnimationAstBuilderVisitor = class {
         if (style2 instanceof Map) {
           style2.forEach((value) => {
             extractStyleParams(value).forEach((sub) => {
-              if (!params.hasOwnProperty(sub)) {
+              if (!Object.hasOwn(params, sub)) {
                 missingSubs.add(sub);
               }
             });
@@ -14447,7 +14447,7 @@ function consumeOffset(styles) {
   return offset;
 }
 function constructTimingAst(value, errors) {
-  if (value.hasOwnProperty("duration")) {
+  if (typeof value === "object" && value !== null && Object.hasOwn(value, "duration")) {
     return value;
   }
   if (typeof value == "number") {
@@ -14816,7 +14816,7 @@ var AnimationTimelineContext = class _AnimationTimelineContext {
         paramsToUpdate = this.options.params = {};
       }
       Object.keys(newParams).forEach((name) => {
-        if (!skipIfExists || !paramsToUpdate.hasOwnProperty(name)) {
+        if (!skipIfExists || !Object.hasOwn(paramsToUpdate, name)) {
           paramsToUpdate[name] = interpolateParams(newParams[name], paramsToUpdate, this.errors);
         }
       });
@@ -15519,7 +15519,7 @@ var StateValue = class {
   }
   constructor(input2, namespaceId = "") {
     this.namespaceId = namespaceId;
-    const isObj = input2 && input2.hasOwnProperty("value");
+    const isObj = input2 && Object.hasOwn(input2, "value");
     const value = isObj ? input2["value"] : input2;
     this.value = normalizeTriggerValue(value);
     if (isObj) {
@@ -15627,7 +15627,7 @@ var AnimationTransitionNamespace = class {
     }
     let fromState = triggersWithStates.get(triggerName);
     const toState = new StateValue(value, this.id);
-    const isObj = value && value.hasOwnProperty("value");
+    const isObj = value && Object.hasOwn(value, "value");
     if (!isObj && fromState) {
       toState.absorbOptions(fromState.options);
     }
@@ -16764,7 +16764,7 @@ function objEquals(a, b) {
   if (k1.length != k2.length) return false;
   for (let i = 0; i < k1.length; i++) {
     const prop = k1[i];
-    if (!b.hasOwnProperty(prop) || a[prop] !== b[prop]) return false;
+    if (!Object.hasOwn(b, prop) || a[prop] !== b[prop]) return false;
   }
   return true;
 }
@@ -17424,7 +17424,7 @@ var AnimationRendererFactory = class {
 
 // node_modules/@angular/platform-browser/fesm2022/animations.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -17559,105 +17559,105 @@ var routes = [
   {
     path: "book/rooms",
     title: "Room Bookings",
-    loadChildren: () => import("./day-view.routes-4D44TUL5.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./day-view.routes-FU3RFV3Q.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "facilities",
     title: "Facilities",
-    loadChildren: () => import("./facilities.routes-OG6AU7OD.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./facilities.routes-6HTFMQ7P.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/visitors",
     title: "Visitors",
-    loadChildren: () => import("./visitors.routes-6ANKBVVA.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./visitors.routes-O42Q7E6T.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/assets",
     title: "Assets",
-    loadChildren: () => import("./asset-manager.routes-UXU5UIYN.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./asset-manager.routes-XBCZQAAB.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/desks",
     title: "Desk Bookings",
-    loadChildren: () => import("./desks.routes-FQTD45AX.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./desks.routes-V7MVHKFD.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/lockers",
     title: "Locker Bookings",
-    loadChildren: () => import("./lockers.routes-BB64EV7F.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./lockers.routes-T776P3BG.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "reports",
     title: "Reports",
-    loadChildren: () => import("./reports.routes-PQJQOZVQ.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./reports.routes-BGPTOCBA.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "entertainment/events",
     title: "Events",
-    loadChildren: () => import("./events.routes-WUAGJUUQ.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./events.routes-6RZMOSIA.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "users/staff",
     title: "Staff",
-    loadChildren: () => import("./staff.routes-SEAG4WGB.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./staff.routes-RYVVVHGG.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/catering",
     title: "Catering",
-    loadChildren: () => import("./catering.routes-3IP62OGT.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./catering.routes-KPXDVELC.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-management",
     title: "Points Management",
-    loadChildren: () => import("./points.routes-DIYGVGBJ.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./points.routes-VXJXEOIQ.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/parking",
     title: "Parking Bookings",
-    loadChildren: () => import("./parking.routes-Y5EFIP7P.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./parking.routes-2RRVCOS6.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "surveys",
     title: "Surveys",
-    loadChildren: () => import("./surveys.routes-VBY6IN2K.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./surveys.routes-Y2X6OMXF.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "room-management",
     title: "Room Management",
-    loadChildren: () => import("./room-manager.routes-SHXWYODC.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./room-manager.routes-GNC2M4ML.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "zone-management",
     title: "Zone Management",
-    loadChildren: () => import("./zone-manager.routes-XRP2T3WI.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./zone-manager.routes-EIS6SVPG.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -17676,31 +17676,31 @@ var routes = [
   {
     path: "email-templates",
     title: "Email Templates",
-    loadChildren: () => import("./email-templates.routes-6RUGBSOF.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./email-templates.routes-RDQLA4YU.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
-    loadChildren: () => import("./deals.routes-WP3EUBHE.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-UWNHK5KV.js").then((m) => m.ROUTES)
   },
   {
     path: "points-of-interest",
     title: "Points of Interest",
-    loadChildren: () => import("./poi-manager.routes-KA4HSWWL.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./poi-manager.routes-TTLTFTOK.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "url-management",
     title: "URL Management",
-    loadChildren: () => import("./url-manager.routes-T3HYW3KA.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./url-manager.routes-AK7B77JJ.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "signage",
     title: "Signage",
-    loadChildren: () => import("./signage.routes-PIKJZJ45.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./signage.routes-UEULQ4WV.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -17749,4 +17749,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
+//# debugId=4c11f56c-107d-5100-b09b-3d4eea652f31
 //# sourceMappingURL=main.js.map
