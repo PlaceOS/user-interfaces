@@ -159,15 +159,16 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                 as zone_id
                                             ) {
                                                 <div
-                                                    class="text-base-content/60 text-xs"
+                                                    class="text-base-content/60 text-xs flex items-center gap-1"
                                                 >
-                                                    Configured on zone:
+                                                    <div>Configured on zone:</div>
                                                     <a
-                                                        class="text-primary mt-1 block truncate hover:underline"
+                                                        class="text-primary block truncate hover:underline"
                                                         [routerLink]="[
                                                             '/zones',
                                                             zone_id,
                                                         ]"
+                                                        [queryParams]="{ tab: 'templates' }"
                                                     >
                                                         {{ card.zone_name }}
                                                     </a>
