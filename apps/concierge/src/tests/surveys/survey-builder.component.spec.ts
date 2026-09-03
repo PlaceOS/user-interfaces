@@ -163,6 +163,21 @@ describe('SurveyBuilderComponent', () => {
         );
     });
 
+    it('should add a valid survey when the user clicks Save', async () => {
+        const save_survey = vi.spyOn(spectator.component, 'saveSurvey');
+        spectator.component.model.update((m) => ({
+            ...m,
+            title: 'My Survey',
+        }));
+        await spectator.fixture.whenStable();
+
+        spectator.click('button[btn]');
+        await spectator.fixture.whenStable();
+
+        expect(save_survey).toHaveBeenCalled();
+        expect(ts_client.addSurvey).toHaveBeenCalled();
+    });
+
     it('should update the survey when the model already has an id', async () => {
         spectator.component.model.update((m) => ({
             ...m,
