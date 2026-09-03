@@ -1,1 +1,0 @@
-var n$1={free:"#43a047",pending:"#ffb300",reserved:"#e65100",busy:"#e53935","signs-of-life":"#1565c0","not-bookable":"#757575",unknown:"#757575"};export{n$1 as n};//# sourceMappingURL=chunk-CP2xo4MM.js.map
