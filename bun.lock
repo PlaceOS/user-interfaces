@@ -100,7 +100,7 @@
         "prettier": "^3.3.3",
         "prettier-plugin-organize-imports": "^4.1.0",
         "prettier-plugin-tailwindcss": "^0.7.2",
-        "qr": "^0.4.2",
+        "qr": "^0.7.0",
         "squire-rte": "^2.4.2",
         "standard-version": "^9.3.2",
         "tailwindcss": "^4.1.18",
@@ -2566,7 +2566,7 @@
 
     "q": ["q@1.5.1", "", {}, "sha512-kV/CThkXo6xyFEZUugw/+pIOywXcDbFYgSct5cT3gqlbkBE1SJdwy6UQoZvodiWF/ckQLZyDE/Bu1M6gVu5lVw=="],
 
-    "qr": ["qr@0.4.2", "", {}, "sha512-wCv4rt7IcPNGT0J8JiTBHx7YrZzYuzpof38y/MFYd5Sp7OTyAFYL1e110In8PrAG/ffIOVl1ha3joJ2zpYxKMQ=="],
+    "qr": ["qr@0.7.0", "", {}, "sha512-/VrrACmOAwZVipuRITwfEwOL5oAMEHH5PTmBWaGtlTom2Thxaa+rhmna4zU9PRN2uLw2wdccbkHOLGZb1Q9SdA=="],
 
     "qs": ["qs@6.15.1", "", { "dependencies": { "side-channel": "^1.1.0" } }, "sha512-6YHEFRL9mfgcAvql/XhwTvf5jKcOiiupt2FiJxHkiX1z4j7WL8J/jRHYLluORvc1XxB5rV20KoeK00gVJamspg=="],
 
