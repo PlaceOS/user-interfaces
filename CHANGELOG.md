@@ -141,6 +141,7 @@ All notable changes to this project will be documented in this file.
 - Attach images to a request and name them in the brief
 - A switch for whether the poster wears the branding
 - Branding is read only unless you are a sys admin
+- Separate images to include from the style reference
 
 ### Performance
 
