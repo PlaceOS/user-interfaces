@@ -54974,15 +54974,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "18a341f",
-  "hash": "18a341f",
+  "raw": "09622c2",
+  "hash": "09622c2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "18a341f",
+  "suffix": "09622c2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787816711685
+  "time": 1788512899061
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -77694,6 +77694,7 @@ var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var OFFLINE_BOOT_DELAY = 10 * 1e3;
+var ZONE_LOAD_TIMEOUT = 120 * 1e3;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 function cachedAuthority() {
@@ -77936,19 +77937,52 @@ var OrganisationService = class _OrganisationService {
     this._region_settings = {};
     this._building_settings = {};
     this._skip_auto_selection = false;
+    this._init_timer = null;
+    this._zone_load_timer = null;
     this._override_timer = null;
-    const online = hi(Kr(), (_3) => _3);
+    const online_state = Kr();
+    const online = hi(online_state, (_3) => _3);
     const start = this._service.get("app.offline_boot") ? Promise.race([
       online,
       new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY))
     ]) : online;
-    start.then(() => setTimeout(() => this.init(), 1e3));
+    start.then(() => this._scheduleInit());
+    online_state.subscribe((is_online, was_online) => {
+      if (is_online && !was_online)
+        this._scheduleInit();
+    }, { emitCurrent: false });
     effect(() => {
       this._active_region();
       const building = this._active_building();
       if (building)
         this._updateSettingOverrides();
     });
+  }
+  _scheduleInit() {
+    if (this._init_timer)
+      clearTimeout(this._init_timer);
+    this._init_timer = setTimeout(() => {
+      this._init_timer = null;
+      if (!this._initialised()) {
+        this._startZoneLoadTimer();
+        this.init();
+      }
+    }, 1e3);
+  }
+  _startZoneLoadTimer() {
+    if (this._zone_load_timer)
+      return;
+    this._zone_load_timer = setTimeout(() => {
+      this._zone_load_timer = null;
+      if (!this._initialised())
+        requestInitReload();
+    }, ZONE_LOAD_TIMEOUT);
+  }
+  _completeInit() {
+    if (this._zone_load_timer)
+      clearTimeout(this._zone_load_timer);
+    this._zone_load_timer = null;
+    this._initialised.set(true);
   }
   /** Resolve once the organisation data has finished initialising */
   async waitUntilInitialised() {
@@ -78031,7 +78065,7 @@ var OrganisationService = class _OrganisationService {
   }
   async init(tries = 0) {
     if (this._limited_init()) {
-      this._initialised.set(true);
+      this._completeInit();
       return;
     }
     this._initialised.set(false);
@@ -78055,7 +78089,7 @@ var OrganisationService = class _OrganisationService {
       window.app.org = this;
       window.org = this;
     }
-    this._initialised.set(true);
+    this._completeInit();
     if (this._served_cache) {
       log3("Loaded from cache, refreshing organisation data...");
       this._served_cache = false;
@@ -120192,4 +120226,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-KNZO2NEP.js.map
+//# sourceMappingURL=chunk-CR6DHLMS.js.map
