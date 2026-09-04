@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 #### Common
 
 - Update favourite signals immediately PPT-2695
+- Recover stalled zone loading
 
 #### Concierge
 
@@ -60,6 +61,7 @@ All notable changes to this project will be documented in this file.
 - Support schedule expiry PPT-2685
 - Remove plugin cut transition delay
 - Keep plugin visible until playback starts
+- Correct player display styling
 
 #### Signage-manager
 
