@@ -1,0 +1,1 @@
+import {m,L as Lr,e5 as Kn}from'./main-QMBO4WEV.js';var u=(()=>{class i{constructor(){this._org=m(Lr);}transform(r){return this._org.buildings.find(t=>r instanceof Array?r.includes(t.id):t.id===r)}static{this.\u0275fac=function(t){return new(t||i)};}static{this.\u0275pipe=Kn({name:"building",type:i,pure:true});}}return i})();export{u};
