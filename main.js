@@ -308,9 +308,9 @@ var COMPUTED_NODE = /* @__PURE__ */ (() => {
         newValue = node.computation();
         setActiveConsumer(null);
         wasEqual = oldValue !== UNSET && oldValue !== ERRORED && newValue !== ERRORED && node.equal(oldValue, newValue);
-      } catch (err) {
+      } catch (err2) {
         newValue = ERRORED;
-        node.error = err;
+        node.error = err2;
       } finally {
         consumerAfterComputation(node, prevConsumer);
       }
@@ -495,9 +495,9 @@ var LINKED_SIGNAL_NODE = /* @__PURE__ */ (() => {
         node.sourceValue = newSourceValue;
         setActiveConsumer(null);
         wasEqual = oldValueValid && newValue !== ERRORED && node.equal(oldValue, newValue);
-      } catch (err) {
+      } catch (err2) {
         newValue = ERRORED;
-        node.error = err;
+        node.error = err2;
       } finally {
         consumerAfterComputation(node, prevConsumer);
       }
@@ -654,7 +654,7 @@ function createErrorClass(createImpl) {
 var UnsubscriptionError = createErrorClass((_super) => function UnsubscriptionErrorImpl(errors) {
   _super(this);
   this.message = errors ? `${errors.length} errors occurred during unsubscription:
-${errors.map((err, i) => `${i + 1}) ${err.toString()}`).join("\n  ")}` : "";
+${errors.map((err2, i) => `${i + 1}) ${err2.toString()}`).join("\n  ")}` : "";
   this.name = "UnsubscriptionError";
   this.errors = errors;
 });
@@ -704,12 +704,12 @@ var Subscription = class _Subscription {
         for (const finalizer of _finalizers) {
           try {
             execFinalizer(finalizer);
-          } catch (err) {
+          } catch (err2) {
             errors = errors !== null && errors !== void 0 ? errors : [];
-            if (err instanceof UnsubscriptionError) {
-              errors = [...errors, ...err.errors];
+            if (err2 instanceof UnsubscriptionError) {
+              errors = [...errors, ...err2.errors];
             } else {
-              errors.push(err);
+              errors.push(err2);
             }
           }
         }
@@ -802,13 +802,13 @@ var timeoutProvider = {
 };
 
 // node_modules/rxjs/dist/esm/internal/util/reportUnhandledError.js
-function reportUnhandledError(err) {
+function reportUnhandledError(err2) {
   timeoutProvider.setTimeout(() => {
     const { onUnhandledError } = config;
     if (onUnhandledError) {
-      onUnhandledError(err);
+      onUnhandledError(err2);
     } else {
-      throw err;
+      throw err2;
     }
   });
 }
@@ -853,10 +853,10 @@ function errorContext(cb) {
     cb();
   }
 }
-function captureError(err) {
+function captureError(err2) {
   if (config.useDeprecatedSynchronousErrorHandling && context) {
     context.errorThrown = true;
-    context.error = err;
+    context.error = err2;
   }
 }
 
@@ -884,12 +884,12 @@ var Subscriber = class extends Subscription {
       this._next(value);
     }
   }
-  error(err) {
+  error(err2) {
     if (this.isStopped) {
-      handleStoppedNotification(errorNotification(err), this);
+      handleStoppedNotification(errorNotification(err2), this);
     } else {
       this.isStopped = true;
-      this._error(err);
+      this._error(err2);
     }
   }
   complete() {
@@ -910,9 +910,9 @@ var Subscriber = class extends Subscription {
   _next(value) {
     this.destination.next(value);
   }
-  _error(err) {
+  _error(err2) {
     try {
-      this.destination.error(err);
+      this.destination.error(err2);
     } finally {
       this.unsubscribe();
     }
@@ -943,16 +943,16 @@ var ConsumerObserver = class {
       }
     }
   }
-  error(err) {
+  error(err2) {
     const { partialObserver } = this;
     if (partialObserver.error) {
       try {
-        partialObserver.error(err);
+        partialObserver.error(err2);
       } catch (error2) {
         handleUnhandledError(error2);
       }
     } else {
-      handleUnhandledError(err);
+      handleUnhandledError(err2);
     }
   }
   complete() {
@@ -1000,8 +1000,8 @@ function handleUnhandledError(error2) {
     reportUnhandledError(error2);
   }
 }
-function defaultErrorHandler(err) {
-  throw err;
+function defaultErrorHandler(err2) {
+  throw err2;
 }
 function handleStoppedNotification(notification, subscriber) {
   const { onStoppedNotification } = config;
@@ -1062,8 +1062,8 @@ var Observable = class _Observable {
   _trySubscribe(sink) {
     try {
       return this._subscribe(sink);
-    } catch (err) {
-      sink.error(err);
+    } catch (err2) {
+      sink.error(err2);
     }
   }
   forEach(next, promiseCtor) {
@@ -1073,8 +1073,8 @@ var Observable = class _Observable {
         next: (value) => {
           try {
             next(value);
-          } catch (err) {
-            reject(err);
+          } catch (err2) {
+            reject(err2);
             subscriber.unsubscribe();
           }
         },
@@ -1098,7 +1098,7 @@ var Observable = class _Observable {
     promiseCtor = getPromiseCtor(promiseCtor);
     return new promiseCtor((resolve, reject) => {
       let value;
-      this.subscribe((x) => value = x, (err) => reject(err), () => resolve(value));
+      this.subscribe((x) => value = x, (err2) => reject(err2), () => resolve(value));
     });
   }
 };
@@ -1126,8 +1126,8 @@ function operate(init3) {
       return source.lift(function(liftedSource) {
         try {
           return init3(liftedSource, this);
-        } catch (err) {
-          this.error(err);
+        } catch (err2) {
+          this.error(err2);
         }
       });
     }
@@ -1147,15 +1147,15 @@ var OperatorSubscriber = class extends Subscriber {
     this._next = onNext ? function(value) {
       try {
         onNext(value);
-      } catch (err) {
-        destination.error(err);
-      }
-    } : super._next;
-    this._error = onError ? function(err) {
-      try {
-        onError(err);
       } catch (err2) {
         destination.error(err2);
+      }
+    } : super._next;
+    this._error = onError ? function(err2) {
+      try {
+        onError(err2);
+      } catch (err3) {
+        destination.error(err3);
       } finally {
         this.unsubscribe();
       }
@@ -1163,8 +1163,8 @@ var OperatorSubscriber = class extends Subscriber {
     this._complete = onComplete ? function() {
       try {
         onComplete();
-      } catch (err) {
-        destination.error(err);
+      } catch (err2) {
+        destination.error(err2);
       } finally {
         this.unsubscribe();
       }
@@ -1242,9 +1242,9 @@ var ConnectableObservable = class extends Observable {
       connection.add(this.source.subscribe(createOperatorSubscriber(subject, void 0, () => {
         this._teardown();
         subject.complete();
-      }, (err) => {
+      }, (err2) => {
         this._teardown();
-        subject.error(err);
+        subject.error(err2);
       }, () => this._teardown())));
       if (connection.closed) {
         this._connection = null;
@@ -1326,15 +1326,15 @@ var Subject = class extends Observable {
       }
     });
   }
-  error(err) {
+  error(err2) {
     errorContext(() => {
       this._throwIfClosed();
       if (!this.isStopped) {
         this.hasError = this.isStopped = true;
-        this.thrownError = err;
+        this.thrownError = err2;
         const { observers } = this;
         while (observers.length) {
-          observers.shift().error(err);
+          observers.shift().error(err2);
         }
       }
     });
@@ -1407,9 +1407,9 @@ var AnonymousSubject = class extends Subject {
     var _a, _b;
     (_b = (_a = this.destination) === null || _a === void 0 ? void 0 : _a.next) === null || _b === void 0 ? void 0 : _b.call(_a, value);
   }
-  error(err) {
+  error(err2) {
     var _a, _b;
-    (_b = (_a = this.destination) === null || _a === void 0 ? void 0 : _a.error) === null || _b === void 0 ? void 0 : _b.call(_a, err);
+    (_b = (_a = this.destination) === null || _a === void 0 ? void 0 : _a.error) === null || _b === void 0 ? void 0 : _b.call(_a, err2);
   }
   complete() {
     var _a, _b;
@@ -2046,7 +2046,7 @@ function fromPromise(promise) {
         subscriber.next(value);
         subscriber.complete();
       }
-    }, (err) => subscriber.error(err)).then(null, reportUnhandledError);
+    }, (err2) => subscriber.error(err2)).then(null, reportUnhandledError);
   });
 }
 function fromIterable(iterable) {
@@ -2062,7 +2062,7 @@ function fromIterable(iterable) {
 }
 function fromAsyncIterable(asyncIterable) {
   return new Observable((subscriber) => {
-    process2(asyncIterable, subscriber).catch((err) => subscriber.error(err));
+    process2(asyncIterable, subscriber).catch((err2) => subscriber.error(err2));
   });
 }
 function fromReadableStreamLike(readableStream) {
@@ -2112,7 +2112,7 @@ function executeSchedule(parentSubscription, scheduler, work, delay2 = 0, repeat
 // node_modules/rxjs/dist/esm/internal/operators/observeOn.js
 function observeOn(scheduler, delay2 = 0) {
   return operate((source, subscriber) => {
-    source.subscribe(createOperatorSubscriber(subscriber, (value) => executeSchedule(subscriber, scheduler, () => subscriber.next(value), delay2), () => executeSchedule(subscriber, scheduler, () => subscriber.complete(), delay2), (err) => executeSchedule(subscriber, scheduler, () => subscriber.error(err), delay2)));
+    source.subscribe(createOperatorSubscriber(subscriber, (value) => executeSchedule(subscriber, scheduler, () => subscriber.next(value), delay2), () => executeSchedule(subscriber, scheduler, () => subscriber.complete(), delay2), (err2) => executeSchedule(subscriber, scheduler, () => subscriber.error(err2), delay2)));
   });
 }
 
@@ -2161,8 +2161,8 @@ function scheduleIterable(input2, scheduler) {
         let done;
         try {
           ({ value, done } = iterator2.next());
-        } catch (err) {
-          subscriber.error(err);
+        } catch (err2) {
+          subscriber.error(err2);
           return;
         }
         if (done) {
@@ -2421,8 +2421,8 @@ function mergeInternals(source, subscriber, project, concurrent, onBeforeNext, e
             }
           }
           checkComplete();
-        } catch (err) {
-          subscriber.error(err);
+        } catch (err2) {
+          subscriber.error(err2);
         }
       }
     }));
@@ -2596,8 +2596,8 @@ function catchError(selector) {
     let innerSub = null;
     let syncUnsub = false;
     let handledResult;
-    innerSub = source.subscribe(createOperatorSubscriber(subscriber, void 0, void 0, (err) => {
-      handledResult = innerFrom(selector(err, catchError(selector)(source)));
+    innerSub = source.subscribe(createOperatorSubscriber(subscriber, void 0, void 0, (err2) => {
+      handledResult = innerFrom(selector(err2, catchError(selector)(source)));
       if (innerSub) {
         innerSub.unsubscribe();
         innerSub = null;
@@ -2821,7 +2821,7 @@ function retry(configOrCount = Infinity) {
           soFar = 0;
         }
         subscriber.next(value);
-      }, void 0, (err) => {
+      }, void 0, (err2) => {
         if (soFar++ < count) {
           const resub = () => {
             if (innerSub) {
@@ -2833,7 +2833,7 @@ function retry(configOrCount = Infinity) {
             }
           };
           if (delay2 != null) {
-            const notifier = typeof delay2 === "number" ? timer(delay2) : innerFrom(delay2(err, soFar));
+            const notifier = typeof delay2 === "number" ? timer(delay2) : innerFrom(delay2(err2, soFar));
             const notifierSubscriber = createOperatorSubscriber(subscriber, () => {
               notifierSubscriber.unsubscribe();
               resub();
@@ -2845,7 +2845,7 @@ function retry(configOrCount = Infinity) {
             resub();
           }
         } else {
-          subscriber.error(err);
+          subscriber.error(err2);
         }
       }));
       if (syncUnsub) {
@@ -2898,11 +2898,11 @@ function share(options2 = {}) {
       if (!connection && refCount2 > 0) {
         connection = new SafeSubscriber({
           next: (value) => dest.next(value),
-          error: (err) => {
+          error: (err2) => {
             hasErrored = true;
             cancelReset();
-            resetConnection = handleReset(reset, resetOnError, err);
-            dest.error(err);
+            resetConnection = handleReset(reset, resetOnError, err2);
+            dest.error(err2);
           },
           complete: () => {
             hasCompleted = true;
@@ -3030,11 +3030,11 @@ function tap(observerOrNext, error2, complete) {
       isUnsub = false;
       (_a2 = tapObserver.complete) === null || _a2 === void 0 ? void 0 : _a2.call(tapObserver);
       subscriber.complete();
-    }, (err) => {
+    }, (err2) => {
       var _a2;
       isUnsub = false;
-      (_a2 = tapObserver.error) === null || _a2 === void 0 ? void 0 : _a2.call(tapObserver, err);
-      subscriber.error(err);
+      (_a2 = tapObserver.error) === null || _a2 === void 0 ? void 0 : _a2.call(tapObserver, err2);
+      subscriber.error(err2);
     }, () => {
       var _a2, _b;
       if (isUnsub) {
@@ -6034,8 +6034,8 @@ var PendingTasks = class _PendingTasks {
     const removeTask = this.add();
     try {
       fn().catch(this.errorHandler).finally(removeTask);
-    } catch (err) {
-      this.errorHandler(err);
+    } catch (err2) {
+      this.errorHandler(err2);
       removeTask();
     }
   }
@@ -8188,8 +8188,8 @@ var DehydratedBlockRegistry = class _DehydratedBlockRegistry {
   cleanupFns = /* @__PURE__ */ new Map();
   jsActionMap = inject2(JSACTION_BLOCK_ELEMENT_MAP);
   contract = inject2(JSACTION_EVENT_CONTRACT);
-  add(blockId, info2) {
-    this.registry.set(blockId, info2);
+  add(blockId, info) {
+    this.registry.set(blockId, info);
     if (this.awaitingCallbacks.has(blockId)) {
       const awaitingCallbacks = this.awaitingCallbacks.get(blockId);
       for (const cb of awaitingCallbacks) {
@@ -8279,8 +8279,8 @@ var HydrationStatus;
   HydrationStatus2["Mismatched"] = "mismatched";
 })(HydrationStatus || (HydrationStatus = {}));
 var HYDRATION_INFO_KEY = "__ngDebugHydrationInfo__";
-function patchHydrationInfo(node, info2) {
-  node[HYDRATION_INFO_KEY] = info2;
+function patchHydrationInfo(node, info) {
+  node[HYDRATION_INFO_KEY] = info;
 }
 function markRNodeAsHavingHydrationMismatch(node, expectedNodeDetails = null, actualNodeDetails = null) {
   if (!ngDevMode) {
@@ -9937,9 +9937,9 @@ var AfterRenderImpl = class _AfterRenderImpl {
             const value = hookFn(sequence2.pipelinedValue);
             return value;
           }, sequence2.snapshot));
-        } catch (err) {
+        } catch (err2) {
           sequence2.erroredOrDestroyed = true;
-          this.errorHandler?.handleError(err);
+          this.errorHandler?.handleError(err2);
         }
       }
     }
@@ -18049,9 +18049,9 @@ function \u0275\u0275defer(index, primaryTmplIndex, dependencyResolverFn, loadin
   let ssrBlockState = null;
   let ssrUniqueId = null;
   if (lContainer[DEHYDRATED_VIEWS]?.length > 0) {
-    const info2 = lContainer[DEHYDRATED_VIEWS][0].data;
-    ssrUniqueId = info2[DEFER_BLOCK_ID] ?? null;
-    ssrBlockState = info2[DEFER_BLOCK_STATE$1];
+    const info = lContainer[DEHYDRATED_VIEWS][0].data;
+    ssrUniqueId = info[DEFER_BLOCK_ID] ?? null;
+    ssrBlockState = info[DEFER_BLOCK_STATE$1];
   }
   const lDetails = [null, DeferBlockInternalState.Initial, null, null, null, null, ssrUniqueId, ssrBlockState, null, null];
   setLDeferBlockDetails(lView, adjustedIndex, lDetails);
@@ -22444,9 +22444,9 @@ function verifySemanticsOfNgModuleDef(moduleType, allowDuplicateDeclarationsInRo
   declarations.forEach((decl) => verifyDeclarationIsUnique(decl, allowDuplicateDeclarationsInRoot));
   const ngModule = getAnnotation(moduleType, "NgModule");
   if (ngModule) {
-    ngModule.imports && flatten(ngModule.imports).map(unwrapModuleWithProvidersImports).forEach((mod2) => {
-      verifySemanticsOfNgModuleImport(mod2, moduleType);
-      verifySemanticsOfNgModuleDef(mod2, false, moduleType);
+    ngModule.imports && flatten(ngModule.imports).map(unwrapModuleWithProvidersImports).forEach((mod) => {
+      verifySemanticsOfNgModuleImport(mod, moduleType);
+      verifySemanticsOfNgModuleDef(mod, false, moduleType);
     });
     ngModule.bootstrap && deepForEach(ngModule.bootstrap, verifyCorrectBootstrapType);
     ngModule.bootstrap && deepForEach(ngModule.bootstrap, verifyComponentIsPartOfNgModule);
@@ -23342,8 +23342,8 @@ var OutputEmitterRef = class {
       for (const listenerFn of this.listeners) {
         try {
           listenerFn(value);
-        } catch (err) {
-          this.errorHandler?.handleError(err);
+        } catch (err2) {
+          this.errorHandler?.handleError(err2);
         }
       }
     } finally {
@@ -23698,8 +23698,8 @@ var ResourceImpl = class extends BaseWritableResource {
           saveToTransferState(result, this.transferCacheKey, this.transferState);
         }
       }
-    } catch (err) {
-      rethrowFatalErrors(err);
+    } catch (err2) {
+      rethrowFatalErrors(err2);
       if (abortSignal.aborted || untracked2(this.extRequest) !== extRequest) {
         return;
       }
@@ -23708,7 +23708,7 @@ var ResourceImpl = class extends BaseWritableResource {
         status: "resolved",
         previousStatus: "error",
         stream: signal({
-          error: encapsulateResourceError(err)
+          error: encapsulateResourceError(err2)
         }, ngDevMode ? createDebugNameObject(this.debugName, "stream") : void 0)
       });
     } finally {
@@ -23735,9 +23735,9 @@ function getLoader(options2) {
       return signal({
         value: await options2.loader(params)
       }, ngDevMode ? createDebugNameObject(options2.debugName, "stream") : void 0);
-    } catch (err) {
+    } catch (err2) {
       return signal({
-        error: encapsulateResourceError(err)
+        error: encapsulateResourceError(err2)
       }, ngDevMode ? createDebugNameObject(options2.debugName, "stream") : void 0);
     }
   };
@@ -25882,10 +25882,10 @@ function debounced(source, wait, options2) {
           value: source(),
           thrown: false
         };
-      } catch (err) {
-        rethrowFatalErrors(err);
+      } catch (err2) {
+        rethrowFatalErrors(err2);
         return {
-          error: err,
+          error: err2,
           thrown: true
         };
       } finally {
@@ -25913,11 +25913,11 @@ function debounced(source, wait, options2) {
     try {
       setInParamsFunction(true);
       value = source();
-    } catch (err) {
-      rethrowFatalErrors(err);
+    } catch (err2) {
+      rethrowFatalErrors(err2);
       state2.set({
         status: "error",
-        error: err
+        error: err2
       });
       active = pendingValue = void 0;
       return;
@@ -34383,7 +34383,7 @@ function firstValueFrom(source) {
   return new Promise((resolve, reject) => {
     source.pipe(first()).subscribe({
       next: (value) => resolve(value),
-      error: (err) => reject(err)
+      error: (err2) => reject(err2)
     });
   });
 }
@@ -37967,8 +37967,8 @@ var NavigationTransitions = class _NavigationTransitions {
         complete: () => {
           completedOrAborted = true;
         }
-      }), takeUntil(this.transitionAbortWithErrorSubject.pipe(tap((err) => {
-        throw err;
+      }), takeUntil(this.transitionAbortWithErrorSubject.pipe(tap((err2) => {
+        throw err2;
       }))), finalize(() => {
         abortController.abort();
         if (!completedOrAborted) {
@@ -39533,7 +39533,7 @@ var NavigationStateManager = class _NavigationStateManager extends StateManager 
   navigate(internalPath, transition2) {
     const path = transition2.extras.skipLocationChange ? this.navigation.currentEntry.url : this.location.prepareExternalUrl(internalPath);
     const state2 = __spreadValues(__spreadValues({}, transition2.extras.state), this.generateNgRouterState(transition2));
-    const info2 = {
+    const info = {
       \u0275routerInfo: {
         intercept: true
       }
@@ -39545,7 +39545,7 @@ var NavigationStateManager = class _NavigationStateManager extends StateManager 
     handleResultRejections(this.navigation.navigate(path, {
       state: state2,
       history,
-      info: info2
+      info
     }));
   }
   finishNavigation() {
@@ -44333,8 +44333,8 @@ var NgControl = class extends AbstractControlDirective {
       if (rawErrors.length === 0) {
         return null;
       }
-      return rawErrors.reduce((acc, err) => {
-        acc[err.kind] = err;
+      return rawErrors.reduce((acc, err2) => {
+        acc[err2.kind] = err2;
         return acc;
       }, {});
     }, ...ngDevMode ? [{
@@ -48255,13 +48255,17 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_BACKGROUND_SEARCH: "Search media",
   TEMPLATE_BACKGROUND_SELECT: "Select background media",
   TEMPLATE_BACKGROUND_SELECTED: "Selected background",
+  TEMPLATE_CONFIGURATION: "Configuration",
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_MAPPING_DEFAULT_HINT: "Turn this off to make the template the default for this item.",
+  TEMPLATE_MAPPING_DISPLAY: "Display",
   TEMPLATE_MAPPING_EDIT: "Edit template schedule",
   TEMPLATE_MAPPING_SCHEDULE: "Schedule this template",
-  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load applied templates.",
+  TEMPLATE_MAPPING_ZONE: "Zone",
+  TEMPLATE_MAPPINGS: "Mappings",
+  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load template mappings.",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
@@ -48273,6 +48277,7 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_NO_LAYOUT_CHANGES: "No layout changes",
   TEMPLATE_NO_LAYOUTS: "No layout items yet. Add one to get started.",
   TEMPLATE_NO_LAYOUTS_HINT: "Add layout items to build this template.",
+  TEMPLATE_NO_MAPPINGS: "This template is not applied to any displays or zones.",
   TEMPLATE_NO_PLUGIN: "No plugin",
   TEMPLATE_PANEL_HEIGHT: "Height",
   TEMPLATE_PANEL_WIDTH: "Width",
@@ -55918,15 +55923,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "ea1e8e8",
-  "hash": "ea1e8e8",
+  "raw": "09622c2",
+  "hash": "09622c2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "ea1e8e8",
+  "suffix": "09622c2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787804331798
+  "time": 1788512939169
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -57943,14 +57948,14 @@ var FocusMonitor = class _FocusMonitor {
       }
       return cachedInfo.subject;
     }
-    const info2 = {
+    const info = {
       checkChildren,
       subject: new Subject(),
       rootNode
     };
-    this._elementInfo.set(nativeElement, info2);
-    this._registerGlobalListeners(info2);
-    return info2.subject;
+    this._elementInfo.set(nativeElement, info);
+    this._registerGlobalListeners(info);
+    return info.subject;
   }
   stopMonitoring(element) {
     const nativeElement = coerceElement(element);
@@ -57966,7 +57971,7 @@ var FocusMonitor = class _FocusMonitor {
     const nativeElement = coerceElement(element);
     const focusedElement = this._document.activeElement;
     if (nativeElement === focusedElement) {
-      this._getClosestElementsInfo(nativeElement).forEach(([currentElement, info2]) => this._originChanged(currentElement, origin, info2));
+      this._getClosestElementsInfo(nativeElement).forEach(([currentElement, info]) => this._originChanged(currentElement, origin, info));
     } else {
       this._setOrigin(origin);
       if (typeof nativeElement.focus === "function") {
@@ -58033,9 +58038,9 @@ var FocusMonitor = class _FocusMonitor {
     this._setClasses(element);
     this._emitOrigin(elementInfo, null);
   }
-  _emitOrigin(info2, origin) {
-    if (info2.subject.observers.length) {
-      this._ngZone.run(() => info2.subject.next(origin));
+  _emitOrigin(info, origin) {
+    if (info.subject.observers.length) {
+      this._ngZone.run(() => info.subject.next(origin));
     }
   }
   _registerGlobalListeners(elementInfo) {
@@ -58088,9 +58093,9 @@ var FocusMonitor = class _FocusMonitor {
   }
   _getClosestElementsInfo(element) {
     const results = [];
-    this._elementInfo.forEach((info2, currentElement) => {
-      if (currentElement === element || info2.checkChildren && currentElement.contains(element)) {
-        results.push([currentElement, info2]);
+    this._elementInfo.forEach((info, currentElement) => {
+      if (currentElement === element || info.checkChildren && currentElement.contains(element)) {
+        results.push([currentElement, info]);
       }
     });
     return results;
@@ -66919,7 +66924,7 @@ function ngswAppInitializer() {
         scope: options2.scope,
         updateViaCache: options2.updateViaCache,
         type: options2.type
-      }).catch((err) => console.error(formatRuntimeError(5604, (typeof ngDevMode === "undefined" || ngDevMode) && "Service worker registration failed with: " + err)));
+      }).catch((err2) => console.error(formatRuntimeError(5604, (typeof ngDevMode === "undefined" || ngDevMode) && "Service worker registration failed with: " + err2)));
     });
   });
 }
@@ -68430,9 +68435,9 @@ var chainAndCopyPromiseLike = (original, onSuccess, onError) => {
       onSuccess(value);
       return value;
     },
-    (err) => {
-      onError(err);
-      throw err;
+    (err2) => {
+      onError(err2);
+      throw err2;
     }
   );
   return isActualPromise(chained) && isActualPromise(original) ? chained : copyProps(original, chained);
@@ -69462,8 +69467,8 @@ function isStreamedBeforeSendSpanCallback(callback) {
 function normalize(input2, depth = 100, maxProperties = Infinity) {
   try {
     return visit("", input2, depth, maxProperties);
-  } catch (err) {
-    return { ERROR: `**non-serializable** (${err})` };
+  } catch (err2) {
+    return { ERROR: `**non-serializable** (${err2})` };
   }
 }
 function normalizeToSize(object, depth = 3, maxSize = 100 * 1024) {
@@ -69559,8 +69564,8 @@ function stringifyValue(key, value) {
       return `[HTMLElement: ${objName}]`;
     }
     return `[object ${objName}]`;
-  } catch (err) {
-    return `**non-serializable** (${err})`;
+  } catch (err2) {
+    return `**non-serializable** (${err2})`;
   }
 }
 function getConstructorName(value) {
@@ -73384,8 +73389,8 @@ function supportsNativeFetch() {
         result = isNativeFunction(sandbox.contentWindow.fetch);
       }
       doc.head.removeChild(sandbox);
-    } catch (err) {
-      DEBUG_BUILD && debug.warn("Could not create sandbox iframe for pure fetch check, bailing to window.fetch: ", err);
+    } catch (err2) {
+      DEBUG_BUILD && debug.warn("Could not create sandbox iframe for pure fetch check, bailing to window.fetch: ", err2);
     }
   }
   return result;
@@ -76917,11 +76922,11 @@ function setupSidecarForwarding(client, sidecarUrl) {
           failCount = 0;
         }
       },
-      (err) => {
+      (err2) => {
         failCount++;
         debug.error(
           "Sentry SDK can't connect to Sidecar is it running? See: https://spotlightjs.com/sidecar/npx/",
-          err
+          err2
         );
       }
     );
@@ -78707,6 +78712,7 @@ var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var OFFLINE_BOOT_DELAY = 10 * 1e3;
+var ZONE_LOAD_TIMEOUT = 120 * 1e3;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 function cachedAuthority() {
@@ -78949,19 +78955,52 @@ var OrganisationService = class _OrganisationService {
     this._region_settings = {};
     this._building_settings = {};
     this._skip_auto_selection = false;
+    this._init_timer = null;
+    this._zone_load_timer = null;
     this._override_timer = null;
-    const online = hi(Kr(), (_2) => _2);
+    const online_state = Kr();
+    const online = hi(online_state, (_2) => _2);
     const start = this._service.get("app.offline_boot") ? Promise.race([
       online,
       new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY))
     ]) : online;
-    start.then(() => setTimeout(() => this.init(), 1e3));
+    start.then(() => this._scheduleInit());
+    online_state.subscribe((is_online, was_online) => {
+      if (is_online && !was_online)
+        this._scheduleInit();
+    }, { emitCurrent: false });
     effect(() => {
       this._active_region();
       const building = this._active_building();
       if (building)
         this._updateSettingOverrides();
     });
+  }
+  _scheduleInit() {
+    if (this._init_timer)
+      clearTimeout(this._init_timer);
+    this._init_timer = setTimeout(() => {
+      this._init_timer = null;
+      if (!this._initialised()) {
+        this._startZoneLoadTimer();
+        this.init();
+      }
+    }, 1e3);
+  }
+  _startZoneLoadTimer() {
+    if (this._zone_load_timer)
+      return;
+    this._zone_load_timer = setTimeout(() => {
+      this._zone_load_timer = null;
+      if (!this._initialised())
+        requestInitReload();
+    }, ZONE_LOAD_TIMEOUT);
+  }
+  _completeInit() {
+    if (this._zone_load_timer)
+      clearTimeout(this._zone_load_timer);
+    this._zone_load_timer = null;
+    this._initialised.set(true);
   }
   /** Resolve once the organisation data has finished initialising */
   async waitUntilInitialised() {
@@ -79044,13 +79083,13 @@ var OrganisationService = class _OrganisationService {
   }
   async init(tries = 0) {
     if (this._limited_init()) {
-      this._initialised.set(true);
+      this._completeInit();
       return;
     }
     this._initialised.set(false);
     if (isPublicMode()) {
-      await this.load().catch((err) => {
-        console.warn("Organisation loading failed in public mode, using local public organisation data.", err);
+      await this.load().catch((err2) => {
+        console.warn("Organisation loading failed in public mode, using local public organisation data.", err2);
         this._setPublicData();
       });
     } else {
@@ -79068,7 +79107,7 @@ var OrganisationService = class _OrganisationService {
       window.app.org = this;
       window.org = this;
     }
-    this._initialised.set(true);
+    this._completeInit();
     if (this._served_cache) {
       log3("Loaded from cache, refreshing organisation data...");
       this._served_cache = false;
@@ -79082,7 +79121,7 @@ var OrganisationService = class _OrganisationService {
    */
   async _refresh(load2) {
     this._refresh_count++;
-    await load2().catch((err) => console.warn("Failed to refresh organisation data.", err));
+    await load2().catch((err2) => console.warn("Failed to refresh organisation data.", err2));
     this._refresh_count--;
   }
   _setPublicData() {
@@ -79422,7 +79461,7 @@ var OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata2 = await sc(name, { parent_ids }).catch((err) => err?.status === 404 ? this._individualMetadata(name, ids) : {});
+    const metadata2 = await sc(name, { parent_ids }).catch((err2) => err2?.status === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       map2[id] = metadata2[id]?.details || {};
       return map2;
@@ -79529,1038 +79568,1004 @@ var OrganisationService = class _OrganisationService {
   }], () => [], null);
 })();
 
-// node_modules/qr/esm/index.js
+// node_modules/qr/index.js
 /*!
-Copyright (c) 2023 Paul Miller (paulmillr.com)
-The library paulmillr-qr is dual-licensed under the Apache 2.0 OR MIT license.
-You can select a license of your choice.
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-var chCodes = { newline: 10, reset: 27 };
-function assertNumber2(n) {
-  if (!Number.isSafeInteger(n))
-    throw new Error(`integer expected: ${n}`);
-}
-function validateVersion(ver) {
-  if (!Number.isSafeInteger(ver) || ver < 1 || ver > 40)
-    throw new Error(`Invalid version=${ver}. Expected number [1..40]`);
-}
-function bin(dec, pad) {
-  return dec.toString(2).padStart(pad, "0");
-}
-function mod(a2, b2) {
-  const result = a2 % b2;
-  return result >= 0 ? result : b2 + result;
-}
-function fillArr(length, val) {
-  return new Array(length).fill(val);
-}
-function interleaveBytes(...blocks) {
-  let len = 0;
-  for (const b2 of blocks)
-    len = Math.max(len, b2.length);
+ * Copyright (c) 2023 Paul Miller (paulmillr.com)
+ * SPDX-License-Identifier: MIT OR Apache-2.0
+ */
+var MAX_OUTPUT_SIZE = 1024;
+var MAX_COMPACT_OUTPUT_SIZE = MAX_OUTPUT_SIZE * 4;
+var BYTES = /* @__PURE__ */ (() => {
   const res = [];
-  for (let i = 0; i < len; i++) {
-    for (const b2 of blocks) {
-      if (i >= b2.length)
-        continue;
-      res.push(b2[i]);
+  for (let ver = 1; ver <= 40; ver++) {
+    let bits = (16 * ver + 128) * ver + 64;
+    if (ver >= 2) {
+      const align = Math.floor(ver / 7) + 2;
+      bits -= (25 * align - 10) * align - 55;
+      if (ver >= 7)
+        bits -= 36;
     }
+    res.push(bits >>> 3);
   }
-  return new Uint8Array(res);
-}
-function includesAt(lst, pattern, index) {
-  if (index < 0 || index + pattern.length > lst.length)
-    return false;
-  for (let i = 0; i < pattern.length; i++)
-    if (pattern[i] !== lst[index + i])
-      return false;
-  return true;
-}
-function best() {
-  let best2;
-  let bestScore = Infinity;
-  return {
-    add(score, value) {
-      if (score >= bestScore)
-        return;
-      best2 = value;
-      bestScore = score;
-    },
-    get: () => best2,
-    score: () => bestScore
-  };
-}
-function alphabet(alphabet2) {
-  return {
-    has: (char) => alphabet2.includes(char),
-    decode: (input2) => {
-      if (!Array.isArray(input2) || input2.length && typeof input2[0] !== "string")
-        throw new Error("alphabet.decode input should be array of strings");
-      return input2.map((letter) => {
-        if (typeof letter !== "string")
-          throw new Error(`alphabet.decode: not string element=${letter}`);
-        const index = alphabet2.indexOf(letter);
-        if (index === -1)
-          throw new Error(`Unknown letter: "${letter}". Allowed: ${alphabet2}`);
-        return index;
-      });
-    },
-    encode: (digits) => {
-      if (!Array.isArray(digits) || digits.length && typeof digits[0] !== "number")
-        throw new Error("alphabet.encode input should be an array of numbers");
-      return digits.map((i) => {
-        assertNumber2(i);
-        if (i < 0 || i >= alphabet2.length)
-          throw new Error(`Digit index outside alphabet: ${i} (alphabet: ${alphabet2.length})`);
-        return alphabet2[i];
-      });
-    }
-  };
-}
-var Bitmap = class _Bitmap {
-  static size(size, limit) {
-    if (typeof size === "number")
-      size = { height: size, width: size };
-    if (!Number.isSafeInteger(size.height) && size.height !== Infinity)
-      throw new Error(`Bitmap: invalid height=${size.height} (${typeof size.height})`);
-    if (!Number.isSafeInteger(size.width) && size.width !== Infinity)
-      throw new Error(`Bitmap: invalid width=${size.width} (${typeof size.width})`);
-    if (limit !== void 0) {
-      size = {
-        width: Math.min(size.width, limit.width),
-        height: Math.min(size.height, limit.height)
-      };
-    }
-    return size;
-  }
-  static fromString(s) {
-    s = s.replace(/^\n+/g, "").replace(/\n+$/g, "");
-    const lines = s.split(String.fromCharCode(chCodes.newline));
-    const height = lines.length;
-    const data = new Array(height);
-    let width;
-    for (const line of lines) {
-      const row = line.split("").map((i) => {
-        if (i === "X")
-          return true;
-        if (i === " ")
-          return false;
-        if (i === "?")
-          return void 0;
-        throw new Error(`Bitmap.fromString: unknown symbol=${i}`);
-      });
-      if (width && row.length !== width)
-        throw new Error(`Bitmap.fromString different row sizes: width=${width} cur=${row.length}`);
-      width = row.length;
-      data.push(row);
-    }
-    if (!width)
-      width = 0;
-    return new _Bitmap({ height, width }, data);
-  }
-  constructor(size, data) {
-    const { height, width } = _Bitmap.size(size);
-    this.data = data || Array.from({ length: height }, () => fillArr(width, void 0));
-    this.height = height;
-    this.width = width;
-  }
-  point(p2) {
-    return this.data[p2.y][p2.x];
-  }
-  isInside(p2) {
-    return 0 <= p2.x && p2.x < this.width && 0 <= p2.y && p2.y < this.height;
-  }
-  size(offset) {
-    if (!offset)
-      return { height: this.height, width: this.width };
-    const { x, y: y2 } = this.xy(offset);
-    return { height: this.height - y2, width: this.width - x };
-  }
-  xy(c2) {
-    if (typeof c2 === "number")
-      c2 = { x: c2, y: c2 };
-    if (!Number.isSafeInteger(c2.x))
-      throw new Error(`Bitmap: invalid x=${c2.x}`);
-    if (!Number.isSafeInteger(c2.y))
-      throw new Error(`Bitmap: invalid y=${c2.y}`);
-    c2.x = mod(c2.x, this.width);
-    c2.y = mod(c2.y, this.height);
-    return c2;
-  }
-  // Basically every operation can be represented as rect
-  rect(c2, size, value) {
-    const { x, y: y2 } = this.xy(c2);
-    const { height, width } = _Bitmap.size(size, this.size({ x, y: y2 }));
-    for (let yPos = 0; yPos < height; yPos++) {
-      for (let xPos = 0; xPos < width; xPos++) {
-        this.data[y2 + yPos][x + xPos] = typeof value === "function" ? value({ x: xPos, y: yPos }, this.data[y2 + yPos][x + xPos]) : value;
-      }
-    }
-    return this;
-  }
-  // returns rectangular part of bitmap
-  rectRead(c2, size, fn) {
-    return this.rect(c2, size, (c3, cur) => {
-      fn(c3, cur);
-      return cur;
-    });
-  }
-  // Horizontal & vertical lines
-  hLine(c2, len, value) {
-    return this.rect(c2, { width: len, height: 1 }, value);
-  }
-  vLine(c2, len, value) {
-    return this.rect(c2, { width: 1, height: len }, value);
-  }
-  // add border
-  border(border = 2, value) {
-    const height = this.height + 2 * border;
-    const width = this.width + 2 * border;
-    const v = fillArr(border, value);
-    const h2 = Array.from({ length: border }, () => fillArr(width, value));
-    return new _Bitmap({ height, width }, [...h2, ...this.data.map((i) => [...v, ...i, ...v]), ...h2]);
-  }
-  // Embed another bitmap on coordinates
-  embed(c2, bm) {
-    return this.rect(c2, bm.size(), ({ x, y: y2 }) => bm.data[y2][x]);
-  }
-  // returns rectangular part of bitmap
-  rectSlice(c2, size = this.size()) {
-    const rect = new _Bitmap(_Bitmap.size(size, this.size(this.xy(c2))));
-    this.rect(c2, size, ({ x, y: y2 }, cur) => rect.data[y2][x] = cur);
-    return rect;
-  }
-  // Change shape, replace rows with columns (data[y][x] -> data[x][y])
-  inverse() {
-    const { height, width } = this;
-    const res = new _Bitmap({ height: width, width: height });
-    return res.rect({ x: 0, y: 0 }, Infinity, ({ x, y: y2 }) => this.data[x][y2]);
-  }
-  // Each pixel size is multiplied by factor
-  scale(factor) {
-    if (!Number.isSafeInteger(factor) || factor > 1024)
-      throw new Error(`invalid scale factor: ${factor}`);
-    const { height, width } = this;
-    const res = new _Bitmap({ height: factor * height, width: factor * width });
-    return res.rect({ x: 0, y: 0 }, Infinity, ({ x, y: y2 }) => this.data[Math.floor(y2 / factor)][Math.floor(x / factor)]);
-  }
-  clone() {
-    const res = new _Bitmap(this.size());
-    return res.rect({ x: 0, y: 0 }, this.size(), ({ x, y: y2 }) => this.data[y2][x]);
-  }
-  // Ensure that there is no undefined values left
-  assertDrawn() {
-    this.rectRead(0, Infinity, (_2, cur) => {
-      if (typeof cur !== "boolean")
-        throw new Error(`Invalid color type=${typeof cur}`);
-    });
-  }
-  // Simple string representation for debugging
-  toString() {
-    return this.data.map((i) => i.map((j) => j === void 0 ? "?" : j ? "X" : " ").join("")).join(String.fromCharCode(chCodes.newline));
-  }
-  toASCII() {
-    const { height, width, data } = this;
-    let out = "";
-    for (let y2 = 0; y2 < height; y2 += 2) {
-      for (let x = 0; x < width; x++) {
-        const first2 = data[y2][x];
-        const second = y2 + 1 >= height ? true : data[y2 + 1][x];
-        if (!first2 && !second)
-          out += "\u2588";
-        else if (!first2 && second)
-          out += "\u2580";
-        else if (first2 && !second)
-          out += "\u2584";
-        else if (first2 && second)
-          out += " ";
-      }
-      out += String.fromCharCode(chCodes.newline);
-    }
-    return out;
-  }
-  toTerm() {
-    const cc = String.fromCharCode(chCodes.reset);
-    const reset = cc + "[0m";
-    const whiteBG = cc + "[1;47m  " + reset;
-    const darkBG = cc + `[40m  ` + reset;
-    return this.data.map((i) => i.map((j) => j ? darkBG : whiteBG).join("")).join(String.fromCharCode(chCodes.newline));
-  }
-  toSVG(optimize = true) {
-    let out = `<svg viewBox="0 0 ${this.width} ${this.height}" xmlns="http://www.w3.org/2000/svg">`;
-    let pathData = "";
-    let prevPoint;
-    this.rectRead(0, Infinity, (point, val) => {
-      if (!val)
-        return;
-      const { x, y: y2 } = point;
-      if (!optimize) {
-        out += `<rect x="${x}" y="${y2}" width="1" height="1" />`;
-        return;
-      }
-      let m2 = `M${x} ${y2}`;
-      if (prevPoint) {
-        const relM = `m${x - prevPoint.x} ${y2 - prevPoint.y}`;
-        if (relM.length <= m2.length)
-          m2 = relM;
-      }
-      const bH = x < 10 ? `H${x}` : "h-1";
-      pathData += `${m2}h1v1${bH}Z`;
-      prevPoint = point;
-    });
-    if (optimize)
-      out += `<path d="${pathData}"/>`;
-    out += `</svg>`;
-    return out;
-  }
-  toGIF() {
-    const u16le = (i) => [i & 255, i >>> 8 & 255];
-    const dims = [...u16le(this.width), ...u16le(this.height)];
-    const data = [];
-    this.rectRead(0, Infinity, (_2, cur) => data.push(+(cur === true)));
-    const N2 = 126;
-    const bytes = [
-      71,
-      73,
-      70,
-      56,
-      55,
-      97,
-      ...dims,
-      246,
-      0,
-      0,
-      255,
-      255,
-      255,
-      ...fillArr(3 * 127, 0),
-      44,
-      0,
-      0,
-      0,
-      0,
-      ...dims,
-      0,
-      7
-    ];
-    const fullChunks = Math.floor(data.length / N2);
-    for (let i = 0; i < fullChunks; i++)
-      bytes.push(N2 + 1, 128, ...data.slice(N2 * i, N2 * (i + 1)).map((i2) => +i2));
-    bytes.push(data.length % N2 + 1, 128, ...data.slice(fullChunks * N2).map((i) => +i));
-    bytes.push(1, 129, 0, 59);
-    return new Uint8Array(bytes);
-  }
-  toImage(isRGB = false) {
-    const { height, width } = this.size();
-    const data = new Uint8Array(height * width * (isRGB ? 3 : 4));
-    let i = 0;
-    for (let y2 = 0; y2 < height; y2++) {
-      for (let x = 0; x < width; x++) {
-        const value = !!this.data[y2][x] ? 0 : 255;
-        data[i++] = value;
-        data[i++] = value;
-        data[i++] = value;
-        if (!isRGB)
-          data[i++] = 255;
-      }
-    }
-    return { height, width, data };
-  }
-};
-var ECMode = ["low", "medium", "quartile", "high"];
-var Encoding = ["numeric", "alphanumeric", "byte", "kanji", "eci"];
-var BYTES = [
-  // 1,  2,  3,   4,   5,   6,   7,   8,   9,  10,  11,  12,  13,  14,  15,  16,  17,  18,  19,   20,
-  26,
-  44,
-  70,
-  100,
-  134,
-  172,
-  196,
-  242,
-  292,
-  346,
-  404,
-  466,
-  532,
-  581,
-  655,
-  733,
-  815,
-  901,
-  991,
-  1085,
-  //  21,   22,   23,   24,   25,   26,   27,   28,   29,   30,   31,   32,   33,   34,   35,   36,   37,   38,   39,   40
-  1156,
-  1258,
-  1364,
-  1474,
-  1588,
-  1706,
-  1828,
-  1921,
-  2051,
-  2185,
-  2323,
-  2465,
-  2611,
-  2761,
-  2876,
-  3034,
-  3196,
-  3362,
-  3532,
-  3706
-];
+  return res;
+})();
+var ECC_LEVELS = ["low", "medium", "quartile", "high"];
 var WORDS_PER_BLOCK = {
-  // Version 1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
-  low: [7, 10, 15, 20, 26, 18, 20, 24, 30, 18, 20, 24, 26, 30, 22, 24, 28, 30, 28, 28, 28, 28, 30, 30, 26, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-  medium: [10, 16, 26, 18, 24, 16, 18, 22, 22, 26, 30, 22, 22, 24, 24, 28, 28, 26, 26, 26, 26, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28],
-  quartile: [13, 22, 18, 26, 18, 24, 18, 22, 20, 24, 28, 26, 24, 20, 30, 24, 28, 28, 26, 30, 28, 30, 30, 30, 30, 28, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-  high: [17, 28, 22, 16, 22, 28, 26, 26, 24, 28, 24, 28, 22, 24, 24, 30, 28, 28, 26, 28, 30, 24, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+  low: [
+    7,
+    10,
+    15,
+    20,
+    26,
+    18,
+    20,
+    24,
+    30,
+    18,
+    20,
+    24,
+    26,
+    30,
+    22,
+    24,
+    28,
+    30,
+    28,
+    28,
+    28,
+    28,
+    30,
+    30,
+    26,
+    28,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  medium: [
+    10,
+    16,
+    26,
+    18,
+    24,
+    16,
+    18,
+    22,
+    22,
+    26,
+    30,
+    22,
+    22,
+    24,
+    24,
+    28,
+    28,
+    26,
+    26,
+    26,
+    26,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28
+  ],
+  quartile: [
+    13,
+    22,
+    18,
+    26,
+    18,
+    24,
+    18,
+    22,
+    20,
+    24,
+    28,
+    26,
+    24,
+    20,
+    30,
+    24,
+    28,
+    28,
+    26,
+    30,
+    28,
+    30,
+    30,
+    30,
+    30,
+    28,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  high: [
+    17,
+    28,
+    22,
+    16,
+    22,
+    28,
+    26,
+    26,
+    24,
+    28,
+    24,
+    28,
+    22,
+    24,
+    24,
+    30,
+    28,
+    28,
+    26,
+    28,
+    30,
+    24,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30
+  ]
 };
 var ECC_BLOCKS = {
-  // Version   1, 2, 3, 4, 5, 6, 7, 8, 9,10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40
   low: [1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25],
   medium: [1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49],
   quartile: [1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68],
   high: [1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]
 };
-var info = {
-  size: {
-    encode: (ver) => 21 + 4 * (ver - 1),
-    // ver1 = 21, ver40=177 blocks
-    decode: (size) => (size - 17) / 4
-  },
-  sizeType: (ver) => Math.floor((ver + 7) / 17),
-  // Based on https://codereview.stackexchange.com/questions/74925/algorithm-to-generate-this-alignment-pattern-locations-table-for-qr-codes
-  alignmentPatterns(ver) {
-    if (ver === 1)
-      return [];
-    const first2 = 6;
-    const last3 = info.size.encode(ver) - first2 - 1;
-    const distance = last3 - first2;
-    const count = Math.ceil(distance / 28);
-    let interval2 = Math.floor(distance / count);
-    if (interval2 % 2)
-      interval2 += 1;
-    else if (distance % count * 2 >= count)
-      interval2 += 2;
-    const res = [first2];
-    for (let m2 = 1; m2 < count; m2++)
-      res.push(last3 - (count - m2) * interval2);
-    res.push(last3);
-    return res;
-  },
-  ECCode: {
-    low: 1,
-    medium: 0,
-    quartile: 3,
-    high: 2
-  },
-  formatMask: 21522,
-  formatBits(ecc, maskIdx) {
-    const data = info.ECCode[ecc] << 3 | maskIdx;
-    let d = data;
-    for (let i = 0; i < 10; i++)
-      d = d << 1 ^ (d >> 9) * 1335;
-    return (data << 10 | d) ^ info.formatMask;
-  },
-  versionBits(ver) {
-    let d = ver;
-    for (let i = 0; i < 12; i++)
-      d = d << 1 ^ (d >> 11) * 7973;
-    return ver << 12 | d;
-  },
-  alphabet: {
-    numeric: alphabet("0123456789"),
-    alphanumerc: alphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:")
-  },
-  // as Record<EncodingType, ReturnType<typeof alphabet>>,
-  lengthBits(ver, type2) {
-    const table = {
-      numeric: [10, 12, 14],
-      alphanumeric: [9, 11, 13],
-      byte: [8, 16, 16],
-      kanji: [8, 10, 12],
-      eci: [0, 0, 0]
-    };
-    return table[type2][info.sizeType(ver)];
-  },
-  modeBits: {
-    numeric: "0001",
-    alphanumeric: "0010",
-    byte: "0100",
-    kanji: "1000",
-    eci: "0111"
-  },
-  capacity(ver, ecc) {
-    const bytes = BYTES[ver - 1];
-    const words = WORDS_PER_BLOCK[ecc][ver - 1];
-    const numBlocks = ECC_BLOCKS[ecc][ver - 1];
-    const blockLen = Math.floor(bytes / numBlocks) - words;
-    const shortBlocks = numBlocks - bytes % numBlocks;
-    return {
-      words,
-      numBlocks,
-      shortBlocks,
-      blockLen,
-      capacity: (bytes - words * numBlocks) * 8,
-      total: (words + blockLen) * numBlocks + numBlocks - shortBlocks
-    };
-  }
-};
-var PATTERNS = [
-  (x, y2) => (x + y2) % 2 == 0,
-  (_x, y2) => y2 % 2 == 0,
-  (x, _y) => x % 3 == 0,
-  (x, y2) => (x + y2) % 3 == 0,
-  (x, y2) => (Math.floor(y2 / 2) + Math.floor(x / 3)) % 2 == 0,
-  (x, y2) => x * y2 % 2 + x * y2 % 3 == 0,
-  (x, y2) => (x * y2 % 2 + x * y2 % 3) % 2 == 0,
-  (x, y2) => ((x + y2) % 2 + x * y2 % 3) % 2 == 0
-];
-var GF = {
-  tables: ((p_poly) => {
-    const exp = fillArr(256, 0);
-    const log4 = fillArr(256, 0);
-    for (let i = 0, x = 1; i < 256; i++) {
-      exp[i] = x;
-      log4[x] = i;
-      x <<= 1;
-      if (x & 256)
-        x ^= p_poly;
-    }
-    return { exp, log: log4 };
-  })(285),
-  exp: (x) => GF.tables.exp[x],
-  log(x) {
-    if (x === 0)
-      throw new Error(`GF.log: invalid arg=${x}`);
-    return GF.tables.log[x] % 255;
-  },
-  mul(x, y2) {
-    if (x === 0 || y2 === 0)
-      return 0;
-    return GF.tables.exp[(GF.tables.log[x] + GF.tables.log[y2]) % 255];
-  },
-  add: (x, y2) => x ^ y2,
-  pow: (x, e) => GF.tables.exp[GF.tables.log[x] * e % 255],
-  inv(x) {
-    if (x === 0)
-      throw new Error(`GF.inverse: invalid arg=${x}`);
-    return GF.tables.exp[255 - GF.tables.log[x]];
-  },
-  polynomial(poly) {
-    if (poly.length == 0)
-      throw new Error("GF.polymomial: invalid length");
-    if (poly[0] !== 0)
-      return poly;
-    let i = 0;
-    for (; i < poly.length - 1 && poly[i] == 0; i++)
-      ;
-    return poly.slice(i);
-  },
-  monomial(degree, coefficient) {
-    if (degree < 0)
-      throw new Error(`GF.monomial: invalid degree=${degree}`);
-    if (coefficient == 0)
-      return [0];
-    let coefficients = fillArr(degree + 1, 0);
-    coefficients[0] = coefficient;
-    return GF.polynomial(coefficients);
-  },
-  degree: (a2) => a2.length - 1,
-  coefficient: (a2, degree) => a2[GF.degree(a2) - degree],
-  mulPoly(a2, b2) {
-    if (a2[0] === 0 || b2[0] === 0)
-      return [0];
-    const res = fillArr(a2.length + b2.length - 1, 0);
-    for (let i = 0; i < a2.length; i++) {
-      for (let j = 0; j < b2.length; j++) {
-        res[i + j] = GF.add(res[i + j], GF.mul(a2[i], b2[j]));
-      }
-    }
-    return GF.polynomial(res);
-  },
-  mulPolyScalar(a2, scalar) {
-    if (scalar == 0)
-      return [0];
-    if (scalar == 1)
-      return a2;
-    const res = fillArr(a2.length, 0);
-    for (let i = 0; i < a2.length; i++)
-      res[i] = GF.mul(a2[i], scalar);
-    return GF.polynomial(res);
-  },
-  mulPolyMonomial(a2, degree, coefficient) {
-    if (degree < 0)
-      throw new Error("GF.mulPolyMonomial: invalid degree");
-    if (coefficient == 0)
-      return [0];
-    const res = fillArr(a2.length + degree, 0);
-    for (let i = 0; i < a2.length; i++)
-      res[i] = GF.mul(a2[i], coefficient);
-    return GF.polynomial(res);
-  },
-  addPoly(a2, b2) {
-    if (a2[0] === 0)
-      return b2;
-    if (b2[0] === 0)
-      return a2;
-    let smaller = a2;
-    let larger = b2;
-    if (smaller.length > larger.length)
-      [smaller, larger] = [larger, smaller];
-    let sumDiff = fillArr(larger.length, 0);
-    let lengthDiff = larger.length - smaller.length;
-    let s = larger.slice(0, lengthDiff);
-    for (let i = 0; i < s.length; i++)
-      sumDiff[i] = s[i];
-    for (let i = lengthDiff; i < larger.length; i++)
-      sumDiff[i] = GF.add(smaller[i - lengthDiff], larger[i]);
-    return GF.polynomial(sumDiff);
-  },
-  remainderPoly(data, divisor) {
-    const out = Array.from(data);
-    for (let i = 0; i < data.length - divisor.length + 1; i++) {
-      const elm = out[i];
-      if (elm === 0)
-        continue;
-      for (let j = 1; j < divisor.length; j++) {
-        if (divisor[j] !== 0)
-          out[i + j] = GF.add(out[i + j], GF.mul(divisor[j], elm));
-      }
-    }
-    return out.slice(data.length - divisor.length + 1, out.length);
-  },
-  divisorPoly(degree) {
-    let g2 = [1];
-    for (let i = 0; i < degree; i++)
-      g2 = GF.mulPoly(g2, [1, GF.pow(2, i)]);
-    return g2;
-  },
-  evalPoly(poly, a2) {
-    if (a2 == 0)
-      return GF.coefficient(poly, 0);
-    let res = poly[0];
-    for (let i = 1; i < poly.length; i++)
-      res = GF.add(GF.mul(a2, res), poly[i]);
-    return res;
-  },
-  // TODO: cleanup
-  euclidian(a2, b2, R2) {
-    if (GF.degree(a2) < GF.degree(b2))
-      [a2, b2] = [b2, a2];
-    let rLast = a2;
-    let r = b2;
-    let tLast = [0];
-    let t = [1];
-    while (2 * GF.degree(r) >= R2) {
-      let rLastLast = rLast;
-      let tLastLast = tLast;
-      rLast = r;
-      tLast = t;
-      if (rLast[0] === 0)
-        throw new Error("rLast[0] === 0");
-      r = rLastLast;
-      let q2 = [0];
-      const dltInverse = GF.inv(rLast[0]);
-      while (GF.degree(r) >= GF.degree(rLast) && r[0] !== 0) {
-        const degreeDiff = GF.degree(r) - GF.degree(rLast);
-        const scale = GF.mul(r[0], dltInverse);
-        q2 = GF.addPoly(q2, GF.monomial(degreeDiff, scale));
-        r = GF.addPoly(r, GF.mulPolyMonomial(rLast, degreeDiff, scale));
-      }
-      q2 = GF.mulPoly(q2, tLast);
-      t = GF.addPoly(q2, tLastLast);
-      if (GF.degree(r) >= GF.degree(rLast))
-        throw new Error(`Division failed r: ${r}, rLast: ${rLast}`);
-    }
-    const sigmaTildeAtZero = GF.coefficient(t, 0);
-    if (sigmaTildeAtZero == 0)
-      throw new Error("sigmaTilde(0) was zero");
-    const inverse = GF.inv(sigmaTildeAtZero);
-    return [GF.mulPolyScalar(t, inverse), GF.mulPolyScalar(r, inverse)];
-  }
-};
-function RS(eccWords) {
-  return {
-    encode(from2) {
-      const d = GF.divisorPoly(eccWords);
-      const pol = Array.from(from2);
-      pol.push(...d.slice(0, -1).fill(0));
-      return Uint8Array.from(GF.remainderPoly(pol, d));
-    },
-    decode(to2) {
-      const res = to2.slice();
-      const poly = GF.polynomial(Array.from(to2));
-      let syndrome = fillArr(eccWords, 0);
-      let hasError = false;
-      for (let i = 0; i < eccWords; i++) {
-        const evl = GF.evalPoly(poly, GF.exp(i));
-        syndrome[syndrome.length - 1 - i] = evl;
-        if (evl !== 0)
-          hasError = true;
-      }
-      if (!hasError)
-        return res;
-      syndrome = GF.polynomial(syndrome);
-      const monomial = GF.monomial(eccWords, 1);
-      const [errorLocator, errorEvaluator] = GF.euclidian(monomial, syndrome, eccWords);
-      const locations = fillArr(GF.degree(errorLocator), 0);
-      let e = 0;
-      for (let i = 1; i < 256 && e < locations.length; i++) {
-        if (GF.evalPoly(errorLocator, i) === 0)
-          locations[e++] = GF.inv(i);
-      }
-      if (e !== locations.length)
-        throw new Error("RS.decode: invalid errors number");
-      for (let i = 0; i < locations.length; i++) {
-        const pos = res.length - 1 - GF.log(locations[i]);
-        if (pos < 0)
-          throw new Error("RS.decode: invalid error location");
-        const xiInverse = GF.inv(locations[i]);
-        let denominator = 1;
-        for (let j = 0; j < locations.length; j++) {
-          if (i === j)
-            continue;
-          denominator = GF.mul(denominator, GF.add(1, GF.mul(locations[j], xiInverse)));
-        }
-        res[pos] = GF.add(res[pos], GF.mul(GF.evalPoly(errorEvaluator, xiInverse), GF.inv(denominator)));
-      }
-      return res;
-    }
-  };
+var EC_CODE = { low: 1, medium: 0, quartile: 3, high: 2 };
+var ALPHANUMERIC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
+function alignmentPatterns(ver) {
+  ver = asVersion(ver);
+  if (ver === 1)
+    return [];
+  const last3 = 21 + 4 * (ver - 1) - 7;
+  const count = Math.ceil((last3 - 6) / 28);
+  let interval2 = Math.floor((last3 - 6) / count);
+  if (interval2 % 2)
+    interval2 += 1;
+  else if ((last3 - 6) % count * 2 >= count)
+    interval2 += 2;
+  const res = [6];
+  for (let m2 = 1; m2 < count; m2++)
+    res.push(last3 - (count - m2) * interval2);
+  res.push(last3);
+  return res;
 }
-function interleave(ver, ecc) {
-  const { words, shortBlocks, numBlocks, blockLen, total } = info.capacity(ver, ecc);
-  const rs2 = RS(words);
-  return {
-    encode(bytes) {
-      const blocks = [];
-      const eccBlocks = [];
-      for (let i = 0; i < numBlocks; i++) {
-        const isShort = i < shortBlocks;
-        const len = blockLen + (isShort ? 0 : 1);
-        blocks.push(bytes.subarray(0, len));
-        eccBlocks.push(rs2.encode(bytes.subarray(0, len)));
-        bytes = bytes.subarray(len);
-      }
-      const resBlocks = interleaveBytes(...blocks);
-      const resECC = interleaveBytes(...eccBlocks);
-      const res = new Uint8Array(resBlocks.length + resECC.length);
-      res.set(resBlocks);
-      res.set(resECC, resBlocks.length);
-      return res;
-    },
-    decode(data) {
-      if (data.length !== total)
-        throw new Error(`interleave.decode: len(data)=${data.length}, total=${total}`);
-      const blocks = [];
-      for (let i = 0; i < numBlocks; i++) {
-        const isShort = i < shortBlocks;
-        blocks.push(new Uint8Array(words + blockLen + (isShort ? 0 : 1)));
-      }
-      let pos = 0;
-      for (let i = 0; i < blockLen; i++) {
-        for (let j = 0; j < numBlocks; j++)
-          blocks[j][i] = data[pos++];
-      }
-      for (let j = shortBlocks; j < numBlocks; j++)
-        blocks[j][blockLen] = data[pos++];
-      for (let i = blockLen; i < blockLen + words; i++) {
-        for (let j = 0; j < numBlocks; j++) {
-          const isShort = j < shortBlocks;
-          blocks[j][i + (isShort ? 0 : 1)] = data[pos++];
-        }
-      }
-      const res = [];
-      for (const block2 of blocks)
-        res.push(...Array.from(rs2.decode(block2)).slice(0, -words));
-      return Uint8Array.from(res);
-    }
-  };
+function formatBits(ecc, mask) {
+  const data = EC_CODE[ecc] << 3 | mask;
+  let d = data;
+  for (let i = 0; i < 10; i++)
+    d = d << 1 ^ (d >> 9) * 1335;
+  return (data << 10 | d) ^ 21522;
 }
-function drawTemplate(ver, ecc, maskIdx, test = false) {
-  const size = info.size.encode(ver);
-  let b2 = new Bitmap(size + 2);
-  const finder = new Bitmap(3).rect(0, 3, true).border(1, false).border(1, true).border(1, false);
-  b2 = b2.embed(0, finder).embed({ x: -finder.width, y: 0 }, finder).embed({ x: 0, y: -finder.height }, finder);
-  b2 = b2.rectSlice(1, size);
-  const align = new Bitmap(1).rect(0, 1, true).border(1, false).border(1, true);
-  const alignPos = info.alignmentPatterns(ver);
-  for (const y2 of alignPos) {
-    for (const x of alignPos) {
-      if (b2.data[y2][x] !== void 0)
-        continue;
-      b2.embed({ x: x - 2, y: y2 - 2 }, align);
+function versionBits(ver) {
+  let d = ver;
+  for (let i = 0; i < 12; i++)
+    d = d << 1 ^ (d >> 11) * 7973;
+  return ver << 12 | d;
+}
+var MODE_BITS = { numeric: 1, alphanumeric: 2, byte: 4 };
+var LENGTH_BITS = {
+  numeric: [10, 12, 14],
+  alphanumeric: [9, 11, 13],
+  byte: [8, 16, 16]
+};
+var GF256 = /* @__PURE__ */ (() => {
+  const exp = new Uint8Array(510);
+  const log4 = new Uint8Array(256);
+  for (let i = 0, x = 1; i < 255; i++) {
+    exp[i] = exp[i + 255] = x;
+    log4[x] = i;
+    x <<= 1;
+    if (x & 256)
+      x ^= 285;
+  }
+  return { exp, log: log4 };
+})();
+function rsGenerator(eccWords) {
+  const { exp: EXP, log: LOG } = GF256;
+  const gen = new Uint8Array(eccWords);
+  gen[eccWords - 1] = 1;
+  for (let i = 0, root = 1; i < eccWords; i++) {
+    for (let j = 0; j < eccWords; j++) {
+      const c2 = gen[j];
+      gen[j] = (c2 ? EXP[LOG[c2] + LOG[root]] : 0) ^ (j + 1 < eccWords ? gen[j + 1] : 0);
+    }
+    root = EXP[LOG[root] + 1];
+  }
+  return gen;
+}
+var RS_CACHE = [];
+function rsCached(eccWords) {
+  let cached = RS_CACHE[eccWords];
+  if (cached !== void 0)
+    return cached;
+  const gen = rsGenerator(eccWords);
+  const { exp: EXP, log: LOG } = GF256;
+  const mul = new Uint8Array(256 * eccWords);
+  for (let f2 = 1; f2 < 256; f2++) {
+    const lf = LOG[f2];
+    const off = f2 * eccWords;
+    for (let j = 0; j < eccWords; j++) {
+      const c2 = gen[j];
+      if (c2)
+        mul[off + j] = EXP[LOG[c2] + lf];
     }
   }
-  b2 = b2.hLine({ x: 0, y: 6 }, Infinity, ({ x }, cur) => cur === void 0 ? x % 2 == 0 : cur).vLine({ x: 6, y: 0 }, Infinity, ({ y: y2 }, cur) => cur === void 0 ? y2 % 2 == 0 : cur);
-  {
-    const bits = info.formatBits(ecc, maskIdx);
-    const getBit = (i) => !test && (bits >> i & 1) == 1;
-    for (let i = 0; i < 6; i++)
-      b2.data[i][8] = getBit(i);
-    for (let i = 6; i < 8; i++)
-      b2.data[i + 1][8] = getBit(i);
-    for (let i = 8; i < 15; i++)
-      b2.data[size - 15 + i][8] = getBit(i);
-    for (let i = 0; i < 8; i++)
-      b2.data[8][size - i - 1] = getBit(i);
-    for (let i = 8; i < 9; i++)
-      b2.data[8][15 - i - 1 + 1] = getBit(i);
-    for (let i = 9; i < 15; i++)
-      b2.data[8][15 - i - 1] = getBit(i);
-    b2.data[size - 8][8] = !test;
+  return RS_CACHE[eccWords] = { gen, mul };
+}
+function rsEcc(data, gen, mul) {
+  const { exp: EXP, log: LOG } = GF256;
+  const eccWords = gen.length;
+  const res = new Uint8Array(eccWords);
+  if (mul !== void 0) {
+    const last3 = eccWords - 1;
+    for (let i = 0; i < data.length; i++) {
+      const off = (data[i] ^ res[0]) * eccWords;
+      for (let j = 0; j < last3; j++)
+        res[j] = res[j + 1] ^ mul[off + j];
+      res[last3] = mul[off + last3];
+    }
+    return res;
+  }
+  for (let i = 0; i < data.length; i++) {
+    const f2 = data[i] ^ res[0];
+    res.copyWithin(0, 1);
+    res[eccWords - 1] = 0;
+    if (f2) {
+      for (let j = 0; j < eccWords; j++)
+        if (gen[j])
+          res[j] ^= EXP[LOG[gen[j]] + LOG[f2]];
+    }
+  }
+  return res;
+}
+function capacity(ver, ecc) {
+  const bytes = BYTES[ver - 1];
+  const words = WORDS_PER_BLOCK[ecc][ver - 1];
+  const numBlocks = ECC_BLOCKS[ecc][ver - 1];
+  const blockLen = Math.floor(bytes / numBlocks) - words;
+  const shortBlocks = numBlocks - bytes % numBlocks;
+  return { words, numBlocks, shortBlocks, blockLen, capacity: (bytes - words * numBlocks) * 8 };
+}
+var err = (msg) => {
+  throw new Error(msg);
+};
+function asVersion(ver) {
+  if (typeof ver !== "number")
+    throw new TypeError(`"ver" expected number, got type=${typeof ver}`);
+  if (!Number.isSafeInteger(ver))
+    throw new RangeError(`"ver" expected safe integer, got ${ver}`);
+  if (ver < 1 || ver > 40)
+    throw new RangeError(`Invalid version=${ver}. Expected number [1..40]`);
+  return ver;
+}
+function detectType(str) {
+  let type2 = "numeric";
+  for (let i = 0; i < str.length; i++) {
+    const v = ALNUM_VAL[str.charCodeAt(i)];
+    if (!(v >= 0))
+      return "byte";
+    if (v > 9)
+      type2 = "alphanumeric";
+  }
+  return type2;
+}
+var ALNUM_VAL = /* @__PURE__ */ (() => {
+  const t = new Int8Array(128).fill(-1);
+  for (let i = 0; i < ALPHANUMERIC.length; i++)
+    t[ALPHANUMERIC.charCodeAt(i)] = i;
+  return t;
+})();
+function encodeData(ver, ecc, text, type2, utf8) {
+  const cap = capacity(ver, ecc);
+  const lengthBits = LENGTH_BITS[type2][Math.floor((ver + 7) / 17)];
+  const dataLen = type2 === "byte" ? utf8.length : text.length;
+  if (dataLen >= 1 << lengthBits)
+    err("Capacity overflow");
+  const bytes = new Uint8Array(cap.capacity >>> 3);
+  let acc = 0;
+  let accBits = 0;
+  let bytePos = 0;
+  const push = (value, len) => {
+    acc = acc << len | value;
+    for (accBits += len; accBits >= 8; )
+      bytes[bytePos++] = acc >>> (accBits -= 8) & 255;
+  };
+  push(MODE_BITS[type2], 4);
+  push(dataLen, lengthBits);
+  if (type2 === "numeric") {
+    for (let i = 0; i < dataLen; i += 3) {
+      const n = Math.min(3, dataLen - i);
+      push(Number(text.slice(i, i + n)), [0, 4, 7, 10][n]);
+    }
+  } else if (type2 === "alphanumeric") {
+    for (let i = 0; i + 1 < dataLen; i += 2)
+      push(ALNUM_VAL[text.charCodeAt(i)] * 45 + ALNUM_VAL[text.charCodeAt(i + 1)], 11);
+    if (dataLen & 1)
+      push(ALNUM_VAL[text.charCodeAt(dataLen - 1)], 6);
+  } else {
+    for (let i = 0; i < utf8.length; i++)
+      push(utf8[i], 8);
+  }
+  let bitPos = bytePos * 8 + accBits;
+  if (bitPos > cap.capacity)
+    err("Capacity overflow");
+  if (accBits)
+    bytes[bytePos] = acc << 8 - accBits & 255;
+  bitPos += Math.min(4, cap.capacity - bitPos);
+  if (bitPos & 7)
+    bitPos += 8 - (bitPos & 7);
+  for (let i = bitPos >>> 3, pad = 0; i < bytes.length; i++, pad ^= 1)
+    bytes[i] = pad ? 17 : 236;
+  const { words, numBlocks, shortBlocks, blockLen } = cap;
+  const rs2 = rsCached(words);
+  const blocks = [];
+  const eccs = [];
+  for (let i = 0, pos = 0; i < numBlocks; i++) {
+    const len = blockLen + (i < shortBlocks ? 0 : 1);
+    blocks.push(bytes.subarray(pos, pos + len));
+    eccs.push(rsEcc(blocks[i], rs2.gen, rs2.mul));
+    pos += len;
+  }
+  const res = new Uint8Array(bytes.length + words * numBlocks);
+  let p2 = 0;
+  for (let i = 0; i <= blockLen; i++) {
+    for (const b2 of blocks)
+      if (i < b2.length)
+        res[p2++] = b2[i];
+  }
+  for (let i = 0; i < words; i++)
+    for (const e of eccs)
+      res[p2++] = e[i];
+  return res;
+}
+function maskBits(x, y2) {
+  const x2 = x % 2;
+  const y22 = y2 % 2;
+  const x3 = x % 3;
+  const xy3 = x3 * (y2 % 3) % 3;
+  const xy2 = x2 & y22;
+  let bits = 0;
+  if (x2 === y22)
+    bits |= 1;
+  if (y22 === 0)
+    bits |= 2;
+  if (x3 === 0)
+    bits |= 4;
+  if ((x + y2) % 3 === 0)
+    bits |= 8;
+  if ((Math.floor(y2 / 2) + Math.floor(x / 3)) % 2 === 0)
+    bits |= 16;
+  if (xy2 + xy3 === 0)
+    bits |= 32;
+  if ((xy2 + xy3) % 2 === 0)
+    bits |= 64;
+  if (((x2 ^ y22) + xy3) % 2 === 0)
+    bits |= 128;
+  return bits;
+}
+var POP16 = /* @__PURE__ */ (() => {
+  const t = new Uint8Array(1 << 16);
+  for (let i = 1; i < t.length; i++)
+    t[i] = t[i >>> 1] + (i & 1);
+  return t;
+})();
+var popcnt = (n) => POP16[n & 65535] + POP16[n >>> 16];
+var TRANSPOSE_TMP = /* @__PURE__ */ new Uint32Array(32);
+function transpose32(a2) {
+  const masks = [1431655765, 858993459, 252645135, 16711935, 65535];
+  for (let stage = 0; stage < 5; stage++) {
+    const m2 = masks[stage] >>> 0;
+    const s = 1 << stage;
+    for (let i = 0; i < 32; i += s << 1) {
+      for (let k = 0; k < s; k++) {
+        const x = a2[i + k] >>> 0;
+        const y2 = a2[i + k + s] >>> 0;
+        const t = (x >>> s ^ y2) & m2;
+        a2[i + k] = (x ^ t << s) >>> 0;
+        a2[i + k + s] = (y2 ^ t) >>> 0;
+      }
+    }
+  }
+}
+var mat = (size) => {
+  const words = size + 31 >>> 5;
+  return { size, words, v: new Uint32Array(words * size) };
+};
+var matGet = (m2, x, y2) => m2.v[y2 * m2.words + (x >>> 5)] >>> (x & 31) & 1;
+var matSet = (m2, x, y2, bit) => {
+  const i = y2 * m2.words + (x >>> 5);
+  const b2 = 1 << (x & 31);
+  m2.v[i] = bit ? m2.v[i] | b2 : m2.v[i] & ~b2;
+};
+function transposeMat(src, dst) {
+  const { size, words, v } = src;
+  const tmp = TRANSPOSE_TMP;
+  for (let by = 0; by < size; by += 32) {
+    for (let bx = 0; bx < words; bx++) {
+      const rows = Math.min(32, size - by);
+      for (let r = 0; r < rows; r++)
+        tmp[r] = v[(by + r) * words + bx];
+      tmp.fill(0, rows);
+      transpose32(tmp);
+      for (let i = 0, dstY = bx * 32; i < 32 && dstY < size; i++, dstY++) {
+        dst.v[dstY * dst.words + (by >>> 5)] = tmp[i];
+      }
+    }
+  }
+}
+function runsPenaltyVertical(m2) {
+  const { size, words, v } = m2;
+  const tail = size & 31 ? (1 << (size & 31)) - 1 >>> 0 : 4294967295;
+  let score = 0;
+  for (let wi2 = 0; wi2 < words; wi2++) {
+    const valid = wi2 === words - 1 ? tail : 4294967295;
+    let r3 = v[3 * words + wi2];
+    let dPrev = 4294967295;
+    let d0 = v[wi2] ^ v[words + wi2];
+    let d1 = v[words + wi2] ^ v[2 * words + wi2];
+    let d2 = v[2 * words + wi2] ^ r3;
+    for (let y2 = 0, idx = 4 * words + wi2; y2 <= size - 5; y2++, idx += words) {
+      const r4 = v[idx];
+      const d3 = r3 ^ r4;
+      const w2 = ~(d0 | d1 | d2 | d3) & valid;
+      if (w2)
+        score += popcnt(w2 >>> 0) + 2 * popcnt((w2 & dPrev) >>> 0);
+      dPrev = d0;
+      d0 = d1;
+      d1 = d2;
+      d2 = d3;
+      r3 = r4;
+    }
+  }
+  return score;
+}
+function finderPenaltyVertical(m2) {
+  const { size, words, v } = m2;
+  const tail = size & 31 ? (1 << (size & 31)) - 1 >>> 0 : 4294967295;
+  let count = 0;
+  for (let wi2 = 0; wi2 < words; wi2++) {
+    const valid = wi2 === words - 1 ? tail : 4294967295;
+    for (let y2 = 0; y2 <= size - 11; y2++) {
+      let i = y2 * words + wi2;
+      const r0 = v[i];
+      const r1 = v[i += words];
+      const r2 = v[i += words];
+      const r3 = v[i += words];
+      const r4 = v[i += words];
+      const r5 = v[i += words];
+      const r6 = v[i += words];
+      const r7 = v[i += words];
+      const r8 = v[i += words];
+      const r9 = v[i += words];
+      const r10 = v[i + words];
+      const m0 = valid & r0 & ~r1 & r2 & r3 & r4 & ~r5 & r6 & ~(r7 | r8 | r9 | r10);
+      const m1 = valid & ~(r0 | r1 | r2 | r3) & r4 & ~r5 & r6 & r7 & r8 & ~r9 & r10;
+      count += popcnt(m0 >>> 0) + popcnt(m1 >>> 0);
+    }
+  }
+  return count;
+}
+function penaltyScore(m2, t, limit = Infinity) {
+  const { size, words, v } = m2;
+  const adjacent = runsPenaltyVertical(m2) + runsPenaltyVertical(t);
+  if (adjacent >= limit)
+    return adjacent;
+  const tail2 = (1 << size - 32 * (words - 1) - 1) - 1 >>> 0;
+  let boxes = 0;
+  let dark2 = 0;
+  for (let y2 = 0; y2 < size; y2++) {
+    for (let wi2 = 0; wi2 < words; wi2++) {
+      const a0 = v[y2 * words + wi2];
+      dark2 += popcnt(a0 >>> 0);
+      if (y2 === size - 1)
+        continue;
+      const a1 = v[(y2 + 1) * words + wi2];
+      const n0 = wi2 + 1 < words ? v[y2 * words + wi2 + 1] : 0;
+      const n1 = wi2 + 1 < words ? v[(y2 + 1) * words + wi2 + 1] : 0;
+      const eqV = ~(a0 ^ a1);
+      const eqH0 = ~(a0 ^ (a0 >>> 1 | n0 << 31));
+      const eqH1 = ~(a1 ^ (a1 >>> 1 | n1 << 31));
+      let w2 = eqV & eqH0 & eqH1;
+      if (wi2 === words - 1)
+        w2 &= tail2;
+      boxes += popcnt(w2 >>> 0);
+    }
+  }
+  const total = size * size;
+  const darkSteps = Math.ceil(Math.max(0, Math.abs(dark2 * 100 - total * 50) - total * 5) / (total * 5));
+  const partial = adjacent + 3 * boxes + 10 * darkSteps;
+  if (partial >= limit)
+    return partial;
+  return partial + 40 * (finderPenaltyVertical(m2) + finderPenaltyVertical(t));
+}
+function drawInfo(m2, ver, ecc, mask) {
+  const size = m2.size;
+  const bits = formatBits(ecc, mask);
+  for (let i = 0; i < 15; i++) {
+    const bit = bits >> i & 1;
+    if (i < 6)
+      matSet(m2, 8, i, bit);
+    else if (i < 8)
+      matSet(m2, 8, i + 1, bit);
+    else if (i === 8)
+      matSet(m2, 7, 8, bit);
+    else
+      matSet(m2, 14 - i, 8, bit);
+    if (i < 8)
+      matSet(m2, size - 1 - i, 8, bit);
+    else
+      matSet(m2, 8, size - 15 + i, bit);
+  }
+  matSet(m2, 8, size - 8, 1);
+  if (ver >= 7) {
+    const vbits = versionBits(ver);
+    for (let i = 0; i < 18; i++) {
+      const bit = vbits >> i & 1;
+      const x = size - 11 + i % 3;
+      const y2 = i / 3 | 0;
+      matSet(m2, x, y2, bit);
+      matSet(m2, y2, x, bit);
+    }
+  }
+}
+var symCache;
+function buildSymCache(ver) {
+  const size = 21 + 4 * (ver - 1);
+  const m2 = mat(size);
+  const fun = new Uint8Array(size * size);
+  const setF = (x, y2, bit) => {
+    matSet(m2, x, y2, bit);
+    fun[y2 * size + x] = 1;
+  };
+  for (const [fx, fy] of [
+    [0, 0],
+    [size - 7, 0],
+    [0, size - 7]
+  ]) {
+    for (let dy = -1; dy < 8; dy++) {
+      for (let dx = -1; dx < 8; dx++) {
+        const x = fx + dx;
+        const y2 = fy + dy;
+        if (x < 0 || y2 < 0 || x >= size || y2 >= size)
+          continue;
+        const on2 = dx >= 0 && dx < 7 && dy >= 0 && dy < 7 && (dx === 0 || dx === 6 || dy === 0 || dy === 6 || dx > 1 && dx < 5 && dy > 1 && dy < 5);
+        setF(x, y2, on2 ? 1 : 0);
+      }
+    }
+  }
+  const align = alignmentPatterns(ver);
+  for (const ay of align) {
+    for (const ax of align) {
+      if (fun[ay * size + ax])
+        continue;
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const on2 = Math.max(Math.abs(dx), Math.abs(dy)) !== 1;
+          setF(ax + dx, ay + dy, on2 ? 1 : 0);
+        }
+      }
+    }
+  }
+  for (let i = 0; i < size; i++) {
+    if (!fun[6 * size + i])
+      setF(i, 6, i % 2 === 0 ? 1 : 0);
+    if (!fun[i * size + 6])
+      setF(6, i, i % 2 === 0 ? 1 : 0);
+  }
+  for (let i = 0; i < 9; i++) {
+    if (i !== 6) {
+      setF(8, i, 0);
+      setF(i, 8, 0);
+    }
+    if (i < 8) {
+      setF(size - 1 - i, 8, 0);
+      setF(8, size - 1 - i, 0);
+    }
   }
   if (ver >= 7) {
-    const bits = info.versionBits(ver);
-    for (let i = 0; i < 18; i += 1) {
-      const bit = !test && (bits >> i & 1) == 1;
-      const x = Math.floor(i / 3);
-      const y2 = i % 3 + size - 8 - 3;
-      b2.data[x][y2] = bit;
-      b2.data[y2][x] = bit;
+    for (let i = 0; i < 18; i++) {
+      const x = size - 11 + i % 3;
+      const y2 = i / 3 | 0;
+      setF(x, y2, 0);
+      setF(y2, x, 0);
     }
   }
-  return b2;
-}
-function zigzag(tpl, maskIdx, fn) {
-  const size = tpl.height;
-  const pattern = PATTERNS[maskIdx];
-  let dir = -1;
-  let y2 = size - 1;
-  for (let xOffset = size - 1; xOffset > 0; xOffset -= 2) {
-    if (xOffset == 6)
+  const planes = [];
+  for (let i = 0; i < 8; i++)
+    planes.push(mat(size));
+  const posBuf = new Uint16Array(size * size);
+  let n = 0;
+  for (let xOffset = size - 1, dir = -1, y2 = size - 1; xOffset > 0; xOffset -= 2, dir = -dir) {
+    if (xOffset === 6)
       xOffset = 5;
     for (; ; y2 += dir) {
-      for (let j = 0; j < 2; j += 1) {
+      for (let j = 0; j < 2; j++) {
         const x = xOffset - j;
-        if (tpl.data[y2][x] !== void 0)
+        if (fun[y2 * size + x])
           continue;
-        fn(x, y2, pattern(x, y2));
+        const wi2 = y2 * m2.words + (x >>> 5);
+        posBuf[n++] = wi2 << 5 | x & 31;
+        for (let p2 = 0, mb = maskBits(x, y2); mb; p2++, mb >>= 1) {
+          if (mb & 1)
+            planes[p2].v[wi2] |= 1 << (x & 31);
+        }
       }
       if (y2 + dir < 0 || y2 + dir >= size)
         break;
     }
-    dir = -dir;
   }
-}
-function detectType(str) {
-  let type2 = "numeric";
-  for (let x of str) {
-    if (info.alphabet.numeric.has(x))
-      continue;
-    type2 = "alphanumeric";
-    if (!info.alphabet.alphanumerc.has(x))
-      return "byte";
-  }
-  return type2;
-}
-function utf8ToBytes(str) {
-  if (typeof str !== "string")
-    throw new Error(`utf8ToBytes expected string, got ${typeof str}`);
-  return new Uint8Array(new TextEncoder().encode(str));
-}
-function encode(ver, ecc, data, type2) {
-  let encoded = "";
-  let dataLen = data.length;
-  if (type2 === "numeric") {
-    const t = info.alphabet.numeric.decode(data.split(""));
-    const n = t.length;
-    for (let i = 0; i < n - 2; i += 3)
-      encoded += bin(t[i] * 100 + t[i + 1] * 10 + t[i + 2], 10);
-    if (n % 3 === 1) {
-      encoded += bin(t[n - 1], 4);
-    } else if (n % 3 === 2) {
-      encoded += bin(t[n - 2] * 10 + t[n - 1], 7);
-    }
-  } else if (type2 === "alphanumeric") {
-    const t = info.alphabet.alphanumerc.decode(data.split(""));
-    const n = t.length;
-    for (let i = 0; i < n - 1; i += 2)
-      encoded += bin(t[i] * 45 + t[i + 1], 11);
-    if (n % 2 == 1)
-      encoded += bin(t[n - 1], 6);
-  } else if (type2 === "byte") {
-    const utf8 = utf8ToBytes(data);
-    dataLen = utf8.length;
-    encoded = Array.from(utf8).map((i) => bin(i, 8)).join("");
-  } else {
-    throw new Error("encode: unsupported type");
-  }
-  const { capacity } = info.capacity(ver, ecc);
-  const len = bin(dataLen, info.lengthBits(ver, type2));
-  let bits = info.modeBits[type2] + len + encoded;
-  if (bits.length > capacity)
-    throw new Error("Capacity overflow");
-  bits += "0".repeat(Math.min(4, Math.max(0, capacity - bits.length)));
-  if (bits.length % 8)
-    bits += "0".repeat(8 - bits.length % 8);
-  const padding = "1110110000010001";
-  for (let idx = 0; bits.length !== capacity; idx++)
-    bits += padding[idx % padding.length];
-  const bytes = Uint8Array.from(bits.match(/(.{8})/g).map((i) => Number(`0b${i}`)));
-  return interleave(ver, ecc).encode(bytes);
-}
-function drawQR(ver, ecc, data, maskIdx, test = false) {
-  const b2 = drawTemplate(ver, ecc, maskIdx, test);
-  let i = 0;
-  const need = 8 * data.length;
-  zigzag(b2, maskIdx, (x, y2, mask) => {
-    let value = false;
-    if (i < need) {
-      value = (data[i >>> 3] >> (7 - i & 7) & 1) !== 0;
-      i++;
-    }
-    b2.data[y2][x] = value !== mask;
+  const planesT = planes.map((p2) => {
+    const t = mat(size);
+    transposeMat(p2, t);
+    return t.v;
   });
-  if (i !== need)
-    throw new Error("QR: bytes left after draw");
-  return b2;
-}
-function penalty(bm) {
-  const inverse = bm.inverse();
-  const sameColor = (row) => {
-    let res = 0;
-    for (let i = 0, same = 1, last3 = void 0; i < row.length; i++) {
-      if (last3 === row[i]) {
-        same++;
-        if (i !== row.length - 1)
-          continue;
-      }
-      if (same >= 5)
-        res += 3 + (same - 5);
-      last3 = row[i];
-      same = 1;
-    }
-    return res;
+  return {
+    ver,
+    tpl: m2.v,
+    pos: posBuf.slice(0, n),
+    planes: planes.map((p2) => p2.v),
+    planesT,
+    work: [mat(size), mat(size), mat(size), mat(size)]
   };
-  let adjacent = 0;
-  bm.data.forEach((row) => adjacent += sameColor(row));
-  inverse.data.forEach((column) => adjacent += sameColor(column));
-  let box = 0;
-  let b2 = bm.data;
-  const lastW = bm.width - 1;
-  const lastH = bm.height - 1;
-  for (let x = 0; x < lastW; x++) {
-    for (let y2 = 0; y2 < lastH; y2++) {
-      const x1 = x + 1;
-      const y1 = y2 + 1;
-      if (b2[x][y2] === b2[x1][y2] && b2[x1][y2] === b2[x][y1] && b2[x1][y2] === b2[x1][y1]) {
-        box += 3;
+}
+function drawSymbol(ver, ecc, data, maskIdx, test = false) {
+  if (symCache === void 0 || symCache.ver !== ver)
+    symCache = buildSymCache(ver);
+  const { tpl, pos, planes, planesT, work } = symCache;
+  const [m2, t, cand, candT] = work;
+  m2.v.set(tpl);
+  const need = Math.min(8 * data.length, pos.length);
+  for (let i = 0; i < need; i++) {
+    if (data[i >>> 3] & 128 >>> (i & 7)) {
+      const p2 = pos[i];
+      m2.v[p2 >>> 5] |= 1 << (p2 & 31);
+    }
+  }
+  let mask = maskIdx;
+  if (mask === void 0) {
+    transposeMat(m2, t);
+    let bestScore = Infinity;
+    for (let p2 = 0; p2 < 8; p2++) {
+      const pv2 = planes[p2];
+      const ptv = planesT[p2];
+      for (let i = 0; i < cand.v.length; i++) {
+        cand.v[i] = m2.v[i] ^ pv2[i];
+        candT.v[i] = t.v[i] ^ ptv[i];
+      }
+      const score = penaltyScore(cand, candT, bestScore);
+      if (score < bestScore) {
+        bestScore = score;
+        mask = p2;
       }
     }
   }
-  const finderPattern = (row) => {
-    const finderPattern2 = [true, false, true, true, true, false, true];
-    const lightPattern = [false, false, false, false];
-    const p1 = [...finderPattern2, ...lightPattern];
-    const p2 = [...lightPattern, ...finderPattern2];
-    let res = 0;
-    for (let i = 0; i < row.length; i++) {
-      if (includesAt(row, p1, i))
-        res += 40;
-      if (includesAt(row, p2, i))
-        res += 40;
-    }
-    return res;
-  };
-  let finder = 0;
-  for (const row of bm.data)
-    finder += finderPattern(row);
-  for (const column of inverse.data)
-    finder += finderPattern(column);
-  let darkPixels = 0;
-  bm.rectRead(0, Infinity, (_c, val) => darkPixels += val ? 1 : 0);
-  const darkPercent = darkPixels / (bm.height * bm.width) * 100;
-  const dark = 10 * Math.floor(Math.abs(darkPercent - 50) / 5);
-  return adjacent + box + finder + dark;
+  const pv = planes[mask];
+  for (let i = 0; i < m2.v.length; i++)
+    m2.v[i] ^= pv[i];
+  if (!test)
+    drawInfo(m2, ver, ecc, mask);
+  return m2;
 }
-function drawQRBest(ver, ecc, data, maskIdx) {
-  if (maskIdx === void 0) {
-    const bestMask = best();
-    for (let mask = 0; mask < PATTERNS.length; mask++)
-      bestMask.add(penalty(drawQR(ver, ecc, data, mask, true)), mask);
-    maskIdx = bestMask.get();
+var asNum = (n, title) => {
+  if (typeof n !== "number")
+    throw new TypeError(`"${title}" expected number, got type=${typeof n}`);
+  if (!Number.isSafeInteger(n))
+    throw new RangeError(`"${title}" expected safe integer, got ${n}`);
+  return n;
+};
+var asString = (s, title) => {
+  if (typeof s !== "string")
+    throw new TypeError(`"${title}" expected string, got type=${typeof s}`);
+  return s;
+};
+function utf8Length2(str) {
+  let length = 0;
+  for (let i = 0; i < str.length; i++) {
+    const c2 = str.charCodeAt(i);
+    if (c2 < 128)
+      length++;
+    else if (c2 < 2048)
+      length += 2;
+    else if (c2 < 55296 || c2 > 57343)
+      length += 3;
+    else if (c2 <= 56319 && i + 1 < str.length) {
+      const next = str.charCodeAt(i + 1);
+      if (next >= 56320 && next <= 57343) {
+        length += 4;
+        i++;
+      } else
+        length += 3;
+    } else
+      length += 3;
   }
-  if (maskIdx === void 0)
-    throw new Error("Cannot find mask");
-  return drawQR(ver, ecc, data, maskIdx);
+  return length;
 }
-function validateECC(ec) {
-  if (!ECMode.includes(ec))
-    throw new Error(`Invalid error correction mode=${ec}. Expected: ${ECMode}`);
+function byteCapacity(ver, ecc) {
+  const lengthBits = LENGTH_BITS.byte[Math.floor((ver + 7) / 17)];
+  return Math.min((1 << lengthBits) - 1, Math.floor((capacity(ver, ecc).capacity - 4 - lengthBits) / 8));
 }
-function validateEncoding(enc) {
-  if (!Encoding.includes(enc))
-    throw new Error(`Encoding: invalid mode=${enc}. Expected: ${Encoding}`);
-  if (enc === "kanji" || enc === "eci")
-    throw new Error(`Encoding: ${enc} is not supported (yet?).`);
+function _isBytes(a2) {
+  return a2 instanceof Uint8Array || ArrayBuffer.isView(a2) && a2.constructor.name === "Uint8Array" && "BYTES_PER_ELEMENT" in a2 && a2.BYTES_PER_ELEMENT === 1;
 }
-function validateMask(mask) {
-  if (![0, 1, 2, 3, 4, 5, 6, 7].includes(mask) || !PATTERNS[mask])
-    throw new Error(`Invalid mask=${mask}. Expected number [0..7]`);
+var dark = (r, x, y2) => r.map[x] >= 0 && r.map[y2] >= 0 && matGet(r.m, r.map[x], r.map[y2]) === 1;
+var CTRL = [10, 27];
+var NL = /* @__PURE__ */ String.fromCharCode(CTRL[0]);
+function renderRaw(r) {
+  const W2 = r.W;
+  const res = new Array(W2);
+  for (let y2 = 0; y2 < W2; y2++) {
+    const row = new Array(W2);
+    for (let x = 0; x < W2; x++)
+      row[x] = dark(r, x, y2);
+    res[y2] = row;
+  }
+  return res;
+}
+function renderAscii(r) {
+  const W2 = r.W;
+  let out = "";
+  for (let y2 = 0; y2 < W2; y2 += 2) {
+    for (let x = 0; x < W2; x++) {
+      const first2 = dark(r, x, y2);
+      const second = y2 + 1 >= W2 ? true : dark(r, x, y2 + 1);
+      out += !first2 && !second ? "\u2588" : !first2 && second ? "\u2580" : first2 && !second ? "\u2584" : " ";
+    }
+    out += NL;
+  }
+  return out;
+}
+function renderTerm(r) {
+  const W2 = r.W;
+  const esc = String.fromCharCode(CTRL[1]);
+  const reset = esc + "[0m";
+  let out = "";
+  for (let y2 = 0; y2 < W2; y2++) {
+    for (let x = 0; x < W2; x++) {
+      out += dark(r, x, y2) ? `${esc}[40m  ${reset}` : `${esc}[1;47m  ${reset}`;
+    }
+    out += NL;
+  }
+  return out;
+}
+function renderSvg(r, optimize) {
+  const W2 = r.W;
+  let out = `<svg viewBox="0 0 ${W2} ${W2}" xmlns="http://www.w3.org/2000/svg">`;
+  let pathData = "";
+  let prev;
+  for (let y2 = 0; y2 < W2; y2++) {
+    for (let x = 0; x < W2; x++) {
+      if (!dark(r, x, y2))
+        continue;
+      if (!optimize) {
+        out += `<rect x="${x}" y="${y2}" width="1" height="1" />`;
+        continue;
+      }
+      let mv = `M${x} ${y2}`;
+      if (prev) {
+        const rel = `m${x - prev.x} ${y2 - prev.y}`;
+        if (rel.length <= mv.length)
+          mv = rel;
+      }
+      pathData += `${mv}h1v1${x < 10 ? `H${x}` : "h-1"}Z`;
+      prev = { x, y: y2 };
+    }
+  }
+  if (optimize)
+    out += `<path d="${pathData}"/>`;
+  return out + "</svg>";
+}
+function renderGif(r) {
+  const W2 = r.W;
+  const pixels = W2 * W2;
+  const N2 = 126;
+  const fullChunks = Math.floor(pixels / N2);
+  const tail = pixels % N2;
+  const out = new Uint8Array(408 + fullChunks * (N2 + 2) + 2 + tail + 4);
+  let p2 = 0;
+  const u16 = (v) => {
+    out[p2++] = v & 255;
+    out[p2++] = v >>> 8;
+  };
+  for (const b2 of [71, 73, 70, 56, 55, 97])
+    out[p2++] = b2;
+  u16(W2);
+  u16(W2);
+  out[p2++] = 246;
+  p2 += 2;
+  out[p2++] = 255;
+  out[p2++] = 255;
+  out[p2++] = 255;
+  p2 += 3 * 127;
+  out[p2++] = 44;
+  p2 += 4;
+  u16(W2);
+  u16(W2);
+  out[p2++] = 0;
+  out[p2++] = 7;
+  const { m: m2, map: map2 } = r;
+  const row = new Uint8Array(W2);
+  let prevMy = -2;
+  for (let y2 = 0, i = 0; y2 < W2; y2++) {
+    const my = map2[y2];
+    if (my !== prevMy) {
+      prevMy = my;
+      row.fill(0);
+      if (my >= 0) {
+        for (let x = 0; x < W2; x++)
+          if (map2[x] >= 0)
+            row[x] = matGet(m2, map2[x], my);
+      }
+    }
+    for (let x = 0; x < W2; ) {
+      if (i % N2 === 0) {
+        const rem = pixels - i;
+        out[p2++] = (rem < N2 ? rem : N2) + 1;
+        out[p2++] = 128;
+      }
+      const n = Math.min(N2 - i % N2, W2 - x);
+      out.set(row.subarray(x, x + n), p2);
+      p2 += n;
+      x += n;
+      i += n;
+    }
+  }
+  if (tail === 0) {
+    out[p2++] = 1;
+    out[p2++] = 128;
+  }
+  out[p2++] = 1;
+  out[p2++] = 129;
+  out[p2++] = 0;
+  out[p2++] = 59;
+  return out;
+}
+function gifDataUrl(gif) {
+  const g2 = gif;
+  let b64;
+  if (typeof g2.toBase64 === "function")
+    b64 = g2.toBase64();
+  else {
+    let bin = "";
+    for (let i = 0; i < g2.length; i += 8192)
+      bin += String.fromCharCode(...g2.subarray(i, i + 8192));
+    b64 = btoa(bin);
+  }
+  return "data:image/gif;base64," + b64;
 }
 function encodeQR(text, output2 = "raw", opts = {}) {
-  const ecc = opts.ecc !== void 0 ? opts.ecc : "medium";
-  validateECC(ecc);
-  const encoding = opts.encoding !== void 0 ? opts.encoding : detectType(text);
-  validateEncoding(encoding);
-  if (opts.mask !== void 0)
-    validateMask(opts.mask);
+  asString(text, "text");
+  asString(output2, "output");
+  if (typeof opts !== "object" || opts === null || Array.isArray(opts))
+    throw new TypeError(`"opts" expected object, got type=${typeof opts}`);
   let ver = opts.version;
-  let data, err = new Error("Unknown error");
-  if (ver !== void 0) {
-    validateVersion(ver);
-    data = encode(ver, ecc, text, encoding);
-  } else {
-    for (let i = 1; i <= 40; i++) {
-      try {
-        data = encode(i, ecc, text, encoding);
-        ver = i;
-        break;
-      } catch (e) {
-        err = e;
-      }
+  if (ver !== void 0)
+    ver = asVersion(ver);
+  const ecc = opts.ecc !== void 0 ? opts.ecc : "medium";
+  if (!ECC_LEVELS.includes(ecc))
+    err(`invalid ecc=${ecc}`);
+  const encoding = opts.encoding !== void 0 ? opts.encoding : detectType(text);
+  if (!LENGTH_BITS[encoding])
+    err(`invalid encoding=${encoding}`);
+  if (encoding !== "byte") {
+    const alpha = encoding === "numeric" ? ALPHANUMERIC.slice(0, 10) : ALPHANUMERIC;
+    for (const ch of text) {
+      if (!alpha.includes(ch))
+        err(`Unknown letter: "${ch}". Allowed: ${alpha}`);
     }
   }
-  if (!ver || !data)
-    throw err;
-  let res = drawQRBest(ver, ecc, data, opts.mask);
-  res.assertDrawn();
-  const border = opts.border === void 0 ? 2 : opts.border;
-  if (!Number.isSafeInteger(border))
-    throw new Error(`invalid border type=${typeof border}`);
-  res = res.border(border, false);
-  if (opts.scale !== void 0)
-    res = res.scale(opts.scale);
+  if (opts.mask !== void 0 && (asNum(opts.mask, "opts.mask") < 0 || opts.mask > 7))
+    err(`invalid mask=${opts.mask}`);
+  const textEncoder2 = opts.textEncoder;
+  if (encoding === "byte" && textEncoder2 === void 0) {
+    const maxBytes = byteCapacity(ver === void 0 ? 40 : ver, ecc);
+    if (text.length > maxBytes || utf8Length2(text) > maxBytes)
+      err("Capacity overflow");
+  }
+  const utf8 = encoding === "byte" ? (textEncoder2 !== void 0 ? textEncoder2 : (s) => new TextEncoder().encode(s))(text) : void 0;
+  if (utf8 !== void 0 && !_isBytes(utf8))
+    throw new TypeError(`"opts.textEncoder" expected Uint8Array, got type=${typeof utf8}`);
+  const dataLen = encoding === "byte" ? utf8.length : text.length;
+  const encodedBits = encoding === "numeric" ? Math.floor(dataLen / 3) * 10 + [0, 4, 7][dataLen % 3] : encoding === "alphanumeric" ? Math.floor(dataLen / 2) * 11 + dataLen % 2 * 6 : dataLen * 8;
+  if (ver === void 0) {
+    for (ver = 1; ver <= 40; ver++) {
+      const lengthBits = LENGTH_BITS[encoding][Math.floor((ver + 7) / 17)];
+      if (dataLen < 1 << lengthBits && 4 + lengthBits + encodedBits <= capacity(ver, ecc).capacity)
+        break;
+    }
+    if (ver > 40)
+      err("Capacity overflow");
+  } else {
+    const lengthBits = LENGTH_BITS[encoding][Math.floor((ver + 7) / 17)];
+    if (dataLen >= 1 << lengthBits || 4 + lengthBits + encodedBits > capacity(ver, ecc).capacity)
+      err("Capacity overflow");
+  }
+  const data = encodeData(ver, ecc, text, encoding, utf8);
+  const m2 = drawSymbol(ver, ecc, data, opts.mask);
+  const border = opts.border === void 0 ? 2 : asNum(opts.border, "opts.border");
+  if (border <= 0)
+    throw new RangeError(`invalid border=${border}`);
+  const scale = opts.scale === void 0 ? 1 : asNum(opts.scale, "opts.scale");
+  if (scale <= 0 || scale > 1024)
+    throw new RangeError(`invalid scale factor: ${scale}`);
+  const W2 = (m2.size + 2 * border) * scale;
+  const maxOutputSize = output2 === "ascii" || output2 === "gif" || output2 === "data-url" ? MAX_COMPACT_OUTPUT_SIZE : MAX_OUTPUT_SIZE;
+  if (W2 > maxOutputSize)
+    throw new RangeError(`invalid opts: output is ${W2}x${W2} (max ${maxOutputSize}), reduce border/scale`);
+  const map2 = new Int32Array(W2);
+  for (let i = 0; i < W2; i++) {
+    const f2 = Math.floor(i / scale) - border;
+    map2[i] = f2 >= 0 && f2 < m2.size ? f2 : -1;
+  }
+  const r = { m: m2, W: W2, map: map2 };
   if (output2 === "raw")
-    return res.data;
-  else if (output2 === "ascii")
-    return res.toASCII();
-  else if (output2 === "svg")
-    return res.toSVG(opts.optimize);
-  else if (output2 === "gif")
-    return res.toGIF();
-  else if (output2 === "term")
-    return res.toTerm();
-  else
-    throw new Error(`Unknown output: ${output2}`);
+    return renderRaw(r);
+  if (output2 === "ascii")
+    return renderAscii(r);
+  if (output2 === "term")
+    return renderTerm(r);
+  if (output2 === "svg")
+    return renderSvg(r, opts.optimize === void 0 ? true : opts.optimize);
+  if (output2 === "gif")
+    return renderGif(r);
+  if (output2 === "data-url")
+    return gifDataUrl(renderGif(r));
+  return err(`Unknown output: ${output2}`);
 }
 
 // libs/common/src/lib/qr-code.ts
@@ -85360,9 +85365,9 @@ var AutofillMonitor = class _AutofillMonitor {
     }
     this._styleLoader.load(_CdkTextFieldStyleLoader);
     const element = coerceElement(elementOrRef);
-    const info2 = this._monitoredElements.get(element);
-    if (info2) {
-      return info2.subject;
+    const info = this._monitoredElements.get(element);
+    if (info) {
+      return info.subject;
     }
     const subject = new Subject();
     const cssClass = "cdk-text-field-autofilled";
@@ -85393,10 +85398,10 @@ var AutofillMonitor = class _AutofillMonitor {
   }
   stopMonitoring(elementOrRef) {
     const element = coerceElement(elementOrRef);
-    const info2 = this._monitoredElements.get(element);
-    if (info2) {
-      info2.unlisten();
-      info2.subject.complete();
+    const info = this._monitoredElements.get(element);
+    if (info) {
+      info.unlisten();
+      info.subject.complete();
       element.classList.remove("cdk-text-field-autofill-monitored");
       element.classList.remove("cdk-text-field-autofilled");
       this._monitoredElements.delete(element);
@@ -91617,7 +91622,7 @@ var FieldValidationState = class {
   }, ...ngDevMode ? [{
     debugName: "syncValid"
   }] : []);
-  syncTreeErrors = computed(() => this.rawSyncTreeErrors().filter((err) => err.fieldTree === this.node.fieldTree), __spreadProps(__spreadValues({}, ngDevMode ? {
+  syncTreeErrors = computed(() => this.rawSyncTreeErrors().filter((err2) => err2.fieldTree === this.node.fieldTree), __spreadProps(__spreadValues({}, ngDevMode ? {
     debugName: "syncTreeErrors"
   } : {}), {
     equal: shallowArrayEquals
@@ -91636,7 +91641,7 @@ var FieldValidationState = class {
     if (this.shouldSkipValidation()) {
       return [];
     }
-    return this.rawAsyncErrors().filter((err) => err === "pending" || err.fieldTree === this.node.fieldTree);
+    return this.rawAsyncErrors().filter((err2) => err2 === "pending" || err2.fieldTree === this.node.fieldTree);
   }, __spreadProps(__spreadValues({}, ngDevMode ? {
     debugName: "asyncErrors"
   } : {}), {
@@ -91647,7 +91652,7 @@ var FieldValidationState = class {
   } : {}), {
     equal: shallowArrayEquals
   }));
-  errors = computed(() => [...this.parseErrors(), ...this.syncErrors(), ...this.asyncErrors().filter((err) => err !== "pending")], __spreadProps(__spreadValues({}, ngDevMode ? {
+  errors = computed(() => [...this.parseErrors(), ...this.syncErrors(), ...this.asyncErrors().filter((err2) => err2 !== "pending")], __spreadProps(__spreadValues({}, ngDevMode ? {
     debugName: "errors"
   } : {}), {
     equal: shallowArrayEquals
@@ -93464,7 +93469,7 @@ var FormField = class _FormField {
   get interopNgControl() {
     return this._interopNgControl ??= new InteropNgControl(this.state);
   }
-  parseErrors = computed(() => this.parseErrorsSource()?.().map((err) => __spreadProps(__spreadValues({}, err), {
+  parseErrors = computed(() => this.parseErrorsSource()?.().map((err2) => __spreadProps(__spreadValues({}, err2), {
     fieldTree: untracked2(this.state).fieldTree,
     formField: this
   })) ?? [], __spreadProps(__spreadValues({}, ngDevMode ? {
@@ -93472,7 +93477,7 @@ var FormField = class _FormField {
   } : {}), {
     equal: shallowArrayEquals
   }));
-  errors = computed(() => this.state().errors().filter((err) => !err.formField || err.formField === this), __spreadProps(__spreadValues({}, ngDevMode ? {
+  errors = computed(() => this.state().errors().filter((err2) => !err2.formField || err2.formField === this), __spreadProps(__spreadValues({}, ngDevMode ? {
     debugName: "errors"
   } : {}), {
     equal: shallowArrayEquals
@@ -93880,8 +93885,8 @@ var escapeReplacements = {
   "'": "&#39;"
 };
 var getEscapeReplacement = (ch) => escapeReplacements[ch];
-function escape$1(html2, encode2) {
-  if (encode2) {
+function escape$1(html2, encode) {
+  if (encode) {
     if (escapeTest.test(html2)) {
       return html2.replace(escapeReplace, getEscapeReplacement);
     }
@@ -96328,8 +96333,8 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod2 = fd(id, "LLM");
-    const binding = mod2.variable("user_hint");
+    const mod = fd(id, "LLM");
+    const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
   }
@@ -97843,7 +97848,7 @@ var MapViewer = class {
   }
   /** ID of the smallest map element containing the given point */
   _elementAt(point) {
-    let best2 = "";
+    let best = "";
     let best_area = Number.POSITIVE_INFINITY;
     for (const [id, bounds] of this.map?.element_bounds || []) {
       if (point.x < bounds.x || point.x > bounds.x + bounds.w || point.y < bounds.y || point.y > bounds.y + bounds.h) {
@@ -97851,11 +97856,11 @@ var MapViewer = class {
       }
       const area = bounds.w * bounds.h;
       if (area < best_area) {
-        best2 = id;
+        best = id;
         best_area = area;
       }
     }
-    return best2;
+    return best;
   }
   setActions(actions) {
     for (const [event_name, handler] of this._action_event_handlers) {
@@ -98326,14 +98331,14 @@ var MapViewer = class {
     const norm = this._eventToMap(e);
     if (norm.x < 0 || norm.x > 1 || norm.y < 0 || norm.y > 1)
       return;
-    let best2 = null;
+    let best = null;
     let best_area = Number.POSITIVE_INFINITY;
     for (const action of this._actions) {
       if (!action.events.includes(event_name))
         continue;
       if (action.ref === "*") {
-        if (!best2)
-          best2 = action;
+        if (!best)
+          best = action;
         continue;
       }
       const bounds = this.map.element_bounds.get(action.ref);
@@ -98343,20 +98348,20 @@ var MapViewer = class {
         continue;
       }
       const area = bounds.w * bounds.h;
-      if (!best2 || best2.ref === "*" || (action.priority || 0) > (best2.priority || 0) || (action.priority || 0) === (best2.priority || 0) && area < best_area) {
-        best2 = action;
+      if (!best || best.ref === "*" || (action.priority || 0) > (best.priority || 0) || (action.priority || 0) === (best.priority || 0) && area < best_area) {
+        best = action;
         best_area = area;
       }
     }
-    if (!best2)
+    if (!best)
       return;
     const now = Date.now();
-    const debounce_key = `${best2.ref}:${event_name}`;
+    const debounce_key = `${best.ref}:${event_name}`;
     const last_triggered = this._action_last_triggered.get(debounce_key) || 0;
     if (now - last_triggered < 300)
       return;
     this._action_last_triggered.set(debounce_key, now);
-    best2.callback(norm);
+    best.callback(norm);
   }
   /**
    * Notify listeners of view changes from user interaction. Notifications
@@ -99172,17 +99177,17 @@ var DynamicMapComponent = class _DynamicMapComponent {
         if (!viewer)
           return;
         const image = viewer.map_image;
-        const info2 = viewer.debug_info;
+        const info = viewer.debug_info;
         this._debug_state.set({
           texture: image ? `${image.width}\xD7${image.height}` : "none",
           texture_mode: viewer.texture_mode,
           aspect: (viewer.map?.aspect_ratio || 1).toFixed(3),
           view: `${viewer.container.clientWidth}\xD7${viewer.container.clientHeight}`,
-          pointer: info2.pointer ? `${info2.pointer.x.toFixed(3)}, ${info2.pointer.y.toFixed(3)}` : "\u2014",
-          hover: info2.hover_id ? `#${info2.hover_id}` : "\u2014",
+          pointer: info.pointer ? `${info.pointer.x.toFixed(3)}, ${info.pointer.y.toFixed(3)}` : "\u2014",
+          hover: info.hover_id ? `#${info.hover_id}` : "\u2014",
           elements: viewer.map?.element_bounds.size || 0,
           overlays: viewer.overlay_count,
-          draw: `${info2.last_draw_ms.toFixed(1)}ms \xB7 ${info2.draws_last_second}/s`
+          draw: `${info.last_draw_ms.toFixed(1)}ms \xB7 ${info.draws_last_second}/s`
         });
       };
       update2();
@@ -114800,7 +114805,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
             min: filters.capacity,
             max: 999
           };
-          list2 = list2.filter(({ capacity }) => capacity < 0 || capacity >= range2.min && capacity <= range2.max);
+          list2 = list2.filter(({ capacity: capacity2 }) => capacity2 < 0 || capacity2 >= range2.min && capacity2 <= range2.max);
         }
         if (filters.features) {
           list2 = list2.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
@@ -116666,12 +116671,12 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list2?.length)
       return;
     for (const space of list2) {
-      const mod2 = fd(space.id, "Bookings");
-      let binding = mod2.variable("bookings");
+      const mod = fd(space.id, "Bookings");
+      let binding = mod.variable("bookings");
       this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list2, space, d)));
-      binding = mod2.variable("status");
+      binding = mod.variable("status");
       this.subscription(`s-${space.id}`, binding.bindThenSubscribe((d) => this.handleStatusChange(list2, space, d)));
-      binding = mod2.variable("presence");
+      binding = mod.variable("presence");
       this.subscription(`c-${space.id}`, binding.bindThenSubscribe((d) => this.handlePresenceChange(list2, space, d)));
     }
     this.updateActions(list2);
@@ -117528,7 +117533,7 @@ var generateSpaceData = () => {
       for (let i = 0; i < spacesPerFloor; i++) {
         const roomData = REALISTIC_ROOM_NAMES[spaceIndex % REALISTIC_ROOM_NAMES.length];
         const roomCode = generateRoomCode(buildingId, floor, i);
-        const capacity = getCapacityForRoomType(roomData.type);
+        const capacity2 = getCapacityForRoomType(roomData.type);
         const features = getRandomFeatures(roomData.type);
         const isBookable = ![
           "Break Room",
@@ -117554,11 +117559,11 @@ var generateSpaceData = () => {
           map_id: `area-${roomCode.toLowerCase()}-status`,
           zones: getZoneHierarchy(buildingId, floorId),
           type: roomData.type,
-          capacity,
+          capacity: capacity2,
           features,
           images: [
             `https://images.unsplash.com/photo-${15e8 + spaceIndex * 1e5}?w=800&h=600&fit=crop`,
-            ...capacity > 10 ? [
+            ...capacity2 > 10 ? [
               `https://images.unsplash.com/photo-${15e8 + spaceIndex * 1e5 + 5e4}?w=800&h=600&fit=crop`
             ] : []
           ],
@@ -117568,7 +117573,7 @@ var generateSpaceData = () => {
             parent_id: buildingId,
             name: floor,
             display_name: floor,
-            capacity,
+            capacity: capacity2,
             number: floorIndex.toString(),
             map_id: `${buildingId}_${floorIndex}`,
             tags: [
@@ -117622,7 +117627,7 @@ var generateSpaceData = () => {
           amenities: {
             natural_light: !roomData.name.toLowerCase().includes("pod") && predictableRandomInt(3) !== 0,
             air_conditioning: true,
-            power_outlets: capacity * (roomData.type === "Training Room" ? 2 : 1),
+            power_outlets: capacity2 * (roomData.type === "Training Room" ? 2 : 1),
             wifi: true,
             catering_available: [
               "Conference Room",
@@ -121567,9 +121572,9 @@ function padZero(no, len = 3) {
   return str;
 }
 function createAreaManagementModule(space, overrides = {}) {
-  const mod2 = new MockAreaManagementModule();
+  const mod = new MockAreaManagementModule();
   for (const lvl of MOCK_LEVELS) {
-    mod2.overview[lvl.id] = {
+    mod.overview[lvl.id] = {
       desk_count: 100,
       desk_usage: 0,
       device_capacity: 100,
@@ -121578,9 +121583,9 @@ function createAreaManagementModule(space, overrides = {}) {
       percentage_use: 0,
       recommendation: 1e4
     };
-    mod2[`${lvl.id}:desk_ids`] = new Array(mod2.overview[lvl.id].desk_count).fill(0).map((_2, idx) => `table-${lvl.number}.${padZero(idx)}`);
-    mod2[`${lvl.id}`] = { value: [] };
-    mod2[`${lvl.id}:areas`] = {
+    mod[`${lvl.id}:desk_ids`] = new Array(mod.overview[lvl.id].desk_count).fill(0).map((_2, idx) => `table-${lvl.number}.${padZero(idx)}`);
+    mod[`${lvl.id}`] = { value: [] };
+    mod[`${lvl.id}:areas`] = {
       value: [
         {
           area_id: "zone-10.B",
@@ -121620,17 +121625,17 @@ function createAreaManagementModule(space, overrides = {}) {
       ]
     };
   }
-  return mod2;
+  return mod;
 }
-function updateLocations(mod2, levels) {
+function updateLocations(mod, levels) {
   for (const lvl of levels) {
-    mod2[lvl.id] = {
-      value: new Array(predictableRandomInt(20)).fill(0).map(() => generateLocation(lvl, mod2[`${lvl.id}:desk_ids`]))
+    mod[lvl.id] = {
+      value: new Array(predictableRandomInt(20)).fill(0).map(() => generateLocation(lvl, mod[`${lvl.id}:desk_ids`]))
     };
-    for (const area of mod2[`${lvl.id}:areas`].value) {
+    for (const area of mod[`${lvl.id}:areas`].value) {
       area.count = randomInt(100);
     }
-    mod2[`${lvl.id}:areas`] = __spreadValues({}, mod2[`${lvl.id}:areas`]);
+    mod[`${lvl.id}:areas`] = __spreadValues({}, mod[`${lvl.id}:areas`]);
   }
 }
 function generateLocation(lvl, desks2, users = MOCK_STAFF) {
@@ -121757,17 +121762,17 @@ var MockBookingModule = class {
   }
 };
 var createBookingsModule = (space, overrides = {}) => new MockBookingModule(space, overrides);
-function updateBookings(space, mod2) {
+function updateBookings(space, mod) {
   const bookings = MOCK_EVENTS.filter((event) => event.attendees?.find((u3) => u3.email === space.email || u3.id === space.id || event.system?.id === space.id)) || [];
   bookings.sort((a2, b2) => a2.event_start - b2.event_start);
-  mod2.bookings = bookings;
-  mod2.current_booking = bookings.find((_2) => timePeriodsIntersect(Date.now(), Date.now(), _2.event_start * 1e3, _2.event_end * 1e3));
-  mod2.next_booking = bookings.find((_2) => _2.event_start * 1e3 > Date.now());
+  mod.bookings = bookings;
+  mod.current_booking = bookings.find((_2) => timePeriodsIntersect(Date.now(), Date.now(), _2.event_start * 1e3, _2.event_end * 1e3));
+  mod.next_booking = bookings.find((_2) => _2.event_start * 1e3 > Date.now());
   const date = /* @__PURE__ */ new Date();
-  const { current_booking, next_booking } = mod2;
+  const { current_booking, next_booking } = mod;
   const start = new Date((current_booking || next_booking)?.event_start);
-  const pending = timePeriodsIntersect(date.valueOf(), date.valueOf(), subSeconds(start, mod2.pending_before).valueOf(), addSeconds(start, mod2.pending_period).valueOf());
-  mod2.status = space?.bookable ? current_booking ? "busy" : pending ? "pending" : "free" : "not-bookable";
+  const pending = timePeriodsIntersect(date.valueOf(), date.valueOf(), subSeconds(start, mod.pending_before).valueOf(), addSeconds(start, mod.pending_period).valueOf());
+  mod.status = space?.bookable ? current_booking ? "busy" : pending ? "pending" : "free" : "not-bookable";
 }
 
 // libs/mocks/src/lib/realtime/locker-locations.ts
@@ -122705,19 +122710,19 @@ function invalidTransitionAlias(alias) {
 }
 function triggerBuildFailed(name, errors) {
   return new RuntimeError(3404, ngDevMode && `The animation trigger "${name}" has failed to build due to the following errors:
- - ${errors.map((err) => err.message).join("\n - ")}`);
+ - ${errors.map((err2) => err2.message).join("\n - ")}`);
 }
 function animationFailed(errors) {
-  return new RuntimeError(3502, ngDevMode && `Unable to animate due to the following errors:${LINE_START}${errors.map((err) => err.message).join(LINE_START)}`);
+  return new RuntimeError(3502, ngDevMode && `Unable to animate due to the following errors:${LINE_START}${errors.map((err2) => err2.message).join(LINE_START)}`);
 }
 function registerFailed(errors) {
-  return new RuntimeError(3503, ngDevMode && `Unable to build the animation due to the following errors: ${errors.map((err) => err.message).join("\n")}`);
+  return new RuntimeError(3503, ngDevMode && `Unable to build the animation due to the following errors: ${errors.map((err2) => err2.message).join("\n")}`);
 }
 function missingOrDestroyedAnimation() {
   return new RuntimeError(3300, ngDevMode && "The requested animation doesn't exist or has already been destroyed");
 }
 function createAnimationFailed(errors) {
-  return new RuntimeError(3504, ngDevMode && `Unable to create the animation due to the following errors:${errors.map((err) => err.message).join("\n")}`);
+  return new RuntimeError(3504, ngDevMode && `Unable to create the animation due to the following errors:${errors.map((err2) => err2.message).join("\n")}`);
 }
 function missingPlayer(id) {
   return new RuntimeError(3301, ngDevMode && `Unable to find the timeline player referenced by ${id}`);
@@ -122736,11 +122741,11 @@ function unregisteredTrigger(name) {
 }
 function triggerTransitionsFailed(errors) {
   return new RuntimeError(3402, ngDevMode && `Unable to process animations due to the following failed trigger transitions
- ${errors.map((err) => err.message).join("\n")}`);
+ ${errors.map((err2) => err2.message).join("\n")}`);
 }
 function transitionFailed(name, errors) {
   return new RuntimeError(3505, ngDevMode && `@${name} has failed due to:
- ${errors.map((err) => err.message).join("\n- ")}`);
+ ${errors.map((err2) => err2.message).join("\n- ")}`);
 }
 var ANIMATABLE_PROP_SET = /* @__PURE__ */ new Set(["-moz-outline-radius", "-moz-outline-radius-bottomleft", "-moz-outline-radius-bottomright", "-moz-outline-radius-topleft", "-moz-outline-radius-topright", "-ms-grid-columns", "-ms-grid-rows", "-webkit-line-clamp", "-webkit-text-fill-color", "-webkit-text-stroke", "-webkit-text-stroke-color", "accent-color", "all", "backdrop-filter", "background", "background-color", "background-position", "background-size", "block-size", "border", "border-block-end", "border-block-end-color", "border-block-end-width", "border-block-start", "border-block-start-color", "border-block-start-width", "border-bottom", "border-bottom-color", "border-bottom-left-radius", "border-bottom-right-radius", "border-bottom-width", "border-color", "border-end-end-radius", "border-end-start-radius", "border-image-outset", "border-image-slice", "border-image-width", "border-inline-end", "border-inline-end-color", "border-inline-end-width", "border-inline-start", "border-inline-start-color", "border-inline-start-width", "border-left", "border-left-color", "border-left-width", "border-radius", "border-right", "border-right-color", "border-right-width", "border-start-end-radius", "border-start-start-radius", "border-top", "border-top-color", "border-top-left-radius", "border-top-right-radius", "border-top-width", "border-width", "bottom", "box-shadow", "caret-color", "clip", "clip-path", "color", "column-count", "column-gap", "column-rule", "column-rule-color", "column-rule-width", "column-width", "columns", "filter", "flex", "flex-basis", "flex-grow", "flex-shrink", "font", "font-size", "font-size-adjust", "font-stretch", "font-variation-settings", "font-weight", "gap", "grid-column-gap", "grid-gap", "grid-row-gap", "grid-template-columns", "grid-template-rows", "height", "inline-size", "input-security", "inset", "inset-block", "inset-block-end", "inset-block-start", "inset-inline", "inset-inline-end", "inset-inline-start", "left", "letter-spacing", "line-clamp", "line-height", "margin", "margin-block-end", "margin-block-start", "margin-bottom", "margin-inline-end", "margin-inline-start", "margin-left", "margin-right", "margin-top", "mask", "mask-border", "mask-position", "mask-size", "max-block-size", "max-height", "max-inline-size", "max-lines", "max-width", "min-block-size", "min-height", "min-inline-size", "min-width", "object-position", "offset", "offset-anchor", "offset-distance", "offset-path", "offset-position", "offset-rotate", "opacity", "order", "outline", "outline-color", "outline-offset", "outline-width", "padding", "padding-block-end", "padding-block-start", "padding-bottom", "padding-inline-end", "padding-inline-start", "padding-left", "padding-right", "padding-top", "perspective", "perspective-origin", "right", "rotate", "row-gap", "scale", "scroll-margin", "scroll-margin-block", "scroll-margin-block-end", "scroll-margin-block-start", "scroll-margin-bottom", "scroll-margin-inline", "scroll-margin-inline-end", "scroll-margin-inline-start", "scroll-margin-left", "scroll-margin-right", "scroll-margin-top", "scroll-padding", "scroll-padding-block", "scroll-padding-block-end", "scroll-padding-block-start", "scroll-padding-bottom", "scroll-padding-inline", "scroll-padding-inline-end", "scroll-padding-inline-start", "scroll-padding-left", "scroll-padding-right", "scroll-padding-top", "scroll-snap-coordinate", "scroll-snap-destination", "scrollbar-color", "shape-image-threshold", "shape-margin", "shape-outside", "tab-size", "text-decoration", "text-decoration-color", "text-decoration-thickness", "text-emphasis", "text-emphasis-color", "text-indent", "text-shadow", "text-underline-offset", "top", "transform", "transform-origin", "translate", "vertical-align", "visibility", "width", "word-spacing", "z-index", "zoom"]);
 function optimizeGroupPlayer(players) {
@@ -128994,10 +128999,10 @@ var PaymentsService = class _PaymentsService {
     return result;
   }
   async _addPaymentMethod(card) {
-    const mod2 = this._org.module("payments", STRIPE_MODULE);
-    if (!mod2)
+    const mod = this._org.module("payments", STRIPE_MODULE);
+    if (!mod)
       throw "Unable to load module";
-    const payment_method = await mod2.execute("add_payment_method", [
+    const payment_method = await mod.execute("add_payment_method", [
       "card",
       null,
       null,
@@ -129016,10 +129021,10 @@ var PaymentsService = class _PaymentsService {
   }
   async _getCostOfProduct(type2) {
     const price = [0, 60];
-    const mod2 = this._org.module("payments", STRIPE_MODULE);
-    if (!mod2)
+    const mod = this._org.module("payments", STRIPE_MODULE);
+    if (!mod)
       return price;
-    const product_list = await mod2.execute("get_product_prices", [
+    const product_list = await mod.execute("get_product_prices", [
       null,
       null,
       type2
@@ -129036,10 +129041,10 @@ var PaymentsService = class _PaymentsService {
       throw "No payment source selected";
     this._loading.set("Processing payment...");
     console.log("Processing payment...");
-    const mod2 = this._org.module("payments", STRIPE_MODULE);
-    if (!mod2)
+    const mod = this._org.module("payments", STRIPE_MODULE);
+    if (!mod)
       throw "Unable to load module";
-    const id = await mod2.execute("create_payment_intent", [
+    const id = await mod.execute("create_payment_intent", [
       amount,
       this._org.building.currency || "USD",
       null,
@@ -129053,7 +129058,7 @@ var PaymentsService = class _PaymentsService {
     if (!id)
       throw "Failed to create payment";
     console.log("Confirming payment...");
-    await mod2.execute("confirm_payment_intent", [id, source]);
+    await mod.execute("confirm_payment_intent", [id, source]);
     this._loading.set("");
     return {
       success: true,
@@ -129065,11 +129070,11 @@ var PaymentsService = class _PaymentsService {
     };
   }
   async _newCustomerID() {
-    const mod2 = this._org.module("payments", STRIPE_MODULE);
-    if (!mod2)
+    const mod = this._org.module("payments", STRIPE_MODULE);
+    if (!mod)
       throw "Unable to load module";
     const user = currentUser();
-    const id = await mod2.execute("create_customer", [
+    const id = await mod.execute("create_customer", [
       0,
       null,
       null,
@@ -129082,8 +129087,8 @@ var PaymentsService = class _PaymentsService {
   async loadPaymentSources() {
     if (!this._org.module)
       return;
-    const mod2 = this._org.module("payments", STRIPE_MODULE);
-    const list2 = mod2 ? await mod2.execute("list_payment_methods", ["card"]).catch(() => []) : [];
+    const mod = this._org.module("payments", STRIPE_MODULE);
+    const list2 = mod ? await mod.execute("list_payment_methods", ["card"]).catch(() => []) : [];
     if (list2[0])
       this._active_card.set(list2[0].id);
     this._payment_sources.set(list2);
@@ -130113,7 +130118,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         console.error("Couldn't update asset requests", e);
         this._loading.set("");
         if (is_new_booking && result?.id) {
-          await removeBooking(result.id).catch((err) => console.error("Failed to rollback booking", err));
+          await removeBooking(result.id).catch((err2) => console.error("Failed to rollback booking", err2));
         }
         throw e?.status === 409 ? i18n("BOOKINGS.ASSETS_CLASH_ERROR") : errorMessage(e?.error || e) || i18n("BOOKINGS.ASSETS_INVALID_ERROR");
       }
@@ -132036,11 +132041,11 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod2 = fd(this._details.system, "LocationServices");
-    if (!mod2)
+    const mod = fd(this._details.system, "LocationServices");
+    if (!mod)
       return;
     this.username.set("Loading...");
-    const details = await mod2.execute("check_ownership_of", [this.mac()]).catch(() => null);
+    const details = await mod.execute("check_ownership_of", [this.mac()]).catch(() => null);
     this.username.set(details && details.assigned_to ? details.assigned_to : "");
   }
   static {
@@ -132346,14 +132351,14 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     this._options.update((value) => __spreadValues(__spreadValues({}, value), options2));
   }
   _bindToLevel(zone_id) {
-    const mod2 = this._org.module("area_management", "AreaManagement");
-    if (!mod2)
+    const mod = this._org.module("area_management", "AreaManagement");
+    if (!mod)
       return;
-    const binding = mod2.variable(zone_id);
+    const binding = mod.variable(zone_id);
     if (binding) {
-      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d) => this.processBindingChange(d || {}, mod2.id)));
+      this.subscription(`lvl-in_use`, binding.bindThenSubscribe((d) => this.processBindingChange(d || {}, mod.id)));
     }
-    const bookings_binding = mod2.variable(`${zone_id}:desk_bookings`);
+    const bookings_binding = mod.variable(`${zone_id}:desk_bookings`);
     if (bookings_binding) {
       this.subscription(`lvl-desk_bookings`, bookings_binding.bindThenSubscribe((d) => {
         const value = __spreadValues({}, d || {});
@@ -133734,9 +133739,9 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
         continue;
       for (const area of areas) {
         const id = area.map_id || area.id;
-        const { capacity, hide_label, label_location, draw_polygon, area_count_key } = area.properties || {};
+        const { capacity: capacity2, hide_label, label_location, draw_polygon, area_count_key } = area.properties || {};
         const { coordinates } = area.geometry || {};
-        this._capacity[id] = capacity || 100;
+        this._capacity[id] = capacity2 || 100;
         this._count_key[id] = area_count_key || "";
         this._location[id] = coordinates?.length ? getCenterPoint(coordinates) : null;
         this._label_location[id] = hide_label === false ? label_location || this._location[id] : null;
@@ -133766,11 +133771,11 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     this._zone_data.set(null);
     this._state.setLabels("zones", []);
     this._updateStatus({});
-    const mod2 = this._org.module("area_management", "AreaManagement");
-    if (!mod2)
+    const mod = this._org.module("area_management", "AreaManagement");
+    if (!mod)
       return;
-    const bind_areas = mod2.variable(`${zone_id}:areas`);
-    const bind_zone = mod2.variable(`${zone_id}`);
+    const bind_areas = mod.variable(`${zone_id}:areas`);
+    const bind_zone = mod.variable(`${zone_id}`);
     this.subscription("binding", bind_areas.bindThenSubscribe((d) => this._area_data.set(d)));
     this.subscription("zone-binding", bind_zone.bindThenSubscribe((d) => this._zone_data.set(d)));
   }
@@ -133791,9 +133796,9 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
     for (const zone of value) {
       const id = zone.map_id || zone.area_id;
       const has_room = room_ids.has(zone.area_id) || !!zone.map_id && room_ids.has(zone.map_id);
-      const capacity = zone.capacity || this._capacity[id] || 100;
+      const capacity2 = zone.capacity || this._capacity[id] || 100;
       const count = Number(zone[this._count_key[id] || count_key] ?? 0);
-      const filled = count / capacity;
+      const filled = count / capacity2;
       if (!has_room) {
         statuses[id] = zone.at_location ? "busy" : filled < 0.4 ? "free" : filled < 0.75 ? "pending" : "busy";
       }
@@ -134324,9 +134329,9 @@ var ExploreSearchService = class _ExploreSearchService {
     const { is_public } = this._state.options();
     if (is_public)
       return;
-    const mod2 = this._org.module("location_services", "LocationServices");
-    if (mod2) {
-      const binding = mod2.variable("emergency_contacts");
+    const mod = this._org.module("location_services", "LocationServices");
+    if (mod) {
+      const binding = mod.variable("emergency_contacts");
       binding.bindThenSubscribe((contacts_map) => {
         const list2 = [];
         for (const type2 in contacts_map) {
@@ -135772,8 +135777,8 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod2 = fd(locate_details.system_id, locate_details.module);
-    const locations = (await mod2.execute("locate_user", [
+    const mod = fd(locate_details.system_id, locate_details.module);
+    const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
     ])).map((i) => new MapLocation(i));
@@ -136408,5 +136413,5 @@ var appConfig = {
 if (environment.production) {
   enableProdMode();
 }
-bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
+bootstrapApplication(AppComponent, appConfig).catch((err2) => console.error(err2));
 //# sourceMappingURL=main.js.map
