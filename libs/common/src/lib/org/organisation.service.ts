@@ -41,7 +41,7 @@ const AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 /** How long `app.offline_boot` waits to be online before using cached data */
 const OFFLINE_BOOT_DELAY = 10 * 1000;
 /** How long zone loading may remain incomplete before reloading the app */
-const ZONE_LOAD_TIMEOUT = 120 * 1000;
+const ZONE_LOAD_TIMEOUT = 45 * 1000;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 /** Cached data older than this is discarded instead of being displayed */
 const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000;
