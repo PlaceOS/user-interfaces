@@ -7,9 +7,9 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setCurrentUser,
     setNotifyOutlet,
+    SettingsService,
     StaffUser,
 } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
@@ -237,6 +237,29 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'zone-1',
             'concierge_app',
+        );
+    });
+
+    it('should not save inherited values as overrides', async () => {
+        (ts_client.showMetadata as any)
+            .mockResolvedValueOnce({
+                details: { visitors: { allow_pass_number: true } },
+            })
+            .mockResolvedValueOnce({
+                details: { visitors: { allow_printing_label: true } },
+            })
+            .mockResolvedValueOnce({ details: {} });
+
+        await spectator.component.ngOnInit();
+        await spectator.component.save();
+
+        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+            'zone-1',
+            expect.objectContaining({
+                details: {
+                    edited_by: expect.any(Object),
+                },
+            }),
         );
     });
 

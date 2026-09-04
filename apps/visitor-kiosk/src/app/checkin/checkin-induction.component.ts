@@ -1,9 +1,4 @@
-import {
-    Component,
-    computed,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -51,7 +46,7 @@ import { CheckinStateService } from './checkin-state.service';
                     [disabled]="!agree()"
                     (click)="continue()"
                 >
-                    {{ 'APP.VISITOR_KIOSK.ACCEPT' | translate }}
+                    {{ 'COMMON.ACCEPT' | translate }}
                 </button>
             </div>
         </div>

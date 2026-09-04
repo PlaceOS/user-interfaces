@@ -4,6 +4,7 @@ import {
     effect,
     inject,
     Injectable,
+    linkedSignal,
     resource,
     signal,
     untracked,
@@ -28,19 +29,26 @@ import {
     addGroupZone,
     addSignageMedia,
     addSignagePlaylist,
+    addSignageTemplate,
+    addSignageTemplateMapping,
+    addSystem,
     apiEndpoint,
     currentGroups,
+    del,
     listSignageMediaTags,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
+    listSignageTemplateApprovers,
     mediaThumbnail,
     PlaceCurrentGroup,
     PlaceGroup,
     PlaceGroupUser,
     PlaceGroupZone,
+    PlaceSystem,
     PlaceUser,
     PlaceZone,
     post,
+    query,
     queryGroups,
     queryGroupUsers,
     queryGroupZones,
@@ -48,6 +56,7 @@ import {
     querySignageMedia,
     querySignagePlaylists,
     querySignagePlugins,
+    querySignageTemplates,
     querySystems,
     queryUsers,
     queryZones,
@@ -56,16 +65,28 @@ import {
     removeGroupZone,
     removeSignageMedia,
     removeSignagePlaylist,
+    removeSignageTemplate,
+    removeSignageTemplateMapping,
+    removeSystem,
     requestApprovalSignagePlaylist,
+    requestApprovalSignageTemplate,
     scheduleSignagePlaylistMedia,
     shareSignageMedia,
     shareSignagePlaylists,
+    shareSignageTemplates,
+    showSystem,
+    showZone,
     SignageMedia,
     SignagePlaylist,
     type SignagePlaylistApprover,
     SignagePlaylistItemSchedule,
     SignagePlaylistMedia,
+    type SignagePlaylistSchedule,
     SignagePlugin,
+    type SignagePluginType,
+    SignageTemplate,
+    type SignageTemplateApprover,
+    type SignageTemplateLayout,
     updateGroup,
     updateGroupUser,
     updateGroupZone,
@@ -73,9 +94,13 @@ import {
     updateSignagePlaylist,
     updateSignagePlaylistMedia,
     updateSignagePlaylistMediaSchedule,
+    updateSignageTemplate,
+    updateSignageTemplateMapping,
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
+import { DisplayEditModalComponent } from './displays/display-edit-modal.component';
+import { displayZoneIds } from './displays/display-zones.util';
 import {
     BulkMediaUploadItem,
     BulkMediaUploadModalComponent,
@@ -95,7 +120,18 @@ import {
     PlaylistRequestApprovalModalResult,
 } from './shared/playlist-request-approval-modal.component';
 import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
+import { TemplateApproveModalComponent } from './shared/template-approve-modal.component';
+import { TemplateEditModalComponent } from './shared/template-edit-modal.component';
+import { TemplateMappingModalComponent } from './shared/template-mapping-modal.component';
+import {
+    TemplateRequestApprovalModalComponent,
+    TemplateRequestApprovalModalResult,
+} from './shared/template-request-approval-modal.component';
 import { ZoneSelectModalComponent } from './shared/zone-select-modal.component';
+import {
+    listSignageMediaTagCounts,
+    type SignageMediaTagCounts,
+} from './signage-media-tags.util';
 import {
     getVideoContainer,
     isImageSourceFile,
@@ -110,6 +146,13 @@ import {
     playlistMediaIds,
     playlistMediaItems,
 } from './signage-playlist.util';
+import { markSignageSharedGroupsChanged } from './signage-shared-groups.util';
+import {
+    HydratedSignageTemplateMapping,
+    SignageTemplateMappingQuery,
+    SignageTemplateMappingTarget,
+} from './signage-template-mapping';
+import { applyLayoutPositionDefaults } from './templates/template-layout.util';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -121,6 +164,65 @@ function dataURLtoFile(data_url: string, filename: string) {
         uint8_array[i] = byte_string.charCodeAt(i);
     }
     return new File([uint8_array], filename, { type: mime_type });
+}
+
+/** Backoff between attempts at creating a media record, in milliseconds */
+const MEDIA_RETRY_DELAYS = [500, 1500, 4500];
+
+/** Point to seek to before capturing a video thumbnail, in seconds */
+const VIDEO_THUMBNAIL_OFFSET = 0.1;
+/** How long to wait for a paintable video frame, in milliseconds */
+const VIDEO_THUMBNAIL_TIMEOUT = 15 * 1000;
+
+const SIGNAGE_SHARE_CONFIG = {
+    media: {
+        title: 'SIGNAGE_MANAGER.SVC_SHARE_MEDIA_TITLE',
+        success: 'SIGNAGE_MANAGER.SVC_MEDIA_SHARED',
+        request: shareSignageMedia,
+    },
+    playlists: {
+        title: 'SIGNAGE_MANAGER.SVC_SHARE_PLAYLIST_TITLE',
+        success: 'SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED',
+        request: shareSignagePlaylists,
+    },
+    templates: {
+        title: 'SIGNAGE_MANAGER.SVC_SHARE_TEMPLATE_TITLE',
+        success: 'SIGNAGE_MANAGER.SVC_TEMPLATE_SHARED',
+        request: shareSignageTemplates,
+    },
+} as const;
+
+/**
+ * A 401 is deliberately absent: the API client already invalidates the token,
+ * re-authorises and replays the request itself, so retrying here as well would
+ * multiply into a long run of auth refreshes.
+ */
+function isRetryableMediaError(error: any) {
+    const status = error?.status;
+    // No status means the request never reached the server
+    if (typeof status !== 'number') return true;
+    return status === 408 || status === 429 || status >= 500;
+}
+
+async function retryMediaRequest<T>(request: () => Promise<T>): Promise<T> {
+    let last_error: unknown;
+    for (let attempt = 0; ; attempt++) {
+        try {
+            return await request();
+        } catch (error) {
+            last_error = error;
+            if (
+                !isRetryableMediaError(error) ||
+                attempt >= MEDIA_RETRY_DELAYS.length
+            ) {
+                break;
+            }
+            await new Promise((resolve) =>
+                setTimeout(resolve, MEDIA_RETRY_DELAYS[attempt]),
+            );
+        }
+    }
+    throw last_error;
 }
 
 interface PreparedUploadMedia {
@@ -146,6 +248,15 @@ const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
 type MediaViewMode = 'grid' | 'list' | 'folder';
+// Fields the backend matches a search term against. Names that don't exist on
+// a given resource are ignored, so the one list works for every search.
+const SEARCH_FIELDS = [
+    'id',
+    'name',
+    'display_name',
+    'description',
+    'tags',
+].join(',');
 const SIGNAGE_GROUP_FIELDS = [
     'id',
     'name',
@@ -233,6 +344,36 @@ function persistSelectedGroupId(group_id: string) {
     }
 }
 
+/** Whether two records are approved and draft versions of one template. */
+function isSameSignageTemplate(
+    first: SignageTemplate,
+    second: SignageTemplate,
+) {
+    return (
+        (first.live_template_id || first.id) ===
+        (second.live_template_id || second.id)
+    );
+}
+
+/** Group and its ancestors, root first. Stops on a repeated group so a broken
+ * parent chain can't loop forever. */
+export function groupHierarchy(
+    selected: PlaceGroup | undefined,
+    all_groups: PlaceGroup[],
+) {
+    if (!selected) return [];
+    const groups = new Map(all_groups.map((item) => [item.id, item]));
+    const hierarchy: PlaceGroup[] = [];
+    const seen = new Set<string>();
+    let group = selected;
+    while (group?.id && !seen.has(group.id)) {
+        hierarchy.unshift(group);
+        seen.add(group.id);
+        group = group.parent_id ? groups.get(group.parent_id) : undefined;
+    }
+    return hierarchy;
+}
+
 export function dialogClosed<T = unknown>(ref: {
     afterClosed: () => {
         subscribe: (handler: (value: T) => void) => { unsubscribe: () => void };
@@ -259,6 +400,23 @@ export class SignageService {
     private readonly _display_overrides = signal<Record<string, any>>({});
     private readonly _zone_overrides = signal<Record<string, any>>({});
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
+
+    /** Whether the navigation offers a group selector. Hiding it leaves the
+     * section header breadcrumbs as the way to change group. */
+    public readonly show_group_selector = this._settings.signal(
+        'show_group_selector',
+        true,
+    );
+    /** Whether the media page offers its group tab bar. */
+    public readonly show_media_group_tabs = this._settings.signal(
+        'show_media_group_tabs',
+        true,
+    );
+    /** Feature flag for the template management section. */
+    public readonly templates_enabled = this._settings.signal(
+        'templates_enabled',
+        false,
+    );
 
     public readonly search_term = signal('');
     public readonly media_view_mode =
@@ -311,14 +469,19 @@ export class SignageService {
                               }) as PlaceCurrentGroup,
                       )
                     : await this._currentSignageGroups(params.groups_change);
+                this.signage_groups_failed.set(false);
                 return groups
                     .map(decodeEntityNames)
                     .sort((a, b) => a.group.name.localeCompare(b.group.name));
             } catch {
+                this.signage_groups_failed.set(true);
                 return [] as PlaceCurrentGroup[];
             }
         },
     });
+    /** Whether the last signage group request failed, so an empty group list
+     * can't be read as "this user has no access". */
+    public readonly signage_groups_failed = signal(false);
     public readonly signage_groups = computed(
         () => this._signage_groups.value() || [],
     );
@@ -326,6 +489,14 @@ export class SignageService {
         const group_id = this.selected_group_id();
         return this.signage_groups().find((item) => item.group.id === group_id);
     });
+    /** Selected group and its ancestors, root first. Empty when no group is
+     * selected. */
+    public readonly selected_group_hierarchy = computed(() =>
+        groupHierarchy(
+            this.selected_group()?.group,
+            this.signage_groups().map((item) => item.group),
+        ),
+    );
     public readonly is_sys_admin = computed(() => {
         const user = this._current_user() as any as {
             groups?: string[];
@@ -550,6 +721,7 @@ export class SignageService {
     public readonly can_delete = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Delete),
     );
+    public readonly can_delete_displays = this.is_sys_admin;
     public readonly can_approve = computed(() =>
         this._hasGroupPermission(SignageGroupPermission.Approve),
     );
@@ -623,9 +795,15 @@ export class SignageService {
             const page = await query;
             if (token !== this._media_token) return;
             const items = (page.data || []).map(decodeEntityNames);
-            this._media_items.update((list) =>
-                [...list, ...items].sort((a, b) => b.created_at - a.created_at),
-            );
+            // Merged by id so an item already held locally, such as one
+            // just uploaded, is not shown twice when its page arrives.
+            this._media_items.update((list) => {
+                const by_id = new Map(list.map((item) => [item.id, item]));
+                for (const item of items) by_id.set(item.id, item);
+                return [...by_id.values()].sort(
+                    (a, b) => b.created_at - a.created_at,
+                );
+            });
             this._media_next = page.next;
             this._media_has_more.set(this._media_items().length < page.total);
         } catch {
@@ -648,8 +826,9 @@ export class SignageService {
         );
     });
 
-    // Distinct tags in use across the active group/zone's signage media. Sourced
-    // from the dedicated tags endpoint so the folder list stays complete no
+    // Distinct tags in use across the active group/zone's signage media, with
+    // the number of media items using each. Sourced from the dedicated
+    // tag-counts endpoint so the folder list and its counts stay complete no
     // matter how many media pages have been loaded.
     private readonly _media_tags = resource({
         params: () => ({
@@ -659,21 +838,42 @@ export class SignageService {
             change: this._change(),
         }),
         loader: async ({ params }) => {
-            if (!params.initialised || !params.can_query) return [] as string[];
+            const empty: SignageMediaTagCounts = { tags: [], counts: {} };
+            if (!params.initialised || !params.can_query) return empty;
             try {
-                const tags = await listSignageMediaTags(
+                return await listSignageMediaTagCounts(
                     this._orgZoneQueryParams({}, params.group_id),
                 );
-                return [...tags].sort((a, b) => a.localeCompare(b));
             } catch {
-                return [] as string[];
+                return empty;
             }
         },
     });
-    public readonly media_tags = computed(() => this._media_tags.value() || []);
+    public readonly media_tags = computed(
+        () => this._media_tags.value()?.tags || [],
+    );
+    /** Media count per tag. Empty when the backend cannot count them. */
+    public readonly media_tag_counts = computed(
+        () => this._media_tags.value()?.counts || {},
+    );
 
     // --- Playlists (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list; filtering the loaded pages would only search playlists that have
+    // already been fetched.
+    public readonly playlist_search_term = signal('');
+    private readonly _playlist_search_debounced = debounced(
+        this.playlist_search_term,
+        400,
+    );
     private readonly _playlist_items = signal<SignagePlaylist[]>([]);
+    // Keep playlists seen outside the current search available to display,
+    // zone and schedule views, which resolve their playlist ids from this list.
+    private readonly _playlist_cache = signal<Record<string, SignagePlaylist>>(
+        {},
+    );
+    private _playlist_cache_group: string | null = null;
+    private _playlist_cache_change: number | null = null;
     private readonly _playlists_loading = signal(false);
     private readonly _playlists_has_more = signal(false);
     private _playlists_next:
@@ -681,7 +881,11 @@ export class SignageService {
         | null = null;
     private _playlists_token = 0;
 
-    public readonly playlists = this._playlist_items.asReadonly();
+    public readonly playlists = computed(() =>
+        Object.values(this._playlist_cache()).sort((a, b) =>
+            a.name.localeCompare(b.name),
+        ),
+    );
     public readonly playlists_loading = this._playlists_loading.asReadonly();
     public readonly playlists_has_more = this._playlists_has_more.asReadonly();
 
@@ -689,17 +893,29 @@ export class SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
-        this._change();
+        const search = this._playlist_search_debounced.value().trim();
+        const change = this._change();
         untracked(() => {
             const token = ++this._playlists_token;
             this._playlist_items.set([]);
             this._playlists_next = null;
             this._playlists_has_more.set(false);
+            if (
+                group_id !== this._playlist_cache_group ||
+                change !== this._playlist_cache_change
+            ) {
+                this._playlist_cache_group = group_id;
+                this._playlist_cache_change = change;
+                this._playlist_cache.set({});
+            }
             if (!initialised || !can_query) return;
             this._fetchPlaylistPage(
                 querySignagePlaylists(
                     this._orgZoneQueryParams(
-                        { limit: SignageService.PAGE_SIZE },
+                        {
+                            limit: SignageService.PAGE_SIZE,
+                            ...this._searchParam(search),
+                        },
                         group_id,
                     ),
                 ),
@@ -727,11 +943,18 @@ export class SignageService {
             const page = await query;
             if (token !== this._playlists_token) return;
             const items = (page.data || []).map(decodeEntityNames);
-            this._playlist_items.update((list) =>
-                [...list, ...items].sort((a, b) =>
+            this._playlist_items.update((list) => {
+                const by_id = new Map(list.map((item) => [item.id, item]));
+                for (const item of items) by_id.set(item.id, item);
+                return [...by_id.values()].sort((a, b) =>
                     a.name.localeCompare(b.name),
-                ),
-            );
+                );
+            });
+            this._playlist_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            });
             this._playlists_next = page.next;
             this._playlists_has_more.set(
                 this._playlist_items().length < page.total,
@@ -745,15 +968,118 @@ export class SignageService {
         }
     }
 
+    // --- Templates (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list, the same as playlists above.
+    public readonly template_search_term = signal('');
+    private readonly _template_search_debounced = debounced(
+        this.template_search_term,
+        400,
+    );
+    private readonly _template_items = signal<SignageTemplate[]>([]);
+    private readonly _templates_loading = signal(false);
+    private readonly _templates_has_more = signal(false);
+    private _templates_next:
+        | (() => QueryResponse<SignageTemplate> | null)
+        | null = null;
+    private _templates_token = 0;
+
+    public readonly templates = this._template_items.asReadonly();
+    public readonly templates_loading = this._templates_loading.asReadonly();
+    public readonly templates_has_more = this._templates_has_more.asReadonly();
+
+    private readonly _reload_templates = effect(() => {
+        const enabled = this.templates_enabled();
+        const initialised = this._org.initialised();
+        const can_query = this._can_query_group_data();
+        const group_id = this._api_group_id_debounced.value();
+        const search = this._template_search_debounced.value().trim();
+        this._change();
+        untracked(() => {
+            const token = ++this._templates_token;
+            this._template_items.set([]);
+            this._templates_next = null;
+            this._templates_has_more.set(false);
+            if (!enabled || !initialised || !can_query) return;
+            this._fetchTemplatePage(
+                querySignageTemplates(
+                    this._groupQueryParams(
+                        {
+                            limit: SignageService.PAGE_SIZE,
+                            ...this._searchParam(search),
+                        },
+                        group_id,
+                    ),
+                ),
+                token,
+            );
+        });
+    });
+
+    public loadMoreTemplates() {
+        if (this._templates_loading() || !this._templates_has_more()) return;
+        const next = this._templates_next?.();
+        if (!next) {
+            this._templates_has_more.set(false);
+            return;
+        }
+        this._fetchTemplatePage(next, this._templates_token);
+    }
+
+    private async _fetchTemplatePage(
+        query: QueryResponse<SignageTemplate>,
+        token: number,
+    ) {
+        this._templates_loading.set(true);
+        try {
+            const page = await query;
+            if (token !== this._templates_token) return;
+            const items = (page.data || []).map(decodeEntityNames);
+            this._template_items.update((list) => {
+                const by_id = new Map(list.map((item) => [item.id, item]));
+                for (const item of items) by_id.set(item.id, item);
+                return [...by_id.values()].sort((a, b) =>
+                    a.name.localeCompare(b.name),
+                );
+            });
+            this._templates_next = page.next;
+            this._templates_has_more.set(
+                this._template_items().length < page.total,
+            );
+        } catch {
+            if (token === this._templates_token)
+                this._templates_has_more.set(false);
+        } finally {
+            if (token === this._templates_token)
+                this._templates_loading.set(false);
+        }
+    }
+
     // --- Displays (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // list; filtering the loaded pages would only ever search the displays
+    // that happened to be fetched already.
+    public readonly display_search_term = signal('');
+    private readonly _display_search_debounced = debounced(
+        this.display_search_term,
+        400,
+    );
     private readonly _display_items = signal<any[]>([]);
+    // Every display seen since the group last changed, keyed by id. Zone,
+    // schedule and playlist views resolve displays by id, so they need the
+    // whole set rather than whatever the current search narrowed it to.
+    private readonly _display_cache = signal<Record<string, any>>({});
+    private _display_cache_group: string | null = null;
     private readonly _displays_loading = signal(false);
     private readonly _displays_has_more = signal(false);
     private _displays_next: (() => QueryResponse<any> | null) | null = null;
     private _displays_token = 0;
 
     public readonly displays = computed(() =>
-        this._mergeItems(this._display_items(), this._display_overrides()),
+        this._mergeItems(
+            Object.values(this._display_cache()),
+            this._display_overrides(),
+        ),
     );
     public readonly displays_loading = this._displays_loading.asReadonly();
     public readonly displays_has_more = this._displays_has_more.asReadonly();
@@ -762,23 +1088,120 @@ export class SignageService {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
+        const search = this._display_search_debounced.value().trim();
         this._change();
         untracked(() => {
             const token = ++this._displays_token;
             this._display_items.set([]);
             this._displays_next = null;
             this._displays_has_more.set(false);
+            // Only drop the id cache when the source of the data changes, a
+            // new search term still needs the displays other views look up.
+            if (group_id !== this._display_cache_group) {
+                this._display_cache_group = group_id;
+                this._display_cache.set({});
+            }
             if (!initialised || !can_query) return;
             this._fetchDisplayPage(
                 querySystems({
                     ...this._orgZoneQueryParams({}, group_id),
                     limit: SignageService.PAGE_SIZE,
                     signage: true,
+                    ...this._searchParam(search),
                 } as any),
                 token,
             );
         });
     });
+
+    /**
+     * Paged queries for the picker modals, which search on their own without
+     * disturbing the lists behind them. Null when the user may not query.
+     */
+    public queryDisplays(search = ''): QueryResponse<any> | null {
+        if (!this._canQueryLists()) return null;
+        return querySystems({
+            ...this._orgZoneQueryParams({}),
+            limit: SignageService.PAGE_SIZE,
+            signage: true,
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    public queryPlaylists(search = ''): QueryResponse<SignagePlaylist> | null {
+        if (!this._canQueryLists()) return null;
+        return querySignagePlaylists({
+            ...this._orgZoneQueryParams({ limit: SignageService.PAGE_SIZE }),
+            ...this._searchParam(search),
+        });
+    }
+
+    public queryMedia(search = ''): QueryResponse<SignageMedia> | null {
+        if (!this._canQueryLists()) return null;
+        return querySignageMedia({
+            ...this._orgZoneQueryParams({ limit: SignageService.PAGE_SIZE }),
+            ...this._searchParam(search),
+        });
+    }
+
+    public async listApprovedTemplates() {
+        if (!this._canQueryLists()) return [];
+        const result = await query<SignageTemplate>({
+            path: 'signage/templates',
+            query_params: this._groupQueryParams({
+                approved: true,
+                limit: 10_000,
+            }),
+            fn: (data) => new SignageTemplate(data),
+        });
+        return result.data;
+    }
+
+    public async listTemplateMappings(
+        query_params: SignageTemplateMappingQuery,
+    ) {
+        if (!this._canQueryLists()) return [];
+        const result = await query<HydratedSignageTemplateMapping>({
+            path: 'signage/template_mappings',
+            query_params: { ...query_params, limit: 10_000 },
+            fn: (data) => new HydratedSignageTemplateMapping(data),
+        });
+        return result.data;
+    }
+
+    public querySelectableZones(
+        search: string,
+        parent_id: string,
+    ): QueryResponse<PlaceZone> | null {
+        if (!this._canQueryLists() || !parent_id || !search.trim()) return null;
+        return queryZones({
+            q: search.trim(),
+            parent_id,
+            limit: 2500,
+            include_children_count: true,
+        } as any);
+    }
+
+    /** Zones a managed group can be given access to, not just signage ones */
+    public queryGroupZones(search = ''): QueryResponse<PlaceZone> | null {
+        const group = this.managed_group();
+        return queryZones({
+            limit: SignageService.PAGE_SIZE,
+            ...(group?.authority_id
+                ? { authority_id: group.authority_id }
+                : {}),
+            ...this._searchParam(search),
+        } as any);
+    }
+
+    private _canQueryLists() {
+        return this._org.initialised() && this._can_query_group_data();
+    }
+
+    private _searchParam(search: string) {
+        const term = search.trim();
+        return term ? { q: term, fields: SEARCH_FIELDS } : {};
+    }
 
     public loadMoreDisplays() {
         if (this._displays_loading() || !this._displays_has_more()) return;
@@ -799,6 +1222,11 @@ export class SignageService {
                 .filter((item) => item.signage)
                 .map(decodeEntityNames);
             this._display_items.update((list) => [...list, ...items]);
+            this._display_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of items) next[item.id] = item;
+                return next;
+            });
             this._displays_next = page.next;
             this._displays_has_more.set(
                 this._display_items().length < page.total,
@@ -893,12 +1321,13 @@ export class SignageService {
             }
         },
     });
-    public readonly root_zones = computed(() =>
-        this._mergeItems(
-            this._root_zone_list.value() || [],
-            this._zone_overrides(),
-        ),
-    );
+    public readonly root_zones = computed(() => {
+        const roots = this._root_zone_list.value() || [];
+        const root_ids = new Set(roots.map(({ id }) => id));
+        return this._mergeItems(roots, this._zone_overrides()).filter(
+            ({ id }) => root_ids.has(id),
+        );
+    });
 
     public async zoneChildren(parent_id: string) {
         const { data } = await queryZones({
@@ -909,29 +1338,59 @@ export class SignageService {
         return (data || []).map(decodeEntityNames);
     }
 
-    private readonly _plugins = resource({
-        params: () => ({
-            initialised: this._org.initialised(),
-            change: this._change(),
-        }),
-        loader: async ({ params }) => {
-            if (!params.initialised) return [] as SignagePlugin[];
-            try {
-                const result = await querySignagePlugins(
-                    this._orgZoneQueryParams({ limit: 500 }),
-                );
-                return (result.data || [])
-                    .filter((plugin: SignagePlugin) => plugin.enabled)
-                    .map(decodeEntityNames)
-                    .sort((a: SignagePlugin, b: SignagePlugin) =>
-                        a.name.localeCompare(b.name),
+    private _pluginResource(plugin_type: SignagePluginType) {
+        return resource({
+            params: () => ({
+                initialised: this._org.initialised(),
+                change: this._change(),
+            }),
+            loader: async ({ params }) => {
+                if (!params.initialised) return [] as SignagePlugin[];
+                try {
+                    const result = await querySignagePlugins(
+                        this._orgZoneQueryParams({
+                            limit: 500,
+                            plugin_type,
+                        }),
                     );
-            } catch {
-                return [] as SignagePlugin[];
-            }
-        },
-    });
+                    return (result.data || [])
+                        .filter((plugin: SignagePlugin) => plugin.enabled)
+                        .map(decodeEntityNames)
+                        .sort((a: SignagePlugin, b: SignagePlugin) =>
+                            a.name.localeCompare(b.name),
+                        );
+                } catch {
+                    return [] as SignagePlugin[];
+                }
+            },
+        });
+    }
+
+    private readonly _plugins = this._pluginResource('plugin');
+    private readonly _widgets = this._pluginResource('widget');
     public readonly plugins = computed(() => this._plugins.value() || []);
+    public readonly widgets = computed(() => this._widgets.value() || []);
+
+    public readonly selected_template = signal<SignageTemplate | null>(null);
+    public readonly selected_template_requires_approval = computed(() => {
+        const template = this.selected_template();
+        return !!template?.id && !template.approved;
+    });
+    public readonly template_approval_request_loading = signal(false);
+    public readonly selected_template_layout_index = signal<number | null>(
+        null,
+    );
+    // Editable copy of the selected template's layout items, so reorders and
+    // plugin changes only hit the API when explicitly saved. Resets whenever
+    // the selection (or its saved layouts) change.
+    public readonly template_layout_draft = linkedSignal<
+        SignageTemplateLayout[]
+    >(() => structuredClone(this.selected_template()?.layouts ?? []));
+    public readonly template_layout_dirty = computed(
+        () =>
+            JSON.stringify(this.template_layout_draft()) !==
+            JSON.stringify(this.selected_template()?.layouts ?? []),
+    );
 
     public readonly selected_playlist = signal<SignagePlaylist | null>(null);
     // Selecting a playlist loads its media; debounce so arrowing through the
@@ -942,17 +1401,47 @@ export class SignageService {
     );
     public readonly selected_playlist_item = signal<SignageMedia | null>(null);
     public readonly selected_playlist_item_index = signal<number | null>(null);
-    public readonly playlist_search_term = signal('');
-
     public readonly selected_zone = signal<any>(null);
     public readonly zone_search_term = signal('');
     public readonly zone_tree_expanded = signal<Record<string, boolean>>({});
     public readonly zone_tree_children_cache = signal<
         Record<string, PlaceZone[]>
     >({});
+    private readonly _zone_search_debounced = debounced(
+        this.zone_search_term,
+        400,
+    );
+    private readonly _zone_search_results = resource({
+        params: () => ({
+            initialised: this._org.initialised(),
+            can_query: this._can_query_group_data(),
+            parent_id: this.selected_zone()?.id || '',
+            search: this._zone_search_debounced.value().trim(),
+        }),
+        loader: async ({ params }) => {
+            if (
+                !params.initialised ||
+                !params.can_query ||
+                !params.parent_id ||
+                !params.search
+            ) {
+                return [] as PlaceZone[];
+            }
+            try {
+                const result = await queryZones({
+                    q: params.search,
+                    parent_id: params.parent_id,
+                    limit: 2500,
+                    include_children_count: true,
+                } as any);
+                return (result.data || []).map(decodeEntityNames);
+            } catch {
+                return [] as PlaceZone[];
+            }
+        },
+    });
 
     public readonly selected_display = signal<any>(null);
-    public readonly display_search_term = signal('');
     private readonly _playlist_meta_state = signal<
         Record<string, PlaylistMetaState>
     >(loadPlaylistMetaSessionCache());
@@ -963,10 +1452,7 @@ export class SignageService {
     private _playlist_meta_processing = false;
 
     public readonly filtered_playlists = computed(() => {
-        const term = this.playlist_search_term().toLowerCase();
-        return this.playlists().filter((p) =>
-            p.name.toLowerCase().includes(term),
-        );
+        return this._playlist_items();
     });
 
     public readonly selected_playlist_requires_approval = computed(() => {
@@ -1011,17 +1497,27 @@ export class SignageService {
     });
 
     public readonly filtered_zones = computed(() => {
-        const term = this.zone_search_term().toLowerCase();
-        return this.all_zones().filter((z) =>
-            (z.display_name || z.name).toLowerCase().includes(term),
+        if (!this.selected_zone()?.id || !this.zone_search_term().trim()) {
+            return this.all_zones();
+        }
+        const overrides = this._zone_overrides();
+        return (this._zone_search_results.value() || []).map(
+            (zone) => overrides[zone.id] || zone,
         );
     });
 
+    // The listing itself, which is whatever page(s) of the (possibly
+    // searched) query have been loaded so far. Local edits are applied over
+    // the loaded items, but never add a display the query didn't return.
     public readonly filtered_displays = computed(() => {
-        const term = this.display_search_term().toLowerCase();
-        return this.displays().filter((d) =>
-            (d.display_name || d.name).toLowerCase().includes(term),
-        );
+        const overrides = this._display_overrides();
+        return this._display_items()
+            .map((display) => overrides[display.id] || display)
+            .sort((a, b) =>
+                (a.display_name || a.name).localeCompare(
+                    b.display_name || b.name,
+                ),
+            );
     });
 
     private readonly _playlist_change = signal(Date.now());
@@ -1143,6 +1639,7 @@ export class SignageService {
         const ref = this._dialog.open(PlaylistEditModalComponent, {
             data: {
                 playlist,
+                group_id: this._api_group_id(),
                 onEdit: (id: string, data: Partial<SignagePlaylist>) =>
                     updateSignagePlaylist(id, data),
             },
@@ -1295,6 +1792,80 @@ export class SignageService {
         this.changed();
     }
 
+    public async removeMediaItemsFromPlaylist(
+        playlist_id: string,
+        selected_items: { id: string; index: number }[],
+    ) {
+        const playlist_items = selected_items.filter(
+            (item) => !!item.id && item.index >= 0,
+        );
+        if (!playlist_id || !playlist_items.length) return false;
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
+            )
+        )
+            return false;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_PLAYLIST_ITEMS_TITLE'),
+                content: i18n(
+                    'SIGNAGE_MANAGER.SVC_REMOVE_SELECTED_PLAYLIST_ITEMS',
+                    { count: playlist_items.length },
+                    playlist_items.length,
+                ),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        const media_list = await listSignagePlaylistMedia(playlist_id);
+        const new_items = [...(media_list.items || [])];
+        let removed_count = 0;
+        for (const item of [...playlist_items].sort(
+            (first, second) => second.index - first.index,
+        )) {
+            const index =
+                new_items[item.index] === item.id
+                    ? item.index
+                    : new_items.indexOf(item.id);
+            if (index < 0) continue;
+            new_items.splice(index, 1);
+            removed_count++;
+        }
+        if (!removed_count) {
+            result.close();
+            return false;
+        }
+        await updateSignagePlaylistMedia(playlist_id, new_items);
+        this._setPlaylistMediaState(
+            playlist_id,
+            new_items,
+            false,
+            media_list.schedules,
+        );
+        const selected_index = this.selected_playlist_item_index();
+        if (
+            selected_index !== null &&
+            playlist_items.some((item) => item.index === selected_index)
+        ) {
+            this.selected_playlist_item.set(null);
+            this.selected_playlist_item_index.set(null);
+        }
+        notifySuccess(
+            i18n(
+                'SIGNAGE_MANAGER.SVC_ITEMS_REMOVED',
+                { count: removed_count },
+                removed_count,
+            ),
+        );
+        this._playlist_change.set(Date.now());
+        this.changed();
+        result.close();
+        return true;
+    }
+
     public async reorderPlaylistMedia(playlist_id: string, items: string[]) {
         if (
             !this._requirePermission(
@@ -1309,26 +1880,39 @@ export class SignageService {
     }
 
     public async editPlaylistItemSchedule(item: SignagePlaylistItemSchedule) {
+        return this.editPlaylistItemSchedules([item]);
+    }
+
+    public async editPlaylistItemSchedules(
+        items: SignagePlaylistItemSchedule[],
+    ) {
         const playlist = this.selected_playlist();
-        if (!playlist?.id || !item?.item_id) return;
+        const schedule_items = items.filter(
+            (item) => !!item?.item_id && !!(item.id || item.item_id),
+        );
+        if (!playlist?.id || !schedule_items.length) return false;
         if (
             !this._requirePermission(
                 this.can_update(),
                 i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS'),
             )
         )
-            return;
+            return false;
         const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
             data: {
-                item,
-                save: (schedule_id, schedules) =>
-                    updateSignagePlaylistMediaSchedule(
-                        playlist.id,
-                        schedule_id,
-                        {
-                            item_id: item.item_id,
-                            schedules,
-                        },
+                item: schedule_items[0],
+                save: (_schedule_id, schedules) =>
+                    Promise.all(
+                        schedule_items.map((item) =>
+                            updateSignagePlaylistMediaSchedule(
+                                playlist.id,
+                                item.id || item.item_id,
+                                {
+                                    item_id: item.item_id,
+                                    schedules,
+                                },
+                            ),
+                        ),
                     ),
             },
             panelClass: 'mobile-fullscreen',
@@ -1338,6 +1922,7 @@ export class SignageService {
             this._playlist_change.set(Date.now());
             this.changed();
         }
+        return !!result;
     }
 
     public refreshPlaylist(playlist_id: string) {
@@ -1360,19 +1945,323 @@ export class SignageService {
                     item_id: media_id,
                     media,
                 }),
-                save: (item_id, schedules) =>
-                    scheduleSignagePlaylistMedia(playlist_id, {
-                        item_id,
-                        schedules,
-                    }),
+                save: async (item_id, schedules) => {
+                    const media_list = await scheduleSignagePlaylistMedia(
+                        playlist_id,
+                        {
+                            item_id,
+                            schedules,
+                        },
+                    );
+                    this._setPlaylistMediaState(
+                        playlist_id,
+                        media_list.items || [],
+                        false,
+                        media_list.schedules,
+                    );
+                    return media_list;
+                },
             },
             panelClass: 'mobile-fullscreen',
         });
         const result = await dialogClosed(ref);
         if (!result) return false;
         this._playlist_change.set(Date.now());
-        this.changed();
         return true;
+    }
+
+    public async addTemplate() {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_TEMPLATES'),
+            )
+        )
+            return;
+        const ref = this._dialog.open(TemplateEditModalComponent, {
+            data: {
+                template: new SignageTemplate({}),
+                onAdd: (data: Partial<SignageTemplate>) =>
+                    this._addSignageTemplate(data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = await dialogClosed(ref);
+        if (result) {
+            this.changed();
+        }
+    }
+
+    public async editTemplate(template: SignageTemplate) {
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'),
+            )
+        )
+            return;
+        const ref = this._dialog.open(TemplateEditModalComponent, {
+            data: {
+                template,
+                group_id: this._api_group_id(),
+                onEdit: (id: string, data: Partial<SignageTemplate>) =>
+                    updateSignageTemplate(id, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = await dialogClosed(ref);
+        if (result) {
+            this.updateCachedTemplate(result);
+            this.changed();
+        }
+    }
+
+    public async editTemplateMapping(
+        target: SignageTemplateMappingTarget,
+        mapping: HydratedSignageTemplateMapping | null = null,
+    ) {
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
+            )
+        )
+            return false;
+        const templates = mapping ? [] : await this.listApprovedTemplates();
+        const ref = this._dialog.open(TemplateMappingModalComponent, {
+            data: {
+                mapping,
+                templates,
+                save: (
+                    template_id: string,
+                    schedule: SignagePlaylistSchedule | null,
+                ) =>
+                    mapping
+                        ? updateSignageTemplateMapping(mapping.id, { schedule })
+                        : addSignageTemplateMapping({
+                              ...target,
+                              template_id,
+                              schedule,
+                          }),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        return !!(await dialogClosed(ref));
+    }
+
+    public async removeTemplateMapping(
+        mapping: HydratedSignageTemplateMapping,
+    ) {
+        if (
+            !mapping?.id ||
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS'),
+            )
+        )
+            return false;
+        const result = await openConfirmModal(
+            {
+                title: i18n(
+                    'SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_MAPPING_TITLE',
+                ),
+                content: i18n(
+                    'SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_MAPPING_CONTENT',
+                    { name: mapping.template_details.name },
+                ),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        try {
+            await removeSignageTemplateMapping(mapping.id);
+            result.close();
+            notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVED'));
+            return true;
+        } catch (error) {
+            result.close();
+            notifyError(
+                i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVE_ERROR'),
+            );
+            throw error;
+        }
+    }
+
+    public approveTemplate(template: SignageTemplate) {
+        if (!template?.id) return;
+        if (
+            !this._requirePermission(
+                this.can_approve(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_APPROVE_TEMPLATES'),
+            )
+        )
+            return;
+        this._dialog.open(TemplateApproveModalComponent, {
+            data: { template },
+            panelClass: 'mobile-fullscreen',
+        });
+    }
+
+    public async requestTemplateApproval(template: SignageTemplate) {
+        if (!template?.id || this.template_approval_request_loading()) return;
+        if (this.can_approve()) {
+            this.approveTemplate(template);
+            return;
+        }
+        let approvers: SignageTemplateApprover[] = [];
+        let group: PlaceCurrentGroup | null = null;
+        this.template_approval_request_loading.set(true);
+        try {
+            const groups = await this._templateApprovalGroups(template);
+            if (!groups.length) {
+                notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_TEMPLATE'));
+                return;
+            }
+            const selected_group_id = this._api_group_id();
+            group =
+                groups.find((item) => item.group.id === selected_group_id) ||
+                groups[0];
+            approvers =
+                ((await listSignageTemplateApprovers(
+                    group.group.id,
+                )) as SignageTemplateApprover[]) || [];
+        } catch {
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_TEMPLATE_APPROVERS'));
+        } finally {
+            this.template_approval_request_loading.set(false);
+        }
+        if (!group) return;
+        const ref = this._dialog.open(TemplateRequestApprovalModalComponent, {
+            data: { template, approvers },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result: TemplateRequestApprovalModalResult | undefined =
+            await dialogClosed(ref);
+        if (!result) return;
+        await requestApprovalSignageTemplate(
+            template.id,
+            group.group.id,
+            result.message || '',
+            result.approver_id || '',
+        );
+        this.setTemplateApprovalStatus(template.id, false, true);
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_APPROVAL_REQUESTED'));
+    }
+
+    public async removeTemplate(template: SignageTemplate) {
+        if (!template?.id) return;
+        if (
+            !this._requirePermission(
+                this.can_delete(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_TEMPLATES'),
+            )
+        )
+            return;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_TEMPLATE_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
+                    name: template.name,
+                }),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        const group_id = this._api_group_id();
+        await (group_id
+            ? del(
+                  `${apiEndpoint()}/signage/templates/${encodeURIComponent(template.id)}?group_id=${encodeURIComponent(group_id)}`,
+              )
+            : removeSignageTemplate(template.id));
+        if (this.selected_template()?.id === template.id) {
+            this.selected_template.set(null);
+            this.selected_template_layout_index.set(null);
+        }
+        this.changed();
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVED'));
+        result.close();
+    }
+
+    public async shareTemplate(template: SignageTemplate) {
+        if (!template?.id) return;
+        await this._shareSignageItems('templates', [template.id]);
+    }
+
+    /** Persist the layout draft of the selected template */
+    public async saveTemplateLayouts() {
+        const template = this.selected_template();
+        if (!template?.id || !this.template_layout_dirty()) return;
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'),
+            )
+        )
+            return;
+        try {
+            const layouts = this.template_layout_draft().map(
+                applyLayoutPositionDefaults,
+            );
+            const response = await updateSignageTemplate(template.id, {
+                layouts,
+            });
+            const result = decodeEntityNames(
+                new SignageTemplate({ ...response, layouts }),
+            );
+            this.updateCachedTemplate(result);
+            notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_LAYOUTS_SAVED'));
+        } catch {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_SAVE_ERROR'));
+        }
+    }
+
+    public discardTemplateLayoutDraft() {
+        this.template_layout_draft.set(
+            structuredClone(this.selected_template()?.layouts ?? []),
+        );
+    }
+
+    public setTemplateApprovalStatus(
+        template_id: string,
+        approved: boolean,
+        approval_requested = false,
+    ) {
+        const template =
+            this.templates().find((item) => item.id === template_id) ||
+            this.selected_template();
+        if (!template || template.id !== template_id) return;
+        this.updateCachedTemplate(
+            new SignageTemplate({
+                ...template,
+                approved,
+                approval_requested,
+            }),
+        );
+    }
+
+    public updateCachedTemplate(template: SignageTemplate) {
+        this._template_items.update((items) =>
+            items.map((item) =>
+                isSameSignageTemplate(item, template) ? template : item,
+            ),
+        );
+        const selected_template = this.selected_template();
+        if (
+            selected_template &&
+            isSameSignageTemplate(selected_template, template)
+        ) {
+            this.selected_template.set(template);
+        }
+    }
+
+    private _addSignageTemplate(form_data: Partial<SignageTemplate>) {
+        const group_id = this._api_group_id();
+        return addSignageTemplate(
+            form_data,
+            group_id ? { group_id } : undefined,
+        );
     }
 
     public changed() {
@@ -1453,18 +2342,6 @@ export class SignageService {
                 ? { authority_id: group.authority_id }
                 : {}),
         });
-        return data;
-    }
-
-    public async searchGroupZones(search = '') {
-        const group = this.managed_group();
-        const { data } = await queryZones({
-            q: search,
-            limit: 20,
-            ...(group?.authority_id
-                ? { authority_id: group.authority_id }
-                : {}),
-        } as Record<string, unknown>);
         return data;
     }
 
@@ -1641,13 +2518,34 @@ export class SignageService {
         };
     }
 
-    private _addSignageMedia(form_data: Partial<SignageMedia>) {
+    private async _addSignageMedia(form_data: Partial<SignageMedia>) {
         const group_id = this._api_group_id();
-        if (!group_id) return addSignageMedia(form_data);
-        return post(
-            `${apiEndpoint()}/signage/media?group_id=${encodeURIComponent(group_id)}`,
-            form_data,
-        ).then((resp: any) => new SignageMedia(resp));
+        const result = await retryMediaRequest(() =>
+            group_id
+                ? post(
+                      `${apiEndpoint()}/signage/media?group_id=${encodeURIComponent(group_id)}`,
+                      form_data,
+                  ).then((resp: any) => new SignageMedia(resp))
+                : addSignageMedia(form_data),
+        );
+        this._addMediaToList(result);
+        return result;
+    }
+
+    /**
+     * Fold a newly created item into the loaded media list. Refetching instead
+     * loses the item whenever the backend index lags the write, which reads as
+     * a failed upload.
+     */
+    private _addMediaToList(media: SignageMedia) {
+        if (!media?.id) return;
+        const item = decodeEntityNames(media);
+        this._media_items.update((items) =>
+            [item, ...items.filter((existing) => existing.id !== item.id)].sort(
+                (a, b) => b.created_at - a.created_at,
+            ),
+        );
+        this._media_tags.reload();
     }
 
     private _addSignagePlaylist(form_data: Partial<SignagePlaylist>) {
@@ -1660,7 +2558,7 @@ export class SignageService {
     }
 
     private async _shareSignageItems(
-        item_type: 'media' | 'playlists',
+        item_type: keyof typeof SIGNAGE_SHARE_CONFIG,
         item_ids: string[],
     ) {
         if (
@@ -1678,31 +2576,20 @@ export class SignageService {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_GROUPS_TO_SHARE'));
             return false;
         }
+        const share_config = SIGNAGE_SHARE_CONFIG[item_type];
         const ref = this._dialog.open(GroupSelectModalComponent, {
             data: {
-                title:
-                    item_type === 'media'
-                        ? i18n('SIGNAGE_MANAGER.SVC_SHARE_MEDIA_TITLE')
-                        : i18n('SIGNAGE_MANAGER.SVC_SHARE_PLAYLIST_TITLE'),
+                title: i18n(share_config.title),
                 groups: target_groups,
             },
             panelClass: 'mobile-fullscreen',
         });
         const group_id = await dialogClosed(ref);
         if (!group_id) return false;
-        const request =
-            item_type === 'media'
-                ? shareSignageMedia({ items: item_ids.join(','), to: group_id })
-                : shareSignagePlaylists({
-                      items: item_ids.join(','),
-                      to: group_id,
-                  });
-        await request;
-        notifySuccess(
-            item_type === 'media'
-                ? i18n('SIGNAGE_MANAGER.SVC_MEDIA_SHARED')
-                : i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED'),
-        );
+        const options = { items: item_ids.join(','), to: group_id };
+        await share_config.request(options);
+        markSignageSharedGroupsChanged();
+        notifySuccess(i18n(share_config.success));
         return true;
     }
 
@@ -1733,12 +2620,69 @@ export class SignageService {
         return matching_groups;
     }
 
+    private async _templateApprovalGroups(template: SignageTemplate) {
+        const groups = this.signage_groups();
+        const selected_group_id = this._api_group_id();
+        const matching_groups: PlaceCurrentGroup[] = [];
+        for (const group of groups) {
+            if (!group.group.id) continue;
+            if (group.group.id === selected_group_id) {
+                matching_groups.push(group);
+                continue;
+            }
+            try {
+                const result = await querySignageTemplates({
+                    group_id: group.group.id,
+                    limit: 500,
+                });
+                if (
+                    (result.data || []).some((item) => item.id === template.id)
+                ) {
+                    matching_groups.push(group);
+                }
+            } catch {
+                // Ignore groups the user cannot query.
+            }
+        }
+        return matching_groups;
+    }
+
     private _cacheDisplay(display: any) {
         if (!display?.id) return;
         this._display_overrides.update((state) => ({
             ...state,
             [display.id]: display,
         }));
+    }
+
+    private _addDisplayToList(display: PlaceSystem) {
+        if (!display?.id) return;
+        const item = decodeEntityNames(display);
+        this._display_items.update((items) => [
+            item,
+            ...items.filter((existing) => existing.id !== item.id),
+        ]);
+        this._display_cache.update((cache) => ({
+            ...cache,
+            [item.id]: item,
+        }));
+        this._cacheDisplay(item);
+    }
+
+    private _removeDisplayFromList(display_id: string) {
+        this._display_items.update((items) =>
+            items.filter((item) => item.id !== display_id),
+        );
+        this._display_cache.update((cache) => {
+            const next = { ...cache };
+            delete next[display_id];
+            return next;
+        });
+        this._display_overrides.update((overrides) => {
+            const next = { ...overrides };
+            delete next[display_id];
+            return next;
+        });
     }
 
     private _cacheZone(zone: any) {
@@ -1771,7 +2715,6 @@ export class SignageService {
         this._setPlaylistMediaState(playlist_id, list, false);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_UPDATED'));
         this._playlist_change.set(Date.now());
-        this.changed();
     }
 
     public async addMediaToPlaylist(playlist_id: string, media_id: string) {
@@ -2027,7 +2970,7 @@ export class SignageService {
                 ? await this._resolvePlugin(item.plugin_id)
                 : undefined;
         this._dialog.open(MediaPreviewModalComponent, {
-            data: { media: item, plugin },
+            data: { media: item, plugin, group_id: this._api_group_id() },
             panelClass: 'fullscreen-dialog',
         });
     }
@@ -2123,6 +3066,7 @@ export class SignageService {
     }
 
     public async addMediaFromPlugin(plugin: SignagePlugin) {
+        if (plugin.plugin_type !== 'plugin') return;
         if (
             !this._requirePermission(
                 this.can_create(),
@@ -2182,14 +3126,6 @@ export class SignageService {
         let file_thumbnail = '';
         if (file) {
             file_thumbnail = await this._generateThumbnail(file, 1024, 720);
-        } else if (
-            media.media_type === 'webpage' &&
-            media.media_uri &&
-            !media.thumbnail_id
-        ) {
-            file_thumbnail = await this.generateUrlThumbnail(
-                media.media_uri,
-            ).catch(() => '');
         }
         const ref = this._dialog.open(MediaEditModalComponent, {
             data: {
@@ -2198,19 +3134,23 @@ export class SignageService {
                 file_metadata,
                 file_thumbnail,
                 playlist_id,
+                group_id: this._api_group_id(),
                 plugin,
+                tag_options: this.media_tags(),
                 loadPlugin: load_plugin,
+                generateThumbnail: (f: File) => this.generateThumbnailImage(f),
                 onAdd: (
                     f: File,
                     m: SignageMedia,
                     file_metadata?: SignageMediaMetadata,
+                    thumbnail?: string,
                 ) =>
                     this._addMedia(
                         f,
                         m,
                         playlist_id,
                         file_metadata,
-                        file_thumbnail,
+                        thumbnail || file_thumbnail,
                     ),
                 onEdit: async (id: string, data: any) => {
                     const updated_media = await this._editMedia(id, data);
@@ -2220,7 +3160,6 @@ export class SignageService {
             },
         });
         await dialogClosed(ref);
-        if (is_new) setTimeout(() => this.changed(), 500);
     }
 
     private async _editMedia(id: string, data: any) {
@@ -2231,8 +3170,19 @@ export class SignageService {
             )
         )
             return;
+        // Webpage and plugin items carry their thumbnail as an image the user
+        // picked in the modal. It has to be uploaded before the item can point
+        // at it.
+        const { thumbnail_image, ...update } = data;
+        if (thumbnail_image) {
+            const thumbnail_id = await this._uploadThumbnailImage(
+                thumbnail_image,
+                update.name,
+            );
+            if (thumbnail_id) update.thumbnail_id = thumbnail_id;
+        }
         const updated_media = decodeEntityNames(
-            await updateSignageMedia(id, data),
+            await updateSignageMedia(id, update),
         );
         this._media_items.update((items) =>
             items.map((item) => (item.id === id ? updated_media : item)),
@@ -2248,7 +3198,8 @@ export class SignageService {
         try {
             const result = await querySignagePlugins({
                 limit: 500,
-            } as any).catch(() => ({ data: [] }));
+                plugin_type: 'plugin',
+            }).catch(() => ({ data: [] }));
             const all_plugins = result.data || [];
             return all_plugins.find((p: SignagePlugin) => p.id === plugin_id);
         } catch {
@@ -2275,15 +3226,10 @@ export class SignageService {
         } else {
             let thumbnail_id = '';
             if (url_thumbnail) {
-                const name = `thumb+${(media_item.name || 'media').replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
-                thumbnail_id = await this._uploads
-                    .uploadFileToCompletion(dataURLtoFile(url_thumbnail, name))
-                    .catch(() => {
-                        notifyWarn(
-                            i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'),
-                        );
-                        return '';
-                    });
+                thumbnail_id = await this._uploadThumbnailImage(
+                    url_thumbnail,
+                    media_item.name,
+                );
             }
             const data = {
                 ...new SignageMedia({
@@ -2300,8 +3246,10 @@ export class SignageService {
             const media_list = await listSignagePlaylistMedia(playlist_id);
             const new_media_list = [...media_list.items, result.id];
             await this.updatePlaylistMedia(playlist_id, new_media_list);
+            // Only the playlist views need rebuilding; the media list already
+            // holds the item returned by the create call.
+            this.changed();
         }
-        this.changed();
         return result;
     }
 
@@ -2333,33 +3281,17 @@ export class SignageService {
             1280,
             720,
         ).catch(() => null);
+        // Resolves only once the upload is committed. Watching progress reach
+        // 100 is not enough: the last chunk lands before finalisation and the
+        // commit run, so a failure there would otherwise look like success.
         let media_id: string;
         if (upload_options) {
-            const upload = this._uploads.uploadFileWithProgress(
+            media_id = await this._uploads.uploadFileToCompletion(
                 upload_file,
                 false,
                 upload_options.permissions,
+                upload_options.on_progress,
             );
-            const details = await new Promise<ReturnType<typeof upload>>(
-                (resolve, reject) => {
-                    const interval = setInterval(() => {
-                        const state = upload();
-                        upload_options.on_progress?.(state.progress);
-                        if (state.error) {
-                            clearInterval(interval);
-                            reject(state.error);
-                            return;
-                        }
-                        if (state.progress < 100) return;
-                        clearInterval(interval);
-                        resolve(state);
-                    }, 100);
-                },
-            );
-            media_id = details.upload_id || details.upload?.id || details.id;
-            if (!media_id) {
-                throw new Error('Failed to get uploaded file ID');
-            }
         } else {
             media_id =
                 await this._uploads.uploadFileWithPermissionsToCompletion(
@@ -2373,15 +3305,10 @@ export class SignageService {
         if (thumbnail_image) {
             const name_parts = upload_file.name.split('.');
             name_parts.pop();
-            const name = `thumb+${name_parts.join('.')}.jpg`;
-            thumbnail_id = await this._uploads
-                .uploadFileToCompletion(dataURLtoFile(thumbnail_image, name))
-                .catch(() => {
-                    notifyWarn(
-                        i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'),
-                    );
-                    return '';
-                });
+            thumbnail_id = await this._uploadThumbnailImage(
+                thumbnail_image,
+                name_parts.join('.'),
+            );
         }
         const data = {
             ...new SignageMedia({
@@ -2468,7 +3395,7 @@ export class SignageService {
         );
         if (result.reason !== 'done') return;
         await this._removeMediaFromCachedPlaylists([item.id]);
-        await removeSignageMedia(item.id);
+        await removeSignageMedia(item.id, this._groupQueryParams({}));
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
         result.close();
@@ -2501,7 +3428,9 @@ export class SignageService {
             media_items.map((item) => item.id),
         );
         await Promise.all(
-            media_items.map((item) => removeSignageMedia(item.id)),
+            media_items.map((item) =>
+                removeSignageMedia(item.id, this._groupQueryParams({})),
+            ),
         );
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
@@ -2531,6 +3460,7 @@ export class SignageService {
         )
             return false;
         const ref = this._dialog.open(MediaTagsModalComponent, {
+            data: { tags: this.media_tags() },
             width: 'min(28rem, calc(100vw - 2rem))',
         });
         const tags = await dialogClosed<string[]>(ref);
@@ -2628,6 +3558,139 @@ export class SignageService {
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_ZONE'));
     }
 
+    public async addDisplay() {
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_DISPLAYS'),
+            )
+        )
+            return null;
+        const default_zone_ids = await this._defaultDisplayZoneIds();
+        const ref = this._dialog.open(DisplayEditModalComponent, {
+            data: {
+                display: new PlaceSystem({}),
+                default_zone_ids,
+                roots: this.root_zones,
+                zones: this.all_zones,
+                load_children: (parent_id: string) =>
+                    this.zoneChildren(parent_id),
+                query_zones: (search: string, parent_id: string) =>
+                    this.querySelectableZones(search, parent_id),
+                onAdd: (data: Partial<PlaceSystem>) => addSystem(data),
+                onEdit: (id: string, data: Partial<PlaceSystem>) =>
+                    updateSystem(id, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = (await dialogClosed(ref)) as PlaceSystem | null;
+        if (!result) return null;
+        this._addDisplayToList(result);
+        this.selected_display.set(result);
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVED'));
+        return result;
+    }
+
+    public async editDisplay(display: PlaceSystem) {
+        if (
+            !this._requirePermission(
+                this.can_update(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_DISPLAYS'),
+            )
+        )
+            return null;
+        const ref = this._dialog.open(DisplayEditModalComponent, {
+            data: {
+                display,
+                default_zone_ids: [],
+                roots: this.root_zones,
+                zones: this.all_zones,
+                load_children: (parent_id: string) =>
+                    this.zoneChildren(parent_id),
+                query_zones: (search: string, parent_id: string) =>
+                    this.querySelectableZones(search, parent_id),
+                onAdd: (data: Partial<PlaceSystem>) => addSystem(data),
+                onEdit: (id: string, data: Partial<PlaceSystem>) =>
+                    updateSystem(id, data),
+            },
+            panelClass: 'mobile-fullscreen',
+        });
+        const result = (await dialogClosed(ref)) as PlaceSystem | null;
+        if (!result) return null;
+        this._addDisplayToList(result);
+        this.selected_display.set(result);
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVED'));
+        return result;
+    }
+
+    public async removeDisplay(display: PlaceSystem) {
+        if (!display?.id) return false;
+        if (
+            !this._requirePermission(
+                this.can_delete_displays(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_DISPLAYS'),
+            )
+        )
+            return false;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_DISPLAY_TITLE'),
+                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED', {
+                    name: display.display_name || display.name,
+                }),
+                icon: { content: 'delete' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        const used_elsewhere = !!(
+            display.map_id ||
+            display.email ||
+            display.modules.length ||
+            display.module_list.length
+        );
+        if (used_elsewhere) {
+            await updateSystem(display.id, { signage: false });
+        } else {
+            await removeSystem(display.id);
+        }
+        result.close();
+        this._removeDisplayFromList(display.id);
+        if (this.selected_display()?.id === display.id) {
+            this.selected_display.set(null);
+        }
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_REMOVED'));
+        return true;
+    }
+
+    private async _defaultDisplayZoneIds() {
+        const group_id = this._api_group_id();
+        const active_zone =
+            this._org.building || this._org.region || this._org.organisation;
+        let roots = group_id
+            ? this.root_zones()
+            : active_zone
+              ? [active_zone]
+              : [];
+        if (group_id && !roots.length) {
+            const result = await queryZones({
+                group_id,
+                limit: 500,
+                include_children_count: true,
+            } as any).catch(() => null);
+            roots = (result?.data || []).map(decodeEntityNames);
+        }
+        const known_zones = [
+            ...this.all_zones(),
+            this._org.organisation,
+            this._org.region,
+            this._org.building,
+        ].filter((zone): zone is PlaceZone => !!zone?.id);
+        return displayZoneIds(roots, known_zones, async (zone_id) =>
+            showZone(zone_id).catch(() => null),
+        );
+    }
+
     public async addDisplayToZone(zone: any) {
         if (
             !this._requirePermission(
@@ -2642,8 +3705,11 @@ export class SignageService {
         });
         const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this.displays();
-        const display = displays.find((d: any) => d.id === display_id);
+        // The picker searches the backend, so the choice may be a display the
+        // list never loaded.
+        const display =
+            this.displays().find((d: any) => d.id === display_id) ||
+            (await showSystem(display_id).catch(() => null));
         if (!display) return;
         if (display.zones?.includes(zone.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_IN_ZONE'));
@@ -2728,8 +3794,11 @@ export class SignageService {
         });
         const display_id = await dialogClosed(ref);
         if (!display_id) return;
-        const displays = this.displays();
-        const display = displays.find((d: any) => d.id === display_id);
+        // The picker searches the backend, so the choice may be a display the
+        // list never loaded.
+        const display =
+            this.displays().find((d: any) => d.id === display_id) ||
+            (await showSystem(display_id).catch(() => null));
         if (!display) return;
         if (display.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
@@ -2763,8 +3832,10 @@ export class SignageService {
         });
         const zone_id = await dialogClosed(ref);
         if (!zone_id) return;
-        const zones = this.zones();
-        const zone = zones.find((z: any) => z.id === zone_id);
+        // Likewise the zone picker, which may return a zone outside the list
+        const zone =
+            this.zones().find((z: any) => z.id === zone_id) ||
+            (await showZone(zone_id).catch(() => null));
         if (!zone) return;
         if (zone.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));
@@ -2889,6 +3960,36 @@ export class SignageService {
         });
     }
 
+    private _uploadThumbnailImage(data_url: string, name: string) {
+        const file_name = `thumb+${(name || 'media').replace(/[^a-zA-Z0-9_-]/g, '_')}.jpg`;
+        return this._uploads
+            .uploadFileToCompletion(dataURLtoFile(data_url, file_name))
+            .catch(() => {
+                notifyWarn(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_UPLOAD_FAILED'));
+                return '';
+            });
+    }
+
+    /**
+     * Scale an image the user picked down to a thumbnail data URL. Webpages
+     * and plugins have no file to capture a frame from, and a cross origin
+     * page cannot be rendered to a canvas, so the image is supplied by hand.
+     */
+    public async generateThumbnailImage(file: File) {
+        if (!file || !isImageSourceFile(file)) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_NOT_IMAGE'));
+            return '';
+        }
+        const image = await this._normalizeImageUpload(file);
+        const thumbnail = await this._generateThumbnail(image, 1280, 720).catch(
+            () => '',
+        );
+        if (!thumbnail) {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_FAILED'));
+        }
+        return thumbnail;
+    }
+
     private async _generateThumbnail(
         file: File,
         max_width: number,
@@ -2902,27 +4003,70 @@ export class SignageService {
         return '';
     }
 
-    private _generateImageThumbnail(
+    private async _generateImageThumbnail(
         file: File,
         max_width: number,
         max_height: number,
     ) {
-        return new Promise<string>((resolve, reject) => {
-            const img = new Image();
-            img.src = URL.createObjectURL(file);
-            img.onload = () => {
-                const image = this._generateThumbnailFromResource(
-                    img,
-                    img.width,
-                    img.height,
-                    max_width,
-                    max_height,
-                );
-                URL.revokeObjectURL(img.src);
-                resolve(image);
-            };
-            img.onerror = reject;
-        });
+        const source = await this._decodeImageSource(file);
+        const { width, height } = this._imageSourceSize(
+            source,
+            max_width,
+            max_height,
+        );
+        try {
+            return this._generateThumbnailFromResource(
+                source,
+                width,
+                height,
+                max_width,
+                max_height,
+            );
+        } finally {
+            if (source instanceof ImageBitmap) source.close();
+        }
+    }
+
+    /**
+     * Decode the file completely before anything paints it. `load` on an
+     * `<img>` only promises the bytes arrived, not that a frame is ready, and
+     * browsers differ on when that becomes true.
+     */
+    private async _decodeImageSource(
+        file: File,
+    ): Promise<ImageBitmap | HTMLImageElement> {
+        if (typeof createImageBitmap === 'function') {
+            try {
+                const bitmap = await createImageBitmap(file);
+                if (bitmap.width > 0 && bitmap.height > 0) return bitmap;
+                bitmap.close();
+            } catch {
+                // Firefox cannot decode SVG through createImageBitmap
+            }
+        }
+        const image = await this._loadImage(file);
+        if (typeof image.decode === 'function') {
+            await image.decode().catch(() => undefined);
+        }
+        return image;
+    }
+
+    /**
+     * An SVG carrying no intrinsic size reports zero dimensions in Firefox
+     * while Chrome substitutes a default, which yields a zero sized canvas and
+     * a blank thumbnail. Fall back to the target box in that case.
+     */
+    private _imageSourceSize(
+        source: ImageBitmap | HTMLImageElement,
+        max_width: number,
+        max_height: number,
+    ) {
+        const width =
+            (source as HTMLImageElement).naturalWidth || source.width || 0;
+        const height =
+            (source as HTMLImageElement).naturalHeight || source.height || 0;
+        if (width > 0 && height > 0) return { width, height };
+        return { width: max_width, height: max_height };
     }
 
     private async _convertImageToWebp(file: File) {
@@ -2980,10 +4124,20 @@ export class SignageService {
     ) {
         return new Promise<string>((resolve, reject) => {
             const video = document.createElement('video');
-            video.autoplay = true;
+            const url = URL.createObjectURL(file);
             video.muted = true;
-            video.src = URL.createObjectURL(file);
-            video.onloadeddata = () => {
+            video.playsInline = true;
+            video.preload = 'auto';
+            let settled = false;
+            const cleanup = () => {
+                clearTimeout(timer);
+                URL.revokeObjectURL(url);
+                video.removeAttribute('src');
+                video.load();
+            };
+            const capture = () => {
+                if (settled) return;
+                settled = true;
                 const image = this._generateThumbnailFromResource(
                     video,
                     video.videoWidth,
@@ -2991,15 +4145,47 @@ export class SignageService {
                     max_width,
                     max_height,
                 );
-                URL.revokeObjectURL(video.src);
+                cleanup();
                 resolve(image);
             };
-            video.onerror = reject;
+            const fail = (error: unknown) => {
+                if (settled) return;
+                settled = true;
+                cleanup();
+                reject(error);
+            };
+            // Never leave the caller waiting on a frame that will not arrive
+            const timer = setTimeout(
+                () => fail(new Error('Timed out generating video thumbnail')),
+                VIDEO_THUMBNAIL_TIMEOUT,
+            );
+            video.onseeked = capture;
+            video.onloadeddata = () => {
+                // `loadeddata` only promises HAVE_CURRENT_DATA, and Firefox
+                // reaches it before a frame can be painted, which renders the
+                // thumbnail black. Seeking and waiting for `seeked` guarantees
+                // a decoded frame is presented.
+                const duration = Number.isFinite(video.duration)
+                    ? video.duration
+                    : 0;
+                const target = duration
+                    ? Math.min(VIDEO_THUMBNAIL_OFFSET, duration / 2)
+                    : VIDEO_THUMBNAIL_OFFSET;
+                if (video.currentTime === target) {
+                    capture();
+                    return;
+                }
+                // A seek to the current position emits no `seeked` event
+                video.currentTime = target;
+            };
+            video.onerror = () =>
+                fail(new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_LOAD_IMAGE')));
+            video.src = url;
         });
     }
 
     private _generateThumbnailFromResource(
-        data: HTMLImageElement | HTMLVideoElement,
+        data: CanvasImageSource,
         source_width: number,
         source_height: number,
         max_width: number,
@@ -3018,97 +4204,16 @@ export class SignageService {
             thumbnail_height = max_height;
             thumbnail_width = thumbnail_height * aspect_ratio;
         }
-        canvas.width = thumbnail_width;
-        canvas.height = thumbnail_height;
-        ctx.drawImage(data, 0, 0, thumbnail_width, thumbnail_height);
+        /* A fractional or zero sized canvas renders nothing at all */
+        const width = Math.max(1, Math.round(thumbnail_width));
+        const height = Math.max(1, Math.round(thumbnail_height));
+        canvas.width = width;
+        canvas.height = height;
+        /* JPEG has no alpha channel, so anything transparent is written out as
+         * black unless the canvas is given a background first. */
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(data, 0, 0, width, height);
         return canvas.toDataURL('image/jpeg');
-    }
-
-    /** Generate a thumbnail by loading a URL in a hidden iframe and capturing its content. */
-    public generateUrlThumbnail(
-        url: string,
-        width = 1280,
-        height = 720,
-        timeout_ms = 8000,
-    ): Promise<string> {
-        return new Promise<string>((resolve) => {
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.left = '-10000px';
-            iframe.style.top = '-10000px';
-            iframe.style.width = `${width}px`;
-            iframe.style.height = `${height}px`;
-            iframe.style.border = 'none';
-            iframe.style.opacity = '0';
-            iframe.style.pointerEvents = 'none';
-            iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin');
-            let resolved = false;
-            const cleanup = () => {
-                if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
-            };
-            const finish = (result: string) => {
-                if (resolved) return;
-                resolved = true;
-                cleanup();
-                resolve(result);
-            };
-            const timer = setTimeout(() => finish(''), timeout_ms);
-            iframe.addEventListener('load', () => {
-                /* Allow the page content time to render after the load event. */
-                setTimeout(() => {
-                    clearTimeout(timer);
-                    try {
-                        const doc = iframe.contentDocument;
-                        if (!doc) {
-                            finish('');
-                            return;
-                        }
-                        const canvas = document.createElement('canvas');
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) {
-                            finish('');
-                            return;
-                        }
-                        /* Fill with a white background to match typical page backgrounds. */
-                        ctx.fillStyle = '#ffffff';
-                        ctx.fillRect(0, 0, width, height);
-                        /* Render the foreign object via an SVG wrapper. */
-                        const serializer = new XMLSerializer();
-                        const html = serializer.serializeToString(doc);
-                        const svg_data = `
-                            <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
-                                <foreignObject width="100%" height="100%">
-                                    ${html}
-                                </foreignObject>
-                            </svg>`;
-                        const svg_blob = new Blob([svg_data], {
-                            type: 'image/svg+xml;charset=utf-8',
-                        });
-                        const svg_url = URL.createObjectURL(svg_blob);
-                        const img = new Image();
-                        img.onload = () => {
-                            ctx.drawImage(img, 0, 0, width, height);
-                            URL.revokeObjectURL(svg_url);
-                            finish(canvas.toDataURL('image/jpeg', 0.85));
-                        };
-                        img.onerror = () => {
-                            URL.revokeObjectURL(svg_url);
-                            finish('');
-                        };
-                        img.src = svg_url;
-                    } catch {
-                        finish('');
-                    }
-                }, 2000);
-            });
-            iframe.addEventListener('error', () => {
-                clearTimeout(timer);
-                finish('');
-            });
-            document.body.appendChild(iframe);
-            iframe.src = url;
-        });
     }
 }

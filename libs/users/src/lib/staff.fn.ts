@@ -23,6 +23,20 @@ export async function searchStaff(q: string): Promise<StaffUser[]> {
     return list.map((item: Record<string, any>) => new StaffUser(item));
 }
 
+/** Find staff whose primary email starts with the given email prefix. */
+export async function searchStaffByEmailPrefix(
+    email_prefix: string,
+): Promise<StaffUser[]> {
+    const escaped_prefix = email_prefix.replace(/'/g, "''");
+    const query = toQueryString({
+        filter: `startsWith(mail,'${escaped_prefix}')`,
+    });
+    const list = (await get(
+        `${STAFF_ENDPOINT}?${query}`,
+    )) as unknown as Partial<StaffUser>[];
+    return list.map((item) => new StaffUser(item));
+}
+
 /**
  * Get user details
  * @param id User ID or email

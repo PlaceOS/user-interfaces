@@ -217,6 +217,40 @@ describe('InviteVisitorFormComponent', () => {
         expect('label[for="reason"]').toExist();
     });
 
+    it('should show all-day and internal host fields from visitor settings', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            [
+                'app.visitors.allow_all_day',
+                'app.visitors.can_book_for_others',
+            ].includes(key),
+        );
+
+        spectator.detectChanges();
+
+        expect(spectator.component.allow_all_day()).toBe(true);
+        expect(spectator.component.can_book_for_others()).toBe(true);
+        expect('mat-checkbox').toExist();
+        expect('host-select-field').toExist();
+        expect('a-user-search-field').not.toExist();
+    });
+
+    it('should show unrestricted host search when visitor settings allow anyone', () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            [
+                'app.visitors.can_book_for_others',
+                'app.visitors.can_book_for_anyone',
+            ].includes(key),
+        );
+
+        spectator.detectChanges();
+
+        expect(spectator.component.can_book_for_anyone()).toBe(true);
+        expect('a-user-search-field').toExist();
+        expect('host-select-field').not.toExist();
+    });
+
     it('should reflect updated form date for time and duration fields', async () => {
         const service = spectator.inject(BookingFormService);
         // ngOnInit registers the model.date → form_date sync listener.
@@ -413,6 +447,22 @@ describe('InviteVisitorFormComponent', () => {
 
         expect(service.postForm).toHaveBeenCalled();
         expect(service.model().title).toBe('Vendor Interview');
+    });
+
+    it('should set the multiple visitor placeholder email when the setting resolves after init', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation(() => undefined);
+        await spectator.component.ngOnInit();
+
+        expect(service.model().asset_id).toBeFalsy();
+
+        (settings.get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        spectator.detectChanges();
+
+        expect(service.model().asset_id).toBe('multiple@place.tech');
     });
 
     it('should edit as a group when converting single visitor booking to multiple', async () => {
@@ -686,6 +736,96 @@ describe('InviteVisitorFormComponent', () => {
             start: 540,
             end: 1080,
         });
+    });
+
+    it('should not restore a removed visitor when the sibling lookup lands late', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        let resolve_siblings: (_: Booking[]) => void;
+        (service.loadGroupSiblings as Mock).mockImplementation(
+            () => new Promise((resolve) => (resolve_siblings = resolve)),
+        );
+        (service as any).booking = new Booking({
+            id: 'booking-parent',
+            extension_data: {
+                group_members: [
+                    { name: 'Visitor One', email: 'visitor.one@example.com' },
+                    { name: 'Visitor Two', email: 'visitor.two@example.com' },
+                ],
+            },
+        });
+        service.model.update((m) => ({
+            ...m,
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_id: 'visitor.one@example.com',
+            asset_name: 'Visitor One',
+        }));
+
+        await spectator.component.ngOnInit();
+        expect(service.model().assets).toHaveLength(2);
+
+        // The user removes a visitor while the lookup is still in flight.
+        service.model.update((m) => ({
+            ...m,
+            assets: (m.assets || []).slice(1),
+        }));
+        resolve_siblings([
+            new Booking({
+                id: 'booking-parent',
+                asset_name: 'Visitor One',
+                asset_id: 'visitor.one@example.com',
+            }),
+            new Booking({
+                id: 'booking-child',
+                parent_id: 'booking-parent',
+                asset_name: 'Visitor Two',
+                asset_id: 'visitor.two@example.com',
+            }),
+        ]);
+        await wait(0);
+
+        expect(service.model().assets).toHaveLength(1);
+        expect(service.model().assets[0].email).toBe(
+            'visitor.two@example.com',
+        );
+    });
+
+    it('should drop duplicate visitors when seeding the list from a booking', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation(
+            (key: string) => key === 'app.bookings.multiple_visitors',
+        );
+        (service.loadGroupSiblings as Mock).mockResolvedValue([]);
+        (service as any).booking = new Booking({
+            id: 'booking-parent',
+            extension_data: {
+                group_members: [
+                    { name: 'Visitor One', email: 'visitor.one@example.com' },
+                    { name: 'Visitor One', email: 'visitor.one@example.com' },
+                    { name: 'Visitor Two', email: 'visitor.two@example.com' },
+                ],
+            },
+        });
+        service.model.update((m) => ({
+            ...m,
+            id: 'booking-parent',
+            booking_type: 'visitor',
+            date: Date.now(),
+            duration: 60,
+            asset_id: 'visitor.one@example.com',
+            asset_name: 'Visitor One',
+        }));
+
+        await spectator.component.ngOnInit();
+
+        expect(service.model().assets).toHaveLength(2);
     });
 
     it('should not block init while loading sibling visitors', async () => {

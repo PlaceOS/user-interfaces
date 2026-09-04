@@ -4,13 +4,19 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    CalendarEvent,
+    OrganisationService,
+    SettingsService,
+    User,
+} from '@placeos/common';
+import { UserPipe } from '@placeos/users';
 import { setHours, startOfDay, subWeeks } from 'date-fns';
-import { MockProvider } from 'ng-mocks';
+import { MockPipe, MockProvider } from 'ng-mocks';
 import { Subject, Subscription } from 'rxjs';
 
-import { RoomWeekBookingsTimelineComponent } from '../../app/day-view/room-week-timeline.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
+import { RoomWeekBookingsTimelineComponent } from '../../app/day-view/room-week-timeline.component';
 
 describe('RoomWeekBookingsTimelineComponent', () => {
     let spectator: SpectatorRouting<RoomWeekBookingsTimelineComponent>;
@@ -18,12 +24,29 @@ describe('RoomWeekBookingsTimelineComponent', () => {
     const zones = signal<string[]>([]);
     const date = signal<number>(startOfDay(Date.now()).valueOf());
     const settings_values: Record<string, any> = {};
+    const user_pipe_transform = vi.fn(
+        async (user_id: string, lookup_mode?: string) =>
+            new User({
+                email: user_id,
+                name: lookup_mode === 'email-prefix' ? 'Katherine Savage' : '',
+            }),
+    );
+    const MockUserPipe = MockPipe(UserPipe, user_pipe_transform);
     let dialog_open: any;
 
     const createComponent = createRoutingFactory({
         component: RoomWeekBookingsTimelineComponent,
         shallow: true,
         detectChanges: false,
+        overrideComponents: [
+            [
+                RoomWeekBookingsTimelineComponent,
+                {
+                    remove: { imports: [UserPipe] },
+                    add: { imports: [MockUserPipe] },
+                },
+            ],
+        ],
         providers: [
             {
                 provide: EventsStateService,
@@ -51,6 +74,7 @@ describe('RoomWeekBookingsTimelineComponent', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
         for (const key of Object.keys(settings_values))
             delete settings_values[key];
         filtered.set([]);
@@ -100,6 +124,61 @@ describe('RoomWeekBookingsTimelineComponent', () => {
         expect(spectator.component.event_max_count()).toBe(1);
     });
 
+    it('should resolve an aliased host name by email prefix', async () => {
+        const noon = setHours(startOfDay(Date.now()), 12).valueOf();
+        filtered.set([
+            {
+                id: 'aliased-host',
+                date: noon,
+                date_end: noon + 60 * 60 * 1000,
+                duration: 60,
+                title: 'Event',
+                host: 'katherine.savage@royhill.com.au',
+                system: { zones: [] },
+                is_system_event: false,
+            },
+        ]);
+
+        spectator.detectChanges();
+
+        expect(user_pipe_transform).toHaveBeenCalledWith(
+            'katherine.savage@royhill.com.au',
+            'email-prefix',
+        );
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        expect('[date-blocks]').toHaveText('Katherine Savage');
+    });
+
+    it('should resolve the host name from attendee details when the user lookup has no name', async () => {
+        const noon = setHours(startOfDay(Date.now()), 12).valueOf();
+        user_pipe_transform.mockResolvedValueOnce(
+            new User({ email: 'fallback.host@example.com' }),
+        );
+        filtered.set([
+            new CalendarEvent({
+                id: 'fallback-host',
+                date: noon,
+                date_end: noon + 60 * 60 * 1000,
+                duration: 60,
+                title: 'Event',
+                host: 'fallback.host@example.com',
+                attendees: [
+                    new User({
+                        email: 'FALLBACK.HOST@EXAMPLE.COM',
+                        name: 'Fallback Host',
+                    }),
+                ],
+            }),
+        ]);
+
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+
+        expect('[date-blocks]').toHaveText('Fallback Host');
+    });
+
     it('should exclude system events from the day map', () => {
         const noon = setHours(startOfDay(Date.now()), 12).valueOf();
         filtered.set([
@@ -136,10 +215,7 @@ describe('RoomWeekBookingsTimelineComponent', () => {
     });
 
     it('should not open a dialog for system events', () => {
-        spectator.component.viewEvent(
-            { is_system_event: true } as any,
-            'sp1',
-        );
+        spectator.component.viewEvent({ is_system_event: true } as any, 'sp1');
         expect(dialog_open).not.toHaveBeenCalled();
     });
 

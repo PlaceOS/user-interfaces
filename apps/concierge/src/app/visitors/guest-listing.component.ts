@@ -50,7 +50,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 },
                 {
                     key: 'date',
-                    name: 'FORM.TIME' | translate,
+                    name: 'COMMON.TIME' | translate,
                     content: date_template,
                     show: !hide_field('date'),
                     size: '6rem',
@@ -335,43 +335,46 @@ import { VisitorsStateService } from './visitors-state.service';
                     class="h-10 w-30 rounded-3xl border-none"
                     [class.text-success-content]="row?.status === 'approved'"
                     [class.bg-success]="row?.status === 'approved'"
-                    [class.text-error-content]="row?.status === 'declined'"
-                    [class.bg-error]="row?.status === 'declined'"
+                    [class.text-error-content]="
+                        row?.status === 'declined' ||
+                        row?.status === 'cancelled'
+                    "
+                    [class.bg-error]="
+                        row?.status === 'declined' ||
+                        row?.status === 'cancelled'
+                    "
                     [class.text-neutral-content]="row?.status === 'ended'"
                     [class.bg-neutral]="row?.status === 'ended'"
                     [class.text-warning-content]="
                         row?.status !== 'ended' &&
                         row?.status !== 'approved' &&
-                        row?.status !== 'declined'
+                        row?.status !== 'declined' &&
+                        row?.status !== 'cancelled'
                     "
                     [class.bg-warning]="
                         row?.status !== 'ended' &&
                         row?.status !== 'approved' &&
-                        row?.status !== 'declined'
+                        row?.status !== 'declined' &&
+                        row?.status !== 'cancelled'
                     "
-                    [class.opacity-30]="row?.status === 'ended'"
+                    [class.opacity-30]="
+                        row?.status === 'ended' || row?.status === 'cancelled'
+                    "
                     [matMenuTriggerFor]="menu"
                     [disabled]="
                         row?.status === 'ended' ||
+                        row?.status === 'cancelled' ||
                         (row.checked_in && !row.checked_out_at)
                     "
                 >
                     <div class="flex items-center space-x-2 pr-2 pl-4">
                         <div class="flex-1 text-left">
-                            {{
-                                (row?.status === 'ended'
-                                    ? 'APP.CONCIERGE.BOOKING_STATUS_ENDED'
-                                    : row?.status === 'approved'
-                                      ? 'APP.CONCIERGE.BOOKING_STATUS_APPROVED'
-                                      : row?.status === 'declined'
-                                        ? 'APP.CONCIERGE.BOOKING_STATUS_DECLINED'
-                                        : 'APP.CONCIERGE.BOOKING_STATUS_PENDING'
-                                ) | translate
-                            }}
+                            {{ bookingStatusLabel(row) | translate }}
                         </div>
                         @if (
                             !(
                                 row?.status === 'ended' ||
+                                row?.status === 'cancelled' ||
                                 (row.checked_in && !row.checked_out_at)
                             )
                         ) {
@@ -601,6 +604,17 @@ import { VisitorsStateService } from './visitors-state.service';
                                 >
                                     {{ 'COMMON.SAVE' | translate }}
                                 </button>
+                                @if (row.extension_data.pass_number) {
+                                    <button
+                                        btn
+                                        matRipple
+                                        name="remove-pass"
+                                        class="inverse error w-full"
+                                        (click)="setPass(row)"
+                                    >
+                                        {{ 'COMMON.REMOVE' | translate }}
+                                    </button>
+                                }
                             </div>
                         </mat-menu>
                     }
@@ -814,6 +828,21 @@ export class GuestListingComponent extends AsyncHandler {
 
     public readonly emailVisitor = (item) => this._state.emailVisitor(item);
 
+    public bookingStatusLabel(booking: Booking) {
+        switch (booking.status) {
+            case 'ended':
+                return 'APP.CONCIERGE.BOOKING_STATUS_ENDED';
+            case 'approved':
+                return 'APP.CONCIERGE.BOOKING_STATUS_APPROVED';
+            case 'declined':
+                return 'APP.CONCIERGE.BOOKING_STATUS_DECLINED';
+            case 'cancelled':
+                return 'COMMON.TYPE_CANCELLED';
+            default:
+                return 'APP.CONCIERGE.BOOKING_STATUS_PENDING';
+        }
+    }
+
     public get has_parking() {
         return (
             this._settings.get('app.features')?.includes('parking') &&
@@ -927,10 +956,8 @@ export class GuestListingComponent extends AsyncHandler {
         this._state.poll();
     }
 
-    public async setPass(row: any, pass = '') {
-        if (!pass) return;
-        await saveBooking(new Booking({ ...row, pass_number: pass } as any));
-        this._state.poll();
+    public async setPass(row: Booking, pass = '') {
+        await this._state.setExt(row, 'pass_number', pass || null);
         this.pass_number.set('');
         notifySuccess(i18n('APP.CONCIERGE.VISITORS_SAVED_PASS'));
     }

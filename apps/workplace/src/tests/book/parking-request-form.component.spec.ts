@@ -1,11 +1,13 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { signal } from '@angular/core';
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
+import { ComponentFixtureAutoDetect, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { ParkingRequestFormDetailsComponent } from '../../app/book/parking-request-flow/parking-request-form-details.component';
 import { ParkingRequestFormComponent } from '../../app/book/parking-request-flow/parking-request-form.component';
 
 describe('ParkingRequestFormComponent', () => {
@@ -51,6 +53,9 @@ describe('ParkingRequestFormComponent', () => {
     });
 
     beforeEach(() => {
+        TestBed.overrideComponent(ParkingRequestFormDetailsComponent, {
+            set: { template: '' },
+        });
         model = signal({
             id: '',
             date: Date.now() + 60 * 60 * 1000,
@@ -95,6 +100,14 @@ describe('ParkingRequestFormComponent', () => {
         expect(post_form).toHaveBeenCalled();
     });
 
+    it('should register the form scroll container for autocomplete repositioning', () => {
+        spectator.detectChanges();
+
+        expect(
+            spectator.fixture.debugElement.query(By.directive(CdkScrollable)),
+        ).toBeTruthy();
+    });
+
     it('should save a successful plate number for future requests', async () => {
         vi.mocked(settings.get).mockReturnValue(['xyz789', 'ABC123']);
         post_form.mockImplementation(async () => {
@@ -104,10 +117,10 @@ describe('ParkingRequestFormComponent', () => {
 
         await spectator.component.submitRequest();
 
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(
-            'plate_numbers',
-            ['ABC123', 'xyz789'],
-        );
+        expect(settings.saveUserSetting).toHaveBeenCalledWith('plate_numbers', [
+            'ABC123',
+            'xyz789',
+        ]);
     });
 
     it('should not save a plate number when submission fails', async () => {

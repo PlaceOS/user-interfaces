@@ -1,5 +1,10 @@
 import { computed, signal } from '@angular/core';
-import { currentGroups, PlaceCurrentGroup, showUser } from '@placeos/ts-client';
+import {
+    currentGroups,
+    PlaceCurrentGroup,
+    showUser,
+    token,
+} from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, of, timer } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
 import { isPublicMode } from './public-mode';
@@ -57,6 +62,87 @@ const PERMISSION_VALUES = [
 
 function isTestRuntime() {
     return typeof jest !== 'undefined' || typeof vi !== 'undefined';
+}
+
+const USER_CACHE_KEY = 'PLACEOS.user';
+/** Cached user data older than this is discarded instead of displayed */
+const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000;
+
+interface UserCache {
+    cached_at: number;
+    token_id: string;
+    user: Partial<StaffUser>;
+}
+
+/**
+ * Fingerprint of the active access token. Cached user data is tied to it so
+ * another user's details can never be displayed after a change of login.
+ */
+function tokenID(): string {
+    const value = token() || '';
+    let hash = 0;
+
+    for (let i = 0; i < value.length; i++) {
+        hash = (hash * 31 + value.charCodeAt(i)) | 0;
+    }
+    return `${hash}`;
+}
+
+/** User details stored by the last load, if they belong to the active token */
+export function cachedUserData(): UserCache | null {
+    try {
+        const cache: UserCache = JSON.parse(
+            localStorage.getItem(USER_CACHE_KEY) || 'null',
+        );
+        if (
+            !cache?.cached_at ||
+            cache.token_id !== tokenID() ||
+            cache.cached_at + MAX_CACHE_AGE < Date.now()
+        ) {
+            localStorage.removeItem(USER_CACHE_KEY);
+            return null;
+        }
+        return cache;
+    } catch {
+        localStorage.removeItem(USER_CACHE_KEY);
+        return null;
+    }
+}
+
+/**
+ * Store the loaded user details for the next load of the application. Group
+ * permissions are deliberately not cached, see `applyCachedUserData`.
+ */
+export function storeUserData() {
+    const user = currentUser();
+    if (isEmptyUser(user) || isPublicMode()) return;
+    try {
+        const cache: UserCache = {
+            cached_at: Date.now(),
+            token_id: tokenID(),
+            user: { ...user },
+        };
+        localStorage.setItem(USER_CACHE_KEY, JSON.stringify(cache));
+    } catch {
+        // Ignore storage quota and privacy-mode failures.
+    }
+}
+
+/**
+ * Display the user details from the last load while the latest are loading,
+ * so the application doesn't have to wait on the user request to render.
+ *
+ * Group permissions are left alone. They gate what the user is offered, so
+ * they always wait on the live request rather than being restored from a
+ * previous session.
+ */
+function applyCachedUserData(): boolean {
+    const cache = cachedUserData();
+    if (!cache) return false;
+    const user = new StaffUser(cache.user);
+    _current_user.next(user);
+    setDefaultCreator(user);
+    return true;
 }
 
 export const user_permissions = computed<UserPermissions>(() => {
@@ -133,6 +219,9 @@ function initialiseUser() {
     if (isTestRuntime()) return;
     _current_user.subscribe((u) => user_signal.set(u));
     const is_public_mode = isPublicMode();
+    // Cached details are displayed immediately, then replaced by the request
+    // below with the latest.
+    if (!is_public_mode) applyCachedUserData();
     const user_request = combineLatest([showUser('current'), _change]).pipe(
         map(([i]) => new StaffUser(i)),
     );
@@ -167,6 +256,7 @@ function initialiseUser() {
         .subscribe((user) => {
             _current_user.next(user);
             setDefaultCreator(user);
+            storeUserData();
             loadUserGroups();
         });
 }
@@ -178,6 +268,7 @@ export function reloadUserData() {
             const user = new StaffUser(p_user);
             _current_user.next(user);
             setDefaultCreator(user);
+            storeUserData();
             loadUserGroups();
         } catch (error) {
             if (isPublicMode()) {

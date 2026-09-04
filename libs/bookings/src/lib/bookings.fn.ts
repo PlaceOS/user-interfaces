@@ -22,6 +22,7 @@ import {
     setting,
     toQueryString,
     unique,
+    User,
     VERSION,
 } from '@placeos/common';
 
@@ -30,8 +31,58 @@ import {
     addMinutes,
     endOfDay,
     getUnixTime,
+    set,
     startOfDay,
+    startOfWeek,
+    subDays,
 } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+
+export interface WaitlistWeekStart {
+    /** Day of the week the waitlist week starts on. `0` is Sunday */
+    day?: number;
+    /** Hour of the day the waitlist week starts at */
+    hour?: number;
+    /** Minute of the hour the waitlist week starts at */
+    minute?: number;
+}
+
+/**
+ * Whether a date falls within the currently active parking waitlist week. The
+ * week boundary is a configurable day and wall clock time, defaulting to
+ * Friday at 18:00. The boundary is applied in the building's timezone when
+ * building timezones are enabled, otherwise in the local timezone.
+ */
+export function isInWaitlistWeek(
+    date: number | Date,
+    building_timezone?: string,
+    week_start: WaitlistWeekStart = setting('app.parking.waitlist_week_start'),
+) {
+    const day = week_start?.day ?? 5;
+    const hour = week_start?.hour ?? 18;
+    const minute = week_start?.minute ?? 0;
+    const timezone =
+        setting('app.bookings.use_building_timezone') ||
+        setting('app.parking.use_building_timezone')
+            ? building_timezone
+            : '';
+    const now = Date.now();
+    const zoned_now = timezone ? toZonedTime(now, timezone) : new Date(now);
+    let current_week_start = set(
+        startOfWeek(zoned_now, { weekStartsOn: day as any }),
+        { hours: hour, minutes: minute, seconds: 0, milliseconds: 0 },
+    );
+    if (zoned_now < current_week_start) {
+        current_week_start = subDays(current_week_start, 7);
+    }
+    const next_week_start = addDays(current_week_start, 7);
+    const asUTC = (value: Date) =>
+        timezone ? fromZonedTime(value, timezone).valueOf() : value.valueOf();
+    return (
+        date.valueOf() >= asUTC(current_week_start) &&
+        date.valueOf() < asUTC(next_week_start)
+    );
+}
 
 export interface BookingsQueryParams {
     /** Comma seperated list of zone ids to check availability */
@@ -50,8 +101,8 @@ export interface BookingsQueryParams {
     include_checked_out?: boolean;
     /** Include bookings made by the current user in the response */
     include_booked_by?: boolean;
-    /** Include deleted bookings in the response (can be set to apply to only recurring bookings) */
-    include_deleted?: 'all' | 'recurring';
+    /** Include deleted bookings in the response */
+    include_deleted?: boolean;
     /** Include deleted bookings in the response */
     deleted?: boolean;
     /**  */
@@ -357,22 +408,12 @@ function bookingsTimeOfDayOverlap(a: Booking, b: Booking): boolean {
     return a_start < b_end && b_start < a_end;
 }
 
-/**
- * Reject the assignee's bookings of the given type, within the next
- * `window_days` days, that overlap with instances of a recurring booking.
- * Used when assigning a desk/parking space to a recurring booking so the
- * assignee's existing ad-hoc bookings on those days/times are rejected. A
- * no-op for non-recurring bookings.
- * @param booking Recurring booking being assigned (must have a `user_email`)
- * @param type Booking type to clear (e.g. 'desk', 'parking')
- * @param window_days How far ahead to look (default 28)
- * @returns ids of the bookings that were rejected
- */
-export async function rejectOverlappingRecurringBookings(
+/** Find active bookings that overlap with instances of a recurring booking. */
+async function overlappingRecurringBookings(
     booking: Booking,
     type: BookingType,
     window_days = 28,
-): Promise<string[]> {
+): Promise<Booking[]> {
     if (!booking?.recurrence_type || booking.recurrence_type === 'none') {
         return [];
     }
@@ -387,7 +428,7 @@ export async function rejectOverlappingRecurringBookings(
         limit: 1000,
     });
     const recurrence = fromBookingRecurrence(booking as any);
-    const overlapping = existing.filter(
+    return existing.filter(
         (other) =>
             other.id !== booking.id &&
             other.parent_id !== booking.id &&
@@ -397,11 +438,52 @@ export async function rejectOverlappingRecurringBookings(
             isRecurrenceInstanceDate(recurrence, booking.date, other.date) &&
             bookingsTimeOfDayOverlap(booking, other),
     );
+}
+
+/**
+ * Reject the assignee's bookings that overlap with instances of a recurring
+ * booking.
+ */
+export async function rejectOverlappingRecurringBookings(
+    booking: Booking,
+    type: BookingType,
+    window_days = 28,
+): Promise<string[]> {
+    const overlapping = await overlappingRecurringBookings(
+        booking,
+        type,
+        window_days,
+    );
     await Promise.all(
         overlapping.map((other) =>
             (other.instance
                 ? rejectBookingInstance(other.id, other.instance)
                 : rejectBooking(other.id)
+            ).catch(() => null),
+        ),
+    );
+    return overlapping.map((_) => _.id);
+}
+
+/**
+ * Cancel the assignee's bookings that overlap with instances of a recurring
+ * booking. Cancellation is persistent when an approval arrives later.
+ */
+export async function cancelOverlappingRecurringBookings(
+    booking: Booking,
+    type: BookingType,
+    window_days = 28,
+): Promise<string[]> {
+    const overlapping = await overlappingRecurringBookings(
+        booking,
+        type,
+        window_days,
+    );
+    await Promise.all(
+        overlapping.map((other) =>
+            (other.instance
+                ? removeBookingInstance(other.id, other.instance)
+                : removeBooking(other.id)
             ).catch(() => null),
         ),
     );
@@ -615,6 +697,30 @@ export async function checkinBookingInstance(
 }
 
 /**
+ * Set the checkin state of a booking, changing only the single occurrence when
+ * the booking belongs to a recurring series. The first occurrence of a series
+ * is the master booking so it has no `instance`, and checking it in without
+ * one would change the state of every future occurrence.
+ * @param booking Booking to change the checkin state of
+ * @param state New checkin state of the booking
+ */
+export async function setBookingCheckedIn(
+    booking: Booking,
+    state: boolean,
+): Promise<Booking> {
+    const is_recurring =
+        !!booking.instance ||
+        (!!booking.recurrence_type && booking.recurrence_type !== 'none');
+    return is_recurring
+        ? checkinBookingInstance(
+              booking.id,
+              booking.instance || booking.booking_start,
+              state,
+          )
+        : checkinBooking(booking.id, state);
+}
+
+/**
  * Set the checkin state of a booking
  * @param id ID of the booking to grab
  * @param state New checkin state of the booking
@@ -687,7 +793,7 @@ export async function isResourceAvailable(
 export async function createBookingsForEvent(
     event: CalendarEvent,
     type: BookingType,
-    resources: BookableResource,
+    resources: readonly BookableResource[],
 ) {
     const bookings = (
         await queryBookings({
@@ -706,37 +812,51 @@ export async function createBookingsForEvent(
         (event.system?.zones as any) ||
         unique(flatten(event.resources.map((_) => _.zones))) ||
         [];
-    await Promise.all(
-        resources.map((item) => {
+    const created_bookings: Booking[] = [];
+    try {
+        // Linked booking creation updates the parent event, so process each
+        // request in order to avoid concurrent writes to the same event.
+        for (const item of resources) {
             const booking = bookings.find((_) =>
                 _.asset_ids.find((id) =>
                     item.items?.find((i) => i.item_ids.includes(id)),
                 ),
             );
-            return createBooking(
-                new Booking({
-                    type,
-                    booking_type: type,
-                    date: event.date,
-                    duration: event.duration,
-                    description: event.title || (item as any).name,
-                    user_email: event.host,
-                    asset_id: item.email || item.id,
-                    asset_name: (item as any).name,
-                    title: event.title,
-                    attendees: item.email ? [item] : [],
-                    approved: booking?.approved && !item._changed,
-                    rejected: booking?.rejected && !item._changed,
-                    extension_data: {
-                        parent_id: event.id,
-                        name: (item as any).name,
-                        location_id: event.location,
-                        details: item,
-                    },
-                    zones,
-                }).toJSON(),
-                { ical_uid: event.ical_uid, event_id: event.id },
+            created_bookings.push(
+                await createBooking(
+                    new Booking({
+                        type,
+                        booking_type: type,
+                        date: event.date,
+                        duration: event.duration,
+                        description: event.title || (item as any).name,
+                        user_email: event.host,
+                        asset_id: item.email || item.id,
+                        asset_name: (item as any).name,
+                        title: event.title,
+                        attendees: item.email ? [new User(item)] : [],
+                        approved: booking?.approved && !item._changed,
+                        rejected: booking?.rejected && !item._changed,
+                        extension_data: {
+                            parent_id: event.id,
+                            name: (item as any).name,
+                            location_id: event.location,
+                            details: item,
+                        },
+                        zones,
+                    }).toJSON(),
+                    { ical_uid: event.ical_uid, event_id: event.id },
+                ),
             );
-        }),
-    );
+        }
+    } catch (error) {
+        await Promise.all(
+            created_bookings
+                .filter((booking) => !!booking.id)
+                .map((booking) =>
+                    removeBooking(booking.id).catch(() => undefined),
+                ),
+        );
+        throw error;
+    }
 }

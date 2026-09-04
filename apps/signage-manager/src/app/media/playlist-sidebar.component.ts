@@ -1,5 +1,5 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,13 +7,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import {
-    AuthenticatedImageDirective,
-    IconComponent,
-    TranslatePipe,
-} from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
+import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { SignageService } from '../signage.service';
 
 type PlaylistStatus =
@@ -95,51 +92,10 @@ type PlaylistStatus =
                                 class="border-base-300 mb-2 flex items-center gap-3 rounded-lg border p-0.5 transition-colors"
                                 matRipple
                             >
-                                <div
+                                <playlist-thumbnail
+                                    [playlist]="playlist"
                                     class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"
-                                >
-                                    @if (
-                                        playlist_thumbnail_media()[playlist.id]
-                                            ?.length
-                                    ) {
-                                        @for (
-                                            media of playlist_thumbnail_media()[
-                                                playlist.id
-                                            ];
-                                            track media;
-                                            let i = $index;
-                                            let len = $count
-                                        ) {
-                                            <img
-                                                auth
-                                                [source]="media"
-                                                alt=""
-                                                class="border-base-300 bg-base-200 absolute h-9 w-9 rounded-sm border object-cover shadow"
-                                                [style.top]="
-                                                    0.3 -
-                                                    (len - 1) * 0.125 +
-                                                    (len - 1 - i) * 0.25 +
-                                                    'rem'
-                                                "
-                                                [style.left]="
-                                                    0.3 -
-                                                    (len - 1) * 0.125 +
-                                                    (len - 1 - i) * 0.25 +
-                                                    'rem'
-                                                "
-                                                [style.z-index]="i"
-                                            />
-                                        }
-                                    } @else {
-                                        <div
-                                            class="text-base-content/35 flex h-full w-full items-center justify-center"
-                                        >
-                                            <icon class="text-2xl">
-                                                playlist_play
-                                            </icon>
-                                        </div>
-                                    }
-                                </div>
+                                />
                                 <div class="min-w-0 flex-1">
                                     <div class="truncate text-sm font-medium">
                                         {{ playlist.name }}
@@ -269,45 +225,32 @@ type PlaylistStatus =
         MatFormFieldModule,
         MatInputModule,
         MatProgressSpinnerModule,
-        AuthenticatedImageDirective,
         IconComponent,
         RouterLink,
         MatRippleModule,
         TranslatePipe,
         MatTooltipModule,
         IntersectDirective,
+        PlaylistThumbnailComponent,
     ],
 })
 export class PlaylistSidebarComponent {
     private readonly _service = inject(SignageService);
 
-    private readonly _playlists = this._service.playlists;
-
     public readonly can_create = this._service.can_create;
     public readonly loading = this._service.playlists_loading;
-    public readonly search = signal('');
-    public readonly playlist_thumbnail_media =
-        this._service.playlist_thumbnail_media;
+    public readonly search = this._service.playlist_search_term;
     public readonly playlist_approval_status =
         this._service.playlist_approval_status;
     public readonly playlist_approval_requested_status =
         this._service.playlist_approval_requested_status;
-    public readonly filtered_playlists = computed(() => {
-        const term = this.search().toLowerCase();
-        const list = this._playlists();
-        if (!term) return list;
-        return list.filter((p) => p.name.toLowerCase().includes(term));
-    });
+    public readonly filtered_playlists = this._service.filtered_playlists;
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._service.playlists_has_more;
     public loadMore() {
         this._service.loadMorePlaylists();
     }
-
-    private readonly _load_playlist_thumbnails = effect(() => {
-        this._service.queuePlaylistMeta(this.filtered_playlists());
-    });
 
     public addPlaylist() {
         this._service.addPlaylist();

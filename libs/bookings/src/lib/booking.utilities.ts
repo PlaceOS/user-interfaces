@@ -51,17 +51,18 @@ export type ParkingRequestStatus = 'pending' | 'approval_required' | 'waitlist';
 
 /**
  * Status of an unresolved parking request.
- * `pending` when the backend hasn't set a process state, otherwise the request
- * is unapproved and is either waiting on an approver or on the waitlist.
+ * Unapproved manual requests need approval; non-manual requests are only
+ * waitlisted when the backend marks their process state accordingly.
  */
 export function parkingRequestStatus(
-    booking?: Pick<Booking, 'process_state' | 'extension_data'>,
+    booking?: Pick<Booking, 'approved' | 'process_state' | 'extension_data'>,
 ): ParkingRequestStatus {
-    // Booking defaults an empty process state to `pending`
-    if (booking?.process_state !== 'unapproved') return 'pending';
-    return booking.extension_data?.requires_manual_approval
-        ? 'approval_required'
-        : 'waitlist';
+    const requires_manual_approval =
+        !!booking?.extension_data?.requires_manual_approval;
+    if (booking?.approved !== false) return 'pending';
+    if (requires_manual_approval) return 'approval_required';
+    if (booking.process_state === 'wait_list') return 'waitlist';
+    return 'pending';
 }
 
 export function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
@@ -297,6 +298,18 @@ export function bookingAttachments(booking: Booking = new Booking()): string[] {
     ].filter((item) => !!item);
 }
 
+/** Host (`user`) of a booking, falling back to the signed-in user for new
+ * bookings. Delegate bookings are made on behalf of someone else, so seeding
+ * this from the current user would silently reassign the host on save. */
+export function bookingHostUser(booking: Booking = new Booking()): User {
+    if (!booking?.user_email) return currentUser();
+    return new User({
+        id: booking.user_id || '',
+        email: booking.user_email,
+        name: booking.user_name || booking.user_email,
+    });
+}
+
 /** Build the raw booking form value from a booking. */
 export function bookingFormValue(
     booking: Booking = new Booking(),
@@ -332,7 +345,7 @@ export function bookingFormValue(
         attendees: booking.attendees || [],
         map_id: extension_data.map_id || '',
         featured: extension_data.featured || false,
-        user: currentUser(),
+        user: bookingHostUser(booking),
         user_id: booking.user_id || '',
         group: booking.group ?? {},
         user_email: booking.user_email || '',
@@ -486,7 +499,13 @@ export function generateBookingForm(
     onFieldChange(
         model,
         (v) => v.resources,
-        (resources) => setBookingAsset(model, (resources || [])[0]),
+        (resources) => {
+            // Visitor bookings store the visitor email in `asset_id`; they do
+            // not select a booking resource. Form resets replace `resources`
+            // with a new empty array, which must not clear that email on edit.
+            if (untracked(model).booking_type === 'visitor') return;
+            setBookingAsset(model, (resources || [])[0]);
+        },
         injector,
     );
     // Keep booked_by synced to the current user

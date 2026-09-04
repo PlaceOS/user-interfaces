@@ -57,7 +57,7 @@ import { BookingAsset } from '../booking-form.service';
                 <hr />
                 <section details class="space-y-2">
                     <h2 class="text-xl font-medium">
-                        {{ 'BOOKINGS.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h2>
                     <div class="flex items-center space-x-2">
                         <icon>meeting_room</icon>

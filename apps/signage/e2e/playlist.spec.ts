@@ -166,18 +166,24 @@ test.describe('US-SIG-016: View and Select Playlist Items', () => {
         ).toContainText('http');
     });
 
-    test('toggles the playlist sidebar with the queue button', async ({
-        page,
-    }) => {
+    test('toggles the playlist overlay', async ({ page }) => {
         await navigateWithConfig(page, SIGNAGE_DEBUG_URL);
         await waitForDebugControls(page);
 
         await expect(page.locator('playlist-display')).toBeVisible();
 
-        await page.locator('media-player > div > button').click();
+        await page.getByRole('button', { name: 'Edit debug layout' }).click();
+        await page.getByRole('button', { name: 'Hide playlist' }).click();
+        await page
+            .getByRole('button', { name: 'Finish editing debug layout' })
+            .click();
         await expect(page.locator('playlist-display')).toBeHidden();
 
-        await page.locator('media-player > div > button').click();
+        await page.getByRole('button', { name: 'Edit debug layout' }).click();
+        await page.getByRole('button', { name: 'Show playlist' }).click();
+        await page
+            .getByRole('button', { name: 'Finish editing debug layout' })
+            .click();
         await expect(page.locator('playlist-display')).toBeVisible();
     });
 });

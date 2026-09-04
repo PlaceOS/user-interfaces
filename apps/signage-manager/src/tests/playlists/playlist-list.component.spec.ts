@@ -10,7 +10,6 @@ describe('PlaylistListComponent', () => {
         {},
     );
     const playlists_has_more = signal(false);
-    const queue_meta = vi.fn();
     const load_more = vi.fn();
 
     const service_stub = {
@@ -21,7 +20,6 @@ describe('PlaylistListComponent', () => {
         playlist_approval_status,
         playlist_approval_requested_status,
         playlists_has_more,
-        queuePlaylistMeta: queue_meta,
         loadMorePlaylists: load_more,
         editPlaylist: vi.fn(),
         removePlaylist: vi.fn(),
@@ -66,9 +64,7 @@ describe('PlaylistListComponent', () => {
         playlist_approval_status.set({ p: false });
         playlist_approval_requested_status.set({ p: true });
         const component = await make();
-        expect(component.getStatus({ id: 'p' } as any)).toBe(
-            'awaiting_review',
-        );
+        expect(component.getStatus({ id: 'p' } as any)).toBe('awaiting_review');
     });
 
     it('marks a playlist awaiting approval before a request is sent', async () => {
@@ -83,14 +79,6 @@ describe('PlaylistListComponent', () => {
         playlist_approval_status.set({ p: true });
         const component = await make();
         expect(component.getStatus({ id: 'p' } as any)).toBeNull();
-    });
-
-    it('queues playlist metadata for the visible list', async () => {
-        const list = [{ id: 'p1' }, { id: 'p2' }];
-        filtered_playlists.set(list as any);
-        await make();
-        TestBed.flushEffects();
-        expect(queue_meta).toHaveBeenCalledWith(list);
     });
 
     it('requests the next page when scrolled', async () => {

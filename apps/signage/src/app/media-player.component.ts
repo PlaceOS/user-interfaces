@@ -22,6 +22,7 @@ import {
     SignagePluginMessageType,
 } from '@placeos/components';
 import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
+import { DebugOverlayComponent } from './debug-overlay.component';
 import { MediaControlsComponent } from './media-controls.component';
 import {
     findValidPlaylistIndex,
@@ -33,6 +34,7 @@ import { PlaylistDisplayComponent } from './playlist-display.component';
 import { MediaEvent } from './signage.service';
 import { TimeControlsComponent } from './time-controls.component';
 import { MediaPlayerItem, MediaPlayerState } from './types';
+import { recordHeartbeat } from './watchdog';
 
 /** Max wait for an item whose data is still being downloaded before skipping */
 const MAX_URL_WAIT_LOADING = 30 * 1000;
@@ -43,14 +45,23 @@ const URL_FETCH_TIMEOUT = 30 * 1000;
 /** Minimum time to wait on a media item before skipping a load failure */
 const MIN_FAILED_MEDIA_WAIT = 1000;
 /** Lead time for rendering the next webpage/plugin output before it is shown */
-const INTERACTIVE_PRELOAD_LEAD_TIME = 3 * 1000;
+const INTERACTIVE_PRELOAD_LEAD_TIME = 10 * 1000;
+/** Time to let a webpage settle after its load event before it is shown */
+const WEBPAGE_REVEAL_DELAY = 3 * 1000;
 /** Max wait for plugin load/ready before continuing playback anyway */
 const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
 
 @Component({
     selector: 'media-player',
+    host: {
+        '[class.transparent]': 'transparent()',
+    },
     template: `
-        <div class="absolute inset-0 bg-[#212121]">
+        <div
+            class="absolute inset-0"
+            [class.bg-black]="!controls() && !transparent()"
+            [style.background]="controls() && !transparent() ? '#212121' : ''"
+        >
             <div
                 #media_container_0
                 class="pointer-events-none absolute top-0 left-0 h-full w-full"
@@ -142,10 +153,26 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                 }
             </div>
             @if (controls()) {
-                <div class="absolute top-0 left-0 z-20 p-4">
+                <debug-overlay
+                    [overlay_id]="can_close() ? 'override-time' : 'player-time'"
+                    [editing]="layout_editing()"
+                    [reset_count]="layout_reset_count()"
+                    label="debug time"
+                    icon="event"
+                    [initial_position]="{ x: 0.01, y: 0.01 }"
+                >
                     <time-controls />
-                </div>
-                <div class="absolute bottom-0 left-1/2 z-20 -translate-x-1/2">
+                </debug-overlay>
+                <debug-overlay
+                    [overlay_id]="
+                        can_close() ? 'override-playback' : 'player-playback'
+                    "
+                    [editing]="layout_editing()"
+                    [reset_count]="layout_reset_count()"
+                    label="playback controls"
+                    icon="play_circle"
+                    [initial_position]="{ x: 0.5, y: 0.99 }"
+                >
                     <media-controls
                         [state]="state()"
                         [loop]="loop()"
@@ -159,10 +186,15 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                         [loading]="waiting_for_item()"
                         (event)="handleControlEvent($event)"
                     />
-                </div>
+                </debug-overlay>
                 @if (can_close()) {
-                    <div
-                        class="absolute top-0 left-1/2 z-20 -translate-x-1/2 p-2"
+                    <debug-overlay
+                        overlay_id="override-details"
+                        [editing]="layout_editing()"
+                        [reset_count]="layout_reset_count()"
+                        label="override details"
+                        icon="priority_high"
+                        [initial_position]="{ x: 0.5, y: 0.01 }"
                     >
                         <div
                             class="border-base-200 bg-base-100 flex items-center space-x-4 rounded-full border p-2"
@@ -187,26 +219,24 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                                 <icon>close</icon>
                             </button>
                         </div>
-                    </div>
+                    </debug-overlay>
                 }
-                @if (show_playlist()) {
-                    <div class="absolute top-0 right-0 z-20 p-4">
-                        <playlist-display
-                            [index]="index()"
-                            [playlist]="playlist_items"
-                            (selected)="setPlaylistItem($event)"
-                        />
-                    </div>
-                }
-                <button
-                    icon
-                    default
-                    matRipple
-                    class="absolute top-6 right-6 z-20"
-                    (click)="show_playlist.set(!show_playlist())"
+                <debug-overlay
+                    [overlay_id]="
+                        can_close() ? 'override-playlist' : 'player-playlist'
+                    "
+                    [editing]="layout_editing()"
+                    [reset_count]="layout_reset_count()"
+                    label="playlist"
+                    icon="queue_music"
+                    [initial_position]="{ x: 0.99, y: 0.01 }"
                 >
-                    <icon>{{ show_playlist() ? 'close' : 'queue_music' }}</icon>
-                </button>
+                    <playlist-display
+                        [index]="index()"
+                        [playlist]="playlist_items"
+                        (selected)="setPlaylistItem($event)"
+                    />
+                </debug-overlay>
             }
         </div>
     `,
@@ -219,10 +249,15 @@ const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
                 width: 100%;
                 background: var(--bg);
             }
+
+            :host(.transparent) {
+                background: transparent;
+            }
         `,
     ],
     imports: [
         MatRippleModule,
+        DebugOverlayComponent,
         PlaylistDisplayComponent,
         IconComponent,
         MediaControlsComponent,
@@ -236,6 +271,10 @@ export class MediaPlayerComponent
 {
     public readonly playlist = input<MediaPlayerItem[]>([]);
     public readonly controls = input(false);
+    public readonly layout_editing = input(false);
+    public readonly layout_reset_count = input(0);
+    /** Let media render over a parent surface, such as a signage template. */
+    public readonly transparent = input(false);
     public readonly override = input(false);
     public readonly can_close = input(false);
     public readonly loop = model<'NONE' | 'ONE' | 'ALL'>('ALL');
@@ -260,7 +299,6 @@ export class MediaPlayerComponent
     public readonly progress = signal(0);
     public readonly progress_start = signal(0);
     public readonly progress_duration = signal(0);
-    public readonly show_playlist = signal(true);
     public readonly hold_over_item = signal(true);
     public readonly in_animation = signal(false);
     public readonly defer_reveal = signal(false);
@@ -399,7 +437,17 @@ export class MediaPlayerComponent
     }
 
     public ngOnInit() {
-        this.interval('playlist_check', () => this._updateItem(), 50);
+        this.interval(
+            'playlist_check',
+            () => {
+                // Checked in from the timer rather than from item changes: a
+                // single interactive item legitimately holds the screen for
+                // hours, so what matters is that the loop is still running.
+                recordHeartbeat('playback');
+                this._updateItem();
+            },
+            50,
+        );
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -539,6 +587,23 @@ export class MediaPlayerComponent
         return validateMedia(item) === '';
     }
 
+    /**
+     * Whether the item on screen plays to completion, so interrupting it now
+     * would be noticed. Images and webpages hold a static frame and can be
+     * replaced without anyone seeing a difference; videos and plugins that
+     * report when they finish cannot.
+     */
+    public isMidPlayThroughItem() {
+        const item = this.active_item;
+        if (!item || this.state() !== 'PLAYING') return false;
+        if (item.type === 'video') return true;
+        if (item.type === 'plugin') {
+            const playback = item.plugin?.playback_type;
+            return playback === 'playsthrough' || playback === 'interactive';
+        }
+        return false;
+    }
+
     public toggleLoop() {
         const loop = this.loop();
         if (loop === 'ALL') this.loop.set('ONE');
@@ -607,7 +672,7 @@ export class MediaPlayerComponent
                 this._resetPlayback();
                 this._finishDeferredReveal(item, 0);
             },
-            2000,
+            WEBPAGE_REVEAL_DELAY,
         );
     }
 
@@ -1373,11 +1438,7 @@ export class MediaPlayerComponent
         if (this.state() === 'PLAYING') this.togglePause();
         this.in_animation.set(true);
         if (this.active_item.animation === MediaAnimation.Cut) {
-            this.timeout(
-                're-start',
-                () => this._onTransitionEnd(resume_on_end, true),
-                500,
-            );
+            this._onTransitionEnd(resume_on_end, true);
             return;
         }
         const item = this.active_item;

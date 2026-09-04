@@ -10,16 +10,22 @@ function media(id: string, tags: string[]) {
 describe('MediaListComponent folders', () => {
     const filtered_media = signal<any[]>([]);
     const media_tags = signal<string[]>([]);
+    const media_tag_counts = signal<Record<string, number>>({});
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
+    const signage_groups = signal<any[]>([]);
+    const is_sys_admin = signal(false);
+    const show_media_group_tabs = signal(true);
     const set_selected_group = vi.fn();
     const service_stub = {
         filtered_media,
         media_tags,
+        media_tag_counts,
         media_view_mode,
         media_has_more: signal(false),
-        signage_groups: signal([]),
+        signage_groups,
         selected_group_id: signal(''),
-        is_sys_admin: signal(false),
+        is_sys_admin,
+        show_media_group_tabs,
         can_update: signal(true),
         can_delete: signal(true),
         can_share: signal(true),
@@ -48,10 +54,28 @@ describe('MediaListComponent folders', () => {
             media('b', ['news']),
             media('c', []),
         ]);
-        // Tags come from the media-tags endpoint (pre-sorted by the service).
+        // Tags come from the tag-counts endpoint (pre-sorted by the service).
         media_tags.set(['lobby', 'news']);
+        media_tag_counts.set({});
         media_view_mode.set('folder');
+        signage_groups.set([]);
+        is_sys_admin.set(false);
+        show_media_group_tabs.set(true);
         set_selected_group.mockReset();
+    });
+
+    it('offers the group tabs only while the media group tabs are enabled', () => {
+        signage_groups.set([
+            { group: { id: 'a', name: 'Alpha' } },
+            { group: { id: 'b', name: 'Beta' } },
+        ]);
+        const component = make();
+
+        expect(component.can_switch_groups()).toBe(true);
+
+        show_media_group_tabs.set(false);
+
+        expect(component.can_switch_groups()).toBe(false);
     });
 
     it('builds one folder per endpoint tag with loaded counts plus an untagged bucket', () => {
@@ -64,6 +88,27 @@ describe('MediaListComponent folders', () => {
             ['news', 2],
         ]);
         expect(folders.at(0)!.untagged).toBe(true);
+    });
+
+    it('counts tagged folders from the backend, not the loaded media', () => {
+        // The backend counts every item, including media not yet paged in.
+        media_tag_counts.set({ lobby: 12, news: 40 });
+        const component = make();
+        expect(component.folders().map((f) => [f.id, f.count])).toEqual([
+            [component.untagged_id, 1],
+            ['lobby', 12],
+            ['news', 40],
+        ]);
+    });
+
+    it('falls back to loaded counts for tags the backend did not count', () => {
+        media_tag_counts.set({ news: 40 });
+        const component = make();
+        expect(component.folders().map((f) => [f.id, f.count])).toEqual([
+            [component.untagged_id, 1],
+            ['lobby', 1],
+            ['news', 40],
+        ]);
     });
 
     it('always shows the untagged bucket, even when every item is tagged', () => {

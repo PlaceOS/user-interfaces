@@ -66,6 +66,36 @@ describe('GroupSelectModalComponent', () => {
         expect(new Set(ids).size).toBe(ids.length);
     });
 
+    it('lists every group until a search term is entered', async () => {
+        const component = await createComponent({
+            title: 'Select',
+            groups: [group('a', 'Alpha'), group('b', 'Beta')],
+        });
+
+        expect(component.filtered_groups()).toHaveLength(2);
+
+        component.search.set('  bet ');
+
+        expect(component.filtered_groups().map((_) => _.group.id)).toEqual([
+            'b',
+        ]);
+    });
+
+    it('matches the search term against group descriptions', async () => {
+        const target = group('b', 'Beta');
+        target.group.description = 'Lobby screens';
+        const component = await createComponent({
+            title: 'Select',
+            groups: [group('a', 'Alpha'), target],
+        });
+
+        component.search.set('lobby');
+
+        expect(component.filtered_groups().map((_) => _.group.id)).toEqual([
+            'b',
+        ]);
+    });
+
     it('only includes the selected group when its parent is missing', async () => {
         const component = await createComponent({
             title: 'Select',

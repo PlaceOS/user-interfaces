@@ -34,6 +34,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { SignedRequest } from '@placeos/cloud-uploads';
 import { openConfirmModal } from '@placeos/components';
+import { queryAllPages } from '../query-all-pages';
 import { SignageApprovePlaylistModalComponent } from './signage-approve-playlist-modal.component';
 import { SignageDisplayModalComponent } from './signage-display-modal.component';
 import { SignageMediaModalComponent } from './signage-media-modal.component';
@@ -94,8 +95,10 @@ export class SignageStateService extends AsyncHandler {
         defaultValue: [] as SignageMedia[],
         loader: async ({ params }) => {
             if (!params.building) return [];
-            const resp = await querySignageMedia({ limit: 2500 } as any);
-            return (resp.data || []).sort(
+            const list = await queryAllPages(
+                querySignageMedia({ limit: 200 } as any),
+            );
+            return list.sort(
                 (a, b) => b.created_at - a.created_at,
             );
         },
@@ -111,8 +114,10 @@ export class SignageStateService extends AsyncHandler {
         defaultValue: [] as SignagePlaylist[],
         loader: async ({ params }) => {
             if (!params.building) return [];
-            const resp = await querySignagePlaylists({ limit: 500 } as any);
-            return (resp.data || []).sort((a, b) =>
+            const list = await queryAllPages(
+                querySignagePlaylists({ limit: 200 } as any),
+            );
+            return list.sort((a, b) =>
                 a.name.localeCompare(b.name),
             );
         },
@@ -130,15 +135,17 @@ export class SignageStateService extends AsyncHandler {
         defaultValue: [] as PlaceSystem[],
         loader: async ({ params }) => {
             if (!params.building) return [];
-            const resp = await querySystems({
-                zone_id:
-                    (this._settings.get('app.use_region')
-                        ? params.region
-                        : '') || params.building,
-                limit: 500,
-                signage: true,
-            } as any);
-            return (resp.data || [])
+            const list = await queryAllPages(
+                querySystems({
+                    zone_id:
+                        (this._settings.get('app.use_region')
+                            ? params.region
+                            : '') || params.building,
+                    limit: 200,
+                    signage: true,
+                } as any),
+            );
+            return list
                 .sort((a, b) =>
                     (a.display_name || a.name).localeCompare(
                         b.display_name || b.name,
@@ -157,11 +164,13 @@ export class SignageStateService extends AsyncHandler {
         }),
         defaultValue: [] as PlaceZone[],
         loader: async () => {
-            const resp = await queryZones({
-                limit: 250,
-                tags: 'signage',
-            } as any).catch(() => ({ data: [] }) as any);
-            return (resp.data || []).sort((a, b) =>
+            const list = await queryAllPages(
+                queryZones({
+                    limit: 200,
+                    tags: 'signage',
+                } as any),
+            ).catch(() => []);
+            return list.sort((a, b) =>
                 (a.display_name || a.name).localeCompare(
                     b.display_name || b.name,
                 ),

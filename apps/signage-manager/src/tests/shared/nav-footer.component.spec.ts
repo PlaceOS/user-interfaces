@@ -13,13 +13,17 @@ describe('NavFooterComponent', () => {
     const selected_group_id = signal('');
     const selected_group = signal<any>(null);
     const is_sys_admin = signal(false);
+    const show_group_selector = signal(true);
+    const templates_enabled = signal(false);
     const service = {
+        templates_enabled,
         can_manage_all_groups,
         manageable_signage_groups,
         signage_groups,
         selected_group_id,
         selected_group,
         is_sys_admin,
+        show_group_selector,
         setSelectedGroup,
     };
     const dialog = {
@@ -57,19 +61,42 @@ describe('NavFooterComponent', () => {
         selected_group_id.set('');
         selected_group.set(null);
         is_sys_admin.set(false);
+        show_group_selector.set(true);
+        templates_enabled.set(false);
         TestBed.resetTestingModule();
+    });
+
+    it('follows the setting hiding the group selector', async () => {
+        show_group_selector.set(false);
+        const component = await createComponent();
+
+        expect(component.show_selector()).toBe(false);
     });
 
     it('splits schedules and groups into the overflow menu', async () => {
         const component = await createComponent();
 
-        const primary_routes = component.primary_nav_items().map((_) => _.route);
+        const primary_routes = component
+            .primary_nav_items()
+            .map((_) => _.route);
         const more_routes = component.more_nav_items().map((_) => _.route);
 
         expect(primary_routes).not.toContain('/schedules');
         expect(primary_routes).not.toContain('/groups');
         expect(primary_routes).toContain('/media');
         expect(more_routes).toContain('/schedules');
+    });
+
+    it('places templates in the overflow menu when the flag is enabled', async () => {
+        templates_enabled.set(true);
+        const component = await createComponent();
+
+        expect(component.primary_nav_items().map((_) => _.route)).not.toContain(
+            '/templates',
+        );
+        expect(component.more_nav_items().map((_) => _.route)).toContain(
+            '/templates',
+        );
     });
 
     it('hides the group management item when the user cannot manage groups', async () => {

@@ -12,6 +12,7 @@ import {
     Desk,
     OrganisationService,
     SettingsService,
+    errorMessage,
     formatRecurrence,
     fromBookingRecurrence,
     getTimezoneOffsetString,
@@ -267,9 +268,7 @@ export class NewDeskFlowConfirmComponent extends AsyncHandler {
             this.dismiss(true);
         } catch (e) {
             notifyError(
-                typeof e === 'string'
-                    ? e
-                    : i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
+                errorMessage(e) || i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
             );
         }
     };

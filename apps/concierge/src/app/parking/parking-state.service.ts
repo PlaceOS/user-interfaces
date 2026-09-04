@@ -28,15 +28,14 @@ import {
     approveBooking,
     approveBookingInstance,
     bookedResourceList,
-    checkinBooking,
-    checkinBookingInstance,
     parkingRequestStatus,
-    queryBookings,
+    queryAllBookings,
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
     removeBooking as removeBookingApi,
     saveBooking,
+    setBookingCheckedIn,
     updateBooking,
     updateBookingInstance,
 } from '@placeos/bookings';
@@ -105,6 +104,7 @@ export type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 
 const USER_PIPE = new UserPipe();
 const PARKING_SPACE_PIPE = new ParkingSpacePipe();
+const MAX_BOOKING_PAGES = 50;
 
 function csvList(value: unknown): string[] {
     const list = Array.isArray(value)
@@ -119,6 +119,13 @@ function csvString(value: unknown): string {
 
 function csvBoolean(value: unknown): boolean {
     return value === true || csvString(value).toLowerCase() === 'true';
+}
+
+function stripParkingZones(space: Partial<ParkingSpace>) {
+    const metadata = { ...space };
+    Reflect.deleteProperty(metadata, 'zone_id');
+    Reflect.deleteProperty(metadata, 'zones');
+    return metadata;
 }
 
 @Injectable({
@@ -420,7 +427,7 @@ export class ParkingStateService extends AsyncHandler {
                 zones: this._bookingQueryZone(options, bld),
                 include_checked_out: true,
                 include_deleted: true,
-                limit: 500,
+                limit: 200,
             } as any);
     }
 
@@ -428,7 +435,7 @@ export class ParkingStateService extends AsyncHandler {
      * Load a page of parking bookings, either resetting the list or appending
      * the next page. Stale responses are discarded if a newer load started.
      */
-    private async _loadPage(reset: boolean) {
+    private async _loadPage(reset: boolean, page_count = 1) {
         const fetch = reset ? this._first_page : this._next_page_fn;
         if (!fetch) {
             if (reset) {
@@ -460,22 +467,30 @@ export class ParkingStateService extends AsyncHandler {
                     booking.extension_data.plate_number || user.plate_number;
             }
         }
-        this._next_page_fn = next;
+        const loaded_count = reset
+            ? data.length
+            : this._bookings_state().list.length + data.length;
+        const has_next =
+            data.length > 0 &&
+            !!next &&
+            page_count < MAX_BOOKING_PAGES &&
+            (!total || loaded_count < total);
+        this._next_page_fn = has_next ? next : null;
         this._bookings_state.update((acc) =>
             reset
                 ? {
                       list: data,
                       total,
-                      has_next: data.length < total && !!next,
+                      has_next,
                   }
                 : {
                       list: [...acc.list, ...data],
                       total,
-                      has_next: !!next,
+                      has_next,
                   },
         );
-        if (next) {
-            await this._loadPage(false);
+        if (has_next) {
+            await this._loadPage(false, page_count + 1);
             return;
         }
         this._bookings_loading.set(false);
@@ -763,8 +778,7 @@ export class ParkingStateService extends AsyncHandler {
             this._options().zones[0] ||
             this._org.levelsForBuilding()[0]?.id;
         const asset_data: Partial<ParkingSpace> = {
-            ...state.metadata,
-            zone_id,
+            ...stripParkingZones(state.metadata),
             id: state.metadata.id || undefined,
         };
         if (
@@ -785,10 +799,7 @@ export class ParkingStateService extends AsyncHandler {
                 throw error;
             }
         }
-        const original_space_data: Partial<ParkingSpace> = {
-            ...space,
-            zone_id: space.zone_id || zone_id,
-        };
+        const original_space_data = stripParkingZones(space);
         let recreate = false;
         if (
             space.assigned_to &&
@@ -814,10 +825,9 @@ export class ParkingStateService extends AsyncHandler {
             this._org.building?.id,
             zone_id,
         ]);
-        const saved = await saveParkingSpace({
-            ...asset_data,
-            zones,
-        }).catch((e) => {
+        const saved = await saveParkingSpace(
+            space.id ? asset_data : { ...asset_data, zone_id, zones },
+        ).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
                     error: e,
@@ -1051,11 +1061,10 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public async setBookingCheckinState(booking: Booking, state = true) {
-        const promise = (
-            booking.instance
-                ? checkinBookingInstance(booking.id, booking.instance, state)
-                : checkinBooking(booking.id, state)
-        ).catch((_) => ({ state: 'failed', error: _ }));
+        const promise = setBookingCheckedIn(booking, state).catch((_) => ({
+            state: 'failed',
+            error: _,
+        }));
         const success = await promise;
         success.state === 'failed'
             ? notifyError(
@@ -1254,11 +1263,12 @@ export class ParkingStateService extends AsyncHandler {
                 space.assigned_to?.toLowerCase() === email,
         ).length;
         if (assigned_count >= max_assigned_count) {
-            const key =
-                max_assigned_count === 1
-                    ? 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR_1'
-                    : 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR_N';
-            const message = i18n(key, { count: max_assigned_count });
+            const key = 'APP.CONCIERGE.PARKING_ASSIGN_LIMIT_ERROR';
+            const message = i18n(
+                key,
+                { count: max_assigned_count },
+                max_assigned_count,
+            );
             throw !message || message === key
                 ? `Users can only have ${max_assigned_count} assigned parking space${max_assigned_count === 1 ? '' : 's'} at a time.`
                 : message;
@@ -1267,13 +1277,13 @@ export class ParkingStateService extends AsyncHandler {
 
     private async _clearAssignedBooking(resource: ParkingSpace) {
         const today = Date.now();
-        const booking_list = await queryBookings({
+        const booking_list = await queryAllBookings({
             period_start: getUnixTime(startOfDay(today)),
             period_end: getUnixTime(endOfDay(today)),
             type: 'parking',
             email: resource.assigned_to,
             include_checked_out: true,
-            limit: 1000,
+            limit: 200,
         });
         const filtered = booking_list.filter((_) => _.asset_id === resource.id);
         for (const booking of filtered) {

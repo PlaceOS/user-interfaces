@@ -261,6 +261,24 @@
                 }
             }
         },
+        "visitors": {
+            "type": "object",
+            "description": "Visitor invite settings. These override the matching bookings settings",
+            "properties": {
+                "allow_all_day": {
+                    "type": "boolean",
+                    "description": "Whether the all-day option is available for visitor invites. Overrides app.bookings.allow_all_day"
+                },
+                "can_book_for_others": {
+                    "type": "boolean",
+                    "description": "Whether users can invite visitors on behalf of another internal host. Overrides app.bookings.can_book_for_others"
+                },
+                "can_book_for_anyone": {
+                    "type": "boolean",
+                    "description": "Whether users can invite visitors on behalf of any host, including external users. Overrides app.bookings.can_book_for_anyone"
+                }
+            }
+        },
         "events": {
             "type": "object",
             "description": "Data associated with meeting booking flow",
@@ -462,6 +480,14 @@
                 "allow_recurrence": {
                     "type": "boolean",
                     "description": "Whether multi-day recurrence options should be available in parking flows"
+                },
+                "show_waitlist": {
+                    "type": "boolean",
+                    "description": "Whether unallocated parking bookings within the active waitlist week are shown as waitlisted. Defaults to `true`"
+                },
+                "waitlist_week_start": {
+                    "$ref": "#/$defs/weekly_boundary",
+                    "description": "Day and time at which the active parking waitlist week starts. Defaults to Friday at 18:00"
                 },
                 "request_submission_notes_html": {
                     "type": "string",
@@ -990,6 +1016,39 @@
         }
     },
     "$defs": {
+        "weekly_boundary": {
+            "type": "object",
+            "description": "A weekly day and wall-clock time boundary",
+            "required": ["day", "hour", "minute"],
+            "properties": {
+                "day": {
+                    "type": "number",
+                    "enum": [0, 1, 2, 3, 4, 5, 6],
+                    "enumNames": [
+                        "Sunday",
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                        "Saturday"
+                    ],
+                    "description": "Day of the week. `0` is Sunday through `6` for Saturday"
+                },
+                "hour": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 23,
+                    "description": "Hour of the day in 24-hour time"
+                },
+                "minute": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 59,
+                    "description": "Minute of the hour"
+                }
+            }
+        },
         "bookable_hours": {
             "type": "object",
             "description": "Bookable time window as hours of the day (0-24). For example, `8` is 8:00 AM and `19` is 7:00 PM.",

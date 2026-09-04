@@ -9,8 +9,25 @@ describe('DisplaysSectionComponent', () => {
     const displays = signal<any[]>([]);
     const playlists = signal<any[]>([]);
     const zones = signal<any[]>([]);
+    const all_zones = signal<any[]>([]);
+    const can_update = signal(false);
+    const can_delete_displays = signal(false);
+    const templates_enabled = signal(true);
     const navigate = vi.fn();
-    const service_stub = { selected_display, displays, playlists, zones };
+    const edit_display = vi.fn();
+    const remove_display = vi.fn();
+    const service_stub = {
+        selected_display,
+        displays,
+        playlists,
+        zones,
+        all_zones,
+        can_update,
+        can_delete_displays,
+        templates_enabled,
+        editDisplay: edit_display,
+        removeDisplay: remove_display,
+    };
     const router_stub = { navigate };
 
     async function make(): Promise<
@@ -38,11 +55,17 @@ describe('DisplaysSectionComponent', () => {
         displays.set([]);
         playlists.set([]);
         zones.set([]);
+        all_zones.set([]);
+        can_update.set(false);
+        can_delete_displays.set(false);
+        templates_enabled.set(true);
+        remove_display.mockResolvedValue(false);
     });
 
     it('counts the playlists and zones attached to the selected display', async () => {
         playlists.set([{ id: 'p1' }, { id: 'p2' }]);
-        zones.set([{ id: 'z1' }, { id: 'z2' }, { id: 'z3' }]);
+        zones.set([{ id: 'z1' }]);
+        all_zones.set([{ id: 'z1' }, { id: 'z2' }, { id: 'z3' }]);
         selected_display.set({
             id: 'd1',
             playlists: ['p1'],
@@ -100,6 +123,15 @@ describe('DisplaysSectionComponent', () => {
         expect(component.view_tab()).toBe('zones');
     });
 
+    it('opens the templates tab when template management is enabled', async () => {
+        const [component, fixture] = await make();
+        fixture.componentRef.setInput('tab', 'templates');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        expect(component.view_tab()).toBe('templates');
+    });
+
     it('navigates and updates the tab when switching views', async () => {
         const [component] = await make();
         component.setViewTab('playlists');
@@ -126,6 +158,28 @@ describe('DisplaysSectionComponent', () => {
         component.deselectDisplay();
 
         expect(selected_display()).toBeNull();
+        expect(navigate).toHaveBeenCalledWith(['/displays'], {});
+    });
+
+    it('edits the selected display', async () => {
+        const display = { id: 'd1' };
+        selected_display.set(display);
+        const [component] = await make();
+
+        component.editDisplay();
+
+        expect(edit_display).toHaveBeenCalledWith(display);
+    });
+
+    it('returns to the list after deleting the selected display', async () => {
+        const display = { id: 'd1' };
+        selected_display.set(display);
+        remove_display.mockResolvedValue(true);
+        const [component] = await make();
+
+        await component.removeDisplay();
+
+        expect(remove_display).toHaveBeenCalledWith(display);
         expect(navigate).toHaveBeenCalledWith(['/displays'], {});
     });
 });

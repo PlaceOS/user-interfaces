@@ -20,7 +20,11 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { SettingsToggleComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    SettingsToggleComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     DateFieldComponent,
     DurationFieldComponent,
@@ -236,6 +240,26 @@ const ALLOWED_CALENDAR_ROLES = [
                         ></host-select-field>
                     </div>
                 }
+                @if (show_host_change_warning()) {
+                    <div
+                        host-change-warning
+                        class="bg-warning text-warning-content mb-4 flex items-center gap-2 rounded-sm p-2 text-sm"
+                    >
+                        <icon class="text-2xl">warning</icon>
+                        <p>
+                            {{
+                                'CALENDAR_EVENT.HOST_CHANGE_WARNING' | translate
+                            }}
+                            @if (has_visitors()) {
+                                <br />
+                                {{
+                                    'CALENDAR_EVENT.HOST_CHANGE_VISITORS_WARNING'
+                                        | translate
+                                }}
+                            }
+                        </p>
+                    </div>
+                }
                 @if (allow_recurrence()) {
                     <div class="flex w-full flex-col">
                         <label for="recurrence">
@@ -315,6 +339,7 @@ const ALLOWED_CALENDAR_ROLES = [
         FormField,
         FormsModule,
         SettingsToggleComponent,
+        IconComponent,
     ],
 })
 export class MeetingFormDetailsComponent extends AsyncHandler {
@@ -393,6 +418,31 @@ export class MeetingFormDetailsComponent extends AsyncHandler {
     public get model() {
         return this._event_form.model;
     }
+
+    public readonly show_host_change_warning = computed(() => {
+        const event = this._event_form.event;
+        const model = this.model();
+        const original_host = (event?.host || event?.organiser?.email || '')
+            .trim()
+            .toLowerCase();
+        const new_host = (model.host || model.organiser?.email || '')
+            .trim()
+            .toLowerCase();
+        return (
+            !!event?.id &&
+            (this.can_book_for_anyone() || this.can_book_for_others()) &&
+            !!original_host &&
+            !!new_host &&
+            original_host !== new_host
+        );
+    });
+    public readonly has_visitors = computed(() => {
+        const event = this._event_form.event;
+        return [
+            ...(event?.attendees || []),
+            ...(this.model().attendees || []),
+        ].some((user) => user?.is_external);
+    });
 
     constructor() {
         super();

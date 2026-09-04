@@ -6,6 +6,7 @@ import {
     inject,
     OnDestroy,
     signal,
+    viewChild,
     ViewChild,
 } from '@angular/core';
 import { form, FormField, required, submit } from '@angular/forms/signals';
@@ -49,6 +50,12 @@ import {
     SignageMediaMetadata,
 } from '../signage-media-upload.util';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
+import {
+    objectHasKeys,
+    pluginSchema,
+    schemaDefaults,
+} from '../signage-plugin.util';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface MediaEditModalData {
     media: SignageMedia;
@@ -56,12 +63,18 @@ export interface MediaEditModalData {
     file_metadata?: SignageMediaMetadata;
     file_thumbnail?: string;
     playlist_id?: string;
+    /** Signage group the media is being viewed from */
+    group_id?: string;
     plugin?: SignagePlugin;
+    /** Existing media tags to suggest while the user types */
+    tag_options?: string[];
     loadPlugin?: () => Promise<SignagePlugin | undefined>;
+    generateThumbnail?: (file: File) => Promise<string>;
     onAdd: (
         f: File,
         m: SignageMedia,
         file_metadata?: SignageMediaMetadata,
+        thumbnail?: string,
     ) => Promise<SignageMedia>;
     onEdit: (id: string, data: any) => Promise<void>;
     preview: (item: any) => void;
@@ -99,26 +112,6 @@ function mediaSaveErrorMessage(error: unknown) {
         if (value) return mediaSaveErrorMessage(value);
     }
     return i18n('SIGNAGE_MANAGER.SVC_MEDIA_UPLOAD_FAILED');
-}
-
-function objectHasKeys(value: Record<string, unknown> | null | undefined) {
-    return !!value && !!Object.keys(value).length;
-}
-
-function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
-    const properties = schema?.properties as
-        | Record<string, Record<string, unknown>>
-        | undefined;
-    if (!properties) return {};
-    return Object.entries(properties).reduce(
-        (defaults, [key, property]) => {
-            if (property && 'default' in property) {
-                defaults[key] = property.default;
-            }
-            return defaults;
-        },
-        {} as Record<string, unknown>,
-    );
 }
 
 @Component({
@@ -227,6 +220,81 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                                 'SIGNAGE_MANAGER.URL_REQUIRED' | translate
                             }}</mat-error>
                         </mat-form-field>
+                    }
+                    @if (can_set_thumbnail) {
+                        <label for="thumbnail">{{
+                            'SIGNAGE_MANAGER.THUMBNAIL' | translate
+                        }}</label>
+                        <div class="mb-4 flex items-center gap-4">
+                            <div
+                                class="bg-base-300 border-base-300 h-20 w-32 shrink-0 overflow-hidden rounded-lg border"
+                            >
+                                @if (custom_thumbnail()) {
+                                    <img
+                                        class="h-full w-full object-contain"
+                                        [src]="custom_thumbnail()"
+                                        [alt]="
+                                            'SIGNAGE_MANAGER.THUMBNAIL'
+                                                | translate
+                                        "
+                                    />
+                                } @else if (item.thumbnail_id) {
+                                    <img
+                                        class="h-full w-full object-contain"
+                                        auth
+                                        [source]="thumbnail"
+                                        [alt]="
+                                            'SIGNAGE_MANAGER.THUMBNAIL'
+                                                | translate
+                                        "
+                                    />
+                                } @else {
+                                    <div
+                                        class="text-base-content/50 flex h-full w-full items-center justify-center px-2 text-center text-xs"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.THUMBNAIL_NONE'
+                                                | translate
+                                        }}
+                                    </div>
+                                }
+                            </div>
+                            <button
+                                btn
+                                type="button"
+                                class="inverse bg-base-100"
+                                [disabled]="thumbnail_loading()"
+                                (click)="thumbnail_input.click()"
+                            >
+                                {{
+                                    (thumbnail_loading()
+                                        ? 'SIGNAGE_MANAGER.THUMBNAIL_LOADING'
+                                        : 'SIGNAGE_MANAGER.THUMBNAIL_CHOOSE'
+                                    ) | translate
+                                }}
+                            </button>
+                            @if (custom_thumbnail()) {
+                                <button
+                                    btn
+                                    type="button"
+                                    class="clear"
+                                    (click)="custom_thumbnail.set('')"
+                                >
+                                    {{ 'COMMON.CLEAR' | translate }}
+                                </button>
+                            }
+                            <input
+                                #thumbnail_input
+                                type="file"
+                                class="sr-only"
+                                accept="image/*"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.THUMBNAIL_CHOOSE'
+                                        | translate
+                                "
+                                (change)="setThumbnail($event)"
+                            />
+                        </div>
                     }
                     @if (media_type === 'video') {
                         <div class="flex items-center space-x-4">
@@ -337,6 +405,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                     <item-list-field
                         name="tags"
                         [formField]="form.tags"
+                        [options]="tag_options"
                         [placeholder]="'COMMON.TAGS' | translate"
                     ></item-list-field>
                     @if (media_type === 'plugin' && plugin_loading()) {
@@ -385,6 +454,11 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
                             ></a-date-field>
                         </div>
                     </div>
+                    <signage-shared-with
+                        type="media"
+                        [item_id]="item.id"
+                        [group_id]="group_id"
+                    ></signage-shared-with>
                 </div>
             </form>
         </fullscreen-modal-shell>
@@ -412,6 +486,7 @@ function schemaDefaults(schema: Record<string, unknown> | null | undefined) {
         SchemaFormComponent,
         PluginEmbedComponent,
         ItemListFieldComponent,
+        SignageSharedWithComponent,
     ],
 })
 export class MediaEditModalComponent implements OnDestroy {
@@ -423,6 +498,8 @@ export class MediaEditModalComponent implements OnDestroy {
 
     public readonly loading = signal(false);
     public readonly item = this._data.media;
+    public readonly tag_options = this._data.tag_options || [];
+    public readonly group_id = this._data.group_id || '';
     public readonly file = this._data.file;
     public readonly plugin = signal<SignagePlugin | undefined>(
         this._data.plugin,
@@ -443,6 +520,10 @@ export class MediaEditModalComponent implements OnDestroy {
         this._resolvePluginSchema(),
     );
     public readonly preview_url = signal('');
+    /** Thumbnail image picked by the user, as a data URL */
+    public readonly custom_thumbnail = signal('');
+    public readonly thumbnail_loading = signal(false);
+    private readonly _plugin_embed = viewChild(PluginEmbedComponent);
     public readonly model = signal<MediaEditFormModel>({
         name: this._data.file?.name || this._data.media.name || '',
         media_uri: this._data.media.media_uri || '',
@@ -503,6 +584,18 @@ export class MediaEditModalComponent implements OnDestroy {
         );
     }
 
+    /**
+     * Webpages and plugins have no file to capture a frame from, and a cross
+     * origin page cannot be rendered to a canvas, so their thumbnail has to be
+     * supplied by hand.
+     */
+    public get can_set_thumbnail() {
+        return (
+            !!this._data.generateThumbnail &&
+            (this.media_type === 'webpage' || this.media_type === 'plugin')
+        );
+    }
+
     public get url() {
         if (this.media_type === 'webpage') {
             return this.model().media_uri || this.item.media_uri;
@@ -558,11 +651,10 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     private _resolvePluginSchema(): Record<string, unknown> | null {
-        const embed_schema = this.plugin_embed_schema();
-        if (objectHasKeys(embed_schema)) return embed_schema;
-        const plugin_params = this.plugin()?.params;
-        if (!objectHasKeys(plugin_params)) return null;
-        return plugin_params;
+        return (
+            pluginSchema(this.plugin_embed_schema()) ||
+            pluginSchema(this.plugin()?.params)
+        );
     }
 
     private async _loadPluginDetails() {
@@ -574,6 +666,32 @@ export class MediaEditModalComponent implements OnDestroy {
     public ngOnDestroy() {
         if (this._file_url) URL.revokeObjectURL(this._file_url);
         clearTimeout(this._preview_url_timeout);
+    }
+
+    public async setThumbnail(event: Event) {
+        const input = event.target as HTMLInputElement;
+        const file = input.files?.[0];
+        // Clear the input so picking the same file again still fires `change`
+        input.value = '';
+        if (!file) return;
+        this.thumbnail_loading.set(true);
+        const image = await this._data
+            .generateThumbnail(file)
+            .catch(() => '')
+            .finally(() => this.thumbnail_loading.set(false));
+        if (image) this.custom_thumbnail.set(image);
+    }
+
+    /**
+     * Ask the embedded plugin to render its own thumbnail. Captured from the
+     * live preview so it reflects the config the user just set. Plugins that
+     * predate the capability return nothing and are saved exactly as before.
+     */
+    private async _capturePluginThumbnail() {
+        if (this.media_type !== 'plugin') return '';
+        const embed = this._plugin_embed();
+        if (!embed?.canProvideThumbnail()) return '';
+        return embed.requestThumbnail(1280, 720).catch(() => '');
     }
 
     public async saveMedia() {
@@ -617,12 +735,19 @@ export class MediaEditModalComponent implements OnDestroy {
             }
             try {
                 if (this.item.id) {
+                    if (this.custom_thumbnail()) {
+                        new_media.thumbnail_image = this.custom_thumbnail();
+                    }
                     await this._data.onEdit(this.item.id, new_media);
                 } else {
+                    const thumbnail =
+                        this.custom_thumbnail() ||
+                        (await this._capturePluginThumbnail());
                     await this._data.onAdd(
                         this.file,
                         new SignageMedia(new_media),
                         this._data.file_metadata,
+                        thumbnail,
                     );
                 }
             } catch (error) {

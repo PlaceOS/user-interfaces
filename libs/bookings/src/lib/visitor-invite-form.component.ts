@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    effect,
     inject,
     Injector,
     input,
@@ -27,7 +28,6 @@ import {
     notifySuccess,
     onFieldChange,
     OrganisationService,
-    randomString,
     settingSignal,
     SettingsService,
     User,
@@ -99,12 +99,15 @@ import { BookingFormService } from './booking-form.service';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
                                 [range]="bookable_hours()"
-                                [min_duration]="min_duration()"
+                                [min_duration]="effective_min_duration()"
                                 [timezone]="timezone()"
                             ></a-time-field>
                         </div>
@@ -117,6 +120,9 @@ import { BookingFormService } from './booking-form.service';
                                 [formField]="form.duration"
                                 [time]="model().date"
                                 [max]="max_duration()"
+                                [min]="min_duration()"
+                                [step]="duration_step()"
+                                [custom_options]="custom_duration_options()"
                                 [use_24hr]="use_24hr()"
                                 [end_time]="bookable_hours()?.end"
                                 [timezone]="timezone()"
@@ -262,7 +268,7 @@ import { BookingFormService } from './booking-form.service';
                 } @else {
                     <div class="flex flex-col">
                         <label for="visitor-name">
-                            {{ 'BOOKINGS.VISITOR_LIST' | translate }}
+                            {{ 'RESOURCE.VISITORS' | translate }}
                             <span>*</span>
                         </label>
                         <a-user-list-field
@@ -319,7 +325,7 @@ import { BookingFormService } from './booking-form.service';
                 @if (allow_pass_number()) {
                     <div class="flex flex-col">
                         <label for="pass">{{
-                            'BOOKINGS.VISITOR_PASS' | translate
+                            'BOOKINGS.PASS_NUMBER' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
                             <input
@@ -384,9 +390,7 @@ export class VisitorInviteFormComponent
 
     public readonly search_term = signal<string>('');
     public readonly visitors = signal<User[]>([]);
-    public readonly visitor_international = signal<Record<string, boolean>>(
-        {},
-    );
+    public readonly visitor_international = signal<Record<string, boolean>>({});
     public readonly filtered_visitors = computed(() => {
         const s = this.search_term().toLowerCase();
         return this.visitors().filter(
@@ -430,6 +434,16 @@ export class VisitorInviteFormComponent
         () =>
             this._visitor_max_duration() || this._booking_max_duration() || 180,
     );
+    public readonly duration_step = computed(
+        () =>
+            settingSignal('visitors.duration_step')() ||
+            settingSignal('bookings.duration_step', 15)(),
+    );
+    public readonly custom_duration_options = computed<number[]>(
+        () =>
+            settingSignal<number[]>('visitors.custom_duration_options')() ||
+            settingSignal<number[]>('bookings.custom_duration_options', [])(),
+    );
     public readonly multiple = settingSignal(
         'bookings.multiple_visitors',
         false,
@@ -458,6 +472,9 @@ export class VisitorInviteFormComponent
         () =>
             this._visitor_min_duration() || this._booking_min_duration() || 30,
     );
+    public readonly effective_min_duration = computed(() =>
+        Math.min(this.min_duration(), ...this.custom_duration_options()),
+    );
     public readonly buildings = this._org.active_buildings;
     public readonly building = computed(() =>
         settingSignal('use_region', false)()
@@ -472,6 +489,16 @@ export class VisitorInviteFormComponent
     public get model() {
         return this._service.model;
     }
+
+    // `multiple` comes from settings, which can resolve after the form is set
+    // up, and the form itself can be reset asynchronously. Keep the placeholder
+    // email in sync instead of writing it once during init, otherwise the
+    // required/email validation on `asset_id` fails on send.
+    private _multipleVisitorEffect = effect(() => {
+        const { id, asset_id } = this.model();
+        if (!this.multiple() || id || asset_id) return;
+        this.model.update((m) => ({ ...m, asset_id: 'multiple@place.tech' }));
+    });
 
     public readonly time_format = this._settings.time_format_signal;
     public readonly allow_all_day = computed(
@@ -518,8 +545,6 @@ export class VisitorInviteFormComponent
             this._injector,
         );
         this.subscription('assets', () => assets_handle.destroy());
-        if (this.multiple() && !this.model().id)
-            this.model.update((m) => ({ ...m, asset_id: 'multiple@place.tech' }));
         if (!this.model().id)
             this.model.update((m) => ({ ...m, title: 'Visit' }));
     }
@@ -589,7 +614,12 @@ export class VisitorInviteFormComponent
                 }]`,
             );
         }
-        if (!this.model().user_email || !this.can_book_for_others()) {
+        // Existing bookings keep whatever host they were created with — only
+        // fall back to the signed-in user for a new booking with no host.
+        if (
+            !this.model().user_email ||
+            (!this.can_book_for_others() && !this.model().id)
+        ) {
             this.model.update((m) => ({ ...m, user: currentUser() }));
         }
         const visitor_reason =
@@ -626,16 +656,18 @@ export class VisitorInviteFormComponent
                 visitor_details,
             ]);
         }
+        // The group flow clears the form on success, so grab the count first.
+        const count = this.multiple() ? assets?.length || 0 : 1;
         await (this.multiple() ? this._bookForMany() : this._bookForOne());
         notifySuccess(
             i18n(
                 this.multiple()
                     ? 'BOOKINGS.VISITOR_SENT_MULTIPLE'
                     : 'BOOKINGS.VISITOR_SENT_SINGLE',
-                { name: asset_name, count: this.model().attendees?.length },
+                { name: asset_name, count },
             ),
         );
-        this.done.emit(this.model().attendees?.length || 1);
+        this.done.emit(count);
     }
 
     private async initFormZone() {
@@ -645,10 +677,11 @@ export class VisitorInviteFormComponent
         if (!this.model().id) this._service.newForm('visitor');
         this.model.update((m) => ({ ...m, booking_type: 'visitor' }));
         if (!this.model().zones?.length) {
-            this.model.update((m) => ({ ...m, zones: [this._org.building?.id] }));
+            this.model.update((m) => ({
+                ...m,
+                zones: [this._org.building?.id],
+            }));
         }
-        if (this.multiple() && !this.model().id)
-            this.model.update((m) => ({ ...m, asset_id: 'multiple@place.tech' }));
         if (this.model().id) {
             if (!this.model().assets?.length) {
                 const attendees = this.model().attendees || [];
@@ -707,36 +740,28 @@ export class VisitorInviteFormComponent
     }
 
     private async _bookForMany() {
-        const group = `grp-${randomString(8)}`;
-        const value = this.model();
-        const assets = value.assets;
-        for (const user of assets) {
-            if (!user.email) continue;
-            this.model.update((m) => ({
-                ...m,
-                ...value,
-                booking_type: 'visitor',
-                asset_id: user.email,
-                asset_name: user.name,
-                international: this.getVisitorInternational(user),
-                user: currentUser(),
-                description: group,
-                name: user.name,
-                assets: [],
-                attendees: [
+        // Use the shared group flow so the bookings are linked to a group
+        // container. Without that link the group can't be loaded (or edited)
+        // as a group later on.
+        const members = (this.model().assets || [])
+            .filter((_) => !!_.email)
+            .map(
+                (user) =>
                     new User({
-                        name: user.name,
-                        email: user.email,
-                        organisation: user.company || user.organisation,
-                        phone: user.phone,
-                    }),
-                ],
-            }));
-            await this._service.postForm().catch((e) => {
-                notifyError(e);
-                throw e;
-            });
-        }
+                        ...user,
+                        name: user.name || user.email,
+                        international: this.getVisitorInternational(user),
+                        extension_data: {
+                            ...(user.extension_data || {}),
+                            international: this.getVisitorInternational(user),
+                        },
+                    } as any),
+            );
+        this._service.setOptions({ type: 'visitor', group: true, members });
+        await this._service.postFormForVisitorGroup().catch((e) => {
+            notifyError(e);
+            throw e;
+        });
     }
 
     private syncVisitorInternational(assets: User[] = []) {

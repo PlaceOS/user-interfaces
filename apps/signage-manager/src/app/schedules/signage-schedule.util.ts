@@ -3,7 +3,7 @@ import {
     SignagePlaylist,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { isSameDay, startOfDay } from 'date-fns';
+import { fromUnixTime, isSameDay, startOfDay } from 'date-fns';
 
 const BLOCK_PALETTE = [
     { bg: '#dbeafe', text: '#1e40af' },
@@ -185,7 +185,16 @@ function formatTimeRange(
 
 function parsePlayAt(play_at: number): Date | null {
     if (!play_at) return null;
-    return new Date(play_at > 1_000_000_000_000 ? play_at : play_at * 1000);
+    return fromUnixTime(play_at);
+}
+
+function isScheduleValidAt(
+    schedule: Partial<SignagePlaylistSchedule>,
+    date: Date,
+) {
+    return (
+        !schedule.valid_until || date.getTime() <= schedule.valid_until * 1000
+    );
 }
 
 function isDayInRange(
@@ -195,11 +204,11 @@ function isDayInRange(
 ): boolean {
     const day_start = startOfDay(day).getTime();
     if (valid_from) {
-        const from_start = startOfDay(new Date(valid_from * 1000)).getTime();
+        const from_start = startOfDay(fromUnixTime(valid_from)).getTime();
         if (day_start < from_start) return false;
     }
     if (valid_until) {
-        const until_start = startOfDay(new Date(valid_until * 1000)).getTime();
+        const until_start = startOfDay(fromUnixTime(valid_until)).getTime();
         if (day_start > until_start) return false;
     }
     return true;
@@ -289,7 +298,13 @@ function generateScheduleBlocks(
 
             if (play_at) {
                 const at_date = parsePlayAt(play_at);
-                if (!at_date || !isSameDay(day, at_date)) continue;
+                if (
+                    !at_date ||
+                    !isSameDay(day, at_date) ||
+                    !isScheduleValidAt(schedule, at_date)
+                ) {
+                    continue;
+                }
                 const start_minutes =
                     at_date.getHours() * 60 + at_date.getMinutes();
                 const duration_minutes = play_period;
@@ -311,6 +326,9 @@ function generateScheduleBlocks(
             if (!doesCronMatchDay(play_cron, day)) continue;
             const cron_blocks = getCronBlocksForDay(play_cron, schedule);
             for (const block of cron_blocks) {
+                const starts_at = new Date(day);
+                starts_at.setHours(0, block.start_minutes, 0, 0);
+                if (!isScheduleValidAt(schedule, starts_at)) continue;
                 blocks.push({
                     ...block,
                     playlist,
@@ -358,7 +376,7 @@ export function buildDisplayScheduleAssignments(
                 zone_playlist_sources[playlist_id] = [];
             }
             zone_playlist_sources[playlist_id].push(
-                zone.display_name || zone.name || i18n('COMMON.ZONE'),
+                zone.display_name || zone.name || i18n('RESOURCE.ZONE'),
             );
         }
     }
@@ -402,6 +420,7 @@ export function buildZoneScheduleAssignments(
         .map((playlist) => ({
             playlist,
             source_type: 'zone' as const,
-            source_label: zone.display_name || zone.name || i18n('COMMON.ZONE'),
+            source_label:
+                zone.display_name || zone.name || i18n('RESOURCE.ZONE'),
         }));
 }

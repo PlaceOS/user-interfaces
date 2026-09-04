@@ -66,7 +66,9 @@ import { filterManageNavItems } from './nav-items';
                             </div>
                         </a>
                     }
-                    @if (is_sys_admin() || groups().length) {
+                    @if (
+                        show_selector() && (is_sys_admin() || groups().length)
+                    ) {
                         <div
                             class="border-base-300 my-1 border-t"
                             role="separator"
@@ -134,20 +136,25 @@ export class NavFooterComponent {
             this._service.can_manage_all_groups() ||
             !!this._service.manageable_signage_groups().length,
     );
+    // Templates joins the overflow menu so the primary row keeps 4 items max.
+    private readonly MORE_MENU_ROUTES = ['/templates', '/schedules', '/groups'];
     public readonly primary_nav_items = computed(() =>
-        filterManageNavItems(this.can_manage_groups()).filter(
-            (item) => !['/schedules', '/groups'].includes(item.route),
-        ),
+        filterManageNavItems(
+            this.can_manage_groups(),
+            this._service.templates_enabled(),
+        ).filter((item) => !this.MORE_MENU_ROUTES.includes(item.route)),
     );
     public readonly more_nav_items = computed(() =>
-        filterManageNavItems(this.can_manage_groups()).filter((item) =>
-            ['/schedules', '/groups'].includes(item.route),
-        ),
+        filterManageNavItems(
+            this.can_manage_groups(),
+            this._service.templates_enabled(),
+        ).filter((item) => this.MORE_MENU_ROUTES.includes(item.route)),
     );
     public readonly groups = this._service.signage_groups;
     public readonly selected_group_id = this._service.selected_group_id;
     public readonly selected_group = this._service.selected_group;
     public readonly is_sys_admin = this._service.is_sys_admin;
+    public readonly show_selector = this._service.show_group_selector;
     public readonly selected_label = computed(
         () => this.selected_group()?.group.name || 'SIGNAGE_MANAGER.ALL_GROUPS',
     );

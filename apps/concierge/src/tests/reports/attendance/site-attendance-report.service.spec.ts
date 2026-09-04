@@ -244,7 +244,7 @@ describe('SiteAttendanceReportService', () => {
             expect.objectContaining({
                 query_params: expect.objectContaining({
                     zone_ids: 'building-1',
-                    limit: 1000,
+                    limit: 200,
                 }),
             }),
         );
@@ -263,7 +263,7 @@ describe('SiteAttendanceReportService', () => {
                     zones: 'building-1',
                     type: 'visitor',
                     include_checked_out: true,
-                    limit: 1000,
+                    limit: 200,
                 }),
             }),
         );
@@ -697,8 +697,11 @@ describe('SiteAttendanceReportService', () => {
     });
 
     it('should export report data', () => {
+        // The filename is built with date-fns `format`, which renders in the
+        // machine's timezone, so the range is set the same way. A UTC instant
+        // here names the previous day once the runner is west of Greenwich.
         spectator.service.setOptions({
-            start: new Date(2026, 3, 6, 0, 0, 0).valueOf(),
+            start: new Date(2026, 3, 6).valueOf(),
             end: new Date(2026, 3, 6, 23, 59, 59).valueOf(),
         });
         (spectator.service as any)._report.set({

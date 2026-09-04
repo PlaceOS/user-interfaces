@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -30,6 +31,7 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
     template: `
         @if (view() !== 'success') {
             <div
+                cdkScrollable
                 class="bg-base-200 relative flex h-full w-full flex-col overflow-auto"
             >
                 <div
@@ -109,6 +111,7 @@ import { NewDeskFlowSuccessComponent } from './desk-flow-success.component';
         `,
     ],
     imports: [
+        CdkScrollable,
         IconComponent,
         TranslatePipe,
         MatRippleModule,

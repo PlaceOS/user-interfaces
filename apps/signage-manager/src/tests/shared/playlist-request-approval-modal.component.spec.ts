@@ -114,19 +114,15 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         const component = fixture.componentInstance;
         fixture.detectChanges();
 
-        expect(fixture.nativeElement.textContent).not.toContain(
-            'Version to approve',
-        );
+        expect(fixture.nativeElement.textContent).not.toContain('New Version');
 
         component.togglePreview();
         fixture.detectChanges();
         await fixture.whenStable();
         fixture.detectChanges();
 
-        expect(fixture.nativeElement.textContent).toContain(
-            'Version to approve',
-        );
-        expect(fixture.nativeElement.textContent).toContain('Previous version');
+        expect(fixture.nativeElement.textContent).toContain('New Version');
+        expect(fixture.nativeElement.textContent).toContain('Old version');
     });
 
     it('hides the request form when preview is toggled on', async () => {
@@ -154,9 +150,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         ).map((button: HTMLButtonElement) => button.textContent?.trim());
         expect(button_text).not.toContain('Request Approval');
         expect(button_text).not.toContain('Cancel');
-        expect(fixture.nativeElement.textContent).toContain(
-            'Version to approve',
-        );
+        expect(fixture.nativeElement.textContent).toContain('New Version');
     });
 
     it('shows fallback icons in preview lists', async () => {

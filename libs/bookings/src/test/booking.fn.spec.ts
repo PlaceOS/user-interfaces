@@ -1,14 +1,25 @@
-import { Booking, setCurrentUser, StaffUser, VERSION } from '@placeos/common';
+import {
+    Booking,
+    CalendarEvent,
+    setCurrentUser,
+    Space,
+    StaffUser,
+    VERSION,
+} from '@placeos/common';
 import {
     approveBooking,
     bookedResourceList,
+    cancelOverlappingRecurringBookings,
     checkinBooking,
     createBooking,
+    createBookingsForEvent,
+    isInWaitlistWeek,
     queryBookings,
     rejectBooking,
     removeBooking,
     removeBookingInstance,
     saveBooking,
+    setBookingCheckedIn,
     showBooking,
     updateBooking,
 } from '../lib/bookings.fn';
@@ -117,6 +128,77 @@ describe('[Booking API]', () => {
         });
     });
 
+    describe('createBookingsForEvent', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            event_start: 1_800_000_000,
+            event_end: 1_800_003_600,
+            host: user_email,
+            title: 'Visitor meeting',
+            ical_uid: 'event-1@example.com',
+            resources: [
+                new Space({
+                    id: 'space-1',
+                    email: 'space-1@example.com',
+                    zones: ['zone-1'],
+                }),
+            ],
+        });
+        const visitors = [
+            {
+                id: 'visitor-1',
+                email: 'visitor.one@external.com',
+                name: 'Visitor One',
+            },
+            {
+                id: 'visitor-2',
+                email: 'visitor.two@external.com',
+                name: 'Visitor Two',
+            },
+        ];
+
+        it('should create linked visitor bookings sequentially', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            let active_requests = 0;
+            let max_concurrent_requests = 0;
+            vi.spyOn(ts_client, 'post').mockImplementation(async () => {
+                active_requests += 1;
+                max_concurrent_requests = Math.max(
+                    max_concurrent_requests,
+                    active_requests,
+                );
+                await Promise.resolve();
+                active_requests -= 1;
+                return { id: `booking-${active_requests}` } as never;
+            });
+
+            await createBookingsForEvent(event, 'visitor', visitors);
+
+            expect(ts_client.post).toHaveBeenCalledTimes(2);
+            expect(max_concurrent_requests).toBe(1);
+        });
+
+        it('should remove created visitor bookings when a later request fails', async () => {
+            const error = new Error('Unable to link visitor');
+            vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
+            vi.spyOn(ts_client, 'post')
+                .mockResolvedValueOnce({ id: 'visitor-booking-1' } as never)
+                .mockRejectedValueOnce(error);
+            const delete_spy = vi
+                .spyOn(ts_client, 'del')
+                .mockResolvedValue(undefined);
+
+            await expect(
+                createBookingsForEvent(event, 'visitor', visitors),
+            ).rejects.toBe(error);
+
+            expect(delete_spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/visitor-booking-1?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+        });
+    });
+
     describe('updateBooking', () => {
         it('should allow calling PATCH request for updating a booking', async () => {
             const spy = vi.spyOn(ts_client, 'patch');
@@ -199,6 +281,56 @@ describe('[Booking API]', () => {
         });
     });
 
+    describe('cancelOverlappingRecurringBookings', () => {
+        it('should cancel an overlapping desk booking on another floor', async () => {
+            const now = new Date('2026-08-18T10:55:00+10:00').valueOf();
+            const now_spy = vi.spyOn(Date, 'now').mockReturnValue(now);
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                {
+                    id: 'ad-hoc-booking',
+                    booking_start:
+                        new Date('2026-08-18T16:45:00+10:00').valueOf() / 1000,
+                    booking_end:
+                        new Date('2026-08-18T17:15:00+10:00').valueOf() / 1000,
+                    booking_type: 'desk',
+                    approved: true,
+                    asset_id: 'F-010',
+                    zones: ['first-floor'],
+                },
+            ] as never);
+            const delete_spy = vi
+                .spyOn(ts_client, 'del')
+                .mockResolvedValue(undefined);
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const assignment = new Booking({
+                id: 'permanent-assignment',
+                booking_start:
+                    new Date('2026-08-18T03:00:00+10:00').valueOf() / 1000,
+                booking_end:
+                    new Date('2026-08-18T23:00:00+10:00').valueOf() / 1000,
+                booking_type: 'desk',
+                recurrence_type: 'daily',
+                user_email: 'staff@example.com',
+                asset_id: 'G-033',
+                zones: ['ground-floor'],
+            });
+
+            await expect(
+                cancelOverlappingRecurringBookings(assignment, 'desk'),
+            ).resolves.toEqual(['ad-hoc-booking']);
+
+            expect(delete_spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/ad-hoc-booking?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+            expect(post_spy).not.toHaveBeenCalledWith(
+                expect.stringContaining('/ad-hoc-booking/reject'),
+                expect.anything(),
+            );
+            now_spy.mockRestore();
+        });
+    });
+
     describe('approveBooking', () => {
         it('should allow calling POST request for approving a booking', async () => {
             const spy = vi.spyOn(ts_client, 'post');
@@ -229,6 +361,35 @@ describe('[Booking API]', () => {
         });
     });
 
+    describe('isInWaitlistWeek', () => {
+        // Local wall-clock dates so the assertions hold in any timezone
+        const friday_17_59 = new Date(2026, 6, 31, 17, 59).valueOf();
+        const friday_18_00 = new Date(2026, 6, 31, 18, 0).valueOf();
+        const next_monday = new Date(2026, 7, 3, 8, 0).valueOf();
+
+        afterEach(() => vi.restoreAllMocks());
+
+        it('should exclude next week before the default Friday 18:00 cutoff', () => {
+            vi.spyOn(Date, 'now').mockReturnValue(friday_17_59);
+            expect(isInWaitlistWeek(next_monday)).toBe(false);
+        });
+
+        it('should include next week once the cutoff is reached', () => {
+            vi.spyOn(Date, 'now').mockReturnValue(friday_18_00);
+            expect(isInWaitlistWeek(next_monday)).toBe(true);
+        });
+
+        it('should use the configured week boundary', () => {
+            const week_start = { day: 3, hour: 9, minute: 30 };
+            const thursday = new Date(2026, 6, 30, 8, 0).valueOf();
+            const now_spy = vi.spyOn(Date, 'now');
+            now_spy.mockReturnValue(new Date(2026, 6, 29, 9, 29).valueOf());
+            expect(isInWaitlistWeek(thursday, '', week_start)).toBe(false);
+            now_spy.mockReturnValue(new Date(2026, 6, 29, 9, 30).valueOf());
+            expect(isInWaitlistWeek(thursday, '', week_start)).toBe(true);
+        });
+    });
+
     describe('checkinBooking', () => {
         it('should allow calling POST request for checking in a booking', async () => {
             const spy = vi.spyOn(ts_client, 'post');
@@ -238,6 +399,60 @@ describe('[Booking API]', () => {
             expect(booking).toBeInstanceOf(Booking);
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings/1/check_in?state=true&utm_source=${utm_source}`,
+                '',
+            );
+            spy.mockReset();
+        });
+    });
+
+    describe('setBookingCheckedIn', () => {
+        it('should check in the whole booking when it is not recurring', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue({} as any);
+            const booking = await setBookingCheckedIn(
+                new Booking({ id: '1', booking_start: 100 }),
+                true,
+            );
+            expect(booking).toBeInstanceOf(Booking);
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1/check_in?state=true&utm_source=${utm_source}`,
+                '',
+            );
+            spy.mockReset();
+        });
+
+        it('should check in only the instance of a recurring booking', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue({} as any);
+            await setBookingCheckedIn(
+                new Booking({
+                    id: '1',
+                    booking_start: 100,
+                    instance: 200,
+                    recurrence_type: 'daily',
+                } as any),
+                true,
+            );
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1/check_in/200?state=true&utm_source=${utm_source}`,
+                '',
+            );
+            spy.mockReset();
+        });
+
+        it('should use the start time for the first instance of a series', async () => {
+            const spy = vi.spyOn(ts_client, 'post');
+            spy.mockResolvedValue({} as any);
+            await setBookingCheckedIn(
+                new Booking({
+                    id: '1',
+                    booking_start: 100,
+                    recurrence_type: 'weekly',
+                } as any),
+                false,
+            );
+            expect(ts_client.post).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/1/check_in/100?state=false&utm_source=${utm_source}`,
                 '',
             );
             spy.mockReset();

@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     BookingDetailsModalComponent,
     bookingLocationString,
+    isInWaitlistWeek,
     visitorDisplayNameFor,
 } from '@placeos/bookings';
 import {
@@ -33,7 +34,6 @@ import { UserPipe } from '@placeos/users';
 import {
     format,
     isSameDay,
-    isSameWeek,
     setHours,
     setMinutes,
     startOfDay,
@@ -545,7 +545,7 @@ export class ScheduleDayViewComponent extends AsyncHandler implements OnInit {
             status === 'tentative' &&
             booking instanceof Booking &&
             booking.booking_type === 'parking' &&
-            isSameWeek(Date.now(), booking.date)
+            isInWaitlistWeek(booking.date, this._org.building?.timezone)
         ) {
             return 'waitlisted';
         }

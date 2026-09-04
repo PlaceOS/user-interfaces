@@ -164,6 +164,7 @@ export class NavSidebarComponent {
         filterManageNavItems(
             this._service.can_manage_all_groups() ||
                 !!this._service.manageable_signage_groups().length,
+            this._service.templates_enabled(),
         ),
     );
     public readonly active_locale = computed(() => this._locale.locale);

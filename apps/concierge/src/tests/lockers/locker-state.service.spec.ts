@@ -107,6 +107,8 @@ describe('LockerStateService', () => {
 
     beforeEach(() => {
         vi.useFakeTimers();
+        organisation_service.level_list.set([]);
+        organisation_service.buildingsForRegion.mockImplementation(() => []);
         current_building = { id: 'bld-1', timezone: 'Australia/Sydney' };
         settings_map = {
             'app.use_region': false,
@@ -128,6 +130,22 @@ describe('LockerStateService', () => {
             TestBed.flushEffects();
         }
     }
+
+    it('should list parking-only levels last', () => {
+        spectator = createService();
+        organisation_service.buildingsForRegion.mockReturnValue([
+            { id: 'bld-1' },
+        ]);
+        organisation_service.level_list.set([
+            { id: 'lvl-parking', parent_id: 'bld-1', tags: ['level', 'parking'] },
+            { id: 'lvl-ground', parent_id: 'bld-1', tags: ['level'] },
+        ]);
+
+        expect(spectator.service.levels().map((lvl: any) => lvl.id)).toEqual([
+            'lvl-ground',
+            'lvl-parking',
+        ]);
+    });
 
     it('should apply building timezone to locker booking listing requests', () => {
         const date = new Date('2026-06-15T12:00:00').valueOf();
@@ -155,6 +173,30 @@ describe('LockerStateService', () => {
         await settle();
 
         expect(pagedBookingCalls()).toHaveLength(1);
+    });
+
+    it('should stop locker booking pagination when a page is empty', async () => {
+        spectator = createService();
+        const next_page = vi.fn();
+        const empty_page = vi.fn().mockResolvedValue({
+            data: [],
+            total: 2,
+            next: next_page,
+        });
+        const booking = { id: 'booking-1' };
+        (spectator.service as any)._bookings_state.set({
+            list: [booking],
+            total: 2,
+            has_next: true,
+        });
+        (spectator.service as any)._next_page_fn = empty_page;
+
+        await (spectator.service as any)._loadPage(false);
+
+        expect(spectator.service.bookings()).toEqual([booking]);
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect((spectator.service as any)._next_page_fn).toBeNull();
+        expect(next_page).not.toHaveBeenCalled();
     });
 
     it('should wait for locker banks before loading lockers', async () => {

@@ -31,7 +31,9 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
         <header
             class="bg-base-200 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">Set date and time</h2>
+            <h2 class="px-2 text-xl font-medium">
+                {{ 'EXPLORE.BOOKING_HEADER' | translate }}
+            </h2>
             <button icon matRipple mat-dialog-close>
                 <icon>close</icon>
             </button>
@@ -130,7 +132,7 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
             class="bg-base-200 mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
         >
             <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
-                {{ 'COMMON.CONTINUE' | translate }}
+                {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
     `,

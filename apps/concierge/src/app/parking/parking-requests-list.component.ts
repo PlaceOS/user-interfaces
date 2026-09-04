@@ -72,7 +72,7 @@ import {
                         },
                         {
                             key: 'date',
-                            name: 'FORM.TIME' | translate,
+                            name: 'COMMON.TIME' | translate,
                             content: date_template,
                         },
                         {
@@ -103,7 +103,7 @@ import {
                         },
                         {
                             key: 'plate_number',
-                            name: 'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                            name: 'BOOKINGS.PARKING_PLATE_NUMBER' | translate,
                             content: plate_template,
                             size: '10rem',
                             sortable: false,

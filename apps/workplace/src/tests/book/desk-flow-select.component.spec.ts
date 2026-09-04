@@ -3,8 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
-    BookingFormValue,
     BookingFormService,
+    BookingFormValue,
     generateBookingForm,
 } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
@@ -95,6 +95,31 @@ describe('DeskFlowSelectComponent', () => {
         // leaves `asset_id` falsy.
         expect(model().asset_id).toBeFalsy();
         expect(spectator.component.selected()).toEqual([]);
+    });
+
+    it('should keep a selected desk that belongs to the new building', async () => {
+        model.update((m) => ({
+            ...m,
+            resources: [
+                {
+                    id: 'desk-2',
+                    name: 'Desk 2',
+                    zone: { id: 'level-2', parent_id: 'bld-2' },
+                } as any,
+            ],
+            asset_id: 'desk-2',
+        }));
+        spectator.component.ngOnInit();
+        await spectator.fixture.whenStable();
+
+        active_building.set({ id: 'bld-2' });
+        await spectator.fixture.whenStable();
+
+        expect(model().resources).toEqual([
+            expect.objectContaining({ id: 'desk-2' }),
+        ]);
+        expect(model().asset_id).toBe('desk-2');
+        expect(spectator.component.selected()).toEqual(['desk-2']);
     });
 
     it('should limit date selection to the configured available period', () => {

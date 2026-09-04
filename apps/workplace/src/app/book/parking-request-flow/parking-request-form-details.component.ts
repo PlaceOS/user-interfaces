@@ -804,10 +804,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         <label
                                             class="mb-1 block text-sm font-medium"
                                         >
-                                            {{
-                                                'BOOKINGS.PARKING_START_TIME'
-                                                    | translate
-                                            }}
+                                            {{ 'FORM.TIME_START' | translate }}
                                         </label>
                                         <mat-form-field
                                             appearance="outline"
@@ -839,10 +836,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                         <label
                                             class="mb-1 block text-sm font-medium"
                                         >
-                                            {{
-                                                'BOOKINGS.PARKING_END_TIME'
-                                                    | translate
-                                            }}
+                                            {{ 'FORM.TIME_END' | translate }}
                                         </label>
                                         <mat-form-field
                                             appearance="outline"
@@ -959,7 +953,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                             >
                                                 @if (availability_loading()) {
                                                     <div
-                                                        class="text-sm font-medium opacity-60 p-2"
+                                                        class="p-2 text-sm font-medium opacity-60"
                                                     >
                                                         Checking...
                                                     </div>
@@ -1066,7 +1060,7 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 >
                                     @if (availability_loading()) {
                                         <div
-                                            class="text-sm font-medium opacity-60 pr-2"
+                                            class="pr-2 text-sm font-medium opacity-60"
                                         >
                                             Checking...
                                         </div>
@@ -1173,7 +1167,9 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                                     plate_number
                                                 }}</span>
                                                 <button
-                                                    icon default error
+                                                    icon
+                                                    default
+                                                    error
                                                     type="button"
                                                     class="text-xs"
                                                     [attr.aria-label]="

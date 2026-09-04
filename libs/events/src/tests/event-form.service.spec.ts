@@ -3,11 +3,14 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
+    AssetRequest,
     CalendarEvent,
     currentUser,
+    i18n,
     OrganisationService,
     setCurrentUser,
     SettingsService,
+    Space,
 } from '@placeos/common';
 import { Subject } from 'rxjs';
 
@@ -48,6 +51,7 @@ describe('EventFormService', () => {
                         initialised: signal(true),
                         organisation: { id: 'org-1' },
                         region: { id: 'reg-1' },
+                        waitUntilInitialised: vi.fn(() => Promise.resolve()),
                     },
                 },
                 {
@@ -174,7 +178,7 @@ describe('EventFormService', () => {
         expect(service.model().all_day).toBe(true);
     });
 
-    it('should offer attendee-only notifications when adding attendees to a room booking', async () => {
+    it('should offer attendee-only notifications only when adding attendees to a room booking', async () => {
         const event = new CalendarEvent({
             id: 'event-1',
             host: 'host@test.com',
@@ -203,6 +207,12 @@ describe('EventFormService', () => {
             ...model,
             title: 'Normalised team meeting',
         }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+
+        service.model.update((model) => ({
+            ...model,
+            title: 'Team meeting',
+        }));
         expect(service.can_notify_new_attendees_only()).toBe(true);
 
         service.model.update((model) => ({
@@ -212,6 +222,213 @@ describe('EventFormService', () => {
             ),
         }));
         expect(service.can_notify_new_attendees_only()).toBe(false);
+
+        service.model.update((model) => ({
+            ...model,
+            attendees: model.attendees.filter(
+                (_) => _.email !== 'new.attendee@test.com',
+            ),
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+    });
+
+    it('should offer attendee-only notifications after the form syncs a one-off event', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            date: new Date(2028, 5, 15, 10).valueOf(),
+            duration: 60,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+
+        service.newForm(event);
+        // Let the form's field-sync effects run - seeding the date must not
+        // invent a recurrence on a non-recurring event.
+        TestBed.tick();
+        service.model.update((model) => ({
+            ...model,
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+
+        expect(service.model().recurrence).toEqual({});
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+    });
+
+    it('should preserve attendee-only notification eligibility after reloading the form', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+        service.newForm(event);
+        service.model.update((model) => ({
+            ...model,
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+        sessionStorage.setItem(
+            'PLACEOS.event_form',
+            JSON.stringify(service.model()),
+        );
+
+        service.loadForm();
+
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+    });
+
+    it('should ignore derived and re-hydrated fields when checking for other changes', () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            date: new Date(2028, 5, 15, 10, 14, 0, 0).valueOf(),
+            duration: 60,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                { id: 'space-1', email: 'space-1@test.com', zones: [] } as any,
+            ],
+        });
+        service.newForm(event);
+
+        // The form rounds the derived end time up and the space list is
+        // re-hydrated with the full space details, neither of which is a
+        // booking detail the user changed.
+        service.model.update((model) => ({
+            ...model,
+            date_end: model.date_end + 60 * 1000,
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    name: 'Space 1',
+                    capacity: 8,
+                    zones: ['zone-1'],
+                } as any,
+            ],
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        // Swapping the booked room is a change to the booking though.
+        service.model.update((model) => ({
+            ...model,
+            resources: [
+                { id: 'space-2', email: 'space-2@test.com', zones: [] } as any,
+            ],
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+    });
+
+    it('should restore attendee-only notification eligibility for equivalent form values', () => {
+        const date = new Date(2028, 5, 15, 10).valueOf();
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            title: 'Team meeting',
+            body: 'Original notes',
+            date,
+            duration: 90,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'calendar-resource-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+        service.newForm(event);
+        TestBed.tick();
+        service.model.update((model) => ({
+            ...model,
+            attendees: [...model.attendees, { email: 'new@test.com' }],
+        }));
+
+        service.model.update((model) => ({ ...model, all_day: true }));
+        TestBed.tick();
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+        service.model.update((model) => ({ ...model, all_day: false }));
+        TestBed.tick();
+        expect(service.model()).toEqual(
+            expect.objectContaining({
+                date,
+                duration: 90,
+                date_end: date + 90 * 60 * 1000,
+                all_day: false,
+            }),
+        );
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        service.model.update((model) => ({
+            ...model,
+            recurrence: {
+                pattern: 'daily',
+                _pattern: 'daily',
+                interval: 1,
+                start: date,
+                end: date + 24 * 60 * 60 * 1000,
+            },
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+        service.model.update((model) => ({
+            ...model,
+            recurrence: {
+                pattern: 'daily',
+                _pattern: 'none',
+                interval: 1,
+                days_of_week: [],
+                start: date,
+                end: date,
+            },
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        service.model.update((model) => ({
+            ...model,
+            resources: [
+                {
+                    id: 'placeos-system-2',
+                    email: 'space-2@test.com',
+                } as any,
+            ],
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+        service.model.update((model) => ({
+            ...model,
+            resources: [
+                {
+                    id: 'placeos-system-1',
+                    email: 'space-1@test.com',
+                } as any,
+            ],
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
+
+        service.model.update((model) => ({
+            ...model,
+            body: '<div>Changed notes</div>',
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(false);
+        service.model.update((model) => ({
+            ...model,
+            body: '<div>Original notes</div>',
+        }));
+        expect(service.can_notify_new_attendees_only()).toBe(true);
     });
 
     it('should suppress existing attendee notifications for attendee-only edits', async () => {
@@ -246,6 +463,44 @@ describe('EventFormService', () => {
         expect(perform_booking_spy).toHaveBeenCalledWith(
             expect.anything(),
             expect.objectContaining({ notify_existing_attendees: false }),
+        );
+    });
+
+    it('should notify existing attendees when another booking detail changes', async () => {
+        const event = new CalendarEvent({
+            id: 'event-1',
+            host: 'host@test.com',
+            creator: 'host@test.com',
+            title: 'Team meeting',
+            date: new Date(2028, 5, 15, 10).valueOf(),
+            duration: 60,
+            attendees: [{ email: 'existing@test.com' } as any],
+            resources: [
+                {
+                    id: 'space-1',
+                    email: 'space-1@test.com',
+                    zones: [],
+                } as any,
+            ],
+        });
+        const perform_booking_spy = vi
+            .spyOn(service as any, '_performBooking')
+            .mockResolvedValue(event);
+        service.newForm(event);
+        service.model.update((model) => ({
+            ...model,
+            title: 'Updated team meeting',
+            attendees: [...model.attendees, { email: 'new.attendee@test.com' }],
+        }));
+        service.notify_new_attendees_only.set(true);
+
+        await service.postForm(true);
+
+        expect(perform_booking_spy).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.not.objectContaining({
+                notify_existing_attendees: false,
+            }),
         );
     });
 
@@ -351,6 +606,108 @@ describe('EventFormService', () => {
             Math.floor(submitted_start / 1000),
         );
         expect(last_success.event_end).toBe(Math.floor(submitted_end / 1000));
+    });
+
+    function prepareRoomAssetBooking(item_ids?: string[]) {
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        const space = new Space({
+            id: 'space-1',
+            email: 'space-1@test.com',
+            zones: ['bld-1'],
+        });
+        const asset_request = new AssetRequest({
+            items: [
+                {
+                    id: 'asset-type-1',
+                    ...(item_ids ? { item_ids } : {}),
+                    name: 'Projector',
+                    quantity: 1,
+                },
+            ],
+        });
+        vi.spyOn((service as any)._space_pipe, 'transform').mockResolvedValue(
+            space,
+        );
+        vi.spyOn(service as any, '_checkResourcesAvailable').mockResolvedValue(
+            true,
+        );
+        vi.spyOn(service as any, '_checkResourceRules').mockResolvedValue(true);
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+            data: [{ id: 'asset-type-1', name: 'Projectors' }],
+            total: 1,
+        } as any);
+        vi.mocked(ts_client.queryAssets).mockResolvedValue({
+            data: [{ id: 'asset-1', asset_type_id: 'asset-type-1' }],
+            total: 1,
+        } as any);
+        vi.mocked(ts_client.post).mockResolvedValue({
+            id: 'asset-booking-1',
+        } as any);
+        vi.spyOn(service as any, '_performBooking').mockResolvedValue(
+            new CalendarEvent({
+                id: 'event-1',
+                title: 'Room with asset',
+                date,
+                duration: 60,
+                attendees: [],
+                resources: [],
+            }),
+        );
+
+        service.newForm();
+        service.model.update((model) => ({
+            ...model,
+            host: 'host@test.com',
+            organiser: { email: 'host@test.com' } as any,
+            creator: 'host@test.com',
+            title: 'Room with asset',
+            date,
+            duration: 60,
+            attendees: [],
+            resources: [
+                {
+                    ...space,
+                },
+            ],
+            assets: [asset_request],
+        }));
+    }
+
+    it('should complete a room booking with an asset request', async () => {
+        prepareRoomAssetBooking();
+
+        await expect(service.postForm(true)).resolves.toMatchObject({
+            id: 'event-1',
+        });
+        expect(ts_client.queryAssetTypes).toHaveBeenCalledWith(
+            expect.objectContaining({
+                zone_id: 'org-1,reg-1,bld-1',
+            }),
+        );
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings?'),
+            expect.objectContaining({
+                asset_id: 'asset-1',
+                asset_ids: ['asset-1'],
+            }),
+        );
+    });
+
+    it('should remove a new room booking when its asset request fails', async () => {
+        prepareRoomAssetBooking(['asset-1']);
+        vi.mocked(ts_client.post).mockRejectedValue({
+            status: 400,
+        });
+        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
+
+        await expect(service.postForm(true)).rejects.toBe(
+            i18n('CALENDAR_EVENT.ASSETS_ERROR'),
+        );
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/events/event-1?'),
+            expect.objectContaining({ response_type: 'void' }),
+        );
     });
 
     it('should post the selected time after reloading a new meeting form', async () => {

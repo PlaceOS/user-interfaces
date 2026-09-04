@@ -30,6 +30,7 @@ import {
     notifySuccess,
     onFieldChange,
     SettingsService,
+    unique,
     User,
 } from '@placeos/common';
 
@@ -51,6 +52,7 @@ import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.componen
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
 import { BookingFormService } from './booking-form.service';
+import { bookingHostUser } from './booking.utilities';
 
 @Component({
     selector: `invite-visitor-form`,
@@ -262,9 +264,7 @@ import { BookingFormService } from './booking-form.service';
                                                     | translate
                                             "
                                             (focus)="
-                                                filterVisitors(
-                                                    model().asset_id
-                                                )
+                                                filterVisitors(model().asset_id)
                                             "
                                             [matAutocomplete]="email_auto"
                                         />
@@ -324,9 +324,7 @@ import { BookingFormService } from './booking-form.service';
                             } @else {
                                 <div class="flex flex-col">
                                     <label for="visitor-name">
-                                        {{
-                                            'BOOKINGS.VISITOR_LIST' | translate
-                                        }}
+                                        {{ 'RESOURCE.VISITORS' | translate }}
                                         <span>*</span>
                                     </label>
                                     <a-user-list-field
@@ -345,7 +343,7 @@ import { BookingFormService } from './booking-form.service';
                                         >
                                             @for (
                                                 item of model().assets;
-                                                track item.id || item.email
+                                                track $index
                                             ) {
                                                 <mat-checkbox
                                                     [ngModel]="
@@ -391,7 +389,7 @@ import { BookingFormService } from './booking-form.service';
                             @if (allow_pass_number()) {
                                 <div class="flex flex-col">
                                     <label for="pass">{{
-                                        'BOOKINGS.VISITOR_PASS' | translate
+                                        'BOOKINGS.PASS_NUMBER' | translate
                                     }}</label>
                                     <mat-form-field appearance="outline">
                                         <input
@@ -597,6 +595,9 @@ export class InviteVisitorFormComponent {
     private _org = inject(OrganisationService);
     private _injector = inject(Injector);
     private _existing_siblings: Booking[] = [];
+    /** Last visitor list this component wrote into `assets` from booking data.
+     * Used to tell our own writes apart from the user's edits. */
+    private _loaded_visitors: User[] = null;
 
     public readonly date = input<number>(undefined);
     public readonly done = output<void>();
@@ -614,9 +615,7 @@ export class InviteVisitorFormComponent {
     public readonly last_count = signal(0);
     private visitors = [];
     public readonly filtered_visitors = signal<any[]>([]);
-    public readonly visitor_international = signal<Record<string, boolean>>(
-        {},
-    );
+    public readonly visitor_international = signal<Record<string, boolean>>({});
     private readonly _visitor_bookable_hours = this._settings.signal(
         'visitors.bookable_hours',
         null,
@@ -768,6 +767,16 @@ export class InviteVisitorFormComponent {
         return this._org.building?.id || zone_list[0] || '';
     });
 
+    // `multiple` comes from settings, which can resolve after the form is set
+    // up, and the form itself can be reset asynchronously. Keep the placeholder
+    // email in sync instead of writing it once during init, otherwise the
+    // required/email validation on `asset_id` fails on send.
+    private _multipleVisitorEffect = effect(() => {
+        const { id, asset_id } = this.model();
+        if (!this.multiple() || id || asset_id) return;
+        this.model.update((m) => ({ ...m, asset_id: 'multiple@place.tech' }));
+    });
+
     private _dateEffect = effect(() => {
         const date = this.date();
         if (date) {
@@ -816,11 +825,6 @@ export class InviteVisitorFormComponent {
             (_) => this.syncVisitorInternational(_ || []),
             this._injector,
         );
-        if (this.multiple() && !this.model().id)
-            this.model.update((m) => ({
-                ...m,
-                asset_id: 'multiple@place.tech',
-            }));
         if (!this.model().id)
             this.model.update((m) => ({ ...m, title: 'Visit' }));
     }
@@ -908,7 +912,12 @@ export class InviteVisitorFormComponent {
                 }]`,
             );
         }
-        if (!this.model().user_email || !this.can_book_for_others()) {
+        // Existing bookings keep whatever host they were created with — only
+        // fall back to the signed-in user for a new booking with no host.
+        if (
+            !this.model().user_email ||
+            (!this.can_book_for_others() && !this.model().id)
+        ) {
             this.model.update((m) => ({ ...m, user: currentUser() }));
         }
         const visitor_reason =
@@ -967,11 +976,14 @@ export class InviteVisitorFormComponent {
         if (keep_preloaded_edit && !form_snapshot?.id && booking_snapshot?.id) {
             const booking = new Booking(booking_snapshot);
             this.model.set({
-                user: currentUser(),
                 booked_by: currentUser(),
                 ...booking_snapshot,
                 ...booking,
                 ...(booking.extension_data || {}),
+                // Rebuilt from the booking's `user_*` fields so a delegate
+                // booking keeps its host instead of falling back to whoever
+                // opened the form.
+                user: bookingHostUser(booking),
                 _in_progress:
                     booking_snapshot.state === 'started' ||
                     booking_snapshot.state === 'in_progress',
@@ -990,11 +1002,6 @@ export class InviteVisitorFormComponent {
                 zones: [this._org.building?.id],
             }));
         }
-        if (this.multiple() && !this.model().id)
-            this.model.update((m) => ({
-                ...m,
-                asset_id: 'multiple@place.tech',
-            }));
         if (this.model().id) {
             const booking_ref = this._service.booking;
             if (this.multiple()) {
@@ -1004,11 +1011,7 @@ export class InviteVisitorFormComponent {
                     booking_ref?.extension_data?.group_members || [],
                 );
                 if (extension_visitors.length) {
-                    this.model.update((m) => ({
-                        ...m,
-                        assets: extension_visitors,
-                    }));
-                    this.syncVisitorInternational(extension_visitors);
+                    this._setLoadedVisitors(extension_visitors);
                 }
                 this._loadSiblingVisitors(
                     booking_ref?.id
@@ -1019,18 +1022,15 @@ export class InviteVisitorFormComponent {
             if (!this.model().assets?.length) {
                 const attendees = this.model().attendees || [];
                 if (attendees.length) {
-                    this.model.update((m) => ({ ...m, assets: attendees }));
+                    this._setLoadedVisitors(attendees);
                 } else if (this.model().asset_id) {
-                    this.model.update((m) => ({
-                        ...m,
-                        assets: [
-                            new User({
-                                name: m.asset_name,
-                                email: m.asset_id,
-                                organisation: m.company,
-                            }),
-                        ],
-                    }));
+                    this._setLoadedVisitors([
+                        new User({
+                            name: this.model().asset_name,
+                            email: this.model().asset_id,
+                            organisation: this.model().company,
+                        }),
+                    ]);
                 }
             }
             if (!this.multiple() && this.model().assets?.length) {
@@ -1049,6 +1049,15 @@ export class InviteVisitorFormComponent {
                 }
             }
         }
+    }
+
+    /** Seed the visitor list from booking data, recording it so a later load
+     * can tell whether the user has since edited the list. */
+    private _setLoadedVisitors(visitors: User[]) {
+        const list = unique(visitors, 'email') as User[];
+        this._loaded_visitors = list;
+        this.model.update((m) => ({ ...m, assets: list }));
+        this.syncVisitorInternational(list);
     }
 
     private async _loadSiblingVisitors(booking_ref: Booking) {
@@ -1073,8 +1082,12 @@ export class InviteVisitorFormComponent {
                 },
             });
         });
-        this.model.update((m) => ({ ...m, assets: visitors }));
-        this.syncVisitorInternational(visitors);
+        // The lookup is fired without blocking form display, so the user may
+        // have already added or removed a visitor by the time it lands. Only
+        // overwrite the list this component seeded itself. (PPT-2634)
+        const current = this.model().assets as User[];
+        if (this._loaded_visitors && current !== this._loaded_visitors) return;
+        this._setLoadedVisitors(visitors);
     }
 
     private _visitorsFromGroupMembers(members: any[] = []) {
@@ -1140,8 +1153,14 @@ export class InviteVisitorFormComponent {
         if (this.is_edit()) {
             let existing_siblings = this._existing_siblings;
             if (!existing_siblings.length) {
+                // Retry from the loaded booking where possible: rebuilding one
+                // from the form model loses `extension_data.group`, which is the
+                // only link between members of an uncontained group.
+                const booking_ref = this._service.booking;
                 existing_siblings = await this._service.loadGroupSiblings(
-                    new Booking(this.model() as any),
+                    booking_ref?.id
+                        ? booking_ref
+                        : new Booking(this.model() as any),
                 );
             }
             if (!existing_siblings.length) {

@@ -11,14 +11,14 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
-    checkinBooking,
+    cancelOverlappingRecurringBookings,
     queryBookings,
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
-    rejectOverlappingRecurringBookings,
     removeBooking,
     saveBooking,
+    setBookingCheckedIn,
     updateBooking,
 } from '@placeos/bookings';
 import {
@@ -147,8 +147,7 @@ export class DesksStateService extends AsyncHandler {
         params: () => this._desk_params_debounced.value(),
         defaultValue: [] as Desk[],
         loader: async ({ params }) => {
-            // Only load desk metadata when on manage view
-            if (params.view !== 'manage') return [];
+            if (params.view !== 'manage' && params.view !== 'events') return [];
             this._loading.set(true);
             try {
                 const zones = this._getActiveZones(params.zones);
@@ -228,7 +227,17 @@ export class DesksStateService extends AsyncHandler {
     public readonly has_more_pages = computed(
         () => this.paged_bookings().has_next,
     );
-    public readonly bookings = computed(() => this.paged_bookings().list);
+    public readonly bookings = computed(() => {
+        const desks = new Map(this.desks().map((desk) => [desk.id, desk]));
+        const bookings = this.paged_bookings().list;
+        for (const booking of bookings) {
+            Object.assign(booking, {
+                asset_name:
+                    desks.get(booking.asset_id)?.name || booking.asset_id,
+            });
+        }
+        return [...bookings];
+    });
     /** Time the booking list last finished loading from the server */
     private readonly _last_updated = signal(0);
     public readonly last_updated = this._last_updated.asReadonly();
@@ -304,7 +313,7 @@ export class DesksStateService extends AsyncHandler {
                 zones: zones.join(','),
                 include_checked_out: true,
                 include_deleted: true,
-                limit: 500,
+                limit: 200,
             } as any);
     }
 
@@ -334,11 +343,12 @@ export class DesksStateService extends AsyncHandler {
         if (token !== this._load_token) return;
         const { data = [], total = 0, next = null } = resp || {};
         const list = data.map((booking) => this._normaliseBooking(booking));
-        this._next_page_fn = next;
+        const has_next = list.length > 0 && !!next;
+        this._next_page_fn = has_next ? next : null;
         this._bookings_state.update((acc) =>
             reset
-                ? { list, total, has_next: list.length < total && !!next }
-                : { list: [...acc.list, ...list], total, has_next: !!next },
+                ? { list, total, has_next: list.length < total && has_next }
+                : { list: [...acc.list, ...list], total, has_next },
         );
         this._loading.set(false);
         this._last_updated.set(Date.now());
@@ -555,10 +565,10 @@ export class DesksStateService extends AsyncHandler {
                 ref.componentInstance.loading.set(false);
                 throw e;
             });
-            // Reject the assignee's overlapping ad-hoc desk bookings over the
-            // next 4 weeks now that they have a recurring desk assigned.
+            // Cancel the assignee's overlapping ad-hoc desk bookings over the
+            // next 4 weeks so a later approval cannot reactivate them.
             if (created?.id) {
-                await rejectOverlappingRecurringBookings(created, 'desk').catch(
+                await cancelOverlappingRecurringBookings(created, 'desk').catch(
                     () => [],
                 );
             }
@@ -568,9 +578,10 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async checkinDesk(desk: Booking, state = true) {
-        const status: any = await checkinBooking(desk.id, state ?? true).catch(
-            (_) => ({ failed: true, error: _ }),
-        );
+        const status: any = await setBookingCheckedIn(
+            desk,
+            state ?? true,
+        ).catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {
             notifyError(
                 i18n(
@@ -672,7 +683,30 @@ export class DesksStateService extends AsyncHandler {
         });
         notifySuccess(i18n('APP.CONCIERGE.DESKS_BOOKING_DELETE_SUCCESS'));
         result.close();
-        this.setFilters({});
+        this._bookings_state.update((state) => ({
+            ...state,
+            list: state.list.map((item) => {
+                const is_deleted = series
+                    ? item.id === booking_id || item.parent_id === booking_id
+                    : this._bookingKey(item) === this._bookingKey(booking);
+                return is_deleted
+                    ? new Booking({
+                          ...item,
+                          deleted: true,
+                          status: 'cancelled',
+                      })
+                    : item;
+            }),
+        }));
+    }
+
+    public viewBookingHistory(booking: Booking) {
+        if (!booking) return;
+        this._dialog.open(BookingHistoryModalComponent, {
+            data: { booking },
+            width: '32rem',
+            maxWidth: '100vw',
+        });
     }
 
     public viewBookingHistory(booking: Booking) {
@@ -700,7 +734,9 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectAllDesks() {
-        const list = this.bookings();
+        const list = this.bookings().filter(
+            (desk) => desk.status === 'approved' || desk.status === 'tentative',
+        );
         if (list.length <= 0)
             return notifyInfo('No desks to reject for the selected date');
         const resp = await openConfirmModal(
@@ -789,11 +825,12 @@ export class DesksStateService extends AsyncHandler {
                     item.assigned_to?.toLowerCase() === email,
             ).length;
         if (assigned_count >= max_assigned_count) {
-            const key =
-                max_assigned_count === 1
-                    ? 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_1'
-                    : 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR_N';
-            const message = i18n(key, { count: max_assigned_count });
+            const key = 'APP.CONCIERGE.DESKS_ASSIGN_LIMIT_ERROR';
+            const message = i18n(
+                key,
+                { count: max_assigned_count },
+                max_assigned_count,
+            );
             throw !message || message === key
                 ? `Users can only have ${max_assigned_count} assigned desk${max_assigned_count === 1 ? '' : 's'} at a time.`
                 : message;

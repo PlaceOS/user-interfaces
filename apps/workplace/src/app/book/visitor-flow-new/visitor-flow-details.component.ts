@@ -134,9 +134,7 @@ type VisitorFormType = 'single' | 'group';
                     <label for="date">
                         {{ 'FORM.DATE' | translate }}<span>*</span>
                     </label>
-                    <a-date-field
-                        [formField]="form.date"
-                    ></a-date-field>
+                    <a-date-field [formField]="form.date"></a-date-field>
                     @if (allow_all_day()) {
                         <mat-checkbox
                             [formField]="form.all_day"
@@ -159,11 +157,15 @@ type VisitorFormType = 'single' | 'group';
                                 name="time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="is_edit_in_progress()"
                                 [range]="effective_bookable_hours()"
+                                [min_duration]="effective_min_duration()"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
                             />
@@ -176,6 +178,9 @@ type VisitorFormType = 'single' | 'group';
                                 [formField]="form.duration"
                                 [time]="model().date"
                                 [max]="max_duration()"
+                                [min]="min_duration()"
+                                [step]="duration_step()"
+                                [custom_options]="custom_duration_options()"
                                 [end_time]="effective_bookable_hours()?.end"
                                 [use_24hr]="use_24hr()"
                                 [timezone]="timezone"
@@ -264,11 +269,28 @@ export class VisitorFlowDetailsComponent implements OnInit {
         return this._resolveSelectedBuildingId(this.model()?.zones || []);
     });
 
-    public readonly max_duration = computed(() =>
-        Math.min(
-            settingSignal('visitors.max_duration', 180)(),
+    public readonly duration_step = computed(
+        () =>
+            settingSignal('visitors.duration_step')() ||
+            settingSignal('bookings.duration_step', 15)(),
+    );
+    public readonly min_duration = computed(
+        () =>
+            settingSignal('visitors.min_duration')() ||
+            settingSignal('bookings.min_duration', 30)(),
+    );
+    public readonly max_duration = computed(
+        () =>
+            settingSignal('visitors.max_duration')() ||
             settingSignal('bookings.max_duration', 180)(),
-        ),
+    );
+    public readonly custom_duration_options = computed<number[]>(
+        () =>
+            settingSignal<number[]>('visitors.custom_duration_options')() ||
+            settingSignal<number[]>('bookings.custom_duration_options', [])(),
+    );
+    public readonly effective_min_duration = computed(() =>
+        Math.min(this.min_duration(), ...this.custom_duration_options()),
     );
 
     public readonly bookable_hours = settingSignal<
@@ -359,6 +381,14 @@ export class VisitorFlowDetailsComponent implements OnInit {
             this.model.update((m) => ({ ...m, zones: default_zones }));
             return;
         }
+        // Editing a booking from another building: match the active building to
+        // it so saving doesn't tag the booking with the previously active one.
+        const building = this._org.buildings.find(
+            (bld) => bld.id === this.selected_building_id(),
+        );
+        if (building && building.id !== this._org.building?.id) {
+            this._org.building = building;
+        }
     }
 
     public setActiveForm(form: VisitorFormType) {
@@ -423,6 +453,11 @@ export class VisitorFlowDetailsComponent implements OnInit {
             return;
         }
         const building = this._org.find(building_id);
+        // Saving merges the active building's zones into the booking, so the
+        // active building has to move too or the booking keeps the old one.
+        if (building && building.id !== this._org.building?.id) {
+            this._org.building = building as any;
+        }
         const zones = [
             this._org.organisation?.id,
             building?.parent_id,

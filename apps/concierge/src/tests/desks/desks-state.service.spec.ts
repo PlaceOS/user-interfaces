@@ -243,6 +243,39 @@ describe('DesksStateService', () => {
         );
     });
 
+    it('should use current desk names for desk bookings', () => {
+        const desks = signal<Desk[]>([]);
+        Object.defineProperty(spectator.service, 'desks', {
+            value: desks,
+        });
+        (spectator.service as any)._bookings_state.set({
+            list: [
+                new Booking({
+                    asset_id: 'desk-1',
+                    extension_data: { name: 'Stale Desk Name' },
+                }),
+                new Booking({
+                    asset_id: 'desk-2',
+                    extension_data: { name: 'Another Stale Name' },
+                }),
+            ],
+            total: 2,
+            has_next: false,
+        });
+
+        expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
+            'desk-1',
+            'desk-2',
+        ]);
+
+        desks.set([new Desk({ id: 'desk-1', name: 'Desk One' })]);
+
+        expect(spectator.service.bookings().map((_) => _.asset_name)).toEqual([
+            'Desk One',
+            'desk-2',
+        ]);
+    });
+
     it('should keep rejected status when a fast reload returns the old approved state', async () => {
         const booking = {
             id: 'booking-1',
@@ -274,31 +307,68 @@ describe('DesksStateService', () => {
 
     it('should cancel only one recurring booking instance', async () => {
         mockConfirm();
-        const booking = {
+        const booking = new Booking({
             id: 'booking-1',
             parent_id: 'booking-parent',
             instance: 1_740_000_000,
-        } as any;
+        });
+        const other_instance = new Booking({
+            id: 'booking-1',
+            parent_id: 'booking-parent',
+            instance: 1_740_086_400,
+        });
+        (spectator.service as any)._bookings_state.set({
+            list: [booking, other_instance],
+            total: 2,
+            has_next: false,
+        });
 
         await spectator.service.cancelBooking(booking);
 
         expect(del_urls()).toEqual([
             expect.stringContaining('/booking-1/instance/1740000000'),
         ]);
+        expect(spectator.service.bookings()).toEqual([
+            expect.objectContaining({
+                instance: 1_740_000_000,
+                deleted: true,
+                status: 'cancelled',
+            }),
+            expect.objectContaining({
+                instance: 1_740_086_400,
+                deleted: false,
+            }),
+        ]);
     });
 
-    it('should delete recurring booking series by parent booking id', async () => {
+    it('should delete recurring booking series and update every instance', async () => {
         mockConfirm();
-        const booking = {
+        const booking = new Booking({
             id: 'booking-1',
             parent_id: 'booking-parent',
             instance: 1_740_000_000,
-        } as any;
+        });
+        const other_instance = new Booking({
+            id: 'booking-2',
+            parent_id: 'booking-parent',
+            instance: 1_740_086_400,
+        });
+        const unrelated_booking = new Booking({ id: 'booking-3' });
+        (spectator.service as any)._bookings_state.set({
+            list: [booking, other_instance, unrelated_booking],
+            total: 3,
+            has_next: false,
+        });
 
         await spectator.service.cancelBooking(booking, true);
 
         expect(del_urls()).toEqual([
             expect.stringMatching(/\/bookings\/booking-parent\?utm_source=/),
+        ]);
+        expect(spectator.service.bookings()).toEqual([
+            expect.objectContaining({ deleted: true, status: 'cancelled' }),
+            expect.objectContaining({ deleted: true, status: 'cancelled' }),
+            expect.objectContaining({ id: 'booking-3', deleted: false }),
         ]);
     });
 
@@ -381,6 +451,68 @@ describe('DesksStateService', () => {
                     expect.objectContaining({ homebase: 'Sydney HQ' }),
                 ]),
             }),
+        );
+    });
+
+    it('should cancel overlapping bookings after assigning a desk', async () => {
+        const mock_now = new Date('2026-08-18T10:55:00+10:00').valueOf();
+        vi.spyOn(Date, 'now').mockReturnValue(mock_now);
+        vi.mocked(ts_client_mod.post).mockResolvedValue({
+            id: 'assigned-booking',
+            booking_start:
+                new Date('2026-08-18T03:00:00+10:00').valueOf() / 1000,
+            booking_end: new Date('2026-08-18T23:00:00+10:00').valueOf() / 1000,
+            booking_type: 'desk',
+            recurrence_type: 'daily',
+            user_email: 'staff@example.com',
+            asset_id: 'G-033',
+            zones: ['ground-floor'],
+        } as never);
+        vi.mocked(ts_client_mod.get).mockResolvedValue([
+            {
+                id: 'ad-hoc-booking',
+                booking_start:
+                    new Date('2026-08-18T16:45:00+10:00').valueOf() / 1000,
+                booking_end:
+                    new Date('2026-08-18T17:15:00+10:00').valueOf() / 1000,
+                booking_type: 'desk',
+                approved: true,
+                asset_id: 'F-010',
+                zones: ['first-floor'],
+            },
+        ] as never);
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'G-033',
+                        name: 'G-033',
+                        assigned_to: 'staff@example.com',
+                        assigned_name: 'Staff Name',
+                    },
+                }),
+            componentInstance: {
+                event: new EventEmitter<any>(),
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+        spectator.service.setFilters({ zones: ['ground-floor'] });
+
+        await spectator.service.editDesk({ id: 'G-033' } as Desk);
+
+        expect(del_urls()).toEqual([
+            expect.stringMatching(/\/bookings\/ad-hoc-booking\?utm_source=/),
+        ]);
+        expect(posted_bookings()).not.toEqual(
+            expect.arrayContaining([
+                [
+                    expect.stringContaining('/ad-hoc-booking/reject'),
+                    expect.anything(),
+                ],
+            ]),
         );
     });
 
@@ -550,20 +682,46 @@ describe('DesksStateService', () => {
         expect(first_page).toHaveBeenCalled();
     });
 
-    it('should reject all displayed desk bookings with the instance endpoint where needed', async () => {
+    it('should stop desk booking pagination when a page is empty', async () => {
+        const next_page = vi.fn();
+        const empty_page = vi.fn().mockResolvedValue({
+            data: [],
+            total: 2,
+            next: next_page,
+        });
+        const booking = new Booking({ id: 'booking-1' });
+        (spectator.service as any)._bookings_state.set({
+            list: [booking],
+            total: 2,
+            has_next: true,
+        });
+        (spectator.service as any)._next_page_fn = empty_page;
+
+        await (spectator.service as any)._loadPage(false);
+
+        expect(spectator.service.bookings()).toEqual([booking]);
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect((spectator.service as any)._next_page_fn).toBeNull();
+        expect(next_page).not.toHaveBeenCalled();
+    });
+
+    it('should reject active desk bookings with the instance endpoint where needed', async () => {
         const confirm_ref = mockConfirm();
         const list = [
             { id: 'booking-1', status: 'approved' },
             {
                 id: 'booking-2',
                 instance: 1_740_000_000,
-                status: 'approved',
+                status: 'tentative',
             },
+            { id: 'booking-3', status: 'declined' },
+            { id: 'booking-4', status: 'cancelled' },
+            { id: 'booking-5', status: 'ended' },
         ];
         Object.defineProperty(spectator.service, 'paged_bookings', {
             value: () => ({
                 list,
-                total: 2,
+                total: list.length,
                 has_next: false,
             }),
         });
@@ -579,6 +737,7 @@ describe('DesksStateService', () => {
             expect.stringContaining('/bookings/booking-2/reject/1740000000'),
             expect.anything(),
         );
+        expect(posted_bookings()).toHaveLength(2);
         expect(confirm_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             'APP.CONCIERGE.DESKS_REJECT_ALL_LOADING',
         );
@@ -588,7 +747,13 @@ describe('DesksStateService', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['success'] }),
         );
-        expect(list.every((desk) => desk.status === 'declined')).toBe(true);
+        expect(list.map((desk) => desk.status)).toEqual([
+            'declined',
+            'declined',
+            'declined',
+            'cancelled',
+            'ended',
+        ]);
         expect(refresh_spy).toHaveBeenCalled();
     });
 
@@ -596,7 +761,13 @@ describe('DesksStateService', () => {
         const confirm_ref = mockConfirm();
         Object.defineProperty(spectator.service, 'paged_bookings', {
             value: () => ({
-                list: [{ id: 'booking-1', instance: 1_740_000_000 }],
+                list: [
+                    {
+                        id: 'booking-1',
+                        instance: 1_740_000_000,
+                        status: 'tentative',
+                    },
+                ],
                 total: 1,
                 has_next: false,
             }),

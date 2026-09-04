@@ -22,6 +22,8 @@ describe('PlaylistItemsComponent', () => {
     const can_update = signal(true);
     const reorder = vi.fn();
     const remove_media = vi.fn().mockResolvedValue(undefined);
+    const remove_media_items = vi.fn().mockResolvedValue(true);
+    const edit_item_schedules = vi.fn().mockResolvedValue(true);
     const preview_media = vi.fn();
 
     const service_stub = {
@@ -40,8 +42,10 @@ describe('PlaylistItemsComponent', () => {
         playlist_item_schedule_list,
         reorderPlaylistMedia: reorder,
         removeMediaFromPlaylist: remove_media,
+        removeMediaItemsFromPlaylist: remove_media_items,
         previewMedia: preview_media,
         editPlaylistItemSchedule: vi.fn(),
+        editPlaylistItemSchedules: edit_item_schedules,
         editPlaylist: vi.fn(),
         removePlaylist: vi.fn(),
         approvePlaylist: vi.fn(),
@@ -91,12 +95,30 @@ describe('PlaylistItemsComponent', () => {
         expect(component.isItemSelected(item, 1)).toBe(true);
     });
 
-    it('exposes the signage thumbnail endpoint and media icon', async () => {
+    it('bulk-selects duplicate media by playlist position', async () => {
+        const item = media('a');
+        playlist_media_items.set([item, item]);
         const component = await make();
-        expect(component.thumbnailURL(media('a'))).toBe(
-            '/api/engine/v2/signage/media/a/thumbnail',
-        );
-        expect(component.mediaIcon(media('a', 'video'))).toBe('video_library');
+
+        component.toggleSelection(0);
+        component.toggleSelection(1);
+
+        expect(component.selected_count()).toBe(2);
+        expect(component.isBulkItemSelected(0)).toBe(true);
+        expect(component.isBulkItemSelected(1)).toBe(true);
+
+        component.toggleSelection(0);
+        expect(component.selected_count()).toBe(1);
+    });
+
+    it('clears the bulk selection when playlist items change', async () => {
+        playlist_media_items.set([media('a')]);
+        const component = await make();
+        component.toggleSelection(0);
+
+        playlist_media_items.set([media('b')]);
+
+        expect(component.selected_count()).toBe(0);
     });
 
     it('flags a distribution playlist', async () => {
@@ -155,11 +177,16 @@ describe('PlaylistItemsComponent', () => {
 
     it('builds a tooltip with the next play blocks for a schedule', async () => {
         const component = await make();
+        const valid_until = Math.floor(Date.UTC(2027, 0, 2, 18, 45) / 1000);
         const tooltip = component.scheduleTooltip({
             play_cron: '0 9 * * *',
             play_period: 30,
+            valid_until,
         });
         expect(tooltip).toContain('–');
+        expect(tooltip).toContain(
+            new Date(valid_until * 1000).toLocaleString(),
+        );
     });
 
     it('reorders media on drop when updates are permitted', async () => {
@@ -214,5 +241,58 @@ describe('PlaylistItemsComponent', () => {
         await component.removeItem(item, 0);
 
         expect(remove_media).toHaveBeenCalledWith('pl-1', 'schedule-1', 0);
+    });
+
+    it('removes selected playlist occurrences and clears the bulk selection', async () => {
+        const items = [media('a'), media('b'), media('a')];
+        selected_playlist.set({ id: 'pl-1' });
+        playlist_media_items.set(items);
+        const component = await make();
+        component.toggleSelection(0);
+        component.toggleSelection(2);
+
+        await component.deleteSelected();
+
+        expect(remove_media_items).toHaveBeenCalledWith('pl-1', [
+            { id: 'a', index: 0 },
+            { id: 'a', index: 2 },
+        ]);
+        expect(component.selected_count()).toBe(0);
+    });
+
+    it('applies the first selected schedule to all selected distribution items', async () => {
+        const first_item = media('a');
+        const second_item = media('b');
+        const first_schedule = new SignagePlaylistItemSchedule({
+            id: 'schedule-1',
+            item_id: first_item.id,
+            media: first_item,
+            schedules: [
+                {
+                    play_cron: '0 9 * * *',
+                    play_period: 30,
+                    play_takeover: false,
+                },
+            ],
+        });
+        const second_schedule = new SignagePlaylistItemSchedule({
+            id: 'schedule-2',
+            item_id: second_item.id,
+            media: second_item,
+        });
+        selected_playlist.set({ id: 'pl-1', distribution: true });
+        playlist_media_items.set([first_item, second_item]);
+        playlist_item_schedule_list.set([first_schedule, second_schedule]);
+        const component = await make();
+        component.toggleSelection(0);
+        component.toggleSelection(1);
+
+        await component.applyScheduleToSelected();
+
+        expect(edit_item_schedules).toHaveBeenCalledWith([
+            first_schedule,
+            second_schedule,
+        ]);
+        expect(component.selected_count()).toBe(0);
     });
 });

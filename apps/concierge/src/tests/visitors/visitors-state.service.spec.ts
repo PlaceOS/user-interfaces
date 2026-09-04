@@ -51,6 +51,11 @@ describe('VisitorStateService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        } as any);
         vi.mocked(ts_client.post).mockResolvedValue({} as any);
         vi.mocked(ts_client.patch).mockResolvedValue({} as any);
         vi.mocked(ts_client.put).mockResolvedValue({} as any);
@@ -65,20 +70,32 @@ describe('VisitorStateService', () => {
     });
 
     it('should list visitor events', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { guests: [{}], attendees: [{}, {}] },
-        ] as any);
-        expect(ts_client.get).not.toHaveBeenCalled();
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [{ guests: [{}], attendees: [{}, {}] }],
+            total: 1,
+            next: null,
+        } as any);
+        expect(ts_client.query).not.toHaveBeenCalled();
         TestBed.flushEffects();
         await wait(10);
         expect(spectator.service.bookings()).toHaveLength(1);
-        expect(ts_client.get).toHaveBeenCalled();
+        expect(ts_client.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({
+                    include_checked_out: true,
+                    include_deleted: true,
+                    limit: 200,
+                }),
+            }),
+        );
     });
 
     it('should apply building timezone to visitor listing requests', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { extension_data: {} },
-        ] as any);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [{ extension_data: {} }],
+            total: 1,
+            next: null,
+        } as any);
         const date = new Date('2026-06-15T12:00:00').valueOf();
 
         spectator.service.setFilters({ date, period: 1 });
@@ -96,16 +113,29 @@ describe('VisitorStateService', () => {
         const start = addMinutes(startOfDay(new Date(date)), offset * 60);
         const end = addDays(start, 1);
 
+        expect(ts_client.query).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({
+                    period_start: getUnixTime(start),
+                    period_end: getUnixTime(end),
+                }),
+            }),
+        );
+        const start = addMinutes(startOfDay(new Date(date)), offset * 60);
+        const end = addDays(start, 1);
+
         const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
         expect(url).toContain(`period_start=${getUnixTime(start)}`);
         expect(url).toContain(`period_end=${getUnixTime(end)}`);
     });
 
     it('should allow filtering of visitor events', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { asset_name: 'true', extension_data: {} },
-        ] as any);
-        expect(ts_client.get).not.toHaveBeenCalled();
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [{ asset_name: 'true', extension_data: {} }],
+            total: 1,
+            next: null,
+        } as any);
+        expect(ts_client.query).not.toHaveBeenCalled();
         TestBed.flushEffects();
         await wait(10);
         expect(spectator.service.filtered_bookings()).toHaveLength(1);
@@ -138,9 +168,11 @@ describe('VisitorStateService', () => {
     });
 
     it('should allow checking in all visitors', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { parent_id: '1', extension_data: {} },
-        ] as any);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [{ parent_id: '1', extension_data: {} }],
+            total: 1,
+            next: null,
+        } as any);
         TestBed.flushEffects();
         await wait(10);
         vi.mocked(ts_client.post).mockClear();
@@ -153,9 +185,11 @@ describe('VisitorStateService', () => {
     });
 
     it('should allow checking out all visitors', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { parent_id: '1', extension_data: {} },
-        ] as any);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [{ parent_id: '1', extension_data: {} }],
+            total: 1,
+            next: null,
+        } as any);
         TestBed.flushEffects();
         await wait(10);
         vi.mocked(ts_client.post).mockClear();

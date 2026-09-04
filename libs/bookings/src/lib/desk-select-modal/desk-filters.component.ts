@@ -38,7 +38,7 @@ import { BookingFormService } from '../booking-form.service';
         <form class="divide-base-200 relative z-0 w-full divide-y p-2">
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
-                    {{ 'BOOKINGS.DETAILS' | translate }}
+                    {{ 'COMMON.DETAILS' | translate }}
                 </h2>
                 <div class="flex min-w-32 flex-1 flex-col">
                     @if (
@@ -47,7 +47,7 @@ import { BookingFormService } from '../booking-form.service';
                         !(!use_region() && buildings()?.length > 1)
                     ) {
                         <label for="location">
-                            {{ 'BOOKINGS.LOCATION' | translate }}
+                            {{ 'COMMON.LOCATION' | translate }}
                         </label>
                     }
                     @if (use_region() && regions()?.length) {
@@ -90,12 +90,11 @@ import { BookingFormService } from '../booking-form.service';
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="location"
-                                [ngModel]="options()?.zone_id"
-                                (ngModelChange)="
-                                    setOptions({ zone_id: $event })
-                                "
+                                [ngModel]="options()?.zones"
+                                (ngModelChange)="setOptions({ zones: $event })"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="'COMMON.LEVEL_ANY' | translate"
+                                [multiple]="true"
                             >
                                 @for (lvl of levels(); track lvl) {
                                     <mat-option [value]="lvl.id">
@@ -159,7 +158,10 @@ import { BookingFormService } from '../booking-form.service';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"
@@ -279,12 +281,15 @@ export class DeskFiltersComponent {
         () => !this.hide_levels() && this.levels().length > 1,
     );
 
-    private readonly _clear_invalid_level = effect(() => {
-        const zone_id = this.options()?.zone_id;
-        if (!zone_id) return;
+    private readonly _clear_invalid_levels = effect(() => {
+        const zones = this.options()?.zones || [];
+        if (!zones.length) return;
         if (!this._state.resources().length) return;
-        if (!this.levels().some((lvl) => lvl.id === zone_id)) {
-            this._state.setOptions({ zone_id: undefined });
+        const valid_zones = zones.filter((zone_id) =>
+            this.levels().some((lvl) => lvl.id === zone_id),
+        );
+        if (valid_zones.length !== zones.length) {
+            this._state.setOptions({ zones: valid_zones });
         }
     });
 

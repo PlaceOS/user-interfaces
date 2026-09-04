@@ -121,7 +121,11 @@ describe('ParkingMapComponent', () => {
 
     it('should select a one-hour parking availability window', () => {
         const state = spectator.inject(ParkingStateService);
-        const date = new Date('2026-07-13T09:30:00+10:00').valueOf();
+        // `setAvailabilityHour` picks the hour with `Date#setHours`, which is
+        // the machine's timezone, so both the input and the expectation are
+        // built the same way. Writing either as a fixed UTC offset would pin
+        // the test to a runner in that zone.
+        const date = new Date(2026, 6, 13, 9, 30).valueOf();
         Object.defineProperty(spectator.component, 'options', {
             value: () => ({ date, all_day: true, zones: [] }),
             configurable: true,
@@ -130,7 +134,7 @@ describe('ParkingMapComponent', () => {
         spectator.component.setAvailabilityHour(14);
 
         expect(state.setOptions).toHaveBeenCalledWith({
-            date: new Date('2026-07-13T14:00:00+10:00').valueOf(),
+            date: new Date(2026, 6, 13, 14, 0, 0, 0).valueOf(),
             all_day: false,
             duration: 60,
         });

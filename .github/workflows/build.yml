@@ -22,11 +22,7 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-build-${{ env.cache-name }}-
-                      ${{ runner.os }}-build-
-                      ${{ runner.os }}-
+                  key: ${{ runner.os }}-node-modules-v2-${{ hashFiles('**/bun.lock') }}
 
             - name: Setup Node.js environment
               uses: actions/setup-node@v6
@@ -70,8 +66,10 @@ jobs:
             - name: List affected applications
               id: affected_apps
               run: |
-                  echo "affected_apps=$(node ./tools/get-affected.js ${{ github.ref }})" >> $GITHUB_OUTPUT
-                  echo "affected_units=$(node ./tools/get-affected.js ${{ github.ref }} test)" >> $GITHUB_OUTPUT
+                  affected_apps="$(node ./tools/get-affected.js ${{ github.ref }})"
+                  affected_units="$(node ./tools/get-affected.js ${{ github.ref }} test)"
+                  echo "affected_apps=${affected_apps}" >> $GITHUB_OUTPUT
+                  echo "affected_units=${affected_units}" >> $GITHUB_OUTPUT
 
             - name: Print affected applications
               run: |
@@ -99,11 +97,7 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-build-${{ env.cache-name }}-
-                      ${{ runner.os }}-build-
-                      ${{ runner.os }}-
+                  key: ${{ runner.os }}-node-modules-v2-${{ hashFiles('**/bun.lock') }}
 
             - name: Cache nx build cache
               id: cache-nx
@@ -147,11 +141,7 @@ jobs:
               uses: actions/cache@v5
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/bun.lock') }}
-                  restore-keys: |
-                      ${{ runner.os }}-build-${{ env.cache-name }}-
-                      ${{ runner.os }}-build-
-                      ${{ runner.os }}-
+                  key: ${{ runner.os }}-node-modules-v2-${{ hashFiles('**/bun.lock') }}
 
             - name: Cache nx build cache
               id: cache-nx
@@ -172,29 +162,37 @@ jobs:
               run: bun run postinstall
 
             - name: Initialise Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "chat_url": "${{ secrets.CHAT_URL }}", "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "processing", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
 
             - name: Build affected applications
               run: |
                   bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Deploy the application(${{ matrix.package }})
-              uses: MrYuion/git-publish-subdir-action@develop
+              run: .github/scripts/publish-subdir.sh
               env:
-                  REPO: self
                   BRANCH: build/${{ matrix.package }}/${{ env.deploy_branch }} # The branch name where you want to push the assets
                   FOLDER: dist/apps/${{ matrix.package }}/browser # The directory where your assets are generated
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub will automatically add this - you don't need to bother getting a token
                   MESSAGE: 'build(${{ matrix.package }}): [{sha}] CI build' # The commit message
 
             - name: Update Pipeline Chat Status
-              uses: fjogeleit/http-request-action@master
+              run: |
+                  curl --fail-with-body --silent --show-error --max-time 5 \
+                    --request POST \
+                    --header 'Content-Type: application/json' \
+                    --data "$REQUEST_DATA" \
+                    "$STATUS_URL"
               continue-on-error: true
-              with:
-                  url: ${{ secrets.STATUS_URL }}
-                  data: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
+              env:
+                  STATUS_URL: ${{ secrets.STATUS_URL }}
+                  REQUEST_DATA: '{ "name": "${{ github.repository }}", "commit": "${{ github.sha }}", "pipeline_name": "${{ matrix.package }}", "branch": "${{ github.ref }}", "status": "${{ job.status }}", "url": "https://github.com/${{ github.repository }}/runs/${{ github.run_id }}" }'
               if: ${{ always() }}

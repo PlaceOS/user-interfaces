@@ -118,6 +118,29 @@
         },
         "lint": {
             "executor": "@nx/eslint:lint"
+        },
+        "test": {
+            "executor": "@angular/build:unit-test",
+            "outputs": ["{workspaceRoot}/coverage/apps/enrolment"],
+            "options": {
+                "tsConfig": "apps/enrolment/tsconfig.spec.json",
+                "setupFiles": ["apps/enrolment/src/test-setup.ts"],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "enrolment:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/apps/enrolment-test",
+                "browser": "apps/enrolment/src/main.ts",
+                "tsConfig": "apps/enrolment/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
+            }
         }
     }
 }

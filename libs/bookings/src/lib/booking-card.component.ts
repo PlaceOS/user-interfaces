@@ -163,7 +163,7 @@ import { ParkingService } from './parking.service';
                         <div
                             class="bg-warning/50 absolute top-14 right-2 rounded-xl px-2 py-1 text-xs"
                         >
-                            {{ 'BOOKINGS.EVENT' | translate }}
+                            {{ 'RESOURCE.EVENT' | translate }}
                         </div>
                     }
                     @if (
@@ -174,7 +174,7 @@ import { ParkingService } from './parking.service';
                         >
                             {{
                                 (booking().status !== 'declined'
-                                    ? 'BOOKINGS.RESERVED'
+                                    ? 'COMMON.STATUS_RESERVED'
                                     : 'BOOKINGS.RELEASED'
                                 ) | translate
                             }}

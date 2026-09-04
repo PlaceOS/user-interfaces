@@ -38,7 +38,7 @@ import {
     parkingRequestStatus,
     visitorDisplayNameFor,
 } from './booking.utilities';
-import { checkinBooking, checkinBookingInstance } from './bookings.fn';
+import { setBookingCheckedIn } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
 export function canEditBooking(booking: Booking) {
@@ -177,7 +177,7 @@ export function canEditBooking(booking: Booking) {
                     class="border-base-200 sm:bg-base-100 min-w-1/3 grow-4 rounded-sm sm:m-2 sm:w-[16rem] sm:border sm:p-4"
                 >
                     <h3 class="mt-2 mb-2 px-3 text-lg font-medium">
-                        {{ 'BOOKINGS.DETAILS' | translate }}
+                        {{ 'COMMON.DETAILS' | translate }}
                     </h3>
                     <div class="flex items-center space-x-2 px-2">
                         <icon matTooltip="Date">event</icon>
@@ -210,7 +210,9 @@ export function canEditBooking(booking: Booking) {
                         <div class="flex items-center space-x-2 px-2">
                             <icon matTooltip="Location">place</icon>
                             <div>
-                                {{ building()?.display_name || building()?.name }}
+                                {{
+                                    building()?.display_name || building()?.name
+                                }}
                                 {{
                                     building()?.address
                                         ? ', ' + building().address
@@ -221,7 +223,7 @@ export function canEditBooking(booking: Booking) {
                     }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Host">person</icon>
+                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate">person</icon>
                             <div>
                                 {{
                                     (booking().user_email | user | async)
@@ -232,7 +234,7 @@ export function canEditBooking(booking: Booking) {
                     }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon matTooltip="Booked By">edit_calendar</icon>
+                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate">edit_calendar</icon>
                             <div>
                                 {{
                                     (booking().booked_by_email | user | async)
@@ -452,7 +454,7 @@ export function canEditBooking(booking: Booking) {
                     </div>
                 </button>
             }
-            @if (!booking().is_done) {
+            @if (can_cancel()) {
                 <button mat-menu-item (click)="remove(booking(), false)">
                     <div class="flex items-center space-x-2 text-base">
                         <icon class="text-error">delete</icon>
@@ -582,16 +584,24 @@ export class BookingDetailsModalComponent {
 
     public readonly can_edit = computed(() => canEditBooking(this.booking()));
 
-    public readonly can_checkin = computed(
-        () =>
-            !settingSignal(
-                `${(this.booking()?.type || 'booking') + 's'}.hide_checkin`,
-            )() &&
-            !settingSignal(
-                `${this.booking()?.type || 'bookings'}.hide_checkin`,
-            )() &&
-            !settingSignal('bookings.hide_checkin')(),
+    public readonly can_cancel = computed(
+        () => !this.booking().is_done && !this.booking().checked_in,
     );
+
+    public readonly can_checkin = computed(() => {
+        const booking = this.booking();
+        return (
+            !(
+                booking.booking_type === 'parking' &&
+                booking.asset_id.startsWith('unallocated')
+            ) &&
+            !settingSignal(
+                `${(booking.type || 'booking') + 's'}.hide_checkin`,
+            )() &&
+            !settingSignal(`${booking.type || 'bookings'}.hide_checkin`)() &&
+            !settingSignal('bookings.hide_checkin')()
+        );
+    });
 
     public readonly allow_series_delete = computed(() => {
         const is_assigned = this.booking().extension_data.is_assigned;
@@ -608,7 +618,7 @@ export class BookingDetailsModalComponent {
             const value = this._settings.get(check_key);
             if (value != null) return !!value;
         }
-        return false;
+        return !is_assigned && this.booking().booking_type !== 'parking';
     });
 
     public readonly auto_checkin = settingSignal(
@@ -702,7 +712,7 @@ export class BookingDetailsModalComponent {
     });
 
     public remove(booking: Booking, remove_series?: boolean) {
-        if (booking?.is_done) return;
+        if (booking?.is_done || (booking?.checked_in && !remove_series)) return;
         if (remove_series === undefined) this._data.remove_fn(booking);
         else this._data.remove_fn(booking, remove_series);
     }
@@ -808,14 +818,9 @@ export class BookingDetailsModalComponent {
             response.close();
         }
         this.checking_in.set(true);
-        const updated_booking = await (
-            bkn.instance
-                ? checkinBookingInstance(
-                      bkn.id,
-                      bkn.instance,
-                      !bkn.checked_in,
-                  )
-                : checkinBooking(bkn.id, !bkn.checked_in)
+        const updated_booking = await setBookingCheckedIn(
+            bkn,
+            !bkn.checked_in,
         ).catch((_) => {
             notifyError(
                 i18n(

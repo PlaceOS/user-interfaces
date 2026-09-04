@@ -1,9 +1,9 @@
 import {
     Component,
-    EventEmitter,
-    Output,
     computed,
+    EventEmitter,
     inject,
+    Output,
     signal,
 } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
@@ -61,14 +61,14 @@ import { ParkingFleetVehicle } from './parking-state.service';
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
                             <label for="plate-number">{{
-                                'EXPLORE.PARKING_PLATE_NUMBER' | translate
+                                'BOOKINGS.PARKING_PLATE_NUMBER' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
                                     matInput
                                     [formField]="form.plate_number"
                                     [placeholder]="
-                                        'EXPLORE.PARKING_PLATE_NUMBER'
+                                        'BOOKINGS.PARKING_PLATE_NUMBER'
                                             | translate
                                     "
                                 />

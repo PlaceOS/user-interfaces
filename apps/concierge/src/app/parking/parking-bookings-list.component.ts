@@ -24,6 +24,8 @@ import {
     TableColumn,
     TranslatePipe,
 } from '@placeos/components';
+import { isSameDay } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingStateService } from './parking-state.service';
 import {
@@ -56,6 +58,7 @@ interface ParkingBookingColumnTemplates {
     status_template: TemplateRef<any>;
     requested_at_template: TemplateRef<any>;
     user_groups_template: TemplateRef<any>;
+    allocation_group_template: TemplateRef<any>;
     action_template: TemplateRef<any>;
     status_busy_label: string;
     type_label: string;
@@ -67,6 +70,7 @@ interface ParkingBookingColumnTemplates {
     notes_label: string;
     status_label: string;
     user_groups_label: string;
+    allocation_group_label: string;
 }
 
 @Component({
@@ -123,11 +127,12 @@ interface ParkingBookingColumnTemplates {
                             status_template,
                             requested_at_template,
                             user_groups_template,
+                            allocation_group_template,
                             action_template,
                             status_busy_label: 'COMMON.STATUS_BUSY' | translate,
                             type_label:
                                 'BOOKINGS.PARKING_VEHICLE_TYPE' | translate,
-                            time_label: 'FORM.TIME' | translate,
+                            time_label: 'COMMON.TIME' | translate,
                             bay_number_label:
                                 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
                             reserved_for_label:
@@ -136,11 +141,14 @@ interface ParkingBookingColumnTemplates {
                             reserved_by_label:
                                 'APP.CONCIERGE.PARKING_RESERVED_BY' | translate,
                             plate_number_label:
-                                'EXPLORE.PARKING_PLATE_NUMBER' | translate,
+                                'BOOKINGS.PARKING_PLATE_NUMBER' | translate,
                             notes_label: 'FORM.NOTES' | translate,
                             status_label: 'COMMON.STATUS' | translate,
                             user_groups_label:
                                 'APP.CONCIERGE.PARKING_USER_GROUPS' | translate,
+                            allocation_group_label:
+                                'APP.CONCIERGE.PARKING_ALLOCATION_GROUP'
+                                | translate,
                         })
                     "
                     [filter]="options().search"
@@ -159,6 +167,9 @@ interface ParkingBookingColumnTemplates {
                         } @else {
                             {{ row.date | date: time_format : timezone }} -
                             {{ row.date_end | date: time_format : timezone }}
+                            @if (isNextDay(row)) {
+                                <sup>+1</sup>
+                            }
                         }
                     </div>
                 </ng-template>
@@ -509,6 +520,11 @@ interface ParkingBookingColumnTemplates {
                         {{ row.user_groups.join(', ') }}
                     </div>
                 </ng-template>
+                <ng-template #allocation_group_template let-row="row">
+                    <div class="px-4 py-2">
+                        {{ row.parking_group }}
+                    </div>
+                </ng-template>
                 <ng-template #action_template let-row="row">
                     <div class="flex w-full items-center justify-end gap-2 p-2">
                         <button
@@ -625,7 +641,12 @@ export class ParkingBookingsListComponent
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
 
-    public readonly bookings = this._state.bookings;
+    public readonly bookings = computed(() => {
+        const selected_date = this._state.options().date;
+        return this._state
+            .bookings()
+            .filter((booking) => this._isSameDay(booking.date, selected_date));
+    });
     public readonly options = this._state.options;
     public readonly loading = this._state.loading;
     public readonly period = this._state.period;
@@ -656,6 +677,7 @@ export class ParkingBookingsListComponent
                 // Intersection of the booking's user groups with the
                 // configured `show_user_groups` filter, surfaced for display.
                 user_groups: this.matchedUserGroups(booking),
+                parking_group: this.allocationGroup(booking),
                 space_restriction: this.spaceRestriction(booking),
                 ...this.customExtensionColumnValues(booking),
             }))
@@ -768,6 +790,11 @@ export class ParkingBookingsListComponent
         return (a[0] || '').localeCompare(b[0] || '');
     }
 
+    public allocationGroup(booking: Booking): string {
+        const group = booking?.extension_data?.parking_group;
+        return typeof group === 'string' ? group.trim() : '';
+    }
+
     public get space_restriction_options(): ParkingSpaceRestrictionOption[] {
         const options = this._settings.get(
             'app.parking.request_space_restrictions',
@@ -868,6 +895,18 @@ export class ParkingBookingsListComponent
         );
     }
 
+    public isNextDay(booking: Booking) {
+        return !this._isSameDay(booking.date, booking.date_end);
+    }
+
+    private _isSameDay(first: number, second: number) {
+        const timezone = this.timezone;
+        return isSameDay(
+            timezone ? toZonedTime(first, timezone) : first,
+            timezone ? toZonedTime(second, timezone) : second,
+        );
+    }
+
     public statusLabel(booking: Booking) {
         return this.isAssignedBooking(booking)
             ? 'APP.CONCIERGE.BOOKING_STATUS_ASSIGNED'
@@ -964,6 +1003,13 @@ export class ParkingBookingsListComponent
                 content: templates.user_groups_template,
                 size: '12rem',
                 sort_fn: this.sortUserGroups,
+                show: this.show_user_groups.length > 0,
+            },
+            {
+                key: 'parking_group',
+                name: templates.allocation_group_label,
+                content: templates.allocation_group_template,
+                size: '12rem',
                 show: this.show_user_groups.length > 0,
             },
             {

@@ -84,7 +84,7 @@ import { PanelStateService } from './panel-state.service';
                 </div>
                 <div class="min-w-[40%] flex-1">
                     <h2 class="text-2xl font-medium uppercase">
-                        {{ 'APP.BOOKING_PANEL.NEXT' | translate }}
+                        {{ 'COMMON.NEXT' | translate }}
                     </h2>
                     <hr class="mb-8" />
                     @let next_bkn = next();

@@ -15,18 +15,23 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    listSignagePlaylistMedia,
     MediaAnimation,
+    showSignageMedia,
     SignageMedia,
     SignagePlaylist,
     SignagePlugin,
 } from '@placeos/ts-client';
-import { playlistMediaThumbnailUrl, playlistMediaUrl } from '../signage-playlist.util';
+import {
+    playlistMediaThumbnailUrl,
+    playlistMediaUrl,
+} from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 interface MediaPreviewModalData {
     media: SignageMedia;
     plugin?: SignagePlugin;
+    group_id?: string;
 }
 
 @Component({
@@ -200,6 +205,24 @@ interface MediaPreviewModalData {
                                 {{ type_label() | translate }}
                             </span>
                         </div>
+                        @if (item.tags?.length) {
+                            <div>
+                                <div
+                                    class="text-base-content/70 mb-1 text-xs font-medium tracking-wider uppercase"
+                                >
+                                    {{ 'COMMON.TAGS' | translate }}
+                                </div>
+                                <div class="flex flex-wrap gap-1">
+                                    @for (tag of item.tags; track tag) {
+                                        <span
+                                            class="bg-info-light text-info max-w-full truncate rounded-full px-2 py-1 text-xs font-medium"
+                                        >
+                                            {{ tag }}
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+                        }
                         @if (item.play_time) {
                             <div>
                                 <div
@@ -332,6 +355,12 @@ interface MediaPreviewModalData {
                                 </div>
                             </div>
                         }
+                        <signage-shared-with
+                            type="media"
+                            [item_id]="item.id"
+                            [group_id]="group_id"
+                            [compact_label]="true"
+                        ></signage-shared-with>
                     </div>
                 </aside>
             </main>
@@ -358,6 +387,7 @@ interface MediaPreviewModalData {
         PluginEmbedComponent,
         TranslatePipe,
         MatTooltip,
+        SignageSharedWithComponent,
     ],
 })
 export class MediaPreviewModalComponent implements OnInit {
@@ -366,6 +396,7 @@ export class MediaPreviewModalComponent implements OnInit {
     private readonly _sanitizer = inject(DomSanitizer);
 
     public readonly item = this._data.media;
+    public readonly group_id = this._data.group_id || '';
     public readonly plugin = this._data.plugin;
     public readonly media_url = playlistMediaUrl(this.item);
     public readonly thumbnail_url = playlistMediaThumbnailUrl(this.item);
@@ -433,20 +464,17 @@ export class MediaPreviewModalComponent implements OnInit {
     });
 
     public async ngOnInit() {
-        const all_playlists = this._service.playlists();
-        const matching: SignagePlaylist[] = [];
-        for (const playlist of all_playlists) {
-            try {
-                const media_list = await listSignagePlaylistMedia(playlist.id);
-                if (media_list.items?.includes(this.item.id)) {
-                    matching.push(playlist);
-                }
-            } catch {
-                // Skip playlists that fail to load
-            }
+        try {
+            const media = await showSignageMedia(
+                this.item.id,
+                this.group_id ? { group_id: this.group_id } : {},
+            );
+            this.containing_playlists.set(media.playlists);
+        } catch {
+            this.containing_playlists.set([]);
+        } finally {
+            this.loading_playlists.set(false);
         }
-        this.containing_playlists.set(matching);
-        this.loading_playlists.set(false);
     }
 
     public handleMediaLoaded() {

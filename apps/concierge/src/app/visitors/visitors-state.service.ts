@@ -11,9 +11,9 @@ import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
-    checkinBooking,
-    queryBookings,
+    queryAllBookings,
     rejectBooking,
+    setBookingCheckedIn,
     updateBooking,
     updateBookingInductionStatus,
 } from '@placeos/bookings';
@@ -115,13 +115,14 @@ export class VisitorsStateService extends AsyncHandler {
         const date = filters.date ? new Date(filters.date) : new Date();
         const start = addMinutes(startOfDay(date), this.tz_offset * 60);
         const end = addDays(start, filters.period || 1);
-        const list = await queryBookings({
+        const list = await queryAllBookings({
             type: 'visitor',
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
             zones: (filters.zones || []).join(',') || building.id,
             include_checked_out: true,
-            limit: 1000,
+            include_deleted: true,
+            limit: 200,
         }).catch((_) => [] as Booking[]);
         this.bookings.set(list);
         this.loading.set(false);
@@ -243,7 +244,7 @@ export class VisitorsStateService extends AsyncHandler {
         if (!item.approved && state === true) {
             await approveBooking(item.id);
         }
-        const new_user = await checkinBooking(item.id, state).catch((e) => {
+        const new_user = await setBookingCheckedIn(item, state).catch((e) => {
             notifyError(
                 `Error checking ${state ? 'in' : 'out'} ${
                     item.asset_name || item.asset_id
@@ -271,7 +272,7 @@ export class VisitorsStateService extends AsyncHandler {
         if (!event_bookings.length) return;
         await Promise.all(
             event_bookings.map((_) =>
-                checkinBooking(_.id, state).catch((e) => {
+                setBookingCheckedIn(_, state).catch((e) => {
                     notifyError(
                         `Error checking ${state ? 'in' : 'out'} ${
                             _.asset_name || _.asset_id

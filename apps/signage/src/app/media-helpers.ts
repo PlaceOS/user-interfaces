@@ -30,15 +30,11 @@ export function validateMedia(item: MediaPlayerItem) {
     if (!item.id) return 'Invalid media: missing media ID.';
     const now = time();
     if (item.valid_from && item.valid_from * 1000 > now) {
-        const source = validitySourceLabel(
-            item.validity?.valid_from_source,
-        );
+        const source = validitySourceLabel(item.validity?.valid_from_source);
         return `${source} not valid yet. Starts at ${formatMediaTime(item.valid_from)}. Current player time is ${formatMediaTime(now / 1000)}.`;
     }
     if (item.valid_until && item.valid_until * 1000 < now) {
-        const source = validitySourceLabel(
-            item.validity?.valid_until_source,
-        );
+        const source = validitySourceLabel(item.validity?.valid_until_source);
         return `${source} expired. Ended at ${formatMediaTime(item.valid_until)}. Current player time is ${formatMediaTime(now / 1000)}.`;
     }
     return '';

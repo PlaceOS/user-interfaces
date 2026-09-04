@@ -1,5 +1,8 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     Booking,
@@ -9,10 +12,12 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { BuildingPipe, LevelPipe } from '@placeos/components';
+import * as ts_client_mod from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow-new/desk-flow-success.component';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('NewDeskFlowSuccessComponent', () => {
     const group_members = [
@@ -42,6 +47,11 @@ describe('NewDeskFlowSuccessComponent', () => {
         },
     ];
 
+    const list_resources = vi.fn(async () => [
+        { id: 'desk-1', name: 'Current Desk One' },
+        { id: 'desk-2', name: 'Current Desk Two' },
+    ]);
+
     const group_booking = new Booking({
         id: 'booking-group-1',
         booking_type: 'desk',
@@ -62,6 +72,7 @@ describe('NewDeskFlowSuccessComponent', () => {
         providers: [
             MockProvider(BookingFormService, {
                 last_success: group_booking,
+                listResources: list_resources,
                 openBookingLinkModal: vi.fn(),
             } as any),
             MockProvider(OrganisationService, {
@@ -88,6 +99,8 @@ describe('NewDeskFlowSuccessComponent', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
+        localStorage.clear();
         spectator = createComponent();
     });
 
@@ -133,14 +146,60 @@ describe('NewDeskFlowSuccessComponent', () => {
         expect(spectator.component.group_booking_items()).toEqual([
             expect.objectContaining({
                 email: 'member.one@example.com',
-                asset_name: 'Desk 1',
+                asset_name: 'desk-1',
                 failed: false,
             }),
             expect.objectContaining({
                 email: 'member.two@example.com',
-                asset_name: 'Desk 2',
+                asset_name: 'desk-2',
                 failed: true,
                 error: 'Save failed',
+            }),
+        ]);
+    });
+
+    it('should use current desk names for group booking details', async () => {
+        localStorage.setItem(
+            'PLACEOS.last_group_booking_ids',
+            JSON.stringify(['group-1', 'booking-1']),
+        );
+        localStorage.setItem(
+            'PLACEOS.last_group_booking_errors',
+            JSON.stringify([
+                {
+                    email: 'member.two@example.com',
+                    name: 'Member Two',
+                    asset_id: 'desk-2',
+                    asset_name: 'Stale Desk Two',
+                    error: 'Save failed',
+                },
+            ]),
+        );
+        vi.mocked(ts_client_mod.get).mockImplementation(async (url) => {
+            const is_group = `${url}`.endsWith('/group-1');
+            return {
+                id: is_group ? 'group-1' : 'booking-1',
+                booking_type: is_group ? 'group' : 'desk',
+                user_email: 'member.one@example.com',
+                user_name: 'Member One',
+                asset_id: 'desk-1',
+                asset_name: 'Stale Desk One',
+            } as any;
+        });
+
+        await (spectator.component as any)._loadGroupBookings();
+
+        expect(list_resources).toHaveBeenCalled();
+        expect(spectator.component.group_booking_items()).toEqual([
+            expect.objectContaining({
+                email: 'member.one@example.com',
+                asset_name: 'Current Desk One',
+                failed: false,
+            }),
+            expect.objectContaining({
+                email: 'member.two@example.com',
+                asset_name: 'Current Desk Two',
+                failed: true,
             }),
         ]);
     });

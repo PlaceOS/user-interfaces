@@ -3,9 +3,10 @@ import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    i18n,
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { NewDeskFlowConfirmComponent } from '../../../app/book/desk-flow/desk-flow-confirm.component';
@@ -149,13 +150,33 @@ describe('NewDeskFlowConfirmComponent', () => {
         ]);
     });
 
-    it('should notify the user on a submission error and not dismiss', async () => {
-        post_form.mockRejectedValueOnce(new Error('boom'));
+    it('should notify the user with the underlying error and not dismiss', async () => {
+        // The desk saves before its asset requests, so an asset failure must
+        // not be reported as the desk being unavailable.
+        post_form.mockRejectedValueOnce(
+            new Error('Some assets are already booked for the selected time'),
+        );
 
         await spectator.component.postForm();
 
-        expect(notify_open).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            'Some assets are already booked for the selected time',
+            expect.anything(),
+            expect.anything(),
+        );
         expect(dismiss).not.toHaveBeenCalledWith(true);
+    });
+
+    it('should fall back to the desk availability message for an empty error', async () => {
+        post_form.mockRejectedValueOnce({});
+
+        await spectator.component.postForm();
+
+        expect(notify_open).toHaveBeenCalledWith(
+            i18n('BOOKINGS.DESK_AVAILABLE_ERROR'),
+            expect.anything(),
+            expect.anything(),
+        );
     });
 
     it('should surface a string error verbatim', async () => {

@@ -20,6 +20,7 @@ describe('NewDeskFlowComponent', () => {
                 setView: vi.fn(),
                 setOptions: vi.fn(),
                 form: new FormGroup({}),
+                model: signal({}),
                 view: signal(''),
                 last_success: null,
             } as any),

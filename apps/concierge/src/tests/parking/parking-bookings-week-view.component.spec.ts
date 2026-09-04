@@ -11,6 +11,7 @@ describe('ParkingBookingsWeekViewComponent', () => {
     let spectator: Spectator<ParkingBookingsWeekViewComponent>;
     let bookings: Booking[] = [];
     let show_waitlist = true;
+    let show_user_groups: string[] = [];
     const reject_booking = vi.fn();
     const approve_booking = vi.fn();
     const options = signal({
@@ -49,7 +50,9 @@ describe('ParkingBookingsWeekViewComponent', () => {
                 get: vi.fn((name: string) =>
                     name === 'app.parking.show_waitlist'
                         ? show_waitlist
-                        : false,
+                        : name === 'app.parking.show_user_groups'
+                          ? show_user_groups
+                          : false,
                 ),
                 time_format: 'h:mm a',
             }),
@@ -59,6 +62,7 @@ describe('ParkingBookingsWeekViewComponent', () => {
     beforeEach(() => {
         bookings = [];
         show_waitlist = true;
+        show_user_groups = [];
         reject_booking.mockClear();
         approve_booking.mockClear();
         options.set({
@@ -106,6 +110,55 @@ describe('ParkingBookingsWeekViewComponent', () => {
             .find((day) => isSameDay(day, today));
         expect(grouped[today_key!]).toHaveLength(1);
         expect(grouped[today_key!][0].id).toBe('booking-1');
+    });
+
+    it('should show request and allocation parking groups', () => {
+        const date = options().date;
+        show_user_groups = ['Staff'];
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date,
+                date_end: date + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: {
+                    user_groups: ['Staff'],
+                    parking_group: '  HIO PlaceOS P1 Parking  ',
+                },
+            } as unknown as Booking,
+        ];
+
+        spectator = createComponent();
+
+        expect(
+            spectator.query('[data-testid="parking-request-group"]'),
+        ).toHaveText(': Staff');
+        expect(
+            spectator.query('[data-testid="parking-allocation-group"]'),
+        ).toHaveText(': HIO PlaceOS P1 Parking');
+    });
+
+    it('should hide blank allocation parking groups', () => {
+        const date = options().date;
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date,
+                date_end: date + 60 * 60 * 1000,
+                duration: 60,
+                extension_data: { parking_group: '   ' },
+            } as unknown as Booking,
+        ];
+
+        spectator = createComponent();
+
+        expect(
+            spectator.query('[data-testid="parking-allocation-group"]'),
+        ).not.toExist();
     });
 
     it('should show start and end times for all-day bookings', () => {
@@ -186,14 +239,15 @@ describe('ParkingBookingsWeekViewComponent', () => {
         spectator = createComponent();
         const waitlisted = {
             id: 'waitlisted',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
+            process_state: 'wait_list',
             extension_data: {},
         } as Booking;
         const manual = {
             id: 'manual',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             extension_data: { requires_manual_approval: true },
         } as any as Booking;
         const pending = { id: 'pending', status: 'tentative' } as Booking;

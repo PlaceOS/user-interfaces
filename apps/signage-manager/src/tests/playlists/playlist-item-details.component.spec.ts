@@ -10,6 +10,7 @@ describe('PlaylistItemDetailsComponent', () => {
     const displays = signal<any[]>([]);
     const zones = signal<any[]>([]);
     const can_update = signal(true);
+    const selected_group = signal<any>(null);
     const add_display = vi.fn();
     const add_zone = vi.fn();
     const remove_display = vi.fn();
@@ -21,6 +22,7 @@ describe('PlaylistItemDetailsComponent', () => {
         displays,
         zones,
         can_update,
+        selected_group,
         addDisplayToPlaylist: add_display,
         addZoneToPlaylist: add_zone,
         removeDisplayFromPlaylist: remove_display,
@@ -47,6 +49,7 @@ describe('PlaylistItemDetailsComponent', () => {
         displays.set([]);
         zones.set([]);
         can_update.set(true);
+        selected_group.set(null);
     });
 
     it('counts the loaded playlist media items', async () => {
@@ -83,6 +86,13 @@ describe('PlaylistItemDetailsComponent', () => {
         expect(component.playlist_zones()).toEqual([]);
     });
 
+    it('uses the selected signage group for shared playlist details', async () => {
+        selected_group.set({ group: { id: 'grp-1' } });
+        const component = await make();
+
+        expect(component.selected_group_id()).toBe('grp-1');
+    });
+
     it('maps the animation enum to a translation key', async () => {
         selected_playlist.set({
             id: 'pl-1',
@@ -113,6 +123,7 @@ describe('PlaylistItemDetailsComponent', () => {
     });
 
     it('builds a human readable schedule label for a daily cron', async () => {
+        const valid_until = Math.floor(Date.UTC(2027, 0, 2, 18, 45) / 1000);
         selected_playlist.set({
             id: 'pl-1',
             schedules: [
@@ -120,6 +131,7 @@ describe('PlaylistItemDetailsComponent', () => {
                     play_cron: '0 9 * * *',
                     play_period: 180,
                     play_takeover: false,
+                    valid_until,
                 },
             ],
         });
@@ -128,6 +140,10 @@ describe('PlaylistItemDetailsComponent', () => {
         expect(labels.length).toBe(1);
         expect(labels[0]).toContain('Every day at');
         expect(labels[0]).toContain('for 3 hours');
+        expect(labels[0]).toContain(' · until ');
+        expect(component.schedule_expiry_tooltips()).toEqual([
+            new Date(valid_until * 1000).toLocaleString(),
+        ]);
     });
 
     it('hides playlist-level schedule labels for distribution playlists', async () => {
@@ -171,6 +187,17 @@ describe('PlaylistItemDetailsComponent', () => {
         selected_playlist.set({ id: 'pl-2' });
         TestBed.flushEffects();
         expect(component.active_tab()).toBe(0);
+    });
+
+    it('keeps the active tab when the selected playlist refreshes', async () => {
+        selected_playlist.set({ id: 'pl-1', name: 'Lobby' });
+        const component = await make();
+        component.active_tab.set(2);
+
+        selected_playlist.set({ id: 'pl-1', name: 'Updated Lobby' });
+        TestBed.flushEffects();
+
+        expect(component.active_tab()).toBe(2);
     });
 
     it('routes add/remove display actions through the service', async () => {

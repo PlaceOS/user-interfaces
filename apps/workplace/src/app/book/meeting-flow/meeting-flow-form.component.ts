@@ -17,6 +17,7 @@ import {
     MatBottomSheet,
     MatBottomSheetRef,
 } from '@angular/material/bottom-sheet';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -90,7 +91,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     1
                                 </div>
                                 <div class="text-xl">
-                                    {{ 'CALENDAR_EVENT.DETAILS' | translate }}
+                                    {{ 'COMMON.DETAILS' | translate }}
                                 </div>
                                 <div class="w-px flex-1"></div>
                                 <button
@@ -172,7 +173,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     @if (can_notify_new_attendees_only()) {
                                         <mat-checkbox
                                             name="notify-new-attendees-only"
-                                            [(ngModel)]="notify_new_attendees_only"
+                                            [(ngModel)]="
+                                                notify_new_attendees_only
+                                            "
                                             [ngModelOptions]="{
                                                 standalone: true,
                                             }"
@@ -247,10 +250,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         4
                                     </div>
                                     <div class="text-xl">
-                                        {{
-                                            'CALENDAR_EVENT.CATERING'
-                                                | translate
-                                        }}
+                                        {{ 'RESOURCE.CATERING' | translate }}
                                     </div>
                                     <div class="w-px flex-1"></div>
                                     <button
@@ -300,7 +300,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                                     form.catering_charge_code
                                                 "
                                                 [placeholder]="
-                                                    'CALENDAR_EVENT.CATERING_CHARGE_CODE'
+                                                    'CATERING.CHARGE_CODE'
                                                         | translate
                                                 "
                                             >
@@ -437,11 +437,18 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                         }}
                                     </div>
                                     <div class="text-xl">
-                                        {{
-                                            'CALENDAR_EVENT.NOTES_HEADER'
-                                                | translate
-                                        }}
+                                        {{ 'FORM.NOTES' | translate }}
                                     </div>
+                                    <div class="w-px flex-1"></div>
+                                    <button
+                                        type="button"
+                                        matRipple
+                                        name="reset-notes-meeting"
+                                        class="text-info bg-none text-xs underline"
+                                        (click)="resetNotes()"
+                                    >
+                                        {{ 'FORM.RESET_NOTES' | translate }}
+                                    </button>
                                 </h3>
                                 <div class="flex w-full flex-col">
                                     <label for="notes">
@@ -471,9 +478,7 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 class="mb-2 w-full sm:mb-0 sm:w-auto"
                                 (click)="viewConfirm()"
                             >
-                                {{
-                                    'CALENDAR_EVENT.CONFIRM_DETAILS' | translate
-                                }}
+                                {{ 'CALENDAR_EVENT.CONFIRM' | translate }}
                             </button>
                             <button
                                 btn
@@ -638,6 +643,14 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
     }
 
     public readonly clearForm = () => this._state.resetForm();
+
+    public resetNotes() {
+        this.model.update((model) => ({
+            ...model,
+            body: this.event?.body || '',
+        }));
+        this.form.body().reset();
+    }
 
     public get allow_daily_allday_recurrence() {
         return this._settings.get('app.events.allow_daily_allday_recurrence');

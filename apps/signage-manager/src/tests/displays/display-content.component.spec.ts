@@ -9,20 +9,20 @@ describe('DisplayContentComponent', () => {
     const selected_display = signal<any>(null);
     const playlists = signal<any[]>([]);
     const zones = signal<any[]>([]);
+    const all_zones = signal<any[]>([]);
     const playlist_approval_status = signal<Record<string, boolean>>({});
     const playlist_thumbnail_media = signal<Record<string, string[]>>({});
     const can_update = signal(true);
-    const queue_meta = vi.fn();
     const add_playlist = vi.fn();
     const remove_playlist = vi.fn();
     const service_stub = {
         selected_display,
         playlists,
         zones,
+        all_zones,
         playlist_approval_status,
         playlist_thumbnail_media,
         can_update,
-        queuePlaylistMeta: queue_meta,
         addPlaylistToDisplay: add_playlist,
         removePlaylistFromDisplay: remove_playlist,
     };
@@ -45,12 +45,14 @@ describe('DisplayContentComponent', () => {
         selected_display.set(null);
         playlists.set([]);
         zones.set([]);
+        all_zones.set([]);
         playlist_approval_status.set({});
     });
 
     it('filters playlists and zones to the ones assigned to the display', async () => {
         playlists.set([{ id: 'p1' }, { id: 'p2' }, { id: 'p3' }]);
-        zones.set([{ id: 'z1' }, { id: 'z2' }]);
+        zones.set([{ id: 'z1' }]);
+        all_zones.set([{ id: 'z1' }, { id: 'z2' }]);
         selected_display.set({
             id: 'd1',
             playlists: ['p1', 'p3'],
@@ -129,14 +131,5 @@ describe('DisplayContentComponent', () => {
         expect(event.preventDefault).toHaveBeenCalled();
         expect(event.stopPropagation).toHaveBeenCalled();
         expect(remove_playlist).toHaveBeenCalledWith(display, 'p1');
-    });
-
-    it('queues playlist metadata for the assigned playlists', async () => {
-        playlists.set([{ id: 'p1' }]);
-        selected_display.set({ id: 'd1', playlists: ['p1'] });
-        await make();
-        TestBed.flushEffects();
-
-        expect(queue_meta).toHaveBeenCalledWith([{ id: 'p1' }]);
     });
 });

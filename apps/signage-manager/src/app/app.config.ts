@@ -20,6 +20,7 @@ import {
 } from '@placeos/components';
 import { environment } from '../environments/environment';
 import { signageAccessGuard } from './signage-access.guard';
+import { templatesEnabledGuard } from './templates-enabled.guard';
 
 const APP_ROUTES: Routes = [
     {
@@ -50,6 +51,22 @@ const APP_ROUTES: Routes = [
                 loadComponent: () =>
                     import('./playlists/playlists.component').then(
                         (m) => m.PlaylistsSectionComponent,
+                    ),
+            },
+            {
+                path: 'templates/:id',
+                canActivate: [templatesEnabledGuard],
+                loadComponent: () =>
+                    import('./templates/templates.component').then(
+                        (m) => m.TemplatesSectionComponent,
+                    ),
+            },
+            {
+                path: 'templates',
+                canActivate: [templatesEnabledGuard],
+                loadComponent: () =>
+                    import('./templates/templates.component').then(
+                        (m) => m.TemplatesSectionComponent,
                     ),
             },
             {

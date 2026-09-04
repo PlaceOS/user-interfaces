@@ -26,6 +26,7 @@ import {
 import { DateFieldComponent } from '@placeos/form-fields';
 import { showAssetPurchaseOrder } from '@placeos/ts-client';
 import { addYears, getUnixTime } from 'date-fns';
+import { queryAllPages } from '../query-all-pages';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -207,15 +208,17 @@ export class AssetPurchaseOrderFormComponent
             if (!params.id || !params.building) return [];
             const [asset_list, groups] = await Promise.all([
                 queryAssets({ order_id: params.id }),
-                queryAssetTypes({
-                    zone_id: this._org.building.id,
-                    limit: 500,
-                }),
+                queryAllPages(
+                    queryAssetTypes({
+                        zone_id: this._org.building.id,
+                        limit: 200,
+                    }),
+                ),
             ]);
             return asset_list.data.map((asset) => ({
                 ...asset,
                 name:
-                    groups.data.find(
+                    groups.find(
                         (_) => _.id === (asset as any).asset_type_id,
                     )?.name || asset.id,
             }));

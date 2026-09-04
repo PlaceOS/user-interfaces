@@ -50,7 +50,7 @@ describe('UrlManagementService', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        // queryShortURLs() -> query() at the ts-client boundary
+        // queryAllShortURLs() -> query() at the ts-client boundary
         (ts_client.query as any).mockResolvedValue({ data: [] });
         (ts_client.del as any).mockResolvedValue(undefined);
         (ts_client.token as any).mockReturnValue('bearer');
@@ -69,11 +69,15 @@ describe('UrlManagementService', () => {
 
     it('should load short URLs and their QR codes after the debounce period', async () => {
         vi.useFakeTimers();
+        const next_page = vi.fn().mockResolvedValue({
+            data: [{ id: 'url-2', name: 'Beta' }],
+            total: 2,
+            next: null,
+        });
         (ts_client.query as any).mockResolvedValue({
-            data: [
-                { id: 'url-1', name: 'Alpha' },
-                { id: 'url-2', name: 'Beta' },
-            ],
+            data: [{ id: 'url-1', name: 'Alpha' }],
+            total: 2,
+            next: next_page,
         });
 
         spectator = createService();
@@ -82,10 +86,11 @@ describe('UrlManagementService', () => {
 
         expect(ts_client.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                query_params: { q: undefined, limit: 1000 },
+                query_params: { q: undefined, limit: 200 },
             }),
         );
         expect(spectator.service.url_list()).toHaveLength(2);
+        expect(next_page).toHaveBeenCalledTimes(1);
         expect(fetch_mock).toHaveBeenCalledWith(
             expect.stringContaining('/short_url/url-1/qr_code'),
         );
@@ -104,7 +109,7 @@ describe('UrlManagementService', () => {
         expect(spectator.service.options()).toEqual({ search: 'meeting' });
         expect(ts_client.query).toHaveBeenLastCalledWith(
             expect.objectContaining({
-                query_params: { q: 'meeting', limit: 1000 },
+                query_params: { q: 'meeting', limit: 200 },
             }),
         );
     });

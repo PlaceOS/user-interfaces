@@ -170,7 +170,12 @@ import { isActiveRoomTimelineEvent } from './room-timeline.utilities';
                                     </div>
                                     <div class="truncate text-xs opacity-30">
                                         {{
-                                            (event.host | user | async)?.name ||
+                                            (
+                                                event.host
+                                                | user: 'email-prefix'
+                                                | async
+                                            )?.name ||
+                                                hostAttendeeName(event) ||
                                                 event.host
                                         }}
                                     </div>
@@ -339,6 +344,15 @@ export class RoomWeekBookingsTimelineComponent
 
     public get time_format() {
         return this._settings.time_format;
+    }
+
+    public hostAttendeeName(event: CalendarEvent) {
+        const host_email = event.host.toLowerCase();
+        return (
+            event.attendees?.find(
+                ({ email }) => email.toLowerCase() === host_email,
+            )?.name || ''
+        );
     }
 
     public ngOnInit() {

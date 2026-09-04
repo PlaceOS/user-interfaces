@@ -1,11 +1,11 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject, linkedSignal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { PlaceZone } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
+import { byDisplayName, PagedSearch } from './paged-search';
+import { ZoneSelectTreeComponent } from './zone-select-tree.component';
 
 @Component({
     selector: 'zone-select-modal',
@@ -27,81 +27,62 @@ import { SignageService } from '../signage.service';
             </button>
         </header>
         <main
-            class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
+            class="h-[65vh] max-w-lg min-w-lg overflow-auto px-4 pt-2 pb-4 max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
-            <mat-form-field
-                appearance="outline"
-                class="no-subscript bg-base-100 sticky top-0 z-10 w-full"
-            >
-                <input
-                    matInput
-                    [ngModel]="search()"
-                    (ngModelChange)="search.set($event)"
-                    [placeholder]="'SIGNAGE_MANAGER.SEARCH_ZONES' | translate"
-                    [attr.aria-label]="
-                        'SIGNAGE_MANAGER.SEARCH_ZONES' | translate
-                    "
-                />
-            </mat-form-field>
-            @if (filtered_zones()?.length > 0) {
-                @for (zone of filtered_zones(); track zone.id) {
-                    <button
-                        type="button"
-                        matRipple
-                        class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
-                        [mat-dialog-close]="zone.id"
-                    >
-                        <icon class="text-base-content/60 shrink-0 text-2xl"
-                            >layers</icon
-                        >
-                        <div class="min-w-0 flex-1">
-                            <div class="truncate">
-                                {{ zone.display_name || zone.name }}
-                            </div>
-                            @if (zone.description) {
-                                <div
-                                    class="text-base-content/70 truncate text-xs"
-                                >
-                                    {{ zone.description }}
-                                </div>
-                            }
-                        </div>
-                    </button>
-                }
-            } @else {
-                <div
-                    class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center space-y-4 rounded-lg p-16"
-                >
-                    <icon class="text-base-content/70 text-8xl">layers</icon>
-                    <div class="text-base-content/70">
-                        {{ 'SIGNAGE_MANAGER.NO_ZONES' | translate }}
-                    </div>
-                </div>
-            }
+            <zone-select-tree
+                [list]="list"
+                [roots]="roots()"
+                [load_children]="loadChildren"
+                [scoped_search]="true"
+                [(selected)]="selected_zone"
+            />
         </main>
+        <footer class="border-base-300 flex justify-end border-t p-2">
+            <button
+                btn
+                type="button"
+                matRipple
+                class="min-w-32"
+                [disabled]="!selected_zone()"
+                (click)="addZone()"
+            >
+                {{ 'COMMON.ADD' | translate }}
+            </button>
+        </footer>
     `,
     imports: [
-        FormsModule,
         MatRippleModule,
         MatDialogModule,
-        MatFormFieldModule,
-        MatInputModule,
         IconComponent,
         TranslatePipe,
+        ZoneSelectTreeComponent,
     ],
 })
 export class ZoneSelectModalComponent {
     private readonly _service = inject(SignageService);
+    private readonly _dialog_ref = inject(
+        MatDialogRef<ZoneSelectModalComponent>,
+    );
 
-    private readonly _zones = this._service.zones;
+    public readonly roots = this._service.root_zones;
+    public readonly selected_zone = linkedSignal<PlaceZone[], PlaceZone | null>(
+        {
+            source: this.roots,
+            computation: (roots, previous) =>
+                previous?.value || roots[0] || null,
+        },
+    );
+    public readonly list = new PagedSearch<PlaceZone>((search) => {
+        const parent_id = this.selected_zone()?.id;
+        return parent_id && search.trim()
+            ? this._service.querySelectableZones(search, parent_id)
+            : null;
+    }, byDisplayName);
+    public readonly loadChildren = (parent_id: string) =>
+        this._service.zoneChildren(parent_id);
 
-    public readonly search = signal('');
-
-    public readonly filtered_zones = computed(() => {
-        const term = this.search().toLowerCase();
-        const list = this._zones();
-        return list.filter((_) =>
-            (_.display_name || _.name).toLowerCase().includes(term),
-        );
-    });
+    public addZone() {
+        const zone = this.selected_zone();
+        if (zone) this._dialog_ref.close(zone.id);
+    }
 }

@@ -14,7 +14,12 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
-import { AsyncHandler, UploadsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    notifyError,
+    UploadCancelledError,
+    UploadsService,
+} from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { apiKey, token } from '@placeos/ts-client';
 
@@ -374,15 +379,23 @@ export class RichTextInputComponent
         file_input.onchange = () => {
             const file = file_input.files?.[0];
             if (!file) return;
-            this._uploads.uploadFile(file, true).then((upload_id) => {
-                if (!upload_id) return;
-                const link = `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
-                this._setAuth();
-                setTimeout(() => {
-                    this._insertUploadedFile(link, file, images_only);
-                    this._syncValue();
-                }, 100);
-            });
+            this._uploads
+                .uploadFile(file, true)
+                .then((upload_id) => {
+                    if (!upload_id) return;
+                    const link = `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
+                    this._setAuth();
+                    setTimeout(() => {
+                        this._insertUploadedFile(link, file, images_only);
+                        this._syncValue();
+                    }, 100);
+                })
+                .catch((error) => {
+                    if (error instanceof UploadCancelledError) return;
+                    notifyError(
+                        `Failed to upload ${file.name}: ${error?.message || 'Unknown error'}`,
+                    );
+                });
         };
     }
 

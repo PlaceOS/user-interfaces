@@ -20,6 +20,7 @@ describe('ParkingBookingsListComponent', () => {
     let custom_booking_columns: any[] = [];
     let bookable_hours: { start: number; end: number } | undefined;
     let timezone = 'Australia/Perth';
+    let selected_date = Date.now();
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
 
     const createComponent = createComponentFactory({
@@ -28,7 +29,7 @@ describe('ParkingBookingsListComponent', () => {
             MockProvider(ParkingStateService, {
                 bookings: (() => bookings) as any,
                 options: (() => ({
-                    date: Date.now(),
+                    date: selected_date,
                     search: '',
                     zones: [],
                     period: 'day',
@@ -103,6 +104,7 @@ describe('ParkingBookingsListComponent', () => {
         custom_booking_columns = [];
         bookable_hours = undefined;
         timezone = 'Australia/Perth';
+        selected_date = Date.now();
         request_filter = 'all';
         settingSignal('parking.allow_editing', true).set(true);
         settingSignal('parking.allow_deleting', false).set(false);
@@ -185,6 +187,7 @@ describe('ParkingBookingsListComponent', () => {
     });
 
     it('should show start and end times for all-day bookings', () => {
+        selected_date = new Date(2026, 6, 21, 8).valueOf();
         bookings = [
             {
                 id: 'booking-1',
@@ -205,14 +208,21 @@ describe('ParkingBookingsListComponent', () => {
 
     it('should show all day when the booking matches the bookable period', () => {
         bookable_hours = { start: 8, end: 17 };
+        // `isParkingAllDayBooking` converts the booking into `timezone`
+        // (Australia/Perth here) before checking that it starts and ends on the
+        // same day. Building these from machine-local hours only holds while
+        // the runner sits near +08:00 — on a UTC runner the end lands on the
+        // following Perth day and the booking stops reading as all-day. So
+        // state the instants in Perth, which is what the assertion is about.
+        selected_date = new Date('2026-07-21T08:00:00+08:00').valueOf();
         bookings = [
             {
                 id: 'booking-1',
                 asset_id: 'bay-1',
                 status: 'approved',
                 all_day: true,
-                date: new Date(2026, 6, 21, 8).valueOf(),
-                date_end: new Date(2026, 6, 21, 17).valueOf(),
+                date: new Date('2026-07-21T08:00:00+08:00').valueOf(),
+                date_end: new Date('2026-07-21T17:00:00+08:00').valueOf(),
                 duration: 9 * 60,
             } as unknown as Booking,
         ];
@@ -222,6 +232,50 @@ describe('ParkingBookingsListComponent', () => {
         expect(
             spectator.query('[data-testid="parking-booking-time"]'),
         ).not.toHaveText(':');
+    });
+
+    it('should only show bookings that start on the selected day', () => {
+        selected_date = new Date('2026-08-03T12:00:00+08:00').valueOf();
+        bookings = [
+            {
+                id: 'previous-day',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: new Date('2026-08-02T17:30:00+08:00').valueOf(),
+                date_end: new Date('2026-08-03T06:30:00+08:00').valueOf(),
+                duration: 13 * 60,
+            },
+            {
+                id: 'selected-day',
+                asset_id: 'bay-2',
+                status: 'approved',
+                date: new Date('2026-08-03T17:30:00+08:00').valueOf(),
+                date_end: new Date('2026-08-04T06:30:00+08:00').valueOf(),
+                duration: 13 * 60,
+            },
+        ] as Booking[];
+        spectator = createComponent();
+
+        expect(
+            spectator.component.filtered_events().map(({ id }) => id),
+        ).toEqual(['selected-day']);
+    });
+
+    it('should mark overnight booking end times as the next day', () => {
+        selected_date = new Date('2026-08-03T12:00:00+08:00').valueOf();
+        bookings = [
+            {
+                id: 'overnight',
+                asset_id: 'bay-1',
+                status: 'approved',
+                date: new Date('2026-08-03T17:30:00+08:00').valueOf(),
+                date_end: new Date('2026-08-04T06:30:00+08:00').valueOf(),
+                duration: 13 * 60,
+            } as Booking,
+        ];
+        spectator = createComponent();
+
+        expect(spectator.query('sup')).toHaveText('+1');
     });
 
     it('should add custom extension data columns', () => {
@@ -264,16 +318,19 @@ describe('ParkingBookingsListComponent', () => {
             {
                 id: 'booking-beta',
                 asset_id: 'bay-1',
+                date: selected_date,
                 extension_data: { user_groups: ['Beta', 'Alpha'] },
             },
             {
                 id: 'booking-alpha',
                 asset_id: 'bay-2',
+                date: selected_date,
                 extension_data: { user_groups: ['Alpha', 'Zulu'] },
             },
             {
                 id: 'booking-gamma',
                 asset_id: 'bay-3',
+                date: selected_date,
                 extension_data: { user_groups: ['Gamma'] },
             },
         ] as unknown as Booking[];
@@ -305,6 +362,55 @@ describe('ParkingBookingsListComponent', () => {
         ).toBe(0);
     });
 
+    it('should show request and allocation parking groups', () => {
+        show_user_groups = ['Staff'];
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                date: selected_date,
+                extension_data: {
+                    user_groups: ['Staff'],
+                    parking_group: '  HIO PlaceOS P1 Parking  ',
+                },
+            },
+        ] as unknown as Booking[];
+        spectator = createComponent();
+
+        const table = spectator.query(SimpleTableComponent);
+        const columns = table?.active_columns();
+
+        expect(columns?.map((column) => column.key)).toEqual(
+            expect.arrayContaining(['user_groups', 'parking_group']),
+        );
+        expect(
+            columns?.findIndex((column) => column.key === 'parking_group'),
+        ).toBe(
+            (columns?.findIndex((column) => column.key === 'user_groups') ??
+                -1) + 1,
+        );
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            user_groups: ['Staff'],
+            parking_group: 'HIO PlaceOS P1 Parking',
+        });
+    });
+
+    it('should leave missing or blank allocation groups empty', () => {
+        spectator = createComponent();
+
+        expect(
+            spectator.component.allocationGroup({
+                extension_data: { parking_group: '   ' },
+            } as unknown as Booking),
+        ).toBe('');
+        expect(
+            spectator.component.allocationGroup({
+                extension_data: { parking_group: null },
+            } as unknown as Booking),
+        ).toBe('');
+        expect(spectator.component.allocationGroup({} as Booking)).toBe('');
+    });
+
     it('should resolve and sort parking space restrictions by name', () => {
         show_user_groups = ['Staff'];
         space_restriction_options = [
@@ -316,6 +422,7 @@ describe('ParkingBookingsListComponent', () => {
             {
                 id: 'booking-electric',
                 asset_id: 'bay-2',
+                date: selected_date,
                 extension_data: {
                     user_groups: ['Staff'],
                     space_restrictions: 2,
@@ -324,11 +431,13 @@ describe('ParkingBookingsListComponent', () => {
             {
                 id: 'booking-none',
                 asset_id: 'bay-3',
+                date: selected_date,
                 extension_data: { space_restrictions: 1 },
             },
             {
                 id: 'booking-acrod',
                 asset_id: 'bay-1',
+                date: selected_date,
                 extension_data: { space_restrictions: 9 },
             },
         ] as unknown as Booking[];
@@ -349,7 +458,7 @@ describe('ParkingBookingsListComponent', () => {
             space_restriction: 'Electric Vehicle',
         });
         expect(column_keys?.indexOf('space_restriction')).toBe(
-            (column_keys?.indexOf('user_groups') ?? -1) + 1,
+            (column_keys?.indexOf('parking_group') ?? -1) + 1,
         );
         expect(table?.column('space_restriction')?.name).toBe(
             'Space Restriction',
@@ -583,8 +692,9 @@ describe('ParkingBookingsListComponent', () => {
             spectator.component.statusTone({
                 id: 'waitlisted',
                 asset_id: 'unallocated-1',
+                approved: false,
                 status: 'tentative',
-                process_state: 'unapproved',
+                process_state: 'wait_list',
             } as any),
         ).toBe('warning');
     });
@@ -593,6 +703,8 @@ describe('ParkingBookingsListComponent', () => {
         bookings = [
             {
                 asset_id: 'bay-1',
+                date: selected_date,
+                date_end: selected_date + 60 * 60 * 1000,
                 extension_data: { vehicle_type: 'truck' },
             } as unknown as Booking,
         ];

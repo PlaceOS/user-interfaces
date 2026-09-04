@@ -28,6 +28,7 @@ These settings control how the app identifies itself in the browser and what log
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
 | `diagnostics` | boolean | `true` | Whether diagnostics are enabled. Currently unused by the signage app. |
+| `offline_boot` | boolean | `true` | Build-time setting. Allow a previously authenticated display to start with cached organisation data and credentials when the PlaceOS backend cannot be reached. API requests are still authorised by the backend after the connection returns. |
 
 ## Example
 

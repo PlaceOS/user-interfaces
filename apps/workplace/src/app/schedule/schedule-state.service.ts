@@ -11,12 +11,11 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import {
     BookingFormService,
-    checkinBooking,
-    checkinBookingInstance,
     loadLockerResources,
     ParkingService,
     queryBookings,
     removeBooking,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -812,6 +811,7 @@ export class ScheduleStateService extends AsyncHandler {
             type,
             include_checked_out: true,
             include_booked_by: true,
+            include_deleted: true,
         };
         const key = JSON.stringify(query);
         const existing = this._booking_query_requests.get(key);
@@ -902,7 +902,7 @@ export class ScheduleStateService extends AsyncHandler {
                     continue;
                 }
                 result.loading('Checking in booking...');
-                await checkinBooking(booking.id, true);
+                await setBookingCheckedIn(booking, true);
                 result.close();
             }
         }
@@ -1060,7 +1060,8 @@ export class ScheduleStateService extends AsyncHandler {
                     : 'APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS',
             ),
         );
-        this.removeItem(item);
+        if (item instanceof CalendarEvent) this.removeItem(item);
+        else this.triggerPoll();
         this._dialog.closeAll();
     }
 
@@ -1095,11 +1096,7 @@ export class ScheduleStateService extends AsyncHandler {
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        const promise = (
-            item.instance
-                ? checkinBookingInstance(item.id, item.instance, false)
-                : checkinBooking(item.id, false)
-        ).catch((e) => {
+        const promise = setBookingCheckedIn(item, false).catch((e) => {
             notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
             resp.close();
             throw e;

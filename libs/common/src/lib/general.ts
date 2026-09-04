@@ -1168,6 +1168,9 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         date_end: finiteNumber(snap().date_end),
         all_day: snap().all_day,
     };
+    let timed_window:
+        | { date: number; duration: number; date_end: number }
+        | undefined;
     const refreshPrev = () => {
         const s = snap();
         prev.date = finiteNumber(s.date);
@@ -1585,6 +1588,11 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
         () => {
             const all_day = snap().all_day;
             if (all_day) {
+                timed_window = {
+                    date: normaliseTimeValue(snap().date),
+                    duration: normaliseTimeValue(snap().duration),
+                    date_end: normaliseTimeValue(snap().date_end),
+                };
                 applyPatch(
                     getAllDayTimeRange(
                         normaliseTimeValue(snap().date),
@@ -1593,7 +1601,14 @@ export function setupFormTimeSync<T extends TimeSyncModel>(
                         all_day_end,
                     ) as Partial<T>,
                 );
+            } else if (
+                timed_window &&
+                !isMultiday(timed_window.date, normaliseTimeValue(snap().date))
+            ) {
+                applyPatch(timed_window as Partial<T>);
+                timed_window = undefined;
             } else {
+                timed_window = undefined;
                 const date = normaliseTimeValue(snap().date);
                 const duration = normaliseTimeValue(snap().duration);
                 const date_end = normaliseTimeValue(snap().date_end);
@@ -1721,4 +1736,20 @@ export function getFormTimeSyncHandle(
     form: { _time_sync?: FormTimeSyncHandle } | null | undefined,
 ): FormTimeSyncHandle | undefined {
     return (form as any)?._time_sync;
+}
+
+/**
+ * Extract a readable message from a thrown value. API failures arrive as
+ * strings, `Error` instances, or nested `{ error: { message } }` objects, so
+ * callers cannot rely on a single shape. Returns an empty string when no
+ * message is found, letting the caller pick its own fallback text.
+ */
+export function errorMessage(error: unknown): string {
+    if (typeof error === 'string') return error;
+    if (error instanceof Error) return error.message || '';
+    const value = error as { error?: any; message?: any };
+    if (typeof value?.error === 'string') return value.error;
+    if (typeof value?.message === 'string') return value.message;
+    if (typeof value?.error?.message === 'string') return value.error.message;
+    return '';
 }

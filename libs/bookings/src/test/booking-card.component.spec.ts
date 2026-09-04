@@ -146,19 +146,36 @@ describe('BookingCardComponent', () => {
         expect(spectator.component.booked_for_label()).toBe('James McMillan');
     });
 
-    it('should show waitlisted status for unapproved parking requests when enabled', () => {
+    it('should show waitlisted status for parking requests when enabled', () => {
         spectator.setInput({
             booking: new Booking({
                 booking_type: 'parking',
                 type: 'parking',
                 asset_id: 'unallocated-1',
                 date: Date.now(),
+                approved: false,
                 status: 'tentative',
-                process_state: 'unapproved',
+                process_state: 'wait_list',
             } as any),
         });
 
         expect(spectator.component.status()).toBe('info');
+    });
+
+    it('should show approval required for unapproved manual parking requests', () => {
+        spectator.setInput({
+            booking: new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+                date: Date.now(),
+                approved: false,
+                status: 'tentative',
+                extension_data: { requires_manual_approval: true },
+            } as any),
+        });
+
+        expect(spectator.component.status()).toBe('approval');
     });
 
     it('should not show waiting approval parking requests as waitlisted', () => {
@@ -186,8 +203,9 @@ describe('BookingCardComponent', () => {
                 type: 'parking',
                 asset_id: 'unallocated-1',
                 date: Date.now(),
+                approved: false,
                 status: 'tentative',
-                process_state: 'unapproved',
+                process_state: 'wait_list',
             } as any),
         });
 

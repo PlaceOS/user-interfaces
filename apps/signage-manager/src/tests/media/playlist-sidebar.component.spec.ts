@@ -10,20 +10,20 @@ describe('PlaylistSidebarComponent', () => {
         {},
     );
     const playlists_has_more = signal(false);
-    const queue_meta = vi.fn();
     const load_more = vi.fn();
     const add_playlist = vi.fn();
     const add_media_to_playlist = vi.fn().mockResolvedValue(undefined);
 
     const service_stub = {
         playlists,
+        playlist_search_term: signal(''),
+        filtered_playlists: playlists,
         can_create: signal(true),
         playlists_loading: signal(false),
         playlist_thumbnail_media: signal<Record<string, string[]>>({}),
         playlist_approval_status,
         playlist_approval_requested_status,
         playlists_has_more,
-        queuePlaylistMeta: queue_meta,
         loadMorePlaylists: load_more,
         addPlaylist: add_playlist,
         addMediaToPlaylist: add_media_to_playlist,
@@ -45,32 +45,31 @@ describe('PlaylistSidebarComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         playlists.set([]);
+        service_stub.playlist_search_term.set('');
         playlist_approval_status.set({});
         playlist_approval_requested_status.set({});
     });
 
     it('returns the full list when no search term is set', async () => {
-        playlists.set([{ id: 'a', name: 'News' }, { id: 'b', name: 'Ads' }]);
+        playlists.set([
+            { id: 'a', name: 'News' },
+            { id: 'b', name: 'Ads' },
+        ]);
         const component = await make();
         expect(component.filtered_playlists().length).toBe(2);
     });
 
-    it('filters playlists case-insensitively by name', async () => {
-        playlists.set([{ id: 'a', name: 'News' }, { id: 'b', name: 'Ads' }]);
+    it('uses the service search state for backend searching', async () => {
         const component = await make();
         component.search.set('new');
-        expect(component.filtered_playlists().map((p: any) => p.id)).toEqual([
-            'a',
-        ]);
+        expect(service_stub.playlist_search_term()).toBe('new');
     });
 
     it('derives an awaiting-review status once approval is requested', async () => {
         playlist_approval_status.set({ p: false });
         playlist_approval_requested_status.set({ p: true });
         const component = await make();
-        expect(component.getStatus({ id: 'p' } as any)).toBe(
-            'awaiting_review',
-        );
+        expect(component.getStatus({ id: 'p' } as any)).toBe('awaiting_review');
     });
 
     it('derives an awaiting-approval status before a request is sent', async () => {
@@ -79,14 +78,6 @@ describe('PlaylistSidebarComponent', () => {
         expect(component.getStatus({ id: 'p' } as any)).toBe(
             'awaiting_approval',
         );
-    });
-
-    it('queues thumbnail metadata for the filtered playlists', async () => {
-        const list = [{ id: 'a', name: 'News' }];
-        playlists.set(list as any);
-        await make();
-        TestBed.flushEffects();
-        expect(queue_meta).toHaveBeenCalledWith(list);
     });
 
     it('adds dropped media to the target playlist', async () => {

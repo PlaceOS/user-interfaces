@@ -5,6 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
+    CalendarEvent,
     SettingsService,
     i18n,
     nextValueFrom,
@@ -131,13 +132,16 @@ import { EventsStateService } from './events-state.service';
                     }
                 </div>
             </ng-template>
-            <ng-template #user_template let-email="data">
-                @let user = email | user | async;
+            <ng-template #user_template let-email="data" let-row="row">
+                @let user = email | user: 'email-prefix' | async;
+                @let attendee_name = hostAttendeeName(row.source_event);
                 <div class="flex flex-col justify-center px-4 py-2">
                     <div class="select-all">
-                        {{ user?.name || user?.email || email }}
+                        {{
+                            user?.name || attendee_name || user?.email || email
+                        }}
                     </div>
-                    @if (user?.name) {
+                    @if (user?.name || attendee_name) {
                         <div
                             class="max-w-48 truncate text-xs opacity-30 select-all"
                         >
@@ -389,6 +393,15 @@ export class RoomBookingsListComponent {
         return this._settings.get('app.week_start');
     }
 
+    public hostAttendeeName(event: CalendarEvent) {
+        const host_email = event.host.toLowerCase();
+        return (
+            event.attendees?.find(
+                ({ email }) => email.toLowerCase() === host_email,
+            )?.name || ''
+        );
+    }
+
     private room_name(event: any) {
         const space = this.spaces().find(
             (item) =>
@@ -404,7 +417,7 @@ export class RoomBookingsListComponent {
             space?.display_name ||
             space?.name ||
             event.location ||
-            i18n('COMMON.ROOM') ||
+            i18n('RESOURCE.ROOM') ||
             ''
         );
     }

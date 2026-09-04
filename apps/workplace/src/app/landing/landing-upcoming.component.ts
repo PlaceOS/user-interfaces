@@ -5,8 +5,8 @@ import { Router, RouterModule } from '@angular/router';
 import {
     BookingCardComponent,
     BookingFormService,
-    checkinBooking,
     removeBooking,
+    setBookingCheckedIn,
 } from '@placeos/bookings';
 import {
     AsyncHandler,
@@ -42,14 +42,14 @@ import { LandingStateService } from './landing-state.service';
                     class="inverse hidden sm:flex"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
+                    {{ 'COMMON.VIEW_ALL' | translate }}
                 </a>
                 <a
                     name="upcoming-view-all-mobile"
                     class="inverse relative top-8 flex text-blue-500 underline sm:hidden"
                     [routerLink]="['/your-bookings']"
                 >
-                    {{ 'APP.WORKPLACE.UPCOMING_VIEW' | translate }}
+                    {{ 'COMMON.VIEW_ALL' | translate }}
                 </a>
             </div>
             <div class="space-y-4 px-4">
@@ -239,7 +239,7 @@ export class LandingUpcomingComponent
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        await checkinBooking(item.id, false).catch((e) => {
+        await setBookingCheckedIn(item, false).catch((e) => {
             notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
             resp.close();
             throw e;

@@ -95,4 +95,39 @@ describe('ItemListFieldComponent', () => {
 
         expect(spectator.component.value()).toEqual(['Element1', 'Element2']);
     });
+
+    it('should suggest matching options that have not been added', () => {
+        spectator.setInput('options', ['Lobby', 'News', 'Lift Lobby']);
+        expect(spectator.component.matching_options()).toEqual([
+            'Lobby',
+            'News',
+            'Lift Lobby',
+        ]);
+        spectator.component.search.set('lob');
+        expect(spectator.component.matching_options()).toEqual([
+            'Lobby',
+            'Lift Lobby',
+        ]);
+        spectator.component.writeValue(['Lobby']);
+        expect(spectator.component.matching_options()).toEqual(['Lift Lobby']);
+    });
+
+    it('should add items picked from the suggestions', () => {
+        spectator.setInput('options', ['Lobby', 'News']);
+        spectator.typeInElement('lob', 'input');
+        spectator.component.addSuggestion('Lobby');
+        spectator.detectChanges();
+
+        expect(spectator.component.value()).toEqual(['Lobby']);
+        expect(spectator.component.search()).toBe('');
+        expect(spectator.query<HTMLInputElement>('input').value).toBe('');
+    });
+
+    it('should still allow adding items that are not suggested', () => {
+        const input: HTMLInputElement = spectator.query('input');
+        spectator.setInput('options', ['Lobby', 'News']);
+        spectator.component.add(chipEvent(input, 'Cafeteria'));
+
+        expect(spectator.component.value()).toEqual(['Cafeteria']);
+    });
 });

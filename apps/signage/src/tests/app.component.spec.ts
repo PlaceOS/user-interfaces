@@ -20,8 +20,22 @@ describe('AppComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        localStorage.clear();
+        sessionStorage.clear();
         placeos_service.init.mockResolvedValue(undefined);
         spectator = create_component();
+    });
+
+    it('should hide the loading overlay when signing in with an api key', () => {
+        // A device with an api key has no interactive authentication to wait
+        // for, and the overlay covers content it can already play from cache.
+        localStorage.setItem('a1b2c3_x-api-key', 'secret');
+        spectator = create_component();
+
+        spectator.detectChanges();
+
+        expect(spectator.query('global-loading')).toBeFalsy();
+        expect(spectator.query('router-outlet')).toBeTruthy();
     });
 
     it('should create the component', () => {

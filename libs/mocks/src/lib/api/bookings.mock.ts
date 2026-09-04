@@ -1,5 +1,6 @@
 import { predictableRandomInt, timePeriodsIntersect } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
+import { getUnixTime } from 'date-fns';
 
 import { MOCK_BOOKINGS, MOCK_CATERING_BOOKINGS } from './bookings.data';
 import { ACTIVE_USER } from './users.data';
@@ -275,7 +276,7 @@ export function registerMockBookings() {
     });
 
     registerMockEndpoint({
-        path: '/api/staff/v1/bookings/:id/checkin',
+        path: '/api/staff/v1/bookings/:id/check_in',
         metadata: {},
         method: 'POST',
         callback: (req) => {
@@ -287,7 +288,14 @@ export function registerMockBookings() {
                     status: 404,
                     message: `Unable to find booking with ID ${req.route_params.id}`,
                 };
-            booking.checked_in = true;
+            const state = `${req.query_params?.state ?? 'true'}` === 'true';
+            booking.checked_in = state;
+            if (state) {
+                booking.checked_in_at = getUnixTime(Date.now());
+                delete booking.checked_out_at;
+            } else {
+                booking.checked_out_at = getUnixTime(Date.now());
+            }
             return booking;
         },
     });

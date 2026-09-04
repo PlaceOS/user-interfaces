@@ -15,6 +15,7 @@ describe('MediaListHeaderComponent', () => {
     const filtered_media = signal<any[]>([]);
     const media = signal<any[]>([]);
     const plugins = signal<any[]>([]);
+    const widgets = signal<any[]>([]);
     const search_term = signal('');
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
     const add_from_link = vi.fn().mockResolvedValue(undefined);
@@ -26,6 +27,7 @@ describe('MediaListHeaderComponent', () => {
         filtered_media,
         media,
         plugins,
+        widgets,
         search_term,
         media_view_mode,
         media_upload_accept: 'image/*',
@@ -57,6 +59,7 @@ describe('MediaListHeaderComponent', () => {
         filtered_media.set([]);
         media.set([]);
         plugins.set([]);
+        widgets.set([]);
     });
 
     it('reports the filtered and total media counts', async () => {
@@ -103,11 +106,37 @@ describe('MediaListHeaderComponent', () => {
 
     it('adds media from the selected plugin and resets the selection', async () => {
         const component = await make();
-        const plugin = { id: 'plugin-1', name: 'Clock' };
+        const plugin = {
+            id: 'plugin-1',
+            name: 'Clock',
+            plugin_type: 'plugin',
+        };
+        plugins.set([plugin]);
         component.selected_plugin.set(plugin);
         await component.addFromPlugin();
         expect(add_from_plugin).toHaveBeenCalledWith(plugin);
         expect(component.selected_plugin()).toBeNull();
+    });
+
+    it('excludes widget plugins from media items', async () => {
+        const component = await make();
+        const widget = {
+            id: 'widget-1',
+            name: 'Clock',
+            plugin_type: 'widget',
+        };
+        plugins.set([
+            { id: 'plugin-1', name: 'Weather', plugin_type: 'plugin' },
+        ]);
+        widgets.set([widget]);
+
+        expect(component.available_plugins().map(({ id }) => id)).toEqual([
+            'plugin-1',
+        ]);
+
+        component.selected_plugin.set(widget);
+        await component.addFromPlugin();
+        expect(add_from_plugin).not.toHaveBeenCalled();
     });
 
     it('does nothing when adding from a plugin with none selected', async () => {

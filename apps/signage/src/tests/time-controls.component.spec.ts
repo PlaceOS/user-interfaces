@@ -42,6 +42,11 @@ describe('TimeControlsComponent', () => {
     });
 
     it('should save the edited time at the selected speed', () => {
+        // The mocked clock runs at the selected speed from the moment it is
+        // set, so a single millisecond of real time between saving and reading
+        // it back moves the result by four. Freeze the clock so the assertion
+        // is about the saved value rather than how long the test took.
+        vi.useFakeTimers();
         const close_spy = vi.fn();
         spectator.component['_tooltip'] = (() =>
             ({ close: close_spy }) as any) as any;
@@ -55,6 +60,18 @@ describe('TimeControlsComponent', () => {
         expect(state.speed).toBe(4);
         expect(spectator.component.time()).toBe(1234567890);
         expect(close_spy).toHaveBeenCalled();
+    });
+
+    it('should advance the mocked time at the selected speed', () => {
+        vi.useFakeTimers();
+        spectator.component.edited_time.set(1234567890);
+        spectator.component.edited_speed.set(4);
+        spectator.component.save();
+
+        vi.advanceTimersByTime(1000);
+        spectator.component['refresh']();
+
+        expect(spectator.component.time()).toBe(1234567890 + 4000);
     });
 
     it('should save the edited time as paused when 0x is selected', () => {

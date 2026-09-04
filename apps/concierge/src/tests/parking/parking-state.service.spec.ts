@@ -20,7 +20,10 @@ import { UserPipe } from '@placeos/users';
 import { MockProvider } from 'ng-mocks';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
-import { ParkingStateService } from '../../app/parking/parking-state.service';
+import {
+    ParkingStateService,
+    type ParkingSpace,
+} from '../../app/parking/parking-state.service';
 import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
 import { captureDownloads } from '../reports/download-capture.helper';
 
@@ -324,6 +327,80 @@ describe('ParkingStateService', () => {
         expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
     });
 
+    it('should stop loading pages when the reported total is reached', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            user_email: 'staff@example.com',
+            extension_data: {},
+        } as any);
+        const repeated_page = vi.fn();
+        const first_page = vi.fn().mockResolvedValue({
+            data: [booking],
+            total: 1,
+            next: repeated_page,
+        });
+        (spectator.service as any)._first_page = first_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(first_page).toHaveBeenCalledTimes(1);
+        expect(repeated_page).not.toHaveBeenCalled();
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
+    });
+
+    it('should stop parking booking pagination when a page is empty', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            user_email: 'staff@example.com',
+            extension_data: {},
+        } as any);
+        const next_page = vi.fn();
+        const empty_page = vi.fn().mockResolvedValue({
+            data: [],
+            total: 3,
+            next: next_page,
+        });
+        const first_page = vi.fn().mockResolvedValue({
+            data: [booking],
+            total: 3,
+            next: empty_page,
+        });
+        (spectator.service as any)._first_page = first_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(first_page).toHaveBeenCalledTimes(1);
+        expect(empty_page).toHaveBeenCalledTimes(1);
+        expect(next_page).not.toHaveBeenCalled();
+        expect(spectator.service.bookings()).toEqual([booking]);
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
+    });
+
+    it('should limit page loading when the backend always returns a next page', async () => {
+        let booking_count = 0;
+        const repeated_page = vi.fn().mockImplementation(async () => ({
+            data: [
+                new Booking({
+                    id: `booking-${++booking_count}`,
+                    user_email: 'staff@example.com',
+                    extension_data: {},
+                } as any),
+            ],
+            total: 0,
+            next: repeated_page,
+        }));
+        (spectator.service as any)._first_page = repeated_page;
+
+        await (spectator.service as any)._loadPage(true);
+
+        expect(repeated_page).toHaveBeenCalledTimes(50);
+        expect(spectator.service.bookings()).toHaveLength(50);
+        expect(spectator.service.has_more_pages()).toBe(false);
+        expect(spectator.service.loading()).not.toContain('[BOOKINGS]');
+    });
+
     it('should use the building timezone for assigned parking bookings', async () => {
         const mock_now = new Date('2026-06-15T12:00:00Z').valueOf();
         const assigned_start = setTimeInTimezone(
@@ -373,6 +450,75 @@ describe('ParkingStateService', () => {
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
                 booking_end: getUnixTime(assigned_start + 22 * 60 * 60 * 1000),
+            }),
+        );
+    });
+
+    it('should not update zone fields when editing a parking space', async () => {
+        spectator.service.setOptions({ zones: ['lvl-selected'] });
+        const original_space = {
+            id: 'space-1',
+            identifier: 'Bay 1',
+            zone_id: 'lvl-original',
+            zones: ['org-1', 'region-1', 'bld-1', 'lvl-original'],
+            bookable: true,
+        } as ParkingSpace;
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        id: 'space-1',
+                        identifier: 'Bay 1',
+                        bookable: false,
+                        zone_id: 'lvl-selected',
+                        zones: ['lvl-selected'],
+                    },
+                }),
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+
+        await spectator.service.editSpace(original_space);
+
+        expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
+        const update_data = vi.mocked(ts_client.updateAsset).mock.calls[0][1];
+        expect(update_data).toEqual(
+            expect.objectContaining({ id: 'space-1', bookable: false }),
+        );
+        expect(update_data).not.toHaveProperty('zone_id');
+        expect(update_data).not.toHaveProperty('zones');
+    });
+
+    it('should set zone fields when creating a parking space', async () => {
+        spectator.service.setOptions({ zones: ['lvl-selected'] });
+        const dialog_ref = {
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: {
+                        identifier: 'Bay 1',
+                        bookable: true,
+                    },
+                }),
+            componentInstance: {
+                event: NEVER,
+                loading: { set: vi.fn() },
+            },
+            close: vi.fn(),
+        };
+        (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
+
+        await spectator.service.editSpace();
+
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                zone_id: 'lvl-selected',
+                zones: ['org-1', 'region-1', 'bld-1', 'lvl-selected'],
             }),
         );
     });
@@ -569,13 +715,14 @@ describe('ParkingStateService', () => {
         );
     });
 
-    it('should waitlist unapproved requests that do not need manual approval', () => {
+    it('should identify waitlisted requests that do not need manual approval', () => {
         settings_map['app.parking.show_requests'] = true;
         const request = {
             id: 'waitlisted-request',
             asset_id: 'unallocated-1',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
+            process_state: 'wait_list',
             date: Date.now(),
             extension_data: { requires_manual_approval: false },
         } as any;
@@ -595,8 +742,8 @@ describe('ParkingStateService', () => {
         const request = {
             id: 'manual-request',
             asset_id: 'unallocated-1',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             date: Date.now(),
             extension_data: { requires_manual_approval: true },
         } as any;
@@ -649,8 +796,8 @@ describe('ParkingStateService', () => {
         const pending_request = {
             id: 'request-1',
             asset_id: 'unallocated-1',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             extension_data: {
                 approver_group: 'parking-team',
                 requires_manual_approval: true,
@@ -659,8 +806,8 @@ describe('ParkingStateService', () => {
         const declined_request = {
             id: 'request-2',
             asset_id: 'unallocated-2',
+            approved: false,
             status: 'declined',
-            process_state: 'unapproved',
             extension_data: {
                 approver_group: 'parking-team',
                 requires_manual_approval: true,
@@ -680,8 +827,8 @@ describe('ParkingStateService', () => {
         const pending_request = {
             id: 'request-1',
             asset_id: 'unallocated-1',
+            approved: false,
             status: 'tentative',
-            process_state: 'unapproved',
             extension_data: {
                 approver_group: 'parking-team',
                 requires_manual_approval: true,
@@ -716,6 +863,7 @@ describe('ParkingStateService', () => {
         const booking = {
             id: 'booking-1',
             asset_id: 'space-1',
+            approved: false,
             status: 'tentative',
             process_state: 'unapproved',
             extension_data: { requires_manual_approval: true },
@@ -974,10 +1122,12 @@ describe('ParkingStateService', () => {
             close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        // _clearAssignedBooking -> queryBookings -> get -> existing booking
-        (ts_client.get as any).mockResolvedValue([
-            { id: 'booking-1', asset_id: 'space-1' },
-        ]);
+        // _clearAssignedBooking -> queryAllBookings -> query -> existing booking
+        (ts_client.query as any).mockResolvedValue({
+            data: [{ id: 'booking-1', asset_id: 'space-1' }],
+            total: 1,
+            next: null,
+        });
         // saveParkingSpace -> updateAsset (space has id)
         (ts_client.updateAsset as any)
             .mockResolvedValueOnce({ id: 'space-1', name: 'Bay 1' })

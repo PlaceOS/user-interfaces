@@ -3,6 +3,7 @@ import {
     type SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
+import { formatDistance, fromUnixTime } from 'date-fns';
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_NAMES = [
@@ -16,9 +17,18 @@ const WEEKDAY_NAMES = [
 ];
 
 export function playlistMediaThumbnailUrl(item: SignageMedia) {
-    return item?.thumbnail_id
+    // `SignageMedia.thumbnail_url` builds an uploads URL whether or not a
+    // thumbnail exists, so items without one render as a broken image
+    if (!item?.thumbnail_id) return '';
+    return item.id
         ? `/api/engine/v2/signage/media/${item.id}/thumbnail`
-        : item?.thumbnail_url || '';
+        : item.thumbnail_url || '';
+}
+
+export function playlistMediaUrl(item: SignageMedia) {
+    return item?.media_id
+        ? `/api/engine/v2/uploads/${item.media_id}/url`
+        : item?.media_uri || '';
 }
 
 export function playlistMediaUrl(item: SignageMedia) {
@@ -227,20 +237,42 @@ function schedulePeriod(schedule: Partial<SignagePlaylistSchedule>) {
         : DEFAULT_PLAY_PERIOD_MINUTES;
 }
 
+export function playlistScheduleExpiryLabel(
+    schedule: Partial<SignagePlaylistSchedule>,
+    now = Date.now(),
+) {
+    if (!schedule.valid_until) return '';
+    const expiry = fromUnixTime(schedule.valid_until);
+    const distance = formatDistance(expiry, new Date(now));
+    const relative_time =
+        expiry.getTime() >= now ? `${distance} from now` : `${distance} ago`;
+    return `until ${relative_time}`;
+}
+
+export function playlistScheduleExpiryTooltip(
+    schedule: Partial<SignagePlaylistSchedule>,
+) {
+    return schedule.valid_until
+        ? fromUnixTime(schedule.valid_until).toLocaleString()
+        : '';
+}
+
 export function playlistScheduleLabel(
     schedule: Partial<SignagePlaylistSchedule>,
 ) {
     const period = schedulePeriod(schedule);
+    const expiry = playlistScheduleExpiryLabel(schedule);
+    const suffix = [schedule.play_takeover ? 'takeover' : '', expiry]
+        .filter((_) => _)
+        .join(' · ');
     if (schedule.play_at) {
-        const date = new Date(
-            schedule.play_at > 1_000_000_000_000
-                ? schedule.play_at
-                : schedule.play_at * 1000,
-        );
-        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}`;
+        const date = fromUnixTime(schedule.play_at);
+        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}${
+            suffix ? ` · ${suffix}` : ''
+        }`;
     }
     return `${humanizeCronSchedule(schedule.play_cron || '0 0 * * *', period)}${
-        schedule.play_takeover ? ' · takeover' : ''
+        suffix ? ` · ${suffix}` : ''
     }`;
 }
 
@@ -308,7 +340,7 @@ function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
     return `${formatPlayDateTime(start)} – ${end_text}`;
 }
 
-function nextCronPlayDates(cron: string, count: number) {
+function nextCronPlayDates(cron: string, count: number, valid_until = 0) {
     const result: Date[] = [];
     if (!cron?.trim()) return result;
     const date = new Date();
@@ -316,7 +348,8 @@ function nextCronPlayDates(cron: string, count: number) {
     date.setMinutes(date.getMinutes() + 1);
     const end = new Date(date);
     end.setFullYear(end.getFullYear() + 2);
-    while (date <= end && result.length < count) {
+    const expiry = valid_until ? fromUnixTime(valid_until) : end;
+    while (date <= end && date <= expiry && result.length < count) {
         if (doesCronMatchDate(cron, date)) result.push(new Date(date));
         date.setMinutes(date.getMinutes() + 1);
     }
@@ -329,19 +362,19 @@ export function playlistScheduleNextPlayLabels(
 ) {
     const period = schedulePeriod(schedule);
     if (schedule.play_at) {
-        const start = new Date(
-            schedule.play_at > 1_000_000_000_000
-                ? schedule.play_at
-                : schedule.play_at * 1000,
-        );
+        const start = fromUnixTime(schedule.play_at);
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);
-        return end >= new Date()
+        const expires_before_play =
+            !!schedule.valid_until && schedule.play_at > schedule.valid_until;
+        return end >= new Date() && !expires_before_play
             ? [formatPlayDateTimeRange(start, period)]
             : [];
     }
-    return nextCronPlayDates(schedule.play_cron || '0 0 * * *', count).map(
-        (start) => formatPlayDateTimeRange(start, period),
-    );
+    return nextCronPlayDates(
+        schedule.play_cron || '0 0 * * *',
+        count,
+        schedule.valid_until,
+    ).map((start) => formatPlayDateTimeRange(start, period));
 }

@@ -76,8 +76,9 @@ describe('ParkingRequestsListComponent', () => {
             spectator.component.statusTone({
                 id: 'request-1',
                 asset_id: 'unallocated-1',
+                approved: false,
                 status: 'tentative',
-                process_state: 'unapproved',
+                process_state: 'wait_list',
                 date: Date.now(),
             } as Booking),
         ).toBe('warning');

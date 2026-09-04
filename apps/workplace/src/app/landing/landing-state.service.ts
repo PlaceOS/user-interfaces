@@ -19,6 +19,7 @@ import {
 
 import {
     AsyncHandler,
+    Booking,
     BookingRuleset,
     BuildingLevel,
     currentUser,
@@ -87,7 +88,6 @@ export class LandingStateService extends AsyncHandler {
     public level_occupancy = this._level_occupancy.asReadonly();
 
     public search_fn = async (q: string) =>
-
         this._settings.get('app.basic_user_search') ||
         this._settings.get('app.colleagues_require_auth') !== false
             ? queryUsers({ q, authority_id: authority()?.id }).then(
@@ -152,7 +152,14 @@ export class LandingStateService extends AsyncHandler {
                     .filtered_bookings()
                     .filter(
                         (i) =>
-                            i.state !== 'done' && isSameDay(i.date, Date.now()),
+                            !i.deleted &&
+                            !['cancelled', 'declined', 'ended'].includes(
+                                i.status,
+                            ) &&
+                            (i instanceof Booking
+                                ? !i.is_done
+                                : i.state !== 'done') &&
+                            isSameDay(i.date, Date.now()),
                     ),
             );
         });

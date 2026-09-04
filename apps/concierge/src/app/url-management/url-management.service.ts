@@ -8,10 +8,10 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
-    queryShortURLs,
     ShortURL,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
+import { queryAllShortURLs } from '../query-all-pages';
 import { ShortUrlModalComponent } from './url-modal.component';
 
 export interface UrlListOptions {
@@ -95,7 +95,7 @@ export class UrlManagementService extends AsyncHandler {
     }
 
     private async _load(search?: string) {
-        const list = await queryShortURLs({ q: search, limit: 1000 });
+        const list = await queryAllShortURLs({ q: search, limit: 200 });
         this.url_list.set(list);
         for (const item of list) {
             this.loadQrCode(item);

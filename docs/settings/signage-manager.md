@@ -49,13 +49,17 @@ Example locale list:
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
+| `show_group_selector` | boolean | `false` | Show the signage group selector in the navigation sidebar and mobile navigation menu. When this is off, users can still change the group with the breadcrumbs in each section header. |
+| `show_media_group_tabs` | boolean | `false` | Show the signage group tabs above the media list. When this is off, users can still change the group with the breadcrumbs in the media header. |
 | `media_allow_extended_video_codecs` | boolean | `false` | Whether media upload validation accepts extended video codecs — AV1 (`av01`/`V_AV1`) and HEVC (`hev1`/`hvc1`) — in MP4 and WebM files, in addition to the default allowed codec set. Only enable this if your signage display hardware can decode these codecs. |
 | `signage_path` | string | – | Base URL path of the signage viewer application, used to build display preview links. When not set, `/signage` is used. |
+| `templates_enabled` | boolean | `false` | Make the template management section available. This feature is still in development. |
 
 ## Other
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
+| `access_subsystem` | string | `"signage"` | Group-permission subsystem used to authorise access to the app. Change this only when permissions are granted through a different subsystem. |
 | `default_animation_time` | number | `1000` | Default duration for UI animations in milliseconds. |
 | `diagnostics` | boolean | `true` | Whether diagnostics are enabled for the application. |
 
@@ -68,6 +72,7 @@ A typical `app` metadata configuration for an organisation zone:
     "short_name": "Acme Signage",
     "logo_light": "https://example.com/logos/acme-light.svg",
     "logo_dark": "https://example.com/logos/acme-dark.svg",
+    "show_group_selector": true,
     "media_allow_extended_video_codecs": true,
     "signage_path": "/signage"
 }

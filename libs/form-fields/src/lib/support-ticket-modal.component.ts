@@ -68,12 +68,10 @@ export interface SupportRequestType {
                     </div>
                 </div>
                 <div class="flex flex-col">
-                    <label>{{ 'COMMON.SUPPORT_LOCATION' | translate }}</label>
+                    <label>{{ 'COMMON.LOCATION' | translate }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
-                            [placeholder]="
-                                'COMMON.SUPPORT_LOCATION' | translate
-                            "
+                            [placeholder]="'COMMON.LOCATION' | translate"
                             [formField]="form.location"
                         >
                             @for (bld of buildings(); track bld) {
@@ -119,17 +117,14 @@ export interface SupportRequestType {
                     ></rich-text-input>
                     @if (desc_error()) {
                         <mat-error class="my-2 text-xs">
-                            {{
-                                'COMMON.SUPPORT_DESCRIPTION_REQUIRED'
-                                    | translate
-                            }}
+                            {{ 'COMMON.DESCRIPTION_REQUIRED' | translate }}
                         </mat-error>
                     }
                 </div>
                 @if (allow_images()) {
                     <div class="pt-4">
                         <label class="mb-4">{{
-                            'COMMON.SUPPORT_IMAGES' | translate
+                            'COMMON.IMAGES' | translate
                         }}</label>
                         <image-list-field
                             [formField]="form.images"

@@ -13,6 +13,7 @@ import * as Sentry from '@sentry/angular';
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { recordFatalError } from './watchdog';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -25,10 +26,20 @@ export const appConfig: ApplicationConfig = {
             enabled: environment.production,
         }),
         {
+            // Angular handles errors before they reach `window.onerror`, so
+            // the recovery watchdog is told about them here as well.
             provide: ErrorHandler,
-            useValue: Sentry.createErrorHandler({
-                showDialog: false,
-            }),
+            useFactory: () => {
+                const handler = Sentry.createErrorHandler({
+                    showDialog: false,
+                });
+                return {
+                    handleError: (error: any) => {
+                        recordFatalError(error?.message || error);
+                        handler.handleError(error);
+                    },
+                };
+            },
         },
         {
             provide: Sentry.TraceService,

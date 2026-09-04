@@ -111,6 +111,77 @@ describe('BookingDetailsModalComponent', () => {
         expect(remove_fn).not.toHaveBeenCalled();
     });
 
+    it('should end instead of cancel an ongoing checked-in visitor booking', () => {
+        const booking = new Booking({
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            type: 'visitor',
+            checked_in: true,
+            date: Date.now() - 30 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        } as any);
+        (spectator.component as any).booking.set(booking);
+
+        expect(spectator.component.is_in_progress()).toBe(true);
+        expect(spectator.component.can_cancel()).toBe(false);
+
+        spectator.component.remove(booking, false);
+
+        expect(remove_fn).not.toHaveBeenCalled();
+    });
+
+    it('should allow cancelling a visitor booking before check-in', () => {
+        const booking = new Booking({
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            type: 'visitor',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        } as any);
+        (spectator.component as any).booking.set(booking);
+
+        expect(spectator.component.can_cancel()).toBe(true);
+
+        spectator.component.remove(booking, false);
+
+        expect(remove_fn).toHaveBeenCalledWith(booking, false);
+    });
+
+    it('should show cancel series for a recurring booking by default', () => {
+        spectator.component.booking.set(
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'desk',
+                type: 'desk',
+                instance: Math.floor(Date.now() / 1000),
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                status: 'approved',
+            } as any),
+        );
+
+        expect(spectator.component.allow_series_delete()).toBe(true);
+    });
+
+    it('should hide cancel series for an assigned booking by default', () => {
+        spectator.component.booking.set(
+            new Booking({
+                id: 'booking-1',
+                booking_type: 'locker',
+                type: 'locker',
+                instance: Math.floor(Date.now() / 1000),
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                status: 'approved',
+                extension_data: { is_assigned: true },
+            } as any),
+        );
+
+        expect(spectator.component.allow_series_delete()).toBe(false);
+    });
+
     it('should format visitor name nicely in booking details', () => {
         (spectator.component as any).booking.set(
             new Booking({
@@ -235,15 +306,40 @@ describe('BookingDetailsModalComponent', () => {
         expect(close).toHaveBeenCalled();
     });
 
-    it('should show waitlisted status for unapproved parking requests when enabled', () => {
+    it('should hide check-in for unallocated parking bookings', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'unallocated-1',
+            } as any),
+        );
+
+        expect(spectator.component.can_checkin()).toBe(false);
+    });
+
+    it('should allow check-in for allocated parking bookings', () => {
+        (spectator.component as any).booking.set(
+            new Booking({
+                booking_type: 'parking',
+                type: 'parking',
+                asset_id: 'parking-1',
+            } as any),
+        );
+
+        expect(spectator.component.can_checkin()).toBe(true);
+    });
+
+    it('should show waitlisted status for parking requests when enabled', () => {
         (spectator.component as any).booking.set(
             new Booking({
                 booking_type: 'parking',
                 type: 'parking',
                 asset_id: 'unallocated-1',
                 date: Date.now(),
+                approved: false,
                 status: 'tentative',
-                process_state: 'unapproved',
+                process_state: 'wait_list',
             } as any),
         );
 
@@ -277,8 +373,9 @@ describe('BookingDetailsModalComponent', () => {
                 type: 'parking',
                 asset_id: 'unallocated-1',
                 date: Date.now(),
+                approved: false,
                 status: 'tentative',
-                process_state: 'unapproved',
+                process_state: 'wait_list',
             } as any),
         );
 

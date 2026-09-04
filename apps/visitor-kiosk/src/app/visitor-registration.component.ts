@@ -66,23 +66,19 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </a>
                     </div>
                     <div class="p-4">
-                        <label for="name">
-                            {{ 'APP.VISITOR_KIOSK.NAME' | translate }}</label
-                        >
+                        <label for="name"> {{ 'FORM.NAME' | translate }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 keyboard
                                 matInput
                                 autocomplete="off"
                                 [formField]="form.asset_name"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.NAME' | translate
-                                "
+                                [placeholder]="'FORM.NAME' | translate"
                             />
                             <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
                         <label for="email">
-                            {{ 'APP.VISITOR_KIOSK.EMAIL' | translate }}</label
+                            {{ 'FORM.EMAIL' | translate }}</label
                         >
                         <mat-form-field
                             appearance="outline"
@@ -93,9 +89,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 matInput
                                 autocomplete="off"
                                 [formField]="form.asset_id"
-                                [placeholder]="
-                                    'APP.VISITOR_KIOSK.EMAIL' | translate
-                                "
+                                [placeholder]="'FORM.EMAIL' | translate"
                             />
                             <mat-error>A valid email is required</mat-error>
                         </mat-form-field>
@@ -122,9 +116,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                             />
                         </mat-form-field>
                         <label form="org">
-                            {{
-                                'APP.VISITOR_KIOSK.ORGANISATION' | translate
-                            }}</label
+                            {{ 'COMMON.ORGANISATION' | translate }}</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
@@ -133,7 +125,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                                 autocomplete="off"
                                 [formField]="form.company"
                                 [placeholder]="
-                                    'APP.VISITOR_KIOSK.ORGANISATION' | translate
+                                    'COMMON.ORGANISATION' | translate
                                 "
                             />
                         </mat-form-field>
@@ -157,7 +149,7 @@ import { CheckinStateService } from './checkin/checkin-state.service';
                         </mat-form-field>
                         @if (allow_pass_number()) {
                             <label form="pass">
-                                {{ 'BOOKINGS.VISITOR_PASS' | translate }}
+                                {{ 'BOOKINGS.PASS_NUMBER' | translate }}
                             </label>
                             <mat-form-field
                                 appearance="outline"
@@ -353,7 +345,7 @@ export class VisitorRegistrationComponent
         if (!this.host()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: i18n('APP.VISITOR_KIOSK.HOST'),
+                    field_list: i18n('FORM.HOST'),
                 }),
             );
         }

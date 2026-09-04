@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Signage Manager app lets authorised users manage signage media, playlists, display and zone playlist assignments, daily schedule visibility, and signage access groups. Navigation is permission-aware: media, playlists, zones, schedules, and displays are available to users with signage access, while group management is shown only to users who can manage signage groups.
+The Signage Manager app lets authorised users manage signage media, playlists, templates, display and zone playlist assignments, daily schedule visibility, and signage access groups. Navigation is permission-aware: media, playlists, templates, zones, schedules, and displays are available to users with signage access, while group management is shown only to users who can manage signage groups.
 
 ---
 
@@ -13,6 +13,7 @@ These stories cover the current app workflows:
 - Access and navigation: authorised app load, unknown-route redirect, desktop navigation, mobile navigation, and active signage group selector.
 - Media library: search, filtered counts, grid/list/folder views backed by media tags, group tabs, file upload entry point, add from link, plugin catalogue selection, preview, edit, item share, item delete action, multi-select, bulk delete confirmation, bulk share, and bulk add to playlist.
 - Playlists: search, create, select, edit details, item preview, item schedules, approval request or approval, share group selection, delete confirmation, and display or zone assignment.
+- Templates: search, create, select, edit layouts, preview, approval request or approval, and delete confirmation.
 - Zones: search, direct selection, playlist tab, display tab, add playlist, and add display.
 - Displays: search, direct selection, player link when available, schedule tab, playlist tab, zone tab, and add playlist.
 - Schedules: display and zone timeline tabs, previous day, next day, today, search, clear search, empty states, and row links.
@@ -178,6 +179,26 @@ These stories cover the current app workflows:
 - Users without approval permission can request approval for a selected playlist.
 - Approval request actions show a loading state while submitting.
 - Approval preview shows changed media versions and allows media preview.
+
+---
+
+## Templates
+
+### US-SGM-017: Manage and Approve Templates
+
+**As a** reviewer or content manager\
+**I want to** build and approve signage templates\
+**So that** controlled display layouts are reviewed before playback
+
+**Acceptance Criteria:**
+
+- The templates page shows a searchable template list and loads more templates as the user scrolls.
+- Users with create or update permission can create templates and edit their layout items.
+- Template rows show approval-required and awaiting-review states.
+- Users with approval permission can review and approve a selected template.
+- Users without approval permission can select an approver and request template approval with a message.
+- The approval preview shows only changed layout items from the pending and approved templates, including the applicable X and Y values. It shows a no-older-version placeholder when no distinct approved version exists.
+- Users with update permission can discard pending changes when an approved version exists.
 
 ---
 

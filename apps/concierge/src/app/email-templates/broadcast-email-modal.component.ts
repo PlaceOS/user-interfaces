@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    signal,
+    untracked,
+} from '@angular/core';
 import { form, FormField, required, validate } from '@angular/forms/signals';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -231,7 +238,7 @@ export class BroadcastEmailModalComponent {
         effect(() => {
             this.form.recipient_group().value();
             this.form.recipients().value();
-            this.updateRecipients();
+            untracked(() => this.updateRecipients());
         });
     }
 
@@ -315,7 +322,7 @@ export class BroadcastEmailModalComponent {
         const query = {
             period_start: getUnixTime(period_start),
             period_end: getUnixTime(period_end),
-            limit: 1000,
+            limit: 200,
         };
         const zone_ids = this._activeZoneIds().join(',');
         const rooms_request =
@@ -346,10 +353,21 @@ export class BroadcastEmailModalComponent {
             parking_request,
         ]);
         return this._validEmails([
-            ...rooms.flatMap((event) => [
-                event.host,
-                ...(event.attendees || []).map((user) => user.email),
-            ]),
+            ...rooms.flatMap((event) => {
+                const room_emails = new Set(
+                    [event.system, ...(event.resources || [])]
+                        .map((room) => room?.email?.trim().toLowerCase())
+                        .filter((email) => !!email),
+                );
+                return [
+                    event.host,
+                    ...(event.attendees || [])
+                        .filter((user) => !user.resource)
+                        .map((user) => user.email),
+                ].filter(
+                    (email) => !room_emails.has(email.trim().toLowerCase()),
+                );
+            }),
             ...desks.flatMap((booking) => [
                 booking.user_email,
                 booking.booked_by_email,

@@ -177,6 +177,8 @@ describe('ScheduleDayViewComponent', () => {
     });
 
     describe('bookingStatus()', () => {
+        afterEach(() => vi.restoreAllMocks());
+
         it('returns "approved" for an approved future booking', () => {
             const booking = new Booking({
                 booking_type: 'desk',
@@ -187,15 +189,33 @@ describe('ScheduleDayViewComponent', () => {
             expect(spectator.component.bookingStatus(booking)).toBe('approved');
         });
 
-        it('flags a same-week tentative parking booking as waitlisted', () => {
+        it('flags a tentative parking booking in the active waitlist week as waitlisted', () => {
+            // Friday 18:00 local is the default start of the waitlist week
+            vi.spyOn(Date, 'now').mockReturnValue(
+                new Date(2026, 6, 31, 18, 0).valueOf(),
+            );
             const booking = new Booking({
                 booking_type: 'parking',
-                date: addHours(Date.now(), 2).valueOf(),
+                date: new Date(2026, 7, 3, 8, 0).valueOf(),
                 duration: 60,
             });
             expect(booking.status).toBe('tentative');
             expect(spectator.component.bookingStatus(booking)).toBe(
                 'waitlisted',
+            );
+        });
+
+        it('leaves a tentative parking booking past the waitlist week as tentative', () => {
+            vi.spyOn(Date, 'now').mockReturnValue(
+                new Date(2026, 6, 31, 17, 59).valueOf(),
+            );
+            const booking = new Booking({
+                booking_type: 'parking',
+                date: new Date(2026, 7, 3, 8, 0).valueOf(),
+                duration: 60,
+            });
+            expect(spectator.component.bookingStatus(booking)).toBe(
+                'tentative',
             );
         });
 

@@ -64,6 +64,7 @@ import {
     eventFormValue,
     generateEventForm,
     newCalendarEventFromBooking,
+    type EventFormValue,
 } from './utilities';
 
 const BOOKING_URLS = [
@@ -75,6 +76,46 @@ const BOOKING_URLS = [
     'upcoming',
 ];
 const PERSISTED_EVENT_CONTEXT_URLS = ['landing'];
+
+/** Form fields that are derived or need semantic comparison below. */
+const IGNORED_DETAIL_FIELDS = [
+    'attendees',
+    'body',
+    'system',
+    'date_end',
+    'organiser',
+    'recurrence',
+    'resources',
+];
+
+function normaliseEventBody(body: string) {
+    const template = document.createElement('template');
+    template.innerHTML = body || '';
+    const serialise = (node: Node): string => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            return (node.textContent || '').replace(/\u200b/g, '');
+        }
+        if (node.nodeType !== Node.ELEMENT_NODE) return '';
+        const element = node as Element;
+        if (element.tagName === 'BR') return '\n';
+        const content = [...element.childNodes].map(serialise).join('');
+        if (element.tagName === 'DIV' || element.tagName === 'P') {
+            return `\n${content}\n`;
+        }
+        const tag = element.tagName.toLowerCase();
+        const attributes = [...element.attributes]
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(({ name, value }) => ` ${name}="${value}"`)
+            .join('');
+        return `<${tag}${attributes}>${content}</${tag}>`;
+    };
+    return [...template.content.childNodes]
+        .map(serialise)
+        .join('')
+        .replace(/[ \t]+\n|\n[ \t]+/g, '\n')
+        .replace(/\n+/g, '\n')
+        .trim();
+}
 
 enum Tags {
     Availability = 'AVAILABILITY',
@@ -150,17 +191,20 @@ export class EventFormService extends AsyncHandler {
     /** Writable signal holding the raw event form value. */
     private _model = this._form_ref.model;
     private _initial_attendees: string[] = [];
+    private _initial_event_details = '';
     private _space_pipe = new SpacePipe();
 
     public readonly notify_new_attendees_only = signal(false);
     public readonly can_notify_new_attendees_only = computed(() => {
-        if (!this._model().id) return false;
-        const attendee_emails = this._model().attendees.map((_) =>
+        const model = this._model();
+        if (!model.id) return false;
+        const attendee_emails = model.attendees.map((_) =>
             (_.email || _).toLowerCase(),
         );
         return (
             this._initial_attendees.every((_) => attendee_emails.includes(_)) &&
-            attendee_emails.some((_) => !this._initial_attendees.includes(_))
+            attendee_emails.some((_) => !this._initial_attendees.includes(_)) &&
+            this._eventDetails(model) === this._initial_event_details
         );
     });
 
@@ -666,6 +710,9 @@ export class EventFormService extends AsyncHandler {
         this._model.set(value);
         this._form().reset();
         this._applyDurationSettings();
+        // snapshot after the duration settings are applied, as they clamp the
+        // event times to the building's booking rules without any user input
+        this._setInitialEvent(this._model());
         if (!event.id) return;
         sessionStorage.setItem(
             'PLACEOS.event',
@@ -704,14 +751,18 @@ export class EventFormService extends AsyncHandler {
         );
         const event = new CalendarEvent(event_data);
         this._event.set(event);
-        this._setInitialAttendees(event.attendees);
+        const initial_value = eventFormValue(event);
+        initial_value.assets = (event.extension_data.assets || []).map(
+            (_) => new AssetRequest({ ..._, event }),
+        );
+        this._setInitialEvent(initial_value);
         this.notify_new_attendees_only.set(false);
         const form_data = JSON.parse(
             sessionStorage.getItem('PLACEOS.event_form') || '{}',
         );
         this._model.update((m) => ({
             ...m,
-            ...eventFormValue(event),
+            ...initial_value,
             ...form_data,
         }));
     }
@@ -1030,37 +1081,41 @@ export class EventFormService extends AsyncHandler {
             const assets =
                 this._model().assets || event.extension_data.assets || [];
             if (assets.length) {
-                const requests = await validateAssetRequestsForResource(
-                    created_event,
-                    {
-                        date: all_day_period.date,
-                        duration: all_day_period.duration,
-                        host: value.host,
-                        all_day: value.all_day,
-                        location_name:
-                            spaces[0]?.display_name || spaces[0]?.name || '',
-                        location_id: spaces[0]?.id || '',
-                        zones: unique([
-                            this._org.organisation.id,
-                            this._org.region?.id,
-                            this._org.building?.id,
-                            ...(spaces[0]?.zones || []),
-                        ]).filter((_) => !!_),
-                        reset_state: has_time_changed,
-                    },
-                    assets,
-                    changed_spaces.length > 0 || has_time_changed,
-                ).catch((e) =>
-                    this._removeBookingAfterError(
+                try {
+                    const requests = await validateAssetRequestsForResource(
+                        created_event,
+                        {
+                            date: all_day_period.date,
+                            duration: all_day_period.duration,
+                            host: value.host,
+                            all_day: value.all_day,
+                            location_name:
+                                spaces[0]?.display_name ||
+                                spaces[0]?.name ||
+                                '',
+                            location_id: spaces[0]?.id || '',
+                            zones: unique([
+                                this._org.organisation.id,
+                                this._org.region?.id,
+                                this._org.building?.id,
+                                ...(spaces[0]?.zones || []),
+                            ]).filter((_) => !!_),
+                            reset_state: has_time_changed,
+                        },
+                        assets,
+                        changed_spaces.length > 0 || has_time_changed,
+                    );
+                    if (!requests)
+                        throw i18n('CALENDAR_EVENT.ASSETS_INVALID_ERROR');
+                    await requests();
+                } catch (e) {
+                    await this._removeBookingAfterError(
                         !event.id,
                         created_event,
                         true,
                         e,
-                    ),
-                );
-                if (!requests)
-                    throw i18n('CALENDAR_EVENT.ASSETS_INVALID_ERROR');
-                await requests();
+                    );
+                }
             }
             this.clearForm();
             sessionStorage.setItem(
@@ -1305,10 +1360,42 @@ export class EventFormService extends AsyncHandler {
             : saveEvent(event, query);
     }
 
-    private _setInitialAttendees(attendees: any[]) {
-        this._initial_attendees = attendees.map((_) =>
+    private _setInitialEvent(value: EventFormValue) {
+        this._initial_attendees = value.attendees.map((_) =>
             (_.email || _).toLowerCase(),
         );
+        this._initial_event_details = this._eventDetails(value);
+    }
+
+    private _eventDetails(value: EventFormValue) {
+        const details = Object.entries(value).filter(
+            ([key]) => !IGNORED_DETAIL_FIELDS.includes(key),
+        );
+        const recurrence = value.recurrence;
+        details.push(['body', normaliseEventBody(value.body)]);
+        details.push(['host_email', (value.organiser as any)?.email || '']);
+        details.push([
+            'recurrence',
+            recurrence?.pattern && recurrence?._pattern !== 'none'
+                ? [
+                      recurrence.pattern,
+                      recurrence.interval || 1,
+                      [...(recurrence.days_of_week || [])].sort(),
+                      recurrence.nth_of_month || null,
+                      recurrence.start || null,
+                      recurrence.end || null,
+                      recurrence.occurrences || null,
+                  ]
+                : null,
+        ]);
+        details.push([
+            'space_ids',
+            (value.resources || [])
+                .map((_: any) => (_.email || _.id || '').toLowerCase())
+                .sort(),
+        ]);
+        details.sort(([a], [b]) => (a > b ? 1 : -1));
+        return JSON.stringify(details);
     }
 
     private async _removeBookingAfterError(

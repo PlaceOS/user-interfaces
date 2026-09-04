@@ -1,3 +1,5 @@
+import { DatePipe } from '@angular/common';
+import { Component, Pipe, PipeTransform, input, output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
@@ -5,6 +7,36 @@ import {
     PlaylistItemScheduleModalComponent,
     PlaylistItemScheduleModalData,
 } from '../../app/shared/playlist-item-schedule-modal.component';
+
+@Component({ selector: 'fullscreen-modal-shell', template: '<ng-content />' })
+class ModalShellStubComponent {
+    public readonly heading = input('');
+    public readonly loading = input('');
+    public readonly confirm = output();
+}
+
+@Component({ selector: 'playlist-schedule-form', template: '' })
+class ScheduleFormStubComponent {
+    public readonly schedule = input<any>();
+    public readonly index = input(0);
+    public readonly open = input(false);
+    public readonly can_remove = input(false);
+    public readonly toggle = output();
+    public readonly remove = output<Event>();
+}
+
+@Component({ selector: 'media-thumbnail', template: '' })
+class MediaThumbnailStubComponent {
+    public readonly item = input<any>();
+    public readonly cover = input(false);
+}
+
+@Pipe({ name: 'translate' })
+class TranslateStubPipe implements PipeTransform {
+    public transform(key: string) {
+        return key;
+    }
+}
 
 const notify_open = vi.fn(() => ({
     onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
@@ -32,6 +64,34 @@ describe('PlaylistItemScheduleModalComponent', () => {
             .componentInstance;
     }
 
+    /** Renders the real template with stubbed children so the media header can be asserted */
+    async function renderComponent() {
+        await TestBed.configureTestingModule({
+            imports: [PlaylistItemScheduleModalComponent],
+            providers: [
+                { provide: MAT_DIALOG_DATA, useValue: modal_data },
+                { provide: MatDialogRef, useValue: dialog_ref },
+            ],
+        })
+            .overrideComponent(PlaylistItemScheduleModalComponent, {
+                set: {
+                    imports: [
+                        DatePipe,
+                        ModalShellStubComponent,
+                        ScheduleFormStubComponent,
+                        MediaThumbnailStubComponent,
+                        TranslateStubPipe,
+                    ],
+                },
+            })
+            .compileComponents();
+        const fixture = TestBed.createComponent(
+            PlaylistItemScheduleModalComponent,
+        );
+        await fixture.whenStable();
+        return fixture;
+    }
+
     beforeEach(() => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
@@ -42,6 +102,40 @@ describe('PlaylistItemScheduleModalComponent', () => {
             save,
         };
         TestBed.resetTestingModule();
+    });
+
+    it('shows the media preview, name, description and expiry', async () => {
+        const valid_until = Math.floor(Date.UTC(2026, 6, 28, 3) / 1000);
+        modal_data.item = {
+            item_id: 'item-1',
+            schedules: [],
+            media: {
+                id: 'media-1',
+                name: 'Lobby Promo',
+                description: 'Plays in the foyer',
+                valid_until,
+            },
+        } as any;
+        const fixture = await renderComponent();
+        const text = fixture.nativeElement.textContent;
+
+        expect(
+            fixture.nativeElement.querySelector('media-thumbnail'),
+        ).toBeTruthy();
+        expect(text).toContain('Lobby Promo');
+        expect(text).toContain('Plays in the foyer');
+        expect(text).toContain('FORM.EXPIRES_AT');
+        expect(text).toContain(
+            new DatePipe('en-US').transform(valid_until * 1000, 'mediumDate'),
+        );
+    });
+
+    it('hides the media header when the item has no media', async () => {
+        const fixture = await renderComponent();
+
+        expect(
+            fixture.nativeElement.querySelector('media-thumbnail'),
+        ).toBeNull();
     });
 
     it('seeds a single schedule when the item has none', async () => {

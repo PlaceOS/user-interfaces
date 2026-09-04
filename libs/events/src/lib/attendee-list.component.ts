@@ -44,10 +44,12 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
                             attendee
                             class="even:bg-base-200/40 hover:bg-base-200 flex items-center space-x-2 p-2"
                         >
+                            @let resolved_host =
+                                host() === user.email && !user.name
+                                    ? (host() | user: 'email-prefix' | async)
+                                    : null;
                             @let usr =
-                                host() === user.email
-                                    ? (host() | user | async) || user
-                                    : user;
+                                resolved_host?.email ? resolved_host : user;
                             <a-user-avatar [user]="usr"></a-user-avatar>
                             <div class="w-1/2 flex-1">
                                 <div class="truncate">{{ usr?.name }}</div>
@@ -97,11 +99,17 @@ export class AttendeeListComponent {
     public readonly host = input('');
     public readonly show_host = input(true);
     public readonly list = input<User[]>([]);
-    public readonly final_list = computed(() =>
-        this.show_host()
-            ? this.list()
-            : this.list().filter((user) => user.email !== this.host()),
-    );
+    public readonly final_list = computed(() => {
+        const attendee_list = this.list();
+        const host = this.host();
+        if (!this.show_host()) {
+            return attendee_list.filter((user) => user.email !== host);
+        }
+        if (!host || attendee_list.some((user) => user.email === host)) {
+            return attendee_list;
+        }
+        return [new User({ email: host }), ...attendee_list];
+    });
     public readonly hide_close = input(false);
     public readonly custom_title = input('');
     public readonly close = output();

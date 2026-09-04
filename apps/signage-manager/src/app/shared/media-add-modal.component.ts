@@ -100,8 +100,17 @@ export class MediaAddModalComponent {
     public readonly selected_plugin = signal<any>(null);
     public readonly available_plugins = this._service.plugins;
     public readonly can_add = computed(() =>
-        this.mode === 'link' ? !!this.link().trim() : !!this.selected_plugin(),
+        this.mode === 'link'
+            ? !!this.link().trim()
+            : !!this.selectedMediaPlugin(),
     );
+
+    private selectedMediaPlugin() {
+        const selected_plugin = this.selected_plugin();
+        return this.available_plugins().find(
+            ({ id }) => id === selected_plugin?.id,
+        );
+    }
 
     public async add() {
         if (this.mode === 'link') {
@@ -113,7 +122,7 @@ export class MediaAddModalComponent {
             this._dialog_ref.close();
             await this._service.addMediaFromLink(link);
         } else {
-            const plugin = this.selected_plugin();
+            const plugin = this.selectedMediaPlugin();
             if (!plugin) return;
             this._dialog_ref.close();
             await this._service.addMediaFromPlugin(plugin);

@@ -9,6 +9,7 @@ import {
 import {
     generateBookingForm,
     newBookingFromCalendarEvent,
+    parkingRequestStatus,
 } from '../lib/booking.utilities';
 
 describe('Booking Utilities', () => {
@@ -16,6 +17,48 @@ describe('Booking Utilities', () => {
 
     beforeEach(() => {
         injector = TestBed.inject(Injector);
+    });
+
+    describe('parkingRequestStatus', () => {
+        it('should identify waitlisted parking requests', () => {
+            expect(
+                parkingRequestStatus({
+                    approved: false,
+                    process_state: 'wait_list',
+                    extension_data: { requires_manual_approval: false },
+                }),
+            ).toBe('waitlist');
+        });
+
+        it('should keep requests without a process state pending', () => {
+            expect(
+                parkingRequestStatus({
+                    approved: false,
+                    process_state: '',
+                    extension_data: { requires_manual_approval: false },
+                }),
+            ).toBe('pending');
+        });
+
+        it('should identify parking requests that need manual approval', () => {
+            expect(
+                parkingRequestStatus({
+                    approved: false,
+                    process_state: '',
+                    extension_data: { requires_manual_approval: true },
+                }),
+            ).toBe('approval_required');
+        });
+
+        it('should keep approved parking requests pending', () => {
+            expect(
+                parkingRequestStatus({
+                    approved: true,
+                    process_state: 'wait_list',
+                    extension_data: { requires_manual_approval: true },
+                }),
+            ).toBe('pending');
+        });
     });
 
     describe('generateBookingForm', () => {

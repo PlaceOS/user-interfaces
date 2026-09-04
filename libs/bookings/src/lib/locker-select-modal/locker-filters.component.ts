@@ -47,7 +47,7 @@ import { BookingFormService } from '../booking-form.service';
         <form class="divide-base-200 relative z-0 w-full divide-y p-2">
             <section details>
                 <h2 class="mb-1 text-lg font-medium">
-                    {{ 'BOOKINGS.DETAILS' | translate }}
+                    {{ 'COMMON.DETAILS' | translate }}
                 </h2>
                 @if (
                     !hide_levels() &&
@@ -56,7 +56,7 @@ import { BookingFormService } from '../booking-form.service';
                 ) {
                     <div class="flex min-w-32 flex-1 flex-col">
                         <label for="location">
-                            {{ 'BOOKINGS.LOCATION' | translate }}
+                            {{ 'COMMON.LOCATION' | translate }}
                         </label>
                         @if (use_region() && regions()?.length) {
                             <mat-form-field appearance="outline" class="w-full">
@@ -146,10 +146,7 @@ import { BookingFormService } from '../booking-form.service';
                 <!-- Date -->
                 <div class="min-w-[256px] flex-1">
                     <label>{{ 'FORM.DATE' | translate }}</label>
-                    <a-date-field
-                        [formField]="form.date"
-                        [to]="end_date()"
-                    >
+                    <a-date-field [formField]="form.date" [to]="end_date()">
                         {{ 'FORM.DATE_ERROR' | translate }}
                     </a-date-field>
                 </div>
@@ -170,7 +167,10 @@ import { BookingFormService } from '../booking-form.service';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [use_24hr]="use_24hr()"

@@ -20,7 +20,6 @@ import {
 } from '@placeos/assets';
 import {
     approveBooking,
-    checkinBooking,
     Locker,
     LockerBank,
     lockerBankFromAsset,
@@ -30,6 +29,7 @@ import {
     rejectBooking,
     removeBooking,
     saveBooking,
+    setBookingCheckedIn,
     updateBooking,
 } from '@placeos/bookings';
 import {
@@ -138,15 +138,17 @@ export class LockerStateService extends AsyncHandler {
     private _locker_bookings: Booking[] = [];
     private _loading = signal<string>('');
     private _change = signal(0);
-    /** List of available locker levels for the current building */
+    /** List of available locker levels for the current building, parking-only levels last */
     public readonly levels = computed(() => {
         const all = this._org.level_list();
-        if (!this._settings.get('app.use_region')) {
-            const blds = this._org.buildingsForRegion();
-            const bld_ids = blds.map((bld) => bld.id);
-            return all.filter((lvl) => bld_ids.includes(lvl.parent_id));
-        }
-        return all.filter((lvl) => lvl.parent_id === this._org.building?.id);
+        const bld_ids = this._org.buildingsForRegion().map((bld) => bld.id);
+        const levels = !this._settings.get('app.use_region')
+            ? all.filter((lvl) => bld_ids.includes(lvl.parent_id))
+            : all.filter((lvl) => lvl.parent_id === this._org.building?.id);
+        return levels.sort(
+            (a, b) =>
+                +!!a.tags?.includes('parking') - +!!b.tags?.includes('parking'),
+        );
     });
     public readonly loading = this._loading.asReadonly();
 
@@ -371,7 +373,7 @@ export class LockerStateService extends AsyncHandler {
                 type: 'locker',
                 zones: zones.join(','),
                 include_checked_out: true,
-                limit: 1000,
+                limit: 200,
             });
     }
 
@@ -400,11 +402,12 @@ export class LockerStateService extends AsyncHandler {
         }));
         if (token !== this._load_token) return;
         const { data = [], total = 0, next = null } = resp || {};
-        this._next_page_fn = next;
+        const has_next = data.length > 0 && !!next;
+        this._next_page_fn = has_next ? next : null;
         this._bookings_state.update((acc) =>
             reset
-                ? { list: data, total, has_next: !!next }
-                : { list: [...acc.list, ...data], total, has_next: !!next },
+                ? { list: data, total, has_next }
+                : { list: [...acc.list, ...data], total, has_next },
         );
         this.timeout(
             'stop-loading',
@@ -783,8 +786,8 @@ export class LockerStateService extends AsyncHandler {
     }
 
     public async checkinLocker(locker: Booking, state = true) {
-        const status: any = await checkinBooking(
-            locker.id,
+        const status: any = await setBookingCheckedIn(
+            locker,
             state ?? true,
         ).catch((_) => ({ failed: true, error: _ }));
         if (status.failed) {

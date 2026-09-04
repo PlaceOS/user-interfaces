@@ -1,9 +1,9 @@
 import { signal } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import {
-    OrganisationService,
-    SettingsService,
-} from '@placeos/common';
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
+import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { ParkingReportService } from 'apps/concierge/src/app/reports/parking/parking-report.service';
@@ -16,6 +16,7 @@ describe('ParkingReportService', () => {
     let report_set_options: any;
     let report_generate: any;
     let downloads: ReturnType<typeof captureDownloads>;
+    let settings_map: Record<string, any>;
 
     const day_1 = new Date('2026-04-06T09:00:00').valueOf();
     const day_2 = new Date('2026-04-07T09:00:00').valueOf();
@@ -24,10 +25,13 @@ describe('ParkingReportService', () => {
         service: ParkingReportService,
         providers: [
             MockProvider(SettingsService, {
-                get: vi.fn(() => false),
+                get: vi.fn((name: string) => settings_map[name]),
             } as any),
             MockProvider(OrganisationService, {
-                building: { id: 'building-1' },
+                building: {
+                    id: 'building-1',
+                    timezone: 'Pacific/Auckland',
+                },
                 region: { id: 'region-1' },
                 levelsForBuilding: vi.fn(() => []),
                 levelsForRegion: vi.fn(() => []),
@@ -38,6 +42,7 @@ describe('ParkingReportService', () => {
     afterEach(() => downloads.restore());
 
     beforeEach(() => {
+        settings_map = {};
         downloads = captureDownloads();
         bookings = signal<any[]>([]);
         report_set_options = vi.fn();
@@ -71,6 +76,16 @@ describe('ParkingReportService', () => {
         expect(Object.keys(stats)).toEqual(['2026-04-06', '2026-04-07']);
         expect(stats['2026-04-06'].bookings).toHaveLength(2);
         expect(stats['2026-04-07'].bookings).toHaveLength(1);
+    });
+
+    it('should group bookings by their building-local date', () => {
+        settings_map['app.bookings.use_building_timezone'] = true;
+        const building_morning = new Date('2026-04-05T13:30:00Z').valueOf();
+        bookings.set([{ asset_id: 'bay-1', date: building_morning }]);
+
+        expect(Object.keys(spectator.service.daily_stats())).toEqual([
+            '2026-04-06',
+        ]);
     });
 
     it('should delegate setOptions to the report state with a parking type', () => {
@@ -111,6 +126,8 @@ describe('ParkingReportService', () => {
             },
         ]);
         await spectator.service.downloadReport();
-        expect(downloads.filename).toMatch(/^report\+parking\+2026-04-06\.csv$/);
+        expect(downloads.filename).toMatch(
+            /^report\+parking\+2026-04-06\.csv$/,
+        );
     });
 });

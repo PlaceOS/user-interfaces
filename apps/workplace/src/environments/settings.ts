@@ -240,6 +240,7 @@ const app = {
     parking: {
         allow_all_day: true,
         allow_recurrence: true,
+        waitlist_week_start: { day: 5, hour: 18, minute: 0 },
         request_submission_notes_html: '',
         vehicle_types: [
             { id: 'car', name: 'BOOKINGS.PARKING_VEHICLE_CAR' },

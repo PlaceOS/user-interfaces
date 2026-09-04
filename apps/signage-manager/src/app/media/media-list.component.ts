@@ -1,5 +1,4 @@
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { NgTemplateOutlet } from '@angular/common';
 
 import {
     Component,
@@ -18,13 +17,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    AuthenticatedImageDirective,
     IconComponent,
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
+import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
@@ -211,11 +210,9 @@ const UNTAGGED = '\0untagged';
                                                 : { name: media_item.name }
                                     "
                                 >
-                                    <ng-container
-                                        [ngTemplateOutlet]="thumb"
-                                        [ngTemplateOutletContext]="{
-                                            item: media_item,
-                                        }"
+                                    <media-thumbnail
+                                        [item]="media_item"
+                                        class="h-full w-full"
                                     />
                                 </button>
                                 <div class="flex w-px flex-1 flex-col">
@@ -362,11 +359,9 @@ const UNTAGGED = '\0untagged';
                                             }}
                                         </div>
                                     }
-                                    <ng-container
-                                        [ngTemplateOutlet]="thumb"
-                                        [ngTemplateOutletContext]="{
-                                            item: media_item,
-                                        }"
+                                    <media-thumbnail
+                                        [item]="media_item"
+                                        class="h-full w-full"
                                     />
                                     @if (thumbnailUrl(media_item)) {
                                         <div
@@ -566,32 +561,6 @@ const UNTAGGED = '\0untagged';
             </ng-template>
         </mat-menu>
 
-        <!-- Shared thumbnail visual (fills its container) -->
-        <ng-template #thumb let-item="item">
-            @if (item.media_type === 'webpage' && !thumbnailUrl(item)) {
-                <div class="flex h-full w-full items-center justify-center">
-                    <icon class="text-8xl opacity-30">http</icon>
-                </div>
-            } @else if (item.media_type === 'plugin' && !thumbnailUrl(item)) {
-                <div class="flex h-full w-full items-center justify-center">
-                    <icon class="text-8xl opacity-30">extension</icon>
-                </div>
-            } @else if (thumbnailUrl(item)) {
-                <img
-                    auth
-                    [source]="thumbnailUrl(item)"
-                    [alt]="item.name + ' thumbnail'"
-                    class="absolute -inset-px flex h-full w-full items-center justify-center rounded-lg object-contain object-center"
-                />
-            } @else {
-                <div class="flex h-full w-full items-center justify-center">
-                    <icon class="text-8xl opacity-30">{{
-                        item.media_type === 'video' ? 'video_library' : 'image'
-                    }}</icon>
-                </div>
-            }
-        </ng-template>
-
         @if (selected_count() > 0) {
             <footer
                 class="bg-base-100 border-base-300 sticky bottom-2 z-20 mx-2 mt-2 flex items-center justify-between gap-2 rounded-xl border p-2 shadow-lg"
@@ -687,7 +656,6 @@ const UNTAGGED = '\0untagged';
     ],
     imports: [
         DragDropModule,
-        NgTemplateOutlet,
         MatCheckboxModule,
         MatRippleModule,
         MatMenuModule,
@@ -695,10 +663,10 @@ const UNTAGGED = '\0untagged';
         MatTabsModule,
         MatTooltipModule,
         IconComponent,
-        AuthenticatedImageDirective,
         MediaDurationPipe,
         TranslatePipe,
         IntersectDirective,
+        MediaThumbnailComponent,
     ],
 })
 export class MediaListComponent implements OnInit {
@@ -742,15 +710,18 @@ export class MediaListComponent implements OnInit {
 
     public readonly media = this._service.filtered_media;
     public readonly media_tags = this._service.media_tags;
+    public readonly media_tag_counts = this._service.media_tag_counts;
     public readonly loading = this._service.media_loading;
     public readonly view_mode = this._service.media_view_mode;
     public readonly groups = this._service.signage_groups;
     public readonly selected_group_id = this._service.selected_group_id;
     public readonly is_sys_admin = this._service.is_sys_admin;
-    public readonly can_switch_groups = computed(() =>
-        this.is_sys_admin()
-            ? this.groups().length > 0
-            : this.groups().length > 1,
+    public readonly can_switch_groups = computed(
+        () =>
+            this._service.show_media_group_tabs() &&
+            (this.is_sys_admin()
+                ? this.groups().length > 0
+                : this.groups().length > 1),
     );
 
     // Currently opened tag folder (null = showing the folder grid).
@@ -760,14 +731,16 @@ export class MediaListComponent implements OnInit {
     // An always-present "Untagged" bucket shown first, then one folder per
     // distinct tag (sourced from the media-tags endpoint so the list is complete
     // regardless of how much media has been paged in). Tags are pre-sorted by the
-    // service. Counts come from the media paged in so far, so they can undercount
-    // large libraries until more pages load (the endpoint gives tags, not counts).
+    // service. Tag counts come from the backend; the untagged count and any tag
+    // the backend did not count fall back to the media paged in so far, so they
+    // can undercount large libraries until more pages load.
     public readonly folders = computed(() => {
         const media = this.media();
         const tags = this.media_tags();
+        const tag_counts = this.media_tag_counts();
         // Nothing to show at all -> leave empty so the empty state can render.
         if (!media.length && !tags.length) return [];
-        const counts = new Map<string, number>();
+        const loaded_counts = new Map<string, number>();
         let untagged_count = 0;
         for (const item of media) {
             const item_tags = item.tags || [];
@@ -776,14 +749,14 @@ export class MediaListComponent implements OnInit {
                 continue;
             }
             for (const tag of item_tags) {
-                counts.set(tag, (counts.get(tag) || 0) + 1);
+                loaded_counts.set(tag, (loaded_counts.get(tag) || 0) + 1);
             }
         }
         return [
             { id: UNTAGGED, count: untagged_count, untagged: true },
             ...tags.map((id) => ({
                 id,
-                count: counts.get(id) || 0,
+                count: tag_counts[id] ?? loaded_counts.get(id) ?? 0,
                 untagged: false,
             })),
         ];
