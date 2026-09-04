@@ -6,14 +6,30 @@ import * as app from '../lib/application';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
+function hasLogged(logger: ReturnType<typeof vi.spyOn>, message: string) {
+    return logger.mock.calls.some(([entry]) => String(entry).includes(message));
+}
+
 describe('application cache handling', () => {
+    const version_ready = {
+        type: 'VERSION_READY',
+        currentVersion: { hash: 'current-version' },
+        latestVersion: { hash: 'next-version' },
+    } as const;
     let version_updates: Subject<any>;
     let unrecoverable: Subject<any>;
     let cache: any;
     let reload: ReturnType<typeof vi.fn>;
+    let console_debug: ReturnType<typeof vi.spyOn>;
+    let console_warn: ReturnType<typeof vi.spyOn>;
+    let debug_enabled: boolean;
 
     beforeEach(() => {
         vi.useFakeTimers();
+        debug_enabled = window.debug;
+        window.debug = true;
+        console_debug = vi.spyOn(console, 'debug').mockImplementation(() => {});
+        console_warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
         // `clearCacheCheck` fully resets the module-level cache state between
         // tests (the native builder shares module instances across specs).
         app.clearCacheCheck();
@@ -39,12 +55,15 @@ describe('application cache handling', () => {
 
     afterEach(() => {
         app.clearCacheCheck();
+        window.debug = debug_enabled;
+        console_debug.mockRestore();
+        console_warn.mockRestore();
         vi.useRealTimers();
     });
 
     it('should reload immediately when a new version is ready and nothing blocks it', () => {
         app.setupCache(cache, { auto_reload: true });
-        version_updates.next({ type: 'VERSION_READY' });
+        version_updates.next(version_ready);
 
         expect(reload).toHaveBeenCalledTimes(1);
     });
@@ -52,7 +71,7 @@ describe('application cache handling', () => {
     it('should wait for the network before reloading', () => {
         vi.mocked(ts_client.isOnline).mockReturnValue(false);
         app.setupCache(cache, { auto_reload: true });
-        version_updates.next({ type: 'VERSION_READY' });
+        version_updates.next(version_ready);
         expect(reload).not.toHaveBeenCalled();
         expect(app.reloadPending()).toBe(true);
 
@@ -69,7 +88,7 @@ describe('application cache handling', () => {
         let safe = false;
         app.setAutoReloadGate(() => safe);
         app.setupCache(cache, { auto_reload: true });
-        version_updates.next({ type: 'VERSION_READY' });
+        version_updates.next(version_ready);
         expect(reload).not.toHaveBeenCalled();
 
         vi.advanceTimersByTime(60_000);
@@ -84,7 +103,7 @@ describe('application cache handling', () => {
     it('should reload anyway once the deferral limit is reached', () => {
         app.setAutoReloadGate(() => false);
         app.setupCache(cache, { auto_reload: true });
-        version_updates.next({ type: 'VERSION_READY' });
+        version_updates.next(version_ready);
 
         vi.advanceTimersByTime(10 * 60 * 1000 + 5_000);
 
@@ -96,7 +115,7 @@ describe('application cache handling', () => {
             throw new Error('gate failed');
         });
         app.setupCache(cache, { auto_reload: true });
-        version_updates.next({ type: 'VERSION_READY' });
+        version_updates.next(version_ready);
 
         expect(reload).toHaveBeenCalledTimes(1);
     });
@@ -149,6 +168,9 @@ describe('application cache handling', () => {
         app.setupCache({ ...cache, isEnabled: false });
         vi.advanceTimersByTime(10_000);
         expect(cache.checkForUpdate).not.toHaveBeenCalled();
+        expect(hasLogged(console_debug, 'Service worker is disabled.')).toBe(
+            true,
+        );
     });
 
     it('should periodically check for updates', () => {
@@ -161,22 +183,68 @@ describe('application cache handling', () => {
 
     it('should flag new versions when one is ready', () => {
         app.setupCache(cache);
-        version_updates.next({ type: 'VERSION_READY' });
+        version_updates.next(version_ready);
         expect(app.hasNewVersion()).toBe(true);
         expect(app.serviceWorkerUpdate()()).toEqual(
             expect.objectContaining({ action: 'Refresh' }),
         );
+        expect(
+            hasLogged(
+                console_debug,
+                'Application version next-version is ready.',
+            ),
+        ).toBe(true);
     });
 
-    it('should ignore other version events', () => {
+    it('should log version events without flagging an incomplete version', () => {
         app.setupCache(cache);
-        version_updates.next({ type: 'VERSION_DETECTED' });
+        version_updates.next({
+            type: 'VERSION_DETECTED',
+            version: { hash: 'next-version' },
+        });
         expect(app.hasNewVersion()).toBe(false);
+        expect(
+            hasLogged(
+                console_debug,
+                'Downloading application version next-version.',
+            ),
+        ).toBe(true);
+    });
+
+    it('should log failed version installations', () => {
+        app.setupCache(cache);
+        version_updates.next({
+            type: 'VERSION_INSTALLATION_FAILED',
+            version: { hash: 'broken-version' },
+            error: 'hash mismatch',
+        });
+
+        expect(
+            hasLogged(
+                console_warn,
+                'Failed to install application version broken-version.',
+            ),
+        ).toBe(true);
+    });
+
+    it('should log when the current version is up to date', () => {
+        app.setupCache(cache);
+        version_updates.next({
+            type: 'NO_NEW_VERSION_DETECTED',
+            version: { hash: 'current-version' },
+        });
+
+        expect(
+            hasLogged(
+                console_debug,
+                'Application version current-version is up to date.',
+            ),
+        ).toBe(true);
     });
 
     it('should stop polling once a new version is found', () => {
         app.setupCache(cache);
-        version_updates.next({ type: 'VERSION_READY' });
+        version_updates.next(version_ready);
         vi.advanceTimersByTime(30 * 60 * 1000);
         expect(cache.checkForUpdate).not.toHaveBeenCalled();
     });

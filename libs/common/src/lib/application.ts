@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
+import { SwUpdate, type VersionEvent } from '@angular/service-worker';
 import { isOnline } from '@placeos/ts-client';
 import { Subscription } from 'rxjs';
 
@@ -160,6 +160,38 @@ function handleNewVersion() {
     });
 }
 
+/** Log each service worker version state reported by Angular. */
+function logVersionUpdate(event: VersionEvent) {
+    switch (event.type) {
+        case 'VERSION_DETECTED':
+            log(
+                'CACHE',
+                `Downloading application version ${event.version.hash}.`,
+            );
+            return;
+        case 'VERSION_INSTALLATION_FAILED':
+            log(
+                'CACHE',
+                `Failed to install application version ${event.version.hash}.`,
+                event.error,
+                'warn',
+            );
+            return;
+        case 'VERSION_READY':
+            log(
+                'CACHE',
+                `Application version ${event.latestVersion.hash} is ready.`,
+                { current_version: event.currentVersion.hash },
+            );
+            return;
+        case 'NO_NEW_VERSION_DETECTED':
+            log(
+                'CACHE',
+                `Application version ${event.version.hash} is up to date.`,
+            );
+    }
+}
+
 /**
  * Setup handler for cache change events
  * @param cache Angular Service worker service
@@ -173,11 +205,15 @@ export function setupCache(
         cacheOptions(options);
     _auto_reload = auto_reload;
     _update_interval = Math.max(interval, 1 * MINUTES);
+    log(
+        'CACHE',
+        `Service worker is ${cache.isEnabled ? 'enabled' : 'disabled'}.`,
+    );
     if (cache.isEnabled) {
         if (!_version_subscription) {
             _version_subscription = cache.versionUpdates.subscribe((event) => {
+                logVersionUpdate(event);
                 if (event.type !== 'VERSION_READY' || _new_version) return;
-                log('CACHE', `New application version is ready.`);
                 handleNewVersion();
             });
         }
