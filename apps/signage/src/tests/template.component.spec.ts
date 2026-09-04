@@ -113,7 +113,7 @@ describe('SignageTemplateComponent', () => {
             id: 'background-1',
             type: 'image',
         });
-        expect(spectator.element.classList).not.toContain('bg-black');
+        expect(spectator.element.classList).toContain('bg-[var(--bg)]');
         expect(spectator.component.layout_items()).toHaveLength(1);
         expect(spectator.query('plugin-embed')?.classList).not.toContain(
             'pointer-events-none',
@@ -179,7 +179,7 @@ describe('SignageTemplateComponent', () => {
         });
     });
 
-    it('uses a black background when the template has no background item', async () => {
+    it('uses the player background when the template has no background item', async () => {
         (ts_client.showSignageTemplate as any).mockResolvedValue({
             id: 'template-1',
             background_item_id: '',
@@ -194,7 +194,7 @@ describe('SignageTemplateComponent', () => {
         });
 
         expect(spectator.component.background_playlist()).toEqual([]);
-        expect(spectator.element.classList).toContain('bg-black');
+        expect(spectator.element.classList).toContain('bg-[var(--bg)]');
         expect(ts_client.showSignageMedia).not.toHaveBeenCalled();
     });
 

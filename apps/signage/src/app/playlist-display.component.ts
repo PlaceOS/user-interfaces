@@ -34,7 +34,8 @@ import { MediaPlayerItem } from './types';
             </div>
             @if (playlist().length > 0) {
                 <div
-                    class="flex max-h-[calc(100vh-10rem)] flex-col overflow-auto"
+                    data-testid="playlist-media-list"
+                    class="flex max-h-[50vh] flex-col overflow-auto"
                 >
                     <ng-template #item_info_template let-item="data">
                         @if (item) {
@@ -118,7 +119,7 @@ import { MediaPlayerItem } from './types';
                         @let is_valid = isValidMedia(item);
                         <button
                             matRipple
-                            class="hover:bg-base-200 w-[20rem] rounded-lg text-left"
+                            class="hover:bg-base-200 w-[20rem] shrink-0 rounded-lg text-left"
                             [class.overflow-visible]="i === index()"
                             (click)="setPlaylistItem(i)"
                             [attr.aria-disabled]="!is_valid || i === index()"

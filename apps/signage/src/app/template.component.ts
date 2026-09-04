@@ -97,7 +97,7 @@ function backgroundPlayerItem(
 @Component({
     selector: 'signage-template',
     host: {
-        '[class.bg-black]': '!background_playlist().length',
+        class: 'bg-[var(--bg)]',
     },
     template: `
         @if (background_playlist().length) {
