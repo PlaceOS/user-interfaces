@@ -18,6 +18,7 @@ import { logout } from '@placeos/ts-client';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
+import { ChangelogService } from '../lib/changelog.service';
 import { UserControlsComponent } from '../lib/user-controls.component';
 
 describe('UserControlsComponent', () => {
@@ -34,6 +35,10 @@ describe('UserControlsComponent', () => {
         email: 'alice@test.com',
         groups: ['staff'],
     });
+    const changelog = {
+        available: signal(false).asReadonly(),
+        view: vi.fn(),
+    };
     const createComponent = createComponentFactory({
         component: UserControlsComponent,
         providers: [
@@ -53,6 +58,7 @@ describe('UserControlsComponent', () => {
                 provide: LocaleService,
                 useValue: { locale: 'en', get: (key: string) => key },
             },
+            { provide: ChangelogService, useValue: changelog },
             provideNoopAnimations(),
         ],
     });
@@ -94,6 +100,10 @@ describe('UserControlsComponent', () => {
     it('should log the user out on sign out', () => {
         spectator.click('button.inverse');
         expect(logout).toHaveBeenCalled();
+    });
+
+    it('should disable the changelog action when no changelog is deployed', () => {
+        expect('button[disabled]').toExist();
     });
 
     it('should only show the new version button when an update exists', () => {

@@ -1,25 +1,32 @@
 import { signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
-import { mockComponent, mockDirective } from '@placeos/common/tests';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockPipe, MockProvider } from 'ng-mocks';
 
 import {
     AuthenticatedImageDirective,
+    ChangelogService,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { ControlStateService } from '../../app/control-state.service';
 import { ControlStatusBarComponent } from '../../app/status-bar.component';
-import { ControlTabbedViewComponent } from '../../app/tabbed-view/tabbed-view.component';
 import { TabOutletComponent } from '../../app/tabbed-view/tab-outlet.component';
+import { ControlTabbedViewComponent } from '../../app/tabbed-view/tabbed-view.component';
 import { TopbarHeaderComponent } from '../../app/topbar-header.component';
 import { VoiceAssistantComponent } from '../../app/ui/voice-assistant.component';
 
 describe('ControlTabbedViewComponent', () => {
     let spectator: SpectatorRouting<ControlTabbedViewComponent>;
+    const changelog = {
+        available: signal(true).asReadonly(),
+        view: vi.fn(),
+    };
     const createComponent = createRoutingFactory({
         component: ControlTabbedViewComponent,
         params: { system: 'space-0' },
@@ -34,7 +41,7 @@ describe('ControlTabbedViewComponent', () => {
         ],
         imports: [MatProgressSpinnerModule],
         providers: [
-            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(ChangelogService, changelog),
             MockProvider(SettingsService, { get: vi.fn(), theme: 'light' }),
             MockProvider(OrganisationService, {
                 active_building: signal({} as any),
@@ -109,12 +116,8 @@ describe('ControlTabbedViewComponent', () => {
         expect('[lockout]').not.toExist();
     });
 
-    it('should open the changelog modal on view changelog', async () => {
-        const dialog = spectator.inject(MatDialog);
-        (global as any).fetch = vi.fn(() =>
-            Promise.resolve({ text: () => Promise.resolve('# Changelog') }),
-        );
-        await spectator.component.viewChangelog();
-        expect(dialog.open).toHaveBeenCalled();
+    it('should open the deployed changelog', () => {
+        spectator.component.viewChangelog();
+        expect(changelog.view).toHaveBeenCalled();
     });
 });

@@ -4,6 +4,7 @@ export * from './lib/authenticated-image.directive';
 export * from './lib/authenticated-image.pipe';
 export * from './lib/available-rooms-state-modal.component';
 export * from './lib/changelog-modal.component';
+export * from './lib/changelog.service';
 export * from './lib/chat/chat.component';
 export * from './lib/confirm-modal.component';
 export * from './lib/custom-tooltip.component';

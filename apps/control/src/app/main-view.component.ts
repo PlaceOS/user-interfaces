@@ -1,10 +1,9 @@
 import { Component, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
 import { VERSION } from '@placeos/common';
-import { ChangelogModalComponent, TranslatePipe } from '@placeos/components';
+import { ChangelogService, TranslatePipe } from '@placeos/components';
 
 import { DatePipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -41,6 +40,7 @@ import { TopbarHeaderComponent } from './topbar-header.component';
                             </ng-container>
                             <button
                                 class="m-0 border-none bg-none p-0 text-xs underline"
+                                [disabled]="!changelog_available()"
                                 (click)="viewChangelog()"
                             >
                                 {{ version.hash }}
@@ -101,12 +101,14 @@ import { TopbarHeaderComponent } from './topbar-header.component';
 export class ControlMainViewComponent {
     private _route = inject(ActivatedRoute);
     private _state = inject(ControlStateService);
-    private _dialog = inject(MatDialog);
+    private _changelog = inject(ChangelogService);
 
     private readonly _param_map = toSignal(this._route.paramMap);
     private readonly _query_param_map = toSignal(this._route.queryParamMap);
 
     public readonly system = this._state.system;
+    public readonly changelog_available = this._changelog.available;
+    public readonly viewChangelog = () => this._changelog.view();
 
     public readonly powerOn = () => this._state.powerOn();
     public get id() {
@@ -127,14 +129,5 @@ export class ControlMainViewComponent {
             const params = this._query_param_map();
             if (params?.get('join') === 'true') this._state.selectMeeting();
         });
-    }
-
-    public async viewChangelog() {
-        const changelog = await (
-            await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
-            )
-        ).text();
-        this._dialog.open(ChangelogModalComponent, { data: { changelog } });
     }
 }
