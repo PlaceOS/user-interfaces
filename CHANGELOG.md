@@ -22,6 +22,7 @@ All notable changes to this project will be documented in this file.
 #### Ci
 
 - Open PRs for changelog updates
+- Repair affected app builds
 
 #### Common
 
@@ -106,6 +107,10 @@ All notable changes to this project will be documented in this file.
 #### Catering
 
 - Support per-room orders PPT-2571
+
+#### Common
+
+- Log service worker status
 
 #### Desks
 
