@@ -26,6 +26,7 @@ All notable changes to this project will be documented in this file.
 #### Common
 
 - Update favourite signals immediately PPT-2695
+- Recover stalled zone loading
 
 #### Concierge
 
