@@ -1,21 +1,21 @@
-const execSync = require('child_process').execSync;
-const fs = require('fs');
+const { execFileSync } = require('node:child_process');
+const fs = require('node:fs');
 const ref = process.argv[2] || 'origin/develop';
-const baseSha = ref;
 const cmd = process.argv[3] || 'build';
 
-// prints an object with keys {lint1: [...], lint2: [...], lint3: [...], test1: [...], .... build3: [...]}
 try {
-    console.log(JSON.stringify(commands(cmd)) || '[]');
-} catch (e) {
-    console.log('[]');
+    console.log(JSON.stringify(commands(cmd)));
+} catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Failed to calculate affected ${cmd} projects: ${message}`);
+    process.exitCode = 1;
 }
 
 function getFolders(root) {
     return fs
         .readdirSync(root, { withFileTypes: true })
         .filter(
-            (dirent) => dirent.isDirectory() && !dirent.name.includes('-e2e')
+            (dirent) => dirent.isDirectory() && !dirent.name.includes('-e2e'),
         )
         .map((dirent) => dirent.name);
 }
@@ -28,16 +28,29 @@ function commands(target) {
         const array = target === 'build' ? [apps] : [apps, libs];
         return array.flat();
     }
-    const base = release ? '' : `--base=${baseSha}~1`;
-    const raw_result = execSync(
-        `bunx nx show projects --affected --target=${target} --select=tasks.target.project ${base}`
-    ).toString();
-    const array = raw_result
-        .replace(/\n/g, ', ')
-        .split(', ')
-        .filter((_) => !!_ && !_.includes('-e2e'));
-    if (target === 'build') {
-        return array.filter((_) => !libs.includes(_));
+    const raw_result = execFileSync(
+        'bunx',
+        [
+            'nx',
+            'show',
+            'projects',
+            '--affected',
+            `--withTarget=${target}`,
+            '--json',
+            '--base=HEAD~1',
+        ],
+        { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] },
+    );
+    const array = JSON.parse(raw_result);
+    if (
+        !Array.isArray(array) ||
+        array.some((item) => typeof item !== 'string')
+    ) {
+        throw new TypeError('Nx returned an invalid project list');
     }
-    return array.flat();
+    const projects = array.filter((project) => !project.includes('-e2e'));
+    if (target === 'build') {
+        return projects.filter((project) => !libs.includes(project));
+    }
+    return projects;
 }
