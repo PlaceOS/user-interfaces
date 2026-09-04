@@ -42729,13 +42729,17 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_BACKGROUND_SEARCH: "Search media",
   TEMPLATE_BACKGROUND_SELECT: "Select background media",
   TEMPLATE_BACKGROUND_SELECTED: "Selected background",
+  TEMPLATE_CONFIGURATION: "Configuration",
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_MAPPING_DEFAULT_HINT: "Turn this off to make the template the default for this item.",
+  TEMPLATE_MAPPING_DISPLAY: "Display",
   TEMPLATE_MAPPING_EDIT: "Edit template schedule",
   TEMPLATE_MAPPING_SCHEDULE: "Schedule this template",
-  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load applied templates.",
+  TEMPLATE_MAPPING_ZONE: "Zone",
+  TEMPLATE_MAPPINGS: "Mappings",
+  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load template mappings.",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
@@ -42747,6 +42751,7 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_NO_LAYOUT_CHANGES: "No layout changes",
   TEMPLATE_NO_LAYOUTS: "No layout items yet. Add one to get started.",
   TEMPLATE_NO_LAYOUTS_HINT: "Add layout items to build this template.",
+  TEMPLATE_NO_MAPPINGS: "This template is not applied to any displays or zones.",
   TEMPLATE_NO_PLUGIN: "No plugin",
   TEMPLATE_PANEL_HEIGHT: "Height",
   TEMPLATE_PANEL_WIDTH: "Width",
@@ -49815,15 +49820,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "ea1e8e8",
-  "hash": "ea1e8e8",
+  "raw": "09622c2",
+  "hash": "09622c2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "ea1e8e8",
+  "suffix": "09622c2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787804270761
+  "time": 1788512908320
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -56546,6 +56551,166 @@ document.addEventListener("visibilitychange", async () => {
     _wake_lock = await navigator.wakeLock.request("screen");
   }
 });
+
+// libs/common/src/lib/constants.ts
+var SETTING_KEYS = {
+  FAVORITE_ROOMS: "favourite_rooms",
+  FAVORITE_DESKS: "favourite_desks",
+  FAVORITE_PARKING_SPACES: "favourite_parking",
+  FAVORITE_LOCKERS: "favourite_lockers",
+  FAVORITE_CATERING: "favourite_menu_items",
+  FAVORITE_TEAM_MEMBERS: "favourite_team_members",
+  TEAM_MEMBERS: "team_members"
+};
+var SECONDS = 1e3;
+var MINUTES = 60 * SECONDS;
+var HOURS = 60 * MINUTES;
+var DAYS = 24 * HOURS;
+var MINUTE = 60 * SECONDS;
+var HOUR = 60 * MINUTES;
+var DAY = 24 * HOURS;
+
+// libs/common/src/lib/application.ts
+var _timer;
+var _initial_check;
+var _version_subscription;
+var _unrecoverable_subscription;
+var _new_version = false;
+var _auto_reload = false;
+var _reload_gate = null;
+var _reload_timer;
+var _reload_deferred_since = 0;
+var _init_reload = null;
+var _last_update_check = 0;
+var _update_interval = 0;
+var RELOAD_RETRY_MS = 5 * SECONDS;
+var MAX_RELOAD_DEFERRAL_MS = 10 * MINUTES;
+var SERVICE_WORKER_UPDATE = signal(
+  null,
+  ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+function hasNewVersion() {
+  return _new_version;
+}
+function serviceWorkerUpdate() {
+  return SERVICE_WORKER_UPDATE.asReadonly();
+}
+function canReloadNow() {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return false;
+  }
+  if (!Qr())
+    return false;
+  try {
+    return _reload_gate ? _reload_gate() : true;
+  } catch (error2) {
+    log("CACHE", "Reload gate failed.", error2, "warn");
+    return true;
+  }
+}
+function reloadApp() {
+  if (_reload_timer)
+    clearTimeout(_reload_timer);
+  _reload_timer = void 0;
+  if (!_reload_deferred_since)
+    _reload_deferred_since = Date.now();
+  const waited = Date.now() - _reload_deferred_since;
+  if (canReloadNow() || waited >= MAX_RELOAD_DEFERRAL_MS) {
+    location.reload();
+    return;
+  }
+  _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+function reloadForNewVersion() {
+  reloadApp();
+}
+function requestInitReload() {
+  if (_init_reload) {
+    _init_reload();
+    return;
+  }
+  location.reload();
+}
+function stopUpdateChecks() {
+  if (_timer)
+    clearInterval(_timer);
+  if (_initial_check)
+    clearTimeout(_initial_check);
+  _timer = void 0;
+  _initial_check = void 0;
+}
+function cacheOptions(options = {}) {
+  return typeof options === "number" ? { interval: options } : options;
+}
+function handleNewVersion() {
+  if (_new_version)
+    return;
+  _new_version = true;
+  stopUpdateChecks();
+  if (_auto_reload)
+    return reloadApp();
+  SERVICE_WORKER_UPDATE.set({
+    message: "New application version available",
+    details: "Refresh to use the latest version.",
+    action: "Refresh"
+  });
+}
+function setupCache(cache, options = {}) {
+  const { auto_reload = false, interval = 5 * MINUTES } = cacheOptions(options);
+  _auto_reload = auto_reload;
+  _update_interval = Math.max(interval, 1 * MINUTES);
+  if (cache.isEnabled) {
+    if (!_version_subscription) {
+      _version_subscription = cache.versionUpdates.subscribe((event) => {
+        if (event.type !== "VERSION_READY" || _new_version)
+          return;
+        log("CACHE", `New application version is ready.`);
+        handleNewVersion();
+      });
+    }
+    if (!_unrecoverable_subscription) {
+      _unrecoverable_subscription = cache.unrecoverable.subscribe((event) => {
+        log("CACHE", `Application cache is unrecoverable: ${event.reason}`, void 0, "error");
+        _new_version = true;
+        stopUpdateChecks();
+        if (_auto_reload)
+          return reloadApp();
+        SERVICE_WORKER_UPDATE.set({
+          message: "Application update failed to load",
+          details: "Reload the app to recover.",
+          action: "Reload"
+        });
+      });
+    }
+    if (_new_version) {
+      if (_auto_reload)
+        reloadApp();
+      return;
+    }
+    stopUpdateChecks();
+    _initial_check = setTimeout(() => {
+      log("CACHE", `Checking for updates...`);
+      checkForUpdate(cache);
+    }, 2 * SECONDS);
+    _timer = setInterval(() => {
+      log("CACHE", `Checking for updates...`);
+      checkForUpdate(cache);
+    }, Math.max(interval, 1 * MINUTES));
+  }
+}
+async function checkForUpdate(cache) {
+  _last_update_check = Date.now();
+  try {
+    if (cache.isEnabled && await cache.checkForUpdate()) {
+      log("CACHE", `Application update detected.`);
+    }
+  } catch (error2) {
+    log("CACHE", `Failed to check for application updates.`, error2, "warn");
+  }
+}
 
 // node_modules/@angular/cdk/fesm2022/clipboard.mjs
 var PendingCopy = class {
@@ -77314,166 +77479,6 @@ function getParameterizedRouteFromSnapshot(route) {
   return fullPath ? `/${fullPath}/` : "/";
 }
 
-// libs/common/src/lib/constants.ts
-var SETTING_KEYS = {
-  FAVORITE_ROOMS: "favourite_rooms",
-  FAVORITE_DESKS: "favourite_desks",
-  FAVORITE_PARKING_SPACES: "favourite_parking",
-  FAVORITE_LOCKERS: "favourite_lockers",
-  FAVORITE_CATERING: "favourite_menu_items",
-  FAVORITE_TEAM_MEMBERS: "favourite_team_members",
-  TEAM_MEMBERS: "team_members"
-};
-var SECONDS = 1e3;
-var MINUTES = 60 * SECONDS;
-var HOURS = 60 * MINUTES;
-var DAYS = 24 * HOURS;
-var MINUTE = 60 * SECONDS;
-var HOUR = 60 * MINUTES;
-var DAY = 24 * HOURS;
-
-// libs/common/src/lib/application.ts
-var _timer;
-var _initial_check;
-var _version_subscription;
-var _unrecoverable_subscription;
-var _new_version = false;
-var _auto_reload = false;
-var _reload_gate = null;
-var _reload_timer;
-var _reload_deferred_since = 0;
-var _init_reload = null;
-var _last_update_check = 0;
-var _update_interval = 0;
-var RELOAD_RETRY_MS = 5 * SECONDS;
-var MAX_RELOAD_DEFERRAL_MS = 10 * MINUTES;
-var SERVICE_WORKER_UPDATE = signal(
-  null,
-  ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
-    /* istanbul ignore next */
-    []
-  )
-);
-function hasNewVersion() {
-  return _new_version;
-}
-function serviceWorkerUpdate() {
-  return SERVICE_WORKER_UPDATE.asReadonly();
-}
-function canReloadNow() {
-  if (typeof navigator !== "undefined" && navigator.onLine === false) {
-    return false;
-  }
-  if (!Qr())
-    return false;
-  try {
-    return _reload_gate ? _reload_gate() : true;
-  } catch (error2) {
-    log("CACHE", "Reload gate failed.", error2, "warn");
-    return true;
-  }
-}
-function reloadApp() {
-  if (_reload_timer)
-    clearTimeout(_reload_timer);
-  _reload_timer = void 0;
-  if (!_reload_deferred_since)
-    _reload_deferred_since = Date.now();
-  const waited = Date.now() - _reload_deferred_since;
-  if (canReloadNow() || waited >= MAX_RELOAD_DEFERRAL_MS) {
-    location.reload();
-    return;
-  }
-  _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
-}
-function reloadForNewVersion() {
-  reloadApp();
-}
-function requestInitReload() {
-  if (_init_reload) {
-    _init_reload();
-    return;
-  }
-  location.reload();
-}
-function stopUpdateChecks() {
-  if (_timer)
-    clearInterval(_timer);
-  if (_initial_check)
-    clearTimeout(_initial_check);
-  _timer = void 0;
-  _initial_check = void 0;
-}
-function cacheOptions(options = {}) {
-  return typeof options === "number" ? { interval: options } : options;
-}
-function handleNewVersion() {
-  if (_new_version)
-    return;
-  _new_version = true;
-  stopUpdateChecks();
-  if (_auto_reload)
-    return reloadApp();
-  SERVICE_WORKER_UPDATE.set({
-    message: "New application version available",
-    details: "Refresh to use the latest version.",
-    action: "Refresh"
-  });
-}
-function setupCache(cache, options = {}) {
-  const { auto_reload = false, interval = 5 * MINUTES } = cacheOptions(options);
-  _auto_reload = auto_reload;
-  _update_interval = Math.max(interval, 1 * MINUTES);
-  if (cache.isEnabled) {
-    if (!_version_subscription) {
-      _version_subscription = cache.versionUpdates.subscribe((event) => {
-        if (event.type !== "VERSION_READY" || _new_version)
-          return;
-        log("CACHE", `New application version is ready.`);
-        handleNewVersion();
-      });
-    }
-    if (!_unrecoverable_subscription) {
-      _unrecoverable_subscription = cache.unrecoverable.subscribe((event) => {
-        log("CACHE", `Application cache is unrecoverable: ${event.reason}`, void 0, "error");
-        _new_version = true;
-        stopUpdateChecks();
-        if (_auto_reload)
-          return reloadApp();
-        SERVICE_WORKER_UPDATE.set({
-          message: "Application update failed to load",
-          details: "Reload the app to recover.",
-          action: "Reload"
-        });
-      });
-    }
-    if (_new_version) {
-      if (_auto_reload)
-        reloadApp();
-      return;
-    }
-    stopUpdateChecks();
-    _initial_check = setTimeout(() => {
-      log("CACHE", `Checking for updates...`);
-      checkForUpdate(cache);
-    }, 2 * SECONDS);
-    _timer = setInterval(() => {
-      log("CACHE", `Checking for updates...`);
-      checkForUpdate(cache);
-    }, Math.max(interval, 1 * MINUTES));
-  }
-}
-async function checkForUpdate(cache) {
-  _last_update_check = Date.now();
-  try {
-    if (cache.isEnabled && await cache.checkForUpdate()) {
-      log("CACHE", `Application update detected.`);
-    }
-  } catch (error2) {
-    log("CACHE", `Failed to check for application updates.`, error2, "warn");
-  }
-}
-
 // libs/common/src/lib/native-app.ts
 var DOMAIN_STORAGE_KEY = "PlaceOS.native.domain";
 var EMAIL_STORAGE_KEY = "PlaceOS.native.email";
@@ -78349,6 +78354,7 @@ var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var OFFLINE_BOOT_DELAY = 10 * 1e3;
+var ZONE_LOAD_TIMEOUT = 120 * 1e3;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 function cachedAuthority() {
@@ -78591,19 +78597,52 @@ var OrganisationService = class _OrganisationService {
     this._region_settings = {};
     this._building_settings = {};
     this._skip_auto_selection = false;
+    this._init_timer = null;
+    this._zone_load_timer = null;
     this._override_timer = null;
-    const online = hi(Kr(), (_2) => _2);
+    const online_state = Kr();
+    const online = hi(online_state, (_2) => _2);
     const start = this._service.get("app.offline_boot") ? Promise.race([
       online,
       new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY))
     ]) : online;
-    start.then(() => setTimeout(() => this.init(), 1e3));
+    start.then(() => this._scheduleInit());
+    online_state.subscribe((is_online, was_online) => {
+      if (is_online && !was_online)
+        this._scheduleInit();
+    }, { emitCurrent: false });
     effect(() => {
       this._active_region();
       const building = this._active_building();
       if (building)
         this._updateSettingOverrides();
     });
+  }
+  _scheduleInit() {
+    if (this._init_timer)
+      clearTimeout(this._init_timer);
+    this._init_timer = setTimeout(() => {
+      this._init_timer = null;
+      if (!this._initialised()) {
+        this._startZoneLoadTimer();
+        this.init();
+      }
+    }, 1e3);
+  }
+  _startZoneLoadTimer() {
+    if (this._zone_load_timer)
+      return;
+    this._zone_load_timer = setTimeout(() => {
+      this._zone_load_timer = null;
+      if (!this._initialised())
+        requestInitReload();
+    }, ZONE_LOAD_TIMEOUT);
+  }
+  _completeInit() {
+    if (this._zone_load_timer)
+      clearTimeout(this._zone_load_timer);
+    this._zone_load_timer = null;
+    this._initialised.set(true);
   }
   /** Resolve once the organisation data has finished initialising */
   async waitUntilInitialised() {
@@ -78686,7 +78725,7 @@ var OrganisationService = class _OrganisationService {
   }
   async init(tries = 0) {
     if (this._limited_init()) {
-      this._initialised.set(true);
+      this._completeInit();
       return;
     }
     this._initialised.set(false);
@@ -78710,7 +78749,7 @@ var OrganisationService = class _OrganisationService {
       window.app.org = this;
       window.org = this;
     }
-    this._initialised.set(true);
+    this._completeInit();
     if (this._served_cache) {
       log3("Loaded from cache, refreshing organisation data...");
       this._served_cache = false;
@@ -84858,4 +84897,4 @@ export {
   getGuestCateringItem,
   setGuestCateringItem
 };
-//# sourceMappingURL=chunk-PEEEVI6B.js.map
+//# sourceMappingURL=chunk-DXDFWD4Z.js.map
