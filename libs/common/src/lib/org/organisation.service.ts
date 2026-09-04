@@ -19,6 +19,7 @@ import {
     waitForSignal,
 } from '@placeos/ts-client';
 
+import { requestInitReload } from '../application';
 import { scoped_log, unique } from '../general';
 import { notifyError } from '../notifications';
 import { setLoadingMessage } from '../placeos.service';
@@ -39,6 +40,8 @@ const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 const AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 /** How long `app.offline_boot` waits to be online before using cached data */
 const OFFLINE_BOOT_DELAY = 10 * 1000;
+/** How long zone loading may remain incomplete before reloading the app */
+const ZONE_LOAD_TIMEOUT = 120 * 1000;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 /** Cached data older than this is discarded instead of being displayed */
 const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000;
@@ -159,6 +162,10 @@ export class OrganisationService {
     private _building_settings: Record<string, Record<string, any>> = {};
     /** Flag to skip automatic building/region selection when set externally */
     private _skip_auto_selection = false;
+    /** Pending delayed initialisation, shared by startup and auth recovery */
+    private _init_timer: ReturnType<typeof setTimeout> | null = null;
+    /** Reload timer for a zone load that never settles */
+    private _zone_load_timer: ReturnType<typeof setTimeout> | null = null;
 
     /** Mapping of organisation settings overrides */
     public get settings() {
@@ -306,7 +313,8 @@ export class OrganisationService {
     }
 
     constructor() {
-        const online = waitForSignal(onlineState(), (_) => _);
+        const online_state = onlineState();
+        const online = waitForSignal(online_state, (_) => _);
         // Startup normally waits to be online before loading anything. A fixed
         // device with no network never gets there, so it never even tries its
         // cached copy - and everything waiting on `initialised` waits forever.
@@ -319,12 +327,45 @@ export class OrganisationService {
                   ),
               ])
             : online;
-        start.then(() => setTimeout(() => this.init(), 1000));
+        start.then(() => this._scheduleInit());
+        // A zone request can remain pending when authentication is interrupted.
+        // Start a fresh load when authentication brings the client online again.
+        online_state.subscribe(
+            (is_online, was_online) => {
+                if (is_online && !was_online) this._scheduleInit();
+            },
+            { emitCurrent: false },
+        );
         effect(() => {
             this._active_region();
             const building = this._active_building();
             if (building) this._updateSettingOverrides();
         });
+    }
+
+    private _scheduleInit(): void {
+        if (this._init_timer) clearTimeout(this._init_timer);
+        this._init_timer = setTimeout(() => {
+            this._init_timer = null;
+            if (!this._initialised()) {
+                this._startZoneLoadTimer();
+                this.init();
+            }
+        }, 1000);
+    }
+
+    private _startZoneLoadTimer(): void {
+        if (this._zone_load_timer) return;
+        this._zone_load_timer = setTimeout(() => {
+            this._zone_load_timer = null;
+            if (!this._initialised()) requestInitReload();
+        }, ZONE_LOAD_TIMEOUT);
+    }
+
+    private _completeInit(): void {
+        if (this._zone_load_timer) clearTimeout(this._zone_load_timer);
+        this._zone_load_timer = null;
+        this._initialised.set(true);
     }
 
     /** Resolve once the organisation data has finished initialising */
@@ -450,7 +491,7 @@ export class OrganisationService {
 
     private async init(tries = 0) {
         if (this._limited_init()) {
-            this._initialised.set(true);
+            this._completeInit();
             return;
         }
         this._initialised.set(false);
@@ -479,7 +520,7 @@ export class OrganisationService {
             window.app.org = this;
             (window as any).org = this;
         }
-        this._initialised.set(true);
+        this._completeInit();
         // Cached data is displayed immediately, then replaced with the latest.
         if (this._served_cache) {
             log('Loaded from cache, refreshing organisation data...');
