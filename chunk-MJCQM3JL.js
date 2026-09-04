@@ -1,6 +1,6 @@
 import {
   encodeQR
-} from "./chunk-Q4DQ62MM.js";
+} from "./chunk-SCRIU3HN.js";
 
 // libs/common/src/lib/qr-code.ts
 function generateQRCode(code, colorLight = "#fff0", colorDark = "#000") {
@@ -16,4 +16,4 @@ function generateQRCode(code, colorLight = "#fff0", colorDark = "#000") {
 export {
   generateQRCode
 };
-//# sourceMappingURL=chunk-EIIGDJY2.js.map
+//# sourceMappingURL=chunk-MJCQM3JL.js.map
