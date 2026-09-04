@@ -3450,6 +3450,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .table {
   display: table;
 }
+#placeos .aspect-square {
+  aspect-ratio: 1 / 1;
+}
 #placeos .aspect-video {
   aspect-ratio: var(--aspect-video);
 }
@@ -3494,6 +3497,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .h-2\.5 {
   height: calc(var(--spacing) * 2.5);
+}
+#placeos .h-2\/3 {
+  height: calc(2 / 3 * 100%);
 }
 #placeos .h-3 {
   height: calc(var(--spacing) * 3);
@@ -4310,6 +4316,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .max-w-32 {
   max-width: calc(var(--spacing) * 32);
+}
+#placeos .max-w-36 {
+  max-width: calc(var(--spacing) * 36);
 }
 #placeos .max-w-48 {
   max-width: calc(var(--spacing) * 48);
@@ -5209,6 +5218,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .rounded-tl-none\! {
   border-top-left-radius: 0 !important;
 }
+#placeos .rounded-tl-xl {
+  border-top-left-radius: var(--radius-xl);
+}
 #placeos .rounded-r {
   border-top-right-radius: 0.25rem;
   border-bottom-right-radius: 0.25rem;
@@ -5220,6 +5232,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .rounded-r-none {
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
+}
+#placeos .rounded-tr-xl {
+  border-top-right-radius: var(--radius-xl);
 }
 #placeos .rounded-b {
   border-bottom-right-radius: 0.25rem;
@@ -5238,6 +5253,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .rounded-br-xl {
   border-bottom-right-radius: var(--radius-xl);
+}
+#placeos .rounded-bl-xl {
+  border-bottom-left-radius: var(--radius-xl);
 }
 #placeos .border {
   border-style: var(--tw-border-style);
@@ -5303,9 +5321,17 @@ input:where([type=button], [type=reset], [type=submit]),
   border-top-style: var(--tw-border-style);
   border-top-width: 2px;
 }
+#placeos .border-t-4 {
+  border-top-style: var(--tw-border-style);
+  border-top-width: 4px;
+}
 #placeos .border-r {
   border-right-style: var(--tw-border-style);
   border-right-width: 1px;
+}
+#placeos .border-r-4 {
+  border-right-style: var(--tw-border-style);
+  border-right-width: 4px;
 }
 #placeos .border-b {
   border-bottom-style: var(--tw-border-style);
@@ -5319,6 +5345,10 @@ input:where([type=button], [type=reset], [type=submit]),
   border-bottom-style: var(--tw-border-style);
   border-bottom-width: 2px;
 }
+#placeos .border-b-4 {
+  border-bottom-style: var(--tw-border-style);
+  border-bottom-width: 4px;
+}
 #placeos .border-l {
   border-left-style: var(--tw-border-style);
   border-left-width: 1px;
@@ -5326,6 +5356,10 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-l-2 {
   border-left-style: var(--tw-border-style);
   border-left-width: 2px;
+}
+#placeos .border-l-4 {
+  border-left-style: var(--tw-border-style);
+  border-left-width: 4px;
 }
 #placeos .border-l-8 {
   border-left-style: var(--tw-border-style);
