@@ -1,34 +1,34 @@
 import {
   MatProgressBar,
   MatProgressBarModule
-} from "./chunk-G6YFGS5A.js";
+} from "./chunk-RE3MIBBE.js";
 import {
   FooterMenuComponent,
   TopbarComponent,
   parse2 as parse
-} from "./chunk-P5JMODFQ.js";
+} from "./chunk-UEGSLOMZ.js";
 import {
   subMinutes
-} from "./chunk-IRZ722K6.js";
-import "./chunk-RH3UEPAX.js";
-import "./chunk-GVWCSS27.js";
-import "./chunk-IKIBURHT.js";
-import "./chunk-USIDNLBN.js";
-import "./chunk-O7BNIRKX.js";
+} from "./chunk-OJOCZIRL.js";
+import "./chunk-EXNCL2JD.js";
+import "./chunk-RZZHQYZX.js";
+import "./chunk-6EYQUPXN.js";
+import "./chunk-ANNOIMSA.js";
+import "./chunk-V545KLJL.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-QDNELNUR.js";
-import "./chunk-AHHLME4O.js";
-import "./chunk-AKIWDU2V.js";
-import "./chunk-DRLQLJVX.js";
-import "./chunk-TYVYABE5.js";
+} from "./chunk-AG2VQSWV.js";
+import "./chunk-I3XIGZBA.js";
+import "./chunk-K6MJNAVS.js";
+import "./chunk-ERYZEGAK.js";
+import "./chunk-ZKUM2CLI.js";
 import {
   CustomTooltipComponent,
   MatTooltip,
   MatTooltipModule
-} from "./chunk-TUTUI3EM.js";
-import "./chunk-LRIUS7CU.js";
+} from "./chunk-Q7EFZA2Q.js";
+import "./chunk-IWE7D3BS.js";
 import {
   AUTO_STYLE,
   AnimationGroupPlayer,
@@ -88,7 +88,7 @@ import {
   subDays,
   user_groups_loaded,
   ɵPRE_STYLE
-} from "./chunk-LH7TRF2T.js";
+} from "./chunk-UASD34R3.js";
 import {
   ANIMATION_MODULE_TYPE,
   ActivatedRoute,
@@ -229,7 +229,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-XUPR3QCE.js";
+} from "./chunk-PKNCBQ6J.js";
 import {
   __export,
   __objRest,
@@ -18157,62 +18157,62 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-EVNXTZVW.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-YPSKJGDM.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-M7QJXZCU.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-RSHOCMNL.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-JEDADVQJ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-4G5NY344.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-6PWREXSJ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-4A2D7222.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-U2VABNZG.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-YHJ4YJVW.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-YZEV6ONH.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-OZFL3III.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-ZGZQGY3K.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-KVBMYHA4.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-S5TAB73L.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-YYKERHED.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-Y36RHLIF.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-C4BORRU4.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
