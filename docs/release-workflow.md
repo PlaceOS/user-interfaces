@@ -13,3 +13,7 @@ Release branches and deployment workflows can affect production. Change or run t
 The workflow files under `.github/workflows/` define the active branch triggers, build configurations, and deployment branches. Inspect those files before release work. Do not rely on a copied branch map in documentation.
 
 CI writes the `build/<project>/<environment>` branches. Do not edit those branches directly.
+
+Each build contains an application-specific `CHANGELOG.md`. The build workflow
+includes commits that change the application, its transitive Nx dependencies, or
+files under `shared/`.

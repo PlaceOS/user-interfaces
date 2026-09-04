@@ -11,7 +11,7 @@ jobs:
         steps:
             - uses: actions/checkout@v6
               with:
-                  fetch-depth: '2'
+                  fetch-depth: 0
 
             - name: Cache node modules
               id: cache
@@ -73,28 +73,6 @@ jobs:
             - name: Print affected applications
               run: |
                   echo ${{ steps.affected_apps.outputs.affected_apps }}
-
-            - name: Fetch changelog history
-              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
-              run: git fetch --force --prune --tags --unshallow
-
-            - name: Generate changelog
-              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
-              uses: orhun/git-cliff-action@v4
-              with:
-                  config: cliff.toml
-                  args: --verbose
-              env:
-                  OUTPUT: ${{ runner.temp }}/CHANGELOG.md
-                  GITHUB_REPO: ${{ github.repository }}
-
-            - name: Upload changelog
-              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
-              uses: actions/upload-artifact@v4
-              with:
-                  name: changelog-${{ github.run_attempt }}
-                  path: ${{ runner.temp }}/CHANGELOG.md
-                  retention-days: 1
 
         outputs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
@@ -188,6 +166,8 @@ jobs:
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
             - uses: actions/checkout@v6
+              with:
+                  fetch-depth: 0
 
             - name: Cache node modules
               id: cache
@@ -230,11 +210,23 @@ jobs:
               run: |
                   bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
-            - name: Add changelog to build
-              uses: actions/download-artifact@v4
+            - name: Resolve changelog paths
+              id: changelog_paths
+              run: |
+                  args="$(
+                      node ./tools/get-changelog-paths.js '${{ matrix.package }}' |
+                          jq -r '["--verbose", (.[] | "--include-path", @sh)] | join(" ")'
+                  )"
+                  echo "args=${args}" >> "$GITHUB_OUTPUT"
+
+            - name: Add application changelog to build
+              uses: orhun/git-cliff-action@v4
               with:
-                  name: changelog-${{ github.run_attempt }}
-                  path: dist/apps/${{ matrix.package }}/browser
+                  config: cliff.toml
+                  args: ${{ steps.changelog_paths.outputs.args }}
+              env:
+                  OUTPUT: dist/apps/${{ matrix.package }}/browser/CHANGELOG.md
+                  GITHUB_REPO: ${{ github.repository }}
 
             - name: Deploy the application(${{ matrix.package }})
               run: .github/scripts/publish-subdir.sh
