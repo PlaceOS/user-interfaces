@@ -72,8 +72,4 @@ export class SignageGroupHeaderComponent {
             panelClass: 'mobile-fullscreen',
         });
     }
-
-    public selectGroup(group_id: string) {
-        this.selected_group_id.set(group_id);
-    }
 }

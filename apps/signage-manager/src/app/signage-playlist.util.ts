@@ -31,12 +31,6 @@ export function playlistMediaUrl(item: SignageMedia) {
         : item?.media_uri || '';
 }
 
-export function playlistMediaUrl(item: SignageMedia) {
-    return item?.media_id
-        ? `/api/engine/v2/uploads/${item.media_id}/url`
-        : item?.media_uri || '';
-}
-
 export function playlistMediaIcon(item: SignageMedia) {
     return item?.media_type === 'video'
         ? 'video_library'

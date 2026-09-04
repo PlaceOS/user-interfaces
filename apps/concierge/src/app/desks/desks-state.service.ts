@@ -709,15 +709,6 @@ export class DesksStateService extends AsyncHandler {
         });
     }
 
-    public viewBookingHistory(booking: Booking) {
-        if (!booking) return;
-        this._dialog.open(BookingHistoryModalComponent, {
-            data: { booking },
-            width: '32rem',
-            maxWidth: '100vw',
-        });
-    }
-
     public async giveAccess(desk: Booking) {
         const status: any = await saveBooking(
             new Booking({ ...desk, access: true }).toJSON(),

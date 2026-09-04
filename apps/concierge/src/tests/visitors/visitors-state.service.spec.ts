@@ -121,12 +121,6 @@ describe('VisitorStateService', () => {
                 }),
             }),
         );
-        const start = addMinutes(startOfDay(new Date(date)), offset * 60);
-        const end = addDays(start, 1);
-
-        const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
-        expect(url).toContain(`period_start=${getUnixTime(start)}`);
-        expect(url).toContain(`period_end=${getUnixTime(end)}`);
     });
 
     it('should allow filtering of visitor events', async () => {

@@ -508,7 +508,6 @@ export class SignageService extends AsyncHandler {
         ) {
             return;
         }
-        this._display_signature = display_signature;
         const display = this._parseDisplay(value);
         display.plugins = await this._withTimeout(
             this._resolveDisplayPlugins(display),

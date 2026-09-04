@@ -20,7 +20,6 @@ import {
     BookingClash,
     BookingRuleset,
     BookingType,
-    currentUserIsLoaded,
     currentUser,
     currentUserIsLoaded,
     currentUserLoaded,
