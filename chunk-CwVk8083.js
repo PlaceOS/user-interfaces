@@ -1,3 +1,0 @@
-import{Mu as vr,Ns as gm}from"./chunk-LAh-C4hK.js";var l=50;async function i(e){let t=await e,n=t?.data||[],a=[...n],o=1;for(;n.length>0&&t.next&&o<l&&(!t.total||a.length<t.total);){let s=t.next();if(!s)break;t=await s,n=t?.data||[],a.push(...n),o+=1}return a}function f(e={}){return i(vr({query_params:e,endpoint:`/api/staff/v1/surveys/questions`,path:``,fn:t=>new gm(t)}))}function c(e={}){return i(vr({query_params:e,endpoint:`/api/engine/v2/short_url`,path:``,fn:t=>t}))}export{f as n,i as r,c as t};
-//# debugId=26b6cfc7-35b9-5eb9-b186-9750de847635
-//# sourceMappingURL=chunk-CwVk8083.js.map
