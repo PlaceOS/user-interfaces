@@ -6,9 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ### Bug Fixes
 
+#### Assets
+
+- Restrict selection for disabled rooms PPT-2745
+
 #### Bookings
 
 - Show cancel series by default PPT-2682
+- Use stored period for group edits PPT-2740
 
 #### Build
 
@@ -55,6 +60,7 @@ All notable changes to this project will be documented in this file.
 - Support schedule expiry PPT-2685
 - Remove plugin cut transition delay
 - Keep plugin visible until playback starts
+- Correct player display styling
 
 #### Signage-manager
 
@@ -77,6 +83,7 @@ All notable changes to this project will be documented in this file.
 - Harden AI image jobs
 - Restore recent AI jobs
 - Enforce AI action capabilities
+- Tweak display templates zone link
 
 #### Visitor-kiosk
 
@@ -141,6 +148,8 @@ All notable changes to this project will be documented in this file.
 - Attach images to a request and name them in the brief
 - A switch for whether the poster wears the branding
 - Branding is read only unless you are a sys admin
+- Separate images to include from the style reference
+- Show source zone for template mappings
 
 ### Performance
 
