@@ -11,7 +11,7 @@ jobs:
         steps:
             - uses: actions/checkout@v6
               with:
-                  fetch-depth: 0
+                  fetch-depth: '2'
 
             - name: Cache node modules
               id: cache
@@ -73,6 +73,34 @@ jobs:
             - name: Print affected applications
               run: |
                   echo ${{ steps.affected_apps.outputs.affected_apps }}
+
+            - name: Fetch changelog history
+              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              run: git fetch --force --prune --tags --unshallow origin "${GITHUB_REF}"
+
+            - name: Install git-cliff
+              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              uses: taiki-e/install-action@v2
+              with:
+                  tool: git-cliff@2.13.1
+                  fallback: none
+
+            - name: Generate application changelogs
+              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              env:
+                  AFFECTED_APPS: ${{ steps.affected_apps.outputs.affected_apps }}
+                  CHANGELOG_DIR: ${{ runner.temp }}/changelogs
+                  GITHUB_REPO: ${{ github.repository }}
+                  MAX_PARALLEL: 2
+              run: .github/scripts/generate-changelogs.sh
+
+            - name: Upload application changelogs
+              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: changelogs-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/changelogs
+                  retention-days: 1
 
         outputs:
             affected_apps: ${{ steps.affected_apps.outputs.affected_apps }}
@@ -166,8 +194,6 @@ jobs:
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
             - uses: actions/checkout@v6
-              with:
-                  fetch-depth: 0
 
             - name: Cache node modules
               id: cache
@@ -210,23 +236,17 @@ jobs:
               run: |
                   bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
-            - name: Resolve changelog paths
-              id: changelog_paths
-              run: |
-                  args="$(
-                      node ./tools/get-changelog-paths.js '${{ matrix.package }}' |
-                          jq -r '["--verbose", (.[] | "--include-path", @sh)] | join(" ")'
-                  )"
-                  echo "args=${args}" >> "$GITHUB_OUTPUT"
+            - name: Download application changelogs
+              uses: actions/download-artifact@v4
+              with:
+                  name: changelogs-${{ github.run_attempt }}
+                  path: ${{ runner.temp }}/changelogs
 
             - name: Add application changelog to build
-              uses: orhun/git-cliff-action@v4
-              with:
-                  config: cliff.toml
-                  args: ${{ steps.changelog_paths.outputs.args }}
-              env:
-                  OUTPUT: dist/apps/${{ matrix.package }}/browser/CHANGELOG.md
-                  GITHUB_REPO: ${{ github.repository }}
+              run: |
+                  cp \
+                    "${RUNNER_TEMP}/changelogs/${{ matrix.package }}/CHANGELOG.md" \
+                    "dist/apps/${{ matrix.package }}/browser/CHANGELOG.md"
 
             - name: Deploy the application(${{ matrix.package }})
               run: .github/scripts/publish-subdir.sh
