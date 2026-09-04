@@ -706,7 +706,6 @@ export class EventFormService extends AsyncHandler {
         value.assets = (event.extension_data.assets || []).map(
             (_) => new AssetRequest({ ..._, event }),
         );
-        this._setInitialAttendees(value.attendees);
         this._model.set(value);
         this._form().reset();
         this._applyDurationSettings();
