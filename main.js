@@ -47255,13 +47255,17 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_BACKGROUND_SEARCH: "Search media",
   TEMPLATE_BACKGROUND_SELECT: "Select background media",
   TEMPLATE_BACKGROUND_SELECTED: "Selected background",
+  TEMPLATE_CONFIGURATION: "Configuration",
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_MAPPING_DEFAULT_HINT: "Turn this off to make the template the default for this item.",
+  TEMPLATE_MAPPING_DISPLAY: "Display",
   TEMPLATE_MAPPING_EDIT: "Edit template schedule",
   TEMPLATE_MAPPING_SCHEDULE: "Schedule this template",
-  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load applied templates.",
+  TEMPLATE_MAPPING_ZONE: "Zone",
+  TEMPLATE_MAPPINGS: "Mappings",
+  TEMPLATE_MAPPINGS_LOAD_ERROR: "Unable to load template mappings.",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
@@ -47273,6 +47277,7 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_NO_LAYOUT_CHANGES: "No layout changes",
   TEMPLATE_NO_LAYOUTS: "No layout items yet. Add one to get started.",
   TEMPLATE_NO_LAYOUTS_HINT: "Add layout items to build this template.",
+  TEMPLATE_NO_MAPPINGS: "This template is not applied to any displays or zones.",
   TEMPLATE_NO_PLUGIN: "No plugin",
   TEMPLATE_PANEL_HEIGHT: "Height",
   TEMPLATE_PANEL_WIDTH: "Width",
@@ -53417,15 +53422,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "ea1e8e8",
-  "hash": "ea1e8e8",
+  "raw": "09622c2",
+  "hash": "09622c2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "ea1e8e8",
+  "suffix": "09622c2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1787804337726
+  "time": 1788512840164
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -75946,6 +75951,7 @@ var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var OFFLINE_BOOT_DELAY = 10 * 1e3;
+var ZONE_LOAD_TIMEOUT = 120 * 1e3;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 function cachedAuthority() {
@@ -76188,19 +76194,52 @@ var OrganisationService = class _OrganisationService {
     this._region_settings = {};
     this._building_settings = {};
     this._skip_auto_selection = false;
+    this._init_timer = null;
+    this._zone_load_timer = null;
     this._override_timer = null;
-    const online = hi(Kr(), (_2) => _2);
+    const online_state = Kr();
+    const online = hi(online_state, (_2) => _2);
     const start = this._service.get("app.offline_boot") ? Promise.race([
       online,
       new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY))
     ]) : online;
-    start.then(() => setTimeout(() => this.init(), 1e3));
+    start.then(() => this._scheduleInit());
+    online_state.subscribe((is_online, was_online) => {
+      if (is_online && !was_online)
+        this._scheduleInit();
+    }, { emitCurrent: false });
     effect(() => {
       this._active_region();
       const building = this._active_building();
       if (building)
         this._updateSettingOverrides();
     });
+  }
+  _scheduleInit() {
+    if (this._init_timer)
+      clearTimeout(this._init_timer);
+    this._init_timer = setTimeout(() => {
+      this._init_timer = null;
+      if (!this._initialised()) {
+        this._startZoneLoadTimer();
+        this.init();
+      }
+    }, 1e3);
+  }
+  _startZoneLoadTimer() {
+    if (this._zone_load_timer)
+      return;
+    this._zone_load_timer = setTimeout(() => {
+      this._zone_load_timer = null;
+      if (!this._initialised())
+        requestInitReload();
+    }, ZONE_LOAD_TIMEOUT);
+  }
+  _completeInit() {
+    if (this._zone_load_timer)
+      clearTimeout(this._zone_load_timer);
+    this._zone_load_timer = null;
+    this._initialised.set(true);
   }
   /** Resolve once the organisation data has finished initialising */
   async waitUntilInitialised() {
@@ -76283,7 +76322,7 @@ var OrganisationService = class _OrganisationService {
   }
   async init(tries = 0) {
     if (this._limited_init()) {
-      this._initialised.set(true);
+      this._completeInit();
       return;
     }
     this._initialised.set(false);
@@ -76307,7 +76346,7 @@ var OrganisationService = class _OrganisationService {
       window.app.org = this;
       window.org = this;
     }
-    this._initialised.set(true);
+    this._completeInit();
     if (this._served_cache) {
       log3("Loaded from cache, refreshing organisation data...");
       this._served_cache = false;
