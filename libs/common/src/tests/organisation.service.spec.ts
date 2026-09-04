@@ -4,7 +4,6 @@ import {
     SpectatorService,
 } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from '../lib/org/organisation.service';
@@ -31,7 +30,9 @@ describe('OrganisationService', () => {
         vi.clearAllMocks();
         localStorage.clear();
         sessionStorage.clear();
-        vi.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
+        vi.mocked(ts_client.onlineState).mockReturnValue(
+            ts_client.createSignal(true),
+        );
         vi.mocked(ts_client.waitForSignal).mockResolvedValue(true as any);
         vi.mocked(ts_client.authority).mockReturnValue({
             id: 'auth-1',
