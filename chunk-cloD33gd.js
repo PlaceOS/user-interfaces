@@ -1,0 +1,3 @@
+import{y as B}from"./chunk-C42_nKGE.js";import{Pt as Ws,R as Ju,pr as uw,yt as R_}from"./chunk-DYnGPjQc.js";var l=/^\+?(\d[\d\s\-\(\)]{5,13}\d)$/;var f=`@place.tech`;function c(e,o){if(!e)throw Error(`No user passed`);return R_(B({name:e.name||``,email:e.email||``,organisation:e.organisation||``,phone:e.phone||``,assistance_required:e.assistance_required||!1,visit_expected:e.visit_expected??!0}),t=>{Ju(t.name),Ju(t.email),uw(t.email),Ju(t.organisation),Ws(t.phone,({value:i})=>i()&&!l.test(i())?{kind:`pattern`}:void 0)},o?{injector:o}:void 0)}export{f as n,c as t};
+//# debugId=0bb3d4b5-3498-5d64-8616-afad5420916d
+//# sourceMappingURL=chunk-cloD33gd.js.map
