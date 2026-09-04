@@ -234,6 +234,7 @@ export class OrganisationService {
         if (!item || active_region?.id === item?.id) return;
         this._active_region.set(item);
         await this.loadRegionData(item);
+
         this._setBuildingFromTimezone();
         if (
             !this._skip_auto_selection &&
