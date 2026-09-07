@@ -607,7 +607,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         }
 
         await this._bookings.confirmPost().catch((e) => {
-            console.log(e);
+            if (e === 'User cancelled') throw e;
             notifyError(
                 i18n('EXPLORE.DESK_BOOKING_ERROR', {
                     name: desk.name || 'Desk',

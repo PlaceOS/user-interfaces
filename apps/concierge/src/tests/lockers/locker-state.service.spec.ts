@@ -1,13 +1,16 @@
 import { EventEmitter, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/vitest';
+import {
+    SpectatorService,
+    createServiceFactory,
+} from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
     SettingsService,
     setTimeInTimezone,
 } from '@placeos/common';
-import { addHours, addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
@@ -65,7 +68,9 @@ describe('LockerStateService', () => {
     /** Reset ts-client boundary spies with safe defaults for service bootstrap */
     const stubTsClient = () => {
         (ts_client.queryAssetCategories as any).mockReset();
-        (ts_client.queryAssetCategories as any).mockResolvedValue(CATEGORY_STUB);
+        (ts_client.queryAssetCategories as any).mockResolvedValue(
+            CATEGORY_STUB,
+        );
         (ts_client.queryAssetTypes as any).mockReset();
         (ts_client.queryAssetTypes as any).mockResolvedValue(TYPE_STUB);
         (ts_client.queryAssets as any).mockReset();
@@ -97,7 +102,8 @@ describe('LockerStateService', () => {
     /** Paged booking listing requests (queryPagedBookings -> query path '') */
     const pagedBookingCalls = () =>
         (ts_client.query as any).mock.calls.filter(
-            (c: any[]) => c[0]?.path === '' && c[0]?.endpoint?.includes('booking'),
+            (c: any[]) =>
+                c[0]?.path === '' && c[0]?.endpoint?.includes('booking'),
         );
     /** Locker asset queries by resolved asset type */
     const assetQueryCalls = (type_id: string) =>
@@ -131,19 +137,44 @@ describe('LockerStateService', () => {
         }
     }
 
-    it('should list parking-only levels last', () => {
+    it('should list active building levels with parking-only levels last', () => {
         spectator = createService();
         organisation_service.buildingsForRegion.mockReturnValue([
             { id: 'bld-1' },
+            { id: 'bld-2' },
         ]);
         organisation_service.level_list.set([
-            { id: 'lvl-parking', parent_id: 'bld-1', tags: ['level', 'parking'] },
+            {
+                id: 'lvl-parking',
+                parent_id: 'bld-1',
+                tags: ['level', 'parking'],
+            },
             { id: 'lvl-ground', parent_id: 'bld-1', tags: ['level'] },
+            { id: 'lvl-other', parent_id: 'bld-2', tags: ['level'] },
         ]);
 
         expect(spectator.service.levels().map((lvl: any) => lvl.id)).toEqual([
             'lvl-ground',
             'lvl-parking',
+        ]);
+    });
+
+    it('should list levels for every building in region mode', () => {
+        settings_map['app.use_region'] = true;
+        organisation_service.buildingsForRegion.mockReturnValue([
+            { id: 'bld-1' },
+            { id: 'bld-2' },
+        ]);
+        organisation_service.level_list.set([
+            { id: 'lvl-ground', parent_id: 'bld-1', tags: ['level'] },
+            { id: 'lvl-other', parent_id: 'bld-2', tags: ['level'] },
+            { id: 'lvl-outside', parent_id: 'bld-3', tags: ['level'] },
+        ]);
+        spectator = createService();
+
+        expect(spectator.service.levels().map((lvl: any) => lvl.id)).toEqual([
+            'lvl-ground',
+            'lvl-other',
         ]);
     });
 

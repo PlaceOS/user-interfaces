@@ -16,9 +16,10 @@ import { BookingModalComponent } from '../../app/overlays/booking-modal.componen
 
 describe('BookingModalComponent', () => {
     let spectator: Spectator<BookingModalComponent>;
+    const dialog_data: Record<string, unknown> = {};
     const createComponent = createComponentFactory({
         component: BookingModalComponent,
-        providers: [{ provide: MAT_DIALOG_DATA, useValue: {} }],
+        providers: [{ provide: MAT_DIALOG_DATA, useValue: dialog_data }],
         declarations: [
             mockComponent(UserSearchFieldComponent),
             mockComponent(TimeFieldComponent),
@@ -34,6 +35,7 @@ describe('BookingModalComponent', () => {
     });
 
     beforeEach(() => {
+        for (const key of Object.keys(dialog_data)) delete dialog_data[key];
         spectator = createComponent();
     });
 
@@ -65,5 +67,17 @@ describe('BookingModalComponent', () => {
 
     it('should be closable', () => {
         expect(spectator.query('button[icon]')).toBeTruthy();
+    });
+
+    it('should keep the default duration within the configured bounds', () => {
+        dialog_data.min_duration = 60;
+        dialog_data.max_duration = 120;
+        spectator = createComponent();
+        expect(spectator.component.model().duration).toBe(60);
+
+        dialog_data.min_duration = 15;
+        dialog_data.max_duration = 20;
+        spectator = createComponent();
+        expect(spectator.component.model().duration).toBe(20);
     });
 });

@@ -53,7 +53,7 @@ function parseDisplayTab(
                                     icon
                                     type="button"
                                     matRipple
-                                    class="sm:hidden"
+                                    class="desktop-hidden"
                                     (click)="deselectDisplay()"
                                     [attr.aria-label]="
                                         'SIGNAGE_MANAGER.BACK_TO_DISPLAYS'

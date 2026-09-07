@@ -11,7 +11,10 @@ import { mockDirective } from '@placeos/common/tests';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { ImageListFieldComponent } from '../lib/image-list-field.component';
+import {
+    ImageListFieldComponent,
+    UploadDetails,
+} from '../lib/image-list-field.component';
 
 const chipEvent = (value: string): MatChipInputEvent =>
     ({
@@ -77,6 +80,18 @@ describe('ImageListFieldComponent', () => {
         spectator.component.removeImage('a.png');
         expect(spectator.component.list()).toEqual(['b.png']);
         expect(on_change).toHaveBeenCalledWith(['b.png']);
+    });
+
+    it('should only count active uploads in the carousel length', () => {
+        spectator.component.writeValue(['existing.png']);
+        spectator.component.upload_ids.set(['active']);
+        spectator.component.upload_list.set([
+            { id: 'active' },
+            { id: 'completed' },
+        ] as unknown as UploadDetails[]);
+
+        expect(spectator.component.uploads()).toHaveLength(1);
+        expect(spectator.component.length()).toBe(3);
     });
 
     it('should copy an image url to the clipboard', () => {

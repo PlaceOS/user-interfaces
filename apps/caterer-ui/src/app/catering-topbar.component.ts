@@ -8,7 +8,12 @@ import {
     CateringStateService,
     ChargeCodeListModalComponent,
 } from '@placeos/catering';
-import { AsyncHandler, settingSignal } from '@placeos/common';
+import {
+    AsyncHandler,
+    notifyError,
+    notifySuccess,
+    settingSignal,
+} from '@placeos/common';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -231,12 +236,16 @@ export class CateringTopbarComponent extends AsyncHandler {
             : this._org.levelsForBuilding(this.building()),
     );
     /** Set filtered date */
-    public readonly setDate = (date) =>
-        (this._orders.filters = { ...this._orders.filters, date });
-    public readonly setSearch = (str) =>
+    public readonly setDate = (date: string | number) => {
+        const date_value =
+            typeof date === 'number' ? date : new Date(date).valueOf();
+        if (!Number.isFinite(date_value)) return;
+        this._orders.filters = { ...this._orders.filters, date: date_value };
+    };
+    public readonly setSearch = (str: string) =>
         (this._orders.filters = { ...this._orders.filters, search: str });
     /** List of levels for the active building */
-    public readonly updateZones = (z) => {
+    public readonly updateZones = (z: string[]) => {
         this._router.navigate([], {
             relativeTo: this._route,
             queryParams: { zone_ids: z.join(',') },
@@ -276,9 +285,10 @@ export class CateringTopbarComponent extends AsyncHandler {
                 );
             }
             if (params.has('building_id')) {
-                this._org.building = this._org.buildings.find(
+                const building = this._org.buildings.find(
                     (bld) => bld.id === params.get('building_id'),
                 );
+                if (building) this._org.building = building;
             }
         });
     }
@@ -293,10 +303,16 @@ export class CateringTopbarComponent extends AsyncHandler {
         this.subscription(
             'room-availability',
             ref.componentInstance.change.subscribe(async (list) => {
-                await this._catering
-                    .saveSettings({ disabled_rooms: list })
-                    .catch();
-                ref.componentInstance.loading.set(false);
+                try {
+                    await this._catering.saveSettings({
+                        disabled_rooms: list,
+                    });
+                    notifySuccess('Room availability settings saved');
+                } catch {
+                    notifyError('Unable to save room availability settings');
+                } finally {
+                    ref.componentInstance.loading.set(false);
+                }
             }),
         );
     }

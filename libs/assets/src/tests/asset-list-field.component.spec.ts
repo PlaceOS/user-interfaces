@@ -156,9 +156,28 @@ describe('AssetListFieldComponent', () => {
         expect(spectator.component.show_request()['req-1']).toBe(false);
     });
 
-    it('should reflect the disabled state', () => {
+    it('should disable request mutations when the form control is disabled', async () => {
+        spectator.component.setValue([
+            new AssetRequest({
+                id: 'req-1',
+                items: [{ id: 'a', quantity: 1 }],
+            }),
+        ]);
         spectator.component.setDisabledState(true);
+
+        await spectator.fixture.whenStable();
+
         expect(spectator.component.disabled()).toBe(true);
+        expect(
+            spectator.query<HTMLButtonElement>(
+                'button[name="remove-asset-request"]',
+            )?.disabled,
+        ).toBe(true);
+        expect(
+            spectator.query<HTMLButtonElement>(
+                'button[name="remove-asset-request-item"]',
+            )?.disabled,
+        ).toBe(true);
     });
 
     it('should disable selection when asset availability is disabled for the room', () => {

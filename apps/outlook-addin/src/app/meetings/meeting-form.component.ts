@@ -299,52 +299,54 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         </div>
                     </section>
                 }
-                <section class="p-4">
-                    <h3 class="flex items-center space-x-2">
+                @if (allow_assets()) {
+                    <section class="p-4">
+                        <h3 class="flex items-center space-x-2">
+                            <div
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
+                            >
+                                {{ !has_catering() ? '4' : '5' }}
+                            </div>
+                            <div class="text-xl">Assets</div>
+                            <div class="w-px flex-1"></div>
+                            <button
+                                icon
+                                matRipple
+                                (click)="
+                                    hide_block.update((h) => ({
+                                        ...h,
+                                        assets: !h.assets,
+                                    }))
+                                "
+                            >
+                                <icon>{{
+                                    hide_block().assets
+                                        ? 'expand_more'
+                                        : 'expand_less'
+                                }}</icon>
+                            </button>
+                        </h3>
                         <div
-                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().assets"
                         >
-                            {{ !has_catering() ? '4' : '5' }}
+                            <asset-list-field
+                                [options]="{
+                                    date: model().date,
+                                    duration: model().duration,
+                                }"
+                                [formField]="form.assets"
+                            ></asset-list-field>
                         </div>
-                        <div class="text-xl">Assets</div>
-                        <div class="w-px flex-1"></div>
-                        <button
-                            icon
-                            matRipple
-                            (click)="
-                                hide_block.update((h) => ({
-                                    ...h,
-                                    assets: !h.assets,
-                                }))
-                            "
-                        >
-                            <icon>{{
-                                hide_block().assets
-                                    ? 'expand_more'
-                                    : 'expand_less'
-                            }}</icon>
-                        </button>
-                    </h3>
-                    <div
-                        class="contract-expand"
-                        [class.contract-collapsed]="hide_block().assets"
-                    >
-                        <asset-list-field
-                            [options]="{
-                                date: model().date,
-                                duration: model().duration,
-                            }"
-                            [formField]="form.assets"
-                        ></asset-list-field>
-                    </div>
-                </section>
+                    </section>
+                }
                 @if (!hide_notes()) {
                     <section class="p-4">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
                                 class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
-                                {{ !has_catering() ? '5' : '6' }}
+                                {{ notes_section() }}
                             </div>
                             <div class="text-xl">Notes</div>
                         </h3>
@@ -434,6 +436,9 @@ export class MeetingBookingFormComponent extends AsyncHandler {
         false,
     );
     public readonly allow_assets = settingSignal('events.allow_assets', false);
+    public readonly notes_section = computed(
+        () => 4 + Number(this.has_catering()) + Number(this.allow_assets()),
+    );
 
     public findAvailableTime() {
         const { attendees, organiser, date, duration } = this.model();

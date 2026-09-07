@@ -103,6 +103,8 @@ const EMPTY_FAVS: string[] = [];
                             <button
                                 icon
                                 matRipple
+                                name="remove-asset-request"
+                                [disabled]="disabled()"
                                 [matTooltip]="'FORM.ASSETS_REMOVE' | translate"
                                 class="text-error"
                                 (click)="removeRequest(request)"
@@ -150,6 +152,8 @@ const EMPTY_FAVS: string[] = [];
                                     <button
                                         icon
                                         matRipple
+                                        name="remove-asset-request-item"
+                                        [disabled]="disabled()"
                                         [matTooltip]="
                                             'FORM.ASSETS_REMOVE_ITEM'
                                                 | translate

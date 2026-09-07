@@ -72,7 +72,7 @@ export class EnrolmentStateService {
         params: () => this._guest_id() || undefined,
         loader: async ({ params: id }) => {
             this._loading.set('Loading your details...');
-            const guest = await showGuest(id);
+            const guest = await showGuest(id).catch(() => undefined);
             if (!guest) this.setError('guest');
             else patchSignalModel(this.model, { ...guest });
             return guest;
@@ -88,7 +88,7 @@ export class EnrolmentStateService {
         loader: async ({ params }) => {
             if (!params.guest || !params.id || params.error) return undefined;
             this._loading.set('Loading your meeting details...');
-            const event = await showEvent(params.id);
+            const event = await showEvent(params.id).catch(() => undefined);
             this._checkEvent(event);
             return event;
         },
@@ -129,14 +129,23 @@ export class EnrolmentStateService {
     }
 
     public handleUserToken(token: string) {
-        setToken(token);
-        const data = parseJWT(token);
-        const user = data.u;
-        const [event_id] = user.r;
-        if (user && getUnixTime(Date.now()) <= data.exp) {
+        try {
+            const data = parseJWT(token);
+            const user = data?.u;
+            const event_id = user?.r?.[0];
+            if (
+                !user?.e ||
+                !event_id ||
+                typeof data?.exp !== 'number' ||
+                getUnixTime(Date.now()) > data.exp
+            ) {
+                this.setError('link');
+                return;
+            }
+            setToken(token);
             this._event_id.set(event_id);
             this._guest_id.set(user.e);
-        } else {
+        } catch {
             this.setError('link');
         }
     }

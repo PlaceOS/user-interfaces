@@ -42,10 +42,12 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                 />
                 <button
                     icon
+                    type="button"
                     matRipple
                     matTooltip="Clear Image"
                     matTooltipPosition="left"
                     class="border-base-300 bg-base-100 absolute top-2 right-2 z-20 rounded-full border"
+                    (click)="clearImage($event)"
                 >
                     <icon>close</icon>
                 </button>
@@ -144,6 +146,12 @@ export class ImageFieldComponent
         this._clipboard.copy(this.url());
         notifyInfo('Link copied to clipboard');
     };
+
+    public clearImage(event?: Event) {
+        event?.preventDefault();
+        event?.stopPropagation();
+        this.setValue('');
+    }
 
     /**
      * Update the form field value

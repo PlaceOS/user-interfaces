@@ -205,6 +205,17 @@ describe('InviteVisitorFormComponent', () => {
         expect('[sent]').toExist();
     });
 
+    it('should emit done and leave the sent state', () => {
+        const done = vi.fn();
+        spectator.component.done.subscribe(done);
+        spectator.component.sent.set(true);
+
+        spectator.component.onDone();
+
+        expect(done).toHaveBeenCalledWith(undefined);
+        expect(spectator.component.sent()).toBe(false);
+    });
+
     it('should load and show sibling visitors when editing a group booking', async () => {
         const service = spectator.inject(BookingFormService);
         const settings = spectator.inject(SettingsService);

@@ -18,6 +18,7 @@ import { ExploreStateService } from '../lib/explore-state.service';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { MockProvider } from 'ng-mocks';
 
 describe('ExploreDesksService', () => {
@@ -182,5 +183,44 @@ describe('ExploreDesksService', () => {
         );
 
         expect(booking_service.model().all_day).toBe(true);
+    });
+
+    it('should not report a booking error when confirmation is cancelled', async () => {
+        const notify_open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        const booking_service = spectator.inject(BookingFormService) as any;
+        const { model, form } = generateBookingForm(
+            undefined,
+            spectator.inject(Injector),
+        );
+        booking_service.model = model;
+        booking_service.form = form;
+        booking_service.newForm = vi.fn();
+        booking_service.setOptions = vi.fn();
+        booking_service.confirmPost = vi
+            .fn()
+            .mockRejectedValue('User cancelled');
+        (spectator.service as any)._statuses['desk-1'] = signal('free');
+
+        try {
+            await expect(
+                (spectator.service as any)._bookDesk(
+                    new Desk({
+                        id: 'desk-1',
+                        name: 'Desk 1',
+                        bookable: true,
+                        zone: { id: 'lvl-1', parent_id: 'bld-1' } as any,
+                    }),
+                    {},
+                ),
+            ).rejects.toBe('User cancelled');
+
+            expect(notify_open).not.toHaveBeenCalled();
+        } finally {
+            setNotifyOutlet(null, true);
+        }
     });
 });

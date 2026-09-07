@@ -81,6 +81,15 @@ describe('DeskFiltersDisplayComponent', () => {
         expect(set_feature).toHaveBeenCalledWith('monitor', false);
     });
 
+    it('should clear multiple feature filters at once', () => {
+        options.set({ features: ['monitor', 'sit-stand'] });
+        spectator.detectChanges();
+
+        spectator.click('button[name="clear-desk-filters"]');
+
+        expect(set_options).toHaveBeenCalledWith({ features: [] });
+    });
+
     it('should show a favourites-only chip when show_fav is set', () => {
         options.set({ show_fav: true });
         spectator.detectChanges();

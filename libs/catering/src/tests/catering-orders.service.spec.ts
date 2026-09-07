@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
 import {
     createServiceFactory,
     SpectatorService,
@@ -105,5 +105,25 @@ describe('CateringOrdersService', () => {
         });
 
         expect(cateringOrderSystemId(order)).toBe('room-1');
+    });
+
+    it('should filter orders that have no resolvable room or location', () => {
+        const order = new CateringOrder({
+            id: 'order-1',
+            items: [
+                new CateringItem({
+                    id: 'coffee',
+                    name: 'Coffee',
+                    quantity: 1,
+                }),
+            ],
+        });
+        (
+            spectator.service as unknown as {
+                _orders: WritableSignal<CateringOrder[]>;
+            }
+        )._orders.set([order]);
+
+        expect(spectator.service.filtered()).toEqual([order]);
     });
 });

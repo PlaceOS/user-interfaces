@@ -169,8 +169,7 @@ describe('BootstrapComponent', () => {
         localStorage.setItem('KIOSK.level', '1');
         expect(router.navigate).not.toHaveBeenCalled();
         await spectator.component.ngOnInit();
-        // TODO: Fix
-        // expect(router.navigate).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalled();
     });
 
     it('should show public mode blocker when enabled', () => {

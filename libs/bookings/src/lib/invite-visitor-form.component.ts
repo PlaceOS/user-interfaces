@@ -892,8 +892,6 @@ export class InviteVisitorFormComponent {
     }
 
     public onDone() {
-        // TODO: The 'emit' function requires a mandatory void argument
-        // TODO: The 'emit' function requires a mandatory void argument
         this.done.emit();
         this.sent.set(false);
     }

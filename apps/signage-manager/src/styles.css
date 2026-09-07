@@ -42,6 +42,13 @@ select:focus-visible,
     top: 1rem;
 }
 
+/* The shared icon-button rule sets display after Tailwind utilities. */
+@media (min-width: 640px) {
+    .desktop-hidden {
+        display: none !important;
+    }
+}
+
 :root {
     --bg: #212121;
     --transition-delay: 1000ms;

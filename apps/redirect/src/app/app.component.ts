@@ -136,7 +136,12 @@ export class AppComponent implements OnInit {
 
     private _checkForDomainRedirects() {
         const autho = authority();
-        if (!autho) return;
+        if (!autho) {
+            failInitialisation(
+                'The redirect service could not load its redirect configuration. Check the connection, then try again.',
+            );
+            return;
+        }
         const user = currentUser();
         const mappings = autho.config['redirect_mappings'] || {};
         const path_mappings = autho.config['path_mappings'] || {};

@@ -1,5 +1,11 @@
-import { Component, computed, inject, output, signal } from '@angular/core';
-import { Observable } from 'rxjs';
+import {
+    Component,
+    computed,
+    inject,
+    output,
+    Signal,
+    signal,
+} from '@angular/core';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
@@ -23,14 +29,14 @@ export interface PaymentData {
     has_payment_method: boolean;
     rate: string;
     amount: number; // Number in cents
-    loading: Observable<string>;
+    loading: Signal<string>;
     makePayment: (_?: PaymentCardDetails) => Promise<void>;
 }
 
 @Component({
     selector: 'payment-modal',
     template: `
-        @if (!(loading | async)) {
+        @if (!loading()) {
             <div class="relative max-h-screen overflow-auto">
                 @if (!success()) {
                     <main
@@ -57,10 +63,16 @@ export interface PaymentData {
                                 details.amount / 100 | currency: code()
                             }}</strong>
                         </p>
-                        <card-input-field
-                            class="w-full"
-                            [(ngModel)]="card_details"
-                        ></card-input-field>
+                        @if (!details.has_payment_method) {
+                            <card-input-field
+                                class="w-full"
+                                [(ngModel)]="card_details"
+                            ></card-input-field>
+                        } @else {
+                            <p class="text-sm">
+                                Your saved payment method will be charged.
+                            </p>
+                        }
                     </main>
                     <footer class="p-4">
                         <button
@@ -114,7 +126,7 @@ export interface PaymentData {
                 class="flex h-full w-full flex-col items-center justify-center p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ loading | async }}</p>
+                <p>{{ loading() }}</p>
             </div>
         }
     `,
@@ -144,8 +156,9 @@ export class PaymentModalComponent {
 
     public async processPayment() {
         const details = this.card_details();
-        if (!details || !this._validCardDetails()) return;
-        this.event.emit(details);
+        if (!this.details.has_payment_method && !this._validCardDetails())
+            return;
+        if (details) this.event.emit(details);
         await this._data.makePayment(details);
         this.success.set(true);
     }

@@ -49,6 +49,18 @@ describe('ImageFieldComponent', () => {
         expect(on_change).toHaveBeenCalledWith('https://example.com/new.png');
     });
 
+    it('should clear the current image from the clear button', () => {
+        const on_change = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        spectator.component.writeValue('https://example.com/image.png');
+        spectator.detectChanges();
+
+        spectator.click('button[matTooltip="Clear Image"]');
+
+        expect(spectator.component.url()).toBe('');
+        expect(on_change).toHaveBeenCalledWith('');
+    });
+
     it('should copy the current url to the clipboard', () => {
         const clipboard = spectator.inject(Clipboard);
         spectator.component.writeValue('https://example.com/copy.png');

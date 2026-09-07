@@ -51,7 +51,8 @@ function checkOrder(
         SPACE_PIPE.get(
             order.system_id || order.event?.extension_data.system_id,
         );
-    const location = order.event?.location || space.display_name || space.name;
+    const location =
+        order.event?.location || space?.display_name || space?.name || '';
     const host = order.event?.host || order.event?.organiser?.email || '';
     return !!order.items.find((item) => {
         return (

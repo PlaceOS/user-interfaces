@@ -155,6 +155,7 @@ export class CheckinStateService {
                 description: form.name || booking.description,
                 extension_data: {
                     ...booking.extension_data,
+                    ...(data || {}),
                     pass_number:
                         form.pass_number || booking.extension_data?.pass_number,
                     organisation:
@@ -169,7 +170,7 @@ export class CheckinStateService {
 
     public async completeInduction() {
         const guest = this._guest();
-        const event = this._booking() || guest.extension_data.event;
+        const event = this._booking() || guest?.extension_data?.event;
         if (!guest || !event) return;
         const updated_booking = await updateBookingInductionStatus(
             event.id,
@@ -180,14 +181,14 @@ export class CheckinStateService {
 
     public async declineInduction() {
         const guest = this._guest();
-        const event = this._booking() || guest.extension_data.event;
+        const event = this._booking() || guest?.extension_data?.event;
         if (!guest || !event) return;
         await updateBookingInductionStatus(event.id, 'declined');
     }
 
     public async checkinGuest(state = true) {
         const guest = this._guest();
-        const event = this._booking() || guest.extension_data.event;
+        const event = this._booking() || guest?.extension_data?.event;
         if (!guest || !event) return;
         const checkin_fn = checkinBooking(event.id, state);
         const vars = {
@@ -202,15 +203,5 @@ export class CheckinStateService {
 
         notifySuccess(i18n('APP.VISITOR_KIOSK.SUCCESS_CHECKIN', vars));
         this.metadata = '';
-    }
-
-    public printPass() {
-        try {
-            // TODO: actually trigger print visitor pass
-            return new Promise((res) => setTimeout(() => res(''), 5000));
-        } catch (err) {
-            notifyError(i18n('APP.VISITOR_KIOSK.ERROR_PRINT'));
-        }
-        return Promise.reject();
     }
 }

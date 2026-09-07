@@ -162,14 +162,17 @@ type AssistantWindow = Window & {
                                                 : 'You'
                                         }}
                                     </div>
-                                    <div
-                                        class="text-base-content w-full px-2 py-1 text-right text-xs opacity-40"
-                                    >
-                                        {{
-                                            message.timestamp + offset
-                                                | dateFrom
-                                        }}
-                                    </div>
+                                    @if (show_time()[message.id]) {
+                                        <div
+                                            message-time
+                                            class="text-base-content w-full px-2 py-1 text-right text-xs opacity-40"
+                                        >
+                                            {{
+                                                message.timestamp + offset
+                                                    | dateFrom
+                                            }}
+                                        </div>
+                                    }
                                 </div>
                                 <div
                                     message

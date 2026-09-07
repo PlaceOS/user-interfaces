@@ -1,9 +1,4 @@
-import {
-    Component,
-    OnInit,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { notifyError } from '@placeos/common';
@@ -58,11 +53,6 @@ export class CheckinPhotoComponent implements OnInit {
         if (!event) return notifyError('Error saving image, please try again');
         this.loading.set(true);
         this._checkin.setPhoto(event);
-        // await this._checkin.printPass().catch((e) => {
-        //     this.loading.set(false);
-        //     notifyError(e);
-        //     throw e;
-        // });
         this.loading.set(false);
         this._router.navigate(['/checkin', 'results']);
     }

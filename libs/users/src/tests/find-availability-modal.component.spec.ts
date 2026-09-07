@@ -56,6 +56,20 @@ describe('FindAvailabilityModalComponent', () => {
         expect(spectator.component.host).toBe(HOST);
     });
 
+    it('should show an unnamed attendee email instead of the host email', () => {
+        spectator.component.users.set([
+            new User({ email: 'unnamed@place.tech' }),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.query('[person]')?.textContent).toContain(
+            'unnamed@place.tech',
+        );
+        expect(spectator.query('[person]')?.textContent).not.toContain(
+            HOST.email,
+        );
+    });
+
     it('should add a new user and clear the search selection', () => {
         const bob = new User({ email: 'b@place.tech', name: 'Bob' });
         spectator.component.addUser(bob);

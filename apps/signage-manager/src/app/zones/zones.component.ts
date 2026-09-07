@@ -39,18 +39,18 @@ function parseZoneTab(
                         class="mobile-full"
                     />
                     <div
-                        class="flex min-h-0 w-px flex-1 flex-col"
+                        class="flex min-h-0 w-px flex-1 flex-col overflow-hidden"
                         [class.mobile-hidden]="!selected_zone()"
                     >
                         @if (selected_zone()) {
                             <div
-                                class="bg-base-100 border-base-300 mx-2 flex items-center gap-2 rounded-b-lg border px-4 py-3"
+                                class="bg-base-100 border-base-300 relative z-10 mx-2 flex shrink-0 items-center gap-2 rounded-b-lg border px-4 py-3"
                             >
                                 <button
                                     icon
                                     type="button"
                                     matRipple
-                                    class="sm:hidden"
+                                    class="desktop-hidden"
                                     (click)="deselectZone()"
                                     [attr.aria-label]="
                                         'SIGNAGE_MANAGER.BACK_TO_ZONES'
@@ -116,7 +116,7 @@ function parseZoneTab(
                                 }
                             </div>
                             <div
-                                class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"
+                                class="bg-base-100 border-base-300 relative z-10 mx-2 mt-2 flex shrink-0 overflow-hidden rounded-lg border"
                                 role="tablist"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.ZONE_DETAILS_TABS'

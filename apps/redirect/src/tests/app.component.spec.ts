@@ -21,8 +21,7 @@ const settings_mock = {
 
 function query_map(params: Record<string, string>): any {
     return {
-        has: (key: string) =>
-            Object.prototype.hasOwnProperty.call(params, key),
+        has: (key: string) => Object.prototype.hasOwnProperty.call(params, key),
         get: (key: string) => (key in params ? params[key] : null),
         getAll: (key: string) => (key in params ? [params[key]] : []),
         get keys() {
@@ -153,6 +152,9 @@ describe('AppComponent', () => {
             vi.mocked(authority).mockReturnValue(undefined as any);
             await spectator.component.ngOnInit();
             expect(redirect_url()).toBeUndefined();
+            expect(spectator.component.initialisation_error()).toContain(
+                'could not load its redirect configuration',
+            );
         });
 
         it('should redirect to the mapped domain for the user email domain', async () => {

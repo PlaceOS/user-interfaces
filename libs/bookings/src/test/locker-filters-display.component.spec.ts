@@ -80,6 +80,15 @@ describe('LockerFiltersDisplayComponent', () => {
         expect(set_feature).toHaveBeenCalledWith('charging', false);
     });
 
+    it('should clear multiple feature filters at once', () => {
+        options.set({ features: ['charging', 'accessible'] });
+        spectator.detectChanges();
+
+        spectator.click('button[name="clear-locker-filters"]');
+
+        expect(set_options).toHaveBeenCalledWith({ features: [] });
+    });
+
     it('should render a favourites chip and allow removing it', () => {
         expect(
             spectator.query('button[name="remove-locker-favs-filter"]'),

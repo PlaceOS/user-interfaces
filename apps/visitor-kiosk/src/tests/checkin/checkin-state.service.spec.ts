@@ -71,6 +71,44 @@ describe('CheckinStateService', () => {
         expect(patch).toHaveBeenCalled();
     });
 
+    it('stores additional guest details on the booking', async () => {
+        spectator.service.setBooking(
+            new Booking({
+                id: 'event-1234',
+                asset_id: 'a@b.com',
+                user_email: 'host@b.com',
+                extension_data: { existing: true },
+            }),
+        );
+
+        await spectator.service.updateGuest({
+            covid: false,
+            symptoms: true,
+        });
+
+        expect(patch).toHaveBeenLastCalledWith(
+            expect.stringContaining('event-1234'),
+            expect.objectContaining({
+                extension_data: expect.objectContaining({
+                    existing: true,
+                    covid: false,
+                    symptoms: true,
+                }),
+            }),
+        );
+    });
+
+    it('ignores booking actions when no guest is loaded', async () => {
+        await expect(spectator.service.completeInduction()).resolves.toBe(
+            undefined,
+        );
+        await expect(spectator.service.declineInduction()).resolves.toBe(
+            undefined,
+        );
+        await expect(spectator.service.checkinGuest()).resolves.toBe(undefined);
+        expect(post).not.toHaveBeenCalled();
+    });
+
     it('keeps an accepted induction when updating guest details', async () => {
         const post_json = vi.mocked(
             post as (

@@ -56,7 +56,7 @@ import { TranslatePipe } from './translate.pipe';
                         {{ desk_sitting_height().toFixed(1) }}cm
                     </div>
                 </div>
-                <label>{{ 'COMMON.DESK_HEIGHT_STANDING' | translate }}t</label>
+                <label>{{ 'COMMON.DESK_HEIGHT_STANDING' | translate }}</label>
                 <div class="mr-2 flex items-center space-x-2">
                     <mat-slider
                         min="90"
@@ -115,8 +115,6 @@ export class DeskHeightPresetsComponent implements OnInit {
     public onClose() {
         this.saveSetting('desk_sitting_height', this.desk_sitting_height());
         this.saveSetting('desk_standing_height', this.desk_standing_height());
-        // TODO: The 'emit' function requires a mandatory void argument
-        // TODO: The 'emit' function requires a mandatory void argument
         this.close.emit();
     }
 
@@ -124,7 +122,7 @@ export class DeskHeightPresetsComponent implements OnInit {
         return `${value.toFixed(1)}cm`;
     }
 
-    public saveSetting(name: string, value: any) {
+    public saveSetting(name: string, value: number) {
         this._settings.saveUserSetting(name, value);
     }
 }

@@ -384,7 +384,7 @@ export class PanelStateService extends AsyncHandler {
                 future,
                 max_duration,
                 min_duration: force_api
-                    ? Math.max(min_duration, 30)
+                    ? Math.max(min_duration || 15, 30)
                     : min_duration,
             },
             this._dialog,

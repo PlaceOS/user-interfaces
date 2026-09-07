@@ -115,9 +115,8 @@ export class EmbeddedControlModalComponent
      * Decrement countdown and close if 0
      */
     public tick() {
-        if (this.countdown() <= 0) {
-            this.close();
-        }
-        this.countdown.update((value) => value - 1);
+        const remaining = Math.max(0, this.countdown() - 1);
+        this.countdown.set(remaining);
+        if (remaining === 0) this.close();
     }
 }

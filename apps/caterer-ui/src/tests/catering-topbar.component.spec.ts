@@ -120,6 +120,13 @@ describe('CateringTopbarComponent', () => {
         expect(org.building).toEqual({ id: 'bld-2' });
     });
 
+    it('should preserve the active building for an invalid building_id', () => {
+        spectator.setRouteQueryParam('building_id', 'missing');
+        spectator.detectChanges();
+
+        expect(org.building).toEqual({ id: 'bld-1' });
+    });
+
     it('should update search filters via setSearch', () => {
         spectator.component.setSearch('coffee');
         expect(orders.filters).toEqual({ search: 'coffee' });
@@ -198,6 +205,19 @@ describe('CateringTopbarComponent', () => {
         // The change handler awaits saveSettings().catch() before clearing the
         // loading flag, so flush all pending microtasks before asserting.
         await new Promise((r) => setTimeout(r, 0));
+
+        expect(state.saveSettings).toHaveBeenCalledWith({
+            disabled_rooms: ['room-2'],
+        });
+        expect(dialog_ref.componentInstance.loading()).toBe(false);
+    });
+
+    it('should stop loading when room availability cannot be saved', async () => {
+        state.saveSettings.mockRejectedValueOnce(new Error('save failed'));
+        await spectator.component.setRoomAvailability();
+
+        dialog_ref.componentInstance.change.next(['room-2']);
+        await new Promise((resolve) => setTimeout(resolve, 0));
 
         expect(state.saveSettings).toHaveBeenCalledWith({
             disabled_rooms: ['room-2'],

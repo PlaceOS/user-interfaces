@@ -278,7 +278,7 @@ export class ImageListFieldComponent
     });
 
     public readonly length = computed(
-        () => this.list().length + this.upload_list().length + 1,
+        () => this.list().length + this.uploads().length + 1,
     );
 
     private readonly _list_el =
@@ -405,7 +405,6 @@ export class ImageListFieldComponent
         const done_list = new_list.filter((file) => file.progress >= 100);
         this.upload_list.set(new_list);
         done_list.forEach((i) => {
-            console.log('ID:', { ...i });
             this.upload_map[i?.id] = i.upload?.id || i?.id;
             delete i.upload;
         });

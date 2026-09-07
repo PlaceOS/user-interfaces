@@ -247,7 +247,7 @@ function isValidUrl(url: string): boolean {
                     default
                     type="button"
                     matRipple
-                    class="text-xl sm:hidden"
+                    class="desktop-hidden text-xl"
                     [matMenuTriggerFor]="actions_menu"
                     [matTooltip]="'SIGNAGE_MANAGER.MEDIA_ACTIONS' | translate"
                     matTooltipPosition="left"
