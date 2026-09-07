@@ -35,9 +35,7 @@ describe('SpacePipe', () => {
 
     it('should load spaces by email using a system query', async () => {
         (ts_client.querySystemsWithEmails as any).mockResolvedValue({
-            data: [
-                { id: 'sys-by-email', email: 'room@place.tech', zones: [] },
-            ],
+            data: [{ id: 'sys-by-email', email: 'room@place.tech', zones: [] }],
         });
         const space = await pipe.transform('room@place.tech');
         expect(space.id).toBe('sys-by-email');
@@ -53,6 +51,36 @@ describe('SpacePipe', () => {
         });
         const space = await pipe.transform('shared@place.tech');
         expect(space.email).toBe('empty.space@place.os');
+    });
+
+    it('should share concurrent API requests for the same space', async () => {
+        let finish_request!: (system: any) => void;
+        (ts_client.showSystem as any).mockReturnValue(
+            new Promise((resolve) => {
+                finish_request = resolve;
+            }),
+        );
+
+        const first = pipe.transform('sys-concurrent');
+        const second = pipe.transform('sys-concurrent');
+        finish_request({ id: 'sys-concurrent', zones: [] });
+
+        expect((await first).id).toBe('sys-concurrent');
+        expect((await second).id).toBe('sys-concurrent');
+        expect(ts_client.showSystem).toHaveBeenCalledTimes(1);
+    });
+
+    it('should briefly cache an unsuccessful lookup', async () => {
+        (ts_client.showSystem as any).mockRejectedValue('404');
+        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
+            data: [],
+        });
+
+        await pipe.transform('sys-not-found');
+        await pipe.transform('sys-not-found');
+
+        expect(ts_client.showSystem).toHaveBeenCalledTimes(1);
+        expect(ts_client.querySystemsWithEmails).toHaveBeenCalledTimes(1);
     });
 
     it('should fallback to an email query when the ID lookup fails', async () => {

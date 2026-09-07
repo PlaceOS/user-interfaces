@@ -17,9 +17,6 @@ import * as Sentry from '@sentry/angular';
 
 import { AppComponent } from './app/app.component';
 import { BootstrapComponent } from './app/bootstrap.component';
-import { ControlMainViewComponent } from './app/main-view.component';
-import { ControlTabbedViewComponent } from './app/tabbed-view/tabbed-view.component';
-import { ControlVideoCallViewComponent } from './app/video-call/video-call-view.component';
 import { environment } from './environments/environment';
 
 if (environment.production) {
@@ -35,22 +32,34 @@ const routes = [
     },
     {
         path: 'panel/:system',
-        component: ControlMainViewComponent,
+        loadComponent: () =>
+            import('./app/main-view.component').then(
+                (m) => m.ControlMainViewComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'tabbed/:system',
-        component: ControlTabbedViewComponent,
+        loadComponent: () =>
+            import('./app/tabbed-view/tabbed-view.component').then(
+                (m) => m.ControlTabbedViewComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'tabbed/:system/:tab',
-        component: ControlTabbedViewComponent,
+        loadComponent: () =>
+            import('./app/tabbed-view/tabbed-view.component').then(
+                (m) => m.ControlTabbedViewComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     {
         path: 'panel/:system/call',
-        component: ControlVideoCallViewComponent,
+        loadComponent: () =>
+            import('./app/video-call/video-call-view.component').then(
+                (m) => m.ControlVideoCallViewComponent,
+            ),
         canActivate: [AuthorisedUserGuard],
     },
     { path: '**', redirectTo: 'bootstrap' },

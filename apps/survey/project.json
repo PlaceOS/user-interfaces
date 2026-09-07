@@ -27,11 +27,6 @@
                         "output": "/assets/"
                     },
                     {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
-                    },
-                    {
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
@@ -47,6 +42,10 @@
             "configurations": {
                 "production": {
                     "fileReplacements": [
+                        {
+                            "replace": "libs/mocks/src/index.ts",
+                            "with": "libs/mocks/src/empty.ts"
+                        },
                         {
                             "replace": "apps/survey/src/environments/environment.ts",
                             "with": "apps/survey/src/environments/environment.prod.ts"

@@ -113,6 +113,33 @@ export class OrganisationService {
         new Building({ name: 'Unknown' }),
     );
     private readonly _level_list = signal<BuildingLevel[]>([]);
+    private readonly _regions_by_id = computed(
+        () =>
+            new Map(
+                this._region_list().map((region): [string, Region] => [
+                    region.id,
+                    region,
+                ]),
+            ),
+    );
+    private readonly _buildings_by_id = computed(
+        () =>
+            new Map(
+                this._building_list().map((building): [string, Building] => [
+                    building.id,
+                    building,
+                ]),
+            ),
+    );
+    private readonly _levels_by_id = computed(
+        () =>
+            new Map(
+                this._level_list().map((level): [string, BuildingLevel] => [
+                    level.id,
+                    level,
+                ]),
+            ),
+    );
     private _loaded_data: Record<string, boolean> = {};
     /** Whether any cached data was used during the initial load */
     private _served_cache = false;
@@ -308,7 +335,7 @@ export class OrganisationService {
 
     /** Get building by id */
     public find(id: string) {
-        return this.buildings.find((i) => i.id === id);
+        return this._buildings_by_id().get(id);
     }
 
     /** List of available levels */
@@ -390,16 +417,20 @@ export class OrganisationService {
      * @param id_list List of IDs to find a match
      */
     public levelWithID(id_list: string[]): BuildingLevel {
-        return this.levels.find((lvl) => id_list?.includes(lvl.id));
+        for (const id of id_list || []) {
+            const level = this._levels_by_id().get(id);
+            if (level) return level;
+        }
+        return undefined;
     }
 
     /** Get the organisation location represented by a list of zone IDs. */
     public locationWithID(id_list: string[]): OrganisationLocation {
         const level = this.levelWithID(id_list);
-        const building = this.buildings.find(
-            (_) => id_list?.includes(_.id) || _.id === level?.parent_id,
-        );
-        const region = this.regions.find((_) => _.id === building?.parent_id);
+        const building =
+            this._buildingWithID(id_list) ||
+            this._buildings_by_id().get(level?.parent_id);
+        const region = this._regions_by_id().get(building?.parent_id);
         const label = [region, building, level]
             .map((_) => _?.display_name || _?.name)
             .filter((_) => !!_)
@@ -414,22 +445,13 @@ export class OrganisationService {
         const find_buildings = () =>
             unique(
                 zone_lists
-                    .map((zones) =>
-                        this.buildings.find((building) =>
-                            zones.includes(building.id),
-                        ),
-                    )
+                    .map((zones) => this._buildingWithID(zones))
                     .filter((building): building is Building => !!building),
                 'id',
             );
         let buildings = find_buildings();
         const has_missing_building = () =>
-            zone_lists.some(
-                (zones) =>
-                    !this.buildings.some((building) =>
-                        zones.includes(building.id),
-                    ),
-            );
+            zone_lists.some((zones) => !this._buildingWithID(zones));
         if (has_missing_building()) {
             await this._loadAllBuildings();
             buildings = find_buildings();
@@ -462,14 +484,23 @@ export class OrganisationService {
      * @param region Region to list levels for
      */
     public levelsForRegion(region: Region = this.region): BuildingLevel[] {
-        const bld_list = this.buildingsForRegion(region);
+        const building_ids = new Set(
+            this.buildingsForRegion(region).map(({ id }) => id),
+        );
         return this._sortLevels(
             this.levels.filter(
-                (lvl) =>
-                    lvl.parent_id &&
-                    bld_list.find((bld) => bld.id === lvl.parent_id),
+                (lvl) => lvl.parent_id && building_ids.has(lvl.parent_id),
             ),
         );
+    }
+
+    /** Get the first building represented by a list of zone IDs. */
+    private _buildingWithID(id_list: string[]): Building | undefined {
+        for (const id of id_list || []) {
+            const building = this._buildings_by_id().get(id);
+            if (building) return building;
+        }
+        return undefined;
     }
 
     public addZone(zone: PlaceZone) {

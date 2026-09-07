@@ -1,5 +1,8 @@
 name: 'PR Flow'
 
+env:
+    NX_CACHE_DIRECTORY: .nx/cache
+
 on:
     push:
         branches: [feat/*, fix/*, custom/*, refactor/*]
@@ -136,7 +139,7 @@ jobs:
               id: cache-nx
               uses: actions/cache@v5
               with:
-                  path: node_modules/.cache/nx
+                  path: .nx/cache
                   key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/bun.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-nx-${{matrix.package}}-
@@ -206,7 +209,7 @@ jobs:
               id: cache-nx
               uses: actions/cache@v5
               with:
-                  path: node_modules/.cache/nx
+                  path: .nx/cache
                   key: ${{ runner.os }}-nx-${{matrix.package}}-${{ hashFiles('**/bun.lock') }}
                   restore-keys: |
                       ${{ runner.os }}-nx-${{matrix.package}}-

@@ -898,9 +898,15 @@ export class MeetingFlowFormComponent extends AsyncHandler implements OnInit {
         }
         this._catering.setOptions({ zone: '' });
         this._space_list.set(this.model().resources || []);
+        const idle_abort = new AbortController();
+        this.subscription('idle-detection', () => idle_abort.abort());
         this._idle
-            .idleFor((this._settings.get('app.idle_timeout') || 5) * 60 * 1000)
-            .then(async () => {
+            .idleFor(
+                (this._settings.get('app.idle_timeout') || 5) * 60 * 1000,
+                idle_abort.signal,
+            )
+            .then(async (did_idle) => {
+                if (!did_idle) return;
                 await openConfirmModal(
                     {
                         title: i18n('APP.WORKPLACE.MEETING_IDLE_TITLE'),
