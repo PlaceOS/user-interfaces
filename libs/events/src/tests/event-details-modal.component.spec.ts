@@ -53,7 +53,7 @@ describe('EventDetailsModalComponent', () => {
             MockProvider(SettingsService, {
                 get: vi.fn(),
                 time_format: 'h:mm a',
-                app_name: 'test',
+                app_name: 'concierge',
             }),
         ],
         componentProviders: [
@@ -108,6 +108,35 @@ describe('EventDetailsModalComponent', () => {
 
         expect(remove_fn).not.toHaveBeenCalled();
     });
+
+    it.each([
+        { offset: -5, status: 'busy', can_cancel: false },
+        { offset: 0, status: 'busy', can_cancel: false },
+        { offset: 5, status: 'busy', can_cancel: true },
+        { offset: -5, status: 'pending', can_cancel: true },
+        { offset: -5, status: 'free', can_cancel: true },
+    ])(
+        'should set cancellation to $can_cancel with status $status and start offset $offset minutes',
+        async ({ offset, status, can_cancel }) => {
+            const event = new CalendarEvent({
+                id: 'event-1',
+                date: Date.now() + offset * 60 * 1000,
+                duration: 60,
+            });
+            spectator.component.event.set(event);
+            spectator.component.room_status.set(status);
+            await spectator.fixture.whenStable();
+
+            expect(spectator.component.can_cancel).toBe(can_cancel);
+            const cancel_button = spectator
+                .queryAll('button[mat-menu-item]')
+                .find((button) => button.textContent.includes('delete'));
+            expect(!!cancel_button).toBe(can_cancel);
+
+            spectator.component.remove(event, false);
+            expect(remove_fn).toHaveBeenCalledTimes(can_cancel ? 1 : 0);
+        },
+    );
 
     it('should show map', () => expect('interactive-map').toExist());
 

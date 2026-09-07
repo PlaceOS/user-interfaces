@@ -694,7 +694,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         </div>
                     </button>
                 }
-                @if (event().state !== 'done') {
+                @if (can_cancel) {
                     <button mat-menu-item (click)="remove(event(), false)">
                         <div class="flex items-center space-x-2 pr-2 text-base">
                             <icon class="text-error text-2xl">delete</icon>
@@ -795,7 +795,20 @@ export class EventDetailsModalComponent implements OnInit {
 
     public remove(event: CalendarEvent, remove_series?: boolean) {
         if (event?.state === 'done') return;
+        if (!remove_series && !this.can_cancel) return;
         this._data.remove_fn(event, remove_series);
+    }
+
+    public get can_cancel() {
+        const event = this.event();
+        return (
+            event.state !== 'done' &&
+            !(
+                this.is_concierge &&
+                this.room_status() === 'busy' &&
+                event.date <= Date.now()
+            )
+        );
     }
     public readonly has_catering = computed(
         () => this.event()?.ext('catering')?.length > 0,
