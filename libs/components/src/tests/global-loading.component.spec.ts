@@ -5,6 +5,9 @@ import { of } from 'rxjs';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import {
+    clearCacheCheck,
+    failInitialisation,
+    markInitialisationComplete,
     needsNativeDomain,
     OrganisationService,
     PlaceOS_Service,
@@ -61,6 +64,8 @@ describe('GlobalLoadingComponent', () => {
         vi.mocked(token).mockReturnValue(undefined);
         vi.mocked(isOnline).mockReturnValue(true);
         needsNativeDomain().set(false);
+        clearCacheCheck();
+        sessionStorage.clear();
         setLoadingMessage('Loading...');
         spectator = createComponent();
     });
@@ -72,11 +77,10 @@ describe('GlobalLoadingComponent', () => {
         expect('[loader] p').toContainText('Fetching building data...');
     });
 
-    it('should hide the loading overlay once authenticated', async () => {
-        vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
-        vi.mocked(token).mockReturnValue('test-token');
+    it('should hide the loading overlay once initialisation completes', async () => {
         spectator.detectChanges();
         expect('[loader]').toExist();
+        markInitialisationComplete();
         await sleep(1200);
         spectator.detectChanges();
         expect(spectator.component.loading()).toBe(false);
@@ -92,6 +96,26 @@ describe('GlobalLoadingComponent', () => {
         spectator.detectChanges();
         expect(spectator.component.online()).toBe(false);
         expect('div.bg-error').toExist();
+    });
+
+    it('should report an offline server while initialisation is pending', async () => {
+        vi.mocked(isOnline).mockReturnValue(false);
+
+        spectator.detectChanges();
+        await sleep(1200);
+        spectator.detectChanges();
+
+        expect(spectator.component.online()).toBe(false);
+        expect('div.bg-error').toExist();
+    });
+
+    it('should show a retry action after initialisation recovery stops', () => {
+        failInitialisation('Startup failed.');
+
+        spectator.detectChanges();
+
+        expect('[initialisation-error]').toHaveText('Startup failed.');
+        expect('button').toHaveText('Try again');
     });
 
     it('should show the native domain overlay when required', () => {

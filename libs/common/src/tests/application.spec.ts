@@ -51,6 +51,7 @@ describe('application cache handling', () => {
             configurable: true,
             value: { reload },
         });
+        sessionStorage.clear();
     });
 
     afterEach(() => {
@@ -146,6 +147,32 @@ describe('application cache handling', () => {
     it('should reload directly when initialisation fails and nothing handles it', () => {
         app.requestInitReload();
 
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should stop repeated initialisation reloads and expose recovery', () => {
+        app.requestInitReload();
+        app.requestInitReload();
+        app.requestInitReload();
+        app.requestInitReload();
+
+        expect(reload).toHaveBeenCalledTimes(3);
+        expect(app.initialisationFailure()()).toContain(
+            'could not finish starting',
+        );
+    });
+
+    it('should clear the reload limit when the user retries', () => {
+        app.requestInitReload();
+        app.requestInitReload();
+        app.requestInitReload();
+        app.requestInitReload();
+        reload.mockClear();
+
+        app.retryInitialisation();
+
+        expect(app.initialisationFailure()()).toBe('');
+        expect(app.initialisationComplete()()).toBe(false);
         expect(reload).toHaveBeenCalledTimes(1);
     });
 

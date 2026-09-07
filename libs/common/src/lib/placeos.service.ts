@@ -20,13 +20,14 @@ import { addHours } from 'date-fns';
 
 import {
     hasNewVersion,
+    markInitialisationComplete,
     reloadForNewVersion,
     requestInitReload,
     setupCache,
 } from './application';
 import { AsyncHandler } from './async-handler.class';
 import { requestScreenWakeLock } from './fixed-device-helpers';
-import { firstTruthyValueFrom, log, setAppName } from './general';
+import { firstTruthyValueFrom, log, setAppName, withTimeout } from './general';
 import { GoogleAnalyticsService } from './google-analytics.service';
 import { HotkeysService } from './hotkeys.service';
 import { LocaleService, setTranslationService } from './locale.service';
@@ -55,13 +56,12 @@ import {
     setNativeEmail,
     syncNativeManagedConfig,
 } from './native-app';
-import type { IntuneAccount } from './native-app';
 import { notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
 import { createNativeAuthUrl, setupPlace } from './placeos';
 import { SettingsService } from './settings.service';
 import { setInternalUserDomain } from './types/user.class';
-import { currentUser } from './user-state';
+import { current_user, currentUser } from './user-state';
 
 const START_QUERY = location.search;
 /** Longest startup waits on the authority before continuing without it */
@@ -464,25 +464,38 @@ export class PlaceOS_Service extends AsyncHandler {
             // network. Everything needed below it (storage prefix, config,
             // token) is already set synchronously, and the authority arrives on
             // its own once the network is back.
-            await Promise.race([
-                setupPlace(settings).catch((_) => console.error(_)),
-                new Promise((resolve) =>
-                    setTimeout(resolve, AUTHORITY_WAIT_MS),
-                ),
-            ]);
+            await setupPlace(settings, AUTHORITY_WAIT_MS).catch((_) =>
+                console.error(_),
+            );
         }
         if (this._initial_token) setToken(this._initial_token);
-        await this._waitFor(() => this._org.initialised());
+        try {
+            await withTimeout(
+                this._org.waitUntilInitialised(),
+                50_000,
+                'Organisation loading timed out.',
+            );
+        } catch (error) {
+            console.error(error);
+            requestInitReload();
+            return;
+        }
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();
         }
         setupCache(this._cache, this._settings.get('service_worker') || {});
-        if (!settings.local_login) {
-            this.timeout('wait_for_user', () => this.onInitError(), 30 * 1000);
+        try {
+            await withTimeout(
+                firstTruthyValueFrom(current_user),
+                30_000,
+                'Current user loading timed out.',
+            );
+        } catch (error) {
+            console.error(error);
+            this.onInitError();
+            return;
         }
-        await this._waitFor(() => !!currentUser());
-        this.clearTimeout('wait_for_user');
         clearNativePkceVerifier();
         this._initLocale();
         setInternalUserDomain(
@@ -502,6 +515,7 @@ export class PlaceOS_Service extends AsyncHandler {
             );
         }
         this._setZones();
+        markInitialisationComplete();
     }
 
     private onInitError() {
@@ -622,15 +636,5 @@ export class PlaceOS_Service extends AsyncHandler {
             },
             1000,
         );
-    }
-
-    private _waitFor(condition: () => boolean) {
-        return new Promise<void>((resolve) => {
-            const check = () => {
-                if (condition()) return resolve();
-                this.timeout(`wait-${Math.random()}`, check, 100);
-            };
-            check();
-        });
     }
 }

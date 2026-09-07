@@ -38,10 +38,11 @@ const log = scoped_log('ORG');
 const ORG_CACHE_PREFIX = 'PLACEOS.org';
 const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 const AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
-/** How long `app.offline_boot` waits to be online before using cached data */
+/** How long startup waits to be online before trying cached data */
 const OFFLINE_BOOT_DELAY = 10 * 1000;
 /** How long zone loading may remain incomplete before reloading the app */
 const ZONE_LOAD_TIMEOUT = 45 * 1000;
+const GEOLOCATION_TIMEOUT = 10 * 1000;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 /** Cached data older than this is discarded instead of being displayed */
 const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000;
@@ -350,18 +351,13 @@ export class OrganisationService {
     constructor() {
         const online_state = onlineState();
         const online = waitForSignal(online_state, (_) => _);
-        // Startup normally waits to be online before loading anything. A fixed
-        // device with no network never gets there, so it never even tries its
-        // cached copy - and everything waiting on `initialised` waits forever.
-        // Where an app opts in, fall back to starting from cache instead.
-        const start = this._service.get('app.offline_boot')
-            ? Promise.race([
-                  online,
-                  new Promise((resolve) =>
-                      setTimeout(resolve, OFFLINE_BOOT_DELAY),
-                  ),
-              ])
-            : online;
+        // Waiting forever prevents the loading UI and route guards from
+        // recovering. After a short wait, try the cache and let the normal
+        // request retry path handle a missing cache.
+        const start = Promise.race([
+            online,
+            new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY)),
+        ]);
         start.then(() => this._scheduleInit());
         // A zone request can remain pending when authentication is interrupted.
         // Start a fresh load when authentication brings the client online again.
@@ -899,14 +895,24 @@ export class OrganisationService {
     /** Select the building physically closest to the user's current location */
     private async _setBuildingFromGeolocation(): Promise<Building | null> {
         return new Promise<Building | null>((resolve) => {
+            let settled = false;
+            const finish = (building: Building | null) => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                resolve(building);
+            };
+            const timer = setTimeout(() => finish(null), GEOLOCATION_TIMEOUT);
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    if (settled) return;
                     const { latitude, longitude } = position.coords;
                     const closest = this._closestBuilding(latitude, longitude);
                     if (closest) this.building = closest;
-                    resolve(closest);
+                    finish(closest);
                 },
-                () => resolve(null),
+                () => finish(null),
+                { timeout: GEOLOCATION_TIMEOUT },
             );
         });
     }

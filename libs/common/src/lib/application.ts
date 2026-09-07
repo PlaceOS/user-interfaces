@@ -19,6 +19,12 @@ let _init_reload: (() => void) | null = null;
 let _last_update_check = 0;
 let _update_interval = 0;
 
+const INIT_RELOAD_KEY = 'PlaceOS.initialisation_reloads';
+const INIT_RELOAD_WINDOW_MS = 5 * MINUTES;
+const INIT_RELOAD_LIMIT = 3;
+const INITIALISATION_FAILURE = signal('');
+const INITIALISATION_COMPLETE = signal(false);
+
 /** How often a deferred automatic reload re-checks whether it can proceed */
 const RELOAD_RETRY_MS = 5 * SECONDS;
 /** Longest an automatic reload is held back before it happens regardless */
@@ -105,12 +111,86 @@ export function setInitReloadHandler(handler: (() => void) | null) {
     _init_reload = handler;
 }
 
+/** Message shown when automatic startup recovery has stopped. */
+export function initialisationFailure() {
+    return INITIALISATION_FAILURE.asReadonly();
+}
+
+/** Whether application startup has reached its ready state. */
+export function initialisationComplete() {
+    return INITIALISATION_COMPLETE.asReadonly();
+}
+
+/** Stop startup and show a recoverable error in the loading UI. */
+export function failInitialisation(message: string): void {
+    INITIALISATION_COMPLETE.set(false);
+    INITIALISATION_FAILURE.set(message);
+}
+
+function recentInitReloads(now = Date.now()): number[] {
+    try {
+        const stored = JSON.parse(
+            sessionStorage.getItem(INIT_RELOAD_KEY) || '[]',
+        );
+        return stored instanceof Array
+            ? stored.filter(
+                  (at): at is number =>
+                      typeof at === 'number' &&
+                      now - at >= 0 &&
+                      now - at < INIT_RELOAD_WINDOW_MS,
+              )
+            : [];
+    } catch {
+        return [];
+    }
+}
+
+function storeInitReloads(at: number[]): void {
+    try {
+        sessionStorage.setItem(INIT_RELOAD_KEY, JSON.stringify(at));
+    } catch {
+        // A blocked session store must not prevent startup recovery.
+    }
+}
+
+/** Clear automatic recovery history after startup completes. */
+export function markInitialisationComplete(): void {
+    try {
+        sessionStorage.removeItem(INIT_RELOAD_KEY);
+    } catch {
+        // Ignore unavailable session storage.
+    }
+    INITIALISATION_FAILURE.set('');
+    INITIALISATION_COMPLETE.set(true);
+}
+
+/** Retry startup after automatic reload recovery reaches its limit. */
+export function retryInitialisation(): void {
+    try {
+        sessionStorage.removeItem(INIT_RELOAD_KEY);
+    } catch {
+        // Ignore unavailable session storage.
+    }
+    INITIALISATION_FAILURE.set('');
+    INITIALISATION_COMPLETE.set(false);
+    location.reload();
+}
+
 /** Restart after a failed initialisation */
 export function requestInitReload() {
     if (_init_reload) {
         _init_reload();
         return;
     }
+    const now = Date.now();
+    const reloads = recentInitReloads(now);
+    if (reloads.length >= INIT_RELOAD_LIMIT) {
+        failInitialisation(
+            'The application could not finish starting. Check the connection, then try again.',
+        );
+        return;
+    }
+    storeInitReloads([...reloads, now]);
     location.reload();
 }
 
@@ -274,6 +354,8 @@ export function clearCacheCheck() {
     _new_version = false;
     _auto_reload = false;
     SERVICE_WORKER_UPDATE.set(null);
+    INITIALISATION_FAILURE.set('');
+    INITIALISATION_COMPLETE.set(false);
 }
 
 /**

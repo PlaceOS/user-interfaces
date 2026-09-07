@@ -13,10 +13,29 @@ import {
     markUserDateChange,
     setupFormTimeSync,
     timePeriodsIntersect,
+    withTimeout,
 } from '../lib/general';
 import * as notifications from '../lib/notifications';
 
 describe('General Methods', () => {
+    describe('withTimeout', () => {
+        it('should reject work that does not settle before its deadline', async () => {
+            vi.useFakeTimers();
+            const result = withTimeout(
+                new Promise(() => undefined),
+                1000,
+                'Startup timed out.',
+            );
+            const assertion =
+                expect(result).rejects.toThrow('Startup timed out.');
+
+            await vi.advanceTimersByTimeAsync(1000);
+
+            await assertion;
+            vi.useRealTimers();
+        });
+    });
+
     describe('getItemWithKeys', () => {
         it('should stop when an intermediate value is not an object', () => {
             expect(

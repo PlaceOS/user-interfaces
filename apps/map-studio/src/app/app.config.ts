@@ -19,6 +19,15 @@ async function initialisePlaceOS() {
     await placeos.init();
     if (placeos.mode() !== 'domain') return;
 
+    // Zone import can take a while on large deployments. It must not hold
+    // Angular bootstrap open because the editor can render without it.
+    void syncPlaceOSZones(placeos, store);
+}
+
+async function syncPlaceOSZones(
+    placeos: PlaceOSService,
+    store: StoreService,
+): Promise<void> {
     try {
         const organisation = await placeos.getActiveOrganisation();
         if (!organisation) return;

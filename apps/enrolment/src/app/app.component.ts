@@ -13,9 +13,13 @@ import {
 import {
     AsyncHandler,
     currentUser,
+    failInitialisation,
     firstTruthyValueFrom,
+    initialisationFailure,
     log,
+    markInitialisationComplete,
     OrganisationService,
+    retryInitialisation,
     setAppName,
     setNotifyOutlet,
     SettingsService,
@@ -24,11 +28,11 @@ import {
 } from '@placeos/common';
 import { setInternalUserDomain } from '@placeos/users';
 
+import { RouterOutlet } from '@angular/router';
 import {
     GlobalBannerComponent,
     ServiceWorkerUpdateCardComponent,
 } from '@placeos/components';
-import { RouterOutlet } from '@angular/router';
 
 import { SpacesService } from '@placeos/events';
 
@@ -53,9 +57,26 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
     ],
     template: `
         <global-banner />
-        <div class="relative h-1/2 w-full flex-1">
-            <router-outlet></router-outlet>
-        </div>
+        @if (initialisation_error()) {
+            <div
+                class="bg-base-200 fixed inset-0 z-9998 grid place-items-center p-4"
+            >
+                <div class="bg-base-100 max-w-md rounded-lg p-6 text-center">
+                    <p>{{ initialisation_error() }}</p>
+                    <button
+                        type="button"
+                        class="bg-primary text-primary-content mt-4 rounded px-4 py-2"
+                        (click)="retry()"
+                    >
+                        Try again
+                    </button>
+                </div>
+            </div>
+        } @else {
+            <div class="relative h-1/2 w-full flex-1">
+                <router-outlet></router-outlet>
+            </div>
+        }
         <placeos-service-worker-update-card />
     `,
     styles: [
@@ -77,6 +98,11 @@ export class AppComponent extends AsyncHandler implements OnInit {
     private _cache = inject(SwUpdate);
     private _snackbar = inject(MatSnackBar);
     private _clipboard = inject(Clipboard);
+    public readonly initialisation_error = initialisationFailure();
+
+    public retry(): void {
+        retryInitialisation();
+    }
 
     public async ngOnInit() {
         log('APP', 'MOCKS:', MOCKS);
@@ -84,9 +110,24 @@ export class AppComponent extends AsyncHandler implements OnInit {
         // Listen for service worker events before any async setup so update
         // notifications emitted during initialisation are not missed.
         setupCache(this._cache);
-        const authority: PlaceAuthority = await (
-            await fetch('/auth/authority')
-        ).json();
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 10_000);
+        let authority: PlaceAuthority;
+        try {
+            const response = await fetch('/auth/authority', {
+                signal: controller.signal,
+            }).finally(() => clearTimeout(timer));
+            if (!response.ok) {
+                throw new Error(`Authority request failed: ${response.status}`);
+            }
+            authority = await response.json();
+        } catch (error) {
+            console.error(error);
+            failInitialisation(
+                'Enrolment could not connect to the server. Check the connection, then try again.',
+            );
+            return;
+        }
         /** Wait for settings to initialise */
         await firstTruthyValueFrom(this._settings.initialised);
         setAppName(this._settings.get('app.short_name'));
@@ -95,7 +136,15 @@ export class AppComponent extends AsyncHandler implements OnInit {
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
         /** Wait for authentication details to load */
-        await setupPlace(settings);
+        try {
+            await setupPlace(settings);
+        } catch (error) {
+            console.error(error);
+            failInitialisation(
+                'Enrolment could not authenticate. Check the connection, then try again.',
+            );
+            return;
+        }
         setupCache(this._cache, this._settings.get('service_worker') || {});
         setInternalUserDomain(
             this._settings.get('app.internal_user_domain') ||
@@ -113,5 +162,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
         });
 
         initSentry(this._settings.get('app.sentry_dsn'));
+        markInitialisationComplete();
     }
 }

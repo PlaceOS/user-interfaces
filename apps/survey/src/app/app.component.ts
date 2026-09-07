@@ -5,10 +5,12 @@ import { SwUpdate } from '@angular/service-worker';
 import {
     AsyncHandler,
     current_user,
+    failInitialisation,
     firstTruthyValueFrom,
     HotkeysService,
     LocaleService,
     log,
+    markInitialisationComplete,
     notifySuccess,
     OrganisationService,
     setAppName,
@@ -18,6 +20,7 @@ import {
     setTranslationService,
     setupCache,
     setupPlace,
+    withTimeout,
 } from '@placeos/common';
 
 import {
@@ -143,16 +146,37 @@ export class AppComponent extends AsyncHandler implements OnInit {
             });
         }
         /** Wait for authentication details to load */
-        await setupPlace(settings).catch((_) => console.error(_));
+        try {
+            await setupPlace(settings);
+        } catch (error) {
+            console.error(error);
+            failInitialisation(
+                'Survey could not authenticate. Check the connection, then try again.',
+            );
+            return;
+        }
         await this._org.waitUntilInitialised();
         if (this._locale) {
             this._locale.zone_id = this._org.organisation.id;
             this._locale.init();
         }
         setupCache(this._cache, this._settings.get('service_worker') || {});
-        await firstTruthyValueFrom(current_user);
+        try {
+            await withTimeout(
+                firstTruthyValueFrom(current_user),
+                30_000,
+                'Current user loading timed out.',
+            );
+        } catch (error) {
+            console.error(error);
+            failInitialisation(
+                'Survey could not load the current user. Check the connection, then try again.',
+            );
+            return;
+        }
         this.clearTimeout('wait_for_user');
         this._initLocale();
+        markInitialisationComplete();
         // initSentry(this._settings.get('app.sentry_dsn'));
     }
 

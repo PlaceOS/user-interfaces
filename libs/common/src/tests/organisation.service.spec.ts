@@ -105,6 +105,29 @@ describe('OrganisationService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it('should stop waiting when geolocation does not respond', async () => {
+        vi.useFakeTimers();
+        const original = Object.getOwnPropertyDescriptor(
+            navigator,
+            'geolocation',
+        );
+        Object.defineProperty(navigator, 'geolocation', {
+            configurable: true,
+            value: { getCurrentPosition: vi.fn() },
+        });
+
+        const service = spectator.service as unknown as {
+            _setBuildingFromGeolocation(): Promise<Building | null>;
+        };
+        const result = service._setBuildingFromGeolocation();
+        await vi.advanceTimersByTimeAsync(10_000);
+
+        await expect(result).resolves.toBeNull();
+        if (original) Object.defineProperty(navigator, 'geolocation', original);
+        else Reflect.deleteProperty(navigator, 'geolocation');
+        vi.useRealTimers();
+    });
+
     it('should describe a location from its zone IDs', () => {
         spectator.service.addZone({
             id: 'region-1',

@@ -1,13 +1,18 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { SettingsService } from '@placeos/common';
 import { authority, setAPI_Key } from '@placeos/ts-client';
 
 import {
     current_user,
     currentUser,
+    failInitialisation,
     firstTruthyValueFrom,
+    initialisationFailure,
+    markInitialisationComplete,
+    retryInitialisation,
+    SettingsService,
     setupPlace,
+    withTimeout,
 } from '@placeos/common';
 
 @Component({
@@ -16,7 +21,12 @@ import {
     template: `
         <article>
             <div id="redirect-message">
-                <p>Redirecting</p>
+                @if (initialisation_error()) {
+                    <p>{{ initialisation_error() }}</p>
+                    <button type="button" (click)="retry()">Try again</button>
+                } @else {
+                    <p>Redirecting</p>
+                }
             </div>
         </article>
     `,
@@ -86,6 +96,11 @@ export class AppComponent implements OnInit {
     private _route = inject(ActivatedRoute);
 
     private _continue = '';
+    public readonly initialisation_error = initialisationFailure();
+
+    public retry(): void {
+        retryInitialisation();
+    }
 
     public async ngOnInit() {
         const params = this._route.snapshot.queryParamMap;
@@ -102,9 +117,21 @@ export class AppComponent implements OnInit {
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
-        await setupPlace(settings).catch((_) => console.error(_));
-        await firstTruthyValueFrom(current_user);
-        this._checkForDomainRedirects();
+        try {
+            await setupPlace(settings);
+            await withTimeout(
+                firstTruthyValueFrom(current_user),
+                30_000,
+                'Current user loading timed out.',
+            );
+            markInitialisationComplete();
+            this._checkForDomainRedirects();
+        } catch (error) {
+            console.error(error);
+            failInitialisation(
+                'The redirect service could not start. Check the connection, then try again.',
+            );
+        }
     }
 
     private _checkForDomainRedirects() {

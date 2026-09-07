@@ -1,6 +1,6 @@
 import * as ts_client from '@placeos/ts-client';
 
-import { PlaceSettings, setupPlace } from '../lib/placeos';
+import { PLACE_SETUP_TIMEOUT, PlaceSettings, setupPlace } from '../lib/placeos';
 
 // Only the external ts-client API layer is stubbed; native detection is driven
 // through the real `window.Capacitor` seam that `native-app` reads from.
@@ -43,6 +43,22 @@ describe('setupPlace', () => {
         delete window_store[native_fetch_key];
         window.fetch = real_fetch;
         setNative(false);
+    });
+
+    it('rejects when PlaceOS setup does not settle', async () => {
+        vi.useFakeTimers();
+        vi.mocked(ts_client.setup).mockReturnValue(
+            new Promise(() => undefined) as ReturnType<typeof ts_client.setup>,
+        );
+
+        const result = setupPlace(base_settings);
+        const assertion = expect(result).rejects.toThrow(
+            'PlaceOS setup timed out',
+        );
+        await vi.advanceTimersByTimeAsync(PLACE_SETUP_TIMEOUT);
+
+        await assertion;
+        vi.useRealTimers();
     });
 
     it('passes configured storage through for browser apps', async () => {

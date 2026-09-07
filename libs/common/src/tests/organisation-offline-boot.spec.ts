@@ -62,14 +62,14 @@ describe('OrganisationService offline boot', () => {
         vi.useRealTimers();
     });
 
-    it('should wait to be online when offline boot is not enabled', async () => {
+    it('should try cached organisation data after the offline wait', async () => {
         stayOffline();
 
         spectator = createService();
         await vi.advanceTimersByTimeAsync(60_000);
 
-        expect(ts_client.queryZones).not.toHaveBeenCalled();
-        expect(spectator.service.initialised()).toBe(false);
+        expect(ts_client.queryZones).toHaveBeenCalled();
+        expect(spectator.service.initialised()).toBe(true);
     });
 
     it('should load anyway when offline boot is enabled', async () => {
