@@ -26,9 +26,6 @@ describe('AttendeeListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show attendees', () => {
         expect('[attendee]').not.toExist();
         spectator.setInput({ list: [new User()] });

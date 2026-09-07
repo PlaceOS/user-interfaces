@@ -66,9 +66,6 @@ describe('LockerSelectModalComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should seed selection from the provided items and apply flow options', () => {
         expect(spectator.component.selected()).toEqual([
             { id: 'locker-1', name: 'Locker 1' },

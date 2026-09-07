@@ -51,10 +51,6 @@ describe('AssetListFieldComponent', () => {
         (spectator.component as any)._dialog = { open: open_dialog };
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show the empty state when there are no requests', () => {
         spectator.detectChanges();
         expect('[list]').not.toExist();

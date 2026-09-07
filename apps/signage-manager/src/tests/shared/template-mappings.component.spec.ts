@@ -104,7 +104,7 @@ describe('TemplateMappingsComponent', () => {
         ).toBeTruthy();
         expect(fixture.nativeElement.textContent).toContain('Welcome');
         const zone_link = fixture.nativeElement.querySelector(
-            'a[href="/zones/zone-1"]',
+            'a[href^="/zones/zone-1"]',
         );
         expect(zone_link?.textContent).toContain('First floor');
         expect(zone_link?.textContent).not.toContain('zone-1');

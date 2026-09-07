@@ -42,10 +42,7 @@ describe('LockersReportChartsComponent', () => {
             },
         });
         counts = signal({ 'level-1': 5 });
-        bookings = signal([
-            { zones: ['level-1'] },
-            { zones: ['level-2'] },
-        ]);
+        bookings = signal([{ zones: ['level-1'] }, { zones: ['level-2'] }]);
         spectator = createComponent({
             providers: [
                 {
@@ -59,10 +56,6 @@ describe('LockersReportChartsComponent', () => {
     afterEach(() => {
         vi.clearAllTimers();
         vi.useRealTimers();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should aggregate unique lockers, hosts and utilisation per day', () => {

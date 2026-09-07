@@ -40,10 +40,6 @@ describe('ChatComponent', () => {
 
     afterEach(() => vi.useRealTimers());
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should hide chat unless enabled in settings', () => {
         expect('button').not.toExist();
         chat_enabled.set(true);

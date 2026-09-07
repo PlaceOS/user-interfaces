@@ -39,15 +39,6 @@ describe('CateringOrderStateService', () => {
         } as never);
     });
 
-    it('should create component', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
-    it('should list menu items', () => {});
-    it('should list filtered menu items', () => {});
-    it('should allow changing menu options', () => {});
-    it('should allow changing menu filters', () => {});
-
     it('should validate an order against its assigned room', async () => {
         const menu_item = new CateringItem({
             id: 'coffee',

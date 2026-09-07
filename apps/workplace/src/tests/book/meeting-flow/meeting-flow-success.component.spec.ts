@@ -78,9 +78,6 @@ describe('MeetingFlowSuccessComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show nearby desk action by default', () =>
         expect(spectator.query('button')).toExist());
 

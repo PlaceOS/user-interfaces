@@ -23,10 +23,6 @@ describe('ServiceWorkerUpdateCardComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show nothing while no update is available', () => {
         expect('aside').not.toExist();
     });

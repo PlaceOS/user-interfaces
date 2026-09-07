@@ -51,9 +51,6 @@ describe('LockerFiltersDisplayComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should render the selected date and time range', () => {
         expect(spectator.query('[filter-item][date]')).toExist();
         expect(spectator.query('[filter-item][time]')).toExist();

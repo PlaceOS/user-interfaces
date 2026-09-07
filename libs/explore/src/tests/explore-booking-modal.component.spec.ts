@@ -1,7 +1,10 @@
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
 import { inject, Injector, signal } from '@angular/core';
-import { MockProvider, MockService, ngMocks } from 'ng-mocks';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
+import { MockProvider, ngMocks } from 'ng-mocks';
 import { timer } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
@@ -49,10 +52,6 @@ describe('ExploreBookingModalComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should allow changing the title and duration', () => {
         spectator.detectChanges();

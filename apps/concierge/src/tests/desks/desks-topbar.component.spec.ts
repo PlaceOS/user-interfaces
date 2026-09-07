@@ -3,7 +3,10 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of, timer } from 'rxjs';
@@ -42,9 +45,7 @@ describe('DesksTopbarComponent', () => {
                 buildings: [],
             }),
             MockProvider(MatDialog, {
-                open: vi.fn(
-                    () => ({ afterClosed: vi.fn(() => of()) }) as any,
-                ),
+                open: vi.fn(() => ({ afterClosed: vi.fn(() => of()) }) as any),
             }),
         ],
         imports: [
@@ -60,10 +61,6 @@ describe('DesksTopbarComponent', () => {
         // approve/reject flow reaches the state service.
         vi.mocked(ts_client.get).mockResolvedValue({ id: 'bkn-123' } as any);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should handle zone_ids query param', async () => {

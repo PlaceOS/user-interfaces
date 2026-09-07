@@ -51,10 +51,6 @@ describe('CateringItemModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should submit updated item option details', async () => {
         const emitted = new Promise<any>((resolve) => {
             spectator.component.event.subscribe((e) => resolve(e));

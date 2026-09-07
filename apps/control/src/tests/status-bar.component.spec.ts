@@ -39,10 +39,6 @@ describe('ControlStatusBarComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show recording details', async () => {
         expect('[recording]').not.toExist();
         const service = spectator.inject(ControlStateService);
@@ -66,9 +62,5 @@ describe('ControlStatusBarComponent', () => {
     it('should show global volume controls', () => {
         expect('mat-slider').toExist();
         expect('button[mute]').toExist();
-    });
-
-    it('should allow toggling the mute state', () => {
-        // TODO: Hookup mute button
     });
 });

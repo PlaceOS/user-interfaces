@@ -27,10 +27,6 @@ describe('SourceSelectModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should close on source changes', () => {
         expect('source-select').toExist();
         spectator.dispatchFakeEvent('source-select', 'source');

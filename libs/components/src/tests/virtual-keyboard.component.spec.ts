@@ -23,10 +23,6 @@ describe('VirtualKeyboardComponent', () => {
 
     afterEach(() => (VirtualKeyboardComponent.enabled = false));
 
-    it('should create component', () => {
-        expect(spectator.directive).toBeTruthy();
-    });
-
     it('show keyboard on input focus', async () => {
         vi.useFakeTimers();
         const input = spectator.query('input');

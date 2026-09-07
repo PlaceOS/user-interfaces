@@ -27,9 +27,6 @@ describe('CateringItemDetailsComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show an empty state when no item is provided', () => {
         expect(spectator.query('[empty]')).toBeTruthy();
         expect(spectator.query('[image]')).toBeFalsy();

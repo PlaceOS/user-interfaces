@@ -1,12 +1,15 @@
+import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     Building,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
-import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
 
 import {
@@ -44,10 +47,6 @@ describe('TopbarComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should render global search', () => {
         expect('global-search').toExist();

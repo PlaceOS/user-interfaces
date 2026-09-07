@@ -31,10 +31,6 @@ describe('ImageFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show the upload prompt when empty', () => {
         expect(spectator.query('img[auth]')).toBeNull();
     });

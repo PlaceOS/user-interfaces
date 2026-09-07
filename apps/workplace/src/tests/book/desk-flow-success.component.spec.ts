@@ -104,10 +104,6 @@ describe('NewDeskFlowSuccessComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should return the number of group_members from extension_data as group_size', () => {
         // The buggy code reads from `last_event.attendees` which is always
         // empty for desk bookings, so group_size incorrectly returns 1.

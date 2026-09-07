@@ -20,10 +20,6 @@ describe('MapRadiusComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show a radius circle', () => {
         spectator.component.show.set(false);
         spectator.detectChanges();

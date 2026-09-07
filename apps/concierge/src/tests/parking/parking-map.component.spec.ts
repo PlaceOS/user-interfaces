@@ -92,10 +92,6 @@ describe('ParkingMapComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should keep parking styles enabled by default', () => {
         expect(spectator.component.styles()).toEqual(style_map);
     });

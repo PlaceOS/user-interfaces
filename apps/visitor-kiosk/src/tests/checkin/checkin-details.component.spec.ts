@@ -53,10 +53,6 @@ describe('CheckinDetailsComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should disable browser autocomplete on every input', () => {
         const inputs = spectator.queryAll('input');
 

@@ -1,14 +1,11 @@
 import { signal, WritableSignal } from '@angular/core';
-import { OrganisationService } from '@placeos/common';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
-import {
-    UserDetails,
-    UserLabelComponent,
-} from '../lib/user-label.component';
+import { UserDetails, UserLabelComponent } from '../lib/user-label.component';
 
 describe('UserLabelComponent', () => {
     let spectator: Spectator<UserLabelComponent>;
@@ -38,9 +35,6 @@ describe('UserLabelComponent', () => {
             ],
         });
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should render the user name', () => {
         spectator.setInput({

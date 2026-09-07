@@ -58,9 +58,6 @@ describe('DayviewTimelineComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should display spaces', async () => {
         spectator.detectChanges();
         await spectator.fixture.whenStable();

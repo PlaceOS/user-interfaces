@@ -120,10 +120,6 @@ describe('DesksComponent', () => {
 
     afterEach(() => localStorage.clear());
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should list parking-only levels last', () => {
         organisation_service.levelsForBuilding.mockReturnValue([
             { id: 'level-parking', tags: ['level', 'parking'] },

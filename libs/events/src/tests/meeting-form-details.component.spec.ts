@@ -72,9 +72,6 @@ describe('MeetingFormDetailsComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should warn when changing the host of a meeting with visitors', () => {
         setting_signals['events.can_book_for_others'].set(true);
         event = new CalendarEvent({

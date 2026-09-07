@@ -1,5 +1,4 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { MockComponent } from 'ng-mocks';
 import {
     addDays,
     addMonths,
@@ -7,6 +6,7 @@ import {
     startOfDay,
     startOfMonth,
 } from 'date-fns';
+import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DateRangeCalendarComponent } from '../lib/date-range-calendar.component';
@@ -22,10 +22,6 @@ describe('DateRangeCalendarComponent', () => {
     beforeEach(() => {
         spectator = createComponent({ props: { month } as any });
         spectator.detectChanges();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should render a full six week grid of days', () => {
@@ -79,9 +75,9 @@ describe('DateRangeCalendarComponent', () => {
 
     it('should navigate between months', () => {
         spectator.component.nextMonth();
-        expect(isSameMonth(spectator.component.month(), addMonths(month, 1))).toBe(
-            true,
-        );
+        expect(
+            isSameMonth(spectator.component.month(), addMonths(month, 1)),
+        ).toBe(true);
         spectator.component.previousMonth();
         expect(isSameMonth(spectator.component.month(), month)).toBe(true);
     });
@@ -101,7 +97,11 @@ describe('DateRangeCalendarComponent', () => {
     it('should flag today and month membership', () => {
         const today = spectator.component
             .month_days()
-            .find((_) => startOfDay(_.id).valueOf() === startOfDay(Date.now()).valueOf());
+            .find(
+                (_) =>
+                    startOfDay(_.id).valueOf() ===
+                    startOfDay(Date.now()).valueOf(),
+            );
         if (today) expect(today.is_today).toBe(true);
         const in_month = spectator.component
             .month_days()

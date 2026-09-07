@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { MockProvider } from 'ng-mocks';
 
@@ -13,9 +16,6 @@ describe('CodeFlowErrorComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should default to the generic error state', () => {
         expect(spectator.component.type()).toBe('other');

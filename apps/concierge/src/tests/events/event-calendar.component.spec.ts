@@ -1,5 +1,5 @@
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import {
     createRoutingFactory,
@@ -32,10 +32,6 @@ describe('EventCalendarComponent', () => {
         options.set({ period: 'week' });
         set_options.mockClear();
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should reflect the configured period', () => {

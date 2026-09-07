@@ -16,10 +16,6 @@ describe('ActionIconComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show icon', () => {
         expect('icon[root]').toExist();
     });

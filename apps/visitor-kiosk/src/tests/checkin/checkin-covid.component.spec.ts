@@ -1,6 +1,9 @@
 import { MatRadioModule } from '@angular/material/radio';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 
 import { CheckinCovidComponent } from '../../app/checkin/checkin-covid.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
@@ -43,10 +46,6 @@ describe('CheckinCovidComponent', () => {
     });
 
     afterEach(() => setNotifyOutlet(null as any, true));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should allow confirming questions', () => {
         spectator.component.confirm();

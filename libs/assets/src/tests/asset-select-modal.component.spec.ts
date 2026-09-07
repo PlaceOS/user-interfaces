@@ -40,10 +40,6 @@ describe('AssetSelectModalComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should pass booking details to the state service', () => {
         expect(set_options).toHaveBeenCalledWith(dialog_data.details);
     });

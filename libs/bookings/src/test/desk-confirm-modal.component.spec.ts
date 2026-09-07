@@ -26,9 +26,6 @@ describe('DeskConfirmModalComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should allow setting the date', () => {
         expect('[date]').toExist();

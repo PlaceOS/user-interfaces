@@ -24,10 +24,6 @@ describe('UploadListFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should assign ids to written values', () => {
         spectator.component.writeValue([
             { name: 'a.txt', progress: 100, url: 'a', size: 1 } as any,

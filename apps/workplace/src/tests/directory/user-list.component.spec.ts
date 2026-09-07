@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { SettingsService, User } from '@placeos/common';
 import { IconComponent, UserAvatarComponent } from '@placeos/components';
 import * as ts_client from '@placeos/ts-client';
@@ -37,10 +40,6 @@ describe('DirectoryUserListComponent', () => {
         vi.mocked(ts_client.get).mockResolvedValue([] as any);
         settings_get.mockReturnValue(undefined);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should default min_search_length to 3 when not configured', () => {

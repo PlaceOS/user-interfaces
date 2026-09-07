@@ -27,9 +27,6 @@ describe('CateringItemListItemComponent', () => {
             })),
     );
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should render the item name and category', () => {
         spectator.setInput({
             item: new CateringItem({
@@ -39,9 +36,9 @@ describe('CateringItemListItemComponent', () => {
             }),
         });
         spectator.detectChanges();
-        expect(spectator.query('button[name="select-catering-item"]')).toContainText(
-            'Latte',
-        );
+        expect(
+            spectator.query('button[name="select-catering-item"]'),
+        ).toContainText('Latte');
         expect(
             spectator.query('button[name="select-catering-item"]'),
         ).toContainText('Drinks');
@@ -67,7 +64,11 @@ describe('CateringItemListItemComponent', () => {
             show_count: false,
         });
         spectator.detectChanges();
-        expect(spectator.query('button[name="select-catering-item"] .rounded-full')).toBeFalsy();
+        expect(
+            spectator.query(
+                'button[name="select-catering-item"] .rounded-full',
+            ),
+        ).toBeFalsy();
         spectator.setInput({ show_count: true });
         spectator.detectChanges();
         const badge = spectator.query(

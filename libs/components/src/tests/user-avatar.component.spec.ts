@@ -15,10 +15,6 @@ describe('UserAvatarComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it("should show the user's image", () => {
         spectator.setInput(
             'user',

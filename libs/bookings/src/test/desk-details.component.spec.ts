@@ -23,9 +23,6 @@ describe('DeskDetailsComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show empty state when no desk is set', () => {
         expect(spectator.query('[empty]')).toExist();
         expect(spectator.query('[details]')).not.toExist();

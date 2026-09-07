@@ -6,6 +6,7 @@ import {
     forwardRef,
     inject,
     input,
+    Signal,
     signal,
     untracked,
 } from '@angular/core';
@@ -17,12 +18,12 @@ import {
     ANIMATION_SHOW_CONTRACT_EXPAND,
     AssetItem,
     AssetRequest,
-    SettingsService,
-    Space,
     i18n,
     notifyError,
     randomInt,
     randomString,
+    SettingsService,
+    Space,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 
@@ -288,13 +289,11 @@ export class AssetListFieldComponent implements ControlValueAccessor {
 
     private _onChange: (_: AssetRequest[]) => void;
     private _onTouch: (_: AssetRequest[]) => void;
-    private readonly _favorites = this._settings.signal<string[]>(
+    public readonly favorites: Signal<string[]> = this._settings.signal(
         'favourite_assets',
         EMPTY_FAVS,
         true,
     );
-
-    public readonly favorites = computed(() => this._favorites());
 
     public readonly end_time = computed(() => {
         const time =
@@ -405,22 +404,20 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             for (const item of items) {
                 if ((item as any).assets?.length) {
                     const list = [];
-                    item.item_ids = new Array(item.quantity)
-                        .fill(0)
-                        .map((_) => {
-                            let id = '';
-                            let count = 0;
-                            while (
-                                (!id || list.includes(id)) &&
-                                count < (item as any).assets.length
-                            ) {
-                                id = (item as any).assets[
-                                    randomInt((item as any).assets.length)
-                                ].id;
-                            }
-                            list.push(id);
-                            return id;
-                        });
+                    item.item_ids = new Array(item.quantity).fill(0).map(() => {
+                        let id = '';
+                        let count = 0;
+                        while (
+                            (!id || list.includes(id)) &&
+                            count < (item as any).assets.length
+                        ) {
+                            id = (item as any).assets[
+                                randomInt((item as any).assets.length)
+                            ].id;
+                        }
+                        list.push(id);
+                        return id;
+                    });
                 }
             }
             const time = new Date(this.options().date);

@@ -1,15 +1,15 @@
 import { signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from '@angular/router';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
+import { IconComponent, InteractiveMapComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import { ExploreParkingService, ExploreStateService } from '@placeos/explore';
-import {
-    IconComponent,
-    InteractiveMapComponent,
-} from '@placeos/components';
 
 import { ParkingComponent } from '../app/parking.component';
 
@@ -76,10 +76,6 @@ describe('ParkingComponent', () => {
         parking_mock.available_spaces.set([{}, {}]);
         localStorage.clear();
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should render the free and total space counts', () => {

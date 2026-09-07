@@ -1,4 +1,4 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -18,8 +18,7 @@ import { GlobalLoadingComponent } from '../lib/global-loading.component';
 import { NativeDomainOverlayComponent } from '../lib/native-domain-overlay.component';
 import { ServiceWorkerUpdateCardComponent } from '../lib/service-worker-update-card.component';
 
-const sleep = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('GlobalLoadingComponent', () => {
     let spectator: Spectator<GlobalLoadingComponent>;
@@ -64,10 +63,6 @@ describe('GlobalLoadingComponent', () => {
         needsNativeDomain().set(false);
         setLoadingMessage('Loading...');
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should show the loading overlay with the current message', () => {

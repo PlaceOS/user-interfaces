@@ -1,4 +1,4 @@
-export { AsyncHandler as AsyncHandler } from './async-handler.class';
+export { AsyncHandler } from './async-handler.class';
 export { HotkeysService } from './hotkeys.service';
 export { MapsPeopleService } from './mapspeople.service';
 export { PushNotificationService } from './push-notification.service';

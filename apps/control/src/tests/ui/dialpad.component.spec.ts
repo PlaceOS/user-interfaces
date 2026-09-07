@@ -10,10 +10,6 @@ describe('DialpadComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render all twelve dialpad digits', () => {
         const buttons = spectator.queryAll('button[digit]');
         // 12 digits + 1 backspace button (shown by default)

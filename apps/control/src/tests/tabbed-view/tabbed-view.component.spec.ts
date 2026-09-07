@@ -59,10 +59,6 @@ describe('ControlTabbedViewComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should set the active system id from the route param', () => {
         const service = spectator.inject(ControlStateService);
         expect(service.setID).toHaveBeenCalledWith('space-0');

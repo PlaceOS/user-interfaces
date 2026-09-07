@@ -1,6 +1,5 @@
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { inject, Injector, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import {
     createRoutingFactory,
     SpectatorRouting,
@@ -75,10 +74,6 @@ describe('EventManageComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should add and remove tags on the model', () => {
         const input = { value: '' } as HTMLInputElement;
         spectator.component.addTag({
@@ -107,9 +102,9 @@ describe('EventManageComponent', () => {
         }));
         const list = spectator.component.filtered_timezones();
         expect(list.length).toBeGreaterThan(0);
-        expect(
-            list.every((tz) => tz.toLowerCase().includes('sydney')),
-        ).toBe(true);
+        expect(list.every((tz) => tz.toLowerCase().includes('sydney'))).toBe(
+            true,
+        );
     });
 
     it('should set the level zone through the form service', () => {

@@ -27,10 +27,6 @@ describe('NewUserModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show the form', () => {
         expect('user-form').toExist();
     });

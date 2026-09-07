@@ -1,8 +1,8 @@
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { GroupEventDetailsModalComponent } from '@placeos/events';
@@ -31,10 +31,6 @@ describe('EventViewComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should show the empty state when no event is loaded', () => {

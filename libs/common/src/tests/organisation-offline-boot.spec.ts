@@ -119,14 +119,14 @@ describe('OrganisationService offline boot', () => {
         expect(spectator.service.initialised()).toBe(true);
     });
 
-    it('should reload when zone loading remains incomplete for 120 seconds', async () => {
+    it('should reload when zone loading remains incomplete for 45 seconds', async () => {
         vi.mocked(ts_client.queryZones).mockImplementation(
             () => new Promise(() => undefined) as any,
         );
 
         spectator = createService();
         await vi.advanceTimersByTimeAsync(1000);
-        await vi.advanceTimersByTimeAsync(119_999);
+        await vi.advanceTimersByTimeAsync(44_999);
 
         expect(reload).not.toHaveBeenCalled();
 

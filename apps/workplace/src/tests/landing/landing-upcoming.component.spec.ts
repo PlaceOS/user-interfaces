@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingCardComponent, BookingFormService } from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
 import { EventCardComponent, EventFormService } from '@placeos/events';
@@ -42,10 +45,6 @@ describe('LandingUpcomingComponent', () => {
     beforeEach(() => {
         upcoming_events.set([]);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should refresh upcoming bookings on request', () => {

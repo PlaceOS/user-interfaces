@@ -48,10 +48,6 @@ describe('CateringTopbarComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should handle query parameters', () => {
         expect(spectator.component.zones()).toEqual([]);
         spectator.setRouteQueryParam('zone_ids', 'zone-1234,zone-2345');

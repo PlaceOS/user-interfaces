@@ -1,5 +1,9 @@
 import { MatRippleModule } from '@angular/material/core';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialogModule,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
@@ -7,10 +11,7 @@ import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import {
-    BookingAsset,
-    BookingFormService,
-} from '../lib/booking-form.service';
+import { BookingAsset, BookingFormService } from '../lib/booking-form.service';
 import { ParkingDetailsComponent } from '../lib/parking-select-modal/parking-details.component';
 import { ParkingFiltersDisplayComponent } from '../lib/parking-select-modal/parking-filters-display.component';
 import { ParkingFiltersComponent } from '../lib/parking-select-modal/parking-filters.component';
@@ -60,9 +61,6 @@ describe('ParkingSelectModalComponent', () => {
         dialog_data = { spaces: [asset('a')], options: { type: 'parking' } };
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should seed the selection from the dialog data spaces', () => {
         expect(spectator.component.selected().map((_) => _.id)).toEqual(['a']);
@@ -116,10 +114,9 @@ describe('ParkingSelectModalComponent', () => {
         expect(spectator.component.favorites()).toEqual([]);
         spectator.component.toggleFavourite(asset('a'));
         expect(spectator.component.favorites()).toEqual(['a']);
-        expect(settings.saveUserSetting).toHaveBeenCalledWith(
-            FAV_PARKING_KEY,
-            ['a'],
-        );
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(FAV_PARKING_KEY, [
+            'a',
+        ]);
         spectator.component.toggleFavourite(asset('a'));
         expect(spectator.component.favorites()).toEqual([]);
     });

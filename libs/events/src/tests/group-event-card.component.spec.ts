@@ -4,13 +4,12 @@ import {
     CalendarEvent,
     OrganisationService,
     settingSignal,
-    Space,
 } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockDirective, MockProvider } from 'ng-mocks';
-import * as ts_client from '@placeos/ts-client';
 import { GroupEventCardComponent } from '../lib/group-event-card.component';
 import { GroupEventDetailsModalComponent } from '../lib/group-event-details-modal.component';
 
@@ -58,9 +57,6 @@ describe('GroupEventCardComponent', () => {
         spectator = createComponent({ props: { event } as any });
         spectator.detectChanges();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should resolve the event space and strip HTML from the body', async () => {
         await spectator.component.ngOnInit();

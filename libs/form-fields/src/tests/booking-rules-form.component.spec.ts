@@ -45,10 +45,6 @@ describe('BookingRulesFormComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should populate the form and conditions from a ruleset input', () => {
         spectator.setInput('ruleset', {
             id: 'ruleset-1',
@@ -97,9 +93,9 @@ describe('BookingRulesFormComponent', () => {
 
     it('should order and clamp the between-hours condition', () => {
         spectator.component.setIsBetween(18, 6);
-        expect(spectator.component.form.getRawValue().conditions.is_between).toEqual(
-            [18, 18.25],
-        );
+        expect(
+            spectator.component.form.getRawValue().conditions.is_between,
+        ).toEqual([18, 18.25]);
     });
 
     it('should ignore incomplete between-hours values', () => {
@@ -107,17 +103,17 @@ describe('BookingRulesFormComponent', () => {
             conditions: { is_between: [8, 10] },
         });
         spectator.component.setIsBetween(0, 10);
-        expect(spectator.component.form.getRawValue().conditions.is_between).toEqual(
-            [8, 10],
-        );
+        expect(
+            spectator.component.form.getRawValue().conditions.is_between,
+        ).toEqual([8, 10]);
     });
 
     it('should normalise a period to start and end of day', () => {
         const start = new Date(2026, 5, 10, 15, 0).valueOf();
         const end = new Date(2026, 5, 12, 9, 0).valueOf();
         spectator.component.setIsPeriod(start, end);
-        const period = spectator.component.form.getRawValue().conditions
-            .is_period;
+        const period =
+            spectator.component.form.getRawValue().conditions.is_period;
         expect(new Date(period[0]).getHours()).toBe(0);
         expect(new Date(period[1]).getHours()).toBe(23);
     });

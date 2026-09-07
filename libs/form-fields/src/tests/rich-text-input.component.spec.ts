@@ -54,16 +54,10 @@ describe('RichTextInputComponent', () => {
     };
 
     beforeEach(() => {
-        Object.values(mockEditor).forEach((fn) =>
-            (fn as any).mockClear?.(),
-        );
+        Object.values(mockEditor).forEach((fn) => (fn as any).mockClear?.());
         mockEditor.hasFormat.mockReturnValue(false);
         mockEditor.getHTML.mockReturnValue('<p>content</p>');
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should emit changes when the value is set', () => {
@@ -107,7 +101,9 @@ describe('RichTextInputComponent', () => {
 
     it('should toggle italic formatting off when already active', async () => {
         await initialiseEditor();
-        mockEditor.hasFormat.mockImplementation(((fmt: string) => fmt === "I") as any);
+        mockEditor.hasFormat.mockImplementation(
+            ((fmt: string) => fmt === 'I') as any,
+        );
         spectator.component.toggleItalic();
         expect(mockEditor.removeItalic).toHaveBeenCalled();
         expect(spectator.component.toolbar_state().italic).toBe(true);

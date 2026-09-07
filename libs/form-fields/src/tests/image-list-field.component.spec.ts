@@ -44,10 +44,6 @@ describe('ImageListFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should write external values into the list', () => {
         spectator.component.writeValue(['a.png', 'b.png']);
         spectator.detectChanges();

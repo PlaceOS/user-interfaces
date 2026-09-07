@@ -1,10 +1,13 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
-import { FacilitiesComponent } from '../../app/facilities/facilities.component';
 import { FacilitiesMapComponent } from '../../app/facilities/facilities-map.component';
 import { FacilitiesStatusComponent } from '../../app/facilities/facilities-status.component';
 import { FacilitiesTopbarComponent } from '../../app/facilities/facilities-topbar.component';
+import { FacilitiesComponent } from '../../app/facilities/facilities.component';
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
 import { ApplicationTopbarComponent } from '../../app/ui/app-topbar.component';
 
@@ -22,10 +25,6 @@ describe('FacilitiesComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should derive the trailing path segment from the router url', () => {
         Object.defineProperty(spectator.router, 'url', {

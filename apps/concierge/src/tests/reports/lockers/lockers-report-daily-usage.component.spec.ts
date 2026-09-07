@@ -70,10 +70,6 @@ describe('LockersReportDailyUsageComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should sort the daily rows by date ascending', () => {
         expect(spectator.component.daily_stats().map((r) => r.date)).toEqual([
             '2026-04-06',

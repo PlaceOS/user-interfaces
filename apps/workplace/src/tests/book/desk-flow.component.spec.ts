@@ -1,10 +1,12 @@
 import { signal } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
-import { BehaviorSubject } from 'rxjs';
 import { NewDeskFlowComponent } from '../../app/book/desk-flow.component';
 import { NewDeskFlowFormComponent } from '../../app/book/desk-flow/desk-flow-form.component';
 import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow/desk-flow-success.component';
@@ -43,9 +45,6 @@ describe('NewDeskFlowComponent', () => {
         });
         book_service.setView('form');
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should show form view by default', () => {
         expect('desk-flow-form').toExist();

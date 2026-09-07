@@ -1,6 +1,6 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { Validators } from '@angular/forms';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
 import {
     SchemaFormComponent,
@@ -84,10 +84,6 @@ describe('SchemaFormComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should render nothing without a schema', () => {
         expect(spectator.component.defaults_form()).toBeFalsy();

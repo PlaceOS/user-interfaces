@@ -1,11 +1,14 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
 import { timer } from 'rxjs';
 
@@ -49,7 +52,7 @@ describe('RoomBookingsComponent', () => {
                 getDate: vi.fn(() => Date.now()),
             } as any),
             MockProvider(SettingsService, {
-                get: ((_: string) => false) as any,
+                get: (() => false) as any,
             } as any),
         ],
         imports: [
@@ -67,10 +70,6 @@ describe('RoomBookingsComponent', () => {
         spectator = createComponent();
         spectator.component.view.set('list');
         spectator.detectChanges();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should clear zone_ids query params when no levels are selected', () => {

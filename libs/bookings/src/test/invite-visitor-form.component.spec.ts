@@ -1,14 +1,17 @@
-import type { Mock } from 'vitest';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
+import type { Mock } from 'vitest';
 
+import { inject, Injector, signal } from '@angular/core';
 import { Booking, OrganisationService, User } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
-import { inject, Injector, signal } from '@angular/core';
 import { MockModule, MockProvider, MockService } from 'ng-mocks';
 import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
@@ -83,9 +86,6 @@ describe('InviteVisitorFormComponent', () => {
     beforeEach(() => {
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should resolve selected building from booking zones and patch selected building', async () => {
         const service = spectator.inject(BookingFormService);
@@ -241,12 +241,8 @@ describe('InviteVisitorFormComponent', () => {
 
         expect(service.loadGroupSiblings).toHaveBeenCalled();
         expect(service.model().assets).toHaveLength(2);
-        expect(service.model().assets[0].email).toBe(
-            'visitor.one@example.com',
-        );
-        expect(service.model().assets[1].email).toBe(
-            'visitor.two@example.com',
-        );
+        expect(service.model().assets[0].email).toBe('visitor.one@example.com');
+        expect(service.model().assets[1].email).toBe('visitor.two@example.com');
     });
 
     it('should prefer group member names when sibling booking asset names are reason text', async () => {
@@ -326,12 +322,8 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.ngOnInit();
 
         expect(service.model().assets).toHaveLength(2);
-        expect(service.model().assets[0].email).toBe(
-            'visitor.one@example.com',
-        );
-        expect(service.model().assets[1].email).toBe(
-            'visitor.two@example.com',
-        );
+        expect(service.model().assets[0].email).toBe('visitor.one@example.com');
+        expect(service.model().assets[1].email).toBe('visitor.two@example.com');
     });
 
     it('should persist edited reason from title when sending invite', async () => {
@@ -402,9 +394,9 @@ describe('InviteVisitorFormComponent', () => {
         await spectator.component.sendInvite();
 
         expect(service.editFormForGroup).toHaveBeenCalledTimes(1);
-        expect(
-            (service.editFormForGroup as Mock).mock.calls[0][0][0].id,
-        ).toBe('booking-parent');
+        expect((service.editFormForGroup as Mock).mock.calls[0][0][0].id).toBe(
+            'booking-parent',
+        );
         expect(service.postFormForVisitorGroup).not.toHaveBeenCalled();
     });
 
@@ -436,9 +428,7 @@ describe('InviteVisitorFormComponent', () => {
 
         await spectator.component.ngOnInit();
 
-        expect(service.model().asset_id).toBe(
-            'original.visitor@example.com',
-        );
+        expect(service.model().asset_id).toBe('original.visitor@example.com');
     });
 
     it('should load siblings before edit submit when sibling cache is still empty', async () => {
@@ -672,9 +662,7 @@ describe('InviteVisitorFormComponent', () => {
         await wait(0);
 
         expect(service.model().assets).toHaveLength(1);
-        expect(service.model().assets[0].email).toBe(
-            'visitor.two@example.com',
-        );
+        expect(service.model().assets[0].email).toBe('visitor.two@example.com');
     });
 
     it('should drop duplicate visitors when seeding the list from a booking', async () => {

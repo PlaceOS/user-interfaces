@@ -1,7 +1,10 @@
-import { Router } from '@angular/router';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
-import { SettingsService, setCurrentUser, StaffUser } from '@placeos/common';
 import { signal } from '@angular/core';
+import { Router } from '@angular/router';
+import {
+    SpectatorRouting,
+    createRoutingFactory,
+} from '@ngneat/spectator/vitest';
+import { SettingsService, StaffUser, setCurrentUser } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { ParkingStateService } from '../../app/parking/parking-state.service';
@@ -52,10 +55,6 @@ describe('ParkingComponent', () => {
     afterEach(() => {
         vi.restoreAllMocks();
         setCurrentUser(new StaffUser({ groups: ['staff'] } as any));
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should hide requests from users outside the configured group', () => {

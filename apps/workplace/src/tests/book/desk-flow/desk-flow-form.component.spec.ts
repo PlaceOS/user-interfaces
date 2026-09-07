@@ -1,12 +1,15 @@
 import { signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -92,8 +95,6 @@ describe('NewDeskFlowFormComponent', () => {
     });
 
     afterEach(() => setNotifyOutlet(null as any, true));
-
-    it('should create', () => expect(spectator.component).toBeTruthy());
 
     it('should show the reserved-desk overlay when the user has a reserved desk that blocks booking', () => {
         has_assigned_desk.set(true);

@@ -11,10 +11,6 @@ describe('MapZoomControlsComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should increase zoom by 10% when zoom in is pressed', () => {
         spectator.component.zoom.set(2);
         spectator.detectChanges();

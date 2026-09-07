@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
@@ -15,7 +15,6 @@ import { TopbarHeaderComponent } from '../app/topbar-header.component';
 import { VideoCallStateService } from '../app/video-call/video-call-state.service';
 
 describe('TopbarHeaderComponent', () => {
-    let spectator: Spectator<TopbarHeaderComponent>;
     const createComponent = createComponentFactory({
         component: TopbarHeaderComponent,
         declarations: [
@@ -54,11 +53,7 @@ describe('TopbarHeaderComponent', () => {
         imports: [MatMenuModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
+    beforeEach(() => createComponent());
 
     it('should show the logo', () => {
         expect('img[auth]').toExist();

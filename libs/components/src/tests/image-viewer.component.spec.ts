@@ -24,10 +24,6 @@ describe('ImageViewerComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should display the image passed as dialog data', () => {
         spectator.detectChanges();
         expect(spectator.component.url).toBe(TEST_URL);

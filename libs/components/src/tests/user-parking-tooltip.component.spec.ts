@@ -40,10 +40,6 @@ describe('UserParkingTooltipComponent', () => {
         setNotifyOutlet(null, true);
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should load the saved plate number on init', async () => {
         await spectator.fixture.whenStable();
         expect(settings.get).toHaveBeenCalledWith('plate_number');

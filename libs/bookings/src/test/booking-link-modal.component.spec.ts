@@ -26,24 +26,17 @@ describe('BookingLinkModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should render a calendar link for each provider', () => {
         expect(spectator.queryAll('a[btn]').length).toBe(3);
     });
 
     it('should generate outlook, google and ical links from the event', () => {
-        expect(spectator.component.outlook_link).toContain(
-            'outlook',
-        );
+        expect(spectator.component.outlook_link).toContain('outlook');
         expect(spectator.component.outlook_link).toContain('calendar');
         expect(spectator.component.google_link).toContain(
             'calendar.google.com',
         );
-        expect(spectator.component.ical_link).toContain(
-            'data:text/calendar',
-        );
+        expect(spectator.component.ical_link).toContain('data:text/calendar');
     });
 
     it('should provide a close button', () => {

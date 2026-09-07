@@ -23,10 +23,6 @@ describe('DayviewEventComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should display event details', () => {
         expect('[event]').not.toExist();
         spectator.setInput({

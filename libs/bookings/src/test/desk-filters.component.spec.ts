@@ -1,4 +1,3 @@
-import type { Mock } from 'vitest';
 import { Injector, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,6 +8,7 @@ import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
@@ -22,7 +22,11 @@ import { DeskFiltersComponent } from '../lib/desk-select-modal/desk-filters.comp
 
 describe('DeskFiltersComponent', () => {
     let spectator: Spectator<DeskFiltersComponent>;
-    const options = signal<any>({ zone_id: 'lvl-a', show_fav: false, features: [] });
+    const options = signal<any>({
+        zone_id: 'lvl-a',
+        show_fav: false,
+        features: [],
+    });
     const features = signal<string[]>(['sit-stand', 'monitor']);
     const resources = signal<any[]>([
         { id: 'd1', zone: { id: 'lvl-a' } },
@@ -32,9 +36,27 @@ describe('DeskFiltersComponent', () => {
     const set_feature = vi.fn();
 
     const levels = [
-        { id: 'lvl-b', parent_id: 'bld-1', display_name: 'B', name: 'B', tags: [] },
-        { id: 'lvl-a', parent_id: 'bld-1', display_name: 'A', name: 'A', tags: [] },
-        { id: 'park-1', parent_id: 'bld-1', display_name: 'P', name: 'P', tags: ['parking'] },
+        {
+            id: 'lvl-b',
+            parent_id: 'bld-1',
+            display_name: 'B',
+            name: 'B',
+            tags: [],
+        },
+        {
+            id: 'lvl-a',
+            parent_id: 'bld-1',
+            display_name: 'A',
+            name: 'A',
+            tags: [],
+        },
+        {
+            id: 'park-1',
+            parent_id: 'bld-1',
+            display_name: 'P',
+            name: 'P',
+            tags: ['parking'],
+        },
     ];
     const org_mock: any = {
         active_buildings: signal([
@@ -122,9 +144,6 @@ describe('DeskFiltersComponent', () => {
         org_mock._region = null;
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should render the filters heading', () => {
         expect(spectator.query('h3')).toContainText('COMMON.FILTERS');

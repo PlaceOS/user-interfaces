@@ -47,9 +47,6 @@ describe('WFHSettingsModalComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show loading state', () => {
         expect('[loading]').not.toExist();
         spectator.component.loading.set(true);

@@ -3,7 +3,10 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingCardComponent, BookingFormService } from '@placeos/bookings';
 import { Booking, SettingsService } from '@placeos/common';
 import { EventCardComponent, EventFormService } from '@placeos/events';
@@ -52,10 +55,13 @@ describe('ScheduleComponent', () => {
             MockProvider(EventFormService, { newForm: vi.fn() }),
             MockProvider(BookingFormService, {
                 newForm: vi.fn(),
-                model: Object.assign(vi.fn(() => ({})), {
-                    set: vi.fn(),
-                    update: vi.fn(),
-                }),
+                model: Object.assign(
+                    vi.fn(() => ({})),
+                    {
+                        set: vi.fn(),
+                        update: vi.fn(),
+                    },
+                ),
             } as any),
             MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(MatDialog, { open: vi.fn(), closeAll: vi.fn() }),
@@ -73,10 +79,6 @@ describe('ScheduleComponent', () => {
 
     afterEach(() => {
         vi.useRealTimers();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should refresh bookings on request', () => {
@@ -119,8 +121,7 @@ describe('ScheduleComponent', () => {
         vi.runAllTimers();
 
         expect(booking_form.model.update).toHaveBeenCalled();
-        const updater = (booking_form.model.update as any).mock
-            .calls[0][0];
+        const updater = (booking_form.model.update as any).mock.calls[0][0];
         expect(updater({})).toEqual({
             resources: [{ id: 'desk-1', name: 'Desk 1' }],
             asset_id: 'desk-1',

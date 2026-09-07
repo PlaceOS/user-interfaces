@@ -1,4 +1,3 @@
-import type { Mock } from 'vitest';
 import { Injector, runInInjectionContext, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
@@ -10,6 +9,7 @@ import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { addDays, endOfDay } from 'date-fns';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
@@ -121,9 +121,6 @@ describe('LockerFiltersComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should render the filters heading and date field', () => {
         expect(spectator.query('section[details]')).toExist();
         expect(spectator.query('a-date-field')).toExist();
@@ -185,8 +182,8 @@ describe('LockerFiltersComponent', () => {
     it('should render feature toggles for the available features', () => {
         features.set(['charging', 'lockable']);
         spectator.detectChanges();
-        expect(spectator.queryAll('section[features] settings-toggle').length).toBe(
-            2,
-        );
+        expect(
+            spectator.queryAll('section[features] settings-toggle').length,
+        ).toBe(2);
     });
 });

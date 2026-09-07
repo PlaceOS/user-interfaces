@@ -3,11 +3,14 @@ import { Injector } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { NativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { CalendarEvent, SettingsService } from '@placeos/common';
 import {
-    eventFormValue,
     EventFormService,
+    eventFormValue,
     generateEventForm,
 } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
@@ -99,10 +102,6 @@ describe('RoomBookingComponent', () => {
         vi.resetModules();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should create a new form on component init', () => {
         const event_service: any = spectator.inject(EventFormService);
         const spy = vi.spyOn(spectator.component, 'ngOnInit');
@@ -139,7 +138,6 @@ describe('RoomBookingComponent', () => {
     });
 
     it('should navigate if the required form fields are valid', async () => {
-        const event_service: any = spectator.inject(EventFormService);
         await spectator.component.ngOnInit();
 
         form_ref.model.update((m) => ({

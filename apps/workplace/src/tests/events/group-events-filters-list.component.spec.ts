@@ -31,10 +31,6 @@ describe('GroupEventsFiltersListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should report the current period as active when now falls inside the range', () => {
         options.set({
             date: startOfDay(Date.now()).valueOf(),

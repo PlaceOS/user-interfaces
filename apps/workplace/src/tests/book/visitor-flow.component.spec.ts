@@ -1,7 +1,10 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import { Router } from '@angular/router';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { InviteVisitorFormComponent } from '@placeos/bookings';
 import { mockComponent } from '@placeos/common/tests';
-import { Router } from '@angular/router';
 import { MockProvider } from 'ng-mocks';
 
 import { VisitorFlowComponent } from '../../app/book/visitor-flow.component';
@@ -15,9 +18,6 @@ describe('VisitorFlowComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should render the invite visitor form', () =>
         expect(spectator.query('invite-visitor-form')).toExist());

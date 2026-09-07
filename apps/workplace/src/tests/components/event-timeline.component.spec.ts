@@ -5,7 +5,12 @@ import { EventTimelineComponent } from '../../app/components/event-timeline.comp
 
 const REFERENCE_DAY = new Date(2026, 0, 15);
 const at = (hours: number, minutes = 0) =>
-    set(REFERENCE_DAY, { hours, minutes, seconds: 0, milliseconds: 0 }).valueOf();
+    set(REFERENCE_DAY, {
+        hours,
+        minutes,
+        seconds: 0,
+        milliseconds: 0,
+    }).valueOf();
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -16,10 +21,6 @@ describe('EventTimelineComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('generates 5-minute blocks between 06:30 and 21:30 on init', () => {
         const blocks = spectator.component.model.blocks;

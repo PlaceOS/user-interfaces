@@ -23,10 +23,6 @@ describe('DayviewSpaceComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should display events', () => {
         expect('dayview-event').not.toExist();
         spectator.setInput({ space: { email: '1@2.3' } as any });

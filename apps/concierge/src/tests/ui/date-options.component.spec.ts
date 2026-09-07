@@ -30,10 +30,6 @@ describe('DateOptionsComponent', () => {
 
     afterEach(() => vi.useRealTimers());
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show the selected day by default', () => {
         spectator.setInput({
             date: new Date(2026, 3, 22, 12).valueOf(),

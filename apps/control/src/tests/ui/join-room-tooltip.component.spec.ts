@@ -30,10 +30,6 @@ describe('JoinRoomTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should map join_modes mapping into a list with ids', () => {
         join_modes.set({
             mode_a: { name: 'Mode A' },

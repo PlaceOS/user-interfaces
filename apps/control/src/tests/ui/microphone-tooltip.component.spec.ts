@@ -38,10 +38,6 @@ describe('MicrophoneTooltipComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should list microphones available', async () => {
         spectator.detectChanges();
         expect('p').toContainText('');

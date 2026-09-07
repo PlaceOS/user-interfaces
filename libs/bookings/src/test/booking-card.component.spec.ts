@@ -40,12 +40,8 @@ describe('BookingCardComponent', () => {
 
     beforeEach(() => {
         settings_service.get.mockReset();
-        settings_service.get.mockImplementation((_: string) => undefined);
+        settings_service.get.mockImplementation(() => undefined);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should show event details', () => {

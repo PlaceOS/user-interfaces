@@ -17,10 +17,6 @@ describe('ControlPageViewComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show basic view', () => {
         expect('source-select').not.toExist();
         spectator.component.view.set('basic');

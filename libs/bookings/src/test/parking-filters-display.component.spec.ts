@@ -45,10 +45,6 @@ describe('ParkingFiltersDisplayComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should display the level location resolved from the zone', () => {
         expect(spectator.query('[filter-item][zone]')).toContainText(
             'Level One',
@@ -71,7 +67,9 @@ describe('ParkingFiltersDisplayComponent', () => {
     it('should render a chip per selected feature', () => {
         options.set({ zone_id: 'lvl-1', features: ['EV', 'Accessible'] });
         spectator.detectChanges();
-        const chips = spectator.queryAll('[filter-item]:not([zone]):not([date]):not([time])');
+        const chips = spectator.queryAll(
+            '[filter-item]:not([zone]):not([date]):not([time])',
+        );
         expect(chips.length).toBe(2);
         expect(spectator.query('section')).toContainText('EV');
         expect(spectator.query('section')).toContainText('Accessible');

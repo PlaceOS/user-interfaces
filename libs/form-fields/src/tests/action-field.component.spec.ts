@@ -14,10 +14,6 @@ describe('ActionFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should emit user click actions', () =>
         new Promise<void>((done) => {
             spectator.component.on_action.subscribe(() => done());
@@ -31,8 +27,6 @@ describe('ActionFieldComponent', () => {
             expect('[form-field]').toExist();
             spectator
                 .query('[form-field]')
-                .dispatchEvent(
-                    new KeyboardEvent('keydown', { key: 'Enter' }),
-                );
+                .dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
         }));
 });

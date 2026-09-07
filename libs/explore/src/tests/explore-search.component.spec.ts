@@ -33,10 +33,6 @@ describe('ExploreSearchComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow searching for spaces and users', () => {
         const service = spectator.inject(ExploreSearchService);
         spectator.click('icon');

@@ -1,16 +1,16 @@
-import type { Mock } from 'vitest';
 import { MatDialog } from '@angular/material/dialog';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
 import { of } from 'rxjs';
+import type { Mock } from 'vitest';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { ParkingSpaceListFieldComponent } from '../lib/parking-space-list-field.component';
 import { FAV_PARKING_KEY } from '../lib/parking-select-modal/parking-select-modal.component';
+import { ParkingSpaceListFieldComponent } from '../lib/parking-space-list-field.component';
 
 describe('ParkingSpaceListFieldComponent', () => {
     let spectator: Spectator<ParkingSpaceListFieldComponent>;
@@ -40,10 +40,6 @@ describe('ParkingSpaceListFieldComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should allow adding spaces via the dialog', () => {

@@ -40,10 +40,6 @@ describe('DeskBookingsComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should keep the history action available when deleting is disabled', () => {
         bookings.set([new Booking({ id: 'booking-1' })]);
         spectator.detectChanges();

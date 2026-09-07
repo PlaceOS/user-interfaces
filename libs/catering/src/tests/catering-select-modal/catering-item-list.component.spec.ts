@@ -31,9 +31,6 @@ describe('CateringItemListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should expose the currency code from state', () => {
         expect(spectator.component.code()).toBe('AUD');
     });

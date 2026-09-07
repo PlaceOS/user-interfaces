@@ -26,10 +26,6 @@ describe('ControlAdvancedViewComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show outputs', async () => {
         const service: any = spectator.inject(ControlStateService);
         expect('output-display').toHaveLength(0);

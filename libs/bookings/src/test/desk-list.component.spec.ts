@@ -36,9 +36,6 @@ describe('DeskListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show the empty state when there are no desks', () => {
         expect(spectator.query('[empty]')).toExist();
         expect(spectator.query('li[desk]')).not.toExist();

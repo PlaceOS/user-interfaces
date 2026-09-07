@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { PlaceOS_Service, settingSignal } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
@@ -44,10 +47,6 @@ describe('AppComponent', () => {
 
     afterEach(() => {
         setLocationHref('/');
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should initialise the PlaceOS service on init', () => {

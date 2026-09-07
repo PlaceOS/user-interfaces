@@ -38,12 +38,10 @@ describe('DateRangeFieldComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should disable the trigger button when disabled', () => {
-        expect(spectator.query('button[role="date-picker"]')).not.toBeDisabled();
+        expect(
+            spectator.query('button[role="date-picker"]'),
+        ).not.toBeDisabled();
         spectator.setHostInput({ disabled: true });
         spectator.detectChanges();
         expect(spectator.query('button[role="date-picker"]')).toBeDisabled();

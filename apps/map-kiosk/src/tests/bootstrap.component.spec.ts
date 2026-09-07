@@ -3,7 +3,10 @@ import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { Router } from '@angular/router';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
+import {
+    SpectatorRouting,
+    createRoutingFactory,
+} from '@ngneat/spectator/vitest';
 import {
     Building,
     BuildingLevel,
@@ -45,10 +48,6 @@ describe('BootstrapComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow selecting level', async () => {
         expect('[level]').not.toExist();
         expect('mat-select').toHaveLength(1);
@@ -66,11 +65,8 @@ describe('BootstrapComponent', () => {
         expect(spectator.component.active_level()).toBeTruthy();
     });
 
-    it('should allow selecting orientations', () => {
-        // TODO: Add implementation
-    });
     it('should handling bootstrapping', () => {
-        const spy = vi.spyOn(Storage.prototype, 'setItem');
+        vi.spyOn(Storage.prototype, 'setItem');
         expect(localStorage.setItem).not.toHaveBeenCalled();
         spectator.component.bootstrapKiosk();
         expect(localStorage.setItem).not.toHaveBeenCalled();

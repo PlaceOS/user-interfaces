@@ -24,7 +24,7 @@ import { UserControlsComponent } from '../lib/user-controls.component';
 describe('UserControlsComponent', () => {
     let spectator: Spectator<UserControlsComponent>;
     const settings = {
-        get: vi.fn((_key?: string) => null as any),
+        get: vi.fn<(key: string) => unknown>(() => null),
         saveUserSetting: vi.fn(),
         signal: (name: string, default_value: any) =>
             settingSignal(name, default_value),
@@ -82,10 +82,6 @@ describe('UserControlsComponent', () => {
         settingSignal('use_region', false).set(false);
         settingSignal('disable_building_select', false).set(false);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it("should display the current user's details", () => {

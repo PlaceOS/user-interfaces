@@ -23,9 +23,6 @@ describe('EventLinkModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should generate calendar links for the event', () => {
         expect(spectator.component.outlook_link).toContain(
             'outlook.office.com',
@@ -44,9 +41,7 @@ describe('EventLinkModalComponent', () => {
     it('should close once a calendar option has been actioned', () => {
         spectator.component.has_actioned.set(true);
         spectator.component.close();
-        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledWith(
-            true,
-        );
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledWith(true);
     });
 
     it('should mark as actioned when a link is clicked', () => {

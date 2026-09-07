@@ -2,7 +2,10 @@ import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { SpectatorRouting, createRoutingFactory } from '@ngneat/spectator/vitest';
+import {
+    SpectatorRouting,
+    createRoutingFactory,
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -114,10 +117,6 @@ describe('ExploreMapViewComponent', () => {
                 spectator.inject(ExploreStateService).setFeatures as any
             ).mockReset();
         }
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should show map component', () => expect('interactive-map').toExist());

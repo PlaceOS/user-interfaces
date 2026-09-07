@@ -44,16 +44,17 @@ describe('DateFieldComponent', () => {
             local_timezone,
             reference_date,
         );
-        const supported_timezones =
-            ((Intl as any).supportedValuesOf?.('timeZone') as string[]) || [
-                'Pacific/Pago_Pago',
-                'Pacific/Honolulu',
-                'America/Adak',
-                'America/Anchorage',
-                'America/Los_Angeles',
-                'America/New_York',
-                'UTC',
-            ];
+        const supported_timezones = ((Intl as any).supportedValuesOf?.(
+            'timeZone',
+        ) as string[]) || [
+            'Pacific/Pago_Pago',
+            'Pacific/Honolulu',
+            'America/Adak',
+            'America/Anchorage',
+            'America/Los_Angeles',
+            'America/New_York',
+            'UTC',
+        ];
         return supported_timezones
             .filter((timezone) => {
                 try {
@@ -71,10 +72,6 @@ describe('DateFieldComponent', () => {
                     getTimezoneOffsetInMinutes(right, reference_date),
             )[0];
     };
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should be able to be disabled', () => {
         expect('button').not.toBeDisabled();
@@ -148,8 +145,6 @@ describe('DateFieldComponent', () => {
                 timezone,
             ),
         ).valueOf();
-        expect(on_change).toHaveBeenCalledWith(
-            expected,
-        );
+        expect(on_change).toHaveBeenCalledWith(expected);
     });
 });

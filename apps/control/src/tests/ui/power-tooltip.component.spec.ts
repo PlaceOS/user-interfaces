@@ -22,10 +22,6 @@ describe('PowerTooltipComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow shutting down', () => {
         expect('button:not(.inverse)').toExist();
         spectator.click('button:not(.inverse)');

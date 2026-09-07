@@ -28,10 +28,6 @@ describe('PanelViewDetailsComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should display system name', () => {
         space.set({ display_name: 'Test Room' });
         spectator.detectChanges();

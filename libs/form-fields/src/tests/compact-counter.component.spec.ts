@@ -19,10 +19,6 @@ describe('CompactCounterComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should emit the value when a step is added', () => {
         const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);

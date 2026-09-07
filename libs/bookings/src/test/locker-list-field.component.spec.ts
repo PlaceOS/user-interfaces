@@ -1,13 +1,13 @@
-import type { Mock } from 'vitest';
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { createSettingsServiceMock } from '@placeos/common/tests';
 import { SETTING_KEYS } from '@placeos/common';
+import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockDirective, MockModule, MockPipe } from 'ng-mocks';
 import { of } from 'rxjs';
-import { signal } from '@angular/core';
+import type { Mock } from 'vitest';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
@@ -45,9 +45,6 @@ describe('LockerListFieldComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should allow adding lockers', () => {
         expect(spectator.query('button[name="add-locker"]')).toExist();

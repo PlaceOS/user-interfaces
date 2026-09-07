@@ -88,10 +88,6 @@ describe('CheckinQRScanComponent', () => {
         await vi.waitFor(() => expect(qr_mocks.rear_camera).toHaveBeenCalled());
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('only shows the scan guide when the camera is ready', async () => {
         await spectator.fixture.whenStable();
         expect(spectator.query('.qr-guide')).toBeNull();

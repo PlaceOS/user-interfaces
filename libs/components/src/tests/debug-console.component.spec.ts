@@ -70,10 +70,6 @@ describe('DebugConsoleComponent', () => {
 
     afterEach(() => vi.useRealTimers());
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should bind the remote logger to the configured system', () => {
         expect(org_mock.binding).toHaveBeenCalledWith('remote_logger');
         expect(logging_mock.setSystem).toHaveBeenCalledWith('sys-1');

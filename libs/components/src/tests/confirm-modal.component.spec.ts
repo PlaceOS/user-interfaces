@@ -21,10 +21,6 @@ describe('ConfirmModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow showing a loading state', () => {
         expect('mat-spinner').not.toExist();
         expect('[loading]').not.toExist();

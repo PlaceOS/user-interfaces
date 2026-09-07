@@ -1,17 +1,17 @@
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { inject, Injector, signal } from '@angular/core';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { SettingsService } from '@placeos/common';
 import { CateringOrderStateService } from '@placeos/catering';
+import { SettingsService } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { EventBookModalComponent } from '../../app/day-view/event-book-modal.component';
 import { MeetingFormDetailsComponent } from 'libs/events/src/lib/meeting-form-details.component';
+import { EventBookModalComponent } from '../../app/day-view/event-book-modal.component';
 
 describe('EventBookModalComponent', () => {
     let spectator: SpectatorRouting<EventBookModalComponent>;
@@ -69,10 +69,6 @@ describe('EventBookModalComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should initialise the form on load', () => {
         spectator.component.ngOnInit();
         expect(new_form).toHaveBeenCalled();
@@ -81,9 +77,7 @@ describe('EventBookModalComponent', () => {
     it('should show the notification option beside attendee edits', () => {
         (spectator.component.can_notify_new_attendees_only as any).set(true);
         spectator.detectChanges();
-        expect(
-            spectator.query('[name="notify-new-attendees-only"]'),
-        ).toExist();
+        expect(spectator.query('[name="notify-new-attendees-only"]')).toExist();
     });
 
     it('should flag catering availability from the available menu', () => {

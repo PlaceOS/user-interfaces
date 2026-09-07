@@ -17,10 +17,6 @@ describe('CheckinErrorComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show done button when public mode is disabled', () => {
         expect(spectator.query('[btn]')).toBeTruthy();
     });

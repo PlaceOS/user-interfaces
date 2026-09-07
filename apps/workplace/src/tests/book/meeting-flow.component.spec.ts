@@ -1,5 +1,8 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { Space } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { EventFormService, SpacePipe } from '@placeos/events';
@@ -54,9 +57,6 @@ describe('BookMeetingFlowComponent', () => {
         model.set({ resources: [] });
         transform_space.mockReset();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should show form view by default', () => {
         expect(spectator.query('meeting-flow-form')).toExist();

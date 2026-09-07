@@ -39,10 +39,6 @@ describe('PanelViewStatusComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show pending status', () => {
         status.set('pending');
         spectator.detectChanges();

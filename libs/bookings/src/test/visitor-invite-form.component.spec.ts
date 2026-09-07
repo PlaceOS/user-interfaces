@@ -1,4 +1,3 @@
-import type { Mock } from 'vitest';
 import { inject, Injector, signal } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -6,16 +5,23 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
-import { Booking, OrganisationService, SettingsService, User } from '@placeos/common';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
+import {
+    Booking,
+    OrganisationService,
+    SettingsService,
+    User,
+} from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockModule, MockProvider, MockService } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
 import { VisitorInviteFormComponent } from '../lib/visitor-invite-form.component';
-
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('VisitorInviteFormComponent', () => {
     let spectator: SpectatorRouting<VisitorInviteFormComponent>;
@@ -73,9 +79,6 @@ describe('VisitorInviteFormComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should filter visitor suggestions by the search term', () => {
         spectator.component.visitors.set([
             { email: 'alice@example.com', name: 'Alice', company: 'Acme' },
@@ -83,14 +86,14 @@ describe('VisitorInviteFormComponent', () => {
         ] as any);
 
         spectator.component.search_term.set('glob');
-        expect(spectator.component.filtered_visitors().map((v) => v.name)).toEqual([
-            'Bob',
-        ]);
+        expect(
+            spectator.component.filtered_visitors().map((v) => v.name),
+        ).toEqual(['Bob']);
 
         spectator.component.search_term.set('alice');
-        expect(spectator.component.filtered_visitors().map((v) => v.name)).toEqual([
-            'Alice',
-        ]);
+        expect(
+            spectator.component.filtered_visitors().map((v) => v.name),
+        ).toEqual(['Alice']);
     });
 
     it('should populate the model when a suggested visitor is selected', () => {
@@ -155,7 +158,9 @@ describe('VisitorInviteFormComponent', () => {
                 international: true,
             },
         ]);
-        expect(spectator.inject(BookingFormService).model().title).toBe('Visit');
+        expect(spectator.inject(BookingFormService).model().title).toBe(
+            'Visit',
+        );
     });
 
     it('should book multiple visitors as a linked group', async () => {

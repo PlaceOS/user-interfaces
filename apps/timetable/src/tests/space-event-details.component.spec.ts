@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 
 import { SpaceEventDetailsComponent } from '../app/space-event-details.component';
 
@@ -7,10 +10,6 @@ describe('SpaceEventDetailsComponent', () => {
     const createComponent = createRoutingFactory(SpaceEventDetailsComponent);
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should match snapshot', () => {
         expect('[event]').not.toExist();

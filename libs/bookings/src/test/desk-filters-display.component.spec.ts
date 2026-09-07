@@ -46,9 +46,6 @@ describe('DeskFiltersDisplayComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should render the date and time range chips', () => {
         model.set({
             date: new Date('2026-07-02T09:00:00Z').valueOf(),
@@ -87,7 +84,9 @@ describe('DeskFiltersDisplayComponent', () => {
     it('should show a favourites-only chip when show_fav is set', () => {
         options.set({ show_fav: true });
         spectator.detectChanges();
-        expect(spectator.query('button[name="remove-desk-favs-filter"]')).toExist();
+        expect(
+            spectator.query('button[name="remove-desk-favs-filter"]'),
+        ).toExist();
         spectator.click('button[name="remove-desk-favs-filter"]');
         expect(set_options).toHaveBeenCalledWith({ show_fav: false });
     });

@@ -44,10 +44,6 @@ describe('ControlMainViewComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should shown loading when connecting to system', async () => {
         system.set({ connected: true });
         expect('[name="loader"]').toExist();

@@ -38,10 +38,6 @@ describe('UserSearchFieldComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should pass autocomplete mode to the native input', () => {
         const spec = createComponent({ props: { autocomplete: 'off' } });
 
@@ -55,7 +51,7 @@ describe('UserSearchFieldComponent', () => {
 
         const spec = createComponent({
             props: {
-                query_fn: (q: string) => Promise.resolve([...user_list]),
+                query_fn: () => Promise.resolve([...user_list]),
             },
         });
 

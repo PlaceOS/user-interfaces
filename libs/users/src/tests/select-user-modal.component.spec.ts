@@ -1,11 +1,11 @@
 vi.mock('@placeos/ts-client');
 
 import { FormsModule } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatDialogRef } from '@angular/material/dialog';
-import { StaffUser } from '@placeos/common';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { StaffUser } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -19,11 +19,7 @@ describe('SelectUserModalComponent', () => {
         component: SelectUserModalComponent,
         declarations: [MockComponent(IconComponent)],
         providers: [MockProvider(MatDialogRef, { close: close_fn })],
-        imports: [
-            MatFormFieldModule,
-            MatInputModule,
-            FormsModule,
-        ],
+        imports: [MatFormFieldModule, MatInputModule, FormsModule],
     });
 
     beforeEach(() => {
@@ -33,9 +29,6 @@ describe('SelectUserModalComponent', () => {
         } as any);
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should show an empty state when there are no users', () => {
         spectator.detectChanges();

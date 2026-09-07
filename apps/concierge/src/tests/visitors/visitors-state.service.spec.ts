@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { addDays, addMinutes, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -64,10 +67,6 @@ describe('VisitorStateService', () => {
     });
 
     afterEach(() => setNotifyOutlet(null as any, true));
-
-    it('should create component', () => {
-        expect(spectator.service).toBeTruthy();
-    });
 
     it('should list visitor events', async () => {
         vi.mocked(ts_client.query).mockResolvedValue({

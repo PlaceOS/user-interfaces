@@ -84,9 +84,6 @@ describe('EventDetailsModalComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show images', () => {
         expect('image-carousel').not.toExist();
         (spectator.component as any).event.set(

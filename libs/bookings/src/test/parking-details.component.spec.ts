@@ -49,10 +49,6 @@ describe('ParkingDetailsComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show empty message when no space is selected', () => {
         expect(spectator.query('[empty]')).toExist();
         expect(spectator.query('[details]')).not.toExist();

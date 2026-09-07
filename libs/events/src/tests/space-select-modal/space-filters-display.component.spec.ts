@@ -43,9 +43,6 @@ describe('SpaceFiltersDisplayComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should compute the booking end time from the duration', () => {
         expect(spectator.component.start()).toBe(date);
         expect(spectator.component.end()).toBe(date + 90 * 60 * 1000);
@@ -66,17 +63,17 @@ describe('SpaceFiltersDisplayComponent', () => {
 
     it('should allow removing a single feature filter', () => {
         spectator.component.removeFeature('vc');
-        expect(spectator.inject(EventFormService).setFilters).toHaveBeenCalledWith(
-            { features: ['whiteboard'] },
-        );
+        expect(
+            spectator.inject(EventFormService).setFilters,
+        ).toHaveBeenCalledWith({ features: ['whiteboard'] });
     });
 
     it('should allow clearing all feature filters', () => {
         spectator.detectChanges();
         spectator.click('[name="clear-space-filters"]');
-        expect(spectator.inject(EventFormService).setFilters).toHaveBeenCalledWith(
-            { features: [] },
-        );
+        expect(
+            spectator.inject(EventFormService).setFilters,
+        ).toHaveBeenCalledWith({ features: [] });
     });
 
     it('should show all day instead of times for all day bookings', () => {

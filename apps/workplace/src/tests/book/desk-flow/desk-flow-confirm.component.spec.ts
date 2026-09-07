@@ -105,8 +105,6 @@ describe('NewDeskFlowConfirmComponent', () => {
 
     afterEach(() => setNotifyOutlet(null as any, true));
 
-    it('should create', () => expect(spectator.component).toBeTruthy());
-
     it('should post a lone booking and dismiss with success', async () => {
         await spectator.component.postForm();
         expect(post_form).toHaveBeenCalled();

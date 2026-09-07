@@ -18,10 +18,6 @@ describe('DurationFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should not submit a parent form when opened', () => {
         expect('button[duration-field]').toHaveAttribute('type', 'button');
     });

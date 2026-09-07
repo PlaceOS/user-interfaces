@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -65,8 +68,6 @@ describe('BookLockerFlowFormComponent', () => {
 
     afterEach(() => setNotifyOutlet(null as any, true));
 
-    it('should create', () => expect(spectator.component).toBeTruthy());
-
     it('should open the confirm sheet when the form is valid', () => {
         spectator.component.viewConfirm();
         expect(sheet_open).toHaveBeenCalled();
@@ -88,9 +89,9 @@ describe('BookLockerFlowFormComponent', () => {
             'locker',
             'success',
         ]);
-        expect(spectator.inject(BookingFormService).setView).toHaveBeenCalledWith(
-            'success',
-        );
+        expect(
+            spectator.inject(BookingFormService).setView,
+        ).toHaveBeenCalledWith('success');
     });
 
     it('should not navigate when the sheet is dismissed without a value', () => {

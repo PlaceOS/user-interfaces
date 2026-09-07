@@ -93,10 +93,6 @@ describe('ReportDesksComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should set the report type to desks and apply query params', () => {
         expect(set_options).toHaveBeenCalledWith({ type: 'desks' });
         expect(set_options).toHaveBeenCalledWith({ start: 100 });

@@ -105,9 +105,6 @@ describe('MeetingFlowFormComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show form details', () =>
         expect(spectator.query('meeting-form-details')).toExist());
 

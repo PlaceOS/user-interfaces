@@ -13,9 +13,6 @@ describe('UserAvailabilityComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should not render any blocks by default', () => {
         spectator.detectChanges();
         expect('[event]').not.toExist();

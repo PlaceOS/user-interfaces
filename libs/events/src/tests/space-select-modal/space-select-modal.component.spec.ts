@@ -76,9 +76,6 @@ describe('SpaceSelectModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show available filters', () => expect('[filters]').toExist());
 
     it('should show selected filters', () =>
