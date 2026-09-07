@@ -41,9 +41,11 @@ describe('AppComponent', () => {
         expect(placeos.init).toHaveBeenCalled();
     });
 
-    it('should only show the chat when enabled', () => {
+    it('should only show the chat when enabled', async () => {
         expect('global-chat').not.toExist();
         settingSignal('chat.enabled', false).set(true);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
         expect('global-chat').toExist();
     });

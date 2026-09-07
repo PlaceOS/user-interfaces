@@ -6,7 +6,6 @@ export { SettingsService, setting } from './settings.service';
 export { VERSION } from './version';
 export { VorlonService } from './vorlon.service';
 
-export * from './angular-animations';
 export * from './api';
 export * from './application';
 export * from './constants';

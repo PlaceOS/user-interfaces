@@ -45,7 +45,7 @@ const app = {
     hide_building_image: false,
     explore,
     home,
-    welcome_background: 'assets/img/skyline.png',
+    welcome_background: 'assets/img/skyline.webp',
     locales: [
         { id: 'en-AU', name: 'LANGUAGE.ENGLISH', local: 'English', flag: '🇦🇺' },
         {

@@ -6,7 +6,6 @@ import {
     provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -23,7 +22,6 @@ export const appConfig: ApplicationConfig = {
         provideAppInitializer(() =>
             registerActiveLocale(inject(LocaleService).locale),
         ),
-        provideAnimations(),
         provideRouter(routes, withHashLocation()),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production && environment.service_worker,

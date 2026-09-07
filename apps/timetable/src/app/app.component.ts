@@ -4,11 +4,9 @@ import { PlaceOS_Service, setMocks } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
-    SettingsDebugPanelComponent,
 } from '@placeos/components';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
-
-import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
 
 @Component({
     selector: 'app-root',
@@ -16,7 +14,7 @@ import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
         RouterOutlet,
         GlobalBannerComponent,
         GlobalLoadingComponent,
-        SettingsDebugPanelComponent,
+        SettingsDebugPanelLauncherComponent,
     ],
     template: `
         <global-banner />
@@ -24,7 +22,7 @@ import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
             <router-outlet></router-outlet>
         </div>
         <global-loading />
-        <settings-debug-panel [schema]="settings_schema" />
+        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
     `,
     styles: [
         `
@@ -38,7 +36,8 @@ import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
     ],
 })
 export class AppComponent implements OnInit {
-    public readonly settings_schema = SETTINGS_SCHEMA as any;
+    public readonly load_settings_schema = () =>
+        import('../environments/settings.schema.json');
 
     private _placeos = inject(PlaceOS_Service);
 

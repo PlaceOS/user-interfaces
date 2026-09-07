@@ -10,7 +10,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { AssetListFieldComponent } from '@placeos/assets';
 import { CateringListFieldComponent } from '@placeos/catering';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     Building,
     currentUser,
@@ -62,8 +61,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         </button>
                     </h3>
                     <div
-                        class="overflow-hidden"
-                        [@show]="hide_block().details ? 'hide' : 'show'"
+                        class="contract-expand"
+                        [class.contract-collapsed]="hide_block().details"
                     >
                         @if (buildings().length > 1) {
                             <div class="min-w-[256px] flex-1">
@@ -210,8 +209,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().attendees ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().attendees"
                         >
                             <a-user-list-field
                                 class="mt-4"
@@ -247,8 +246,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         </button>
                     </h3>
                     <div
-                        class="overflow-hidden"
-                        [@show]="hide_block().resources ? 'hide' : 'show'"
+                        class="contract-expand"
+                        [class.contract-collapsed]="hide_block().resources"
                     >
                         <space-list-field
                             class="mt-4"
@@ -284,8 +283,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().catering ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().catering"
                         >
                             <catering-list-field
                                 [formField]="form.catering"
@@ -327,8 +326,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         </button>
                     </h3>
                     <div
-                        class="overflow-hidden"
-                        [@show]="hide_block().assets ? 'hide' : 'show'"
+                        class="contract-expand"
+                        [class.contract-collapsed]="hide_block().assets"
                     >
                         <asset-list-field
                             [options]="{
@@ -364,7 +363,6 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
         }
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         MatRippleModule,
         FormsModule,

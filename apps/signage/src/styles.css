@@ -1,9 +1,18 @@
 @import '../../../shared/styles/tailwind.css';
+@source './';
+@source '../../../libs';
+@source '../../../shared';
 
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
 
 :root {
     --bg: #212121;
@@ -11,5 +20,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 }
 
 .player-animate {
-    transition: transform var(--transition-delay) ease-out, opacity var(--transition-delay) ease-out;
+    transition:
+        transform var(--transition-delay) ease-out,
+        opacity var(--transition-delay) ease-out;
 }

@@ -90,10 +90,12 @@ describe('AppComponent', () => {
         expect(spectator.component.has_chat()).toBe(true);
     });
 
-    it('should render the chat component only when chat is enabled', () => {
+    it('should render the chat component only when chat is enabled', async () => {
         spectator.detectChanges();
         expect(spectator.query('global-chat')).toBeFalsy();
         settingSignal<boolean>('chat.enabled', false).set(true);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
         expect(spectator.query('global-chat')).toBeTruthy();
     });

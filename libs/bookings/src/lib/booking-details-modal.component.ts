@@ -10,7 +10,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     Booking,
     formatDuration,
     formatRecurrence,
@@ -207,7 +206,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate">person</icon>
+                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate"
+                                >person</icon
+                            >
                             <div>
                                 {{
                                     (booking().user_email | user | async)
@@ -218,7 +219,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate">edit_calendar</icon>
+                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate"
+                                >edit_calendar</icon
+                            >
                             <div>
                                 {{
                                     (booking().booked_by_email | user | async)
@@ -349,11 +352,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                                         </div>
                                     </button>
                                     <div
-                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                                        [@show]="
-                                            showRequest(request.id)
-                                                ? 'show'
-                                                : 'hide'
+                                        class="contract-expand divide-base-100 bg-base-200 flex flex-col divide-y"
+                                        [class.contract-collapsed]="
+                                            !showRequest(request.id)
                                         "
                                     >
                                         @for (
@@ -482,7 +483,6 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
         </mat-menu>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         CommonModule,
         MatMenuModule,

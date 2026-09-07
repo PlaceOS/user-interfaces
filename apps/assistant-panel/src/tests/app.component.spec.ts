@@ -66,11 +66,13 @@ describe('AppComponent', () => {
         expect(spectator.query('global-loading')).toBeTruthy();
     });
 
-    it('should only render the chat when chat is enabled in settings', () => {
+    it('should only render the chat when chat is enabled in settings', async () => {
         spectator.detectChanges();
         expect(spectator.query('global-chat')).toBeFalsy();
 
         chat_enabled.set(true);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
         expect(spectator.query('global-chat')).toBeTruthy();
     });

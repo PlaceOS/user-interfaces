@@ -725,6 +725,7 @@ describe('SignageService media uploads', () => {
         }));
         const service = createService();
         const test_service = service as unknown as SignageServiceTestAccess;
+        TestBed.flushEffects();
         test_service['_media_items'].set([media]);
 
         await service.editMedia(media);
@@ -896,11 +897,11 @@ describe('SignageService media uploads', () => {
         });
     });
 
-    it('opens template approval for users with approval permission', () => {
+    it('opens template approval for users with approval permission', async () => {
         const service = createService();
         const template = new SignageTemplate({ id: 'template-1' });
 
-        service.approveTemplate(template);
+        await service.approveTemplate(template);
 
         expect(dialog.open).toHaveBeenCalledWith(
             TemplateApproveModalComponent,
@@ -918,6 +919,7 @@ describe('SignageService media uploads', () => {
             id: 'template-1',
             approved: false,
         });
+        TestBed.flushEffects();
         test_service['_template_items'].set([template]);
         Object.defineProperty(service, 'can_approve', {
             value: () => false,

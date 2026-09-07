@@ -1,4 +1,3 @@
-import { animate, style, transition, trigger } from '@angular/animations';
 import {
     ChangeDetectionStrategy,
     Component,
@@ -23,7 +22,6 @@ export interface EmbeddedControlModalData {
         <div
             class="bg-secondary absolute w-screen overflow-hidden"
             modal
-            [@show]
             (window:click)="reset()"
         >
             <div class="h-full w-full border-none">
@@ -49,11 +47,21 @@ export interface EmbeddedControlModalData {
     styles: [
         `
             [modal] {
+                animation: control-modal-enter 500ms ease-out;
                 height: calc(100vh - 3em);
                 box-sizing: content-box;
                 border: 2px solid #fff;
                 border-top: 1px solid #ccc;
                 transform: translate(-50%, calc(-50% + 1.75em));
+            }
+
+            @keyframes control-modal-enter {
+                from {
+                    opacity: 0;
+                }
+                to {
+                    opacity: 1;
+                }
             }
 
             .overlay {
@@ -65,18 +73,6 @@ export interface EmbeddedControlModalData {
                 height: 3em;
             }
         `,
-    ],
-    animations: [
-        trigger('show', [
-            transition(':enter', [
-                style({ opacity: 0 }),
-                animate(500, style({ opacity: 1 })),
-            ]),
-            transition(':leave', [
-                style({ opacity: 1 }),
-                animate(1000, style({ opacity: 0 })),
-            ]),
-        ]),
     ],
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [SafePipe, MatRippleModule, IconComponent],

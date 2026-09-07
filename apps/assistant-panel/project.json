@@ -41,7 +41,8 @@
                     {
                         "input": "node_modules/@litertjs/core/wasm/",
                         "output": "/assets/litert",
-                        "glob": "**"
+                        "glob": "**",
+                        "ignore": ["**/*jspi*", "**/*threaded*"]
                     },
                     "apps/assistant-panel/src/manifest.webmanifest"
                 ],
@@ -95,8 +96,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "2mb",
-                            "maximumError": "5mb"
+                            "maximumWarning": "1.4mb",
+                            "maximumError": "1.5mb"
                         },
                         {
                             "type": "anyComponentStyle",

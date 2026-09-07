@@ -1,4 +1,7 @@
 @import '../../../shared/styles/tailwind.css';
+@source './';
+@source '../../../libs';
+@source '../../../shared';
 
 /* You can add global styles to this file, and also import other style files */
 
@@ -6,12 +9,13 @@
     font-size: 2.5vmin;
 }
 
-html, body { 
+html,
+body {
     height: 100%;
 }
 
-body { 
-    margin: 0; 
-    font-family: Roboto, "Helvetica Neue", sans-serif; 
-    overflow: hidden; 
+body {
+    margin: 0;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+    overflow: hidden;
 }

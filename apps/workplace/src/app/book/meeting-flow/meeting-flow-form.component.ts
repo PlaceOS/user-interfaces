@@ -30,7 +30,6 @@ import {
     CateringOrderStateService,
 } from '@placeos/catering';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     currentUser,
     getInvalidSignalFields,
@@ -109,8 +108,8 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 </button>
                             </h3>
                             <div
-                                class="overflow-hidden"
-                                [@show]="hide_block.details ? 'hide' : 'show'"
+                                class="contract-expand"
+                                [class.contract-collapsed]="hide_block.details"
                             >
                                 <meeting-form-details
                                     class="mt-4"
@@ -158,9 +157,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     </button>
                                 </h3>
                                 <div
-                                    class="overflow-hidden"
-                                    [@show]="
-                                        hide_block.attendees ? 'hide' : 'show'
+                                    class="contract-expand"
+                                    [class.contract-collapsed]="
+                                        hide_block.attendees
                                     "
                                 >
                                     <a-user-list-field
@@ -216,8 +215,10 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                 </button>
                             </h3>
                             <div
-                                class="flex flex-col items-center overflow-hidden"
-                                [@show]="hide_block.resources ? 'hide' : 'show'"
+                                class="contract-expand flex flex-col items-center"
+                                [class.contract-collapsed]="
+                                    hide_block.resources
+                                "
                             >
                                 @if (
                                     !strict_capacity_check &&
@@ -269,9 +270,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     </button>
                                 </h3>
                                 <div
-                                    class="overflow-hidden"
-                                    [@show]="
-                                        hide_block.catering ? 'hide' : 'show'
+                                    class="contract-expand"
+                                    [class.contract-collapsed]="
+                                        hide_block.catering
                                     "
                                 >
                                     <catering-list-field
@@ -400,9 +401,9 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
                                     </button>
                                 </h3>
                                 <div
-                                    class="overflow-hidden"
-                                    [@show]="
-                                        hide_block.assets ? 'hide' : 'show'
+                                    class="contract-expand"
+                                    [class.contract-collapsed]="
+                                        hide_block.assets
                                     "
                                 >
                                     <asset-list-field
@@ -500,7 +501,6 @@ import { MeetingFlowConfirmComponent } from './meeting-flow-confirm.component';
         </div>
     `,
     styles: [],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         CommonModule,
         TranslatePipe,

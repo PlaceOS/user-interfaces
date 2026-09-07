@@ -3,7 +3,6 @@ import {
     ErrorHandler,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import {
     provideRouter,
     Router,
@@ -27,7 +26,6 @@ const routes: Routes = [
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
-        provideAnimations(),
         provideRouter(
             routes,
             withHashLocation(),

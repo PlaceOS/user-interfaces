@@ -102,43 +102,19 @@ import {
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
-import {
+import type {
     AiImageModalComponent,
     AiImageModalData,
 } from './ai/ai-image-modal.component';
-import { DisplayEditModalComponent } from './displays/display-edit-modal.component';
 import { displayZoneIds } from './displays/display-zones.util';
-import {
+import type {
     BulkMediaUploadItem,
-    BulkMediaUploadModalComponent,
     BulkMediaUploadModalData,
 } from './shared/bulk-media-upload-modal.component';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
-import { DisplaySelectModalComponent } from './shared/display-select-modal.component';
-import { GroupSelectModalComponent } from './shared/group-select-modal.component';
-import { MediaEditModalComponent } from './shared/media-edit-modal.component';
-import { MediaPreviewModalComponent } from './shared/media-preview-modal.component';
-import {
-    MediaTagModalComponent,
-    type MediaTagModalResult,
-} from './shared/media-tag-modal.component';
-import { MediaTagsModalComponent } from './shared/media-tags-modal.component';
-import { PlaylistApproveModalComponent } from './shared/playlist-approve-modal.component';
-import { PlaylistEditModalComponent } from './shared/playlist-edit-modal.component';
-import { PlaylistItemScheduleModalComponent } from './shared/playlist-item-schedule-modal.component';
-import {
-    PlaylistRequestApprovalModalComponent,
-    PlaylistRequestApprovalModalResult,
-} from './shared/playlist-request-approval-modal.component';
-import { PlaylistSelectModalComponent } from './shared/playlist-select-modal.component';
-import { TemplateApproveModalComponent } from './shared/template-approve-modal.component';
-import { TemplateEditModalComponent } from './shared/template-edit-modal.component';
-import { TemplateMappingModalComponent } from './shared/template-mapping-modal.component';
-import {
-    TemplateRequestApprovalModalComponent,
-    TemplateRequestApprovalModalResult,
-} from './shared/template-request-approval-modal.component';
-import { ZoneSelectModalComponent } from './shared/zone-select-modal.component';
+import type { MediaTagModalResult } from './shared/media-tag-modal.component';
+import type { PlaylistRequestApprovalModalResult } from './shared/playlist-request-approval-modal.component';
+import type { TemplateRequestApprovalModalResult } from './shared/template-request-approval-modal.component';
 import {
     listSignageMediaTagCounts,
     type SignageMediaTagCounts,
@@ -164,7 +140,6 @@ import {
     SignageTemplateMappingTarget,
 } from './signage-template-mapping';
 import { applyLayoutPositionDefaults } from './templates/template-layout.util';
-import { ZoneEditModalComponent } from './zones/zone-edit-modal.component';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -1622,6 +1597,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistEditModalComponent } =
+            await import('./shared/playlist-edit-modal.component');
         const ref = this._dialog.open(PlaylistEditModalComponent, {
             data: {
                 playlist: new SignagePlaylist({}),
@@ -1655,6 +1632,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistEditModalComponent } =
+            await import('./shared/playlist-edit-modal.component');
         const ref = this._dialog.open(PlaylistEditModalComponent, {
             data: {
                 playlist,
@@ -1710,7 +1689,7 @@ export class SignageService {
         await this._shareSignageItems('playlists', [playlist.id]);
     }
 
-    public approvePlaylist(playlist: SignagePlaylist) {
+    public async approvePlaylist(playlist: SignagePlaylist) {
         if (!playlist?.id) return;
         if (
             !this._requirePermission(
@@ -1719,6 +1698,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistApproveModalComponent } =
+            await import('./shared/playlist-approve-modal.component');
         this._dialog.open(PlaylistApproveModalComponent, {
             data: { playlist },
             panelClass: 'mobile-fullscreen',
@@ -1729,7 +1710,7 @@ export class SignageService {
         if (!playlist?.id) return;
         if (this.playlist_approval_request_loading()) return;
         if (this.can_approve()) {
-            this.approvePlaylist(playlist);
+            await this.approvePlaylist(playlist);
             return;
         }
         let approvers: SignagePlaylistApprover[] = [];
@@ -1755,6 +1736,8 @@ export class SignageService {
             this.playlist_approval_request_loading.set(false);
         }
         if (!group) return;
+        const { PlaylistRequestApprovalModalComponent } =
+            await import('./shared/playlist-request-approval-modal.component');
         const ref = this._dialog.open(PlaylistRequestApprovalModalComponent, {
             data: {
                 playlist,
@@ -1917,6 +1900,8 @@ export class SignageService {
             )
         )
             return false;
+        const { PlaylistItemScheduleModalComponent } =
+            await import('./shared/playlist-item-schedule-modal.component');
         const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
             data: {
                 item: schedule_items[0],
@@ -1958,6 +1943,8 @@ export class SignageService {
         media_id: string,
     ) {
         const media = this.media().find((item) => item.id === media_id);
+        const { PlaylistItemScheduleModalComponent } =
+            await import('./shared/playlist-item-schedule-modal.component');
         const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
             data: {
                 item: new SignagePlaylistItemSchedule({
@@ -1997,6 +1984,8 @@ export class SignageService {
             )
         )
             return;
+        const { TemplateEditModalComponent } =
+            await import('./shared/template-edit-modal.component');
         const ref = this._dialog.open(TemplateEditModalComponent, {
             data: {
                 template: new SignageTemplate({}),
@@ -2019,6 +2008,8 @@ export class SignageService {
             )
         )
             return;
+        const { TemplateEditModalComponent } =
+            await import('./shared/template-edit-modal.component');
         const ref = this._dialog.open(TemplateEditModalComponent, {
             data: {
                 template,
@@ -2047,6 +2038,8 @@ export class SignageService {
         )
             return false;
         const templates = mapping ? [] : await this.listApprovedTemplates();
+        const { TemplateMappingModalComponent } =
+            await import('./shared/template-mapping-modal.component');
         const ref = this._dialog.open(TemplateMappingModalComponent, {
             data: {
                 mapping,
@@ -2107,7 +2100,7 @@ export class SignageService {
         }
     }
 
-    public approveTemplate(template: SignageTemplate) {
+    public async approveTemplate(template: SignageTemplate) {
         if (!template?.id) return;
         if (
             !this._requirePermission(
@@ -2116,6 +2109,8 @@ export class SignageService {
             )
         )
             return;
+        const { TemplateApproveModalComponent } =
+            await import('./shared/template-approve-modal.component');
         this._dialog.open(TemplateApproveModalComponent, {
             data: { template },
             panelClass: 'mobile-fullscreen',
@@ -2125,7 +2120,7 @@ export class SignageService {
     public async requestTemplateApproval(template: SignageTemplate) {
         if (!template?.id || this.template_approval_request_loading()) return;
         if (this.can_approve()) {
-            this.approveTemplate(template);
+            await this.approveTemplate(template);
             return;
         }
         let approvers: SignageTemplateApprover[] = [];
@@ -2151,6 +2146,8 @@ export class SignageService {
             this.template_approval_request_loading.set(false);
         }
         if (!group) return;
+        const { TemplateRequestApprovalModalComponent } =
+            await import('./shared/template-request-approval-modal.component');
         const ref = this._dialog.open(TemplateRequestApprovalModalComponent, {
             data: { template, approvers },
             panelClass: 'mobile-fullscreen',
@@ -2596,6 +2593,8 @@ export class SignageService {
             return false;
         }
         const share_config = SIGNAGE_SHARE_CONFIG[item_type];
+        const { GroupSelectModalComponent } =
+            await import('./shared/group-select-modal.component');
         const ref = this._dialog.open(GroupSelectModalComponent, {
             data: {
                 title: i18n(share_config.title),
@@ -2988,6 +2987,8 @@ export class SignageService {
             item.media_type === 'plugin' && item.plugin_id
                 ? await this._resolvePlugin(item.plugin_id)
                 : undefined;
+        const { MediaPreviewModalComponent } =
+            await import('./shared/media-preview-modal.component');
         this._dialog.open(MediaPreviewModalComponent, {
             data: { media: item, plugin, group_id: this._api_group_id() },
             panelClass: 'fullscreen-dialog',
@@ -3058,6 +3059,8 @@ export class SignageService {
                     { permissions, on_progress },
                 ),
         };
+        const { BulkMediaUploadModalComponent } =
+            await import('./shared/bulk-media-upload-modal.component');
         const ref = this._dialog.open(BulkMediaUploadModalComponent, {
             data,
             panelClass: 'mobile-fullscreen',
@@ -3171,6 +3174,8 @@ export class SignageService {
         )
             return;
         if (this._ai_modal_ref) return;
+        const { AiImageModalComponent } =
+            await import('./ai/ai-image-modal.component');
         const ref = this._dialog.open(AiImageModalComponent, {
             data: options,
             panelClass: 'fullscreen-dialog',
@@ -3257,6 +3262,8 @@ export class SignageService {
         if (file) {
             file_thumbnail = await this._generateThumbnail(file, 1024, 720);
         }
+        const { MediaEditModalComponent } =
+            await import('./shared/media-edit-modal.component');
         const ref = this._dialog.open(MediaEditModalComponent, {
             data: {
                 media,
@@ -3589,6 +3596,8 @@ export class SignageService {
             )
         )
             return false;
+        const { MediaTagsModalComponent } =
+            await import('./shared/media-tags-modal.component');
         const ref = this._dialog.open(MediaTagsModalComponent, {
             data: { tags: this.media_tags() },
             width: 'min(28rem, calc(100vw - 2rem))',
@@ -3625,6 +3634,8 @@ export class SignageService {
             )
         )
             return false;
+        const { MediaTagModalComponent } =
+            await import('./shared/media-tag-modal.component');
         const ref = this._dialog.open(MediaTagModalComponent, {
             data: {
                 action: 'rename',
@@ -3665,6 +3676,8 @@ export class SignageService {
             )
         )
             return false;
+        const { MediaTagModalComponent } =
+            await import('./shared/media-tag-modal.component');
         const ref = this._dialog.open(MediaTagModalComponent, {
             data: {
                 action: 'remove',
@@ -3705,6 +3718,8 @@ export class SignageService {
     }
 
     public async openPlaylistSelectModal(media_id: string) {
+        const { PlaylistSelectModalComponent } =
+            await import('./shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
             data: { media_id },
             panelClass: 'mobile-fullscreen',
@@ -3715,6 +3730,8 @@ export class SignageService {
     }
 
     public async openBulkPlaylistSelectModal(media_ids: string[]) {
+        const { PlaylistSelectModalComponent } =
+            await import('./shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
             data: { media_ids },
             panelClass: 'mobile-fullscreen',
@@ -3732,6 +3749,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistSelectModalComponent } =
+            await import('./shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
             data: { zone_id: zone.id },
             panelClass: 'mobile-fullscreen',
@@ -3784,6 +3803,8 @@ export class SignageService {
             )
         )
             return null;
+        const { ZoneEditModalComponent } =
+            await import('./zones/zone-edit-modal.component');
         const ref = this._dialog.open(ZoneEditModalComponent, {
             data: {
                 zone: new PlaceZone({}),
@@ -3820,6 +3841,8 @@ export class SignageService {
             )
         )
             return null;
+        const { ZoneEditModalComponent } =
+            await import('./zones/zone-edit-modal.component');
         const ref = this._dialog.open(ZoneEditModalComponent, {
             data: {
                 zone,
@@ -3926,6 +3949,8 @@ export class SignageService {
         )
             return null;
         const default_zone_ids = await this._defaultDisplayZoneIds();
+        const { DisplayEditModalComponent } =
+            await import('./displays/display-edit-modal.component');
         const ref = this._dialog.open(DisplayEditModalComponent, {
             data: {
                 display: new PlaceSystem({}),
@@ -3958,6 +3983,8 @@ export class SignageService {
             )
         )
             return null;
+        const { DisplayEditModalComponent } =
+            await import('./displays/display-edit-modal.component');
         const ref = this._dialog.open(DisplayEditModalComponent, {
             data: {
                 display,
@@ -4058,6 +4085,8 @@ export class SignageService {
             )
         )
             return;
+        const { DisplaySelectModalComponent } =
+            await import('./shared/display-select-modal.component');
         const ref = this._dialog.open(DisplaySelectModalComponent, {
             data: { zone_id: zone.id },
             panelClass: 'mobile-fullscreen',
@@ -4117,6 +4146,8 @@ export class SignageService {
             )
         )
             return;
+        const { PlaylistSelectModalComponent } =
+            await import('./shared/playlist-select-modal.component');
         const ref = this._dialog.open(PlaylistSelectModalComponent, {
             data: { display_id: display.id },
             panelClass: 'mobile-fullscreen',
@@ -4147,6 +4178,8 @@ export class SignageService {
             )
         )
             return;
+        const { DisplaySelectModalComponent } =
+            await import('./shared/display-select-modal.component');
         const ref = this._dialog.open(DisplaySelectModalComponent, {
             data: { playlist_id: playlist.id },
             panelClass: 'mobile-fullscreen',
@@ -4185,6 +4218,8 @@ export class SignageService {
             )
         )
             return;
+        const { ZoneSelectModalComponent } =
+            await import('./shared/zone-select-modal.component');
         const ref = this._dialog.open(ZoneSelectModalComponent, {
             data: { playlist_id: playlist.id },
             panelClass: 'mobile-fullscreen',

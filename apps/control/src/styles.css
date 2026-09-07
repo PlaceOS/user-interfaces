@@ -1,9 +1,18 @@
 @import '../../../shared/styles/tailwind.css';
+@source './';
+@source '../../../libs';
+@source '../../../shared';
 
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+    height: 100%;
+}
+body {
+    margin: 0;
+    font-family: Roboto, 'Helvetica Neue', sans-serif;
+}
 
 [content] h1 {
     font-size: 2rem;
@@ -14,7 +23,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 [content] h2 {
     font-size: 1.25rem;
     font-weight: 500;
-    margin-bottom: .5rem;
+    margin-bottom: 0.5rem;
 }
 
 [content] p {
@@ -35,4 +44,3 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     list-style: decimal;
     padding-left: 1rem;
 }
-

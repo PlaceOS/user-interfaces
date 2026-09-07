@@ -15,7 +15,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AssetItem,
     AssetRequest,
     i18n,
@@ -131,9 +130,9 @@ const EMPTY_FAVS: string[] = [];
                             </button>
                         </div>
                         <div
-                            class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                            [@show]="
-                                show_request()[request.id] ? 'show' : 'hide'
+                            class="contract-expand divide-base-100 bg-base-200 flex flex-col divide-y"
+                            [class.contract-collapsed]="
+                                !show_request()[request.id]
                             "
                         >
                             @for (item of request.items; track item) {
@@ -245,7 +244,6 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         CommonModule,
         IconComponent,

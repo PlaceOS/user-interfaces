@@ -9,11 +9,10 @@ import {
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
-    SettingsDebugPanelComponent,
 } from '@placeos/components';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
 
-import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
 import { hasStoredApiKey } from './api-key';
 import { hasBootstrappedDisplay } from './bootstrap-state';
 import { requestRecovery, startWatchdog } from './watchdog';
@@ -24,7 +23,7 @@ import { requestRecovery, startWatchdog } from './watchdog';
         RouterOutlet,
         GlobalBannerComponent,
         GlobalLoadingComponent,
-        SettingsDebugPanelComponent,
+        SettingsDebugPanelLauncherComponent,
     ],
     template: `
         <global-banner />
@@ -34,7 +33,7 @@ import { requestRecovery, startWatchdog } from './watchdog';
         @if (!uses_api_key) {
             <global-loading />
         }
-        <settings-debug-panel [schema]="settings_schema" />
+        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
     `,
     styles: [
         `
@@ -48,7 +47,8 @@ import { requestRecovery, startWatchdog } from './watchdog';
     ],
 })
 export class AppComponent implements OnInit {
-    public readonly settings_schema = SETTINGS_SCHEMA as any;
+    public readonly load_settings_schema = () =>
+        import('../environments/settings.schema.json');
     /**
      * A device signing in with an api key needs no interactive authentication,
      * so the loading overlay has nothing to wait for that the player cannot

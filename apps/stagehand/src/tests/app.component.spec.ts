@@ -2,12 +2,13 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { PlaceOS_Service } from '@placeos/common';
+import { PlaceOS_Service, settingSignal } from '@placeos/common';
+import {
+    ChatComponent,
+    GlobalBannerComponent,
+    GlobalLoadingComponent,
+} from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
-
-import { ChatComponent } from 'libs/components/src/lib/chat/chat.component';
-import { GlobalBannerComponent } from 'libs/components/src/lib/global-banner.component';
-import { GlobalLoadingComponent } from 'libs/components/src/lib/global-loading.component';
 import { AppComponent } from '../app/app.component';
 
 describe('AppComponent', () => {
@@ -26,7 +27,7 @@ describe('AppComponent', () => {
     });
 
     beforeEach(() => {
-        placeos_service.has_chat = false;
+        settingSignal('chat.enabled', false).set(false);
         placeos_service.init = vi.fn().mockResolvedValue(undefined);
         spectator = create_component();
     });
@@ -50,11 +51,11 @@ describe('AppComponent', () => {
         expect(placeos_service.init).toHaveBeenCalledTimes(1);
     });
 
-    it('should expose chat availability from the PlaceOS service', () => {
-        placeos_service.has_chat = true;
-        expect(spectator.component.has_chat).toBe(true);
-        placeos_service.has_chat = false;
-        expect(spectator.component.has_chat).toBe(false);
+    it('should expose chat availability from settings', () => {
+        settingSignal('chat.enabled', false).set(true);
+        expect(spectator.component.has_chat()).toBe(true);
+        settingSignal('chat.enabled', false).set(false);
+        expect(spectator.component.has_chat()).toBe(false);
     });
 
     it('should render the banner, router outlet and loading shells', () => {
@@ -65,12 +66,14 @@ describe('AppComponent', () => {
         expect(spectator.query('global-loading')).toBeTruthy();
     });
 
-    it('should only render the chat when chat is available', () => {
-        placeos_service.has_chat = false;
+    it('should only render the chat when chat is available', async () => {
+        settingSignal('chat.enabled', false).set(false);
         spectator.detectChanges();
         expect(spectator.query('global-chat')).toBeFalsy();
 
-        placeos_service.has_chat = true;
+        settingSignal('chat.enabled', false).set(true);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
         expect(spectator.query('global-chat')).toBeTruthy();
     });

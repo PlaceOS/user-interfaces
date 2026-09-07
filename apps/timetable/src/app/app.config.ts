@@ -5,7 +5,6 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import {
     provideRouter,
     Router,
@@ -37,7 +36,6 @@ const routes: Routes = [
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
-        provideAnimations(),
         importProvidersFrom(MatSnackBarModule),
         provideRouter(routes, withHashLocation()),
         provideServiceWorker('ngsw-worker.js', {

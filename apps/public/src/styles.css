@@ -1,4 +1,7 @@
 @import '../../../shared/styles/tailwind.css';
+@source './';
+@source '../../../libs';
+@source '../../../shared';
 
 html,
 body {

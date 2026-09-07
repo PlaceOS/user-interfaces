@@ -16,7 +16,6 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     CateringItem,
     CateringOrder,
     i18n,
@@ -165,8 +164,8 @@ const EMPTY_FAVS = [];
                         </button>
                     </div>
                     <div
-                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                        [@show]="show_order()[order.id] ? 'show' : 'hide'"
+                        class="contract-expand divide-base-100 bg-base-200 flex flex-col divide-y"
+                        [class.contract-collapsed]="!show_order()[order.id]"
                     >
                         @for (item of order.items; track item.custom_id) {
                             <div
@@ -275,7 +274,6 @@ const EMPTY_FAVS = [];
         </mat-menu>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,

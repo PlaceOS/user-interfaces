@@ -5,7 +5,6 @@ import {
     provideZonelessChangeDetection,
 } from '@angular/core';
 import { bootstrapApplication } from '@angular/platform-browser';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, Router, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -68,7 +67,6 @@ const routes = [
 bootstrapApplication(AppComponent, {
     providers: [
         provideZonelessChangeDetection(),
-        provideAnimations(),
         provideRouter(routes, withHashLocation()),
         provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode() && environment.service_worker,

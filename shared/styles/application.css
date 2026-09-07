@@ -1732,3 +1732,19 @@ a[link] {
         height: auto;
     }
 }
+
+.contract-expand {
+    height: auto;
+    overflow: hidden;
+    opacity: 1;
+    interpolate-size: allow-keywords;
+    transition:
+        height 200ms ease-in,
+        opacity 200ms ease-in;
+}
+
+.contract-expand.contract-collapsed {
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+}

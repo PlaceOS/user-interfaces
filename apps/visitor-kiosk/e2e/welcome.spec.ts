@@ -50,7 +50,7 @@ test.describe('US-WELCOME-001: View Welcome Screen', () => {
             .locator('a[href*="checkin"]')
             .waitFor({ timeout: LOAD_TIMEOUT });
 
-        const buildingImg = page.locator('img[src*="building.png"]');
+        const buildingImg = page.locator('img[src*="building.webp"]');
         await expect(buildingImg).toBeVisible({ timeout: ACTION_TIMEOUT });
     });
 });
