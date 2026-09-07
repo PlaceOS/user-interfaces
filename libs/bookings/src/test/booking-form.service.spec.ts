@@ -2901,6 +2901,34 @@ describe('BookingFormService', () => {
         ]);
     });
 
+    it('should exclude removed visitors when reopening a group', async () => {
+        spectator.service.setOptions({ type: 'visitor' });
+        const retained = new Booking({
+            id: 'visitor-retained',
+            parent_id: 'visitor-group',
+            booking_type: 'visitor',
+            asset_id: 'retained@example.com',
+            date: new Date('2026-09-10T09:00:00Z').valueOf(),
+            duration: 60,
+        });
+        const removed = new Booking({
+            ...retained.toJSON(),
+            id: 'visitor-removed',
+            asset_id: 'removed@example.com',
+            deleted: true,
+        });
+        (
+            ts_client.get as unknown as Mock<() => Promise<Booking[]>>
+        ).mockResolvedValue([retained, removed]);
+
+        const members =
+            await spectator.service.loadGroupMembersForBooking(retained);
+
+        expect(members.map((member) => member.email)).toEqual([
+            'retained@example.com',
+        ]);
+    });
+
     it('should include bookings made by the current user when loading group siblings', async () => {
         spectator.service.setOptions({ type: 'visitor' });
 
@@ -2955,6 +2983,118 @@ describe('BookingFormService', () => {
                 `period_end=${original_date / 1000 + 60 * 60}`,
             ),
         );
+    });
+
+    it('should cancel a removed visitor and update the linked event and parent group', async () => {
+        Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
+            value: false,
+        });
+        const removed = new User({
+            name: 'Removed Visitor',
+            email: 'removed@example.com',
+        });
+        const retained = new User({
+            name: 'Retained Visitor',
+            email: 'retained@example.com',
+        });
+        const booking = new Booking({
+            id: 'booking-removed',
+            parent_id: 'booking-group',
+            booking_type: 'visitor',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            asset_id: removed.email,
+            asset_name: removed.name,
+            linked_event: {
+                event_id: 'calendar/event-id',
+                system_id: 'sys-room',
+                resource_calendar: 'room@example.com',
+                host_email: 'host@example.com',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                date_end: Date.now() + 2 * 60 * 60 * 1000,
+            },
+            attendees: [removed, retained],
+            extension_data: { group_members: [removed, retained] },
+        });
+        spectator.service.newForm('visitor', booking);
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [retained],
+        });
+
+        await spectator.service.editFormForGroup([
+            booking,
+            new Booking({
+                ...booking.toJSON(),
+                id: 'booking-retained',
+                asset_id: retained.email,
+                asset_name: retained.name,
+            }),
+        ]);
+
+        expect(ts_client.del).toHaveBeenCalledWith(
+            '/api/staff/v1/events/calendar%2Fevent-id/attendee/removed%40example.com?system_id=sys-room&calendar=room%40example.com',
+        );
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/booking-removed?'),
+            expect.anything(),
+        );
+        expect(ts_client.del).toHaveBeenCalledTimes(2);
+        const group = savedBookings().find(
+            (item) => item.id === 'booking-group',
+        );
+        expect(group.attendees.map((attendee) => attendee.email)).toEqual([
+            retained.email,
+        ]);
+        expect(
+            group.extension_data.group_members.map(
+                (member: User) => member.email,
+            ),
+        ).toEqual([retained.email]);
+        const visitor = savedBookings().find(
+            (item) => item.id === 'booking-retained',
+        );
+        expect(visitor.attendees.map((attendee) => attendee.email)).toEqual([
+            retained.email,
+        ]);
+    });
+
+    it('should leave the visitor booking active if linked event removal fails', async () => {
+        const booking = new Booking({
+            id: 'booking-removed',
+            parent_id: 'booking-group',
+            booking_type: 'visitor',
+            asset_id: 'removed@example.com',
+            linked_event: {
+                id: 'linked-event',
+                event_id: '',
+                system_id: 'sys-room',
+                resource_calendar: 'room@example.com',
+                host_email: 'host@example.com',
+                date: Date.now(),
+                duration: 60,
+                date_end: Date.now() + 60 * 60 * 1000,
+            },
+        });
+        spectator.service.newForm('visitor', booking);
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [new User({ email: 'retained@example.com' })],
+        });
+        const error = new Error('Event update failed');
+        vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+
+        await expect(
+            spectator.service.editFormForGroup([booking]),
+        ).rejects.toThrow(error);
+
+        expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
+            '/api/staff/v1/events/linked-event/attendee/removed%40example.com?system_id=sys-room&calendar=room%40example.com',
+        );
+        expect(savedBookings()).toEqual([]);
     });
 
     it('should save each visitor against their own asset on group edit', async () => {

@@ -32,6 +32,7 @@ import {
     flatten,
     getAllDayTimeRange,
     getInvalidSignalFields,
+    GuestUser,
     i18n,
     isEmptyUser,
     isWithinBookableHours,
@@ -54,6 +55,7 @@ import {
 import { addDays, addMinutes, endOfDay, format, getUnixTime } from 'date-fns';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { CalendarService } from 'libs/events/src/lib/calendar.service';
+import { removeEventGuest } from 'libs/events/src/lib/events.fn';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
 import {
     bookingAttachments,
@@ -1837,10 +1839,11 @@ export class BookingFormService extends AsyncHandler {
         });
         return list.filter(
             (b) =>
-                b.id === parent_id ||
-                b.parent_id === parent_id ||
-                (!!group_ref && `${b.group || ''}`.trim() === group_ref) ||
-                (!!legacy_group && b.description === legacy_group),
+                b.status !== 'cancelled' &&
+                (b.id === parent_id ||
+                    b.parent_id === parent_id ||
+                    (!!group_ref && `${b.group || ''}`.trim() === group_ref) ||
+                    (!!legacy_group && b.description === legacy_group)),
         );
     }
 
@@ -1882,7 +1885,22 @@ export class BookingFormService extends AsyncHandler {
             const key = is_visitor ? s.asset_id : s.user_email;
             return key && !member_keys.has(key);
         });
-        await Promise.all(to_delete.map((s) => removeBooking(s.id)));
+        // Event attendee updates write the whole event, so remove guests in order.
+        for (const booking of to_delete) {
+            const event = booking.linked_event;
+            const event_id = event?.event_id || event?.id;
+            if (is_visitor && event_id) {
+                await removeEventGuest(
+                    event_id,
+                    new GuestUser({ email: booking.asset_id }),
+                    {
+                        system_id: event.system_id,
+                        calendar: event.resource_calendar,
+                    },
+                );
+            }
+            await removeBooking(booking.id);
+        }
         const desk_resources =
             !is_visitor && type === 'desk'
                 ? await this._resolveDeskGroupResources(members, form, [
@@ -2069,6 +2087,8 @@ export class BookingFormService extends AsyncHandler {
                 parent_id: '',
                 asset_id: group_name,
                 asset_name: 'Group Booking',
+                // The opened visitor booking can carry the old attendee list.
+                ...(resource_type === 'visitor' ? { attendees: members } : {}),
                 booking_type: 'group',
                 type: 'group',
                 description: form.title || 'Group Booking',
