@@ -4,6 +4,7 @@ import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
 import { setMockTime } from '../app/media-helpers';
 import { MediaPlayerComponent } from '../app/media-player.component';
 import { MediaPlayerItem } from '../app/types';
+import { resetWatchdog, watchdogState } from '../app/watchdog';
 
 describe('MediaPlayerComponent', () => {
     let spectator: Spectator<MediaPlayerComponent>;
@@ -1460,5 +1461,105 @@ describe('MediaPlayerComponent', () => {
         spectator.component.state.set('PAUSED');
 
         expect(spectator.component.isMidPlayThroughItem()).toBe(false);
+    });
+
+    describe('content heartbeat', () => {
+        beforeEach(() => resetWatchdog());
+        afterEach(() => resetWatchdog());
+
+        const checks_in = () => {
+            spectator.component['_recordContentHeartbeat']();
+            return watchdogState().heartbeats.content !== 'never';
+        };
+
+        const show_item = (id: string) => {
+            load_playlist([create_item(id)]);
+            spectator.component['_item_urls'] = {
+                [id]: `blob:${id}` as any,
+            };
+            spectator.component.setPlaylistItem(0);
+            spectator.component.state.set('PLAYING');
+        };
+
+        it('should check in while there is nothing to show', () => {
+            load_playlist([]);
+
+            expect(checks_in()).toBe(true);
+        });
+
+        it('should check in while paused', () => {
+            show_item('media-1');
+            spectator.component.state.set('PAUSED');
+
+            expect(checks_in()).toBe(true);
+        });
+
+        it('should not check in while the item it should show has not loaded', () => {
+            show_item('media-1');
+
+            expect(checks_in()).toBe(false);
+        });
+
+        it('should check in once the item has loaded', () => {
+            show_item('media-1');
+            spectator.component.onMediaLoadSuccess();
+
+            expect(checks_in()).toBe(true);
+        });
+
+        it('should stop checking in when the item fails to load', () => {
+            show_item('media-1');
+            spectator.component.onMediaLoadSuccess();
+            resetWatchdog();
+
+            spectator.component.onMediaLoadError('image');
+
+            expect(checks_in()).toBe(false);
+        });
+
+        it('should stop checking in when a URL cannot be resolved', () => {
+            setMockTime(1_000_000);
+            load_playlist([
+                create_item('a', { getURL: async () => '' }),
+                create_item('b'),
+            ]);
+            spectator.component['_item_urls'] = { a: 'blob:a' as any };
+            spectator.component.setPlaylistItem(0);
+            spectator.component.onMediaLoadSuccess();
+            expect(checks_in()).toBe(true);
+            resetWatchdog();
+            vi.spyOn(spectator.component as any, 'timeout').mockImplementation(
+                () => undefined,
+            );
+
+            // The URL is gone and the wait for a new one has run out
+            spectator.component['_item_urls'] = { a: null as any };
+            spectator.component['_url_wait_item_id'] = 'a';
+            spectator.component['_url_wait_started'] = 0;
+            spectator.component.setPlaylistItem(0);
+
+            expect(spectator.component['_shown_item_id']).not.toBe('a');
+        });
+
+        it('should leave checking in to the override player while overridden', () => {
+            load_playlist([]);
+            spectator.setInput('override', true);
+            spectator.detectChanges();
+
+            expect(checks_in()).toBe(false);
+        });
+    });
+
+    it('should not retry a failed URL resolution on every tick', async () => {
+        vi.useFakeTimers();
+        const get_url = vi.fn(async () => '');
+        load_playlist([create_item('a', { getURL: get_url })]);
+
+        await vi.advanceTimersByTimeAsync(500);
+        const early_calls = get_url.mock.calls.length;
+        await vi.advanceTimersByTimeAsync(5000);
+
+        expect(early_calls).toBeLessThanOrEqual(2);
+        expect(get_url.mock.calls.length).toBeLessThanOrEqual(early_calls + 6);
     });
 });

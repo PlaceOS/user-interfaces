@@ -38,6 +38,8 @@ describe('SignageTemplateComponent', () => {
             MockProvider(MediaCacheService, {
                 requestFilesToCache: vi.fn().mockResolvedValue(false),
                 getFile: vi.fn().mockResolvedValue(null),
+                fetchFile: vi.fn().mockResolvedValue(null),
+                directURL: vi.fn((url: string) => url),
                 isLoadingFile: vi.fn(() => false),
                 isCachedFile: vi.fn(() => false),
             }),

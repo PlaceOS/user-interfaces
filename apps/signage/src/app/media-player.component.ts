@@ -50,6 +50,8 @@ const INTERACTIVE_PRELOAD_LEAD_TIME = 10 * 1000;
 const WEBPAGE_REVEAL_DELAY = 3 * 1000;
 /** Max wait for plugin load/ready before continuing playback anyway */
 const PLUGIN_LOAD_TIMEOUT = 15 * 1000;
+/** Minimum spacing between attempts to resolve a URL that failed to resolve */
+const URL_RETRY_DELAY = 1000;
 
 @Component({
     selector: 'media-player',
@@ -337,6 +339,10 @@ export class MediaPlayerComponent
     /** Id of the item we are currently waiting on a URL for, and when we began */
     private _url_wait_item_id = '';
     private _url_wait_started = 0;
+    /** Earliest time a failed URL resolution may be tried again, by item id */
+    private _url_retry_after = new Map<string, number>();
+    /** Id of the last item that loaded and made it onto the screen */
+    private _shown_item_id = '';
     private _last_video_speed = new Map<0 | 1, number>();
 
     private _item_playlist: MediaPlayerItem[] = [];
@@ -445,9 +451,40 @@ export class MediaPlayerComponent
                 // hours, so what matters is that the loop is still running.
                 recordHeartbeat('playback');
                 this._updateItem();
+                this._recordContentHeartbeat();
             },
             50,
         );
+    }
+
+    /**
+     * Check in with the watchdog whenever this player is showing what it
+     * should be: an item it managed to load, or nothing because it is paused
+     * or has nothing valid to show. A player that is meant to be playing but
+     * has shown nothing for a long time is the one failure the other signals
+     * cannot see, and the watchdog reloads to recover from it.
+     */
+    private _recordContentHeartbeat() {
+        // Another player is on top of this one and reports instead
+        if (this.override()) return;
+        const item = this.active_item;
+        if (
+            this.state() === 'PAUSED' ||
+            (item && this._shown_item_id === item.id) ||
+            !this._hasValidPlaylistItem()
+        ) {
+            recordHeartbeat('content');
+        }
+    }
+
+    private _markShown(item: MediaPlayerItem) {
+        if (item?.id) this._shown_item_id = item.id;
+    }
+
+    private _markNotShown(item: MediaPlayerItem) {
+        if (item?.id && this._shown_item_id === item.id) {
+            this._shown_item_id = '';
+        }
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -995,6 +1032,7 @@ export class MediaPlayerComponent
             [item],
             'warn',
         );
+        this._markNotShown(item);
         this._handled_error_cycle = this._currentMediaCycle();
         this._skipFailedMedia(this._url_wait_started);
         return false;
@@ -1044,6 +1082,9 @@ export class MediaPlayerComponent
                     [this.url(item.id)?.toString()],
                     'warn',
                 );
+                // Shown as far as this player can tell; a page the browser
+                // refuses to frame is not something a reload would fix.
+                this._markShown(item);
                 this._web_waiting_item_id = '';
                 this._resetPlayback();
                 this._finishDeferredReveal(item, 0);
@@ -1150,6 +1191,7 @@ export class MediaPlayerComponent
         log('MediaPlayer', `Plugin error: ${error.message}`, [error], 'error');
         if (!error.fatal) return;
         if (item?.type === 'plugin') {
+            this._markNotShown(item);
             this._handled_error_cycle = this._currentMediaCycle();
             this._clearDeferredReveal();
             this._clearOutput(output);
@@ -1209,6 +1251,7 @@ export class MediaPlayerComponent
         this._setOutputPluginConfig(output, config);
         this._ready_output_items.add(this._outputKey(output, item));
         if (this.active_item?.id !== item.id) return;
+        this._markShown(item);
         this.plugin_config.set(config);
         if (
             this._deferred_reveal_item_id === item.id &&
@@ -1263,6 +1306,7 @@ export class MediaPlayerComponent
     public onMediaLoadSuccess(output: 0 | 1 = this._activeItemOutput()) {
         const item = this.active_item;
         if (item && this._item_output.get(item.id) !== output) return;
+        this._markShown(item);
         this._consecutive_load_errors = 0;
         this.clearTimeout('retry-failed-media');
         this.clearTimeout('skip-failed-media');
@@ -1290,6 +1334,7 @@ export class MediaPlayerComponent
             [this.url(item.id)?.toString()],
             'warn',
         );
+        this._markNotShown(item);
         this._skipFailedMedia(this._item_start);
     }
 
@@ -1434,6 +1479,8 @@ export class MediaPlayerComponent
         // failure that we retry, undefined means we have not fetched it yet.
         if (this._item_urls[item.id]) return;
         if (this._url_fetch_in_flight.has(item.id)) return;
+        // Failures are retried, but not on every 50ms tick
+        if ((this._url_retry_after.get(item.id) || 0) > Date.now()) return;
         const id = item.id;
         this._url_fetch_in_flight.add(id);
         let settled = false;
@@ -1443,6 +1490,11 @@ export class MediaPlayerComponent
             this.clearTimeout(`url-fetch-${id}`);
             this._url_fetch_in_flight.delete(id);
             this._item_urls[id] = (resolved ?? null) as any;
+            if (!resolved) {
+                this._url_retry_after.set(id, Date.now() + URL_RETRY_DELAY);
+            } else {
+                this._url_retry_after.delete(id);
+            }
         };
         item.getURL()
             .then((resolved) => settle(resolved ?? null))
@@ -1647,6 +1699,8 @@ export class MediaPlayerComponent
             if (url) URL.revokeObjectURL(url.toString());
             delete this._item_urls[key];
         }
+        this._url_retry_after.clear();
+        this._shown_item_id = '';
         this._item_output.clear();
         this._output_items = [null, null];
         this._ready_output_items.clear();
