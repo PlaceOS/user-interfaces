@@ -1,3 +1,4 @@
+import { FormControl } from '@angular/forms';
 import { MatMenuModule } from '@angular/material/menu';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -214,5 +215,139 @@ describe('DurationFieldComponent', () => {
             [30, 45, 60, 90, 120],
         );
         expect(spectator.component.selected()?.id).toBe(45);
+    });
+    it('should offer direct entry only with a reference time and when enabled', async () => {
+        expect(spectator.query('input[type="time"]')).toBeNull();
+        spectator.setInput({ time: new Date(2026, 0, 1, 9).valueOf() });
+        await spectator.fixture.whenStable();
+        expect(spectator.component.allow_end_time()).toBe(false);
+        expect(spectator.query('button[end-time-options]')).toBeNull();
+        spectator.setInput({ allow_end_time: true });
+        await spectator.fixture.whenStable();
+        expect(spectator.query('input[type="time"]')).toBeTruthy();
+        spectator.setInput({ allow_end_time: false });
+        await spectator.fixture.whenStable();
+        expect(spectator.query('button[end-time-options]')).toBeNull();
+        expect(spectator.query('input[type="time"]')).toBeNull();
+    });
+
+    it('should convert a typed end time to an off-step duration and update the selection', async () => {
+        const on_change = vi.fn();
+        const on_touch = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        spectator.component.registerOnTouched(on_touch);
+        spectator.setInput({
+            allow_end_time: true,
+            time: new Date(2026, 0, 1, 9).valueOf(),
+        });
+        await spectator.fixture.whenStable();
+        const input = spectator.query<HTMLInputElement>('input[type="time"]');
+        if (!input) throw new Error('End-time input was not shown');
+        input.value = '10:07';
+        input.dispatchEvent(new Event('change'));
+        await spectator.fixture.whenStable();
+        expect(on_change).toHaveBeenCalledWith(67);
+        expect(on_touch).toHaveBeenCalled();
+        expect(spectator.component.selected()?.id).toBe(67);
+        expect(spectator.component.validate(new FormControl())).toBeNull();
+        spectator.component.writeValue(90);
+        await spectator.fixture.whenStable();
+        expect(input.value).toBe('10:30');
+    });
+
+    it.each(['', '25:00', '08:00', '09:00', '09:15', '10:31', '12:00'])(
+        'should reject invalid or out-of-range end time %s',
+        (value) => {
+            const on_change = vi.fn();
+            spectator.component.registerOnChange(on_change);
+            spectator.setInput({
+                allow_end_time: true,
+                time: new Date(2026, 0, 1, 9).valueOf(),
+                min: 30,
+                max: 120,
+                end_time: 10.5,
+            });
+            spectator.component.setEndTime(value);
+            expect(on_change).not.toHaveBeenCalled();
+            expect(spectator.component.duration()).toBe(60);
+            expect(spectator.component.validate(new FormControl())).toEqual({
+                invalid_end_time: true,
+            });
+            spectator.component.setEndTime('10:30');
+            expect(on_change).toHaveBeenCalledWith(90);
+            expect(spectator.component.validate(new FormControl())).toBeNull();
+        },
+    );
+
+    it('should apply closing hours in the configured timezone', () => {
+        const start = new Date('2026-01-01T00:00:00Z').valueOf();
+        spectator.setInput({
+            allow_end_time: true,
+            time: start,
+            timezone: 'Asia/Tokyo',
+            end_time: 10,
+        });
+        const local_end = new Date(start + 90 * 60000);
+        const value = [local_end.getHours(), local_end.getMinutes()]
+            .map((part) => String(part).padStart(2, '0'))
+            .join(':');
+        spectator.component.setEndTime(value);
+        expect(spectator.component.validate(new FormControl())).toEqual({
+            invalid_end_time: true,
+        });
+    });
+
+    it('should prevent direct changes when disabled and clear draft errors on selection', () => {
+        spectator.setInput({
+            allow_end_time: true,
+            time: new Date(2026, 0, 1, 9).valueOf(),
+        });
+        spectator.component.setEndTime('');
+        spectator.component.setValue(90);
+        expect(spectator.component.validate(new FormControl())).toBeNull();
+        const on_change = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        spectator.component.setDisabledState(true);
+        spectator.component.setEndTime('10:07');
+        expect(on_change).not.toHaveBeenCalled();
+    });
+    it('should enforce the maximum duration without a closing-time limit', () => {
+        spectator.setInput({
+            allow_end_time: true,
+            time: new Date(2026, 0, 1, 9).valueOf(),
+            max: 120,
+        });
+        spectator.component.setEndTime('11:01');
+        expect(spectator.component.validate(new FormControl())).toEqual({
+            invalid_end_time: true,
+        });
+        spectator.component.setEndTime('11:00');
+        expect(spectator.component.duration()).toBe(120);
+        expect(spectator.component.validate(new FormControl())).toBeNull();
+    });
+    it('should open duration options from the input action and update the end time', async () => {
+        spectator.setInput({
+            allow_end_time: true,
+            time: new Date(2026, 0, 1, 9).valueOf(),
+        });
+        await spectator.fixture.whenStable();
+        expect(spectator.query('button[duration-field]')).toBeNull();
+        const input = spectator.query<HTMLInputElement>('input[type="time"]');
+        if (!input) throw new Error('End-time input was not shown');
+        expect(input.value).toBe('10:00');
+        spectator.click('button[end-time-options]');
+        await spectator.fixture.whenStable();
+        const option = document.querySelector<HTMLButtonElement>(
+            '[data-duration="90"]',
+        );
+        if (!option) throw new Error('Duration option was not shown');
+        option.click();
+        await spectator.fixture.whenStable();
+        expect(spectator.component.duration()).toBe(90);
+        expect(input.value).toBe('10:30');
+        spectator.component.setDisabledState(true);
+        await spectator.fixture.whenStable();
+        expect(input.disabled).toBe(true);
+        expect('button[end-time-options]').toHaveAttribute('disabled');
     });
 });

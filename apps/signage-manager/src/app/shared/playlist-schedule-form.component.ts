@@ -657,6 +657,7 @@ export function playlistSchedulePayload(
                             [min]="15"
                             [max]="24 * 60"
                             [time]="value().play_at"
+                            [allow_end_time]="true"
                             [custom_options]="[value().play_period]"
                         ></a-duration-field>
                         <settings-toggle
@@ -970,6 +971,7 @@ export function playlistSchedulePayload(
                                         [min]="15"
                                         [max]="24 * 60"
                                         [time]="recurringPlayStartTime()"
+                                        [allow_end_time]="true"
                                         [custom_options]="[value().play_period]"
                                     ></a-duration-field>
                                 </div>
