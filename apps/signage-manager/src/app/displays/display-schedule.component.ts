@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, resource, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
@@ -11,6 +11,7 @@ import {
     buildScheduleBlocks,
 } from '../schedules/signage-schedule.util';
 import { SignageService } from '../signage.service';
+import { buildDisplayScheduleDays } from './display-schedule.util';
 
 @Component({
     selector: 'display-schedule',
@@ -60,13 +61,26 @@ import { SignageService } from '../signage.service';
                 </button>
             </div>
 
-            @if (display_playlists().length === 0) {
+            @if (templates_loading()) {
+                <div class="flex flex-1 items-center justify-center p-8">
+                    {{ 'COMMON.LOADING' | translate }}
+                </div>
+            } @else if (templates_error()) {
+                <div class="text-error p-8 text-center">
+                    {{
+                        'SIGNAGE_MANAGER.TEMPLATE_MAPPINGS_LOAD_ERROR'
+                            | translate
+                    }}
+                </div>
+            } @else if (
+                !schedule_entries().length && !template_mappings().length
+            ) {
                 <div
                     class="text-base-content/40 flex flex-1 flex-col items-center justify-center gap-3"
                 >
                     <icon class="text-4xl">event_busy</icon>
                     <p class="text-sm">
-                        {{ 'SIGNAGE_MANAGER.NO_PLAYLISTS_DISPLAY' | translate }}
+                        {{ 'SIGNAGE_MANAGER.NO_SCHEDULE_CONTENT' | translate }}
                     </p>
                 </div>
             } @else {
@@ -116,34 +130,47 @@ import { SignageService } from '../signage.service';
                                 class="border-base-content/[0.06] min-w-48 flex-1 border-r p-2 last:border-none"
                                 [class.today-column]="isToday(day)"
                             >
-                                @if (day_blocks()[day_index].all_day.length) {
-                                    <div class="mb-2 space-y-1">
-                                        @for (
-                                            block of day_blocks()[day_index]
-                                                .all_day;
-                                            track block.playlist.id +
-                                                '_' +
-                                                block.day_index
-                                        ) {
+                                <ul class="space-y-2">
+                                    @for (
+                                        block of day_blocks()[day_index].items;
+                                        track block
+                                    ) {
+                                        <li
+                                            class="border-base-content/10 rounded-md border"
+                                        >
                                             <a
-                                                [routerLink]="[
-                                                    '/playlists',
-                                                    block.playlist.id,
-                                                ]"
-                                                class="border-base-content/10 hover:border-info/40 flex w-full items-center gap-2 rounded-md border px-2 py-1.5 text-left no-underline transition-colors"
+                                                [routerLink]="
+                                                    block.mapping
+                                                        ? [
+                                                              '/templates',
+                                                              block.mapping
+                                                                  .template_id,
+                                                          ]
+                                                        : [
+                                                              '/playlists',
+                                                              block.playlist.id,
+                                                          ]
+                                                "
+                                                class="hover:bg-base-content/[0.04] flex items-start gap-2 rounded-md px-2 py-1.5 no-underline"
                                                 [matTooltip]="
                                                     block_tooltip(block)
                                                 "
                                             >
-                                                <div
-                                                    class="h-1.5 w-1.5 shrink-0 rounded-full"
-                                                    [style.background-color]="
+                                                <icon
+                                                    class="mt-0.5 shrink-0 text-sm"
+                                                    [style.color]="
                                                         block.text_color
                                                     "
-                                                ></div>
+                                                >
+                                                    {{
+                                                        block.mapping
+                                                            ? 'dashboard'
+                                                            : 'playlist_play'
+                                                    }}
+                                                </icon>
                                                 <div class="min-w-0 flex-1">
                                                     <div
-                                                        class="truncate text-[13px] leading-tight font-medium"
+                                                        class="truncate text-[13px] font-medium"
                                                         [class.line-through]="
                                                             !block.playlist
                                                                 .enabled
@@ -154,67 +181,88 @@ import { SignageService } from '../signage.service';
                                                         }}
                                                     </div>
                                                     <div
-                                                        class="text-base-content/45 text-[11px]"
-                                                    >
-                                                        {{
-                                                            'SIGNAGE_MANAGER.ALL_DAY'
-                                                                | translate
-                                                        }}
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        }
-                                    </div>
-                                }
-                                @if (day_blocks()[day_index].timed.length) {
-                                    <div class="space-y-0.5">
-                                        @for (
-                                            block of day_blocks()[day_index]
-                                                .timed;
-                                            track block.playlist.id +
-                                                '_' +
-                                                block.day_index +
-                                                '_' +
-                                                block.start_minutes
-                                        ) {
-                                            <a
-                                                [routerLink]="[
-                                                    '/playlists',
-                                                    block.playlist.id,
-                                                ]"
-                                                class="hover:bg-base-content/[0.04] flex w-full gap-2 rounded-md px-2 py-1.5 text-left no-underline transition-colors"
-                                                [matTooltip]="
-                                                    block_tooltip(block)
-                                                "
-                                            >
-                                                <div
-                                                    class="mt-1 h-1.5 w-1.5 shrink-0 rounded-full"
-                                                    [style.background-color]="
-                                                        block.text_color
-                                                    "
-                                                ></div>
-                                                <div class="min-w-0 flex-1">
-                                                    <div
-                                                        class="truncate text-[13px] leading-tight"
-                                                        [class.line-through]="
-                                                            !block.playlist
-                                                                .enabled
-                                                        "
-                                                    >
-                                                        {{
-                                                            block.playlist.name
-                                                        }}
-                                                    </div>
-                                                    <div
-                                                        class="text-base-content/45 text-[11px] tabular-nums"
+                                                        class="text-base-content/60 text-[11px] tabular-nums"
                                                     >
                                                         {{ block.label }}
                                                     </div>
+                                                    @if (
+                                                        block.mapping &&
+                                                        !block.mapping.schedule
+                                                    ) {
+                                                        <div
+                                                            class="text-primary text-[11px]"
+                                                        >
+                                                            {{
+                                                                'SIGNAGE_MANAGER.DEFAULT_TEMPLATE'
+                                                                    | translate
+                                                            }}
+                                                        </div>
+                                                    }
                                                 </div>
                                             </a>
-                                        }
-                                    </div>
-                                }
+                                            @if (block.children.length) {
+                                                <ul
+                                                    class="border-base-content/10 mb-2 ml-4 space-y-1 border-l pr-1 pl-2"
+                                                >
+                                                    @for (
+                                                        child of block.children;
+                                                        track child
+                                                    ) {
+                                                        <li>
+                                                            <a
+                                                                [routerLink]="[
+                                                                    '/playlists',
+                                                                    child
+                                                                        .playlist
+                                                                        .id,
+                                                                ]"
+                                                                class="hover:bg-base-content/[0.04] flex gap-2 rounded-md px-2 py-1 no-underline"
+                                                                [matTooltip]="
+                                                                    block_tooltip(
+                                                                        child
+                                                                    )
+                                                                "
+                                                            >
+                                                                <icon
+                                                                    class="mt-0.5 shrink-0 text-sm"
+                                                                    [style.color]="
+                                                                        child.text_color
+                                                                    "
+                                                                    >playlist_play</icon
+                                                                >
+                                                                <div
+                                                                    class="min-w-0"
+                                                                >
+                                                                    <div
+                                                                        class="truncate text-[13px]"
+                                                                        [class.line-through]="
+                                                                            !child
+                                                                                .playlist
+                                                                                .enabled
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            child
+                                                                                .playlist
+                                                                                .name
+                                                                        }}
+                                                                    </div>
+                                                                    <div
+                                                                        class="text-base-content/60 text-[11px] tabular-nums"
+                                                                    >
+                                                                        {{
+                                                                            child.label
+                                                                        }}
+                                                                    </div>
+                                                                </div>
+                                                            </a>
+                                                        </li>
+                                                    }
+                                                </ul>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
                                 @if (
                                     !day_blocks()[day_index].all_day.length &&
                                     !day_blocks()[day_index].timed.length
@@ -227,7 +275,7 @@ import { SignageService } from '../signage.service';
                                         >
                                         <span class="text-[11px]">
                                             {{
-                                                'SIGNAGE_MANAGER.NO_PLAYLISTS_SHORT'
+                                                'SIGNAGE_MANAGER.NO_SCHEDULE_CONTENT'
                                                     | translate
                                             }}
                                         </span>
@@ -307,29 +355,29 @@ export class DisplayScheduleComponent {
         return buildScheduleBlocks(this.display_assignments(), days);
     });
 
-    public readonly day_blocks = computed(() => {
-        const result: { all_day: ScheduleBlock[]; timed: ScheduleBlock[] }[] =
-            Array.from({ length: DAY_COUNT }, () => ({
-                all_day: [],
-                timed: [],
-            }));
-        for (const block of this.schedule_entries()) {
-            if (block.all_day) {
-                result[block.day_index].all_day.push(block);
-            } else {
-                result[block.day_index].timed.push(block);
-            }
-        }
-        for (const day_blocks of result) {
-            day_blocks.all_day.sort((left, right) =>
-                left.playlist.name.localeCompare(right.playlist.name),
-            );
-            day_blocks.timed.sort(
-                (left, right) => left.start_minutes - right.start_minutes,
-            );
-        }
-        return result;
+    private readonly _template_mappings = resource({
+        params: () =>
+            this._service.templates_enabled()
+                ? this.selected_display()?.id
+                : undefined,
+        loader: ({ params }) =>
+            this._service.listTemplateMappings({ control_system_id: params }),
     });
+    public readonly templates_loading = this._template_mappings.isLoading;
+    public readonly templates_error = this._template_mappings.error;
+    public readonly template_mappings = computed(() =>
+        this._template_mappings.hasValue()
+            ? this._template_mappings.value()
+            : [],
+    );
+
+    public readonly day_blocks = computed(() =>
+        buildDisplayScheduleDays(
+            this.schedule_entries(),
+            this.template_mappings(),
+            this.days(),
+        ),
+    );
 
     public readonly weekLabel = computed(() => {
         const start = this.week_start();
