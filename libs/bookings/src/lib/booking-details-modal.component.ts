@@ -77,6 +77,9 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                 <div class="w-full items-center justify-between sm:flex">
                     <div class="m-2 flex items-center space-x-2">
                         <status-pill [status]="booking_status()">
+                            @if (booking().status === 'cancelled') {
+                                {{ 'COMMON.TYPE_CANCELLED' | translate }} ·
+                            }
                             {{ period() }}
                         </status-pill>
                         @if (booking().instance) {
@@ -460,6 +463,7 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
             }
             @if (
                 !booking().is_done &&
+                booking().status !== 'cancelled' &&
                 booking().instance &&
                 allow_series_delete()
             ) {
@@ -577,6 +581,7 @@ export class BookingDetailsModalComponent {
             !!this.booking().asset_id &&
             !features.includes('parking');
         return (
+            this.booking().status !== 'cancelled' &&
             !this.booking().is_done &&
             !this.booking().checked_in &&
             (!is_visitor || visitor_edit_allowed) &&
@@ -585,7 +590,10 @@ export class BookingDetailsModalComponent {
     });
 
     public readonly can_cancel = computed(
-        () => !this.booking().is_done && !this.booking().checked_in,
+        () =>
+            this.booking().status !== 'cancelled' &&
+            !this.booking().is_done &&
+            !this.booking().checked_in,
     );
 
     public readonly can_checkin = computed(() => {
@@ -712,7 +720,12 @@ export class BookingDetailsModalComponent {
     });
 
     public remove(booking: Booking, remove_series?: boolean) {
-        if (booking?.is_done || (booking?.checked_in && !remove_series)) return;
+        if (
+            booking?.status === 'cancelled' ||
+            booking?.is_done ||
+            (booking?.checked_in && !remove_series)
+        )
+            return;
         if (remove_series === undefined) this._data.remove_fn(booking);
         else this._data.remove_fn(booking, remove_series);
     }
@@ -735,6 +748,7 @@ export class BookingDetailsModalComponent {
     });
 
     public readonly is_in_progress = computed(() => {
+        if (this.booking()?.status === 'cancelled') return false;
         const ts = Date.now();
         const start = this.booking()?.booking_start * 1000;
         const end = this.booking()?.booking_end * 1000;
@@ -754,6 +768,7 @@ export class BookingDetailsModalComponent {
     });
 
     public readonly booking_status = computed(() => {
+        if (this.booking()?.status === 'cancelled') return 'error';
         if (this.booking()?.is_done) return 'neutral';
         if (this.booking()?.status === 'approved') return 'success';
         if (this.booking()?.status === 'declined') return 'error';

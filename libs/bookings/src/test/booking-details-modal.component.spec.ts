@@ -9,6 +9,7 @@ import {
     currentUser,
     MapsPeopleService,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
@@ -144,6 +145,37 @@ describe('BookingDetailsModalComponent', () => {
         spectator.component.remove(booking, false);
 
         expect(remove_fn).toHaveBeenCalledWith(booking, false);
+    });
+
+    it('should block actions after a visitor booking is cancelled', () => {
+        const allow_editing = settingSignal('visitors.allow_editing', false);
+        const previous_value = allow_editing();
+        allow_editing.set(true);
+        const booking = new Booking({
+            id: 'visitor-booking-1',
+            booking_type: 'visitor',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            status: 'cancelled',
+        });
+        try {
+            spectator.component.booking.set(
+                new Booking({
+                    ...booking.toJSON(),
+                    status: 'approved',
+                }),
+            );
+            expect(spectator.component.can_edit()).toBe(true);
+            expect(spectator.component.can_cancel()).toBe(true);
+            spectator.component.booking.set(booking);
+            expect(spectator.component.can_edit()).toBe(false);
+            expect(spectator.component.can_cancel()).toBe(false);
+            expect(spectator.component.booking_status()).toBe('error');
+            spectator.component.remove(booking, false);
+            expect(remove_fn).not.toHaveBeenCalled();
+        } finally {
+            allow_editing.set(previous_value);
+        }
     });
 
     it('should show cancel series for a recurring booking by default', () => {
