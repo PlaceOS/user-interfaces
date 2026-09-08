@@ -66,6 +66,7 @@ export class AppComponent implements OnInit {
         // player, and a failure in any of them used to leave a screen with
         // nothing watching it.
         startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
+
         // Initialisation gives up and restarts if the current user cannot be
         // loaded. On its own that restarts every thirty seconds for as long as
         // the failure lasts, so it goes through the same limits as every other
