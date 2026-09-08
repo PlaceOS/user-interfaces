@@ -1,8 +1,12 @@
 @import 'tailwindcss/theme.css';
 @import 'tailwindcss/preflight.css';
-@import 'tailwindcss/utilities.css' source(none);
 
 @config '../../tailwind.config.js';
+
+/* Keep utilities more specific than shared button and Material defaults. */
+#placeos {
+    @tailwind utilities source(none);
+}
 
 /*
   The default border color has changed to `currentcolor` in Tailwind CSS v4,

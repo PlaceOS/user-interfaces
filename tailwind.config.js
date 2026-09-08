@@ -1,6 +1,5 @@
 module.exports = {
     prefix: '',
-    important: '#placeos',
     mode: 'jit',
     darkMode: 'class', // or 'media' or 'class'
     theme: {
