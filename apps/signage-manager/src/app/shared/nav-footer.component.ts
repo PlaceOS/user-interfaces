@@ -138,8 +138,13 @@ export class NavFooterComponent {
             this._service.can_manage_all_groups() ||
             !!this._service.manageable_signage_groups().length,
     );
-    // Templates joins the overflow menu so the primary row keeps 4 items max.
-    private readonly MORE_MENU_ROUTES = ['/templates', '/schedules', '/groups'];
+    // Keep at most four navigation links in the primary row.
+    private readonly MORE_MENU_ROUTES = [
+        '/templates',
+        '/schedules',
+        '/branding',
+        '/groups',
+    ];
     public readonly primary_nav_items = computed(() =>
         filterManageNavItems(
             this.can_manage_groups(),
