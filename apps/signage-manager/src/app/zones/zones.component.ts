@@ -4,6 +4,7 @@ import {
     effect,
     inject,
     input,
+    resource,
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -126,7 +127,7 @@ function parseZoneTab(
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'playlists'
                                     "
@@ -147,16 +148,26 @@ function parseZoneTab(
                                     id="zone-playlists-tab"
                                 >
                                     {{
-                                        'SIGNAGE_MANAGER.PLAYLISTS_COUNT'
+                                        'SIGNAGE_MANAGER.NAV_PLAYLISTS'
                                             | translate
-                                                : { count: playlist_count() }
-                                                : playlist_count()
                                     }}
+                                    <span
+                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                        [attr.aria-busy]="
+                                            playlist_count_loading()
+                                        "
+                                    >
+                                        {{
+                                            playlist_count_loading()
+                                                ? '?'
+                                                : playlist_count()
+                                        }}
+                                    </span>
                                 </button>
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'displays'
                                     "
@@ -177,17 +188,27 @@ function parseZoneTab(
                                     id="zone-displays-tab"
                                 >
                                     {{
-                                        'SIGNAGE_MANAGER.DISPLAYS_COUNT'
+                                        'SIGNAGE_MANAGER.NAV_DISPLAYS'
                                             | translate
-                                                : { count: display_count() }
-                                                : display_count()
                                     }}
+                                    <span
+                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                        [attr.aria-busy]="
+                                            display_count_loading()
+                                        "
+                                    >
+                                        {{
+                                            display_count_loading()
+                                                ? '?'
+                                                : display_count()
+                                        }}
+                                    </span>
                                 </button>
                                 @if (templates_enabled()) {
                                     <button
                                         type="button"
                                         role="tab"
-                                        class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                        class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                         [class.border-primary]="
                                             view_tab() === 'templates'
                                         "
@@ -211,6 +232,18 @@ function parseZoneTab(
                                             'SIGNAGE_MANAGER.NAV_TEMPLATES'
                                                 | translate
                                         }}
+                                        <span
+                                            class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                            [attr.aria-busy]="
+                                                template_count_loading()
+                                            "
+                                        >
+                                            {{
+                                                template_count_loading()
+                                                    ? '?'
+                                                    : template_count()
+                                            }}
+                                        </span>
                                     </button>
                                 }
                             </div>
@@ -275,6 +308,25 @@ export class ZonesSectionComponent {
     private readonly _zones = this._service.all_zones;
     private readonly _playlists = this._service.playlists;
     private readonly _displays = this._service.displays;
+
+    private readonly _template_mappings = resource({
+        params: () => {
+            const id: string = this.selected_zone()?.id;
+            return this.templates_enabled() && id
+                ? { id, revision: this._service.template_mappings_revision() }
+                : undefined;
+        },
+        loader: ({ params }) =>
+            this._service.listTemplateMappings({ zone_id: params.id }),
+    });
+    public readonly template_count_loading = this._template_mappings.isLoading;
+    public readonly playlist_count_loading = this._service.playlists_loading;
+    public readonly display_count_loading = this._service.displays_loading;
+    public readonly template_count = computed(() =>
+        this._template_mappings.hasValue()
+            ? this._template_mappings.value().length
+            : 0,
+    );
 
     public readonly playlist_count = computed(() => {
         const zone = this.selected_zone();

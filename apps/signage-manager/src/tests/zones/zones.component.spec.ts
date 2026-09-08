@@ -1,6 +1,7 @@
-import { signal } from '@angular/core';
+import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslatePipe } from '@placeos/components';
 import { SignageService } from '../../app/signage.service';
 import { ZonesSectionComponent } from '../../app/zones/zones.component';
 
@@ -10,6 +11,10 @@ describe('ZonesSectionComponent', () => {
     const playlists = signal<any[]>([]);
     const displays = signal<any[]>([]);
     const templates_enabled = signal(true);
+    const playlists_loading = signal(false);
+    const related_loading = signal(false);
+    const template_mappings_revision = signal(0);
+    const list_template_mappings = vi.fn();
     const can_manage_zones = signal(false);
     const edit_zone = vi.fn();
     const remove_zone = vi.fn();
@@ -20,13 +25,19 @@ describe('ZonesSectionComponent', () => {
         playlists,
         displays,
         templates_enabled,
+        playlists_loading,
+        displays_loading: related_loading,
+        template_mappings_revision,
+        listTemplateMappings: list_template_mappings,
         can_manage_zones,
         editZone: edit_zone,
         removeZone: remove_zone,
     };
     const router_stub = { navigate };
 
-    async function make(): Promise<
+    async function make(
+        render_template = false,
+    ): Promise<
         [ZonesSectionComponent, ComponentFixture<ZonesSectionComponent>]
     > {
         await TestBed.configureTestingModule({
@@ -38,7 +49,9 @@ describe('ZonesSectionComponent', () => {
             ],
         })
             .overrideComponent(ZonesSectionComponent, {
-                set: { template: '' },
+                set: render_template
+                    ? { imports: [TranslatePipe], schemas: [NO_ERRORS_SCHEMA] }
+                    : { template: '' },
             })
             .compileComponents();
         const fixture = TestBed.createComponent(ZonesSectionComponent);
@@ -52,8 +65,74 @@ describe('ZonesSectionComponent', () => {
         playlists.set([]);
         displays.set([]);
         templates_enabled.set(true);
+        playlists_loading.set(false);
+        related_loading.set(false);
+        template_mappings_revision.set(0);
+        list_template_mappings.mockResolvedValue([]);
         can_manage_zones.set(false);
         remove_zone.mockResolvedValue(false);
+    });
+
+    it('shows question marks in count badges while data loads', async () => {
+        selected_zone.set({ id: 'target-1' });
+        let finish_loading!: (value: []) => void;
+        list_template_mappings.mockReturnValue(
+            new Promise<[]>((resolve) => {
+                finish_loading = resolve;
+            }),
+        );
+        playlists_loading.set(true);
+        related_loading.set(true);
+        const [, fixture] = await make(true);
+        const element: HTMLElement = fixture.nativeElement;
+        const badge = (tab: string) =>
+            element.querySelector(`#zone-${tab}-tab span`);
+
+        await vi.waitFor(() => {
+            for (const tab of ['templates', 'playlists', 'displays']) {
+                expect(badge(tab)?.textContent?.trim()).toBe('?');
+                expect(badge(tab)?.getAttribute('aria-busy')).toBe('true');
+            }
+        });
+
+        finish_loading([]);
+        playlists_loading.set(false);
+        related_loading.set(false);
+        await fixture.whenStable();
+        for (const tab of ['templates', 'playlists', 'displays']) {
+            expect(badge(tab)?.textContent?.trim()).toBe('0');
+            expect(badge(tab)?.getAttribute('aria-busy')).toBe('false');
+        }
+    });
+
+    it('counts template mappings and refreshes after assignment changes', async () => {
+        selected_zone.set({ id: 'target-1' });
+        list_template_mappings.mockResolvedValue([{ id: 'm1' }, { id: 'm2' }]);
+        const [component, fixture] = await make(true);
+        await fixture.whenStable();
+
+        expect(list_template_mappings).toHaveBeenCalledWith({
+            zone_id: 'target-1',
+        });
+        expect(component.template_count()).toBe(2);
+        const element: HTMLElement = fixture.nativeElement;
+        const tab = element.querySelector('#zone-templates-tab span');
+        expect(tab?.textContent?.trim()).toBe('2');
+
+        list_template_mappings.mockResolvedValue([{ id: 'm1' }]);
+        template_mappings_revision.update((value) => value + 1);
+        await fixture.whenStable();
+        expect(component.template_count()).toBe(1);
+        expect(tab?.textContent?.trim()).toBe('1');
+
+        selected_zone.set({ id: 'target-2' });
+        list_template_mappings.mockResolvedValue([]);
+        await fixture.whenStable();
+        expect(list_template_mappings).toHaveBeenLastCalledWith({
+            zone_id: 'target-2',
+        });
+        expect(component.template_count()).toBe(0);
+        expect(tab?.textContent?.trim()).toBe('0');
     });
 
     it('counts playlists on the zone and displays that reference it', async () => {

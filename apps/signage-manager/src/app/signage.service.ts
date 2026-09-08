@@ -1151,6 +1151,9 @@ export class SignageService {
         return result.data;
     }
 
+    /** Refresh assignment counts after template mappings change. */
+    public readonly template_mappings_revision = signal(0);
+
     public async listTemplateMappings(
         query_params: SignageTemplateMappingQuery,
     ) {
@@ -1281,6 +1284,7 @@ export class SignageService {
             }
         },
     });
+    public readonly all_zones_loading = this._all_zone_list.isLoading;
     public readonly all_zones = computed(() =>
         this._mergeItems(
             this._all_zone_list.value() || [],
@@ -2058,7 +2062,10 @@ export class SignageService {
             },
             panelClass: 'mobile-fullscreen',
         });
-        return !!(await dialogClosed(ref));
+        const changed = !!(await dialogClosed(ref));
+        if (changed)
+            this.template_mappings_revision.update((value) => value + 1);
+        return changed;
     }
 
     public async removeTemplateMapping(
@@ -2088,6 +2095,7 @@ export class SignageService {
         if (result.reason !== 'done') return false;
         try {
             await removeSignageTemplateMapping(mapping.id);
+            this.template_mappings_revision.update((value) => value + 1);
             result.close();
             notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVED'));
             return true;

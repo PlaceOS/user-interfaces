@@ -4,6 +4,7 @@ import {
     effect,
     inject,
     input,
+    resource,
     signal,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -153,7 +154,7 @@ function parseDisplayTab(
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'schedule'
                                     "
@@ -179,7 +180,7 @@ function parseDisplayTab(
                                     <button
                                         type="button"
                                         role="tab"
-                                        class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                        class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                         [class.border-primary]="
                                             view_tab() === 'templates'
                                         "
@@ -203,12 +204,24 @@ function parseDisplayTab(
                                             'SIGNAGE_MANAGER.NAV_TEMPLATES'
                                                 | translate
                                         }}
+                                        <span
+                                            class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                            [attr.aria-busy]="
+                                                template_count_loading()
+                                            "
+                                        >
+                                            {{
+                                                template_count_loading()
+                                                    ? '?'
+                                                    : template_count()
+                                            }}
+                                        </span>
                                     </button>
                                 }
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'playlists'
                                     "
@@ -229,16 +242,26 @@ function parseDisplayTab(
                                     id="display-playlists-tab"
                                 >
                                     {{
-                                        'SIGNAGE_MANAGER.PLAYLISTS_COUNT'
+                                        'SIGNAGE_MANAGER.NAV_PLAYLISTS'
                                             | translate
-                                                : { count: playlist_count() }
-                                                : playlist_count()
                                     }}
+                                    <span
+                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                        [attr.aria-busy]="
+                                            playlist_count_loading()
+                                        "
+                                    >
+                                        {{
+                                            playlist_count_loading()
+                                                ? '?'
+                                                : playlist_count()
+                                        }}
+                                    </span>
                                 </button>
                                 <button
                                     type="button"
                                     role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                    class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
                                     [class.border-primary]="
                                         view_tab() === 'zones'
                                     "
@@ -255,11 +278,18 @@ function parseDisplayTab(
                                     id="display-zones-tab"
                                 >
                                     {{
-                                        'SIGNAGE_MANAGER.ZONES_COUNT'
-                                            | translate
-                                                : { count: zone_count() }
-                                                : zone_count()
+                                        'SIGNAGE_MANAGER.NAV_ZONES' | translate
                                     }}
+                                    <span
+                                        class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
+                                        [attr.aria-busy]="zone_count_loading()"
+                                    >
+                                        {{
+                                            zone_count_loading()
+                                                ? '?'
+                                                : zone_count()
+                                        }}
+                                    </span>
                                 </button>
                             </div>
                         }
@@ -319,6 +349,27 @@ export class DisplaysSectionComponent {
     private readonly _displays = this._service.displays;
     private readonly _playlists = this._service.playlists;
     private readonly _zones = this._service.all_zones;
+
+    private readonly _template_mappings = resource({
+        params: () => {
+            const id: string = this.selected_display()?.id;
+            return this.templates_enabled() && id
+                ? { id, revision: this._service.template_mappings_revision() }
+                : undefined;
+        },
+        loader: ({ params }) =>
+            this._service.listTemplateMappings({
+                control_system_id: params.id,
+            }),
+    });
+    public readonly template_count_loading = this._template_mappings.isLoading;
+    public readonly playlist_count_loading = this._service.playlists_loading;
+    public readonly zone_count_loading = this._service.all_zones_loading;
+    public readonly template_count = computed(() =>
+        this._template_mappings.hasValue()
+            ? this._template_mappings.value().length
+            : 0,
+    );
 
     public readonly playlist_count = computed(() => {
         const display = this.selected_display();
