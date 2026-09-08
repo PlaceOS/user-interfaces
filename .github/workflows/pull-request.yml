@@ -89,6 +89,8 @@ jobs:
                   fallback: none
 
             - name: Generate application changelogs
+              id: changelogs
+              continue-on-error: true
               if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
               env:
                   AFFECTED_APPS: ${{ steps.affected_apps.outputs.affected_apps }}
@@ -98,7 +100,8 @@ jobs:
               run: .github/scripts/generate-changelogs.sh
 
             - name: Upload application changelogs
-              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
+              if: ${{ steps.changelogs.outcome == 'success' }}
+              continue-on-error: true
               uses: actions/upload-artifact@v4
               with:
                   name: changelogs-${{ github.run_attempt }}
@@ -240,12 +243,16 @@ jobs:
                   bunx nx build ${{ matrix.package }} --verbose --configuration=${{ env.configuration }}
 
             - name: Download application changelogs
+              id: download_changelogs
+              continue-on-error: true
               uses: actions/download-artifact@v4
               with:
                   name: changelogs-${{ github.run_attempt }}
                   path: ${{ runner.temp }}/changelogs
 
             - name: Add application changelog to build
+              if: ${{ steps.download_changelogs.outcome == 'success' }}
+              continue-on-error: true
               run: |
                   cp \
                     "${RUNNER_TEMP}/changelogs/${{ matrix.package }}/CHANGELOG.md" \

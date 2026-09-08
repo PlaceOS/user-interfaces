@@ -14,6 +14,8 @@ The workflow files under `.github/workflows/` define the active branch triggers,
 
 CI writes the `build/<project>/<environment>` branches. Do not edit those branches directly.
 
-Each build contains an application-specific `CHANGELOG.md`. The workflow creates
-the changelogs once before the build jobs start. It includes commits that change
-the application, its transitive Nx dependencies, or files under `shared/`.
+The workflow generates application-specific changelogs once before the build jobs
+start. Each changelog includes commits that change the application, its transitive
+Nx dependencies, or files under `shared/`. Builds include `CHANGELOG.md` when
+generation and artifact transfer succeed. Changelog generation, upload, download,
+or copy failures do not block tests, builds, or deployment.
