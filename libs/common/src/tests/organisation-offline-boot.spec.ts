@@ -7,6 +7,7 @@ import { MockProvider } from 'ng-mocks';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { setInitReloadHandler } from '../lib/application';
+import { setNotifyOutlet } from '../lib/notifications';
 import { OrganisationService } from '../lib/org/organisation.service';
 
 import * as ts_client from '@placeos/ts-client';
@@ -48,6 +49,11 @@ describe('OrganisationService offline boot', () => {
         vi.mocked(ts_client.onlineState).mockReturnValue(
             ts_client.createSignal(true),
         );
+        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        Object.defineProperty(globalThis.navigator, 'onLine', {
+            configurable: true,
+            value: true,
+        });
         vi.mocked(ts_client.authority).mockReturnValue({ id: 'auth-1' } as any);
         vi.mocked(ts_client.queryZones).mockResolvedValue({ data: [] } as any);
         vi.mocked(ts_client.bulkMetadata).mockResolvedValue({} as any);
@@ -59,7 +65,47 @@ describe('OrganisationService offline boot', () => {
 
     afterEach(() => {
         setInitReloadHandler(null);
+        setNotifyOutlet(null as any, true);
         vi.useRealTimers();
+    });
+
+    it('should not report failed loads while offline', async () => {
+        const snackbar = {
+            open: vi.fn(() => ({
+                onAction: () => ({ subscribe: vi.fn() }),
+                dismiss: vi.fn(),
+            })),
+        };
+        setNotifyOutlet(snackbar as any, true);
+        stayOffline();
+        vi.mocked(ts_client.isOnline).mockReturnValue(false);
+        vi.mocked(ts_client.queryZones).mockRejectedValue(
+            new Error('Failed to fetch'),
+        );
+
+        spectator = createService();
+        await vi.advanceTimersByTimeAsync(40_000);
+
+        expect(ts_client.queryZones).toHaveBeenCalled();
+        expect(snackbar.open).not.toHaveBeenCalled();
+
+        // Back online and still failing: now it is worth telling someone
+        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        await vi.advanceTimersByTimeAsync(20_000);
+
+        expect(snackbar.open).toHaveBeenCalled();
+    });
+
+    it('should keep querying without an authority while offline', async () => {
+        stayOffline();
+        vi.mocked(ts_client.authority).mockReturnValue(undefined as any);
+
+        spectator = createService();
+        await vi.advanceTimersByTimeAsync(60_000);
+
+        expect(ts_client.queryZones).toHaveBeenCalledWith(
+            expect.objectContaining({ authority_id: undefined }),
+        );
     });
 
     it('should try cached organisation data after the offline wait', async () => {

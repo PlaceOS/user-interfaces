@@ -13,6 +13,7 @@ import {
     bulkMetadata,
     getModule,
     isMock,
+    isOnline,
     onlineState,
     queryZones,
     showMetadata,
@@ -585,8 +586,19 @@ export class OrganisationService {
         } else {
             try {
                 await this.load();
-            } catch {
-                notifyError('Error loading organisation data. Retrying...');
+            } catch (err) {
+                // Offline, a failed load is expected rather than an error:
+                // there is nothing to fix and nobody at an unattended screen
+                // to read about it. Keep retrying quietly until the network
+                // is back, then say so if it is still failing.
+                if (isOnline() && navigator.onLine !== false) {
+                    notifyError('Error loading organisation data. Retrying...');
+                } else {
+                    log.warn(
+                        'Unable to load organisation data while offline. Retrying...',
+                        err,
+                    );
+                }
                 setTimeout(
                     () => this.init(tries),
                     Math.min(10_000, 300 * ++tries),
@@ -1105,7 +1117,7 @@ export class OrganisationService {
             (
                 await queryZones({
                     ...params,
-                    authority_id: authority().id,
+                    authority_id: authority()?.id,
                 } as any)
             ).data || [];
         this._setCachedItem(cache_key, zones);

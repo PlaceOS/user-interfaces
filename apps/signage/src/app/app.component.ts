@@ -5,6 +5,7 @@ import {
     PlaceOS_Service,
     setInitReloadHandler,
     setMocks,
+    setNotifyFilter,
 } from '@placeos/common';
 import {
     GlobalBannerComponent,
@@ -15,6 +16,7 @@ import { mocksInit } from '@placeos/mocks';
 
 import { hasStoredApiKey } from './api-key';
 import { hasBootstrappedDisplay } from './bootstrap-state';
+import { isDebugMode } from './debug-state';
 import { requestRecovery, startWatchdog } from './watchdog';
 
 @Component({
@@ -66,6 +68,10 @@ export class AppComponent implements OnInit {
         // player, and a failure in any of them used to leave a screen with
         // nothing watching it.
         startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
+        // A display shows content and nothing else. Nobody is there to read
+        // a popup about a failed request, and the player recovers on its own,
+        // so notifications only appear while someone is debugging it.
+        setNotifyFilter(() => isDebugMode());
 
         // Initialisation gives up and restarts if the current user cannot be
         // loaded. On its own that restarts every thirty seconds for as long as
