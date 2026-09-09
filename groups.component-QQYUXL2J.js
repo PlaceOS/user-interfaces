@@ -2,7 +2,7 @@ import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-6F6JXTL3.js";
+} from "./chunk-QOYVI2M4.js";
 import {
   CdkTree,
   CdkTreeModule,
@@ -96,7 +96,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-CR6DHLMS.js";
+} from "./chunk-XIRK32V4.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2906,4 +2906,4 @@ var GroupsSectionComponent = class _GroupsSectionComponent {
 export {
   GroupsSectionComponent
 };
-//# sourceMappingURL=groups.component-L6DWWGRV.js.map
+//# sourceMappingURL=groups.component-QQYUXL2J.js.map
