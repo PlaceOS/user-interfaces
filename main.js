@@ -55929,15 +55929,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "09622c2",
-  "hash": "09622c2",
+  "raw": "13cacd3",
+  "hash": "13cacd3",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "09622c2",
+  "suffix": "13cacd3",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1788512897485
+  "time": 1788967886780
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -78860,7 +78860,7 @@ var ORG_CACHE_PREFIX = "PLACEOS.org";
 var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
 var OFFLINE_BOOT_DELAY = 10 * 1e3;
-var ZONE_LOAD_TIMEOUT = 120 * 1e3;
+var ZONE_LOAD_TIMEOUT = 30 * 1e3;
 var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 function cachedAuthority() {
