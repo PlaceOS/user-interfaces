@@ -31,14 +31,20 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                 <main
                     class="flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
-                    <h2 class="text-2xl font-medium">
+                    <h2 class="text-center text-2xl font-medium">
                         {{
-                            'BOOKINGS.ITEM_BOOKED'
-                                | translate
-                                    : { name: 'RESOURCE.ROOM' | translate }
+                            'CALENDAR_EVENT.ROOM_BOOKING_REQUESTED' | translate
                         }}
                     </h2>
-                    <img src="assets/icons/success.svg" />
+                    <div
+                        class="bg-warning text-warning-content flex h-32 w-32 shrink-0 items-center justify-center rounded-full"
+                        aria-hidden="true"
+                    >
+                        <icon class="text-6xl">schedule</icon>
+                    </div>
+                    <p class="max-w-lg text-center font-bold">
+                        {{ 'CALENDAR_EVENT.SUCCESS_WAIT_APPROVED' | translate }}
+                    </p>
                     <p class="max-w-lg text-center">
                         @if (last_event()?.all_day) {
                             {{
@@ -67,14 +73,6 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                                 {{ formatted_recurrence() }}
                             </div>
                         </div>
-                    }
-                    @if (true) {
-                        <p>
-                            {{
-                                'CALENDAR_EVENT.SUCCESS_WAIT_APPROVED'
-                                    | translate
-                            }}
-                        </p>
                     }
                     <div class="h-4"></div>
                     @if (space?.email && allow_desk_booking) {
