@@ -1,3 +1,0 @@
-import{zn as Qc}from"./chunk-CEffMQ-E.js";import{B as MG,ln as uh}from"./chunk-CkUhk5JP.js";var r=`/api/staff/v1/guests`;async function C(t){let s=MG({q:t});return(await Qc(`${r}${t?`?`+s:``}`)).map(c=>new uh(c))}async function I(t){return new uh(await Qc(`${r}/${encodeURIComponent(t)}`))}export{I as n,C as t};
-//# debugId=f39561ab-6cb6-5375-8cee-ae44644a6522
-//# sourceMappingURL=chunk-DmeB9fk9.js.map
