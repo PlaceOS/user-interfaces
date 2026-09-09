@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["group-event-card.component.ts"],
+  "sourcesContent": ["\n            button {\n                transition:\n                    box-shadow 300ms,\n                    border 200ms;\n            }\n        "],
+  "mappings": ";AACY;AACI;AAGJ;",
+  "names": []
+}
