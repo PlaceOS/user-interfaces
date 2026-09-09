@@ -192,6 +192,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
+| `visitors.reason_required` | boolean | `false` | Require a reason for each visitor invite. Starts new invites with an empty reason and rejects blank or whitespace-only reasons. |
 | `visitors.allow_all_day` | boolean | – | Make the all-day option available for visitor invites. Falls back to `bookings.allow_all_day`. |
 | `visitors.can_book_for_others` | boolean | – | Allow users to invite visitors on behalf of another internal host. Falls back to `bookings.can_book_for_others`. |
 | `visitors.can_book_for_anyone` | boolean | – | Allow users to invite visitors on behalf of any host, including an external host. Falls back to `bookings.can_book_for_anyone`. |

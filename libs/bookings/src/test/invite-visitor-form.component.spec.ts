@@ -191,6 +191,72 @@ describe('InviteVisitorFormComponent', () => {
         expect(service.postForm).toHaveBeenCalled();
     });
 
+    it('should keep the default reason when the setting is off', async () => {
+        await spectator.component.ngOnInit();
+        expect(spectator.component.model().title).toBe('Visit');
+        expect(spectator.component.reason_form.title().required()).toBe(false);
+    });
+
+    it.each([false, true])(
+        'should require a reason before sending invites with multiple=%s',
+        async (multiple) => {
+            const service = spectator.inject(BookingFormService);
+            const settings = spectator.inject(SettingsService);
+            (settings.get as Mock).mockImplementation(
+                (key: string) =>
+                    key === 'app.visitors.reason_required' ||
+                    (multiple && key === 'app.bookings.multiple_visitors'),
+            );
+            await spectator.component.ngOnInit();
+            expect(service.model().title).toBe('');
+            expect(spectator.component.reason_form.title().required()).toBe(
+                true,
+            );
+            service.model.update((m) => ({
+                ...m,
+                asset_id: 'visitor@example.com',
+                asset_name: 'Visitor',
+                assets: [
+                    new User({ email: 'visitor@example.com', name: 'Visitor' }),
+                ],
+            }));
+
+            for (const title of ['', '   ']) {
+                service.model.update((m) => ({ ...m, title }));
+                await spectator.component.sendInvite();
+                expect(service.postForm).not.toHaveBeenCalled();
+                expect(service.postFormForVisitorGroup).not.toHaveBeenCalled();
+                expect(spectator.component.reason_form.title().invalid()).toBe(
+                    true,
+                );
+                expect(spectator.component.reason_form.title().touched()).toBe(
+                    true,
+                );
+            }
+
+            service.model.update((m) => ({ ...m, title: 'Supplier meeting' }));
+            await spectator.component.sendInvite();
+            expect(
+                multiple ? service.postFormForVisitorGroup : service.postForm,
+            ).toHaveBeenCalledTimes(1);
+            expect(service.model().title).toBe('Supplier meeting');
+        },
+    );
+
+    it('should preserve the reason when editing an invite', async () => {
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation(
+            (key: string) => key === 'app.visitors.reason_required',
+        );
+        spectator.component.model.update((m) => ({
+            ...m,
+            id: 'booking-1',
+            title: 'Supplier meeting',
+        }));
+        await spectator.component.ngOnInit();
+        expect(spectator.component.model().title).toBe('Supplier meeting');
+    });
+
     it('should show loading state', () => {
         expect('[loading]').not.toExist();
         (spectator.inject(BookingFormService).loading as any).set('X');

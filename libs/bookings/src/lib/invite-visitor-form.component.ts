@@ -10,7 +10,7 @@ import {
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FormField } from '@angular/forms/signals';
+import { form, FormField, required, validate } from '@angular/forms/signals';
 
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -372,18 +372,25 @@ import { bookingHostUser } from './booking.utilities';
                                 }
                             }
                             <div class="flex flex-col">
-                                <label for="reason">{{
-                                    'BOOKINGS.VISITOR_REASON' | translate
-                                }}</label>
+                                <label for="reason">
+                                    {{ 'BOOKINGS.VISITOR_REASON' | translate }}
+                                    @if (reason_required()) {
+                                        <span>*</span>
+                                    }
+                                </label>
                                 <mat-form-field appearance="outline">
                                     <input
                                         matInput
-                                        [formField]="form.title"
+                                        id="reason"
+                                        [formField]="reason_form.title"
                                         [placeholder]="
                                             'BOOKINGS.VISITOR_REASON_PLACEHOLDER'
                                                 | translate
                                         "
                                     />
+                                    <mat-error>{{
+                                        'COMMON.REQUIRED' | translate
+                                    }}</mat-error>
                                 </mat-form-field>
                             </div>
                             @if (allow_pass_number()) {
@@ -598,6 +605,19 @@ export class InviteVisitorFormComponent {
     /** Last visitor list this component wrote into `assets` from booking data.
      * Used to tell our own writes apart from the user's edits. */
     private _loaded_visitors: User[] = null;
+
+    public readonly reason_required = this._settings.signal(
+        'visitors.reason_required',
+        false,
+    );
+    public readonly reason_form = form(this._service.model, (p) => {
+        required(p.title, { when: () => this.reason_required() });
+        validate(p.title, ({ value }) =>
+            this.reason_required() && !value()?.trim()
+                ? { kind: 'required' }
+                : undefined,
+        );
+    });
 
     public readonly date = input<number>(undefined);
     public readonly done = output<void>();
@@ -826,7 +846,10 @@ export class InviteVisitorFormComponent {
             this._injector,
         );
         if (!this.model().id)
-            this.model.update((m) => ({ ...m, title: 'Visit' }));
+            this.model.update((m) => ({
+                ...m,
+                title: this.reason_required() ? '' : 'Visit',
+            }));
     }
 
     public setVisitor(item) {
@@ -898,6 +921,10 @@ export class InviteVisitorFormComponent {
 
     public async sendInvite() {
         this.form().markAsTouched();
+        this.reason_form.title().markAsTouched();
+        if (!this.reason_form.title().valid()) {
+            return notifyError(i18n('BOOKINGS.VISITOR_REASON'));
+        }
         const form_data = this.model();
         if (
             !this.form().valid() ||
