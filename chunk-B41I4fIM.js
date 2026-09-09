@@ -1,3 +1,0 @@
-import{Ct as Go,Za as gc}from"./chunk-D6yS0gjY.js";var p=(()=>{class r{transform(t,s=!1){let a=Math.floor(t/60/60),n=Math.floor(t/60%60),f=Math.floor(t%60),c=Math.floor(t*1e3%1e3),i=`${gc(n)}:${gc(f)}`;return s&&(i+=`.${gc(c,3)}`),a>0&&(i=`${gc(a)}:${i}`),i}static{this.ɵfac=function(s){return new(s||r)}}static{this.ɵpipe=Go({name:`mediaDuration`,type:r,pure:!0})}}return r})();export{p as t};
-//# debugId=1c4d0f64-3edf-55aa-8d1f-c3266417376a
-//# sourceMappingURL=chunk-B41I4fIM.js.map
