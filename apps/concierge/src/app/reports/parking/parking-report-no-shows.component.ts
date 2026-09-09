@@ -62,9 +62,10 @@ import { ParkingReportService } from './parking-report.service';
                         },
                         {
                             key: 'incidents',
-                            name: 'COMMON.DETAILS' | translate,
+                            name: ' ',
                             content: expand_template,
-                            size: '9rem',
+                            show: !print(),
+                            size: '3.25rem',
                             sortable: false,
                         },
                     ]"
@@ -86,11 +87,11 @@ import { ParkingReportService } from './parking-report.service';
                 </div>
             </ng-template>
             <ng-template #expand_template let-row="row">
-                @if (!print()) {
+                    <div class="p-2">
                     <button
+                        icon default
                         type="button"
                         matRipple
-                        class="flex items-center gap-2 p-4"
                         [attr.aria-expanded]="!!show_children()[row.id]"
                         (click)="toggleRow(row.id)"
                     >
@@ -99,10 +100,9 @@ import { ParkingReportService } from './parking-report.service';
                                 ? 'expand_less'
                                 : 'expand_more'
                         }}</icon>
-                        <span>{{ 'COMMON.DETAILS' | translate }}</span>
                         <span class="sr-only">{{ row.host }}</span>
                     </button>
-                }
+                    </div>
             </ng-template>
             <ng-template #incidents_template let-row="row">
                 <div class="bg-base-200/40 px-4 py-2">
