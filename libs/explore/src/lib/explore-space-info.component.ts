@@ -15,6 +15,7 @@ import {
     Space,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { getModule } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import { isSameDay } from 'date-fns';
 
@@ -133,8 +134,11 @@ export interface SpaceInfoData {
                                 }
                             </ul>
                         }
-                        @if (show_event_details() && next()) {
-                            @let host = next().host | user | async;
+                        @if (
+                            show_event_details() &&
+                            next() &&
+                            (!hide_meeting_title() || !hide_meeting_details())
+                        ) {
                             <div
                                 class="rounded-sm px-2 pb-1 text-xs opacity-30"
                             >
@@ -144,10 +148,15 @@ export interface SpaceInfoData {
                             <div
                                 class="border-base-300 mb-1 flex flex-col rounded-lg border p-2"
                             >
-                                <h3>{{ next().title }}</h3>
-                                <div class="text-xs opacity-50">
-                                    {{ host?.name || next().host }}
-                                </div>
+                                @if (!hide_meeting_title()) {
+                                    <h3>{{ next().title }}</h3>
+                                }
+                                @if (!hide_meeting_details()) {
+                                    @let host = next().host | user | async;
+                                    <div class="text-xs opacity-50">
+                                        {{ host?.name || next().host }}
+                                    </div>
+                                }
                             </div>
                         }
                         @if (next()) {
@@ -238,6 +247,9 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
         'explore.show_event_details',
         true,
     );
+    /** Hide meeting information until the driver publishes its privacy settings. */
+    public readonly hide_meeting_details = signal(true);
+    public readonly hide_meeting_title = signal(true);
     /** Current status of the space */
     public readonly status = signal(this._details.status);
 
@@ -249,6 +261,20 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
     public readonly available_until = computed(() => '');
 
     public ngOnInit() {
+        const module = getModule(this.space().id, 'Bookings');
+        for (const name of [
+            'hide_meeting_details',
+            'hide_meeting_title',
+        ] as const) {
+            this.subscription(
+                name,
+                module
+                    .variable<boolean>(name)
+                    .bindThenSubscribe((value) =>
+                        this[name].set(value !== false),
+                    ),
+            );
+        }
         this.timeout('update_offset', () => this.updateOffset(), 200);
         this.interval('time', () => this.now.set(Date.now()), 5000);
     }
