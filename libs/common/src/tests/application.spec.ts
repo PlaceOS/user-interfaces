@@ -176,6 +176,57 @@ describe('application cache handling', () => {
         expect(reload).toHaveBeenCalledTimes(1);
     });
 
+    it('should hold an initialisation reload back while offline', () => {
+        vi.mocked(ts_client.isOnline).mockReturnValue(false);
+
+        app.requestInitReload();
+        vi.advanceTimersByTime(60_000);
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(app.initReloadPending()).toBe(true);
+
+        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        vi.advanceTimersByTime(5_000);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(app.initReloadPending()).toBe(false);
+    });
+
+    it('should hold a handled initialisation reload back while offline too', () => {
+        const handler = vi.fn();
+        app.setInitReloadHandler(handler);
+        Object.defineProperty(globalThis.navigator, 'onLine', {
+            configurable: true,
+            value: false,
+        });
+
+        app.requestInitReload();
+        app.requestInitReload();
+        vi.advanceTimersByTime(30_000);
+
+        expect(handler).not.toHaveBeenCalled();
+
+        Object.defineProperty(globalThis.navigator, 'onLine', {
+            configurable: true,
+            value: true,
+        });
+        vi.advanceTimersByTime(5_000);
+
+        expect(handler).toHaveBeenCalledTimes(1);
+    });
+
+    it('should drop a held initialisation reload once startup completes', () => {
+        vi.mocked(ts_client.isOnline).mockReturnValue(false);
+        app.requestInitReload();
+
+        app.markInitialisationComplete();
+        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        vi.advanceTimersByTime(60_000);
+
+        expect(reload).not.toHaveBeenCalled();
+        expect(app.initReloadPending()).toBe(false);
+    });
+
     it('should hand a failed initialisation to a registered handler instead', () => {
         const handler = vi.fn();
         app.setInitReloadHandler(handler);

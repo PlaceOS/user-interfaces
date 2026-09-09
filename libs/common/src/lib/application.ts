@@ -16,6 +16,7 @@ let _reload_gate: (() => boolean) | null = null;
 let _reload_timer: ReturnType<typeof setTimeout> | undefined;
 let _reload_deferred_since = 0;
 let _init_reload: (() => void) | null = null;
+let _init_reload_timer: ReturnType<typeof setTimeout> | undefined;
 let _last_update_check = 0;
 let _update_interval = 0;
 
@@ -64,13 +65,18 @@ export function setAutoReloadGate(gate: (() => boolean) | null) {
     _reload_gate = gate;
 }
 
-function canReloadNow() {
-    // Reloading while the backend is unreachable strands the app on its
-    // loading screen with no way back, so wait for the network to return.
+/** Whether the backend can be reached, as far as the client can tell */
+function backendReachable() {
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
         return false;
     }
-    if (!isOnline()) return false;
+    return isOnline();
+}
+
+function canReloadNow() {
+    // Reloading while the backend is unreachable strands the app on its
+    // loading screen with no way back, so wait for the network to return.
+    if (!backendReachable()) return false;
     try {
         return _reload_gate ? _reload_gate() : true;
     } catch (error) {
@@ -160,8 +166,21 @@ export function markInitialisationComplete(): void {
     } catch {
         // Ignore unavailable session storage.
     }
+    // Startup got there after all, so a restart waiting on the network is no
+    // longer needed and would only interrupt an app that is now working.
+    cancelInitReload();
     INITIALISATION_FAILURE.set('');
     INITIALISATION_COMPLETE.set(true);
+}
+
+function cancelInitReload() {
+    if (_init_reload_timer) clearTimeout(_init_reload_timer);
+    _init_reload_timer = undefined;
+}
+
+/** Whether a restart after a failed initialisation is waiting for the network */
+export function initReloadPending() {
+    return !!_init_reload_timer;
 }
 
 /** Retry startup after automatic reload recovery reaches its limit. */
@@ -176,8 +195,29 @@ export function retryInitialisation(): void {
     location.reload();
 }
 
-/** Restart after a failed initialisation */
+/**
+ * Restart after a failed initialisation. Held back while the backend cannot be
+ * reached: initialisation fails offline because the data is not there, not
+ * because the app is broken, and restarting into the same outage only trades
+ * whatever the app is managing to show from cache for a loading screen. The
+ * restart happens once the network is back, unless startup completes first.
+ */
 export function requestInitReload() {
+    if (!backendReachable()) {
+        if (_init_reload_timer) return;
+        log(
+            'APP',
+            'Initialisation failed while offline; restarting once online.',
+            undefined,
+            'warn',
+        );
+        _init_reload_timer = setTimeout(() => {
+            _init_reload_timer = undefined;
+            requestInitReload();
+        }, RELOAD_RETRY_MS);
+        return;
+    }
+    cancelInitReload();
     if (_init_reload) {
         _init_reload();
         return;
@@ -347,6 +387,7 @@ export function clearCacheCheck() {
     _last_update_check = 0;
     _update_interval = 0;
     _init_reload = null;
+    cancelInitReload();
     _version_subscription?.unsubscribe();
     _unrecoverable_subscription?.unsubscribe();
     _version_subscription = undefined;
