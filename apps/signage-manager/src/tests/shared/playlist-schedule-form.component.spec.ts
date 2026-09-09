@@ -1,9 +1,16 @@
+import { DatePipe } from '@angular/common';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form } from '@angular/forms/signals';
 import { By } from '@angular/platform-browser';
-import { DurationFieldComponent } from '@placeos/form-fields';
+import { LOCAL_TIMEZONE } from '@placeos/common';
+import {
+    DateFieldComponent,
+    DurationFieldComponent,
+    TimeFieldComponent,
+} from '@placeos/form-fields';
 import { getUnixTime } from 'date-fns';
+import { vi } from 'vitest';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
@@ -139,6 +146,149 @@ describe('PlaylistScheduleFormComponent', () => {
         fixture.componentRef.setInput('index', 0);
         return { fixture, component: fixture.componentInstance, model };
     }
+
+    it('changes the displayed timezone without changing stored timestamps', async () => {
+        const play_at = Date.UTC(2027, 0, 2, 18, 45);
+        const { fixture, component, model } = setup({
+            schedule_type: 'play_at',
+            play_at,
+            has_valid_until: true,
+            valid_until: play_at + 3600000,
+        });
+        fixture.componentRef.setInput('open', true);
+        component.timezone.set('UTC');
+        await fixture.whenStable();
+        const before = playlistSchedulePayload(model());
+        const summary = component.scheduleSummary();
+        component.timezone.set('Asia/Tokyo');
+        await fixture.whenStable();
+        expect(playlistSchedulePayload(model())).toEqual(before);
+        expect(component.scheduleSummary()).not.toBe(summary);
+        expect(component.scheduleSummary()).toContain('Asia/Tokyo');
+        for (const field of fixture.debugElement.queryAll(
+            By.directive(TimeFieldComponent),
+        )) {
+            expect(field.componentInstance.timezone()).toBe('Asia/Tokyo');
+            expect(field.componentInstance.time()).toMatch(/^(03|04):45$/);
+        }
+        for (const field of fixture.debugElement.queryAll(
+            By.directive(DateFieldComponent),
+        )) {
+            expect(field.componentInstance.timezone()).toBe('Asia/Tokyo');
+        }
+    });
+
+    it('uses the selected timezone for the recurring start and keeps the cron unchanged', () => {
+        const { component, model } = setup({
+            recurrence_type: 'daily',
+            play_start: 9 * 60,
+        });
+        const before = playlistSchedulePayload(model());
+        component.timezone.set('Asia/Tokyo');
+        expect(new Date(component.recurringPlayStartTime()).getUTCHours()).toBe(
+            0,
+        );
+        expect(playlistSchedulePayload(model())).toEqual(before);
+    });
+
+    it.each([
+        ['2027-01-02T00:00:00Z', '2027-01-02T14:00:00Z'],
+        ['2027-07-02T00:00:00Z', '2027-07-02T13:00:00Z'],
+    ])(
+        'previews a New York recurrence using the offset on %s',
+        (now, play_at) => {
+            const clock = vi
+                .spyOn(Date, 'now')
+                .mockReturnValue(Date.parse(now));
+            try {
+                const { component } = setup({
+                    recurrence_type: 'daily',
+                    play_start: 9 * 60,
+                    has_valid_until: true,
+                    valid_until: Date.parse(play_at),
+                });
+                component.timezone.set('America/New_York');
+                expect(component.nextCronPlayTimes()).toHaveLength(1);
+                component
+                    .schedule()
+                    .valid_until()
+                    .value.set(Date.parse(play_at) - 1000);
+                expect(component.nextCronPlayTimes()).toEqual([]);
+            } finally {
+                clock.mockRestore();
+            }
+        },
+    );
+
+    it('accepts typed start times and displays their timezone conversion', async () => {
+        const { fixture, component, model } = setup({
+            recurrence_type: 'daily',
+            play_start: 9 * 60,
+        });
+        fixture.componentRef.setInput('open', true);
+        component.timezone.set('Asia/Tokyo');
+        await fixture.whenStable();
+        const input: HTMLInputElement = fixture.debugElement.query(
+            By.css('input[type="time"]'),
+        ).nativeElement;
+        const field = input.closest('mat-form-field').parentElement;
+        expect(field.textContent).toContain('9 : 00');
+        expect(field.textContent).toContain('GMT+9');
+        component.timezone.set('UTC');
+        await fixture.whenStable();
+        const expected = new Date(component.recurringPlayStartTime());
+        expected.setHours(10, 37, 0, 0);
+        input.value = '10:37';
+        input.dispatchEvent(new Event('input'));
+        await fixture.whenStable();
+        expect(input.value).toBe('10:37');
+        expect(model().play_start).toBe(expected.getUTCHours() * 60 + 37);
+        expect(playlistSchedulePayload(model()).play_cron).toBe(
+            `37 ${expected.getUTCHours()} * * *`,
+        );
+        expect(field.textContent).toContain(
+            new DatePipe('en-AU').transform(expected, 'h : mm a (z)', '+0000'),
+        );
+        input.value = '';
+        input.dispatchEvent(new Event('input'));
+        input.dispatchEvent(new Event('blur'));
+        await fixture.whenStable();
+        expect(input.value).toBe('10:37');
+    });
+
+    it('hides the converted start time when the selected timezone matches the user', async () => {
+        const { fixture, component } = setup({ recurrence_type: 'daily' });
+        fixture.componentRef.setInput('open', true);
+        component.timezone.set(LOCAL_TIMEZONE);
+        await fixture.whenStable();
+        expect(
+            fixture.debugElement.query(By.css('[start-timezone]')),
+        ).toBeNull();
+        component.timezone.set(
+            LOCAL_TIMEZONE === 'Asia/Tokyo' ? 'UTC' : 'Asia/Tokyo',
+        );
+        await fixture.whenStable();
+        expect(
+            fixture.debugElement.query(By.css('[start-timezone]')),
+        ).not.toBeNull();
+    });
+
+    it('keeps the selected timezone and trigger text when it does not match the search', async () => {
+        const { fixture, component } = setup();
+        fixture.componentRef.setInput('open', true);
+        component.timezone.set('UTC');
+        await fixture.whenStable();
+        component.timezone_search.set('Tokyo');
+        await fixture.whenStable();
+        const select = fixture.debugElement.query(
+            By.css('mat-select[name="timezone"]'),
+        );
+        expect(component.timezone()).toBe('UTC');
+        expect(select.nativeElement.textContent).toContain('UTC');
+        component.timezone_search.set('no-such-timezone');
+        await fixture.whenStable();
+        expect(select.nativeElement.textContent).toContain('UTC');
+    });
 
     it('renders weekday labels for the locale', () => {
         const { component } = setup();

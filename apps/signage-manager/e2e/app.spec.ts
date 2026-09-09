@@ -298,6 +298,54 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
         await expect(page.getByRole('heading', { name: /new playlist/i })).toBeVisible();
         await expect(page.getByRole('textbox', { name: /playlist name/i })).toBeVisible();
         await expect(page.getByText(/playlist schedules/i)).toBeVisible();
+        await expect(
+            page.locator('playlist-schedule-form [start-timezone]'),
+        ).toHaveCount(0);
+        const timezone = page
+            .getByRole('combobox', { name: 'Timezone', exact: true })
+            .first();
+        const selected_timezone = (await timezone.innerText()).trim();
+        await timezone.click();
+        const timezone_search = page.getByRole('textbox', {
+            name: 'Search timezones',
+            exact: true,
+        });
+        await expect(timezone_search).toBeFocused();
+        await page.keyboard.type('TOKYOO');
+        await page.keyboard.press('Backspace');
+        await expect(timezone_search).toHaveValue('TOKYO');
+        await timezone_search.fill('no-such-timezone');
+        await expect(timezone).toContainText(selected_timezone);
+        await expect(
+            page.getByRole('option', { name: 'No matching timezones' }),
+        ).toBeVisible();
+        await timezone_search.fill('TOKYO');
+        await expect(timezone).toContainText(selected_timezone);
+        await expect(
+            page.getByRole('option', { name: selected_timezone, exact: true }),
+        ).toHaveAttribute('aria-selected', 'true');
+        await expect(page.getByRole('option')).toHaveCount(
+            selected_timezone === 'Asia/Tokyo' ? 1 : 2,
+        );
+        await page.getByRole('option', { name: 'Asia/Tokyo', exact: true }).click();
+        await expect(timezone_search).toBeHidden();
+        await expect(timezone).toContainText('Asia/Tokyo');
+        const start_time = page
+            .locator('playlist-schedule-form input[type="time"]')
+            .first();
+        await start_time.fill('10:37');
+        await expect(start_time).toHaveValue('10:37');
+        const converted_start = page
+            .locator('playlist-schedule-form [start-timezone]')
+            .first();
+        await expect(converted_start).toContainText(': 37');
+        await expect(converted_start).toContainText('GMT+9');
+        await timezone.click();
+        await expect(timezone_search).toHaveValue('');
+        await expect(timezone_search).toBeFocused();
+        await timezone_search.press('Escape');
+        await expect(timezone).toContainText('Asia/Tokyo');
+
         await closeDialog(page);
 
         await openFirstPlaylist(page);
