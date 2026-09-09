@@ -1,1 +1,0 @@
-import {m,l as lT,cn as jn}from'./main-C6ENSHD5.js';var f=(()=>{class t{constructor(){this._org=m(lT);}transform(e){return this._org.levelWithID(e instanceof Array?e:[e])}static{this.\u0275fac=function(n){return new(n||t)};}static{this.\u0275pipe=jn({name:"level",type:t,pure:true});}}return t})();export{f};
