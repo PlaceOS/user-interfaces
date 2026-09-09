@@ -1,0 +1,3 @@
+import{Et as H,Ro as l4,cn as K,ds as p}from"./chunk-DBYzMUS1.js";var a=(()=>{class e{constructor(){this._el=p(K),this.intersect=l4()}ngAfterViewInit(){this._observer=new IntersectionObserver(i=>{i.some(t=>t.isIntersecting)&&this.intersect.emit()},{rootMargin:`300px`}),this._observer.observe(this._el.nativeElement)}ngOnDestroy(){this._observer?.disconnect()}static{this.ɵfac=function(t){return new(t||e)}}static{this.ɵdir=H({type:e,selectors:[[``,`intersect`,``]],outputs:{intersect:`intersect`}})}}return e})();export{a as t};
+//# debugId=768675c9-6160-5abe-b5aa-3f97230a39ce
+//# sourceMappingURL=chunk-S2nWiG8N.js.map
