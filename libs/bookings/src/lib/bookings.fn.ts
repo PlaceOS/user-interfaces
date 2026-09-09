@@ -84,7 +84,9 @@ function bookingUtmSource() {
 }
 
 function withAppVersion(data: Partial<Booking>): Partial<Booking> {
-    const booking_data = { ...data };
+    const booking_data = {
+        ...(data instanceof Booking ? data.toJSON() : data),
+    };
     delete booking_data.created_at;
     return {
         ...booking_data,

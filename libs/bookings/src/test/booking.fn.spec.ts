@@ -115,6 +115,33 @@ describe('[Booking API]', () => {
     });
 
     describe('createBooking', () => {
+        it('should omit an empty ID when creating an asset booking model', async () => {
+            const spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue(undefined);
+            const request = new Booking({
+                booking_type: 'asset-request',
+                asset_id: 'asset-1',
+                asset_ids: ['asset-1'],
+                booking_start: 1_800_000_000,
+                booking_end: 1_800_003_600,
+            });
+
+            await createBooking(request);
+
+            const payload = JSON.parse(JSON.stringify(spy.mock.calls[0][1]));
+            expect(payload).not.toHaveProperty('id');
+            expect(payload).toMatchObject({
+                booking_type: 'asset-request',
+                asset_id: 'asset-1',
+                asset_ids: ['asset-1'],
+                booking_start: 1_800_000_000,
+                booking_end: 1_800_003_600,
+                extension_data: { app_name, app_version },
+            });
+            spy.mockReset();
+        });
+
         it('should allow calling POST request for creating a new booking', async () => {
             const spy = vi.spyOn(ts_client, 'post');
             expect(spy).not.toHaveBeenCalled();
