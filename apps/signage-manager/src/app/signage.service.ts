@@ -3091,7 +3091,6 @@ export class SignageService {
         prepared_file_metadata?: SignageMediaMetadata,
         plugin?: SignagePlugin,
     ) {
-        const is_new = !media.id;
         if (media.id) {
             if (
                 !this._requirePermission(
