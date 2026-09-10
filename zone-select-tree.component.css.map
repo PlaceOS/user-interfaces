@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["zone-select-tree.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                min-height: 100%;\n            }\n\n            .zone-tree {\n                background: transparent;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,WAAA,IACJ,CAEA,CAAA,UACI,WAAA,WACJ",
+  "names": []
+}
