@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["duration-field.component.ts"],
-  "sourcesContent": ["\n            :host {\n                width: 100%;\n            }\n\n            mat-form-field {\n                width: 100%;\n            }\n        "],
-  "mappings": "AACY,MACI,MAAA,IACJ,CAEA,eACI,MAAA,IACJ",
+  "sourcesContent": ["\n            :host {\n                width: 100%;\n            }\n\n            :host.no-subscript {\n                mat-error {\n                    display: none;\n                }\n            }\n\n            mat-form-field {\n                width: 100%;\n            }\n        "],
+  "mappings": "AACY,MACI,MAAA,IACJ,CAGI,KAAA,CAAA,aAAA,UACI,QAAA,IACJ,CAGJ,eACI,MAAA,IACJ",
   "names": []
 }
