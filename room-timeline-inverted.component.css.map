@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["room-timeline-inverted.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                max-width: 100%;\n            }\n\n            [timeline] {\n                grid-template-columns: 13rem auto;\n                grid-template-rows: 2.5rem auto;\n            }\n\n            .row-highlight {\n                background-color: var(--info-light);\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,UAAA,IACJ,CAEA,CAAA,UACI,sBAAA,MAAA,KACA,mBAAA,OAAA,IACJ,CAEA,CAAA,cACI,iBAAA,IAAA,aACJ",
+  "names": []
+}
