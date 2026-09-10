@@ -1,0 +1,3 @@
+var o={available:`#4CAF50`,booked:`#FF9800`,occupied:`#F44336`,free:`#4CAF50`,"checked-in":`#2196F3`,pending:`#FF9800`,"out-of-service":`#9E9E9E`,restricted:`#795548`,unavailable:`#9E9E9E`};var i=[`available`,`booked`,`occupied`,`restricted`,`unavailable`];var c=[`free`,`checked-in`,`pending`,`booked`,`out-of-service`];var a=Object.keys(o);function u(e){return e===`room`?c:e===`desk`?i:a}function d(e,r){let t=u(r);if(!e)return t[0];return t[(t.indexOf(e)+1)%t.length]}function l(e){return e?o[e]:void 0}function f(e){return e===`room`?`free`:`available`}export{o as a,l as i,d as n,u as o,f as r,a as t};
+//# debugId=7dbf4fc2-72f9-504d-b92c-6963ae92d7f0
+//# sourceMappingURL=chunk-BExTx0eE.js.map
