@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1789010409000,
+  "timestamp": 1789021455189,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -24,7 +24,7 @@
         "./main-view.component-etc5ptXH.js",
         "./main.js",
         "./manifest.webmanifest",
-        "./settings-debug-panel.component-5XEG7YED.js",
+        "./settings-debug-panel.component-ZED6OKED.js",
         "./squire-H3PFFLV6.js",
         "./styles.css",
         "./tabbed-view.component-FoTesZjr.js",
@@ -228,9 +228,9 @@
     "./it-DP3AYVRR.js": "ee62a3cf464843d157a1df98ecc7ab58712ba2a6",
     "./ja-KPFTZVOP.js": "b1b88a5e25fc6aad4bb41cdb86a03766fb9598a9",
     "./main-view.component-etc5ptXH.js": "5276403e06646ef34a397fb241bc637529d0d2de",
-    "./main.js": "452f0f716fa961daca0affb377ebebb008082680",
+    "./main.js": "e02e57c7b74c2fc322ee153fce348a165558f0c7",
     "./manifest.webmanifest": "5dbc522aea6f2d1a4bdfb0908a2b0bf28c719bb9",
-    "./settings-debug-panel.component-5XEG7YED.js": "510c15f45d38a93f68f88e3d4880b7e7770dfef2",
+    "./settings-debug-panel.component-ZED6OKED.js": "0c1910bf1a82f5115b43e09a43fea40f40f29ebe",
     "./squire-H3PFFLV6.js": "75349adec3f9c6db3b51bc8c23c1f02b78329f66",
     "./styles.css": "946b672508d914edbd69b7555441983dd331388a",
     "./tabbed-view.component-FoTesZjr.js": "e02bfc2bf7e3c29703a5f913067106e8418b8136",
