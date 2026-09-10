@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1789006497229,
+  "timestamp": 1789008409480,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,8 +13,8 @@
       "urls": [
         "./chunk-4MI22UID.js",
         "./chunk-73PW3FCZ.js",
+        "./chunk-7N7456N3.js",
         "./chunk-BZFDTKSQ.js",
-        "./chunk-HWSXRRI4.js",
         "./chunk-I33QMCJC.js",
         "./chunk-IV6A2JKC.js",
         "./chunk-JAODHKFU.js",
@@ -207,15 +207,15 @@
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./chunk-4MI22UID.js": "d3a6664995504cd74f41b5c54412c4a68ee90eb4",
     "./chunk-73PW3FCZ.js": "36b1f5ee92bb6cc604e659b5ac501d9c4dee239c",
+    "./chunk-7N7456N3.js": "56e42f37db4e1b9501d838d1d93a207d8ff73df8",
     "./chunk-BZFDTKSQ.js": "8c1ec9e55de25da13498c919f173b492da438adb",
-    "./chunk-HWSXRRI4.js": "f419042533426e88cd87dd0fa5001a4d811d17d7",
     "./chunk-I33QMCJC.js": "3271add2e7dcaefa540920a97187107e3aab18ea",
     "./chunk-IV6A2JKC.js": "b654e4f898a2cdb8fa3f3723ae88127fd38a9ac6",
     "./chunk-JAODHKFU.js": "343d60170d3300e18a18901ad9438872649d8a26",
     "./chunk-Y4R37YMA.js": "e9e66716ac39c24be247b6e391868c43816126e9",
     "./favicon.ico": "bac75d7f037be9da4c9e2b32506e7f0beaf970a2",
     "./index.html": "2f5c1994ff0c5f27eb999269913a85d9e2f76719",
-    "./main.js": "d9bfe648c11c45036e34041de61e7c106d21acb5",
+    "./main.js": "449bc866512cc0d27b50e9f4badbadebc53f600d",
     "./manifest.webmanifest": "52303dac8925303543586afc1ce6fc2a5af2c4b2",
     "./styles.css": "32d4d3c07b52778379c5bbfa0ea7a1396ff53708"
   },
