@@ -1,0 +1,3 @@
+import{Ln as Qc}from"./chunk-CMsd6no9.js";import{Q as UG,Ut as ph}from"./chunk-CCeoHwv6.js";var r=`/api/staff/v1/guests`;async function C(t){let s=UG({q:t});return(await Qc(`${r}${t?`?`+s:``}`)).map(c=>new ph(c))}async function I(t){return new ph(await Qc(`${r}/${encodeURIComponent(t)}`))}export{I as n,C as t};
+//# debugId=2a2d137e-87c2-58bd-a8e7-a07ad829cef5
+//# sourceMappingURL=chunk-D1C7jL-d.js.map
