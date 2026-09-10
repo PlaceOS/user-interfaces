@@ -297,6 +297,8 @@ export class LockerFiltersComponent extends AsyncHandler implements OnInit {
         return level_list.sort(
             (a, b) =>
                 a.parent_id.localeCompare(b.parent_id) ||
+                Number(a.tags.includes('parking')) -
+                    Number(b.tags.includes('parking')) ||
                 (a.display_name || '').localeCompare(b.display_name || ''),
         );
     });

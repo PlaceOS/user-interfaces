@@ -35,6 +35,13 @@ describe('LockerFiltersComponent', () => {
 
     const levels = [
         {
+            id: 'parking-1',
+            parent_id: 'bld-1',
+            display_name: '01 Parking',
+            name: '01 Parking',
+            tags: ['parking'],
+        },
+        {
             id: 'lvl-2',
             parent_id: 'bld-1',
             display_name: 'B Level',
@@ -129,10 +136,11 @@ describe('LockerFiltersComponent', () => {
         expect(spectator.query('a-date-field')).toExist();
     });
 
-    it('should sort levels by parent then display name', () => {
+    it('should put parking last within each building, then sort by display name', () => {
         expect(spectator.component.levels().map((_) => _.id)).toEqual([
             'lvl-1',
             'lvl-2',
+            'parking-1',
         ]);
     });
 

@@ -457,6 +457,8 @@ export class OrganisationService {
         return [...levels].sort(
             (a, b) =>
                 (a.parent_id || '').localeCompare(b.parent_id || '') ||
+                Number(a.tags.includes('parking')) -
+                    Number(b.tags.includes('parking')) ||
                 (a.name || '').localeCompare(b.name || '') ||
                 (a.display_name || '').localeCompare(b.display_name || ''),
         );
@@ -787,8 +789,11 @@ export class OrganisationService {
             this._router.navigate(['/misconfigured']);
         }
         let levels = level_list.map((lvl) => new BuildingLevel(lvl));
-        levels = levels.sort((a, b) =>
-            (a.name || '').localeCompare(b.name || ''),
+        levels = levels.sort(
+            (a, b) =>
+                Number(a.tags.includes('parking')) -
+                    Number(b.tags.includes('parking')) ||
+                (a.name || '').localeCompare(b.name || ''),
         );
         this._level_list.set(levels);
     }
