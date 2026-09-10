@@ -27,7 +27,7 @@ import { TranslatePipe } from './translate.pipe';
                 (domainSet)="onDomainSet()"
             ></native-domain-overlay>
         }
-        @if (!online()) {
+        @if (connection_checked() && !online()) {
             <div
                 class="bg-error fixed top-2 left-1/2 z-9999 -translate-x-1/2 rounded-3xl px-4 py-2 text-xs text-white shadow-sm"
             >
@@ -99,6 +99,7 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     private _placeos = inject(PlaceOS_Service);
 
     public readonly online = signal(true);
+    public readonly connection_checked = signal(false);
     public readonly message = getLoadingMessage();
     public readonly show_domain_overlay = needsNativeDomain();
     public readonly domain_error = nativeDomainError();
@@ -116,7 +117,22 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
     }
 
     public ngOnInit() {
-        const update_online = () => this.online.set(isOnline());
+        const update_online = () => {
+            this.online.set(isOnline());
+            if (this.online()) {
+                this.connection_checked.set(true);
+                this.clearTimeout('initial-connection');
+            }
+        };
+        // The client reports offline while the first authority request is pending.
+        this.timeout(
+            'initial-connection',
+            () => {
+                update_online();
+                this.connection_checked.set(true);
+            },
+            5000,
+        );
         update_online();
         this.interval('online', update_online, 1000);
     }
