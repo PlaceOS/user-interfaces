@@ -12,7 +12,7 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-UDGTZGNI.js";
+} from "./chunk-HXIRQ32S.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -24,20 +24,20 @@ import {
   MatSelectModule,
   MatSelectTrigger,
   SanitizePipe
-} from "./chunk-4ZODRCXQ.js";
+} from "./chunk-FLIACFGV.js";
 import {
   CheckinStateService
-} from "./chunk-GHWTL62M.js";
+} from "./chunk-UDIHTYB6.js";
 import {
   ANIMATION_MODULE_TYPE,
   AUTO_STYLE,
   ActivatedRoute,
   AnimationGroupPlayer,
   AnimationMetadataType,
-  Ar,
   AsyncHandler,
   AuthenticatedImageDirective,
   BidiModule,
+  Br,
   BrowserModule,
   ChangeDetectorRef,
   Clipboard,
@@ -46,6 +46,7 @@ import {
   DEFAULT_SETTINGS,
   DOCUMENT,
   DatePipe,
+  Dd,
   DefaultValueAccessor,
   DomRendererFactory2,
   EMPTY_USER,
@@ -61,8 +62,8 @@ import {
   InjectionToken,
   Injector,
   Input,
-  It,
-  Kr,
+  Ir,
+  J,
   LOCALE_ID,
   LocaleService,
   MatError,
@@ -76,6 +77,8 @@ import {
   MatProgressSpinnerModule,
   MatRipple,
   MatRippleModule,
+  Md,
+  Mt,
   NgControlStatus,
   NgControlStatusGroup,
   NgForm,
@@ -89,7 +92,6 @@ import {
   Output,
   Pipe,
   PlaceOS_Service,
-  Qr,
   Renderer2,
   RendererFactory2,
   RequiredValidator,
@@ -104,29 +106,29 @@ import {
   TranslatePipe,
   User,
   VERSION,
-  Ve,
   ViewChild,
   ViewEncapsulation,
   VirtualKeyboardComponent,
-  X,
+  Xe,
+  Xr,
+  Zr,
   _getAnimationsState,
-  ad,
   addDays,
   addMilliseconds,
   addMinutes,
   addMonths,
   autoConfirmNativeDomain,
+  ba,
   bootstrapApplication,
   capitalizeFirstLetter,
   computed,
   createErrorHandler,
   currentUser,
   current_user,
-  da,
   differenceInMinutes,
   effect,
   enableProdMode,
-  fd,
+  eo,
   firstTruthyValueFrom,
   firstValueWhere,
   format,
@@ -137,7 +139,6 @@ import {
   getNativeEmail,
   getUnixTime,
   hasPermission,
-  hi,
   i18n,
   inject,
   input,
@@ -178,14 +179,13 @@ import {
   style,
   subDays,
   timePeriodsIntersect,
-  to,
   unique,
   untracked,
+  uo,
   user_groups_loaded,
   viewChild,
   withHashLocation,
   withNavigationErrorHandler,
-  zr,
   ɵNgNoValidate,
   ɵNgSelectMultipleOption,
   ɵPRE_STYLE,
@@ -242,7 +242,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-IDZLILU4.js";
+} from "./chunk-WQJ5WXLQ.js";
 import {
   __export,
   __objRest,
@@ -2697,7 +2697,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ve()}`;
+    const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${Xe()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -2779,7 +2779,7 @@ var ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = fd(id, "LLM");
+    const mod = Dd(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -4456,13 +4456,13 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
     this.loading.set(true);
     await this._org.waitUntilInitialised();
     await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Qr());
+    this.online.set(Xr());
     this.interval("has_token", () => {
-      this.online.set(Qr());
-      if (!It() || !X())
+      this.online.set(Xr());
+      if (!Mt() || !J())
         return;
       this.loading.set(false);
-      this.online.set(Qr());
+      this.online.set(Xr());
       this.clearInterval("has_token");
     }, 1e3);
   }
@@ -5043,20 +5043,20 @@ function addExecuteMessage(message) {
   execute_messages.update((messages) => [...messages, message].slice(-250));
 }
 function installBindingDebugHooks() {
-  const prototype = zr.prototype;
+  const prototype = Br.prototype;
   if (prototype.__binding_debug_hooks__)
     return;
   prototype.__binding_debug_hooks__ = true;
-  const variable = zr.prototype.variable;
-  zr.prototype.variable = function(name) {
+  const variable = Br.prototype.variable;
+  Br.prototype.variable = function(name) {
     return trackBinding(this, variable.call(this, name));
   };
-  const binding = zr.prototype.binding;
-  zr.prototype.binding = function(name) {
+  const binding = Br.prototype.binding;
+  Br.prototype.binding = function(name) {
     return trackBinding(this, binding.call(this, name));
   };
-  const execute = zr.prototype.execute;
-  zr.prototype.execute = function(method, args = [], timeout_delay) {
+  const execute = Br.prototype.execute;
+  Br.prototype.execute = function(method, args = [], timeout_delay) {
     const id = ++execute_id;
     const details = {
       id,
@@ -5158,7 +5158,7 @@ var BindingDebugPanelComponent = class _BindingDebugPanelComponent extends Async
       },
       loader: async ({ params }) => Object.fromEntries(await Promise.all(params.map(async (id) => {
         if (!system_name_cache.has(id)) {
-          const system = await da(id).catch(() => null);
+          const system = await ba(id).catch(() => null);
           system_name_cache.set(id, system?.display_name || system?.name || id);
         }
         return [id, system_name_cache.get(id)];
@@ -6971,7 +6971,7 @@ var UnauthorisedComponent = class _UnauthorisedComponent {
 var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
 function hasCachedCredentials() {
   try {
-    return !!X();
+    return !!J();
   } catch {
     return false;
   }
@@ -7040,7 +7040,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await this.waitForBackend(hi(Kr(), Boolean));
+    const online = await this.waitForBackend(Zr(eo(), Boolean));
     if (!online)
       return null;
     let user = null;
@@ -7070,7 +7070,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
     return false;
   }
   async useGroupSubsystemAccess() {
-    const value = It()?.config?.["use_group_subsystem_access"];
+    const value = Mt()?.config?.["use_group_subsystem_access"];
     return value === true || value === "true";
   }
   checkSubsystemAccess(user) {
@@ -8461,7 +8461,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -8474,7 +8474,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -8488,7 +8488,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -8500,13 +8500,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -8521,7 +8521,7 @@ function registerMockAssets() {
       return;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -8533,7 +8533,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -8547,7 +8547,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -8559,13 +8559,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -8580,7 +8580,7 @@ function registerMockAssets() {
       return;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -8589,7 +8589,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -8603,7 +8603,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -8615,13 +8615,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -8636,7 +8636,7 @@ function registerMockAssets() {
       return;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -8656,7 +8656,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -8670,7 +8670,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -8682,13 +8682,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -10513,7 +10513,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  to({
+  uo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -10546,7 +10546,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  to({
+  uo({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -10581,7 +10581,7 @@ function registerMockBookings() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -10595,7 +10595,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -10616,7 +10616,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -10639,7 +10639,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -10656,7 +10656,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -10679,13 +10679,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -10701,7 +10701,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -10717,7 +10717,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/check_in",
     metadata: {},
     method: "POST",
@@ -10739,7 +10739,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -10755,13 +10755,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking(req.route_params.id, req.body)
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -11114,7 +11114,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  to({
+  uo({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -11169,7 +11169,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  to({
+  uo({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -11177,7 +11177,7 @@ function registerMockCalendars() {
       resource: _
     }))
   });
-  to({
+  uo({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -11189,7 +11189,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  to({
+  uo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -11206,7 +11206,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -11229,12 +11229,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = Ar(new_event.system?.id);
+      const system = Ir(new_event.system?.id);
       system?.Bookings[0]?.$poll_bookings();
       return new_event;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -11246,7 +11246,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -11264,7 +11264,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -11276,7 +11276,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -12087,7 +12087,7 @@ function registerMockSignage() {
       });
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -12098,13 +12098,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -12119,7 +12119,7 @@ function registerMockSignage() {
       return group;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -12133,7 +12133,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -12144,13 +12144,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_USERS.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -12167,7 +12167,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -12183,7 +12183,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -12196,13 +12196,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
     callback: (request) => SIGNAGE_GROUP_ZONES.filter((item) => item.group_id === request.query_params?.group_id)
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -12219,7 +12219,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -12235,7 +12235,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -12248,13 +12248,13 @@ function registerMockSignage() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/tags",
     metadata: {},
     method: "GET",
@@ -12262,7 +12262,7 @@ function registerMockSignage() {
       ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag2) => !!tag2))
     ]
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/tag_counts",
     metadata: {},
     method: "GET",
@@ -12278,7 +12278,7 @@ function registerMockSignage() {
       return counts;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -12288,7 +12288,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "GET",
@@ -12296,7 +12296,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id)
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -12304,43 +12304,43 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/:id/thumbnail",
     metadata: {},
     method: "GET",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/plugins",
     metadata: {},
     method: "GET",
     callback: () => MOCK_PLUGINS
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/plugins/:id",
     metadata: {},
     method: "GET",
     callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
     callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -12349,7 +12349,7 @@ function registerMockSignage() {
       name: item.user?.name || item.user_id
     }))
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -12359,7 +12359,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -12367,7 +12367,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_PLAYLISTS, request.route_params.id)
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -12375,19 +12375,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -12396,7 +12396,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule",
     metadata: {},
     method: "POST",
@@ -12410,7 +12410,7 @@ function registerMockSignage() {
       ]
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
     metadata: {},
     method: "PATCH",
@@ -12420,7 +12420,7 @@ function registerMockSignage() {
       schedules: request.body?.schedules || []
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -12429,37 +12429,37 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/:id",
     metadata: {},
     method: "GET",
     callback: (request) => signageDisplay(request.route_params.id)
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/:id/metrics",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -12485,7 +12485,7 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
@@ -12496,7 +12496,7 @@ function registerMockSignage() {
       return display;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -12526,7 +12526,7 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -12548,7 +12548,7 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -12564,7 +12564,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -12587,7 +12587,7 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
@@ -12614,7 +12614,7 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -12659,7 +12659,7 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
@@ -13258,7 +13258,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  to({
+  uo({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -13277,7 +13277,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -13302,7 +13302,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -13317,7 +13317,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -13338,7 +13338,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -13351,7 +13351,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -13366,7 +13366,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -14525,7 +14525,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  ad(space.id, {
+  Md(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -14540,7 +14540,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = Ar(space.id);
+  const system = Ir(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -14550,7 +14550,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  to({
+  uo({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -14567,7 +14567,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -14582,7 +14582,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  to({
+  uo({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -14594,7 +14594,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -14615,7 +14615,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -14629,7 +14629,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -14644,7 +14644,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -14656,7 +14656,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -14668,7 +14668,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -14783,7 +14783,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  to({
+  uo({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -14799,7 +14799,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -14814,19 +14814,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  to({
+  uo({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -14942,7 +14942,7 @@ function registerMockZones() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -14953,7 +14953,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -15006,7 +15006,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  to({
+  uo({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -21654,17 +21654,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-HGRLJWXY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-SPW4FGMO.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-Q6A5UISC.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-TBFIELSV.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-D4OFPKKP.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-4BNOAH6W.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
