@@ -9,8 +9,8 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from '../lib/org/organisation.service';
 import { Building, Region } from '../lib/types/org.classes';
 
-import type { PlaceZone } from '@placeos/ts-client';
 import * as ts_client from '@placeos/ts-client';
+import { PlaceZone } from '@placeos/ts-client';
 
 // Real ts-client helpers run for real; only the API layer touched by this
 // service is overridden per-test via `vi.mocked(...)` in `beforeEach`.
@@ -247,6 +247,66 @@ describe('OrganisationService', () => {
                 .levelsForRegion(spectator.service.regions[0])
                 .map(({ id }) => id),
         ).toEqual(['lvl-a2', 'lvl-b1', 'lvl-b2-display', 'lvl-b2']);
+    });
+
+    it('should put parking after normal levels when loading and adding zones', async () => {
+        const zones = [
+            new PlaceZone({
+                id: 'parking-2',
+                parent_id: 'bld-1',
+                name: '02 Parking',
+                tags: ['level', 'parking'],
+            }),
+            new PlaceZone({
+                id: 'level-2',
+                parent_id: 'bld-1',
+                name: 'Level 2',
+                tags: ['level'],
+            }),
+            new PlaceZone({
+                id: 'parking-1',
+                parent_id: 'bld-1',
+                name: '01 Parking',
+                tags: ['level', 'parking'],
+            }),
+            new PlaceZone({
+                id: 'level-1',
+                parent_id: 'bld-1',
+                name: 'Level 1',
+                tags: ['level'],
+            }),
+        ];
+        vi.mocked(ts_client.queryZones).mockResolvedValue({
+            data: zones,
+            total: zones.length,
+            next: vi.fn(),
+        });
+
+        await spectator.service.loadLevels();
+
+        const expected = ['level-1', 'level-2', 'parking-1', 'parking-2'];
+        expect(spectator.service.levels.map(({ id }) => id)).toEqual(expected);
+        expect(
+            spectator.service
+                .levelsForBuilding(new Building({ id: 'bld-1' }))
+                .map(({ id }) => id),
+        ).toEqual(expected);
+
+        spectator.service.addZone(
+            new PlaceZone({
+                id: 'level-3',
+                parent_id: 'bld-1',
+                name: 'Level 3',
+                tags: ['level'],
+            }),
+        );
+        expect(spectator.service.levels.map(({ id }) => id)).toEqual([
+            'level-1',
+            'level-2',
+            'level-3',
+            'parking-1',
+            'parking-2',
+        ]);
     });
 
     it('should cache zone data for the browser session', async () => {
