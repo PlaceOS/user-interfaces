@@ -505,13 +505,14 @@ export async function validateAssetRequestsForResource(
             zones: zones || [],
         };
         if (from_booking) (asset_data as any).parent_id = id;
-        return createBooking(new Booking(asset_data), {
-            ical_uid,
-            event_id: from_booking ? '' : id,
-        });
+        return () =>
+            createBooking(new Booking(asset_data), {
+                ical_uid,
+                event_id: from_booking ? '' : id,
+            });
     });
     return async () => {
         await Promise.all(changed_requests.map(([id]) => removeBooking(id)));
-        await Promise.all(processed_requests);
+        await Promise.all(processed_requests.map((create) => create()));
     };
 }

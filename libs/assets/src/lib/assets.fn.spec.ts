@@ -387,6 +387,71 @@ describe('[Assets]', () => {
         });
     });
 
+    describe('validateAssetRequestsForResource', () => {
+        it('should create asset bookings only when the validated request is saved', async () => {
+            const { validateAssetRequestsForResource } =
+                await import('./assets.fn');
+            const { AssetRequest } = await import('@placeos/common');
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+                response([{ id: 'type-projector', name: 'Projector' }]),
+            );
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
+                response([
+                    { id: 'asset-projector', asset_type_id: 'type-projector' },
+                ]),
+            );
+            vi.mocked(ts_client.post).mockResolvedValue(undefined);
+            const request = new AssetRequest({
+                id: 'request-projector',
+                items: [
+                    {
+                        id: 'type-projector',
+                        name: 'Projector',
+                        quantity: 1,
+                        item_ids: [],
+                    },
+                ],
+            });
+            const options = {
+                date: 1_800_000_000_000,
+                duration: 30,
+                all_day: false,
+                host: 'host@example.com',
+                zones: ['building-1'],
+            };
+
+            // Opening the confirmation dialog must not reserve the asset.
+            await validateAssetRequestsForResource(
+                {},
+                options,
+                [request],
+                true,
+            );
+            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(ts_client.del).not.toHaveBeenCalled();
+
+            const save = await validateAssetRequestsForResource(
+                { id: 'event-1', ical_uid: 'event-1@example.com' },
+                options,
+                [request],
+                true,
+            );
+            expect(ts_client.post).not.toHaveBeenCalled();
+            await save();
+            expect(ts_client.post).toHaveBeenCalledTimes(1);
+            expect(ts_client.post).toHaveBeenCalledWith(
+                expect.stringContaining('event_id=event-1'),
+                expect.objectContaining({
+                    booking_type: 'asset-request',
+                    asset_ids: ['asset-projector'],
+                    extension_data: expect.objectContaining({
+                        parent_id: 'event-1',
+                    }),
+                }),
+            );
+        });
+    });
+
     describe('removeAssetRequests', () => {
         it('should remove bookings referencing the asset by id or ids', async () => {
             const { assets_fn } = await load_modules();
