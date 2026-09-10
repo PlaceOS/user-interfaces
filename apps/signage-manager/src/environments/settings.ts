@@ -11,6 +11,7 @@ const app = {
     show_locale_selector: false,
     show_group_selector: false,
     show_media_group_tabs: false,
+    schedule_timezone_once_only: true,
     default_animation_time: 1000,
     media_allow_extended_video_codecs: false,
     templates_enabled: true,

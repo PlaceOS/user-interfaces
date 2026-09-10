@@ -147,6 +147,32 @@ describe('PlaylistScheduleFormComponent', () => {
         return { fixture, component: fixture.componentInstance, model };
     }
 
+    it('shows the timezone selector only for play-once schedules by default', async () => {
+        const { fixture, component, model } = setup({
+            schedule_type: 'play_at',
+        });
+        fixture.componentRef.setInput('open', true);
+        expect(component.schedule_timezone_once_only()).toBe(true);
+        await fixture.whenStable();
+        const selector = By.css('mat-select[name="timezone"]');
+        expect(fixture.debugElement.query(selector)).not.toBeNull();
+
+        model.update((value) => ({ ...value, schedule_type: 'play_cron' }));
+        await fixture.whenStable();
+        expect(fixture.debugElement.query(selector)).toBeNull();
+
+        component.schedule_timezone_once_only.set(false);
+        try {
+            await fixture.whenStable();
+            expect(fixture.debugElement.query(selector)).not.toBeNull();
+            model.update((value) => ({ ...value, schedule_type: 'play_at' }));
+            await fixture.whenStable();
+            expect(fixture.debugElement.query(selector)).not.toBeNull();
+        } finally {
+            component.schedule_timezone_once_only.set(true);
+        }
+    });
+
     it('changes the displayed timezone without changing stored timestamps', async () => {
         const play_at = Date.UTC(2027, 0, 2, 18, 45);
         const { fixture, component, model } = setup({
@@ -274,7 +300,7 @@ describe('PlaylistScheduleFormComponent', () => {
     });
 
     it('keeps the selected timezone and trigger text when it does not match the search', async () => {
-        const { fixture, component } = setup();
+        const { fixture, component } = setup({ schedule_type: 'play_at' });
         fixture.componentRef.setInput('open', true);
         component.timezone.set('UTC');
         await fixture.whenStable();

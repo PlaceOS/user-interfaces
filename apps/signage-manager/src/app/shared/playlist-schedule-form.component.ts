@@ -23,6 +23,7 @@ import {
     LOCAL_TIMEZONE,
     LocaleService,
     setTimeInTimezone,
+    settingSignal,
     TIMEZONES_IANA,
 } from '@placeos/common';
 import {
@@ -666,58 +667,70 @@ export function playlistSchedulePayload(
                             }}</mat-option>
                         </mat-select>
                     </mat-form-field>
-                    <label for="timezone">{{
-                        'COMMON.TIMEZONE' | translate
-                    }}</label>
-                    <mat-form-field
-                        appearance="outline"
-                        class="no-subscript w-full"
-                    >
-                        <mat-select
-                            #timezone_select
-                            name="timezone"
-                            [aria-label]="'COMMON.TIMEZONE' | translate"
-                            [(ngModel)]="timezone"
-                            [ngModelOptions]="{ standalone: true }"
-                            (openedChange)="
-                                timezone_search.set('');
-                                $event &&
-                                    focusTimezoneSearch(
-                                        timezone_select,
-                                        timezone_filter
-                                    )
-                            "
+                    @if (
+                        !schedule_timezone_once_only() ||
+                        value().schedule_type === 'play_at'
+                    ) {
+                        <label for="timezone">{{
+                            'COMMON.TIMEZONE' | translate
+                        }}</label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-full"
                         >
-                            <mat-select-trigger>{{
-                                timezone()
-                            }}</mat-select-trigger>
-                            <div class="bg-base-100 sticky -top-1.5 z-10">
-                                <input
-                                    #timezone_filter
-                                    class="border-base-300 h-full w-full border-b px-4 py-3"
-                                    [placeholder]="'COMMON.SEARCH' | translate"
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.SEARCH_TIMEZONES'
-                                            | translate
-                                    "
-                                    [(ngModel)]="timezone_search"
-                                    [ngModelOptions]="{ standalone: true }"
-                                    (keydown)="onTimezoneSearchKeydown($event)"
-                                />
-                            </div>
-                            @for (zone of timezone_options(); track zone) {
-                                <mat-option [value]="zone">{{
-                                    zone
-                                }}</mat-option>
-                            }
-                            @if (!filtered_timezones().length) {
-                                <mat-option disabled>{{
-                                    'COMMON.TIMEZONE_EMPTY' | translate
-                                }}</mat-option>
-                            }
-                        </mat-select>
-                    </mat-form-field>
-                    @if (value().schedule_type === 'play_cron') {
+                            <mat-select
+                                #timezone_select
+                                name="timezone"
+                                [aria-label]="'COMMON.TIMEZONE' | translate"
+                                [(ngModel)]="timezone"
+                                [ngModelOptions]="{ standalone: true }"
+                                (openedChange)="
+                                    timezone_search.set('');
+                                    $event &&
+                                        focusTimezoneSearch(
+                                            timezone_select,
+                                            timezone_filter
+                                        )
+                                "
+                            >
+                                <mat-select-trigger>{{
+                                    timezone()
+                                }}</mat-select-trigger>
+                                <div class="bg-base-100 sticky -top-1.5 z-10">
+                                    <input
+                                        #timezone_filter
+                                        class="border-base-300 h-full w-full border-b px-4 py-3"
+                                        [placeholder]="
+                                            'COMMON.SEARCH' | translate
+                                        "
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.SEARCH_TIMEZONES'
+                                                | translate
+                                        "
+                                        [(ngModel)]="timezone_search"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (keydown)="
+                                            onTimezoneSearchKeydown($event)
+                                        "
+                                    />
+                                </div>
+                                @for (zone of timezone_options(); track zone) {
+                                    <mat-option [value]="zone">{{
+                                        zone
+                                    }}</mat-option>
+                                }
+                                @if (!filtered_timezones().length) {
+                                    <mat-option disabled>{{
+                                        'COMMON.TIMEZONE_EMPTY' | translate
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    @if (
+                        !schedule_timezone_once_only() &&
+                        value().schedule_type === 'play_cron'
+                    ) {
                         <p class="text-base-content/60 text-xs">
                             {{
                                 'SIGNAGE_MANAGER.SCHEDULE_TIMEZONE_HINT'
@@ -1204,6 +1217,10 @@ export class PlaylistScheduleFormComponent {
     public readonly toggle = output<void>();
     public readonly remove = output<Event>();
 
+    public readonly schedule_timezone_once_only = settingSignal(
+        'schedule_timezone_once_only',
+        true,
+    );
     public readonly timezone = signal(LOCAL_TIMEZONE);
     public readonly timezones = [
         ...new Set([LOCAL_TIMEZONE, 'UTC', ...TIMEZONES_IANA]),
