@@ -1,0 +1,1 @@
+import{Dn as V}from"./chunk-De43qA-y.js";function a(o,r){let t=V(o,r?.in);return t.setDate(1),t.setHours(0,0,0,0),t}export{a as t};
