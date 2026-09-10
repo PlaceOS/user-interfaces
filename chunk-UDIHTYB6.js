@@ -19,7 +19,7 @@ import {
   updateBooking,
   updateBookingInductionStatus,
   ɵɵdefineInjectable
-} from "./chunk-IDZLILU4.js";
+} from "./chunk-WQJ5WXLQ.js";
 import {
   __spreadProps,
   __spreadValues
@@ -220,4 +220,4 @@ var CheckinStateService = class _CheckinStateService {
 export {
   CheckinStateService
 };
-//# sourceMappingURL=chunk-GHWTL62M.js.map
+//# sourceMappingURL=chunk-UDIHTYB6.js.map
