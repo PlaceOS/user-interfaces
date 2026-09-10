@@ -1,6 +1,8 @@
 # Concierge App Settings
 
-Concierge is the front-of-house management application for PlaceOS. It gives reception and facilities staff a single place to manage room bookings, desks, parking, lockers, visitors, assets and reports for a building or region. Settings are configured in Backoffice under the `app` metadata key on a Zone (typically the building or organisation zone). Any values you set there are merged over the app's build-time defaults, so you only need to define the settings you want to change.
+Concierge is the front-of-house management application for PlaceOS. It gives reception and facilities staff a single place to manage room bookings, desks, parking, lockers, visitors, assets and reports for a building or region.
+
+Set settings in Backoffice zone metadata under `concierge_app` for the standard `/concierge/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## General & Branding
 
@@ -83,6 +85,7 @@ These act as fallbacks for the desk, parking and locker booking flows — a valu
 |---|---|---|---|
 | `bookings.can_book_for_others` | boolean | `true` | Allow users to create bookings on behalf of other users. |
 | `bookings.use_building_timezone` | boolean | `false` | Handle booking dates and times in the active building's timezone instead of the local timezone. Affects desks, lockers, visitors and email broadcasts. |
+| `bookings.hide_checkin` | boolean | – | Hide check-in in the shared booking details modal. Resource settings such as `desks.hide_checkin`, `parking.hide_checkin` and `lockers.hide_checkin` can also hide it for one type. |
 | `bookings.bookable_hours` | object | – | Time window during which bookings are allowed, as hours of the day (0-24). |
 | `bookings.min_duration` | number | – | Minimum booking duration in minutes. Defaults to `30`. |
 | `bookings.max_duration` | number | – | Maximum booking duration in minutes. Defaults to `480` (8 hours). |
@@ -122,6 +125,8 @@ Settings for meeting room bookings and the day view.
 |---|---|---|---|
 | `events.allow_setup_breakdown` | boolean | `false` | Allow setup and breakdown times to be viewed and set on room bookings. |
 | `events.use_building_timezone` | boolean | `false` | Handle event dates and times in the active building's timezone instead of the local timezone. |
+| `events.multiple_spaces` | boolean | – | Allow one meeting to use multiple rooms. |
+| `events.allow_multiple_spaces` | boolean | – | Legacy alias for `events.multiple_spaces`. Either key set to `true` enables multiple room selection. |
 | `events.day_timeline_view` | string | `"inverted"` | Layout of the day timeline. `default` shows rooms on the vertical axis, `inverted` shows rooms on the horizontal axis. |
 | `events.block_start` | number | `7` | Earliest hour of the day (0-24) shown on the day timeline. |
 | `events.block_end` | number | `19` | Latest hour of the day (0-24) shown on the day timeline. |
@@ -173,6 +178,9 @@ Each custom action requires an `id` (passed to the action handler when selected)
 | `parking.hide_availability_counter` | boolean | `false` | Hide the parking space availability counter in the parking topbar. |
 | `parking.hide_assign_space` | boolean | `false` | Hide the assign space action on parking bookings and requests. |
 | `parking.allow_editing` | boolean | – | Allow parking bookings to be edited from parking lists. Defaults to `true`. |
+| `parking.allow_editing_allocated` | boolean | – | Allow edits to allocated parking bookings in the parking list. Falls back to `parking.allow_editing`. |
+| `parking.can_book_for_anyone` | boolean | `false` | Allow the parking request modal to select an external host. |
+| `parking.request_submission_notes_html` | string | `""` | HTML content shown below the parking request form. |
 | `parking.allow_deleting` | boolean | `false` | Allow parking bookings to be deleted from parking lists. |
 | `parking.allow_all_day` | boolean | – | Allow all day parking bookings. |
 | `parking.assign_space_on_approve` | boolean | `false` | Automatically assign a parking space when approving a parking booking. |
@@ -216,6 +224,7 @@ Each custom column requires a `field` (the booking extension data field to displ
 | Setting | Type | Default | Description |
 |---|---|---|---|
 | `visitors.all_visitors_action_window` | number | `15` | Time window in minutes before an event starts and after it ends during which bulk actions are available for all visitors of the event. |
+| `visitors.allow_editing` | boolean | `false` | Allow visitor booking edits from the shared booking details modal, subject to the booking status and user permissions. |
 | `visitors.hide_fields` | string[] | – | List of field names to hide in the visitor listing. |
 | `visitors.allow_international` | boolean | – | Enable international visitor details in visitor listings and reports. |
 | `visitors.has_parking` | boolean | – | Allow parking to be arranged for visitors. Requires the `parking` feature to be enabled. |
@@ -265,6 +274,7 @@ Settings for linking Concierge to the other PlaceOS applications and metadata so
 | Setting | Type | Default | Description |
 |---|---|---|---|
 | `workplace_metadata_key` | string | – | Name of the zone metadata key storing workplace app settings. Defaults to `workplace_app`. |
+| `workplace_desk_action_path` | string | `"/#/book/code?asset_id={asset_id}"` | Path appended to the Workplace URL for desk QR codes. The app replaces `{asset_id}` with the encoded desk ID. |
 | `concierge_metadata_key` | string | – | Name of the zone metadata key storing concierge app settings. Defaults to `concierge_app`. |
 | `visitor_kiosk_metadata_key` | string | – | Name of the zone metadata key storing visitor kiosk app settings. Defaults to `visitor-kiosk_app`. |
 | `visitor_kiosk_app` | string | – | Name of the zone metadata key read for visitor kiosk configuration (induction and visitor listing). Defaults to `visitor-kiosk_app`. |

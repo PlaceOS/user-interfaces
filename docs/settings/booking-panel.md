@@ -2,15 +2,13 @@
 
 The Booking Panel is the room booking panel application, typically mounted on a tablet outside a meeting room. It shows the room's current status and upcoming events, and lets people book the room on the spot.
 
-Settings are configured in Backoffice as Zone metadata under the `app` metadata key. Values you set on a zone are merged over the application's build-time defaults, so you only need to define the settings you want to change. Settings on more specific zones (e.g. a building) override the same settings on broader zones (e.g. the organisation).
+Set settings in Backoffice zone metadata under `booking-panel_app` for the standard `/booking-panel/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
-All keys below live under the `app` metadata key — for example, the key `logo_light` means:
+For example, the key `logo_light` means:
 
 ```json
 {
-    "app": {
-        "logo_light": "https://example.com/logo.svg"
-    }
+    "logo_light": "https://example.com/logo.svg"
 }
 ```
 
@@ -39,10 +37,8 @@ Logos can be set as a plain URL string, or as an object:
 
 ```json
 {
-    "app": {
-        "logo_light": { "src": "https://example.com/logo-light.svg" },
-        "logo_dark": "https://example.com/logo-dark.svg"
-    }
+    "logo_light": { "src": "https://example.com/logo-light.svg" },
+    "logo_dark": "https://example.com/logo-dark.svg"
 }
 ```
 
@@ -50,11 +46,9 @@ Example panel styling:
 
 ```json
 {
-    "app": {
-        "text_color": "#FFFFFF",
-        "background_color": "#004466",
-        "background_image": "https://example.com/panel-background.jpg"
-    }
+    "text_color": "#FFFFFF",
+    "background_color": "#004466",
+    "background_image": "https://example.com/panel-background.jpg"
 }
 ```
 

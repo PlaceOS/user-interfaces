@@ -2,7 +2,7 @@
 
 The Visitor Kiosk is a self-service check-in application for building visitors. It lets guests check in to a meeting, register themselves as walk-up visitors, take a photo, accept an induction, print a visitor badge, and view a building map.
 
-Settings are configured in Backoffice as Zone metadata under the `app` metadata key. Values you set on a Zone are merged over the application's build-time defaults, so you only need to set the keys you want to change. Settings can be applied at the organisation or building level — the closest (most specific) Zone wins.
+Set settings in Backoffice zone metadata under `visitor-kiosk_app` for the standard `/visitor-kiosk/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## General & Branding
 
@@ -20,10 +20,11 @@ Settings are configured in Backoffice as Zone metadata under the `app` metadata 
 
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
-| `welcome_background` | string | `assets/img/skyline.png` | URL of the background image shown on the welcome, check-in and registration pages. |
+| `welcome_background` | string | `assets/img/skyline.webp` | URL of the background image shown on the welcome, check-in and registration pages. |
 | `welcome_message` | string | – | HTML message displayed on the welcome page. When unset, a translated default message is shown. |
 | `hide_building_image` | boolean | `false` | Hide the building image panel on the welcome, check-in and registration pages. |
 | `hide_explore` | boolean | – | Hide the explore (building map) button on the welcome page. |
+| `chat.enabled` | boolean | `false` | Show the chat widget. |
 
 ## Check-in & Registration
 
@@ -32,7 +33,7 @@ Settings are configured in Backoffice as Zone metadata under the `app` metadata 
 | `allow_self_registration` | boolean | `true` | Allow walk-up visitors to register themselves. Shows the register button on the welcome page. |
 | `allow_registration_time_options` | boolean | `false` | Show time options (all-day checkbox and visit duration field) on the self-registration form. |
 | `allow_pass_number` | boolean | – | Show a visitor pass number field on the registration and check-in details forms. |
-| `allow_user_photo` | boolean | `true` | Ask visitors to take a photo of themselves during check-in. |
+| `allow_user_photo` | boolean | `true` | Ask visitors to take a photo during check-in when badge printing is enabled. |
 | `allow_beverages` | boolean | – | Let visitors select beverage (catering) preferences after checking in. Only applies to visitors with a linked event, or when `standalone_visitor_location` is set. |
 | `checked_in_template` | string | – | HTML template displayed after a successful check-in. Supports the placeholders `{{ title }}`, `{{ room_name }}`, `{{ host_name }}`, `{{ host_email }}`, `{{ visitor_name }}`, `{{ visitor_email }}`, `{{ can_use_lift }}`, `{{ date }}` and `{{ time }}`. |
 | `standalone_visitor_location` | string | – | Location associated with standalone visitors (visitors without a linked calendar event). When set, standalone visitors are also offered beverage preferences after check-in. |
@@ -50,9 +51,9 @@ Example check-in confirmation template:
 | Setting | Type | Default | Description |
 | --- | --- | --- | --- |
 | `allow_printing_label` | boolean | – | Allow printing a visitor badge label after check-in. Defaults to `true` when unset. |
-| `visitor_label_size.width` | number | – | Width of the printed label in millimetres. Defaults to `25`. |
-| `visitor_label_size.height` | number | – | Height of the printed label in millimetres. Defaults to `15`. |
-| `visitor_label_size.scale` | number | – | Render scale for the printed label. Defaults to `4`. |
+| `visitor_label_size.width` | number | – | Label width in `em`, relative to the font size set by `visitor_label_size.scale`. Defaults to `25`. |
+| `visitor_label_size.height` | number | – | Label height in `em`, relative to the font size set by `visitor_label_size.scale`. Defaults to `15`. |
+| `visitor_label_size.scale` | number | – | Label font size in millimetres. Defaults to `4`. A larger value also increases the label width and height. |
 
 Example:
 

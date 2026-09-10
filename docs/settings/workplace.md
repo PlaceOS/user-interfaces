@@ -1,8 +1,10 @@
 # Workplace App Settings
 
-Workplace is the primary staff-facing application for booking meeting rooms, desks, parking, lockers and visitors, and for exploring building maps. Settings are configured in Backoffice under the `app` metadata key on a Zone (typically the org or building zone). Anything you set there is merged over the app's build-time defaults, so you only need to define the settings you want to change. Settings on more specific zones (e.g. a building) override the same settings on broader zones (e.g. the org).
+Workplace is the primary staff-facing application for booking meeting rooms, desks, parking, lockers and visitors, and for exploring building maps.
 
-All keys below are relative to the `app` metadata object unless noted otherwise. For example, `events.default_duration` means `{ "events": { "default_duration": ... } }`.
+Set settings in Backoffice zone metadata under `workplace_app` for the standard `/workplace/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
+
+All keys below are relative to the metadata details object unless noted otherwise. For example, `events.default_duration` means `{ "events": { "default_duration": ... } }`.
 
 ## Common Settings
 
@@ -22,7 +24,7 @@ These options live at the root of the settings file (alongside `app`, not inside
 |---------|------|---------|-------------|
 | `name` | string | `"Workplace"` | Name of the application, used in the browser page title. |
 | `title` | string | `"Workplace Application"` | Display title for the application. |
-| `description` | string | `"PlaceOS Workplace UI..."` | Description of the application. |
+| `description` | string | `"PlaceOS Workplace UI written with Angular Framework"` | Description of the application. |
 | `short_name` | string | `"WorkMate"` | Short name for the application. |
 | `logo_light` | string \| object | `"assets/logo-light.svg"` | Logo shown in the top bar when using the light theme. Either an image URL or an icon object with a `src` property. |
 | `logo_dark` | string \| object | `"assets/logo-dark.svg"` | Logo shown in the top bar when using the dark theme. Either an image URL or an icon object with a `src` property. |
@@ -38,6 +40,12 @@ These options live at the root of the settings file (alongside `app`, not inside
 | `week_start` | number | – | First day of the week for schedule and calendar views. `0` is Sunday through `6` for Saturday. |
 | `idle_timeout` | number | `5` | Minutes of inactivity on the meeting form before the user is prompted to discard their changes. |
 | `global_search` | boolean | `true` | Show the global search bar in the top bar. |
+| `hide_landing_sidebar` | boolean | – | Hide the colleagues and favourites sidebar on the landing page. |
+| `hide_colleagues` | boolean | – | Hide the colleagues tab on the landing page. Show favourites in its place. |
+| `hide_landing_spaces` | boolean | – | Hide the availability summary by level on the landing page. |
+| `hide_landing_rooms` | boolean | – | Hide the available meeting rooms list on the landing page. |
+| `show_quick_links` | boolean | – | Show quick links on the landing page. Hidden when unset. |
+| `show_quick_book` | boolean | – | Show quick booking actions on the landing page. Hidden when unset. |
 | `features` | string[] | see below | List of feature flags controlling which sections of the app are available. |
 | `locales` | object[] | 10 languages | Languages available in the language selector. |
 | `menu_embeds` | object[] | – | Additional menu items that open third-party URLs embedded inside the app. |
@@ -183,6 +191,7 @@ These apply to all resource booking flows (desks, parking, lockers). Most can be
 | `bookings.max_duration` | number | – | Maximum booking duration, in minutes. |
 | `bookings.has_assets` | boolean | – | Make asset requests available in resource booking flows. |
 | `bookings.use_building_timezone` | boolean | – | Display and book times using the building's timezone rather than the user's device timezone. |
+| `bookings.hide_checkin` | boolean | – | Hide check-in in the shared booking details modal. Resource settings such as `desks.hide_checkin`, `parking.hide_checkin` and `lockers.hide_checkin` can also hide it for one type. |
 | `bookings.force_current_user_for_booking_rules` | boolean | `false` | Always check booking rules against the signed-in user, even when booking on behalf of someone else. |
 | `bookings.assigned_resource_booking` | `allow` \| `deny` \| `other_only` | `other_only` | Controls booking for users with an assigned desk, parking space, or locker. `allow` permits all bookings. `deny` and `other_only` both block a booking whenever the person it is *for* has an assigned resource of that type — whether that assignment comes from the resource metadata or from an existing `is_assigned` booking, and regardless of `allowed_daily_*_count`. They differ in who may book: `other_only` lets a user with an assigned resource book on behalf of others, `deny` does not. |
 
@@ -193,6 +202,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `visitors.reason_required` | boolean | `false` | Require a reason for each visitor invite. Starts new invites with an empty reason and rejects blank or whitespace-only reasons. |
+| `visitors.allow_editing` | boolean | `false` | Allow visitor booking edits from the shared booking details modal, subject to the booking status and user permissions. |
 | `visitors.allow_all_day` | boolean | – | Make the all-day option available for visitor invites. Falls back to `bookings.allow_all_day`. |
 | `visitors.can_book_for_others` | boolean | – | Allow users to invite visitors on behalf of another internal host. Falls back to `bookings.can_book_for_others`. |
 | `visitors.can_book_for_anyone` | boolean | – | Allow users to invite visitors on behalf of any host, including an external host. Falls back to `bookings.can_book_for_anyone`. |
@@ -204,6 +214,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `events.bookable_hours` | object | – | Time window in which meetings can be booked, as hours of the day, e.g. `{ "start": 8, "end": 19 }`. |
 | `events.all_day_period` | object | – | Time window used for "all day" meetings, as hours of the day. |
 | `events.multiple_spaces` | boolean | `false` | Allow users to book multiple spaces in a single meeting. |
+| `events.allow_multiple_spaces` | boolean | – | Legacy alias for `events.multiple_spaces`. Either key set to `true` enables multiple room selection. Use `events.multiple_spaces` for new configuration. |
 | `events.desk_start` | number | `9` | Default start time (hour of the day) for desk bookings made from the meeting flow. |
 | `events.can_book_for_others` | boolean | `false` | Allow users to create meetings on behalf of another host. |
 | `events.has_catering` | boolean | `true` | Show the catering step in the meeting booking flow. |
@@ -231,6 +242,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
 | `desks.use_assets` | boolean | `false` | Read desk resources through the assets API. When `false`, Workplace uses the legacy `desks` zone metadata. |
+| `desks.available_period` | number | `90` | Number of days ahead available in the desk form date selector. |
 | `desks.bookable_hours` | object | – | Time window in which desks can be booked, as hours of the day, e.g. `{ "start": 8, "end": 19 }`. |
 | `desks.allow_all_day` | boolean | `true` | Make the "all day" option available for desk bookings. Overrides `bookings.allow_all_day`. |
 | `desks.allow_time_changes` | boolean | `true` | Allow users to change the time of desk bookings. |
@@ -276,6 +288,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `parking.require_space_restriction` | boolean | `true` | Require users to select a configured space restriction in the parking request flow. |
 | `parking.extra_space_restrictions` | object[] | – | Additional space restriction options shown as on/off toggles; multiple can be enabled at once. Each item needs an `id` and a `name` (label or translation key). |
 | `parking.auto_approved_groups` | string[] | – | User group names that are auto-approved for parking requests. Users in these groups will not see the approver group selector. |
+| `parking.approver_groups` | object[] | `[]` | Approver options for parking requests. Each option needs an `id` and a `name`. A request type can restrict this list with its `approver_groups` array of IDs. |
 | `parking.vehicle_types` | object[] | car, bike, van, truck, other | Vehicle type options shown in the parking request flow. Each item needs an `id` and a `name`. |
 | `parking.default_location_from_desk_booking` | boolean | `false` | Default new parking requests to the desk booking building for the selected user and date. Show a desk icon beside the matching parking location. |
 | `parking.hidden_buildings` | string[] | `[]` | Building (zone) IDs to hide from the location options in the parking request flow. Buildings without any levels tagged `parking` are always hidden. |
@@ -285,6 +298,8 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `parking.hide_availability_counter` | boolean | `false` | Hide the parking availability counter shown next to the selected location or level. |
 | `parking.require_plate_number` | boolean | `false` | Make the plate number/registration field mandatory in the parking request flow. |
 | `parking.show_status_details` | boolean | – | Show availability status details (status text, assigned users, plate numbers) in the explore map parking tooltip. |
+
+Request types also accept `approver_groups` to restrict the approver options, `show_notes` to show the notes field, and `requires_manual_approval` to mark the request for manual approval. The last two fields default to `false`.
 
 Shift presets (`start_time`/`end_time` are minutes from midnight; `groups` optionally limits who sees the preset):
 

@@ -2,7 +2,7 @@
 
 The **Signage Manager** app is the administration UI for digital signage. It's where staff create and organise media, build playlists, and assign content to signage displays.
 
-Settings are configured in Backoffice as Zone metadata under the `app` metadata key. Anything you set there is merged over the app's build-time defaults, so you only need to define the settings you want to change. Settings cascade through the zone hierarchy (organisation, building, level), with more specific zones overriding broader ones.
+Set settings in Backoffice zone metadata under `signage-manager_app` for the standard `/signage-manager/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## Branding
 
@@ -65,7 +65,7 @@ Example locale list:
 
 ## Example
 
-A typical `app` metadata configuration for an organisation zone:
+Example `signage-manager_app` metadata details for the organisation zone:
 
 ```json
 {

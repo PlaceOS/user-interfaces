@@ -2,7 +2,7 @@
 
 The Caterer UI app is the interface used by external caterers to view and manage catering orders for a building.
 
-Settings for this app are configured in Backoffice as Zone metadata under the `app` metadata key. Any values you set there are merged over the app's build-time defaults, so you only need to add the settings you want to change. Settings can be applied at the organisation or building Zone level — building-level values override organisation-level ones.
+Set settings in Backoffice zone metadata under `caterer-ui_app` for the standard `/caterer-ui/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## Branding
 

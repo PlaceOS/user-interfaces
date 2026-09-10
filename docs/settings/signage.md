@@ -2,7 +2,7 @@
 
 The **Signage** app is the digital signage display player. It runs full-screen on a display device and plays back the playlists of images and videos assigned to that display.
 
-Settings are configured in Backoffice as Zone metadata under the `app` metadata key. Anything you set there is merged over the app's build-time defaults, so you only need to define the settings you want to change. Settings cascade through the zone hierarchy (organisation, building, level), with more specific zones overriding broader ones.
+Set settings in Backoffice zone metadata under `signage_app` for the standard `/signage/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## Branding
 
@@ -33,7 +33,7 @@ These settings control how the app identifies itself in the browser and what log
 
 ## Example
 
-A typical `app` metadata configuration for a signage display zone:
+Example `signage_app` metadata details for the active building zone:
 
 ```json
 {

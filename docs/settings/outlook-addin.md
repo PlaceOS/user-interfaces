@@ -2,16 +2,14 @@
 
 The Outlook Add-in brings PlaceOS room booking into Microsoft Outlook. From the add-in pane, staff can find and book meeting rooms for their calendar events, book desks, and view their upcoming bookings — without leaving Outlook.
 
-Settings are configured in Backoffice as Zone metadata under the `app` metadata key. Anything you set there is merged over the app's build-time defaults, so you only need to define the settings you want to change. Settings on more specific zones (e.g. a building) override the same settings on broader zones (e.g. the organisation).
+Set settings in Backoffice zone metadata under `outlook-addin_app` for the standard `/outlook-addin/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
-All keys below are relative to the `app` metadata object unless noted otherwise. For example, the key `events.max_duration` means:
+All keys below are relative to the metadata details object unless noted otherwise. For example, the key `events.max_duration` means:
 
 ```json
 {
-    "app": {
-        "events": {
-            "max_duration": 240
-        }
+    "events": {
+        "max_duration": 240
     }
 }
 ```
@@ -69,13 +67,11 @@ Example — restrict meetings to office hours with fixed duration choices:
 
 ```json
 {
-    "app": {
-        "events": {
-            "bookable_hours": { "start": 7, "end": 19 },
-            "min_duration": 15,
-            "max_duration": 240,
-            "custom_duration_options": [15, 30, 45, 60, 90, 120]
-        }
+    "events": {
+        "bookable_hours": { "start": 7, "end": 19 },
+        "min_duration": 15,
+        "max_duration": 240,
+        "custom_duration_options": [15, 30, 45, 60, 90, 120]
     }
 }
 ```
