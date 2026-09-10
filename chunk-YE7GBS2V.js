@@ -54997,15 +54997,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "c6df0cb",
-  "hash": "c6df0cb",
+  "raw": "d0873ae",
+  "hash": "d0873ae",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c6df0cb",
+  "suffix": "d0873ae",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1789007515184
+  "time": 1789008243295
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -78063,7 +78063,7 @@ var OrganisationService = class _OrganisationService {
     }
   }
   _sortLevels(levels) {
-    return [...levels].sort((a2, b2) => (a2.parent_id || "").localeCompare(b2.parent_id || "") || (a2.name || "").localeCompare(b2.name || "") || (a2.display_name || "").localeCompare(b2.display_name || ""));
+    return [...levels].sort((a2, b2) => (a2.parent_id || "").localeCompare(b2.parent_id || "") || Number(a2.tags.includes("parking")) - Number(b2.tags.includes("parking")) || (a2.name || "").localeCompare(b2.name || "") || (a2.display_name || "").localeCompare(b2.display_name || ""));
   }
   removeZone(zone) {
     if (zone.tags.includes("region")) {
@@ -78323,7 +78323,7 @@ var OrganisationService = class _OrganisationService {
       this._router.navigate(["/misconfigured"]);
     }
     let levels = level_list.map((lvl) => new BuildingLevel(lvl));
-    levels = levels.sort((a2, b2) => (a2.name || "").localeCompare(b2.name || ""));
+    levels = levels.sort((a2, b2) => Number(a2.tags.includes("parking")) - Number(b2.tags.includes("parking")) || (a2.name || "").localeCompare(b2.name || ""));
     this._level_list.set(levels);
   }
   async loadSettings() {
@@ -120249,4 +120249,4 @@ export {
   dialogClosed,
   SignageService
 };
-//# sourceMappingURL=chunk-UWPCUVS6.js.map
+//# sourceMappingURL=chunk-YE7GBS2V.js.map
