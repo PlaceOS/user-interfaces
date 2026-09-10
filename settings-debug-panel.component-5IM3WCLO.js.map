@@ -89,7 +89,7 @@
     "messages",
     "installBindingDebugHooks",
     "prototype",
-    "zr",
+    "Br",
     "variable",
     "name",
     "execute",
@@ -111,7 +111,7 @@
     "params",
     "id",
     "system",
-    "pa",
+    "ba",
     "computed",
     "effect",
     "on_cleanup",
@@ -300,5 +300,5 @@
     "CustomTooltipComponent",
     "IconComponent"
   ],
-  "debugId": "833c5bd7-2ce4-58d9-ac34-47d7cfd8243f"
+  "debugId": "e1d6f342-df05-5624-b606-27e0a2ebdd69"
 }
