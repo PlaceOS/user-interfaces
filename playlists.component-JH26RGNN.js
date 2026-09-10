@@ -3,32 +3,32 @@ import {
   MatTabGroup,
   MatTabLabel,
   MatTabsModule
-} from "./chunk-OFP6OWRA.js";
+} from "./chunk-UAFBVJSB.js";
 import {
   CdkDrag,
   CdkDragHandle,
   CdkDropList,
   DragDropModule,
   moveItemInArray
-} from "./chunk-YCCDF77P.js";
+} from "./chunk-HDLYVOOF.js";
 import {
   PlaylistThumbnailComponent
-} from "./chunk-KXXBCSHA.js";
+} from "./chunk-OYQQBLJJ.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-QOYVI2M4.js";
+} from "./chunk-5XWWPVAH.js";
 import {
   ActivatedRoute,
   Component,
+  Cs,
   DatePipe,
   DefaultValueAccessor,
   FormsModule,
   IconComponent,
   Input,
   IntersectDirective,
-  Is,
   MatCheckbox,
   MatCheckboxModule,
   MatFormField,
@@ -56,9 +56,9 @@ import {
   TranslatePipe,
   ViewChildren,
   afterRenderEffect,
-  ar,
   computed,
   effect,
+  fr,
   fromUnixTime,
   i18n,
   inject,
@@ -108,7 +108,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-XIRK32V4.js";
+} from "./chunk-UWPCUVS6.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1155,17 +1155,17 @@ var PlaylistItemDetailsComponent = class _PlaylistItemDetailsComponent {
         if (!pl)
           return "COMMON.DEFAULT";
         switch (pl.default_animation) {
-          case Is.Cut:
+          case Cs.Cut:
             return "SIGNAGE_MANAGER.ANIM_CUT";
-          case Is.CrossFade:
+          case Cs.CrossFade:
             return "SIGNAGE_MANAGER.ANIM_CROSS_FADE";
-          case Is.SlideTop:
+          case Cs.SlideTop:
             return "SIGNAGE_MANAGER.ANIM_SLIDE_TOP";
-          case Is.SlideLeft:
+          case Cs.SlideLeft:
             return "SIGNAGE_MANAGER.ANIM_SLIDE_LEFT";
-          case Is.SlideRight:
+          case Cs.SlideRight:
             return "SIGNAGE_MANAGER.ANIM_SLIDE_RIGHT";
-          case Is.SlideBottom:
+          case Cs.SlideBottom:
             return "SIGNAGE_MANAGER.ANIM_SLIDE_BOTTOM";
           default:
             return "COMMON.DEFAULT";
@@ -2634,7 +2634,7 @@ var PlaylistItemsComponent = class _PlaylistItemsComponent {
     const schedule = this.item_schedule_list()[index];
     if (schedule?.media?.id === item.id)
       return schedule;
-    return this.item_schedules().get(item.id) || new ar({
+    return this.item_schedules().get(item.id) || new fr({
       item_id: item.id,
       media: item
     });
@@ -4520,4 +4520,4 @@ var PlaylistsSectionComponent = class _PlaylistsSectionComponent {
 export {
   PlaylistsSectionComponent
 };
-//# sourceMappingURL=playlists.component-KSQ4VUL2.js.map
+//# sourceMappingURL=playlists.component-JH26RGNN.js.map
