@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["template.component.ts"],
+  "sourcesContent": ["\n        :host {\n            position: relative;\n            display: block;\n            height: 100%;\n            width: 100%;\n            overflow: hidden;\n        }\n    "],
+  "mappings": "AACQ,MACI,SAAA,SACA,QAAA,MACA,OAAA,KACA,MAAA,KACA,SAAA,MACJ",
+  "names": []
+}
