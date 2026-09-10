@@ -3,6 +3,7 @@ import {
   Component,
   IconComponent,
   Input,
+  Lh,
   MatRipple,
   MatRippleModule,
   MatTooltip,
@@ -19,7 +20,6 @@ import {
   playlistScheduleNextPlayLabels,
   resource,
   setClassMetadata,
-  yh,
   ɵsetClassDebugInfo,
   ɵɵadvance,
   ɵɵattribute,
@@ -45,7 +45,7 @@ import {
   ɵɵstyleProp,
   ɵɵtext,
   ɵɵtextInterpolate1
-} from "./chunk-XIRK32V4.js";
+} from "./chunk-UWPCUVS6.js";
 import {
   __spreadProps,
   __spreadValues
@@ -347,7 +347,7 @@ var TemplateMappingsComponent = class _TemplateMappingsComponent {
   }
   backgroundUrl(mapping) {
     const template = mapping.template_details;
-    return template.background_media?.media_url || (template.background_item_id ? yh(template.background_item_id) : "");
+    return template.background_media?.media_url || (template.background_item_id ? Lh(template.background_item_id) : "");
   }
   scheduleTooltip(schedule) {
     const labels = playlistScheduleNextPlayLabels(schedule);
@@ -674,4 +674,4 @@ var TemplateMappingsComponent = class _TemplateMappingsComponent {
 export {
   TemplateMappingsComponent
 };
-//# sourceMappingURL=chunk-XQQHSQLY.js.map
+//# sourceMappingURL=chunk-2ZNMIT4S.js.map
