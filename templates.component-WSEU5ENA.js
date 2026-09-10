@@ -3,12 +3,12 @@ import {
   CdkDragHandle,
   CdkDropList,
   moveItemInArray
-} from "./chunk-YCCDF77P.js";
+} from "./chunk-HDLYVOOF.js";
 import {
   GroupBreadcrumbsComponent,
   NavFooterComponent,
   NavSidebarComponent
-} from "./chunk-QOYVI2M4.js";
+} from "./chunk-5XWWPVAH.js";
 import {
   AuthenticatedImageDirective,
   Component,
@@ -22,6 +22,7 @@ import {
   Input,
   IntersectDirective,
   LAYOUT_POSITIONS,
+  Lh,
   MatFormField,
   MatFormFieldModule,
   MatInput,
@@ -72,7 +73,6 @@ import {
   signal,
   viewChild,
   viewChildren,
-  yh,
   ɵsetClassDebugInfo,
   ɵɵadvance,
   ɵɵattribute,
@@ -111,7 +111,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-XIRK32V4.js";
+} from "./chunk-UWPCUVS6.js";
 import {
   __spreadProps,
   __spreadValues
@@ -918,7 +918,7 @@ var TemplateLayoutListComponent = class _TemplateLayoutListComponent {
     this.background_url = computed(
       () => {
         const background_id = this.selected_template()?.background_item_id;
-        return background_id ? yh(background_id) : "";
+        return background_id ? Lh(background_id) : "";
       },
       ...ngDevMode ? [{ debugName: "background_url" }] : (
         /* istanbul ignore next */
@@ -2458,7 +2458,7 @@ var TemplatePreviewComponent = class _TemplatePreviewComponent {
     this.background_url = computed(
       () => {
         const background_id = this._service.selected_template()?.background_item_id;
-        return background_id ? yh(background_id) : "";
+        return background_id ? Lh(background_id) : "";
       },
       ...ngDevMode ? [{ debugName: "background_url" }] : (
         /* istanbul ignore next */
@@ -3502,4 +3502,4 @@ var TemplatesSectionComponent = class _TemplatesSectionComponent {
 export {
   TemplatesSectionComponent
 };
-//# sourceMappingURL=templates.component-GRQTJKJF.js.map
+//# sourceMappingURL=templates.component-WSEU5ENA.js.map
