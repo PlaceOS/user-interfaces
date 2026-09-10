@@ -673,6 +673,8 @@
         "UNDO_CHANGES": "Undo Changes",
         "UNNAMED_GROUP": "Unnamed group",
         "UNTAGGED": "Untagged",
+        "SEARCH_TIMEZONES": "Search timezones",
+        "SCHEDULE_TIMEZONE_HINT": "For recurring schedules, select the display device timezone to preview play times. Recurring schedules run in the device timezone.",
         "UPCOMING_PLAY_TIMES": "Upcoming Play Times",
         "UPLOAD_MEDIA": "Upload media",
         "UPLOAD_MEDIA_ARIA": "Upload media file",
