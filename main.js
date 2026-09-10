@@ -54313,15 +54313,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "c6df0cb",
-  "hash": "c6df0cb",
+  "raw": "d0873ae",
+  "hash": "d0873ae",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "c6df0cb",
+  "suffix": "d0873ae",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1789007563446
+  "time": 1789008180118
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -76969,7 +76969,7 @@ var OrganisationService = class _OrganisationService {
     }
   }
   _sortLevels(levels) {
-    return [...levels].sort((a, b2) => (a.parent_id || "").localeCompare(b2.parent_id || "") || (a.name || "").localeCompare(b2.name || "") || (a.display_name || "").localeCompare(b2.display_name || ""));
+    return [...levels].sort((a, b2) => (a.parent_id || "").localeCompare(b2.parent_id || "") || Number(a.tags.includes("parking")) - Number(b2.tags.includes("parking")) || (a.name || "").localeCompare(b2.name || "") || (a.display_name || "").localeCompare(b2.display_name || ""));
   }
   removeZone(zone) {
     if (zone.tags.includes("region")) {
@@ -77229,7 +77229,7 @@ var OrganisationService = class _OrganisationService {
       this._router.navigate(["/misconfigured"]);
     }
     let levels = level_list.map((lvl) => new BuildingLevel(lvl));
-    levels = levels.sort((a, b2) => (a.name || "").localeCompare(b2.name || ""));
+    levels = levels.sort((a, b2) => Number(a.tags.includes("parking")) - Number(b2.tags.includes("parking")) || (a.name || "").localeCompare(b2.name || ""));
     this._level_list.set(levels);
   }
   async loadSettings() {
