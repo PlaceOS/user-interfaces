@@ -43,7 +43,7 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-UDGTZGNI.js";
+} from "./chunk-HXIRQ32S.js";
 import {
   FormField,
   MatCheckbox,
@@ -54,7 +54,7 @@ import {
   required,
   validate,
   validateAssetRequestsForResource
-} from "./chunk-4ZODRCXQ.js";
+} from "./chunk-FLIACFGV.js";
 import {
   ANIMATION_SHOW_CONTRACT_EXPAND,
   ActivatedRoute,
@@ -69,11 +69,11 @@ import {
   CommonModule,
   Component,
   DatePipe,
+  Dd,
   DefaultValueAccessor,
   DestroyRef,
   ElementRef,
   EventEmitter,
-  Fa,
   FocusMonitor,
   FormControl,
   FormControlName,
@@ -88,7 +88,7 @@ import {
   InjectionToken,
   Injector,
   Input,
-  It,
+  Ka,
   LOCAL_TIMEZONE,
   MAP_FEATURE_DATA,
   MapsPeopleService,
@@ -102,6 +102,7 @@ import {
   MatProgressSpinnerModule,
   MatRipple,
   MatRippleModule,
+  Mt,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
   NavigationEnd,
@@ -121,7 +122,6 @@ import {
   RouterLink,
   RouterModule,
   RuntimeError,
-  S,
   SETTING_KEYS,
   SafePipe,
   SettingsService,
@@ -132,52 +132,53 @@ import {
   TranslatePipe,
   UpperCasePipe,
   User,
+  V,
   VERSION,
   ViewChild,
   ViewChildren,
   ViewEncapsulation,
   VirtualKeyboardComponent,
-  Vu,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _MatInternalFormField,
   _StructuralStylesLoader,
   _animationsDisabled,
+  ac,
   add,
   addDays,
   addMinutes,
   addMonths,
   addYears,
-  ae,
   afterNextRender,
   alignDateToBookableHours,
   assertInInjectionContext,
   assertNotInReactiveContext,
+  ba,
   booleanAttribute,
+  ce,
   computed,
   constructFrom,
   createBookingsForEvent,
   currentUser,
   currentUserIsLoaded,
   currentUserLoaded,
-  da,
   debounced,
   differenceInCalendarMonths,
   differenceInMilliseconds,
   differenceInMinutes,
-  ee,
   effect,
   enUS,
   endOfDay,
   endOfDayInTimezone,
   endOfMonth,
-  fd,
+  f,
   firstValueWhere,
   flatten,
   format,
   formatTimeInTimezone,
   forwardRef,
   fromZonedTime,
+  ga,
   getAllDayTimeRange,
   getDefaultOptions,
   getInvalidSignalFields,
@@ -187,9 +188,8 @@ import {
   getTimezoneOffsetString,
   getUnixTime,
   guardModelUndefinedWrites,
-  ha,
-  he,
   i18n,
+  ic,
   inject,
   input,
   isAfter,
@@ -203,14 +203,12 @@ import {
   minutesInDay,
   minutesInMonth,
   model,
-  nc,
   normalizeDates,
   notifyError,
   notifySuccess,
   numberAttribute,
   onFieldChange,
   output,
-  p,
   queryAllBookings,
   queryBookings,
   queryResourceAvailability,
@@ -231,11 +229,13 @@ import {
   startOfDayInTimezone,
   startOfMinute,
   startOfWeek,
+  te,
   toDate,
   toQueryString,
   toZonedTime,
   unique,
   untracked,
+  v,
   viewChild,
   viewChildren,
   ɵsetClassDebugInfo,
@@ -308,7 +308,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-IDZLILU4.js";
+} from "./chunk-WQJ5WXLQ.js";
 import {
   __spreadProps,
   __spreadValues
@@ -379,7 +379,7 @@ function toSignal(source, options) {
   }, ngDevMode ? createDebugNameObject(options?.debugName, "source") : void 0));
 }
 function makeToSignalEqual(userEquality = Object.is) {
-  return (a, b) => a.kind === 1 && b.kind === 1 && userEquality(a.value, b.value);
+  return (a, b2) => a.kind === 1 && b2.kind === 1 && userEquality(a.value, b2.value);
 }
 function createDebugNameObject(toSignalDebugName, internalSignalDebugName) {
   return {
@@ -1462,11 +1462,11 @@ var DynamicMapComponent = class _DynamicMapComponent {
       const events = this._convertActionTypes(action.action);
       if (events.length === 0)
         continue;
-      const callback = (p2) => {
+      const callback = (p) => {
         const synthetic_event = new CustomEvent("mapaction", {
-          detail: { point: p2 }
+          detail: { point: p }
         });
-        action.callback(synthetic_event, { x: p2.x, y: p2.y });
+        action.callback(synthetic_event, { x: p.x, y: p.y });
       };
       map_actions.push({
         ref: action.id,
@@ -1586,13 +1586,13 @@ var DynamicMapComponent = class _DynamicMapComponent {
       injector.get(MAP_FEATURE_DATA)?.track_id,
       injector
     ]));
-    this.injectors.set((this.features() || []).map((f) => f.track_id && old_injectors.get(f.track_id) || Injector.create({
+    this.injectors.set((this.features() || []).map((f2) => f2.track_id && old_injectors.get(f2.track_id) || Injector.create({
       providers: [
         {
           provide: MAP_FEATURE_DATA,
           useValue: __spreadValues({
-            track_id: f.track_id
-          }, f.data)
+            track_id: f2.track_id
+          }, f2.data)
         }
       ],
       parent: this._injector
@@ -1922,7 +1922,7 @@ var ExploreStateService = class _ExploreStateService {
         level: this._level(),
         initialised: this._initialised()
       }),
-      loader: ({ params: { level, initialised } }) => initialised ? ha({
+      loader: ({ params: { level, initialised } }) => initialised ? ga({
         zone_id: level?.id || this._org.organisation.id,
         limit: 50
       }).then(({ data }) => data.map((_) => new Space(_))).catch((_) => []) : Promise.resolve([])
@@ -2850,7 +2850,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         date: date_value,
         id: time_str
       });
-      time_options.sort((a, b) => `${a.id}`.localeCompare(`${b.id}`));
+      time_options.sort((a, b2) => `${a.id}`.localeCompare(`${b2.id}`));
     }
     return time_options;
   }
@@ -3161,12 +3161,12 @@ function withAppVersion(data) {
   });
 }
 async function createEvent(data) {
-  const item = await S(`${EVENTS_ENDPOINT}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  const item = await v(`${EVENTS_ENDPOINT}`, new CalendarEvent(withAppVersion(data)).toJSON());
   return new CalendarEvent(item);
 }
 async function updateEvent(id, data, q = {}, method = "patch") {
   const query = toQueryString(q);
-  const item = await (method === "patch" ? he : ae)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  const item = await (method === "patch" ? te : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
   return new CalendarEvent(item);
 }
 var saveEvent = async (data, q) => {
@@ -3176,7 +3176,7 @@ var saveEvent = async (data, q) => {
 };
 function removeEvent(id, q = {}) {
   const query = toQueryString(q);
-  return ee(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, {
+  return V(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, {
     response_type: "void"
   });
 }
@@ -3206,7 +3206,7 @@ async function querySpaceAvailability(id_list, start, duration, ignore, type, ig
 async function findEventClashes(event, q = {}) {
   const query = toQueryString(__spreadProps(__spreadValues({}, q), { limit: 1e4 }));
   try {
-    const list = await S(`${EVENTS_ENDPOINT}/clashing-assets${query ? "?" + query : ""}`, event.toJSON());
+    const list = await v(`${EVENTS_ENDPOINT}/clashing-assets${query ? "?" + query : ""}`, event.toJSON());
     return q.include_clash_time ? list : list;
   } catch (_) {
     return [];
@@ -3282,31 +3282,31 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     )
   );
   guardModelUndefinedWrites(model2, eventFormValue(new CalendarEvent()));
-  const event_form = form(model2, (p2) => {
-    required(p2.host);
-    required(p2.date);
-    validate(p2.duration, ({ value, valueOf }) => {
-      const date = valueOf(p2.date);
+  const event_form = form(model2, (p) => {
+    required(p.host);
+    required(p.date);
+    validate(p.duration, ({ value, valueOf }) => {
+      const date = valueOf(p.date);
       return date && isAfter(Date.now(), addMinutes(date, value())) ? { kind: "duration" } : void 0;
     });
-    required(p2.catering_notes, {
-      when: ({ valueOf }) => !!valueOf(p2.catering)?.length && notes_required()
+    required(p.catering_notes, {
+      when: ({ valueOf }) => !!valueOf(p.catering)?.length && notes_required()
     });
-    disabled(p2.host, { when: () => has_id });
-    disabled(p2.organiser, { when: () => has_id });
-    disabled(p2.date, { when: () => lock_start_time() });
-    disabled(p2.assets, { when: ({ valueOf }) => !valueOf(p2.resources)?.length });
-    disabled(p2.duration, { when: ({ valueOf }) => !!valueOf(p2.all_day) });
+    disabled(p.host, { when: () => has_id });
+    disabled(p.organiser, { when: () => has_id });
+    disabled(p.date, { when: () => lock_start_time() });
+    disabled(p.assets, { when: ({ valueOf }) => !valueOf(p.resources)?.length });
+    disabled(p.duration, { when: ({ valueOf }) => !!valueOf(p.all_day) });
   }, { injector });
-  onFieldChange(model2, (v) => v.organiser, (organiser) => (
+  onFieldChange(model2, (v2) => v2.organiser, (organiser) => (
     // Coalesce to '' so the `host` sub-field is never removed from the
     // FieldTree (an undefined value breaks its `required`/`[formField]`).
     model2.update((m) => __spreadProps(__spreadValues({}, m), { host: organiser?.email ?? "" }))
   ), injector);
-  onFieldChange(model2, (v) => v.resources, (resources) => model2.update((m) => __spreadProps(__spreadValues({}, m), {
+  onFieldChange(model2, (v2) => v2.resources, (resources) => model2.update((m) => __spreadProps(__spreadValues({}, m), {
     system: resources?.length ? resources[0] : null
   })), injector);
-  onFieldChange(model2, (v) => v.date, (date) => {
+  onFieldChange(model2, (v2) => v2.date, (date) => {
     const recurrence = model2().recurrence;
     if (!recurrence?.pattern)
       return;
@@ -3334,7 +3334,7 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
       }))
     }));
   };
-  onFieldChange(model2, (v) => v.catering, setCateringTime, injector);
+  onFieldChange(model2, (v2) => v2.catering, setCateringTime, injector);
   const time_sync = setupFormTimeSync(model2, { on_time_change: setCateringTime }, injector);
   return { model: model2, form: event_form, time_sync, lock_start_time };
 }
@@ -4496,7 +4496,7 @@ ${content}
 `;
     }
     const tag = element.tagName.toLowerCase();
-    const attributes = [...element.attributes].sort((a, b) => a.name.localeCompare(b.name)).map(({ name, value }) => ` ${name}="${value}"`).join("");
+    const attributes = [...element.attributes].sort((a, b2) => a.name.localeCompare(b2.name)).map(({ name, value }) => ` ${name}="${value}"`).join("");
     return `<${tag}${attributes}>${content}</${tag}>`;
   };
   return [...template.content.childNodes].map(serialise).join("").replace(/[ \t]+\n|\n[ \t]+/g, "\n").replace(/\n+/g, "\n").trim();
@@ -4679,7 +4679,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       },
       loader: ({ params: ids }) => {
         this.addLoadingTag(Tags.BookingRules);
-        return Promise.all(ids.map((id) => Vu(id, "room_booking_rules").then((_) => ({
+        return Promise.all(ids.map((id) => ic(id, "room_booking_rules").then((_) => ({
           id,
           details: _.details instanceof Array ? _.details : []
         })).catch(() => ({ id, details: [] })))).then((building_rules) => {
@@ -4742,7 +4742,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       {}
     )), {
       params: () => this._network_consumed() && this._requests_ready() ? this._org.organisation?.id || void 0 : void 0,
-      loader: ({ params: id }) => Vu(id, "room_alerts").then((r) => r.details).catch(() => ({}))
+      loader: ({ params: id }) => ic(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => {
@@ -4779,13 +4779,13 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           list = list.filter(({ capacity }) => capacity < 0 || capacity >= range.min && capacity <= range.max);
         }
         if (filters.features) {
-          list = list.filter(({ features }) => filters.features.every((f) => features.includes(f)));
+          list = list.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
         }
-        return list.sort((a, b) => {
-          const cap_diff = (a.capacity || 0) - (b.capacity || 0);
+        return list.sort((a, b2) => {
+          const cap_diff = (a.capacity || 0) - (b2.capacity || 0);
           if (cap_diff !== 0)
             return cap_diff;
-          return (a.display_name || a.name).localeCompare(b.display_name || b.name);
+          return (a.display_name || a.name).localeCompare(b2.display_name || b2.name);
         });
       },
       ...ngDevMode ? [{ debugName: "filtered_spaces" }] : (
@@ -4846,9 +4846,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   async init() {
     await currentUserLoaded();
     setDefaultCreator(currentUser());
-    onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
-    onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
-    onFieldChange(this._model, (v) => v.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
+    onFieldChange(this._model, (v2) => v2.date, (date) => this.setOptions({ date }), this._injector);
+    onFieldChange(this._model, (v2) => v2.duration, (duration) => this.setOptions({ duration }), this._injector);
+    onFieldChange(this._model, (v2) => v2.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
     this.subscription("router.events", this._router.events.subscribe((event) => {
       if (event instanceof NavigationEnd && !BOOKING_URLS.some((_) => event.url.includes(_)) && !PERSISTED_EVENT_CONTEXT_URLS.some((_) => event.url.includes(_))) {
         this.clearForm();
@@ -5156,10 +5156,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         host,
         title: this._model().title || "Space Booking",
         attendees: this._model().attendees.map((_) => {
-          const v = __spreadValues({}, _);
-          delete v.visit_expected;
-          delete v.extension_data;
-          return v;
+          const v2 = __spreadValues({}, _);
+          delete v2.visit_expected;
+          delete v2.extension_data;
+          return v2;
         }),
         assets: processed_assets,
         extension_data: ext
@@ -5270,14 +5270,14 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     await this._whenSettled(this._booking_rules_resource);
     const rules = __spreadValues({}, this.booking_rules());
     for (const space of spaces) {
-      const bld = this._org.buildings.find((b) => space.zones.includes(b.id));
+      const bld = this._org.buildings.find((b2) => space.zones.includes(b2.id));
       if (!bld || rules[bld.id])
         continue;
-      const metadata = await Vu(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      const metadata = await ic(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata.details instanceof Array ? metadata.details : [];
     }
     const space_rules = spaces.map((space) => {
-      const bld = this._org.buildings.find((b) => space.zones.includes(b.id));
+      const bld = this._org.buildings.find((b2) => space.zones.includes(b2.id));
       return rulesForResource({
         date,
         duration,
@@ -5315,7 +5315,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     if (!clashes?.length) {
       return true;
     }
-    const sorted_clashes = [...clashes].sort((a, b) => a.booking_start - b.booking_start);
+    const sorted_clashes = [...clashes].sort((a, b2) => a.booking_start - b2.booking_start);
     const event_start_unix = Math.floor(event.date / 1e3);
     const first_clash = sorted_clashes[0];
     const is_first_instance_clash = first_clash.booking_start === event_start_unix;
@@ -5370,7 +5370,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       "space_ids",
       (value.resources || []).map((_) => (_.email || _.id || "").toLowerCase()).sort()
     ]);
-    details.sort(([a], [b]) => a > b ? 1 : -1);
+    details.sort(([a], [b2]) => a > b2 ? 1 : -1);
     return JSON.stringify(details);
   }
   async _removeBookingAfterError(is_new, event, assets = false, e) {
@@ -5480,7 +5480,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.filter((_) => predicate(_));
   }
   async loadSpace(space_id) {
-    const system = await da(space_id);
+    const system = await ba(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -5494,7 +5494,7 @@ var SpacesService = class _SpacesService {
     return this.space_list.find(({ id, email }) => space_id === id || space_id === email);
   }
   async loadSpaces() {
-    const systems = (await ha({
+    const systems = (await ga({
       zone_id: this._org.organisation?.id,
       limit: 5e3
     })).data;
@@ -6344,7 +6344,7 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
     );
     this.next = computed(
       () => {
-        return [...this.events()].sort((a, b) => a.date - b.date).filter((item) => item.date_end > this.now() && isSameDay(item.date, this.now()))[0];
+        return [...this.events()].sort((a, b2) => a.date - b2.date).filter((item) => item.date_end > this.now() && isSameDay(item.date, this.now()))[0];
       },
       ...ngDevMode ? [{ debugName: "next" }] : (
         /* istanbul ignore next */
@@ -6603,7 +6603,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => Vu(bld.id, `room_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => ic(bld.id, `room_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -6617,7 +6617,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: () => Vu(this._org.organisation.id, `room_alerts`).then((_) => _.details || {}).catch(() => ({}))
+      loader: () => ic(this._org.organisation.id, `room_alerts`).then((_) => _.details || {}).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => this._room_alerts.value() ?? {},
@@ -6642,7 +6642,7 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
     if (!list?.length)
       return;
     for (const space of list) {
-      const mod = fd(space.id, "Bookings");
+      const mod = Dd(space.id, "Bookings");
       let binding = mod.variable("bookings");
       this.subscription(`b-${space.id}`, binding.bindThenSubscribe((d) => this.handleBookingsChange(list, space, d)));
       binding = mod.variable("status");
@@ -7370,7 +7370,7 @@ var ExploreDeskInfoComponent = class _ExploreDeskInfoComponent extends AsyncHand
       )
     );
     this.next_booking = computed(
-      () => this.bookings?.().filter((booking) => booking.date > this.active_time() && isSameDay(booking.date, this.date())).sort((a, b) => a.date - b.date)[0],
+      () => this.bookings?.().filter((booking) => booking.date > this.active_time() && isSameDay(booking.date, this.date())).sort((a, b2) => a.date - b2.date)[0],
       ...ngDevMode ? [{ debugName: "next_booking" }] : (
         /* istanbul ignore next */
         []
@@ -7887,7 +7887,7 @@ var ExploreDeviceInfoComponent = class _ExploreDeviceInfoComponent {
   async loadUser() {
     if (this.username())
       return;
-    const mod = fd(this._details.system, "LocationServices");
+    const mod = Dd(this._details.system, "LocationServices");
     if (!mod)
       return;
     this.username.set("Loading...");
@@ -8119,7 +8119,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => Vu(bld.id, `desk_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => ic(bld.id, `desk_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -8133,7 +8133,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._state.level() || void 0,
-      loader: ({ params: lvl }) => Vu(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))))
+      loader: ({ params: lvl }) => ic(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))))
     }));
     this.desk_list = computed(
       () => this._desk_list.value() ?? [],
@@ -8253,14 +8253,14 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     this.processDesks(desks);
   }
   processBindingChange({ value }, system_id) {
-    const devices = (value || []).filter((v) => !["desk", "booking"].includes(v.location));
-    const desks = (value || []).filter((v) => v.location === "desk" || v.location === "booking" && v.type === "desk");
+    const devices = (value || []).filter((v2) => !["desk", "booking"].includes(v2.location));
+    const desks = (value || []).filter((v2) => v2.location === "desk" || v2.location === "booking" && v2.type === "desk");
     const date = this._options().date || Date.now();
     if (date <= endOfDay(Date.now()).valueOf() && !this._options().use_api) {
-      this._in_use.set(desks.filter((v) => v.location === "booking").map((v) => v.map_id || v.asset_id));
-      this._checked_in.set(desks.filter((v) => v.location === "booking" && v.checked_in).map((v) => v.map_id || v.asset_id));
-      this._presence.set(desks.filter((v) => v.at_location).map((v) => v.map_id || v.asset_id));
-      this._signs_of_life.set(desks.filter((v) => v.signs_of_life).map((v) => v.map_id || v.asset_id));
+      this._in_use.set(desks.filter((v2) => v2.location === "booking").map((v2) => v2.map_id || v2.asset_id));
+      this._checked_in.set(desks.filter((v2) => v2.location === "booking" && v2.checked_in).map((v2) => v2.map_id || v2.asset_id));
+      this._presence.set(desks.filter((v2) => v2.at_location).map((v2) => v2.map_id || v2.asset_id));
+      this._signs_of_life.set(desks.filter((v2) => v2.signs_of_life).map((v2) => v2.map_id || v2.asset_id));
     }
     const departments = this._settings.get("app.department_map") || {};
     for (const desk of desks) {
@@ -8291,12 +8291,12 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     const list = [];
     for (const device of devices) {
       const x = device.x / device.map_width;
-      const y2 = device.y / device.map_height;
+      const y = device.y / device.map_height;
       list.push({
-        track_id: `device:hover:${x},${y2}`,
+        track_id: `device:hover:${x},${y}`,
         location: {
           x: device.coordinates_from?.includes("right") ? 1 - x : x,
-          y: device.coordinates_from?.includes("bottom") ? 1 - y2 : y2
+          y: device.coordinates_from?.includes("bottom") ? 1 - y : y
         },
         content: ExploreDeviceInfoComponent,
         z_index: 20,
@@ -8661,7 +8661,7 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const buildings = this._org.building_list();
     if (!buildings?.length)
       return;
-    const results = await Promise.all(buildings.map((bld) => nc(bld.id, { name: "desks" }).then((data) => ({
+    const results = await Promise.all(buildings.map((bld) => ac(bld.id, { name: "desks" }).then((data) => ({
       building_id: bld.id,
       desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
         zone: meta.zone
@@ -8939,7 +8939,7 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => Vu(bld.id, `parking_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
+      loader: ({ params: bld }) => ic(bld.id, `parking_booking_rules`).then((_) => _?.details instanceof Array ? _.details : []).catch(() => [])
     }));
     this.booking_rules = computed(
       () => this._booking_rules.value() ?? [],
@@ -9279,29 +9279,29 @@ var MapCanvasComponent = class _MapCanvasComponent {
     ctx.fillStyle = polygon.color + "80";
     ctx.beginPath();
     ctx.moveTo(points[0][0] * width, points[0][1] * height);
-    points.forEach(([x, y2]) => ctx.lineTo(x * width, y2 * height));
+    points.forEach(([x, y]) => ctx.lineTo(x * width, y * height));
     ctx.closePath();
     ctx.fill();
     ctx.strokeStyle = shiftColorTowards(polygon.color, "#888888", 0.5);
     ctx.lineWidth = 3;
     ctx.beginPath();
     ctx.moveTo(points[0][0] * width, points[0][1] * height);
-    points.forEach(([x, y2]) => ctx.lineTo(x * width, y2 * height));
+    points.forEach(([x, y]) => ctx.lineTo(x * width, y * height));
     ctx.closePath();
     ctx.stroke();
     if (this._data.draw_points !== false) {
       ctx.fillStyle = "#fff";
       ctx.strokeStyle = polygon.color;
       ctx.lineWidth = 4;
-      points.forEach(([x, y2]) => {
+      points.forEach(([x, y]) => {
         ctx.beginPath();
-        ctx.arc(x * width, y2 * height, 8, 0, Math.PI * 2);
+        ctx.arc(x * width, y * height, 8, 0, Math.PI * 2);
         ctx.fill();
         ctx.stroke();
       });
     }
     if (this._data.draw_labels !== false) {
-      const center = points.reduce((acc, [x, y2]) => [acc[0] + x, acc[1] + y2], [0, 0]);
+      const center = points.reduce((acc, [x, y]) => [acc[0] + x, acc[1] + y], [0, 0]);
       center[0] /= points.length;
       center[1] /= points.length;
       ctx.textAlign = "center";
@@ -9571,7 +9571,7 @@ var ExploreZonesService = class _ExploreZonesService extends AsyncHandler {
   }
   async init() {
     await firstValueWhere(this._org.initialised, (_) => !!_, this._injector);
-    const zone_metadata = await Promise.all(this._org.levels.map((bld) => Vu(bld.id, "map_regions").catch(() => null)));
+    const zone_metadata = await Promise.all(this._org.levels.map((bld) => ic(bld.id, "map_regions").catch(() => null)));
     this._capacity = {};
     this._count_key = {};
     this._location = {};
@@ -9759,11 +9759,11 @@ function getCenterPoint(points) {
   let x_max = first_x;
   let y_min = first_y;
   let y_max = first_y;
-  for (const [x, y2] of points) {
+  for (const [x, y] of points) {
     x_min = Math.min(x_min, x);
     x_max = Math.max(x_max, x);
-    y_min = Math.min(y_min, y2);
-    y_max = Math.max(y_max, y2);
+    y_min = Math.min(y_min, y);
+    y_max = Math.max(y_max, y);
   }
   return {
     x: x_min + (x_max - x_min) / 2,
@@ -9780,15 +9780,15 @@ var ASCENDING_NAME_SORTER = new Intl.Collator(void 0, {
 });
 function queryAssetCategoriesLocal(query = {}) {
   const q = toQueryString(query);
-  return p(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
+  return f(`${BASE_ENDPOINT}/asset_categories${q ? "?" + q : ""}`).then((_) => _);
 }
 function queryAssetTypesLocal(query = {}) {
   const q = toQueryString(query);
-  return p(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
+  return f(`${BASE_ENDPOINT}/asset_types${q ? "?" + q : ""}`).then((_) => _);
 }
 function queryAssetsLocal(query = {}) {
   const q = toQueryString(query);
-  return p(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
+  return f(`${BASE_ENDPOINT}/assets${q ? "?" + q : ""}`).then((_) => _);
 }
 var TYPES = ["space", "feature", "contact", "user"];
 function typeIndex(item) {
@@ -9917,7 +9917,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async ({ params: bld }) => {
-        const { details } = await Vu(bld.id, "emergency_contacts").catch(() => ({
+        const { details } = await ic(bld.id, "emergency_contacts").catch(() => ({
           details: { contacts: [], migrated: false }
         }));
         const data = details;
@@ -9950,7 +9950,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => ({ q: this._debounced_filter.value() }),
-      loader: ({ params: { q } }) => q?.length > 2 ? ha({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
+      loader: ({ params: { q } }) => q?.length > 2 ? ga({ q, zone_id: this._org.organisation.id }).then(({ data }) => data.filter((_) => _.map_id).map((_) => new Space(__spreadProps(__spreadValues({}, _), {
         level: this._org.levelWithID(_.zones)
       })))).catch(() => []) : Promise.resolve([])
     }));
@@ -9959,7 +9959,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => nc(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => [])
+      loader: ({ params: bld }) => ac(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => [])
     }));
     this._maps_people_search = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_maps_people_search" } : (
       /* istanbul ignore next */
@@ -9987,7 +9987,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async () => {
-        const data = await nc(this._org.building.id, {
+        const data = await ac(this._org.building.id, {
           name: "map_features"
         }).catch(() => []);
         const list = [];
@@ -10014,7 +10014,7 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._initialised() || void 0,
-      loader: () => Vu(this._org.organisation.id, "points-of-interest").catch((_) => ({ details: {} }))
+      loader: () => ic(this._org.organisation.id, "points-of-interest").catch((_) => ({ details: {} }))
     }));
     this._poi_list = computed(
       () => {
@@ -10126,10 +10126,10 @@ var ExploreSearchService = class _ExploreSearchService {
         }
         results = results.filter((_) => _.name.toLowerCase().includes(search) || _.description.toLowerCase().includes(search) || (_.email || "").toLowerCase().includes(search) || _.type.toLowerCase().includes(search) || _.zone_name?.toLowerCase().includes(search));
         const in_progress_zones = this._getInProgressZones(in_progress_bookings);
-        results.sort((a, b) => {
+        results.sort((a, b2) => {
           if (current_level?.id) {
             const a_on_level = a.zone === current_level.id;
-            const b_on_level = b.zone === current_level.id;
+            const b_on_level = b2.zone === current_level.id;
             if (a_on_level && !b_on_level)
               return -1;
             if (!a_on_level && b_on_level)
@@ -10137,13 +10137,13 @@ var ExploreSearchService = class _ExploreSearchService {
           }
           if (in_progress_zones.length > 0) {
             const a_near_booking = in_progress_zones.includes(a.zone);
-            const b_near_booking = in_progress_zones.includes(b.zone);
+            const b_near_booking = in_progress_zones.includes(b2.zone);
             if (a_near_booking && !b_near_booking)
               return -1;
             if (!a_near_booking && b_near_booking)
               return 1;
           }
-          return typeIndex(a) - typeIndex(b) || a.name.localeCompare(b.name);
+          return typeIndex(a) - typeIndex(b2) || a.name.localeCompare(b2.name);
         });
         return results;
       },
@@ -10166,7 +10166,7 @@ var ExploreSearchService = class _ExploreSearchService {
         []
       )
     );
-    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Fa({ q, authority_id: It()?.id }).then((_) => _.data) : searchStaff(q);
+    this.search_fn = (q) => this._settings.get("app.basic_user_search") ? Ka({ q, authority_id: Mt()?.id }).then((_) => _.data) : searchStaff(q);
     this.init();
   }
   async init() {
@@ -11086,7 +11086,7 @@ var AccessibilityControlsComponent = class _AccessibilityControlsComponent exten
         []
       )
     );
-    this.applySetting = (n, v) => this.timeout("apply_setting", () => this._settings.saveUserSetting(n, v), 1e3);
+    this.applySetting = (n, v2) => this.timeout("apply_setting", () => this._settings.saveUserSetting(n, v2), 1e3);
   }
   setDarkMode(state) {
     this.timeout("dark_mode", () => {
@@ -11623,12 +11623,12 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         module: "LocationServices"
       };
     }
-    const mod = fd(locate_details.system_id, locate_details.module);
+    const mod = Dd(locate_details.system_id, locate_details.module);
     const locations = (await mod.execute("locate_user", [
       user.email,
       user.username || user.id
     ])).map((i) => new MapLocation(i));
-    locations.sort((a, b) => locate_details.priority.indexOf(a.type) - locate_details.priority.indexOf(b.type));
+    locations.sort((a, b2) => locate_details.priority.indexOf(a.type) - locate_details.priority.indexOf(b2.type));
     if (!locations?.length) {
       throw "No locations for the given user";
     }
@@ -12010,4 +12010,4 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-HGRLJWXY.js.map
+//# sourceMappingURL=explore.routes-SPW4FGMO.js.map
