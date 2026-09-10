@@ -1877,8 +1877,8 @@ function __values(o) {
   };
   throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
-function __await(v) {
-  return this instanceof __await ? (this.v = v, this) : new __await(v);
+function __await(v2) {
+  return this instanceof __await ? (this.v = v2, this) : new __await(v2);
 }
 function __asyncGenerator(thisArg, _arguments, generator) {
   if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
@@ -1887,23 +1887,23 @@ function __asyncGenerator(thisArg, _arguments, generator) {
     return this;
   }, i;
   function awaitReturn(f2) {
-    return function(v) {
-      return Promise.resolve(v).then(f2, reject);
+    return function(v2) {
+      return Promise.resolve(v2).then(f2, reject);
     };
   }
   function verb(n, f2) {
     if (g2[n]) {
-      i[n] = function(v) {
+      i[n] = function(v2) {
         return new Promise(function(a, b2) {
-          q2.push([n, v, a, b2]) > 1 || resume(n, v);
+          q2.push([n, v2, a, b2]) > 1 || resume(n, v2);
         });
       };
       if (f2) i[n] = f2(i[n]);
     }
   }
-  function resume(n, v) {
+  function resume(n, v2) {
     try {
-      step(g2[n](v));
+      step(g2[n](v2));
     } catch (e) {
       settle(q2[0][3], e);
     }
@@ -1917,8 +1917,8 @@ function __asyncGenerator(thisArg, _arguments, generator) {
   function reject(value) {
     resume("throw", value);
   }
-  function settle(f2, v) {
-    if (f2(v), q2.shift(), q2.length) resume(q2[0][0], q2[0][1]);
+  function settle(f2, v2) {
+    if (f2(v2), q2.shift(), q2.length) resume(q2[0][0], q2[0][1]);
   }
 }
 function __asyncValues(o) {
@@ -1928,15 +1928,15 @@ function __asyncValues(o) {
     return this;
   }, i);
   function verb(n) {
-    i[n] = o[n] && function(v) {
+    i[n] = o[n] && function(v2) {
       return new Promise(function(resolve, reject) {
-        v = o[n](v), settle(resolve, reject, v.done, v.value);
+        v2 = o[n](v2), settle(resolve, reject, v2.done, v2.value);
       });
     };
   }
-  function settle(resolve, reject, d, v) {
-    Promise.resolve(v).then(function(v2) {
-      resolve({ value: v2, done: d });
+  function settle(resolve, reject, d2, v2) {
+    Promise.resolve(v2).then(function(v3) {
+      resolve({ value: v3, done: d2 });
     }, reject);
   }
 }
@@ -2769,7 +2769,7 @@ function finalize(callback) {
 // node_modules/rxjs/dist/esm/internal/operators/first.js
 function first(predicate, defaultValue) {
   const hasDefaultValue = arguments.length >= 2;
-  return (source) => source.pipe(predicate ? filter((v, i) => predicate(v, i, source)) : identity, take(1), hasDefaultValue ? defaultIfEmpty(defaultValue) : throwIfEmpty(() => new EmptyError()));
+  return (source) => source.pipe(predicate ? filter((v2, i) => predicate(v2, i, source)) : identity, take(1), hasDefaultValue ? defaultIfEmpty(defaultValue) : throwIfEmpty(() => new EmptyError()));
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/takeLast.js
@@ -2796,9 +2796,9 @@ function pairwise() {
     let prev;
     let hasPrev = false;
     source.subscribe(createOperatorSubscriber(subscriber, (value) => {
-      const p2 = prev;
+      const p = prev;
       prev = value;
-      hasPrev && subscriber.next([p2, value]);
+      hasPrev && subscriber.next([p, value]);
       hasPrev = true;
     }));
   });
@@ -2920,12 +2920,12 @@ function share(options2 = {}) {
     })(wrapperSource);
   };
 }
-function handleReset(reset, on2, ...args) {
-  if (on2 === true) {
+function handleReset(reset, on, ...args) {
+  if (on === true) {
     reset();
     return;
   }
-  if (on2 === false) {
+  if (on === false) {
     return;
   }
   const onSubscriber = new SafeSubscriber({
@@ -2934,7 +2934,7 @@ function handleReset(reset, on2, ...args) {
       reset();
     }
   });
-  return innerFrom(on2(...args)).subscribe(onSubscriber);
+  return innerFrom(on(...args)).subscribe(onSubscriber);
 }
 
 // node_modules/rxjs/dist/esm/internal/operators/shareReplay.js
@@ -3556,7 +3556,7 @@ function throwMixedMultiProviderError() {
 }
 function throwInvalidProviderError(ngModuleType, providers, provider) {
   if (ngModuleType && providers) {
-    const providerDetail = providers.map((v) => v == provider ? "?" + provider + "?" : "...");
+    const providerDetail = providers.map((v2) => v2 == provider ? "?" + provider + "?" : "...");
     throw new Error(`Invalid provider for the NgModule '${stringify(ngModuleType)}' - only instances of Provider and Type are allowed, got: [${providerDetail.join(", ")}]`);
   } else if (isEnvironmentProviders(provider)) {
     if (provider.\u0275fromNgModule) {
@@ -6500,9 +6500,9 @@ function getParentInjectorView(location2, startView) {
   return parentView;
 }
 var includeViewProviders = true;
-function setIncludeViewProviders(v) {
+function setIncludeViewProviders(v2) {
   const oldValue = includeViewProviders;
-  includeViewProviders = v;
+  includeViewProviders = v2;
   return oldValue;
 }
 var BLOOM_SIZE = 256;
@@ -7071,8 +7071,8 @@ var angularCoreDiEnv = {
   "resolveForwardRef": resolveForwardRef
 };
 var Type = Function;
-function isType(v) {
-  return typeof v === "function";
+function isType(v2) {
+  return typeof v2 === "function";
 }
 var ES5_DELEGATE_CTOR = /^function\s+\S+\(\)\s*{[\s\S]+\.apply\(this,\s*(arguments|(?:[^()]+\(\[\],)?[^()]+\(arguments\).*)\)/;
 var ES2015_INHERITED_CLASS = /^class\s+[A-Za-z\d$_]*\s*extends\s+[^{]+{/;
@@ -8785,8 +8785,8 @@ function tagSet(tags) {
 function merge2(...sets) {
   const res = {};
   for (const s of sets) {
-    for (const v in s) {
-      if (s.hasOwnProperty(v)) res[v] = true;
+    for (const v2 in s) {
+      if (s.hasOwnProperty(v2)) res[v2] = true;
     }
   }
   return res;
@@ -13879,7 +13879,7 @@ var ComponentFactory = class {
     const sharedStylesHost = rootViewInjector.get(SHARED_STYLES_HOST, null);
     const styleHost = getStyleHost(hostElement, () => rootViewInjector.get(DOCUMENT, null) ?? getDocument());
     if (sharedStylesHost) sharedStylesHost.addHost(styleHost);
-    const hasInputBindings = (componentBindings == null ? void 0 : componentBindings.some(isInputBinding)) || (directives == null ? void 0 : directives.some((d) => typeof d !== "function" && d.bindings.some(isInputBinding)));
+    const hasInputBindings = (componentBindings == null ? void 0 : componentBindings.some(isInputBinding)) || (directives == null ? void 0 : directives.some((d2) => typeof d2 !== "function" && d2.bindings.some(isInputBinding)));
     const rootLView = createLView(null, rootTView, null, 512 | getInitialLViewFlagsFromDef(cmpDef), null, null, environment2, hostRenderer, rootViewInjector, null, retrieveHydrationInfo(hostElement, rootViewInjector, true));
     if (sharedStylesHost && shadowRootSupported && styleHost instanceof ShadowRoot) {
       storeLViewOnDestroy(rootLView, () => {
@@ -14639,7 +14639,7 @@ function bindQueryToSignal(target, queryIndex) {
   node._lView = getLView();
   node._queryIndex = queryIndex;
   node._queryList = loadQueryInternal(node._lView, queryIndex);
-  node._queryList.onDirty(() => node._dirtyCounter.update((v) => v + 1));
+  node._queryList.onDirty(() => node._dirtyCounter.update((v2) => v2 + 1));
 }
 function refreshSignalQuery(node, firstOnly) {
   const lView = node._lView;
@@ -19497,8 +19497,8 @@ function \u0275\u0275syntheticHostProperty(propName, value, sanitizer) {
 }
 var u = void 0;
 function plural(val) {
-  const i = Math.floor(Math.abs(val)), v = val.toString().replace(/^[^.]*\.?/, "").length;
-  if (i === 1 && v === 0) return 1;
+  const i = Math.floor(Math.abs(val)), v2 = val.toString().replace(/^[^.]*\.?/, "").length;
+  if (i === 1 && v2 === 0) return 1;
   return 5;
 }
 var localeEn = ["en", [["a", "p"], ["AM", "PM"]], [["AM", "PM"]], [["S", "M", "T", "W", "T", "F", "S"], ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]], u, [["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"], ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]], u, [["B", "A"], ["BC", "AD"], ["Before Christ", "Anno Domini"]], 0, [6, 0], ["M/d/yy", "MMM d, y", "MMMM d, y", "EEEE, MMMM d, y"], ["h:mm\u202Fa", "h:mm:ss\u202Fa", "h:mm:ss\u202Fa z", "h:mm:ss\u202Fa zzzz"], ["{1}, {0}", u, u, u], [".", ",", ";", "%", "+", "-", "E", "\xD7", "\u2030", "\u221E", "NaN", ":"], ["#,##0.###", "#,##0%", "\xA4#,##0.00", "#E0"], "USD", "$", "US Dollar", {}, "ltr", plural];
@@ -22859,7 +22859,7 @@ function getStandaloneDefFunctions(type2, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type2, imports);
-    return [...scope.compilation.directives].map((p2) => getComponentDef(p2) || getDirectiveDef(p2)).filter((d) => d !== null);
+    return [...scope.compilation.directives].map((p) => getComponentDef(p) || getDirectiveDef(p)).filter((d2) => d2 !== null);
   };
   const pipeDefs = () => {
     if (ngDevMode) {
@@ -22871,7 +22871,7 @@ function getStandaloneDefFunctions(type2, imports) {
       return [];
     }
     const scope = depsTracker.getStandaloneComponentScope(type2, imports);
-    return [...scope.compilation.pipes].map((p2) => getPipeDef(p2)).filter((d) => d !== null);
+    return [...scope.compilation.pipes].map((p) => getPipeDef(p)).filter((d2) => d2 !== null);
   };
   return {
     directiveDefs,
@@ -23117,9 +23117,9 @@ var Directive = makeDecorator("Directive", (dir = {}) => dir, void 0, void 0, (t
 var Component = makeDecorator("Component", (c2 = {}) => __spreadValues({
   changeDetection: ChangeDetectionStrategy.Eager
 }, c2), Directive, void 0, (type2, meta) => compileComponent(type2, meta));
-var Pipe = makeDecorator("Pipe", (p2) => __spreadValues({
+var Pipe = makeDecorator("Pipe", (p) => __spreadValues({
   pure: true
-}, p2), void 0, void 0, (type2, meta) => compilePipe(type2, meta));
+}, p), void 0, void 0, (type2, meta) => compilePipe(type2, meta));
 var Input = makePropDecorator("Input", (arg) => {
   if (!arg) {
     return {};
@@ -23497,7 +23497,7 @@ var ResourceParamsStatus = class _ResourceParamsStatus extends Error {
   static IDLE = new _ResourceParamsStatus("IDLE");
   static LOADING = new _ResourceParamsStatus("LOADING");
 };
-var identityFn = (v) => v;
+var identityFn = (v2) => v2;
 function linkedSignal(optionsOrComputation, options2) {
   if (typeof optionsOrComputation === "function") {
     const getter = createLinkedSignal(optionsOrComputation, identityFn, options2 == null ? void 0 : options2.equal);
@@ -26458,8 +26458,8 @@ var Location = class _Location {
   }
   onUrlChange(fn) {
     this._urlChangeListeners.push(fn);
-    this._urlChangeSubscription ?? (this._urlChangeSubscription = this.subscribe((v) => {
-      this._notifyUrlChangeListeners(v.url, v.state);
+    this._urlChangeSubscription ?? (this._urlChangeSubscription = this.subscribe((v2) => {
+      this._notifyUrlChangeListeners(v2.url, v2.state);
     }));
     return () => {
       var _a11;
@@ -27455,8 +27455,8 @@ function toDate(value) {
   if (typeof value === "string") {
     value = value.trim();
     if (/^(\d{4}(-\d{1,2}(-\d{1,2})?)?)$/.test(value)) {
-      const [y2, m2 = 1, d = 1] = value.split("-").map((val) => +val);
-      return createDate(y2, m2 - 1, d);
+      const [y2, m2 = 1, d2 = 1] = value.split("-").map((val) => +val);
+      return createDate(y2, m2 - 1, d2);
     }
     const parsedNb = parseFloat(value);
     if (!isNaN(value - parsedNb)) {
@@ -27545,7 +27545,7 @@ function formatNumberToLocaleString(value, pattern, locale, groupSymbol, decimal
     let integerLen = parsedNumber.integerLen;
     const exponent = parsedNumber.exponent;
     let decimals = [];
-    isZero = digits.every((d) => !d);
+    isZero = digits.every((d2) => !d2);
     for (; integerLen < minInt; integerLen++) {
       digits.unshift(0);
     }
@@ -27603,7 +27603,7 @@ function formatNumber(value, locale, digitsInfo) {
   return formatNumberToLocaleString(value, pattern, locale, NumberSymbol.Group, NumberSymbol.Decimal, digitsInfo);
 }
 function parseNumberFormat(format3, minusSign = "-") {
-  const p2 = {
+  const p = {
     minInt: 1,
     minFrac: 0,
     maxFrac: 0,
@@ -27618,29 +27618,29 @@ function parseNumberFormat(format3, minusSign = "-") {
   const positive = patternParts[0];
   const negative = patternParts[1];
   const positiveParts = positive.indexOf(DECIMAL_SEP) !== -1 ? positive.split(DECIMAL_SEP) : [positive.substring(0, positive.lastIndexOf(ZERO_CHAR) + 1), positive.substring(positive.lastIndexOf(ZERO_CHAR) + 1)], integer = positiveParts[0], fraction = positiveParts[1] || "";
-  p2.posPre = integer.substring(0, integer.indexOf(DIGIT_CHAR));
+  p.posPre = integer.substring(0, integer.indexOf(DIGIT_CHAR));
   for (let i = 0; i < fraction.length; i++) {
     const ch = fraction.charAt(i);
     if (ch === ZERO_CHAR) {
-      p2.minFrac = p2.maxFrac = i + 1;
+      p.minFrac = p.maxFrac = i + 1;
     } else if (ch === DIGIT_CHAR) {
-      p2.maxFrac = i + 1;
+      p.maxFrac = i + 1;
     } else {
-      p2.posSuf += ch;
+      p.posSuf += ch;
     }
   }
   const groups = integer.split(GROUP_SEP);
-  p2.gSize = groups[1] ? groups[1].length : 0;
-  p2.lgSize = groups[2] || groups[1] ? (groups[2] || groups[1]).length : 0;
+  p.gSize = groups[1] ? groups[1].length : 0;
+  p.lgSize = groups[2] || groups[1] ? (groups[2] || groups[1]).length : 0;
   if (negative) {
-    const trunkLen = positive.length - p2.posPre.length - p2.posSuf.length, pos = negative.indexOf(DIGIT_CHAR);
-    p2.negPre = negative.substring(0, pos).replace(/'/g, "");
-    p2.negSuf = negative.slice(pos + trunkLen).replace(/'/g, "");
+    const trunkLen = positive.length - p.posPre.length - p.posSuf.length, pos = negative.indexOf(DIGIT_CHAR);
+    p.negPre = negative.substring(0, pos).replace(/'/g, "");
+    p.negSuf = negative.slice(pos + trunkLen).replace(/'/g, "");
   } else {
-    p2.negPre = minusSign + p2.posPre;
-    p2.negSuf = p2.posSuf;
+    p.negPre = minusSign + p.posPre;
+    p.negSuf = p.posSuf;
   }
-  return p2;
+  return p;
 }
 function toPercent(parsedNumber) {
   if (parsedNumber.digits[0] === 0) {
@@ -27734,9 +27734,9 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
   for (; fractionLen < Math.max(0, fractionSize); fractionLen++) digits.push(0);
   let dropTrailingZeros = fractionSize !== 0;
   const minLen = minFrac + parsedNumber.integerLen;
-  const carry = digits.reduceRight(function(carry2, d, i, digits2) {
-    d = d + carry2;
-    digits2[i] = d < 10 ? d : d - 10;
+  const carry = digits.reduceRight(function(carry2, d2, i, digits2) {
+    d2 = d2 + carry2;
+    digits2[i] = d2 < 10 ? d2 : d2 - 10;
     if (dropTrailingZeros) {
       if (digits2[i] === 0 && i >= minLen) {
         digits2.pop();
@@ -27744,7 +27744,7 @@ function roundNumber(parsedNumber, minFrac, maxFrac) {
         dropTrailingZeros = false;
       }
     }
-    return d >= 10 ? 1 : 0;
+    return d2 >= 10 ? 1 : 0;
   }, 0);
   if (carry) {
     digits.unshift(carry);
@@ -28757,7 +28757,7 @@ var SubscribableStrategy = class {
 };
 var PromiseStrategy = class {
   createSubscription(async2, updateLatestValue, onError) {
-    async2.then((v) => updateLatestValue == null ? void 0 : updateLatestValue(v), (e) => onError == null ? void 0 : onError(e));
+    async2.then((v2) => updateLatestValue == null ? void 0 : updateLatestValue(v2), (e) => onError == null ? void 0 : onError(e));
     return {
       unsubscribe: () => {
         updateLatestValue = null;
@@ -30789,9 +30789,9 @@ var EventManager = class _EventManager {
     plugins.forEach((plugin) => {
       plugin.manager = this;
     });
-    const otherPlugins = plugins.filter((p2) => !(p2 instanceof DomEventsPlugin));
+    const otherPlugins = plugins.filter((p) => !(p instanceof DomEventsPlugin));
     this._plugins = otherPlugins.slice().reverse();
-    const domEventPlugin = plugins.find((p2) => p2 instanceof DomEventsPlugin);
+    const domEventPlugin = plugins.find((p) => p instanceof DomEventsPlugin);
     if (domEventPlugin) {
       this._plugins.push(domEventPlugin);
     }
@@ -32032,8 +32032,8 @@ var STANDARD_ENCODING_REPLACEMENTS = {
   "3F": "?",
   "2F": "/"
 };
-function standardEncoding(v) {
-  return encodeURIComponent(v).replace(STANDARD_ENCODING_REGEX, (s, t) => STANDARD_ENCODING_REPLACEMENTS[t] ?? s);
+function standardEncoding(v2) {
+  return encodeURIComponent(v2).replace(STANDARD_ENCODING_REGEX, (s, t) => STANDARD_ENCODING_REPLACEMENTS[t] ?? s);
 }
 function valueToString(value) {
   return `${value}`;
@@ -34458,15 +34458,15 @@ var ParamsAsMap = class {
   }
   get(name) {
     if (this.has(name)) {
-      const v = this.params[name];
-      return Array.isArray(v) ? v[0] : v;
+      const v2 = this.params[name];
+      return Array.isArray(v2) ? v2[0] : v2;
     }
     return null;
   }
   getAll(name) {
     if (this.has(name)) {
-      const v = this.params[name];
-      return Array.isArray(v) ? v : [v];
+      const v2 = this.params[name];
+      return Array.isArray(v2) ? v2 : [v2];
     }
     return [];
   }
@@ -34707,7 +34707,7 @@ var UrlSegmentGroup = class {
   constructor(segments, children) {
     this.segments = segments;
     this.children = children;
-    Object.values(children).forEach((v) => v.parent = this);
+    Object.values(children).forEach((v2) => v2.parent = this);
   }
   hasChildren() {
     return this.numberOfChildren > 0;
@@ -34735,12 +34735,12 @@ var UrlSegment = class {
     return serializePath(this);
   }
 };
-function equalSegments(as2, bs) {
-  return equalPath(as2, bs) && as2.every((a, i) => shallowEqual(a.parameters, bs[i].parameters));
+function equalSegments(as2, bs2) {
+  return equalPath(as2, bs2) && as2.every((a, i) => shallowEqual(a.parameters, bs2[i].parameters));
 }
-function equalPath(as2, bs) {
-  if (as2.length !== bs.length) return false;
-  return as2.every((a, i) => a.path === bs[i].path);
+function equalPath(as2, bs2) {
+  if (as2.length !== bs2.length) return false;
+  return as2.every((a, i) => a.path === bs2[i].path);
 }
 function mapChildrenIntoArray(segment, fn) {
   let res = [];
@@ -34775,8 +34775,8 @@ var UrlSerializer = class _UrlSerializer {
 })();
 var DefaultUrlSerializer = class {
   parse(url) {
-    const p2 = new UrlParser(url);
-    return new UrlTree(p2.parseRootSegment(), p2.parseQueryParams(), p2.parseFragment());
+    const p = new UrlParser(url);
+    return new UrlTree(p.parseRootSegment(), p.parseQueryParams(), p.parseFragment());
   }
   serialize(tree2) {
     const segment = `/${serializeSegment(tree2.root, true)}`;
@@ -34787,7 +34787,7 @@ var DefaultUrlSerializer = class {
 };
 var DEFAULT_SERIALIZER = new DefaultUrlSerializer();
 function serializePaths(segment) {
-  return segment.segments.map((p2) => serializePath(p2)).join("/");
+  return segment.segments.map((p) => serializePath(p)).join("/");
 }
 function serializeSegment(segment, root) {
   if (!segment.hasChildren()) {
@@ -34796,18 +34796,18 @@ function serializeSegment(segment, root) {
   if (root) {
     const primary = segment.children[PRIMARY_OUTLET] ? serializeSegment(segment.children[PRIMARY_OUTLET], false) : "";
     const children = [];
-    Object.entries(segment.children).forEach(([k, v]) => {
+    Object.entries(segment.children).forEach(([k, v2]) => {
       if (k !== PRIMARY_OUTLET) {
-        children.push(`${k}:${serializeSegment(v, false)}`);
+        children.push(`${k}:${serializeSegment(v2, false)}`);
       }
     });
     return children.length > 0 ? `${primary}(${children.join("//")})` : primary;
   } else {
-    const children = mapChildrenIntoArray(segment, (v, k) => {
+    const children = mapChildrenIntoArray(segment, (v2, k) => {
       if (k === PRIMARY_OUTLET) {
         return [serializeSegment(segment.children[PRIMARY_OUTLET], false)];
       }
-      return [`${k}:${serializeSegment(v, false)}`];
+      return [`${k}:${serializeSegment(v2, false)}`];
     });
     if (Object.keys(segment.children).length === 1 && segment.children[PRIMARY_OUTLET] != null) {
       return `${serializePaths(segment)}/${children[0]}`;
@@ -34841,7 +34841,7 @@ function serializeMatrixParams(params) {
 }
 function serializeQueryParams(params) {
   const strParams = Object.entries(params).map(([name, value]) => {
-    return Array.isArray(value) ? value.map((v) => `${encodeUriQuery(name)}=${encodeUriQuery(v)}`).join("&") : `${encodeUriQuery(name)}=${encodeUriQuery(value)}`;
+    return Array.isArray(value) ? value.map((v2) => `${encodeUriQuery(name)}=${encodeUriQuery(v2)}`).join("&") : `${encodeUriQuery(name)}=${encodeUriQuery(value)}`;
   }).filter((s) => s);
   return strParams.length ? `?${strParams.join("&")}` : "";
 }
@@ -35046,8 +35046,8 @@ function mergeTrivialChildren(s) {
   }
   return s;
 }
-function isUrlTree(v) {
-  return v instanceof UrlTree;
+function isUrlTree(v2) {
+  return v2 instanceof UrlTree;
 }
 function createUrlTreeFromSnapshot(relativeTo, commands, queryParams = null, fragment = null, urlSerializer = new DefaultUrlSerializer()) {
   const relativeToUrlSegmentGroup = createSegmentGroupFromRoute(relativeTo);
@@ -35093,18 +35093,18 @@ function isMatrixParams(command) {
 function isCommandWithOutlets(command) {
   return typeof command === "object" && command != null && command.outlets;
 }
-function normalizeQueryParams2(k, v, urlSerializer) {
+function normalizeQueryParams2(k, v2, urlSerializer) {
   k || (k = "\u0275");
   const tree2 = new UrlTree();
   tree2.queryParams = {
-    [k]: v
+    [k]: v2
   };
   return urlSerializer.parse(urlSerializer.serialize(tree2)).queryParams[k];
 }
 function tree(oldRoot, oldSegmentGroup, newSegmentGroup, queryParams, fragment, urlSerializer) {
   const qp = {};
   for (const [key, value] of Object.entries(queryParams ?? {})) {
-    qp[key] = Array.isArray(value) ? value.map((v) => normalizeQueryParams2(key, v, urlSerializer)) : normalizeQueryParams2(key, value, urlSerializer);
+    qp[key] = Array.isArray(value) ? value.map((v2) => normalizeQueryParams2(key, v2, urlSerializer)) : normalizeQueryParams2(key, value, urlSerializer);
   }
   let rootCandidate;
   if (oldRoot === oldSegmentGroup) {
@@ -35213,17 +35213,17 @@ function findStartingPositionForTargetGroup(nav, root, target) {
 }
 function createPositionApplyingDoubleDots(group2, index, numberOfDoubleDots) {
   let g2 = group2;
-  let ci = index;
+  let ci2 = index;
   let dd = numberOfDoubleDots;
-  while (dd > ci) {
-    dd -= ci;
+  while (dd > ci2) {
+    dd -= ci2;
     g2 = g2.parent;
     if (!g2) {
       throw new RuntimeError(4005, (typeof ngDevMode === "undefined" || ngDevMode) && "Invalid number of '../'");
     }
-    ci = g2.segments.length;
+    ci2 = g2.segments.length;
   }
-  return new Position(g2, false, ci - dd);
+  return new Position(g2, false, ci2 - dd);
 }
 function getOutlets(commands) {
   if (isCommandWithOutlets(commands[0])) {
@@ -35323,8 +35323,8 @@ function createNewSegmentGroup(segmentGroup, startIndex, commands) {
       return new UrlSegmentGroup(paths, children);
     }
     if (i === 0 && isMatrixParams(commands[0])) {
-      const p2 = segmentGroup.segments[startIndex];
-      paths.push(new UrlSegment(p2.path, stringify2(commands[0])));
+      const p = segmentGroup.segments[startIndex];
+      paths.push(new UrlSegment(p.path, stringify2(commands[0])));
       i++;
       continue;
     }
@@ -35354,7 +35354,7 @@ function createNewSegmentChildren(outlets) {
 }
 function stringify2(params) {
   const res = {};
-  Object.entries(params).forEach(([k, v]) => res[k] = `${v}`);
+  Object.entries(params).forEach(([k, v2]) => res[k] = `${v2}`);
   return res;
 }
 function compare(path, params, segment) {
@@ -35748,8 +35748,8 @@ var Tree = class {
     return this._root.value;
   }
   parent(t) {
-    const p2 = this.pathFromRoot(t);
-    return p2.length > 1 ? p2[p2.length - 2] : null;
+    const p = this.pathFromRoot(t);
+    return p.length > 1 ? p[p.length - 2] : null;
   }
   children(t) {
     const n = findNode(t, this._root);
@@ -35760,9 +35760,9 @@ var Tree = class {
     return n && n.children.length > 0 ? n.children[0].value : null;
   }
   siblings(t) {
-    const p2 = findPath(t, this._root);
-    if (p2.length < 2) return [];
-    const c2 = p2[p2.length - 2].children.map((c3) => c3.value);
+    const p = findPath(t, this._root);
+    if (p.length < 2) return [];
+    const c2 = p[p.length - 2].children.map((c3) => c3.value);
     return c2.filter((cc) => cc !== t);
   }
   pathFromRoot(t) {
@@ -35865,7 +35865,7 @@ var ActivatedRoute = class {
     this.outlet = outlet;
     this.component = component;
     this._futureSnapshot = futureSnapshot;
-    this.title = ((_a11 = this.dataSubject) == null ? void 0 : _a11.pipe(map((d) => d[RouteTitleKey]))) ?? of(void 0);
+    this.title = ((_a11 = this.dataSubject) == null ? void 0 : _a11.pipe(map((d2) => d2[RouteTitleKey]))) ?? of(void 0);
     this.url = urlSubject;
     this.params = paramsSubject;
     this.queryParams = queryParamsSubject;
@@ -35891,11 +35891,11 @@ var ActivatedRoute = class {
     return this._routerState.pathFromRoot(this);
   }
   get paramMap() {
-    this._paramMap ?? (this._paramMap = this.params.pipe(map((p2) => convertToParamMap(p2))));
+    this._paramMap ?? (this._paramMap = this.params.pipe(map((p) => convertToParamMap(p))));
     return this._paramMap;
   }
   get queryParamMap() {
-    this._queryParamMap ?? (this._queryParamMap = this.queryParams.pipe(map((p2) => convertToParamMap(p2))));
+    this._queryParamMap ?? (this._queryParamMap = this.queryParams.pipe(map((p) => convertToParamMap(p))));
     return this._queryParamMap;
   }
   toString() {
@@ -36392,9 +36392,9 @@ function createNode(routeReuseStrategy, curr, prevState) {
 }
 function createOrReuseChildren(routeReuseStrategy, curr, prevState) {
   return curr.children.map((child) => {
-    for (const p2 of prevState.children) {
-      if (routeReuseStrategy.shouldReuseRoute(child.value, p2.value.snapshot)) {
-        return createNode(routeReuseStrategy, child, p2);
+    for (const p of prevState.children) {
+      if (routeReuseStrategy.shouldReuseRoute(child.value, p.value.snapshot)) {
+        return createNode(routeReuseStrategy, child, p);
       }
     }
     return createNode(routeReuseStrategy, child);
@@ -36465,8 +36465,8 @@ var ActivateRoutes = class {
       this.deactivateRoutes(futureChild, children[childOutletName], contexts);
       delete children[childOutletName];
     });
-    Object.values(children).forEach((v) => {
-      this.deactivateRouteAndItsChildren(v, contexts);
+    Object.values(children).forEach((v2) => {
+      this.deactivateRouteAndItsChildren(v2, contexts);
     });
   }
   deactivateRoutes(futureNode, currNode, parentContext) {
@@ -36605,11 +36605,11 @@ function getAllRouteGuards(future, curr, parentContexts) {
   const currRoot = curr ? curr._root : null;
   return getChildRouteGuards(futureRoot, currRoot, parentContexts, [futureRoot.value]);
 }
-function getCanActivateChild(p2) {
-  const canActivateChild = p2.routeConfig ? p2.routeConfig.canActivateChild : null;
+function getCanActivateChild(p) {
+  const canActivateChild = p.routeConfig ? p.routeConfig.canActivateChild : null;
   if (!canActivateChild || canActivateChild.length === 0) return null;
   return {
-    node: p2,
+    node: p,
     guards: canActivateChild
   };
 }
@@ -36634,7 +36634,7 @@ function getChildRouteGuards(futureNode, currNode, contexts, futurePath, checks 
     getRouteGuards(c2, prevChildren[c2.value.outlet], contexts, futurePath.concat([c2.value]), checks);
     delete prevChildren[c2.value.outlet];
   });
-  Object.entries(prevChildren).forEach(([k, v]) => deactivateRouteAndItsChildren(v, contexts.getContext(k), checks));
+  Object.entries(prevChildren).forEach(([k, v2]) => deactivateRouteAndItsChildren(v2, contexts.getContext(k), checks));
   return checks;
 }
 function getRouteGuards(futureNode, currNode, parentContexts, futurePath, checks = {
@@ -36711,11 +36711,11 @@ function deactivateRouteAndItsChildren(route, context2, checks) {
     checks.canDeactivateChecks.push(new CanDeactivate(null, r));
   }
 }
-function isFunction2(v) {
-  return typeof v === "function";
+function isFunction2(v2) {
+  return typeof v2 === "function";
 }
-function isBoolean(v) {
-  return typeof v === "boolean";
+function isBoolean(v2) {
+  return typeof v2 === "boolean";
 }
 function isCanLoad(guard) {
   return guard && isFunction2(guard.canLoad);
@@ -36832,11 +36832,11 @@ function runCanActivate(futureRSS, futureARS) {
 }
 function runCanActivateChild(futureRSS, path) {
   const futureARS = path[path.length - 1];
-  const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p2) => getCanActivateChild(p2)).filter((_2) => _2 !== null);
-  const canActivateChildGuardsMapped = canActivateChildGuards.map((d) => {
+  const canActivateChildGuards = path.slice(0, path.length - 1).reverse().map((p) => getCanActivateChild(p)).filter((_2) => _2 !== null);
+  const canActivateChildGuardsMapped = canActivateChildGuards.map((d2) => {
     return defer(() => {
-      const guardsMapped = d.guards.map((canActivateChild) => {
-        const closestInjector = d.node._environmentInjector;
+      const guardsMapped = d2.guards.map((canActivateChild) => {
+        const closestInjector = d2.node._environmentInjector;
         const guard = getTokenOrFunctionIdentity(canActivateChild, closestInjector);
         const guardVal = isCanActivateChild(guard) ? guard.canActivateChild(futureARS, futureRSS) : runInInjectionContext(closestInjector, () => guard(futureARS, futureRSS));
         return wrapIntoObservable(guardVal).pipe(first());
@@ -36946,13 +36946,13 @@ var ApplyRedirects = class {
   }
   createQueryParams(redirectToParams, actualParams) {
     const res = {};
-    Object.entries(redirectToParams).forEach(([k, v]) => {
-      const copySourceValue = typeof v === "string" && v[0] === ":";
+    Object.entries(redirectToParams).forEach(([k, v2]) => {
+      const copySourceValue = typeof v2 === "string" && v2[0] === ":";
       if (copySourceValue) {
-        const sourceName = v.substring(1);
+        const sourceName = v2.substring(1);
         res[k] = actualParams[sourceName];
       } else {
-        res[k] = v;
+        res[k] = v2;
       }
     });
     return res;
@@ -37127,7 +37127,7 @@ function matchWithChecks(segmentGroup, route, segments, injector, urlSerializer,
   }
   const currentSnapshot = createPreMatchRouteSnapshot(createSnapshot(result));
   injector = getOrCreateRouteInjectorIfNeeded(route, injector);
-  return runCanMatchGuards(injector, route, segments, urlSerializer, currentSnapshot, abortSignal).pipe(map((v) => v === true ? result : __spreadValues({}, noMatch)));
+  return runCanMatchGuards(injector, route, segments, urlSerializer, currentSnapshot, abortSignal).pipe(map((v2) => v2 === true ? result : __spreadValues({}, noMatch)));
 }
 function match(segmentGroup, route, segments) {
   if (route.path === "") {
@@ -37146,8 +37146,8 @@ function match(segmentGroup, route, segments) {
   const res = matcher(segments, segmentGroup, route);
   if (!res) return __spreadValues({}, noMatch);
   const posParams = {};
-  Object.entries(res.posParams ?? {}).forEach(([k, v]) => {
-    posParams[k] = v.path;
+  Object.entries(res.posParams ?? {}).forEach(([k, v2]) => {
+    posParams[k] = v2.path;
   });
   const parameters = res.consumed.length > 0 ? __spreadValues(__spreadValues({}, posParams), res.consumed[res.consumed.length - 1].parameters) : posParams;
   return {
@@ -37494,9 +37494,9 @@ function checkOutletNameUniqueness(nodes) {
   nodes.forEach((n) => {
     const routeWithSameOutletName = names[n.value.outlet];
     if (routeWithSameOutletName) {
-      const p2 = routeWithSameOutletName.url.map((s) => s.toString()).join("/");
+      const p = routeWithSameOutletName.url.map((s) => s.toString()).join("/");
       const c2 = n.value.url.map((s) => s.toString()).join("/");
-      throw new RuntimeError(4006, (typeof ngDevMode === "undefined" || ngDevMode) && `Two segments cannot have the same outlet name: '${p2}' and '${c2}'.`);
+      throw new RuntimeError(4006, (typeof ngDevMode === "undefined" || ngDevMode) && `Two segments cannot have the same outlet name: '${p}' and '${c2}'.`);
     }
     names[n.value.outlet] = n.value;
   });
@@ -37590,12 +37590,12 @@ function getResolver(injectionToken, futureARS, futureRSS) {
   return wrapIntoObservable(resolverValue);
 }
 function switchTap(next) {
-  return switchMap((v) => {
-    const nextResult = next(v);
+  return switchMap((v2) => {
+    const nextResult = next(v2);
     if (nextResult) {
-      return from(nextResult).pipe(map(() => v));
+      return from(nextResult).pipe(map(() => v2));
     }
-    return of(v);
+    return of(v2);
   });
 }
 var TitleStrategy = class _TitleStrategy {
@@ -42743,15 +42743,15 @@ function hasValidator(validators, validator) {
 function addValidators(validators, currentValidators) {
   const current = makeValidatorsArray(currentValidators);
   const validatorsToAdd = makeValidatorsArray(validators);
-  validatorsToAdd.forEach((v) => {
-    if (!hasValidator(current, v)) {
-      current.push(v);
+  validatorsToAdd.forEach((v2) => {
+    if (!hasValidator(current, v2)) {
+      current.push(v2);
     }
   });
   return current;
 }
 function removeValidators(validators, currentValidators) {
-  return makeValidatorsArray(currentValidators).filter((v) => !hasValidator(validators, v));
+  return makeValidatorsArray(currentValidators).filter((v2) => !hasValidator(validators, v2));
 }
 var AbstractControlDirective = class {
   get value() {
@@ -43138,8 +43138,8 @@ var AbstractControl = class {
   get status() {
     return untracked2(this.statusReactive);
   }
-  set status(v) {
-    untracked2(() => this.statusReactive.set(v));
+  set status(v2) {
+    untracked2(() => this.statusReactive.set(v2));
   }
   _status = computed(() => this.statusReactive(), ...ngDevMode ? [{
     debugName: "_status"
@@ -43166,8 +43166,8 @@ var AbstractControl = class {
   get pristine() {
     return untracked2(this.pristineReactive);
   }
-  set pristine(v) {
-    untracked2(() => this.pristineReactive.set(v));
+  set pristine(v2) {
+    untracked2(() => this.pristineReactive.set(v2));
   }
   _pristine = computed(() => this.pristineReactive(), ...ngDevMode ? [{
     debugName: "_pristine"
@@ -43181,8 +43181,8 @@ var AbstractControl = class {
   get touched() {
     return untracked2(this.touchedReactive);
   }
-  set touched(v) {
-    untracked2(() => this.touchedReactive.set(v));
+  set touched(v2) {
+    untracked2(() => this.touchedReactive.set(v2));
   }
   _touched = computed(() => this.touchedReactive(), ...ngDevMode ? [{
     debugName: "_touched"
@@ -44221,15 +44221,15 @@ function selectValueAccessor(dir, valueAccessors) {
   let defaultAccessor = void 0;
   let builtinAccessor = void 0;
   let customAccessor = void 0;
-  valueAccessors.forEach((v) => {
-    if (v.constructor === DefaultValueAccessor) {
-      defaultAccessor = v;
-    } else if (isBuiltInAccessor(v)) {
+  valueAccessors.forEach((v2) => {
+    if (v2.constructor === DefaultValueAccessor) {
+      defaultAccessor = v2;
+    } else if (isBuiltInAccessor(v2)) {
       if (builtinAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one built-in value accessor matches form control with");
-      builtinAccessor = v;
+      builtinAccessor = v2;
     } else {
       if (customAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one custom value accessor matches form control with");
-      customAccessor = v;
+      customAccessor = v2;
     }
   });
   if (customAccessor) return customAccessor;
@@ -44362,7 +44362,7 @@ var NgControl = class extends AbstractControlDirective {
     });
     this.customControlBindings = {};
     this.isNativeFormElement = isNativeFormElement(host.nativeElement);
-    this.requiredValidatorViaDi = this._rawValidators.find((v) => v instanceof RequiredValidator);
+    this.requiredValidatorViaDi = this._rawValidators.find((v2) => v2 instanceof RequiredValidator);
   }
   ngControlUpdate(host, bindRequired) {
     if (!this.isCustomControlBased) {
@@ -44459,8 +44459,8 @@ var NgControl = class extends AbstractControlDirective {
 };
 var AbstractControlStatus = class {
   _cd;
-  constructor(cd) {
-    this._cd = cd;
+  constructor(cd2) {
+    this._cd = cd2;
   }
   get isTouched() {
     var _a11, _b4, _c9, _d2, _e2;
@@ -44509,8 +44509,8 @@ var ngControlStatusHost = {
   "[class.ng-pending]": "isPending"
 };
 var NgControlStatus = class _NgControlStatus extends AbstractControlStatus {
-  constructor(cd) {
-    super(cd);
+  constructor(cd2) {
+    super(cd2);
   }
   static \u0275fac = function NgControlStatus_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _NgControlStatus)(\u0275\u0275directiveInject(NgControl, 2));
@@ -44544,8 +44544,8 @@ var NgControlStatus = class _NgControlStatus extends AbstractControlStatus {
   }], null);
 })();
 var NgControlStatusGroup = class _NgControlStatusGroup extends AbstractControlStatus {
-  constructor(cd) {
-    super(cd);
+  constructor(cd2) {
+    super(cd2);
   }
   static \u0275fac = function NgControlStatusGroup_Factory(__ngFactoryType__) {
     return new (__ngFactoryType__ || _NgControlStatusGroup)(\u0275\u0275directiveInject(ControlContainer, 10));
@@ -46972,7 +46972,7 @@ var SelectMultipleControlValueAccessor = class _SelectMultipleControlValueAccess
     this.value = value;
     let optionSelectedStateSetter;
     if (Array.isArray(value)) {
-      const ids = value.map((v) => this._getOptionId(v));
+      const ids = value.map((v2) => this._getOptionId(v2));
       optionSelectedStateSetter = (opt, id) => {
         opt._setSelected(ids.indexOf(id) > -1);
       };
@@ -47850,10 +47850,10 @@ function validateTime(hours, minutes, seconds) {
 function toZonedTime(date, timeZone, options2) {
   date = toDate3(date, options2);
   const offsetMilliseconds = tzParseTimezone(timeZone, date, true);
-  const d = new Date(date.getTime() - offsetMilliseconds);
+  const d2 = new Date(date.getTime() - offsetMilliseconds);
   const resultDate = /* @__PURE__ */ new Date(0);
-  resultDate.setFullYear(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
-  resultDate.setHours(d.getUTCHours(), d.getUTCMinutes(), d.getUTCSeconds(), d.getUTCMilliseconds());
+  resultDate.setFullYear(d2.getUTCFullYear(), d2.getUTCMonth(), d2.getUTCDate());
+  resultDate.setHours(d2.getUTCHours(), d2.getUTCMinutes(), d2.getUTCSeconds(), d2.getUTCMilliseconds());
   return resultDate;
 }
 
@@ -50832,7 +50832,7 @@ var en_AU_default = {
 };
 
 // node_modules/@placeos/ts-client/dist/index.es.js
-var ce = [
+var le = [
   "A",
   "B",
   "C",
@@ -50898,7 +50898,7 @@ var ce = [
   "+",
   "/"
 ];
-var Gn = [
+var Qn = [
   255,
   255,
   255,
@@ -51023,21 +51023,21 @@ var Gn = [
   50,
   51
 ];
-function St(t) {
-  if (t >= Gn.length)
+function xt(t) {
+  if (t >= Qn.length)
     throw new Error("Unable to parse base64 string.");
-  const e = Gn[t];
+  const e = Qn[t];
   if (e === 255)
     throw new Error("Unable to parse base64 string.");
   return e;
 }
-function ts(t) {
+function is(t) {
   let e = "", n, s = t.length;
   for (n = 2; n < s; n += 3)
-    e += ce[t[n - 2] >> 2], e += ce[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ce[(t[n - 1] & 15) << 2 | t[n] >> 6], e += ce[t[n] & 63];
-  return n === s + 1 && (e += ce[t[n - 2] >> 2], e += ce[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += ce[t[n - 2] >> 2], e += ce[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += ce[(t[n - 1] & 15) << 2], e += "="), e;
+    e += le[t[n - 2] >> 2], e += le[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += le[(t[n - 1] & 15) << 2 | t[n] >> 6], e += le[t[n] & 63];
+  return n === s + 1 && (e += le[t[n - 2] >> 2], e += le[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += le[t[n - 2] >> 2], e += le[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += le[(t[n - 1] & 15) << 2], e += "="), e;
 }
-function Gs(t) {
+function Ks(t) {
   if (t.length % 4 !== 0)
     throw new Error("Unable to parse base64 string.");
   const e = t.indexOf("=");
@@ -51045,17 +51045,17 @@ function Gs(t) {
     throw new Error("Unable to parse base64 string.");
   let n = t.endsWith("==") ? 2 : t.endsWith("=") ? 1 : 0, s = t.length, i = new Uint8Array(3 * (s / 4)), r;
   for (let o = 0, h2 = 0; o < s; o += 4, h2 += 3)
-    r = St(t.charCodeAt(o)) << 18 | St(t.charCodeAt(o + 1)) << 12 | St(t.charCodeAt(o + 2)) << 6 | St(t.charCodeAt(o + 3)), i[h2] = r >> 16, i[h2 + 1] = r >> 8 & 255, i[h2 + 2] = r & 255;
+    r = xt(t.charCodeAt(o)) << 18 | xt(t.charCodeAt(o + 1)) << 12 | xt(t.charCodeAt(o + 2)) << 6 | xt(t.charCodeAt(o + 3)), i[h2] = r >> 16, i[h2 + 1] = r >> 8 & 255, i[h2 + 2] = r & 255;
   return i.subarray(0, i.length - n);
 }
-function Bs(t, e = new TextEncoder()) {
-  return ts(e.encode(t));
+function Zs(t, e = new TextEncoder()) {
+  return is(e.encode(t));
 }
-var xt = { exports: {} };
-var Ws = xt.exports;
-var Bn;
-function Qs() {
-  return Bn || (Bn = 1, (function(t) {
+var qt = { exports: {} };
+var Js = qt.exports;
+var Kn;
+function Vs() {
+  return Kn || (Kn = 1, (function(t) {
     (function(e, n) {
       var s = {};
       n(s);
@@ -51063,7 +51063,7 @@ function Qs() {
       for (var r in s)
         i[r] = s[r];
       t.exports = i;
-    })(Ws, function(e) {
+    })(Js, function(e) {
       e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
       var n = new Uint32Array([
         1116352408,
@@ -51131,156 +51131,156 @@ function Qs() {
         3204031479,
         3329325298
       ]);
-      function s(v, c2, l, d, C2) {
-        for (var P2, U2, k, Q2, D2, E2, se, H2, j, z, We, Qe, kt; C2 >= 64; ) {
-          for (P2 = c2[0], U2 = c2[1], k = c2[2], Q2 = c2[3], D2 = c2[4], E2 = c2[5], se = c2[6], H2 = c2[7], z = 0; z < 16; z++)
-            We = d + z * 4, v[z] = (l[We] & 255) << 24 | (l[We + 1] & 255) << 16 | (l[We + 2] & 255) << 8 | l[We + 3] & 255;
+      function s(k, c2, l, p, C2) {
+        for (var P2, I2, S2, Q2, D2, E2, re, H2, j, z, Qe, Ke, At; C2 >= 64; ) {
+          for (P2 = c2[0], I2 = c2[1], S2 = c2[2], Q2 = c2[3], D2 = c2[4], E2 = c2[5], re = c2[6], H2 = c2[7], z = 0; z < 16; z++)
+            Qe = p + z * 4, k[z] = (l[Qe] & 255) << 24 | (l[Qe + 1] & 255) << 16 | (l[Qe + 2] & 255) << 8 | l[Qe + 3] & 255;
           for (z = 16; z < 64; z++)
-            j = v[z - 2], Qe = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = v[z - 15], kt = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, v[z] = (Qe + v[z - 7] | 0) + (kt + v[z - 16] | 0);
+            j = k[z - 2], Ke = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = k[z - 15], At = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, k[z] = (Ke + k[z - 7] | 0) + (At + k[z - 16] | 0);
           for (z = 0; z < 64; z++)
-            Qe = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & se) | 0) + (H2 + (n[z] + v[z] | 0) | 0) | 0, kt = ((P2 >>> 2 | P2 << 30) ^ (P2 >>> 13 | P2 << 19) ^ (P2 >>> 22 | P2 << 10)) + (P2 & U2 ^ P2 & k ^ U2 & k) | 0, H2 = se, se = E2, E2 = D2, D2 = Q2 + Qe | 0, Q2 = k, k = U2, U2 = P2, P2 = Qe + kt | 0;
-          c2[0] += P2, c2[1] += U2, c2[2] += k, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += se, c2[7] += H2, d += 64, C2 -= 64;
+            Ke = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & re) | 0) + (H2 + (n[z] + k[z] | 0) | 0) | 0, At = ((P2 >>> 2 | P2 << 30) ^ (P2 >>> 13 | P2 << 19) ^ (P2 >>> 22 | P2 << 10)) + (P2 & I2 ^ P2 & S2 ^ I2 & S2) | 0, H2 = re, re = E2, E2 = D2, D2 = Q2 + Ke | 0, Q2 = S2, S2 = I2, I2 = P2, P2 = Ke + At | 0;
+          c2[0] += P2, c2[1] += I2, c2[2] += S2, c2[3] += Q2, c2[4] += D2, c2[5] += E2, c2[6] += re, c2[7] += H2, p += 64, C2 -= 64;
         }
-        return d;
+        return p;
       }
       var i = (
         /** @class */
         (function() {
-          function v() {
+          function k() {
             this.digestLength = e.digestLength, this.blockSize = e.blockSize, this.state = new Int32Array(8), this.temp = new Int32Array(64), this.buffer = new Uint8Array(128), this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this.reset();
           }
-          return v.prototype.reset = function() {
+          return k.prototype.reset = function() {
             return this.state[0] = 1779033703, this.state[1] = 3144134277, this.state[2] = 1013904242, this.state[3] = 2773480762, this.state[4] = 1359893119, this.state[5] = 2600822924, this.state[6] = 528734635, this.state[7] = 1541459225, this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this;
-          }, v.prototype.clean = function() {
+          }, k.prototype.clean = function() {
             for (var c2 = 0; c2 < this.buffer.length; c2++)
               this.buffer[c2] = 0;
             for (var c2 = 0; c2 < this.temp.length; c2++)
               this.temp[c2] = 0;
             this.reset();
-          }, v.prototype.update = function(c2, l) {
+          }, k.prototype.update = function(c2, l) {
             if (l === void 0 && (l = c2.length), this.finished)
               throw new Error("SHA256: can't update because hash was finished.");
-            var d = 0;
+            var p = 0;
             if (this.bytesHashed += l, this.bufferLength > 0) {
               for (; this.bufferLength < 64 && l > 0; )
-                this.buffer[this.bufferLength++] = c2[d++], l--;
+                this.buffer[this.bufferLength++] = c2[p++], l--;
               this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
             }
-            for (l >= 64 && (d = s(this.temp, this.state, c2, d, l), l %= 64); l > 0; )
-              this.buffer[this.bufferLength++] = c2[d++], l--;
+            for (l >= 64 && (p = s(this.temp, this.state, c2, p, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c2[p++], l--;
             return this;
-          }, v.prototype.finish = function(c2) {
+          }, k.prototype.finish = function(c2) {
             if (!this.finished) {
-              var l = this.bytesHashed, d = this.bufferLength, C2 = l / 536870912 | 0, P2 = l << 3, U2 = l % 64 < 56 ? 64 : 128;
-              this.buffer[d] = 128;
-              for (var k = d + 1; k < U2 - 8; k++)
-                this.buffer[k] = 0;
-              this.buffer[U2 - 8] = C2 >>> 24 & 255, this.buffer[U2 - 7] = C2 >>> 16 & 255, this.buffer[U2 - 6] = C2 >>> 8 & 255, this.buffer[U2 - 5] = C2 >>> 0 & 255, this.buffer[U2 - 4] = P2 >>> 24 & 255, this.buffer[U2 - 3] = P2 >>> 16 & 255, this.buffer[U2 - 2] = P2 >>> 8 & 255, this.buffer[U2 - 1] = P2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, U2), this.finished = true;
+              var l = this.bytesHashed, p = this.bufferLength, C2 = l / 536870912 | 0, P2 = l << 3, I2 = l % 64 < 56 ? 64 : 128;
+              this.buffer[p] = 128;
+              for (var S2 = p + 1; S2 < I2 - 8; S2++)
+                this.buffer[S2] = 0;
+              this.buffer[I2 - 8] = C2 >>> 24 & 255, this.buffer[I2 - 7] = C2 >>> 16 & 255, this.buffer[I2 - 6] = C2 >>> 8 & 255, this.buffer[I2 - 5] = C2 >>> 0 & 255, this.buffer[I2 - 4] = P2 >>> 24 & 255, this.buffer[I2 - 3] = P2 >>> 16 & 255, this.buffer[I2 - 2] = P2 >>> 8 & 255, this.buffer[I2 - 1] = P2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, I2), this.finished = true;
             }
-            for (var k = 0; k < 8; k++)
-              c2[k * 4 + 0] = this.state[k] >>> 24 & 255, c2[k * 4 + 1] = this.state[k] >>> 16 & 255, c2[k * 4 + 2] = this.state[k] >>> 8 & 255, c2[k * 4 + 3] = this.state[k] >>> 0 & 255;
+            for (var S2 = 0; S2 < 8; S2++)
+              c2[S2 * 4 + 0] = this.state[S2] >>> 24 & 255, c2[S2 * 4 + 1] = this.state[S2] >>> 16 & 255, c2[S2 * 4 + 2] = this.state[S2] >>> 8 & 255, c2[S2 * 4 + 3] = this.state[S2] >>> 0 & 255;
             return this;
-          }, v.prototype.digest = function() {
+          }, k.prototype.digest = function() {
             var c2 = new Uint8Array(this.digestLength);
             return this.finish(c2), c2;
-          }, v.prototype._saveState = function(c2) {
+          }, k.prototype._saveState = function(c2) {
             for (var l = 0; l < this.state.length; l++)
               c2[l] = this.state[l];
-          }, v.prototype._restoreState = function(c2, l) {
-            for (var d = 0; d < this.state.length; d++)
-              this.state[d] = c2[d];
+          }, k.prototype._restoreState = function(c2, l) {
+            for (var p = 0; p < this.state.length; p++)
+              this.state[p] = c2[p];
             this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
-          }, v;
+          }, k;
         })()
       );
       e.Hash = i;
       var r = (
         /** @class */
         (function() {
-          function v(c2) {
+          function k(c2) {
             this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
             var l = new Uint8Array(this.blockSize);
             if (c2.length > this.blockSize)
               new i().update(c2).finish(l).clean();
             else
-              for (var d = 0; d < c2.length; d++)
-                l[d] = c2[d];
-            for (var d = 0; d < l.length; d++)
-              l[d] ^= 54;
+              for (var p = 0; p < c2.length; p++)
+                l[p] = c2[p];
+            for (var p = 0; p < l.length; p++)
+              l[p] ^= 54;
             this.inner.update(l);
-            for (var d = 0; d < l.length; d++)
-              l[d] ^= 106;
+            for (var p = 0; p < l.length; p++)
+              l[p] ^= 106;
             this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var d = 0; d < l.length; d++)
-              l[d] = 0;
+            for (var p = 0; p < l.length; p++)
+              l[p] = 0;
           }
-          return v.prototype.reset = function() {
+          return k.prototype.reset = function() {
             return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
-          }, v.prototype.clean = function() {
+          }, k.prototype.clean = function() {
             for (var c2 = 0; c2 < this.istate.length; c2++)
               this.ostate[c2] = this.istate[c2] = 0;
             this.inner.clean(), this.outer.clean();
-          }, v.prototype.update = function(c2) {
+          }, k.prototype.update = function(c2) {
             return this.inner.update(c2), this;
-          }, v.prototype.finish = function(c2) {
+          }, k.prototype.finish = function(c2) {
             return this.outer.finished ? this.outer.finish(c2) : (this.inner.finish(c2), this.outer.update(c2, this.digestLength).finish(c2)), this;
-          }, v.prototype.digest = function() {
+          }, k.prototype.digest = function() {
             var c2 = new Uint8Array(this.digestLength);
             return this.finish(c2), c2;
-          }, v;
+          }, k;
         })()
       );
       e.HMAC = r;
-      function o(v) {
-        var c2 = new i().update(v), l = c2.digest();
+      function o(k) {
+        var c2 = new i().update(k), l = c2.digest();
         return c2.clean(), l;
       }
       e.hash = o, e.default = o;
-      function h2(v, c2) {
-        var l = new r(v).update(c2), d = l.digest();
-        return l.clean(), d;
+      function h2(k, c2) {
+        var l = new r(k).update(c2), p = l.digest();
+        return l.clean(), p;
       }
       e.hmac = h2;
-      function $(v, c2, l, d) {
-        var C2 = d[0];
+      function $(k, c2, l, p) {
+        var C2 = p[0];
         if (C2 === 0)
           throw new Error("hkdf: cannot expand more");
-        c2.reset(), C2 > 1 && c2.update(v), l && c2.update(l), c2.update(d), c2.finish(v), d[0]++;
+        c2.reset(), C2 > 1 && c2.update(k), l && c2.update(l), c2.update(p), c2.finish(k), p[0]++;
       }
       var L2 = new Uint8Array(e.digestLength);
-      function R2(v, c2, l, d) {
-        c2 === void 0 && (c2 = L2), d === void 0 && (d = 32);
-        for (var C2 = new Uint8Array([1]), P2 = h2(c2, v), U2 = new r(P2), k = new Uint8Array(U2.digestLength), Q2 = k.length, D2 = new Uint8Array(d), E2 = 0; E2 < d; E2++)
-          Q2 === k.length && ($(k, U2, l, C2), Q2 = 0), D2[E2] = k[Q2++];
-        return U2.clean(), k.fill(0), C2.fill(0), D2;
+      function R2(k, c2, l, p) {
+        c2 === void 0 && (c2 = L2), p === void 0 && (p = 32);
+        for (var C2 = new Uint8Array([1]), P2 = h2(c2, k), I2 = new r(P2), S2 = new Uint8Array(I2.digestLength), Q2 = S2.length, D2 = new Uint8Array(p), E2 = 0; E2 < p; E2++)
+          Q2 === S2.length && ($(S2, I2, l, C2), Q2 = 0), D2[E2] = S2[Q2++];
+        return I2.clean(), S2.fill(0), C2.fill(0), D2;
       }
       e.hkdf = R2;
-      function W2(v, c2, l, d) {
-        for (var C2 = new r(v), P2 = C2.digestLength, U2 = new Uint8Array(4), k = new Uint8Array(P2), Q2 = new Uint8Array(P2), D2 = new Uint8Array(d), E2 = 0; E2 * P2 < d; E2++) {
-          var se = E2 + 1;
-          U2[0] = se >>> 24 & 255, U2[1] = se >>> 16 & 255, U2[2] = se >>> 8 & 255, U2[3] = se >>> 0 & 255, C2.reset(), C2.update(c2), C2.update(U2), C2.finish(Q2);
+      function W2(k, c2, l, p) {
+        for (var C2 = new r(k), P2 = C2.digestLength, I2 = new Uint8Array(4), S2 = new Uint8Array(P2), Q2 = new Uint8Array(P2), D2 = new Uint8Array(p), E2 = 0; E2 * P2 < p; E2++) {
+          var re = E2 + 1;
+          I2[0] = re >>> 24 & 255, I2[1] = re >>> 16 & 255, I2[2] = re >>> 8 & 255, I2[3] = re >>> 0 & 255, C2.reset(), C2.update(c2), C2.update(I2), C2.finish(Q2);
           for (var H2 = 0; H2 < P2; H2++)
-            k[H2] = Q2[H2];
+            S2[H2] = Q2[H2];
           for (var H2 = 2; H2 <= l; H2++) {
             C2.reset(), C2.update(Q2).finish(Q2);
             for (var j = 0; j < P2; j++)
-              k[j] ^= Q2[j];
+              S2[j] ^= Q2[j];
           }
-          for (var H2 = 0; H2 < P2 && E2 * P2 + H2 < d; H2++)
-            D2[E2 * P2 + H2] = k[H2];
+          for (var H2 = 0; H2 < P2 && E2 * P2 + H2 < p; H2++)
+            D2[E2 * P2 + H2] = S2[H2];
         }
         for (var E2 = 0; E2 < P2; E2++)
-          k[E2] = Q2[E2] = 0;
+          S2[E2] = Q2[E2] = 0;
         for (var E2 = 0; E2 < 4; E2++)
-          U2[E2] = 0;
+          I2[E2] = 0;
         return C2.clean(), D2;
       }
       e.pbkdf2 = W2;
     });
-  })(xt)), xt.exports;
+  })(qt)), qt.exports;
 }
-var Ks = Qs();
-var Zs = new Int32Array(4);
+var Ys = Vs();
+var Xs = new Int32Array(4);
 var K = class _K {
   static hashStr(e, n = false) {
     return this.onePassHasher.start().appendStr(e).end(n);
@@ -51438,7 +51438,7 @@ var K = class _K {
       i[14] = o;
     else {
       const h2 = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (h2 === null) return e ? Zs : "";
+      if (h2 === null) return e ? Xs : "";
       const $ = parseInt(h2[2], 16), L2 = parseInt(h2[1], 16) || 0;
       i[14] = $, i[15] = L2;
     }
@@ -51447,18 +51447,18 @@ var K = class _K {
 };
 if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
   throw new Error("Md5 self test failed.");
-var Js = 36e5;
-var Wn = /* @__PURE__ */ Symbol.for("constructDateFrom");
-function qt(t, e) {
-  return typeof t == "function" ? t(e) : t && typeof t == "object" && Wn in t ? t[Wn](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
+var ei = 36e5;
+var Zn = /* @__PURE__ */ Symbol.for("constructDateFrom");
+function Tt(t, e) {
+  return typeof t == "function" ? t(e) : t && typeof t == "object" && Zn in t ? t[Zn](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
 }
-function Je(t, e) {
-  return qt(t, t);
+function Ve(t, e) {
+  return Tt(t, t);
 }
-function Ys(t, e, n) {
-  const s = Je(t);
-  if (isNaN(e)) return qt(t, NaN);
-  const i = s.getDate(), r = qt(t, s.getTime());
+function ti(t, e, n) {
+  const s = Ve(t);
+  if (isNaN(e)) return Tt(t, NaN);
+  const i = s.getDate(), r = Tt(t, s.getTime());
   r.setMonth(s.getMonth() + e + 1, 0);
   const o = r.getDate();
   return i >= o ? r : (s.setFullYear(
@@ -51467,55 +51467,55 @@ function Ys(t, e, n) {
     i
   ), s);
 }
-function ns(t, e, n) {
-  return qt(t, +Je(t) + e);
+function rs(t, e, n) {
+  return Tt(t, +Ve(t) + e);
 }
-function Vs(t, e, n) {
-  return ns(t, e * Js);
+function ni(t, e, n) {
+  return rs(t, e * ei);
 }
-function Xs(t, e, n) {
-  return ns(t, e * 1e3);
+function si(t, e, n) {
+  return rs(t, e * 1e3);
 }
-function ei(t, e, n) {
-  return Ys(t, e * 12);
+function ii(t, e, n) {
+  return ti(t, e * 12);
 }
-function Sn(t) {
-  return Math.trunc(+Je(t) / 1e3);
+function xn(t) {
+  return Math.trunc(+Ve(t) / 1e3);
 }
-function ss(t, e) {
-  return +Je(t) < +Je(e);
+function os(t, e) {
+  return +Ve(t) < +Ve(e);
 }
-function Pt(t, e, n, s = "debug", i) {
+function Rt(t, e, n, s = "debug", i) {
   if (window.debug) {
     const o = ["color: #0288D1", `color:${i || "#009688"}`, "color: default"];
-    n ? Qn() ? console[s](
+    n ? Jn() ? console[s](
       `%c[PlaceOS]%c[${t}] %c${e}`,
       ...o,
       n
-    ) : console[s](`[PlaceOS][${t}] ${e}`, n) : Qn() ? console[s](`%c[PlaceOS]%c[${t}] %c${e}`, ...o) : console[s](`[PlaceOS][${t}] ${e}`);
+    ) : console[s](`[PlaceOS][${t}] ${e}`, n) : Jn() ? console[s](`%c[PlaceOS]%c[${t}] %c${e}`, ...o) : console[s](`[PlaceOS][${t}] ${e}`);
   }
 }
-function Ht(t) {
-  const e = (i) => i.length <= 0 ? void 0 : i.length === 1 ? i[0] : i, n = (i, r, o) => Pt(t, r, e(o), i), s = (i, ...r) => n("debug", i, r);
+function Ft(t) {
+  const e = (i) => i.length <= 0 ? void 0 : i.length === 1 ? i[0] : i, n = (i, r, o) => Rt(t, r, e(o), i), s = (i, ...r) => n("debug", i, r);
   return s.debug = (i, ...r) => n("debug", i, r), s.info = (i, ...r) => n("info", i, r), s.error = (i, ...r) => n("error", i, r), s.warn = (i, ...r) => n("warn", i, r), s.log = (i, ...r) => n("log", i, r), s.group = (i, ...r) => n("group", i, r), s.groupCollapsed = (i, ...r) => n("groupCollapsed", i, r), s.groupEnd = (i, ...r) => n("groupEnd", i, r), s;
 }
-function Qn() {
+function Jn() {
   return !(document.documentMode || /Edge/.test(navigator.userAgent));
 }
-function is() {
+function us() {
   var _a11, _b4, _c9, _d2, _e2, _f;
   const t = ((_a11 = window.location) == null ? void 0 : _a11.hash) ? (_b4 = window.location) == null ? void 0 : _b4.hash.slice(1) : ((_c9 = window.location) == null ? void 0 : _c9.href.split("#")[1]) || "";
   let e = ((_d2 = window.location) == null ? void 0 : _d2.search) ? (_e2 = window.location) == null ? void 0 : _e2.search.slice(1) : ((_f = window.location) == null ? void 0 : _f.href.split("?")[1]) || "", n = {};
   if (t)
     if (t.indexOf("?") >= 0) {
       const i = t.split("?");
-      n = Ee(i[0]), e || (e = i[1]);
+      n = Me(i[0]), e || (e = i[1]);
     } else
-      n = Ee(t);
+      n = Me(t);
   let s = {};
-  return e && (s = Ee(e)), __spreadValues(__spreadValues({}, n), s);
+  return e && (s = Me(e)), __spreadValues(__spreadValues({}, n), s);
 }
-function Ee(t) {
+function Me(t) {
   const e = {}, n = t.split("&");
   for (const s of n) {
     const i = s.split("=");
@@ -51525,26 +51525,26 @@ function Ee(t) {
   }
   return e;
 }
-var Ke = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-function rs(t = 40) {
+var Ze = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+function cs(t = 40) {
   let e = "";
   const n = window == null ? void 0 : window.crypto;
   if (n == null ? void 0 : n.getRandomValues) {
-    const s = 256 - 256 % Ke.length, i = new Uint8Array(t * 2);
+    const s = 256 - 256 % Ze.length, i = new Uint8Array(t * 2);
     for (; e.length < t; ) {
       n.getRandomValues(i);
       for (const r of i)
-        r < s && e.length < t && (e += Ke.charAt(r % Ke.length));
+        r < s && e.length < t && (e += Ze.charAt(r % Ze.length));
     }
     return e;
   }
   for (let s = 0; s < t; s++)
-    e += Ke.charAt(
-      Math.floor(Math.random() * Ke.length)
+    e += Ze.charAt(
+      Math.floor(Math.random() * Ze.length)
     );
   return e;
 }
-function ie(t) {
+function oe(t) {
   var _a11, _b4, _c9, _d2, _e2;
   const e = (((_a11 = window.location) == null ? void 0 : _a11.hash) || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/#&/g, "#").replace(/&$/g, "#"), n = (((_b4 = window.location) == null ? void 0 : _b4.search) || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/\?&/g, "#").replace(/&$/g, "#");
   ((_c9 = window.history) == null ? void 0 : _c9.replaceState) && ((_e2 = window.history) == null ? void 0 : _e2.replaceState(
@@ -51553,7 +51553,7 @@ function ie(t) {
     `${(_d2 = window.location) == null ? void 0 : _d2.pathname}${e}${n}`
   ));
 }
-function ti(t) {
+function ri(t) {
   if (t.length === 0)
     throw new Error("Input must not be of zero length");
   const e = t.split(","), n = {};
@@ -51566,12 +51566,12 @@ function ti(t) {
   }
   return n;
 }
-function ni(t, e) {
+function oi(t, e) {
   for (const n in t)
     t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
   return t;
 }
-function si() {
+function ui() {
   return [
     "iPad Simulator",
     "iPhone Simulator",
@@ -51582,18 +51582,18 @@ function si() {
   ].includes(navigator.platform) || // iPad on iOS 13 detection
   navigator.userAgent.includes("Mac") && "ontouchend" in document;
 }
-function ii() {
+function ci() {
   return window.location !== window.parent.location;
 }
-function ri(t = Date.now(), e = 60 * 1e3) {
+function ai(t = Date.now(), e = 60 * 1e3) {
   return Math.floor(t / e);
 }
-var oi = class {
+var hi = class {
   abort() {
-    Pt("Stub", "Aborted");
+    Rt("Stub", "Aborted");
   }
 };
-function b(t) {
+function y(t) {
   let e = "";
   if (t)
     for (const n in t)
@@ -51602,21 +51602,21 @@ function b(t) {
       )}`);
   return e;
 }
-var Ae = {};
-function re(t, e, n = 300) {
+var xe = {};
+function ue(t, e, n = 300) {
   if (t && e && e instanceof Function)
-    ye(t), Ae[t] = setTimeout(() => {
-      e(), delete Ae[t];
+    be(t), xe[t] = setTimeout(() => {
+      e(), delete xe[t];
     }, n);
   else
     throw new Error(
       t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
     );
 }
-function ye(t) {
-  Ae[t] && (clearTimeout(Ae[t]), delete Ae[t]);
+function be(t) {
+  xe[t] && (clearTimeout(xe[t]), delete xe[t]);
 }
-function ne(t) {
+function se(t) {
   let e = t;
   const n = /* @__PURE__ */ new Set(), s = () => e;
   return Object.defineProperty(s, "value", {
@@ -51630,7 +51630,7 @@ function ne(t) {
       o(e, r);
   }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
 }
-function hi(t, e = Boolean) {
+function Zr(t, e = Boolean) {
   return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
     const s = t.subscribe(
       (i) => {
@@ -51640,10 +51640,10 @@ function hi(t, e = Boolean) {
     );
   });
 }
-function li(t) {
+function fi(t) {
   return new Promise((e) => setTimeout(e, t));
 }
-var di = {
+var _i = {
   id: "mock-authority",
   name: "localhost:4200",
   description: "",
@@ -51655,30 +51655,30 @@ var di = {
   config: {},
   version: "2.0.0"
 };
-var _ = Ht("Auth");
+var _ = Ft("Auth");
 var m = {};
 var T = localStorage;
 var w;
 var g = {};
-var I = "";
-var be = "";
-var $e = ne("");
-var Ye = ne("");
-var An = "/api/engine/v2";
-var ge = ne(false);
-var qn = ne(false);
-var Rt = 0;
-function os() {
+var U = "";
+var $e = "";
+var ve = se("");
+var Ye = se("");
+var Pn = "/api/engine/v2";
+var ye = se(false);
+var Tn = se(false);
+var Ut = 0;
+function as() {
   if (m.mock) return true;
   if (!T) return false;
-  if (Ve() && !m.ignore_api_key) return true;
-  const t = T.getItem(`${I}_expires_at`) || "";
-  return ss(+t, /* @__PURE__ */ new Date()) ? false : !!($e.value || T.getItem(`${I}_access_token`));
+  if (Xe() && !m.ignore_api_key) return true;
+  const t = T.getItem(`${U}_expires_at`) || "";
+  return os(+t, /* @__PURE__ */ new Date()) ? false : !!(ve.value || T.getItem(`${U}_access_token`));
 }
-function Ce() {
-  qn.set(os());
+function we() {
+  Tn.set(as());
 }
-function us(t) {
+function hs(t) {
   var _a11;
   if (!t || t.startsWith("http://") || t.startsWith("https://"))
     return t;
@@ -51687,188 +51687,188 @@ function us(t) {
 }
 function u2() {
   var _a11, _b4;
-  return `${`${m.secure || ((_a11 = window.location) == null ? void 0 : _a11.protocol.indexOf("https")) >= 0 ? "https:" : "http:"}//${m.host || ((_b4 = window.location) == null ? void 0 : _b4.host)}`}${cs()}`;
+  return `${`${m.secure || ((_a11 = window.location) == null ? void 0 : _a11.protocol.indexOf("https")) >= 0 ? "https:" : "http:"}//${m.host || ((_b4 = window.location) == null ? void 0 : _b4.host)}`}${ls()}`;
 }
-function cs() {
-  return m.version === "ACA Engine" ? "/control/api" : An;
+function ls() {
+  return m.version === "ACA Engine" ? "/control/api" : Pn;
 }
-function pi() {
+function mi() {
   return !!m.token_header;
 }
-function fi() {
-  return I;
+function gi() {
+  return U;
 }
-function Br(t, e = true) {
-  T.setItem(`${I}_x-api-key`, `${t}`), T.setItem("trusted", `${e}`), _i("x-api-key", ei(/* @__PURE__ */ new Date(), 5).valueOf());
+function Vr(t, e = true) {
+  T.setItem(`${U}_x-api-key`, `${t}`), T.setItem("trusted", `${e}`), yi("x-api-key", ii(/* @__PURE__ */ new Date(), 5).valueOf());
 }
-function Ve() {
-  return Et("x-api-key", false) || "";
+function Xe() {
+  return Ot("x-api-key", false) || "";
 }
-function _i(t, e = Vs(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  m.ignore_api_key && t === "x-api-key" || (T.setItem(`${I}_expires_at`, `${e}`), T.setItem(`${I}_access_token`, t), $e.set(t), Ce());
+function yi(t, e = ni(/* @__PURE__ */ new Date(), 2).valueOf()) {
+  m.ignore_api_key && t === "x-api-key" || (T.setItem(`${U}_expires_at`, `${e}`), T.setItem(`${U}_access_token`, t), ve.set(t), we());
 }
-function X(t = true) {
+function J(t = true) {
   if (m.mock) return "mock-token";
   if (!T) return "";
-  if (Ve() && !m.ignore_api_key) return "x-api-key";
-  const e = T.getItem(`${I}_expires_at`) || "", n = $e.value;
-  return ss(+e, /* @__PURE__ */ new Date()) && (_("Token expired. Requesting new token..."), Un(), g.load_authority || (Rt += 1, re(
+  if (Xe() && !m.ignore_api_key) return "x-api-key";
+  const e = T.getItem(`${U}_expires_at`) || "", n = ve.value;
+  return os(+e, /* @__PURE__ */ new Date()) && (_("Token expired. Requesting new token..."), En(), g.load_authority || (Ut += 1, ue(
     "re-authorise",
     async () => {
-      delete g.authorise, await zt().catch(
+      delete g.authorise, await Lt().catch(
         (s) => _.error("Failed to get token:", s)
       );
     },
-    200 * Math.min(20, Rt)
-  )), !t) ? "" : n || T.getItem(`${I}_access_token`) || "";
+    200 * Math.min(20, Ut)
+  )), !t) ? "" : n || T.getItem(`${U}_access_token`) || "";
 }
-function Ut() {
-  return Ye.value || T.getItem(`${I}_refresh_token`) || "";
+function Et() {
+  return Ye.value || T.getItem(`${U}_refresh_token`) || "";
 }
-function xn() {
+function qn() {
   var _a11;
   return m.host || ((_a11 = window.location) == null ? void 0 : _a11.host);
 }
-function mi() {
-  return Ce(), qn.asReadonly();
+function bi() {
+  return we(), Tn.asReadonly();
 }
-function It() {
+function Mt() {
   return w;
 }
-function Qr() {
-  return ge.value;
+function Xr() {
+  return ye.value;
 }
-function Pn() {
+function Rn() {
   return !!m.mock;
 }
-function gi() {
+function $i() {
   return !!m.secure;
 }
-function Kr() {
-  return ge.asReadonly();
+function eo() {
+  return ye.asReadonly();
 }
-function Tn() {
-  return Et("trust") === "true" || Et("trusted") === "true";
+function In() {
+  return Ot("trust") === "true" || Ot("trusted") === "true";
 }
-function as() {
-  return !!Ve() && !m.ignore_api_key || Et("fixed_device") === "true";
+function ds() {
+  return !!Xe() && !m.ignore_api_key || Ot("fixed_device") === "true";
 }
-function Et(t, e = true) {
-  let s = is()[t];
+function Ot(t, e = true) {
+  let s = us()[t];
   if (T) {
-    const i = `${fi()}_${t}`;
+    const i = `${gi()}_${t}`;
     s = s || T.getItem(i) || T.getItem(t) || "", e && T.setItem(i, `${s}`);
   }
   return s;
 }
-async function Zr(t) {
-  return m = t || m, m.token_header = m.token_header ?? ii(), window.AbortController || (window.AbortController = oi), T = m.storage === "session" ? sessionStorage : localStorage, I = K.hashStr(m.redirect_uri, false), yi(), m.delay && m.delay > 0 && await li(m.delay), In();
+async function to(t) {
+  return m = t || m, m.token_header = m.token_header ?? ci(), window.AbortController || (window.AbortController = hi), T = m.storage === "session" ? sessionStorage : localStorage, U = K.hashStr(m.redirect_uri, false), vi2(), m.delay && m.delay > 0 && await fi(m.delay), Mn();
 }
-var Mt = false;
-function yi() {
-  Mt || (Mt = true, window.addEventListener("focus", Ot), document.addEventListener("visibilitychange", Ot));
+var Ct = false;
+function vi2() {
+  Ct || (Ct = true, window.addEventListener("focus", wt), document.addEventListener("visibilitychange", wt));
 }
-async function Ot() {
-  if (document.visibilityState === "hidden" || m.mock || !w || w.session || os()) return;
-  if (delete g.check_params, await ls().catch(() => false) || be || Ut()) {
-    _("Application focused with new credentials. Authorising..."), Oe = false, delete g.authorise, await zt().catch(
+async function wt() {
+  if (document.visibilityState === "hidden" || m.mock || !w || w.session || as()) return;
+  if (delete g.check_params, await fs().catch(() => false) || $e || Et()) {
+    _("Application focused with new credentials. Authorising..."), Ce = false, delete g.authorise, await Lt().catch(
       (e) => _.error("Failed to authorise on focus:", e)
     );
     return;
   }
-  _("Application focused without a session. Reloading authority..."), Oe = false, Rn().catch(
+  _("Application focused without a session. Reloading authority..."), Ce = false, Un().catch(
     (e) => _.error("Failed to refresh authority:", e)
   );
 }
-function Rn() {
-  return _("Refreshing authorty."), w = void 0, In();
-}
 function Un() {
-  _("Invalidating tokens."), T.removeItem(`${I}_access_token`), T.removeItem(`${I}_expires_at`), $e.value && $e.set(""), Ce();
+  return _("Refreshing authorty."), w = void 0, Mn();
 }
-function zt(t, e = w) {
+function En() {
+  _("Invalidating tokens."), T.removeItem(`${U}_access_token`), T.removeItem(`${U}_expires_at`), ve.value && ve.set(""), we();
+}
+function Lt(t, e = w) {
   return g.authorise || (g.authorise = new Promise((n, s) => {
     if (!e)
       return delete g.authorise, s("Authority is not loaded");
     _("Authorising user...");
     const i = () => {
-      if (X(false))
-        _("Valid token found."), delete g.authorise, n(X());
+      if (J(false))
+        _("Valid token found."), delete g.authorise, n(J());
       else {
         const r = [
           () => {
-            _("Successfully generated token."), n(X()), delete g.authorise;
+            _("Successfully generated token."), n(J()), delete g.authorise;
           },
           () => {
             _.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete g.authorise, 200);
           }
         ];
         if (m && m.auth_type === "password")
-          _("Logging in with credentials."), Pi(m).then(
+          _("Logging in with credentials."), Ii(m).then(
             ...r
-          ), Rt = 0;
-        else if (be || Ut())
+          ), Ut = 0;
+        else if ($e || Et())
           _(
-            `Generating token with ${be ? "code" : "refresh token"}`
-          ), ds().then(...r), Rt = 0;
+            `Generating token with ${$e ? "code" : "refresh token"}`
+          ), _s().then(...r), Ut = 0;
         else if (e.session)
           _(
             "Users has session. Authorising application..."
-          ), $i(t).then(...r);
+          ), Si(t).then(...r);
         else {
           _("No user session"), s("No user session"), setTimeout(() => delete g.authorise, 200);
           try {
-            hs(e);
+            ps(e);
           } catch {
           }
         }
       }
     };
-    ki().then(i, i);
+    xi().then(i, i);
   })), g.authorise;
 }
-function In(t = 0) {
+function Mn(t = 0) {
   return g.load_authority || (g.load_authority = new Promise((e) => {
     var _a11;
-    if (ge.set(false), m.mock) {
-      w = di, _("System in mock mode"), ge.set(true), e();
+    if (ye.set(false), m.mock) {
+      w = _i, _("System in mock mode"), ye.set(true), e();
       return;
     }
-    _(`Fixed: ${as()} | Trusted: ${Tn()}`), _("Loading authority...");
+    _(`Fixed: ${ds()} | Trusted: ${In()}`), _("Loading authority...");
     const n = m.secure || ((_a11 = window.location) == null ? void 0 : _a11.protocol.indexOf("https")) >= 0, s = (i) => {
-      _.error(`Failed to load authority(${i})`), ge.set(false), re(
+      _.error(`Failed to load authority(${i})`), ye.set(false), ue(
         "load_authority",
         () => {
-          delete g.load_authority, In(t).then((r) => e());
+          delete g.load_authority, Mn(t).then((r) => e());
         },
         300 * Math.min(20, ++t)
       );
     };
-    fetch(`${n ? "https:" : "http:"}//${xn()}/auth/authority`, {
+    fetch(`${n ? "https:" : "http:"}//${qn()}/auth/authority`, {
       credentials: "same-origin"
     }).then(async (i) => {
       if (!i.ok)
         return s(await i.text().catch((o) => o));
-      w = await i.json(), An = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+      w = await i.json(), Pn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
         w.version || ""
       ) ? "/api/engine/v2" : "/control/api", _.group("Loaded authority."), w && (_(`Name: ${w.name}`), _(`Version: ${w.version}`), _(`Domain: ${w.domain}`), _(`Session: ${w.session}`), _(`Production: ${w.production}`), _(
         `Config Keys: ${Object.keys(w.config || {}).length}`
       )), _.groupEnd("");
       const r = () => {
-        ge.set(true), _("Application set online."), e();
+        ye.set(true), _("Application set online."), e();
       };
-      delete g.load_authority, zt("").then(r, r);
+      delete g.load_authority, Lt("").then(r, r);
     }, s);
   })), g.load_authority;
 }
-async function $i(t) {
+async function Si(t) {
   var _a11;
-  const e = Si(t);
+  const e = qi(t);
   if (m.use_iframe)
-    return vi2(e);
+    return Ai(e);
   (_a11 = window.location) == null ? void 0 : _a11.assign(e);
 }
-function vi2(t) {
+function Ai(t) {
   return g.iframe_auth || (g.iframe_auth = new Promise((e, n) => {
     _("Authorizing in an iFrame...");
     const s = document.createElement("iframe");
@@ -51877,11 +51877,11 @@ function vi2(t) {
       var _a11;
       if (o.origin === ((_a11 = window.location) == null ? void 0 : _a11.origin) && o.data.type === "place-os") {
         const h2 = o.data;
-        if (_("Received credentials from iFrame..."), document.body.removeChild(s), ye("iframe_auth"), window.removeEventListener("message", i), delete g.iframe_auth, h2.token)
-          return e(), En(__spreadValues({
+        if (_("Received credentials from iFrame..."), document.body.removeChild(s), be("iframe_auth"), window.removeEventListener("message", i), delete g.iframe_auth, h2.token)
+          return e(), On(__spreadValues({
             access_token: h2.token
           }, h2));
-        be = h2.code || "", ds().then(
+        $e = h2.code || "", _s().then(
           ($) => e($),
           ($) => n($)
         );
@@ -51889,23 +51889,23 @@ function vi2(t) {
     }, r = () => {
       window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete g.iframe_auth;
     };
-    re(
+    ue(
       "iframe_auth",
       () => {
         _.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
       },
       15 * 1e3
     ), window.addEventListener("message", i), s.onerror = (o) => {
-      _.error("iFrame error.", o), ye("iframe_auth"), r(), n();
+      _.error("iFrame error.", o), be("iframe_auth"), r(), n();
     }, document.body.appendChild(s);
   })), g.iframe_auth;
 }
-var Oe = false;
-function hs(t) {
+var Ce = false;
+function ps(t) {
   var _a11, _b4;
-  if (m.handle_login !== false && !Oe) {
+  if (m.handle_login !== false && !Ce) {
     _("Redirecting to login page...");
-    const e = us(
+    const e = hs(
       (_b4 = t.login_url) == null ? void 0 : _b4.replace(
         "{{url}}",
         encodeURIComponent((_a11 = window.location) == null ? void 0 : _a11.href)
@@ -51914,71 +51914,71 @@ function hs(t) {
     throw setTimeout(() => {
       var _a12;
       return (_a12 = window.location) == null ? void 0 : _a12.assign(e);
-    }, 300), Oe = true, new Error("Redirecting to login page...");
+    }, 300), Ce = true, new Error("Redirecting to login page...");
   } else
     _("Login being handled locally.");
   delete g.authorise;
 }
-function ki() {
+function xi() {
   return g.check_token || (g.check_token = new Promise(async (t, e) => {
-    X() ? (_("Valid token found."), t(X())) : (_("No token. Checking URL for auth credentials..."), await ls() ? t(true) : e()), delete g.check_token;
+    J() ? (_("Valid token found."), t(J())) : (_("No token. Checking URL for auth credentials..."), await fs() ? t(true) : e()), delete g.check_token;
   })), g.check_token;
 }
-function ls() {
+function fs() {
   return g.check_params || (g.check_params = new Promise((t) => {
     _("Checking for auth parameters...");
-    let e = is();
+    let e = us();
     if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
       sessionStorage.getItem("ENGINE.auth.params") || "{}"
     ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
-      const n = T.getItem(`${I}_nonce`) || "", s = (e.state || "").split(";");
-      ie("state"), ie("token_type");
+      const n = T.getItem(`${U}_nonce`) || "", s = (e.state || "").split(";");
+      oe("state"), oe("token_type");
       const i = s[0];
-      n === i ? (e.code && (be = e.code, ie("code")), e.refresh_token && (T.setItem(
-        `${I}_refresh_token`,
+      n === i ? (e.code && ($e = e.code, oe("code")), e.refresh_token && (T.setItem(
+        `${U}_refresh_token`,
         e.refresh_token
-      ), ie("refresh_token")), En(e), t(!!e.access_token)) : (ie("code"), ie("access_token"), ie("refresh_token"), t(false));
+      ), oe("refresh_token")), On(e), t(!!e.access_token)) : (oe("code"), oe("access_token"), oe("refresh_token"), t(false));
     } else
       t(false);
-    re(
+    ue(
       "check_params_promise",
       () => delete g.check_params,
       50
     );
   })), g.check_params;
 }
-function Si(t) {
-  const e = Ti();
+function qi(t) {
+  const e = Ui();
   t = t ? `${e};${t}` : e;
-  const n = m ? (m.auth_uri || "").indexOf("?") >= 0 : false, s = (m ? m.auth_uri : null) || "/auth/oauth/authorize", i = Tn() || m.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(I)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(m.redirect_uri)}&scope=${encodeURIComponent(m.scope)}`;
+  const n = m ? (m.auth_uri || "").indexOf("?") >= 0 : false, s = (m ? m.auth_uri : null) || "/auth/oauth/authorize", i = In() || m.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(U)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(m.redirect_uri)}&scope=${encodeURIComponent(m.scope)}`;
   if (m.auth_type === "auth_code") {
-    const { challenge: o, verify: h2 } = xi();
-    sessionStorage.setItem(`${I}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${h2}`;
+    const { challenge: o, verify: h2 } = Pi();
+    sessionStorage.setItem(`${U}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${h2}`;
   }
   return r;
 }
-function xi(t = 43) {
-  const e = rs(t), n = Gs(Bs(e)), s = ts(Ks.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
+function Pi(t = 43) {
+  const e = cs(t), n = Ks(Zs(e)), s = is(Ys.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
   return { challenge: e, verify: s };
 }
-function Ai() {
-  let e = (m.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(I)}`, n = "";
-  if (e += `&redirect_uri=${encodeURIComponent(m.redirect_uri)}`, Ut()) {
-    e += `&refresh_token=${encodeURIComponent(Ut())}`, e += "&grant_type=refresh_token";
+function Ti() {
+  let e = (m.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(U)}`, n = "";
+  if (e += `&redirect_uri=${encodeURIComponent(m.redirect_uri)}`, Et()) {
+    e += `&refresh_token=${encodeURIComponent(Et())}`, e += "&grant_type=refresh_token";
     const s = e.indexOf("?");
     n = e.slice(s + 1), e = e.slice(0, s);
   } else {
-    e += `&code=${encodeURIComponent(be)}`, e += "&grant_type=authorization_code";
-    const s = sessionStorage.getItem(`${I}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${I}_challenge`)), be = "";
+    e += `&code=${encodeURIComponent($e)}`, e += "&grant_type=authorization_code";
+    const s = sessionStorage.getItem(`${U}_challenge`);
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${U}_challenge`)), $e = "";
   }
   return [e, n];
 }
-function qi(t) {
-  const e = t.token_uri || "/auth/token", n = b({
+function Ri(t) {
+  const e = t.token_uri || "/auth/token", n = y({
     grant_type: "password",
-    client_id: I,
+    client_id: U,
     client_secret: t.client_secret,
     redirect_uri: t.redirect_uri,
     authority: w == null ? void 0 : w.id,
@@ -51988,17 +51988,17 @@ function qi(t) {
   });
   return `${e}?${n}`;
 }
-function ds() {
-  return ps(...Ai());
+function _s() {
+  return ms(...Ti());
 }
-function Pi(t) {
-  return ps(qi(t));
+function Ii(t) {
+  return ms(Ri(t));
 }
-function ps(t, e = "") {
+function ms(t, e = "") {
   return g.generate_tokens || (g.generate_tokens = new Promise((n, s) => {
     _("Generating new token...");
     const i = (r) => {
-      _.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T.removeItem(`${I}_refresh_token`), Ye.set("")), Ce(), s(), delete g.generate_tokens;
+      _.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T.removeItem(`${U}_refresh_token`), Ye.set("")), we(), s(), delete g.generate_tokens;
     };
     fetch(t, {
       method: "POST",
@@ -52009,35 +52009,35 @@ function ps(t, e = "") {
     }).then(async (r) => {
       if (!r.ok) return i(r);
       const o = await r.json();
-      En(o), n(), delete g.generate_tokens;
+      On(o), n(), delete g.generate_tokens;
     }, i);
   })), g.generate_tokens;
 }
-function En(t) {
-  const e = Xs(
+function On(t) {
+  const e = si(
     /* @__PURE__ */ new Date(),
     Math.max(60, parseInt(t.expires_in, 10) - 300)
   );
-  _("Tokens generated storing..."), Tn() && (t.access_token && (T.setItem(
-    `${I}_access_token`,
+  _("Tokens generated storing..."), In() && (t.access_token && (T.setItem(
+    `${U}_access_token`,
     t.access_token
-  ), ie("access_token")), t.refresh_token && (T.setItem(
-    `${I}_refresh_token`,
+  ), oe("access_token")), t.refresh_token && (T.setItem(
+    `${U}_refresh_token`,
     t.refresh_token
-  ), ie("refresh_token"))), t.expires_in && (T.setItem(`${I}_expires_at`, `${e.valueOf()}`), ie("expires_in")), ge.set(true), $e.set(t.access_token || ""), Ye.set(t.refresh_token || ""), Ce();
+  ), oe("refresh_token"))), t.expires_in && (T.setItem(`${U}_expires_at`, `${e.valueOf()}`), oe("expires_in")), ye.set(true), ve.set(t.access_token || ""), Ye.set(t.refresh_token || ""), we();
 }
-function Ti() {
-  const t = rs();
-  return T.setItem(`${I}_nonce`, t), t;
+function Ui() {
+  const t = cs();
+  return T.setItem(`${U}_nonce`, t), t;
 }
-var qe = Ht("HTTP(M)");
-var Ft = {};
-var fs = (t, e) => {
+var qe = Ft("HTTP(M)");
+var jt = {};
+var gs = (t, e) => {
   const n = new Error(`Mock endpoint not found: ${t} ${e}`);
   return n.status = 404, qe(`404 ${t}:`, e), Promise.reject(n);
 };
-function to(t, e = Ft) {
-  Ri(t.method, t.path, e);
+function uo(t, e = jt) {
+  Ei(t.method, t.path, e);
   const n = `${t.method}|${t.path}`, s = t.path.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("/"), i = __spreadProps(__spreadValues({}, t), {
     path_parts: s,
     path_structure: s.map(
@@ -52046,23 +52046,23 @@ function to(t, e = Ft) {
   });
   e[n] = i, qe(`+ ${t.method} ${t.path}`);
 }
-function Ri(t, e, n = Ft) {
+function Ei(t, e, n = jt) {
   const s = `${t}|${e}`;
   n[s] && (delete n[s], qe(`- ${t} ${e}`));
 }
-function Ui(t, e, n, s = Ft) {
-  const i = Ii(t, e, s);
+function Mi(t, e, n, s = jt) {
+  const i = Oi(t, e, s);
   if (i) {
-    const r = Ei(e, i, n);
-    return Mi(i, r);
+    const r = Ci(e, i, n);
+    return wi(i, r);
   }
   try {
-    return fs(t, e);
+    return gs(t, e);
   } catch (r) {
     return qe.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
   }
 }
-function Ii(t, e, n = Ft) {
+function Oi(t, e, n = jt) {
   const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
     n
   ).reduce((o, h2) => (h2.indexOf(`${t}|`) === 0 && o.push(n[h2]), o), []);
@@ -52079,8 +52079,8 @@ function Ii(t, e, n = Ft) {
     }
   return null;
 }
-function Ei(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Ee(r), h2 = i.split("/"), $ = {};
+function Ci(t, e, n) {
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Me(r), h2 = i.split("/"), $ = {};
   for (let R2 = 0; R2 < e.path_structure.length; R2++) {
     const W2 = e.path_structure[R2];
     W2 && ($[W2] = h2[R2]);
@@ -52096,7 +52096,7 @@ function Ei(t, e, n) {
   };
   return qe(`MATCHED ${L2.method}:`, L2), L2;
 }
-function Mi(t, e) {
+function wi(t, e) {
   let n;
   try {
     n = t.callback ? t.callback(e) : t.metadata;
@@ -52108,27 +52108,42 @@ function Mi(t, e) {
     setTimeout(() => o(n), Math.max(200, r));
   });
 }
-var Oi = Ht("HTTP");
-var _s = {};
-function Ci(t, e = _s) {
+var Ni = Ft("HTTP");
+var Di = 3e4;
+async function Hi() {
+  J(false);
+  const t = bi();
+  t.value || await new Promise((e, n) => {
+    const s = setTimeout(() => {
+      i(), n(new Error("Timed out waiting for authentication."));
+    }, Di), i = t.subscribe(
+      (r) => {
+        r && (clearTimeout(s), i(), e());
+      },
+      { emitCurrent: false }
+    );
+  });
+}
+var ys = {};
+function zi(t, e = ys) {
   return e[t] || {};
 }
-function p(t, e, n = Xe) {
+function f(t, e, n = et) {
   return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
 }
-function S(t, e, n, s = Xe) {
+function v(t, e, n, s = et) {
   return n || (n = { response_type: "json" }), s("POST", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function ae(t, e, n, s = Xe) {
+function ce(t, e, n, s = et) {
   return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function he(t, e, n, s = Xe) {
+function te(t, e, n, s = et) {
   return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
 }
-function ee(t, e, n = Xe) {
+function V(t, e, n = et) {
   return e || (e = { response_type: "void" }), n("DELETE", t, __spreadValues({ response_type: "void" }, e));
 }
-async function wi(t, e, n = _s) {
+async function Fi(t, e, n = ys) {
   if (t.headers) {
     const s = {};
     t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
@@ -52136,6 +52151,8 @@ async function wi(t, e, n = _s) {
     ), n[t.url || ""] = s;
   }
   switch (e) {
+    case "blob":
+      return await t.blob();
     case "json":
       return await t.json().catch(() => ({}));
     case "text":
@@ -52146,15 +52163,15 @@ async function wi(t, e, n = _s) {
       return await t.json().catch(() => ({}));
   }
 }
-var ms = () => (Un(), Rn().then(
+var bs = () => (En(), Un().then(
   () => Promise.resolve(),
   () => new Promise((t) => {
     setTimeout(() => {
-      ms().then(() => t());
+      bs().then(() => t());
     }, 1e3);
   })
 ));
-function Xe(t, e, n, s = Pn, i = Ui, r = wi) {
+function et(t, e, n, s = Rn, i = Mi, r = Fi) {
   if (s()) {
     const R2 = i(t, e, n == null ? void 0 : n.body);
     if (R2) return R2;
@@ -52167,7 +52184,7 @@ function Xe(t, e, n, s = Pn, i = Ui, r = wi) {
     });
     return delete R2.response_type, delete R2.skip_auth, delete R2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (R2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, R2);
   }, h2 = async () => {
-    n.skip_auth || (await hi(mi(), Boolean), X() === "x-api-key" ? n.headers["X-API-Key"] = Ve() : n.headers.Authorization = `Bearer ${X()}`);
+    n.skip_auth || (await Hi(), J() === "x-api-key" ? n.headers["X-API-Key"] = Xe() : n.headers.Authorization = `Bearer ${J()}`);
     const R2 = await o();
     if (R2.ok) return r(R2, n.response_type);
     throw R2;
@@ -52178,9 +52195,9 @@ function Xe(t, e, n, s = Pn, i = Ui, r = wi) {
       if (R2 >= $) throw W2 || {};
       if (n.skip_auth || n.skip_auth_flow) throw W2 || {};
       if (W2.status === 511)
-        throw hs(It()), W2;
+        throw ps(Mt()), W2;
       if (W2.status !== 401) throw W2 || {};
-      return Oi.warn("Auth error:", W2), await ms().catch(() => {
+      return Ni.warn("Auth error:", W2), await bs().catch(() => {
         throw W2;
       }), L2(R2 + 1);
     }
@@ -52206,53 +52223,53 @@ var F = class {
    */
   toJSON() {
     const e = __spreadValues({}, this);
-    return e.version = this.version, delete e.created_at, ni(e, [void 0, null, ""]);
+    return e.version = this.version, delete e.created_at, oi(e, [void 0, null, ""]);
   }
 };
-var gs = {};
-var ys = {};
-var Zn = "";
-var jt = (t) => t;
-var zi = 300;
-var Ie = {};
-function y(t) {
-  const { query_params: e, fn: n, path: s, endpoint: i } = t, r = b(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Ie[o]) return Ie[o].promise;
-  const h2 = p(o).then(($) => {
-    const L2 = Fi(o, r, s);
+var $s = {};
+var vs = {};
+var Yn = "";
+var Bt = (t) => t;
+var Bi = 300;
+var Ee = {};
+function b(t) {
+  const { query_params: e, fn: n, path: s, endpoint: i } = t, r = y(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
+  if (Ee[o]) return Ee[o].promise;
+  const h2 = f(o).then(($) => {
+    const L2 = Wi(o, r, s);
     return {
       total: L2.total || 0,
-      next: L2.next ? () => y({
+      next: L2.next ? () => b({
         query_params: L2.next,
         fn: n,
         endpoint: i,
         path: s
       }) : null,
-      data: $ && $ instanceof Array ? $.map((R2) => (n || jt)(R2)) : $ && !($ instanceof Array) && $.results ? $.results.map((R2) => R2) : []
+      data: $ && $ instanceof Array ? $.map((R2) => (n || Bt)(R2)) : $ && !($ instanceof Array) && $.results ? $.results.map((R2) => R2) : []
     };
   });
-  return Ie[o] = {
+  return Ee[o] = {
     promise: h2,
-    timeout: setTimeout(() => delete Ie[o], zi)
+    timeout: setTimeout(() => delete Ee[o], Bi)
   }, h2.catch(() => {
     var _a11;
-    clearTimeout((_a11 = Ie[o]) == null ? void 0 : _a11.timeout), delete Ie[o];
+    clearTimeout((_a11 = Ee[o]) == null ? void 0 : _a11.timeout), delete Ee[o];
   }), h2;
 }
-function f(t) {
-  const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = b(e), h2 = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return p(h2, r).then(($) => (i || jt)($));
+function d(t) {
+  const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = y(e), h2 = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
+  return f(h2, r).then(($) => (i || Bt)($));
 }
 function q(t) {
-  const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, h2 = b(__spreadProps(__spreadValues({}, n), {
+  const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, h2 = y(__spreadProps(__spreadValues({}, n), {
     version: s.version || 0
   })), $ = `${u2()}/${r}/${e}${h2 ? "?" + h2 : ""}`;
-  return (i === "put" ? ae : he)($, s).then(
-    (L2) => (o || jt)(L2)
+  return (i === "put" ? ce : te)($, s).then(
+    (L2) => (o || Bt)(L2)
   );
 }
-function Fi(t, e, n) {
-  const s = Ci(
+function Wi(t, e, n) {
+  const s = zi(
     t[0] === "/" ? `${location.origin}${t}` : t
   ), i = {
     total: 0,
@@ -52260,11 +52277,11 @@ function Fi(t, e, n) {
   };
   if (s && s["x-total-count"]) {
     const r = +(s["x-total-count"] || 0);
-    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && (gs[n] = r), ys[n] = r, i.total = r;
+    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && ($s[n] = r), vs[n] = r, i.total = r;
   }
-  return s && s.link && (Zn = ti(s.link || "").next, i.next = Ee(Zn.split("?")[1])), i;
+  return s && s.link && (Yn = ri(s.link || "").next, i.next = Me(Yn.split("?")[1])), i;
 }
-var Mn = class extends F {
+var Cn = class extends F {
   /** Hash of the email address of the user */
   email_digest;
   /** ID of the authority associated with the user */
@@ -52323,7 +52340,7 @@ var Mn = class extends F {
     super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true;
   }
 };
-var ze = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(ze || {});
+var Fe = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(Fe || {});
 var Pe = class extends F {
   /** ID of the parent zone/system/module/driver */
   parent_id;
@@ -52342,11 +52359,11 @@ var Pe = class extends F {
     return this.settings_string;
   }
   constructor(e = {}) {
-    super(e), this.parent_id = e.parent_id || "", this.updated_at = e.updated_at || Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3), this.settings_string = e.settings_string || "", this.encryption_level = e.encryption_level || ze.None, this.keys = e.keys || [], this.modified_by_id = e.modified_by_id || "";
+    super(e), this.parent_id = e.parent_id || "", this.updated_at = e.updated_at || Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3), this.settings_string = e.settings_string || "", this.encryption_level = e.encryption_level || Fe.None, this.keys = e.keys || [], this.modified_by_id = e.modified_by_id || "";
   }
 };
-var Ct = /* @__PURE__ */ ((t) => (t[t.SSH = 0] = "SSH", t[t.Device = 1] = "Device", t[t.Service = 2] = "Service", t[t.Websocket = 3] = "Websocket", t[t.Logic = 99] = "Logic", t))(Ct || {});
-var vs = class extends F {
+var Nt = /* @__PURE__ */ ((t) => (t[t.SSH = 0] = "SSH", t[t.Device = 1] = "Device", t[t.Service = 2] = "Service", t[t.Websocket = 3] = "Websocket", t[t.Logic = 99] = "Logic", t))(Nt || {});
+var As = class extends F {
   /** Place class name of the driver */
   class_name;
   /** Description of the driver functionality */
@@ -52375,15 +52392,15 @@ var vs = class extends F {
   /** Tuple of user settings of differring encryption levels for the driver */
   settings;
   constructor(e = {}) {
-    super(e), this.description = e.description || "", this.module_name = e.module_name || "", this.role = e.role ?? Ct.Logic, this.default_uri = e.default_uri || "", this.default_port = e.default_port || 1, this.ignore_connected = e.ignore_connected || false, this.class_name = e.class_name || "", this.repository_id = e.repository_id || "", this.file_name = e.file_name || "", this.commit = e.commit || "", this.update_available = e.update_available || false, this.update_info = e.update_info, this.alert_level = e.alert_level || "medium", this.settings = e.settings || [null, null, null, null], typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in ze)
+    super(e), this.description = e.description || "", this.module_name = e.module_name || "", this.role = e.role ?? Nt.Logic, this.default_uri = e.default_uri || "", this.default_port = e.default_port || 1, this.ignore_connected = e.ignore_connected || false, this.class_name = e.class_name || "", this.repository_id = e.repository_id || "", this.file_name = e.file_name || "", this.commit = e.commit || "", this.update_available = e.update_available || false, this.update_info = e.update_info, this.alert_level = e.alert_level || "medium", this.settings = e.settings || [null, null, null, null], typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in Fe)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
         parent_id: this.id,
         encryption_level: +n
       }));
   }
 };
-var On = class {
+var wn = class {
   /** ISO8601 timestamp of the creation time of the group */
   created_at;
   /** ISO8601 timestamp of the last update time of the group */
@@ -52406,20 +52423,20 @@ var On = class {
     this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.subsystems = e.subsystems || [], this.authority_id = e.authority_id || "", this.parent_id = e.parent_id || "", isFinite(Number(e.children_count)) && (this.children_count = e.children_count);
   }
 };
-var Fe = "groups";
-function rt(t) {
-  return new On(t);
+var Le = "groups";
+function ot(t) {
+  return new wn(t);
 }
-function xu(t = {}) {
-  const e = b(t), n = `${u2()}/${Fe}/current${e ? "?" + e : ""}`;
-  return p(n).then(
+function Iu(t = {}) {
+  const e = y(t), n = `${u2()}/${Le}/current${e ? "?" + e : ""}`;
+  return f(n).then(
     (s) => (s || []).map((i) => ({
-      group: rt(i.group || {}),
+      group: ot(i.group || {}),
       permissions: i.permissions || 0
     }))
   );
 }
-var de = class extends F {
+var pe = class extends F {
   /** Name of the system assocaited with the trigger */
   system_name;
   /** Number of times the trigger has been activated/triggered */
@@ -52482,7 +52499,7 @@ var de = class extends F {
     }, this.debounce_period = e.debounce_period || 0, this.important = e.important || false, this.enabled = e.enabled || false, this.webhook_secret = e.webhook_secret || "", this.control_system_id = e.system_id || e.control_system_id || "", this.zone_id = e.zone_id || "", this.system_name = e.system_name || (e.control_system ? e.control_system.name : ""), this.enable_webhook = e.enable_webhook || false, this.exec_enabled = e.exec_enabled || false, this.supported_methods = e.supported_methods || ["POST"], this.activated_count = e.activated_count || e.trigger_count || 0, this.playlists = e.playlists || [], this.trigger_id = e.trigger_id || "", this.any_match = e.any_match || false;
   }
 };
-var Yt = class extends F {
+var Xt = class extends F {
   /** Tuple of user settings of differring encryption levels for the zone */
   settings = [null, null, null, null];
   /** Description of the zone's purpose */
@@ -52522,19 +52539,21 @@ var Yt = class extends F {
   trigger_list = [];
   constructor(e = {}) {
     super(e), this.description = e.description || "", this.tags = e.tags || [], this.triggers = e.triggers || [], this.settings = e.settings || [null, null, null, null], this.parent_id = e.parent_id || "", this.location = e.location || "", this.display_name = e.display_name || "", this.code = e.code || "", this.type = e.type || "", this.count = e.count || 0, this.capacity = e.capacity || 0, this.map_id = e.map_id || "", this.timezone = e.timezone || "", this.images = e.images || [], this.playlists = e.playlists || [], isFinite(Number(e.children_count)) && (this.children_count = e.children_count), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in ze)
+    for (const n in Fe)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
         parent_id: this.id,
         encryption_level: +n
       }));
     e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new de(n)
+      (n) => new pe(n)
     ));
   }
 };
-var As = class {
+var Ts = class {
   /** ID of the parent resource associated with the metadata */
   id;
+  /** ID of the parent resource associated with the metadata */
+  parent_id;
   /** Name/ID of the zone metadata */
   name;
   /** Description of what this metadata represents */
@@ -52545,6 +52564,10 @@ var As = class {
   editors;
   /** JSON schema associated with the metadata details */
   schema;
+  /** ID of the schema associated with the metadata details */
+  schema_id;
+  /** Unix timestamp that the metadata was created at */
+  created_at;
   /** Unix timestamp that the metadata was last modified at */
   updated_at;
   /** ID of the user that last modified the metadata */
@@ -52552,47 +52575,47 @@ var As = class {
   /** Version of the data */
   version;
   constructor(e = {}) {
-    this.id = e.id || e.parent_id || "", this.name = e.name || "", this.description = e.description || "";
+    this.parent_id = e.parent_id || e.id || "", this.id = this.parent_id, this.name = e.name || "", this.description = e.description || "";
     try {
       this.details = (typeof e.details == "string" ? JSON.parse(e.details) : e.details) || {};
     } catch {
       this.details = e.details || {};
     }
-    this.editors = e.editors || [], this.schema = e.schema || "", this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
+    this.editors = e.editors || [], this.schema_id = e.schema_id || e.schema || "", this.schema = this.schema_id, this.created_at = (e.created_at || 0) * 1e3 || Date.now(), this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
   }
 };
-var ve = "metadata";
-function Le(t) {
-  return new As(t);
+var fe = "metadata";
+function Te(t) {
+  return new Ts(t);
 }
-function Vu(t, e) {
-  return f({
+function ic(t, e) {
+  return d({
     id: t,
     query_params: { name: e },
-    fn: (n) => Le(n[e]),
-    path: ve
+    fn: (n) => Te(n[e]),
+    path: fe
   });
 }
-function Xu(t, e, n = "put") {
+function rc(t, e, n = "put") {
   return q({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
-    fn: Le,
-    path: ve
+    fn: Te,
+    path: fe
   });
 }
-function sc(t, e) {
-  const n = b(e), s = `${u2()}/${ve}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return p(s).then(
+function hc(t, e) {
+  const n = y(e), s = `${u2()}/${fe}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
+  return f(s).then(
     (i) => Object.keys(i || {}).reduce(
-      (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Le(i[o]) }),
+      (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Te(i[o]) }),
       {}
     )
   );
 }
-var qs = class extends F {
+var Rs = class extends F {
   /** Tuple of user settings of differring encryption levels for the system */
   settings = [null, null, null, null];
   /** Display name of the system */
@@ -52652,18 +52675,18 @@ var qs = class extends F {
   /** Orientation of the signage system */
   orientation;
   constructor(e = {}) {
-    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || Sn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in ze)
+    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || xn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in Fe)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
         parent_id: this.id,
         encryption_level: +n
       }));
     e.module_data && e.module_data instanceof Array && (this.module_list = e.module_data.map(
-      (n) => new Ps(n)
+      (n) => new Is(n)
     ));
   }
 };
-var Ps = class extends F {
+var Is = class extends F {
   /** Whether the associated hardware is connected */
   connected;
   /** Whether the module driver is running */
@@ -52713,10 +52736,10 @@ var Ps = class extends F {
     return this.control_system_id;
   }
   constructor(e = {}) {
-    super(e), this.driver_id = e.driver_id || e.dependency_id || "", this.control_system_id = e.control_system_id || "", this.edge_id = e.edge_id || "", this.ip = e.ip || "", this.tls = e.tls || false, this.udp = e.udp || false, this.port = e.port || 1, this.makebreak = e.makebreak || false, this.uri = e.uri || "", this.custom_name = e.custom_name || "", this.role = e.role ?? Ct.Logic, this.notes = e.notes || "", this.ignore_connected = e.ignore_connected || false, this.connected = e.connected, this.running = e.running || false, this.updated_at = e.updated_at || 0, this.system = new qs(
+    super(e), this.driver_id = e.driver_id || e.dependency_id || "", this.control_system_id = e.control_system_id || "", this.edge_id = e.edge_id || "", this.ip = e.ip || "", this.tls = e.tls || false, this.udp = e.udp || false, this.port = e.port || 1, this.makebreak = e.makebreak || false, this.uri = e.uri || "", this.custom_name = e.custom_name || "", this.role = e.role ?? Nt.Logic, this.notes = e.notes || "", this.ignore_connected = e.ignore_connected || false, this.connected = e.connected, this.running = e.running || false, this.updated_at = e.updated_at || 0, this.system = new Rs(
       e.control_system || e.system
-    ), this.has_runtime_error = e.has_runtime_error || false, this.error_timestamp = e.error_timestamp || 0, this.driver = new vs(e.dependency || e.driver), this.settings = e.settings || [null, null, null, null], this.alert_level = e.alert_level || "medium", typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in ze)
+    ), this.has_runtime_error = e.has_runtime_error || false, this.error_timestamp = e.error_timestamp || 0, this.driver = new As(e.dependency || e.driver), this.settings = e.settings || [null, null, null, null], this.alert_level = e.alert_level || "medium", typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in Fe)
       !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
         parent_id: this.id,
         encryption_level: +n
@@ -52727,50 +52750,50 @@ var Ps = class extends F {
    */
   toJSON(e = false) {
     const n = super.toJSON();
-    return (n.role !== Ct.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
+    return (n.role !== Nt.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
   }
 };
 var M = "systems";
-function Te(t) {
-  return new qs(t);
-}
-function ha(t = {}) {
-  return y({ query_params: t, fn: Te, path: M });
-}
-function la(t) {
-  return y({ query_params: t, fn: Te, path: `${M}/with_emails` });
-}
-function da(t, e = {}) {
-  return f({ id: t, query_params: e, fn: Te, path: M });
-}
-var Y = "users";
 function Re(t) {
-  return new Mn(t);
+  return new Rs(t);
 }
-function Fa(t = {}) {
-  return y({ query_params: t, fn: Re, path: Y });
+function ga(t = {}) {
+  return b({ query_params: t, fn: Re, path: M });
 }
-function La(t, e = {}) {
-  return f({ id: t, query_params: e, fn: Re, path: Y });
+function ya(t) {
+  return b({ query_params: t, fn: Re, path: `${M}/with_emails` });
 }
-function Ga(t, e, n = "patch") {
+function ba(t, e = {}) {
+  return d({ id: t, query_params: e, fn: Re, path: M });
+}
+var X = "users";
+function Ie(t) {
+  return new Cn(t);
+}
+function Ka(t = {}) {
+  return b({ query_params: t, fn: Ie, path: X });
+}
+function Za(t, e = {}) {
+  return d({ id: t, query_params: e, fn: Ie, path: X });
+}
+function Va(t, e, n = "patch") {
   return q({
     id: t,
     form_data: e,
     query_params: {},
     method: n,
-    fn: Re,
-    path: Y
+    fn: Ie,
+    path: X
   });
 }
-var pe = "zones";
-function on(t) {
-  return new Yt(t);
+var _e = "zones";
+function cn(t) {
+  return new Xt(t);
 }
-function eh(t = {}) {
-  return y({ query_params: t, fn: on, path: pe });
+function uh(t = {}) {
+  return b({ query_params: t, fn: cn, path: _e });
 }
-var _r = class {
+var $r = class {
   id;
   parent_category_id;
   name;
@@ -52782,7 +52805,7 @@ var _r = class {
     this.id = e.id || "", this.parent_category_id = e.parent_category_id || "", this.name = e.name || "", this.description = e.description || "", this.hidden = e.hidden || false, this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
   }
 };
-var gr = class {
+var kr = class {
   id;
   category_id;
   name;
@@ -52796,7 +52819,7 @@ var gr = class {
     this.id = e.id || "", this.category_id = e.category_id || "", this.name = e.name || "", this.brand = e.brand || "", this.description = e.description || "", this.model_number = e.model_number || "", this.images = e.images || [], this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0;
   }
 };
-var yr = class {
+var Sr = class {
   id;
   parent_id;
   asset_type_id;
@@ -52827,46 +52850,46 @@ var yr = class {
 };
 var ke = "assets";
 function Ue(t) {
-  return new yr(t);
+  return new Sr(t);
 }
-function gl(t = {}) {
-  return y({
+function Fl(t = {}) {
+  return b({
     query_params: t,
     fn: Ue,
     path: ke
   });
 }
-var mt = "asset_types";
-function _n(t) {
-  return new gr(t);
+var yt = "asset_types";
+function gn(t) {
+  return new kr(t);
 }
-function Al(t = {}) {
-  return y({
+function Zl(t = {}) {
+  return b({
     query_params: t,
-    fn: _n,
-    path: mt
+    fn: gn,
+    path: yt
   });
 }
-function ql(t, e = {}) {
-  return f({
+function Jl(t, e = {}) {
+  return d({
     id: t,
     query_params: e,
-    fn: _n,
-    path: mt
+    fn: gn,
+    path: yt
   });
 }
-var gt = "asset_categories";
-function mn(t) {
-  return new _r(t);
+var bt = "asset_categories";
+function yn(t) {
+  return new $r(t);
 }
-function Ul(t = {}) {
-  return y({
+function ed(t = {}) {
+  return b({
     query_params: t,
-    fn: mn,
-    path: gt
+    fn: yn,
+    path: bt
   });
 }
-var ws = class {
+var zs = class {
   _listeners = /* @__PURE__ */ new Set();
   _error_listeners = /* @__PURE__ */ new Set();
   _complete_listeners = /* @__PURE__ */ new Set();
@@ -52896,7 +52919,7 @@ var ws = class {
     this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
   }
 };
-var vr = class extends ws {
+var qr = class extends zs {
   constructor(e) {
     super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
       const n = [...this._queue];
@@ -52921,14 +52944,14 @@ var vr = class extends ws {
     return this._config.deserializer ? this._config.deserializer(e) : e.data;
   }
 };
-function kr(t) {
-  return new vr(
+function Pr(t) {
+  return new qr(
     typeof t == "string" ? { url: t } : t
   );
 }
-var te = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(te || {});
-var Ns = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Ns || {});
-var Sr = class {
+var ne = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(ne || {});
+var Fs = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Fs || {});
+var Tr = class {
   constructor(e, n) {
     this._system = e;
     const s = Object.getOwnPropertyNames(
@@ -52969,13 +52992,13 @@ var Sr = class {
    * @param value Initial value of the property
    */
   addProperty(e, n) {
-    e[0] === "$" && (e = e.replace("$", "")), this[`_${e}`] = ne(n), Object.defineProperty(this, e, {
+    e[0] === "$" && (e = e.replace("$", "")), this[`_${e}`] = se(n), Object.defineProperty(this, e, {
       get: () => this[`_${e}`].value,
       set: (s) => this[`_${e}`].set(s)
     });
   }
 };
-var xr = class {
+var Rr = class {
   constructor(e) {
     for (const n in e)
       e.hasOwnProperty(n) && e[n] && e[n] instanceof Array && e[n].forEach((s) => {
@@ -52988,164 +53011,164 @@ var xr = class {
    * @param properties Properties of the new module
    */
   addModule(e, n) {
-    this[e] || (this[e] = []), this[e].push(new Sr(this, n));
+    this[e] || (this[e] = []), this[e].push(new Tr(this, n));
   }
 };
-var wt = {};
-function ad(t, e) {
-  return wt[t] = new xr(e), wt[t];
+var Dt = {};
+function Md(t, e) {
+  return Dt[t] = new Rr(e), Dt[t];
 }
-function Ar(t) {
-  return wt[t];
+function Ir(t) {
+  return Dt[t];
 }
-var O = Ht("WS");
-var Ds = 15;
-var $t = 0;
-var V;
-var Hs = 0;
+var O = Ft("WS");
+var Ls = 15;
+var kt = 0;
+var ee;
+var js = 0;
 var G = {};
-var Fn = {};
-var qr = {};
-var xe = ne(false);
-var zs = ne([0, 0]);
-var Fs = Date.now();
-var Me;
-var Nt = 0;
-var _e = null;
-var At;
-var Ln = 0;
-var vt = 10 * 1e3;
-var Pr = ne(null);
-function $n() {
-  return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${cs()}/systems/control`;
+var Gn = {};
+var Ur = {};
+var Ae = se(false);
+var Gs = se([0, 0]);
+var Bs = Date.now();
+var Oe;
+var Ht = 0;
+var me = null;
+var Pt;
+var Bn = 0;
+var St = 10 * 1e3;
+var Er = se(null);
+function kn() {
+  return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${ls()}/systems/control`;
 }
-function Ls() {
-  return xe.value;
+function Ws() {
+  return Ae.value;
 }
-function Tr() {
-  return xe.asReadonly();
+function Mr() {
+  return Ae.asReadonly();
 }
-function ld() {
-  return zs.asReadonly();
+function Cd() {
+  return Gs.asReadonly();
 }
-function Rr(t, e = Fn) {
+function Or(t, e = Gn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
-  return e[n] || (e[n] = ne(void 0)), e[n].asReadonly();
+  return e[n] || (e[n] = se(void 0)), e[n].asReadonly();
 }
-function Ur(t, e = Fn) {
+function Cr(t, e = Gn) {
   const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
   if (e[n])
     return e[n].value;
 }
-function Jn(t, e = 0, n = Be) {
+function Xn(t, e = 0, n = We) {
   const s = __spreadValues({
-    id: ++$t,
+    id: ++kt,
     cmd: "bind"
   }, t);
   return n(s, e);
 }
-function Ir(t, e = 0, n = Be) {
+function wr(t, e = 0, n = We) {
   const s = __spreadValues({
-    id: ++$t,
+    id: ++kt,
     cmd: "unbind"
   }, t);
   return n(s, e);
 }
-function Er(t, e = vt, n = Be) {
+function Nr(t, e = St, n = We) {
   const s = __spreadValues({
-    id: ++$t,
+    id: ++kt,
     cmd: "exec"
   }, t);
   return n(s, e);
 }
-function Be(t, e = vt, n = 0) {
-  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ri()}`;
+function We(t, e = St, n = 0) {
+  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ai()}`;
   if (G[s])
     O("Request already in progress. Waiting...", t);
   else {
     const i = __spreadProps(__spreadValues({}, t), { key: s });
     i.promise = new Promise((r, o) => {
       const h2 = () => {
-        delete G[s], G[s] = null, Be(t, e, n).then(
+        delete G[s], G[s] = null, We(t, e, n).then(
           ($) => r($),
           ($) => o($)
         );
       };
-      if (V && Ls()) {
-        Pn() && Hr(t, V, qr), i.resolve = r, i.reject = o;
+      if (ee && Ws()) {
+        Rn() && Gr(t, ee, Ur), i.resolve = r, i.reject = o;
         const $ = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
         O(
           `[${t.cmd.toUpperCase()}](${t.id}) ${$}`,
           t.args
-        ), V.next(t), e > 0 && re(
+        ), ee.next(t), e > 0 && ue(
           `${s}`,
           () => {
             o("Request timed out."), delete G[s], G[s] = null;
           },
           e
         );
-      } else _e ? setTimeout(() => h2(), 1e3) : jn().then(() => h2());
+      } else me ? setTimeout(() => h2(), 1e3) : Wn().then(() => h2());
     }), G[s] = i;
   }
   return G[s].promise;
 }
-function js(t) {
+function Qs(t) {
   if (t !== "pong" && t instanceof Object) {
     if (t.type === "notify" && t.meta)
-      Cr(t.meta, t.value);
+      zr(t.meta, t.value);
     else if (t.type === "success")
-      Mr(t);
+      Dr(t);
     else if (t.type === "debug") {
       O(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
       const e = t.meta || { mod: "", index: "" };
-      Pr.set({
+      Er.set({
         mod_id: t.mod || "<empty>",
         module: `${e.mod}_${e.index}`,
         class_name: t.klass || "<empty>",
         message: t.msg || "<empty>",
-        level: t.level || Ns.Debug,
+        level: t.level || Fs.Debug,
         time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
       });
-    } else t.type === "error" ? Or(t) : t.cmd || O.error("Invalid websocket message", t);
-    ye(`${t.id}`);
-  } else t === "pong" && (Ln = Date.now(), O("Pong!"));
+    } else t.type === "error" ? Hr(t) : t.cmd || O.error("Invalid websocket message", t);
+    be(`${t.id}`);
+  } else t === "pong" && (Bn = Date.now(), O("Pong!"));
 }
-function Mr(t) {
+function Dr(t) {
   const e = Object.keys(G).map((n) => G[n]).find((n) => (n == null ? void 0 : n.id) === t.id);
   O(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
 }
-function Or(t) {
+function Hr(t) {
   let e = "UNEXPECTED FAILURE";
   switch (t.code) {
-    case te.ACCESS_DENIED:
+    case ne.ACCESS_DENIED:
       e = "ACCESS DENIED";
       break;
-    case te.BAD_REQUEST:
+    case ne.BAD_REQUEST:
       e = "BAD REQUEST";
       break;
-    case te.MOD_NOT_FOUND:
+    case ne.MOD_NOT_FOUND:
       e = "MODULE NOT FOUND";
       break;
-    case te.SYS_NOT_FOUND:
+    case ne.SYS_NOT_FOUND:
       e = "SYSTEM NOT FOUND";
       break;
-    case te.PARSE_ERROR:
+    case ne.PARSE_ERROR:
       e = "PARSE ERROR";
       break;
-    case te.REQUEST_FAILED:
+    case ne.REQUEST_FAILED:
       e = "REQUEST FAILED";
       break;
-    case te.UNKNOWN_CMD:
+    case ne.UNKNOWN_CMD:
       e = "UNKNOWN COMMAND";
       break;
   }
   O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
   const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), ye(`${n.key}`), delete G[n.key]);
+  n && n.reject && (n.reject(t), be(`${n.key}`), delete G[n.key]);
 }
-function Cr(t, e, n = Fn) {
+function zr(t, e, n = Gn) {
   const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
-  n[s] || (n[s] = ne(null));
+  n[s] || (n[s] = se(null));
   const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
   O(`[NOTIFY] ${i} changed`, [
     n[s].value,
@@ -53153,48 +53176,48 @@ function Cr(t, e, n = Fn) {
     e
   ]), n[s].set(e);
 }
-function jn(t = 0) {
-  return _e == null && (_e = new Promise((e) => {
+function Wn(t = 0) {
+  return me == null && (me = new Promise((e) => {
     if (t > 40)
       return location.reload();
-    Nt++, Fs = Date.now(), V = Pn() ? Dr() : wr(), V ? (O.debug("Authority:", It()), O("Connecting to websocket..."), V.subscribe(
+    Ht++, Bs = Date.now(), ee = Rn() ? jr() : Fr(), ee ? (O.debug("Authority:", Mt()), O("Connecting to websocket..."), ee.subscribe(
       (n) => {
-        xe.value || (O("Connection established."), e()), xe.set(true), Nt = 0, vn(), js(n);
+        Ae.value || (O("Connection established."), e()), Ae.set(true), Ht = 0, Sn(), Qs(n);
       },
       (n) => {
-        V = void 0, _e = null, Xn(), vn(), Nr(n);
+        ee = void 0, me = null, ns(), Sn(), Lr(n);
       },
       () => {
-        V = void 0, _e = null, Xn(), O("Connection closed by browser."), xe.set(false), Dt();
+        ee = void 0, me = null, ns(), O("Connection closed by browser."), Ae.set(false), zt();
       }
-    ), Me && clearInterval(Me), Ln = Date.now(), Yn(), Me = setInterval(
-      () => Yn(),
-      Ds * 1e3
-    ), vn(), Hs += 1, At = setTimeout(() => {
-      O("Unhealthy connection. Reconnecting..."), xe.set(false), _e = null, Dt();
-    }, 30 * 1e3)) : (V ? O(
+    ), Oe && clearInterval(Oe), Bn = Date.now(), es(), Oe = setInterval(
+      () => es(),
+      Ls * 1e3
+    ), Sn(), js += 1, Pt = setTimeout(() => {
+      O("Unhealthy connection. Reconnecting..."), Ae.set(false), me = null, zt();
+    }, 30 * 1e3)) : (ee ? O(
       `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!X(), !!It()],
+      [!!J(), !!Mt()],
       "info"
     ) : O.error(
       `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
     ), setTimeout(
       () => {
-        _e = null, jn(t).then((n) => e(n));
+        me = null, Wn(t).then((n) => e(n));
       },
       1e3 * Math.min(10, ++t)
     ));
-  })), _e;
+  })), me;
 }
-function wr() {
-  if (!It() || !X()) return null;
-  const t = gi() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${xn()}${$n()}${as() ? "?fixed_device=true" : ""}`;
-  const n = X();
-  let s = n === "x-api-key" ? `api-key=${Ve()}` : `bearer_token=${n}`;
-  return !pi() && !si() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${$n()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
-    `Creating websocket connection to ws${t ? "s" : ""}://${xn()}${$n()}`
-  ), kr({
+function Fr() {
+  if (!Mt() || !J()) return null;
+  const t = $i() || location.protocol.indexOf("https") >= 0;
+  let e = `ws${t ? "s" : ""}://${qn()}${kn()}${ds() ? "?fixed_device=true" : ""}`;
+  const n = J();
+  let s = n === "x-api-key" ? `api-key=${Xe()}` : `bearer_token=${n}`;
+  return !mi() && !ui() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${kn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
+    `Creating websocket connection to ws${t ? "s" : ""}://${qn()}${kn()}`
+  ), Pr({
     url: e,
     serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
     deserializer: (i) => {
@@ -53208,46 +53231,46 @@ function wr() {
     }
   });
 }
-function Dt() {
-  zs.set([Hs, Date.now() - Fs]), V && Ls() && (V.complete(), Me && (clearInterval(Me), Me = void 0)), O(
+function zt() {
+  Gs.set([js, Date.now() - Bs]), ee && Ws() && (ee.complete(), Oe && (clearInterval(Oe), Oe = void 0)), O(
     `Reconnecting in ${Math.min(
       5e3,
-      Nt * 300 || 1e3
+      Ht * 300 || 1e3
     )}ms...`
-  ), re(
+  ), ue(
     "reconnect",
-    () => jn(),
-    Math.min(5e3, (Nt + 1) * 300 || 1e3)
+    () => Wn(),
+    Math.min(5e3, (Ht + 1) * 300 || 1e3)
   );
 }
-function Yn() {
-  if (Date.now() - Ln > 4 * Ds * 1e3)
-    return Dt();
-  V == null ? void 0 : V.next("ping");
+function es() {
+  if (Date.now() - Bn > 4 * Ls * 1e3)
+    return zt();
+  ee == null ? void 0 : ee.next("ping");
 }
-function Nr(t) {
-  xe.set(false), O.error("Websocket error:", t), t.status === 401 && Un(), Rn(), Dt();
+function Lr(t) {
+  Ae.set(false), O.error("Websocket error:", t), t.status === 401 && En(), Un(), zt();
 }
-function vn() {
-  At && (clearTimeout(At), At = void 0);
+function Sn() {
+  Pt && (clearTimeout(Pt), Pt = void 0);
 }
-function Dr() {
-  const t = new ws();
+function jr() {
+  const t = new zs();
   return t.subscribe(
-    (e) => js(e)
+    (e) => Qs(e)
   ), t;
 }
-function Vn(t, e) {
+function ts(t, e) {
   const n = typeof e == "string" ? e : (e == null ? void 0 : e.message) || (e == null ? void 0 : e.msg) || "Mock realtime callback failed";
   return {
     id: t.id,
     type: "error",
-    code: (e == null ? void 0 : e.code) || te.UNEXPECTED_FAILURE,
+    code: (e == null ? void 0 : e.code) || ne.UNEXPECTED_FAILURE,
     msg: n
   };
 }
-function Hr(t, e, n) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = Ar(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
+function Gr(t, e, n) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = Ir(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
   if (r) {
     try {
       switch (t.cmd) {
@@ -53267,18 +53290,18 @@ function Hr(t, e, n) {
           });
           break;
         case "unbind":
-          n[s] && (n[s](), delete n[s], ye(`${s}`));
+          n[s] && (n[s](), delete n[s], be(`${s}`));
           break;
       }
     } catch (o) {
-      O.error(`[MOCK ERROR](${t.id}) request failed`, o), re(
+      O.error(`[MOCK ERROR](${t.id}) request failed`, o), ue(
         `${t.id}-error`,
-        () => e.next(Vn(t, o)),
+        () => e.next(ts(t, o)),
         10
       );
       return;
     }
-    re(
+    ue(
       `${t.id}-response`,
       () => {
         try {
@@ -53292,30 +53315,30 @@ function Hr(t, e, n) {
           O.error(
             `[MOCK ERROR](${t.id}) execute failed`,
             o
-          ), e.next(Vn(t, o));
+          ), e.next(ts(t, o));
         }
       },
       10
     );
   } else
-    re(
+    ue(
       `${t.id}-error`,
       () => e.next({
         id: t.id,
         type: "error",
-        code: i ? te.SYS_NOT_FOUND : te.MOD_NOT_FOUND
+        code: i ? ne.SYS_NOT_FOUND : ne.MOD_NOT_FOUND
       }),
       10
     );
 }
-function Xn() {
+function ns() {
   for (const t in G)
     G[t] && delete G[t];
 }
-var es = class {
+var ss = class {
   constructor(e, n) {
-    this._module = e, this.name = n, Tr().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Pt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (ye(`rebind:${JSON.stringify(this.binding())}`), Pt(
+    this._module = e, this.name = n, Mr().subscribe((s, i) => {
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Rt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (be(`rebind:${JSON.stringify(this.binding())}`), Rt(
         "VAR",
         "Binding dropped due to disconnection, re-binding when possible.",
         this.binding()
@@ -53336,13 +53359,13 @@ var es = class {
   }
   /** Current value of the binding */
   get value() {
-    return Ur(this.binding());
+    return Cr(this.binding());
   }
   /**
    * Get a signal that emits the current value of the binding
    */
   listen() {
-    return Rr(this.binding());
+    return Or(this.binding());
   }
   /**
    * Subscribe to changes of the variable's binding value.
@@ -53375,7 +53398,7 @@ var es = class {
    * Bind to the status variable's value
    */
   bind() {
-    return (this._binding_count <= 0 && this._stale_bindings <= 0 || this._pending === 2) && (this._pending = 1, Jn(this.binding()).then(() => {
+    return (this._binding_count <= 0 && this._stale_bindings <= 0 || this._pending === 2) && (this._pending = 1, Xn(this.binding()).then(() => {
       this._binding_count++, this._pending = 0;
     }).catch(() => null)), () => this.unbind();
   }
@@ -53383,7 +53406,7 @@ var es = class {
    * Unbind from status variable
    */
   unbind() {
-    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, Ir(this.binding()).then(() => {
+    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, wr(this.binding()).then(() => {
       this._pending === 2 && (this._pending = 0), this._binding_count--;
     })) : this._binding_count = Math.max(this._binding_count - 1, 0);
   }
@@ -53391,10 +53414,10 @@ var es = class {
    * Rebind to the status variable
    */
   async rebind() {
-    !this._stale_bindings && this._pending !== 1 || re(
+    !this._stale_bindings && this._pending !== 1 || ue(
       `rebind:${JSON.stringify(this.binding())}`,
       async () => {
-        await Jn(this.binding()), this._binding_count = this._stale_bindings || 1, this._stale_bindings = 0;
+        await Xn(this.binding()), this._binding_count = this._stale_bindings || 1, this._stale_bindings = 0;
       },
       100
     );
@@ -53411,7 +53434,7 @@ var es = class {
     };
   }
 };
-var zr = class {
+var Br = class {
   constructor(e, n) {
     this._system = e, this._id = n;
   }
@@ -53440,22 +53463,22 @@ var zr = class {
    * @deprecated Use `variable` instead
    */
   binding(e) {
-    return this._bindings[e] || (this._bindings[e] = new es(this, e)), this._bindings[e];
+    return this._bindings[e] || (this._bindings[e] = new ss(this, e)), this._bindings[e];
   }
   /**
    * Get binding with the given name
    * @param name Name of the binding
    */
   variable(e) {
-    return this._bindings[e] || (this._bindings[e] = new es(this, e)), this._bindings[e];
+    return this._bindings[e] || (this._bindings[e] = new ss(this, e)), this._bindings[e];
   }
   /**
    * Execute method on the engine module
    * @param method Name of the method
    * @param args Array of arguments to pass to the method
    */
-  execute(e, n, s = vt) {
-    return Er(
+  execute(e, n, s = St) {
+    return Nr(
       {
         sys: this._system.id,
         mod: this.name,
@@ -53467,7 +53490,7 @@ var zr = class {
     );
   }
 };
-var Fr = class {
+var Wr = class {
   /** Unique idetifier of the system */
   id;
   /** Mapping of engine modules within the system */
@@ -53488,7 +53511,7 @@ var Fr = class {
     const i = s.join("_");
     for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
       this._module_list[i].push(
-        new zr(
+        new Br(
           this,
           `${i}_${this._module_list[i].length + 1}`
         )
@@ -53496,12 +53519,12 @@ var Fr = class {
     return this._module_list[i][n - 1];
   }
 };
-var kn = {};
-function Lr(t) {
-  return kn[t] || (kn[t] = new Fr(t)), kn[t];
+var An = {};
+function Qr(t) {
+  return An[t] || (An[t] = new Wr(t)), An[t];
 }
-function fd(t, e, n = 1) {
-  return Lr(t).module(e, n);
+function Dd(t, e, n = 1) {
+  return Qr(t).module(e, n);
 }
 
 // libs/common/src/lib/locale.service.ts
@@ -53627,7 +53650,7 @@ var _LocaleService = class _LocaleService {
       return console.error(`Failed to loaded locale file for "${locale}".`, resp);
     }
     const locale_data = await resp.json();
-    const locale_override_data = this.zone_id ? await Vu(this.zone_id, `locale_${locale}`) : { details: {} };
+    const locale_override_data = this.zone_id ? await ic(this.zone_id, `locale_${locale}`) : { details: {} };
     const base_locale_values = removeNesting(locale_data);
     const override_locale_values = removeNesting(locale_override_data.details);
     this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -53771,8 +53794,8 @@ function getTimezoneOffsetInMinutes(timeZone, date = /* @__PURE__ */ new Date())
 }
 function getTimeInTimezone(date, tz) {
   if (!tz) {
-    const d = new Date(date);
-    return { hours: d.getHours(), minutes: d.getMinutes() };
+    const d2 = new Date(date);
+    return { hours: d2.getHours(), minutes: d2.getMinutes() };
   }
   const zoned = toZonedTime(date, tz);
   return { hours: zoned.getHours(), minutes: zoned.getMinutes() };
@@ -53783,8 +53806,8 @@ function formatTimeInTimezone(date, tz) {
 }
 function setTimeInTimezone(date, hours, minutes, tz) {
   if (!tz) {
-    const d = set(new Date(date), { hours, minutes });
-    return startOfMinute(d).valueOf();
+    const d2 = set(new Date(date), { hours, minutes });
+    return startOfMinute(d2).valueOf();
   }
   const zoned = toZonedTime(date, tz);
   const adjusted = set(zoned, { hours, minutes });
@@ -53899,18 +53922,18 @@ function xmur3(str) {
     return (h2 ^= h2 >>> 16) >>> 0;
   };
 }
-function sfc32(a, b2, c2, d) {
+function sfc32(a, b2, c2, d2) {
   return function() {
     a >>>= 0;
     b2 >>>= 0;
     c2 >>>= 0;
-    d >>>= 0;
+    d2 >>>= 0;
     let t = a + b2 | 0;
     a = b2 ^ b2 >>> 9;
     b2 = c2 + (c2 << 3) | 0;
     c2 = c2 << 21 | c2 >>> 11;
-    d = d + 1 | 0;
-    t = t + d | 0;
+    d2 = d2 + 1 | 0;
+    t = t + d2 | 0;
     c2 = c2 + t | 0;
     return (t >>> 0) / 4294967296;
   };
@@ -54200,9 +54223,9 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
     date_end = normaliseTimeValue(date_end);
     if (!date || !date_end)
       return false;
-    const d = timezone ? toZonedTime(date, timezone) : new Date(date);
+    const d2 = timezone ? toZonedTime(date, timezone) : new Date(date);
     const e = timezone ? toZonedTime(date_end, timezone) : new Date(date_end);
-    return !isSameDay(d, e);
+    return !isSameDay(d2, e);
   };
   const alignEndToBookableHours = (date_end) => {
     date_end = normaliseTimeValue(date_end);
@@ -54252,7 +54275,7 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
     } catch {
     }
   };
-  fieldEffect((v) => v.duration, () => {
+  fieldEffect((v2) => v2.duration, () => {
     const s = snap();
     if (s.all_day)
       return;
@@ -54283,7 +54306,7 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
     }
     on_change == null ? void 0 : on_change();
   });
-  fieldEffect((v) => v.date_end, () => {
+  fieldEffect((v2) => v2.date_end, () => {
     const s = snap();
     if (s.all_day)
       return;
@@ -54317,7 +54340,7 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
     }
     on_change == null ? void 0 : on_change();
   });
-  fieldEffect((v) => v.date, () => {
+  fieldEffect((v2) => v2.date, () => {
     const date = normaliseTimeValue(snap().date);
     const last_date = normaliseTimeValue(prev.date);
     const previous_time = timezone ? toZonedTime(last_date, timezone) : new Date(last_date);
@@ -54380,7 +54403,7 @@ function setupFormTimeSync(model2, options2 = {}, injector) {
     }
     on_change == null ? void 0 : on_change();
   });
-  fieldEffect((v) => v.all_day, () => {
+  fieldEffect((v2) => v2.all_day, () => {
     const all_day = snap().all_day;
     if (all_day) {
       timed_window = {
@@ -54559,7 +54582,7 @@ var _HotkeysService = class _HotkeysService {
               }
             }
           }
-          const total = presses.reduce((a, v) => a + (v > 0 ? 1 : -1), 0);
+          const total = presses.reduce((a, v2) => a + (v2 > 0 ? 1 : -1), 0);
           if (total >= combination.length) {
             next();
           }
@@ -54677,14 +54700,14 @@ var _GoogleAnalyticsService = class _GoogleAnalyticsService {
   init(tracking_id = "") {
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w2, d, s, l, i) {
+      (function(w2, d2, s, l, i) {
         w2[l] = w2[l] || [];
         w2[l].push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f2 = d.getElementsByTagName(s)[0];
-        const j = d.createElement(s);
+        const f2 = d2.getElementsByTagName(s)[0];
+        const j = d2.createElement(s);
         const dl = l != "dataLayer" ? "&l=" + l : "";
         j.async = true;
         j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
@@ -55028,7 +55051,7 @@ var CateringOrder = class {
     this.deliver_at_time = deliverAtTime2(this);
   }
   toJSON() {
-    const obj = ni(__spreadValues({}, this), ["", null, void 0]);
+    const obj = oi(__spreadValues({}, this), ["", null, void 0]);
     obj.status = obj._status;
     delete obj.event;
     delete obj._status;
@@ -55732,7 +55755,7 @@ function isTestRuntime() {
 var USER_CACHE_KEY = "PLACEOS.user";
 var MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1e3;
 function tokenID() {
-  const value = X() || "";
+  const value = J() || "";
   let hash = 0;
   for (let i = 0; i < value.length; i++) {
     hash = hash * 31 + value.charCodeAt(i) | 0;
@@ -55829,7 +55852,7 @@ async function loadUserGroups() {
     return;
   }
   try {
-    const groups = await xu({});
+    const groups = await Iu({});
     user_groups.set(groups);
     console.log("Permissions:", user_permissions());
   } catch (error2) {
@@ -55846,7 +55869,7 @@ function initialiseUser() {
   const is_public_mode = isPublicMode();
   if (!is_public_mode)
     applyCachedUserData();
-  const user_request = combineLatest([La("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
+  const user_request = combineLatest([Za("current"), _change]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error2) => {
       console.warn("User loading failed in public mode, using local public user data.", error2);
@@ -55871,7 +55894,7 @@ function initialiseUser() {
 function reloadUserData() {
   setTimeout(async () => {
     try {
-      const p_user = await La("current");
+      const p_user = await Za("current");
       const user = new StaffUser(p_user);
       _current_user.next(user);
       setDefaultCreator(user);
@@ -55929,15 +55952,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "13cacd3",
-  "hash": "13cacd3",
+  "raw": "c6df0cb",
+  "hash": "c6df0cb",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "13cacd3",
+  "suffix": "c6df0cb",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1788967886780
+  "time": 1789007512956
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -56111,7 +56134,7 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
-    const data = await Vu(user.id, "settings");
+    const data = await ic(user.id, "settings");
     this._user_settings.set(data.details || {});
     this.timeout("init", () => {
       this._initDarkMode();
@@ -56159,7 +56182,7 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
     this.timeout("save_settings", () => this._savePendingChanges(), 2400);
   }
   async updateLocatable(locatable) {
-    await Ga(currentUser().id, { locatable }, "patch");
+    await Va(currentUser().id, { locatable }, "patch");
     reloadUserData();
   }
   overrideCssVariable(key, value, important = false) {
@@ -56198,7 +56221,7 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
     if (!(user == null ? void 0 : user.id) || !Object.keys(this._pending_settings).length)
       return;
     this._updateSignals();
-    await Xu(user.id, {
+    await rc(user.id, {
       name: "settings",
       description: "",
       details: __spreadValues(__spreadValues({}, this._user_settings()), this._pending_settings)
@@ -56655,8 +56678,8 @@ var AnimationGroupPlayer = class {
     this._finished = false;
     this._started = false;
   }
-  setPosition(p2) {
-    const timeAtPosition = p2 * this.totalTime;
+  setPosition(p) {
+    const timeAtPosition = p * this.totalTime;
     this.players.forEach((player) => {
       const position = player.totalTime ? Math.min(1, timeAtPosition / player.totalTime) : 1;
       player.setPosition(position);
@@ -56827,8 +56850,8 @@ var RendererAnimationPlayer = class {
     this._command("reset");
     this._started = false;
   }
-  setPosition(p2) {
-    this._command("setPosition", p2);
+  setPosition(p) {
+    this._command("setPosition", p);
   }
   getPosition() {
     var _a11, _b4, _c9;
@@ -56917,7 +56940,7 @@ function canReloadNow() {
   if (typeof navigator !== "undefined" && navigator.onLine === false) {
     return false;
   }
-  if (!Qr())
+  if (!Xr())
     return false;
   try {
     return _reload_gate ? _reload_gate() : true;
@@ -57448,7 +57471,7 @@ async function setupPlace(settings) {
   if (mock) {
     notifyInfo("Application in mock mode.");
   }
-  return Zr(config2);
+  return to(config2);
 }
 
 // libs/common/src/lib/signal.utilities.ts
@@ -57471,7 +57494,7 @@ function firstValueWhere(value, predicate = (_2) => !!_2, injector) {
 // libs/common/src/lib/fixed-device-helpers.ts
 var _wake_lock = null;
 async function requestScreenWakeLock() {
-  if (!as())
+  if (!ds())
     return;
   if (_wake_lock)
     await _wake_lock.release();
@@ -66699,7 +66722,7 @@ var NgswCommChannel = class {
         if (currentWorker !== null) {
           subscriber.next(currentWorker);
         }
-        return workerSubject.subscribe((v) => subscriber.next(v));
+        return workerSubject.subscribe((v2) => subscriber.next(v2));
       });
       const updateController = () => {
         const {
@@ -67169,7 +67192,7 @@ var UNKNOWN_FUNCTION = "?";
 var WEBPACK_ERROR_REGEXP = /\(error: (.*)\)/;
 var STRIP_FRAME_REGEXP = /captureMessage|captureException/;
 function createStackParser(...parsers) {
-  const sortedParsers = parsers.sort((a, b2) => a[0] - b2[0]).map((p2) => p2[1]);
+  const sortedParsers = parsers.sort((a, b2) => a[0] - b2[0]).map((p) => p[1]);
   return (stack, skipFirstLines = 0, framesToPop = 0) => {
     const frames = [];
     const lines = stack.split("\n");
@@ -68505,7 +68528,7 @@ function getDefaultIsolationScope() {
 }
 
 // node_modules/@sentry/core/build/esm/utils/chain-and-copy-promiselike.js
-var isActualPromise = (p2) => p2 instanceof Promise && !p2[kChainedCopy];
+var isActualPromise = (p) => p instanceof Promise && !p[kChainedCopy];
 var kChainedCopy = /* @__PURE__ */ Symbol("chained PromiseLike");
 var chainAndCopyPromiseLike = (original, onSuccess, onError) => {
   const chained = original.then(
@@ -74007,7 +74030,7 @@ function getObjectClassName(obj) {
   }
 }
 function getErrorPropertyFromObject(obj) {
-  return Object.values(obj).find((v) => v instanceof Error);
+  return Object.values(obj).find((v2) => v2 instanceof Error);
 }
 
 // node_modules/@sentry/browser/build/npm/esm/dev/client.js
@@ -78577,7 +78600,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       notifySuccess("Toggled dark mode.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
-      this._clipboard.copy(`${X()}|${Ut()}`);
+      this._clipboard.copy(`${J()}|${Et()}`);
       notifySuccess("Successfully copied token.");
     });
     this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
@@ -78600,7 +78623,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         localStorage.setItem("PLACEOS.locale", locale);
       }
       if (params.has("x-api-key")) {
-        Br(params.get("x-api-key"));
+        Vr(params.get("x-api-key"));
       }
       if (params.has("region_id")) {
         this._region = params.get("region_id");
@@ -78620,7 +78643,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
     settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
     if (START_QUERY) {
-      const query2 = Ee(START_QUERY.substring(1));
+      const query2 = Me(START_QUERY.substring(1));
       this._router.navigate([], {
         relativeTo: this._route,
         queryParams: query2
@@ -78670,15 +78693,15 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       const auth_error = await setupPlace(settings).then(() => null).catch((_2) => _2);
       if (!auth_error) {
         const api_key = getNativeApiKey();
-        const client_key = `${fi()}_x-api-key`;
+        const client_key = `${gi()}_x-api-key`;
         if (api_key)
-          Br(api_key);
+          Vr(api_key);
         else if (localStorage.getItem(client_key)) {
           localStorage.removeItem(client_key);
-          Un();
+          En();
         }
         if (intune_token)
-          _i(intune_token);
+          yi(intune_token);
         break;
       }
       log("APP", "Auth failed, resetting domain.", auth_error, "warn");
@@ -78686,13 +78709,13 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       clearNativeApiKey();
       DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
     }
-    if (isNativeApp() && !X(false)) {
+    if (isNativeApp() && !J(false)) {
       const boot_params = new URLSearchParams(START_QUERY);
       if (boot_params.has("code")) {
-        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${fi()}_nonce`)}"`);
+        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State: "${boot_params.get("state")}"`, `Nonce: "${localStorage.getItem(`${gi()}_nonce`)}"`);
       }
     }
-    if (isNativeApp() && !X(false) && !Ut() && It()) {
+    if (isNativeApp() && !J(false) && !Et() && Mt()) {
       const auth_error = consumeNativeAuthError();
       if (auth_error) {
         setLoadingMessage("Waiting for sign in...");
@@ -78701,7 +78724,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
         await new Promise((r) => this._domain_resolve = r);
       }
       setLoadingMessage("Opening sign in...");
-      const auth_url = await createNativeAuthUrl(settings, fi());
+      const auth_url = await createNativeAuthUrl(settings, gi());
       console.warn(`[AUTH] Opening sign in: ${auth_url}`);
       await openNativeBrowser(auth_url);
       return;
@@ -78714,7 +78737,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       ]);
     }
     if (this._initial_token)
-      _i(this._initial_token);
+      yi(this._initial_token);
     await this._waitFor(() => this._org.initialised());
     if (this._locale) {
       this._locale.zone_id = this._org.organisation.id;
@@ -78740,15 +78763,15 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   onInitError() {
     var _a11;
-    if (Pn() || ((_a11 = currentUser()) == null ? void 0 : _a11.is_logged_in))
+    if (Rn() || ((_a11 = currentUser()) == null ? void 0 : _a11.is_logged_in))
       return;
     if (isNativeApp() && getNativeApiKey()) {
       clearNativeApiKey();
       clearNativeDomain();
-      localStorage.removeItem(`${fi()}_x-api-key`);
-      Un();
-    } else if (!X(false))
-      Un();
+      localStorage.removeItem(`${gi()}_x-api-key`);
+      En();
+    } else if (!J(false))
+      En();
     requestInitReload();
   }
   _initAnalytics() {
@@ -78787,7 +78810,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _pasteToken(tkn) {
     const parts = tkn.split("|");
-    const id = fi();
+    const id = gi();
     localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
     localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
     localStorage.setItem(`${id}_expires_at`, `${addHours(/* @__PURE__ */ new Date(), 6).valueOf()}`);
@@ -78801,7 +78824,7 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     reloadForNewVersion();
   }
   async _initFixedDevice() {
-    if (!as())
+    if (!ds())
       return;
     setLoadingMessage("Initialising as fixed device...");
     this.interval("auto-update-version", () => this._checkReload(), 15 * 1e3);
@@ -78865,7 +78888,7 @@ var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 var MAX_CACHE_AGE2 = 7 * 24 * 60 * 60 * 1e3;
 function cachedAuthority() {
   var _a11;
-  const auth = It();
+  const auth = Mt();
   if (auth == null ? void 0 : auth.id) {
     const details = {
       id: auth.id,
@@ -78989,7 +79012,7 @@ var _OrganisationService = class _OrganisationService {
     const binding = this.binding(name);
     const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
     const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
-    return !system_id || !mod_id ? null : fd(system_id, mod_id);
+    return !system_id || !mod_id ? null : Dd(system_id, mod_id);
   }
   /** Get building by id */
   find(id) {
@@ -79113,8 +79136,8 @@ var _OrganisationService = class _OrganisationService {
     this._init_timer = null;
     this._zone_load_timer = null;
     this._override_timer = null;
-    const online_state = Kr();
-    const online = hi(online_state, (_2) => _2);
+    const online_state = eo();
+    const online = Zr(online_state, (_2) => _2);
     const start = this._service.get("app.offline_boot") ? Promise.race([
       online,
       new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY))
@@ -79365,10 +79388,10 @@ var _OrganisationService = class _OrganisationService {
       include_children_count: true
     });
     if (org_list.length) {
-      const auth = It();
+      const auth = Mt();
       const org = org_list.find((list2) => {
         var _a11;
-        return Pn() || list2.id === ((_a11 = auth == null ? void 0 : auth.config) == null ? void 0 : _a11.org_zone);
+        return Rn() || list2.id === ((_a11 = auth == null ? void 0 : auth.config) == null ? void 0 : _a11.org_zone);
       }) || org_list[0];
       const load_metadata = !this._service.get("dont_load_metadata");
       const bindings = load_metadata ? (await this._bulkMetadataDetails("bindings", [org.id]))[org.id] : {};
@@ -79632,7 +79655,7 @@ var _OrganisationService = class _OrganisationService {
     const cached_metadata = this._getCachedItem(cache_key);
     if (cached_metadata)
       return cached_metadata;
-    const metadata2 = await sc(name, { parent_ids }).catch((err2) => (err2 == null ? void 0 : err2.status) === 404 ? this._individualMetadata(name, ids) : {});
+    const metadata2 = await hc(name, { parent_ids }).catch((err2) => (err2 == null ? void 0 : err2.status) === 404 ? this._individualMetadata(name, ids) : {});
     const metadata_details = ids.reduce((map2, id) => {
       var _a11;
       map2[id] = ((_a11 = metadata2[id]) == null ? void 0 : _a11.details) || {};
@@ -79643,7 +79666,7 @@ var _OrganisationService = class _OrganisationService {
   }
   /** Fallback for backends without the bulk metadata endpoint (404) */
   async _individualMetadata(name, ids) {
-    const items = await Promise.all(ids.filter(Boolean).map((id) => Vu(id, name).then((item) => [id, item], () => [id, null])));
+    const items = await Promise.all(ids.filter(Boolean).map((id) => ic(id, name).then((item) => [id, item], () => [id, null])));
     const metadata2 = {};
     for (const [id, item] of items) {
       if (item)
@@ -79656,8 +79679,8 @@ var _OrganisationService = class _OrganisationService {
     const cached_zones = this._getCachedItem(cache_key);
     if (cached_zones)
       return cached_zones;
-    const zones = (await eh(__spreadProps(__spreadValues({}, params), {
-      authority_id: It().id
+    const zones = (await uh(__spreadProps(__spreadValues({}, params), {
+      authority_id: Mt().id
     }))).data || [];
     this._setCachedItem(cache_key, zones);
     return zones;
@@ -79957,16 +79980,16 @@ function alignmentPatterns(ver) {
 }
 function formatBits(ecc, mask) {
   const data = EC_CODE[ecc] << 3 | mask;
-  let d = data;
+  let d2 = data;
   for (let i = 0; i < 10; i++)
-    d = d << 1 ^ (d >> 9) * 1335;
-  return (data << 10 | d) ^ 21522;
+    d2 = d2 << 1 ^ (d2 >> 9) * 1335;
+  return (data << 10 | d2) ^ 21522;
 }
 function versionBits(ver) {
-  let d = ver;
+  let d2 = ver;
   for (let i = 0; i < 12; i++)
-    d = d << 1 ^ (d >> 11) * 7973;
-  return ver << 12 | d;
+    d2 = d2 << 1 ^ (d2 >> 11) * 7973;
+  return ver << 12 | d2;
 }
 var MODE_BITS = { numeric: 1, alphanumeric: 2, byte: 4 };
 var LENGTH_BITS = {
@@ -80067,10 +80090,10 @@ function asVersion(ver) {
 function detectType(str) {
   let type2 = "numeric";
   for (let i = 0; i < str.length; i++) {
-    const v = ALNUM_VAL[str.charCodeAt(i)];
-    if (!(v >= 0))
+    const v2 = ALNUM_VAL[str.charCodeAt(i)];
+    if (!(v2 >= 0))
       return "byte";
-    if (v > 9)
+    if (v2 > 9)
       type2 = "alphanumeric";
   }
   return type2;
@@ -80133,15 +80156,15 @@ function encodeData(ver, ecc, text, type2, utf8) {
     pos += len;
   }
   const res = new Uint8Array(bytes.length + words * numBlocks);
-  let p2 = 0;
+  let p = 0;
   for (let i = 0; i <= blockLen; i++) {
     for (const b2 of blocks)
       if (i < b2.length)
-        res[p2++] = b2[i];
+        res[p++] = b2[i];
   }
   for (let i = 0; i < words; i++)
     for (const e of eccs)
-      res[p2++] = e[i];
+      res[p++] = e[i];
   return res;
 }
 function maskBits(x, y2) {
@@ -80204,13 +80227,13 @@ var matSet = (m2, x, y2, bit) => {
   m2.v[i] = bit ? m2.v[i] | b2 : m2.v[i] & ~b2;
 };
 function transposeMat(src, dst) {
-  const { size, words, v } = src;
+  const { size, words, v: v2 } = src;
   const tmp = TRANSPOSE_TMP;
   for (let by = 0; by < size; by += 32) {
     for (let bx = 0; bx < words; bx++) {
       const rows = Math.min(32, size - by);
       for (let r = 0; r < rows; r++)
-        tmp[r] = v[(by + r) * words + bx];
+        tmp[r] = v2[(by + r) * words + bx];
       tmp.fill(0, rows);
       transpose32(tmp);
       for (let i = 0, dstY = bx * 32; i < 32 && dstY < size; i++, dstY++) {
@@ -80220,18 +80243,18 @@ function transposeMat(src, dst) {
   }
 }
 function runsPenaltyVertical(m2) {
-  const { size, words, v } = m2;
+  const { size, words, v: v2 } = m2;
   const tail = size & 31 ? (1 << (size & 31)) - 1 >>> 0 : 4294967295;
   let score = 0;
   for (let wi2 = 0; wi2 < words; wi2++) {
     const valid = wi2 === words - 1 ? tail : 4294967295;
-    let r3 = v[3 * words + wi2];
+    let r3 = v2[3 * words + wi2];
     let dPrev = 4294967295;
-    let d0 = v[wi2] ^ v[words + wi2];
-    let d1 = v[words + wi2] ^ v[2 * words + wi2];
-    let d2 = v[2 * words + wi2] ^ r3;
+    let d0 = v2[wi2] ^ v2[words + wi2];
+    let d1 = v2[words + wi2] ^ v2[2 * words + wi2];
+    let d2 = v2[2 * words + wi2] ^ r3;
     for (let y2 = 0, idx = 4 * words + wi2; y2 <= size - 5; y2++, idx += words) {
-      const r4 = v[idx];
+      const r4 = v2[idx];
       const d3 = r3 ^ r4;
       const w2 = ~(d0 | d1 | d2 | d3) & valid;
       if (w2)
@@ -80246,24 +80269,24 @@ function runsPenaltyVertical(m2) {
   return score;
 }
 function finderPenaltyVertical(m2) {
-  const { size, words, v } = m2;
+  const { size, words, v: v2 } = m2;
   const tail = size & 31 ? (1 << (size & 31)) - 1 >>> 0 : 4294967295;
   let count = 0;
   for (let wi2 = 0; wi2 < words; wi2++) {
     const valid = wi2 === words - 1 ? tail : 4294967295;
     for (let y2 = 0; y2 <= size - 11; y2++) {
       let i = y2 * words + wi2;
-      const r0 = v[i];
-      const r1 = v[i += words];
-      const r2 = v[i += words];
-      const r3 = v[i += words];
-      const r4 = v[i += words];
-      const r5 = v[i += words];
-      const r6 = v[i += words];
-      const r7 = v[i += words];
-      const r8 = v[i += words];
-      const r9 = v[i += words];
-      const r10 = v[i + words];
+      const r0 = v2[i];
+      const r1 = v2[i += words];
+      const r2 = v2[i += words];
+      const r3 = v2[i += words];
+      const r4 = v2[i += words];
+      const r5 = v2[i += words];
+      const r6 = v2[i += words];
+      const r7 = v2[i += words];
+      const r8 = v2[i += words];
+      const r9 = v2[i += words];
+      const r10 = v2[i + words];
       const m0 = valid & r0 & ~r1 & r2 & r3 & r4 & ~r5 & r6 & ~(r7 | r8 | r9 | r10);
       const m1 = valid & ~(r0 | r1 | r2 | r3) & r4 & ~r5 & r6 & r7 & r8 & ~r9 & r10;
       count += popcnt(m0 >>> 0) + popcnt(m1 >>> 0);
@@ -80272,7 +80295,7 @@ function finderPenaltyVertical(m2) {
   return count;
 }
 function penaltyScore(m2, t, limit = Infinity) {
-  const { size, words, v } = m2;
+  const { size, words, v: v2 } = m2;
   const adjacent = runsPenaltyVertical(m2) + runsPenaltyVertical(t);
   if (adjacent >= limit)
     return adjacent;
@@ -80281,13 +80304,13 @@ function penaltyScore(m2, t, limit = Infinity) {
   let dark2 = 0;
   for (let y2 = 0; y2 < size; y2++) {
     for (let wi2 = 0; wi2 < words; wi2++) {
-      const a0 = v[y2 * words + wi2];
+      const a0 = v2[y2 * words + wi2];
       dark2 += popcnt(a0 >>> 0);
       if (y2 === size - 1)
         continue;
-      const a1 = v[(y2 + 1) * words + wi2];
-      const n0 = wi2 + 1 < words ? v[y2 * words + wi2 + 1] : 0;
-      const n1 = wi2 + 1 < words ? v[(y2 + 1) * words + wi2 + 1] : 0;
+      const a1 = v2[(y2 + 1) * words + wi2];
+      const n0 = wi2 + 1 < words ? v2[y2 * words + wi2 + 1] : 0;
+      const n1 = wi2 + 1 < words ? v2[(y2 + 1) * words + wi2 + 1] : 0;
       const eqV = ~(a0 ^ a1);
       const eqH0 = ~(a0 ^ (a0 >>> 1 | n0 << 31));
       const eqH1 = ~(a1 ^ (a1 >>> 1 | n1 << 31));
@@ -80354,8 +80377,8 @@ function buildSymCache(ver) {
         const y2 = fy + dy;
         if (x < 0 || y2 < 0 || x >= size || y2 >= size)
           continue;
-        const on2 = dx >= 0 && dx < 7 && dy >= 0 && dy < 7 && (dx === 0 || dx === 6 || dy === 0 || dy === 6 || dx > 1 && dx < 5 && dy > 1 && dy < 5);
-        setF(x, y2, on2 ? 1 : 0);
+        const on = dx >= 0 && dx < 7 && dy >= 0 && dy < 7 && (dx === 0 || dx === 6 || dy === 0 || dy === 6 || dx > 1 && dx < 5 && dy > 1 && dy < 5);
+        setF(x, y2, on ? 1 : 0);
       }
     }
   }
@@ -80366,8 +80389,8 @@ function buildSymCache(ver) {
         continue;
       for (let dy = -2; dy <= 2; dy++) {
         for (let dx = -2; dx <= 2; dx++) {
-          const on2 = Math.max(Math.abs(dx), Math.abs(dy)) !== 1;
-          setF(ax + dx, ay + dy, on2 ? 1 : 0);
+          const on = Math.max(Math.abs(dx), Math.abs(dy)) !== 1;
+          setF(ax + dx, ay + dy, on ? 1 : 0);
         }
       }
     }
@@ -80411,25 +80434,25 @@ function buildSymCache(ver) {
           continue;
         const wi2 = y2 * m2.words + (x >>> 5);
         posBuf[n++] = wi2 << 5 | x & 31;
-        for (let p2 = 0, mb = maskBits(x, y2); mb; p2++, mb >>= 1) {
+        for (let p = 0, mb = maskBits(x, y2); mb; p++, mb >>= 1) {
           if (mb & 1)
-            planes[p2].v[wi2] |= 1 << (x & 31);
+            planes[p].v[wi2] |= 1 << (x & 31);
         }
       }
       if (y2 + dir < 0 || y2 + dir >= size)
         break;
     }
   }
-  const planesT = planes.map((p2) => {
+  const planesT = planes.map((p) => {
     const t = mat(size);
-    transposeMat(p2, t);
+    transposeMat(p, t);
     return t.v;
   });
   return {
     ver,
     tpl: m2.v,
     pos: posBuf.slice(0, n),
-    planes: planes.map((p2) => p2.v),
+    planes: planes.map((p) => p.v),
     planesT,
     work: [mat(size), mat(size), mat(size), mat(size)]
   };
@@ -80443,17 +80466,17 @@ function drawSymbol(ver, ecc, data, maskIdx, test = false) {
   const need = Math.min(8 * data.length, pos.length);
   for (let i = 0; i < need; i++) {
     if (data[i >>> 3] & 128 >>> (i & 7)) {
-      const p2 = pos[i];
-      m2.v[p2 >>> 5] |= 1 << (p2 & 31);
+      const p = pos[i];
+      m2.v[p >>> 5] |= 1 << (p & 31);
     }
   }
   let mask = maskIdx;
   if (mask === void 0) {
     transposeMat(m2, t);
     let bestScore = Infinity;
-    for (let p2 = 0; p2 < 8; p2++) {
-      const pv2 = planes[p2];
-      const ptv = planesT[p2];
+    for (let p = 0; p < 8; p++) {
+      const pv2 = planes[p];
+      const ptv = planesT[p];
       for (let i = 0; i < cand.v.length; i++) {
         cand.v[i] = m2.v[i] ^ pv2[i];
         candT.v[i] = t.v[i] ^ ptv[i];
@@ -80461,7 +80484,7 @@ function drawSymbol(ver, ecc, data, maskIdx, test = false) {
       const score = penaltyScore(cand, candT, bestScore);
       if (score < bestScore) {
         bestScore = score;
-        mask = p2;
+        mask = p;
       }
     }
   }
@@ -80587,27 +80610,27 @@ function renderGif(r) {
   const fullChunks = Math.floor(pixels / N2);
   const tail = pixels % N2;
   const out = new Uint8Array(408 + fullChunks * (N2 + 2) + 2 + tail + 4);
-  let p2 = 0;
-  const u16 = (v) => {
-    out[p2++] = v & 255;
-    out[p2++] = v >>> 8;
+  let p = 0;
+  const u16 = (v2) => {
+    out[p++] = v2 & 255;
+    out[p++] = v2 >>> 8;
   };
   for (const b2 of [71, 73, 70, 56, 55, 97])
-    out[p2++] = b2;
+    out[p++] = b2;
   u16(W2);
   u16(W2);
-  out[p2++] = 246;
-  p2 += 2;
-  out[p2++] = 255;
-  out[p2++] = 255;
-  out[p2++] = 255;
-  p2 += 3 * 127;
-  out[p2++] = 44;
-  p2 += 4;
+  out[p++] = 246;
+  p += 2;
+  out[p++] = 255;
+  out[p++] = 255;
+  out[p++] = 255;
+  p += 3 * 127;
+  out[p++] = 44;
+  p += 4;
   u16(W2);
   u16(W2);
-  out[p2++] = 0;
-  out[p2++] = 7;
+  out[p++] = 0;
+  out[p++] = 7;
   const { m: m2, map: map2 } = r;
   const row = new Uint8Array(W2);
   let prevMy = -2;
@@ -80625,24 +80648,24 @@ function renderGif(r) {
     for (let x = 0; x < W2; ) {
       if (i % N2 === 0) {
         const rem = pixels - i;
-        out[p2++] = (rem < N2 ? rem : N2) + 1;
-        out[p2++] = 128;
+        out[p++] = (rem < N2 ? rem : N2) + 1;
+        out[p++] = 128;
       }
       const n = Math.min(N2 - i % N2, W2 - x);
-      out.set(row.subarray(x, x + n), p2);
-      p2 += n;
+      out.set(row.subarray(x, x + n), p);
+      p += n;
       x += n;
       i += n;
     }
   }
   if (tail === 0) {
-    out[p2++] = 1;
-    out[p2++] = 128;
+    out[p++] = 1;
+    out[p++] = 128;
   }
-  out[p2++] = 1;
-  out[p2++] = 129;
-  out[p2++] = 0;
-  out[p2++] = 59;
+  out[p++] = 1;
+  out[p++] = 129;
+  out[p++] = 0;
+  out[p++] = 59;
   return out;
 }
 function gifDataUrl(gif) {
@@ -81072,11 +81095,11 @@ var _RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
     if (!system_id)
       return;
     this._disable_handling = true;
-    fd(system_id, "Logger").execute("post_event", [event]).catch().finally(() => this._disable_handling = false);
+    Dd(system_id, "Logger").execute("post_event", [event]).catch().finally(() => this._disable_handling = false);
   }
   /** List to binding */
   _bindTo(id, name, mod = "Logger") {
-    const module2 = fd(id, mod).variable(name);
+    const module2 = Dd(id, mod).variable(name);
     this.subscription(`bind:${name}`, module2.bind());
     this.subscription(`listen:${name}`, module2.listen().subscribe((enabled) => {
       this._logging_system.set(enabled ? id : "");
@@ -83577,19 +83600,19 @@ var NativeDateAdapter = class _NativeDateAdapter extends DateAdapter {
     return new Date(date.getTime() + amount * 1e3);
   }
   _createDateWithOverflow(year, month, date) {
-    const d = /* @__PURE__ */ new Date();
-    d.setFullYear(year, month, date);
-    d.setHours(0, 0, 0, 0);
-    return d;
+    const d2 = /* @__PURE__ */ new Date();
+    d2.setFullYear(year, month, date);
+    d2.setHours(0, 0, 0, 0);
+    return d2;
   }
   _2digit(n) {
     return ("00" + n).slice(-2);
   }
   _format(dtf, date) {
-    const d = /* @__PURE__ */ new Date();
-    d.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    d.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-    return dtf.format(d);
+    const d2 = /* @__PURE__ */ new Date();
+    d2.setUTCFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+    d2.setUTCHours(date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    return dtf.format(d2);
   }
   _parseTimeString(value) {
     const parsed = value.toUpperCase().match(TIME_REGEX);
@@ -83779,8 +83802,8 @@ var MatProgressSpinner = class _MatProgressSpinner {
   get value() {
     return this.mode === "determinate" ? this._value : 0;
   }
-  set value(v) {
-    this._value = Math.max(0, Math.min(100, v || 0));
+  set value(v2) {
+    this._value = Math.max(0, Math.min(100, v2 || 0));
   }
   _value = 0;
   get diameter() {
@@ -85036,8 +85059,8 @@ var MatFormField = class _MatFormField {
     }
   }
   _checkPrefixAndSuffixTypes() {
-    this._hasIconPrefix = !!this._prefixChildren.find((p2) => !p2._isText);
-    this._hasTextPrefix = !!this._prefixChildren.find((p2) => p2._isText);
+    this._hasIconPrefix = !!this._prefixChildren.find((p) => !p._isText);
+    this._hasTextPrefix = !!this._prefixChildren.find((p) => p._isText);
     this._hasIconSuffix = !!this._suffixChildren.find((s) => !s._isText);
     this._hasTextSuffix = !!this._suffixChildren.find((s) => s._isText);
   }
@@ -87396,8 +87419,8 @@ var MatMenuTrigger = class _MatMenuTrigger extends MatMenuTriggerBase {
   get _deprecatedMatMenuTriggerFor() {
     return this.menu;
   }
-  set _deprecatedMatMenuTriggerFor(v) {
-    this.menu = v;
+  set _deprecatedMatMenuTriggerFor(v2) {
+    this.menu = v2;
   }
   get menu() {
     return this._menu;
@@ -90103,12 +90126,12 @@ async function storeSessionCachedResponse(source, response) {
   }
 }
 function setAuthCookie(cookie_path) {
-  const tkn = X();
-  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Ve()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
+  const tkn = J();
+  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(Xe()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=${cookie_path};samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
 }
 function authHeaders() {
-  const tkn = X();
-  return tkn === "x-api-key" ? { "X-API-Key": Ve() } : { Authorization: `Bearer ${tkn}` };
+  const tkn = J();
+  return tkn === "x-api-key" ? { "X-API-Key": Xe() } : { Authorization: `Bearer ${tkn}` };
 }
 async function responseToObjectUrl(source, response) {
   const blob = await response.blob();
@@ -90159,7 +90182,7 @@ var _AuthenticatedImagePipe = class _AuthenticatedImagePipe {
     return "";
   }
   async _loadImage(source) {
-    if (!It()) {
+    if (!Mt()) {
       setTimeout(() => LOADING_STORE.delete(source), 300);
       return;
     }
@@ -90216,7 +90239,7 @@ var _AuthenticatedImageDirective = class _AuthenticatedImageDirective extends As
     const source = this.source();
     if (typeof source !== "string")
       return;
-    if (!this._element || !It()) {
+    if (!this._element || !Mt()) {
       return this.timeout("load", () => this._loadImage(), 300);
     }
     if (!this._isLocalUrl(source)) {
@@ -90604,12 +90627,12 @@ var LeafLogicNode = class _LeafLogicNode {
         builder,
         predicates
       } = childBuilders[0];
-      return new _LeafLogicNode(builder, [...this.predicates, ...predicates.map((p2) => bindLevel(p2, this.depth))], this.depth + 1);
+      return new _LeafLogicNode(builder, [...this.predicates, ...predicates.map((p) => bindLevel(p, this.depth))], this.depth + 1);
     } else {
       const builtNodes = childBuilders.map(({
         builder,
         predicates
-      }) => new _LeafLogicNode(builder, [...this.predicates, ...predicates.map((p2) => bindLevel(p2, this.depth))], this.depth + 1));
+      }) => new _LeafLogicNode(builder, [...this.predicates, ...predicates.map((p) => bindLevel(p, this.depth))], this.depth + 1));
       return new CompositeLogicNode(builtNodes);
     }
   }
@@ -90997,7 +91020,7 @@ var FieldValidationState = class {
         return "unknown";
       }
       return "valid";
-    }, (v) => v === "invalid");
+    }, (v2) => v2 === "invalid");
   }, ...ngDevMode ? [{
     debugName: "status"
   }] : []);
@@ -91104,14 +91127,14 @@ var FieldNodeContext = class {
   }, ...ngDevMode ? [{
     debugName: "index"
   }] : []);
-  fieldTreeOf(p2) {
-    return this.resolve(p2);
+  fieldTreeOf(p) {
+    return this.resolve(p);
   }
-  stateOf(p2) {
-    return this.resolve(p2)();
+  stateOf(p) {
+    return this.resolve(p)();
   }
-  valueOf = (p2) => {
-    const result = this.resolve(p2)().value();
+  valueOf = (p) => {
+    const result = this.resolve(p)().value();
     if (result instanceof AbstractControl) {
       throw new RuntimeError(1907, ngDevMode && `Tried to read an 'AbstractControl' value from a 'form()'. Did you mean to use 'compatForm()' instead?`);
     }
@@ -91155,18 +91178,18 @@ var FieldMetadataState = class {
   }
 };
 var FIELD_PROXY_HANDLER = {
-  get(getTgt, p2, receiver) {
+  get(getTgt, p, receiver) {
     const tgt = getTgt();
-    const child = tgt.structure.getChild(p2);
+    const child = tgt.structure.getChild(p);
     if (child !== void 0) {
       return child.fieldTree;
     }
     const value = untracked2(tgt.value);
     if (isArray3(value)) {
-      if (p2 === "length") {
+      if (p === "length") {
         return tgt.value().length;
       }
-      if (p2 === Symbol.iterator) {
+      if (p === Symbol.iterator) {
         return () => {
           tgt.value();
           return Array.prototype[Symbol.iterator].apply(tgt.fieldTree);
@@ -91174,7 +91197,7 @@ var FIELD_PROXY_HANDLER = {
       }
     }
     if (isObject(value)) {
-      if (p2 === Symbol.iterator) {
+      if (p === Symbol.iterator) {
         return function* () {
           for (const key in receiver) {
             yield [key, receiver[key]];
@@ -92512,8 +92535,8 @@ function customControlCreate(host, parent) {
     }
   };
 }
-function isValidatorObject(v) {
-  return typeof v === "object" && v !== null;
+function isValidatorObject(v2) {
+  return typeof v2 === "object" && v2 !== null;
 }
 function cvaControlCreate(host, parent) {
   const bindings = createBindings();
@@ -92528,15 +92551,15 @@ function cvaControlCreate(host, parent) {
   });
   if (legacyValidators) {
     let version;
-    for (const v of legacyValidators) {
-      if (isValidatorObject(v) && v.registerOnValidatorChange) {
+    for (const v2 of legacyValidators) {
+      if (isValidatorObject(v2) && v2.registerOnValidatorChange) {
         version ?? (version = signal(0));
-        v.registerOnValidatorChange(() => {
+        v2.registerOnValidatorChange(() => {
           version.update((n) => n + 1);
         });
       }
     }
-    const validatorFns = legacyValidators.map((v) => typeof v === "function" ? v : v.validate.bind(v));
+    const validatorFns = legacyValidators.map((v2) => typeof v2 === "function" ? v2 : v2.validate.bind(v2));
     const mergedValidator = Validators.compose(validatorFns);
     const parseErrors = computed(() => {
       version == null ? void 0 : version();
@@ -93084,7 +93107,7 @@ var _SpacePipe = class _SpacePipe {
     if (ATTEMPT_COUNT[space_id])
       return EMPTY_SPACE;
     if (!is_email) {
-      const system = await da(space_id).catch((_2) => null);
+      const system = await ba(space_id).catch((_2) => null);
       if (system) {
         space = new Space(__spreadProps(__spreadValues({}, system), {
           level: (_a11 = this.org) == null ? void 0 : _a11.levelWithID([...system.zones])
@@ -93093,7 +93116,7 @@ var _SpacePipe = class _SpacePipe {
         return space;
       }
     }
-    const systems = (await la({
+    const systems = (await ya({
       in: space_id
     })).data;
     if (systems.length === 1) {
@@ -93133,7 +93156,7 @@ function requestSpacesForZone(id) {
     return of([]);
   if (SPACE_LIST_REQUESTS[id])
     return SPACE_LIST_REQUESTS[id];
-  SPACE_LIST_REQUESTS[id] = from(ha({
+  SPACE_LIST_REQUESTS[id] = from(ga({
     zone_id: id,
     limit: 500,
     signage: false
@@ -95570,7 +95593,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     const id = this._chat_system();
     if (!id)
       return;
-    const auth = X() !== "x-api-key" ? `bearer_token=${encodeURIComponent(X())}` : `x-api-key=${Ve()}`;
+    const auth = J() !== "x-api-key" ? `bearer_token=${encodeURIComponent(J())}` : `x-api-key=${Xe()}`;
     const url = `ws${location.origin.replace("http", "")}/api/engine/v2/chatgpt/chat/${encodeURIComponent(id)}?${auth}${this._chat_id ? "&resume=" + encodeURIComponent(this._chat_id) : ""}`;
     log("CHAT", "Starting chat connection.");
     this._socket = new WebSocket(url);
@@ -95654,7 +95677,7 @@ var _ChatService = class _ChatService extends AsyncHandler {
     this._timeoutSocket();
   }
   _bindHint(id) {
-    const mod = fd(id, "LLM");
+    const mod = Dd(id, "LLM");
     const binding = mod.variable("user_hint");
     this.subscription(`binding:LLM:user_hint`, binding.bind());
     this.subscription(`listen:LLM:user_hint`, binding.listen().subscribe((value) => this.chat_hint.set(value)));
@@ -96985,16 +97008,16 @@ var MatProgressBar = class _MatProgressBar {
   get value() {
     return this._value;
   }
-  set value(v) {
-    this._value = clamp(v || 0);
+  set value(v2) {
+    this._value = clamp(v2 || 0);
     this._changeDetectorRef.markForCheck();
   }
   _value = 0;
   get bufferValue() {
     return this._bufferValue || 0;
   }
-  set bufferValue(v) {
-    this._bufferValue = clamp(v || 0);
+  set bufferValue(v2) {
+    this._bufferValue = clamp(v2 || 0);
     this._changeDetectorRef.markForCheck();
   }
   _bufferValue = 0;
@@ -97158,8 +97181,8 @@ var MatProgressBar = class _MatProgressBar {
     }]
   });
 })();
-function clamp(v, min = 0, max = 100) {
-  return Math.max(min, Math.min(max, v));
+function clamp(v2, min = 0, max = 100) {
+  return Math.max(min, Math.min(max, v2));
 }
 var MatProgressBarModule = class _MatProgressBarModule {
   static \u0275fac = function MatProgressBarModule_Factory(__ngFactoryType__) {
@@ -97850,13 +97873,13 @@ var _GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler
     this.loading.set(true);
     await this._org.waitUntilInitialised();
     await firstTruthyValueFrom(this._settings.initialised);
-    this.online.set(Qr());
+    this.online.set(Xr());
     this.interval("has_token", () => {
-      this.online.set(Qr());
-      if (!It() || !X())
+      this.online.set(Xr());
+      if (!Mt() || !J())
         return;
       this.loading.set(false);
-      this.online.set(Qr());
+      this.online.set(Xr());
       this.clearInterval("has_token");
     }, 1e3);
   }
@@ -98434,20 +98457,20 @@ function addExecuteMessage(message2) {
   execute_messages.update((messages) => [...messages, message2].slice(-250));
 }
 function installBindingDebugHooks() {
-  const prototype = zr.prototype;
+  const prototype = Br.prototype;
   if (prototype.__binding_debug_hooks__)
     return;
   prototype.__binding_debug_hooks__ = true;
-  const variable = zr.prototype.variable;
-  zr.prototype.variable = function(name) {
+  const variable = Br.prototype.variable;
+  Br.prototype.variable = function(name) {
     return trackBinding(this, variable.call(this, name));
   };
-  const binding = zr.prototype.binding;
-  zr.prototype.binding = function(name) {
+  const binding = Br.prototype.binding;
+  Br.prototype.binding = function(name) {
     return trackBinding(this, binding.call(this, name));
   };
-  const execute = zr.prototype.execute;
-  zr.prototype.execute = function(method, args = [], timeout_delay) {
+  const execute = Br.prototype.execute;
+  Br.prototype.execute = function(method, args = [], timeout_delay) {
     const id = ++execute_id;
     const details = {
       id,
@@ -98549,7 +98572,7 @@ var _BindingDebugPanelComponent = class _BindingDebugPanelComponent extends Asyn
       },
       loader: async ({ params }) => Object.fromEntries(await Promise.all(params.map(async (id) => {
         if (!system_name_cache.has(id)) {
-          const system = await da(id).catch(() => null);
+          const system = await ba(id).catch(() => null);
           system_name_cache.set(id, (system == null ? void 0 : system.display_name) || (system == null ? void 0 : system.name) || id);
         }
         return [id, system_name_cache.get(id)];
@@ -101484,7 +101507,7 @@ var VirtualKeyboardComponent = _VirtualKeyboardComponent;
 var OFFLINE_FALLBACK_DELAY = 20 * 1e3;
 function hasCachedCredentials() {
   try {
-    return !!X();
+    return !!J();
   } catch {
     return false;
   }
@@ -101554,7 +101577,7 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   /** The active user, or null if the backend could not be reached in time */
   async waitForUser() {
-    const online = await this.waitForBackend(hi(Kr(), Boolean));
+    const online = await this.waitForBackend(Zr(eo(), Boolean));
     if (!online)
       return null;
     let user = null;
@@ -101585,7 +101608,7 @@ var _AuthorisedUserGuard = class _AuthorisedUserGuard {
   }
   async useGroupSubsystemAccess() {
     var _a11, _b4;
-    const value = (_b4 = (_a11 = It()) == null ? void 0 : _a11.config) == null ? void 0 : _b4["use_group_subsystem_access"];
+    const value = (_b4 = (_a11 = Mt()) == null ? void 0 : _a11.config) == null ? void 0 : _b4["use_group_subsystem_access"];
     return value === true || value === "true";
   }
   checkSubsystemAccess(user) {
@@ -102974,7 +102997,7 @@ var update = (dataset) => (id, data) => {
   return new_event;
 };
 function registerMockAssets() {
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "GET",
@@ -102988,7 +103011,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "GET",
@@ -103002,7 +103025,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories`,
     metadata: {},
     method: "POST",
@@ -103014,13 +103037,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_CATEGORIES)(req.route_params.id, __spreadValues({}, req.body))
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_categories/:id`,
     metadata: {},
     method: "DELETE",
@@ -103035,7 +103058,7 @@ function registerMockAssets() {
       return;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "GET",
@@ -103043,12 +103066,12 @@ function registerMockAssets() {
       var _a11;
       let results = MOCK_PRODUCTS;
       if ((_a11 = req.query_params) == null ? void 0 : _a11.category_id) {
-        results = results.filter((p2) => p2.category_id === req.query_params.category_id);
+        results = results.filter((p) => p.category_id === req.query_params.category_id);
       }
       return results;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "GET",
@@ -103062,7 +103085,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types`,
     metadata: {},
     method: "POST",
@@ -103074,13 +103097,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PRODUCTS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_types/:id`,
     metadata: {},
     method: "DELETE",
@@ -103095,7 +103118,7 @@ function registerMockAssets() {
       return;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "GET",
@@ -103104,7 +103127,7 @@ function registerMockAssets() {
       return events;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "GET",
@@ -103118,7 +103141,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders`,
     metadata: {},
     method: "POST",
@@ -103130,13 +103153,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_PURCHASE_ORDERS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  to({
+  uo({
     path: `${BASE_PATH}/asset_purchase_orders/:id`,
     metadata: {},
     method: "DELETE",
@@ -103151,7 +103174,7 @@ function registerMockAssets() {
       return;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "GET",
@@ -103172,7 +103195,7 @@ function registerMockAssets() {
       return results;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "GET",
@@ -103186,7 +103209,7 @@ function registerMockAssets() {
       return event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets`,
     metadata: {},
     method: "POST",
@@ -103198,13 +103221,13 @@ function registerMockAssets() {
       return new_event;
     }
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "PUT",
     callback: (req) => update(MOCK_ASSETS)(req.route_params.id, __spreadValues({}, req.body))
   });
-  to({
+  uo({
     path: `${BASE_PATH}/assets/:id`,
     metadata: {},
     method: "DELETE",
@@ -103916,7 +103939,7 @@ function generateCateringOrder(event) {
     // 10% tax
     total: Math.floor(totalPrice * 1.1),
     // Special requirements
-    dietary_requirements: dietaryNeeds.map((d) => d.name),
+    dietary_requirements: dietaryNeeds.map((d2) => d2.name),
     special_instructions: predictableRandomInt(3) === 0 ? [
       "Please use company branded napkins",
       "Set up 15 minutes before event start",
@@ -103961,12 +103984,12 @@ function generateCateringOrder(event) {
 // libs/events/src/lib/calendar.fn.ts
 var CALENDAR_ENDPOINT = "/api/staff/v1/calendars";
 async function queryCalendars() {
-  const list2 = await p(CALENDAR_ENDPOINT);
+  const list2 = await f(CALENDAR_ENDPOINT);
   return list2.map((c2) => new Calendar(c2));
 }
 async function queryCalendarAvailability(q2) {
   const query2 = toQueryString(q2);
-  const list2 = await p(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
+  const list2 = await f(`${CALENDAR_ENDPOINT}/availability${query2 ? "?" + query2 : ""}`);
   return list2.map((c2) => new Calendar(c2));
 }
 var calendarsToSpaces = (list2, org) => list2.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
@@ -103975,7 +103998,7 @@ var calendarsToSpaces = (list2, org) => list2.filter((cal) => !!cal.resource).ma
 }))).filter((space) => space.bookable);
 async function querySpaceFreeBusy(q2, org) {
   const query2 = toQueryString(q2);
-  const list2 = await p(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
+  const list2 = await f(`${CALENDAR_ENDPOINT}/free_busy${query2 ? "?" + query2 : ""}`);
   return calendarsToSpaces(list2.map((c2) => new Calendar(c2)), org);
 }
 
@@ -103994,12 +104017,12 @@ function withAppVersion(data) {
   });
 }
 async function createEvent(data) {
-  const item = await S(`${EVENTS_ENDPOINT}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  const item = await v(`${EVENTS_ENDPOINT}`, new CalendarEvent(withAppVersion(data)).toJSON());
   return new CalendarEvent(item);
 }
 async function updateEvent(id, data, q2 = {}, method = "patch") {
   const query2 = toQueryString(q2);
-  const item = await (method === "patch" ? he : ae)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  const item = await (method === "patch" ? te : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
   return new CalendarEvent(item);
 }
 var saveEvent = async (data, q2) => {
@@ -104009,7 +104032,7 @@ var saveEvent = async (data, q2) => {
 };
 function removeEvent(id, q2 = {}) {
   const query2 = toQueryString(q2);
-  return ee(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, {
+  return V(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query2 ? "?" + query2 : ""}`, {
     response_type: "void"
   });
 }
@@ -104042,7 +104065,7 @@ async function querySpaceAvailability(id_list, start, duration, ignore, type2, i
 async function findEventClashes(event, q2 = {}) {
   const query2 = toQueryString(__spreadProps(__spreadValues({}, q2), { limit: 1e4 }));
   try {
-    const list2 = await S(`${EVENTS_ENDPOINT}/clashing-assets${query2 ? "?" + query2 : ""}`, event.toJSON());
+    const list2 = await v(`${EVENTS_ENDPOINT}/clashing-assets${query2 ? "?" + query2 : ""}`, event.toJSON());
     return q2.include_clash_time ? list2 : list2;
   } catch (_2) {
     return [];
@@ -104096,7 +104119,7 @@ function getNextFreeTimeSlot(list2, date = (/* @__PURE__ */ new Date()).valueOf(
 // libs/events/src/lib/utilities.ts
 var BOOKING_DATE = add(setMinutes(setHours(/* @__PURE__ */ new Date(), 6), 0), { days: -1 });
 function eventFormValue(event = new CalendarEvent()) {
-  var _a11, _b4, _c9, _d2, _e2, _f, _g, _h, _i2, _j, _k, _l, _m, _n2, _o, _p, _q, _r2, _s2, _t, _u;
+  var _a11, _b4, _c9, _d2, _e2, _f, _g, _h, _i2, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s2, _t, _u;
   return {
     id: event.id || "",
     ical_uid: event.ical_uid || "",
@@ -104129,14 +104152,14 @@ function eventFormValue(event = new CalendarEvent()) {
     visibility: event.visibility || "normal",
     needs_space: true,
     needs_parking: ((_m = event.extension_data) == null ? void 0 : _m.needs_parking) || false,
-    event_type: ((_n2 = event.extension_data) == null ? void 0 : _n2.event_type) || "",
+    event_type: ((_n = event.extension_data) == null ? void 0 : _n.event_type) || "",
     category: ((_o = event.extension_data) == null ? void 0 : _o.category) || "",
     tags: ((_p = event.extension_data) == null ? void 0 : _p.tags) || [],
     update_master: false,
     system: event.system ?? null,
     attendance_type: ((_q = event.extension_data) == null ? void 0 : _q.attendance_type) || "ONSITE",
     timezone: event.timezone || LOCAL_TIMEZONE,
-    shared_event: ((_r2 = event.extension_data) == null ? void 0 : _r2.shared_event) || false,
+    shared_event: ((_r = event.extension_data) == null ? void 0 : _r.shared_event) || false,
     view_access: ((_s2 = event.extension_data) == null ? void 0 : _s2.view_access) || "OPEN",
     images: ((_t = event.extension_data) == null ? void 0 : _t.images) || [],
     featured: ((_u = event.extension_data) == null ? void 0 : _u.featured) || false,
@@ -104163,37 +104186,37 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     )
   );
   guardModelUndefinedWrites(model2, eventFormValue(new CalendarEvent()));
-  const event_form = form(model2, (p2) => {
-    required(p2.host);
-    required(p2.date);
-    validate(p2.duration, ({ value, valueOf }) => {
-      const date = valueOf(p2.date);
+  const event_form = form(model2, (p) => {
+    required(p.host);
+    required(p.date);
+    validate(p.duration, ({ value, valueOf }) => {
+      const date = valueOf(p.date);
       return date && isAfter(Date.now(), addMinutes(date, value())) ? { kind: "duration" } : void 0;
     });
-    required(p2.catering_notes, {
+    required(p.catering_notes, {
       when: ({ valueOf }) => {
         var _a11;
-        return !!((_a11 = valueOf(p2.catering)) == null ? void 0 : _a11.length) && notes_required();
+        return !!((_a11 = valueOf(p.catering)) == null ? void 0 : _a11.length) && notes_required();
       }
     });
-    disabled(p2.host, { when: () => has_id });
-    disabled(p2.organiser, { when: () => has_id });
-    disabled(p2.date, { when: () => lock_start_time() });
-    disabled(p2.assets, { when: ({ valueOf }) => {
+    disabled(p.host, { when: () => has_id });
+    disabled(p.organiser, { when: () => has_id });
+    disabled(p.date, { when: () => lock_start_time() });
+    disabled(p.assets, { when: ({ valueOf }) => {
       var _a11;
-      return !((_a11 = valueOf(p2.resources)) == null ? void 0 : _a11.length);
+      return !((_a11 = valueOf(p.resources)) == null ? void 0 : _a11.length);
     } });
-    disabled(p2.duration, { when: ({ valueOf }) => !!valueOf(p2.all_day) });
+    disabled(p.duration, { when: ({ valueOf }) => !!valueOf(p.all_day) });
   }, { injector });
-  onFieldChange(model2, (v) => v.organiser, (organiser) => (
+  onFieldChange(model2, (v2) => v2.organiser, (organiser) => (
     // Coalesce to '' so the `host` sub-field is never removed from the
     // FieldTree (an undefined value breaks its `required`/`[formField]`).
     model2.update((m2) => __spreadProps(__spreadValues({}, m2), { host: (organiser == null ? void 0 : organiser.email) ?? "" }))
   ), injector);
-  onFieldChange(model2, (v) => v.resources, (resources) => model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
+  onFieldChange(model2, (v2) => v2.resources, (resources) => model2.update((m2) => __spreadProps(__spreadValues({}, m2), {
     system: (resources == null ? void 0 : resources.length) ? resources[0] : null
   })), injector);
-  onFieldChange(model2, (v) => v.date, (date) => {
+  onFieldChange(model2, (v2) => v2.date, (date) => {
     const recurrence = model2().recurrence;
     if (!(recurrence == null ? void 0 : recurrence.pattern))
       return;
@@ -104225,7 +104248,7 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
       }))
     }));
   };
-  onFieldChange(model2, (v) => v.catering, setCateringTime, injector);
+  onFieldChange(model2, (v2) => v2.catering, setCateringTime, injector);
   const time_sync = setupFormTimeSync(model2, { on_time_change: setCateringTime }, injector);
   return { model: model2, form: event_form, time_sync, lock_start_time };
 }
@@ -104276,7 +104299,7 @@ function withAppVersion2(data) {
 async function queryBookings(q2) {
   const query2 = toQueryString(q2);
   try {
-    const list2 = await p(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
+    const list2 = await f(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`);
     return list2.map((item) => new Booking(item));
   } catch (_2) {
     return [];
@@ -104284,13 +104307,13 @@ async function queryBookings(q2) {
 }
 async function createBooking(data, q2) {
   const query2 = toQueryString(__spreadProps(__spreadValues({}, q2), { utm_source: bookingUtmSource() }));
-  return new Booking(await S(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`, withAppVersion2(data)));
+  return new Booking(await v(`${BOOKINGS_ENDPOINT}${query2 ? "?" + query2 : ""}`, withAppVersion2(data)));
 }
 async function updateBooking(id, data, method = "patch") {
-  return new Booking(await (method === "patch" ? he : ae)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion2(data)));
+  return new Booking(await (method === "patch" ? te : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`, withAppVersion2(data)));
 }
 async function updateBookingInstance(id, start_time, data, method = "patch") {
-  return new Booking(await (method === "patch" ? he : ae)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion2(data)));
+  return new Booking(await (method === "patch" ? te : ce)(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`, withAppVersion2(data)));
 }
 var saveBooking = async (data, q2) => {
   const id = data.id;
@@ -104298,20 +104321,20 @@ var saveBooking = async (data, q2) => {
   const instance = q2 == null ? void 0 : q2.instance;
   if (q2)
     delete q2.instance;
-  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(ni(data, ["", null, void 0]) || {}, q2);
+  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(oi(data, ["", null, void 0]) || {}, q2);
 };
 function removeBooking(id, q2 = {}) {
   if (q2.instance) {
     return removeBookingInstance(id, q2.start_time);
   }
   const query2 = toQueryString({ utm_source: bookingUtmSource() });
-  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}?${query2}`, {
+  return V(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}?${query2}`, {
     response_type: "void"
   });
 }
 function removeBookingInstance(id, start_time) {
   const query2 = toQueryString({ utm_source: bookingUtmSource() });
-  return ee(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}?${query2}`, {
+  return V(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}?${query2}`, {
     response_type: "void"
   });
 }
@@ -105369,11 +105392,11 @@ var MatAutocompleteModule = class _MatAutocompleteModule {
 var GUEST_ENDPOINT = "/api/staff/v1/guests";
 async function searchGuests(q2) {
   const query2 = toQueryString({ q: q2 });
-  const list2 = await p(`${GUEST_ENDPOINT}${q2 ? "?" + query2 : ""}`);
+  const list2 = await f(`${GUEST_ENDPOINT}${q2 ? "?" + query2 : ""}`);
   return list2.map((item) => new GuestUser(item));
 }
 async function showGuest(id) {
-  return new GuestUser(await p(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new GuestUser(await f(`${GUEST_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/users/src/lib/staff.fn.ts
@@ -105390,7 +105413,7 @@ async function searchStaff(q2) {
       "department"
     ].join(",")
   });
-  const list2 = await p(`${STAFF_ENDPOINT}${q2 ? "?" + query2 : ""}`);
+  const list2 = await f(`${STAFF_ENDPOINT}${q2 ? "?" + query2 : ""}`);
   return list2.map((item) => new StaffUser(item));
 }
 async function searchStaffByEmailPrefix(email_prefix) {
@@ -105398,11 +105421,11 @@ async function searchStaffByEmailPrefix(email_prefix) {
   const query2 = toQueryString({
     filter: `startsWith(mail,'${escaped_prefix}')`
   });
-  const list2 = await p(`${STAFF_ENDPOINT}?${query2}`);
+  const list2 = await f(`${STAFF_ENDPOINT}?${query2}`);
   return list2.map((item) => new StaffUser(item));
 }
 async function showStaff(id) {
-  return new StaffUser(await p(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
+  return new StaffUser(await f(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
 
 // libs/form-fields/src/lib/user-search-field.component.ts
@@ -105677,9 +105700,9 @@ var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHan
         const guest_query = () => searchGuests(q2).catch(() => []);
         if (this.guests_only())
           return guest_query();
-        const staff = this.use_basic_search() ? await Fa({
+        const staff = this.use_basic_search() ? await Ka({
           q: q2,
-          authority_id: (_a11 = It()) == null ? void 0 : _a11.id,
+          authority_id: (_a11 = Mt()) == null ? void 0 : _a11.id,
           fields: ["id", "name", "email"].join(",")
         }).then((_2) => _2.data.map((u3) => new User(u3))).catch(() => []) : await searchStaff(q2).catch(() => []);
         if (!this.guests())
@@ -105753,7 +105776,7 @@ var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHan
     this.user.set(value);
     this.search_term.set(value);
     if (typeof new_value !== "string" && !this.use_basic_search() && ((value == null ? void 0 : value.id) || (value == null ? void 0 : value.email))) {
-      La(value.email || value.id).then((details) => {
+      Za(value.email || value.id).then((details) => {
         if (!details)
           return;
         const updated = new User(__spreadValues(__spreadValues({}, value), new User(details)));
@@ -105784,8 +105807,8 @@ var _UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHan
   }
   /** Check if a string is a valid email address */
   isValidEmail(value) {
-    const re2 = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re2.test(value);
+    const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(value);
   }
   /**
    * Set the value from a typed email address
@@ -106169,7 +106192,7 @@ var _AssetGroupPipe = class _AssetGroupPipe {
     let asset_group = ASSET_GROUP_LIST.find(({ id }) => id === group_id);
     if (asset_group)
       return asset_group;
-    const group2 = await ql(group_id).catch(() => null);
+    const group2 = await Jl(group_id).catch(() => null);
     if (group2) {
       asset_group = __spreadValues({}, group2);
       ASSET_GROUP_LIST.push(asset_group);
@@ -106201,7 +106224,7 @@ function getAssetRulesForZone(zone_id, fresh = false) {
   if (!zone_id)
     return Promise.resolve([]);
   if (!RULE_REQUESTS[zone_id] || fresh)
-    RULE_REQUESTS[zone_id] = Vu(zone_id, "assets_config").then((_2) => _2.details instanceof Array ? _2.details : []).catch(() => []);
+    RULE_REQUESTS[zone_id] = ic(zone_id, "assets_config").then((_2) => _2.details instanceof Array ? _2.details : []).catch(() => []);
   return RULE_REQUESTS[zone_id];
 }
 function assetAvailable(item, rules, event) {
@@ -106251,21 +106274,21 @@ function filter_hidden_items(response) {
   });
 }
 async function visible_category_ids() {
-  const response = await Ul({});
+  const response = await ed({});
   return new Set(response.data.filter((item) => !(item == null ? void 0 : item.hidden)).map((item) => item.id));
 }
 async function queryAssetCategories(query2 = {}) {
   if (query2.hidden === true)
-    return Ul(query2);
+    return ed(query2);
   const _a11 = query2, { hidden } = _a11, rest = __objRest(_a11, ["hidden"]);
-  return filter_hidden_items(await Ul(rest));
+  return filter_hidden_items(await ed(rest));
 }
 async function queryAssetTypes(query2 = {}) {
   if (query2.hidden === true)
-    return Al(query2);
+    return Zl(query2);
   const _a11 = query2, { hidden } = _a11, rest = __objRest(_a11, ["hidden"]);
   const [response, visible_ids] = await Promise.all([
-    Al(rest),
+    Zl(rest),
     visible_category_ids()
   ]);
   return __spreadProps(__spreadValues({}, response), {
@@ -106274,10 +106297,10 @@ async function queryAssetTypes(query2 = {}) {
 }
 async function queryAssets(query2 = {}) {
   if (query2.hidden === true)
-    return gl(query2);
+    return Fl(query2);
   const _a11 = query2, { hidden } = _a11, rest = __objRest(_a11, ["hidden"]);
   const [response, types] = await Promise.all([
-    gl(rest),
+    Fl(rest),
     queryAssetTypes(__spreadProps(__spreadValues({}, rest.zone_id ? { zone_id: rest.zone_id } : {}), {
       limit: 2e3
     }))
@@ -106290,7 +106313,7 @@ async function queryAssets(query2 = {}) {
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
 var REMOVE_QUERY_KEYS = ["period_start", "period_end", "type", "rejected"];
 async function queryAllAssetPages(query2 = {}) {
-  let response = await gl(__spreadProps(__spreadValues({}, query2), {
+  let response = await Fl(__spreadProps(__spreadValues({}, query2), {
     limit: query2.limit || 500
   }));
   let total = response.total;
@@ -106325,7 +106348,7 @@ async function queryAssetGroupsExtended(query2 = {}) {
   if (q2.zones)
     delete q2.zones;
   const [types, assets] = await Promise.all([
-    Al(q2),
+    Zl(q2),
     queryAllAssetPages(q2)
   ]);
   let groups = types.data.filter((item) => !(item == null ? void 0 : item.hidden));
@@ -106829,7 +106852,7 @@ var _AssetStateService = class _AssetStateService {
   }
   async _loadSettings(building_id) {
     const existing = this._settings_requests.get(building_id);
-    const request = existing || Vu(building_id, "assets-settings").then((metadata2) => metadata2.details || {}).catch(() => ({}));
+    const request = existing || ic(building_id, "assets-settings").then((metadata2) => metadata2.details || {}).catch(() => ({}));
     if (!existing)
       this._settings_requests.set(building_id, request);
     this._settings.set(await request);
@@ -108178,7 +108201,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       },
       loader: ({ params: ids }) => {
         this.addLoadingTag(Tags.BookingRules);
-        return Promise.all(ids.map((id) => Vu(id, "room_booking_rules").then((_2) => ({
+        return Promise.all(ids.map((id) => ic(id, "room_booking_rules").then((_2) => ({
           id,
           details: _2.details instanceof Array ? _2.details : []
         })).catch(() => ({ id, details: [] })))).then((building_rules) => {
@@ -108244,7 +108267,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
         var _a11;
         return this._network_consumed() && this._requests_ready() ? ((_a11 = this._org.organisation) == null ? void 0 : _a11.id) || void 0 : void 0;
       },
-      loader: ({ params: id }) => Vu(id, "room_alerts").then((r) => r.details).catch(() => ({}))
+      loader: ({ params: id }) => ic(id, "room_alerts").then((r) => r.details).catch(() => ({}))
     }));
     this.room_alerts = computed(
       () => {
@@ -108348,9 +108371,9 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
   async init() {
     await currentUserLoaded();
     setDefaultCreator(currentUser());
-    onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
-    onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
-    onFieldChange(this._model, (v) => v.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
+    onFieldChange(this._model, (v2) => v2.date, (date) => this.setOptions({ date }), this._injector);
+    onFieldChange(this._model, (v2) => v2.duration, (duration) => this.setOptions({ duration }), this._injector);
+    onFieldChange(this._model, (v2) => v2.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
     this.subscription("router.events", this._router.events.subscribe((event) => {
       if (event instanceof NavigationEnd && !BOOKING_URLS.some((_2) => event.url.includes(_2)) && !PERSISTED_EVENT_CONTEXT_URLS.some((_2) => event.url.includes(_2))) {
         this.clearForm();
@@ -108528,12 +108551,12 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       return;
     const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
-    ref.afterClosed().subscribe((d) => d ? this._router.navigate(["/"]) : "");
+    ref.afterClosed().subscribe((d2) => d2 ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
   async postForm(force = false, ignore_space_check = [], ignore_owner = false, force_calendar = false) {
-    var _a11, _b4, _c9, _d2, _e2, _f, _g, _h, _i2, _j, _k, _l, _m, _n2, _o, _p, _q;
+    var _a11, _b4, _c9, _d2, _e2, _f, _g, _h, _i2, _j, _k, _l, _m, _n, _o, _p, _q;
     const notify_new_attendees_only = this.notify_new_attendees_only() && this.can_notify_new_attendees_only();
     if (isEmptyUser({ email: this._model().host })) {
       this._model.update((m2) => __spreadProps(__spreadValues({}, m2), { host: currentUser().email }));
@@ -108663,10 +108686,10 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
         host,
         title: this._model().title || "Space Booking",
         attendees: this._model().attendees.map((_2) => {
-          const v = __spreadValues({}, _2);
-          delete v.visit_expected;
-          delete v.extension_data;
-          return v;
+          const v2 = __spreadValues({}, _2);
+          delete v2.visit_expected;
+          delete v2.extension_data;
+          return v2;
         }),
         assets: processed_assets,
         extension_data: ext
@@ -108698,7 +108721,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
             host: value.host,
             all_day: value.all_day,
             location_name: ((_l = spaces[0]) == null ? void 0 : _l.display_name) || ((_m = spaces[0]) == null ? void 0 : _m.name) || "",
-            location_id: ((_n2 = spaces[0]) == null ? void 0 : _n2.id) || "",
+            location_id: ((_n = spaces[0]) == null ? void 0 : _n.id) || "",
             zones: unique([
               this._org.organisation.id,
               (_o = this._org.region) == null ? void 0 : _o.id,
@@ -108783,7 +108806,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       const bld = this._org.buildings.find((b2) => space.zones.includes(b2.id));
       if (!bld || rules[bld.id])
         continue;
-      const metadata2 = await Vu(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
+      const metadata2 = await ic(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata2.details instanceof Array ? metadata2.details : [];
     }
     const space_rules = spaces.map((space) => {
@@ -108993,7 +109016,7 @@ var _SpacesService = class _SpacesService {
     return this.space_list.filter((_2) => predicate(_2));
   }
   async loadSpace(space_id) {
-    const system = await da(space_id);
+    const system = await ba(space_id);
     const space = new Space(__spreadProps(__spreadValues({}, system), {
       level: this._org.levelWithID([...system.zones])
     }));
@@ -109008,7 +109031,7 @@ var _SpacesService = class _SpacesService {
   }
   async loadSpaces() {
     var _a11;
-    const systems = (await ha({
+    const systems = (await ga({
       zone_id: (_a11 = this._org.organisation) == null ? void 0 : _a11.id,
       limit: 5e3
     })).data;
@@ -110107,7 +110130,7 @@ var MOCK_CATERING_BOOKINGS = (() => {
 // libs/mocks/src/lib/api/bookings.mock.ts
 var ALL_BOOKINGS = [...MOCK_BOOKINGS, ...MOCK_CATERING_BOOKINGS];
 function registerMockBookings() {
-  to({
+  uo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "GET",
@@ -110140,7 +110163,7 @@ function registerMockBookings() {
       return events;
     }
   });
-  to({
+  uo({
     path: "/api/debug/bookings/distribution",
     metadata: {},
     method: "GET",
@@ -110175,7 +110198,7 @@ function registerMockBookings() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "GET",
@@ -110189,7 +110212,7 @@ function registerMockBookings() {
       return event;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "POST",
@@ -110210,7 +110233,7 @@ function registerMockBookings() {
       return user;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/guests/:email",
     metadata: {},
     method: "DELETE",
@@ -110233,7 +110256,7 @@ function registerMockBookings() {
       return guest;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -110250,7 +110273,7 @@ function registerMockBookings() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings",
     metadata: {},
     method: "POST",
@@ -110273,13 +110296,13 @@ function registerMockBookings() {
     ALL_BOOKINGS.splice(index, 1, new_event);
     return new_event;
   };
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PATCH",
     callback: (req) => updateBooking2(req.route_params.id, req.body)
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/approve",
     metadata: {},
     method: "POST",
@@ -110295,7 +110318,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/reject",
     metadata: {},
     method: "POST",
@@ -110311,7 +110334,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/check_in",
     metadata: {},
     method: "POST",
@@ -110334,7 +110357,7 @@ function registerMockBookings() {
       return booking;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id/update_induction",
     metadata: {},
     method: "POST",
@@ -110350,13 +110373,13 @@ function registerMockBookings() {
       return booking;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "PUT",
     callback: (req) => updateBooking2(req.route_params.id, req.body)
   });
-  to({
+  uo({
     path: "/api/staff/v1/bookings/:id",
     metadata: {},
     method: "DELETE",
@@ -110712,7 +110735,7 @@ var event_spaces = MOCK_SPACES.map((space) => space.id);
 
 // libs/mocks/src/lib/api/calendars.mock.ts
 function registerMockCalendars() {
-  to({
+  uo({
     path: "/api/staff/v1/calendars",
     metadata: {},
     method: "GET",
@@ -110767,7 +110790,7 @@ function registerMockCalendars() {
     });
     return spaces;
   };
-  to({
+  uo({
     path: "/api/staff/v1/calendars/availability",
     metadata: {},
     method: "GET",
@@ -110775,7 +110798,7 @@ function registerMockCalendars() {
       resource: _2
     }))
   });
-  to({
+  uo({
     path: "/api/staff/v1/calendars/free_busy",
     metadata: {},
     method: "GET",
@@ -110787,7 +110810,7 @@ function registerMockCalendars() {
 
 // libs/mocks/src/lib/api/events.mock.ts
 function registerMockEvents() {
-  to({
+  uo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "GET",
@@ -110804,7 +110827,7 @@ function registerMockEvents() {
       return events;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events",
     metadata: {},
     method: "POST",
@@ -110828,12 +110851,12 @@ function registerMockEvents() {
         ];
       }
       MOCK_EVENTS.push(new_event);
-      const system = Ar((_a11 = new_event.system) == null ? void 0 : _a11.id);
+      const system = Ir((_a11 = new_event.system) == null ? void 0 : _a11.id);
       (_b4 = system == null ? void 0 : system.Bookings[0]) == null ? void 0 : _b4.$poll_bookings();
       return new_event;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "GET",
@@ -110845,7 +110868,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "DELETE",
@@ -110863,7 +110886,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events/:id",
     metadata: {},
     method: "PATCH",
@@ -110875,7 +110898,7 @@ function registerMockEvents() {
       throw { status: 404, message: "Event not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/events/:id/guests/:email/checkin",
     metadata: {},
     method: "POST",
@@ -111210,10 +111233,10 @@ function generateMockMedia() {
   let mediaId = 1;
   CONTENT_TEMPLATES.forEach((template, templateIndex) => {
     const variations = predictableRandomInt(3, 2);
-    for (let v = 0; v < variations; v++) {
+    for (let v2 = 0; v2 < variations; v2++) {
       const mediaItem = {
         id: `media-${String(mediaId).padStart(3, "0")}`,
-        name: `${template.title} ${v > 0 ? `v${v + 1}` : ""}`,
+        name: `${template.title} ${v2 > 0 ? `v${v2 + 1}` : ""}`,
         description: template.description,
         category: template.category,
         type: MEDIA_TYPES[predictableRandomInt(MEDIA_TYPES.length)],
@@ -111273,7 +111296,7 @@ function generateMockMedia() {
         created_by: "marketing.team@place.tech",
         created_at: getUnixTime(subDays(Date.now(), predictableRandomInt(60, 7))),
         updated_at: getUnixTime(subDays(Date.now(), predictableRandomInt(7, 0))),
-        version: `v1.${v}`,
+        version: `v1.${v2}`,
         status: "active"
       };
       media.push(mediaItem);
@@ -111286,7 +111309,7 @@ function generateMockPlaylists(displays, media) {
   const playlists = [];
   let playlistId = 1;
   MOCK_BUILDINGS.forEach((building) => {
-    const buildingDisplays = displays.filter((d) => d.building_id === building.id);
+    const buildingDisplays = displays.filter((d2) => d2.building_id === building.id);
     const generalPlaylist = {
       id: `playlist-${String(playlistId).padStart(3, "0")}`,
       name: `${building.name} General Content`,
@@ -111317,7 +111340,7 @@ function generateMockPlaylists(displays, media) {
       },
       // Targeting
       target: {
-        displays: buildingDisplays.map((d) => d.id),
+        displays: buildingDisplays.map((d2) => d2.id),
         zones: [building.id],
         categories: ["lobby", "corridor", "general"]
       },
@@ -111355,7 +111378,7 @@ function generateMockPlaylists(displays, media) {
           end_date: mediaItem.scheduling.end_date
         })),
         target: {
-          displays: buildingDisplays.filter((d) => d.location.area.includes("Meeting")).map((d) => d.id),
+          displays: buildingDisplays.filter((d2) => d2.location.area.includes("Meeting")).map((d2) => d2.id),
           zones: [building.id],
           categories: ["meeting_room"]
         },
@@ -111387,7 +111410,7 @@ function generateMockPlaylists(displays, media) {
       duration_override: null
     })),
     target: {
-      displays: displays.map((d) => d.id),
+      displays: displays.map((d2) => d2.id),
       // All displays
       zones: ["zone-EmWFTjuYExK"],
       categories: ["emergency"]
@@ -111692,7 +111715,7 @@ function registerMockSignage() {
       });
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups/current",
     metadata: {},
     method: "GET",
@@ -111704,13 +111727,13 @@ function registerMockSignage() {
       return [];
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "GET",
     callback: (request) => listSignageMockGroups(request.query_params)
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups",
     metadata: {},
     method: "POST",
@@ -111726,7 +111749,7 @@ function registerMockSignage() {
       return group2;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "PATCH",
@@ -111740,7 +111763,7 @@ function registerMockSignage() {
       return item.group;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/groups/:id",
     metadata: {},
     method: "DELETE",
@@ -111751,7 +111774,7 @@ function registerMockSignage() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "GET",
@@ -111760,7 +111783,7 @@ function registerMockSignage() {
       return item.group_id === ((_a11 = request.query_params) == null ? void 0 : _a11.group_id);
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_users",
     metadata: {},
     method: "POST",
@@ -111777,7 +111800,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "PATCH",
@@ -111793,7 +111816,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_users/:user_id/:group_id",
     metadata: {},
     method: "DELETE",
@@ -111806,7 +111829,7 @@ function registerMockSignage() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "GET",
@@ -111815,7 +111838,7 @@ function registerMockSignage() {
       return item.group_id === ((_a11 = request.query_params) == null ? void 0 : _a11.group_id);
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_zones",
     metadata: {},
     method: "POST",
@@ -111832,7 +111855,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "PATCH",
@@ -111848,7 +111871,7 @@ function registerMockSignage() {
       return item;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/group_zones/:group_id/:zone_id",
     metadata: {},
     method: "DELETE",
@@ -111861,7 +111884,7 @@ function registerMockSignage() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "GET",
@@ -111870,7 +111893,7 @@ function registerMockSignage() {
       return filterByGroup(MOCK_MEDIA, (_a11 = request.query_params) == null ? void 0 : _a11.group_id).map(toEngineMedia);
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/tags",
     metadata: {},
     method: "GET",
@@ -111881,7 +111904,7 @@ function registerMockSignage() {
       ];
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/tag_counts",
     metadata: {},
     method: "GET",
@@ -111898,7 +111921,7 @@ function registerMockSignage() {
       return counts;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media",
     metadata: {},
     method: "POST",
@@ -111908,7 +111931,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "GET",
@@ -111916,7 +111939,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_MEDIA, request.route_params.id)
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "PATCH",
@@ -111924,37 +111947,37 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/:id/thumbnail",
     metadata: {},
     method: "GET",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/media/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/plugins",
     metadata: {},
     method: "GET",
     callback: () => MOCK_PLUGINS
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/plugins/:id",
     metadata: {},
     method: "GET",
     callback: (request) => MOCK_PLUGINS.find((plugin) => plugin.id === request.route_params.id) || {}
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "GET",
@@ -111963,7 +111986,7 @@ function registerMockSignage() {
       return filterByGroup(MOCK_PLAYLISTS, (_a11 = request.query_params) == null ? void 0 : _a11.group_id).map(toEnginePlaylist);
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/approvers",
     metadata: {},
     method: "GET",
@@ -111978,7 +112001,7 @@ function registerMockSignage() {
       };
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists",
     metadata: {},
     method: "POST",
@@ -111988,7 +112011,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "GET",
@@ -111996,7 +112019,7 @@ function registerMockSignage() {
       shared_with: sharedWithGroups(MOCK_PLAYLISTS, request.route_params.id)
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "PATCH",
@@ -112004,19 +112027,19 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id",
     metadata: {},
     method: "DELETE",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "GET",
     callback: (request) => playlistMediaResponse(request.route_params.id, false)
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media",
     metadata: {},
     method: "POST",
@@ -112025,7 +112048,7 @@ function registerMockSignage() {
       updated_at: getUnixTime(Date.now())
     })
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule",
     metadata: {},
     method: "POST",
@@ -112042,7 +112065,7 @@ function registerMockSignage() {
       });
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/schedule/:item_id",
     metadata: {},
     method: "PATCH",
@@ -112055,7 +112078,7 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/revisions",
     metadata: {},
     method: "GET",
@@ -112064,37 +112087,37 @@ function registerMockSignage() {
       playlistMediaResponse(request.route_params.id, true)
     ]
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/approve",
     metadata: {},
     method: "POST",
     callback: (request) => playlistMediaResponse(request.route_params.id, true)
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/:id/media/request_approval",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/playlists/share",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/:id",
     metadata: {},
     method: "GET",
     callback: (request) => signageDisplay(request.route_params.id)
   });
-  to({
+  uo({
     path: "/api/engine/v2/signage/:id/metrics",
     metadata: {},
     method: "POST",
     callback: () => ({})
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage-displays",
     metadata: {},
     method: "GET",
@@ -112102,37 +112125,37 @@ function registerMockSignage() {
       var _a11, _b4, _c9;
       let displays = MOCK_DISPLAYS;
       if ((_a11 = request.query_params) == null ? void 0 : _a11.building_id) {
-        displays = displays.filter((d) => d.building_id === request.query_params.building_id);
+        displays = displays.filter((d2) => d2.building_id === request.query_params.building_id);
       }
       if ((_b4 = request.query_params) == null ? void 0 : _b4.status) {
-        displays = displays.filter((d) => d.status === request.query_params.status);
+        displays = displays.filter((d2) => d2.status === request.query_params.status);
       }
       if ((_c9 = request.query_params) == null ? void 0 : _c9.zone_id) {
-        displays = displays.filter((d) => d.zone_id === request.query_params.zone_id);
+        displays = displays.filter((d2) => d2.zone_id === request.query_params.zone_id);
       }
       return {
         data: displays,
         meta: {
           total: displays.length,
-          online: displays.filter((d) => d.status === "online").length,
-          offline: displays.filter((d) => d.status === "offline").length,
-          error: displays.filter((d) => d.status === "error").length
+          online: displays.filter((d2) => d2.status === "online").length,
+          offline: displays.filter((d2) => d2.status === "offline").length,
+          error: displays.filter((d2) => d2.status === "error").length
         }
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/displays/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       return display;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/media",
     metadata: {},
     method: "GET",
@@ -112163,7 +112186,7 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/playlists",
     metadata: {},
     method: "GET",
@@ -112171,27 +112194,27 @@ function registerMockSignage() {
       var _a11, _b4;
       let playlists = MOCK_PLAYLISTS;
       if ((_a11 = request.query_params) == null ? void 0 : _a11.building_id) {
-        playlists = playlists.filter((p2) => p2.target.zones.includes(request.query_params.building_id));
+        playlists = playlists.filter((p) => p.target.zones.includes(request.query_params.building_id));
       }
       if ((_b4 = request.query_params) == null ? void 0 : _b4.status) {
-        playlists = playlists.filter((p2) => p2.status === request.query_params.status);
+        playlists = playlists.filter((p) => p.status === request.query_params.status);
       }
       return {
         data: playlists,
         meta: {
           total: playlists.length,
-          active: playlists.filter((p2) => p2.status === "active").length,
-          standby: playlists.filter((p2) => p2.status === "standby").length
+          active: playlists.filter((p) => p.status === "active").length,
+          standby: playlists.filter((p) => p.status === "standby").length
         }
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/playlists/:id",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const playlist = MOCK_PLAYLISTS.find((p2) => p2.id === request.route_params.id);
+      const playlist = MOCK_PLAYLISTS.find((p) => p.id === request.route_params.id);
       if (!playlist)
         throw { status: 404, message: "Playlist not found" };
       const playlistWithMedia = __spreadProps(__spreadValues({}, playlist), {
@@ -112202,7 +112225,7 @@ function registerMockSignage() {
       return playlistWithMedia;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/triggers",
     metadata: {},
     method: "GET",
@@ -112226,15 +112249,15 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage/displays/:id/content",
     metadata: {},
     method: "GET",
     callback: (request) => {
-      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
-      const activePlaylist = MOCK_PLAYLISTS.find((p2) => p2.status === "active" && p2.target.displays.includes(display.id));
+      const activePlaylist = MOCK_PLAYLISTS.find((p) => p.status === "active" && p.target.displays.includes(display.id));
       if (!activePlaylist) {
         return { message: "No active content for this display" };
       }
@@ -112253,7 +112276,7 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage-analytics",
     metadata: {},
     method: "GET",
@@ -112263,14 +112286,14 @@ function registerMockSignage() {
       const building_id = (_b4 = request.query_params) == null ? void 0 : _b4.building_id;
       let displays = MOCK_DISPLAYS;
       if (building_id) {
-        displays = displays.filter((d) => d.building_id === building_id);
+        displays = displays.filter((d2) => d2.building_id === building_id);
       }
       return {
         timeframe,
         summary: {
           total_displays: displays.length,
-          online_displays: displays.filter((d) => d.status === "online").length,
-          total_impressions: displays.reduce((sum, d) => sum + d.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
+          online_displays: displays.filter((d2) => d2.status === "online").length,
+          total_impressions: displays.reduce((sum, d2) => sum + d2.analytics.daily_views, 0) * (timeframe === "7d" ? 7 : timeframe === "30d" ? 30 : 1),
           average_uptime: "99.2%",
           content_items_served: MOCK_MEDIA.length * displays.length * 24
         },
@@ -112289,7 +112312,7 @@ function registerMockSignage() {
           engagement_rate: media.performance.engagement_rate,
           average_view_time: media.performance.average_view_time
         })),
-        health_alerts: displays.filter((d) => d.status !== "online").map((display) => ({
+        health_alerts: displays.filter((d2) => d2.status !== "online").map((display) => ({
           display_id: display.id,
           display_name: display.name,
           alert_type: display.status,
@@ -112299,13 +112322,13 @@ function registerMockSignage() {
       };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/signage-displays/:id/control",
     metadata: {},
     method: "POST",
     callback: (request) => {
       var _a11;
-      const display = MOCK_DISPLAYS.find((d) => d.id === request.route_params.id);
+      const display = MOCK_DISPLAYS.find((d2) => d2.id === request.route_params.id);
       if (!display)
         throw { status: 404, message: "Display not found" };
       const action = (_a11 = request.body) == null ? void 0 : _a11.action;
@@ -112899,7 +112922,7 @@ var MOCK_ANSWERS = [
   }
 ];
 function registerMockSurveys() {
-  to({
+  uo({
     path: "/api/staff/v1/surveys",
     metadata: {},
     method: "GET",
@@ -112918,7 +112941,7 @@ function registerMockSurveys() {
       return filteredSurveys;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/questions",
     metadata: {},
     method: "GET",
@@ -112943,7 +112966,7 @@ function registerMockSurveys() {
       return filteredQuestions;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/questions/:id",
     metadata: {},
     method: "GET",
@@ -112959,7 +112982,7 @@ function registerMockSurveys() {
       return question;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "GET",
@@ -112980,7 +113003,7 @@ function registerMockSurveys() {
       return filteredAnswers;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/answers/:id",
     metadata: {},
     method: "GET",
@@ -112994,7 +113017,7 @@ function registerMockSurveys() {
       return answer;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/:id",
     metadata: {},
     method: "GET",
@@ -113010,7 +113033,7 @@ function registerMockSurveys() {
       return survey;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/surveys/answers",
     metadata: {},
     method: "POST",
@@ -114177,7 +114200,7 @@ var createVideoConferenceModule = (space = {}, overrides = {}) => new VideoConfe
 
 // libs/mocks/src/lib/systems-bindings.mock.ts
 function createSystem(space) {
-  ad(space.id, {
+  Md(space.id, {
     System: [createSystemModule(space)],
     Bookings: [createBookingsModule(space)],
     ContactTracing: [createContactTracingModule(space)],
@@ -114192,7 +114215,7 @@ function createSystem(space) {
     Payment: [createPaymentsModule(space)],
     LockerLocations: [createLockerLocationsModule()]
   });
-  const system = Ar(space.id);
+  const system = Ir(space.id);
   system.Bookings[0].$poll_bookings();
   setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1e3);
   system.AreaManagement[0].$update();
@@ -114202,7 +114225,7 @@ function createSystem(space) {
 // libs/mocks/src/lib/api/systems.mock.ts
 function registerMockSystems() {
   MOCK_SPACES.forEach((space, index) => createSystem(space));
-  to({
+  uo({
     path: "/api/engine/v2/systems",
     metadata: {},
     method: "GET",
@@ -114220,7 +114243,7 @@ function registerMockSystems() {
       return systems;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/systems/:id",
     metadata: {},
     method: "GET",
@@ -114235,7 +114258,7 @@ function registerMockSystems() {
 
 // libs/mocks/src/lib/api/users.mock.ts
 function registerMockUsers() {
-  to({
+  uo({
     path: "/api/engine/v2/users",
     metadata: {},
     method: "GET",
@@ -114247,7 +114270,7 @@ function registerMockUsers() {
       }).slice(0, limit);
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/users/:id",
     metadata: {},
     method: "GET",
@@ -114268,7 +114291,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/people",
     metadata: {},
     method: "GET",
@@ -114282,7 +114305,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/people/:id",
     metadata: {},
     method: "GET",
@@ -114297,7 +114320,7 @@ function registerMockUsers() {
       throw { status: 404, message: "User not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/guests",
     metadata: {},
     method: "GET",
@@ -114309,7 +114332,7 @@ function registerMockUsers() {
       return MOCK_STAFF;
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/guests/:email",
     metadata: {},
     method: "GET",
@@ -114321,7 +114344,7 @@ function registerMockUsers() {
       throw { status: 404, message: "Guest not found" };
     }
   });
-  to({
+  uo({
     path: "/api/staff/v1/guests/:email/meetings",
     metadata: {},
     method: "GET",
@@ -114436,7 +114459,7 @@ function registerMockZones() {
     ...MOCK_LEVELS,
     ...MOCK_ZONES
   ];
-  to({
+  uo({
     path: "/api/engine/v2/zones",
     metadata: {},
     method: "GET",
@@ -114453,7 +114476,7 @@ function registerMockZones() {
       return zones;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/zones/:id",
     metadata: {},
     method: "GET",
@@ -114468,19 +114491,19 @@ function registerMockZones() {
       return zone;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/settings",
     metadata: {},
     method: "GET",
     callback: (request) => []
   });
-  to({
+  uo({
     path: "/api/engine/v2/settings/:id",
     metadata: {},
     method: "GET",
     callback: (request) => ({})
   });
-  to({
+  uo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "GET",
@@ -114596,7 +114619,7 @@ function registerMockZones() {
       return {};
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PATCH",
@@ -114607,7 +114630,7 @@ function registerMockZones() {
       return request.body;
     }
   });
-  to({
+  uo({
     path: "/api/engine/v2/metadata/:id",
     metadata: {},
     method: "PUT",
@@ -114660,7 +114683,7 @@ function registerMockZones() {
     }
     return LOCKERS[id];
   }
-  to({
+  uo({
     path: "/api/engine/v2/metadata/:id/children",
     metadata: {},
     method: "GET",
@@ -115889,7 +115912,7 @@ function constructTimingAst(value, errors) {
     return makeTimingAst(duration, 0, "");
   }
   const strValue = value;
-  const isDynamic = strValue.split(/\s+/).some((v) => v.charAt(0) == "{" && v.charAt(1) == "{");
+  const isDynamic = strValue.split(/\s+/).some((v2) => v2.charAt(0) == "{" && v2.charAt(1) == "{");
   if (isDynamic) {
     const ast = makeTimingAst(0, 0, "");
     ast.dynamic = true;
@@ -117287,7 +117310,7 @@ var AnimationTransitionNamespace = class {
     });
   }
   destroy(context2) {
-    this.players.forEach((p2) => p2.destroy());
+    this.players.forEach((p) => p.destroy());
     this._signalRemovalForInnerTriggers(this.hostElement, context2);
   }
 };
@@ -117864,7 +117887,7 @@ var TransitionAnimationEngine = class {
           }
         }
       }
-      const activePlayers = players.filter((p2) => !p2.destroyed);
+      const activePlayers = players.filter((p) => !p.destroyed);
       if (activePlayers.length) {
         removeNodesAfterAnimationDone(this, element, activePlayers);
       } else {
@@ -117949,8 +117972,8 @@ var TransitionAnimationEngine = class {
       const details = element[REMOVAL_FLAG];
       if (details && details.removedBeforeQueried) return new NoopAnimationPlayer(timelineInstruction.duration, timelineInstruction.delay);
       const isQueriedElement = element !== rootElement;
-      const previousPlayers = flattenGroupPlayers((allPreviousPlayersMap.get(element) || EMPTY_PLAYER_ARRAY).map((p2) => p2.getRealPlayer())).filter((p2) => {
-        const pp = p2;
+      const previousPlayers = flattenGroupPlayers((allPreviousPlayersMap.get(element) || EMPTY_PLAYER_ARRAY).map((p) => p.getRealPlayer())).filter((p) => {
+        const pp = p;
         return pp.element ? pp.element === element : false;
       });
       const preStyles = preStylesMap.get(element);
@@ -118025,9 +118048,9 @@ var TransitionAnimationPlayer = class {
     this.totalTime = totalTime;
   }
   syncPlayerEvents(player) {
-    const p2 = this._player;
-    if (p2.triggerCallback) {
-      player.onStart(() => p2.triggerCallback("start"));
+    const p = this._player;
+    if (p.triggerCallback) {
+      player.onStart(() => p.triggerCallback("start"));
     }
     player.onDone(() => this.finish());
     player.onDestroy(() => this.destroy());
@@ -118078,18 +118101,18 @@ var TransitionAnimationPlayer = class {
   reset() {
     !this.queued && this._player.reset();
   }
-  setPosition(p2) {
+  setPosition(p) {
     if (!this.queued) {
-      this._player.setPosition(p2);
+      this._player.setPosition(p);
     }
   }
   getPosition() {
     return this.queued ? 0 : this._player.getPosition();
   }
   triggerCallback(phaseName) {
-    const p2 = this._player;
-    if (p2.triggerCallback) {
-      p2.triggerCallback(phaseName);
+    const p = this._player;
+    if (p.triggerCallback) {
+      p.triggerCallback(phaseName);
     }
   }
 };
@@ -118531,12 +118554,12 @@ var WebAnimationsPlayer = class {
       this._onDestroyFns = [];
     }
   }
-  setPosition(p2) {
+  setPosition(p) {
     if (!this.domPlayer) {
       this.init();
     }
     if (this.domPlayer) {
-      this.domPlayer.currentTime = p2 * this.time;
+      this.domPlayer.currentTime = p * this.time;
     }
   }
   getPosition() {
@@ -119166,7 +119189,7 @@ var _BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
       const search_id = ++this._search_id;
       this.timeout("system-search", async () => {
         this.loading.set("search");
-        const results = search.length < 2 ? { data: [] } : await ha({
+        const results = search.length < 2 ? { data: [] } : await ga({
           q: search,
           limit: 20,
           fields: [
@@ -119682,8 +119705,8 @@ var _BookingModalComponent = class _BookingModalComponent extends AsyncHandler {
         []
       )
     );
-    this.form = form(this.model, (p2) => {
-      validate(p2, ({ value }) => {
+    this.form = form(this.model, (p) => {
+      validate(p, ({ value }) => {
         if (this._data.disable_book_now_host || this._data.user || value().organiser) {
           return void 0;
         }
@@ -119695,7 +119718,7 @@ var _BookingModalComponent = class _BookingModalComponent extends AsyncHandler {
     });
     this.searchStaff = async (q2) => {
       var _a12;
-      const mod = fd((_a12 = this._data.space) == null ? void 0 : _a12.id, "Bookings");
+      const mod = Dd((_a12 = this._data.space) == null ? void 0 : _a12.id, "Bookings");
       if (!mod)
         return [];
       return mod.execute("list_users", [q2]).catch(() => []);
@@ -120242,7 +120265,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
     await this._org.waitUntilInitialised();
     if (this._app_settings.get("app.refresh_when_websocket_unstable")) {
       let count = 0;
-      this.subscription("stability-check", ld().subscribe(([_2, time]) => {
+      this.subscription("stability-check", Cd().subscribe(([_2, time]) => {
         if (time >= 30 * 1e3)
           count = 0;
         else
@@ -120256,14 +120279,14 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
     const load_id = ++this._load_id;
     this.timeout("load_system", async () => {
       log("Panel", `Loading system "${id}"...`);
-      const system = await da(id).catch(({ status, message: message2 }) => {
+      const system = await ba(id).catch(({ status, message: message2 }) => {
         log("Panel", "Error loading system details:", [status, message2], "error");
         if (status === 404)
           this._router.navigate(["/bootstrap"]);
         else {
           this.timeout("reload_system", () => this._loadSystem(id), 2e3 + randomInt(3e3));
         }
-        return new qs();
+        return new Rs();
       });
       if (load_id !== this._load_id)
         return;
@@ -120347,7 +120370,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
       return;
     ref.loading("Creating Meeting...");
     try {
-      const module2 = fd(this.system, "Bookings");
+      const module2 = Dd(this.system, "Bookings");
       if (!module2)
         throw "Unable to find module";
       await module2.execute("book_now", [
@@ -120369,7 +120392,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
     if (isAfter(details.date, addMinutes(Date.now(), 5)) || force_api) {
       await this._events.postForm(true);
     } else {
-      const module2 = fd(this.system, "Bookings");
+      const module2 = Dd(this.system, "Bookings");
       if (!details || !module2)
         return;
       const use_as_host = this._app_settings.get("app.user_as_default_host");
@@ -120406,7 +120429,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
       return notifyWarn("Current or upcoming meeting is not in a pending state.");
     }
     const meeting = this._current() || this._next();
-    const mod = fd(this.system, "Bookings");
+    const mod = Dd(this.system, "Bookings");
     if (!meeting || !mod)
       return;
     await mod.execute("start_meeting", [getUnixTime(meeting.date)]).catch((e) => notifyError(`Error starting meeting. ${e}`));
@@ -120438,7 +120461,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
    */
   async endCurrent(reason = "user_input") {
     const current = this._current();
-    const module2 = fd(this.system, "Bookings");
+    const module2 = Dd(this.system, "Bookings");
     if (current && module2) {
       await module2.execute("end_meeting", [
         getUnixTime(current.date),
@@ -120463,7 +120486,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
    * Execute the logic on the engine driver to call waiting staff
    */
   async checkin() {
-    const module2 = fd(this.system, "Bookings");
+    const module2 = Dd(this.system, "Bookings");
     if (!module2)
       return;
     const time = startOfMinute(Date.now()).valueOf();
@@ -120495,14 +120518,14 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
    * Execute the logic on the engine driver to call waiting staff
    */
   async callWaiter() {
-    const module2 = fd(this.system, "Bookings");
+    const module2 = Dd(this.system, "Bookings");
     if (module2) {
       await module2.execute("waiter_call", [Date.now()]).catch((e) => notifyError(`Error calling waiter. ${e}`));
     }
   }
   /** List to binding */
-  bindTo(id, name, mod = "Bookings", on_change = (v) => this.updateProperty(name, v)) {
-    const binding = fd(id, mod).variable(name);
+  bindTo(id, name, mod = "Bookings", on_change = (v2) => this.updateProperty(name, v2)) {
+    const binding = Dd(id, mod).variable(name);
     this.subscription(`listen:${name}`, binding.bindThenSubscribe(on_change));
   }
   /** Update properties of the system data */
@@ -120513,7 +120536,7 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
     this._settings.set(__spreadProps(__spreadValues({}, item), { [name]: value }));
   }
   _listenToModuleBinding(id, name, update2, mod_name = "Bookings") {
-    const mod = fd(id, mod_name);
+    const mod = Dd(id, mod_name);
     if (window.debug)
       window.panel_module = mod;
     const binding = mod.variable(name);
@@ -121047,12 +121070,12 @@ var _CheckinViewComponent = class _CheckinViewComponent extends AsyncHandler {
       )
     );
     this.checkInCurrent = () => this._state.startMeeting();
-    this.newBooking = (d = Date.now(), future = false) => {
+    this.newBooking = (d2 = Date.now(), future = false) => {
       if (!this.can_book())
         return;
-      this._state.newBooking(d, this.has_user(), future, true);
+      this._state.newBooking(d2, this.has_user(), future, true);
     };
-    this.bookSlot = (d) => this.newBooking(d, d > Date.now());
+    this.bookSlot = (d2) => this.newBooking(d2, d2 > Date.now());
     this.has_user = signal(
       true,
       ...ngDevMode ? [{ debugName: "has_user" }] : (
@@ -121622,7 +121645,7 @@ var _EventPanelComponent = class _EventPanelComponent extends AsyncHandler {
     this.interval("time", () => this.time.set(startOfMinute(Date.now()).valueOf()), 5 * 1e3);
   }
   toggleQRShow() {
-    this.show_qr.update((v) => !v);
+    this.show_qr.update((v2) => !v2);
     this.timeout("close", () => this.show_qr.set(false), 60 * 1e3);
   }
 };
