@@ -277,6 +277,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `parking.extra_space_restrictions` | object[] | – | Additional space restriction options shown as on/off toggles; multiple can be enabled at once. Each item needs an `id` and a `name` (label or translation key). |
 | `parking.auto_approved_groups` | string[] | – | User group names that are auto-approved for parking requests. Users in these groups will not see the approver group selector. |
 | `parking.vehicle_types` | object[] | car, bike, van, truck, other | Vehicle type options shown in the parking request flow. Each item needs an `id` and a `name`. |
+| `parking.default_location_from_desk_booking` | boolean | `false` | Default new parking requests to the desk booking building for the selected user and date. Show a desk icon beside the matching parking location. |
 | `parking.hidden_buildings` | string[] | `[]` | Building (zone) IDs to hide from the location options in the parking request flow. Buildings without any levels tagged `parking` are always hidden. |
 | `parking.hide_prefer_toggle` | boolean | `false` | Hide the "Prefer booked location first" toggle in the location preference section. |
 | `parking.hide_custom_shift` | boolean | `false` | Hide the custom option from the shift selection dropdown. |
