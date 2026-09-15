@@ -118,11 +118,11 @@ the PR gate.
 | WP-E2E-08 | P1 | A booking made by one user is **not** visible in another user's listing, and cannot be deleted by them. | **done** — `local/booking-scoping.spec.ts`. Red-checked: the other user's listing really is empty while the booking exists. |
 | WP-E2E-09 | P1 | Booking a **locker** end to end. | todo — **more setup than desks**, not the same pattern. Lockers come from locker *banks* then lockers within them (`loadLockerResources`), so seeding is two-level. Budget accordingly. |
 | WP-E2E-10 | P1 | Booking a **parking** space end to end. | todo — **more setup than desks**. Needs a level zone tagged `parking` plus spaces created through the parking API (`queryParkingSpacesForZones`), not Zone metadata. |
-| WP-E2E-11 | P2 | Inviting a **visitor** end to end. | **done** — expanded into its own section, [§1a](#1a-workplace--visitor-invites) (VIS-01 … VIS-14) |
+| WP-E2E-11 | P2 | Inviting a **visitor** end to end. | **done** — expanded into its own section, [§1a](#1a-workplace--visitor-invites) (VIS-01 … VIS-23) |
 | WP-E2E-12 | P2 | Directory / colleagues search returns seeded users. | todo |
 | WP-E2E-13 | P2 | The explore/map view renders for a seeded level and reflects availability. | todo — needs map metadata seeded |
 | WP-E2E-14 | P2 | Search validation and empty states: no blank page, no console error. | todo |
-| WP-E2E-15 | P1 | **Room/meeting** booking end to end. | **out of scope (external)** — the only surface needing a real Microsoft/Google tenant. Opt-in project, never in the PR gate. |
+| WP-E2E-15 | P1 | **Room/meeting** booking end to end. | **partial** — split in two once it turned out only half of it is external. The **PlaceOS-native** path (`app.events.use_bookings = true`) is local and covered: its own section, [§1b](#1b-workplace--room-bookings) (ROOM-01 … ROOM-14). The **calendar** path still needs a real Microsoft/Google tenant — `/events` and `/calendars` 500 here — and stays opt-in, never in the PR gate. |
 | WP-E2E-04 | P2 | Mock mode still renders the landing page with no backend at all. | **done** — `landing.spec.ts` (project `mock`) |
 
 ## 1a. Workplace — visitor invites
@@ -183,6 +183,68 @@ defects. Listed here so the coverage record is honest about what the suite knows
 | **Deep link** | `?booking=<id>` never opens the details modal: `booking-card.component.ts` checks `params.has('booking')` and then compares the id against `params.get('event')`, a parameter that is not there. |
 | **Dead config** | `bookings.allowed_daily_visitor_count` (default 100) is never read anywhere in this repo. Confirmed with the dev that the limit is not wanted. |
 
+## 1b. Workplace — room bookings
+
+Fourteen tests in six files under `apps/workplace/e2e/local/room-*.spec.ts`, with their own
+support code in `e2e/support/room/` — separate from both the desk support files and the
+visitor ones, so nothing room-shaped can break either. Working notes:
+[`e2e/ROOM_E2E_HANDOVER.md`](e2e/ROOM_E2E_HANDOVER.md).
+
+**These rows exist because WP-E2E-15 was only half right.** The calendar path really is
+external and stays out (see that row). But with **`app.events.use_bookings = true`** the same
+meeting form saves an ordinary PlaceOS booking of type `room` and reads availability from the
+bookings list — no outbound call, fully local. Every row here runs in that mode, which has a
+consequence that must be said out loud in any review: **a green run proves the PlaceOS-native
+room path works and says nothing about the calendar path.** Whether real customers run one, the
+other or both is [open question 3](#notes--blockers) and it decides what this coverage is worth.
+
+**Rooms are the first resource that must genuinely be created.** A desk is a row in zone
+metadata and a visitor is just an email; a room is an engine **System**. It is seeded by
+`e2e/support/room/room.seed.ts` — one room per worker, on demand, idempotent — rather than by
+the shared `seed.ts`, so a room mistake cannot break the desk specs. That needs ADMIN, and is
+cached per process.
+
+**Not covered, and why.** Real Outlook/Google invites, free/busy and attendee availability need
+a real tenant (WP-E2E-15). Email of any kind has no mail server in the stack. Room panels,
+signage and recurring meetings are other apps or the calendar path. As with §1a, a second
+building cannot be exercised — the stack seeds one org, one building, one level.
+
+| ID | P | Story | Status |
+|----|---|-------|--------|
+| ROOM-01 | P1 | A **non-admin** books a room through the full UI — form, confirmation, success — and the backend stores a `room` booking with the right system, meeting name and window. | **done** — `local/room-booking.spec.ts`. Nothing is sent until the second screen. The real meeting name is in `extension_data.title`; the booking's own `title` is always the literal "Room Booking", so asserting on it fails against a correct booking. |
+| ROOM-02 | P1 | A deleted room booking leaves the listing (teardown really tears down). | **done** — `local/room-booking.spec.ts` |
+| ROOM-03 | P1 | A room is **exclusive**: a second user is refused `409` for the same window *and* for a partial overlap, with a control that a clear window is still accepted `201`. | **done** — `local/room-clash.spec.ts`. The desk equivalent is REG-02. Created through the API on purpose: the picker hides busy rooms, so through the form "refused" and "never offered" are indistinguishable. Attempted as a *second* user, so a per-user-only check would fail. `409` specifically, not `>= 400` — a REG-09 `500` must not pass as clash detection. |
+| ROOM-04 | P1 | The room frees up once the booking is deleted, so a cancelled meeting does not hold a room forever. | **done** — `local/room-clash.spec.ts` |
+| ROOM-05 | P1 | One user's room booking is **not** visible to another user, and cannot be deleted by them. | **done** — `local/room-scoping.spec.ts`. Does not contradict ROOM-03: a room's *availability* is shared, which is why someone else gets a 409; the *booking* — who booked it, what the meeting is called, who is coming — is private. |
+| ROOM-06 | P1 | Control for ROOM-05: you *can* see your own room booking, so "nobody sees anything" cannot pass as success. | **done** — `local/room-scoping.spec.ts` |
+| ROOM-07 | P1 | The day and start time chosen on the form are the ones stored. | **done** — `local/room-times.spec.ts`. Every other room row takes whatever the form offers, so a form that ignored the pickers would have passed the lot. The **length** is a different story — ROOM-14. |
+| ROOM-08 | P2 | A maximum meeting length and bookable hours limit what the form offers. | **done** — `local/room-times.spec.ts`. Asserts on the options *offered*, because an out-of-range choice is absent rather than refused. The keys are `app.events.*`, not `app.bookings.*`: set the bookings keys and the form happily offers an 8-hour meeting. |
+| ROOM-09 | P2 | An attendee added on the form is stored with the booking. | **done** — `local/room-attendees.spec.ts`. A room booking is the only one of the three surfaces with a real attendee list, so it is the only place the list can go wrong. Stored in `extension_data.attendees`, which also carries the room itself as a resource. |
+| ROOM-10 | P2 | An attendee removed before sending is not invited, and the rest still are. | **done** — `local/room-attendees.spec.ts` |
+| ROOM-11 | P1 | Cancelling a room booking **from the app** — the booking menu and its confirmation — really removes it on the backend. | **blocked** — `local/room-cancel.spec.ts`, `test.fixme`. ROOM-B4 below. Every other room spec tears down through the API, so this button was never once pressed. |
+| ROOM-12 | P1 | Declining that confirmation leaves the booking alone. | **done** — `local/room-cancel.spec.ts`. A dialog whose decline button also deletes is worse than one that fails to delete. It passing while ROOM-11 does not is what shows ROOM-B4 is the delete itself, not the menu or the dialog. |
+| ROOM-13 | P1 | A room booking carries its **zone hierarchy** (org, building, level), as desk and visitor bookings do. | **blocked** — `local/room-booking.spec.ts`, `test.fixme`. ROOM-B2 below. Fold it into ROOM-01 once the app populates zones. |
+| ROOM-14 | P1 | The meeting **length** chosen on the form is the length the room is held for. | **blocked** — `local/room-times.spec.ts`, `test.fixme`. ROOM-B3 below. Fold it into ROOM-07 once the app carries the choice through. |
+
+### Findings from building this coverage
+
+Four, all reproduced and minimised, **none filed**. Three have a `fixme` row above waiting on
+them; ROOM-B1 has no row at all, because the preset that triggers it is deliberately kept out
+of the base settings.
+
+| ID | Finding |
+|----|---------|
+| **ROOM-B4** | **Cancelling a room booking from the schedule does nothing.** Confirming the cancel fires `DELETE /api/staff/v1/events/<id>` → **500**, and the booking is still live afterwards. In `use_bookings` mode a room booking *is* a staff-api booking, but `schedule.component.ts` deletes whatever it is displaying as an event (`item instanceof CalendarEvent ? removeEvent : removeBooking`) and a room booking is rebuilt into a `CalendarEvent` for display — so it takes the calendar path and fails. Worse than cosmetic: the room stays held by a booking the user believes they cancelled, refusing everyone else while looking free on their own screen. Blocks ROOM-11. |
+| **ROOM-B3** | **The meeting length picked on the form is not the length booked.** Ask for 90 minutes: the field reads "1 hour 30 minutes" and the confirmation shows 6:00–7:30 PM, but the request sends `booking_end` at 7:00 PM while `extension_data.event_end` says 7:30. `newBookingFromCalendarEvent` reads `event.duration`, which is still the default. The user sees one range and the room is held for another, so the last half hour looks free to everybody else. Not timing and not ordering — both orders were tried, and the field still reads 90 four seconds later, immediately before the confirmation is sent. Blocks ROOM-14. |
+| **ROOM-B2** | A room booked through the app is stored with **`zones: []`**, where desk and visitor bookings carry org, building and level. Anything scoping by zone cannot see it — and it is what walks the request into ROOM-B1. Blocks ROOM-13. |
+| **ROOM-B1** | A non-admin sending `approved: true` **without** zones gets **500 `syntax error at or near ")" (PQ::PQError)`**. With zones it is correctly refused `403`; an admin gets `201`; desks do it too, so this is not room-specific — the approval permission check dies instead of refusing when it has no zones to check against. Reachable from the app via `app.bookings.no_approval = true`, which is why that preset (`NO_APPROVAL` in `room.settings.ts`) is **not** in the base settings and is currently unused. |
+
+### Still to write
+
+Seven scenarios, in rough order of value: edit a room booking's **time**; edit its **room**;
+the **capacity warning** when attendees exceed the room; the **approval** flow (**blocked by
+ROOM-B1**); **check in** to a room booking; **favourite** rooms; **catering and equipment**.
+
 ## 2. Auth & session
 
 Grounded in the auth.cr work (PPT-2536), where every production failure was an
@@ -233,13 +295,28 @@ Config gaps caused several production incidents, and they are invisible to UI sp
 
 ## Notes & blockers
 
-- **Room/calendar events are the only genuinely external surface.** A placeholder tenant
-  unblocks every PlaceOS-native booking type (desks, lockers, parking, visitors) with no
-  outbound call. `/calendars` and `/events` do call Microsoft and fail `AADSTS900023`, so
-  WP-E2E-15 stays opt-in and out of the gate.
-- **Four rows are blocked on product fixes, not on test effort** (REG-08, REG-09, REG-10,
-  VIS-15). All were found by this suite. Leaving them visible here is the point — a blocked row is coverage
+- **The room CALENDAR path is the only genuinely external surface — the room itself is not.**
+  A placeholder tenant unblocks every PlaceOS-native booking type (desks, lockers, parking,
+  visitors) with no outbound call, and `app.events.use_bookings = true` puts **rooms** in that
+  same group: the meeting form then saves an ordinary `room` booking locally, which is what §1b
+  covers. `/calendars` and `/events` do call Microsoft and fail `AADSTS900023`, so the calendar
+  half of WP-E2E-15 stays opt-in and out of the gate.
+- **Open, and it decides what §1b is worth: do real customers book rooms through the calendar,
+  or through `use_bookings`?** Nobody has answered it. If the answer is "the calendar", fourteen
+  green tests guard a path those customers never take. This needs a product answer, not more
+  specs.
+- **Seven rows are blocked on product fixes, not on test effort** (REG-08, REG-09, REG-10,
+  VIS-15, ROOM-11, ROOM-13, ROOM-14). All were found by this suite. Leaving them visible here is the point — a blocked row is coverage
   information, a deleted row is not.
+- **Run hygiene: cancelled bookings accumulate, and the schedule counts them.** Every run leaves
+  soft-deleted rows behind; `GET /bookings` defaults to `limit=100` and the schedule sends
+  `include_deleted=true`, so once a user passes 100 their *new* bookings stop appearing and
+  every card-based spec fails for a reason that has nothing to do with the app. Measured: a
+  serial visitor run hit **106 cards** and failed 5 tests; one worker had **61 cancelled
+  bookings on a single day** by mid-afternoon; 428 stale rows had to be cleared by hand once.
+  The desk specs also fail more often as the suite grows, because more specs means more
+  parallel load. **Nothing should go near CI until this is settled**, and settling it is a
+  backend change or a purge step — not a spec change, and the user's decision either way.
 - **REG-09 is fixed, and worth reading about.** One burst of concurrent booking POSTs used to
   poison staff-api's connection pool, so booking creation returned 500 for everyone until the
   service restarted — while reads kept working, because they ran inside the orphaned transaction.

@@ -29,7 +29,12 @@ import {
 } from './calendar';
 
 export class YourBookingsPage {
-    constructor(private readonly page: Page) {}
+    // `protected`, not `private`, so another area can inherit this page rather
+    // than copy it. The schedule is not visitor-specific — the room specs need
+    // the same list, cards, details modal and overflow menu — so the shared
+    // behaviour stays here, its owner, and `room/schedule.page.ts` extends it
+    // with what is room-shaped (event cards instead of booking cards).
+    constructor(protected readonly page: Page) {}
 
     /** Open the list and wait for the schedule to render. */
     async open(): Promise<void> {
