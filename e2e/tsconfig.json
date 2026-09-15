@@ -1,0 +1,26 @@
+{
+    // Type-checking for the e2e suite. Nothing else covered these files:
+    // Playwright transpiles specs without checking them, and no project in the
+    // workspace includes `e2e/support` or `apps/*/e2e`. Real errors sat in the
+    // tree while every test passed green.
+    //
+    // Run with: bun run e2e:typecheck
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "noEmit": true,
+        "skipLibCheck": true,
+        "target": "es2022",
+        "module": "preserve",
+        "moduleResolution": "bundler",
+        "esModuleInterop": true,
+        "lib": ["dom", "es2022"],
+        "types": ["node"],
+        // ON here even though the workspace base has it off. This is the setting
+        // that catches the mistake this file exists for: a `let id: number |
+        // undefined` assigned from an untyped helper and then passed somewhere
+        // expecting a number. Without it the check compiles and finds nothing.
+        // Scoped to the e2e project so the app build is unaffected.
+        "strictNullChecks": true
+    },
+    "include": ["support/**/*.ts", "../apps/workplace/e2e/**/*.ts"]
+}
