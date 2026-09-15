@@ -81,6 +81,14 @@ e2e/                          shared engine, all apps
     fixtures.ts                 worker-scoped auth fixtures — import test/expect from here
     api.ts                      engine/staff-api helpers + asset sweep
     flows.ts                    multi-step UI flows (bookDeskViaUI)
+    visitor/                    visitor-invite coverage, kept out of the files above
+      visitor.env.ts              per-worker visitor addresses + slot table
+      visitor.api.ts              guest + visitor-booking helpers and sweeps
+      visitor.settings.ts         per-context app settings presets
+      invite-form.page.ts         locators for the invite form
+      your-bookings.page.ts       locators for the schedule + details modal
+      visitor.flows.ts            multi-step UI flows (inviteVisitorViaUI)
+    repro/                      standalone reproducers for confirmed backend bugs
     preflight.ts                "is the stack up?" — fails in 1s, not 90
     preflight.setup.ts          setup project — `local` depends on it, `mock` does not
     seed.ts                     idempotent API-driven seeding
