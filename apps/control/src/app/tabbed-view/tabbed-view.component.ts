@@ -1,12 +1,11 @@
 import { Component, computed, effect, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 
 import { SettingsService, VERSION } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
-    ChangelogModalComponent,
+    ChangelogService,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -48,6 +47,7 @@ import { TabOutletComponent } from './tab-outlet.component';
                             <ng-container>Version: </ng-container>
                             <button
                                 class="m-0 border-none bg-none p-0 text-xs underline"
+                                [disabled]="!changelog_available()"
                                 (click)="viewChangelog()"
                             >
                                 {{ version.hash }}
@@ -138,7 +138,7 @@ import { TabOutletComponent } from './tab-outlet.component';
 export class ControlTabbedViewComponent {
     private _route = inject(ActivatedRoute);
     private _state = inject(ControlStateService);
-    private _dialog = inject(MatDialog);
+    private _changelog = inject(ChangelogService);
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
@@ -155,15 +155,8 @@ export class ControlTabbedViewComponent {
     public readonly powerOn = () => this._state.powerOn();
     public readonly id = this._state.system_id;
     public readonly version = VERSION;
-
-    public async viewChangelog() {
-        const changelog = await (
-            await fetch(
-                'https://raw.githubusercontent.com/PlaceOS/user-interfaces/develop/CHANGELOG.md',
-            )
-        ).text();
-        this._dialog.open(ChangelogModalComponent, { data: { changelog } });
-    }
+    public readonly changelog_available = this._changelog.available;
+    public readonly viewChangelog = () => this._changelog.view();
 
     public readonly logo = computed(() => {
         this._org.active_building();

@@ -8,20 +8,14 @@
     "targets": {
         "lint": {
             "executor": "@nx/eslint:lint",
-            "outputs": [
-                "{options.outputFile}"
-            ]
+            "outputs": ["{options.outputFile}"]
         },
         "test": {
             "executor": "@angular/build:unit-test",
-            "outputs": [
-                "{workspaceRoot}/coverage/libs/explore"
-            ],
+            "outputs": ["{workspaceRoot}/coverage/libs/explore"],
             "options": {
                 "tsConfig": "libs/explore/tsconfig.spec.json",
-                "setupFiles": [
-                    "libs/explore/src/test-setup.ts"
-                ],
+                "setupFiles": ["libs/explore/src/test-setup.ts"],
                 "isolate": true,
                 "watch": false,
                 "buildTarget": "explore:test-build:development"

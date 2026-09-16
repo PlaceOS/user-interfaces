@@ -1,11 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import {
-    Component,
-    computed,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import {
@@ -179,6 +173,9 @@ export class CheckinResultsComponent extends AsyncHandler implements OnInit {
     public readonly print = () => {
         this.printing.set(true);
         this.qr_code.set(generateQRCode(this.booking()?.asset_id));
+        window.addEventListener('afterprint', () => this.printing.set(false), {
+            once: true,
+        });
         this.timeout('print', () => window.print());
     };
 

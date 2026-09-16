@@ -9,6 +9,7 @@
         "build": {
             "executor": "@angular/build:application",
             "outputs": ["{options.outputPath}"],
+            "defaultConfiguration": "production",
             "options": {
                 "baseHref": "./",
                 "outputPath": "dist/apps/stagehand",
@@ -26,11 +27,6 @@
                     {
                         "glob": "**/*",
                         "input": "apps/stagehand/public"
-                    },
-                    {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
                     },
                     {
                         "glob": "oauth-resp.html",
@@ -85,7 +81,7 @@
                         {
                             "type": "initial",
                             "maximumWarning": "1mb",
-                            "maximumError": "2.5mb"
+                            "maximumError": "1.4mb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -101,11 +97,12 @@
                     "extractLicenses": false,
                     "sourceMap": true
                 }
-            },
-            "defaultConfiguration": "production"
+            }
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "defaultConfiguration": "development",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js"
             },
@@ -116,9 +113,7 @@
                 "development": {
                     "buildTarget": "stagehand:build:development"
                 }
-            },
-            "defaultConfiguration": "development",
-            "continuous": true
+            }
         },
         "extract-i18n": {
             "executor": "@angular/build:extract-i18n",

@@ -10,7 +10,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { AssetListFieldComponent } from '@placeos/assets';
 import { CateringListFieldComponent } from '@placeos/catering';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     Building,
     currentUser,
@@ -47,7 +46,12 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         <button
                             icon
                             matRipple
-                            (click)="hide_block.update((h) => ({ ...h, details: !h.details }))"
+                            (click)="
+                                hide_block.update((h) => ({
+                                    ...h,
+                                    details: !h.details,
+                                }))
+                            "
                         >
                             <icon>{{
                                 hide_block().details
@@ -57,8 +61,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         </button>
                     </h3>
                     <div
-                        class="overflow-hidden"
-                        [@show]="hide_block().details ? 'hide' : 'show'"
+                        class="contract-expand"
+                        [class.contract-collapsed]="hide_block().details"
                     >
                         @if (buildings().length > 1) {
                             <div class="min-w-[256px] flex-1">
@@ -109,9 +113,7 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             </div>
                             <div class="relative w-full sm:flex-1">
                                 <label for="date">Date<span>*</span></label>
-                                <a-date-field
-                                    [formField]="form.date"
-                                >
+                                <a-date-field [formField]="form.date">
                                     Date and time must be in the future
                                 </a-date-field>
                                 @if (allow_all_day()) {
@@ -193,7 +195,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 icon
                                 matRipple
                                 (click)="
-                                    hide_block.update((h) => ({ ...h, attendees: !h.attendees }))
+                                    hide_block.update((h) => ({
+                                        ...h,
+                                        attendees: !h.attendees,
+                                    }))
                                 "
                             >
                                 <icon>{{
@@ -204,8 +209,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().attendees ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().attendees"
                         >
                             <a-user-list-field
                                 class="mt-4"
@@ -227,7 +232,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             icon
                             matRipple
                             (click)="
-                                hide_block.update((h) => ({ ...h, resources: !h.resources }))
+                                hide_block.update((h) => ({
+                                    ...h,
+                                    resources: !h.resources,
+                                }))
                             "
                         >
                             <icon>{{
@@ -238,8 +246,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                         </button>
                     </h3>
                     <div
-                        class="overflow-hidden"
-                        [@show]="hide_block().resources ? 'hide' : 'show'"
+                        class="contract-expand"
+                        [class.contract-collapsed]="hide_block().resources"
                     >
                         <space-list-field
                             class="mt-4"
@@ -261,7 +269,10 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                 icon
                                 matRipple
                                 (click)="
-                                    hide_block.update((h) => ({ ...h, catering: !h.catering }))
+                                    hide_block.update((h) => ({
+                                        ...h,
+                                        catering: !h.catering,
+                                    }))
                                 "
                             >
                                 <icon>{{
@@ -272,8 +283,8 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block().catering ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().catering"
                         >
                             <catering-list-field
                                 [formField]="form.catering"
@@ -282,52 +293,60 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
                                     duration: model().duration,
                                     zone_id:
                                         model().resources[0]?.level?.parent_id,
+                                    resources: model().resources,
                                 }"
                             ></catering-list-field>
                         </div>
                     </section>
                 }
-                <section class="p-4">
-                    <h3 class="flex items-center space-x-2">
+                @if (allow_assets()) {
+                    <section class="p-4">
+                        <h3 class="flex items-center space-x-2">
+                            <div
+                                class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
+                            >
+                                {{ !has_catering() ? '4' : '5' }}
+                            </div>
+                            <div class="text-xl">Assets</div>
+                            <div class="w-px flex-1"></div>
+                            <button
+                                icon
+                                matRipple
+                                (click)="
+                                    hide_block.update((h) => ({
+                                        ...h,
+                                        assets: !h.assets,
+                                    }))
+                                "
+                            >
+                                <icon>{{
+                                    hide_block().assets
+                                        ? 'expand_more'
+                                        : 'expand_less'
+                                }}</icon>
+                            </button>
+                        </h3>
                         <div
-                            class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block().assets"
                         >
-                            {{ !has_catering() ? '4' : '5' }}
+                            <asset-list-field
+                                [options]="{
+                                    date: model().date,
+                                    duration: model().duration,
+                                }"
+                                [formField]="form.assets"
+                            ></asset-list-field>
                         </div>
-                        <div class="text-xl">Assets</div>
-                        <div class="w-px flex-1"></div>
-                        <button
-                            icon
-                            matRipple
-                            (click)="hide_block.update((h) => ({ ...h, assets: !h.assets }))"
-                        >
-                            <icon>{{
-                                hide_block().assets
-                                    ? 'expand_more'
-                                    : 'expand_less'
-                            }}</icon>
-                        </button>
-                    </h3>
-                    <div
-                        class="overflow-hidden"
-                        [@show]="hide_block().assets ? 'hide' : 'show'"
-                    >
-                        <asset-list-field
-                            [options]="{
-                                date: model().date,
-                                duration: model().duration,
-                            }"
-                            [formField]="form.assets"
-                        ></asset-list-field>
-                    </div>
-                </section>
+                    </section>
+                }
                 @if (!hide_notes()) {
                     <section class="p-4">
                         <h3 class="mb-4 flex items-center space-x-2">
                             <div
                                 class="bg-base-200 flex h-6 w-6 items-center justify-center rounded-full"
                             >
-                                {{ !has_catering() ? '5' : '6' }}
+                                {{ notes_section() }}
                             </div>
                             <div class="text-xl">Notes</div>
                         </h3>
@@ -346,7 +365,6 @@ import { FindAvailabilityModalComponent } from '@placeos/users';
         }
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         MatRippleModule,
         FormsModule,
@@ -418,6 +436,9 @@ export class MeetingBookingFormComponent extends AsyncHandler {
         false,
     );
     public readonly allow_assets = settingSignal('events.allow_assets', false);
+    public readonly notes_section = computed(
+        () => 4 + Number(this.has_catering()) + Number(this.allow_assets()),
+    );
 
     public findAvailableTime() {
         const { attendees, organiser, date, duration } = this.model();

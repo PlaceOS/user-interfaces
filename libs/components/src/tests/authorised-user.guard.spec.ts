@@ -144,22 +144,16 @@ describe('AuthorisedUserGuard', () => {
         vi.useRealTimers();
     });
 
-    it('should keep waiting instead of redirecting during a slow startup', async () => {
+    it('should stop waiting during a slow startup', async () => {
         vi.useFakeTimers();
-        let resolve_startup: () => void;
         wait_until_initialised.mockImplementation(
-            () =>
-                new Promise<void>((resolve) => {
-                    resolve_startup = resolve;
-                }),
+            () => new Promise(() => undefined),
         );
-        const router = spectator.inject(Router);
+        vi.mocked(ts_client.token).mockReturnValue('cached-token');
 
         const result = spectator.service.canActivate();
         await vi.advanceTimersByTimeAsync(21_000);
 
-        expect(router.navigate).not.toHaveBeenCalled();
-        resolve_startup!();
         await expect(result).resolves.toBe(true);
         vi.useRealTimers();
     });

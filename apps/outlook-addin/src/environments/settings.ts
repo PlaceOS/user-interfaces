@@ -146,6 +146,7 @@ const app: any = {
     directory,
     explore,
     desks: {
+        use_assets: false,
         can_book_for_others: true,
         allow_groups: true,
         auto_allocation: false,

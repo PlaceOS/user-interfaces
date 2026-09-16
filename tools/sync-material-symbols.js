@@ -1,11 +1,21 @@
-const { copyFileSync, existsSync, mkdirSync, readdirSync } = require('node:fs');
+const {
+    existsSync,
+    mkdirSync,
+    readFileSync,
+    readdirSync,
+    writeFileSync,
+} = require('node:fs');
 const { dirname, join } = require('node:path');
+const subsetFont = require('subset-font');
 
-const FONT_FILES = [
-    'material-symbols-outlined.woff2',
-    'material-symbols-rounded.woff2',
-    'material-symbols-sharp.woff2',
+const FONT_CONFIG = [
+    { name: 'outlined', fill: 0 },
+    { name: 'rounded', fill: 1 },
+    { name: 'sharp', fill: 0 },
 ];
+// Material Symbol ligatures use these characters. Layout closure retains the
+// full icon repertoire while the fixed axes remove unused variable outlines.
+const LIGATURE_CHARACTERS = 'abcdefghijklmnopqrstuvwxyz_0123456789';
 
 function resolvePackageDir() {
     try {
@@ -22,16 +32,37 @@ function resolvePackageDir() {
     }
 }
 
-const package_dir = resolvePackageDir();
-const output_dir = join(__dirname, '..', 'shared', 'assets');
+async function main() {
+    const package_dir = resolvePackageDir();
+    const output_dir = join(__dirname, '..', 'shared', 'assets');
 
-mkdirSync(output_dir, { recursive: true });
+    mkdirSync(output_dir, { recursive: true });
 
-for (const file_name of FONT_FILES) {
-    const source = join(package_dir, file_name);
-    const target = join(output_dir, file_name);
-    if (!existsSync(source)) {
-        throw new Error(`Missing Material Symbols font: ${source}`);
+    for (const { name, fill } of FONT_CONFIG) {
+        const file_name = `material-symbols-${name}.woff2`;
+        const source = join(package_dir, file_name);
+        const target = join(output_dir, file_name);
+        if (!existsSync(source)) {
+            throw new Error(`Missing Material Symbols font: ${source}`);
+        }
+        const font = await subsetFont(
+            readFileSync(source),
+            LIGATURE_CHARACTERS,
+            {
+                targetFormat: 'woff2',
+                variationAxes: {
+                    FILL: fill,
+                    GRAD: 0,
+                    opsz: 24,
+                    wght: 400,
+                },
+            },
+        );
+        writeFileSync(target, font);
     }
-    copyFileSync(source, target);
 }
+
+main().catch((error) => {
+    console.error(error);
+    process.exitCode = 1;
+});

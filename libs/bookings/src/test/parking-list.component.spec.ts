@@ -1,15 +1,17 @@
 import { signal } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { MockComponent, MockDirective, MockModule, MockProvider } from 'ng-mocks';
+import {
+    MockComponent,
+    MockDirective,
+    MockModule,
+    MockProvider,
+} from 'ng-mocks';
 
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
-import {
-    BookingAsset,
-    BookingFormService,
-} from '../lib/booking-form.service';
+import { BookingAsset, BookingFormService } from '../lib/booking-form.service';
 import { ParkingListComponent } from '../lib/parking-select-modal/parking-list.component';
 
 const asset = (over: Partial<BookingAsset> = {}): BookingAsset =>
@@ -52,9 +54,6 @@ describe('ParkingListComponent', () => {
         loading.set('');
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should show the empty state when there are no results', () => {
         expect('[empty]').toExist();

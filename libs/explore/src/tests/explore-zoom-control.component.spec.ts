@@ -29,10 +29,6 @@ describe('ExploreZoomControlComponent', () => {
         (spectator.inject(ExploreStateService).setPositions as any).mockReset();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow zooming in', () => {
         const state = spectator.inject(ExploreStateService);
         expect(state.setPositions).not.toHaveBeenCalled();

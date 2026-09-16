@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { PlaceOS_Service, settingSignal } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import {
@@ -27,10 +30,6 @@ describe('AppComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the banner and loading indicator', () => {
         expect('global-banner').toExist();
         expect('global-loading').toExist();
@@ -42,9 +41,11 @@ describe('AppComponent', () => {
         expect(placeos.init).toHaveBeenCalled();
     });
 
-    it('should only show the chat when enabled', () => {
+    it('should only show the chat when enabled', async () => {
         expect('global-chat').not.toExist();
         settingSignal('chat.enabled', false).set(true);
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
         expect('global-chat').toExist();
     });

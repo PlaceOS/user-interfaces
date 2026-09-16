@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
@@ -12,7 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { OrganisationService } from '@placeos/common';
+import { OrganisationService, userSignal } from '@placeos/common';
 import {
     CustomTooltipComponent,
     IconComponent,
@@ -142,22 +142,24 @@ import {
                                     }
                                 </mat-select>
                             </mat-form-field>
-                            <div
-                                [matTooltip]="
-                                    'APP.CONCIERGE.CONTACTS_ROLES_ADD'
-                                        | translate
-                                "
-                            >
-                                <button
-                                    icon
-                                    default
-                                    matRipple
-                                    customTooltip
-                                    [content]="role_form"
+                            @if (can_manage_roles()) {
+                                <div
+                                    [matTooltip]="
+                                        'APP.CONCIERGE.CONTACTS_ROLES_ADD'
+                                            | translate
+                                    "
                                 >
-                                    <icon>add</icon>
-                                </button>
-                            </div>
+                                    <button
+                                        icon
+                                        default
+                                        matRipple
+                                        customTooltip
+                                        [content]="role_form"
+                                    >
+                                        <icon>add</icon>
+                                    </button>
+                                </div>
+                            }
                         </div>
                     </div>
                 </form>
@@ -224,6 +226,14 @@ export class EmergencyContactModalComponent {
     public loading = signal(false);
     public readonly role_name = signal('');
     public readonly contact?: EmergencyContact = this._data;
+    private readonly _user = userSignal();
+    public readonly can_manage_roles = computed(() => {
+        const groups = this._user().groups || [];
+        return (
+            groups.includes('placeos_admin') ||
+            groups.includes('placeos_support')
+        );
+    });
     public readonly roles = this._contacts_service.roles;
     public readonly model = signal({
         id: this._data?.id || this._contacts_service.generateContactId(),
@@ -240,6 +250,7 @@ export class EmergencyContactModalComponent {
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 
     public async addRole(): Promise<void> {
+        if (!this.can_manage_roles()) return;
         const role_name = this.role_name().trim();
         if (!role_name) return;
         this._tooltip().close();

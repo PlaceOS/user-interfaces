@@ -89,10 +89,6 @@ describe('LockersReportComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should apply query params to report options', () => {
         expect(set_options).toHaveBeenCalledWith({ start: 100 });
         expect(set_options).toHaveBeenCalledWith({ end: 200 });

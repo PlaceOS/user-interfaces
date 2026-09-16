@@ -21,6 +21,11 @@ const NAV_ITEMS = [
         icon: 'display_settings',
         label: 'SIGNAGE_MANAGER.NAV_DISPLAYS',
     },
+    {
+        route: '/branding',
+        icon: 'palette',
+        label: 'SIGNAGE_MANAGER.NAV_BRANDING',
+    },
     { route: '/groups', icon: 'groups', label: 'COMMON.GROUPS' },
 ];
 
@@ -29,10 +34,12 @@ export type NavItem = (typeof NAV_ITEMS)[number];
 export function filterManageNavItems(
     can_manage_groups: boolean,
     templates_enabled = false,
+    ai_enabled = false,
 ): NavItem[] {
     return NAV_ITEMS.filter((item) => {
         if (item.route === '/groups') return can_manage_groups;
         if (item.route === '/templates') return templates_enabled;
+        if (item.route === '/branding') return ai_enabled;
         return true;
     });
 }

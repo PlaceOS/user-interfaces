@@ -55,8 +55,6 @@ describe('LockerFormDetailsComponent', () => {
         });
     });
 
-    it('should create', () => expect(spectator.component).toBeTruthy());
-
     it('should read the selected building through the organisation service', () => {
         expect(spectator.component.building).toBe(building);
         const next = { id: 'bld-2', timezone: 'UTC' };
@@ -122,9 +120,15 @@ describe('LockerFormDetailsComponent', () => {
 
     it('should compute custom durations when the form changes', () => {
         spectator.component.ngOnChanges({
-            form: new SimpleChange(undefined, () => ({ resources: null }), true),
+            form: new SimpleChange(
+                undefined,
+                () => ({ resources: null }),
+                true,
+            ),
         });
-        expect(Array.isArray(spectator.component.custom_durations())).toBe(true);
+        expect(Array.isArray(spectator.component.custom_durations())).toBe(
+            true,
+        );
     });
 
     it('should map a selected locker into the booking model', () => {

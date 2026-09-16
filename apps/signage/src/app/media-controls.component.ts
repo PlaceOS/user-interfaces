@@ -136,11 +136,13 @@ export class MediaProgressBarComponent implements OnInit, OnDestroy {
                     icon
                     matRipple
                     class="hover:bg-base-200 relative"
-                    (click)="event.emit(state() ? 'PAUSE' : 'PLAY')"
+                    (click)="
+                        event.emit(state() === 'PLAYING' ? 'PAUSE' : 'PLAY')
+                    "
                     [matTooltip]="
                         (state() === 'PLAYING'
-                            ? 'APP.SIGNAGE.PLAY'
-                            : 'APP.SIGNAGE.PAUSE'
+                            ? 'APP.SIGNAGE.PAUSE'
+                            : 'APP.SIGNAGE.PLAY'
                         ) | translate
                     "
                 >

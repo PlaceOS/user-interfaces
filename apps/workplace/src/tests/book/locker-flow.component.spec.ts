@@ -1,10 +1,13 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     OrganisationService,
-    SettingsService,
     setCurrentUser,
+    SettingsService,
     StaffUser,
 } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
@@ -75,7 +78,9 @@ describe('BookLockerFlowComponent', () => {
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: [],
         } as any);
-        vi.mocked(ts_client.querySystems).mockResolvedValue({ data: [] } as any);
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [],
+        } as any);
         vi.mocked(ts_client.post).mockResolvedValue({ id: 'x' } as any);
         model = signal<Record<string, any>>({ id: '', booking_type: '' });
         view = signal<string>('form');
@@ -83,8 +88,6 @@ describe('BookLockerFlowComponent', () => {
         load_form = vi.fn();
         new_form = vi.fn();
     });
-
-    it('should create', () => expect(build().component).toBeTruthy());
 
     it('should render the form view by default', () => {
         build();

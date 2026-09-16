@@ -1,5 +1,5 @@
 import { signal } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
+import { SwUpdate, type VersionEvent } from '@angular/service-worker';
 import { isOnline } from '@placeos/ts-client';
 import { Subscription } from 'rxjs';
 
@@ -16,8 +16,15 @@ let _reload_gate: (() => boolean) | null = null;
 let _reload_timer: ReturnType<typeof setTimeout> | undefined;
 let _reload_deferred_since = 0;
 let _init_reload: (() => void) | null = null;
+let _init_reload_timer: ReturnType<typeof setTimeout> | undefined;
 let _last_update_check = 0;
 let _update_interval = 0;
+
+const INIT_RELOAD_KEY = 'PlaceOS.initialisation_reloads';
+const INIT_RELOAD_WINDOW_MS = 5 * MINUTES;
+const INIT_RELOAD_LIMIT = 3;
+const INITIALISATION_FAILURE = signal('');
+const INITIALISATION_COMPLETE = signal(false);
 
 /** How often a deferred automatic reload re-checks whether it can proceed */
 const RELOAD_RETRY_MS = 5 * SECONDS;
@@ -58,13 +65,18 @@ export function setAutoReloadGate(gate: (() => boolean) | null) {
     _reload_gate = gate;
 }
 
-function canReloadNow() {
-    // Reloading while the backend is unreachable strands the app on its
-    // loading screen with no way back, so wait for the network to return.
+/** Whether the backend can be reached, as far as the client can tell */
+function backendReachable() {
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
         return false;
     }
-    if (!isOnline()) return false;
+    return isOnline();
+}
+
+function canReloadNow() {
+    // Reloading while the backend is unreachable strands the app on its
+    // loading screen with no way back, so wait for the network to return.
+    if (!backendReachable()) return false;
     try {
         return _reload_gate ? _reload_gate() : true;
     } catch (error) {
@@ -105,12 +117,120 @@ export function setInitReloadHandler(handler: (() => void) | null) {
     _init_reload = handler;
 }
 
-/** Restart after a failed initialisation */
+/** Message shown when automatic startup recovery has stopped. */
+export function initialisationFailure() {
+    return INITIALISATION_FAILURE.asReadonly();
+}
+
+/** Whether application startup has reached its ready state. */
+export function initialisationComplete() {
+    return INITIALISATION_COMPLETE.asReadonly();
+}
+
+/** Stop startup and show a recoverable error in the loading UI. */
+export function failInitialisation(message: string): void {
+    INITIALISATION_COMPLETE.set(false);
+    INITIALISATION_FAILURE.set(message);
+}
+
+function recentInitReloads(now = Date.now()): number[] {
+    try {
+        const stored = JSON.parse(
+            sessionStorage.getItem(INIT_RELOAD_KEY) || '[]',
+        );
+        return stored instanceof Array
+            ? stored.filter(
+                  (at): at is number =>
+                      typeof at === 'number' &&
+                      now - at >= 0 &&
+                      now - at < INIT_RELOAD_WINDOW_MS,
+              )
+            : [];
+    } catch {
+        return [];
+    }
+}
+
+function storeInitReloads(at: number[]): void {
+    try {
+        sessionStorage.setItem(INIT_RELOAD_KEY, JSON.stringify(at));
+    } catch {
+        // A blocked session store must not prevent startup recovery.
+    }
+}
+
+/** Clear automatic recovery history after startup completes. */
+export function markInitialisationComplete(): void {
+    try {
+        sessionStorage.removeItem(INIT_RELOAD_KEY);
+    } catch {
+        // Ignore unavailable session storage.
+    }
+    // Startup got there after all, so a restart waiting on the network is no
+    // longer needed and would only interrupt an app that is now working.
+    cancelInitReload();
+    INITIALISATION_FAILURE.set('');
+    INITIALISATION_COMPLETE.set(true);
+}
+
+function cancelInitReload() {
+    if (_init_reload_timer) clearTimeout(_init_reload_timer);
+    _init_reload_timer = undefined;
+}
+
+/** Whether a restart after a failed initialisation is waiting for the network */
+export function initReloadPending() {
+    return !!_init_reload_timer;
+}
+
+/** Retry startup after automatic reload recovery reaches its limit. */
+export function retryInitialisation(): void {
+    try {
+        sessionStorage.removeItem(INIT_RELOAD_KEY);
+    } catch {
+        // Ignore unavailable session storage.
+    }
+    INITIALISATION_FAILURE.set('');
+    INITIALISATION_COMPLETE.set(false);
+    location.reload();
+}
+
+/**
+ * Restart after a failed initialisation. Held back while the backend cannot be
+ * reached: initialisation fails offline because the data is not there, not
+ * because the app is broken, and restarting into the same outage only trades
+ * whatever the app is managing to show from cache for a loading screen. The
+ * restart happens once the network is back, unless startup completes first.
+ */
 export function requestInitReload() {
+    if (!backendReachable()) {
+        if (_init_reload_timer) return;
+        log(
+            'APP',
+            'Initialisation failed while offline; restarting once online.',
+            undefined,
+            'warn',
+        );
+        _init_reload_timer = setTimeout(() => {
+            _init_reload_timer = undefined;
+            requestInitReload();
+        }, RELOAD_RETRY_MS);
+        return;
+    }
+    cancelInitReload();
     if (_init_reload) {
         _init_reload();
         return;
     }
+    const now = Date.now();
+    const reloads = recentInitReloads(now);
+    if (reloads.length >= INIT_RELOAD_LIMIT) {
+        failInitialisation(
+            'The application could not finish starting. Check the connection, then try again.',
+        );
+        return;
+    }
+    storeInitReloads([...reloads, now]);
     location.reload();
 }
 
@@ -160,6 +280,38 @@ function handleNewVersion() {
     });
 }
 
+/** Log each service worker version state reported by Angular. */
+function logVersionUpdate(event: VersionEvent) {
+    switch (event.type) {
+        case 'VERSION_DETECTED':
+            log(
+                'CACHE',
+                `Downloading application version ${event.version.hash}.`,
+            );
+            return;
+        case 'VERSION_INSTALLATION_FAILED':
+            log(
+                'CACHE',
+                `Failed to install application version ${event.version.hash}.`,
+                event.error,
+                'warn',
+            );
+            return;
+        case 'VERSION_READY':
+            log(
+                'CACHE',
+                `Application version ${event.latestVersion.hash} is ready.`,
+                { current_version: event.currentVersion.hash },
+            );
+            return;
+        case 'NO_NEW_VERSION_DETECTED':
+            log(
+                'CACHE',
+                `Application version ${event.version.hash} is up to date.`,
+            );
+    }
+}
+
 /**
  * Setup handler for cache change events
  * @param cache Angular Service worker service
@@ -173,11 +325,15 @@ export function setupCache(
         cacheOptions(options);
     _auto_reload = auto_reload;
     _update_interval = Math.max(interval, 1 * MINUTES);
+    log(
+        'CACHE',
+        `Service worker is ${cache.isEnabled ? 'enabled' : 'disabled'}.`,
+    );
     if (cache.isEnabled) {
         if (!_version_subscription) {
             _version_subscription = cache.versionUpdates.subscribe((event) => {
+                logVersionUpdate(event);
                 if (event.type !== 'VERSION_READY' || _new_version) return;
-                log('CACHE', `New application version is ready.`);
                 handleNewVersion();
             });
         }
@@ -231,6 +387,7 @@ export function clearCacheCheck() {
     _last_update_check = 0;
     _update_interval = 0;
     _init_reload = null;
+    cancelInitReload();
     _version_subscription?.unsubscribe();
     _unrecoverable_subscription?.unsubscribe();
     _version_subscription = undefined;
@@ -238,6 +395,8 @@ export function clearCacheCheck() {
     _new_version = false;
     _auto_reload = false;
     SERVICE_WORKER_UPDATE.set(null);
+    INITIALISATION_FAILURE.set('');
+    INITIALISATION_COMPLETE.set(false);
 }
 
 /**

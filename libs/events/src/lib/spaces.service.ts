@@ -27,12 +27,24 @@ export class SpacesService {
     public readonly list = computed(() =>
         this._all_spaces().filter((space) => space.map_id),
     );
+    private readonly _spaces_by_id = computed(
+        () =>
+            new Map(
+                this.list().map((space): [string, Space] => [space.id, space]),
+            ),
+    );
+    private readonly _spaces_by_email = computed(
+        () =>
+            new Map(
+                this.list()
+                    .filter(({ email }) => !!email)
+                    .map((space): [string, Space] => [space.email, space]),
+            ),
+    );
     /** List of available features */
     public readonly features = computed(() =>
         unique(
-            flatten(
-                this.list().map((i) => i.features.filter((_) => _.trim())),
-            ),
+            flatten(this.list().map((i) => i.features.filter((_) => _.trim()))),
         ),
     );
     /** Default predicate for filter method */
@@ -41,7 +53,7 @@ export class SpacesService {
 
     /** List of available spaces */
     public get space_list(): Space[] {
-        return this._all_spaces().filter((s) => s.map_id);
+        return this.list();
     }
 
     constructor() {
@@ -80,8 +92,9 @@ export class SpacesService {
      * @param space_id ID/Email address associated with the space
      */
     public find(space_id: string) {
-        return this.space_list.find(
-            ({ id, email }) => space_id === id || space_id === email,
+        return (
+            this._spaces_by_id().get(space_id) ||
+            this._spaces_by_email().get(space_id)
         );
     }
 

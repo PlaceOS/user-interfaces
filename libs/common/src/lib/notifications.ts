@@ -2,6 +2,10 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 let _service: MatSnackBar;
 let _disable_logging = false;
+let _filter: NotifyFilter | null = null;
+
+/** Decides whether a notification is shown. Return false to suppress it. */
+export type NotifyFilter = (type: string, message: string) => boolean;
 
 declare let jest: any;
 
@@ -11,6 +15,15 @@ export function setNotifyOutlet(
 ) {
     _service = snackbar;
     _disable_logging = disable_logging;
+}
+
+/**
+ * Restrict which notifications reach the screen. An unattended display has no
+ * one to read a popup and nothing it can do about one, so it can hide them
+ * unless someone is debugging it. Pass null to show everything again.
+ */
+export function setNotifyFilter(filter: NotifyFilter | null) {
+    _filter = filter;
 }
 
 /**
@@ -33,6 +46,10 @@ export function notify(
             !_disable_logging &&
             console.warn("Snackbar service hasn't been initialised")
         );
+    }
+    if (_filter && !_filter(type, message)) {
+        !_disable_logging && console.debug(`Suppressed ${type}: ${message}`);
+        return;
     }
     const snackbar_ref = _service.open(message, action, {
         panelClass: [type],

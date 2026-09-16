@@ -17,6 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+    queryDeskAssetsForZones,
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
     queryParkingSpacesForZones,
@@ -290,7 +291,10 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         resource_type: ReportResourceType,
         scope_id: string,
     ): Promise<Set<string>> {
-        const key = `${RESOURCE_LEVEL_CACHE_PREFIX}${resource_type}:${scope_id}`;
+        const desk_store = this._settings.get('app.desks.use_assets')
+            ? 'assets'
+            : 'metadata';
+        const key = `${RESOURCE_LEVEL_CACHE_PREFIX}${resource_type}:${scope_id}:${desk_store}`;
         const cached = sessionStorage.getItem(key);
         if (cached !== null) {
             return Promise.resolve(new Set<string>(JSON.parse(cached)));
@@ -316,6 +320,12 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     ): Promise<Set<string>> {
         switch (resource_type) {
             case 'desks': {
+                if (this._settings.get('app.desks.use_assets')) {
+                    const desks = await queryDeskAssetsForZones([scope_id]);
+                    return this._zonesForResources(
+                        desks.filter((desk) => desk.bookable),
+                    );
+                }
                 const list = await listChildMetadata(scope_id, {
                     name: 'desks',
                 });

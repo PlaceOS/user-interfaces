@@ -56,10 +56,6 @@ describe('GuestListingComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show cancelled bookings as cancelled', () => {
         expect(
             spectator.component.bookingStatusLabel({

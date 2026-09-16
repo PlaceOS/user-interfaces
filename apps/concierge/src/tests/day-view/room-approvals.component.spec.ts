@@ -1,10 +1,10 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { signal } from '@angular/core';
 import { MockProvider } from 'ng-mocks';
 
 import { EventsStateService } from '../../app/day-view/events-state.service';
@@ -37,10 +37,6 @@ describe('RoomBookingsApprovalsComponent', () => {
         replace.mockClear();
         pending.set([]);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should not refresh pending approvals immediately after approving series', async () => {

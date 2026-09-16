@@ -9,7 +9,6 @@ import {
     setToken,
     token,
 } from '@placeos/ts-client';
-import {} from 'rxjs';
 import { isSystemEvent } from './public-event.helpers';
 
 declare global {
@@ -264,7 +263,15 @@ export class PublicEventsService {
 
     private _parseGuestDetails(value: string | null): GuestDetails | null {
         try {
-            return JSON.parse(value || 'null');
+            const details: unknown = JSON.parse(value || 'null');
+            if (!details || typeof details !== 'object') return null;
+            const { name, email } = details as Record<string, unknown>;
+            return typeof name === 'string' &&
+                !!name.trim() &&
+                typeof email === 'string' &&
+                !!email.trim()
+                ? { name, email }
+                : null;
         } catch {
             return null;
         }

@@ -2,7 +2,7 @@
 
 The Map Kiosk app is a building wayfinding kiosk. It shows an interactive map of your building so visitors and staff can find rooms, desks, people and amenities, and it can optionally let people book a desk or meeting room directly from the kiosk.
 
-Settings are configured in Backoffice as Zone metadata under the **`app`** metadata key. Any values you set there are merged over the application's build-time defaults, so you only need to add the settings you want to change. Settings can be applied at the organisation, region, building or level zone as appropriate — more specific zones override broader ones.
+Set settings in Backoffice zone metadata under `map-kiosk_app` for the standard `/map-kiosk/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## Branding & General
 
@@ -76,6 +76,7 @@ Settings for the desk booking flow available from the kiosk.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
+| `desks.use_assets` | boolean | `false` | Read desk resources through the assets API. When `false`, Map Kiosk uses the legacy `desks` zone metadata. |
 | `desks.hide_reason` | boolean | `true` | Whether to disable the ability for the user to enter a reason for their desk booking. |
 | `desks.can_set_host` | boolean | `true` | Whether the user is allowed to make desk bookings on behalf of other people. |
 
@@ -84,6 +85,7 @@ Example:
 ```json
 {
     "desks": {
+        "use_assets": true,
         "hide_reason": false,
         "can_set_host": false
     }

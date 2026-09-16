@@ -8,6 +8,14 @@ import * as ts_client from '@placeos/ts-client';
 //   bookings.removeBooking     -> ts_client.del
 vi.mock('@placeos/ts-client', { spy: true });
 
+type BulkPost = (
+    url: string,
+    body: string,
+    options: Record<string, never>,
+) => Promise<Partial<ts_client.PlaceAsset>[]>;
+
+const bulk_post = vi.mocked(ts_client.post as unknown as BulkPost);
+
 function response(data: any[]) {
     return Promise.resolve({
         data,
@@ -196,10 +204,18 @@ describe('[Assets]', () => {
 
         it('should add in bulk when any asset is new', async () => {
             const { assets_fn } = await load_modules();
-            vi.mocked(ts_client.addAssets).mockResolvedValue(['ok'] as any);
+            const assets = [{ id: 'a' }, { name: 'new' }];
+            vi.mocked(ts_client.apiEndpoint).mockReturnValue(
+                'https://example.com/api/engine/v2',
+            );
+            bulk_post.mockResolvedValue([]);
 
-            await assets_fn.saveAssetsInBulk([{ id: 'a' }, { name: 'new' }]);
-            expect(ts_client.addAssets).toHaveBeenCalled();
+            await assets_fn.saveAssetsInBulk(assets);
+            expect(bulk_post).toHaveBeenCalledWith(
+                'https://example.com/api/engine/v2/assets/bulk',
+                JSON.stringify(assets),
+                {},
+            );
             expect(ts_client.updateAssets).not.toHaveBeenCalled();
         });
     });
@@ -368,6 +384,71 @@ describe('[Assets]', () => {
                 period_end: 2,
             });
             expect(groups[0].assets.map((a: any) => a.id)).toEqual(['a2']);
+        });
+    });
+
+    describe('validateAssetRequestsForResource', () => {
+        it('should create asset bookings only when the validated request is saved', async () => {
+            const { validateAssetRequestsForResource } =
+                await import('./assets.fn');
+            const { AssetRequest } = await import('@placeos/common');
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+                response([{ id: 'type-projector', name: 'Projector' }]),
+            );
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
+                response([
+                    { id: 'asset-projector', asset_type_id: 'type-projector' },
+                ]),
+            );
+            vi.mocked(ts_client.post).mockResolvedValue(undefined);
+            const request = new AssetRequest({
+                id: 'request-projector',
+                items: [
+                    {
+                        id: 'type-projector',
+                        name: 'Projector',
+                        quantity: 1,
+                        item_ids: [],
+                    },
+                ],
+            });
+            const options = {
+                date: 1_800_000_000_000,
+                duration: 30,
+                all_day: false,
+                host: 'host@example.com',
+                zones: ['building-1'],
+            };
+
+            // Opening the confirmation dialog must not reserve the asset.
+            await validateAssetRequestsForResource(
+                {},
+                options,
+                [request],
+                true,
+            );
+            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(ts_client.del).not.toHaveBeenCalled();
+
+            const save = await validateAssetRequestsForResource(
+                { id: 'event-1', ical_uid: 'event-1@example.com' },
+                options,
+                [request],
+                true,
+            );
+            expect(ts_client.post).not.toHaveBeenCalled();
+            await save();
+            expect(ts_client.post).toHaveBeenCalledTimes(1);
+            expect(ts_client.post).toHaveBeenCalledWith(
+                expect.stringContaining('event_id=event-1'),
+                expect.objectContaining({
+                    booking_type: 'asset-request',
+                    asset_ids: ['asset-projector'],
+                    extension_data: expect.objectContaining({
+                        parent_id: 'event-1',
+                    }),
+                }),
+            );
         });
     });
 

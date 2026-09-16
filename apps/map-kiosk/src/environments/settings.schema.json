@@ -82,6 +82,10 @@
             "type": "object",
             "description": "Data associated with the desk booking flow",
             "properties": {
+                "use_assets": {
+                    "type": "boolean",
+                    "description": "Whether desk resources are read through the assets API instead of legacy Zone metadata"
+                },
                 "hide_reason": {
                     "type": "boolean",
                     "description": "Whether to disable ability for user to set a reason for desk booking"

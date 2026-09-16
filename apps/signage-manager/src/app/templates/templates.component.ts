@@ -37,7 +37,7 @@ import { TemplatePreviewComponent } from './template-preview.component';
                                     default
                                     type="button"
                                     matRipple
-                                    class="sm:hidden"
+                                    class="desktop-hidden"
                                     (click)="deselectTemplate()"
                                     [attr.aria-label]="
                                         'SIGNAGE_MANAGER.BACK_TO_TEMPLATES'

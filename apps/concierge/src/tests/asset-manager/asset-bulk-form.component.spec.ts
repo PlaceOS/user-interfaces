@@ -6,10 +6,18 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
-import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetBulkFormComponent } from '../../app/asset-manager/asset-bulk-form.component';
+import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
+
+type BulkPost = (
+    url: string,
+    body: string,
+    options: Record<string, never>,
+) => Promise<Partial<ts_client.PlaceAsset>[]>;
+
+const bulk_post = vi.mocked(ts_client.post as unknown as BulkPost);
 
 describe('AssetBulkFormComponent', () => {
     let spectator: Spectator<AssetBulkFormComponent>;
@@ -36,11 +44,12 @@ describe('AssetBulkFormComponent', () => {
     });
 
     beforeEach(() => {
-        (ts_client.addAssets as any).mockReset();
-        (ts_client.addAssets as any).mockResolvedValue([
-            { id: 'a1' },
-            { id: 'a2' },
-        ]);
+        vi.mocked(ts_client.apiEndpoint).mockReset();
+        bulk_post.mockReset();
+        vi.mocked(ts_client.apiEndpoint).mockReturnValue(
+            'https://example.com/api/engine/v2',
+        );
+        bulk_post.mockResolvedValue([{ id: 'a1' }, { id: 'a2' }]);
         spectator = createComponent();
         spectator.component.model.set({
             id: '',
@@ -59,7 +68,7 @@ describe('AssetBulkFormComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client.addAssets).not.toHaveBeenCalled();
+        expect(bulk_post).not.toHaveBeenCalled();
     });
 
     it('should create one asset per requested count', async () => {
@@ -68,7 +77,9 @@ describe('AssetBulkFormComponent', () => {
 
         await spectator.component.save();
 
-        const list = (ts_client.addAssets as any).mock.calls[0][0];
+        const [url, body] = bulk_post.mock.calls[0];
+        const list = JSON.parse(body);
+        expect(url).toBe('https://example.com/api/engine/v2/assets/bulk');
         expect(list).toHaveLength(2);
         expect(list[0]).toEqual(
             expect.objectContaining({ identifier: 'Chair', zone_id: 'bld-1' }),

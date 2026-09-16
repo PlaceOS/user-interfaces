@@ -50,4 +50,10 @@ describe('EmbeddedControlModalComponent', () => {
     it('should show an close button', () => {
         expect('.close').toExist();
     });
+
+    it('should close after 30 seconds without interaction', async () => {
+        const spy = vi.spyOn(spectator.component, 'close');
+        await vi.advanceTimersByTimeAsync(30_000);
+        expect(spy).toHaveBeenCalledTimes(1);
+    });
 });

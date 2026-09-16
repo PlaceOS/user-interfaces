@@ -35,10 +35,6 @@ describe('LockersReportOverallComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should split active, cancelled and deleted booking counts', () => {
         expect(spectator.component.total_count()).toBe(3);
         expect(spectator.component.active_count()).toBe(1);

@@ -1,10 +1,13 @@
-import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
 import {
+    clearCacheCheck,
+    failInitialisation,
+    markInitialisationComplete,
     needsNativeDomain,
     OrganisationService,
     PlaceOS_Service,
@@ -17,9 +20,6 @@ import { LocaleService } from 'libs/common/src/lib/locale.service';
 import { GlobalLoadingComponent } from '../lib/global-loading.component';
 import { NativeDomainOverlayComponent } from '../lib/native-domain-overlay.component';
 import { ServiceWorkerUpdateCardComponent } from '../lib/service-worker-update-card.component';
-
-const sleep = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('GlobalLoadingComponent', () => {
     let spectator: Spectator<GlobalLoadingComponent>;
@@ -58,16 +58,20 @@ describe('GlobalLoadingComponent', () => {
     });
 
     beforeEach(() => {
+        vi.useFakeTimers();
         vi.mocked(authority).mockReturnValue(undefined);
         vi.mocked(token).mockReturnValue(undefined);
         vi.mocked(isOnline).mockReturnValue(true);
         needsNativeDomain().set(false);
+        clearCacheCheck();
+        sessionStorage.clear();
         setLoadingMessage('Loading...');
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    afterEach(() => {
+        spectator.fixture.destroy();
+        vi.useRealTimers();
     });
 
     it('should show the loading overlay with the current message', () => {
@@ -77,26 +81,73 @@ describe('GlobalLoadingComponent', () => {
         expect('[loader] p').toContainText('Fetching building data...');
     });
 
-    it('should hide the loading overlay once authenticated', async () => {
-        vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
-        vi.mocked(token).mockReturnValue('test-token');
+    it('should hide the loading overlay once initialisation completes', () => {
         spectator.detectChanges();
         expect('[loader]').toExist();
-        await sleep(1200);
+        markInitialisationComplete();
+        vi.advanceTimersByTime(5000);
         spectator.detectChanges();
         expect(spectator.component.loading()).toBe(false);
         expect('[loader]').not.toExist();
     });
 
-    it('should show a server down message while offline', async () => {
+    it('should show a server down message while offline', () => {
         vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
         vi.mocked(token).mockReturnValue('test-token');
         vi.mocked(isOnline).mockReturnValue(false);
         spectator.detectChanges();
-        await sleep(1200);
+        vi.advanceTimersByTime(5000);
         spectator.detectChanges();
         expect(spectator.component.online()).toBe(false);
         expect('div.bg-error').toExist();
+    });
+
+    it('should report an offline server while initialisation is pending', () => {
+        vi.mocked(isOnline).mockReturnValue(false);
+
+        spectator.detectChanges();
+        vi.advanceTimersByTime(5000);
+        spectator.detectChanges();
+
+        expect(spectator.component.online()).toBe(false);
+        expect('div.bg-error').toExist();
+    });
+
+    it('should keep the server warning hidden while the first connection starts', () => {
+        vi.mocked(isOnline).mockReturnValue(false);
+        spectator.detectChanges();
+        expect('div.bg-error').not.toExist();
+
+        vi.advanceTimersByTime(2000);
+        spectator.detectChanges();
+        expect('div.bg-error').not.toExist();
+
+        vi.mocked(isOnline).mockReturnValue(true);
+        vi.advanceTimersByTime(4000);
+        spectator.detectChanges();
+        expect('div.bg-error').not.toExist();
+    });
+
+    it('should report a lost connection without waiting for the startup grace period', () => {
+        spectator.detectChanges();
+        vi.mocked(isOnline).mockReturnValue(false);
+        vi.advanceTimersByTime(1000);
+        spectator.detectChanges();
+        expect('div.bg-error').toExist();
+
+        vi.mocked(isOnline).mockReturnValue(true);
+        vi.advanceTimersByTime(1000);
+        spectator.detectChanges();
+        expect('div.bg-error').not.toExist();
+    });
+
+    it('should show a retry action after initialisation recovery stops', () => {
+        failInitialisation('Startup failed.');
+
+        spectator.detectChanges();
+
+        expect('[initialisation-error]').toHaveText('Startup failed.');
+        expect('button').toHaveText('Try again');
     });
 
     it('should show the native domain overlay when required', () => {

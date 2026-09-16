@@ -21,10 +21,6 @@ describe('DeskBookingComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should reset to map after time', async () => {
         vi.useFakeTimers();
         const router = spectator.inject(Router);

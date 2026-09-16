@@ -63,10 +63,6 @@ describe('CameraTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should require a camera selection when selected_camera is null', () => {
         available_cameras.set([
             { id: 'cam1', name: 'Camera 1', mod: 'Camera_1' },

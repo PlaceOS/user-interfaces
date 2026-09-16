@@ -1801,6 +1801,215 @@ export function registerMockSignage() {
             };
         },
     });
+
+    registerMockSignageAI();
+}
+
+/**
+ * Image generation, in mock mode.
+ *
+ * Jobs live in a closure so the long poll behaves the way the real one does:
+ * the first request comes back queued, and candidates land one at a time a
+ * moment later. Images point at media already in the mock library, so the
+ * modal renders something real.
+ */
+interface MockAiRequest {
+    candidates?: number;
+    parent_job_id?: string;
+    prompt?: string;
+}
+
+interface MockAiJobImage {
+    state: 'done';
+    index: number;
+    upload_id: string;
+    url: string;
+    width: number;
+    height: number;
+    mime: string;
+    item_id?: string;
+}
+
+interface MockAiJob {
+    id: string;
+    state: 'queued' | 'running' | 'done' | 'failed' | 'cancelled';
+    kind: 'generate' | 'edit';
+    provider: string;
+    model: string;
+    candidates: number;
+    images_produced: number;
+    parent_job_id?: string;
+    version: number;
+    prompt?: string;
+    images: (MockAiJobImage | null)[];
+    error_kind?: string;
+    error_message?: string;
+    created_at: number;
+    finished_at?: number;
+}
+
+function registerMockSignageAI() {
+    const AI_JOBS: Record<string, MockAiJob> = {};
+    const SAMPLE_IMAGES = MOCK_MEDIA.slice(0, 4).map((item) => item.id);
+
+    const now = () => Math.floor(Date.now() / 1000);
+
+    function makeJob(request: MockAiRequest, kind: 'generate' | 'edit') {
+        const count = Math.min(Math.max(request.candidates || 2, 1), 4);
+        const job: MockAiJob = {
+            id: `signage-ai-job-${Object.keys(AI_JOBS).length + 1}`,
+            state: 'queued',
+            kind,
+            provider: 'OPENAI',
+            model: 'gpt-image-2',
+            candidates: count,
+            images_produced: 0,
+            parent_job_id: request.parent_job_id,
+            version: 0,
+            prompt: request.prompt,
+            images: Array.from({ length: count }, () => null),
+            created_at: now(),
+        };
+        AI_JOBS[job.id] = job;
+
+        if (`${request.prompt}`.includes('trigger-moderation')) {
+            setTimeout(() => {
+                job.state = 'failed';
+                job.error_kind = 'moderation';
+                job.error_message =
+                    'The request was blocked by the safety system';
+                job.version += 1;
+            }, 600);
+            return job;
+        }
+
+        job.state = 'running';
+        for (let index = 0; index < count; index++) {
+            setTimeout(
+                () => {
+                    const media_id =
+                        SAMPLE_IMAGES[index % SAMPLE_IMAGES.length] ||
+                        'upload-1';
+                    job.images[index] = {
+                        state: 'done',
+                        index,
+                        upload_id: media_id,
+                        url: `/api/engine/v2/uploads/${media_id}/url`,
+                        width: 2048,
+                        height: 1152,
+                        mime: 'image/jpeg',
+                    };
+                    job.images_produced += 1;
+                    job.version += 1;
+                    if (job.images_produced >= count) {
+                        job.state = 'done';
+                        job.finished_at = now();
+                        job.version += 1;
+                    }
+                },
+                800 + index * 500,
+            );
+        }
+        return job;
+    }
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/capabilities',
+        metadata: {},
+        method: 'GET',
+        callback: () => ({
+            enabled: true,
+            providers: [
+                {
+                    id: 'signage-ai-provider-1',
+                    name: 'Mock provider',
+                    provider: 'OPENAI',
+                    default_model: 'gpt-image-2',
+                    models: [
+                        {
+                            id: 'gpt-image-2',
+                            name: 'GPT Image 2',
+                            generate: true,
+                            edit: true,
+                            enhance: true,
+                            max_references: 16,
+                            max_candidates: 4,
+                            qualities: ['standard', 'high'],
+                            aspect_ratios: ['16:9', '9:16', '1:1', '4:3'],
+                        },
+                    ],
+                },
+            ],
+            default_provider_id: 'signage-ai-provider-1',
+            aspect_ratios: ['16:9', '9:16', '1:1', '4:3'],
+            qualities: ['standard', 'high'],
+            max_candidates: 4,
+            logo_layer: false,
+            quota: { user_remaining_today: 42, domain_remaining_month: 900 },
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/generate',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => makeJob(request.body || {}, 'generate'),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/edit',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => makeJob(request.body || {}, 'edit'),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/jobs',
+        metadata: {},
+        method: 'GET',
+        callback: () => Object.values(AI_JOBS),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/jobs/:id',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const job = AI_JOBS[request.route_params.id];
+            if (!job) throw { status: 404, message: 'No such job' };
+            return job;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/jobs/:id/cancel',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => {
+            const job = AI_JOBS[request.route_params.id];
+            if (!job) throw { status: 404, message: 'No such job' };
+            if (job.state === 'queued' || job.state === 'running') {
+                job.state = 'cancelled';
+                job.version += 1;
+            }
+            return job;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/signage/ai/jobs/:id/claim',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => {
+            const job = AI_JOBS[request.route_params.id];
+            if (!job) throw { status: 404, message: 'No such job' };
+            const entry = job.images.find(
+                (image) => image?.upload_id === request.body?.upload_id,
+            );
+            if (entry) entry.item_id = request.body?.item_id;
+            return job;
+        },
+    });
 }
 
 // Export mock data for testing

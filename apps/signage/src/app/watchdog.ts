@@ -7,6 +7,11 @@ import { MINUTES, scoped_log, SECONDS } from '@placeos/common';
  * re-evaluating schedules, driving playback - and reloads the page if one of
  * them stops running. Each checks in far more often than its stall threshold,
  * so a stalled signal means that timer chain is dead rather than merely idle.
+ * The content signal is the exception: it checks in while the player is idle
+ * or showing something it managed to load, so it goes quiet when the player
+ * is meant to be playing but nothing it tries will show. That is the failure
+ * the timer signals cannot see, because every timer underneath it keeps
+ * running perfectly.
  *
  * The heartbeats measure the player's own machinery, not the backend. The poll
  * signal checks in when a fetch is *attempted*, so a backend that has been down
@@ -18,7 +23,12 @@ import { MINUTES, scoped_log, SECONDS } from '@placeos/common';
  * recovering from - a promise that never settles, a timer chain that quietly
  * stopped - raise no error at all, which is exactly the case this exists for.
  */
-export type WatchdogSignal = 'poll' | 'schedule' | 'playback' | 'visible';
+export type WatchdogSignal =
+    | 'poll'
+    | 'schedule'
+    | 'playback'
+    | 'visible'
+    | 'content';
 
 /** How long a signal may go without checking in before it counts as stalled */
 const STALE_AFTER_MS: Record<WatchdogSignal, number> = {
@@ -30,6 +40,11 @@ const STALE_AFTER_MS: Record<WatchdogSignal, number> = {
     playback: 3 * MINUTES,
     // Checked every second while content is on screen
     visible: 5 * MINUTES,
+    // Checked every 50ms while the player is idle or showing an item it
+    // managed to load. Generous, because the player itself skips media that
+    // will not load and only a run of failures across the whole playlist
+    // should count as the player being stuck.
+    content: 10 * MINUTES,
 };
 /**
  * How long after starting the player has to reach a visible, playing state.
@@ -89,6 +104,7 @@ const heartbeats: Record<WatchdogSignal, number> = {
     schedule: 0,
     playback: 0,
     visible: 0,
+    content: 0,
 };
 let _last_error: { at: number; message: string } | null = null;
 let _error_count = 0;
@@ -369,6 +385,7 @@ export function resetWatchdog() {
     heartbeats.schedule = 0;
     heartbeats.playback = 0;
     heartbeats.visible = 0;
+    heartbeats.content = 0;
     _last_error = null;
     _error_count = 0;
     _stalled_since = 0;
@@ -416,6 +433,7 @@ export function watchdogState() {
             schedule: asTime(heartbeats.schedule),
             playback: asTime(heartbeats.playback),
             visible: asTime(heartbeats.visible),
+            content: asTime(heartbeats.content),
         },
     };
 }

@@ -39,11 +39,12 @@ describe('AvailableRoomsStateModalComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
+    it('should render a row for each room with its state', async () => {
+        await vi.waitFor(() => {
+            expect(spectator.component.rooms()).toHaveLength(2);
+        });
+        spectator.detectChanges();
 
-    it('should render a row for each room with its state', () => {
         const rows = spectator.queryAll('tbody tr');
         expect(rows).toHaveLength(2);
         expect(rows[0]).toContainText('Room 1');
@@ -56,20 +57,14 @@ describe('AvailableRoomsStateModalComponent', () => {
         await spectator.component.toggleRoom('space-1');
         expect(spectator.component.selected()).toEqual(['space-1']);
         await spectator.component.toggleRoom('space-2');
-        expect(spectator.component.selected()).toEqual([
-            'space-1',
-            'space-2',
-        ]);
+        expect(spectator.component.selected()).toEqual(['space-1', 'space-2']);
         await spectator.component.toggleRoom('space-1');
         expect(spectator.component.selected()).toEqual(['space-2']);
     });
 
     it('should toggle selection of all rooms', async () => {
         await spectator.component.toggleRoom('*');
-        expect(spectator.component.selected()).toEqual([
-            'space-1',
-            'space-2',
-        ]);
+        expect(spectator.component.selected()).toEqual(['space-1', 'space-2']);
         await spectator.component.toggleRoom('*');
         expect(spectator.component.selected()).toEqual([]);
     });

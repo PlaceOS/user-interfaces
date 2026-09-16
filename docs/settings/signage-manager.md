@@ -2,7 +2,7 @@
 
 The **Signage Manager** app is the administration UI for digital signage. It's where staff create and organise media, build playlists, and assign content to signage displays.
 
-Settings are configured in Backoffice as Zone metadata under the `app` metadata key. Anything you set there is merged over the app's build-time defaults, so you only need to define the settings you want to change. Settings cascade through the zone hierarchy (organisation, building, level), with more specific zones overriding broader ones.
+Set settings in Backoffice zone metadata under `signage-manager_app` for the standard `/signage-manager/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## Branding
 
@@ -53,7 +53,8 @@ Example locale list:
 | `show_media_group_tabs` | boolean | `false` | Show the signage group tabs above the media list. When this is off, users can still change the group with the breadcrumbs in the media header. |
 | `media_allow_extended_video_codecs` | boolean | `false` | Whether media upload validation accepts extended video codecs — AV1 (`av01`/`V_AV1`) and HEVC (`hev1`/`hvc1`) — in MP4 and WebM files, in addition to the default allowed codec set. Only enable this if your signage display hardware can decode these codecs. |
 | `signage_path` | string | – | Base URL path of the signage viewer application, used to build display preview links. When not set, `/signage` is used. |
-| `templates_enabled` | boolean | `false` | Make the template management section available. This feature is still in development. |
+| `schedule_timezone_once_only` | boolean | `true` | Show the schedule timezone selector only for schedules that play once. Set to `false` to also show it for recurring schedules. |
+| `templates_enabled` | boolean | `true` | Make the template management section available. |
 
 ## Other
 
@@ -65,7 +66,7 @@ Example locale list:
 
 ## Example
 
-A typical `app` metadata configuration for an organisation zone:
+Example `signage-manager_app` metadata details for the organisation zone:
 
 ```json
 {

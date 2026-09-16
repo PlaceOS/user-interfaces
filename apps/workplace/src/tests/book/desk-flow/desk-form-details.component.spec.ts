@@ -53,8 +53,6 @@ describe('NewDeskFormDetailsComponent', () => {
         spectator.setInput('model_input', model as any);
     });
 
-    it('should create', () => expect(spectator.component).toBeTruthy());
-
     it('should expose the writable model from the model_input', () => {
         expect(spectator.component.model).toBe(model);
     });

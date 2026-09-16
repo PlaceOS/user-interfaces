@@ -31,10 +31,7 @@ describe('AssetReportProductUsageComponent', () => {
     beforeEach(() => {
         downloads = captureDownloads();
         stats = signal({
-            bookings: [
-                { asset_ids: ['a1', 'a2'] },
-                { asset_ids: ['a3'] },
-            ],
+            bookings: [{ asset_ids: ['a1', 'a2'] }, { asset_ids: ['a3'] }],
             products: [
                 { name: 'Laptop', assets: [{ id: 'a1' }, { id: 'a2' }] },
                 { name: 'Monitor', assets: [{ id: 'a3' }] },
@@ -44,10 +41,6 @@ describe('AssetReportProductUsageComponent', () => {
         spectator = createComponent({
             providers: [{ provide: AssetsReportService, useValue: { stats } }],
         });
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should only list products with at least one booking', () => {

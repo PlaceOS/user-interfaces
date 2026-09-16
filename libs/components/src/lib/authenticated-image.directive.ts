@@ -2,72 +2,118 @@ import {
     Directive,
     ElementRef,
     OnChanges,
+    OnDestroy,
     SimpleChanges,
     inject,
     input,
 } from '@angular/core';
 import { authority } from '@placeos/ts-client';
 
-import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { AsyncHandler } from '@placeos/common';
 import {
-    IMAGE_STORE,
+    getCachedAuthenticatedImage,
     loadAuthenticatedImage,
     loadAuthenticatedImageWithHeader,
 } from './authenticated-image.pipe';
+
+type AuthenticatedMediaElement =
+    | HTMLImageElement
+    | HTMLVideoElement
+    | HTMLAudioElement;
 
 @Directive({
     selector: 'img[auth], video[auth], audio[auth]',
 })
 export class AuthenticatedImageDirective
     extends AsyncHandler
-    implements OnChanges
+    implements OnChanges, OnDestroy
 {
-    private _element =
-        inject<
-            ElementRef<HTMLImageElement | HTMLVideoElement | HTMLAudioElement>
-        >(ElementRef);
+    private readonly _element =
+        inject<ElementRef<AuthenticatedMediaElement>>(ElementRef);
+    private _observer: IntersectionObserver | null = null;
+    private _source_version = 0;
 
     public readonly source = input<string>(undefined);
 
-    constructor() {
-        super();
-    }
+    public ngOnChanges(changes: SimpleChanges): void {
+        if (!changes.source) return;
+        this._source_version += 1;
+        this.clearTimeout('load');
+        this._observer?.disconnect();
+        this._observer = null;
 
-    public ngOnChanges(changes: SimpleChanges) {
-        if (changes.source && this.source()) this._loadImage();
-    }
-
-    private async _loadImage() {
         const source = this.source();
-        if (typeof source !== 'string') return;
-        if (!this._element || !authority()) {
-            return this.timeout('load', () => this._loadImage(), 300);
-        }
-        // External URLs aren't authenticated against this origin
+        if (!source) return;
         if (!this._isLocalUrl(source)) {
             this._element.nativeElement.src = source;
             return;
         }
-        // If image has already been loaded, just use the cached version
-        if (IMAGE_STORE.has(source)) {
-            this._element.nativeElement.src = IMAGE_STORE.get(source);
+        this._loadWhenVisible(source, this._source_version);
+    }
+
+    public override ngOnDestroy(): void {
+        this._observer?.disconnect();
+        this._observer = null;
+        super.ngOnDestroy();
+    }
+
+    private _loadWhenVisible(source: string, version: number): void {
+        if (typeof IntersectionObserver === 'undefined') {
+            void this._loadImage(source, version);
             return;
         }
+        this._observer = new IntersectionObserver(
+            (entries) => {
+                if (!entries.some(({ isIntersecting }) => isIntersecting)) {
+                    return;
+                }
+                this._observer?.disconnect();
+                this._observer = null;
+                void this._loadImage(source, version);
+            },
+            { rootMargin: '300px' },
+        );
+        this._observer.observe(this._element.nativeElement);
+    }
+
+    private async _loadImage(source: string, version: number): Promise<void> {
+        if (version !== this._source_version || source !== this.source())
+            return;
+        if (!authority()) {
+            this.timeout(
+                'load',
+                () => void this._loadImage(source, version),
+                300,
+            );
+            return;
+        }
+
+        const cached = getCachedAuthenticatedImage(source);
+        if (cached) {
+            this._element.nativeElement.src = cached;
+            return;
+        }
+
         const is_api =
             source.includes('/api/engine/v2/uploads') ||
             source.includes('/api/engine/v2/signage');
         try {
-            this._element.nativeElement.src = is_api
+            const url = is_api
                 ? await loadAuthenticatedImage(source, this._cookiePath(source))
                 : await loadAuthenticatedImageWithHeader(source);
+            if (version === this._source_version && source === this.source()) {
+                this._element.nativeElement.src = url;
+            }
         } catch (error) {
-            this._element.nativeElement.dispatchEvent(
-                new ErrorEvent('error', { error }),
-            );
+            if (version === this._source_version) {
+                this._element.nativeElement.dispatchEvent(
+                    new ErrorEvent('error', { error }),
+                );
+            }
         }
     }
 
-    /** Whether the source resolves to the current origin */
+    /** Whether the source resolves to the current origin. */
     private _isLocalUrl(source: string): boolean {
         try {
             return new URL(source, location.href).origin === location.origin;
@@ -76,7 +122,7 @@ export class AuthenticatedImageDirective
         }
     }
 
-    /** Cookie path scoped to the resource so the auth cookie is sent on fetch */
+    /** Return the narrowest cookie path that includes the resource. */
     private _cookiePath(source: string): string {
         return source.includes('/api/engine/v2/uploads')
             ? '/api/engine/v2/uploads'

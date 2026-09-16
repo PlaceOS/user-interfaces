@@ -1,8 +1,11 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
-import { mockComponent } from '@placeos/common/tests';
 import { PlaceOS_Service } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import {
     ChatComponent,
     GlobalBannerComponent,
@@ -47,9 +50,11 @@ describe('AppComponent', () => {
         expect('global-chat').not.toExist();
     });
 
-    it('should render the chat when chat is enabled', () => {
+    it('should render the chat when chat is enabled', async () => {
         const placeos = spectator.inject(PlaceOS_Service);
         (placeos as any).has_chat = true;
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
         expect('global-chat').toExist();
     });

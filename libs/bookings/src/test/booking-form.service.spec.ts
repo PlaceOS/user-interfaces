@@ -240,6 +240,45 @@ describe('BookingFormService', () => {
         expect(resources.map(({ id }) => id)).toEqual(['desk-1']);
     });
 
+    it('should load desk resources from assets when enabled', async () => {
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) => key === 'app.desks.use_assets',
+        );
+        const org = spectator.inject(OrganisationService) as any;
+        org.levelsForBuilding = vi.fn(() => [{ id: 'lvl-1' }]);
+        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
+            data: [{ id: 'desk-category', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
+            data: [{ id: 'desk-type', name: '_DESKS_' }],
+        } as any);
+        vi.mocked(ts_client.queryAssets).mockResolvedValue({
+            data: [
+                {
+                    id: 'asset-desk-1',
+                    asset_type_id: 'desk-type',
+                    zone_id: 'lvl-1',
+                    identifier: 'Desk One',
+                    map_id: 'desk-map-1',
+                    bookable: true,
+                    place_groups: ['engineering'],
+                },
+            ],
+        } as any);
+
+        const desks = await spectator.service.loadResourceList('desks');
+
+        expect(desks).toEqual([
+            expect.objectContaining({
+                id: 'asset-desk-1',
+                name: 'Desk One',
+                map_id: 'desk-map-1',
+                groups: ['engineering'],
+            }),
+        ]);
+        expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
+    });
+
     it('should debounce identical booked resource queries', async () => {
         booked_result = ['desk-1'];
         const query = {
@@ -2817,7 +2856,7 @@ describe('BookingFormService', () => {
             }),
         ]);
 
-        expect(savedBookings()).toHaveLength(1);
+        expect(savedBookings()).toHaveLength(2);
         expect(savedBookings()[0]).toEqual(
             expect.objectContaining({
                 booking_type: 'group',
@@ -2942,6 +2981,34 @@ describe('BookingFormService', () => {
         ]);
     });
 
+    it('should exclude removed visitors when reopening a group', async () => {
+        spectator.service.setOptions({ type: 'visitor' });
+        const retained = new Booking({
+            id: 'visitor-retained',
+            parent_id: 'visitor-group',
+            booking_type: 'visitor',
+            asset_id: 'retained@example.com',
+            date: new Date('2026-09-10T09:00:00Z').valueOf(),
+            duration: 60,
+        });
+        const removed = new Booking({
+            ...retained.toJSON(),
+            id: 'visitor-removed',
+            asset_id: 'removed@example.com',
+            deleted: true,
+        });
+        (
+            ts_client.get as unknown as Mock<() => Promise<Booking[]>>
+        ).mockResolvedValue([retained, removed]);
+
+        const members =
+            await spectator.service.loadGroupMembersForBooking(retained);
+
+        expect(members.map((member) => member.email)).toEqual([
+            'retained@example.com',
+        ]);
+    });
+
     it('should include bookings made by the current user when loading group siblings', async () => {
         spectator.service.setOptions({ type: 'visitor' });
 
@@ -2959,6 +3026,194 @@ describe('BookingFormService', () => {
         expect(ts_client.get).toHaveBeenCalledWith(
             expect.stringContaining('include_booked_by=true'),
         );
+    });
+
+    it('should use the stored period when loading siblings after the booking period changes', async () => {
+        const original_date = new Date('2026-09-10T09:00:00.000Z').valueOf();
+        const booking = new Booking({
+            id: 'booking-one',
+            parent_id: 'booking-group',
+            booking_type: 'desk',
+            date: original_date,
+            duration: 60,
+        });
+        spectator.service.newForm('desk', booking);
+        spectator.service.model.update((form) => ({
+            ...form,
+            date: original_date + 60 * 60 * 1000,
+            duration: 90,
+        }));
+
+        const changed_form = spectator.service.model();
+        await spectator.service.loadGroupSiblings(
+            new Booking({
+                id: changed_form.id,
+                parent_id: changed_form.parent_id,
+                booking_type: changed_form.booking_type,
+                date: changed_form.date,
+                duration: changed_form.duration,
+            }),
+        );
+
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining(`period_start=${original_date / 1000}`),
+        );
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining(
+                `period_end=${original_date / 1000 + 60 * 60}`,
+            ),
+        );
+    });
+
+    it('should mark a removed visitor and update the linked event and parent group', async () => {
+        Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
+            value: false,
+        });
+        const removed = new User({
+            name: 'Removed Visitor',
+            email: 'removed@example.com',
+        });
+        const retained = new User({
+            name: 'Retained Visitor',
+            email: 'retained@example.com',
+        });
+        const booking = new Booking({
+            id: 'booking-removed',
+            parent_id: 'booking-group',
+            booking_type: 'visitor',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            asset_id: removed.email,
+            asset_name: removed.name,
+            linked_event: {
+                event_id: 'calendar/event-id',
+                system_id: 'sys-room',
+                resource_calendar: 'room@example.com',
+                host_email: 'host@example.com',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                date_end: Date.now() + 2 * 60 * 60 * 1000,
+            },
+            attendees: [removed, retained],
+            extension_data: { group_members: [removed, retained] },
+        });
+        spectator.service.newForm('visitor', booking);
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [retained],
+        });
+
+        await spectator.service.editFormForGroup([
+            booking,
+            new Booking({
+                ...booking.toJSON(),
+                id: 'booking-retained',
+                asset_id: retained.email,
+                asset_name: retained.name,
+            }),
+        ]);
+
+        expect(ts_client.patch).toHaveBeenCalledWith(
+            '/api/staff/v1/bookings/booking-removed',
+            expect.objectContaining({
+                extension_data: expect.objectContaining({
+                    removed_from_group: true,
+                }),
+            }),
+        );
+        expect(ts_client.del).toHaveBeenCalledWith(
+            '/api/staff/v1/events/calendar%2Fevent-id/attendee/removed%40example.com?system_id=sys-room&calendar=room%40example.com',
+        );
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/booking-removed?'),
+            expect.anything(),
+        );
+        expect(ts_client.del).toHaveBeenCalledTimes(2);
+        const group = savedBookings().find(
+            (item) => item.id === 'booking-group',
+        );
+        expect(group.attendees.map((attendee) => attendee.email)).toEqual([
+            retained.email,
+        ]);
+        expect(
+            group.extension_data.group_members.map(
+                (member: User) => member.email,
+            ),
+        ).toEqual([retained.email]);
+        const visitor = savedBookings().find(
+            (item) => item.id === 'booking-retained',
+        );
+        expect(visitor.attendees.map((attendee) => attendee.email)).toEqual([
+            retained.email,
+        ]);
+    });
+
+    it('should restore the removal marker if cancelling a removed visitor fails', async () => {
+        const booking = new Booking({
+            id: 'booking-removed',
+            parent_id: 'booking-group',
+            booking_type: 'visitor',
+            asset_id: 'removed@example.com',
+        });
+        spectator.service.newForm('visitor', booking);
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [new User({ email: 'retained@example.com' })],
+        });
+        const error = new Error('Booking cancellation failed');
+        vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+
+        await expect(
+            spectator.service.editFormForGroup([booking]),
+        ).rejects.toThrow(error);
+
+        expect(ts_client.patch).toHaveBeenLastCalledWith(
+            '/api/staff/v1/bookings/booking-removed',
+            expect.objectContaining({
+                extension_data: expect.objectContaining({
+                    removed_from_group: false,
+                }),
+            }),
+        );
+        expect(ts_client.patch).toHaveBeenCalledTimes(2);
+    });
+
+    it('should leave the visitor booking active if linked event removal fails', async () => {
+        const booking = new Booking({
+            id: 'booking-removed',
+            parent_id: 'booking-group',
+            booking_type: 'visitor',
+            asset_id: 'removed@example.com',
+            linked_event: {
+                id: 'linked-event',
+                event_id: '',
+                system_id: 'sys-room',
+                resource_calendar: 'room@example.com',
+                host_email: 'host@example.com',
+                date: Date.now(),
+                duration: 60,
+                date_end: Date.now() + 60 * 60 * 1000,
+            },
+        });
+        spectator.service.newForm('visitor', booking);
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [new User({ email: 'retained@example.com' })],
+        });
+        const error = new Error('Event update failed');
+        vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+
+        await expect(
+            spectator.service.editFormForGroup([booking]),
+        ).rejects.toThrow(error);
+
+        expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
+            '/api/staff/v1/events/linked-event/attendee/removed%40example.com?system_id=sys-room&calendar=room%40example.com',
+        );
+        expect(savedBookings()).toEqual([]);
     });
 
     it('should save each visitor against their own asset on group edit', async () => {
@@ -3247,7 +3502,19 @@ describe('BookingFormService', () => {
                         ...m,
                         asset_id: 'desk-1',
                         asset_name: 'Desk 1',
-                        assets: [new AssetRequest({ id: 'asset-1' })],
+                        assets: [
+                            new AssetRequest({
+                                id: 'asset-request-1',
+                                items: [
+                                    {
+                                        id: 'asset-type-1',
+                                        name: 'Monitor',
+                                        quantity: 1,
+                                        item_ids: [],
+                                    },
+                                ],
+                            }),
+                        ],
                     }) as any,
             );
         };
@@ -3257,14 +3524,19 @@ describe('BookingFormService', () => {
             // Asset group availability is resolved from the asset APIs before
             // the requests are posted.
             vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-                data: [],
+                data: [{ id: 'asset-type-1', name: 'Monitors' }],
                 next: null,
-                total: 0,
+                total: 1,
             } as any);
             vi.mocked(ts_client.queryAssets).mockResolvedValue({
-                data: [],
+                data: [
+                    {
+                        id: 'asset-1',
+                        asset_type_id: 'asset-type-1',
+                    },
+                ],
                 next: null,
-                total: 0,
+                total: 1,
             } as any);
             postBookings();
         });

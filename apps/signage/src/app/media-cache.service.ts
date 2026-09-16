@@ -1,13 +1,39 @@
 import { effect, Injectable, signal } from '@angular/core';
-import { AsyncHandler, randomString, scoped_log } from '@placeos/common';
+import {
+    AsyncHandler,
+    MINUTES,
+    randomString,
+    scoped_log,
+    SECONDS,
+} from '@placeos/common';
 import { apiKey, token } from '@placeos/ts-client';
 // `Subject`/`firstValueFrom` are kept for `on_change`: awaiting a cache item's
 // next terminal status is an event stream, not state, so it stays reactive.
-import { filter, firstValueFrom, Subject } from 'rxjs';
+import { filter, firstValueFrom, of, Subject, timeout } from 'rxjs';
 
 const STORE_KEY = 'PlaceOS.SIGNAGE.cached_files';
+const DB_NAME = 'SignageMedia';
+const DB_VERSION = 1;
+const DB_STORE = 'files';
+const UPLOADS_PATH = '/api/engine/v2/uploads';
 const STAGGER_DELAY_MS = 500; // Delay between uncached resource requests
 const DEFAULT_OWNER_CACHE_LIMIT_BYTES = 512 * 1024 * 1024;
+/**
+ * How long a single database request may take before it counts as failed. A
+ * request that never settles would otherwise hold the whole cache sync - and
+ * the player waiting on it - forever.
+ */
+const DB_OPERATION_TIMEOUT_MS = 30 * SECONDS;
+/** Minimum spacing between attempts to reopen a broken database connection */
+const DB_RECONNECT_INTERVAL_MS = 30 * SECONDS;
+/** How long a download may go without receiving any data before it is abandoned */
+const DOWNLOAD_STALL_MS = 60 * SECONDS;
+/** Longest a single download may run, however slowly it is progressing */
+const DOWNLOAD_TIMEOUT_MS = 15 * MINUTES;
+/** Longest anything waits on an in-progress download to reach a final state */
+const DOWNLOAD_WAIT_MS = DOWNLOAD_TIMEOUT_MS + DB_OPERATION_TIMEOUT_MS;
+/** Lifetime of the cookie that lets media elements stream protected uploads */
+const DIRECT_URL_COOKIE_SECONDS = 60 * 60;
 const log = scoped_log('MediaCache');
 
 export type CacheItemStatus =
@@ -41,12 +67,23 @@ interface StoredCacheRecord {
     file: File;
 }
 
+interface DownloadResult {
+    /** The downloaded file, whether or not it could be stored */
+    file: File | null;
+    /** Whether the file is now in the cache store */
+    stored: boolean;
+}
+
 function isLoadingStatus(status: CacheItemStatus) {
     return (
         status === 'preparing' ||
         status === 'downloading' ||
         status === 'storing'
     );
+}
+
+function isFinalStatus(status: CacheItemStatus) {
+    return status === 'cached' || status === 'invalidated';
 }
 
 function cacheStatus(item: CacheItem, status: CacheItemStatus) {
@@ -60,6 +97,47 @@ function cacheOwners(item: CacheItem | StoredCacheRecord) {
     );
 }
 
+function delay(ms: number) {
+    return new Promise<void>((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Rejects if `promise` has not settled within `timeout_ms`. `on_timeout` lets
+ * the caller abandon whatever the promise was waiting on.
+ */
+function withTimeout<T>(
+    promise: Promise<T>,
+    timeout_ms: number,
+    message: string,
+    on_timeout?: () => void,
+) {
+    return new Promise<T>((resolve, reject) => {
+        const timer = setTimeout(() => {
+            on_timeout?.();
+            reject(new Error(message));
+        }, timeout_ms);
+        promise.then(
+            (value) => {
+                clearTimeout(timer);
+                resolve(value);
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            },
+        );
+    });
+}
+
+/**
+ * Local store of media files for offline playback.
+ *
+ * Nothing in here is allowed to leave the player without content. Every wait
+ * on the network or the database is bounded, a database that stops answering
+ * is reopened (or recreated), and metadata that turns out to be wrong is
+ * dropped and rebuilt from what is actually stored. When the cache still
+ * cannot supply a file the player falls back to streaming it from the server.
+ */
 @Injectable({
     providedIn: 'root',
 })
@@ -67,6 +145,14 @@ export class MediaCacheService extends AsyncHandler {
     private _cache_db: IDBDatabase;
     private _cache_db_ready: Promise<void>;
     private readonly _file_cache_index = signal<CacheItem[]>([]);
+    /**
+     * Entries restored from persisted metadata that have not yet been seen in
+     * the store. They are dropped if the store turns out not to hold them.
+     */
+    private readonly _unverified_ids = new Set<string>();
+    /** Downloads currently running, keyed by URL, so they are never duplicated */
+    private readonly _downloads = new Map<string, Promise<DownloadResult>>();
+    private _last_reconnect = 0;
 
     private get _cache_index() {
         return this._file_cache_index();
@@ -74,33 +160,8 @@ export class MediaCacheService extends AsyncHandler {
 
     constructor() {
         super();
-        const request = indexedDB.open('SignageMedia', 1);
-
-        this._cache_db_ready = new Promise((resolve, reject) => {
-            request.onerror = (event: any) => {
-                log.error(`DB Error: ${event.target.error}.`);
-                reject(event.target.error);
-            };
-
-            request.onsuccess = (event: any) => {
-                this._cache_db = event.target.result;
-                log.debug(`Connected to database successfully.`);
-                resolve();
-            };
-        });
-
-        request.onupgradeneeded = (event: any) => {
-            this._cache_db = event.target.result;
-            const objectStore = this._cache_db.createObjectStore('files', {
-                keyPath: 'name',
-            });
-            log.debug(`Object store created successfully.`);
-        };
-
         this._loadCacheMetadata();
-        this._cache_db_ready
-            .then(() => this._loadCacheMetadataFromStore())
-            .catch(() => undefined);
+        this._connectDatabase();
         effect(() => {
             this._file_cache_index();
             this._saveCacheMetadata();
@@ -115,7 +176,8 @@ export class MediaCacheService extends AsyncHandler {
         let failures = false;
         let uncached_count = 0;
         for (const url of url_list) {
-            const existing = this._cache_index.find((_) => _.url === url);
+            if (!url) continue;
+            const existing = this._cacheItem(url);
             if (existing) {
                 if (isLoadingStatus(existing.status)) {
                     const final_status = await this._finalCacheStatus(existing);
@@ -132,27 +194,10 @@ export class MediaCacheService extends AsyncHandler {
                 }
             }
             // Stagger requests for uncached resources to avoid overwhelming the network
-            if (uncached_count > 0) {
-                await new Promise((resolve) =>
-                    setTimeout(resolve, STAGGER_DELAY_MS),
-                );
-            }
+            if (uncached_count > 0) await delay(STAGGER_DELAY_MS);
             uncached_count++;
-            const cache_item: CacheItem = {
-                id: randomString(16, '0123456789ABCDEF'),
-                url,
-                owner,
-                owners: owner ? [owner] : [],
-                status: 'preparing',
-                on_change: new Subject(),
-            };
-            this._file_cache_index.set([
-                ...this._cache_index.filter((_) => _.id !== existing?.id),
-                cache_item,
-            ]);
-            await this.requestAndCacheFile(url, cache_item).catch((_) => {
-                failures = true;
-            });
+            const { stored } = await this._cacheFile(url, owner);
+            if (!stored) failures = true;
             await this.pruneCache(
                 owner,
                 url_list,
@@ -160,7 +205,7 @@ export class MediaCacheService extends AsyncHandler {
                 options.prune_other_owners,
             );
         }
-        this._file_cache_index.set(this._cache_index);
+        this._file_cache_index.set([...this._cache_index]);
         await this.pruneCache(
             owner,
             url_list,
@@ -170,43 +215,54 @@ export class MediaCacheService extends AsyncHandler {
         return failures;
     }
 
+    /** Download a file into the cache entry. Rejects unless it was stored. */
     public async requestAndCacheFile(url: string, cache_item: CacheItem) {
-        try {
-            cacheStatus(cache_item, 'downloading');
-            // If not an API call, just load the image
-            if (url.includes('/api/engine/v2/uploads')) {
-                this._applyAuthenticationCookie();
-            }
-            // Fetch the file from the server
-            const response = await fetch(url);
-            if (!response.ok) {
-                log.error(`Error fetching resource. ${response.status}`, url);
-                throw new Error();
-            }
+        const { file, stored } = await this._downloadAndStore(url, cache_item);
+        if (!stored) throw new Error('Unable to cache media file');
+        return file;
+    }
 
-            // Get the file as a blob
-            const blob = await response.blob();
-            if (blob.size <= 0) {
-                log.error(`Downloaded resource is empty.`, url);
-                throw new Error('Downloaded media file is empty');
+    /**
+     * The file for a URL, from the cache when it has it and downloaded when it
+     * does not. Unlike `requestFilesToCache` this hands back a download that
+     * could not be stored, so a broken database never stops media playing.
+     * Waits at most `wait_ms` for a download that is already in progress and
+     * returns null if it has not finished by then.
+     */
+    public async fetchFile(
+        url: string,
+        owner = '',
+        wait_ms = DOWNLOAD_WAIT_MS,
+    ): Promise<File | null> {
+        if (!url) return null;
+        const existing = this._cacheItem(url);
+        if (existing && isLoadingStatus(existing.status)) {
+            const status = await this._finalCacheStatus(existing, wait_ms);
+            if (status === 'cached') {
+                return this._storedFile(existing, url).catch(() => null);
             }
-
-            cacheStatus(cache_item, 'storing');
-
-            // Create a File object (or you can use the blob directly)
-            const file = new File([blob], cache_item.id, { type: blob.type });
-
-            await this._storeFile(cache_item, file, url);
-            cache_item.size = file.size;
-            log.debug(`Cached resource.`, [cache_item.id, url]);
-            cacheStatus(cache_item, 'cached');
-        } catch (e) {
-            log.error(`Error downloading resource.`, url, e);
-            if (cache_item.status !== 'invalidated') {
-                cacheStatus(cache_item, 'invalidated');
-            }
-            throw e;
+            if (isLoadingStatus(status)) return null;
+        } else if (existing?.status === 'cached') {
+            const file = await this._storedFile(existing, url).catch(
+                () => null,
+            );
+            if (file) return file;
         }
+        const { file } = await this._cacheFile(url, owner);
+        return file;
+    }
+
+    /**
+     * A URL the player can hand to a media element when the cache has nothing
+     * to offer. Protected uploads need the session cookie the media element
+     * will send with its request.
+     */
+    public directURL(url: string) {
+        if (!url) return '';
+        if (url.includes(UPLOADS_PATH)) {
+            this.applyAuthenticationCookie(DIRECT_URL_COOKIE_SECONDS);
+        }
+        return url;
     }
 
     /** Snapshot of what the cache is holding, for diagnostics */
@@ -224,6 +280,7 @@ export class MediaCacheService extends AsyncHandler {
             cached_count: files.filter((_) => _.status === 'cached').length,
             total_bytes: files.reduce((total, _) => total + _.size, 0),
             limit_bytes: DEFAULT_OWNER_CACHE_LIMIT_BYTES,
+            downloads_in_flight: this._downloads.size,
             files,
         };
     }
@@ -244,27 +301,33 @@ export class MediaCacheService extends AsyncHandler {
      * cached or has been invalidated.
      */
     public isLoadingFile(url: string): boolean {
-        const item = this._cache_index.find((_) => _.url === url);
+        const item = this._cacheItem(url);
         if (!item) return true;
         return isLoadingStatus(item.status);
     }
 
     public isCachedFile(url: string): boolean {
-        return this._cache_index.some(
-            (item) => item.url === url && item.status === 'cached',
-        );
+        return this._cacheItem(url)?.status === 'cached';
     }
 
-    public async getFile(url: string): Promise<File | null> {
-        const cache_item = this._cache_index.find((_) => _.url === url);
+    /**
+     * The cached file for a URL. Waits at most `max_wait_ms` for a download
+     * that is in progress, and resolves null when the cache has no usable copy.
+     */
+    public async getFile(
+        url: string,
+        max_wait_ms = DOWNLOAD_WAIT_MS,
+    ): Promise<File | null> {
+        const cache_item = this._cacheItem(url);
         if (!cache_item) throw new Error('Unable to find file with URL');
 
         // Wait for download to complete if item is currently being downloaded
         if (isLoadingStatus(cache_item.status)) {
-            const final_status = await this._finalCacheStatus(cache_item);
-            if (final_status === 'invalidated') {
-                return null;
-            }
+            const final_status = await this._finalCacheStatus(
+                cache_item,
+                max_wait_ms,
+            );
+            if (final_status !== 'cached') return null;
         } else if (cache_item.status === 'invalidated') {
             return null;
         }
@@ -311,7 +374,6 @@ export class MediaCacheService extends AsyncHandler {
             0,
         );
         if (total_size <= max_size) return;
-        await this._cache_db_ready;
         const eviction_list = owner_items.sort((a, b) => {
             const a_priority =
                 a.priority >= 0 ? a.priority : Number.MAX_SAFE_INTEGER;
@@ -334,135 +396,222 @@ export class MediaCacheService extends AsyncHandler {
         }
     }
 
-    public invalidateStore() {
-        if (!this._cache_db_ready) return Promise.resolve();
-        return new Promise<void>((resolve, reject) => {
-            this._cache_db_ready
-                .then(() => {
-                    const transaction = this._cache_db.transaction(
-                        ['files'],
-                        'readwrite',
-                    );
-                    const objectStore = transaction.objectStore('files');
-                    const request = objectStore.clear();
-
-                    request.onerror = (event: any) => {
-                        log.error(
-                            `Error clearing all cached resources. ${event.target.error}`,
-                        );
-                        reject(event.target.error);
-                    };
-
-                    transaction.onerror = (event: any) =>
-                        reject(event.target.error);
-                    transaction.onabort = (event: any) =>
-                        reject(event.target.error);
-                    transaction.oncomplete = (_) => {
-                        log.debug(`Cleared all cached resources.`);
-                        this._file_cache_index.set([]);
-                        resolve();
-                    };
-                })
-                .catch(reject);
-        });
+    public async invalidateStore() {
+        if (!this._cache_db_ready) return;
+        try {
+            await this._write((store) => store.clear(), 'clear');
+        } catch (e) {
+            log.error(`Error clearing all cached resources. ${e}`);
+            throw e;
+        }
+        log.debug(`Cleared all cached resources.`);
+        this._file_cache_index.set([]);
     }
 
-    public invalidateFile(url: string, owner = '') {
-        if (!this._cache_db_ready) return Promise.reject('Cache DB not ready');
-        return new Promise<void>((resolve, reject) => {
-            const cache_item = this._cache_index.find((_) => _.url === url);
-            if (cache_item?.status !== 'cached')
-                return reject('Cached item with URL not found');
-            if (owner && !cacheOwners(cache_item).includes(owner)) {
-                return reject('Cached item with URL not found');
-            }
-            const remaining_owners = owner
-                ? cacheOwners(cache_item).filter((_) => _ !== owner)
-                : [];
-            if (owner && remaining_owners.length) {
-                cache_item.owner = remaining_owners[0] || '';
-                cache_item.owners = remaining_owners;
-                this._file_cache_index.set([...this._cache_index]);
-                this._updateStoredOwners(cache_item)
-                    .then(resolve)
-                    .catch(reject);
-                return;
-            }
-            this._cache_db_ready
-                .then(() => {
-                    const transaction = this._cache_db.transaction(
-                        ['files'],
-                        'readwrite',
-                    );
-                    const objectStore = transaction.objectStore('files');
-                    const request = objectStore.delete(cache_item.id);
-
-                    request.onerror = (event: any) => {
-                        log.error(
-                            `Error removing cached resource. ${event.target.error}`,
-                            url,
-                        );
-                        reject(event.target.error);
-                    };
-
-                    transaction.onerror = (event: any) =>
-                        reject(event.target.error);
-                    transaction.onabort = (event: any) =>
-                        reject(event.target.error);
-                    transaction.oncomplete = (event: any) => {
-                        log.debug(`Removed resource.`, cache_item.id, url);
-                        this._file_cache_index.set(
-                            this._cache_index.filter(
-                                (_) => _.id !== cache_item.id,
-                            ),
-                        );
-                        resolve();
-                    };
-                })
-                .catch(reject);
-        });
+    public async invalidateFile(url: string, owner = '') {
+        if (!this._cache_db_ready) throw new Error('Cache DB not ready');
+        const cache_item = this._cacheItem(url);
+        if (cache_item?.status !== 'cached') {
+            throw new Error('Cached item with URL not found');
+        }
+        if (owner && !cacheOwners(cache_item).includes(owner)) {
+            throw new Error('Cached item with URL not found');
+        }
+        const remaining_owners = owner
+            ? cacheOwners(cache_item).filter((_) => _ !== owner)
+            : [];
+        if (owner && remaining_owners.length) {
+            cache_item.owner = remaining_owners[0] || '';
+            cache_item.owners = remaining_owners;
+            this._file_cache_index.set([...this._cache_index]);
+            await this._updateStoredOwners(cache_item);
+            return;
+        }
+        try {
+            await this._write((store) => store.delete(cache_item.id), 'delete');
+        } catch (e) {
+            log.error(`Error removing cached resource. ${e}`, url);
+            throw e;
+        }
+        log.debug(`Removed resource.`, cache_item.id, url);
+        this._file_cache_index.set(
+            this._cache_index.filter((_) => _.id !== cache_item.id),
+        );
     }
 
-    private _finalCacheStatus(cache_item: CacheItem) {
+    /**
+     * Set the session cookie that authenticates requests for protected uploads
+     * made outside the API client: the cache's own download and, as a fallback,
+     * media elements streaming straight from the server.
+     */
+    public applyAuthenticationCookie(max_age_seconds = 30) {
+        const tkn = token();
+        document.cookie = `${
+            tkn === 'x-api-key'
+                ? 'api-key=' + encodeURIComponent(apiKey())
+                : 'bearer_token=' + encodeURIComponent(tkn)
+        };max-age=${max_age_seconds};path=${UPLOADS_PATH};samesite=strict;${
+            location.protocol === 'https:' ? 'secure;' : ''
+        }`;
+    }
+
+    private _cacheItem(url: string) {
+        return this._cache_index.find((_) => _.url === url);
+    }
+
+    /**
+     * Download a URL into the cache, sharing the download with any other
+     * caller asking for the same URL at the same time.
+     */
+    private _cacheFile(url: string, owner: string): Promise<DownloadResult> {
+        const in_flight = this._downloads.get(url);
+        if (in_flight) return in_flight;
+        const cache_item: CacheItem = {
+            id: randomString(16, '0123456789ABCDEF'),
+            url,
+            owner,
+            owners: owner ? [owner] : [],
+            status: 'preparing',
+            on_change: new Subject(),
+        };
+        // One entry per URL: a stale duplicate left behind would be found
+        // before this one and reported missing on every lookup.
+        this._file_cache_index.set([
+            ...this._cache_index.filter((_) => _.url !== url),
+            cache_item,
+        ]);
+        const download = this._downloadAndStore(url, cache_item).finally(() => {
+            if (this._downloads.get(url) === download) {
+                this._downloads.delete(url);
+            }
+        });
+        this._downloads.set(url, download);
+        return download;
+    }
+
+    private async _downloadAndStore(
+        url: string,
+        cache_item: CacheItem,
+    ): Promise<DownloadResult> {
+        let file: File | null = null;
+        try {
+            cacheStatus(cache_item, 'downloading');
+            // If not an API call, just load the image
+            if (url.includes(UPLOADS_PATH)) this.applyAuthenticationCookie();
+            const blob = await this._download(url);
+            if (blob.size <= 0) {
+                log.error(`Downloaded resource is empty.`, url);
+                throw new Error('Downloaded media file is empty');
+            }
+            cacheStatus(cache_item, 'storing');
+            // Create a File object (or you can use the blob directly)
+            file = new File([blob], cache_item.id, { type: blob.type });
+            await this._storeFile(cache_item, file, url);
+            cache_item.size = file.size;
+            log.debug(`Cached resource.`, [cache_item.id, url]);
+            cacheStatus(cache_item, 'cached');
+            this._file_cache_index.set([...this._cache_index]);
+            return { file, stored: true };
+        } catch (e) {
+            log.error(`Error downloading resource.`, url, e);
+            if (cache_item.status !== 'invalidated') {
+                this._markInvalidated(cache_item);
+            }
+            return { file, stored: false };
+        }
+    }
+
+    /**
+     * Fetch a URL, giving up if the response stops arriving. A download that
+     * hangs would otherwise leave its cache entry loading forever, with the
+     * player and every later cache sync waiting behind it.
+     */
+    private async _download(url: string): Promise<Blob> {
+        const controller =
+            typeof AbortController === 'function'
+                ? new AbortController()
+                : null;
+        const abort = () => controller?.abort();
+        const response = await withTimeout(
+            fetch(url, controller ? { signal: controller.signal } : undefined),
+            DOWNLOAD_STALL_MS,
+            'Timed out waiting for the server to respond',
+            abort,
+        );
+        if (!response.ok) {
+            log.error(`Error fetching resource. ${response.status}`, url);
+            throw new Error(`Request failed with status ${response.status}`);
+        }
+        const reader = response.body?.getReader?.();
+        if (!reader) {
+            return withTimeout(
+                response.blob(),
+                DOWNLOAD_TIMEOUT_MS,
+                'Timed out downloading resource',
+                abort,
+            );
+        }
+        const deadline = Date.now() + DOWNLOAD_TIMEOUT_MS;
+        const chunks: BlobPart[] = [];
+        for (;;) {
+            const remaining = deadline - Date.now();
+            if (remaining <= 0) {
+                abort();
+                throw new Error('Timed out downloading resource');
+            }
+            const { done, value } = await withTimeout(
+                reader.read(),
+                Math.min(DOWNLOAD_STALL_MS, remaining),
+                'Download stalled',
+                abort,
+            );
+            if (done) break;
+            if (value) chunks.push(value);
+        }
+        const type = response.headers?.get?.('content-type') || '';
+        return new Blob(chunks, { type });
+    }
+
+    /**
+     * Wait for a loading entry to settle. Resolves with the entry's current
+     * status if it is still loading after `max_wait_ms`, so a caller is never
+     * pinned to a download that has stopped making progress.
+     */
+    private _finalCacheStatus(
+        cache_item: CacheItem,
+        max_wait_ms = DOWNLOAD_WAIT_MS,
+    ): Promise<CacheItemStatus> {
         if (!isLoadingStatus(cache_item.status)) {
             return Promise.resolve(cache_item.status);
         }
         return firstValueFrom(
             cache_item.on_change.pipe(
-                filter(
-                    (status) => status === 'cached' || status === 'invalidated',
-                ),
+                filter(isFinalStatus),
+                timeout({
+                    first: Math.max(0, max_wait_ms),
+                    with: () => of(cache_item.status),
+                }),
             ),
         );
     }
 
     private async _storeFile(cache_item: CacheItem, file: File, url: string) {
-        await this._cache_db_ready;
-        return new Promise<void>((resolve, reject) => {
-            const transaction = this._cache_db.transaction(
-                ['files'],
-                'readwrite',
+        try {
+            await this._write(
+                (store) =>
+                    store.add({
+                        name: cache_item.id,
+                        url: cache_item.url,
+                        owner: cache_item.owner || '',
+                        owners: cacheOwners(cache_item),
+                        file,
+                    }),
+                'add',
             );
-            const objectStore = transaction.objectStore('files');
-            const request = objectStore.add({
-                name: cache_item.id,
-                url: cache_item.url,
-                owner: cache_item.owner || '',
-                owners: cacheOwners(cache_item),
-                file,
-            });
-
-            const fail = (event: any) => {
-                log.error(`Error caching resource. ${event.target.error}`, url);
-                cacheStatus(cache_item, 'invalidated');
-                reject(event.target.error);
-            };
-            request.onerror = fail;
-
-            transaction.onerror = fail;
-            transaction.onabort = fail;
-            transaction.oncomplete = () => resolve();
-        });
+        } catch (e) {
+            log.error(`Error caching resource. ${e}`, url);
+            throw e;
+        }
     }
 
     /**
@@ -474,7 +623,9 @@ export class MediaCacheService extends AsyncHandler {
         if (!(cache_item.size > 0)) {
             // Size unknown - metadata written by an older build. Read the
             // record once to recover it; later checks are cheap.
-            const file = await this._storedFile(cache_item, url);
+            const file = await this._storedFile(cache_item, url).catch(
+                () => null,
+            );
             if (file) this._setCachedSize(cache_item, file.size);
             return !!file;
         }
@@ -482,25 +633,16 @@ export class MediaCacheService extends AsyncHandler {
             () => false,
         );
         if (!exists) {
-            log.error(`Unable to find cached resource.`, url);
-            this._markInvalidated(cache_item);
+            this._markMissing(cache_item, url);
+            return false;
         }
-        return exists;
+        this._unverified_ids.delete(cache_item.id);
+        return true;
     }
 
     private async _storedFileExists(id: string): Promise<boolean> {
-        await this._cache_db_ready;
-        return new Promise<boolean>((resolve, reject) => {
-            const transaction = this._cache_db.transaction(
-                ['files'],
-                'readonly',
-            );
-            const objectStore = transaction.objectStore('files');
-            const request = objectStore.count(id);
-
-            request.onerror = (event: any) => reject(event.target.error);
-            request.onsuccess = () => resolve((request.result || 0) > 0);
-        });
+        const count = await this._read((store) => store.count(id), 'count');
+        return (count || 0) > 0;
     }
 
     private _setCachedSize(cache_item: CacheItem, size: number) {
@@ -511,7 +653,6 @@ export class MediaCacheService extends AsyncHandler {
 
     /** Fill in sizes for entries whose metadata predates size tracking */
     private async _recoverCachedSizes() {
-        await this._cache_db_ready;
         const records = await this._storedFileRecords().catch(() => []);
         if (!records.length) return;
         let changed = false;
@@ -529,46 +670,42 @@ export class MediaCacheService extends AsyncHandler {
         cache_item: CacheItem,
         url: string,
     ): Promise<File | null> {
-        await this._cache_db_ready;
-        return new Promise<File | null>((resolve, reject) => {
-            const transaction = this._cache_db.transaction(
-                ['files'],
-                'readonly',
+        let record: StoredCacheRecord | undefined;
+        try {
+            record = await this._read(
+                (store) => store.get(cache_item.id),
+                'get',
             );
-            const objectStore = transaction.objectStore('files');
-            const request = objectStore.get(cache_item.id);
-
-            request.onerror = (event: any) => {
-                log.error(
-                    `Error retrieving cached resource. ${event.target.error}`,
-                    url,
-                );
-                reject(event.target.error);
-            };
-
-            request.onsuccess = (event: any) => {
-                const record = request.result as StoredCacheRecord | undefined;
-                if (record) {
-                    const file = record.file;
-                    if (file.size > 0) {
-                        resolve(file);
-                        return;
-                    }
-                    log.error(`Cached resource is empty.`, url);
-                    this._markInvalidated(cache_item);
-                    resolve(null);
-                } else {
-                    log.error(`Unable to find cached resource.`, url);
-                    this._markInvalidated(cache_item);
-                    resolve(null);
-                }
-            };
-        });
+        } catch (e) {
+            log.error(`Error retrieving cached resource. ${e}`, url);
+            throw e;
+        }
+        if (!record) {
+            this._markMissing(cache_item, url);
+            return null;
+        }
+        const file = record.file;
+        if (!(file?.size > 0)) {
+            log.warn(
+                `Cached resource is empty. It will be downloaded again.`,
+                url,
+            );
+            this._markInvalidated(cache_item);
+            return null;
+        }
+        this._unverified_ids.delete(cache_item.id);
+        return file;
     }
 
+    /**
+     * Rebuild the cached entries from what the store actually holds. The store
+     * is authoritative: persisted metadata is only a head start until it has
+     * answered, and any entry it does not hold is dropped so nothing keeps
+     * looking for a file that is not there.
+     */
     private async _loadCacheMetadataFromStore() {
-        const records = await this._storedFileRecords().catch(() => []);
-        if (!records.length) return;
+        const records = await this._storedFileRecords().catch(() => null);
+        if (!records) return;
         const stored_items = records
             .filter((record) => record.url && record.file?.size > 0)
             .map((record) => ({
@@ -580,14 +717,28 @@ export class MediaCacheService extends AsyncHandler {
                 status: 'cached' as const,
                 on_change: new Subject<CacheItemStatus>(),
             }));
-        const active_items = this._cache_index.filter(
-            (item) => item.status !== 'cached',
+        const stored_ids = new Set(stored_items.map((_) => _.id));
+        // Keep entries still in progress, and files cached by this session
+        // that the store snapshot may predate. Only entries restored from
+        // persisted metadata and never seen in the store are dropped.
+        const kept_items = this._cache_index.filter(
+            (item) =>
+                item.status !== 'cached' ||
+                stored_ids.has(item.id) ||
+                !this._unverified_ids.has(item.id),
         );
+        const dropped = this._cache_index.length - kept_items.length;
+        if (dropped > 0) {
+            log.warn(
+                `Dropped ${dropped} cached entries that have no stored file.`,
+            );
+        }
+        this._unverified_ids.clear();
         this._file_cache_index.set([
-            ...active_items,
+            ...kept_items,
             ...stored_items.filter(
                 (stored) =>
-                    !active_items.some(
+                    !kept_items.some(
                         (item) =>
                             item.id === stored.id || item.url === stored.url,
                     ),
@@ -596,28 +747,28 @@ export class MediaCacheService extends AsyncHandler {
     }
 
     private _storedFileRecords(): Promise<StoredCacheRecord[]> {
-        return new Promise((resolve, reject) => {
-            const transaction = this._cache_db.transaction(
-                ['files'],
-                'readonly',
-            );
-            const objectStore = transaction.objectStore('files');
-            const request = objectStore.getAll();
+        return this._read(
+            (store) => store.getAll() as IDBRequest<StoredCacheRecord[]>,
+            'getAll',
+        )
+            .then((records) => records || [])
+            .catch((e) => {
+                log.error(`Error retrieving cached resources. ${e}`);
+                throw e;
+            });
+    }
 
-            request.onerror = (event: any) => {
-                log.error(
-                    `Error retrieving cached resources. ${event.target.error}`,
-                );
-                reject(event.target.error);
-            };
-
-            request.onsuccess = () =>
-                resolve((request.result || []) as StoredCacheRecord[]);
-        });
+    private _markMissing(cache_item: CacheItem, url: string) {
+        log.warn(
+            `Cached resource is missing from storage. It will be downloaded again.`,
+            url,
+        );
+        this._markInvalidated(cache_item);
     }
 
     private _markInvalidated(cache_item: CacheItem) {
         cacheStatus(cache_item, 'invalidated');
+        this._unverified_ids.delete(cache_item.id);
         this._file_cache_index.set([...this._cache_index]);
     }
 
@@ -627,8 +778,11 @@ export class MediaCacheService extends AsyncHandler {
         try {
             const metadata = JSON.parse(metadata_string);
             if (metadata instanceof Array) {
-                this._file_cache_index.set(
-                    metadata.map((_) => ({
+                const items: CacheItem[] = [];
+                for (const _ of metadata) {
+                    if (!_?.id || !_.url) continue;
+                    if (items.some((item) => item.url === _.url)) continue;
+                    items.push({
                         id: _.id,
                         url: _.url,
                         owner: _.owner || '',
@@ -636,8 +790,10 @@ export class MediaCacheService extends AsyncHandler {
                         size: _.size || 0,
                         status: 'cached',
                         on_change: new Subject(),
-                    })),
-                );
+                    });
+                    this._unverified_ids.add(_.id);
+                }
+                this._file_cache_index.set(items);
             }
         } catch {}
     }
@@ -654,7 +810,11 @@ export class MediaCacheService extends AsyncHandler {
                     owners: cacheOwners(_),
                     size: _.size || 0,
                 }));
-            localStorage.setItem(STORE_KEY, JSON.stringify(metadata));
+            try {
+                localStorage.setItem(STORE_KEY, JSON.stringify(metadata));
+            } catch (e) {
+                log.warn(`Unable to save cache metadata. ${e}`);
+            }
         });
     }
 
@@ -663,59 +823,180 @@ export class MediaCacheService extends AsyncHandler {
         cache_item.owner = cache_item.owner || owner;
         cache_item.owners = [...cacheOwners(cache_item), owner];
         this._file_cache_index.set([...this._cache_index]);
-        await this._updateStoredOwners(cache_item);
+        await this._updateStoredOwners(cache_item).catch((e) =>
+            log.warn(`Unable to update owners of cached resource. ${e}`),
+        );
     }
 
     private async _updateStoredOwners(cache_item: CacheItem) {
-        await this._cache_db_ready;
-        const record = await this._storedRecord(cache_item.id);
+        const record = await this._read(
+            (store) => store.get(cache_item.id),
+            'get',
+        );
         if (!record) return;
-        await this._putStoredRecord({
-            ...record,
-            owner: cacheOwners(cache_item)[0] || '',
-            owners: cacheOwners(cache_item),
-        });
+        await this._write(
+            (store) =>
+                store.put({
+                    ...record,
+                    owner: cacheOwners(cache_item)[0] || '',
+                    owners: cacheOwners(cache_item),
+                }),
+            'put',
+        );
     }
 
-    private _storedRecord(id: string): Promise<StoredCacheRecord | null> {
-        return new Promise((resolve, reject) => {
-            const transaction = this._cache_db.transaction(
-                ['files'],
-                'readonly',
-            );
-            const objectStore = transaction.objectStore('files');
-            const request = objectStore.get(id);
+    // ---- Database connection -------------------------------------------
 
-            request.onerror = (event: any) => reject(event.target.error);
-            request.onsuccess = () =>
-                resolve((request.result as StoredCacheRecord) || null);
-        });
+    private _connectDatabase() {
+        this._cache_db_ready = this._openDatabase();
+        this._cache_db_ready
+            .then(() => this._loadCacheMetadataFromStore())
+            .catch((e) => log.error(`Media database unavailable. ${e}`));
     }
 
-    private _putStoredRecord(record: StoredCacheRecord) {
+    /**
+     * Open the database, recreating it if it cannot be opened. A database that
+     * refuses to open is no use to anyone; the files it held are downloaded
+     * again into the replacement.
+     */
+    private _openDatabase(recreate_on_error = true): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            const transaction = this._cache_db.transaction(
-                ['files'],
-                'readwrite',
-            );
-            const objectStore = transaction.objectStore('files');
-            const request = objectStore.put(record);
-
-            request.onerror = (event: any) => reject(event.target.error);
-            transaction.onerror = (event: any) => reject(event.target.error);
-            transaction.onabort = (event: any) => reject(event.target.error);
-            transaction.oncomplete = () => resolve();
+            let request: IDBOpenDBRequest;
+            try {
+                request = indexedDB.open(DB_NAME, DB_VERSION);
+            } catch (e) {
+                log.error(`DB Error: ${e}.`);
+                return reject(e);
+            }
+            request.onupgradeneeded = (event: any) => {
+                const db = event.target.result as IDBDatabase;
+                if (!db.objectStoreNames.contains(DB_STORE)) {
+                    db.createObjectStore(DB_STORE, { keyPath: 'name' });
+                    log.debug(`Object store created successfully.`);
+                }
+            };
+            request.onblocked = () =>
+                log.warn(`Database open is blocked by another connection.`);
+            request.onerror = (event: any) => {
+                const error = event.target?.error;
+                log.error(`DB Error: ${error}.`);
+                if (!recreate_on_error) return reject(error);
+                log.warn(`Recreating the media database.`);
+                this._deleteDatabase()
+                    .then(() => this._openDatabase(false))
+                    .then(resolve, reject);
+            };
+            request.onsuccess = (event: any) => {
+                const db = event.target.result as IDBDatabase;
+                // Another context is upgrading or deleting the database; let
+                // go of it and come back once that has happened.
+                db.onversionchange = () => {
+                    try {
+                        db.close();
+                    } catch {}
+                    this._reconnect('version change');
+                };
+                // Chrome closes connections it can no longer service, for
+                // example after storage is wiped underneath the page.
+                db.onclose = () => this._reconnect('connection closed');
+                this._cache_db = db;
+                log.debug(`Connected to database successfully.`);
+                resolve();
+            };
         });
     }
 
-    private _applyAuthenticationCookie() {
-        const tkn = token();
-        document.cookie = `${
-            tkn === 'x-api-key'
-                ? 'api-key=' + encodeURIComponent(apiKey())
-                : 'bearer_token=' + encodeURIComponent(tkn)
-        };max-age=30;path=/api/engine/v2/uploads;samesite=strict;${
-            location.protocol === 'https:' ? 'secure;' : ''
-        }`;
+    private _deleteDatabase() {
+        return new Promise<void>((resolve) => {
+            try {
+                const request = indexedDB.deleteDatabase(DB_NAME);
+                request.onsuccess = () => resolve();
+                request.onerror = () => resolve();
+                request.onblocked = () => resolve();
+            } catch {
+                resolve();
+            }
+        });
+    }
+
+    /** Reopen the database connection, at most once every so often */
+    private _reconnect(reason: string) {
+        const now = Date.now();
+        if (now - this._last_reconnect < DB_RECONNECT_INTERVAL_MS) return;
+        this._last_reconnect = now;
+        log.warn(`Reconnecting to the media database: ${reason}.`);
+        try {
+            this._cache_db?.close();
+        } catch {}
+        this._cache_db = undefined;
+        this._connectDatabase();
+    }
+
+    /** The open database, reconnecting if the last attempt to open it failed */
+    private async _database(): Promise<IDBDatabase> {
+        try {
+            await this._cache_db_ready;
+        } catch (e) {
+            this._reconnect('previous open failed');
+            throw e;
+        }
+        if (!this._cache_db) throw new Error('Cache DB not connected');
+        return this._cache_db;
+    }
+
+    private async _transaction(mode: IDBTransactionMode) {
+        const db = await this._database();
+        try {
+            return db.transaction([DB_STORE], mode);
+        } catch (e) {
+            // A connection that has been closed underneath us throws here;
+            // reopen it for the next caller.
+            this._reconnect(`transaction failed (${e})`);
+            throw e;
+        }
+    }
+
+    /** Run a read request and resolve with its result */
+    private async _read<T>(
+        run: (store: IDBObjectStore) => IDBRequest<T>,
+        label: string,
+    ): Promise<T> {
+        const transaction = await this._transaction('readonly');
+        return withTimeout(
+            new Promise<T>((resolve, reject) => {
+                const request = run(transaction.objectStore(DB_STORE));
+                request.onerror = (event: any) =>
+                    reject(event.target?.error || new Error(`${label} failed`));
+                request.onsuccess = () => resolve(request.result);
+            }),
+            DB_OPERATION_TIMEOUT_MS,
+            `Database ${label} timed out`,
+        );
+    }
+
+    /** Run a write request and resolve once its transaction has committed */
+    private async _write(
+        run: (store: IDBObjectStore) => IDBRequest,
+        label: string,
+    ): Promise<void> {
+        const transaction = await this._transaction('readwrite');
+        return withTimeout(
+            new Promise<void>((resolve, reject) => {
+                const fail = (event: any) =>
+                    reject(event.target?.error || new Error(`${label} failed`));
+                const request = run(transaction.objectStore(DB_STORE));
+                request.onerror = fail;
+                transaction.onerror = fail;
+                transaction.onabort = fail;
+                transaction.oncomplete = () => resolve();
+            }),
+            DB_OPERATION_TIMEOUT_MS,
+            `Database ${label} timed out`,
+            () => {
+                try {
+                    transaction.abort();
+                } catch {}
+            },
+        );
     }
 }

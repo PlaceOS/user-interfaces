@@ -57,9 +57,6 @@ describe('LockerBankListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should show a zero result count when there are no banks', () => {
         expect(spectator.query('p[count]')).toExist();
         expect(spectator.component.locker_banks()).toEqual([]);

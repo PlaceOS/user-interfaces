@@ -53,7 +53,7 @@ import { LockerStateService } from './locker-state.service';
             ></searchbar>
             <div
                 [matTooltip]="
-                    (options()?.zones?.length
+                    (levels().length
                         ? ''
                         : 'APP.CONCIERGE.LOCKERS_LEVEL_SELECT'
                     ) | translate
@@ -65,7 +65,7 @@ import { LockerStateService } from './locker-state.service';
                         matRipple
                         class="w-40 space-x-2"
                         (click)="newLockerBank()"
-                        [disabled]="!options()?.zones?.length"
+                        [disabled]="!levels().length"
                     >
                         <div class="pl-4">
                             {{ 'APP.CONCIERGE.LOCKERS_BANK_ADD' | translate }}

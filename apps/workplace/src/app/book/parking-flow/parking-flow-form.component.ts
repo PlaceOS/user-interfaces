@@ -9,7 +9,6 @@ import {
     ParkingSpaceListFieldComponent,
 } from '@placeos/bookings';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     currentUser,
     getInvalidSignalFields,
@@ -68,8 +67,8 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block.details ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block.details"
                         >
                             <parking-form-details
                                 class="mt-4"
@@ -102,8 +101,8 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
                             </button>
                         </h3>
                         <div
-                            class="overflow-hidden"
-                            [@show]="hide_block.space ? 'hide' : 'show'"
+                            class="contract-expand"
+                            [class.contract-collapsed]="hide_block.space"
                         >
                             <parking-space-list-field
                                 [formField]="form.resources"
@@ -142,7 +141,6 @@ import { ParkingFormDetailsComponent } from './parking-form-details.component';
         </div>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         MatRippleModule,
         FormField,

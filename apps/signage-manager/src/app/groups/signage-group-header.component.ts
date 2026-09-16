@@ -36,6 +36,7 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                     icon
                     default
                     type="button"
+                    class="text-xl"
                     matRipple
                     [matTooltip]="
                         'SIGNAGE_MANAGER.GROUPS_NEW_TOOLTIP' | translate

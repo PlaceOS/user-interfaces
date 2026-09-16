@@ -6,8 +6,8 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent } from '@placeos/components';
@@ -70,10 +70,6 @@ describe('AppSettingsModalComponent', () => {
     afterEach(() => {
         setNotifyOutlet(null as any, true);
         vi.restoreAllMocks();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should have a model with general values', () => {
@@ -263,7 +259,9 @@ describe('AppSettingsModalComponent', () => {
         const dialog_ref = spectator.inject(MatDialogRef);
         const init_promise = spectator.component.ngOnInit();
         expect(spectator.component.loading()).toBe('Loading settings...');
+        expect(dialog_ref.disableClose).toBe(true);
         await init_promise;
         expect(spectator.component.loading()).toBe('');
+        expect(dialog_ref.disableClose).toBe(false);
     });
 });

@@ -34,11 +34,6 @@
                         "output": "/"
                     },
                     {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
-                    },
-                    {
                         "input": "node_modules/ts-md5/dist/",
                         "output": "/assets",
                         "glob": "*worker.js"
@@ -46,7 +41,8 @@
                     {
                         "input": "node_modules/@litertjs/core/wasm/",
                         "output": "/assets/litert",
-                        "glob": "**"
+                        "glob": "**",
+                        "ignore": ["**/*jspi*", "**/*threaded*"]
                     },
                     "apps/assistant-panel/src/manifest.webmanifest"
                 ],
@@ -100,8 +96,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "2mb",
-                            "maximumError": "5mb"
+                            "maximumWarning": "1.4mb",
+                            "maximumError": "1.5mb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -115,6 +111,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "assistant-panel:build",
@@ -127,8 +124,7 @@
                 "production": {
                     "buildTarget": "assistant-panel:build:production"
                 }
-            },
-            "continuous": true
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint",

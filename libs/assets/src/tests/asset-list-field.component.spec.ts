@@ -1,5 +1,11 @@
+import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { AssetRequest, LocaleService, SettingsService } from '@placeos/common';
+import {
+    AssetRequest,
+    LocaleService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -11,6 +17,7 @@ describe('AssetListFieldComponent', () => {
     let spectator: Spectator<AssetListFieldComponent>;
     let settings_mock: any;
     let dialog_result: any[] | undefined;
+    const disabled_rooms = signal<string[]>([]);
     const open_dialog = vi.fn(() => ({
         afterClosed: () => of(dialog_result),
         componentInstance: {
@@ -27,7 +34,10 @@ describe('AssetListFieldComponent', () => {
                 provide: SettingsService,
                 useFactory: () => settings_mock,
             },
-            MockProvider(AssetStateService, { setOptions: vi.fn() }),
+            MockProvider(AssetStateService, {
+                disabled_rooms,
+                setOptions: vi.fn(),
+            }),
             MockProvider(LocaleService, { get: vi.fn((value) => value) }),
         ],
     });
@@ -35,13 +45,10 @@ describe('AssetListFieldComponent', () => {
     beforeEach(() => {
         settings_mock = createSettingsServiceMock();
         dialog_result = undefined;
+        disabled_rooms.set([]);
         open_dialog.mockClear();
         spectator = createComponent();
         (spectator.component as any)._dialog = { open: open_dialog };
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should show the empty state when there are no requests', () => {
@@ -149,9 +156,46 @@ describe('AssetListFieldComponent', () => {
         expect(spectator.component.show_request()['req-1']).toBe(false);
     });
 
-    it('should reflect the disabled state', () => {
+    it('should disable request mutations when the form control is disabled', async () => {
+        spectator.component.setValue([
+            new AssetRequest({
+                id: 'req-1',
+                items: [{ id: 'a', quantity: 1 }],
+            }),
+        ]);
         spectator.component.setDisabledState(true);
+
+        await spectator.fixture.whenStable();
+
         expect(spectator.component.disabled()).toBe(true);
+        expect(
+            spectator.query<HTMLButtonElement>(
+                'button[name="remove-asset-request"]',
+            )?.disabled,
+        ).toBe(true);
+        expect(
+            spectator.query<HTMLButtonElement>(
+                'button[name="remove-asset-request-item"]',
+            )?.disabled,
+        ).toBe(true);
+    });
+
+    it('should disable selection when asset availability is disabled for the room', () => {
+        spectator.setInput('options', {
+            resources: [new Space({ id: 'room-1' })],
+        });
+        expect(spectator.component.disabled()).toBe(false);
+
+        disabled_rooms.set(['room-1']);
+        spectator.detectChanges();
+
+        expect(spectator.component.disabled()).toBe(true);
+        expect(spectator.query('button[add-space]')).not.toExist();
+        expect(spectator.query('p')).toHaveText(
+            'Assets are not available for the selected space and/or time',
+        );
+        spectator.component.editRequest();
+        expect(open_dialog).not.toHaveBeenCalled();
     });
 
     it('should add a favourite when the asset is not saved', () => {

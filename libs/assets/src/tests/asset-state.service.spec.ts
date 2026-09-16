@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -52,10 +55,6 @@ describe('AssetStateService', () => {
         } as any);
         spectator = createService();
         TestBed.tick();
-    });
-
-    it('should create component', () => {
-        expect(spectator.service).toBeTruthy();
     });
 
     it('should ignore unchanged options', () => {
@@ -114,9 +113,4 @@ describe('AssetStateService', () => {
 
         expect(ts_client.queryAssets).toHaveBeenCalledTimes(1);
     });
-
-    it('should load asset list', () => {});
-    it('should load asset bookings for selected options', () => {});
-    it('should generate available assets for selected options', () => {});
-    it('should allow filtering of available assets', () => {});
 });

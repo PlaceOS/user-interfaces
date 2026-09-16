@@ -127,6 +127,34 @@ describe('recovery watchdog', () => {
         expect(reload).toHaveBeenCalledTimes(1);
     });
 
+    it('should recover when the player cannot get any content on screen', async () => {
+        beat();
+        recordHeartbeat('content');
+        // Every loop keeps running; the player just never manages to show
+        // anything, which is what a broken media cache looks like
+        for (let i = 0; i < 40; i++) {
+            beat();
+            await vi.advanceTimersByTimeAsync(30 * 1000);
+        }
+
+        expect(watchdogState().stalled).toEqual(['content']);
+        expect(reload).toHaveBeenCalledTimes(1);
+        expect(watchdogState().last_recovery_detail?.reasons).toEqual([
+            'content',
+        ]);
+    });
+
+    it('should give the player a long time to get content on screen', async () => {
+        beat();
+        recordHeartbeat('content');
+        for (let i = 0; i < 28; i++) {
+            beat();
+            await vi.advanceTimersByTimeAsync(30 * 1000);
+        }
+
+        expect(reload).not.toHaveBeenCalled();
+    });
+
     it('should fall back to a plain reload when a failed boot cannot clear the cache', async () => {
         hard_reload = vi.fn(async () => false);
         start();

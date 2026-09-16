@@ -1,6 +1,9 @@
 import { MatRadioModule } from '@angular/material/radio';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 
 import { CheckinCovidComponent } from '../../app/checkin/checkin-covid.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
@@ -44,12 +47,8 @@ describe('CheckinCovidComponent', () => {
 
     afterEach(() => setNotifyOutlet(null as any, true));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
-    it('should allow confirming questions', () => {
-        spectator.component.confirm();
+    it('should allow confirming questions', async () => {
+        await spectator.component.confirm();
         expect(snackbar.open).toHaveBeenCalledWith(
             'Please select yes or no for each question',
             'OK',
@@ -57,12 +56,15 @@ describe('CheckinCovidComponent', () => {
         );
         spectator.component.contact.set('true');
         spectator.component.symptoms.set('false');
-        spectator.component.confirm();
+        await spectator.component.confirm();
         expect(
             spectator.inject(CheckinStateService).setError,
         ).toHaveBeenCalledTimes(1);
         spectator.component.contact.set('false');
-        spectator.component.confirm();
+        await spectator.component.confirm();
+        expect(
+            spectator.inject(CheckinStateService).updateGuest,
+        ).toHaveBeenLastCalledWith({ covid: false, symptoms: false });
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
             'results',

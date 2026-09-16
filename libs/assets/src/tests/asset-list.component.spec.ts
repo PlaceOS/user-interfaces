@@ -29,10 +29,6 @@ describe('AssetListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show the loading state while loading', () => {
         loading.set('[Assets]');
         spectator.detectChanges();

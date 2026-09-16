@@ -1,5 +1,11 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { OrganisationService, PlaceOS_Service } from '@placeos/common';
+import {
+    notifyError,
+    OrganisationService,
+    PlaceOS_Service,
+    setNotifyFilter,
+    setNotifyOutlet,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { AppComponent } from '../app/app.component';
@@ -49,6 +55,42 @@ describe('AppComponent', () => {
         spectator.component.ngOnInit();
 
         expect(placeos_service.init).toHaveBeenCalledTimes(1);
+    });
+
+    describe('notifications', () => {
+        let snackbar: { open: ReturnType<typeof vi.fn> };
+
+        beforeEach(() => {
+            snackbar = {
+                open: vi.fn(() => ({
+                    onAction: () => ({ subscribe: vi.fn() }),
+                    dismiss: vi.fn(),
+                })),
+            };
+            setNotifyOutlet(snackbar as any, true);
+        });
+
+        afterEach(() => {
+            setNotifyFilter(null);
+            setNotifyOutlet(null as any, true);
+        });
+
+        it('should hide notifications from a display that is not being debugged', () => {
+            spectator.component.ngOnInit();
+
+            notifyError('Error loading organisation data. Retrying...');
+
+            expect(snackbar.open).not.toHaveBeenCalled();
+        });
+
+        it('should show notifications while debugging', () => {
+            sessionStorage.setItem('SIGNAGE.debug', 'true');
+            spectator.component.ngOnInit();
+
+            notifyError('Error loading organisation data. Retrying...');
+
+            expect(snackbar.open).toHaveBeenCalledTimes(1);
+        });
     });
 
     it('should render the banner, router outlet and loading shells', () => {

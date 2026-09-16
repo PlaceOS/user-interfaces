@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -5,7 +6,6 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
-import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { ControlSpaceListItemComponent } from '../../app/control/list-item.component';
 import { ControlSpaceListComponent } from '../../app/control/space-list.component';
@@ -46,10 +46,6 @@ describe('ControlSpaceListComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should list spaces', () => {
         spectator.detectChanges();

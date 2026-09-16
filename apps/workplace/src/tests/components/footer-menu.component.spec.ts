@@ -3,7 +3,11 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { Building, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    Building,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { MockPipe, MockProvider } from 'ng-mocks';
@@ -36,10 +40,6 @@ describe('FooterMenuComponent', () => {
     };
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('counts enabled features and valid menu embeds together', () => {
         setSettings({

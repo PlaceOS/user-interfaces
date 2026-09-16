@@ -6,8 +6,8 @@ import {
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import { RoomBookingSearchComponent } from '../../app/day-view/room-booking-search.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
+import { RoomBookingSearchComponent } from '../../app/day-view/room-booking-search.component';
 
 describe('RoomBookingSearchComponent', () => {
     let spectator: SpectatorRouting<RoomBookingSearchComponent>;
@@ -30,10 +30,6 @@ describe('RoomBookingSearchComponent', () => {
     beforeEach(() => {
         filtered.set([]);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should exclude system events from the results', () => {

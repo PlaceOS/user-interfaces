@@ -13,7 +13,11 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Event, NavigationEnd, Router } from '@angular/router';
-import { queryParkingSpacesForZones } from '@placeos/assets';
+import {
+    deskFromAsset,
+    queryDeskAssetsForZones,
+    queryParkingSpacesForZones,
+} from '@placeos/assets';
 import {
     AsyncHandler,
     Booking,
@@ -29,6 +33,7 @@ import {
     flatten,
     getAllDayTimeRange,
     getInvalidSignalFields,
+    GuestUser,
     i18n,
     isEmptyUser,
     isWithinBookableHours,
@@ -53,6 +58,7 @@ import {
 import { addDays, addMinutes, endOfDay, format, getUnixTime } from 'date-fns';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { CalendarService } from 'libs/events/src/lib/calendar.service';
+import { removeEventGuest } from 'libs/events/src/lib/events.fn';
 import { BookingLinkModalComponent } from './booking-link-modal.component';
 import {
     bookingAttachments,
@@ -69,6 +75,7 @@ import {
     queryBookings,
     removeBooking,
     saveBooking,
+    updateBooking,
 } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 
@@ -725,6 +732,20 @@ export class BookingFormService extends AsyncHandler {
         if (!(buildings?.length > 0)) return false;
         const email = user_email?.toLowerCase();
         if (!email) return false;
+        if (this._settings.get('app.desks.use_assets')) {
+            const building_ids = new Set(
+                buildings.map((building) => building.id),
+            );
+            const level_ids = this._org.levels
+                .filter((level) => building_ids.has(level.parent_id))
+                .map((level) => level.id);
+            const desks = await queryDeskAssetsForZones(level_ids).catch(
+                () => [],
+            );
+            return desks.some(
+                (desk) => desk.assigned_to?.toLowerCase() === email,
+            );
+        }
         const map_metadata = (meta) =>
             (meta?.metadata?.desks?.details instanceof Array
                 ? meta.metadata.desks.details
@@ -1907,7 +1928,12 @@ export class BookingFormService extends AsyncHandler {
 
     public async loadGroupSiblings(booking: Booking): Promise<Booking[]> {
         if (!booking?.id) return [];
-        const parent_id = booking.parent_id || booking.id;
+        const stored_booking = this._booking();
+        // Form values can contain the new period. Find the group at its stored
+        // period so every existing sibling is updated instead of recreated.
+        const lookup_booking =
+            stored_booking?.id === booking.id ? stored_booking : booking;
+        const parent_id = lookup_booking.parent_id || lookup_booking.id;
         // Groups made before group containers existed have no parent link. Every
         // member still carries the same generated group reference
         // (`host@email[yyyy-MM-dd]`) in `extension_data.group`, so match on that
@@ -1916,25 +1942,30 @@ export class BookingFormService extends AsyncHandler {
         // retained members get duplicated). The query is already bounded to this
         // booking's exact period, so a same-host/same-day group at another time
         // cannot be pulled in.
-        const group_ref = `${booking.group || ''}`.trim();
+        const group_ref = `${lookup_booking.group || ''}`.trim();
         // Older groups again: some only ever shared a generated `grp-*`
         // description.
-        const legacy_group = `${booking.description || ''}`.startsWith('grp-')
-            ? booking.description
+        const legacy_group = `${lookup_booking.description || ''}`.startsWith(
+            'grp-',
+        )
+            ? lookup_booking.description
             : '';
         const { type } = this._options();
         const list = await queryBookings({
-            period_start: getUnixTime(booking.date),
-            period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
+            period_start: getUnixTime(lookup_booking.date),
+            period_end: getUnixTime(
+                addMinutes(lookup_booking.date, lookup_booking.duration),
+            ),
             type,
             include_booked_by: true,
         });
         return list.filter(
             (b) =>
-                b.id === parent_id ||
-                b.parent_id === parent_id ||
-                (!!group_ref && `${b.group || ''}`.trim() === group_ref) ||
-                (!!legacy_group && b.description === legacy_group),
+                b.status !== 'cancelled' &&
+                (b.id === parent_id ||
+                    b.parent_id === parent_id ||
+                    (!!group_ref && `${b.group || ''}`.trim() === group_ref) ||
+                    (!!legacy_group && b.description === legacy_group)),
         );
     }
 
@@ -1976,7 +2007,44 @@ export class BookingFormService extends AsyncHandler {
             const key = is_visitor ? s.asset_id : s.user_email;
             return key && !member_keys.has(key);
         });
-        await Promise.all(to_delete.map((s) => removeBooking(s.id)));
+        // Event attendee updates write the whole event, so remove guests in order.
+        for (const booking of to_delete) {
+            const event = booking.linked_event;
+            const event_id = event?.event_id || event?.id;
+            if (is_visitor && event_id) {
+                await removeEventGuest(
+                    event_id,
+                    new GuestUser({ email: booking.asset_id }),
+                    {
+                        system_id: event.system_id,
+                        calendar: event.resource_calendar,
+                    },
+                );
+            }
+            if (is_visitor) {
+                // Distinguish removed invitees from ordinary cancellations.
+                await updateBooking(booking.id, {
+                    extension_data: {
+                        ...booking.extension_data,
+                        removed_from_group: true,
+                    },
+                });
+            }
+            try {
+                await removeBooking(booking.id);
+            } catch (error) {
+                if (is_visitor) {
+                    await updateBooking(booking.id, {
+                        extension_data: {
+                            removed_from_group:
+                                booking.extension_data?.removed_from_group ??
+                                false,
+                        },
+                    });
+                }
+                throw error;
+            }
+        }
         const desk_resources =
             !is_visitor && type === 'desk'
                 ? await this._resolveDeskGroupResources(members, form, [
@@ -2169,6 +2237,8 @@ export class BookingFormService extends AsyncHandler {
                 parent_id: '',
                 asset_id: group_name,
                 asset_name: 'Group Booking',
+                // The opened visitor booking can carry the old attendee list.
+                ...(resource_type === 'visitor' ? { attendees: members } : {}),
                 booking_type: 'group',
                 type: 'group',
                 description: form.title || 'Group Booking',
@@ -2684,7 +2754,24 @@ export class BookingFormService extends AsyncHandler {
         })) as BookingAsset[];
     }
 
+    /** Load desk resources from the assets API for the active scope. */
+    public async loadDeskResources(): Promise<BookingAsset[]> {
+        const use_region = this._settings.get('app.use_region');
+        const levels = use_region
+            ? this._org.levelsForRegion()
+            : this._org.levelsForBuilding();
+        const assets = await queryDeskAssetsForZones(
+            levels.map((level) => level.id),
+        );
+        return assets.map((asset) =>
+            deskFromAsset(asset, this._org.levelWithID([asset.zone_id])),
+        ) as BookingAsset[];
+    }
+
     public async loadResourceList(type: string): Promise<BookingAsset[]> {
+        if (type === 'desks' && this._settings.get('app.desks.use_assets')) {
+            return this.loadDeskResources();
+        }
         const use_region = this._settings.get('app.use_region');
         const map_metadata = (_) =>
             (_?.metadata[type]?.details instanceof Array

@@ -2,8 +2,10 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import {
     current_user,
     currentUser,
+    markInitialisationComplete,
     SettingsService,
     setupPlace,
+    withTimeout,
 } from '@placeos/common';
 import { authority, queryApplications, setAPI_Key } from '@placeos/ts-client';
 import { first, lastValueFrom } from 'rxjs';
@@ -102,7 +104,12 @@ export class AppComponent implements OnInit {
                 !!this._settings.get('mock') ||
                 location.origin.includes('demo.place.tech');
             await setupPlace(settings);
-            await lastValueFrom(current_user.pipe(first((_) => !!_)));
+            await withTimeout(
+                lastValueFrom(current_user.pipe(first((_) => !!_))),
+                30_000,
+                'Current user loading timed out.',
+            );
+            markInitialisationComplete();
 
             const active_authority = authority();
             if (!active_authority?.id) return;

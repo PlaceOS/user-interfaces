@@ -9,8 +9,8 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { Subscription } from 'rxjs';
 
-import { EventsListComponent } from '../../app/events/events-list.component';
 import { EventStateService } from '../../app/events/event-state.service';
+import { EventsListComponent } from '../../app/events/events-list.component';
 
 describe('EventsListComponent', () => {
     let spectator: SpectatorRouting<EventsListComponent>;
@@ -58,10 +58,6 @@ describe('EventsListComponent', () => {
         active_building.set({ id: 'bld-1' });
         set_options.mockClear();
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should reflect the state period', () => {

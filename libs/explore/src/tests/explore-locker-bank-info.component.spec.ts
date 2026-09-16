@@ -35,10 +35,6 @@ describe('ExploreLockerBankInfoComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should expose the bank and in-use count', () => {
         expect(spectator.component.bank()).toEqual(bank);
         expect(spectator.component.in_use_count()).toBe(2);

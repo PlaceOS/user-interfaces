@@ -17,10 +17,6 @@ describe('JsonDisplayComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should display data injected from a tooltip', () => {
         spectator.detectChanges();
         expect('pre').toContainText('"from_tooltip": true');

@@ -140,7 +140,6 @@ export class VideoCallDialViewComponent {
         if (this.redirect()) {
             this._router.navigate(['call'], { relativeTo: this._route });
         }
-        // TODO: The 'emit' function requires a mandatory void argument
         this.close.emit();
         this.dial_number.set('');
     }

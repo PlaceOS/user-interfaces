@@ -1,6 +1,8 @@
 # Timetable App Settings
 
-The Timetable app is a PlaceOS interface for viewing and booking spaces and desks against a daily timetable grid. Administrators configure it in Backoffice by adding settings to Zone metadata under the `app` metadata key. Any values you set there are merged over the application's build-time defaults, so you only need to define the settings you want to change.
+The Timetable app is a PlaceOS interface for viewing and booking spaces and desks against a daily timetable grid.
+
+Set settings in Backoffice zone metadata under `timetable_app` for the standard `/timetable/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## General
 

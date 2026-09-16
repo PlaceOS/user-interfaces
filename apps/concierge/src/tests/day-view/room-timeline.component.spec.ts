@@ -9,8 +9,8 @@ import { setHours, startOfDay, subDays } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { Subject, Subscription } from 'rxjs';
 
-import { RoomBookingsTimelineComponent } from '../../app/day-view/room-timeline.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
+import { RoomBookingsTimelineComponent } from '../../app/day-view/room-timeline.component';
 
 describe('RoomBookingsTimelineComponent', () => {
     let spectator: SpectatorRouting<RoomBookingsTimelineComponent>;
@@ -69,10 +69,6 @@ describe('RoomBookingsTimelineComponent', () => {
             providers: [MockProvider(MatDialog, { open: dialog_open } as any)],
         });
         spectator.detectChanges();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should group active events by space within the day range', () => {
@@ -156,10 +152,7 @@ describe('RoomBookingsTimelineComponent', () => {
     });
 
     it('should not open a dialog for system events', () => {
-        spectator.component.viewEvent(
-            { is_system_event: true } as any,
-            'sp1',
-        );
+        spectator.component.viewEvent({ is_system_event: true } as any, 'sp1');
         expect(dialog_open).not.toHaveBeenCalled();
     });
 

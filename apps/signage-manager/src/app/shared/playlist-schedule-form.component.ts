@@ -1,12 +1,31 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+    afterNextRender,
+    Component,
+    computed,
+    inject,
+    Injector,
+    input,
+    output,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FieldTree, FormField } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { i18n, LocaleService } from '@placeos/common';
+import {
+    formatTimeInTimezone,
+    getTimeInTimezone,
+    getTimezoneOffsetString,
+    i18n,
+    LOCAL_TIMEZONE,
+    LocaleService,
+    setTimeInTimezone,
+    settingSignal,
+    TIMEZONES_IANA,
+} from '@placeos/common';
 import {
     IconComponent,
     SettingsToggleComponent,
@@ -23,10 +42,8 @@ import {
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
 import { endOfDay, fromUnixTime, getUnixTime } from 'date-fns';
-import {
-    playlistScheduleExpiryLabel,
-    playlistScheduleExpiryTooltip,
-} from '../signage-playlist.util';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { playlistScheduleExpiryLabel } from '../signage-playlist.util';
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
 type RecurringScheduleType =
@@ -423,8 +440,9 @@ function doesCronMatchDate(cron: string, date: Date) {
     return day_matches || weekday_matches;
 }
 
-function formatPlayDateTime(date: Date) {
+function formatPlayDateTime(date: Date, timeZone = LOCAL_TIMEZONE) {
     return date.toLocaleString(undefined, {
+        timeZone,
         weekday: 'short',
         month: 'short',
         day: 'numeric',
@@ -433,22 +451,30 @@ function formatPlayDateTime(date: Date) {
     });
 }
 
-function formatPlayTime(date: Date) {
+function formatPlayTime(date: Date, timeZone = LOCAL_TIMEZONE) {
     return date.toLocaleTimeString(undefined, {
+        timeZone,
         hour: 'numeric',
         minute: '2-digit',
     });
 }
 
-function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
-    const end = new Date(start);
-    end.setMinutes(end.getMinutes() + Math.max(0, duration_minutes || 0));
-    if (duration_minutes > 0) end.setSeconds(end.getSeconds() - 1);
+function formatPlayDateTimeRange(
+    start: Date,
+    duration_minutes: number,
+    timezone = LOCAL_TIMEZONE,
+) {
+    const end = new Date(
+        start.getTime() +
+            Math.max(0, duration_minutes || 0) * 60_000 -
+            (duration_minutes > 0 ? 1000 : 0),
+    );
     const end_text =
-        start.toDateString() === end.toDateString()
-            ? formatPlayTime(end)
-            : formatPlayDateTime(end);
-    return `${formatPlayDateTime(start)} – ${end_text}`;
+        toZonedTime(start, timezone).toDateString() ===
+        toZonedTime(end, timezone).toDateString()
+            ? formatPlayTime(end, timezone)
+            : formatPlayDateTime(end, timezone);
+    return `${formatPlayDateTime(start, timezone)} – ${end_text}`;
 }
 
 function formatMinutes(value: number | null | undefined) {
@@ -481,18 +507,34 @@ function nextCronPlayTimes(
     cron: string,
     duration_minutes: number,
     valid_until = 0,
+    timezone = LOCAL_TIMEZONE,
 ) {
     const result: string[] = [];
     if (!cron?.trim()) return result;
-    const date = new Date();
+    const now = Date.now();
+    const date = toZonedTime(now, timezone);
     date.setSeconds(0, 0);
     date.setMinutes(date.getMinutes() + 1);
     const end = new Date(date);
     end.setFullYear(end.getFullYear() + 2);
-    const expiry = valid_until ? new Date(valid_until) : end;
+    const expiry = valid_until ? toZonedTime(valid_until, timezone) : end;
     while (date <= end && date <= expiry && result.length < 5) {
         if (doesCronMatchDate(cron, date)) {
-            result.push(formatPlayDateTimeRange(date, duration_minutes));
+            const instant = fromZonedTime(date, timezone);
+            // Skip wall-clock times that do not exist during a daylight saving change.
+            if (
+                instant.getTime() > now &&
+                (!valid_until || instant.getTime() <= valid_until) &&
+                toZonedTime(instant, timezone).getTime() === date.getTime()
+            ) {
+                result.push(
+                    formatPlayDateTimeRange(
+                        instant,
+                        duration_minutes,
+                        timezone,
+                    ),
+                );
+            }
         }
         date.setMinutes(date.getMinutes() + 1);
     }
@@ -625,6 +667,77 @@ export function playlistSchedulePayload(
                             }}</mat-option>
                         </mat-select>
                     </mat-form-field>
+                    @if (
+                        !schedule_timezone_once_only() ||
+                        value().schedule_type === 'play_at'
+                    ) {
+                        <label for="timezone">{{
+                            'COMMON.TIMEZONE' | translate
+                        }}</label>
+                        <mat-form-field
+                            appearance="outline"
+                            class="no-subscript w-full"
+                        >
+                            <mat-select
+                                #timezone_select
+                                name="timezone"
+                                [aria-label]="'COMMON.TIMEZONE' | translate"
+                                [(ngModel)]="timezone"
+                                [ngModelOptions]="{ standalone: true }"
+                                (openedChange)="
+                                    timezone_search.set('');
+                                    $event &&
+                                        focusTimezoneSearch(
+                                            timezone_select,
+                                            timezone_filter
+                                        )
+                                "
+                            >
+                                <mat-select-trigger>{{
+                                    timezone()
+                                }}</mat-select-trigger>
+                                <div class="bg-base-100 sticky -top-1.5 z-10">
+                                    <input
+                                        #timezone_filter
+                                        class="border-base-300 h-full w-full border-b px-4 py-3"
+                                        [placeholder]="
+                                            'COMMON.SEARCH' | translate
+                                        "
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.SEARCH_TIMEZONES'
+                                                | translate
+                                        "
+                                        [(ngModel)]="timezone_search"
+                                        [ngModelOptions]="{ standalone: true }"
+                                        (keydown)="
+                                            onTimezoneSearchKeydown($event)
+                                        "
+                                    />
+                                </div>
+                                @for (zone of timezone_options(); track zone) {
+                                    <mat-option [value]="zone">{{
+                                        zone
+                                    }}</mat-option>
+                                }
+                                @if (!filtered_timezones().length) {
+                                    <mat-option disabled>{{
+                                        'COMMON.TIMEZONE_EMPTY' | translate
+                                    }}</mat-option>
+                                }
+                            </mat-select>
+                        </mat-form-field>
+                    }
+                    @if (
+                        !schedule_timezone_once_only() &&
+                        value().schedule_type === 'play_cron'
+                    ) {
+                        <p class="text-base-content/60 text-xs">
+                            {{
+                                'SIGNAGE_MANAGER.SCHEDULE_TIMEZONE_HINT'
+                                    | translate
+                            }}
+                        </p>
+                    }
                     @if (value().schedule_type === 'play_at') {
                         <div class="flex space-x-4">
                             <div class="flex-1">
@@ -632,31 +745,40 @@ export function playlistSchedulePayload(
                                     'SIGNAGE_MANAGER.PLAY_AT' | translate
                                 }}</label>
                                 <a-date-field
+                                    [timezone]="timezone()"
                                     class="w-full"
                                     [formField]="schedule().play_at"
                                 ></a-date-field>
                             </div>
                             <div class="flex-1">
                                 <label>&nbsp;</label>
-                                <a-time-field
-                                    class="w-full"
-                                    [ngModel]="value().play_at"
-                                    (ngModelChange)="
-                                        schedule().play_at().value.set($event)
-                                    "
-                                    [ngModelOptions]="{ standalone: true }"
-                                ></a-time-field>
+                                <!-- Recreate the time input to refresh its cached display when the timezone changes. -->
+                                @for (zone of [timezone()]; track zone) {
+                                    <a-time-field
+                                        [timezone]="timezone()"
+                                        class="w-full"
+                                        [ngModel]="value().play_at"
+                                        (ngModelChange)="
+                                            schedule()
+                                                .play_at()
+                                                .value.set($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                }
                             </div>
                         </div>
                         <label>{{
                             'SIGNAGE_MANAGER.PLAY_PERIOD' | translate
                         }}</label>
                         <a-duration-field
+                            [timezone]="timezone()"
                             class="w-full"
                             [formField]="schedule().play_period"
                             [min]="15"
                             [max]="24 * 60"
                             [time]="value().play_at"
+                            [allow_end_time]="true"
                             [custom_options]="[value().play_period]"
                         ></a-duration-field>
                         <settings-toggle
@@ -938,12 +1060,12 @@ export function playlistSchedulePayload(
                                             class="no-subscript"
                                         >
                                             <input
+                                                #start_input
                                                 matInput
                                                 type="time"
+                                                step="60"
                                                 [value]="
-                                                    formatPlayHour(
-                                                        value().play_start
-                                                    )
+                                                    recurringStartInputTime()
                                                 "
                                                 [attr.aria-label]="
                                                     'SIGNAGE_MANAGER.PLAY_PERIOD_START_ARIA'
@@ -951,12 +1073,28 @@ export function playlistSchedulePayload(
                                                 "
                                                 (input)="
                                                     setPlayStart(
-                                                        $any($event.target)
-                                                            .value
+                                                        start_input.value
                                                     )
+                                                "
+                                                (blur)="
+                                                    start_input.value =
+                                                        recurringStartInputTime()
                                                 "
                                             />
                                         </mat-form-field>
+                                        @if (start_timezone_offset()) {
+                                            <div
+                                                start-timezone
+                                                class="text-xs opacity-30"
+                                            >
+                                                {{
+                                                    recurringPlayStartTime()
+                                                        | date
+                                                            : 'h : mm a (z)'
+                                                            : start_timezone_offset()
+                                                }}
+                                            </div>
+                                        }
                                     </div>
                                 }
                                 <div class="w-full flex-1">
@@ -965,11 +1103,13 @@ export function playlistSchedulePayload(
                                             | translate
                                     }}</label>
                                     <a-duration-field
+                                        [timezone]="timezone()"
                                         class="no-subscript w-full flex-1"
                                         [formField]="schedule().play_period"
                                         [min]="15"
                                         [max]="24 * 60"
                                         [time]="recurringPlayStartTime()"
+                                        [allow_end_time]="true"
                                         [custom_options]="[value().play_period]"
                                     ></a-duration-field>
                                 </div>
@@ -1022,19 +1162,23 @@ export function playlistSchedulePayload(
                         @if (value().has_valid_until) {
                             <div class="mt-3 flex space-x-4">
                                 <a-date-field
+                                    [timezone]="timezone()"
                                     class="w-full flex-1"
                                     [formField]="schedule().valid_until"
                                 ></a-date-field>
-                                <a-time-field
-                                    class="w-full flex-1"
-                                    [ngModel]="value().valid_until"
-                                    (ngModelChange)="
-                                        schedule()
-                                            .valid_until()
-                                            .value.set($event)
-                                    "
-                                    [ngModelOptions]="{ standalone: true }"
-                                ></a-time-field>
+                                @for (zone of [timezone()]; track zone) {
+                                    <a-time-field
+                                        [timezone]="timezone()"
+                                        class="w-full flex-1"
+                                        [ngModel]="value().valid_until"
+                                        (ngModelChange)="
+                                            schedule()
+                                                .valid_until()
+                                                .value.set($event)
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                }
                             </div>
                         }
                     </div>
@@ -1044,6 +1188,7 @@ export function playlistSchedulePayload(
     `,
     styles: [``],
     imports: [
+        DatePipe,
         FormField,
         FormsModule,
         DateFieldComponent,
@@ -1060,6 +1205,7 @@ export function playlistSchedulePayload(
     ],
 })
 export class PlaylistScheduleFormComponent {
+    private readonly _injector = inject(Injector);
     private readonly _locale = inject(LocaleService);
     private readonly _date_pipe = new DatePipe(this._locale.locale);
 
@@ -1071,6 +1217,30 @@ export class PlaylistScheduleFormComponent {
     public readonly toggle = output<void>();
     public readonly remove = output<Event>();
 
+    public readonly schedule_timezone_once_only = settingSignal(
+        'schedule_timezone_once_only',
+        true,
+    );
+    public readonly timezone = signal(LOCAL_TIMEZONE);
+    public readonly timezones = [
+        ...new Set([LOCAL_TIMEZONE, 'UTC', ...TIMEZONES_IANA]),
+    ].sort();
+
+    public readonly timezone_search = signal('');
+    public readonly filtered_timezones = computed(() => {
+        const search = this.timezone_search().trim().toLowerCase();
+        return this.timezones.filter((zone) =>
+            zone.toLowerCase().includes(search),
+        );
+    });
+
+    // Material needs the selected option to remain in the list to display its trigger.
+    public readonly timezone_options = computed(() => {
+        const matches = this.filtered_timezones();
+        const selected = this.timezone();
+        return matches.includes(selected) ? matches : [selected, ...matches];
+    });
+
     public readonly weekday_options = WEEKDAY_OPTIONS;
     public readonly week_of_month_options = WEEK_OF_MONTH_OPTIONS;
     public readonly month_days = Array.from(
@@ -1081,6 +1251,32 @@ export class PlaylistScheduleFormComponent {
     public readonly value = computed(() => this.schedule()().value());
     public readonly formatPlayHour = (value: number | null | undefined) =>
         minutesToTime(value || 0);
+
+    public focusTimezoneSearch(select: MatSelect, input: HTMLInputElement) {
+        afterNextRender(
+            () => {
+                if (select.panelOpen) input.focus({ preventScroll: true });
+            },
+            { injector: this._injector },
+        );
+    }
+
+    public onTimezoneSearchKeydown(event: KeyboardEvent) {
+        const navigation_keys = [
+            'Escape',
+            'Tab',
+            'ArrowUp',
+            'ArrowDown',
+            'Enter',
+        ];
+        if (
+            !navigation_keys.includes(event.key) ||
+            event.ctrlKey ||
+            event.metaKey
+        ) {
+            event.stopPropagation();
+        }
+    }
 
     public removeSchedule(event: Event) {
         event.preventDefault();
@@ -1095,6 +1291,7 @@ export class PlaylistScheduleFormComponent {
             buildRecurringCron(value),
             value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES,
             value.has_valid_until ? value.valid_until : 0,
+            this.timezone(),
         );
     }
 
@@ -1178,30 +1375,60 @@ export class PlaylistScheduleFormComponent {
         if (value.schedule_type === 'play_at') {
             const date = new Date(value.play_at || Date.now());
             return `${i18n('SIGNAGE_MANAGER.SUMMARY_PLAY_ONCE', {
-                datetime: formatPlayDateTime(date),
+                datetime: `${formatPlayDateTime(date, this.timezone())} ${this.timezone()}`,
                 duration,
             })}${takeover}${expiry_suffix}`;
         }
-        return `${this.recurringScheduleSummary()}${takeover}${expiry_suffix}`;
+        return `${this.recurringScheduleSummary()} · ${this.timezone()}${takeover}${expiry_suffix}`;
     }
 
     public scheduleExpiryTooltip() {
-        return playlistScheduleExpiryTooltip(
-            playlistSchedulePayload(this.value()),
-        );
+        const value = this.value();
+        return value.has_valid_until
+            ? new Date(value.valid_until).toLocaleString(undefined, {
+                  timeZone: this.timezone(),
+              })
+            : '';
     }
 
     public recurringPlayStartTime() {
         if (!this.showRecurringStartTime()) return undefined;
         const value = this.value();
-        const start_time = new Date();
-        start_time.setSeconds(0, 0);
-        start_time.setHours(0, value.play_start || 0, 0, 0);
-        return start_time.valueOf();
+        return setTimeInTimezone(
+            Date.now(),
+            0,
+            value.play_start || 0,
+            this.timezone(),
+        );
     }
 
+    public recurringStartInputTime() {
+        return formatTimeInTimezone(this.recurringPlayStartTime());
+    }
+
+    public readonly start_timezone_offset = computed(() => {
+        const date = new Date(this.recurringPlayStartTime());
+        const offset = getTimezoneOffsetString(this.timezone(), date);
+        return offset === getTimezoneOffsetString(LOCAL_TIMEZONE, date)
+            ? ''
+            : offset;
+    });
+
     public setPlayStart(value: string) {
-        this.schedule().play_start().value.set(timeToMinutes(value));
+        if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(value)) return;
+        const [local_hours, local_minutes] = value.split(':').map(Number);
+        const timestamp = setTimeInTimezone(
+            this.recurringPlayStartTime(),
+            local_hours,
+            local_minutes,
+        );
+        const { hours, minutes } = getTimeInTimezone(
+            timestamp,
+            this.timezone(),
+        );
+        this.schedule()
+            .play_start()
+            .value.set(hours * 60 + minutes);
     }
 
     public isIntervalRecurrence() {

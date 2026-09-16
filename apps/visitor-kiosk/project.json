@@ -29,11 +29,6 @@
                         "output": "/assets/"
                     },
                     {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
-                    },
-                    {
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
@@ -90,8 +85,8 @@
                     "budgets": [
                         {
                             "type": "initial",
-                            "maximumWarning": "2mb",
-                            "maximumError": "5mb"
+                            "maximumWarning": "1.75mb",
+                            "maximumError": "1.9mb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -105,6 +100,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "visitor-kiosk:build"
@@ -113,8 +109,7 @@
                 "production": {
                     "buildTarget": "visitor-kiosk:build:production"
                 }
-            },
-            "continuous": true
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint",

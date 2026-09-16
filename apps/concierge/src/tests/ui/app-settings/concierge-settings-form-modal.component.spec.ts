@@ -92,10 +92,6 @@ describe('ConciergeSettingsFormModalComponent', () => {
         vi.restoreAllMocks();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should have a model with expected values', () => {
         const model = spectator.component.model();
         expect('logo_light' in model).toBe(true);

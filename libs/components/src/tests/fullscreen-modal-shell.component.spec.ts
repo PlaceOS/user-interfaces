@@ -22,10 +22,6 @@ describe('FullscreenModalShellComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the heading', () => {
         spectator.setInput({ heading: 'Test Modal' });
         spectator.detectChanges();

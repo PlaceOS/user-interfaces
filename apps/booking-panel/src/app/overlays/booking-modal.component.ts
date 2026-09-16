@@ -217,7 +217,7 @@ export class BookingModalComponent extends AsyncHandler implements OnInit {
         organiser: this._data.user || (null as User | null),
         room_ids: [this._data.space?.email || ''],
         date: this._data.date || new Date().valueOf(),
-        duration: Math.min(this._data.min_duration || 15, 30),
+        duration: Math.max(this.min_duration, Math.min(30, this.max_duration)),
         title: `${this._data.title || ''}`,
     });
 

@@ -497,7 +497,9 @@ test.describe('Check-In Flow - Layout', () => {
             .catch(() => {});
 
         // The checkin component or router-outlet should be in the DOM
-        const checkinComponent = page.locator('app-checkin, router-outlet');
+        const checkinComponent = page
+            .locator('app-checkin, router-outlet')
+            .first();
         await expect(checkinComponent).toBeAttached({ timeout: LOAD_TIMEOUT });
     });
 

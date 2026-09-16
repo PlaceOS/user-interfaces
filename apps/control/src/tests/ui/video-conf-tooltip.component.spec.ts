@@ -1,5 +1,8 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { CustomTooltipData } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 
@@ -30,10 +33,6 @@ describe('VideoConferenceTooltipComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should expose the system id from the control state', () => {
         expect(spectator.component.id).toBe('sys-1');

@@ -69,9 +69,12 @@ import { ParkingService } from './parking.service';
                     </div>
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
-                        <status-pill [status]="status()">{{
-                            period()
-                        }}</status-pill>
+                        <status-pill [status]="status()">
+                            @if (booking().status === 'cancelled') {
+                                {{ 'COMMON.TYPE_CANCELLED' | translate }} ·
+                            }
+                            {{ period() }}
+                        </status-pill>
                         <ng-content select="[booking-status]" />
                         @if (!for_current_user() && booked_for_label()) {
                             <div

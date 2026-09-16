@@ -5,17 +5,18 @@ import {
     PlaceOS_Service,
     setInitReloadHandler,
     setMocks,
+    setNotifyFilter,
 } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
-    SettingsDebugPanelComponent,
 } from '@placeos/components';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
 
-import * as SETTINGS_SCHEMA from '../environments/settings.schema.json';
 import { hasStoredApiKey } from './api-key';
 import { hasBootstrappedDisplay } from './bootstrap-state';
+import { isDebugMode } from './debug-state';
 import { requestRecovery, startWatchdog } from './watchdog';
 
 @Component({
@@ -24,7 +25,7 @@ import { requestRecovery, startWatchdog } from './watchdog';
         RouterOutlet,
         GlobalBannerComponent,
         GlobalLoadingComponent,
-        SettingsDebugPanelComponent,
+        SettingsDebugPanelLauncherComponent,
     ],
     template: `
         <global-banner />
@@ -34,7 +35,7 @@ import { requestRecovery, startWatchdog } from './watchdog';
         @if (!uses_api_key) {
             <global-loading />
         }
-        <settings-debug-panel [schema]="settings_schema" />
+        <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
     `,
     styles: [
         `
@@ -48,7 +49,8 @@ import { requestRecovery, startWatchdog } from './watchdog';
     ],
 })
 export class AppComponent implements OnInit {
-    public readonly settings_schema = SETTINGS_SCHEMA as any;
+    public readonly load_settings_schema = () =>
+        import('../environments/settings.schema.json');
     /**
      * A device signing in with an api key needs no interactive authentication,
      * so the loading overlay has nothing to wait for that the player cannot
@@ -66,6 +68,11 @@ export class AppComponent implements OnInit {
         // player, and a failure in any of them used to leave a screen with
         // nothing watching it.
         startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
+        // A display shows content and nothing else. Nobody is there to read
+        // a popup about a failed request, and the player recovers on its own,
+        // so notifications only appear while someone is debugging it.
+        setNotifyFilter(() => isDebugMode());
+
         // Initialisation gives up and restarts if the current user cannot be
         // loaded. On its own that restarts every thirty seconds for as long as
         // the failure lasts, so it goes through the same limits as every other

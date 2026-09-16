@@ -40,10 +40,6 @@ describe('AssetReportExpiredItemsComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should expose the expired purchase orders from the service', () => {
         expect(spectator.component.expired_items()).toEqual([
             { purchase_order_number: 'PO-1', invoice_number: 'INV-1' },

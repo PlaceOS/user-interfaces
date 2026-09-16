@@ -1,13 +1,20 @@
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import { DeskModalComponent } from '../../app/desks/desk-modal.component';
+import {
+    DeskModalComponent,
+    DeskModalData,
+} from '../../app/desks/desk-modal.component';
 
 describe('DeskModalComponent', () => {
     let spectator: Spectator<DeskModalComponent>;
-    let dialog_data: any;
+    let dialog_data: DeskModalData;
     let dialog_ref: { close: any; disableClose: boolean };
 
     const createComponent = createComponentFactory({
@@ -25,7 +32,17 @@ describe('DeskModalComponent', () => {
 
     beforeEach(() => {
         dialog_ref = { close: vi.fn(), disableClose: false };
-        dialog_data = { desk: undefined };
+        dialog_data = {
+            desk: undefined,
+            levels: [
+                {
+                    id: 'level-1',
+                    name: 'Level 1',
+                    display_name: 'First Floor',
+                },
+            ],
+            zone_id: 'level-1',
+        };
         (createComponent as any).__ref = dialog_ref;
     });
 
@@ -38,6 +55,13 @@ describe('DeskModalComponent', () => {
     it('should generate a desk id when none is supplied', () => {
         spectator = build();
         expect(spectator.component.model().id).toMatch(/^desk-/);
+    });
+
+    it('should initialise a new desk with the default level', () => {
+        spectator = build();
+
+        expect(spectator.component.is_new).toBe(true);
+        expect(spectator.component.model().zone_id).toBe('level-1');
     });
 
     it('should hydrate the model from an existing desk', () => {

@@ -2,7 +2,7 @@
 
 Stagehand is an AV systems monitoring and management application for facility managers and AV technicians. It provides alert monitoring dashboards, room analytics, camera snapshots, recorder stream views, and remote support tools for rooms with AV equipment.
 
-Settings are configured in PlaceOS Backoffice as Zone metadata under the `app` metadata key. Anything you set there is merged over the app's build-time defaults, so you only need to define the settings you want to change. Settings can be applied at the organisation (root) zone for everyone, or on building zones for location-specific behaviour.
+Set settings in Backoffice zone metadata under `stagehand_app` for the standard `/stagehand/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## Branding & Identity
 
@@ -15,6 +15,8 @@ Settings are configured in PlaceOS Backoffice as Zone metadata under the `app` m
 | `logo_light` | string | `"assets/logo-light.svg"` | URL of the logo image to display when using the light theme, e.g. on the login page. |
 | `logo_dark` | string | `"assets/logo-dark.svg"` | URL of the logo image to display when using the dark theme, e.g. on the login page. |
 | `general` | object | `{}` | General settings associated with the app. |
+| `allow_dark_mode` | boolean | `false` | Make the dark theme control available in the sidebar. |
+| `chat.enabled` | boolean | `false` | Show the chat widget. |
 
 ## Alerts & Push Notifications
 

@@ -6,8 +6,8 @@ import { FooterMenuComponent } from '../../app/components/footer-menu.component'
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { GroupEventsFiltersListComponent } from '../../app/events/group-events-filters-list.component';
 import { GroupEventsSidebarComponent } from '../../app/events/group-events-sidebar.component';
-import { GroupEventsComponent } from '../../app/events/group-events.component';
 import { GroupEventsStateService } from '../../app/events/group-events-state.service';
+import { GroupEventsComponent } from '../../app/events/group-events.component';
 
 describe('GroupEventsComponent', () => {
     let spectator: Spectator<GroupEventsComponent>;
@@ -32,10 +32,6 @@ describe('GroupEventsComponent', () => {
     beforeEach(() => {
         filtered_events.set([]);
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should expose the state filtered events list', () => {

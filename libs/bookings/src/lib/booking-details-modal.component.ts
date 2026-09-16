@@ -10,7 +10,6 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     Booking,
     formatDuration,
     formatRecurrence,
@@ -50,6 +49,7 @@ export function canEditBooking(booking: Booking) {
     const parking_allocated_edit_blocked =
         is_parking && !!booking.asset_id && !features.includes('parking');
     return (
+        booking.status !== 'cancelled' &&
         !booking.is_done &&
         !booking.checked_in &&
         (!is_visitor || visitor_edit_allowed) &&
@@ -94,6 +94,9 @@ export function canEditBooking(booking: Booking) {
                 <div class="w-full items-center justify-between sm:flex">
                     <div class="m-2 flex items-center space-x-2">
                         <status-pill [status]="booking_status()">
+                            @if (booking().status === 'cancelled') {
+                                {{ 'COMMON.TYPE_CANCELLED' | translate }} ·
+                            }
                             {{ period() }}
                         </status-pill>
                         @if (booking().instance) {
@@ -223,7 +226,9 @@ export function canEditBooking(booking: Booking) {
                     }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate">person</icon>
+                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate"
+                                >person</icon
+                            >
                             <div>
                                 {{
                                     (booking().user_email | user | async)
@@ -234,7 +239,9 @@ export function canEditBooking(booking: Booking) {
                     }
                     @if (booking().booked_by_email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate">edit_calendar</icon>
+                            <icon [matTooltip]="'COMMON.BOOKED_BY' | translate"
+                                >edit_calendar</icon
+                            >
                             <div>
                                 {{
                                     (booking().booked_by_email | user | async)
@@ -365,11 +372,9 @@ export function canEditBooking(booking: Booking) {
                                         </div>
                                     </button>
                                     <div
-                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                                        [@show]="
-                                            showRequest(request.id)
-                                                ? 'show'
-                                                : 'hide'
+                                        class="contract-expand divide-base-100 bg-base-200 flex flex-col divide-y"
+                                        [class.contract-collapsed]="
+                                            !showRequest(request.id)
                                         "
                                     >
                                         @for (
@@ -475,6 +480,7 @@ export function canEditBooking(booking: Booking) {
             }
             @if (
                 !booking().is_done &&
+                booking().status !== 'cancelled' &&
                 booking().instance &&
                 allow_series_delete()
             ) {
@@ -498,7 +504,6 @@ export function canEditBooking(booking: Booking) {
         </mat-menu>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         CommonModule,
         MatMenuModule,
@@ -585,7 +590,10 @@ export class BookingDetailsModalComponent {
     public readonly can_edit = computed(() => canEditBooking(this.booking()));
 
     public readonly can_cancel = computed(
-        () => !this.booking().is_done && !this.booking().checked_in,
+        () =>
+            this.booking().status !== 'cancelled' &&
+            !this.booking().is_done &&
+            !this.booking().checked_in,
     );
 
     public readonly can_checkin = computed(() => {
@@ -712,7 +720,12 @@ export class BookingDetailsModalComponent {
     });
 
     public remove(booking: Booking, remove_series?: boolean) {
-        if (booking?.is_done || (booking?.checked_in && !remove_series)) return;
+        if (
+            booking?.status === 'cancelled' ||
+            booking?.is_done ||
+            (booking?.checked_in && !remove_series)
+        )
+            return;
         if (remove_series === undefined) this._data.remove_fn(booking);
         else this._data.remove_fn(booking, remove_series);
     }
@@ -735,6 +748,7 @@ export class BookingDetailsModalComponent {
     });
 
     public readonly is_in_progress = computed(() => {
+        if (this.booking()?.status === 'cancelled') return false;
         const ts = Date.now();
         const start = this.booking()?.booking_start * 1000;
         const end = this.booking()?.booking_end * 1000;
@@ -754,6 +768,7 @@ export class BookingDetailsModalComponent {
     });
 
     public readonly booking_status = computed(() => {
+        if (this.booking()?.status === 'cancelled') return 'error';
         if (this.booking()?.is_done) return 'neutral';
         if (this.booking()?.status === 'approved') return 'success';
         if (this.booking()?.status === 'declined') return 'error';

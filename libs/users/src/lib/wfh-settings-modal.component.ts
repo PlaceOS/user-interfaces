@@ -403,20 +403,26 @@ export class WFHSettingsModalComponent implements OnInit {
             }
         }
         if (!this._data?.local) {
-            const user = await showUser('current');
-            await updateUser(user.id, {
-                ...user,
-                groups: user.groups.filter((_) => !_.startsWith('placeos_')),
-                work_preferences: new_settings,
-            } as any).catch((e) => {
+            try {
+                const user = await showUser('current');
+                await updateUser(user.id, {
+                    ...user,
+                    groups: user.groups.filter(
+                        (_) => !_.startsWith('placeos_'),
+                    ),
+                    work_preferences: new_settings,
+                } as any);
+            } catch (error) {
+                notifyError('Unable to save user work preferences.');
+                throw error;
+            } finally {
                 this.loading.set(false);
                 this._dialog_ref.disableClose = false;
-                notifyError('Unable to save user work preferences.');
-                throw e;
-            });
+            }
+        } else {
+            this.loading.set(false);
+            this._dialog_ref.disableClose = false;
         }
-        this.loading.set(false);
-        this._dialog_ref.disableClose = false;
         if (close) {
             if (!this._data?.local) reloadUserData();
             this._dialog_ref.close(new_settings);

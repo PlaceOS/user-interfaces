@@ -9,11 +9,12 @@ import {
     addAsset,
     addAssetCategory,
     addAssetPurchaseOrder,
-    addAssets,
     addAssetType,
+    apiEndpoint,
     PlaceAsset,
     PlaceAssetCategory,
     PlaceAssetPurchaseOrder,
+    post,
     queryAssetCategories as queryAssetCategoriesAPI,
     queryAssetPurchaseOrders as queryAssetPurchaseOrdersAPI,
     queryAssets as queryAssetsAPI,
@@ -214,7 +215,19 @@ export function saveAssetsInBulk(assets: Partial<PlaceAsset>[]) {
     if (!assets?.length) return Promise.resolve([]);
     return assets.every((item) => item?.id)
         ? updateAssets(assets)
-        : addAssets(assets);
+        : addAssetsInBulk(assets);
+}
+
+/** Add assets through the bulk endpoint with an explicit path separator. */
+async function addAssetsInBulk(assets: Partial<PlaceAsset>[]) {
+    const response = await post(
+        `${apiEndpoint()}/assets/bulk`,
+        JSON.stringify(assets),
+        {},
+    );
+    return (response as unknown as Partial<PlaceAsset>[]).map(
+        (item) => new PlaceAsset(item),
+    );
 }
 
 /////////////////////////////////
@@ -492,13 +505,14 @@ export async function validateAssetRequestsForResource(
             zones: zones || [],
         };
         if (from_booking) (asset_data as any).parent_id = id;
-        return createBooking(new Booking(asset_data), {
-            ical_uid,
-            event_id: from_booking ? '' : id,
-        });
+        return () =>
+            createBooking(new Booking(asset_data), {
+                ical_uid,
+                event_id: from_booking ? '' : id,
+            });
     });
     return async () => {
         await Promise.all(changed_requests.map(([id]) => removeBooking(id)));
-        await Promise.all(processed_requests);
+        await Promise.all(processed_requests.map((create) => create()));
     };
 }

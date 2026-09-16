@@ -113,15 +113,21 @@ describe('PanelViewComponent', () => {
         expect(spectator.component).toBeTruthy();
     });
 
-    it('should toggle the visible timestamp state for a message', () => {
-        const component = spectator.component;
-        expect(component.show_time()['m-1']).toBeUndefined();
+    it('should reveal a message timestamp when the message is tapped', async () => {
+        chat.messages.set([make_message({})]);
+        spectator.detectChanges();
 
-        component.toggleMessageTime('m-1');
-        expect(component.show_time()['m-1']).toBe(true);
+        expect(spectator.query('[message-time]')).toBeFalsy();
 
-        component.toggleMessageTime('m-1');
-        expect(component.show_time()['m-1']).toBe(false);
+        spectator.click('[message]');
+        await spectator.fixture.whenStable();
+
+        expect(spectator.query('[message-time]')).toBeTruthy();
+
+        spectator.click('[message]');
+        await spectator.fixture.whenStable();
+
+        expect(spectator.query('[message-time]')).toBeFalsy();
     });
 
     it('should mark itself waiting when the last message is from the user', () => {

@@ -29,11 +29,6 @@
                         "output": "/assets/"
                     },
                     {
-                        "glob": "*.woff2",
-                        "input": "node_modules/material-symbols",
-                        "output": "/assets/"
-                    },
-                    {
                         "glob": "oauth-resp.html",
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
@@ -96,7 +91,7 @@
                         {
                             "type": "initial",
                             "maximumWarning": "1.5mb",
-                            "maximumError": "2mb"
+                            "maximumError": "1.6mb"
                         },
                         {
                             "type": "anyComponentStyle",
@@ -110,6 +105,7 @@
         },
         "serve": {
             "executor": "@angular/build:dev-server",
+            "continuous": true,
             "options": {
                 "proxyConfig": "config/proxy.conf.js",
                 "buildTarget": "signage-manager:build"
@@ -118,8 +114,7 @@
                 "production": {
                     "buildTarget": "signage-manager:build:production"
                 }
-            },
-            "continuous": true
+            }
         },
         "lint": {
             "executor": "@nx/eslint:lint",
@@ -151,7 +146,9 @@
         "e2e": {
             "executor": "@nx/playwright:playwright",
             "dependsOn": ["build"],
-            "outputs": ["{workspaceRoot}/dist/.playwright/apps/signage-manager"],
+            "outputs": [
+                "{workspaceRoot}/dist/.playwright/apps/signage-manager"
+            ],
             "options": {
                 "config": "apps/signage-manager/playwright.config.ts"
             }

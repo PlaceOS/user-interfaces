@@ -4,7 +4,6 @@ import {
     provideAppInitializer,
     provideZonelessChangeDetection,
 } from '@angular/core';
-import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withHashLocation } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
@@ -19,6 +18,15 @@ async function initialisePlaceOS() {
     await placeos.init();
     if (placeos.mode() !== 'domain') return;
 
+    // Zone import can take a while on large deployments. It must not hold
+    // Angular bootstrap open because the editor can render without it.
+    void syncPlaceOSZones(placeos, store);
+}
+
+async function syncPlaceOSZones(
+    placeos: PlaceOSService,
+    store: StoreService,
+): Promise<void> {
     try {
         const organisation = await placeos.getActiveOrganisation();
         if (!organisation) return;
@@ -48,7 +56,6 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
         provideAppInitializer(initialisePlaceOS),
-        provideAnimations(),
         provideRouter(routes, withHashLocation()),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,

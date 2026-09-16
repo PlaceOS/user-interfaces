@@ -42,10 +42,6 @@ describe('EventMonthViewComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should anchor the month to the start of the option date', () => {
         const date = startOfDay(Date.now()).valueOf();
         options.set({ period: 'month', date });

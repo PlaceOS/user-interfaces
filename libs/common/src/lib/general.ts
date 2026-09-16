@@ -689,6 +689,28 @@ export function firstTruthyValueFrom<T = any>(obs: Observable<T>): Promise<T> {
         : Promise.resolve(null);
 }
 
+/** Reject a promise if it does not settle within the specified time. */
+export function withTimeout<T>(
+    promise: Promise<T>,
+    timeout_ms: number,
+    message = 'Operation timed out.',
+): Promise<T> {
+    if (timeout_ms <= 0) return promise;
+    return new Promise<T>((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error(message)), timeout_ms);
+        promise.then(
+            (value) => {
+                clearTimeout(timer);
+                resolve(value);
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            },
+        );
+    });
+}
+
 /**
  * Convert a ts-client signal into an rxjs observable.
  * Emits the signal's current value on subscription, like a BehaviorSubject.

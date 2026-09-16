@@ -57,22 +57,36 @@ type PlaylistStatus =
                         matRipple
                         class="border-base-300 relative z-0 flex w-full cursor-pointer items-center gap-3 border-b px-2 py-1 text-left no-underline transition-colors"
                         [class.bg-primary]="selected()?.id === playlist.id"
+                        [class.bg-warning/10]="
+                            !playlist.enabled && selected()?.id !== playlist.id
+                        "
                         [class.text-primary-content]="
                             selected()?.id === playlist.id
                         "
                         [class.hover:bg-base-200]="
-                            selected()?.id !== playlist.id
+                            playlist.enabled && selected()?.id !== playlist.id
+                        "
+                        [class.hover:bg-warning/20]="
+                            !playlist.enabled && selected()?.id !== playlist.id
                         "
                         [routerLink]="['/playlists', playlist.id]"
                         queryParamsHandling="merge"
+                        [attr.data-disabled-playlist]="
+                            !playlist.enabled ? true : null
+                        "
                         [attr.aria-label]="
-                            'SIGNAGE_MANAGER.OPEN_PLAYLIST'
-                                | translate: { name: playlist.name }
+                            ('SIGNAGE_MANAGER.OPEN_PLAYLIST'
+                                | translate: { name: playlist.name }) +
+                            (!playlist.enabled
+                                ? ', ' + ('COMMON.DISABLED' | translate)
+                                : '')
                         "
                     >
                         <playlist-thumbnail
                             [playlist]="playlist"
                             class="relative h-12 w-12 shrink-0 overflow-hidden rounded-md"
+                            [class.grayscale]="!playlist.enabled"
+                            [class.opacity-50]="!playlist.enabled"
                         />
                         <div class="min-w-0 flex-1 pr-2">
                             <div
@@ -85,7 +99,8 @@ type PlaylistStatus =
                             >
                                 @if (!playlist.enabled) {
                                     <span
-                                        class="bg-base-200 shrink-0 rounded px-1.5 py-0.5"
+                                        data-playlist-status="disabled"
+                                        class="bg-warning text-warning-content flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 font-bold"
                                     >
                                         {{ 'COMMON.DISABLED' | translate }}
                                     </span>

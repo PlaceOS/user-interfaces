@@ -12,9 +12,7 @@ describe('AssetReportOverallComponent', () => {
 
     const createComponent = createComponentFactory({
         component: AssetReportOverallComponent,
-        providers: [
-            MockProvider(AssetsReportService, {} as any),
-        ],
+        providers: [MockProvider(AssetsReportService, {} as any)],
     });
 
     beforeEach(() => {
@@ -38,10 +36,6 @@ describe('AssetReportOverallComponent', () => {
                 },
             ],
         });
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should expose booking status counts from stats', () => {

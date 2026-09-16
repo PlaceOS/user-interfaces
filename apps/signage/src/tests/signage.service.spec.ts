@@ -142,8 +142,10 @@ describe('SignageService', () => {
         media_cache = {
             availableFiles: vi.fn(() => ['/stale-file.jpg']),
             requestFilesToCache: vi.fn(() => Promise.resolve(false)),
-            invalidateFile: vi.fn(),
+            invalidateFile: vi.fn(() => Promise.resolve()),
             getFile: vi.fn(() => Promise.resolve(new File([], 'cached'))),
+            fetchFile: vi.fn(() => Promise.resolve(null)),
+            directURL: vi.fn((url: string) => url),
             cacheState: vi.fn(() => ({
                 file_count: 2,
                 cached_count: 1,
@@ -158,6 +160,7 @@ describe('SignageService', () => {
         (ts_client.querySignagePlugins as any).mockReturnValue(
             Promise.resolve({ data: [] } as any),
         );
+        (ts_client.responseHeaders as any).mockReturnValue({});
         trigger_binding = {
             bindThenSubscribe: vi.fn(() => ({ unsubscribe: vi.fn() })),
         };
@@ -417,6 +420,56 @@ describe('SignageService', () => {
         ]);
     });
 
+    it('should schedule a retry when the media cache sync throws', async () => {
+        media_cache.requestFilesToCache.mockRejectedValue(new Error('boom'));
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        const service = spectator.service as any;
+        expect(service._cache_retry_attempt).toBe(1);
+        expect(service._media_sync_in_flight).toBe(false);
+        expect(spectator.service.diagnostics().media_cache.sync_in_flight).toBe(
+            false,
+        );
+    });
+
+    it('should run a sync asked for during another once that one finishes', async () => {
+        let finish: (failed: boolean) => void;
+        media_cache.requestFilesToCache.mockImplementation(
+            () => new Promise<boolean>((resolve) => (finish = resolve)),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(1);
+
+        const service = spectator.service as any;
+        service._syncMediaCache(spectator.service.display());
+        await flush();
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(1);
+        expect(spectator.service.diagnostics().media_cache.sync_queued).toBe(
+            true,
+        );
+
+        finish(false);
+        await flush();
+
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(2);
+    });
+
+    it('should not let a lost media cache sync block later syncs', async () => {
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const service = spectator.service as any;
+        media_cache.requestFilesToCache.mockClear();
+        service._media_sync_in_flight = true;
+        service._media_sync_started = Date.now() - 31 * 60 * 1000;
+
+        await service._syncMediaCache(spectator.service.display());
+
+        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(1);
+        expect(service._media_sync_in_flight).toBe(false);
+    });
+
     it('should reset the media cache backoff once downloads succeed', async () => {
         media_cache.requestFilesToCache.mockResolvedValue(true);
         spectator.service.setDisplay('display-1');
@@ -433,6 +486,84 @@ describe('SignageService', () => {
 
     it('should create the service', () => {
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should select the latest active template schedule and break ties by creation time', async () => {
+        const now = new Date('2026-01-01T10:30:00Z');
+        vi.setSystemTime(now);
+        const play_at = (minutes_ago: number) =>
+            Math.floor((now.getTime() - minutes_ago * 60_000) / 1000);
+        (ts_client.showSignage as any).mockResolvedValue(
+            create_display({
+                template_schedules: [
+                    {
+                        template_id: 'template-default',
+                        created_at: '2026-01-01T08:00:00Z',
+                        schedule: null,
+                    },
+                    {
+                        template_id: 'template-older-start',
+                        created_at: '2026-01-01T09:00:00Z',
+                        schedule: { play_at: play_at(30), play_period: 60 },
+                    },
+                    {
+                        template_id: 'template-older-tie',
+                        created_at: '2026-01-01T09:10:00Z',
+                        schedule: { play_at: play_at(15), play_period: 60 },
+                    },
+                    {
+                        template_id: 'template-latest-tie',
+                        created_at: '2026-01-01T09:20:00Z',
+                        schedule: { play_at: play_at(15), play_period: 60 },
+                    },
+                ],
+            }) as any,
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.active_template()?.template_id).toBe(
+            'template-latest-tie',
+        );
+    });
+
+    it('should use the default template when no schedule is active', async () => {
+        const now = new Date('2026-01-01T10:00:00Z');
+        vi.setSystemTime(now);
+        (ts_client.showSignage as any).mockResolvedValue(
+            create_display({
+                template_schedules: [
+                    {
+                        template_id: 'template-default',
+                        schedule: null,
+                    },
+                    {
+                        template_id: 'template-future',
+                        schedule: {
+                            play_at: Math.floor(
+                                (now.getTime() + 15_000) / 1000,
+                            ),
+                            play_period: 1,
+                        },
+                    },
+                ],
+            }) as any,
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.active_template()?.template_id).toBe(
+            'template-default',
+        );
+
+        vi.advanceTimersByTime(15_000);
+        await flush();
+
+        expect(spectator.service.active_template()?.template_id).toBe(
+            'template-future',
+        );
     });
 
     it('should keep polling the display while nothing is scheduled', async () => {
@@ -571,15 +702,82 @@ describe('SignageService', () => {
     it('should only ask for a preview when debug is enabled', async () => {
         spectator.service.setDisplay('display-1');
         await flush();
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith('display-1', {});
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            {},
+            { headers: {}, cache: 'no-store' },
+        );
 
         spectator.service.debug.set(true);
         vi.advanceTimersByTime(60_000);
         await flush();
 
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith('display-1', {
-            preview: true,
-        });
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            { preview: true },
+            { headers: {}, cache: 'no-store' },
+        );
+    });
+
+    it('should carry display validators across item-specific polls', async () => {
+        const first_validators = {
+            etag: '"display-v1"',
+            'last-modified': 'Thu, 03 Sep 2026 01:02:03 GMT',
+        };
+        const next_validators = {
+            etag: 'W/"display-v2"',
+            'last-modified': 'Thu, 03 Sep 2026 01:03:04 GMT',
+        };
+        (ts_client.responseHeaders as any)
+            .mockReturnValueOnce(first_validators)
+            .mockReturnValueOnce(next_validators);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        spectator.service.playing_id.set('media / 1');
+
+        await (spectator.service as any)._reloadDisplay();
+        await flush();
+
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            { item_id: 'media / 1' },
+            {
+                headers: {
+                    'If-None-Match': first_validators.etag,
+                    'If-Modified-Since': first_validators['last-modified'],
+                },
+                cache: 'no-store',
+            },
+        );
+        expect(ts_client.responseHeaders).toHaveBeenLastCalledWith(
+            expect.stringContaining(
+                '/signage/display-1?item_id=media%20%2F%201',
+            ),
+        );
+
+        localStorage.clear();
+        spectator.service.playing_id.set('media-2');
+        const parse = vi.spyOn(spectator.service as any, '_parseDisplay');
+        (ts_client.showSignage as any).mockRejectedValueOnce(
+            new Response(null, { status: 304 }),
+        );
+
+        await (spectator.service as any)._reloadDisplay();
+        await flush();
+
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-1',
+            { item_id: 'media-2' },
+            {
+                headers: {
+                    'If-None-Match': next_validators.etag,
+                    'If-Modified-Since': next_validators['last-modified'],
+                },
+                cache: 'no-store',
+            },
+        );
+        expect(parse).not.toHaveBeenCalled();
+        expect(spectator.service.display()?.id).toBe('display-1');
     });
 
     it('should not reload the display when the payload is unchanged', async () => {
@@ -897,21 +1095,58 @@ describe('SignageService', () => {
             configurable: true,
             value: object_url,
         });
-        media_cache.getFile
-            .mockRejectedValueOnce(new Error('Unable to find file with URL'))
-            .mockResolvedValueOnce(new File([], 'recovered'));
+        media_cache.getFile.mockRejectedValue(
+            new Error('Unable to find file with URL'),
+        );
+        media_cache.fetchFile.mockResolvedValue(new File([], 'recovered'));
         spectator.service.setDisplay('display-1');
         await flush();
-        media_cache.requestFilesToCache.mockClear();
         const [item] = spectator.service.playlist();
 
         const url = await item.getURL();
 
-        expect(media_cache.requestFilesToCache).toHaveBeenCalledWith(
-            ['/media-1.jpg'],
+        expect(media_cache.fetchFile).toHaveBeenCalledWith(
+            '/media-1.jpg',
             'display-1',
+            expect.any(Number),
         );
         expect(url).toBe('blob:recovered');
+    });
+
+    it('should play media from the server when the cache cannot supply it', async () => {
+        Object.defineProperty(URL, 'createObjectURL', {
+            configurable: true,
+            value: vi.fn(() => 'blob:never'),
+        });
+        media_cache.getFile.mockRejectedValue(new Error('Cache DB not ready'));
+        media_cache.fetchFile.mockRejectedValue(
+            new Error('Cache DB not ready'),
+        );
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const [item] = spectator.service.playlist();
+
+        const url = await item.getURL();
+
+        expect(url).toBe('/media-1.jpg');
+        expect(media_cache.directURL).toHaveBeenCalledWith('/media-1.jpg');
+        expect(URL.createObjectURL).not.toHaveBeenCalled();
+    });
+
+    it('should not wait on the cache indefinitely when resolving a URL', async () => {
+        media_cache.getFile.mockResolvedValue(null);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        const [item] = spectator.service.playlist();
+
+        await item.getURL();
+
+        expect(media_cache.getFile).toHaveBeenCalledWith(
+            '/media-1.jpg',
+            expect.any(Number),
+        );
+        const [, wait_ms] = media_cache.getFile.mock.calls.at(-1);
+        expect(wait_ms).toBeLessThan(30_000);
     });
 
     it('should rate limit recovery downloads for the same media file', async () => {
@@ -924,14 +1159,13 @@ describe('SignageService', () => {
         );
         spectator.service.setDisplay('display-1');
         await flush();
-        media_cache.requestFilesToCache.mockClear();
         const [item] = spectator.service.playlist();
 
-        expect(await item.getURL()).toBe('');
-        expect(await item.getURL()).toBe('');
-        expect(await item.getURL()).toBe('');
+        expect(await item.getURL()).toBe('/media-1.jpg');
+        expect(await item.getURL()).toBe('/media-1.jpg');
+        expect(await item.getURL()).toBe('/media-1.jpg');
 
-        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(1);
+        expect(media_cache.fetchFile).toHaveBeenCalledTimes(1);
     });
 
     it('should retry a recovery download after the rate limit has passed', async () => {
@@ -944,14 +1178,13 @@ describe('SignageService', () => {
         );
         spectator.service.setDisplay('display-1');
         await flush();
-        media_cache.requestFilesToCache.mockClear();
         const [item] = spectator.service.playlist();
         await item.getURL();
 
         vi.advanceTimersByTime(15_000);
         await item.getURL();
 
-        expect(media_cache.requestFilesToCache).toHaveBeenCalledTimes(2);
+        expect(media_cache.fetchFile).toHaveBeenCalledTimes(2);
     });
 
     it('should play a playlist scheduled for the morning after an empty night', async () => {
@@ -1266,6 +1499,7 @@ describe('SignageService', () => {
         expect(ts_client.showSignage).toHaveBeenLastCalledWith(
             'display-1',
             expect.any(Object),
+            { headers: {}, cache: 'no-store' },
         );
     });
 

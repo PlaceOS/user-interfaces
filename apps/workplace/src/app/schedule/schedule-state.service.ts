@@ -817,6 +817,15 @@ export class ScheduleStateService extends AsyncHandler {
         const existing = this._booking_query_requests.get(key);
         if (existing) return existing;
         const request = queryBookings(query)
+            .then((list) =>
+                type === 'visitor'
+                    ? list.filter(
+                          (booking) =>
+                              booking.status !== 'cancelled' ||
+                              !booking.extension_data?.removed_from_group,
+                      )
+                    : list,
+            )
             .catch(() => [])
             .finally(() => this._booking_query_requests.delete(key));
         this._booking_query_requests.set(key, request);

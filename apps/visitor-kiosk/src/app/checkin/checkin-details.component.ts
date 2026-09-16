@@ -55,7 +55,7 @@ import { CheckinStateService } from './checkin-state.service';
                     </mat-form-field>
                 </div>
                 <div field class="flex flex-col">
-                    <label form="email">{{ 'FORM.NAME' | translate }}</label>
+                    <label form="email">{{ 'FORM.EMAIL' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             keyboard
@@ -208,7 +208,6 @@ export class CheckinDetailsComponent implements OnInit {
     public readonly induction_details = settingSignal('induction_details');
     public readonly allow_printing_label = settingSignal(
         'allow_printing_label',
-        false,
     );
     public readonly allow_user_photo_setting = settingSignal(
         'allow_user_photo',
@@ -218,7 +217,9 @@ export class CheckinDetailsComponent implements OnInit {
         () => this.induction_enabled() && this.induction_details(),
     );
     public readonly allow_user_photo = computed(
-        () => this.allow_user_photo_setting() && this.allow_printing_label(),
+        () =>
+            this.allow_user_photo_setting() &&
+            this.allow_printing_label() !== false,
     );
 
     public async ngOnInit() {

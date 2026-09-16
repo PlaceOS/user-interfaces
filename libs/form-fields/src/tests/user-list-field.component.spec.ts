@@ -64,10 +64,6 @@ describe('UserListFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should be able to be disabled', () => {
         expect('[form-field]').not.toHaveAttribute('disabled');
         spectator.component.setDisabledState(true);
@@ -78,7 +74,7 @@ describe('UserListFieldComponent', () => {
     it('should show selected users', () => {
         const user_list = Array(20)
             .fill(1)
-            .map((_) => new User(generateMockUser()));
+            .map(() => new User(generateMockUser()));
 
         spectator.component.writeValue(user_list);
         spectator.detectChanges();
@@ -165,10 +161,7 @@ describe('UserListFieldComponent', () => {
 
         spectator.click('[user] [remove]');
 
-        expect(spectator.component.active_list()).toEqual([
-            users[1],
-            users[2],
-        ]);
+        expect(spectator.component.active_list()).toEqual([users[1], users[2]]);
     });
 
     it('should remove the clicked entry rather than the first match', () => {
@@ -182,10 +175,7 @@ describe('UserListFieldComponent', () => {
 
         spectator.component.removeUser(1);
 
-        expect(spectator.component.active_list()).toEqual([
-            users[0],
-            users[2],
-        ]);
+        expect(spectator.component.active_list()).toEqual([users[0], users[2]]);
     });
 
     it('should be able to hide user actions', () => {

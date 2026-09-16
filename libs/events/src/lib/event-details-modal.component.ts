@@ -18,11 +18,11 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     Building,
     BuildingLevel,
     CalendarEvent,
     CateringItem,
+    CateringOrder,
     formatRecurrence,
     fromEventRecurrence,
     getTimezoneOffsetString,
@@ -370,6 +370,16 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                         class="flex items-center space-x-2 p-3"
                                     >
                                         <div class="flex-1">
+                                            <div
+                                                class="mb-1 flex items-center space-x-1 text-xs opacity-60"
+                                            >
+                                                <icon class="text-lg"
+                                                    >meeting_room</icon
+                                                >
+                                                <span>{{
+                                                    cateringRoomLabel(order)
+                                                }}</span>
+                                            </div>
                                             <div class="text-sm">
                                                 {{
                                                     'CALENDAR_EVENT.CATERING_ORDER_AT'
@@ -430,11 +440,9 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                         </button>
                                     </div>
                                     <div
-                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                                        [@show]="
-                                            print() || show_order()[order.id]
-                                                ? 'show'
-                                                : 'hide'
+                                        class="contract-expand divide-base-100 bg-base-200 flex flex-col divide-y"
+                                        [class.contract-collapsed]="
+                                            !print() && !show_order()[order.id]
                                         "
                                     >
                                         @for (item of order.items; track item) {
@@ -617,12 +625,10 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                         </div>
                                     </button>
                                     <div
-                                        class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                                        [@show]="
-                                            print() ||
-                                            show_request()[request.id]
-                                                ? 'show'
-                                                : 'hide'
+                                        class="contract-expand divide-base-100 bg-base-200 flex flex-col divide-y"
+                                        [class.contract-collapsed]="
+                                            !print() &&
+                                            !show_request()[request.id]
                                         "
                                     >
                                         @for (
@@ -688,7 +694,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                         </div>
                     </button>
                 }
-                @if (event().state !== 'done') {
+                @if (can_cancel) {
                     <button mat-menu-item (click)="remove(event(), false)">
                         <div class="flex items-center space-x-2 pr-2 text-base">
                             <icon class="text-error text-2xl">delete</icon>
@@ -733,7 +739,6 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
         </div>
     `,
     styles: [``],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     providers: [SpacePipe],
     imports: [
         CommonModule,
@@ -790,11 +795,39 @@ export class EventDetailsModalComponent implements OnInit {
 
     public remove(event: CalendarEvent, remove_series?: boolean) {
         if (event?.state === 'done') return;
+        if (!remove_series && !this.can_cancel) return;
         this._data.remove_fn(event, remove_series);
+    }
+
+    public get can_cancel() {
+        const event = this.event();
+        return (
+            event.state !== 'done' &&
+            !(
+                this.is_concierge &&
+                this.room_status() === 'busy' &&
+                event.date <= Date.now()
+            )
+        );
     }
     public readonly has_catering = computed(
         () => this.event()?.ext('catering')?.length > 0,
     );
+
+    public cateringRoomLabel(order: CateringOrder) {
+        if (!order.system_id) {
+            return i18n('CALENDAR_EVENT.ROOM_REQUIRED');
+        }
+        const room = this.event().resources.find(
+            (space) =>
+                space.id === order.system_id || space.email === order.system_id,
+        );
+        if (!room) return i18n('CALENDAR_EVENT.ROOM_REQUIRED');
+        const location = this._org.locationWithID(room.zones).label;
+        return [location, room.display_name || room.name]
+            .filter((_) => !!_)
+            .join(' / ');
+    }
     public readonly has_assets = computed(
         () =>
             !!this.event()?.linked_bookings?.find(

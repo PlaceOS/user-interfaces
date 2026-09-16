@@ -2,7 +2,7 @@
 
 The Assistant Panel is a hands-free, voice-driven AI assistant for shared spaces. It listens for speech, sends what it hears to the PlaceOS AI chat service, and speaks the response back — useful as a wall-mounted or desk-mounted helper panel in meeting rooms and common areas.
 
-Settings for the app are configured in Backoffice as Zone metadata under the `app` metadata key. Values you set there are merged over the app's build-time defaults, so you only need to define the settings you want to change. Settings can be applied at the organisation, building or level zone depending on how broadly you want them to take effect.
+Set settings in Backoffice zone metadata under `assistant-panel_app` for the standard `/assistant-panel/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## General
 
@@ -37,15 +37,13 @@ Example — use your own hosted logo:
 
 ```json
 {
-    "app": {
-        "logo": {
-            "type": "img",
-            "src": "https://example.com/assets/company-logo.svg"
-        },
-        "logo_dark": {
-            "type": "img",
-            "src": "https://example.com/assets/company-logo-white.svg"
-        }
+    "logo": {
+        "type": "img",
+        "src": "https://example.com/assets/company-logo.svg"
+    },
+    "logo_dark": {
+        "type": "img",
+        "src": "https://example.com/assets/company-logo-white.svg"
     }
 }
 ```
@@ -60,10 +58,8 @@ Example:
 
 ```json
 {
-    "app": {
-        "chat": {
-            "enabled": true
-        }
+    "chat": {
+        "enabled": true
     }
 }
 ```

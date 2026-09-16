@@ -25,10 +25,6 @@ describe('TimeFieldComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should not submit a parent form when opened', () => {
         expect('button[time-field]').toHaveAttribute('type', 'button');
     });
@@ -45,16 +41,6 @@ describe('TimeFieldComponent', () => {
         spectator.component.writeValue(startOfDay(Date.now()).valueOf());
         expect(spectator.component.time()).toBe(`00:00`);
     });
-
-    // it('should allow the user to manually input a time', () => {
-    //     spectator.setInput({ no_past_times: false });
-    //     spectator.detectChanges();
-    //     const input_el: HTMLInputElement = spectator.query('input');
-    //     expect('input').toExist();
-    //     input_el.value = '00:00';
-    //     spectator.dispatchFakeEvent('input', 'input');
-    //     expect(spectator.component.time).toBe('00:00');
-    // });
 
     it('should allow customising the step between time options', () => {
         spectator.setInput({ step: 5, no_past_times: false });

@@ -6,6 +6,7 @@ import {
     forwardRef,
     inject,
     input,
+    Signal,
     signal,
     untracked,
 } from '@angular/core';
@@ -14,15 +15,14 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AssetItem,
     AssetRequest,
-    SettingsService,
-    Space,
     i18n,
     notifyError,
     randomInt,
     randomString,
+    SettingsService,
+    Space,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 
@@ -83,6 +83,7 @@ const EMPTY_FAVS: string[] = [];
                             <button
                                 icon
                                 matRipple
+                                [disabled]="disabled()"
                                 [matTooltip]="
                                     'FORM.ASSETS_DUPLICATE' | translate
                                 "
@@ -93,6 +94,7 @@ const EMPTY_FAVS: string[] = [];
                             <button
                                 icon
                                 matRipple
+                                [disabled]="disabled()"
                                 [matTooltip]="'FORM.ASSETS_EDIT' | translate"
                                 (click)="editRequest(request)"
                             >
@@ -101,6 +103,8 @@ const EMPTY_FAVS: string[] = [];
                             <button
                                 icon
                                 matRipple
+                                name="remove-asset-request"
+                                [disabled]="disabled()"
                                 [matTooltip]="'FORM.ASSETS_REMOVE' | translate"
                                 class="text-error"
                                 (click)="removeRequest(request)"
@@ -128,9 +132,9 @@ const EMPTY_FAVS: string[] = [];
                             </button>
                         </div>
                         <div
-                            class="divide-base-100 bg-base-200 flex flex-col divide-y"
-                            [@show]="
-                                show_request()[request.id] ? 'show' : 'hide'
+                            class="contract-expand divide-base-100 bg-base-200 flex flex-col divide-y"
+                            [class.contract-collapsed]="
+                                !show_request()[request.id]
                             "
                         >
                             @for (item of request.items; track item) {
@@ -148,6 +152,8 @@ const EMPTY_FAVS: string[] = [];
                                     <button
                                         icon
                                         matRipple
+                                        name="remove-asset-request-item"
+                                        [disabled]="disabled()"
                                         [matTooltip]="
                                             'FORM.ASSETS_REMOVE_ITEM'
                                                 | translate
@@ -242,7 +248,6 @@ const EMPTY_FAVS: string[] = [];
             multi: true,
         },
     ],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         CommonModule,
         IconComponent,
@@ -267,7 +272,16 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     }>({});
     public readonly rejected_ids = input<string[]>([]);
     public readonly asset_requests = signal<AssetRequest[]>([]);
-    public readonly disabled = signal(false);
+    private readonly _form_disabled = signal(false);
+    public readonly disabled = computed(() => {
+        if (this._form_disabled()) return true;
+        const disabled_rooms = this._state.disabled_rooms();
+        return (
+            this.options().resources?.some((space) =>
+                disabled_rooms.includes(space.id),
+            ) || false
+        );
+    });
     public readonly show_request = signal<Record<string, boolean>>({});
     public err_tooltip(request: AssetRequest) {
         return this.rejected_ids().includes(request.id) || request.conflict
@@ -277,13 +291,11 @@ export class AssetListFieldComponent implements ControlValueAccessor {
 
     private _onChange: (_: AssetRequest[]) => void;
     private _onTouch: (_: AssetRequest[]) => void;
-    private readonly _favorites = this._settings.signal<string[]>(
+    public readonly favorites: Signal<string[]> = this._settings.signal(
         'favourite_assets',
         EMPTY_FAVS,
         true,
     );
-
-    public readonly favorites = computed(() => this._favorites());
 
     public readonly end_time = computed(() => {
         const time =
@@ -344,7 +356,8 @@ export class AssetListFieldComponent implements ControlValueAccessor {
         (this._onChange = fn);
     public readonly registerOnTouched = (fn: (_: AssetRequest[]) => void) =>
         (this._onTouch = fn);
-    public readonly setDisabledState = (s: boolean) => this.disabled.set(s);
+    public readonly setDisabledState = (s: boolean) =>
+        this._form_disabled.set(s);
 
     public toggleRequest(request_id: string) {
         this.show_request.update((state) => ({
@@ -354,6 +367,7 @@ export class AssetListFieldComponent implements ControlValueAccessor {
     }
 
     public editRequest(order: AssetRequest = new AssetRequest()) {
+        if (this.disabled()) return;
         const order_list = this.asset_requests().filter(
             (_) => _.id !== order.id,
         );
@@ -392,22 +406,20 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             for (const item of items) {
                 if ((item as any).assets?.length) {
                     const list = [];
-                    item.item_ids = new Array(item.quantity)
-                        .fill(0)
-                        .map((_) => {
-                            let id = '';
-                            let count = 0;
-                            while (
-                                (!id || list.includes(id)) &&
-                                count < (item as any).assets.length
-                            ) {
-                                id = (item as any).assets[
-                                    randomInt((item as any).assets.length)
-                                ].id;
-                            }
-                            list.push(id);
-                            return id;
-                        });
+                    item.item_ids = new Array(item.quantity).fill(0).map(() => {
+                        let id = '';
+                        let count = 0;
+                        while (
+                            (!id || list.includes(id)) &&
+                            count < (item as any).assets.length
+                        ) {
+                            id = (item as any).assets[
+                                randomInt((item as any).assets.length)
+                            ].id;
+                        }
+                        list.push(id);
+                        return id;
+                    });
                 }
             }
             const time = new Date(this.options().date);

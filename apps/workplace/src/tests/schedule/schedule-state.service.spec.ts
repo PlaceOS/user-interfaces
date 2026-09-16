@@ -1,7 +1,10 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
     Booking,
@@ -90,7 +93,9 @@ describe('ScheduleStateService', () => {
         // loadLockerResources) are workspace fns that can't be spied; they all
         // funnel into ts-client `get`/`querySystems`, so stub + assert one
         // layer down.
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockResolvedValue([] as any);
         vi.mocked(ts_client.querySystems).mockResolvedValue({
             data: [],
         } as any);
@@ -174,6 +179,26 @@ describe('ScheduleStateService', () => {
 
         expect(booking_form.newForm).toHaveBeenCalledWith('visitor', booking);
         expect(booking_form.model.update).not.toHaveBeenCalled();
+    });
+
+    it('should patch resources when editing non-visitor bookings', () => {
+        const booking_form = spectator.inject(BookingFormService);
+        const booking = new Booking({
+            booking_type: 'desk',
+            type: 'desk',
+            asset_id: 'desk-1',
+            asset_name: 'Desk 1',
+        } as any);
+
+        spectator.service.editBooking(booking);
+        vi.runAllTimers();
+
+        expect(booking_form.model.update).toHaveBeenCalled();
+        const updater = (booking_form.model.update as any).mock.calls[0][0];
+        expect(updater({})).toEqual({
+            resources: [{ id: 'desk-1', name: 'Desk 1' }],
+            asset_id: 'desk-1',
+        });
     });
 
     it('should refresh ended bookings without hiding them as deleted', async () => {
@@ -270,10 +295,9 @@ describe('ScheduleStateService', () => {
             user_email: 'other@example.com',
             booked_by_email: 'me@example.com',
         });
-        vi.spyOn(
-            spectator.service,
-            'isBookingForOtherUser',
-        ).mockImplementation((item) => item === for_other);
+        vi.spyOn(spectator.service, 'isBookingForOtherUser').mockImplementation(
+            (item) => item === for_other,
+        );
         (spectator.service as any)._desks.set([mine, for_other]);
 
         expect(spectator.service.filtered_bookings()).toEqual([mine]);
@@ -318,6 +342,38 @@ describe('ScheduleStateService', () => {
         ]);
 
         expect(ts_client.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockResolvedValue([
+            { id: 'retained', booking_type: 'visitor' },
+            { id: 'cancelled', booking_type: 'visitor', deleted: true },
+            {
+                id: 'removed',
+                booking_type: 'visitor',
+                deleted: true,
+                extension_data: { removed_from_group: true },
+            },
+            {
+                id: 'failed-removal',
+                booking_type: 'visitor',
+                extension_data: { removed_from_group: true },
+            },
+        ]);
+
+        const bookings = await spectator.service['_bookingQuery'](
+            'visitor',
+            'day',
+            new Date(2026, 5, 22, 9).valueOf(),
+        );
+
+        expect(bookings.map((booking) => booking.id)).toEqual([
+            'retained',
+            'cancelled',
+            'failed-removal',
+        ]);
     });
 
     it('should request cancelled and ended bookings', async () => {

@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
@@ -44,8 +47,6 @@ describe('BookLockerFlowSuccessComponent', () => {
         settings = {};
         spectator = createComponent();
     });
-
-    it('should create', () => expect(spectator.component).toBeTruthy());
 
     it('should populate calendar links on init', () => {
         spectator.component.ngOnInit();

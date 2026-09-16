@@ -11,6 +11,37 @@ import type { Floorplan } from './types';
 
 const SETTINGS_KEY = 'MAP_BUILDER.placeos';
 const FLOORPLAN_METADATA_KEY = 'map-studio';
+const PLACEOS_REQUEST_TIMEOUT = 10 * 1000;
+
+function withDeadline<T>(promise: Promise<T>, message: string): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const timer = setTimeout(
+            () => reject(new Error(message)),
+            PLACEOS_REQUEST_TIMEOUT,
+        );
+        promise.then(
+            (value) => {
+                clearTimeout(timer);
+                resolve(value);
+            },
+            (error) => {
+                clearTimeout(timer);
+                reject(error);
+            },
+        );
+    });
+}
+
+function fetchWithDeadline(
+    input: RequestInfo | URL,
+    init: RequestInit = {},
+): Promise<Response> {
+    const controller = new AbortController();
+    const request = fetch(input, { ...init, signal: controller.signal });
+    return withDeadline(request, 'PlaceOS request timed out.').finally(() =>
+        controller.abort(),
+    );
+}
 
 export interface PlaceOSSettings {
     domain: string;
@@ -107,23 +138,30 @@ export class PlaceOSService {
      * flow if an authority is available on the current origin.
      */
     public async init(): Promise<void> {
-        const resolved = await fetch('/auth/authority', {
+        const resolved = await fetchWithDeadline('/auth/authority', {
             credentials: 'same-origin',
         })
             .then((resp) => resp.ok)
             .catch(() => false);
         if (!resolved) return this._mode.set('manual');
         // Redirects to login when there's no session, and comes back here
-        await setup({
-            auth_uri: '/auth/oauth/authorize',
-            token_uri: '/auth/token',
-            redirect_uri: new URL(
-                'oauth-resp.html',
-                document.baseURI,
-            ).toString(),
-            scope: 'public',
-        });
-        this._mode.set('domain');
+        try {
+            await withDeadline(
+                setup({
+                    auth_uri: '/auth/oauth/authorize',
+                    token_uri: '/auth/token',
+                    redirect_uri: new URL(
+                        'oauth-resp.html',
+                        document.baseURI,
+                    ).toString(),
+                    scope: 'public',
+                }),
+                'PlaceOS setup timed out.',
+            );
+            this._mode.set('domain');
+        } catch {
+            this._mode.set('manual');
+        }
     }
 
     public get config(): PlaceOSConfig {
@@ -420,7 +458,7 @@ export class PlaceOSService {
         const on_domain = this._mode() === 'domain';
         if (!on_domain && !api_key) throw new Error('PlaceOS not configured');
         const query = new URLSearchParams(params).toString();
-        const response = await fetch(
+        const response = await fetchWithDeadline(
             `${on_domain ? '' : domain}/api/engine/v2${path}${query ? `?${query}` : ''}`,
             {
                 ...options,

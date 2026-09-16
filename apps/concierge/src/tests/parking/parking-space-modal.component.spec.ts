@@ -2,27 +2,43 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
-import { ParkingSpaceModalComponent } from '../../app/parking/parking-space-modal.component';
+import {
+    ParkingSpaceModalComponent,
+    ParkingSpaceModalData,
+} from '../../app/parking/parking-space-modal.component';
 
 describe('ParkingSpaceModalComponent', () => {
     let spectator: Spectator<ParkingSpaceModalComponent>;
-    const data = {
-        id: 'space-1',
-        identifier: 'Bay 1',
-        map_id: 'bay-1',
-        features: ['EV Charger'],
-        place_groups: ['staff'],
-    };
+    let dialog_data: ParkingSpaceModalData;
 
     const createComponent = createComponentFactory({
         component: ParkingSpaceModalComponent,
         providers: [
-            { provide: MAT_DIALOG_DATA, useValue: data },
+            { provide: MAT_DIALOG_DATA, useFactory: () => dialog_data },
             MockProvider(MatDialogRef, { disableClose: false } as any),
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        dialog_data = {
+            space: {
+                id: 'space-1',
+                identifier: 'Bay 1',
+                map_id: 'bay-1',
+                features: ['EV Charger'],
+                place_groups: ['staff'],
+            },
+            levels: [
+                {
+                    id: 'level-1',
+                    name: 'Level 1',
+                    display_name: 'First Floor',
+                },
+            ],
+            zone_id: 'level-1',
+        };
+        spectator = createComponent();
+    });
 
     it('should not reuse the source features array', () => {
         spectator.component.model.update((m) => ({
@@ -30,10 +46,18 @@ describe('ParkingSpaceModalComponent', () => {
             features: [...(m.features || []), 'Covered'],
         }));
 
-        expect(data.features).toEqual(['EV Charger']);
+        expect(dialog_data.space.features).toEqual(['EV Charger']);
         expect(spectator.component.model().features).toEqual([
             'EV Charger',
             'Covered',
         ]);
+    });
+
+    it('should initialise a new parking space with the default level', () => {
+        dialog_data.space = {};
+        spectator = createComponent();
+
+        expect(spectator.component.is_new).toBe(true);
+        expect(spectator.component.model().zone_id).toBe('level-1');
     });
 });

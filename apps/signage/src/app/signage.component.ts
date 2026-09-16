@@ -24,6 +24,7 @@ import {
     clearDebugOverlayLayouts,
     DebugOverlayComponent,
 } from './debug-overlay.component';
+import { isDebugEnabled } from './debug-state';
 import { registerSignageDiagnostics } from './diagnostics';
 import { time } from './media-helpers';
 import { MediaPlayerComponent } from './media-player.component';
@@ -34,10 +35,6 @@ import { recordHeartbeat } from './watchdog';
 const REMOTE_PAUSE = 'signage:pause';
 const REMOTE_RESUME = 'signage:resume';
 const MUTE_STORAGE_KEY = 'SIGNAGE.muted';
-
-function isDebugEnabled(value: string | null) {
-    return value !== null && value !== 'false';
-}
 
 /**
  * Whether the global loading overlay is on top of the player. Checked from the

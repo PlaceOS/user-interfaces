@@ -26,15 +26,9 @@ describe('ExploreDeviceInfoComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show location and range', () => {
         expect('[name="dot"]').toExist();
-        spectator
-            .query('[shadow]')
-            .dispatchEvent(new MouseEvent('mouseenter'));
+        spectator.query('[shadow]').dispatchEvent(new MouseEvent('mouseenter'));
         spectator.detectChanges();
         expect('[name="radius"]').toExist();
     });

@@ -4,6 +4,7 @@ export * from './lib/asset-state.service';
 export * from './lib/asset.utilities';
 export * from './lib/assets.fn';
 export * from './lib/catering-assets.fn';
+export * from './lib/desk-assets.fn';
 export * from './lib/locker-assets.fn';
 export * from './lib/asset-select-modal/asset-select-modal.component';
 export * from './lib/parking-assets.fn';

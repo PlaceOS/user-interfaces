@@ -37,7 +37,17 @@ import { BookingFormService } from '../booking-form.service';
             filters
             class="border-base-300 bg-base-100 sticky -top-1 z-20 -mx-1 mb-4! flex w-[calc(100%+0.5rem)] flex-wrap items-center rounded-sm border p-1 pr-10! sm:pr-1!"
         >
-            <!-- TODO: filter chips -->
+            @if ((options()?.features || []).length > 1) {
+                <button
+                    btn
+                    matRipple
+                    name="clear-locker-filters"
+                    class="mr-2 mb-2 min-h-8"
+                    (click)="clearFeatures()"
+                >
+                    {{ 'COMMON.FILTERS_CLEAR' | translate }}
+                </button>
+            }
             <div filter-item date>{{ start() | date: 'mediumDate' }}</div>
             <div filter-item time>
                 {{ start() | date: time_format() }} &mdash;
@@ -98,6 +108,8 @@ export class LockerFiltersDisplayComponent {
     public readonly options = this._state.options;
     public readonly setOptions = (o) => this._state.setOptions(o);
     public readonly setFeature = (f, e) => this._state.setFeature(f, e);
+    public readonly clearFeatures = () =>
+        this._state.setOptions({ features: [] });
     private readonly _model = this._state.model;
 
     public readonly start = computed(() => this._model().date);

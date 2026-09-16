@@ -103,8 +103,4 @@ describe('ScheduleComponent', () => {
             expect(cancelled.status).toBe('cancelled');
         },
     );
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 });

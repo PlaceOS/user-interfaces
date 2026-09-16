@@ -51,9 +51,6 @@ describe('LockerFiltersDisplayComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should render the selected date and time range', () => {
         expect(spectator.query('[filter-item][date]')).toExist();
         expect(spectator.query('[filter-item][time]')).toExist();
@@ -81,6 +78,15 @@ describe('LockerFiltersDisplayComponent', () => {
             spectator.queryAll('button[name="remove-locker-filter"]')[0],
         );
         expect(set_feature).toHaveBeenCalledWith('charging', false);
+    });
+
+    it('should clear multiple feature filters at once', () => {
+        options.set({ features: ['charging', 'accessible'] });
+        spectator.detectChanges();
+
+        spectator.click('button[name="clear-locker-filters"]');
+
+        expect(set_options).toHaveBeenCalledWith({ features: [] });
     });
 
     it('should render a favourites chip and allow removing it', () => {

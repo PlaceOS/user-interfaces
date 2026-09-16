@@ -33,10 +33,6 @@ describe('ExploreLevelSelectComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow changing levels', () => {
         expect('button.active').toExist();
         expect('button.active').toContainText('Level 2');

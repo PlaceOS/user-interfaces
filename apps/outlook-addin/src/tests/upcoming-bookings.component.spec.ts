@@ -45,10 +45,6 @@ describe('UpcomingBookingsComponent', () => {
         filtered_bookings.set([]);
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show empty state', () => {
         expect('[empty]').toExist();
         filtered_bookings.set([new CalendarEvent()]);

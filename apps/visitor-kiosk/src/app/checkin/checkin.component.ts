@@ -1,10 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    DestroyRef,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 import { AuthenticatedImageDirective } from '@placeos/components';
@@ -32,7 +27,7 @@ import { startOfMinute } from 'date-fns';
             </div>
             @if (!hide_building_image()) {
                 <img
-                    src="assets/img/building.png"
+                    src="assets/img/building.webp"
                     class="absolute right-0 bottom-0 w-[60%] print:hidden"
                 />
             }

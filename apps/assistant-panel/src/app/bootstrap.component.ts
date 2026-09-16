@@ -48,6 +48,7 @@ const SYS_ID_KEY = 'PLACEOS.ASSISTANT.system';
                     </label>
                     <mat-form-field appearance="outline" class="w-full">
                         <input
+                            id="system-id"
                             matInput
                             [(ngModel)]="system_id"
                             [matAutocomplete]="auto"

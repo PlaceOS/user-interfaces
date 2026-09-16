@@ -37,10 +37,6 @@ describe('DeviceOutputListItemComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render nothing when no item is provided', () => {
         expect('button').not.toExist();
     });

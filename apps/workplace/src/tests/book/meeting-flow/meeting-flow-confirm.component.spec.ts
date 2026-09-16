@@ -4,8 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { createRoutingFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { EventFormService, SpacePipe } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
@@ -34,6 +34,7 @@ describe('MeetingFlowConfirmComponent', () => {
         date_end: now + 30 * 60 * 1000,
         duration: 30,
         all_day: false,
+        timezone: 'Australia/Perth',
         resources: [
             {
                 id: 'room-1',
@@ -94,7 +95,12 @@ describe('MeetingFlowConfirmComponent', () => {
                         address: '123 St',
                     },
                 ] as any,
+                regions: [],
                 building: { timezone: 'Australia/Sydney' } as any,
+                locationWithID: vi.fn(() => ({
+                    label: 'HQ Building / Level 1',
+                    building: { timezone: 'Australia/Sydney' },
+                })),
             } as any),
             MockProvider(SettingsService, {
                 get: vi.fn((k: string) => settings_config[k]),
@@ -114,6 +120,7 @@ describe('MeetingFlowConfirmComponent', () => {
         model.set(base_event());
         loading.set('');
         settings_config['app.events.use_building_timezone'] = false;
+        delete settings_config['app.events.multiple_spaces'];
         post_form.mockClear();
         post_form.mockResolvedValue(true);
         dismiss.mockClear();
@@ -157,7 +164,12 @@ describe('MeetingFlowConfirmComponent', () => {
 
     it('should report approval requirement from resources', async () => {
         const ev = base_event();
-        ev.resources[0].approval = true;
+        ev.resources.push({
+            ...ev.resources[0],
+            id: 'room-2',
+            email: 'room-2@x.com',
+            approval: true,
+        });
         model.set(ev);
         await init();
         expect(spectator.component.requires_approval).toBe(true);
@@ -244,5 +256,20 @@ describe('MeetingFlowConfirmComponent', () => {
         await init();
         expect(spectator.component.timezone).toBe('Australia/Sydney');
         expect(spectator.component.tz).toMatch(/[+-]\d{2}/);
+    });
+
+    it('should use the organiser timezone for multiple rooms', async () => {
+        settings_config['app.events.multiple_spaces'] = true;
+        settings_config['app.events.use_building_timezone'] = true;
+        await init();
+        expect(spectator.component.timezone).toBe('Australia/Perth');
+    });
+
+    it('should show the local time for a room in another timezone', async () => {
+        settings_config['app.events.multiple_spaces'] = true;
+        await init();
+
+        expect(spectator.component.roomTime(model().resources[0])).not.toBe('');
+        expect(spectator.query('[room-time]')).toExist();
     });
 });

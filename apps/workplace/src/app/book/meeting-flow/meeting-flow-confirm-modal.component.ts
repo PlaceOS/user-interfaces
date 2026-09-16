@@ -29,7 +29,7 @@ import {
     i18n,
     notifyError,
 } from '@placeos/common';
-import { EventFormService } from '@placeos/events';
+import { EventFormService, multipleSpacesEnabled } from '@placeos/events';
 
 import { MatChipsModule } from '@angular/material/chips';
 import { MatRippleModule } from '@angular/material/core';
@@ -37,7 +37,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     IconComponent,
-    LevelPipe,
     SanitizePipe,
     TranslatePipe,
     openConfirmModal,
@@ -119,19 +118,22 @@ import { SpacePipe } from '@placeos/events';
                     </div>
                     <div class="space-y-1 pl-10">
                         @for (s of event.resources; track s.email) {
-                            @let level = s.zones | level;
-                            <div class="flex items-center space-x-2">
+                            <div class="flex items-start space-x-2">
                                 <icon class="text-2xl">layers</icon>
-                                <div>
-                                    {{ level?.display_name || level?.name }},
-                                    {{ s.display_name || s.name }}
+                                <div class="flex flex-col">
+                                    <div>
+                                        {{ spaceLocation(s) }} /
+                                        {{ s.display_name || s.name }}
+                                    </div>
+                                    @if (roomTime(s); as room_time) {
+                                        <div
+                                            room-time
+                                            class="text-xs opacity-60"
+                                        >
+                                            {{ room_time }}
+                                        </div>
+                                    }
                                 </div>
-                            </div>
-                        }
-                        @if (location) {
-                            <div class="flex items-center space-x-2">
-                                <icon class="text-2xl">place</icon>
-                                <div>{{ location }}</div>
                             </div>
                         }
                     </div>
@@ -199,8 +201,18 @@ import { SpacePipe } from '@placeos/events';
                                             class="flex items-center space-x-2 p-3"
                                         >
                                             <div
-                                                class="flex flex-1 items-center space-x-2"
+                                                class="flex flex-1 flex-wrap items-center gap-x-2"
                                             >
+                                                <div
+                                                    class="mb-1 flex w-full items-center space-x-1 text-xs opacity-60"
+                                                >
+                                                    <icon class="text-lg"
+                                                        >meeting_room</icon
+                                                    >
+                                                    <span>{{
+                                                        cateringRoomLabel(order)
+                                                    }}</span>
+                                                </div>
                                                 <div class="text-sm">
                                                     {{
                                                         'CALENDAR_EVENT.CATERING_ORDER_AT'
@@ -477,7 +489,6 @@ import { SpacePipe } from '@placeos/events';
         MatRippleModule,
         SanitizePipe,
         MatTooltipModule,
-        LevelPipe,
         MatProgressSpinnerModule,
         MatChipsModule,
         MatDialogModule,
@@ -576,6 +587,9 @@ export class MeetingFlowConfirmModalComponent
     }
 
     public get timezone() {
+        if (multipleSpacesEnabled(this._settings)) {
+            return this.event.timezone || '';
+        }
         return this._settings.get('app.events.use_building_timezone')
             ? this._org.building.timezone
             : '';
@@ -584,7 +598,7 @@ export class MeetingFlowConfirmModalComponent
     public get tz() {
         const tz = this.timezone;
         if (!tz) return '';
-        return getTimezoneOffsetString(tz);
+        return getTimezoneOffsetString(tz, new Date(this.event.date));
     }
 
     public get end_time() {
@@ -603,6 +617,48 @@ export class MeetingFlowConfirmModalComponent
 
     public get level() {
         return this._org.levelWithID(this.space.zones);
+    }
+
+    /** Get the region, building and level label for a room. */
+    public spaceLocation(space: Space) {
+        return this._org.locationWithID(space.zones).label;
+    }
+
+    public cateringRoomLabel(order: CateringOrder) {
+        if (!order.system_id) {
+            return i18n('CALENDAR_EVENT.ROOM_REQUIRED');
+        }
+        const room = this.event.resources.find(
+            (space) =>
+                space.id === order.system_id || space.email === order.system_id,
+        );
+        if (!room) return i18n('CALENDAR_EVENT.ROOM_REQUIRED');
+        return [this.spaceLocation(room), room.display_name || room.name]
+            .filter((_) => !!_)
+            .join(' / ');
+    }
+
+    /** Format a room's local time when it differs from the organiser's. */
+    public roomTime(space: Space): string {
+        if (!multipleSpacesEnabled(this._settings) || this.event.all_day) {
+            return '';
+        }
+        const room_timezone = this._org.locationWithID(space.zones).building
+            ?.timezone;
+        const user_timezone =
+            this.event.timezone ||
+            Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (!room_timezone || !user_timezone) return '';
+        try {
+            const date = new Date(this.event.date);
+            const room_offset = getTimezoneOffsetString(room_timezone, date);
+            const user_offset = getTimezoneOffsetString(user_timezone, date);
+            return room_offset === user_offset
+                ? ''
+                : this.formattedTime(room_offset);
+        } catch {
+            return '';
+        }
     }
 
     public get location() {
@@ -652,9 +708,15 @@ export class MeetingFlowConfirmModalComponent
             (await this._space_pipe.transform(
                 this.event.resources[0]?.email,
             )) || this._space;
+        const original_space_ids = new Set(
+            this._event_form.event?.resources?.map((space) => space.id) || [],
+        );
         const changed_spaces =
             !this._event_form.event ||
-            this.event.resources[0]?.id !== this._event_form.event?.space?.id;
+            original_space_ids.size !== this.event.resources.length ||
+            this.event.resources.some(
+                (space) => !original_space_ids.has(space.id),
+            );
         const changed_times =
             !this._event_form.event ||
             this.event.date !== this._event_form.event.date ||

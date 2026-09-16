@@ -139,11 +139,7 @@ export class AuthorisedUserGuard {
     }
 
     private async waitForBackend(promise: Promise<unknown>) {
-        if (this._settings.get('app.offline_boot')) {
-            return resolvedWithin(promise, OFFLINE_FALLBACK_DELAY);
-        }
-        await promise;
-        return true;
+        return resolvedWithin(promise, OFFLINE_FALLBACK_DELAY);
     }
 
     /**

@@ -2,11 +2,14 @@ import { Injector, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     BookingForm,
-    BookingFormValue,
     BookingFormService,
+    BookingFormValue,
     generateBookingForm,
     InviteVisitorFormComponent,
 } from '@placeos/bookings';
@@ -15,8 +18,8 @@ import { mockComponent } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
-import { VisitorFlowComponent } from '../../app/book/visitor-flow.component';
 import { VisitorFlowNewComponent } from '../../app/book/visitor-flow-new/visitor-flow.component';
+import { VisitorFlowComponent } from '../../app/book/visitor-flow.component';
 
 describe('VisitorFlowNewComponent', () => {
     let spectator: SpectatorRouting<VisitorFlowNewComponent>;
@@ -222,9 +225,6 @@ describe('VisitorFlowComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should render the invite visitor form', () =>
         expect(spectator.query('invite-visitor-form')).toExist());

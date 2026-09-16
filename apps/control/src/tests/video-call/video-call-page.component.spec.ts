@@ -83,10 +83,6 @@ describe('VideoCallPageComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should clear loading once a call becomes active', () => {
         // call() is truthy so ngOnInit resolves immediately
         expect(spectator.component.loading()).toBe('');

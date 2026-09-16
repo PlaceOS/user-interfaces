@@ -15,10 +15,6 @@ describe('CateringImportMenuModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should allow downloading the template', () => {
         // Stub the implementation so the real file download (an anchor click
         // that jsdom tries to navigate) does not fire; we only assert wiring.

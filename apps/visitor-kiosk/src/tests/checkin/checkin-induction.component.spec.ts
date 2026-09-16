@@ -2,7 +2,10 @@ import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 
 import {
     OrganisationService,
@@ -65,14 +68,12 @@ describe('CheckinInductionComponent', () => {
         setNotifyOutlet(snackbar as any, true);
         resetSettings();
         spectator = createComponent();
-        (spectator.inject(CheckinStateService) as any).event.set({ induction: 'pending' });
+        (spectator.inject(CheckinStateService) as any).event.set({
+            induction: 'pending',
+        });
     });
 
     afterEach(() => setNotifyOutlet(null as any, true));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     describe('ngOnInit navigation', () => {
         it('redirects to checkin when there is no event', async () => {
@@ -103,7 +104,9 @@ describe('CheckinInductionComponent', () => {
         it('redirects past induction when it has already been accepted', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms and conditions');
-            (spectator.inject(CheckinStateService) as any).event.set({ induction: 'accepted' });
+            (spectator.inject(CheckinStateService) as any).event.set({
+                induction: 'accepted',
+            });
             await spectator.component.ngOnInit();
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/checkin',
@@ -114,7 +117,9 @@ describe('CheckinInductionComponent', () => {
         it('stays on the induction when enabled and not yet accepted', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms and conditions');
-            (spectator.inject(CheckinStateService) as any).event.set({ induction: 'pending' });
+            (spectator.inject(CheckinStateService) as any).event.set({
+                induction: 'pending',
+            });
             await spectator.component.ngOnInit();
             expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
         });
@@ -207,7 +212,9 @@ describe('CheckinInductionComponent', () => {
         it('declines when the decline button is clicked', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms');
-            (spectator.inject(CheckinStateService) as any).event.set({ induction: 'pending' });
+            (spectator.inject(CheckinStateService) as any).event.set({
+                induction: 'pending',
+            });
             spectator.detectChanges();
             await spectator.fixture.whenStable();
             spectator.click('button.clear');

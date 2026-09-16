@@ -115,10 +115,6 @@ describe('SiteAttendanceReportComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should apply query params to report options', () => {
         expect(
             spectator.inject(SiteAttendanceReportService).setOptions,

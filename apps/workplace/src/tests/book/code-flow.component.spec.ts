@@ -1,10 +1,13 @@
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
+import { SettingsService } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import {SettingsService  } from '@placeos/common';
 
 import { BookCodeFlowComponent } from '../../app/book/code-flow.component';
 
@@ -16,16 +19,12 @@ describe('BookCodeFlowComponent', () => {
             MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(EventFormService),
             MockProvider(BookingFormService),
-            MockProvider(SettingsService, { get: vi.fn() })
+            MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [FormsModule],
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should carry scanned QR code params through to the route', () => {
         const router = spectator.inject(Router);

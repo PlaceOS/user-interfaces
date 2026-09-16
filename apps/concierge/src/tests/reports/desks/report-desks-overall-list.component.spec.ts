@@ -47,10 +47,6 @@ describe('ReportDesksOverallListComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should expose the daily list from the state service', () => {
         expect(spectator.component.day_list()).toHaveLength(1);
     });

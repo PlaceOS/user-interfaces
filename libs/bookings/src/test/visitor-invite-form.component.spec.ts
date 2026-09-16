@@ -24,8 +24,6 @@ import { BookingFormService } from '../lib/booking-form.service';
 import { generateBookingForm } from '../lib/booking.utilities';
 import { VisitorInviteFormComponent } from '../lib/visitor-invite-form.component';
 
-const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 describe('VisitorInviteFormComponent', () => {
     let spectator: SpectatorRouting<VisitorInviteFormComponent>;
     const createComponent = createRoutingFactory({

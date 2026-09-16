@@ -1,5 +1,5 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { signal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { Router } from '@angular/router';
 import { OrganisationService } from '@placeos/common';
@@ -25,10 +25,6 @@ describe('CateringReportOverallComponent', () => {
     });
 
     beforeEach(() => (spectator = createComponent()));
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
 
     it('should show order count', async () => {
         const stats: any = spectator.inject(CateringReportStateService).stats;

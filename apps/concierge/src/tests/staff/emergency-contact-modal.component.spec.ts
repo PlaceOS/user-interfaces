@@ -1,7 +1,11 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { OrganisationService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import {
+    OrganisationService,
+    setCurrentUser,
+    StaffUser,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { EmergencyContactModalComponent } from '../../app/staff/emergency-contact-modal.component';
@@ -47,6 +51,7 @@ describe('EmergencyContactModalComponent', () => {
     });
 
     beforeEach(() => {
+        setCurrentUser(new StaffUser({ groups: ['placeos_admin'] }));
         service.addRole.mockClear();
         service.saveContact.mockClear();
         service.saveContact.mockResolvedValue(true);
@@ -56,6 +61,18 @@ describe('EmergencyContactModalComponent', () => {
             providers: [{ provide: MatDialogRef, useValue: dialog_ref }],
         });
         (spectator.component as any)._tooltip = () => ({ close: vi.fn() });
+    });
+
+    it.each([
+        ['staff', false],
+        ['admin', false],
+        ['placeos_support', true],
+        ['placeos_admin', true],
+    ])('should restrict role creation for %s', (group, allowed) => {
+        setCurrentUser(new StaffUser({ groups: [group] }));
+        spectator.detectChanges();
+        expect(spectator.component.can_manage_roles()).toBe(allowed);
+        expect(!!spectator.query('button[customTooltip]')).toBe(allowed);
     });
 
     it('should seed the model from the provided contact', () => {

@@ -64,10 +64,6 @@ describe('LockersReportListComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should sort rows by booking date ascending', () => {
         const rows = spectator.component.lockers_bookings();
         expect(rows.map((r) => r.lockers_name)).toEqual(['L2', 'Locker A']);

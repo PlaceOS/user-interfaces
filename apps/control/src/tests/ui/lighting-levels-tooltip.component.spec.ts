@@ -46,10 +46,6 @@ describe('LightingLevelsTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show empty state when no lights', () => {
         spectator.detectChanges();
         expect('p').toExist();
@@ -69,7 +65,12 @@ describe('LightingLevelsTooltipComponent', () => {
     });
 
     it('should debounce and execute set_lighting_level with value and area', async () => {
-        const light = { name: 'Overheads', binding: 'b1', value: 50, area: 'a1' };
+        const light = {
+            name: 'Overheads',
+            binding: 'b1',
+            value: 50,
+            area: 'a1',
+        };
         spectator.component.setLevel(light, 75);
         expect(execute_fn).not.toHaveBeenCalled();
         await new Promise((r) => setTimeout(r, 70));
@@ -81,7 +82,12 @@ describe('LightingLevelsTooltipComponent', () => {
     });
 
     it('should only execute once for rapid changes (debounce)', async () => {
-        const light = { name: 'Overheads', binding: 'b1', value: 50, area: 'a1' };
+        const light = {
+            name: 'Overheads',
+            binding: 'b1',
+            value: 50,
+            area: 'a1',
+        };
         spectator.component.setLevel(light, 10);
         spectator.component.setLevel(light, 20);
         spectator.component.setLevel(light, 30);

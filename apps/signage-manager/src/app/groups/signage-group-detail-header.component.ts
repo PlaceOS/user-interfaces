@@ -18,7 +18,7 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                     icon
                     matRipple
                     type="button"
-                    class="sm:hidden"
+                    class="desktop-hidden"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.BACK_TO_GROUPS' | translate
                     "

@@ -24,10 +24,6 @@ describe('SimpleTableComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render headers and rows from the given data', () => {
         spectator.setInput({ columns: COLUMNS, data: DATA });
         expect('#column-name').toContainText('Name');

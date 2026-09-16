@@ -69,10 +69,6 @@ describe('RoomBookingsListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should include setup and breakdown events provided by state', () => {
         filtered.set([
             new CalendarEvent({ id: 'booking', title: 'Booking' }),

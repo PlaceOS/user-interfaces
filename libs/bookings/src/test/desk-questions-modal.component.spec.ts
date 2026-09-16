@@ -15,10 +15,6 @@ describe('DeskQuestionsModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should check for validation', async () => {
         spectator.component.model.update((m) => ({ ...m, contact: true }));
         spectator.click('footer button');

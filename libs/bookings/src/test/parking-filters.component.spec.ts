@@ -1,4 +1,3 @@
-import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -9,6 +8,7 @@ import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { SettingsService } from '@placeos/common';
 import { BuildingPipe } from 'libs/components/src/lib/building.pipe';
@@ -22,7 +22,11 @@ import { ParkingFiltersComponent } from '../lib/parking-select-modal/parking-fil
 
 describe('ParkingFiltersComponent', () => {
     let spectator: Spectator<ParkingFiltersComponent>;
-    const options = signal<any>({ zone_id: 'lvl-a', show_fav: false, features: [] });
+    const options = signal<any>({
+        zone_id: 'lvl-a',
+        show_fav: false,
+        features: [],
+    });
     const features = signal<string[]>(['EV', 'Accessible']);
     const model = signal<any>({
         date: new Date(2026, 5, 15, 9, 0, 0, 0).valueOf(),
@@ -41,20 +45,46 @@ describe('ParkingFiltersComponent', () => {
     };
 
     const levels = [
-        { id: 'lvl-b', parent_id: 'bld-1', display_name: 'B', name: 'B', tags: ['parking'] },
-        { id: 'lvl-a', parent_id: 'bld-1', display_name: 'A', name: 'A', tags: ['parking'] },
-        { id: 'lvl-c', parent_id: 'bld-1', display_name: 'C', name: 'C', tags: ['desks'] },
+        {
+            id: 'lvl-b',
+            parent_id: 'bld-1',
+            display_name: 'B',
+            name: 'B',
+            tags: ['parking'],
+        },
+        {
+            id: 'lvl-a',
+            parent_id: 'bld-1',
+            display_name: 'A',
+            name: 'A',
+            tags: ['parking'],
+        },
+        {
+            id: 'lvl-c',
+            parent_id: 'bld-1',
+            display_name: 'C',
+            name: 'C',
+            tags: ['desks'],
+        },
     ];
     const org_mock: any = {
         active_buildings: signal([
             { id: 'bld-1', display_name: 'Building One', name: 'bld-1' },
             { id: 'bld-2', display_name: 'Building Two', name: 'bld-2' },
         ]),
-        active_building: signal({ id: 'bld-1', display_name: 'Building One', name: 'bld-1' }),
+        active_building: signal({
+            id: 'bld-1',
+            display_name: 'Building One',
+            name: 'bld-1',
+        }),
         region_list: signal([
             { id: 'reg-1', display_name: 'Region One', name: 'reg-1' },
         ]),
-        active_region: signal({ id: 'reg-1', display_name: 'Region One', name: 'reg-1' }),
+        active_region: signal({
+            id: 'reg-1',
+            display_name: 'Region One',
+            name: 'reg-1',
+        }),
         levelsForRegion: vi.fn(() => levels),
         levelsForBuilding: vi.fn(() => levels),
         building: null,
@@ -94,10 +124,6 @@ describe('ParkingFiltersComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the filters heading', () => {
         expect(spectator.query('h3')).toContainText('COMMON.FILTERS');
     });
@@ -129,9 +155,9 @@ describe('ParkingFiltersComponent', () => {
     it('should render favourites and feature sections by default', () => {
         expect(spectator.query('section[favs]')).toExist();
         expect(spectator.query('section[features]')).toExist();
-        expect(spectator.queryAll('section[features] mat-checkbox').length).toBe(
-            2,
-        );
+        expect(
+            spectator.queryAll('section[features] mat-checkbox').length,
+        ).toBe(2);
     });
 
     it('should hide level, favourite and feature sections when levels are hidden', () => {

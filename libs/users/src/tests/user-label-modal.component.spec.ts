@@ -35,9 +35,6 @@ describe('UserLabelModalComponent', () => {
 
     afterEach(() => localStorage.clear());
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should default the label dimensions', () => {
         expect(spectator.component.scale()).toBe(4);
         expect(spectator.component.width()).toBe(25);

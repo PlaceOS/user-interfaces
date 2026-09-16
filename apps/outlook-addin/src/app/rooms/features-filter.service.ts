@@ -1,6 +1,12 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Space } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
+
+interface RoomFeatureFilter {
+    readonly id: string;
+    readonly name: string;
+    value: boolean;
+}
 
 @Injectable({
     providedIn: 'root',
@@ -9,11 +15,13 @@ export class FeaturesFilterService {
     private _state = inject(EventFormService);
 
     public readonly spaces = this._state.available_spaces;
-    public readonly updated_spaces = signal<Space[]>([]);
-    public readonly updated_spaces_applied = signal(false);
-    public readonly selected_features = signal<any[]>(null);
+    public readonly selected_features = signal<RoomFeatureFilter[]>([]);
+    public readonly show_favourites = signal(false);
 
-    public readonly room_features: any[] = [
+    private readonly _applied_features = signal<string[]>([]);
+    private readonly _applied_show_favourites = signal(false);
+
+    public readonly room_features: RoomFeatureFilter[] = [
         { name: 'Video Conference (VC)', id: 'VidConf', value: false },
         { name: 'Conference Phone', id: 'ConfPhone', value: false },
         { name: 'Wireless Content Sharing', id: 'Wireless', value: false },
@@ -24,41 +32,43 @@ export class FeaturesFilterService {
         { name: 'Views', id: 'Views', value: false },
     ];
 
-    public readonly features = signal<any[]>(this.room_features);
+    public readonly features = signal<RoomFeatureFilter[]>(this.room_features);
+    public readonly filtered_spaces = computed(() => {
+        const selected_features = this._applied_features();
+        const favourite_spaces = this._applied_show_favourites()
+            ? this._state.favorite_spaces
+            : null;
+        return this.spaces().filter((space: Space) => {
+            const features = space.feature_list?.length
+                ? space.feature_list
+                : space.features || [];
+            return (
+                (!favourite_spaces || favourite_spaces.includes(space.id)) &&
+                selected_features.every((feature) => features.includes(feature))
+            );
+        });
+    });
 
     getSelectedFeatures() {
         this.selected_features.set(
-            this.features().filter((item) => item.value == true),
+            this.features().filter((item) => item.value),
         );
     }
 
     applyFilter() {
-        const requested_features = this.sortSelectedFeatures(
-            this.selected_features() || [],
+        this.getSelectedFeatures();
+        this._applied_features.set(
+            this.selected_features().map((item) => item.id),
         );
-        this.updated_spaces.set(
-            this.spaces().filter((space: Space) =>
-                this._sort_and_join(space.feature_list).includes(
-                    requested_features,
-                ),
-            ),
-        );
-        this.updated_spaces_applied.set(true);
-    }
-
-    _sort_and_join(array: string[]): string {
-        return array?.sort().join();
-    }
-
-    sortSelectedFeatures(array: any[]) {
-        const features_array = array?.map((item) => item.id);
-        return this._sort_and_join(features_array);
+        this._applied_show_favourites.set(this.show_favourites());
     }
 
     clearFilter() {
-        this.selected_features.set(null);
-        this.room_features?.forEach((feature) => (feature.value = false));
+        this.selected_features.set([]);
+        this.show_favourites.set(false);
+        this._applied_features.set([]);
+        this._applied_show_favourites.set(false);
+        this.room_features.forEach((feature) => (feature.value = false));
         this.features.set([...this.room_features]);
-        this.updated_spaces_applied.set(false);
     }
 }

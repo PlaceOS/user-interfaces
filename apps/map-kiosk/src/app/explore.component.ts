@@ -19,7 +19,6 @@ import {
     RouterModule,
 } from '@angular/router';
 import {
-    ANIMATION_SHOW_CONTRACT_EXPAND,
     AsyncHandler,
     flatten,
     log,
@@ -160,7 +159,10 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                                 : 'keyboard_arrow_down'
                         }}</icon>
                     </button>
-                    <div class="px-8" [@show]="show_levels() ? 'show' : 'hide'">
+                    <div
+                        class="contract-expand px-8"
+                        [class.contract-collapsed]="!show_levels()"
+                    >
                         <div class="space-y-2 py-4">
                             @for (lvl of levels(); track lvl) {
                                 <button
@@ -194,7 +196,10 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                                 : 'keyboard_arrow_down'
                         }}</icon>
                     </button>
-                    <div class="px-8" [@show]="show_legend() ? 'show' : 'hide'">
+                    <div
+                        class="contract-expand px-8"
+                        [class.contract-collapsed]="!show_legend()"
+                    >
                         <div class="space-y-2 py-4">
                             @for (value of legend; track value) {
                                 <div
@@ -230,8 +235,8 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
                     }}</icon>
                 </button>
                 <div
-                    class="px-8"
-                    [@show]="show_accessibility() ? 'show' : 'hide'"
+                    class="contract-expand px-8"
+                    [class.contract-collapsed]="!show_accessibility()"
                 >
                     <div class="space-y-2 py-4">
                         <accessibility-controls></accessibility-controls>
@@ -284,7 +289,6 @@ import { AccessibilityControlsComponent } from './accessibility-controls.compone
         ExploreParkingService,
         SpacePipe,
     ],
-    animations: [ANIMATION_SHOW_CONTRACT_EXPAND],
     imports: [
         AccessibilityControlsComponent,
         MatRippleModule,

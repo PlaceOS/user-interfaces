@@ -2,15 +2,13 @@
 
 The Control app is the AV / room control interface, typically shown on an in-room touch panel. It provides controls for the room's displays, sources, lighting, microphones, cameras, calls and room joining.
 
-Settings are configured in Backoffice as Zone metadata under the `app` metadata key. Values you set on a zone are merged over the application's build-time defaults, so you only need to define the settings you want to change. Settings on more specific zones (e.g. a building) override the same settings on broader zones (e.g. the organisation).
+Set settings in Backoffice zone metadata under `control_app` for the standard `/control/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
-All keys below live under the `app` metadata key — for example, the key `logo_light` means:
+For example, the key `logo_light` means:
 
 ```json
 {
-    "app": {
-        "logo_light": "https://example.com/logo.svg"
-    }
+    "logo_light": "https://example.com/logo.svg"
 }
 ```
 
@@ -40,10 +38,8 @@ Logo settings accept either a plain image URL string or an icon object:
 
 ```json
 {
-    "app": {
-        "logo_light": { "type": "img", "src": "https://example.com/logo.svg" },
-        "logo_dark": { "type": "img", "src": "https://example.com/logo-dark.svg" }
-    }
+    "logo_light": { "type": "img", "src": "https://example.com/logo.svg" },
+    "logo_dark": { "type": "img", "src": "https://example.com/logo-dark.svg" }
 }
 ```
 
@@ -61,10 +57,8 @@ Example:
 
 ```json
 {
-    "app": {
-        "support_contact": "the AV Service Desk",
-        "support_email": "av-support@example.com",
-        "support_phone": "+61 2 9123 4567"
-    }
+    "support_contact": "the AV Service Desk",
+    "support_email": "av-support@example.com",
+    "support_phone": "+61 2 9123 4567"
 }
 ```

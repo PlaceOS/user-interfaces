@@ -56,11 +56,11 @@ describe('ChargeCodeListModalComponent', () => {
 
     afterEach(() => setNotifyOutlet(null, true));
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should load charge codes from state on init', () => {
-        expect(spectator.component.charge_codes()).toEqual(['CODE-1', 'CODE-2']);
+        expect(spectator.component.charge_codes()).toEqual([
+            'CODE-1',
+            'CODE-2',
+        ]);
     });
 
     it('should append a new empty code', () => {
@@ -127,7 +127,10 @@ describe('ChargeCodeListModalComponent', () => {
             target: { files: [file], value: 'codes.txt' },
         });
         expect(notify_open).toHaveBeenCalled();
-        expect(spectator.component.charge_codes()).toEqual(['CODE-1', 'CODE-2']);
+        expect(spectator.component.charge_codes()).toEqual([
+            'CODE-1',
+            'CODE-2',
+        ]);
     });
 
     it('should import unique codes from a CSV file', async () => {

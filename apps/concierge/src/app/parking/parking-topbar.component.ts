@@ -70,26 +70,17 @@ import {
                 (modelChange)="setSearch($event)"
             ></searchbar>
             @if (view() === 'spaces') {
-                <div
-                    [matTooltip]="
-                        options().zones?.length
-                            ? ''
-                            : 'Select a level to add a space'
-                    "
+                <button
+                    btn
+                    matRipple
+                    class="w-40 space-x-2"
+                    (click)="newParkingSpace()"
                 >
-                    <button
-                        btn
-                        matRipple
-                        class="w-40 space-x-2"
-                        (click)="newParkingSpace()"
-                        [disabled]="!options().zones?.length"
-                    >
-                        <div class="pl-2">
-                            {{ 'APP.CONCIERGE.PARKING_SPACE_ADD' | translate }}
-                        </div>
-                        <icon>add</icon>
-                    </button>
-                </div>
+                    <div class="pl-2">
+                        {{ 'APP.CONCIERGE.PARKING_SPACE_ADD' | translate }}
+                    </div>
+                    <icon>add</icon>
+                </button>
             }
             @if (view() === 'users') {
                 <button
@@ -212,12 +203,7 @@ import {
                             [disabled]="
                                 disable_level_selector_on_booking_list()
                             "
-                            [placeholder]="
-                                (section() === 'manage'
-                                    ? 'COMMON.LEVEL_SELECT'
-                                    : 'COMMON.LEVEL_ALL'
-                                ) | translate
-                            "
+                            [placeholder]="'COMMON.LEVEL_ALL' | translate"
                             multiple
                         >
                             @for (level of levels(); track level) {
@@ -788,24 +774,6 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         ) {
             this.updateZones([]);
         }
-        this.selectDefaultZoneForManage();
-    }
-
-    private async selectDefaultZoneForManage() {
-        if (
-            this.section() !== 'manage' ||
-            this.use_region ||
-            this.zones().length
-        ) {
-            return;
-        }
-        const levels = this.levels();
-        if (!levels.length) return;
-        const persisted = loadPersistedZones(
-            'parking-manage',
-            this._persistScopeId(),
-        ).filter((zone) => levels.find((lvl) => lvl.id === zone));
-        this.updateZones(persisted.length ? persisted : [levels[0].id]);
     }
 
     private _sameZones(first: string[], second: string[]) {

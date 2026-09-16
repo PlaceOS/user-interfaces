@@ -1,5 +1,9 @@
 import { Clipboard } from '@angular/cdk/clipboard';
-import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     CalendarEvent,
@@ -7,12 +11,12 @@ import {
     setCurrentUser,
     settingSignal,
 } from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
 import { MockDirective, MockProvider } from 'ng-mocks';
-import * as ts_client from '@placeos/ts-client';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 import { GroupEventDetailsModalComponent } from '../lib/group-event-details-modal.component';
 
@@ -86,9 +90,6 @@ describe('GroupEventDetailsModalComponent', () => {
         } as any);
         spectator = createComponent();
     });
-
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
 
     it('should flag featured events', () =>
         expect(spectator.component.featured()).toBe(true));

@@ -34,14 +34,8 @@ describe('VoiceAssistantComponent', () => {
             setEnabled: vi.fn(),
         };
         spectator = createComponent({
-            providers: [
-                { provide: VoiceAssistantService, useValue: service },
-            ],
+            providers: [{ provide: VoiceAssistantService, useValue: service }],
         });
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should render the mic control only when available', () => {

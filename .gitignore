@@ -4,6 +4,8 @@
 .worktrees/*
 !.worktrees/.gitkeep
 config/testers*
+.playwright-cli
+output
 
 # compiled output
 /dist
@@ -75,3 +77,8 @@ refs
 .claude/settings.local.json
 
 .nx/polygraph
+
+.nx/migrate-runs
+
+.testers
+.reviewers

@@ -98,9 +98,6 @@ describe('DeskMapComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should compute levels excluding parking levels', () => {
         const level_ids = spectator.component.levels().map((l) => l.id);
         expect(level_ids).toEqual(['lvl-1', 'lvl-2']);
@@ -134,10 +131,7 @@ describe('DeskMapComponent', () => {
     });
 
     it('should build map actions from the available resources', () => {
-        available_resources.set([
-            { id: 'd1', map_id: 'm1' },
-            { id: 'd2' },
-        ]);
+        available_resources.set([{ id: 'd1', map_id: 'm1' }, { id: 'd2' }]);
         spectator.detectChanges();
         const actions = spectator.component.actions();
         expect(actions.map((a) => a.id)).toEqual(['m1', 'd2']);

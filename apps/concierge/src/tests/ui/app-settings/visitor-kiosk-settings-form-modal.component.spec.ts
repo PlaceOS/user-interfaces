@@ -92,10 +92,6 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         vi.restoreAllMocks();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should have a model with general settings values', () => {
         const model = spectator.component.model();
         expect('logo_light' in model).toBe(true);

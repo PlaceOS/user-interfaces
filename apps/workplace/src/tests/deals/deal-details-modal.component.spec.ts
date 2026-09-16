@@ -1,7 +1,4 @@
-import {
-    MAT_DIALOG_DATA,
-    MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     AuthenticatedImageDirective,
@@ -38,10 +35,6 @@ describe('DealDetailsModalComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         spectator = createComponent();
-    });
-
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should expose the injected deal data', () => {

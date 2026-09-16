@@ -2,7 +2,7 @@
 
 The Enrolment app is a self-service check-in page for visitors. Guests open a personalised link from their invitation email (containing a `uid` access token), and the app loads their event details and guest profile so they can confirm or update their details — name, email, organisation, phone, accessibility assistance, beverage preference and file attachments — accept the terms and conditions, and check in to their visit.
 
-Settings for the app are configured in Backoffice as Zone metadata under the `app` metadata key. Values you set there are merged over the app's build-time defaults, so you only need to define the settings you want to change. Settings can also be provided on the domain in Backoffice, under the `enrolment` key of the domain's config — these are applied as overrides when the app starts.
+The app reads zone settings under `enrolment_app` for the standard `/enrolment/` URL. It also applies the domain config `enrolment` object as a replacement override list during startup. Later zone loads can replace that list. Do not rely on a fixed priority between these two sources. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show values for the domain config `enrolment` object or zone metadata details, without an `app` wrapper.
 
 ## General
 
@@ -23,10 +23,8 @@ Settings for the app are configured in Backoffice as Zone metadata under the `ap
 
 ```json
 {
-    "app": {
-        "guests": {
-            "vaccine_check": true
-        }
+    "guests": {
+        "vaccine_check": true
     }
 }
 ```
@@ -44,11 +42,9 @@ Example — use your own hosted logo:
 
 ```json
 {
-    "app": {
-        "logo_dark": {
-            "type": "img",
-            "src": "https://example.com/assets/company-logo.svg"
-        }
+    "logo_dark": {
+        "type": "img",
+        "src": "https://example.com/assets/company-logo.svg"
     }
 }
 ```
@@ -70,12 +66,10 @@ The `banner` object:
 
 ```json
 {
-    "app": {
-        "banner": {
-            "id": "maintenance-2026-07",
-            "type": "warn",
-            "content": "Check-in will be unavailable this Saturday between 8pm and 10pm."
-        }
+    "banner": {
+        "id": "maintenance-2026-07",
+        "type": "warn",
+        "content": "Check-in will be unavailable this Saturday between 8pm and 10pm."
     }
 }
 ```

@@ -13,6 +13,7 @@ import {
     bulkMetadata,
     getModule,
     isMock,
+    isOnline,
     onlineState,
     queryZones,
     showMetadata,
@@ -38,16 +39,24 @@ const log = scoped_log('ORG');
 const ORG_CACHE_PREFIX = 'PLACEOS.org';
 const ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
 const AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
-/** How long `app.offline_boot` waits to be online before using cached data */
+/** How long startup waits to be online before trying cached data */
 const OFFLINE_BOOT_DELAY = 10 * 1000;
 /** How long zone loading may remain incomplete before reloading the app */
 const ZONE_LOAD_TIMEOUT = 30 * 1000;
+const GEOLOCATION_TIMEOUT = 10 * 1000;
 const METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
 /** Cached data older than this is discarded instead of being displayed */
 const MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1000;
 interface CachedAuthority {
     id: string;
     metadata_cache_id: string;
+}
+
+export interface OrganisationLocation {
+    level?: BuildingLevel;
+    building?: Building;
+    region?: Region;
+    label: string;
 }
 
 /**
@@ -106,6 +115,33 @@ export class OrganisationService {
         new Building({ name: 'Unknown' }),
     );
     private readonly _level_list = signal<BuildingLevel[]>([]);
+    private readonly _regions_by_id = computed(
+        () =>
+            new Map(
+                this._region_list().map((region): [string, Region] => [
+                    region.id,
+                    region,
+                ]),
+            ),
+    );
+    private readonly _buildings_by_id = computed(
+        () =>
+            new Map(
+                this._building_list().map((building): [string, Building] => [
+                    building.id,
+                    building,
+                ]),
+            ),
+    );
+    private readonly _levels_by_id = computed(
+        () =>
+            new Map(
+                this._level_list().map((level): [string, BuildingLevel] => [
+                    level.id,
+                    level,
+                ]),
+            ),
+    );
     private _loaded_data: Record<string, boolean> = {};
     /** Whether any cached data was used during the initial load */
     private _served_cache = false;
@@ -301,7 +337,7 @@ export class OrganisationService {
 
     /** Get building by id */
     public find(id: string) {
-        return this.buildings.find((i) => i.id === id);
+        return this._buildings_by_id().get(id);
     }
 
     /** List of available levels */
@@ -316,18 +352,13 @@ export class OrganisationService {
     constructor() {
         const online_state = onlineState();
         const online = waitForSignal(online_state, (_) => _);
-        // Startup normally waits to be online before loading anything. A fixed
-        // device with no network never gets there, so it never even tries its
-        // cached copy - and everything waiting on `initialised` waits forever.
-        // Where an app opts in, fall back to starting from cache instead.
-        const start = this._service.get('app.offline_boot')
-            ? Promise.race([
-                  online,
-                  new Promise((resolve) =>
-                      setTimeout(resolve, OFFLINE_BOOT_DELAY),
-                  ),
-              ])
-            : online;
+        // Waiting forever prevents the loading UI and route guards from
+        // recovering. After a short wait, try the cache and let the normal
+        // request retry path handle a missing cache.
+        const start = Promise.race([
+            online,
+            new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY)),
+        ]);
         start.then(() => this._scheduleInit());
         // A zone request can remain pending when authentication is interrupted.
         // Start a fresh load when authentication brings the client online again.
@@ -383,7 +414,46 @@ export class OrganisationService {
      * @param id_list List of IDs to find a match
      */
     public levelWithID(id_list: string[]): BuildingLevel {
-        return this.levels.find((lvl) => id_list?.includes(lvl.id));
+        for (const id of id_list || []) {
+            const level = this._levels_by_id().get(id);
+            if (level) return level;
+        }
+        return undefined;
+    }
+
+    /** Get the organisation location represented by a list of zone IDs. */
+    public locationWithID(id_list: string[]): OrganisationLocation {
+        const level = this.levelWithID(id_list);
+        const building =
+            this._buildingWithID(id_list) ||
+            this._buildings_by_id().get(level?.parent_id);
+        const region = this._regions_by_id().get(building?.parent_id);
+        const label = [region, building, level]
+            .map((_) => _?.display_name || _?.name)
+            .filter((_) => !!_)
+            .join(' / ');
+        return { level, building, region, label };
+    }
+
+    /** Load and return every building represented by the zone ID lists. */
+    public async loadBuildingsForZones(
+        zone_lists: string[][],
+    ): Promise<Building[]> {
+        const find_buildings = () =>
+            unique(
+                zone_lists
+                    .map((zones) => this._buildingWithID(zones))
+                    .filter((building): building is Building => !!building),
+                'id',
+            );
+        let buildings = find_buildings();
+        const has_missing_building = () =>
+            zone_lists.some((zones) => !this._buildingWithID(zones));
+        if (has_missing_building()) {
+            await this._loadAllBuildings();
+            buildings = find_buildings();
+        }
+        return buildings;
     }
 
     /**
@@ -411,14 +481,23 @@ export class OrganisationService {
      * @param region Region to list levels for
      */
     public levelsForRegion(region: Region = this.region): BuildingLevel[] {
-        const bld_list = this.buildingsForRegion(region);
+        const building_ids = new Set(
+            this.buildingsForRegion(region).map(({ id }) => id),
+        );
         return this._sortLevels(
             this.levels.filter(
-                (lvl) =>
-                    lvl.parent_id &&
-                    bld_list.find((bld) => bld.id === lvl.parent_id),
+                (lvl) => lvl.parent_id && building_ids.has(lvl.parent_id),
             ),
         );
+    }
+
+    /** Get the first building represented by a list of zone IDs. */
+    private _buildingWithID(id_list: string[]): Building | undefined {
+        for (const id of id_list || []) {
+            const building = this._buildings_by_id().get(id);
+            if (building) return building;
+        }
+        return undefined;
     }
 
     public addZone(zone: PlaceZone) {
@@ -509,8 +588,19 @@ export class OrganisationService {
         } else {
             try {
                 await this.load();
-            } catch {
-                notifyError('Error loading organisation data. Retrying...');
+            } catch (err) {
+                // Offline, a failed load is expected rather than an error:
+                // there is nothing to fix and nobody at an unattended screen
+                // to read about it. Keep retrying quietly until the network
+                // is back, then say so if it is still failing.
+                if (isOnline() && navigator.onLine !== false) {
+                    notifyError('Error loading organisation data. Retrying...');
+                } else {
+                    log.warn(
+                        'Unable to load organisation data while offline. Retrying...',
+                        err,
+                    );
+                }
                 setTimeout(
                     () => this.init(tries),
                     Math.min(10_000, 300 * ++tries),
@@ -822,14 +912,24 @@ export class OrganisationService {
     /** Select the building physically closest to the user's current location */
     private async _setBuildingFromGeolocation(): Promise<Building | null> {
         return new Promise<Building | null>((resolve) => {
+            let settled = false;
+            const finish = (building: Building | null) => {
+                if (settled) return;
+                settled = true;
+                clearTimeout(timer);
+                resolve(building);
+            };
+            const timer = setTimeout(() => finish(null), GEOLOCATION_TIMEOUT);
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    if (settled) return;
                     const { latitude, longitude } = position.coords;
                     const closest = this._closestBuilding(latitude, longitude);
                     if (closest) this.building = closest;
-                    resolve(closest);
+                    finish(closest);
                 },
-                () => resolve(null),
+                () => finish(null),
+                { timeout: GEOLOCATION_TIMEOUT },
             );
         });
     }
@@ -1022,7 +1122,7 @@ export class OrganisationService {
             (
                 await queryZones({
                     ...params,
-                    authority_id: authority().id,
+                    authority_id: authority()?.id,
                 } as any)
             ).data || [];
         this._setCachedItem(cache_key, zones);

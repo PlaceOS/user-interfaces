@@ -77,7 +77,7 @@ describe('MediaControlsComponent', () => {
         expect(emit_spy).toHaveBeenCalledWith('SHUFFLE');
     });
 
-    it('should emit PAUSE from the play/pause control when a state is set', () => {
+    it('should emit PAUSE from the play/pause control while playing', () => {
         const emit_spy = vi.spyOn(spectator.component.event, 'emit');
         spectator.component.state.set('PLAYING');
         spectator.detectChanges();
@@ -86,6 +86,17 @@ describe('MediaControlsComponent', () => {
         buttons[1].click();
 
         expect(emit_spy).toHaveBeenCalledWith('PAUSE');
+    });
+
+    it('should emit PLAY from the play/pause control while paused', () => {
+        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
+        spectator.component.state.set('PAUSED');
+        spectator.detectChanges();
+        const buttons = spectator.queryAll('button') as HTMLButtonElement[];
+
+        buttons[1].click();
+
+        expect(emit_spy).toHaveBeenCalledWith('PLAY');
     });
 
     it('should show the green animating overlay while animating', () => {

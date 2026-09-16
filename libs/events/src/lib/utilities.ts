@@ -1,4 +1,10 @@
-import { Injector, signal, type WritableSignal } from '@angular/core';
+import {
+    computed,
+    Injector,
+    signal,
+    type Signal,
+    type WritableSignal,
+} from '@angular/core';
 import {
     disabled,
     form,
@@ -9,17 +15,17 @@ import {
 import {
     Booking,
     CalendarEvent,
+    currentUser,
     guardModelUndefinedWrites,
     LOCAL_TIMEZONE,
     onFieldChange,
     SettingsService,
     setupFormTimeSync,
-    type FormTimeSyncHandle,
-    type SignalFormRef,
     timePeriodsIntersect,
     unique,
     User,
-    currentUser,
+    type FormTimeSyncHandle,
+    type SignalFormRef,
 } from '@placeos/common';
 import {
     add,
@@ -39,6 +45,35 @@ import {
 import { getNextFreeTimeSlot } from './helpers';
 
 let BOOKING_DATE = add(setMinutes(setHours(new Date(), 6), 0), { days: -1 });
+
+/** Whether the current settings allow one event to use multiple spaces. */
+export function multipleSpacesEnabled(settings: SettingsService): boolean {
+    return (
+        settings.get('app.events.multiple_spaces') === true ||
+        settings.get('app.events.allow_multiple_spaces') === true
+    );
+}
+
+/** Reactive form of the multiple-space compatibility setting. */
+export function multipleSpacesSignal(
+    settings: SettingsService,
+): Signal<boolean> {
+    const current = settings.signal<boolean>('events.multiple_spaces', false);
+    const legacy = settings.signal<boolean>(
+        'events.allow_multiple_spaces',
+        false,
+    );
+    return computed(() => current() || legacy());
+}
+
+/** Read an IANA timezone supplied with an organiser record. */
+export function organiserTimezone(user?: User): string {
+    const details = user?.extension_data as
+        | { timezone?: unknown; time_zone?: unknown }
+        | undefined;
+    const timezone = details?.timezone || details?.time_zone;
+    return typeof timezone === 'string' ? timezone : '';
+}
 
 /** Raw value held by the event form model. */
 export interface EventFormValue {
@@ -173,34 +208,40 @@ export function generateEventForm(
             settings?.value('require_catering_notes')
         );
 
-    const model: WritableSignal<EventFormValue> = signal(
-        eventFormValue(event),
-    );
+    const model: WritableSignal<EventFormValue> = signal(eventFormValue(event));
 
     // Keep every key defined so signal-forms never drops a sub-field bound via
     // `[formField]` (an undefined value triggers `this.field() is not a
     // function`). Guards writes synchronously — no reactive surface.
     guardModelUndefinedWrites(model, eventFormValue(new CalendarEvent()));
 
-    const event_form = form<EventFormValue>(model, (p) => {
-        required(p.host);
-        required(p.date);
-        validate(p.duration, ({ value, valueOf }) => {
-            const date = valueOf(p.date);
-            return date && isAfter(Date.now(), addMinutes(date, value()))
-                ? { kind: 'duration' }
-                : undefined;
-        });
-        required(p.catering_notes, {
-            when: ({ valueOf }) =>
-                !!valueOf(p.catering)?.length && notes_required(),
-        });
-        disabled(p.host, { when: () => has_id });
-        disabled(p.organiser, { when: () => has_id });
-        disabled(p.date, { when: () => lock_start_time() });
-        disabled(p.assets, { when: ({ valueOf }) => !valueOf(p.resources)?.length });
-        disabled(p.duration, { when: ({ valueOf }) => !!valueOf(p.all_day) });
-    }, { injector }) as EventForm;
+    const event_form = form<EventFormValue>(
+        model,
+        (p) => {
+            required(p.host);
+            required(p.date);
+            validate(p.duration, ({ value, valueOf }) => {
+                const date = valueOf(p.date);
+                return date && isAfter(Date.now(), addMinutes(date, value()))
+                    ? { kind: 'duration' }
+                    : undefined;
+            });
+            required(p.catering_notes, {
+                when: ({ valueOf }) =>
+                    !!valueOf(p.catering)?.length && notes_required(),
+            });
+            disabled(p.host, { when: () => has_id });
+            disabled(p.organiser, { when: () => has_id });
+            disabled(p.date, { when: () => lock_start_time() });
+            disabled(p.assets, {
+                when: ({ valueOf }) => !valueOf(p.resources)?.length,
+            });
+            disabled(p.duration, {
+                when: ({ valueOf }) => !!valueOf(p.all_day),
+            });
+        },
+        { injector },
+    ) as EventForm;
 
     // organiser → host
     onFieldChange(
@@ -209,7 +250,10 @@ export function generateEventForm(
         (organiser) =>
             // Coalesce to '' so the `host` sub-field is never removed from the
             // FieldTree (an undefined value breaks its `required`/`[formField]`).
-            model.update((m) => ({ ...m, host: (organiser as any)?.email ?? '' })),
+            model.update((m) => ({
+                ...m,
+                host: (organiser as any)?.email ?? '',
+            })),
         injector,
     );
     // resources → system

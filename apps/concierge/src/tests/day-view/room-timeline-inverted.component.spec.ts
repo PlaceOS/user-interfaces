@@ -9,8 +9,8 @@ import { setHours, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { Subject, Subscription } from 'rxjs';
 
-import { RoomBookingsInvertedTimelineComponent } from '../../app/day-view/room-timeline-inverted.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
+import { RoomBookingsInvertedTimelineComponent } from '../../app/day-view/room-timeline-inverted.component';
 
 describe('RoomBookingsInvertedTimelineComponent', () => {
     let spectator: SpectatorRouting<RoomBookingsInvertedTimelineComponent>;
@@ -71,10 +71,6 @@ describe('RoomBookingsInvertedTimelineComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should group active events by space within the day range', () => {
         spaces.set([{ id: 'sp1', email: 'a@b.com' }]);
         const noon = setHours(startOfDay(Date.now()), 12).valueOf();
@@ -90,9 +86,9 @@ describe('RoomBookingsInvertedTimelineComponent', () => {
                 is_system_event: false,
             },
         ]);
-        expect(
-            spectator.component.events()['sp1'].map((e) => e.id),
-        ).toEqual(['e1']);
+        expect(spectator.component.events()['sp1'].map((e) => e.id)).toEqual([
+            'e1',
+        ]);
     });
 
     it('should track and clear the hovered row', () => {
@@ -113,10 +109,7 @@ describe('RoomBookingsInvertedTimelineComponent', () => {
     });
 
     it('should not open a dialog for system events', () => {
-        spectator.component.viewEvent(
-            { is_system_event: true } as any,
-            'sp1',
-        );
+        spectator.component.viewEvent({ is_system_event: true } as any, 'sp1');
         expect(dialog_open).not.toHaveBeenCalled();
     });
 

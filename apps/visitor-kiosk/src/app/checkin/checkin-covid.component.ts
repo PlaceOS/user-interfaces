@@ -1,8 +1,4 @@
-import {
-    Component,
-    inject,
-    signal,
-} from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatRadioModule } from '@angular/material/radio';
@@ -102,12 +98,12 @@ export class CheckinCovidComponent {
     public contact = signal<string>('');
     public symptoms = signal<string>('');
 
-    public confirm() {
+    public async confirm() {
         const symptoms = this.symptoms();
         const contact = this.contact();
         if (!symptoms || !contact)
             return notifyError('Please select yes or no for each question');
-        this._checkin.updateGuest({
+        await this._checkin.updateGuest({
             covid: contact === 'true',
             symptoms: symptoms === 'true',
         });

@@ -203,6 +203,10 @@
             "type": "object",
             "description": "Settings associated with the desk booking flow",
             "properties": {
+                "use_assets": {
+                    "type": "boolean",
+                    "description": "Whether desk resources are read from and managed through the assets API instead of Zone metadata"
+                },
                 "can_book_for_others": {
                     "type": "boolean",
                     "description": "Whether concierge users can create desk bookings on behalf of other users"

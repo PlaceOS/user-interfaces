@@ -35,9 +35,7 @@ const DEFAULT_CONFIG: AlertNotificationConfig = {
 })
 export class AlertNotificationService extends BasePushNotificationService {
     /** User's notification preferences per severity */
-    public readonly config = signal<AlertNotificationConfig>(
-        this._loadConfig(),
-    );
+    public readonly config = signal<AlertNotificationConfig>(DEFAULT_CONFIG);
 
     /** Default config from settings (can be overridden by zone metadata) */
     private _default_config = settingSignal<Partial<AlertNotificationConfig>>(
@@ -47,17 +45,12 @@ export class AlertNotificationService extends BasePushNotificationService {
 
     constructor() {
         super();
-        // Merge zone settings with defaults
         const zone_defaults = this._default_config();
-        if (zone_defaults && Object.keys(zone_defaults).length > 0) {
-            const saved_config = this._loadConfig();
-            const merged = {
-                ...DEFAULT_CONFIG,
-                ...zone_defaults,
-                ...saved_config,
-            };
-            this.config.set(merged);
-        }
+        this.config.set({
+            ...DEFAULT_CONFIG,
+            ...zone_defaults,
+            ...this._loadStoredConfig(),
+        });
         log('PUSH', `Alert config:`, this.config());
     }
 
@@ -123,27 +116,37 @@ export class AlertNotificationService extends BasePushNotificationService {
     }
 
     /** Get icon path based on severity */
-    private _getIconForSeverity(severity: AlertSeverity): string {
-        const icons: Record<AlertSeverity, string> = {
-            critical: '/assets/icons/alert-critical.png',
-            high: '/assets/icons/alert-high.png',
-            medium: '/assets/icons/alert-medium.png',
-            low: '/assets/icons/alert-low.png',
-        };
-        return icons[severity] || '/assets/icons/icon-192x192.png';
+    private _getIconForSeverity(_severity: AlertSeverity): string {
+        return '/assets/icons/icon-192x192.png';
     }
 
-    /** Load config from localStorage */
-    private _loadConfig(): AlertNotificationConfig {
+    /** Load preferences that the user has explicitly saved. */
+    private _loadStoredConfig(): Partial<AlertNotificationConfig> {
         try {
             const stored = localStorage.getItem(STORAGE_KEY);
             if (stored) {
-                return { ...DEFAULT_CONFIG, ...JSON.parse(stored) };
+                const parsed: unknown = JSON.parse(stored);
+                if (typeof parsed !== 'object' || parsed === null) return {};
+                const values = parsed as Record<string, unknown>;
+                return {
+                    ...(typeof values.critical === 'boolean'
+                        ? { critical: values.critical }
+                        : {}),
+                    ...(typeof values.high === 'boolean'
+                        ? { high: values.high }
+                        : {}),
+                    ...(typeof values.medium === 'boolean'
+                        ? { medium: values.medium }
+                        : {}),
+                    ...(typeof values.low === 'boolean'
+                        ? { low: values.low }
+                        : {}),
+                };
             }
         } catch (e) {
             log('PUSH', 'Failed to load config from storage', e);
         }
-        return { ...DEFAULT_CONFIG };
+        return {};
     }
 
     /** Save config to localStorage */

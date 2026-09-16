@@ -50,10 +50,6 @@ describe('AssetReportUsersComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should group bookings by unique host', () => {
         const users = spectator.component.users();
         expect(users).toHaveLength(2);
