@@ -16,7 +16,6 @@ import { SettingsService } from '@placeos/common';
 import { OrganisationService } from 'libs/common/src/lib/org/organisation.service';
 import { DEFAULT_SETTINGS } from 'libs/common/src/lib/settings';
 import { HashMap } from 'libs/common/src/lib/types';
-import { BindingDebugPanelComponent } from './binding-debug-panel.component';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { IconComponent } from './icon.component';
 
@@ -424,7 +423,6 @@ function flattenSchemaKeys(
                 </div>
             </aside>
         }
-        <binding-debug-panel />
         <ng-template #zone_tooltip let-zones="zones">
             <div
                 class="border-base-300 bg-base-100 text-base-content min-w-64 rounded-lg border p-2 shadow-lg"
@@ -468,7 +466,6 @@ function flattenSchemaKeys(
         FormsModule,
         MatRippleModule,
         MatTooltipModule,
-        BindingDebugPanelComponent,
         CustomTooltipComponent,
         IconComponent,
     ],

@@ -1,3 +1,4 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { DOCUMENT } from '@angular/common';
 import {
     Component,
@@ -5,11 +6,14 @@ import {
     computed,
     effect,
     inject,
+    input,
+    model,
     resource,
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, HotkeysService } from '@placeos/common';
 import {
     PlaceModuleBinding,
@@ -60,13 +64,46 @@ interface ExecuteMessage {
     error: boolean;
 }
 
+interface ExecuteExchange extends Omit<
+    ExecuteMessage,
+    'direction' | 'value' | 'error'
+> {
+    send?: ExecuteMessage;
+    receive?: ExecuteMessage;
+}
+
+/** Match responses by request ID, including commands that finish out of order. */
+export function pairExecuteMessages(
+    messages: readonly ExecuteMessage[],
+): ExecuteExchange[] {
+    const exchanges = new Map<number, ExecuteExchange>();
+    for (const message of messages) {
+        let exchange = exchanges.get(message.id);
+        if (!exchange) {
+            exchange = {
+                id: message.id,
+                system_id: message.system_id,
+                module_id: message.module_id,
+                module_name: message.module_name,
+                module_index: message.module_index,
+                method: message.method,
+                time: message.time,
+            };
+            exchanges.set(message.id, exchange);
+        }
+        exchange[message.direction] = message;
+        if (message.direction === 'send') exchange.time = message.time;
+    }
+    return [...exchanges.values()];
+}
+
 interface ModuleGroup {
     key: string;
     id: string;
     name: string;
     index: number;
     bindings: BindingRow[];
-    messages: ExecuteMessage[];
+    messages: ExecuteExchange[];
     active_count: number;
 }
 
@@ -201,7 +238,8 @@ installBindingDebugHooks();
     template: `
         @if (show()) {
             <aside
-                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-999 flex w-96 max-w-[90vw] flex-col border-l shadow-xl"
+                aria-label="Driver debug"
+                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-999 flex w-[32rem] max-w-full flex-col border-l shadow-xl"
             >
                 <header
                     class="border-base-300 bg-base-100 flex items-center border-b p-2"
@@ -211,13 +249,13 @@ installBindingDebugHooks();
                         default
                         matRipple
                         class="text-sm"
-                        aria-label="Close binding viewer"
+                        aria-label="Close driver debug panel"
                         (click)="show.set(false)"
                     >
                         <icon>close</icon>
                     </button>
                     <div class="flex-1 px-3 text-lg font-medium">
-                        Driver Binding Viewer
+                        Driver debug
                     </div>
                     @if (tab() === 'bindings' && has_overrides()) {
                         <button
@@ -242,18 +280,22 @@ installBindingDebugHooks();
                     class="border-base-300 bg-base-100 grid grid-cols-2 border-b p-1"
                 >
                     <button
+                        matRipple
                         class="rounded-md px-3 py-1.5 text-sm"
                         [class.bg-base-300]="tab() === 'bindings'"
+                        [attr.aria-pressed]="tab() === 'bindings'"
                         (click)="tab.set('bindings')"
                     >
                         Bindings ({{ binding_count() }})
                     </button>
                     <button
+                        matRipple
                         class="rounded-md px-3 py-1.5 text-sm"
                         [class.bg-base-300]="tab() === 'executes'"
+                        [attr.aria-pressed]="tab() === 'executes'"
                         (click)="tab.set('executes')"
                     >
-                        Executes ({{ execute_count() }})
+                        Commands ({{ execute_count() }})
                     </button>
                 </div>
 
@@ -261,8 +303,9 @@ installBindingDebugHooks();
                     <input
                         name="binding-filter"
                         [(ngModel)]="filter"
-                        placeholder="Filter systems, modules or names..."
-                        class="border-base-300 bg-base-100 w-full rounded-lg border px-8 py-2 pr-2 font-mono text-sm shadow"
+                        aria-label="Search systems, modules, names or values"
+                        placeholder="Search systems, modules, names or values"
+                        class="border-base-300 bg-base-100 w-full rounded-lg border px-8 py-2 pr-10 text-sm shadow"
                     />
                     <icon
                         class="absolute top-1/2 left-1 -translate-y-1/2 text-xl"
@@ -270,11 +313,39 @@ installBindingDebugHooks();
                     >
                 </div>
 
-                <div class="flex-1 overflow-auto">
+                <div
+                    class="flex items-center justify-between gap-2 px-3 py-2 text-xs"
+                >
+                    <span role="status"
+                        >{{ visible_count() }}
+                        {{ tab() === 'bindings' ? 'bindings' : 'commands' }}
+                        shown</span
+                    >
+                    @if (filter()) {
+                        <button
+                            matRipple
+                            class="underline"
+                            (click)="filter.set('')"
+                        >
+                            Clear search
+                        </button>
+                    }
+                </div>
+                @if (has_overrides()) {
+                    <p class="bg-warning-light m-2 rounded-md p-3 text-xs">
+                        Local overrides are active. Incoming driver values are
+                        hidden until you restore them.
+                    </p>
+                }
+                <div class="min-h-0 flex-1 overflow-auto">
                     @for (system of systems(); track system.id) {
                         <section>
                             <button
+                                matRipple
                                 class="border-base-300 bg-base-100 sticky top-0 z-20 flex min-h-9 w-full items-center gap-1 border-b px-2 py-1 text-left text-xs"
+                                [attr.aria-expanded]="
+                                    isExpanded('system|' + system.id)
+                                "
                                 (click)="toggleGroup('system|' + system.id)"
                             >
                                 <icon
@@ -305,7 +376,7 @@ installBindingDebugHooks();
                                     </span>
                                 } @else {
                                     <span class="opacity-50">
-                                        {{ system.message_count }} messages
+                                        {{ system.message_count }} commands
                                     </span>
                                 }
                             </button>
@@ -316,7 +387,11 @@ installBindingDebugHooks();
                                     track module.key
                                 ) {
                                     <button
-                                        class="border-base-300 bg-base-200 sticky top-9 z-10 flex min-h-8 w-full items-center gap-1 border-b py-1 pr-2 pl-5 text-left text-xs"
+                                        matRipple
+                                        class="border-base-300 bg-base-200 flex min-h-8 w-full items-center gap-1 border-b py-1 pr-2 pl-5 text-left text-xs"
+                                        [attr.aria-expanded]="
+                                            isExpanded('module|' + module.key)
+                                        "
                                         (click)="
                                             toggleGroup('module|' + module.key)
                                         "
@@ -345,7 +420,7 @@ installBindingDebugHooks();
                                         } @else {
                                             <span class="opacity-50">
                                                 {{ module.messages.length }}
-                                                messages
+                                                commands
                                             </span>
                                         }
                                     </button>
@@ -405,68 +480,137 @@ installBindingDebugHooks();
                                                         row.key
                                                     ) {
                                                         <div
-                                                            class="mt-1 flex items-center gap-1"
+                                                            class="mt-2 space-y-2"
                                                         >
-                                                            <input
+                                                            <label
+                                                                [for]="
+                                                                    'override-' +
+                                                                    row.key
+                                                                "
+                                                                class="block font-medium"
+                                                                >Local override
+                                                                value</label
+                                                            >
+                                                            <textarea
+                                                                [id]="
+                                                                    'override-' +
+                                                                    row.key
+                                                                "
                                                                 name="binding-value"
-                                                                class="border-base-300 bg-base-100 focus:border-info focus:ring-info h-8 min-w-0 flex-1 rounded-md border px-2 font-mono shadow-sm outline-none focus:ring-2"
+                                                                rows="4"
+                                                                class="border-base-300 bg-base-100 w-full rounded-md border p-2 font-mono"
                                                                 [(ngModel)]="
                                                                     edit_value
-                                                                "
-                                                                (keydown.enter)="
-                                                                    saveOverride(
-                                                                        row
-                                                                    )
                                                                 "
                                                                 (keydown.escape)="
                                                                     editing_key.set(
                                                                         ''
                                                                     )
                                                                 "
-                                                            />
-                                                            <button
-                                                                icon
-                                                                matRipple
-                                                                title="Apply override"
-                                                                (click)="
-                                                                    saveOverride(
-                                                                        row
-                                                                    )
-                                                                "
+                                                            ></textarea>
+                                                            <p
+                                                                class="opacity-60"
                                                             >
-                                                                <icon
-                                                                    class="text-sm"
-                                                                    >check</icon
+                                                                Enter JSON for
+                                                                numbers,
+                                                                booleans, arrays
+                                                                or objects.
+                                                                Other text is a
+                                                                string. This
+                                                                does not send a
+                                                                command to the
+                                                                driver.
+                                                            </p>
+                                                            <div
+                                                                class="flex gap-2"
+                                                            >
+                                                                <button
+                                                                    matRipple
+                                                                    class="bg-primary text-primary-content rounded-md px-3 py-2"
+                                                                    (click)="
+                                                                        saveOverride(
+                                                                            row
+                                                                        )
+                                                                    "
                                                                 >
-                                                            </button>
+                                                                    Apply
+                                                                    override
+                                                                </button>
+                                                                <button
+                                                                    matRipple
+                                                                    class="rounded-md px-3 py-2"
+                                                                    (click)="
+                                                                        editing_key.set(
+                                                                            ''
+                                                                        )
+                                                                    "
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     } @else {
-                                                        <button
-                                                            class="border-base-300 bg-base-100 hover:border-info mt-1 flex h-8 w-full items-center rounded-md border px-2 text-left font-mono shadow-sm"
-                                                            [title]="
-                                                                formatValue(
-                                                                    row.current_value
-                                                                )
-                                                            "
-                                                            (click)="
-                                                                startOverride(
-                                                                    row
-                                                                )
-                                                            "
+                                                        <details
+                                                            class="border-base-300 bg-base-100 mt-2 rounded-md border p-2"
                                                         >
-                                                            <span
-                                                                class="min-w-0 flex-1 truncate"
+                                                            <summary
+                                                                class="cursor-pointer truncate font-mono"
+                                                                [title]="
+                                                                    formatValue(
+                                                                        row.current_value
+                                                                    )
+                                                                "
                                                             >
                                                                 {{
                                                                     formatValue(
                                                                         row.current_value
                                                                     )
                                                                 }}
-                                                            </span>
-                                                            <icon
-                                                                class="ml-1 text-sm opacity-40"
-                                                                >edit</icon
+                                                            </summary>
+                                                            <pre
+                                                                class="mt-2 max-h-64 overflow-auto font-mono break-all whitespace-pre-wrap"
+                                                                >{{
+                                                                    formatValue(
+                                                                        row.current_value,
+                                                                        true
+                                                                    )
+                                                                }}</pre
                                                             >
+                                                        </details>
+                                                        <button
+                                                            matRipple
+                                                            class="border-base-300 mt-2 rounded-md border px-3 py-1.5"
+                                                            (click)="
+                                                                startOverride(
+                                                                    row
+                                                                )
+                                                            "
+                                                        >
+                                                            Override value
+                                                        </button>
+                                                        <button
+                                                            matRipple
+                                                            type="button"
+                                                            class="border-base-300 mt-2 ml-2 rounded-md border px-3 py-1.5"
+                                                            [attr.aria-label]="
+                                                                'Copy ' +
+                                                                row.name +
+                                                                ' value'
+                                                            "
+                                                            (click)="
+                                                                copyValue(
+                                                                    row.current_value,
+                                                                    'binding|' +
+                                                                        row.key
+                                                                )
+                                                            "
+                                                        >
+                                                            {{
+                                                                copyLabel(
+                                                                    'binding|' +
+                                                                        row.key
+                                                                )
+                                                            }}
                                                         </button>
                                                     }
 
@@ -485,6 +629,7 @@ installBindingDebugHooks();
                                                             row.is_overridden
                                                         ) {
                                                             <button
+                                                                matRipple
                                                                 class="underline"
                                                                 (click)="
                                                                     clearOverride(
@@ -501,73 +646,217 @@ installBindingDebugHooks();
                                             }
                                         } @else {
                                             @for (
-                                                message of module.messages;
-                                                track message.direction +
-                                                    message.id
+                                                command of module.messages;
+                                                track command.id
                                             ) {
-                                                <div
-                                                    class="border-base-300 grid grid-cols-[auto_minmax(0,1fr)_auto] gap-x-2 border-b py-2 pr-2 pl-10 text-xs"
-                                                    [class.text-error]="
-                                                        message.error
-                                                    "
+                                                <article
+                                                    class="border-base-300 border-b py-3 pr-3 pl-10 text-xs"
                                                 >
-                                                    <icon
-                                                        class="text-base"
-                                                        [class.text-info]="
-                                                            message.direction ===
-                                                            'send'
-                                                        "
-                                                        [class.text-success]="
-                                                            message.direction ===
-                                                                'receive' &&
-                                                            !message.error
-                                                        "
-                                                    >
-                                                        {{
-                                                            message.direction ===
-                                                            'send'
-                                                                ? 'north_east'
-                                                                : 'south_west'
-                                                        }}
-                                                    </icon>
-                                                    <div class="min-w-0">
-                                                        <div
-                                                            class="truncate font-mono font-medium"
-                                                        >
-                                                            {{ message.method }}
-                                                        </div>
-                                                        <div
-                                                            class="truncate font-mono opacity-60"
-                                                            [title]="
-                                                                formatValue(
-                                                                    message.value
-                                                                )
-                                                            "
-                                                        >
-                                                            {{
-                                                                formatValue(
-                                                                    message.value
-                                                                )
-                                                            }}
-                                                        </div>
-                                                    </div>
                                                     <div
-                                                        class="text-right opacity-50"
+                                                        class="mb-2 flex items-start justify-between gap-2"
                                                     >
-                                                        <div>
-                                                            {{
-                                                                message.direction
-                                                            }}
+                                                        <div class="min-w-0">
+                                                            <div
+                                                                class="font-mono font-medium break-all"
+                                                            >
+                                                                {{
+                                                                    command.method
+                                                                }}
+                                                            </div>
+                                                            <div
+                                                                class="mt-1 opacity-60"
+                                                            >
+                                                                #{{
+                                                                    command.id
+                                                                }}
+                                                                ·
+                                                                {{
+                                                                    formatTime(
+                                                                        command.time
+                                                                    )
+                                                                }}
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            {{
-                                                                formatTime(
-                                                                    message.time
-                                                                )
-                                                            }}
+                                                        <div
+                                                            class="flex items-center gap-2"
+                                                        >
+                                                            @if (
+                                                                command.send &&
+                                                                command.receive
+                                                            ) {
+                                                                <div
+                                                                    class="font-mono text-xs opacity-60"
+                                                                >
+                                                                    {{
+                                                                        command
+                                                                            .receive
+                                                                            .time -
+                                                                            command
+                                                                                .send
+                                                                                .time
+                                                                    }}
+                                                                    ms
+                                                                </div>
+                                                            }
+                                                            <div
+                                                                class="bg-base-300 shrink-0 rounded-sm px-2 py-1"
+                                                                [class.text-error-content]="
+                                                                    command
+                                                                        .receive
+                                                                        ?.error
+                                                                "
+                                                                [class.text-success-content]="
+                                                                    command.receive &&
+                                                                    !command
+                                                                        .receive
+                                                                        .error
+                                                                "
+                                                                [class.bg-error]="
+                                                                    command
+                                                                        .receive
+                                                                        ?.error
+                                                                "
+                                                                [class.bg-success]="
+                                                                    command.receive &&
+                                                                    !command
+                                                                        .receive
+                                                                        .error
+                                                                "
+                                                            >
+                                                                {{
+                                                                    command.receive
+                                                                        ? command
+                                                                              .receive
+                                                                              .error
+                                                                            ? 'Failed'
+                                                                            : 'Completed'
+                                                                        : 'Pending'
+                                                                }}
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                    @if (!command.send) {
+                                                        <p
+                                                            class="mb-2 opacity-60"
+                                                        >
+                                                            Sent value is no
+                                                            longer in the
+                                                            message history.
+                                                        </p>
+                                                    }
+                                                    @for (
+                                                        message of [
+                                                            command.send,
+                                                            command.receive,
+                                                        ];
+                                                        track $index
+                                                    ) {
+                                                        @if (message) {
+                                                            <div
+                                                                class="border-base-300 bg-base-100 mt-2 rounded-md border p-1"
+                                                            >
+                                                                <div
+                                                                    class="flex items-center justify-between gap-2"
+                                                                >
+                                                                    <span
+                                                                        class="p-1 font-medium"
+                                                                        [class.text-error]="
+                                                                            message.error
+                                                                        "
+                                                                        >{{
+                                                                            message.direction ===
+                                                                            'send'
+                                                                                ? 'Sent'
+                                                                                : message.error
+                                                                                  ? 'Error'
+                                                                                  : 'Received'
+                                                                        }}</span
+                                                                    >
+                                                                    <button
+                                                                        icon
+                                                                        default
+                                                                        matRipple
+                                                                        type="button"
+                                                                        class="text-xs"
+                                                                        matTooltip="Copy value"
+                                                                        matTooltipPosition="left"
+                                                                        [attr.aria-label]="
+                                                                            'Copy ' +
+                                                                            message.method +
+                                                                            ' ' +
+                                                                            message.direction +
+                                                                            ' value'
+                                                                        "
+                                                                        [title]="
+                                                                            copyLabel(
+                                                                                message.direction +
+                                                                                    '|' +
+                                                                                    message.id
+                                                                            )
+                                                                        "
+                                                                        (click)="
+                                                                            copyValue(
+                                                                                message.value,
+                                                                                message.direction +
+                                                                                    '|' +
+                                                                                    message.id
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        <icon
+                                                                            aria-hidden="true"
+                                                                            >{{
+                                                                                copyLabel(
+                                                                                    message.direction +
+                                                                                        '|' +
+                                                                                        message.id
+                                                                                ) ===
+                                                                                'Copied'
+                                                                                    ? 'check'
+                                                                                    : 'content_copy'
+                                                                            }}</icon
+                                                                        >
+                                                                    </button>
+                                                                </div>
+                                                                <details
+                                                                    class="my-2 min-w-0 px-1 font-mono"
+                                                                >
+                                                                    <summary
+                                                                        class="cursor-pointer truncate"
+                                                                        [title]="
+                                                                            formatValue(
+                                                                                message.value
+                                                                            )
+                                                                        "
+                                                                    >
+                                                                        {{
+                                                                            formatValue(
+                                                                                message.value
+                                                                            )
+                                                                        }}
+                                                                    </summary>
+                                                                    <pre
+                                                                        class="mt-2 max-h-64 overflow-auto break-all whitespace-pre-wrap"
+                                                                        >{{
+                                                                            formatValue(
+                                                                                message.value,
+                                                                                true
+                                                                            )
+                                                                        }}</pre
+                                                                    >
+                                                                </details>
+                                                            </div>
+                                                        }
+                                                    }
+                                                    @if (!command.receive) {
+                                                        <p
+                                                            class="mt-2 opacity-60"
+                                                        >
+                                                            Waiting for a
+                                                            response...
+                                                        </p>
+                                                    }
+                                                </article>
                                             }
                                         }
                                     }
@@ -575,13 +864,23 @@ installBindingDebugHooks();
                             }
                         </section>
                     } @empty {
-                        <div class="p-4 text-center opacity-40">
-                            No observed
-                            {{
-                                tab() === 'bindings'
-                                    ? 'bindings'
-                                    : 'execute messages'
-                            }}
+                        <div class="space-y-2 p-6 text-center text-sm">
+                            <p class="font-medium">
+                                {{
+                                    filter().trim()
+                                        ? 'No matching results'
+                                        : tab() === 'bindings'
+                                          ? 'No bindings observed yet'
+                                          : 'No commands observed yet'
+                                }}
+                            </p>
+                            <p class="opacity-60">
+                                {{
+                                    filter().trim()
+                                        ? 'Try a different name or value, or clear the search.'
+                                        : 'Use the app to see driver activity here.'
+                                }}
+                            </p>
                         </div>
                     }
                 </div>
@@ -589,24 +888,55 @@ installBindingDebugHooks();
                 <footer
                     class="border-base-300 bg-base-100 border-t p-2 text-xs opacity-60"
                 >
-                    Ctrl + Alt + Shift + B · Values and overrides are local to
-                    this browser session.
+                    <div role="status" class="mb-1 font-medium">
+                        {{ copy_status() }}
+                    </div>
+                    Ctrl + Alt + Shift + B to toggle. Overrides stay active when
+                    this panel is closed.
+                    @if (tab() === 'executes') {
+                        Only the latest 250 messages are kept.
+                    }
                 </footer>
             </aside>
         }
     `,
-    imports: [FormsModule, MatRippleModule, IconComponent],
+    styles: [
+        `
+            button:not(:disabled) {
+                cursor: pointer;
+            }
+            button:not(:disabled):hover {
+                background-image: linear-gradient(#8080801f, #8080801f);
+            }
+            button:not(:disabled):active {
+                background-image: linear-gradient(#8080803d, #8080803d);
+            }
+            button:focus-visible,
+            summary:focus-visible {
+                outline: 2px solid currentColor;
+                outline-offset: -2px;
+            }
+        `,
+    ],
+    imports: [FormsModule, MatRippleModule, IconComponent, MatTooltipModule],
 })
 export class BindingDebugPanelComponent extends AsyncHandler {
     private _hotkey = inject(HotkeysService);
     private _document = inject(DOCUMENT);
+    private _clipboard = inject(Clipboard);
 
-    public readonly show = signal(false);
+    public readonly show = model(false);
+    public readonly hotkeysEnabled = input(true);
     public readonly tab = signal<'bindings' | 'executes'>('bindings');
     public readonly filter = signal('');
     public readonly expanded = signal<Record<string, boolean>>({});
     public readonly editing_key = signal('');
     public readonly edit_value = signal('');
+    public readonly copy_status = signal('');
+    public readonly copy_result = signal<{
+        key: string;
+        success: boolean;
+    } | null>(null);
     private readonly _refresh = signal(0);
 
     private readonly _system_names = resource({
@@ -640,7 +970,10 @@ export class BindingDebugPanelComponent extends AsyncHandler {
     });
 
     public readonly binding_count = computed(() => binding_records().length);
-    public readonly execute_count = computed(() => execute_messages().length);
+    private readonly _exchanges = computed(() =>
+        pairExecuteMessages(execute_messages()),
+    );
+    public readonly execute_count = computed(() => this._exchanges().length);
     public readonly has_overrides = computed(() =>
         binding_records().some((record) => record.overridden()),
     );
@@ -649,7 +982,7 @@ export class BindingDebugPanelComponent extends AsyncHandler {
         if (!this.show()) return;
         const body = this._document.body;
         const padding_right = body.style.paddingRight;
-        body.style.paddingRight = 'min(24rem, 90vw)';
+        body.style.paddingRight = 'min(32rem, 100vw)';
         on_cleanup(() => (body.style.paddingRight = padding_right));
     });
 
@@ -731,9 +1064,9 @@ export class BindingDebugPanelComponent extends AsyncHandler {
                 system.active_count += row.active ? 1 : 0;
             }
         } else {
-            for (const message of execute_messages()) {
+            for (const message of this._exchanges()) {
                 const haystack =
-                    `${message.system_id} ${system_names[message.system_id] || ''} ${message.module_id} ${message.method} ${this.formatValue(message.value)}`.toLowerCase();
+                    `${message.system_id} ${system_names[message.system_id] || ''} ${message.module_id} ${message.method} ${message.send ? this.formatValue(message.send.value) : ''} ${message.receive ? this.formatValue(message.receive.value) : ''}`.toLowerCase();
                 if (filter && !haystack.includes(filter)) continue;
                 const { system, module } = get_module(
                     message.system_id,
@@ -765,6 +1098,7 @@ export class BindingDebugPanelComponent extends AsyncHandler {
     });
 
     public ngOnInit() {
+        if (!this.hotkeysEnabled()) return;
         this.subscription(
             'toggle',
             this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyB'], () =>
@@ -773,20 +1107,36 @@ export class BindingDebugPanelComponent extends AsyncHandler {
         );
     }
 
+    public readonly visible_count = computed(() =>
+        this.systems().reduce(
+            (total, system) =>
+                total +
+                (this.tab() === 'bindings'
+                    ? system.binding_count
+                    : system.message_count),
+            0,
+        ),
+    );
+
     public isExpanded(key: string) {
-        return !!this.filter() || !!this.expanded()[key];
+        return (
+            this.expanded()[`${this.filter().trim()}|${key}`] ??
+            !!this.filter().trim()
+        );
     }
 
     public toggleGroup(key: string) {
         this.expanded.update((state) => ({
             ...state,
-            [key]: !this.isExpanded(key),
+            [`${this.filter().trim()}|${key}`]: !this.isExpanded(key),
         }));
     }
 
     public startOverride(row: BindingRow) {
         this.editing_key.set(row.key);
-        this.edit_value.set(this.formatValue(row.current_value));
+        this.edit_value.set(
+            JSON.stringify(row.current_value, null, 2) ?? 'undefined',
+        );
     }
 
     public saveOverride(row: BindingRow) {
@@ -817,11 +1167,42 @@ export class BindingDebugPanelComponent extends AsyncHandler {
         execute_messages.set([]);
     }
 
-    public formatValue(value: any) {
+    /** Copy the complete value, including data hidden by the collapsed preview. */
+    public copyValue(value: unknown, key = ''): void {
+        const text =
+            typeof value === 'string' ? value : this.formatValue(value, true);
+        const copied = this._clipboard.copy(text);
+        this.copy_result.set({ key, success: copied });
+        this.copy_status.set(
+            copied
+                ? 'Value copied.'
+                : 'Could not copy. Expand the value and copy it manually.',
+        );
+        this.timeout(
+            'copy-status',
+            () => {
+                this.copy_status.set('');
+                this.copy_result.set(null);
+            },
+            5000,
+        );
+    }
+
+    public copyLabel(key: string): string {
+        const result = this.copy_result();
+        if (result?.key !== key) return 'Copy value';
+        return result.success ? 'Copied' : 'Retry copy';
+    }
+
+    public formatValue(value: unknown, pretty = false) {
         if (value === undefined) return 'undefined';
-        if (typeof value === 'string') return value;
+        if (typeof value === 'string') return value || '""';
+        if (value instanceof Error) return value.message;
         try {
-            return JSON.stringify(value);
+            return (
+                JSON.stringify(value, null, pretty ? 2 : undefined) ??
+                String(value)
+            );
         } catch {
             return String(value);
         }

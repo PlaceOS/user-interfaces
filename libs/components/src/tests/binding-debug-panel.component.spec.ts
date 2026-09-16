@@ -1,17 +1,23 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { getModule, showSystem } from '@placeos/ts-client';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
-import { BindingDebugPanelComponent } from '../lib/binding-debug-panel.component';
+import {
+    BindingDebugPanelComponent,
+    pairExecuteMessages,
+} from '../lib/binding-debug-panel.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
 describe('BindingDebugPanelComponent', () => {
     let spectator: Spectator<BindingDebugPanelComponent>;
+    const copy = vi.fn<(text: string) => boolean>();
     let hotkey_callback: () => void;
 
     const createComponent = createComponentFactory({
         component: BindingDebugPanelComponent,
         providers: [
+            { provide: Clipboard, useValue: { copy } },
             {
                 provide: HotkeysService,
                 useValue: {
@@ -25,6 +31,7 @@ describe('BindingDebugPanelComponent', () => {
     });
 
     beforeEach(() => {
+        copy.mockReset().mockReturnValue(true);
         vi.mocked(showSystem).mockImplementation(
             async (id) => ({ id, name: id }) as any,
         );
@@ -106,5 +113,151 @@ describe('BindingDebugPanelComponent', () => {
 
         spectator.component.clearOverride(row);
         expect(binding.value).toBe('USB-C');
+    });
+    it('allows search results to collapse without changing the unfiltered groups', () => {
+        spectator.component.filter.set('power');
+        expect(spectator.component.isExpanded('system|search')).toBe(true);
+        spectator.component.toggleGroup('system|search');
+        expect(spectator.component.isExpanded('system|search')).toBe(false);
+        spectator.component.filter.set('');
+        expect(spectator.component.isExpanded('system|search')).toBe(false);
+    });
+
+    it('preserves JSON-like strings when an override is applied unchanged', () => {
+        const system_id = `sys-${Date.now()}-string`;
+        const binding = getModule(system_id, 'Display').variable('label');
+        const source = binding.listen() as unknown as {
+            set(value: string): void;
+        };
+        source.set('true');
+        const row = spectator.component
+            .systems()
+            .find((item) => item.id === system_id)!.modules[0].bindings[0];
+        spectator.component.startOverride(row);
+        spectator.component.saveOverride(row);
+        expect(binding.value).toBe('true');
+        spectator.component.clearOverride(row);
+    });
+
+    it('shows search feedback and clears the search from the panel', () => {
+        spectator.component.show.set(true);
+        spectator.component.filter.set('no-such-binding-unique-search');
+        spectator.detectChanges();
+        expect(spectator.element.textContent).toContain('No matching results');
+        spectator.click(
+            spectator
+                .queryAll('button')
+                .find(
+                    (button) => button.textContent?.trim() === 'Clear search',
+                )!,
+        );
+        expect(spectator.component.filter()).toBe('');
+    });
+    it('copies the full value from a collapsed binding preview', () => {
+        const system_id = `sys-${Date.now()}-copy`;
+        const value = {
+            data: 'long value '.repeat(1000),
+            nested: { enabled: true },
+        };
+        const binding = getModule(system_id, 'Display').variable('payload');
+        const source = binding.listen() as unknown as {
+            set(value: unknown): void;
+        };
+        source.set(value);
+        spectator.component.show.set(true);
+        spectator.component.filter.set(system_id);
+        spectator.detectChanges();
+        expect(spectator.query<HTMLDetailsElement>('details')?.open).toBe(
+            false,
+        );
+        spectator.click('[aria-label="Copy payload value"]');
+        expect(copy).toHaveBeenCalledWith(JSON.stringify(value, null, 2));
+        spectator.detectChanges();
+        expect(spectator.element.textContent).toContain('Value copied.');
+        expect(
+            spectator
+                .query('[aria-label="Copy payload value"]')
+                ?.textContent?.trim(),
+        ).toBe('Copied');
+        expect(spectator.component.copyLabel('another-row')).toBe('Copy value');
+    });
+
+    it('copies strings without adding quotes or changing whitespace', () => {
+        spectator.component.copyValue('  line one\nline two  ');
+        expect(copy).toHaveBeenLastCalledWith('  line one\nline two  ');
+        spectator.component.copyValue('');
+        expect(copy).toHaveBeenLastCalledWith('');
+    });
+
+    it('reports clipboard failures without claiming that the value was copied', () => {
+        copy.mockReturnValue(false);
+        spectator.component.copyValue({ value: 42 }, 'failed-row');
+        expect(spectator.component.copyLabel('failed-row')).toBe('Retry copy');
+        expect(spectator.component.copy_status()).toBe(
+            'Could not copy. Expand the value and copy it manually.',
+        );
+    });
+});
+
+describe('command message pairing', () => {
+    const message = (
+        id: number,
+        direction: 'send' | 'receive',
+        value: unknown,
+        time: number,
+        error = false,
+    ): Parameters<typeof pairExecuteMessages>[0][number] => ({
+        id,
+        direction,
+        value,
+        time,
+        error,
+        system_id: 'sys-pairing',
+        module_id: 'Display_1',
+        module_name: 'Display',
+        module_index: 1,
+        method: 'power',
+    });
+
+    it('pairs concurrent calls to the same method when responses arrive out of order', () => {
+        const first = message(1, 'send', [true], 100);
+        const second = message(2, 'send', [false], 110);
+        const second_response = message(2, 'receive', false, 120);
+        const first_response = message(
+            1,
+            'receive',
+            { error: 'offline' },
+            130,
+            true,
+        );
+        const pairs = pairExecuteMessages([
+            first,
+            second,
+            second_response,
+            first_response,
+        ]);
+        expect(pairs).toHaveLength(2);
+        expect(pairs[0]).toMatchObject({
+            id: 1,
+            time: 100,
+            send: first,
+            receive: first_response,
+        });
+        expect(pairs[1]).toMatchObject({
+            id: 2,
+            time: 110,
+            send: second,
+            receive: second_response,
+        });
+    });
+
+    it('keeps pending calls and responses whose requests have left the history', () => {
+        const pairs = pairExecuteMessages([
+            message(1, 'send', [], 100),
+            message(2, 'receive', null, 120),
+        ]);
+        expect(pairs[0].receive).toBeUndefined();
+        expect(pairs[1].send).toBeUndefined();
+        expect(pairs[1].receive?.value).toBeNull();
     });
 });

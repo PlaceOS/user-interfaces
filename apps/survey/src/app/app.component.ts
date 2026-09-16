@@ -22,6 +22,7 @@ import {
     setupPlace,
     withTimeout,
 } from '@placeos/common';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 
 import {
     GlobalBannerComponent,
@@ -62,6 +63,8 @@ const START_QUERY = location.search;
 @Component({
     selector: 'app-root',
     template: `
+        <settings-debug-panel-launcher />
+
         <global-banner />
         <div class="relative h-1/2 w-full flex-1">
             <router-outlet />
@@ -78,7 +81,12 @@ const START_QUERY = location.search;
             }
         `,
     ],
-    imports: [RouterModule, GlobalBannerComponent, GlobalLoadingComponent],
+    imports: [
+        SettingsDebugPanelLauncherComponent,
+        RouterModule,
+        GlobalBannerComponent,
+        GlobalLoadingComponent,
+    ],
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     protected title = 'survey';

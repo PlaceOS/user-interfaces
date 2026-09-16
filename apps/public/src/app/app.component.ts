@@ -1,10 +1,16 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 
 @Component({
-    imports: [RouterModule],
+    imports: [SettingsDebugPanelLauncherComponent, RouterModule],
     selector: 'placeos-root',
-    template: ` <router-outlet /> `,
+    template: `
+        @defer (on idle) {
+            <settings-debug-panel-launcher />
+        }
+        <router-outlet />
+    `,
     changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
