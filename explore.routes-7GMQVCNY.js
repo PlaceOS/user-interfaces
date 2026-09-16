@@ -1,4 +1,7 @@
 import {
+  CustomTooltipComponent
+} from "./chunk-GIZSGXPW.js";
+import {
   generateQRCode
 } from "./chunk-MJCQM3JL.js";
 import "./chunk-SCRIU3HN.js";
@@ -6,7 +9,6 @@ import {
   AssetStateService,
   BookingFormService,
   CalendarService,
-  CustomTooltipComponent,
   Desk,
   DurationFieldComponent,
   MAT_DIALOG_DATA,
@@ -23,51 +25,82 @@ import {
   MatMenuItem,
   MatMenuModule,
   MatMenuTrigger,
-  MatTooltip,
-  MatTooltipModule,
   UserSearchFieldComponent,
+  deskFromAsset,
   filterResourcesFromRules,
+  findEventClashes,
   generateCalendarFileLink,
   generateGoogleCalendarLink,
   generateMicrosoftCalendarLink,
   newBookingFromCalendarEvent,
   openRecurringClashModal,
-  queryCalendarAvailability,
+  queryDeskAssets,
+  queryDeskAssetsForZones,
   queryParkingSpacesForZones,
   queryParkingUsers,
-  querySpaceFreeBusy,
+  querySpaceAvailability,
+  removeEvent,
   requestSpacesForZone,
   rulesForResource,
+  saveEvent,
   searchStaff,
   searchStaffByEmailPrefix,
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-MBCTN6VH.js";
+} from "./chunk-5OUYC6MH.js";
 import {
-  FormField,
+  MatTooltip,
+  MatTooltipModule
+} from "./chunk-JZPHRBDY.js";
+import {
   MatCheckbox,
   MatCheckboxModule,
-  SanitizePipe,
-  disabled,
-  form,
-  required,
-  validate,
   validateAssetRequestsForResource
-} from "./chunk-MJFGPOZ5.js";
+} from "./chunk-QS46I4RP.js";
 import {
-  ANIMATION_SHOW_CONTRACT_EXPAND,
+  AuthenticatedImageDirective,
+  Booking,
+  FormField,
+  MatError,
+  MatFormField,
+  MatFormFieldModule,
+  MatInput,
+  MatInputModule,
+  MatProgressSpinner,
+  MatProgressSpinnerModule,
+  SpacePipe,
+  VirtualKeyboardComponent,
+  createBookingsForEvent,
+  differenceInCalendarMonths,
+  disabled,
+  endOfMonth,
+  form,
+  queryAllBookings,
+  queryBookings,
+  queryResourceAvailability,
+  required,
+  saveBooking,
+  showGuest,
+  validate
+} from "./chunk-KJBGB7K5.js";
+import {
+  SanitizePipe
+} from "./chunk-6AJNYHZS.js";
+import {
+  TranslatePipe
+} from "./chunk-KNX4PN2G.js";
+import {
   ActivatedRoute,
   AssetRequest,
   AsyncHandler,
   AsyncPipe,
-  AuthenticatedImageDirective,
   BidiModule,
-  Booking,
   CalendarEvent,
   ChangeDetectorRef,
   CommonModule,
   Component,
+  DEFAULT_SETTINGS,
   DatePipe,
   Dd,
   DefaultValueAccessor,
@@ -92,14 +125,7 @@ import {
   LOCAL_TIMEZONE,
   MAP_FEATURE_DATA,
   MapsPeopleService,
-  MatError,
-  MatFormField,
-  MatFormFieldModule,
-  MatInput,
-  MatInputModule,
   MatOption,
-  MatProgressSpinner,
-  MatProgressSpinnerModule,
   MatRipple,
   MatRippleModule,
   Mt,
@@ -127,17 +153,12 @@ import {
   SettingsService,
   SlicePipe,
   Space,
-  SpacePipe,
   TemplateRef,
-  TranslatePipe,
   UpperCasePipe,
   User,
-  V,
-  VERSION,
   ViewChild,
   ViewChildren,
   ViewEncapsulation,
-  VirtualKeyboardComponent,
   _CdkPrivateStyleLoader,
   _IdGenerator,
   _MatInternalFormField,
@@ -155,22 +176,18 @@ import {
   assertNotInReactiveContext,
   ba,
   booleanAttribute,
-  ce,
   computed,
   constructFrom,
-  createBookingsForEvent,
   currentUser,
   currentUserIsLoaded,
   currentUserLoaded,
   debounced,
-  differenceInCalendarMonths,
   differenceInMilliseconds,
   differenceInMinutes,
   effect,
   enUS,
   endOfDay,
   endOfDayInTimezone,
-  endOfMonth,
   f,
   firstValueWhere,
   flatten,
@@ -182,6 +199,7 @@ import {
   getAllDayTimeRange,
   getDefaultOptions,
   getInvalidSignalFields,
+  getItemWithKeys,
   getRoundingMethod,
   getTimeInTimezone,
   getTimezoneOffsetInMilliseconds,
@@ -206,36 +224,29 @@ import {
   normalizeDates,
   notifyError,
   notifySuccess,
+  notifyWarn,
   numberAttribute,
   onFieldChange,
   output,
-  queryAllBookings,
-  queryBookings,
-  queryResourceAvailability,
   resource,
   roundToNearestMinutes,
-  saveBooking,
   set,
   setClassMetadata,
   setDefaultCreator,
   setTimeInTimezone,
-  setting,
   settingSignal,
   setupFormTimeSync,
   shiftColorTowards,
-  showGuest,
   signal,
   startOfDay,
   startOfDayInTimezone,
   startOfMinute,
   startOfWeek,
-  te,
   toDate,
   toQueryString,
   toZonedTime,
   unique,
   untracked,
-  v,
   viewChild,
   viewChildren,
   ɵsetClassDebugInfo,
@@ -308,7 +319,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-KCR3PI72.js";
+} from "./chunk-2CMJ6LSG.js";
 import {
   __spreadProps,
   __spreadValues
@@ -316,7 +327,7 @@ import {
 
 // node_modules/@angular/core/fesm2022/rxjs-interop.mjs
 /**
- * @license Angular v22.0.1
+ * @license Angular v22.1.5
  * (c) 2010-2026 Google LLC. https://angular.dev/
  * License: MIT
  */
@@ -379,7 +390,7 @@ function toSignal(source, options) {
   }, ngDevMode ? createDebugNameObject(options?.debugName, "source") : void 0));
 }
 function makeToSignalEqual(userEquality = Object.is) {
-  return (a, b2) => a.kind === 1 && b2.kind === 1 && userEquality(a.value, b2.value);
+  return (a, b) => a.kind === 1 && b.kind === 1 && userEquality(a.value, b.value);
 }
 function createDebugNameObject(toSignalDebugName, internalSignalDebugName) {
   return {
@@ -2850,7 +2861,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
         date: date_value,
         id: time_str
       });
-      time_options.sort((a, b2) => `${a.id}`.localeCompare(`${b2.id}`));
+      time_options.sort((a, b) => `${a.id}`.localeCompare(`${b.id}`));
     }
     return time_options;
   }
@@ -3146,75 +3157,11 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(TimeFieldComponent, { className: "TimeFieldComponent", filePath: "libs/form-fields/src/lib/time-field.component.ts", lineNumber: 169 });
 })();
 
-// libs/events/src/lib/events.fn.ts
-var EVENTS_ENDPOINT = `/api/staff/v1/events`;
-var APP_VERSION = VERSION.raw || VERSION.version || VERSION.hash;
-function appName() {
-  return setting("app.name") || setting("app.short_name") || "PlaceOS";
-}
-function withAppVersion(data) {
-  return __spreadProps(__spreadValues({}, data), {
-    extension_data: __spreadProps(__spreadValues({}, data.extension_data || {}), {
-      app_name: appName(),
-      app_version: APP_VERSION
-    })
-  });
-}
-async function createEvent(data) {
-  const item = await v(`${EVENTS_ENDPOINT}`, new CalendarEvent(withAppVersion(data)).toJSON());
-  return new CalendarEvent(item);
-}
-async function updateEvent(id, data, q = {}, method = "patch") {
-  const query = toQueryString(q);
-  const item = await (method === "patch" ? te : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
-  return new CalendarEvent(item);
-}
-var saveEvent = async (data, q) => {
-  const id = data.update_master ? data.recurring_event_id || data.id : data.id;
-  delete data?.status;
-  return id ? updateEvent(id, __spreadProps(__spreadValues({}, data), { id }), q) : createEvent(data);
-};
-function removeEvent(id, q = {}) {
-  const query = toQueryString(q);
-  return V(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, {
-    response_type: "void"
-  });
-}
-async function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_period = [0, 0]) {
-  const end = addMinutes(start, duration).valueOf();
-  const [spaces, ignore_check] = await Promise.all([
-    queryCalendarAvailability({
-      system_ids: id_list.join(),
-      period_start: getUnixTime(start),
-      period_end: getUnixTime(end)
-    }).catch(() => []),
-    ignore && id_list.includes(ignore) ? querySpaceFreeBusy({
-      period_start: getUnixTime(start),
-      period_end: getUnixTime(end),
-      system_ids: ignore
-    }) : Promise.resolve([])
-  ]);
-  const short_list = id_list.map((id) => !!spaces.find((s) => s.id === id || s.resource?.id === id));
-  for (const space of ignore_check) {
-    if (!id_list.includes(space.id))
-      continue;
-    const availability = space.availability.filter((i) => !(i.date === ignore_period[0] && i.duration === ignore_period[1]));
-    short_list[id_list.indexOf(space.id)] = !availability.find((i) => i.status !== "free");
-  }
-  return short_list;
-}
-async function findEventClashes(event, q = {}) {
-  const query = toQueryString(__spreadProps(__spreadValues({}, q), { limit: 1e4 }));
-  try {
-    const list = await v(`${EVENTS_ENDPOINT}/clashing-assets${query ? "?" + query : ""}`, event.toJSON());
-    return q.include_clash_time ? list : list;
-  } catch (_) {
-    return [];
-  }
-}
-
 // libs/events/src/lib/utilities.ts
 var BOOKING_DATE = add(setMinutes(setHours(/* @__PURE__ */ new Date(), 6), 0), { days: -1 });
+function multipleSpacesEnabled(settings) {
+  return settings.get("app.events.multiple_spaces") === true || settings.get("app.events.allow_multiple_spaces") === true;
+}
 function eventFormValue(event = new CalendarEvent()) {
   return {
     id: event.id || "",
@@ -3295,18 +3242,24 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
     disabled(p.host, { when: () => has_id });
     disabled(p.organiser, { when: () => has_id });
     disabled(p.date, { when: () => lock_start_time() });
-    disabled(p.assets, { when: ({ valueOf }) => !valueOf(p.resources)?.length });
-    disabled(p.duration, { when: ({ valueOf }) => !!valueOf(p.all_day) });
+    disabled(p.assets, {
+      when: ({ valueOf }) => !valueOf(p.resources)?.length
+    });
+    disabled(p.duration, {
+      when: ({ valueOf }) => !!valueOf(p.all_day)
+    });
   }, { injector });
-  onFieldChange(model2, (v2) => v2.organiser, (organiser) => (
+  onFieldChange(model2, (v) => v.organiser, (organiser) => (
     // Coalesce to '' so the `host` sub-field is never removed from the
     // FieldTree (an undefined value breaks its `required`/`[formField]`).
-    model2.update((m) => __spreadProps(__spreadValues({}, m), { host: organiser?.email ?? "" }))
+    model2.update((m) => __spreadProps(__spreadValues({}, m), {
+      host: organiser?.email ?? ""
+    }))
   ), injector);
-  onFieldChange(model2, (v2) => v2.resources, (resources) => model2.update((m) => __spreadProps(__spreadValues({}, m), {
+  onFieldChange(model2, (v) => v.resources, (resources) => model2.update((m) => __spreadProps(__spreadValues({}, m), {
     system: resources?.length ? resources[0] : null
   })), injector);
-  onFieldChange(model2, (v2) => v2.date, (date) => {
+  onFieldChange(model2, (v) => v.date, (date) => {
     const recurrence = model2().recurrence;
     if (!recurrence?.pattern)
       return;
@@ -3334,7 +3287,7 @@ function generateEventForm(event = new CalendarEvent(), settings, injector) {
       }))
     }));
   };
-  onFieldChange(model2, (v2) => v2.catering, setCateringTime, injector);
+  onFieldChange(model2, (v) => v.catering, setCateringTime, injector);
   const time_sync = setupFormTimeSync(model2, { on_time_change: setCateringTime }, injector);
   return { model: model2, form: event_form, time_sync, lock_start_time };
 }
@@ -4496,7 +4449,7 @@ ${content}
 `;
     }
     const tag = element.tagName.toLowerCase();
-    const attributes = [...element.attributes].sort((a, b2) => a.name.localeCompare(b2.name)).map(({ name, value }) => ` ${name}="${value}"`).join("");
+    const attributes = [...element.attributes].sort((a, b) => a.name.localeCompare(b.name)).map(({ name, value }) => ` ${name}="${value}"`).join("");
     return `<${tag}${attributes}>${content}</${tag}>`;
   };
   return [...template.content.childNodes].map(serialise).join("").replace(/[ \t]+\n|\n[ \t]+/g, "\n").replace(/\n+/g, "\n").trim();
@@ -4516,6 +4469,9 @@ var ROOM_CAPACITY_RANGES = {
 };
 var EventFormService = class _EventFormService extends AsyncHandler {
   get timezone() {
+    if (multipleSpacesEnabled(this._settings)) {
+      return this._model?.()?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    }
     return this._settings.get("app.events.use_building_timezone") ? this._org.building?.timezone || "" : "";
   }
   _startNetwork() {
@@ -4608,6 +4564,14 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       )
     );
     this._space_requests = /* @__PURE__ */ new Map();
+    this._loaded_space_lists = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "_loaded_space_lists" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.loaded_space_lists = this._loaded_space_lists.asReadonly();
     this._availability_requests = /* @__PURE__ */ new Map();
     this._form_ref = generateEventForm(void 0, this._settings, this._injector);
     this._form = this._form_ref.form;
@@ -4710,7 +4674,10 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         []
       )
     );
-    this._space_zone_debounced = debounced(this._space_zone, 300, { injector: this._injector, equal: Object.is });
+    this._space_zone_debounced = debounced(this._space_zone, 300, {
+      injector: this._injector,
+      equal: Object.is
+    });
     this._spaces_resource = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_spaces_resource" } : (
       /* istanbul ignore next */
       {}
@@ -4718,12 +4685,25 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       params: () => this._network_consumed() && this._requests_ready() ? this._space_zone_debounced.value() || void 0 : void 0,
       loader: ({ params: zone_id }) => {
         this.addLoadingTag(Tags.ListingRooms);
-        return this._requestSpaces(zone_id).then((list) => list.filter((_) => _.bookable && _.email && !_.room_booking_url)).catch(() => []).finally(() => this.removeLoadingTag(Tags.ListingRooms));
+        return this._requestSpaces(zone_id).then((list) => {
+          const spaces = list.filter((_) => _.bookable && _.email && !_.room_booking_url);
+          this._loaded_space_lists.update((loaded) => __spreadProps(__spreadValues({}, loaded), {
+            [zone_id]: spaces
+          }));
+          return { zone_id, spaces };
+        }).catch(() => null).finally(() => this.removeLoadingTag(Tags.ListingRooms));
       }
     }));
+    this.loaded_space_zone = computed(
+      () => this._spaces_resource.value()?.zone_id || "",
+      ...ngDevMode ? [{ debugName: "loaded_space_zone" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.spaces = computed(
       () => {
-        return this._spaces_resource.value() ?? [];
+        return this._spaces_resource.value()?.spaces ?? [];
       },
       ...ngDevMode ? [{ debugName: "spaces" }] : (
         /* istanbul ignore next */
@@ -4781,11 +4761,11 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         if (filters.features) {
           list = list.filter(({ features }) => filters.features.every((f2) => features.includes(f2)));
         }
-        return list.sort((a, b2) => {
-          const cap_diff = (a.capacity || 0) - (b2.capacity || 0);
+        return list.sort((a, b) => {
+          const cap_diff = (a.capacity || 0) - (b.capacity || 0);
           if (cap_diff !== 0)
             return cap_diff;
-          return (a.display_name || a.name).localeCompare(b2.display_name || b2.name);
+          return (a.display_name || a.name).localeCompare(b.display_name || b.name);
         });
       },
       ...ngDevMode ? [{ debugName: "filtered_spaces" }] : (
@@ -4846,9 +4826,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
   async init() {
     await currentUserLoaded();
     setDefaultCreator(currentUser());
-    onFieldChange(this._model, (v2) => v2.date, (date) => this.setOptions({ date }), this._injector);
-    onFieldChange(this._model, (v2) => v2.duration, (duration) => this.setOptions({ duration }), this._injector);
-    onFieldChange(this._model, (v2) => v2.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
+    onFieldChange(this._model, (v) => v.date, (date) => this.setOptions({ date }), this._injector);
+    onFieldChange(this._model, (v) => v.duration, (duration) => this.setOptions({ duration }), this._injector);
+    onFieldChange(this._model, (v) => v.all_day, (all_day) => this.setOptions({ all_day }), this._injector);
     this.subscription("router.events", this._router.events.subscribe((event) => {
       if (event instanceof NavigationEnd && !BOOKING_URLS.some((_) => event.url.includes(_)) && !PERSISTED_EVENT_CONTEXT_URLS.some((_) => event.url.includes(_))) {
         this.clearForm();
@@ -4916,10 +4896,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     const existing = this._availability_requests.get(key);
     if (existing)
       return existing;
-    const request = (this.book_internal ? queryResourceAvailability(ids, date, duration, ignore, void 0) : querySpaceAvailability(ids, date, duration, ignore, void 0, [
-      event?.date,
-      event?.duration
-    ])).finally(() => this._availability_requests.delete(key));
+    const request = (this.book_internal ? queryResourceAvailability(ids, date, duration, ignore, void 0) : querySpaceAvailability(ids, date, duration, ignore, void 0, [event?.date, event?.duration])).finally(() => this._availability_requests.delete(key));
     this._availability_requests.set(key, request);
     return request;
   }
@@ -5023,13 +5000,16 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form().markAsTouched();
     if (!this._form().valid() && !force)
       return;
-    const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), { assets: [] }));
+    const event = new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
+      assets: []
+    }));
     const ref = this._dialog.open(EventLinkModalComponent, { data: event });
     ref.afterClosed().subscribe((d) => d ? this._router.navigate(["/"]) : "");
   }
   cancelPostForm() {
   }
   async postForm(force = false, ignore_space_check = [], ignore_owner = false, force_calendar = false) {
+    await currentUserLoaded();
     const notify_new_attendees_only = this.notify_new_attendees_only() && this.can_notify_new_attendees_only();
     if (isEmptyUser({ email: this._model().host })) {
       this._model.update((m) => __spreadProps(__spreadValues({}, m), { host: currentUser().email }));
@@ -5061,33 +5041,27 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         this._model.update((m) => __spreadProps(__spreadValues({}, m), { recurrence: null }));
       }
       const changed_spaces = spaces.filter((_) => !event.resources.find((s) => s.id === _.id));
+      const resources_changed = !!changed_spaces.length || event.resources.some((space) => !spaces.some((_) => _.id === space.id));
       const all_day_period = raw_value.all_day ? this._allDayTimeRange(raw_value.date) : {
         date: raw_value.date,
         duration: raw_value.duration,
         date_end: raw_value.date_end
       };
       const has_time_changed = !event.id || event.date !== raw_value.date || event.duration !== raw_value.duration;
+      const organiser_timezone = this.timezone || raw_value.timezone;
       this._model.update((m) => __spreadProps(__spreadValues({}, m), {
-        timezone: this.timezone || raw_value.timezone
+        timezone: organiser_timezone
       }));
-      const bookable_hours = this._settings.get("app.events.bookable_hours");
-      if (!isWithinBookableHours(raw_value.date, bookable_hours, raw_value.timezone)) {
-        throw i18n("FORM.BOOKABLE_HOURS_ERROR");
-      }
-      if (raw_value.date_end && raw_value.duration > 24 * 60 && bookable_hours) {
-        const { hours, minutes } = getTimeInTimezone(raw_value.date_end, raw_value.timezone);
-        const end_minutes = hours * 60 + minutes;
-        const within_end_window = end_minutes >= bookable_hours.start * 60 && end_minutes <= bookable_hours.end * 60;
-        if (!within_end_window) {
-          throw i18n("FORM.BOOKABLE_HOURS_ERROR");
-        }
-      }
-      if (spaces.length && has_time_changed) {
-        const space_list2 = await Promise.all(changed_spaces.map((_) => this._space_pipe.transform(_.email)));
+      await this._checkBuildingBookableHours(spaces, all_day_period.date, all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3, organiser_timezone);
+      if (spaces.length && (has_time_changed || resources_changed)) {
         const date = raw_value.all_day ? all_day_period.date : raw_value.date;
         const duration = raw_value.all_day ? all_day_period.duration : raw_value.duration;
-        await this._checkResourcesAvailable(space_list2, date, duration, event.ical_uid || event.id || "").catch(on_error);
-        await this._checkResourceRules(space_list2, date, duration, this._host(this._model().host, spaces[0]?.email)).catch(on_error);
+        const availability_candidates = has_time_changed ? spaces : changed_spaces;
+        if (availability_candidates.length) {
+          const availability_spaces = await Promise.all(availability_candidates.map((space) => this._space_pipe.transform(space.email)));
+          await this._checkResourcesAvailable(availability_spaces, date, duration, event.ical_uid || event.id || "").catch(on_error);
+        }
+        await this._checkResourceRules(spaces, date, duration, this._host(this._model().host, spaces[0]?.email)).catch(on_error);
       } else if (!space_list.length && this.lone_space) {
         spaces = [await this._space_pipe.transform(this.lone_space)];
         this._model.update((m) => __spreadProps(__spreadValues({}, m), { resources: spaces }));
@@ -5100,9 +5074,14 @@ var EventFormService = class _EventFormService extends AsyncHandler {
           resources: spaces
         }))).catch(on_error);
       }
-      this._model.update((m) => __spreadProps(__spreadValues({}, m), {
-        attendees: unique([...m.attendees, m.organiser || currentUser()], "email")
-      }));
+      const valid_attendee = (user) => !isEmptyUser(user) && !!user.email.split("@")[0].trim();
+      this._model.update((m) => {
+        const organiser = valid_attendee(m.organiser) ? m.organiser : m.host === currentUser().email ? currentUser() : new User({ email: m.host });
+        return __spreadProps(__spreadValues({}, m), {
+          organiser,
+          attendees: unique([...m.attendees, organiser].filter(valid_attendee), "email")
+        });
+      });
       if (!spaces.length && this._model().attendees.find((_) => _.is_external)) {
         this.removeLoadingTag(Tags.PostBooking);
         throw i18n("CALENDAR_EVENT.SPACE_EXTERNALS_ERROR");
@@ -5138,8 +5117,6 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       const is_owner = owner_fields.some((_) => _?.toLowerCase?.() === user_email);
       if ((is_owner && !ignore_owner || force_calendar) && query_calendar)
         query.calendar = query_calendar;
-      if (force_calendar)
-        delete query.system_id;
       const processed_assets = (this._model().assets || []).map((_) => new AssetRequest(_).toJSON());
       const host = this._host(this._model().host, spaces[0]?.email);
       const ext = {
@@ -5153,27 +5130,36 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         duration: all_day_period.duration,
         date_end: all_day_period.date_end,
         old_system: event?.system,
+        system: null,
         host,
         title: this._model().title || "Space Booking",
         attendees: this._model().attendees.map((_) => {
-          const v2 = __spreadValues({}, _);
-          delete v2.visit_expected;
-          delete v2.extension_data;
-          return v2;
+          const v = __spreadValues({}, _);
+          delete v.visit_expected;
+          delete v.extension_data;
+          return v;
         }),
         assets: processed_assets,
         extension_data: ext
       })), query).catch(on_error);
       const date_end = all_day_period.date_end || all_day_period.date + all_day_period.duration * 60 * 1e3;
+      const saved_resources = created_event.resources || [];
+      const resolved_resources = this._resolveResourceResponses(space_list, saved_resources);
+      const failed_resources = resolved_resources.filter((_) => _.response_status === "declined");
+      const booked_resources = resolved_resources.filter((_) => _.response_status !== "declined");
+      spaces = booked_resources;
       created_event = new CalendarEvent(__spreadProps(__spreadValues({}, created_event), {
         event_start: Math.floor(all_day_period.date / 1e3),
         event_end: Math.floor(date_end / 1e3),
         date: all_day_period.date,
         duration: all_day_period.duration,
         date_end,
-        resources: space_list,
-        system: space_list[0] || null
+        resources: booked_resources
       }));
+      if (failed_resources.length) {
+        const names = failed_resources.map((_) => _.display_name || _.name || _.email).join(", ");
+        notifyWarn(i18n(failed_resources.length > 1 ? "CALENDAR_EVENT.SPACES_UNAVAILABLE" : "CALENDAR_EVENT.SPACE_UNAVAILABLE", { spaces: names }));
+      }
       const domain = (currentUser()?.email || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
       if (visitors.length) {
@@ -5265,19 +5251,69 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     }
     return true;
   }
+  /** Resolve an app setting against one building's override stack. */
+  _buildingSetting(key, building) {
+    const keys = key.split(".");
+    const override_keys = keys[0] === "app" ? keys.slice(1) : keys;
+    const overrides = [
+      this._org.buildingSettings(building.id),
+      this._org.regionSettings(building.parent_id),
+      ...this._org.settings || []
+    ];
+    for (const override of overrides) {
+      const value = getItemWithKeys(override_keys, override);
+      if (value != null)
+        return value;
+    }
+    return getItemWithKeys(keys, DEFAULT_SETTINGS);
+  }
+  _resolveResourceResponses(requested, saved) {
+    const require_saved_resource = requested.length > 1;
+    return requested.map((space) => {
+      const response = saved.find((_) => _.email && _.email === space.email || _.id && _.id === space.id);
+      return new Space(__spreadProps(__spreadValues({}, space), {
+        response_status: response?.response_status || (response || !require_saved_resource ? space.response_status : "declined")
+      }));
+    });
+  }
+  /** Check the event instant against every selected building's local hours. */
+  async _checkBuildingBookableHours(spaces, date, date_end, organiser_timezone) {
+    const buildings = await this._org.loadBuildingsForZones(spaces.map((space) => space.zones));
+    await Promise.all(buildings.map((building) => this._org.loadBuildingData(building)));
+    const policies = buildings.length ? buildings.map((building) => ({
+      hours: this._buildingSetting("app.events.bookable_hours", building),
+      timezone: building.timezone || organiser_timezone
+    })) : [
+      {
+        hours: this._settings.get("app.events.bookable_hours"),
+        timezone: organiser_timezone
+      }
+    ];
+    for (const { hours, timezone } of policies) {
+      if (!hours)
+        continue;
+      const { hours: end_hour, minutes: end_minute } = getTimeInTimezone(date_end, timezone);
+      const end_minutes = end_hour * 60 + end_minute;
+      const end_is_valid = end_minutes >= hours.start * 60 && end_minutes <= hours.end * 60;
+      if (!isWithinBookableHours(date, hours, timezone) || !end_is_valid) {
+        throw i18n("FORM.BOOKABLE_HOURS_ERROR");
+      }
+    }
+  }
   async _checkResourceRules(spaces, date, duration, host) {
     const user = await this._bookingRulesHost(host);
     await this._whenSettled(this._booking_rules_resource);
     const rules = __spreadValues({}, this.booking_rules());
+    const buildings = await this._org.loadBuildingsForZones(spaces.map((space) => space.zones));
     for (const space of spaces) {
-      const bld = this._org.buildings.find((b2) => space.zones.includes(b2.id));
+      const bld = buildings.find((b) => space.zones.includes(b.id));
       if (!bld || rules[bld.id])
         continue;
       const metadata = await ic(bld.id, "room_booking_rules").catch(() => ({ details: [] }));
       rules[bld.id] = metadata.details instanceof Array ? metadata.details : [];
     }
     const space_rules = spaces.map((space) => {
-      const bld = this._org.buildings.find((b2) => space.zones.includes(b2.id));
+      const bld = buildings.find((b) => space.zones.includes(b.id));
       return rulesForResource({
         date,
         duration,
@@ -5315,7 +5351,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     if (!clashes?.length) {
       return true;
     }
-    const sorted_clashes = [...clashes].sort((a, b2) => a.booking_start - b2.booking_start);
+    const sorted_clashes = [...clashes].sort((a, b) => a.booking_start - b.booking_start);
     const event_start_unix = Math.floor(event.date / 1e3);
     const first_clash = sorted_clashes[0];
     const is_first_instance_clash = first_clash.booking_start === event_start_unix;
@@ -5370,7 +5406,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       "space_ids",
       (value.resources || []).map((_) => (_.email || _.id || "").toLowerCase()).sort()
     ]);
-    details.sort(([a], [b2]) => a > b2 ? 1 : -1);
+    details.sort(([a], [b]) => a > b ? 1 : -1);
     return JSON.stringify(details);
   }
   async _removeBookingAfterError(is_new, event, assets = false, e) {
@@ -5421,7 +5457,7 @@ var SPACE_PIPE;
 var SpacesService = class _SpacesService {
   /** List of available spaces */
   get space_list() {
-    return this._all_spaces().filter((s) => s.map_id);
+    return this.list();
   }
   constructor() {
     this._org = inject(OrganisationService);
@@ -5445,6 +5481,20 @@ var SpacesService = class _SpacesService {
     this.list = computed(
       () => this._all_spaces().filter((space) => space.map_id),
       ...ngDevMode ? [{ debugName: "list" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._spaces_by_id = computed(
+      () => new Map(this.list().map((space) => [space.id, space])),
+      ...ngDevMode ? [{ debugName: "_spaces_by_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._spaces_by_email = computed(
+      () => new Map(this.list().filter(({ email }) => !!email).map((space) => [space.email, space])),
+      ...ngDevMode ? [{ debugName: "_spaces_by_email" }] : (
         /* istanbul ignore next */
         []
       )
@@ -5491,7 +5541,7 @@ var SpacesService = class _SpacesService {
    * @param space_id ID/Email address associated with the space
    */
   find(space_id) {
-    return this.space_list.find(({ id, email }) => space_id === id || space_id === email);
+    return this._spaces_by_id().get(space_id) || this._spaces_by_email().get(space_id);
   }
   async loadSpaces() {
     const systems = (await ga({
@@ -5600,16 +5650,16 @@ var ExploreBookQrComponent = class _ExploreBookQrComponent {
 })();
 
 // libs/explore/src/lib/explore-booking-modal.component.ts
-function ExploreBookingModalComponent_Conditional_5_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "button", 3)(1, "icon");
+    \u0275\u0275elementStart(0, "button", 2)(1, "icon");
     \u0275\u0275text(2, "close");
     \u0275\u0275elementEnd()();
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_12_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 8)(1, "label", 18);
+    \u0275\u0275elementStart(0, "div", 7)(1, "label", 17);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementStart(4, "span");
@@ -5617,7 +5667,7 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_12
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ":");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(7, "a-user-search-field", 19);
+    \u0275\u0275element(7, "a-user-search-field", 18);
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
   }
@@ -5630,9 +5680,9 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_12
     \u0275\u0275control();
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_19_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_19_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 20);
+    \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -5643,7 +5693,7 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_19
     \u0275\u0275textInterpolate1(" ", ctx_r1.alert()[1], " ");
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Conditional_7_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_21_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
     \u0275\u0275pipe(1, "date");
@@ -5653,16 +5703,16 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21
     \u0275\u0275textInterpolate1(" at ", \u0275\u0275pipeBind2(1, 1, ctx_r1.model().date, ctx_r1.time_format()), " ");
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_21_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 15)(1, "label");
+    \u0275\u0275elementStart(0, "div", 14)(1, "label");
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 21);
+    \u0275\u0275elementStart(4, "div", 20);
     \u0275\u0275text(5);
     \u0275\u0275pipe(6, "date");
-    \u0275\u0275conditionalCreate(7, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Conditional_7_Template, 2, 4);
+    \u0275\u0275conditionalCreate(7, ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_21_Conditional_7_Template, 2, 4);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -5675,13 +5725,13 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21
     \u0275\u0275conditional(!ctx_r1.model().all_day ? 7 : -1);
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_22_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_22_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 16)(1, "label");
+    \u0275\u0275elementStart(0, "div", 15)(1, "label");
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "a-duration-field", 22);
+    \u0275\u0275element(4, "a-duration-field", 21);
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
   }
@@ -5694,9 +5744,9 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_22
     \u0275\u0275control();
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_23_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 17)(1, "mat-checkbox", 23);
+    \u0275\u0275elementStart(0, "div", 16)(1, "mat-checkbox", 22);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
@@ -5712,37 +5762,37 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "COMMON.ALL_DAY"), " ");
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Conditional_0_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_5_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "main", 5)(1, "div", 8)(2, "label", 9);
+    \u0275\u0275elementStart(0, "main", 4)(1, "div", 7)(2, "label", 8);
     \u0275\u0275text(3, "Title");
     \u0275\u0275elementStart(4, "span");
     \u0275\u0275text(5, "*");
     \u0275\u0275elementEnd();
     \u0275\u0275text(6, ":");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "mat-form-field", 10);
-    \u0275\u0275element(8, "input", 11);
+    \u0275\u0275elementStart(7, "mat-form-field", 9);
+    \u0275\u0275element(8, "input", 10);
     \u0275\u0275controlCreate();
     \u0275\u0275elementStart(9, "mat-error");
     \u0275\u0275text(10);
     \u0275\u0275pipe(11, "translate");
     \u0275\u0275elementEnd()()();
-    \u0275\u0275conditionalCreate(12, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_12_Template, 8, 4, "div", 8);
-    \u0275\u0275elementStart(13, "div", 8)(14, "label");
+    \u0275\u0275conditionalCreate(12, ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_12_Template, 8, 4, "div", 7);
+    \u0275\u0275elementStart(13, "div", 7)(14, "label");
     \u0275\u0275text(15);
     \u0275\u0275pipe(16, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(17, "div", 12);
+    \u0275\u0275elementStart(17, "div", 11);
     \u0275\u0275text(18);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(19, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_19_Template, 2, 13, "div", 13);
+    \u0275\u0275conditionalCreate(19, ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_19_Template, 2, 13, "div", 12);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(20, "div", 14);
-    \u0275\u0275conditionalCreate(21, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_21_Template, 8, 8, "div", 15);
-    \u0275\u0275conditionalCreate(22, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_22_Template, 5, 8, "div", 16);
+    \u0275\u0275elementStart(20, "div", 13);
+    \u0275\u0275conditionalCreate(21, ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_21_Template, 8, 8, "div", 14);
+    \u0275\u0275conditionalCreate(22, ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_22_Template, 5, 8, "div", 15);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(23, ExploreBookingModalComponent_Conditional_6_Conditional_0_Conditional_23_Template, 4, 4, "div", 17);
+    \u0275\u0275conditionalCreate(23, ExploreBookingModalComponent_Conditional_5_Conditional_0_Conditional_23_Template, 4, 4, "div", 16);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -5768,12 +5818,12 @@ function ExploreBookingModalComponent_Conditional_6_Conditional_0_Template(rf, c
     \u0275\u0275conditional(ctx_r1.allow_all_day() ? 23 : -1);
   }
 }
-function ExploreBookingModalComponent_Conditional_6_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275conditionalCreate(0, ExploreBookingModalComponent_Conditional_6_Conditional_0_Template, 24, 13, "main", 5);
-    \u0275\u0275elementStart(1, "footer", 6)(2, "button", 7);
-    \u0275\u0275listener("click", function ExploreBookingModalComponent_Conditional_6_Template_button_click_2_listener() {
+    \u0275\u0275conditionalCreate(0, ExploreBookingModalComponent_Conditional_5_Conditional_0_Template, 24, 13, "main", 4);
+    \u0275\u0275elementStart(1, "footer", 5)(2, "button", 6);
+    \u0275\u0275listener("click", function ExploreBookingModalComponent_Conditional_5_Template_button_click_2_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.save());
@@ -5789,10 +5839,10 @@ function ExploreBookingModalComponent_Conditional_6_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(4, 2, "COMMON.SAVE"), " ");
   }
 }
-function ExploreBookingModalComponent_Conditional_7_Template(rf, ctx) {
+function ExploreBookingModalComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 4);
-    \u0275\u0275element(1, "mat-spinner", 24);
+    \u0275\u0275elementStart(0, "div", 3);
+    \u0275\u0275element(1, "mat-spinner", 23);
     \u0275\u0275elementStart(2, "p");
     \u0275\u0275text(3);
     \u0275\u0275pipe(4, "translate");
@@ -5885,24 +5935,23 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreBookingModalComponent, selectors: [["explore-booking-modal"]], decls: 8, vars: 5, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "h-14", "w-[calc(100%-1rem)]", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], [1, "flex-1"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["load", "", 1, "flex", "h-64", "flex-col", "items-center", "justify-center"], [1, "max-w-[85vw]", "px-4"], [1, "border-base-300", "flex", "justify-end", "border-t", "p-2"], ["btn", "", "matRipple", "", 1, "mx-2", "w-32", 3, "click"], [1, "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["id", "title", "matInput", "", "placeholder", "Booking Title", 3, "formField"], ["name", "space", 1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], [1, "flex", "flex-wrap", "sm:space-x-4"], [1, "flex", "w-full", "min-w-48", "flex-1", "flex-col", "sm:w-auto"], [1, "flex", "w-full", "flex-col", "sm:w-auto"], [1, "-mt-2", "mb-2", "flex", "justify-end"], ["for", "host"], [1, "mb-4", 3, "formField"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], [1, "w-full", 3, "formField", "time", "max", "end_time", "use_24hr"], [3, "formField"], [1, "m-4", 3, "diameter"]], template: function ExploreBookingModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ExploreBookingModalComponent, selectors: [["explore-booking-modal"]], decls: 7, vars: 5, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], ["load", "", 1, "flex", "h-64", "flex-col", "items-center", "justify-center"], [1, "w-[32rem]", "max-w-[85vw]", "px-4"], [1, "border-base-300", "flex", "justify-end", "border-t", "p-2"], ["btn", "", "matRipple", "", 1, "mx-2", "w-32", 3, "click"], [1, "flex", "flex-col"], ["for", "title"], ["appearance", "outline"], ["id", "title", "matInput", "", "placeholder", "Booking Title", 3, "formField"], ["name", "space", 1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs", 3, "bg-info", "text-info-content", "bg-warning", "text-warning-content", "bg-error", "text-error-content"], [1, "flex", "flex-col", "sm:flex-row", "sm:gap-4"], [1, "flex", "w-full", "min-w-48", "flex-1", "flex-col", "sm:w-auto"], [1, "flex", "w-full", "flex-col", "sm:w-auto"], [1, "mb-2", "flex", "justify-end"], ["for", "host"], [1, "mb-4", 3, "formField"], [1, "-mt-2", "mb-4", "rounded-sm", "px-2", "py-1", "text-xs"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], [1, "w-full", 3, "formField", "time", "max", "end_time", "use_24hr"], [3, "formField"], [1, "m-4", 3, "diameter"]], template: function ExploreBookingModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2);
         \u0275\u0275pipe(3, "translate");
         \u0275\u0275elementEnd();
-        \u0275\u0275element(4, "div", 2);
-        \u0275\u0275conditionalCreate(5, ExploreBookingModalComponent_Conditional_5_Template, 3, 0, "button", 3);
+        \u0275\u0275conditionalCreate(4, ExploreBookingModalComponent_Conditional_4_Template, 3, 0, "button", 2);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(6, ExploreBookingModalComponent_Conditional_6_Template, 5, 4)(7, ExploreBookingModalComponent_Conditional_7_Template, 5, 4, "div", 4);
+        \u0275\u0275conditionalCreate(5, ExploreBookingModalComponent_Conditional_5_Template, 5, 4)(6, ExploreBookingModalComponent_Conditional_6_Template, 5, 4, "div", 3);
       }
       if (rf & 2) {
         \u0275\u0275advance(2);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 3, "EXPLORE.BOOKING_HEADER"), " ");
-        \u0275\u0275advance(3);
-        \u0275\u0275conditional(!ctx.loading() ? 5 : -1);
+        \u0275\u0275advance(2);
+        \u0275\u0275conditional(!ctx.loading() ? 4 : -1);
         \u0275\u0275advance();
-        \u0275\u0275conditional(!ctx.loading() ? 6 : 7);
+        \u0275\u0275conditional(!ctx.loading() ? 5 : 6);
       }
     }, dependencies: [
       MatRippleModule,
@@ -5932,12 +5981,11 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
     type: Component,
     args: [{ selector: "explore-booking-modal", template: `
         <header
-            class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'EXPLORE.BOOKING_HEADER' | translate }}
             </h2>
-            <div class="flex-1"></div>
             @if (!loading()) {
                 <button icon matRipple mat-dialog-close>
                     <icon>close</icon>
@@ -5946,7 +5994,7 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
         </header>
         @if (!loading()) {
             @if (form) {
-                <main class="max-w-[85vw] px-4">
+                <main class="w-[32rem] max-w-[85vw] px-4">
                     <div class="flex flex-col">
                         <label for="title">Title<span>*</span>:</label>
                         <mat-form-field appearance="outline">
@@ -6006,7 +6054,7 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
                             </div>
                         }
                     </div>
-                    <div class="flex flex-wrap sm:space-x-4">
+                    <div class="flex flex-col sm:flex-row sm:gap-4">
                         @if (form.date) {
                             <div
                                 class="flex w-full min-w-48 flex-1 flex-col sm:w-auto"
@@ -6040,7 +6088,7 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
                         }
                     </div>
                     @if (allow_all_day()) {
-                        <div class="-mt-2 mb-2 flex justify-end">
+                        <div class="mb-2 flex justify-end">
                             <mat-checkbox [formField]="form.all_day">
                                 {{ 'COMMON.ALL_DAY' | translate }}
                             </mat-checkbox>
@@ -6076,7 +6124,7 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreBookingModalComponent, { className: "ExploreBookingModalComponent", filePath: "libs/explore/src/lib/explore-booking-modal.component.ts", lineNumber: 197 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreBookingModalComponent, { className: "ExploreBookingModalComponent", filePath: "libs/explore/src/lib/explore-booking-modal.component.ts", lineNumber: 196 });
 })();
 
 // libs/explore/src/lib/explore-icon.component.ts
@@ -6211,30 +6259,52 @@ function ExploreSpaceInfoComponent_ng_template_2_Conditional_16_Template(rf, ctx
     \u0275\u0275repeater(ctx_r0.space().features);
   }
 }
-function ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Template(rf, ctx) {
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Conditional_3_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "h3");
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate(ctx_r0.next().title);
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275declareLet(0);
     \u0275\u0275pipe(1, "user");
     \u0275\u0275pipe(2, "async");
-    \u0275\u0275elementStart(3, "div", 18);
+    \u0275\u0275elementStart(3, "div", 20);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 19)(6, "h3");
-    \u0275\u0275text(7);
+  }
+  if (rf & 2) {
+    const ctx_r0 = \u0275\u0275nextContext(3);
+    const host_r3 = \u0275\u0275pipeBind1(2, 3, \u0275\u0275pipeBind1(1, 1, ctx_r0.next().host));
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1(" ", host_r3?.name || ctx_r0.next().host, " ");
+  }
+}
+function ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 18);
+    \u0275\u0275text(1);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(8, "div", 20);
-    \u0275\u0275text(9);
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(2, "div", 19);
+    \u0275\u0275conditionalCreate(3, ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Conditional_3_Template, 2, 1, "h3");
+    \u0275\u0275conditionalCreate(4, ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Conditional_4_Template, 5, 5, "div", 20);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
-    const host_r3 = \u0275\u0275pipeBind1(2, 5, \u0275\u0275pipeBind1(1, 3, ctx_r0.next().host));
-    \u0275\u0275advance(4);
+    \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", ctx_r0.current() ? "Current" : "Upcoming", " booking ");
-    \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(ctx_r0.next().title);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", host_r3?.name || ctx_r0.next().host, " ");
+    \u0275\u0275conditional(!ctx_r0.hide_meeting_title() ? 3 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(!ctx_r0.hide_meeting_details() ? 4 : -1);
   }
 }
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_18_Template(rf, ctx) {
@@ -6272,7 +6342,7 @@ function ExploreSpaceInfoComponent_ng_template_2_Template(rf, ctx) {
     \u0275\u0275elementEnd();
     \u0275\u0275conditionalCreate(15, ExploreSpaceInfoComponent_ng_template_2_Conditional_15_Template, 6, 7, "div", 14);
     \u0275\u0275conditionalCreate(16, ExploreSpaceInfoComponent_ng_template_2_Conditional_16_Template, 3, 0, "ul", 15);
-    \u0275\u0275conditionalCreate(17, ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Template, 10, 7);
+    \u0275\u0275conditionalCreate(17, ExploreSpaceInfoComponent_ng_template_2_Conditional_17_Template, 5, 3);
     \u0275\u0275conditionalCreate(18, ExploreSpaceInfoComponent_ng_template_2_Conditional_18_Template, 6, 5, "div", 16);
     \u0275\u0275elementEnd()()();
   }
@@ -6297,7 +6367,7 @@ function ExploreSpaceInfoComponent_ng_template_2_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r0.space().features?.length > 0 && !ctx_r0.hide_features() ? 16 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.show_event_details() && ctx_r0.next() ? 17 : -1);
+    \u0275\u0275conditional(ctx_r0.show_event_details() && ctx_r0.next() && (!ctx_r0.hide_meeting_title() || !ctx_r0.hide_meeting_details()) ? 17 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r0.next() ? 18 : -1);
   }
@@ -6344,7 +6414,7 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
     );
     this.next = computed(
       () => {
-        return [...this.events()].sort((a, b2) => a.date - b2.date).filter((item) => item.date_end > this.now() && isSameDay(item.date, this.now()))[0];
+        return [...this.events()].sort((a, b) => a.date - b.date).filter((item) => item.date_end > this.now() && isSameDay(item.date, this.now()))[0];
       },
       ...ngDevMode ? [{ debugName: "next" }] : (
         /* istanbul ignore next */
@@ -6359,6 +6429,20 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
       )
     );
     this.show_event_details = settingSignal("explore.show_event_details", true);
+    this.hide_meeting_details = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "hide_meeting_details" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.hide_meeting_title = signal(
+      true,
+      ...ngDevMode ? [{ debugName: "hide_meeting_title" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.status = signal(
       this._details.status,
       ...ngDevMode ? [{ debugName: "status" }] : (
@@ -6376,8 +6460,13 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
     );
   }
   ngOnInit() {
-    this.space.set(this._details.space || new Space());
-    this.events.set(this._details.events || []);
+    const module = Dd(this.space().id, "Bookings");
+    for (const name of [
+      "hide_meeting_details",
+      "hide_meeting_title"
+    ]) {
+      this.subscription(name, module.variable(name).bindThenSubscribe((value) => this[name].set(value !== false)));
+    }
     this.timeout("update_offset", () => this.updateOffset(), 200);
     this.interval("time", () => this.now.set(Date.now()), 5e3);
   }
@@ -6418,7 +6507,7 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
       UpperCasePipe,
       TranslatePipe,
       UserPipe
-    ], styles: ["\n[status][_ngcontent-%COMP%] {\n  background-color: var(--success);\n  color: var(--success-content);\n}\n[status].busy[_ngcontent-%COMP%] {\n  background-color: var(--error);\n  color: var(--error-content);\n}\n[status].pending[_ngcontent-%COMP%] {\n  background-color: var(--warn);\n  color: var(--warn-content);\n}\n[status].not-bookable[_ngcontent-%COMP%] {\n  background-color: var(--base-300);\n}\n/*# sourceMappingURL=explore-space-info.component.css.map */"] });
+    ], styles: ["\n[status][_ngcontent-%COMP%] {\n  background-color: var(--%NS%success);\n  color: var(--%NS%success-content);\n}\n[status].busy[_ngcontent-%COMP%] {\n  background-color: var(--%NS%error);\n  color: var(--%NS%error-content);\n}\n[status].pending[_ngcontent-%COMP%] {\n  background-color: var(--%NS%warn);\n  color: var(--%NS%warn-content);\n}\n[status].not-bookable[_ngcontent-%COMP%] {\n  background-color: var(--%NS%base-300);\n}\n/*# sourceMappingURL=explore-space-info.component.css.map */"] });
   }
 };
 (() => {
@@ -6520,8 +6609,11 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
                                 }
                             </ul>
                         }
-                        @if (show_event_details() && next()) {
-                            @let host = next().host | user | async;
+                        @if (
+                            show_event_details() &&
+                            next() &&
+                            (!hide_meeting_title() || !hide_meeting_details())
+                        ) {
                             <div
                                 class="rounded-sm px-2 pb-1 text-xs opacity-30"
                             >
@@ -6531,10 +6623,15 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
                             <div
                                 class="border-base-300 mb-1 flex flex-col rounded-lg border p-2"
                             >
-                                <h3>{{ next().title }}</h3>
-                                <div class="text-xs opacity-50">
-                                    {{ host?.name || next().host }}
-                                </div>
+                                @if (!hide_meeting_title()) {
+                                    <h3>{{ next().title }}</h3>
+                                }
+                                @if (!hide_meeting_details()) {
+                                    @let host = next().host | user | async;
+                                    <div class="text-xs opacity-50">
+                                        {{ host?.name || next().host }}
+                                    </div>
+                                }
                             </div>
                         }
                         @if (next()) {
@@ -6571,7 +6668,7 @@ var ExploreSpaceInfoComponent = class _ExploreSpaceInfoComponent extends AsyncHa
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreSpaceInfoComponent, { className: "ExploreSpaceInfoComponent", filePath: "libs/explore/src/lib/explore-space-info.component.ts", lineNumber: 208 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreSpaceInfoComponent, { className: "ExploreSpaceInfoComponent", filePath: "libs/explore/src/lib/explore-space-info.component.ts", lineNumber: 217 });
 })();
 
 // libs/explore/src/lib/explore-spaces.service.ts
@@ -6825,16 +6922,16 @@ var ExploreSpacesService = class _ExploreSpacesService extends AsyncHandler {
 var _c06 = () => ({ standalone: true });
 function SetDatetimeModalComponent_Conditional_7_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "div", 10)(2, "label");
-    \u0275\u0275text(3);
+    \u0275\u0275elementStart(0, "div", 6)(1, "label");
+    \u0275\u0275text(2);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "div", 11);
-    \u0275\u0275text(5);
-    \u0275\u0275elementEnd()()();
+    \u0275\u0275elementStart(3, "div", 10);
+    \u0275\u0275text(4);
+    \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(3);
+    \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1("", ctx_r0.resource_type(), ":");
     \u0275\u0275advance(2);
     \u0275\u0275textInterpolate1(" ", ctx_r0.resource().name || ctx_r0.resource().map_id || "Unknown Resource", " ");
@@ -6842,44 +6939,30 @@ function SetDatetimeModalComponent_Conditional_7_Conditional_1_Template(rf, ctx)
 }
 function SetDatetimeModalComponent_Conditional_7_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 6)(1, "div", 7)(2, "label");
-    \u0275\u0275text(3, "Host");
+    \u0275\u0275elementStart(0, "div", 6)(1, "label");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(4, "a-user-search-field", 12);
+    \u0275\u0275element(4, "a-user-search-field", 11);
     \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    \u0275\u0275advance(4);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(3, 1, "FORM.HOST"), ":");
+    \u0275\u0275advance(2);
     \u0275\u0275control();
   }
 }
 function SetDatetimeModalComponent_Conditional_7_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 13)(1, "mat-checkbox", 14);
-    \u0275\u0275text(2);
-    \u0275\u0275pipe(3, "translate");
-    \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275classProp("-mb-7", !ctx_r0.form.value.all_day)("mb-2", ctx_r0.form.value.all_day);
-    \u0275\u0275advance();
-    \u0275\u0275control();
-    \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 5, "COMMON.ALL_DAY"), " ");
-  }
-}
-function SetDatetimeModalComponent_Conditional_7_Conditional_10_Template(rf, ctx) {
-  if (rf & 1) {
     const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "div", 6)(1, "div", 15)(2, "label");
-    \u0275\u0275text(3, "Start Time");
+    \u0275\u0275elementStart(0, "div", 8)(1, "div", 12)(2, "label");
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(4, "a-time-field", 16);
-    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_7_Conditional_10_Template_a_time_field_ngModelChange_4_listener($event) {
+    \u0275\u0275elementStart(5, "a-time-field", 13);
+    \u0275\u0275listener("ngModelChange", function SetDatetimeModalComponent_Conditional_7_Conditional_9_Template_a_time_field_ngModelChange_5_listener($event) {
       \u0275\u0275restoreView(_r2);
       const ctx_r0 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r0.form.patchValue({ date: $event }));
@@ -6887,38 +6970,60 @@ function SetDatetimeModalComponent_Conditional_7_Conditional_10_Template(rf, ctx
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(5, "div", 15)(6, "label");
-    \u0275\u0275text(7, "End Time");
+    \u0275\u0275elementStart(6, "div", 12)(7, "label");
+    \u0275\u0275text(8);
+    \u0275\u0275pipe(9, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275element(8, "a-duration-field", 17);
+    \u0275\u0275element(10, "a-duration-field", 14);
     \u0275\u0275controlCreate();
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275advance(4);
-    \u0275\u0275property("ngModel", ctx_r0.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(10, _c06))("range", ctx_r0.bookable_hours())("use_24hr", ctx_r0.use_24hr_time());
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(4, 12, "FORM.TIME_START"), ":");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("ngModel", ctx_r0.form.value.date)("ngModelOptions", \u0275\u0275pureFunction0(16, _c06))("range", ctx_r0.bookable_hours())("use_24hr", ctx_r0.use_24hr_time());
     \u0275\u0275control();
-    \u0275\u0275advance(4);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(9, 14, "FORM.TIME_END"), ":");
+    \u0275\u0275advance(2);
     \u0275\u0275property("time", ctx_r0.form.get("date")?.value)("max", 10 * 60)("min", 60)("step", 60)("end_time", ctx_r0.bookable_hours()?.end)("use_24hr", ctx_r0.use_24hr_time());
     \u0275\u0275control();
+  }
+}
+function SetDatetimeModalComponent_Conditional_7_Conditional_10_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 9)(1, "mat-checkbox", 15);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance();
+    \u0275\u0275control();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 1, "COMMON.ALL_DAY"), " ");
   }
 }
 function SetDatetimeModalComponent_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "main", 3);
-    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_7_Conditional_1_Template, 6, 2, "div", 6);
-    \u0275\u0275conditionalCreate(2, SetDatetimeModalComponent_Conditional_7_Conditional_2_Template, 5, 0, "div", 6);
-    \u0275\u0275elementStart(3, "div", 6)(4, "div", 7)(5, "label");
-    \u0275\u0275text(6, "Date");
+    \u0275\u0275conditionalCreate(1, SetDatetimeModalComponent_Conditional_7_Conditional_1_Template, 5, 2, "div", 6);
+    \u0275\u0275conditionalCreate(2, SetDatetimeModalComponent_Conditional_7_Conditional_2_Template, 5, 3, "div", 6);
+    \u0275\u0275elementStart(3, "div", 6)(4, "label");
+    \u0275\u0275text(5);
+    \u0275\u0275pipe(6, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(7, "a-date-field", 8);
+    \u0275\u0275elementStart(7, "a-date-field", 7);
     \u0275\u0275text(8, " Date and time must be in the future ");
     \u0275\u0275elementEnd();
     \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(9, SetDatetimeModalComponent_Conditional_7_Conditional_9_Template, 4, 7, "div", 9);
-    \u0275\u0275conditionalCreate(10, SetDatetimeModalComponent_Conditional_7_Conditional_10_Template, 9, 11, "div", 6);
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(9, SetDatetimeModalComponent_Conditional_7_Conditional_9_Template, 11, 17, "div", 8);
+    \u0275\u0275conditionalCreate(10, SetDatetimeModalComponent_Conditional_7_Conditional_10_Template, 4, 3, "div", 9);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -6928,13 +7033,15 @@ function SetDatetimeModalComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275conditional(ctx_r0.resource() ? 1 : -1);
     \u0275\u0275advance();
     \u0275\u0275conditional(ctx_r0.host() ? 2 : -1);
-    \u0275\u0275advance(5);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(6, 7, "FORM.DATE"), ":");
+    \u0275\u0275advance(2);
     \u0275\u0275property("to", ctx_r0.book_until());
     \u0275\u0275control();
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r0.allow_all_day() ? 9 : -1);
+    \u0275\u0275conditional(!ctx_r0.all_day() ? 9 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r0.all_day() ? 10 : -1);
+    \u0275\u0275conditional(ctx_r0.allow_all_day() ? 10 : -1);
   }
 }
 var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
@@ -7026,7 +7133,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 12, vars: 8, consts: [[1, "bg-base-200", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[24rem]", "max-w-[85vw]", 3, "formGroup"], [1, "bg-base-200", "mx-2", "mb-2", "flex", "w-[calc(100%-1rem)]", "items-center", "justify-end", "rounded-sm", "border-none", "p-2"], ["btn", "", "matRipple", "", 1, "w-32", 3, "mat-dialog-close"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "flex-col", "space-x-0", "sm:flex-row", "sm:space-x-2"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], ["formControlName", "date", 3, "to"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end", 3, "-mb-7", "mb-2"], [1, "mb-2", "flex", "w-full", "flex-1", "flex-col", "sm:w-1/4"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], [1, "mx-auto", "flex", "w-[640px]", "max-w-[calc(100%-2rem)]", "justify-end"], ["formControlName", "all_day"], [1, "flex", "w-full", "flex-1", "flex-col", "sm:w-1/3"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SetDatetimeModalComponent, selectors: [["set-datetime-modal"]], decls: 12, vars: 8, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "items-center", "justify-between", "rounded-sm", "border-none", "p-2"], [1, "px-2", "text-xl", "font-medium"], ["icon", "", "matRipple", "", "mat-dialog-close", ""], [1, "w-[32rem]", "max-w-[85vw]", "px-4", 3, "formGroup"], [1, "border-base-300", "flex", "justify-end", "border-t", "p-2"], ["btn", "", "matRipple", "", 1, "mx-2", "w-32", 3, "mat-dialog-close"], [1, "flex", "flex-col"], ["formControlName", "date", 3, "to"], [1, "flex", "flex-col", "sm:flex-row", "sm:gap-4"], [1, "mb-2", "flex", "justify-end"], [1, "border-base-200", "mb-4", "w-full", "rounded-sm", "border", "px-4", "py-3"], ["formControlName", "user", 1, "mb-4"], [1, "flex", "min-w-0", "flex-1", "flex-col"], [3, "ngModelChange", "ngModel", "ngModelOptions", "range", "use_24hr"], ["formControlName", "duration", 3, "time", "max", "min", "step", "end_time", "use_24hr"], ["formControlName", "all_day"]], template: function SetDatetimeModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2);
@@ -7035,7 +7142,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
         \u0275\u0275elementStart(4, "button", 2)(5, "icon");
         \u0275\u0275text(6, "close");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275conditionalCreate(7, SetDatetimeModalComponent_Conditional_7_Template, 11, 6, "main", 3);
+        \u0275\u0275conditionalCreate(7, SetDatetimeModalComponent_Conditional_7_Template, 11, 9, "main", 3);
         \u0275\u0275elementStart(8, "footer", 4)(9, "button", 5);
         \u0275\u0275text(10);
         \u0275\u0275pipe(11, "translate");
@@ -7079,7 +7186,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
     type: Component,
     args: [{ selector: "set-datetime-modal", template: `
         <header
-            class="bg-base-200 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
+            class="bg-base-200 sticky top-0 z-10 m-2 flex h-14 w-[calc(100%-1rem)] items-center justify-between rounded-sm border-none p-2"
         >
             <h2 class="px-2 text-xl font-medium">
                 {{ 'EXPLORE.BOOKING_HEADER' | translate }}
@@ -7089,68 +7196,40 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
             </button>
         </header>
         @if (form) {
-            <main [formGroup]="form" class="w-[24rem] max-w-[85vw]">
+            <main [formGroup]="form" class="w-[32rem] max-w-[85vw] px-4">
                 @if (resource()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                    >
-                        <div class="mb-2 flex w-full flex-1 flex-col sm:w-1/4">
-                            <label>{{ resource_type() }}:</label>
-                            <div
-                                class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
-                            >
-                                {{
-                                    resource().name ||
-                                        resource().map_id ||
-                                        'Unknown Resource'
-                                }}
-                            </div>
+                    <div class="flex flex-col">
+                        <label>{{ resource_type() }}:</label>
+                        <div
+                            class="border-base-200 mb-4 w-full rounded-sm border px-4 py-3"
+                        >
+                            {{
+                                resource().name ||
+                                    resource().map_id ||
+                                    'Unknown Resource'
+                            }}
                         </div>
                     </div>
                 }
                 @if (host()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                    >
-                        <div class="flex w-full flex-1 flex-col sm:w-1/4">
-                            <label>Host</label>
-                            <a-user-search-field
-                                formControlName="user"
-                                class="mb-4"
-                            ></a-user-search-field>
-                        </div>
+                    <div class="flex flex-col">
+                        <label>{{ 'FORM.HOST' | translate }}:</label>
+                        <a-user-search-field
+                            formControlName="user"
+                            class="mb-4"
+                        ></a-user-search-field>
                     </div>
                 }
-                <div
-                    class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                >
-                    <div class="flex w-full flex-1 flex-col sm:w-1/4">
-                        <label>Date</label>
-                        <a-date-field
-                            [to]="book_until()"
-                            formControlName="date"
-                        >
-                            Date and time must be in the future
-                        </a-date-field>
-                    </div>
+                <div class="flex flex-col">
+                    <label>{{ 'FORM.DATE' | translate }}:</label>
+                    <a-date-field [to]="book_until()" formControlName="date">
+                        Date and time must be in the future
+                    </a-date-field>
                 </div>
-                @if (allow_all_day()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] justify-end"
-                        [class.-mb-7]="!form.value.all_day"
-                        [class.mb-2]="form.value.all_day"
-                    >
-                        <mat-checkbox formControlName="all_day">
-                            {{ 'COMMON.ALL_DAY' | translate }}
-                        </mat-checkbox>
-                    </div>
-                }
                 @if (!all_day()) {
-                    <div
-                        class="mx-auto flex w-[640px] max-w-[calc(100%-2rem)] flex-col space-x-0 sm:flex-row sm:space-x-2"
-                    >
-                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                            <label>Start Time</label>
+                    <div class="flex flex-col sm:flex-row sm:gap-4">
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <label>{{ 'FORM.TIME_START' | translate }}:</label>
                             <a-time-field
                                 [ngModel]="form.value.date"
                                 (ngModelChange)="
@@ -7161,8 +7240,8 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                                 [use_24hr]="use_24hr_time()"
                             ></a-time-field>
                         </div>
-                        <div class="flex w-full flex-1 flex-col sm:w-1/3">
-                            <label>End Time</label>
+                        <div class="flex min-w-0 flex-1 flex-col">
+                            <label>{{ 'FORM.TIME_END' | translate }}:</label>
                             <a-duration-field
                                 formControlName="duration"
                                 [time]="form.get('date')?.value"
@@ -7176,12 +7255,22 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
                         </div>
                     </div>
                 }
+                @if (allow_all_day()) {
+                    <div class="mb-2 flex justify-end">
+                        <mat-checkbox formControlName="all_day">
+                            {{ 'COMMON.ALL_DAY' | translate }}
+                        </mat-checkbox>
+                    </div>
+                }
             </main>
         }
-        <footer
-            class="bg-base-200 mx-2 mb-2 flex w-[calc(100%-1rem)] items-center justify-end rounded-sm border-none p-2"
-        >
-            <button btn matRipple [mat-dialog-close]="form.value" class="w-32">
+        <footer class="border-base-300 flex justify-end border-t p-2">
+            <button
+                btn
+                matRipple
+                [mat-dialog-close]="form.value"
+                class="mx-2 w-32"
+            >
                 {{ 'COMMON.SAVE' | translate }}
             </button>
         </footer>
@@ -7201,7 +7290,7 @@ var SetDatetimeModalComponent = class _SetDatetimeModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 154 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SetDatetimeModalComponent, { className: "SetDatetimeModalComponent", filePath: "libs/explore/src/lib/set-datetime-modal.component.ts", lineNumber: 136 });
 })();
 
 // libs/explore/src/lib/explore-desk-info.component.ts
@@ -7370,7 +7459,7 @@ var ExploreDeskInfoComponent = class _ExploreDeskInfoComponent extends AsyncHand
       )
     );
     this.next_booking = computed(
-      () => this.bookings?.().filter((booking) => booking.date > this.active_time() && isSameDay(booking.date, this.date())).sort((a, b2) => a.date - b2.date)[0],
+      () => this.bookings?.().filter((booking) => booking.date > this.active_time() && isSameDay(booking.date, this.date())).sort((a, b) => a.date - b.date)[0],
       ...ngDevMode ? [{ debugName: "next_booking" }] : (
         /* istanbul ignore next */
         []
@@ -7473,7 +7562,7 @@ var ExploreDeskInfoComponent = class _ExploreDeskInfoComponent extends AsyncHand
       UpperCasePipe,
       DatePipe,
       TranslatePipe
-    ], styles: ["\n.top.left[_ngcontent-%COMP%] {\n  border-radius: 0 0.5rem 0.5rem 0.5rem;\n}\n.top.right[_ngcontent-%COMP%] {\n  border-radius: 0.5rem 0 0.5rem 0.5rem;\n}\n.bottom.left[_ngcontent-%COMP%] {\n  border-radius: 0.5rem 0.5rem 0.5rem 0;\n}\n.bottom.right[_ngcontent-%COMP%] {\n  border-radius: 0.5rem 0.5rem 0 0.5rem;\n}\n.triangle[_ngcontent-%COMP%] {\n  width: 0px;\n  height: 0px;\n  border-style: solid;\n  transform: rotate(0deg);\n}\n.top.left[_ngcontent-%COMP%]   .triangle[_ngcontent-%COMP%] {\n  top: 0.25rem;\n  left: 0.25rem;\n  border-width: 0.5rem 0.5rem 0 0;\n  border-color: currentColor transparent transparent transparent;\n}\n.top.right[_ngcontent-%COMP%]   .triangle[_ngcontent-%COMP%] {\n  top: 0.25rem;\n  right: 0.25rem;\n  border-width: 0.5rem 0 0 0.5rem;\n  border-color: currentColor transparent transparent transparent;\n}\n.bottom.left[_ngcontent-%COMP%]   .triangle[_ngcontent-%COMP%] {\n  bottom: 0.25rem;\n  left: 0.25rem;\n  border-width: 0 0.5rem 0.5rem 0;\n  border-color: transparent transparent currentColor transparent;\n}\n.bottom.right[_ngcontent-%COMP%]   .triangle[_ngcontent-%COMP%] {\n  bottom: 0.25rem;\n  right: 0.25rem;\n  border-width: 0 0 0.5rem 0.5rem;\n  border-color: transparent transparent currentColor transparent;\n}\n[status][_ngcontent-%COMP%] {\n  background-color: var(--success);\n  color: var(--success-content);\n}\n[status].busy[_ngcontent-%COMP%] {\n  background-color: var(--error);\n  color: var(--error-content);\n}\n[status].pending[_ngcontent-%COMP%] {\n  background-color: var(--warn);\n  color: var(--warn-content);\n}\n[status].not-bookable[_ngcontent-%COMP%] {\n  background-color: var(--base-300);\n}\n/*# sourceMappingURL=explore-desk-info.component.css.map */"] });
+    ], styles: ["\n.top.left[_ngcontent-%COMP%] {\n  border-radius: 0 0.5rem 0.5rem 0.5rem;\n}\n.top.right[_ngcontent-%COMP%] {\n  border-radius: 0.5rem 0 0.5rem 0.5rem;\n}\n.bottom.left[_ngcontent-%COMP%] {\n  border-radius: 0.5rem 0.5rem 0.5rem 0;\n}\n.bottom.right[_ngcontent-%COMP%] {\n  border-radius: 0.5rem 0.5rem 0 0.5rem;\n}\n.triangle[_ngcontent-%COMP%] {\n  width: 0px;\n  height: 0px;\n  border-style: solid;\n  transform: rotate(0deg);\n}\n.top.left[_ngcontent-%COMP%]   .triangle[_ngcontent-%COMP%] {\n  top: 0.25rem;\n  left: 0.25rem;\n  border-width: 0.5rem 0.5rem 0 0;\n  border-color: currentColor transparent transparent transparent;\n}\n.top.right[_ngcontent-%COMP%]   .triangle[_ngcontent-%COMP%] {\n  top: 0.25rem;\n  right: 0.25rem;\n  border-width: 0.5rem 0 0 0.5rem;\n  border-color: currentColor transparent transparent transparent;\n}\n.bottom.left[_ngcontent-%COMP%]   .triangle[_ngcontent-%COMP%] {\n  bottom: 0.25rem;\n  left: 0.25rem;\n  border-width: 0 0.5rem 0.5rem 0;\n  border-color: transparent transparent currentColor transparent;\n}\n.bottom.right[_ngcontent-%COMP%]   .triangle[_ngcontent-%COMP%] {\n  bottom: 0.25rem;\n  right: 0.25rem;\n  border-width: 0 0 0.5rem 0.5rem;\n  border-color: transparent transparent currentColor transparent;\n}\n[status][_ngcontent-%COMP%] {\n  background-color: var(--%NS%success);\n  color: var(--%NS%success-content);\n}\n[status].busy[_ngcontent-%COMP%] {\n  background-color: var(--%NS%error);\n  color: var(--%NS%error-content);\n}\n[status].pending[_ngcontent-%COMP%] {\n  background-color: var(--%NS%warn);\n  color: var(--%NS%warn-content);\n}\n[status].not-bookable[_ngcontent-%COMP%] {\n  background-color: var(--%NS%base-300);\n}\n/*# sourceMappingURL=explore-desk-info.component.css.map */"] });
   }
 };
 (() => {
@@ -8133,7 +8222,12 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       {}
     )), {
       params: () => this._state.level() || void 0,
-      loader: ({ params: lvl }) => ic(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))))
+      loader: ({ params: lvl }) => {
+        if (this._settings.get("app.desks.use_assets")) {
+          return queryDeskAssets(lvl.id).then((assets) => assets.map((asset) => deskFromAsset(asset, lvl))).catch(() => []);
+        }
+        return ic(lvl.id, "desks").catch(() => ({ details: [] })).then((i) => (i?.details instanceof Array ? i.details : []).map((j) => new Desk(__spreadProps(__spreadValues({}, j), { zone: lvl }))));
+      }
     }));
     this.desk_list = computed(
       () => this._desk_list.value() ?? [],
@@ -8253,14 +8347,14 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     this.processDesks(desks);
   }
   processBindingChange({ value }, system_id) {
-    const devices = (value || []).filter((v2) => !["desk", "booking"].includes(v2.location));
-    const desks = (value || []).filter((v2) => v2.location === "desk" || v2.location === "booking" && v2.type === "desk");
+    const devices = (value || []).filter((v) => !["desk", "booking"].includes(v.location));
+    const desks = (value || []).filter((v) => v.location === "desk" || v.location === "booking" && v.type === "desk");
     const date = this._options().date || Date.now();
     if (date <= endOfDay(Date.now()).valueOf() && !this._options().use_api) {
-      this._in_use.set(desks.filter((v2) => v2.location === "booking").map((v2) => v2.map_id || v2.asset_id));
-      this._checked_in.set(desks.filter((v2) => v2.location === "booking" && v2.checked_in).map((v2) => v2.map_id || v2.asset_id));
-      this._presence.set(desks.filter((v2) => v2.at_location).map((v2) => v2.map_id || v2.asset_id));
-      this._signs_of_life.set(desks.filter((v2) => v2.signs_of_life).map((v2) => v2.map_id || v2.asset_id));
+      this._in_use.set(desks.filter((v) => v.location === "booking").map((v) => v.map_id || v.asset_id));
+      this._checked_in.set(desks.filter((v) => v.location === "booking" && v.checked_in).map((v) => v.map_id || v.asset_id));
+      this._presence.set(desks.filter((v) => v.at_location).map((v) => v.map_id || v.asset_id));
+      this._signs_of_life.set(desks.filter((v) => v.signs_of_life).map((v) => v.map_id || v.asset_id));
     }
     const departments = this._settings.get("app.department_map") || {};
     for (const desk of desks) {
@@ -8463,7 +8557,8 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       }));
     }
     await this._bookings.confirmPost().catch((e) => {
-      console.log(e);
+      if (e === "User cancelled")
+        throw e;
       notifyError(i18n("EXPLORE.DESK_BOOKING_ERROR", {
         name: desk.name || "Desk",
         error: e.message || e.error || e
@@ -8661,15 +8756,23 @@ var ParkingService = class _ParkingService extends AsyncHandler {
     const buildings = this._org.building_list();
     if (!buildings?.length)
       return;
-    const results = await Promise.all(buildings.map((bld) => ac(bld.id, { name: "desks" }).then((data) => ({
-      building_id: bld.id,
-      desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
-        zone: meta.zone
-      })))))
-    })).catch(() => ({
-      building_id: bld.id,
-      desks: []
-    }))));
+    const use_desk_assets = this._settings.get("app.desks.use_assets");
+    const results = await Promise.all(buildings.map(async (bld) => {
+      if (use_desk_assets) {
+        const level_ids = this._org.levelsForBuilding(bld).map((level) => level.id);
+        const desks = await queryDeskAssetsForZones(level_ids).catch(() => []);
+        return { building_id: bld.id, desks };
+      }
+      return ac(bld.id, { name: "desks" }).then((data) => ({
+        building_id: bld.id,
+        desks: flatten(data.map((meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((d) => new Desk(__spreadProps(__spreadValues({}, d), {
+          zone: meta.zone
+        })))))
+      })).catch(() => ({
+        building_id: bld.id,
+        desks: []
+      }));
+    }));
     const email = currentUser()?.email?.toLowerCase();
     if (!email)
       return this._home_building_id.set(null);
@@ -9959,7 +10062,13 @@ var ExploreSearchService = class _ExploreSearchService {
       {}
     )), {
       params: () => this._building() || void 0,
-      loader: ({ params: bld }) => ac(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => [])
+      loader: ({ params: bld }) => {
+        if (this._settings.get("app.desks.use_assets")) {
+          const levels = this._org.levelsForBuilding(bld);
+          return queryDeskAssetsForZones(levels.map((level) => level.id)).then((assets) => assets.map((asset) => deskFromAsset(asset, levels.find((level) => level.id === asset.zone_id)))).catch(() => []);
+        }
+        return ac(bld.id, { name: "desks" }).then((i) => flatten(i.map((j) => (j.metadata.desks?.details || []).map((k) => new Desk(__spreadProps(__spreadValues({}, k), { zone: j.zone })))))).catch(() => []);
+      }
     }));
     this._maps_people_search = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_maps_people_search" } : (
       /* istanbul ignore next */
@@ -10126,10 +10235,10 @@ var ExploreSearchService = class _ExploreSearchService {
         }
         results = results.filter((_) => _.name.toLowerCase().includes(search) || _.description.toLowerCase().includes(search) || (_.email || "").toLowerCase().includes(search) || _.type.toLowerCase().includes(search) || _.zone_name?.toLowerCase().includes(search));
         const in_progress_zones = this._getInProgressZones(in_progress_bookings);
-        results.sort((a, b2) => {
+        results.sort((a, b) => {
           if (current_level?.id) {
             const a_on_level = a.zone === current_level.id;
-            const b_on_level = b2.zone === current_level.id;
+            const b_on_level = b.zone === current_level.id;
             if (a_on_level && !b_on_level)
               return -1;
             if (!a_on_level && b_on_level)
@@ -10137,13 +10246,13 @@ var ExploreSearchService = class _ExploreSearchService {
           }
           if (in_progress_zones.length > 0) {
             const a_near_booking = in_progress_zones.includes(a.zone);
-            const b_near_booking = in_progress_zones.includes(b2.zone);
+            const b_near_booking = in_progress_zones.includes(b.zone);
             if (a_near_booking && !b_near_booking)
               return -1;
             if (!a_near_booking && b_near_booking)
               return 1;
           }
-          return typeIndex(a) - typeIndex(b2) || a.name.localeCompare(b2.name);
+          return typeIndex(a) - typeIndex(b) || a.name.localeCompare(b.name);
         });
         return results;
       },
@@ -10467,7 +10576,7 @@ var ExploreSearchComponent = class _ExploreSearchComponent extends AsyncHandler 
       NgControlStatus,
       NgModel,
       TranslatePipe
-    ], styles: ["\n[_nghost-%COMP%] {\n  z-index: 99;\n  position: relative;\n}\n[role=search][_ngcontent-%COMP%] {\n  height: 3rem;\n  width: 0;\n  border-radius: 1.5rem;\n  border: 1px solid var(--base-300);\n  transition: width 200ms opacity 200ms;\n  opacity: 0;\n  pointer-events: none;\n}\n[role=search].show[_ngcontent-%COMP%] {\n  width: 24rem;\n  opacity: 1;\n  pointer-events: auto;\n}\n/*# sourceMappingURL=explore-search.component.css.map */"] });
+    ], styles: ["\n[_nghost-%COMP%] {\n  z-index: 99;\n  position: relative;\n}\n[role=search][_ngcontent-%COMP%] {\n  height: 3rem;\n  width: 0;\n  border-radius: 1.5rem;\n  border: 1px solid var(--%NS%base-300);\n  transition: width 200ms opacity 200ms;\n  opacity: 0;\n  pointer-events: none;\n}\n[role=search].show[_ngcontent-%COMP%] {\n  width: 24rem;\n  opacity: 1;\n  pointer-events: auto;\n}\n/*# sourceMappingURL=explore-search.component.css.map */"] });
   }
 };
 (() => {
@@ -10625,6 +10734,7 @@ var MatSlideToggle = class _MatSlideToggle {
   required = false;
   color;
   disabled = false;
+  fullWidth = false;
   disableRipple = false;
   tabIndex = 0;
   get checked() {
@@ -10737,13 +10847,13 @@ var MatSlideToggle = class _MatSlideToggle {
       }
     },
     hostAttrs: [1, "mat-mdc-slide-toggle"],
-    hostVars: 13,
+    hostVars: 15,
     hostBindings: function MatSlideToggle_HostBindings(rf, ctx) {
       if (rf & 2) {
         \u0275\u0275domProperty("id", ctx.id);
         \u0275\u0275attribute("tabindex", null)("aria-label", null)("name", null)("aria-labelledby", null);
         \u0275\u0275classMap(ctx.color ? "mat-" + ctx.color : "");
-        \u0275\u0275classProp("mat-mdc-slide-toggle-focused", ctx._focused)("mat-mdc-slide-toggle-checked", ctx.checked)("_mat-animation-noopable", ctx._noopAnimations);
+        \u0275\u0275classProp("mat-mdc-slide-toggle-focused", ctx._focused)("mat-mdc-slide-toggle-checked", ctx.checked)("mat-slide-toggle-full-width", ctx.fullWidth)("_mat-animation-noopable", ctx._noopAnimations);
       }
     },
     inputs: {
@@ -10756,6 +10866,7 @@ var MatSlideToggle = class _MatSlideToggle {
       required: [2, "required", "required", booleanAttribute],
       color: "color",
       disabled: [2, "disabled", "disabled", booleanAttribute],
+      fullWidth: [2, "fullWidth", "fullWidth", booleanAttribute],
       disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute],
       tabIndex: [2, "tabIndex", "tabIndex", (value) => value == null ? 0 : numberAttribute(value)],
       checked: [2, "checked", "checked", booleanAttribute],
@@ -10820,7 +10931,7 @@ var MatSlideToggle = class _MatSlideToggle {
       }
     },
     dependencies: [MatRipple, _MatInternalFormField],
-    styles: ['.mdc-switch {\n  align-items: center;\n  background: none;\n  border: none;\n  cursor: pointer;\n  display: inline-flex;\n  flex-shrink: 0;\n  margin: 0;\n  outline: none;\n  overflow: visible;\n  padding: 0;\n  position: relative;\n  width: var(--mat-slide-toggle-track-width, 52px);\n}\n.mdc-switch.mdc-switch--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mdc-switch.mat-mdc-slide-toggle-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mdc-switch__track {\n  overflow: hidden;\n  position: relative;\n  width: 100%;\n  height: var(--mat-slide-toggle-track-height, 32px);\n  border-radius: var(--mat-slide-toggle-track-shape, var(--mat-sys-corner-full));\n}\n.mdc-switch--disabled.mdc-switch .mdc-switch__track {\n  opacity: var(--mat-slide-toggle-disabled-track-opacity, 0.12);\n}\n.mdc-switch__track::before, .mdc-switch__track::after {\n  border: 1px solid transparent;\n  border-radius: inherit;\n  box-sizing: border-box;\n  content: "";\n  height: 100%;\n  left: 0;\n  position: absolute;\n  width: 100%;\n  border-width: var(--mat-slide-toggle-track-outline-width, 2px);\n  border-color: var(--mat-slide-toggle-track-outline-color, var(--mat-sys-outline));\n}\n.mdc-switch--selected .mdc-switch__track::before, .mdc-switch--selected .mdc-switch__track::after {\n  border-width: var(--mat-slide-toggle-selected-track-outline-width, 2px);\n  border-color: var(--mat-slide-toggle-selected-track-outline-color, transparent);\n}\n.mdc-switch--disabled .mdc-switch__track::before, .mdc-switch--disabled .mdc-switch__track::after {\n  border-width: var(--mat-slide-toggle-disabled-unselected-track-outline-width, 2px);\n  border-color: var(--mat-slide-toggle-disabled-unselected-track-outline-color, var(--mat-sys-on-surface));\n}\n@media (forced-colors: active) {\n  .mdc-switch__track {\n    border-color: currentColor;\n  }\n}\n.mdc-switch__track::before {\n  transition: transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  transform: translateX(0);\n  background: var(--mat-slide-toggle-unselected-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch--selected .mdc-switch__track::before {\n  transition: transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  transform: translateX(100%);\n}\n[dir=rtl] .mdc-switch--selected .mdc-switch--selected .mdc-switch__track::before {\n  transform: translateX(-100%);\n}\n.mdc-switch--selected .mdc-switch__track::before {\n  opacity: var(--mat-slide-toggle-hidden-track-opacity, 0);\n  transition: var(--mat-slide-toggle-hidden-track-transition, opacity 75ms);\n}\n.mdc-switch--unselected .mdc-switch__track::before {\n  opacity: var(--mat-slide-toggle-visible-track-opacity, 1);\n  transition: var(--mat-slide-toggle-visible-track-transition, opacity 75ms);\n}\n.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-unselected-hover-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-unselected-focus-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch:enabled:active .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-unselected-pressed-track-color, var(--mat-sys-surface-variant));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:hover:not(:focus):not(:active) .mdc-switch__track::before, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:focus:not(:active) .mdc-switch__track::before, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:active .mdc-switch__track::before, .mdc-switch.mdc-switch--disabled .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-disabled-unselected-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch__track::after {\n  transform: translateX(-100%);\n  background: var(--mat-slide-toggle-selected-track-color, var(--mat-sys-primary));\n}\n[dir=rtl] .mdc-switch__track::after {\n  transform: translateX(100%);\n}\n.mdc-switch--selected .mdc-switch__track::after {\n  transform: translateX(0);\n}\n.mdc-switch--selected .mdc-switch__track::after {\n  opacity: var(--mat-slide-toggle-visible-track-opacity, 1);\n  transition: var(--mat-slide-toggle-visible-track-transition, opacity 75ms);\n}\n.mdc-switch--unselected .mdc-switch__track::after {\n  opacity: var(--mat-slide-toggle-hidden-track-opacity, 0);\n  transition: var(--mat-slide-toggle-hidden-track-transition, opacity 75ms);\n}\n.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-selected-hover-track-color, var(--mat-sys-primary));\n}\n.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-selected-focus-track-color, var(--mat-sys-primary));\n}\n.mdc-switch:enabled:active .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-selected-pressed-track-color, var(--mat-sys-primary));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:hover:not(:focus):not(:active) .mdc-switch__track::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:focus:not(:active) .mdc-switch__track::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:active .mdc-switch__track::after, .mdc-switch.mdc-switch--disabled .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-disabled-selected-track-color, var(--mat-sys-on-surface));\n}\n\n.mdc-switch__handle-track {\n  height: 100%;\n  pointer-events: none;\n  position: absolute;\n  top: 0;\n  transition: transform 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);\n  left: 0;\n  right: auto;\n  transform: translateX(0);\n  width: calc(100% - var(--mat-slide-toggle-handle-width));\n}\n[dir=rtl] .mdc-switch__handle-track {\n  left: auto;\n  right: 0;\n}\n.mdc-switch--selected .mdc-switch__handle-track {\n  transform: translateX(100%);\n}\n[dir=rtl] .mdc-switch--selected .mdc-switch__handle-track {\n  transform: translateX(-100%);\n}\n\n.mdc-switch__handle {\n  display: flex;\n  pointer-events: auto;\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%);\n  left: 0;\n  right: auto;\n  transition: width 75ms cubic-bezier(0.4, 0, 0.2, 1), height 75ms cubic-bezier(0.4, 0, 0.2, 1), margin 75ms cubic-bezier(0.4, 0, 0.2, 1);\n  width: var(--mat-slide-toggle-handle-width);\n  height: var(--mat-slide-toggle-handle-height);\n  border-radius: var(--mat-slide-toggle-handle-shape, var(--mat-sys-corner-full));\n}\n[dir=rtl] .mdc-switch__handle {\n  left: auto;\n  right: 0;\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle {\n  width: var(--mat-slide-toggle-unselected-handle-size, 16px);\n  height: var(--mat-slide-toggle-unselected-handle-size, 16px);\n  margin: var(--mat-slide-toggle-unselected-handle-horizontal-margin, 0 8px);\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle:has(.mdc-switch__icons) {\n  margin: var(--mat-slide-toggle-unselected-with-icon-handle-horizontal-margin, 0 4px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle {\n  width: var(--mat-slide-toggle-selected-handle-size, 24px);\n  height: var(--mat-slide-toggle-selected-handle-size, 24px);\n  margin: var(--mat-slide-toggle-selected-handle-horizontal-margin, 0 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle:has(.mdc-switch__icons) {\n  margin: var(--mat-slide-toggle-selected-with-icon-handle-horizontal-margin, 0 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch__handle:has(.mdc-switch__icons) {\n  width: var(--mat-slide-toggle-with-icon-handle-size, 24px);\n  height: var(--mat-slide-toggle-with-icon-handle-size, 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  width: var(--mat-slide-toggle-pressed-handle-size, 28px);\n  height: var(--mat-slide-toggle-pressed-handle-size, 28px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  margin: var(--mat-slide-toggle-selected-pressed-handle-horizontal-margin, 0 22px);\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  margin: var(--mat-slide-toggle-unselected-pressed-handle-horizontal-margin, 0 2px);\n}\n.mdc-switch--disabled.mdc-switch--selected .mdc-switch__handle::after {\n  opacity: var(--mat-slide-toggle-disabled-selected-handle-opacity, 1);\n}\n.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__handle::after {\n  opacity: var(--mat-slide-toggle-disabled-unselected-handle-opacity, 0.38);\n}\n.mdc-switch__handle::before, .mdc-switch__handle::after {\n  border: 1px solid transparent;\n  border-radius: inherit;\n  box-sizing: border-box;\n  content: "";\n  width: 100%;\n  height: 100%;\n  left: 0;\n  position: absolute;\n  top: 0;\n  transition: background-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1), border-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);\n  z-index: -1;\n}\n@media (forced-colors: active) {\n  .mdc-switch__handle::before, .mdc-switch__handle::after {\n    border-color: currentColor;\n  }\n}\n.mdc-switch--selected:enabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-handle-color, var(--mat-sys-on-primary));\n}\n.mdc-switch--selected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-hover-handle-color, var(--mat-sys-primary-container));\n}\n.mdc-switch--selected:enabled:focus:not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-focus-handle-color, var(--mat-sys-primary-container));\n}\n.mdc-switch--selected:enabled:active .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-pressed-handle-color, var(--mat-sys-primary-container));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--selected:hover:not(:focus):not(:active) .mdc-switch__handle::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--selected:focus:not(:active) .mdc-switch__handle::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--selected:active .mdc-switch__handle::after, .mdc-switch--selected.mdc-switch--disabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-disabled-selected-handle-color, var(--mat-sys-surface));\n}\n.mdc-switch--unselected:enabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-handle-color, var(--mat-sys-outline));\n}\n.mdc-switch--unselected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-hover-handle-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected:enabled:focus:not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-focus-handle-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected:enabled:active .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-pressed-handle-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected.mdc-switch--disabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-disabled-unselected-handle-color, var(--mat-sys-on-surface));\n}\n.mdc-switch__handle::before {\n  background: var(--mat-slide-toggle-handle-surface-color);\n}\n\n.mdc-switch__shadow {\n  border-radius: inherit;\n  bottom: 0;\n  left: 0;\n  position: absolute;\n  right: 0;\n  top: 0;\n}\n.mdc-switch:enabled .mdc-switch__shadow {\n  box-shadow: var(--mat-slide-toggle-handle-elevation-shadow);\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:hover:not(:focus):not(:active) .mdc-switch__shadow, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:focus:not(:active) .mdc-switch__shadow, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:active .mdc-switch__shadow, .mdc-switch.mdc-switch--disabled .mdc-switch__shadow {\n  box-shadow: var(--mat-slide-toggle-disabled-handle-elevation-shadow);\n}\n\n.mdc-switch__ripple {\n  left: 50%;\n  position: absolute;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  z-index: -1;\n  width: var(--mat-slide-toggle-state-layer-size, 40px);\n  height: var(--mat-slide-toggle-state-layer-size, 40px);\n}\n.mdc-switch__ripple::after {\n  content: "";\n  opacity: 0;\n}\n.mdc-switch--disabled .mdc-switch__ripple::after {\n  display: none;\n}\n.mat-mdc-slide-toggle-disabled-interactive .mdc-switch__ripple::after {\n  display: block;\n}\n.mdc-switch:hover .mdc-switch__ripple::after {\n  transition: 75ms opacity cubic-bezier(0, 0, 0.2, 1);\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:enabled:focus .mdc-switch__ripple::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:enabled:active .mdc-switch__ripple::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:enabled:hover:not(:focus) .mdc-switch__ripple::after, .mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n  opacity: var(--mat-slide-toggle-unselected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-unselected-focus-state-layer-color, var(--mat-sys-on-surface));\n  opacity: var(--mat-slide-toggle-unselected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mdc-switch--unselected:enabled:active .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-unselected-pressed-state-layer-color, var(--mat-sys-on-surface));\n  opacity: var(--mat-slide-toggle-unselected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  transition: opacity 75ms linear;\n}\n.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-selected-hover-state-layer-color, var(--mat-sys-primary));\n  opacity: var(--mat-slide-toggle-selected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mdc-switch--selected:enabled:focus .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-selected-focus-state-layer-color, var(--mat-sys-primary));\n  opacity: var(--mat-slide-toggle-selected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mdc-switch--selected:enabled:active .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-selected-pressed-state-layer-color, var(--mat-sys-primary));\n  opacity: var(--mat-slide-toggle-selected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  transition: opacity 75ms linear;\n}\n\n.mdc-switch__icons {\n  position: relative;\n  height: 100%;\n  width: 100%;\n  z-index: 1;\n  transform: translateZ(0);\n}\n.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__icons {\n  opacity: var(--mat-slide-toggle-disabled-unselected-icon-opacity, 0.38);\n}\n.mdc-switch--disabled.mdc-switch--selected .mdc-switch__icons {\n  opacity: var(--mat-slide-toggle-disabled-selected-icon-opacity, 0.38);\n}\n\n.mdc-switch__icon {\n  bottom: 0;\n  left: 0;\n  margin: auto;\n  position: absolute;\n  right: 0;\n  top: 0;\n  opacity: 0;\n  transition: opacity 30ms 0ms cubic-bezier(0.4, 0, 1, 1);\n}\n.mdc-switch--unselected .mdc-switch__icon {\n  width: var(--mat-slide-toggle-unselected-icon-size, 16px);\n  height: var(--mat-slide-toggle-unselected-icon-size, 16px);\n  fill: var(--mat-slide-toggle-unselected-icon-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch--unselected.mdc-switch--disabled .mdc-switch__icon {\n  fill: var(--mat-slide-toggle-disabled-unselected-icon-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch--selected .mdc-switch__icon {\n  width: var(--mat-slide-toggle-selected-icon-size, 16px);\n  height: var(--mat-slide-toggle-selected-icon-size, 16px);\n  fill: var(--mat-slide-toggle-selected-icon-color, var(--mat-sys-on-primary-container));\n}\n.mdc-switch--selected.mdc-switch--disabled .mdc-switch__icon {\n  fill: var(--mat-slide-toggle-disabled-selected-icon-color, var(--mat-sys-on-surface));\n}\n\n.mdc-switch--selected .mdc-switch__icon--on,\n.mdc-switch--unselected .mdc-switch__icon--off {\n  opacity: 1;\n  transition: opacity 45ms 30ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mat-mdc-slide-toggle {\n  -webkit-user-select: none;\n  user-select: none;\n  display: inline-block;\n  -webkit-tap-highlight-color: transparent;\n  outline: 0;\n}\n.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple,\n.mat-mdc-slide-toggle .mdc-switch__ripple::after {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n}\n.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple:not(:empty),\n.mat-mdc-slide-toggle .mdc-switch__ripple::after:not(:empty) {\n  transform: translateZ(0);\n}\n.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-slide-toggle .mat-internal-form-field {\n  color: var(--mat-slide-toggle-label-text-color, var(--mat-sys-on-surface));\n  font-family: var(--mat-slide-toggle-label-text-font, var(--mat-sys-body-medium-font));\n  line-height: var(--mat-slide-toggle-label-text-line-height, var(--mat-sys-body-medium-line-height));\n  font-size: var(--mat-slide-toggle-label-text-size, var(--mat-sys-body-medium-size));\n  letter-spacing: var(--mat-slide-toggle-label-text-tracking, var(--mat-sys-body-medium-tracking));\n  font-weight: var(--mat-slide-toggle-label-text-weight, var(--mat-sys-body-medium-weight));\n}\n.mat-mdc-slide-toggle .mat-ripple-element {\n  opacity: 0.12;\n}\n.mat-mdc-slide-toggle .mat-focus-indicator::before {\n  border-radius: 50%;\n}\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle-track,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__icon,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::before,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::after,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::before,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::after {\n  transition: none;\n}\n.mat-mdc-slide-toggle .mdc-switch:enabled + .mdc-label {\n  cursor: pointer;\n}\n.mat-mdc-slide-toggle .mdc-switch--disabled + label {\n  color: var(--mat-slide-toggle-disabled-label-text-color, var(--mat-sys-on-surface));\n}\n.mat-mdc-slide-toggle label:empty {\n  display: none;\n}\n\n.mat-mdc-slide-toggle-touch-target {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  height: var(--mat-slide-toggle-touch-target-size, 48px);\n  width: 100%;\n  transform: translate(-50%, -50%);\n  display: var(--mat-slide-toggle-touch-target-display, block);\n}\n[dir=rtl] .mat-mdc-slide-toggle-touch-target {\n  left: auto;\n  right: 50%;\n  transform: translate(50%, -50%);\n}\n'],
+    styles: ['.mdc-switch {\n  align-items: center;\n  background: none;\n  border: none;\n  cursor: pointer;\n  display: inline-flex;\n  flex-shrink: 0;\n  margin: 0;\n  outline: none;\n  overflow: visible;\n  padding: 0;\n  position: relative;\n  width: var(--%NS%mat-slide-toggle-track-width, 52px);\n}\n.mdc-switch.mdc-switch--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mdc-switch.mat-mdc-slide-toggle-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mdc-switch__track {\n  overflow: hidden;\n  position: relative;\n  width: 100%;\n  height: var(--%NS%mat-slide-toggle-track-height, 32px);\n  border-radius: var(--%NS%mat-slide-toggle-track-shape, var(--%NS%mat-sys-corner-full));\n}\n.mdc-switch--disabled.mdc-switch .mdc-switch__track {\n  opacity: var(--%NS%mat-slide-toggle-disabled-track-opacity, 0.12);\n}\n.mdc-switch__track::before, .mdc-switch__track::after {\n  border: 1px solid transparent;\n  border-radius: inherit;\n  box-sizing: border-box;\n  content: "";\n  height: 100%;\n  left: 0;\n  position: absolute;\n  width: 100%;\n  border-width: var(--%NS%mat-slide-toggle-track-outline-width, 2px);\n  border-color: var(--%NS%mat-slide-toggle-track-outline-color, var(--%NS%mat-sys-outline));\n}\n.mdc-switch--selected .mdc-switch__track::before, .mdc-switch--selected .mdc-switch__track::after {\n  border-width: var(--%NS%mat-slide-toggle-selected-track-outline-width, 2px);\n  border-color: var(--%NS%mat-slide-toggle-selected-track-outline-color, transparent);\n}\n.mdc-switch--disabled .mdc-switch__track::before, .mdc-switch--disabled .mdc-switch__track::after {\n  border-width: var(--%NS%mat-slide-toggle-disabled-unselected-track-outline-width, 2px);\n  border-color: var(--%NS%mat-slide-toggle-disabled-unselected-track-outline-color, var(--%NS%mat-sys-on-surface));\n}\n@media (forced-colors: active) {\n  .mdc-switch__track {\n    border-color: currentColor;\n  }\n}\n.mdc-switch__track::before {\n  transition: transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  transform: translateX(0);\n  background: var(--%NS%mat-slide-toggle-unselected-track-color, var(--%NS%mat-sys-surface-variant));\n}\n.mdc-switch--selected .mdc-switch__track::before {\n  transition: transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  transform: translateX(100%);\n}\n[dir=rtl] .mdc-switch--selected .mdc-switch--selected .mdc-switch__track::before {\n  transform: translateX(-100%);\n}\n.mdc-switch--selected .mdc-switch__track::before {\n  opacity: var(--%NS%mat-slide-toggle-hidden-track-opacity, 0);\n  transition: var(--%NS%mat-slide-toggle-hidden-track-transition, opacity 75ms);\n}\n.mdc-switch--unselected .mdc-switch__track::before {\n  opacity: var(--%NS%mat-slide-toggle-visible-track-opacity, 1);\n  transition: var(--%NS%mat-slide-toggle-visible-track-transition, opacity 75ms);\n}\n.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::before {\n  background: var(--%NS%mat-slide-toggle-unselected-hover-track-color, var(--%NS%mat-sys-surface-variant));\n}\n.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::before {\n  background: var(--%NS%mat-slide-toggle-unselected-focus-track-color, var(--%NS%mat-sys-surface-variant));\n}\n.mdc-switch:enabled:active .mdc-switch__track::before {\n  background: var(--%NS%mat-slide-toggle-unselected-pressed-track-color, var(--%NS%mat-sys-surface-variant));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:hover:not(:focus):not(:active) .mdc-switch__track::before, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:focus:not(:active) .mdc-switch__track::before, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:active .mdc-switch__track::before, .mdc-switch.mdc-switch--disabled .mdc-switch__track::before {\n  background: var(--%NS%mat-slide-toggle-disabled-unselected-track-color, var(--%NS%mat-sys-surface-variant));\n}\n.mdc-switch__track::after {\n  transform: translateX(-100%);\n  background: var(--%NS%mat-slide-toggle-selected-track-color, var(--%NS%mat-sys-primary));\n}\n[dir=rtl] .mdc-switch__track::after {\n  transform: translateX(100%);\n}\n.mdc-switch--selected .mdc-switch__track::after {\n  transform: translateX(0);\n}\n.mdc-switch--selected .mdc-switch__track::after {\n  opacity: var(--%NS%mat-slide-toggle-visible-track-opacity, 1);\n  transition: var(--%NS%mat-slide-toggle-visible-track-transition, opacity 75ms);\n}\n.mdc-switch--unselected .mdc-switch__track::after {\n  opacity: var(--%NS%mat-slide-toggle-hidden-track-opacity, 0);\n  transition: var(--%NS%mat-slide-toggle-hidden-track-transition, opacity 75ms);\n}\n.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::after {\n  background: var(--%NS%mat-slide-toggle-selected-hover-track-color, var(--%NS%mat-sys-primary));\n}\n.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::after {\n  background: var(--%NS%mat-slide-toggle-selected-focus-track-color, var(--%NS%mat-sys-primary));\n}\n.mdc-switch:enabled:active .mdc-switch__track::after {\n  background: var(--%NS%mat-slide-toggle-selected-pressed-track-color, var(--%NS%mat-sys-primary));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:hover:not(:focus):not(:active) .mdc-switch__track::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:focus:not(:active) .mdc-switch__track::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:active .mdc-switch__track::after, .mdc-switch.mdc-switch--disabled .mdc-switch__track::after {\n  background: var(--%NS%mat-slide-toggle-disabled-selected-track-color, var(--%NS%mat-sys-on-surface));\n}\n\n.mdc-switch__handle-track {\n  height: 100%;\n  pointer-events: none;\n  position: absolute;\n  top: 0;\n  transition: transform 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);\n  left: 0;\n  right: auto;\n  transform: translateX(0);\n  width: calc(100% - var(--%NS%mat-slide-toggle-handle-width));\n}\n[dir=rtl] .mdc-switch__handle-track {\n  left: auto;\n  right: 0;\n}\n.mdc-switch--selected .mdc-switch__handle-track {\n  transform: translateX(100%);\n}\n[dir=rtl] .mdc-switch--selected .mdc-switch__handle-track {\n  transform: translateX(-100%);\n}\n\n.mdc-switch__handle {\n  display: flex;\n  pointer-events: auto;\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%);\n  left: 0;\n  right: auto;\n  transition: width 75ms cubic-bezier(0.4, 0, 0.2, 1), height 75ms cubic-bezier(0.4, 0, 0.2, 1), margin 75ms cubic-bezier(0.4, 0, 0.2, 1);\n  width: var(--%NS%mat-slide-toggle-handle-width);\n  height: var(--%NS%mat-slide-toggle-handle-height);\n  border-radius: var(--%NS%mat-slide-toggle-handle-shape, var(--%NS%mat-sys-corner-full));\n}\n[dir=rtl] .mdc-switch__handle {\n  left: auto;\n  right: 0;\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle {\n  width: var(--%NS%mat-slide-toggle-unselected-handle-size, 16px);\n  height: var(--%NS%mat-slide-toggle-unselected-handle-size, 16px);\n  margin: var(--%NS%mat-slide-toggle-unselected-handle-horizontal-margin, 0 8px);\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle:has(.mdc-switch__icons) {\n  margin: var(--%NS%mat-slide-toggle-unselected-with-icon-handle-horizontal-margin, 0 4px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle {\n  width: var(--%NS%mat-slide-toggle-selected-handle-size, 24px);\n  height: var(--%NS%mat-slide-toggle-selected-handle-size, 24px);\n  margin: var(--%NS%mat-slide-toggle-selected-handle-horizontal-margin, 0 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle:has(.mdc-switch__icons) {\n  margin: var(--%NS%mat-slide-toggle-selected-with-icon-handle-horizontal-margin, 0 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch__handle:has(.mdc-switch__icons) {\n  width: var(--%NS%mat-slide-toggle-with-icon-handle-size, 24px);\n  height: var(--%NS%mat-slide-toggle-with-icon-handle-size, 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  width: var(--%NS%mat-slide-toggle-pressed-handle-size, 28px);\n  height: var(--%NS%mat-slide-toggle-pressed-handle-size, 28px);\n}\n.mat-mdc-slide-toggle .mdc-switch--%NS%selected:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  margin: var(--%NS%mat-slide-toggle-selected-pressed-handle-horizontal-margin, 0 22px);\n}\n.mat-mdc-slide-toggle .mdc-switch--%NS%unselected:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  margin: var(--%NS%mat-slide-toggle-unselected-pressed-handle-horizontal-margin, 0 2px);\n}\n.mdc-switch--disabled.mdc-switch--selected .mdc-switch__handle::after {\n  opacity: var(--%NS%mat-slide-toggle-disabled-selected-handle-opacity, 1);\n}\n.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__handle::after {\n  opacity: var(--%NS%mat-slide-toggle-disabled-unselected-handle-opacity, 0.38);\n}\n.mdc-switch__handle::before, .mdc-switch__handle::after {\n  border: 1px solid transparent;\n  border-radius: inherit;\n  box-sizing: border-box;\n  content: "";\n  width: 100%;\n  height: 100%;\n  left: 0;\n  position: absolute;\n  top: 0;\n  transition: background-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1), border-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);\n  z-index: -1;\n}\n@media (forced-colors: active) {\n  .mdc-switch__handle::before, .mdc-switch__handle::after {\n    border-color: currentColor;\n  }\n}\n.mdc-switch--%NS%selected:enabled .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-selected-handle-color, var(--%NS%mat-sys-on-primary));\n}\n.mdc-switch--%NS%selected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-selected-hover-handle-color, var(--%NS%mat-sys-primary-container));\n}\n.mdc-switch--%NS%selected:enabled:focus:not(:active) .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-selected-focus-handle-color, var(--%NS%mat-sys-primary-container));\n}\n.mdc-switch--%NS%selected:enabled:active .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-selected-pressed-handle-color, var(--%NS%mat-sys-primary-container));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--%NS%selected:hover:not(:focus):not(:active) .mdc-switch__handle::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--%NS%selected:focus:not(:active) .mdc-switch__handle::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--%NS%selected:active .mdc-switch__handle::after, .mdc-switch--selected.mdc-switch--disabled .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-disabled-selected-handle-color, var(--%NS%mat-sys-surface));\n}\n.mdc-switch--%NS%unselected:enabled .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-unselected-handle-color, var(--%NS%mat-sys-outline));\n}\n.mdc-switch--%NS%unselected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-unselected-hover-handle-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-switch--%NS%unselected:enabled:focus:not(:active) .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-unselected-focus-handle-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-switch--%NS%unselected:enabled:active .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-unselected-pressed-handle-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected.mdc-switch--disabled .mdc-switch__handle::after {\n  background: var(--%NS%mat-slide-toggle-disabled-unselected-handle-color, var(--%NS%mat-sys-on-surface));\n}\n.mdc-switch__handle::before {\n  background: var(--%NS%mat-slide-toggle-handle-surface-color);\n}\n\n.mdc-switch__shadow {\n  border-radius: inherit;\n  bottom: 0;\n  left: 0;\n  position: absolute;\n  right: 0;\n  top: 0;\n}\n.mdc-switch:enabled .mdc-switch__shadow {\n  box-shadow: var(--%NS%mat-slide-toggle-handle-elevation-shadow);\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:hover:not(:focus):not(:active) .mdc-switch__shadow, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:focus:not(:active) .mdc-switch__shadow, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:active .mdc-switch__shadow, .mdc-switch.mdc-switch--disabled .mdc-switch__shadow {\n  box-shadow: var(--%NS%mat-slide-toggle-disabled-handle-elevation-shadow);\n}\n\n.mdc-switch__ripple {\n  left: 50%;\n  position: absolute;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  z-index: -1;\n  width: var(--%NS%mat-slide-toggle-state-layer-size, 40px);\n  height: var(--%NS%mat-slide-toggle-state-layer-size, 40px);\n}\n.mdc-switch__ripple::after {\n  content: "";\n  opacity: 0;\n}\n.mdc-switch--disabled .mdc-switch__ripple::after {\n  display: none;\n}\n.mat-mdc-slide-toggle-disabled-interactive .mdc-switch__ripple::after {\n  display: block;\n}\n.mdc-switch:hover .mdc-switch__ripple::after {\n  transition: 75ms opacity cubic-bezier(0, 0, 0.2, 1);\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:enabled:focus .mdc-switch__ripple::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:enabled:active .mdc-switch__ripple::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--%NS%disabled:enabled:hover:not(:focus) .mdc-switch__ripple::after, .mdc-switch--%NS%unselected:enabled:hover:not(:focus) .mdc-switch__ripple::after {\n  background: var(--%NS%mat-slide-toggle-unselected-hover-state-layer-color, var(--%NS%mat-sys-on-surface));\n  opacity: var(--%NS%mat-slide-toggle-unselected-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mdc-switch--%NS%unselected:enabled:focus .mdc-switch__ripple::after {\n  background: var(--%NS%mat-slide-toggle-unselected-focus-state-layer-color, var(--%NS%mat-sys-on-surface));\n  opacity: var(--%NS%mat-slide-toggle-unselected-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mdc-switch--%NS%unselected:enabled:active .mdc-switch__ripple::after {\n  background: var(--%NS%mat-slide-toggle-unselected-pressed-state-layer-color, var(--%NS%mat-sys-on-surface));\n  opacity: var(--%NS%mat-slide-toggle-unselected-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n  transition: opacity 75ms linear;\n}\n.mdc-switch--%NS%selected:enabled:hover:not(:focus) .mdc-switch__ripple::after {\n  background: var(--%NS%mat-slide-toggle-selected-hover-state-layer-color, var(--%NS%mat-sys-primary));\n  opacity: var(--%NS%mat-slide-toggle-selected-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));\n}\n.mdc-switch--%NS%selected:enabled:focus .mdc-switch__ripple::after {\n  background: var(--%NS%mat-slide-toggle-selected-focus-state-layer-color, var(--%NS%mat-sys-primary));\n  opacity: var(--%NS%mat-slide-toggle-selected-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));\n}\n.mdc-switch--%NS%selected:enabled:active .mdc-switch__ripple::after {\n  background: var(--%NS%mat-slide-toggle-selected-pressed-state-layer-color, var(--%NS%mat-sys-primary));\n  opacity: var(--%NS%mat-slide-toggle-selected-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));\n  transition: opacity 75ms linear;\n}\n\n.mdc-switch__icons {\n  position: relative;\n  height: 100%;\n  width: 100%;\n  z-index: 1;\n  transform: translateZ(0);\n}\n.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__icons {\n  opacity: var(--%NS%mat-slide-toggle-disabled-unselected-icon-opacity, 0.38);\n}\n.mdc-switch--disabled.mdc-switch--selected .mdc-switch__icons {\n  opacity: var(--%NS%mat-slide-toggle-disabled-selected-icon-opacity, 0.38);\n}\n\n.mdc-switch__icon {\n  bottom: 0;\n  left: 0;\n  margin: auto;\n  position: absolute;\n  right: 0;\n  top: 0;\n  opacity: 0;\n  transition: opacity 30ms 0ms cubic-bezier(0.4, 0, 1, 1);\n}\n.mdc-switch--unselected .mdc-switch__icon {\n  width: var(--%NS%mat-slide-toggle-unselected-icon-size, 16px);\n  height: var(--%NS%mat-slide-toggle-unselected-icon-size, 16px);\n  fill: var(--%NS%mat-slide-toggle-unselected-icon-color, var(--%NS%mat-sys-surface-variant));\n}\n.mdc-switch--unselected.mdc-switch--disabled .mdc-switch__icon {\n  fill: var(--%NS%mat-slide-toggle-disabled-unselected-icon-color, var(--%NS%mat-sys-surface-variant));\n}\n.mdc-switch--selected .mdc-switch__icon {\n  width: var(--%NS%mat-slide-toggle-selected-icon-size, 16px);\n  height: var(--%NS%mat-slide-toggle-selected-icon-size, 16px);\n  fill: var(--%NS%mat-slide-toggle-selected-icon-color, var(--%NS%mat-sys-on-primary-container));\n}\n.mdc-switch--selected.mdc-switch--disabled .mdc-switch__icon {\n  fill: var(--%NS%mat-slide-toggle-disabled-selected-icon-color, var(--%NS%mat-sys-on-surface));\n}\n\n.mdc-switch--selected .mdc-switch__icon--on,\n.mdc-switch--unselected .mdc-switch__icon--off {\n  opacity: 1;\n  transition: opacity 45ms 30ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mat-mdc-slide-toggle {\n  -webkit-user-select: none;\n  user-select: none;\n  display: inline-block;\n  -webkit-tap-highlight-color: transparent;\n  outline: 0;\n}\n.mat-mdc-slide-toggle .mat-icon {\n  min-height: fit-content;\n  flex-shrink: 0;\n}\n.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple,\n.mat-mdc-slide-toggle .mdc-switch__ripple::after {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n}\n.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple:not(:empty),\n.mat-mdc-slide-toggle .mdc-switch__ripple::after:not(:empty) {\n  transform: translateZ(0);\n}\n.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-slide-toggle .mat-internal-form-field {\n  color: var(--%NS%mat-slide-toggle-label-text-color, var(--%NS%mat-sys-on-surface));\n  font-family: var(--%NS%mat-slide-toggle-label-text-font, var(--%NS%mat-sys-body-medium-font));\n  line-height: var(--%NS%mat-slide-toggle-label-text-line-height, var(--%NS%mat-sys-body-medium-line-height));\n  font-size: var(--%NS%mat-slide-toggle-label-text-size, var(--%NS%mat-sys-body-medium-size));\n  letter-spacing: var(--%NS%mat-slide-toggle-label-text-tracking, var(--%NS%mat-sys-body-medium-tracking));\n  font-weight: var(--%NS%mat-slide-toggle-label-text-weight, var(--%NS%mat-sys-body-medium-weight));\n}\n.mat-mdc-slide-toggle .mat-ripple-element {\n  opacity: 0.12;\n}\n.mat-mdc-slide-toggle .mat-focus-indicator::before {\n  border-radius: 50%;\n}\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle-track,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__icon,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::before,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::after,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::before,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::after {\n  transition: none;\n}\n.mat-mdc-slide-toggle .mdc-switch:enabled + .mdc-label {\n  cursor: pointer;\n}\n.mat-mdc-slide-toggle .mdc-switch--disabled + label {\n  color: var(--%NS%mat-slide-toggle-disabled-label-text-color, var(--%NS%mat-sys-on-surface));\n}\n.mat-mdc-slide-toggle label:empty {\n  display: none;\n}\n\n.mat-slide-toggle-full-width {\n  width: 100%;\n}\n.mat-slide-toggle-full-width .mat-internal-form-field {\n  width: 100%;\n  justify-content: space-between;\n}\n.mat-slide-toggle-full-width .mat-internal-form-field label {\n  margin: 0;\n  flex-grow: 1;\n  text-align: end;\n}\n.mat-slide-toggle-full-width .mdc-form-field--align-end label {\n  text-align: start;\n}\n\n.mat-mdc-slide-toggle-touch-target {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  height: var(--%NS%mat-slide-toggle-touch-target-size, 48px);\n  width: 100%;\n  transform: translate(-50%, -50%);\n  display: var(--%NS%mat-slide-toggle-touch-target-display, block);\n}\n[dir=rtl] .mat-mdc-slide-toggle-touch-target {\n  left: auto;\n  right: 50%;\n  transform: translate(50%, -50%);\n}\n'],
     encapsulation: 2
   });
 };
@@ -10838,6 +10949,7 @@ var MatSlideToggle = class _MatSlideToggle {
         "[attr.aria-labelledby]": "null",
         "[class.mat-mdc-slide-toggle-focused]": "_focused",
         "[class.mat-mdc-slide-toggle-checked]": "checked",
+        "[class.mat-slide-toggle-full-width]": "fullWidth",
         "[class._mat-animation-noopable]": "_noopAnimations",
         "[class]": 'color ? "mat-" + color : ""'
       },
@@ -10917,7 +11029,7 @@ var MatSlideToggle = class _MatSlideToggle {
   </label>
 </div>
 `,
-      styles: ['.mdc-switch {\n  align-items: center;\n  background: none;\n  border: none;\n  cursor: pointer;\n  display: inline-flex;\n  flex-shrink: 0;\n  margin: 0;\n  outline: none;\n  overflow: visible;\n  padding: 0;\n  position: relative;\n  width: var(--mat-slide-toggle-track-width, 52px);\n}\n.mdc-switch.mdc-switch--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mdc-switch.mat-mdc-slide-toggle-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mdc-switch__track {\n  overflow: hidden;\n  position: relative;\n  width: 100%;\n  height: var(--mat-slide-toggle-track-height, 32px);\n  border-radius: var(--mat-slide-toggle-track-shape, var(--mat-sys-corner-full));\n}\n.mdc-switch--disabled.mdc-switch .mdc-switch__track {\n  opacity: var(--mat-slide-toggle-disabled-track-opacity, 0.12);\n}\n.mdc-switch__track::before, .mdc-switch__track::after {\n  border: 1px solid transparent;\n  border-radius: inherit;\n  box-sizing: border-box;\n  content: "";\n  height: 100%;\n  left: 0;\n  position: absolute;\n  width: 100%;\n  border-width: var(--mat-slide-toggle-track-outline-width, 2px);\n  border-color: var(--mat-slide-toggle-track-outline-color, var(--mat-sys-outline));\n}\n.mdc-switch--selected .mdc-switch__track::before, .mdc-switch--selected .mdc-switch__track::after {\n  border-width: var(--mat-slide-toggle-selected-track-outline-width, 2px);\n  border-color: var(--mat-slide-toggle-selected-track-outline-color, transparent);\n}\n.mdc-switch--disabled .mdc-switch__track::before, .mdc-switch--disabled .mdc-switch__track::after {\n  border-width: var(--mat-slide-toggle-disabled-unselected-track-outline-width, 2px);\n  border-color: var(--mat-slide-toggle-disabled-unselected-track-outline-color, var(--mat-sys-on-surface));\n}\n@media (forced-colors: active) {\n  .mdc-switch__track {\n    border-color: currentColor;\n  }\n}\n.mdc-switch__track::before {\n  transition: transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  transform: translateX(0);\n  background: var(--mat-slide-toggle-unselected-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch--selected .mdc-switch__track::before {\n  transition: transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  transform: translateX(100%);\n}\n[dir=rtl] .mdc-switch--selected .mdc-switch--selected .mdc-switch__track::before {\n  transform: translateX(-100%);\n}\n.mdc-switch--selected .mdc-switch__track::before {\n  opacity: var(--mat-slide-toggle-hidden-track-opacity, 0);\n  transition: var(--mat-slide-toggle-hidden-track-transition, opacity 75ms);\n}\n.mdc-switch--unselected .mdc-switch__track::before {\n  opacity: var(--mat-slide-toggle-visible-track-opacity, 1);\n  transition: var(--mat-slide-toggle-visible-track-transition, opacity 75ms);\n}\n.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-unselected-hover-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-unselected-focus-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch:enabled:active .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-unselected-pressed-track-color, var(--mat-sys-surface-variant));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:hover:not(:focus):not(:active) .mdc-switch__track::before, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:focus:not(:active) .mdc-switch__track::before, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:active .mdc-switch__track::before, .mdc-switch.mdc-switch--disabled .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-disabled-unselected-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch__track::after {\n  transform: translateX(-100%);\n  background: var(--mat-slide-toggle-selected-track-color, var(--mat-sys-primary));\n}\n[dir=rtl] .mdc-switch__track::after {\n  transform: translateX(100%);\n}\n.mdc-switch--selected .mdc-switch__track::after {\n  transform: translateX(0);\n}\n.mdc-switch--selected .mdc-switch__track::after {\n  opacity: var(--mat-slide-toggle-visible-track-opacity, 1);\n  transition: var(--mat-slide-toggle-visible-track-transition, opacity 75ms);\n}\n.mdc-switch--unselected .mdc-switch__track::after {\n  opacity: var(--mat-slide-toggle-hidden-track-opacity, 0);\n  transition: var(--mat-slide-toggle-hidden-track-transition, opacity 75ms);\n}\n.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-selected-hover-track-color, var(--mat-sys-primary));\n}\n.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-selected-focus-track-color, var(--mat-sys-primary));\n}\n.mdc-switch:enabled:active .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-selected-pressed-track-color, var(--mat-sys-primary));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:hover:not(:focus):not(:active) .mdc-switch__track::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:focus:not(:active) .mdc-switch__track::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:active .mdc-switch__track::after, .mdc-switch.mdc-switch--disabled .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-disabled-selected-track-color, var(--mat-sys-on-surface));\n}\n\n.mdc-switch__handle-track {\n  height: 100%;\n  pointer-events: none;\n  position: absolute;\n  top: 0;\n  transition: transform 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);\n  left: 0;\n  right: auto;\n  transform: translateX(0);\n  width: calc(100% - var(--mat-slide-toggle-handle-width));\n}\n[dir=rtl] .mdc-switch__handle-track {\n  left: auto;\n  right: 0;\n}\n.mdc-switch--selected .mdc-switch__handle-track {\n  transform: translateX(100%);\n}\n[dir=rtl] .mdc-switch--selected .mdc-switch__handle-track {\n  transform: translateX(-100%);\n}\n\n.mdc-switch__handle {\n  display: flex;\n  pointer-events: auto;\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%);\n  left: 0;\n  right: auto;\n  transition: width 75ms cubic-bezier(0.4, 0, 0.2, 1), height 75ms cubic-bezier(0.4, 0, 0.2, 1), margin 75ms cubic-bezier(0.4, 0, 0.2, 1);\n  width: var(--mat-slide-toggle-handle-width);\n  height: var(--mat-slide-toggle-handle-height);\n  border-radius: var(--mat-slide-toggle-handle-shape, var(--mat-sys-corner-full));\n}\n[dir=rtl] .mdc-switch__handle {\n  left: auto;\n  right: 0;\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle {\n  width: var(--mat-slide-toggle-unselected-handle-size, 16px);\n  height: var(--mat-slide-toggle-unselected-handle-size, 16px);\n  margin: var(--mat-slide-toggle-unselected-handle-horizontal-margin, 0 8px);\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle:has(.mdc-switch__icons) {\n  margin: var(--mat-slide-toggle-unselected-with-icon-handle-horizontal-margin, 0 4px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle {\n  width: var(--mat-slide-toggle-selected-handle-size, 24px);\n  height: var(--mat-slide-toggle-selected-handle-size, 24px);\n  margin: var(--mat-slide-toggle-selected-handle-horizontal-margin, 0 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle:has(.mdc-switch__icons) {\n  margin: var(--mat-slide-toggle-selected-with-icon-handle-horizontal-margin, 0 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch__handle:has(.mdc-switch__icons) {\n  width: var(--mat-slide-toggle-with-icon-handle-size, 24px);\n  height: var(--mat-slide-toggle-with-icon-handle-size, 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  width: var(--mat-slide-toggle-pressed-handle-size, 28px);\n  height: var(--mat-slide-toggle-pressed-handle-size, 28px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  margin: var(--mat-slide-toggle-selected-pressed-handle-horizontal-margin, 0 22px);\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  margin: var(--mat-slide-toggle-unselected-pressed-handle-horizontal-margin, 0 2px);\n}\n.mdc-switch--disabled.mdc-switch--selected .mdc-switch__handle::after {\n  opacity: var(--mat-slide-toggle-disabled-selected-handle-opacity, 1);\n}\n.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__handle::after {\n  opacity: var(--mat-slide-toggle-disabled-unselected-handle-opacity, 0.38);\n}\n.mdc-switch__handle::before, .mdc-switch__handle::after {\n  border: 1px solid transparent;\n  border-radius: inherit;\n  box-sizing: border-box;\n  content: "";\n  width: 100%;\n  height: 100%;\n  left: 0;\n  position: absolute;\n  top: 0;\n  transition: background-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1), border-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);\n  z-index: -1;\n}\n@media (forced-colors: active) {\n  .mdc-switch__handle::before, .mdc-switch__handle::after {\n    border-color: currentColor;\n  }\n}\n.mdc-switch--selected:enabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-handle-color, var(--mat-sys-on-primary));\n}\n.mdc-switch--selected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-hover-handle-color, var(--mat-sys-primary-container));\n}\n.mdc-switch--selected:enabled:focus:not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-focus-handle-color, var(--mat-sys-primary-container));\n}\n.mdc-switch--selected:enabled:active .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-pressed-handle-color, var(--mat-sys-primary-container));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--selected:hover:not(:focus):not(:active) .mdc-switch__handle::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--selected:focus:not(:active) .mdc-switch__handle::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--selected:active .mdc-switch__handle::after, .mdc-switch--selected.mdc-switch--disabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-disabled-selected-handle-color, var(--mat-sys-surface));\n}\n.mdc-switch--unselected:enabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-handle-color, var(--mat-sys-outline));\n}\n.mdc-switch--unselected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-hover-handle-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected:enabled:focus:not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-focus-handle-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected:enabled:active .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-pressed-handle-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected.mdc-switch--disabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-disabled-unselected-handle-color, var(--mat-sys-on-surface));\n}\n.mdc-switch__handle::before {\n  background: var(--mat-slide-toggle-handle-surface-color);\n}\n\n.mdc-switch__shadow {\n  border-radius: inherit;\n  bottom: 0;\n  left: 0;\n  position: absolute;\n  right: 0;\n  top: 0;\n}\n.mdc-switch:enabled .mdc-switch__shadow {\n  box-shadow: var(--mat-slide-toggle-handle-elevation-shadow);\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:hover:not(:focus):not(:active) .mdc-switch__shadow, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:focus:not(:active) .mdc-switch__shadow, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:active .mdc-switch__shadow, .mdc-switch.mdc-switch--disabled .mdc-switch__shadow {\n  box-shadow: var(--mat-slide-toggle-disabled-handle-elevation-shadow);\n}\n\n.mdc-switch__ripple {\n  left: 50%;\n  position: absolute;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  z-index: -1;\n  width: var(--mat-slide-toggle-state-layer-size, 40px);\n  height: var(--mat-slide-toggle-state-layer-size, 40px);\n}\n.mdc-switch__ripple::after {\n  content: "";\n  opacity: 0;\n}\n.mdc-switch--disabled .mdc-switch__ripple::after {\n  display: none;\n}\n.mat-mdc-slide-toggle-disabled-interactive .mdc-switch__ripple::after {\n  display: block;\n}\n.mdc-switch:hover .mdc-switch__ripple::after {\n  transition: 75ms opacity cubic-bezier(0, 0, 0.2, 1);\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:enabled:focus .mdc-switch__ripple::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:enabled:active .mdc-switch__ripple::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:enabled:hover:not(:focus) .mdc-switch__ripple::after, .mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n  opacity: var(--mat-slide-toggle-unselected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-unselected-focus-state-layer-color, var(--mat-sys-on-surface));\n  opacity: var(--mat-slide-toggle-unselected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mdc-switch--unselected:enabled:active .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-unselected-pressed-state-layer-color, var(--mat-sys-on-surface));\n  opacity: var(--mat-slide-toggle-unselected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  transition: opacity 75ms linear;\n}\n.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-selected-hover-state-layer-color, var(--mat-sys-primary));\n  opacity: var(--mat-slide-toggle-selected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mdc-switch--selected:enabled:focus .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-selected-focus-state-layer-color, var(--mat-sys-primary));\n  opacity: var(--mat-slide-toggle-selected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mdc-switch--selected:enabled:active .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-selected-pressed-state-layer-color, var(--mat-sys-primary));\n  opacity: var(--mat-slide-toggle-selected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  transition: opacity 75ms linear;\n}\n\n.mdc-switch__icons {\n  position: relative;\n  height: 100%;\n  width: 100%;\n  z-index: 1;\n  transform: translateZ(0);\n}\n.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__icons {\n  opacity: var(--mat-slide-toggle-disabled-unselected-icon-opacity, 0.38);\n}\n.mdc-switch--disabled.mdc-switch--selected .mdc-switch__icons {\n  opacity: var(--mat-slide-toggle-disabled-selected-icon-opacity, 0.38);\n}\n\n.mdc-switch__icon {\n  bottom: 0;\n  left: 0;\n  margin: auto;\n  position: absolute;\n  right: 0;\n  top: 0;\n  opacity: 0;\n  transition: opacity 30ms 0ms cubic-bezier(0.4, 0, 1, 1);\n}\n.mdc-switch--unselected .mdc-switch__icon {\n  width: var(--mat-slide-toggle-unselected-icon-size, 16px);\n  height: var(--mat-slide-toggle-unselected-icon-size, 16px);\n  fill: var(--mat-slide-toggle-unselected-icon-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch--unselected.mdc-switch--disabled .mdc-switch__icon {\n  fill: var(--mat-slide-toggle-disabled-unselected-icon-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch--selected .mdc-switch__icon {\n  width: var(--mat-slide-toggle-selected-icon-size, 16px);\n  height: var(--mat-slide-toggle-selected-icon-size, 16px);\n  fill: var(--mat-slide-toggle-selected-icon-color, var(--mat-sys-on-primary-container));\n}\n.mdc-switch--selected.mdc-switch--disabled .mdc-switch__icon {\n  fill: var(--mat-slide-toggle-disabled-selected-icon-color, var(--mat-sys-on-surface));\n}\n\n.mdc-switch--selected .mdc-switch__icon--on,\n.mdc-switch--unselected .mdc-switch__icon--off {\n  opacity: 1;\n  transition: opacity 45ms 30ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mat-mdc-slide-toggle {\n  -webkit-user-select: none;\n  user-select: none;\n  display: inline-block;\n  -webkit-tap-highlight-color: transparent;\n  outline: 0;\n}\n.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple,\n.mat-mdc-slide-toggle .mdc-switch__ripple::after {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n}\n.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple:not(:empty),\n.mat-mdc-slide-toggle .mdc-switch__ripple::after:not(:empty) {\n  transform: translateZ(0);\n}\n.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-slide-toggle .mat-internal-form-field {\n  color: var(--mat-slide-toggle-label-text-color, var(--mat-sys-on-surface));\n  font-family: var(--mat-slide-toggle-label-text-font, var(--mat-sys-body-medium-font));\n  line-height: var(--mat-slide-toggle-label-text-line-height, var(--mat-sys-body-medium-line-height));\n  font-size: var(--mat-slide-toggle-label-text-size, var(--mat-sys-body-medium-size));\n  letter-spacing: var(--mat-slide-toggle-label-text-tracking, var(--mat-sys-body-medium-tracking));\n  font-weight: var(--mat-slide-toggle-label-text-weight, var(--mat-sys-body-medium-weight));\n}\n.mat-mdc-slide-toggle .mat-ripple-element {\n  opacity: 0.12;\n}\n.mat-mdc-slide-toggle .mat-focus-indicator::before {\n  border-radius: 50%;\n}\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle-track,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__icon,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::before,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::after,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::before,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::after {\n  transition: none;\n}\n.mat-mdc-slide-toggle .mdc-switch:enabled + .mdc-label {\n  cursor: pointer;\n}\n.mat-mdc-slide-toggle .mdc-switch--disabled + label {\n  color: var(--mat-slide-toggle-disabled-label-text-color, var(--mat-sys-on-surface));\n}\n.mat-mdc-slide-toggle label:empty {\n  display: none;\n}\n\n.mat-mdc-slide-toggle-touch-target {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  height: var(--mat-slide-toggle-touch-target-size, 48px);\n  width: 100%;\n  transform: translate(-50%, -50%);\n  display: var(--mat-slide-toggle-touch-target-display, block);\n}\n[dir=rtl] .mat-mdc-slide-toggle-touch-target {\n  left: auto;\n  right: 50%;\n  transform: translate(50%, -50%);\n}\n']
+      styles: ['.mdc-switch {\n  align-items: center;\n  background: none;\n  border: none;\n  cursor: pointer;\n  display: inline-flex;\n  flex-shrink: 0;\n  margin: 0;\n  outline: none;\n  overflow: visible;\n  padding: 0;\n  position: relative;\n  width: var(--mat-slide-toggle-track-width, 52px);\n}\n.mdc-switch.mdc-switch--disabled {\n  cursor: default;\n  pointer-events: none;\n}\n.mdc-switch.mat-mdc-slide-toggle-disabled-interactive {\n  pointer-events: auto;\n}\n\n.mdc-switch__track {\n  overflow: hidden;\n  position: relative;\n  width: 100%;\n  height: var(--mat-slide-toggle-track-height, 32px);\n  border-radius: var(--mat-slide-toggle-track-shape, var(--mat-sys-corner-full));\n}\n.mdc-switch--disabled.mdc-switch .mdc-switch__track {\n  opacity: var(--mat-slide-toggle-disabled-track-opacity, 0.12);\n}\n.mdc-switch__track::before, .mdc-switch__track::after {\n  border: 1px solid transparent;\n  border-radius: inherit;\n  box-sizing: border-box;\n  content: "";\n  height: 100%;\n  left: 0;\n  position: absolute;\n  width: 100%;\n  border-width: var(--mat-slide-toggle-track-outline-width, 2px);\n  border-color: var(--mat-slide-toggle-track-outline-color, var(--mat-sys-outline));\n}\n.mdc-switch--selected .mdc-switch__track::before, .mdc-switch--selected .mdc-switch__track::after {\n  border-width: var(--mat-slide-toggle-selected-track-outline-width, 2px);\n  border-color: var(--mat-slide-toggle-selected-track-outline-color, transparent);\n}\n.mdc-switch--disabled .mdc-switch__track::before, .mdc-switch--disabled .mdc-switch__track::after {\n  border-width: var(--mat-slide-toggle-disabled-unselected-track-outline-width, 2px);\n  border-color: var(--mat-slide-toggle-disabled-unselected-track-outline-color, var(--mat-sys-on-surface));\n}\n@media (forced-colors: active) {\n  .mdc-switch__track {\n    border-color: currentColor;\n  }\n}\n.mdc-switch__track::before {\n  transition: transform 75ms 0ms cubic-bezier(0, 0, 0.2, 1);\n  transform: translateX(0);\n  background: var(--mat-slide-toggle-unselected-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch--selected .mdc-switch__track::before {\n  transition: transform 75ms 0ms cubic-bezier(0.4, 0, 0.6, 1);\n  transform: translateX(100%);\n}\n[dir=rtl] .mdc-switch--selected .mdc-switch--selected .mdc-switch__track::before {\n  transform: translateX(-100%);\n}\n.mdc-switch--selected .mdc-switch__track::before {\n  opacity: var(--mat-slide-toggle-hidden-track-opacity, 0);\n  transition: var(--mat-slide-toggle-hidden-track-transition, opacity 75ms);\n}\n.mdc-switch--unselected .mdc-switch__track::before {\n  opacity: var(--mat-slide-toggle-visible-track-opacity, 1);\n  transition: var(--mat-slide-toggle-visible-track-transition, opacity 75ms);\n}\n.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-unselected-hover-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-unselected-focus-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch:enabled:active .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-unselected-pressed-track-color, var(--mat-sys-surface-variant));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:hover:not(:focus):not(:active) .mdc-switch__track::before, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:focus:not(:active) .mdc-switch__track::before, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:active .mdc-switch__track::before, .mdc-switch.mdc-switch--disabled .mdc-switch__track::before {\n  background: var(--mat-slide-toggle-disabled-unselected-track-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch__track::after {\n  transform: translateX(-100%);\n  background: var(--mat-slide-toggle-selected-track-color, var(--mat-sys-primary));\n}\n[dir=rtl] .mdc-switch__track::after {\n  transform: translateX(100%);\n}\n.mdc-switch--selected .mdc-switch__track::after {\n  transform: translateX(0);\n}\n.mdc-switch--selected .mdc-switch__track::after {\n  opacity: var(--mat-slide-toggle-visible-track-opacity, 1);\n  transition: var(--mat-slide-toggle-visible-track-transition, opacity 75ms);\n}\n.mdc-switch--unselected .mdc-switch__track::after {\n  opacity: var(--mat-slide-toggle-hidden-track-opacity, 0);\n  transition: var(--mat-slide-toggle-hidden-track-transition, opacity 75ms);\n}\n.mdc-switch:enabled:hover:not(:focus):not(:active) .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-selected-hover-track-color, var(--mat-sys-primary));\n}\n.mdc-switch:enabled:focus:not(:active) .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-selected-focus-track-color, var(--mat-sys-primary));\n}\n.mdc-switch:enabled:active .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-selected-pressed-track-color, var(--mat-sys-primary));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:hover:not(:focus):not(:active) .mdc-switch__track::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:focus:not(:active) .mdc-switch__track::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:active .mdc-switch__track::after, .mdc-switch.mdc-switch--disabled .mdc-switch__track::after {\n  background: var(--mat-slide-toggle-disabled-selected-track-color, var(--mat-sys-on-surface));\n}\n\n.mdc-switch__handle-track {\n  height: 100%;\n  pointer-events: none;\n  position: absolute;\n  top: 0;\n  transition: transform 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);\n  left: 0;\n  right: auto;\n  transform: translateX(0);\n  width: calc(100% - var(--mat-slide-toggle-handle-width));\n}\n[dir=rtl] .mdc-switch__handle-track {\n  left: auto;\n  right: 0;\n}\n.mdc-switch--selected .mdc-switch__handle-track {\n  transform: translateX(100%);\n}\n[dir=rtl] .mdc-switch--selected .mdc-switch__handle-track {\n  transform: translateX(-100%);\n}\n\n.mdc-switch__handle {\n  display: flex;\n  pointer-events: auto;\n  position: absolute;\n  top: 50%;\n  transform: translateY(-50%);\n  left: 0;\n  right: auto;\n  transition: width 75ms cubic-bezier(0.4, 0, 0.2, 1), height 75ms cubic-bezier(0.4, 0, 0.2, 1), margin 75ms cubic-bezier(0.4, 0, 0.2, 1);\n  width: var(--mat-slide-toggle-handle-width);\n  height: var(--mat-slide-toggle-handle-height);\n  border-radius: var(--mat-slide-toggle-handle-shape, var(--mat-sys-corner-full));\n}\n[dir=rtl] .mdc-switch__handle {\n  left: auto;\n  right: 0;\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle {\n  width: var(--mat-slide-toggle-unselected-handle-size, 16px);\n  height: var(--mat-slide-toggle-unselected-handle-size, 16px);\n  margin: var(--mat-slide-toggle-unselected-handle-horizontal-margin, 0 8px);\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected .mdc-switch__handle:has(.mdc-switch__icons) {\n  margin: var(--mat-slide-toggle-unselected-with-icon-handle-horizontal-margin, 0 4px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle {\n  width: var(--mat-slide-toggle-selected-handle-size, 24px);\n  height: var(--mat-slide-toggle-selected-handle-size, 24px);\n  margin: var(--mat-slide-toggle-selected-handle-horizontal-margin, 0 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected .mdc-switch__handle:has(.mdc-switch__icons) {\n  margin: var(--mat-slide-toggle-selected-with-icon-handle-horizontal-margin, 0 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch__handle:has(.mdc-switch__icons) {\n  width: var(--mat-slide-toggle-with-icon-handle-size, 24px);\n  height: var(--mat-slide-toggle-with-icon-handle-size, 24px);\n}\n.mat-mdc-slide-toggle .mdc-switch:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  width: var(--mat-slide-toggle-pressed-handle-size, 28px);\n  height: var(--mat-slide-toggle-pressed-handle-size, 28px);\n}\n.mat-mdc-slide-toggle .mdc-switch--selected:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  margin: var(--mat-slide-toggle-selected-pressed-handle-horizontal-margin, 0 22px);\n}\n.mat-mdc-slide-toggle .mdc-switch--unselected:active:not(.mdc-switch--disabled) .mdc-switch__handle {\n  margin: var(--mat-slide-toggle-unselected-pressed-handle-horizontal-margin, 0 2px);\n}\n.mdc-switch--disabled.mdc-switch--selected .mdc-switch__handle::after {\n  opacity: var(--mat-slide-toggle-disabled-selected-handle-opacity, 1);\n}\n.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__handle::after {\n  opacity: var(--mat-slide-toggle-disabled-unselected-handle-opacity, 0.38);\n}\n.mdc-switch__handle::before, .mdc-switch__handle::after {\n  border: 1px solid transparent;\n  border-radius: inherit;\n  box-sizing: border-box;\n  content: "";\n  width: 100%;\n  height: 100%;\n  left: 0;\n  position: absolute;\n  top: 0;\n  transition: background-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1), border-color 75ms 0ms cubic-bezier(0.4, 0, 0.2, 1);\n  z-index: -1;\n}\n@media (forced-colors: active) {\n  .mdc-switch__handle::before, .mdc-switch__handle::after {\n    border-color: currentColor;\n  }\n}\n.mdc-switch--selected:enabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-handle-color, var(--mat-sys-on-primary));\n}\n.mdc-switch--selected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-hover-handle-color, var(--mat-sys-primary-container));\n}\n.mdc-switch--selected:enabled:focus:not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-focus-handle-color, var(--mat-sys-primary-container));\n}\n.mdc-switch--selected:enabled:active .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-selected-pressed-handle-color, var(--mat-sys-primary-container));\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--selected:hover:not(:focus):not(:active) .mdc-switch__handle::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--selected:focus:not(:active) .mdc-switch__handle::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled.mdc-switch--selected:active .mdc-switch__handle::after, .mdc-switch--selected.mdc-switch--disabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-disabled-selected-handle-color, var(--mat-sys-surface));\n}\n.mdc-switch--unselected:enabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-handle-color, var(--mat-sys-outline));\n}\n.mdc-switch--unselected:enabled:hover:not(:focus):not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-hover-handle-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected:enabled:focus:not(:active) .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-focus-handle-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected:enabled:active .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-unselected-pressed-handle-color, var(--mat-sys-on-surface-variant));\n}\n.mdc-switch--unselected.mdc-switch--disabled .mdc-switch__handle::after {\n  background: var(--mat-slide-toggle-disabled-unselected-handle-color, var(--mat-sys-on-surface));\n}\n.mdc-switch__handle::before {\n  background: var(--mat-slide-toggle-handle-surface-color);\n}\n\n.mdc-switch__shadow {\n  border-radius: inherit;\n  bottom: 0;\n  left: 0;\n  position: absolute;\n  right: 0;\n  top: 0;\n}\n.mdc-switch:enabled .mdc-switch__shadow {\n  box-shadow: var(--mat-slide-toggle-handle-elevation-shadow);\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:hover:not(:focus):not(:active) .mdc-switch__shadow, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:focus:not(:active) .mdc-switch__shadow, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:active .mdc-switch__shadow, .mdc-switch.mdc-switch--disabled .mdc-switch__shadow {\n  box-shadow: var(--mat-slide-toggle-disabled-handle-elevation-shadow);\n}\n\n.mdc-switch__ripple {\n  left: 50%;\n  position: absolute;\n  top: 50%;\n  transform: translate(-50%, -50%);\n  z-index: -1;\n  width: var(--mat-slide-toggle-state-layer-size, 40px);\n  height: var(--mat-slide-toggle-state-layer-size, 40px);\n}\n.mdc-switch__ripple::after {\n  content: "";\n  opacity: 0;\n}\n.mdc-switch--disabled .mdc-switch__ripple::after {\n  display: none;\n}\n.mat-mdc-slide-toggle-disabled-interactive .mdc-switch__ripple::after {\n  display: block;\n}\n.mdc-switch:hover .mdc-switch__ripple::after {\n  transition: 75ms opacity cubic-bezier(0, 0, 0.2, 1);\n}\n.mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:enabled:focus .mdc-switch__ripple::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:enabled:active .mdc-switch__ripple::after, .mat-mdc-slide-toggle-disabled-interactive.mdc-switch--disabled:enabled:hover:not(:focus) .mdc-switch__ripple::after, .mdc-switch--unselected:enabled:hover:not(:focus) .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-unselected-hover-state-layer-color, var(--mat-sys-on-surface));\n  opacity: var(--mat-slide-toggle-unselected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mdc-switch--unselected:enabled:focus .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-unselected-focus-state-layer-color, var(--mat-sys-on-surface));\n  opacity: var(--mat-slide-toggle-unselected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mdc-switch--unselected:enabled:active .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-unselected-pressed-state-layer-color, var(--mat-sys-on-surface));\n  opacity: var(--mat-slide-toggle-unselected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  transition: opacity 75ms linear;\n}\n.mdc-switch--selected:enabled:hover:not(:focus) .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-selected-hover-state-layer-color, var(--mat-sys-primary));\n  opacity: var(--mat-slide-toggle-selected-hover-state-layer-opacity, var(--mat-sys-hover-state-layer-opacity));\n}\n.mdc-switch--selected:enabled:focus .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-selected-focus-state-layer-color, var(--mat-sys-primary));\n  opacity: var(--mat-slide-toggle-selected-focus-state-layer-opacity, var(--mat-sys-focus-state-layer-opacity));\n}\n.mdc-switch--selected:enabled:active .mdc-switch__ripple::after {\n  background: var(--mat-slide-toggle-selected-pressed-state-layer-color, var(--mat-sys-primary));\n  opacity: var(--mat-slide-toggle-selected-pressed-state-layer-opacity, var(--mat-sys-pressed-state-layer-opacity));\n  transition: opacity 75ms linear;\n}\n\n.mdc-switch__icons {\n  position: relative;\n  height: 100%;\n  width: 100%;\n  z-index: 1;\n  transform: translateZ(0);\n}\n.mdc-switch--disabled.mdc-switch--unselected .mdc-switch__icons {\n  opacity: var(--mat-slide-toggle-disabled-unselected-icon-opacity, 0.38);\n}\n.mdc-switch--disabled.mdc-switch--selected .mdc-switch__icons {\n  opacity: var(--mat-slide-toggle-disabled-selected-icon-opacity, 0.38);\n}\n\n.mdc-switch__icon {\n  bottom: 0;\n  left: 0;\n  margin: auto;\n  position: absolute;\n  right: 0;\n  top: 0;\n  opacity: 0;\n  transition: opacity 30ms 0ms cubic-bezier(0.4, 0, 1, 1);\n}\n.mdc-switch--unselected .mdc-switch__icon {\n  width: var(--mat-slide-toggle-unselected-icon-size, 16px);\n  height: var(--mat-slide-toggle-unselected-icon-size, 16px);\n  fill: var(--mat-slide-toggle-unselected-icon-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch--unselected.mdc-switch--disabled .mdc-switch__icon {\n  fill: var(--mat-slide-toggle-disabled-unselected-icon-color, var(--mat-sys-surface-variant));\n}\n.mdc-switch--selected .mdc-switch__icon {\n  width: var(--mat-slide-toggle-selected-icon-size, 16px);\n  height: var(--mat-slide-toggle-selected-icon-size, 16px);\n  fill: var(--mat-slide-toggle-selected-icon-color, var(--mat-sys-on-primary-container));\n}\n.mdc-switch--selected.mdc-switch--disabled .mdc-switch__icon {\n  fill: var(--mat-slide-toggle-disabled-selected-icon-color, var(--mat-sys-on-surface));\n}\n\n.mdc-switch--selected .mdc-switch__icon--on,\n.mdc-switch--unselected .mdc-switch__icon--off {\n  opacity: 1;\n  transition: opacity 45ms 30ms cubic-bezier(0, 0, 0.2, 1);\n}\n\n.mat-mdc-slide-toggle {\n  -webkit-user-select: none;\n  user-select: none;\n  display: inline-block;\n  -webkit-tap-highlight-color: transparent;\n  outline: 0;\n}\n.mat-mdc-slide-toggle .mat-icon {\n  min-height: fit-content;\n  flex-shrink: 0;\n}\n.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple,\n.mat-mdc-slide-toggle .mdc-switch__ripple::after {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  border-radius: 50%;\n  pointer-events: none;\n}\n.mat-mdc-slide-toggle .mat-mdc-slide-toggle-ripple:not(:empty),\n.mat-mdc-slide-toggle .mdc-switch__ripple::after:not(:empty) {\n  transform: translateZ(0);\n}\n.mat-mdc-slide-toggle.mat-mdc-slide-toggle-focused .mat-focus-indicator::before {\n  content: "";\n}\n.mat-mdc-slide-toggle .mat-internal-form-field {\n  color: var(--mat-slide-toggle-label-text-color, var(--mat-sys-on-surface));\n  font-family: var(--mat-slide-toggle-label-text-font, var(--mat-sys-body-medium-font));\n  line-height: var(--mat-slide-toggle-label-text-line-height, var(--mat-sys-body-medium-line-height));\n  font-size: var(--mat-slide-toggle-label-text-size, var(--mat-sys-body-medium-size));\n  letter-spacing: var(--mat-slide-toggle-label-text-tracking, var(--mat-sys-body-medium-tracking));\n  font-weight: var(--mat-slide-toggle-label-text-weight, var(--mat-sys-body-medium-weight));\n}\n.mat-mdc-slide-toggle .mat-ripple-element {\n  opacity: 0.12;\n}\n.mat-mdc-slide-toggle .mat-focus-indicator::before {\n  border-radius: 50%;\n}\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle-track,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__icon,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::before,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__handle::after,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::before,\n.mat-mdc-slide-toggle._mat-animation-noopable .mdc-switch__track::after {\n  transition: none;\n}\n.mat-mdc-slide-toggle .mdc-switch:enabled + .mdc-label {\n  cursor: pointer;\n}\n.mat-mdc-slide-toggle .mdc-switch--disabled + label {\n  color: var(--mat-slide-toggle-disabled-label-text-color, var(--mat-sys-on-surface));\n}\n.mat-mdc-slide-toggle label:empty {\n  display: none;\n}\n\n.mat-slide-toggle-full-width {\n  width: 100%;\n}\n.mat-slide-toggle-full-width .mat-internal-form-field {\n  width: 100%;\n  justify-content: space-between;\n}\n.mat-slide-toggle-full-width .mat-internal-form-field label {\n  margin: 0;\n  flex-grow: 1;\n  text-align: end;\n}\n.mat-slide-toggle-full-width .mdc-form-field--align-end label {\n  text-align: start;\n}\n\n.mat-mdc-slide-toggle-touch-target {\n  position: absolute;\n  top: 50%;\n  left: 50%;\n  height: var(--mat-slide-toggle-touch-target-size, 48px);\n  width: 100%;\n  transform: translate(-50%, -50%);\n  display: var(--mat-slide-toggle-touch-target-display, block);\n}\n[dir=rtl] .mat-mdc-slide-toggle-touch-target {\n  left: auto;\n  right: 50%;\n  transform: translate(50%, -50%);\n}\n']
     }]
   }], () => [], {
     _switchElement: [{
@@ -10955,6 +11067,12 @@ var MatSlideToggle = class _MatSlideToggle {
       type: Input
     }],
     disabled: [{
+      type: Input,
+      args: [{
+        transform: booleanAttribute
+      }]
+    }],
+    fullWidth: [{
       type: Input,
       args: [{
         transform: booleanAttribute
@@ -11086,7 +11204,7 @@ var AccessibilityControlsComponent = class _AccessibilityControlsComponent exten
         []
       )
     );
-    this.applySetting = (n, v2) => this.timeout("apply_setting", () => this._settings.saveUserSetting(n, v2), 1e3);
+    this.applySetting = (n, v) => this.timeout("apply_setting", () => this._settings.saveUserSetting(n, v), 1e3);
   }
   setDarkMode(state) {
     this.timeout("dark_mode", () => {
@@ -11325,7 +11443,7 @@ function ExploreComponent_Conditional_13_Template(rf, ctx) {
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate(ctx_r2.show_levels() ? "keyboard_arrow_up" : "keyboard_arrow_down");
     \u0275\u0275advance();
-    \u0275\u0275property("@show", ctx_r2.show_levels() ? "show" : "hide");
+    \u0275\u0275classProp("contract-collapsed", !ctx_r2.show_levels());
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r2.levels());
   }
@@ -11374,7 +11492,7 @@ function ExploreComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate(ctx_r2.show_legend() ? "keyboard_arrow_up" : "keyboard_arrow_down");
     \u0275\u0275advance();
-    \u0275\u0275property("@show", ctx_r2.show_legend() ? "show" : "hide");
+    \u0275\u0275classProp("contract-collapsed", !ctx_r2.show_legend());
     \u0275\u0275advance(2);
     \u0275\u0275repeater(ctx_r2.legend);
   }
@@ -11628,7 +11746,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       user.email,
       user.username || user.id
     ])).map((i) => new MapLocation(i));
-    locations.sort((a, b2) => locate_details.priority.indexOf(a.type) - locate_details.priority.indexOf(b2.type));
+    locations.sort((a, b) => locate_details.priority.indexOf(a.type) - locate_details.priority.indexOf(b.type));
     if (!locations?.length) {
       throw "No locations for the given user";
     }
@@ -11686,7 +11804,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       ExploreZonesService,
       ExploreParkingService,
       SpacePipe
-    ]), \u0275\u0275InheritDefinitionFeature], decls: 29, vars: 18, consts: [["accessibility_controls", ""], ["levelMenu", "matMenu"], ["legendMenu", "matMenu"], ["topbar", "", 1, "border-base-300", "bg-base-100", "text-base-content", "relative", "flex", "items-center", "justify-between", "border-b", "px-4", "py-2"], ["matRipple", "", "routerLink", "/", 1, "rounded-sm", "p-2", "text-2xl"], ["auth", "", "alt", "Logo", 1, "h-12", 3, "source"], [1, "absolute", "top-1/2", "right-2", "flex", "-translate-y-1/2", "items-center"], ["icon", "", "matRipple", "", "customTooltip", "", 1, "bg-base-200", "flex", "sm:hidden", 3, "content"], ["options", "", 1, "bg-base-content", "text-base-100", "flex", "items-center", "space-x-2", "p-2", "sm:hidden"], [1, "flex", "h-1/2", "flex-1"], ["sidebar", "", 1, "border-base-300", "bg-base-100", "text-base-content", "hidden", "w-[20rem]", "overflow-auto", "border-r", "px-2", "py-4", "sm:block"], ["btn", "", "matRipple", "", 1, "items", "clear", "hover:bg-base-200", "flex", "w-full", "space-x-4", 3, "click"], [1, "text-2xl"], [1, "flex-1", "text-left", "font-medium"], [1, "px-8"], [1, "space-y-2", "py-4"], [1, "mx-auto", "w-[calc(100%-4rem)]"], [1, "relative", "h-full", "flex-1"], [1, "absolute", "inset-0"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "labels", "options", "focus"], [1, "bg-base-100", "w-[18rem]", "rounded-sm", "p-2"], ["btn", "", "matRipple", "", 1, "clear", "text-base-100", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["mat-menu-item", "", 3, "click"], [1, "hover:bg-base-200", "flex", "w-full", "items-center", "space-x-4", "rounded-sm", "px-4", "py-2"], [1, "h-3", "w-3", "rounded-full"], [1, "text-left", "opacity-60"], ["btn", "", "matRipple", "", 1, "clear", "hover:bg-base-200", "w-full", "hover:opacity-100", 3, "opacity-30"], ["btn", "", "matRipple", "", 1, "clear", "hover:bg-base-200", "w-full", "hover:opacity-100", 3, "click"], [1, "w-full", "text-left"]], template: function ExploreComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature], decls: 29, vars: 19, consts: [["accessibility_controls", ""], ["levelMenu", "matMenu"], ["legendMenu", "matMenu"], ["topbar", "", 1, "border-base-300", "bg-base-100", "text-base-content", "relative", "flex", "items-center", "justify-between", "border-b", "px-4", "py-2"], ["matRipple", "", "routerLink", "/", 1, "rounded-sm", "p-2", "text-2xl"], ["auth", "", "alt", "Logo", 1, "h-12", 3, "source"], [1, "absolute", "top-1/2", "right-2", "flex", "-translate-y-1/2", "items-center"], ["icon", "", "matRipple", "", "customTooltip", "", 1, "bg-base-200", "flex", "sm:hidden", 3, "content"], ["options", "", 1, "bg-base-content", "text-base-100", "flex", "items-center", "space-x-2", "p-2", "sm:hidden"], [1, "flex", "h-1/2", "flex-1"], ["sidebar", "", 1, "border-base-300", "bg-base-100", "text-base-content", "hidden", "w-[20rem]", "overflow-auto", "border-r", "px-2", "py-4", "sm:block"], ["btn", "", "matRipple", "", 1, "items", "clear", "hover:bg-base-200", "flex", "w-full", "space-x-4", 3, "click"], [1, "text-2xl"], [1, "flex-1", "text-left", "font-medium"], [1, "contract-expand", "px-8"], [1, "space-y-2", "py-4"], [1, "mx-auto", "w-[calc(100%-4rem)]"], [1, "relative", "h-full", "flex-1"], [1, "absolute", "inset-0"], [3, "zoomChange", "centerChange", "src", "zoom", "center", "styles", "features", "actions", "labels", "options", "focus"], [1, "bg-base-100", "w-[18rem]", "rounded-sm", "p-2"], ["btn", "", "matRipple", "", 1, "clear", "text-base-100", 3, "matMenuTriggerFor"], ["mat-menu-item", ""], ["mat-menu-item", "", 3, "click"], [1, "hover:bg-base-200", "flex", "w-full", "items-center", "space-x-4", "rounded-sm", "px-4", "py-2"], [1, "h-3", "w-3", "rounded-full"], [1, "text-left", "opacity-60"], ["btn", "", "matRipple", "", 1, "clear", "hover:bg-base-200", "w-full", "hover:opacity-100", 3, "opacity-30"], ["btn", "", "matRipple", "", 1, "clear", "hover:bg-base-200", "w-full", "hover:opacity-100", 3, "click"], [1, "w-full", "text-left"]], template: function ExploreComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 3)(1, "a", 4);
         \u0275\u0275element(2, "img", 5);
@@ -11700,8 +11818,8 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         \u0275\u0275elementEnd()();
         \u0275\u0275conditionalCreate(10, ExploreComponent_Conditional_10_Template, 3, 2, "div", 8);
         \u0275\u0275elementStart(11, "div", 9)(12, "div", 10);
-        \u0275\u0275conditionalCreate(13, ExploreComponent_Conditional_13_Template, 12, 2);
-        \u0275\u0275conditionalCreate(14, ExploreComponent_Conditional_14_Template, 12, 2);
+        \u0275\u0275conditionalCreate(13, ExploreComponent_Conditional_13_Template, 12, 3);
+        \u0275\u0275conditionalCreate(14, ExploreComponent_Conditional_14_Template, 12, 3);
         \u0275\u0275elementStart(15, "button", 11);
         \u0275\u0275listener("click", function ExploreComponent_Template_button_click_15_listener() {
           return ctx.show_accessibility.set(!ctx.show_accessibility());
@@ -11745,9 +11863,9 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
         \u0275\u0275advance(7);
         \u0275\u0275textInterpolate(ctx.show_accessibility() ? "keyboard_arrow_up" : "keyboard_arrow_down");
         \u0275\u0275advance();
-        \u0275\u0275property("@show", ctx.show_accessibility() ? "show" : "hide");
+        \u0275\u0275classProp("contract-collapsed", !ctx.show_accessibility());
         \u0275\u0275advance(6);
-        \u0275\u0275property("src", ctx.url())("zoom", ctx.positions()?.zoom)("center", ctx.positions()?.center)("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("labels", ctx.labels())("options", \u0275\u0275pureFunction0(17, _c010))("focus", ctx.locate());
+        \u0275\u0275property("src", ctx.url())("zoom", ctx.positions()?.zoom)("center", ctx.positions()?.center)("styles", ctx.styles())("features", ctx.features())("actions", ctx.actions())("labels", ctx.labels())("options", \u0275\u0275pureFunction0(18, _c010))("focus", ctx.locate());
       }
     }, dependencies: [
       AccessibilityControlsComponent,
@@ -11764,7 +11882,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       MatMenuTrigger,
       ExploreSearchComponent,
       DynamicMapComponent
-    ], styles: ["\n[_nghost-%COMP%] {\n  position: absolute;\n  display: flex;\n  flex-direction: column;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: var(--base-200);\n}\nhr[_ngcontent-%COMP%] {\n  margin-top: 0.5rem !important;\n  margin-bottom: 0.5rem !important;\n}\n/*# sourceMappingURL=explore.component.css.map */"], data: { animation: [ANIMATION_SHOW_CONTRACT_EXPAND] } });
+    ], styles: ["\n[_nghost-%COMP%] {\n  position: absolute;\n  display: flex;\n  flex-direction: column;\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  background-color: var(--%NS%base-200);\n}\nhr[_ngcontent-%COMP%] {\n  margin-top: 0.5rem !important;\n  margin-bottom: 0.5rem !important;\n}\n/*# sourceMappingURL=explore.component.css.map */"] });
   }
 };
 (() => {
@@ -11876,7 +11994,10 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
                                 : 'keyboard_arrow_down'
                         }}</icon>
                     </button>
-                    <div class="px-8" [@show]="show_levels() ? 'show' : 'hide'">
+                    <div
+                        class="contract-expand px-8"
+                        [class.contract-collapsed]="!show_levels()"
+                    >
                         <div class="space-y-2 py-4">
                             @for (lvl of levels(); track lvl) {
                                 <button
@@ -11910,7 +12031,10 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
                                 : 'keyboard_arrow_down'
                         }}</icon>
                     </button>
-                    <div class="px-8" [@show]="show_legend() ? 'show' : 'hide'">
+                    <div
+                        class="contract-expand px-8"
+                        [class.contract-collapsed]="!show_legend()"
+                    >
                         <div class="space-y-2 py-4">
                             @for (value of legend; track value) {
                                 <div
@@ -11946,8 +12070,8 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
                     }}</icon>
                 </button>
                 <div
-                    class="px-8"
-                    [@show]="show_accessibility() ? 'show' : 'hide'"
+                    class="contract-expand px-8"
+                    [class.contract-collapsed]="!show_accessibility()"
                 >
                     <div class="space-y-2 py-4">
                         <accessibility-controls></accessibility-controls>
@@ -11979,7 +12103,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
       ExploreZonesService,
       ExploreParkingService,
       SpacePipe
-    ], animations: [ANIMATION_SHOW_CONTRACT_EXPAND], imports: [
+    ], imports: [
       AccessibilityControlsComponent,
       MatRippleModule,
       IconComponent,
@@ -11999,7 +12123,7 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
   }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreComponent, { className: "ExploreComponent", filePath: "apps/map-kiosk/src/app/explore.component.ts", lineNumber: 300 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ExploreComponent, { className: "ExploreComponent", filePath: "apps/map-kiosk/src/app/explore.component.ts", lineNumber: 304 });
 })();
 
 // apps/visitor-kiosk/src/app/explore.routes.ts
@@ -12010,4 +12134,5 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=explore.routes-H2NYRLGQ.js.map
+//# debugId=f0ec0f4f-3fef-51c8-a087-fc08200c9a64
+//# sourceMappingURL=explore.routes-7GMQVCNY.js.map

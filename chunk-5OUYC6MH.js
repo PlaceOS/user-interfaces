@@ -1,37 +1,65 @@
 import {
-  FormField,
   MatRadioButton,
   MatRadioGroup,
   MatRadioModule,
   MatSelect,
   MatSelectModule,
-  SanitizePipe,
   UserAvatarComponent,
-  disabled,
-  email,
   findOldestByName,
-  form,
   queryAssetCategories,
   queryAssets,
   queryGroupAvailability,
-  required,
   saveAssetCategory,
   saveAssetType,
-  validate,
   validateAssetRequestsForResource
-} from "./chunk-MJFGPOZ5.js";
+} from "./chunk-QS46I4RP.js";
+import {
+  Booking,
+  FormField,
+  MAT_FORM_FIELD,
+  MatError,
+  MatFormField,
+  MatFormFieldModule,
+  MatInput,
+  MatInputModule,
+  MatPrefix,
+  MatProgressSpinner,
+  MatProgressSpinnerModule,
+  MatSuffix,
+  VirtualKeyboardComponent,
+  bookedResourceList,
+  disabled,
+  email,
+  findBookingClashes,
+  form,
+  fromEventRecurrence,
+  queryBookings,
+  removeBooking,
+  required,
+  saveBooking,
+  searchGuests,
+  setAuthCookie,
+  toBookingRecurrence,
+  updateBooking,
+  updateSpaceList,
+  validate
+} from "./chunk-KJBGB7K5.js";
+import {
+  SanitizePipe
+} from "./chunk-6AJNYHZS.js";
+import {
+  TranslatePipe
+} from "./chunk-KNX4PN2G.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
   ApplicationRef,
-  AriaDescriber,
   AsyncHandler,
-  AsyncPipe,
   BasePortalOutlet,
   BidiModule,
-  Booking,
   BreakpointObserver,
   Breakpoints,
+  CalendarEvent,
   CdkPortalOutlet,
   CdkScrollable,
   CdkScrollableModule,
@@ -65,6 +93,7 @@ import {
   FormGroup,
   FormGroupDirective,
   FormsModule,
+  GuestUser,
   IconComponent,
   Injectable,
   InjectionToken,
@@ -75,40 +104,26 @@ import {
   Jl,
   Ka,
   LEFT_ARROW,
-  MAT_FORM_FIELD,
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
-  MatError,
-  MatFormField,
-  MatFormFieldModule,
-  MatInput,
-  MatInputModule,
   MatOption,
   MatOptionModule,
   MatOptionSelectionChange,
-  MatPrefix,
-  MatProgressSpinner,
-  MatProgressSpinnerModule,
   MatRipple,
   MatRippleModule,
-  MatSuffix,
   MaxLengthValidator,
-  MediaMatcher,
   Mt,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
   NavigationEnd,
-  NgComponentOutlet,
   NgControlStatus,
   NgControlStatusGroup,
   NgModel,
   NgModule,
-  NgTemplateOutlet,
   NgZone,
   Observable,
   OrganisationService,
   Output,
-  Overlay,
   OverlayConfig,
   OverlayContainer,
   OverlayModule,
@@ -136,16 +151,15 @@ import {
   TAB,
   TemplatePortal,
   TemplateRef,
-  TranslatePipe,
-  Type,
   UP_ARROW,
   User,
+  V,
+  VERSION,
   Validators,
   ViewChild,
   ViewContainerRef,
   ViewEncapsulation,
   ViewportRuler,
-  VirtualKeyboardComponent,
   Xe,
   Xt,
   Za,
@@ -165,10 +179,9 @@ import {
   addMinutes,
   addYears,
   afterNextRender,
-  bookedResourceList,
   booleanAttribute,
+  ce,
   coerceArray,
-  coerceBooleanProperty,
   coerceNumberProperty,
   computed,
   createBlockScrollStrategy,
@@ -190,7 +203,6 @@ import {
   errorMessage,
   f,
   filter,
-  findBookingClashes,
   first,
   firstValueWhere,
   flatten,
@@ -198,7 +210,6 @@ import {
   formatDuration,
   forwardRef,
   from,
-  fromEventRecurrence,
   ga,
   getAllDayTimeRange,
   getInvalidSignalFields,
@@ -229,15 +240,12 @@ import {
   onFieldChange,
   output,
   predictableRandomInt,
-  queryBookings,
   randomString,
-  removeBooking,
   resource,
-  saveBooking,
-  searchGuests,
-  setAuthCookie,
+  set,
   setClassMetadata,
   setMonth,
+  setting,
   settingSignal,
   setupFormTimeSync,
   shareReplay,
@@ -250,12 +258,12 @@ import {
   take,
   takeUntil,
   tap,
-  toBookingRecurrence,
+  te,
   toDate,
   toQueryString,
   unique,
   untracked,
-  updateSpaceList,
+  v,
   viewChild,
   ɵNgNoValidate,
   ɵsetClassDebugInfo,
@@ -268,7 +276,6 @@ import {
   ɵɵclassMap,
   ɵɵclassProp,
   ɵɵconditional,
-  ɵɵconditionalBranchCreate,
   ɵɵconditionalCreate,
   ɵɵcontentQuery,
   ɵɵcontrol,
@@ -287,7 +294,6 @@ import {
   ɵɵdomProperty,
   ɵɵdomTemplate,
   ɵɵelement,
-  ɵɵelementContainer,
   ɵɵelementEnd,
   ɵɵelementStart,
   ɵɵgetCurrentView,
@@ -320,7 +326,6 @@ import {
   ɵɵsanitizeUrl,
   ɵɵstoreLet,
   ɵɵtemplate,
-  ɵɵtemplateRefExtractor,
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
@@ -331,7 +336,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-KCR3PI72.js";
+} from "./chunk-2CMJ6LSG.js";
 import {
   __objRest,
   __spreadProps,
@@ -1138,7 +1143,7 @@ var MatDialogContainer = class _MatDialogContainer extends CdkDialogContainer {
       }
     },
     dependencies: [CdkPortalOutlet],
-    styles: ['.mat-mdc-dialog-container {\n  width: 100%;\n  height: 100%;\n  display: block;\n  box-sizing: border-box;\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n  outline: 0;\n}\n\n.cdk-overlay-pane.mat-mdc-dialog-panel {\n  max-width: var(--mat-dialog-container-max-width, 560px);\n  min-width: var(--mat-dialog-container-min-width, 280px);\n}\n@media (max-width: 599px) {\n  .cdk-overlay-pane.mat-mdc-dialog-panel {\n    max-width: var(--mat-dialog-container-small-max-width, calc(100vw - 32px));\n  }\n}\n\n.mat-mdc-dialog-inner-container {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-around;\n  box-sizing: border-box;\n  height: 100%;\n  opacity: 0;\n  transition: opacity linear var(--mat-dialog-transition-duration, 0ms);\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n}\n.mdc-dialog--closing .mat-mdc-dialog-inner-container {\n  transition: opacity 75ms linear;\n  transform: none;\n}\n.mdc-dialog--open .mat-mdc-dialog-inner-container {\n  opacity: 1;\n}\n._mat-animation-noopable .mat-mdc-dialog-inner-container {\n  transition: none;\n}\n\n.mat-mdc-dialog-surface {\n  display: flex;\n  flex-direction: column;\n  flex-grow: 0;\n  flex-shrink: 0;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow-y: auto;\n  outline: 0;\n  transform: scale(0.8);\n  transition: transform var(--mat-dialog-transition-duration, 0ms) cubic-bezier(0, 0, 0.2, 1);\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n  box-shadow: var(--mat-dialog-container-elevation-shadow, none);\n  border-radius: var(--mat-dialog-container-shape, var(--mat-sys-corner-extra-large, 4px));\n  background-color: var(--mat-dialog-container-color, var(--mat-sys-surface, white));\n}\n[dir=rtl] .mat-mdc-dialog-surface {\n  text-align: right;\n}\n.mdc-dialog--open .mat-mdc-dialog-surface, .mdc-dialog--closing .mat-mdc-dialog-surface {\n  transform: none;\n}\n._mat-animation-noopable .mat-mdc-dialog-surface {\n  transition: none;\n}\n.mat-mdc-dialog-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 2px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n\n.mat-mdc-dialog-title {\n  display: block;\n  position: relative;\n  flex-shrink: 0;\n  box-sizing: border-box;\n  margin: 0 0 1px;\n  padding: var(--mat-dialog-headline-padding, 6px 24px 13px);\n}\n.mat-mdc-dialog-title::before {\n  display: inline-block;\n  width: 0;\n  height: 40px;\n  content: "";\n  vertical-align: 0;\n}\n[dir=rtl] .mat-mdc-dialog-title {\n  text-align: right;\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-title {\n  color: var(--mat-dialog-subhead-color, var(--mat-sys-on-surface, rgba(0, 0, 0, 0.87)));\n  font-family: var(--mat-dialog-subhead-font, var(--mat-sys-headline-small-font, inherit));\n  line-height: var(--mat-dialog-subhead-line-height, var(--mat-sys-headline-small-line-height, 1.5rem));\n  font-size: var(--mat-dialog-subhead-size, var(--mat-sys-headline-small-size, 1rem));\n  font-weight: var(--mat-dialog-subhead-weight, var(--mat-sys-headline-small-weight, 400));\n  letter-spacing: var(--mat-dialog-subhead-tracking, var(--mat-sys-headline-small-tracking, 0.03125em));\n}\n\n.mat-mdc-dialog-content {\n  display: block;\n  flex-grow: 1;\n  box-sizing: border-box;\n  margin: 0;\n  overflow: auto;\n  max-height: 65vh;\n}\n.mat-mdc-dialog-content > :first-child {\n  margin-top: 0;\n}\n.mat-mdc-dialog-content > :last-child {\n  margin-bottom: 0;\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-content {\n  color: var(--mat-dialog-supporting-text-color, var(--mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6)));\n  font-family: var(--mat-dialog-supporting-text-font, var(--mat-sys-body-medium-font, inherit));\n  line-height: var(--mat-dialog-supporting-text-line-height, var(--mat-sys-body-medium-line-height, 1.5rem));\n  font-size: var(--mat-dialog-supporting-text-size, var(--mat-sys-body-medium-size, 1rem));\n  font-weight: var(--mat-dialog-supporting-text-weight, var(--mat-sys-body-medium-weight, 400));\n  letter-spacing: var(--mat-dialog-supporting-text-tracking, var(--mat-sys-body-medium-tracking, 0.03125em));\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-content {\n  padding: var(--mat-dialog-content-padding, 20px 24px);\n}\n.mat-mdc-dialog-container-with-actions .mat-mdc-dialog-content {\n  padding: var(--mat-dialog-with-actions-content-padding, 20px 24px 0);\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content {\n  padding-top: 0;\n}\n\n.mat-mdc-dialog-actions {\n  display: flex;\n  position: relative;\n  flex-shrink: 0;\n  flex-wrap: wrap;\n  align-items: center;\n  box-sizing: border-box;\n  min-height: 52px;\n  margin: 0;\n  border-top: 1px solid transparent;\n  padding: var(--mat-dialog-actions-padding, 16px 24px);\n  justify-content: var(--mat-dialog-actions-alignment, flex-end);\n}\n@media (forced-colors: active) {\n  .mat-mdc-dialog-actions {\n    border-top-color: CanvasText;\n  }\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-start, .mat-mdc-dialog-actions[align=start] {\n  justify-content: start;\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-center, .mat-mdc-dialog-actions[align=center] {\n  justify-content: center;\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-end, .mat-mdc-dialog-actions[align=end] {\n  justify-content: flex-end;\n}\n.mat-mdc-dialog-actions .mat-button-base + .mat-button-base,\n.mat-mdc-dialog-actions .mat-mdc-button-base + .mat-mdc-button-base {\n  margin-left: 8px;\n}\n[dir=rtl] .mat-mdc-dialog-actions .mat-button-base + .mat-button-base,\n[dir=rtl] .mat-mdc-dialog-actions .mat-mdc-button-base + .mat-mdc-button-base {\n  margin-left: 0;\n  margin-right: 8px;\n}\n\n.mat-mdc-dialog-component-host {\n  display: contents;\n}\n'],
+    styles: ['.mat-mdc-dialog-container {\n  width: 100%;\n  height: 100%;\n  display: block;\n  box-sizing: border-box;\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n  outline: 0;\n}\n\n.cdk-overlay-pane.mat-mdc-dialog-panel {\n  max-width: var(--%NS%mat-dialog-container-max-width, 560px);\n  min-width: var(--%NS%mat-dialog-container-min-width, 280px);\n}\n@media (max-width: 599px) {\n  .cdk-overlay-pane.mat-mdc-dialog-panel {\n    max-width: var(--%NS%mat-dialog-container-small-max-width, calc(100vw - 32px));\n  }\n}\n\n.mat-mdc-dialog-inner-container {\n  display: flex;\n  flex-direction: row;\n  align-items: center;\n  justify-content: space-around;\n  box-sizing: border-box;\n  height: 100%;\n  opacity: 0;\n  transition: opacity linear var(--%NS%mat-dialog-transition-duration, 0ms);\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n}\n.mdc-dialog--closing .mat-mdc-dialog-inner-container {\n  transition: opacity 75ms linear;\n  transform: none;\n}\n.mdc-dialog--open .mat-mdc-dialog-inner-container {\n  opacity: 1;\n}\n._mat-animation-noopable .mat-mdc-dialog-inner-container {\n  transition: none;\n}\n\n.mat-mdc-dialog-surface {\n  display: flex;\n  flex-direction: column;\n  flex-grow: 0;\n  flex-shrink: 0;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  position: relative;\n  overflow-y: auto;\n  outline: 0;\n  transform: scale(0.8);\n  transition: transform var(--%NS%mat-dialog-transition-duration, 0ms) cubic-bezier(0, 0, 0.2, 1);\n  max-height: inherit;\n  min-height: inherit;\n  min-width: inherit;\n  max-width: inherit;\n  box-shadow: var(--%NS%mat-dialog-container-elevation-shadow, none);\n  border-radius: var(--%NS%mat-dialog-container-shape, var(--%NS%mat-sys-corner-extra-large, 4px));\n  background-color: var(--%NS%mat-dialog-container-color, var(--%NS%mat-sys-surface, white));\n}\n[dir=rtl] .mat-mdc-dialog-surface {\n  text-align: right;\n}\n.mdc-dialog--open .mat-mdc-dialog-surface, .mdc-dialog--closing .mat-mdc-dialog-surface {\n  transform: none;\n}\n._mat-animation-noopable .mat-mdc-dialog-surface {\n  transition: none;\n}\n.mat-mdc-dialog-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 2px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n\n.mat-mdc-dialog-title {\n  display: block;\n  position: relative;\n  flex-shrink: 0;\n  box-sizing: border-box;\n  margin: 0 0 1px;\n  padding: var(--%NS%mat-dialog-headline-padding, 6px 24px 13px);\n}\n.mat-mdc-dialog-title::before {\n  display: inline-block;\n  width: 0;\n  height: 40px;\n  content: "";\n  vertical-align: 0;\n}\n[dir=rtl] .mat-mdc-dialog-title {\n  text-align: right;\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-title {\n  color: var(--%NS%mat-dialog-subhead-color, var(--%NS%mat-sys-on-surface, rgba(0, 0, 0, 0.87)));\n  font-family: var(--%NS%mat-dialog-subhead-font, var(--%NS%mat-sys-headline-small-font, inherit));\n  line-height: var(--%NS%mat-dialog-subhead-line-height, var(--%NS%mat-sys-headline-small-line-height, 1.5rem));\n  font-size: var(--%NS%mat-dialog-subhead-size, var(--%NS%mat-sys-headline-small-size, 1rem));\n  font-weight: var(--%NS%mat-dialog-subhead-weight, var(--%NS%mat-sys-headline-small-weight, 400));\n  letter-spacing: var(--%NS%mat-dialog-subhead-tracking, var(--%NS%mat-sys-headline-small-tracking, 0.03125em));\n}\n\n.mat-mdc-dialog-content {\n  display: block;\n  flex-grow: 1;\n  box-sizing: border-box;\n  margin: 0;\n  overflow: auto;\n  max-height: 65vh;\n}\n.mat-mdc-dialog-content > :first-child {\n  margin-top: 0;\n}\n.mat-mdc-dialog-content > :last-child {\n  margin-bottom: 0;\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-content {\n  color: var(--%NS%mat-dialog-supporting-text-color, var(--%NS%mat-sys-on-surface-variant, rgba(0, 0, 0, 0.6)));\n  font-family: var(--%NS%mat-dialog-supporting-text-font, var(--%NS%mat-sys-body-medium-font, inherit));\n  line-height: var(--%NS%mat-dialog-supporting-text-line-height, var(--%NS%mat-sys-body-medium-line-height, 1.5rem));\n  font-size: var(--%NS%mat-dialog-supporting-text-size, var(--%NS%mat-sys-body-medium-size, 1rem));\n  font-weight: var(--%NS%mat-dialog-supporting-text-weight, var(--%NS%mat-sys-body-medium-weight, 400));\n  letter-spacing: var(--%NS%mat-dialog-supporting-text-tracking, var(--%NS%mat-sys-body-medium-tracking, 0.03125em));\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-content {\n  padding: var(--%NS%mat-dialog-content-padding, 20px 24px);\n}\n.mat-mdc-dialog-container-with-actions .mat-mdc-dialog-content {\n  padding: var(--%NS%mat-dialog-with-actions-content-padding, 20px 24px 0);\n}\n.mat-mdc-dialog-container .mat-mdc-dialog-title + .mat-mdc-dialog-content {\n  padding-top: 0;\n}\n\n.mat-mdc-dialog-actions {\n  display: flex;\n  position: relative;\n  flex-shrink: 0;\n  flex-wrap: wrap;\n  align-items: center;\n  box-sizing: border-box;\n  min-height: 52px;\n  margin: 0;\n  border-top: 1px solid transparent;\n  padding: var(--%NS%mat-dialog-actions-padding, 16px 24px);\n  justify-content: var(--%NS%mat-dialog-actions-alignment, flex-end);\n}\n@media (forced-colors: active) {\n  .mat-mdc-dialog-actions {\n    border-top-color: CanvasText;\n  }\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-start, .mat-mdc-dialog-actions[align=start] {\n  justify-content: start;\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-center, .mat-mdc-dialog-actions[align=center] {\n  justify-content: center;\n}\n.mat-mdc-dialog-actions.mat-mdc-dialog-actions-align-end, .mat-mdc-dialog-actions[align=end] {\n  justify-content: flex-end;\n}\n.mat-mdc-dialog-actions .mat-button-base + .mat-button-base,\n.mat-mdc-dialog-actions .mat-mdc-button-base + .mat-mdc-button-base {\n  margin-left: 8px;\n}\n[dir=rtl] .mat-mdc-dialog-actions .mat-button-base + .mat-button-base,\n[dir=rtl] .mat-mdc-dialog-actions .mat-mdc-button-base + .mat-mdc-button-base {\n  margin-left: 0;\n  margin-right: 8px;\n}\n\n.mat-mdc-dialog-component-host {\n  display: contents;\n}\n'],
     encapsulation: 2,
     changeDetection: 1
   });
@@ -1388,6 +1393,9 @@ var MatDialog = class _MatDialog {
         }, {
           provide: this._dialogRefConstructor,
           useValue: dialogRef
+        }, {
+          provide: DialogRef,
+          useValue: null
         }];
       }
     }));
@@ -2294,7 +2302,7 @@ var MatMenu = class _MatMenu {
         \u0275\u0275domTemplate(0, MatMenu_ng_template_0_Template, 3, 12, "ng-template");
       }
     },
-    styles: ['mat-menu {\n  display: none;\n}\n\n.mat-mdc-menu-content {\n  margin: 0;\n  padding: 8px 0;\n  outline: 0;\n}\n.mat-mdc-menu-content,\n.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  flex: 1;\n  white-space: normal;\n  font-family: var(--mat-menu-item-label-text-font, var(--mat-sys-label-large-font));\n  line-height: var(--mat-menu-item-label-text-line-height, var(--mat-sys-label-large-line-height));\n  font-size: var(--mat-menu-item-label-text-size, var(--mat-sys-label-large-size));\n  letter-spacing: var(--mat-menu-item-label-text-tracking, var(--mat-sys-label-large-tracking));\n  font-weight: var(--mat-menu-item-label-text-weight, var(--mat-sys-label-large-weight));\n}\n\n@keyframes _mat-menu-enter {\n  from {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-menu-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-menu-panel {\n  min-width: 112px;\n  max-width: 280px;\n  overflow: auto;\n  box-sizing: border-box;\n  outline: 0;\n  animation: _mat-menu-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n  border-radius: var(--mat-menu-container-shape, var(--mat-sys-corner-extra-small));\n  background-color: var(--mat-menu-container-color, var(--mat-sys-surface-container));\n  box-shadow: var(--mat-menu-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  will-change: transform, opacity;\n}\n.mat-mdc-menu-panel.mat-menu-panel-exit-animation {\n  animation: _mat-menu-exit 100ms 25ms linear forwards;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animations-disabled {\n  animation: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating {\n  pointer-events: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating:has(.mat-mdc-menu-content:empty) {\n  display: none;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-panel {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-menu-panel .mat-divider {\n  border-top-color: var(--mat-menu-divider-color, var(--mat-sys-surface-variant));\n  margin-bottom: var(--mat-menu-divider-bottom-spacing, 8px);\n  margin-top: var(--mat-menu-divider-top-spacing, 8px);\n}\n\n.mat-mdc-menu-item {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  padding: 0;\n  cursor: pointer;\n  width: 100%;\n  text-align: left;\n  box-sizing: border-box;\n  color: inherit;\n  font-size: inherit;\n  background: none;\n  text-decoration: none;\n  margin: 0;\n  min-height: 48px;\n  padding-left: var(--mat-menu-item-leading-spacing, 12px);\n  padding-right: var(--mat-menu-item-trailing-spacing, 12px);\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: pointer;\n  outline: none;\n  border: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-menu-item::-moz-focus-inner {\n  border: 0;\n}\n[dir=rtl] .mat-mdc-menu-item {\n  padding-left: var(--mat-menu-item-trailing-spacing, 12px);\n  padding-right: var(--mat-menu-item-leading-spacing, 12px);\n}\n.mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--mat-menu-item-with-icon-leading-spacing, 12px);\n  padding-right: var(--mat-menu-item-with-icon-trailing-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--mat-menu-item-with-icon-trailing-spacing, 12px);\n  padding-right: var(--mat-menu-item-with-icon-leading-spacing, 12px);\n}\n.mat-mdc-menu-item, .mat-mdc-menu-item:visited, .mat-mdc-menu-item:link {\n  color: var(--mat-menu-item-label-text-color, var(--mat-sys-on-surface));\n}\n.mat-mdc-menu-item .mat-icon-no-color,\n.mat-mdc-menu-item .mat-mdc-menu-submenu-icon {\n  color: var(--mat-menu-item-icon-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-menu-item[disabled] {\n  cursor: default;\n  opacity: 0.38;\n}\n.mat-mdc-menu-item[disabled]::after {\n  display: block;\n  position: absolute;\n  content: "";\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.mat-mdc-menu-item:focus {\n  outline: 0;\n}\n.mat-mdc-menu-item .mat-icon {\n  flex-shrink: 0;\n  margin-right: var(--mat-menu-item-spacing, 12px);\n  height: var(--mat-menu-item-icon-size, 24px);\n  width: var(--mat-menu-item-icon-size, 24px);\n}\n[dir=rtl] .mat-mdc-menu-item {\n  text-align: right;\n}\n[dir=rtl] .mat-mdc-menu-item .mat-icon {\n  margin-right: 0;\n  margin-left: var(--mat-menu-item-spacing, 12px);\n}\n.mat-mdc-menu-item:not([disabled]):hover {\n  background-color: var(--mat-menu-item-hover-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-menu-item:not([disabled]).cdk-program-focused, .mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused, .mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted {\n  background-color: var(--mat-menu-item-focus-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-focus-state-layer-opacity) * 100%), transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-item {\n    margin-top: 1px;\n  }\n}\n\n.mat-mdc-menu-submenu-icon {\n  width: var(--mat-menu-item-icon-size, 24px);\n  height: 10px;\n  fill: currentColor;\n  padding-left: var(--mat-menu-item-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon {\n  padding-right: var(--mat-menu-item-spacing, 12px);\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon polygon {\n  transform: scaleX(-1);\n  transform-origin: center;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-submenu-icon {\n    fill: CanvasText;\n  }\n}\n\n.mat-mdc-menu-item .mat-mdc-menu-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n'],
+    styles: ['mat-menu {\n  display: none;\n}\n\n.mat-mdc-menu-content {\n  margin: 0;\n  padding: 8px 0;\n  outline: 0;\n}\n.mat-mdc-menu-content,\n.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  flex: 1;\n  white-space: normal;\n  font-family: var(--%NS%mat-menu-item-label-text-font, var(--%NS%mat-sys-label-large-font));\n  line-height: var(--%NS%mat-menu-item-label-text-line-height, var(--%NS%mat-sys-label-large-line-height));\n  font-size: var(--%NS%mat-menu-item-label-text-size, var(--%NS%mat-sys-label-large-size));\n  letter-spacing: var(--%NS%mat-menu-item-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  font-weight: var(--%NS%mat-menu-item-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n}\n\n@keyframes _mat-menu-enter {\n  from {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-menu-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-menu-panel {\n  min-width: 112px;\n  max-width: 280px;\n  overflow: auto;\n  box-sizing: border-box;\n  outline: 0;\n  animation: _mat-menu-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n  border-radius: var(--%NS%mat-menu-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  background-color: var(--%NS%mat-menu-container-color, var(--%NS%mat-sys-surface-container));\n  box-shadow: var(--%NS%mat-menu-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  will-change: transform, opacity;\n}\n.mat-mdc-menu-panel.mat-menu-panel-exit-animation {\n  animation: _mat-menu-exit 100ms 25ms linear forwards;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animations-disabled {\n  animation: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating {\n  pointer-events: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating:has(.mat-mdc-menu-content:empty) {\n  display: none;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-panel {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-menu-panel .mat-divider {\n  border-top-color: var(--%NS%mat-menu-divider-color, var(--%NS%mat-sys-surface-variant));\n  margin-bottom: var(--%NS%mat-menu-divider-bottom-spacing, 8px);\n  margin-top: var(--%NS%mat-menu-divider-top-spacing, 8px);\n}\n\n.mat-mdc-menu-item {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  padding: 0;\n  cursor: pointer;\n  width: 100%;\n  text-align: left;\n  box-sizing: border-box;\n  color: inherit;\n  font-size: inherit;\n  background: none;\n  text-decoration: none;\n  margin: 0;\n  min-height: 48px;\n  padding-left: var(--%NS%mat-menu-item-leading-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-trailing-spacing, 12px);\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: pointer;\n  outline: none;\n  border: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-menu-item::-moz-focus-inner {\n  border: 0;\n}\n[dir=rtl] .mat-mdc-menu-item {\n  padding-left: var(--%NS%mat-menu-item-trailing-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-leading-spacing, 12px);\n}\n.mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--%NS%mat-menu-item-with-icon-leading-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-with-icon-trailing-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--%NS%mat-menu-item-with-icon-trailing-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-with-icon-leading-spacing, 12px);\n}\n.mat-mdc-menu-item, .mat-mdc-menu-item:visited, .mat-mdc-menu-item:link {\n  color: var(--%NS%mat-menu-item-label-text-color, var(--%NS%mat-sys-on-surface));\n}\n.mat-mdc-menu-item .mat-icon-no-color,\n.mat-mdc-menu-item .mat-mdc-menu-submenu-icon {\n  color: var(--%NS%mat-menu-item-icon-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-menu-item[disabled] {\n  cursor: default;\n  opacity: 0.38;\n}\n.mat-mdc-menu-item[disabled]::after {\n  display: block;\n  position: absolute;\n  content: "";\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.mat-mdc-menu-item:focus {\n  outline: 0;\n}\n.mat-mdc-menu-item .mat-icon {\n  flex-shrink: 0;\n  margin-right: var(--%NS%mat-menu-item-spacing, 12px);\n  height: var(--%NS%mat-menu-item-icon-size, 24px);\n  width: var(--%NS%mat-menu-item-icon-size, 24px);\n}\n[dir=rtl] .mat-mdc-menu-item {\n  text-align: right;\n}\n[dir=rtl] .mat-mdc-menu-item .mat-icon {\n  margin-right: 0;\n  margin-left: var(--%NS%mat-menu-item-spacing, 12px);\n}\n.mat-mdc-menu-item:not([disabled]):hover {\n  background-color: var(--%NS%mat-menu-item-hover-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-menu-item:not([disabled]).cdk-program-focused, .mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused, .mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted {\n  background-color: var(--%NS%mat-menu-item-focus-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-focus-state-layer-opacity) * 100%), transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-item {\n    margin-top: 1px;\n  }\n}\n\n.mat-mdc-menu-submenu-icon {\n  width: var(--%NS%mat-menu-item-icon-size, 24px);\n  height: 10px;\n  fill: currentColor;\n  padding-left: var(--%NS%mat-menu-item-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon {\n  padding-right: var(--%NS%mat-menu-item-spacing, 12px);\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon polygon {\n  transform: scaleX(-1);\n  transform-origin: center;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-submenu-icon {\n    fill: CanvasText;\n  }\n}\n\n.mat-mdc-menu-item .mat-mdc-menu-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n'],
     encapsulation: 2
   });
 };
@@ -2705,8 +2713,8 @@ var MatMenuTrigger = class _MatMenuTrigger extends MatMenuTriggerBase {
   get _deprecatedMatMenuTriggerFor() {
     return this.menu;
   }
-  set _deprecatedMatMenuTriggerFor(v) {
-    this.menu = v;
+  set _deprecatedMatMenuTriggerFor(v2) {
+    this.menu = v2;
   }
   get menu() {
     return this._menu;
@@ -3249,313 +3257,6 @@ var Desk = class {
   }
 };
 
-// libs/components/src/lib/custom-tooltip.component.ts
-var _c02 = ["portal_content"];
-var _c12 = ["*"];
-function CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementContainer(0);
-  }
-}
-function CustomTooltipComponent_ng_template_1_Case_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_1_ng_container_0_Template, 1, 0, "ng-container", 3);
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("ngComponentOutlet", ctx_r0.component())("ngComponentOutletInjector", ctx_r0.injector);
-  }
-}
-function CustomTooltipComponent_ng_template_1_Case_2_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275element(0, "div", 2);
-    \u0275\u0275pipe(1, "sanitize");
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("innerHTML", \u0275\u0275pipeBind1(1, 1, ctx_r0.html()), \u0275\u0275sanitizeHtml);
-  }
-}
-function CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementContainer(0);
-  }
-}
-function CustomTooltipComponent_ng_template_1_Case_3_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275template(0, CustomTooltipComponent_ng_template_1_Case_3_ng_container_0_Template, 1, 0, "ng-container", 4);
-  }
-  if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext(2);
-    \u0275\u0275property("ngTemplateOutlet", ctx_r0.template())("ngTemplateOutletContext", ctx_r0.data());
-  }
-}
-function CustomTooltipComponent_ng_template_1_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275conditionalCreate(1, CustomTooltipComponent_ng_template_1_Case_1_Template, 1, 2, "ng-container")(2, CustomTooltipComponent_ng_template_1_Case_2_Template, 2, 3, "div", 2)(3, CustomTooltipComponent_ng_template_1_Case_3_Template, 1, 2, "ng-container");
-    \u0275\u0275elementEnd();
-  }
-  if (rf & 2) {
-    let tmp_2_0;
-    const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275advance();
-    \u0275\u0275conditional((tmp_2_0 = ctx_r0.type()) === "component" ? 1 : tmp_2_0 === "html" ? 2 : 3);
-  }
-}
-var CustomTooltipData = class _CustomTooltipData {
-  static {
-    this.\u0275fac = function CustomTooltipData_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _CustomTooltipData)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _CustomTooltipData, factory: _CustomTooltipData.\u0275fac });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipData, [{
-    type: Injectable
-  }], null, null);
-})();
-var CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler {
-  constructor() {
-    super(...arguments);
-    this._element = inject(ElementRef);
-    this._overlay = inject(Overlay);
-    this._injector = inject(Injector);
-    this._view_container_ref = inject(ViewContainerRef);
-    this.x_pos = input("end", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_pos" } : (
-      /* istanbul ignore next */
-      {}
-    )), { alias: "xPosition" }));
-    this.y_pos = input("top", __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_pos" } : (
-      /* istanbul ignore next */
-      {}
-    )), { alias: "yPosition" }));
-    this.content = input(
-      void 0,
-      ...ngDevMode ? [{ debugName: "content" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.data = input(
-      void 0,
-      ...ngDevMode ? [{ debugName: "data" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.backdrop = input(
-      true,
-      ...ngDevMode ? [{ debugName: "backdrop" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.hover = input(
-      false,
-      ...ngDevMode ? [{ debugName: "hover" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.delay = input(
-      0,
-      ...ngDevMode ? [{ debugName: "delay" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.x_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "x_offset" } : (
-      /* istanbul ignore next */
-      {}
-    )), { alias: "xOffset" }));
-    this.y_offset = input(0, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "y_offset" } : (
-      /* istanbul ignore next */
-      {}
-    )), { alias: "yOffset" }));
-    this.type = computed(
-      () => this.content() instanceof TemplateRef ? "template" : this.content() instanceof Type ? "component" : "html",
-      ...ngDevMode ? [{ debugName: "type" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.template = computed(
-      () => {
-        return this.content();
-      },
-      ...ngDevMode ? [{ debugName: "template" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.html = computed(
-      () => {
-        return this.content();
-      },
-      ...ngDevMode ? [{ debugName: "html" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this.component = computed(
-      () => {
-        return this.content();
-      },
-      ...ngDevMode ? [{ debugName: "component" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._overlay_ref = null;
-    this._portal_content = viewChild.required("portal_content", {
-      read: TemplateRef
-    });
-    this._update_injector = effect(
-      () => {
-        this.injector = Injector.create({
-          providers: [
-            {
-              provide: CustomTooltipData,
-              useValue: { data: this.data(), close: () => this.close() }
-            }
-          ],
-          parent: this._injector
-        });
-      },
-      ...ngDevMode ? [{ debugName: "_update_injector" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-  }
-  ngOnInit() {
-    const open = () => !this.hover() ? this.open() : "";
-    const hover_open = (event) => this._canOpenHoverTooltip(event) ? this.open() : "";
-    const hover_close = (event) => this._canOpenHoverTooltip(event) ? this.close() : "";
-    this._element.nativeElement.addEventListener("click", open);
-    this._element.nativeElement.addEventListener("touchend", open);
-    this._element.nativeElement.addEventListener("pointerenter", hover_open);
-    this._element.nativeElement.addEventListener("pointerleave", hover_close);
-    this.subscription("click", () => this._element.nativeElement.removeEventListener("click", open));
-    this.subscription("touchend", () => this._element.nativeElement.removeEventListener("touchend", open));
-    this.subscription("pointerenter", () => this._element.nativeElement.removeEventListener("pointerenter", hover_open));
-    this.subscription("pointerleave", () => this._element.nativeElement.removeEventListener("pointerleave", hover_close));
-  }
-  ngOnChanges(changes) {
-    if (this._overlay_ref && (changes.x_pos || changes.y_pos || changes.x_offset || changes.y_offset || changes.content)) {
-      this.open();
-    }
-  }
-  ngOnDestroy() {
-    super.ngOnDestroy();
-    this.close();
-  }
-  open() {
-    if (!this.content())
-      return;
-    this.timeout("open", () => {
-      const hover = this.hover();
-      const delay2 = this.delay();
-      if (hover && delay2) {
-        this.timeout("onclose", () => this.close(), delay2);
-      }
-      if (this._overlay_ref)
-        this.close();
-      const portal = new TemplatePortal(this._portal_content(), this._view_container_ref);
-      const default_x = "end";
-      const default_y = "top";
-      const y_pos = this.y_pos();
-      this._overlay_ref = this._overlay.create({
-        hasBackdrop: !!this.backdrop() && !hover,
-        positionStrategy: this._overlay.position().flexibleConnectedTo(this._element).withDefaultOffsetX(this.x_offset()).withDefaultOffsetY(this.y_offset()).withPositions([
-          {
-            originX: this.x_pos() || default_x,
-            originY: (y_pos === "top" ? "bottom" : y_pos == "bottom" ? "top" : y_pos) || default_y,
-            overlayX: this.x_pos() || default_x,
-            overlayY: this.y_pos() || default_y
-          }
-        ])
-      });
-      this._overlay_ref.attach(portal);
-      if (this.backdrop()) {
-        this.subscription("backdrop", this._overlay_ref.backdropClick().subscribe(() => this.close()));
-      }
-    }, 50);
-  }
-  close() {
-    this.clearTimeout("open");
-    if (this._overlay_ref) {
-      this._overlay_ref.dispose();
-      this._overlay_ref = null;
-    }
-  }
-  _canOpenHoverTooltip(event) {
-    if (!this.hover())
-      return false;
-    return !("pointerType" in event) || event.pointerType !== "touch";
-  }
-  static {
-    this.\u0275fac = /* @__PURE__ */ (() => {
-      let \u0275CustomTooltipComponent_BaseFactory;
-      return function CustomTooltipComponent_Factory(__ngFactoryType__) {
-        return (\u0275CustomTooltipComponent_BaseFactory || (\u0275CustomTooltipComponent_BaseFactory = \u0275\u0275getInheritedFactory(_CustomTooltipComponent)))(__ngFactoryType__ || _CustomTooltipComponent);
-      };
-    })();
-  }
-  static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CustomTooltipComponent, selectors: [["", "customTooltip", ""]], viewQuery: function CustomTooltipComponent_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._portal_content, _c02, 5, TemplateRef);
-      }
-      if (rf & 2) {
-        \u0275\u0275queryAdvance();
-      }
-    }, inputs: { x_pos: [1, "xPosition", "x_pos"], y_pos: [1, "yPosition", "y_pos"], content: [1, "content"], data: [1, "data"], backdrop: [1, "backdrop"], hover: [1, "hover"], delay: [1, "delay"], x_offset: [1, "xOffset", "x_offset"], y_offset: [1, "yOffset", "y_offset"] }, features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c12, decls: 3, vars: 0, consts: [["portal_content", ""], ["custom-tooltip", "", 1, "relative", "print:hidden"], [3, "innerHTML"], [4, "ngComponentOutlet", "ngComponentOutletInjector"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"]], template: function CustomTooltipComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275projectionDef();
-        \u0275\u0275projection(0);
-        \u0275\u0275template(1, CustomTooltipComponent_ng_template_1_Template, 4, 1, "ng-template", null, 0, \u0275\u0275templateRefExtractor);
-      }
-    }, dependencies: [CommonModule, NgComponentOutlet, NgTemplateOutlet, SanitizePipe], styles: ["\n[_nghost-%COMP%] {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */"] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CustomTooltipComponent, [{
-    type: Component,
-    args: [{ selector: "[customTooltip]", template: `
-        <ng-content />
-        <ng-template #portal_content>
-            <div custom-tooltip class="relative print:hidden">
-                @switch (type()) {
-                    @case ('component') {
-                        <ng-container
-                            *ngComponentOutlet="component(); injector: injector"
-                        ></ng-container>
-                    }
-                    @case ('html') {
-                        <div [innerHTML]="html() | sanitize"></div>
-                    }
-                    @default {
-                        <ng-container
-                            *ngTemplateOutlet="template(); context: data()"
-                        ></ng-container>
-                    }
-                }
-            </div>
-        </ng-template>
-    `, imports: [CommonModule, SanitizePipe], styles: ["/* angular:styles/component:css;9f88acd9967d2b0ebf3bc5241107eaa7c3672b233611fbb42832362998689b5f;/home/runner/work/user-interfaces/user-interfaces/libs/components/src/lib/custom-tooltip.component.ts */\n:host {\n  pointer-events: auto !important;\n}\n/*# sourceMappingURL=custom-tooltip.component.css.map */\n"] }]
-  }], null, { x_pos: [{ type: Input, args: [{ isSignal: true, alias: "xPosition", required: false }] }], y_pos: [{ type: Input, args: [{ isSignal: true, alias: "yPosition", required: false }] }], content: [{ type: Input, args: [{ isSignal: true, alias: "content", required: false }] }], data: [{ type: Input, args: [{ isSignal: true, alias: "data", required: false }] }], backdrop: [{ type: Input, args: [{ isSignal: true, alias: "backdrop", required: false }] }], hover: [{ type: Input, args: [{ isSignal: true, alias: "hover", required: false }] }], delay: [{ type: Input, args: [{ isSignal: true, alias: "delay", required: false }] }], x_offset: [{ type: Input, args: [{ isSignal: true, alias: "xOffset", required: false }] }], y_offset: [{ type: Input, args: [{ isSignal: true, alias: "yOffset", required: false }] }], _portal_content: [{ type: ViewChild, args: ["portal_content", __spreadProps(__spreadValues({}, {
-    read: TemplateRef
-  }), { isSignal: true })] }] });
-})();
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CustomTooltipComponent, { className: "CustomTooltipComponent", filePath: "libs/components/src/lib/custom-tooltip.component.ts", lineNumber: 64 });
-})();
-
 // libs/users/src/lib/staff.fn.ts
 var STAFF_ENDPOINT = "/api/staff/v1/people";
 async function searchStaff(q) {
@@ -3584,850 +3285,6 @@ async function searchStaffByEmailPrefix(email_prefix) {
 async function showStaff(id) {
   return new StaffUser(await f(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`));
 }
-
-// node_modules/@angular/material/fesm2022/_tooltip-chunk.mjs
-var _c03 = ["tooltip"];
-var SCROLL_THROTTLE_MS = 20;
-function getMatTooltipInvalidPositionError(position) {
-  return Error(`Tooltip position "${position}" is invalid.`);
-}
-var MAT_TOOLTIP_SCROLL_STRATEGY = new InjectionToken("mat-tooltip-scroll-strategy", {
-  providedIn: "root",
-  factory: () => {
-    const injector = inject(Injector);
-    return () => createRepositionScrollStrategy(injector, {
-      scrollThrottle: SCROLL_THROTTLE_MS
-    });
-  }
-});
-var MAT_TOOLTIP_DEFAULT_OPTIONS = new InjectionToken("mat-tooltip-default-options", {
-  providedIn: "root",
-  factory: () => ({
-    showDelay: 0,
-    hideDelay: 0,
-    touchendHideDelay: 1500
-  })
-});
-var PANEL_CLASS = "tooltip-panel";
-var passiveListenerOptions = {
-  passive: true
-};
-var MIN_VIEWPORT_TOOLTIP_THRESHOLD = 8;
-var UNBOUNDED_ANCHOR_GAP = 8;
-var MIN_HEIGHT = 24;
-var MAX_WIDTH = 200;
-var MatTooltip = class _MatTooltip {
-  _elementRef = inject(ElementRef);
-  _ngZone = inject(NgZone);
-  _platform = inject(Platform);
-  _ariaDescriber = inject(AriaDescriber);
-  _focusMonitor = inject(FocusMonitor);
-  _dir = inject(Directionality);
-  _injector = inject(Injector);
-  _viewContainerRef = inject(ViewContainerRef);
-  _mediaMatcher = inject(MediaMatcher);
-  _document = inject(DOCUMENT);
-  _renderer = inject(Renderer2);
-  _animationsDisabled = _animationsDisabled();
-  _defaultOptions = inject(MAT_TOOLTIP_DEFAULT_OPTIONS, {
-    optional: true
-  });
-  _overlayRef = null;
-  _tooltipInstance = null;
-  _overlayPanelClass;
-  _portal;
-  _position = "below";
-  _positionAtOrigin = false;
-  _disabled = false;
-  _tooltipClass;
-  _viewInitialized = false;
-  _pointerExitEventsInitialized = false;
-  _tooltipComponent = TooltipComponent;
-  _viewportMargin = 8;
-  _currentPosition;
-  _cssClassPrefix = "mat-mdc";
-  _ariaDescriptionPending = false;
-  _dirSubscribed = false;
-  get position() {
-    return this._position;
-  }
-  set position(value) {
-    if (value !== this._position) {
-      this._position = value;
-      if (this._overlayRef) {
-        this._updatePosition(this._overlayRef);
-        this._tooltipInstance?.show(0);
-        this._overlayRef.updatePosition();
-      }
-    }
-  }
-  get positionAtOrigin() {
-    return this._positionAtOrigin;
-  }
-  set positionAtOrigin(value) {
-    this._positionAtOrigin = coerceBooleanProperty(value);
-    this._detach();
-    this._overlayRef = null;
-  }
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(value) {
-    const isDisabled = coerceBooleanProperty(value);
-    if (this._disabled !== isDisabled) {
-      this._disabled = isDisabled;
-      if (isDisabled) {
-        this.hide(0);
-      } else {
-        this._setupPointerEnterEventsIfNeeded();
-      }
-      this._syncAriaDescription(this.message);
-    }
-  }
-  get showDelay() {
-    return this._showDelay;
-  }
-  set showDelay(value) {
-    this._showDelay = coerceNumberProperty(value);
-  }
-  _showDelay;
-  get hideDelay() {
-    return this._hideDelay;
-  }
-  set hideDelay(value) {
-    this._hideDelay = coerceNumberProperty(value);
-    if (this._tooltipInstance) {
-      this._tooltipInstance._mouseLeaveHideDelay = this._hideDelay;
-    }
-  }
-  _hideDelay;
-  touchGestures = "auto";
-  get message() {
-    return this._message;
-  }
-  set message(value) {
-    const oldMessage = this._message;
-    this._message = value != null ? String(value).trim() : "";
-    if (!this._message && this._isTooltipVisible()) {
-      this.hide(0);
-    } else {
-      this._setupPointerEnterEventsIfNeeded();
-      this._updateTooltipMessage();
-    }
-    this._syncAriaDescription(oldMessage);
-  }
-  _message = "";
-  get tooltipClass() {
-    return this._tooltipClass;
-  }
-  set tooltipClass(value) {
-    this._tooltipClass = value;
-    if (this._tooltipInstance) {
-      this._setTooltipClass(this._tooltipClass);
-    }
-  }
-  _eventCleanups = [];
-  _touchstartTimeout = null;
-  _destroyed = new Subject();
-  _isDestroyed = false;
-  constructor() {
-    const defaultOptions = this._defaultOptions;
-    if (defaultOptions) {
-      this._showDelay = defaultOptions.showDelay;
-      this._hideDelay = defaultOptions.hideDelay;
-      if (defaultOptions.position) {
-        this.position = defaultOptions.position;
-      }
-      if (defaultOptions.positionAtOrigin) {
-        this.positionAtOrigin = defaultOptions.positionAtOrigin;
-      }
-      if (defaultOptions.touchGestures) {
-        this.touchGestures = defaultOptions.touchGestures;
-      }
-      if (defaultOptions.tooltipClass) {
-        this.tooltipClass = defaultOptions.tooltipClass;
-      }
-    }
-    this._viewportMargin = MIN_VIEWPORT_TOOLTIP_THRESHOLD;
-  }
-  ngAfterViewInit() {
-    this._viewInitialized = true;
-    this._setupPointerEnterEventsIfNeeded();
-    this._focusMonitor.monitor(this._elementRef).pipe(takeUntil(this._destroyed)).subscribe((origin) => {
-      if (!origin) {
-        this._ngZone.run(() => this.hide(0));
-      } else if (origin === "keyboard") {
-        this._ngZone.run(() => this.show());
-      }
-    });
-  }
-  ngOnDestroy() {
-    const nativeElement = this._elementRef.nativeElement;
-    if (this._touchstartTimeout) {
-      clearTimeout(this._touchstartTimeout);
-    }
-    if (this._overlayRef) {
-      this._overlayRef.dispose();
-      this._tooltipInstance = null;
-    }
-    this._eventCleanups.forEach((cleanup) => cleanup());
-    this._eventCleanups.length = 0;
-    this._destroyed.next();
-    this._destroyed.complete();
-    this._isDestroyed = true;
-    this._ariaDescriber.removeDescription(nativeElement, this.message, "tooltip");
-    this._focusMonitor.stopMonitoring(nativeElement);
-  }
-  show(delay2 = this.showDelay, origin) {
-    if (this.disabled || !this.message || this._isTooltipVisible()) {
-      this._tooltipInstance?._cancelPendingAnimations();
-      return;
-    }
-    const overlayRef = this._createOverlay(origin);
-    this._detach();
-    this._portal = this._portal || new ComponentPortal(this._tooltipComponent, this._viewContainerRef);
-    const instance = this._tooltipInstance = overlayRef.attach(this._portal).instance;
-    instance._triggerElement = this._elementRef.nativeElement;
-    instance._mouseLeaveHideDelay = this._hideDelay;
-    instance.afterHidden().pipe(takeUntil(this._destroyed)).subscribe(() => this._detach());
-    this._setTooltipClass(this._tooltipClass);
-    this._updateTooltipMessage();
-    instance.show(delay2);
-  }
-  hide(delay2 = this.hideDelay) {
-    const instance = this._tooltipInstance;
-    if (instance) {
-      if (instance.isVisible()) {
-        instance.hide(delay2);
-      } else {
-        instance._cancelPendingAnimations();
-        this._detach();
-      }
-    }
-  }
-  toggle(origin) {
-    this._isTooltipVisible() ? this.hide() : this.show(void 0, origin);
-  }
-  _isTooltipVisible() {
-    return !!this._tooltipInstance && this._tooltipInstance.isVisible();
-  }
-  _createOverlay(origin) {
-    if (this._overlayRef) {
-      const existingStrategy = this._overlayRef.getConfig().positionStrategy;
-      if ((!this.positionAtOrigin || !origin) && existingStrategy._origin instanceof ElementRef) {
-        return this._overlayRef;
-      }
-      this._detach();
-    }
-    const scrollableAncestors = this._injector.get(ScrollDispatcher).getAncestorScrollContainers(this._elementRef);
-    const panelClass = `${this._cssClassPrefix}-${PANEL_CLASS}`;
-    const strategy = createFlexibleConnectedPositionStrategy(this._injector, this.positionAtOrigin ? origin || this._elementRef : this._elementRef).withTransformOriginOn(`.${this._cssClassPrefix}-tooltip`).withFlexibleDimensions(false).withViewportMargin(this._viewportMargin).withScrollableContainers(scrollableAncestors).withPopoverLocation("global");
-    strategy.positionChanges.pipe(takeUntil(this._destroyed)).subscribe((change) => {
-      this._updateCurrentPositionClass(change.connectionPair);
-      if (this._tooltipInstance) {
-        if (change.scrollableViewProperties.isOverlayClipped && this._tooltipInstance.isVisible()) {
-          this._ngZone.run(() => this.hide(0));
-        }
-      }
-    });
-    this._overlayRef = createOverlayRef(this._injector, {
-      direction: this._dir,
-      positionStrategy: strategy,
-      panelClass: this._overlayPanelClass ? [...this._overlayPanelClass, panelClass] : panelClass,
-      scrollStrategy: this._injector.get(MAT_TOOLTIP_SCROLL_STRATEGY)(),
-      disableAnimations: this._animationsDisabled,
-      eventPredicate: this._overlayEventPredicate
-    });
-    this._updatePosition(this._overlayRef);
-    this._overlayRef.detachments().pipe(takeUntil(this._destroyed)).subscribe(() => this._detach());
-    this._overlayRef.outsidePointerEvents().pipe(takeUntil(this._destroyed)).subscribe(() => this._tooltipInstance?._handleBodyInteraction());
-    this._overlayRef.keydownEvents().pipe(takeUntil(this._destroyed)).subscribe((event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      this._ngZone.run(() => this.hide(0));
-    });
-    if (this._defaultOptions?.disableTooltipInteractivity) {
-      this._overlayRef.addPanelClass(`${this._cssClassPrefix}-tooltip-panel-non-interactive`);
-    }
-    if (!this._dirSubscribed) {
-      this._dirSubscribed = true;
-      this._dir.change.pipe(takeUntil(this._destroyed)).subscribe(() => {
-        if (this._overlayRef) {
-          this._updatePosition(this._overlayRef);
-        }
-      });
-    }
-    return this._overlayRef;
-  }
-  _detach() {
-    if (this._overlayRef && this._overlayRef.hasAttached()) {
-      this._overlayRef.detach();
-    }
-    this._tooltipInstance = null;
-  }
-  _updatePosition(overlayRef) {
-    const position = overlayRef.getConfig().positionStrategy;
-    const origin = this._getOrigin();
-    const overlay = this._getOverlayPosition();
-    position.withPositions([this._addOffset(__spreadValues(__spreadValues({}, origin.main), overlay.main)), this._addOffset(__spreadValues(__spreadValues({}, origin.fallback), overlay.fallback))]);
-  }
-  _addOffset(position) {
-    const offset = UNBOUNDED_ANCHOR_GAP;
-    const isLtr = !this._dir || this._dir.value == "ltr";
-    if (position.originY === "top") {
-      position.offsetY = -offset;
-    } else if (position.originY === "bottom") {
-      position.offsetY = offset;
-    } else if (position.originX === "start") {
-      position.offsetX = isLtr ? -offset : offset;
-    } else if (position.originX === "end") {
-      position.offsetX = isLtr ? offset : -offset;
-    }
-    return position;
-  }
-  _getOrigin() {
-    const isLtr = !this._dir || this._dir.value == "ltr";
-    const position = this.position;
-    let originPosition;
-    if (position == "above" || position == "below") {
-      originPosition = {
-        originX: "center",
-        originY: position == "above" ? "top" : "bottom"
-      };
-    } else if (position == "before" || position == "left" && isLtr || position == "right" && !isLtr) {
-      originPosition = {
-        originX: "start",
-        originY: "center"
-      };
-    } else if (position == "after" || position == "right" && isLtr || position == "left" && !isLtr) {
-      originPosition = {
-        originX: "end",
-        originY: "center"
-      };
-    } else if (typeof ngDevMode === "undefined" || ngDevMode) {
-      throw getMatTooltipInvalidPositionError(position);
-    }
-    const {
-      x,
-      y
-    } = this._invertPosition(originPosition.originX, originPosition.originY);
-    return {
-      main: originPosition,
-      fallback: {
-        originX: x,
-        originY: y
-      }
-    };
-  }
-  _getOverlayPosition() {
-    const isLtr = !this._dir || this._dir.value == "ltr";
-    const position = this.position;
-    let overlayPosition;
-    if (position == "above") {
-      overlayPosition = {
-        overlayX: "center",
-        overlayY: "bottom"
-      };
-    } else if (position == "below") {
-      overlayPosition = {
-        overlayX: "center",
-        overlayY: "top"
-      };
-    } else if (position == "before" || position == "left" && isLtr || position == "right" && !isLtr) {
-      overlayPosition = {
-        overlayX: "end",
-        overlayY: "center"
-      };
-    } else if (position == "after" || position == "right" && isLtr || position == "left" && !isLtr) {
-      overlayPosition = {
-        overlayX: "start",
-        overlayY: "center"
-      };
-    } else if (typeof ngDevMode === "undefined" || ngDevMode) {
-      throw getMatTooltipInvalidPositionError(position);
-    }
-    const {
-      x,
-      y
-    } = this._invertPosition(overlayPosition.overlayX, overlayPosition.overlayY);
-    return {
-      main: overlayPosition,
-      fallback: {
-        overlayX: x,
-        overlayY: y
-      }
-    };
-  }
-  _updateTooltipMessage() {
-    if (this._tooltipInstance) {
-      this._tooltipInstance.message = this.message;
-      this._tooltipInstance._markForCheck();
-      afterNextRender(() => {
-        if (this._tooltipInstance) {
-          this._overlayRef.updatePosition();
-        }
-      }, {
-        injector: this._injector
-      });
-    }
-  }
-  _setTooltipClass(tooltipClass) {
-    if (this._tooltipInstance) {
-      this._tooltipInstance.tooltipClass = tooltipClass instanceof Set ? Array.from(tooltipClass) : tooltipClass;
-      this._tooltipInstance._markForCheck();
-    }
-  }
-  _invertPosition(x, y) {
-    if (this.position === "above" || this.position === "below") {
-      if (y === "top") {
-        y = "bottom";
-      } else if (y === "bottom") {
-        y = "top";
-      }
-    } else {
-      if (x === "end") {
-        x = "start";
-      } else if (x === "start") {
-        x = "end";
-      }
-    }
-    return {
-      x,
-      y
-    };
-  }
-  _updateCurrentPositionClass(connectionPair) {
-    const {
-      overlayY,
-      originX,
-      originY
-    } = connectionPair;
-    let newPosition;
-    if (overlayY === "center") {
-      if (this._dir && this._dir.value === "rtl") {
-        newPosition = originX === "end" ? "left" : "right";
-      } else {
-        newPosition = originX === "start" ? "left" : "right";
-      }
-    } else {
-      newPosition = overlayY === "bottom" && originY === "top" ? "above" : "below";
-    }
-    if (newPosition !== this._currentPosition) {
-      const overlayRef = this._overlayRef;
-      if (overlayRef) {
-        const classPrefix = `${this._cssClassPrefix}-${PANEL_CLASS}-`;
-        overlayRef.removePanelClass(classPrefix + this._currentPosition);
-        overlayRef.addPanelClass(classPrefix + newPosition);
-      }
-      this._currentPosition = newPosition;
-    }
-  }
-  _setupPointerEnterEventsIfNeeded() {
-    if (this._disabled || !this.message || !this._viewInitialized || this._eventCleanups.length) {
-      return;
-    }
-    if (!this._isTouchPlatform()) {
-      this._addListener("mouseenter", (event) => {
-        this._setupPointerExitEventsIfNeeded();
-        let point = void 0;
-        if (event.x !== void 0 && event.y !== void 0) {
-          point = event;
-        }
-        this.show(void 0, point);
-      });
-    } else if (this.touchGestures !== "off") {
-      this._disableNativeGesturesIfNecessary();
-      this._addListener("touchstart", (event) => {
-        const touch = event.targetTouches?.[0];
-        const origin = touch ? {
-          x: touch.clientX,
-          y: touch.clientY
-        } : void 0;
-        this._setupPointerExitEventsIfNeeded();
-        if (this._touchstartTimeout) {
-          clearTimeout(this._touchstartTimeout);
-        }
-        const DEFAULT_LONGPRESS_DELAY = 500;
-        this._touchstartTimeout = setTimeout(() => {
-          this._touchstartTimeout = null;
-          this.show(void 0, origin);
-        }, this._defaultOptions?.touchLongPressShowDelay ?? DEFAULT_LONGPRESS_DELAY);
-      });
-    }
-  }
-  _setupPointerExitEventsIfNeeded() {
-    if (this._pointerExitEventsInitialized) {
-      return;
-    }
-    this._pointerExitEventsInitialized = true;
-    if (!this._isTouchPlatform()) {
-      this._addListener("mouseleave", (event) => {
-        const newTarget = event.relatedTarget;
-        if (!newTarget || !this._overlayRef?.overlayElement.contains(newTarget)) {
-          this.hide();
-        }
-      });
-      this._addListener("wheel", (event) => {
-        if (this._isTooltipVisible()) {
-          const elementUnderPointer = this._document.elementFromPoint(event.clientX, event.clientY);
-          const element = this._elementRef.nativeElement;
-          if (elementUnderPointer !== element && !element.contains(elementUnderPointer)) {
-            this.hide();
-          }
-        }
-      });
-    } else if (this.touchGestures !== "off") {
-      this._disableNativeGesturesIfNecessary();
-      const touchendListener = () => {
-        if (this._touchstartTimeout) {
-          clearTimeout(this._touchstartTimeout);
-        }
-        this.hide(this._defaultOptions?.touchendHideDelay);
-      };
-      this._addListener("touchend", touchendListener);
-      this._addListener("touchcancel", touchendListener);
-    }
-  }
-  _addListener(name, listener) {
-    this._eventCleanups.push(this._renderer.listen(this._elementRef.nativeElement, name, listener, passiveListenerOptions));
-  }
-  _isTouchPlatform() {
-    const detectHoverCapability = this._defaultOptions?.detectHoverCapability;
-    if (typeof detectHoverCapability === "function") {
-      return !detectHoverCapability();
-    }
-    if (this._platform.IOS || this._platform.ANDROID) {
-      return true;
-    } else if (!this._platform.isBrowser) {
-      return false;
-    }
-    return !!detectHoverCapability && this._mediaMatcher.matchMedia("(any-hover: none)").matches;
-  }
-  _disableNativeGesturesIfNecessary() {
-    const gestures = this.touchGestures;
-    if (gestures !== "off") {
-      const element = this._elementRef.nativeElement;
-      const style = element.style;
-      if (gestures === "on" || element.nodeName !== "INPUT" && element.nodeName !== "TEXTAREA") {
-        style["userSelect"] = style["msUserSelect"] = style["webkitUserSelect"] = style["MozUserSelect"] = "none";
-      }
-      if (gestures === "on" || !element.draggable) {
-        style["webkitUserDrag"] = "none";
-      }
-      style["touchAction"] = "none";
-      style["webkitTapHighlightColor"] = "transparent";
-    }
-  }
-  _syncAriaDescription(oldMessage) {
-    if (this._ariaDescriptionPending) {
-      return;
-    }
-    this._ariaDescriptionPending = true;
-    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, oldMessage, "tooltip");
-    if (!this._isDestroyed) {
-      afterNextRender({
-        write: () => {
-          this._ariaDescriptionPending = false;
-          if (this.message && !this.disabled) {
-            this._ariaDescriber.describe(this._elementRef.nativeElement, this.message, "tooltip");
-          }
-        }
-      }, {
-        injector: this._injector
-      });
-    }
-  }
-  _overlayEventPredicate = (event) => {
-    if (event.type === "keydown") {
-      return this._isTooltipVisible() && event.keyCode === ESCAPE && !hasModifierKey(event);
-    }
-    return true;
-  };
-  static \u0275fac = function MatTooltip_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatTooltip)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatTooltip,
-    selectors: [["", "matTooltip", ""]],
-    hostAttrs: [1, "mat-mdc-tooltip-trigger"],
-    hostVars: 2,
-    hostBindings: function MatTooltip_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        \u0275\u0275classProp("mat-mdc-tooltip-disabled", ctx.disabled);
-      }
-    },
-    inputs: {
-      position: [0, "matTooltipPosition", "position"],
-      positionAtOrigin: [0, "matTooltipPositionAtOrigin", "positionAtOrigin"],
-      disabled: [0, "matTooltipDisabled", "disabled"],
-      showDelay: [0, "matTooltipShowDelay", "showDelay"],
-      hideDelay: [0, "matTooltipHideDelay", "hideDelay"],
-      touchGestures: [0, "matTooltipTouchGestures", "touchGestures"],
-      message: [0, "matTooltip", "message"],
-      tooltipClass: [0, "matTooltipClass", "tooltipClass"]
-    },
-    exportAs: ["matTooltip"]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatTooltip, [{
-    type: Directive,
-    args: [{
-      selector: "[matTooltip]",
-      exportAs: "matTooltip",
-      host: {
-        "class": "mat-mdc-tooltip-trigger",
-        "[class.mat-mdc-tooltip-disabled]": "disabled"
-      }
-    }]
-  }], () => [], {
-    position: [{
-      type: Input,
-      args: ["matTooltipPosition"]
-    }],
-    positionAtOrigin: [{
-      type: Input,
-      args: ["matTooltipPositionAtOrigin"]
-    }],
-    disabled: [{
-      type: Input,
-      args: ["matTooltipDisabled"]
-    }],
-    showDelay: [{
-      type: Input,
-      args: ["matTooltipShowDelay"]
-    }],
-    hideDelay: [{
-      type: Input,
-      args: ["matTooltipHideDelay"]
-    }],
-    touchGestures: [{
-      type: Input,
-      args: ["matTooltipTouchGestures"]
-    }],
-    message: [{
-      type: Input,
-      args: ["matTooltip"]
-    }],
-    tooltipClass: [{
-      type: Input,
-      args: ["matTooltipClass"]
-    }]
-  });
-})();
-var TooltipComponent = class _TooltipComponent {
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  _elementRef = inject(ElementRef);
-  _isMultiline = false;
-  message;
-  tooltipClass;
-  _showTimeoutId;
-  _hideTimeoutId;
-  _triggerElement;
-  _mouseLeaveHideDelay;
-  _animationsDisabled = _animationsDisabled();
-  _tooltip;
-  _closeOnInteraction = false;
-  _isVisible = false;
-  _onHide = new Subject();
-  _showAnimation = "mat-mdc-tooltip-show";
-  _hideAnimation = "mat-mdc-tooltip-hide";
-  show(delay2) {
-    if (this._hideTimeoutId != null) {
-      clearTimeout(this._hideTimeoutId);
-    }
-    this._showTimeoutId = setTimeout(() => {
-      this._toggleVisibility(true);
-      this._showTimeoutId = void 0;
-    }, delay2);
-  }
-  hide(delay2) {
-    if (this._showTimeoutId != null) {
-      clearTimeout(this._showTimeoutId);
-    }
-    this._hideTimeoutId = setTimeout(() => {
-      this._toggleVisibility(false);
-      this._hideTimeoutId = void 0;
-    }, delay2);
-  }
-  afterHidden() {
-    return this._onHide;
-  }
-  isVisible() {
-    return this._isVisible;
-  }
-  ngOnDestroy() {
-    this._cancelPendingAnimations();
-    this._onHide.complete();
-    this._triggerElement = null;
-  }
-  _handleBodyInteraction() {
-    if (this._closeOnInteraction) {
-      this.hide(0);
-    }
-  }
-  _markForCheck() {
-    this._changeDetectorRef.markForCheck();
-  }
-  _handleMouseLeave({
-    relatedTarget
-  }) {
-    if (!relatedTarget || !this._triggerElement.contains(relatedTarget)) {
-      if (this.isVisible()) {
-        this.hide(this._mouseLeaveHideDelay);
-      } else {
-        this._finalizeAnimation(false);
-      }
-    }
-  }
-  _onShow() {
-    this._isMultiline = this._isTooltipMultiline();
-    this._markForCheck();
-  }
-  _isTooltipMultiline() {
-    const rect = this._elementRef.nativeElement.getBoundingClientRect();
-    return rect.height > MIN_HEIGHT && rect.width >= MAX_WIDTH;
-  }
-  _handleAnimationEnd({
-    animationName
-  }) {
-    if (animationName === this._showAnimation || animationName === this._hideAnimation) {
-      this._finalizeAnimation(animationName === this._showAnimation);
-    }
-  }
-  _cancelPendingAnimations() {
-    if (this._showTimeoutId != null) {
-      clearTimeout(this._showTimeoutId);
-    }
-    if (this._hideTimeoutId != null) {
-      clearTimeout(this._hideTimeoutId);
-    }
-    this._showTimeoutId = this._hideTimeoutId = void 0;
-  }
-  _finalizeAnimation(toVisible) {
-    if (toVisible) {
-      this._closeOnInteraction = true;
-    } else if (!this.isVisible()) {
-      this._onHide.next();
-    }
-  }
-  _toggleVisibility(isVisible) {
-    const tooltip = this._tooltip.nativeElement;
-    const showClass = this._showAnimation;
-    const hideClass = this._hideAnimation;
-    tooltip.classList.remove(isVisible ? hideClass : showClass);
-    tooltip.classList.add(isVisible ? showClass : hideClass);
-    if (this._isVisible !== isVisible) {
-      this._isVisible = isVisible;
-      this._changeDetectorRef.markForCheck();
-    }
-    if (isVisible && !this._animationsDisabled && typeof getComputedStyle === "function") {
-      const styles = getComputedStyle(tooltip);
-      if (styles.getPropertyValue("animation-duration") === "0s" || styles.getPropertyValue("animation-name") === "none") {
-        this._animationsDisabled = true;
-      }
-    }
-    if (isVisible) {
-      this._onShow();
-    }
-    if (this._animationsDisabled) {
-      tooltip.classList.add("_mat-animation-noopable");
-      this._finalizeAnimation(isVisible);
-    }
-  }
-  static \u0275fac = function TooltipComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _TooltipComponent)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _TooltipComponent,
-    selectors: [["mat-tooltip-component"]],
-    viewQuery: function TooltipComponent_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuery(_c03, 7);
-      }
-      if (rf & 2) {
-        let _t;
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._tooltip = _t.first);
-      }
-    },
-    hostAttrs: ["aria-hidden", "true"],
-    hostBindings: function TooltipComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("mouseleave", function TooltipComponent_mouseleave_HostBindingHandler($event) {
-          return ctx._handleMouseLeave($event);
-        });
-      }
-    },
-    decls: 4,
-    vars: 5,
-    consts: [["tooltip", ""], [1, "mdc-tooltip", "mat-mdc-tooltip", 3, "animationend"], [1, "mat-mdc-tooltip-surface", "mdc-tooltip__surface"]],
-    template: function TooltipComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 1, 0);
-        \u0275\u0275domListener("animationend", function TooltipComponent_Template_div_animationend_0_listener($event) {
-          return ctx._handleAnimationEnd($event);
-        });
-        \u0275\u0275domElementStart(2, "div", 2);
-        \u0275\u0275text(3);
-        \u0275\u0275domElementEnd()();
-      }
-      if (rf & 2) {
-        \u0275\u0275classMap(ctx.tooltipClass);
-        \u0275\u0275classProp("mdc-tooltip--multiline", ctx._isMultiline);
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(ctx.message);
-      }
-    },
-    styles: ['.mat-mdc-tooltip {\n  position: relative;\n  transform: scale(0);\n  display: inline-flex;\n}\n.mat-mdc-tooltip::before {\n  content: "";\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  z-index: -1;\n  position: absolute;\n}\n.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before {\n  top: -8px;\n}\n.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before {\n  bottom: -8px;\n}\n.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before {\n  left: -8px;\n}\n.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before {\n  right: -8px;\n}\n.mat-mdc-tooltip._mat-animation-noopable {\n  animation: none;\n  transform: scale(1);\n}\n\n.mat-mdc-tooltip-surface {\n  word-break: normal;\n  overflow-wrap: anywhere;\n  padding: 4px 8px;\n  min-width: 40px;\n  max-width: 200px;\n  min-height: 24px;\n  max-height: 40vh;\n  box-sizing: border-box;\n  overflow: hidden;\n  text-align: center;\n  will-change: transform, opacity;\n  background-color: var(--mat-tooltip-container-color, var(--mat-sys-inverse-surface));\n  color: var(--mat-tooltip-supporting-text-color, var(--mat-sys-inverse-on-surface));\n  border-radius: var(--mat-tooltip-container-shape, var(--mat-sys-corner-extra-small));\n  font-family: var(--mat-tooltip-supporting-text-font, var(--mat-sys-body-small-font));\n  font-size: var(--mat-tooltip-supporting-text-size, var(--mat-sys-body-small-size));\n  font-weight: var(--mat-tooltip-supporting-text-weight, var(--mat-sys-body-small-weight));\n  line-height: var(--mat-tooltip-supporting-text-line-height, var(--mat-sys-body-small-line-height));\n  letter-spacing: var(--mat-tooltip-supporting-text-tracking, var(--mat-sys-body-small-tracking));\n}\n.mat-mdc-tooltip-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: left;\n}\n[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: right;\n}\n\n.mat-mdc-tooltip-panel {\n  line-height: normal;\n}\n.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive {\n  pointer-events: none;\n}\n\n@keyframes mat-mdc-tooltip-show {\n  0% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n@keyframes mat-mdc-tooltip-hide {\n  0% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n}\n.mat-mdc-tooltip-show {\n  animation: mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards;\n}\n\n.mat-mdc-tooltip-hide {\n  animation: mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards;\n}\n'],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TooltipComponent, [{
-    type: Component,
-    args: [{
-      selector: "mat-tooltip-component",
-      encapsulation: ViewEncapsulation.None,
-      host: {
-        "(mouseleave)": "_handleMouseLeave($event)",
-        "aria-hidden": "true"
-      },
-      template: '<div\n  #tooltip\n  class="mdc-tooltip mat-mdc-tooltip"\n  [class]="tooltipClass"\n  (animationend)="_handleAnimationEnd($event)"\n  [class.mdc-tooltip--multiline]="_isMultiline">\n  <div class="mat-mdc-tooltip-surface mdc-tooltip__surface">{{message}}</div>\n</div>\n',
-      styles: ['.mat-mdc-tooltip {\n  position: relative;\n  transform: scale(0);\n  display: inline-flex;\n}\n.mat-mdc-tooltip::before {\n  content: "";\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  z-index: -1;\n  position: absolute;\n}\n.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before {\n  top: -8px;\n}\n.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before {\n  bottom: -8px;\n}\n.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before {\n  left: -8px;\n}\n.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before {\n  right: -8px;\n}\n.mat-mdc-tooltip._mat-animation-noopable {\n  animation: none;\n  transform: scale(1);\n}\n\n.mat-mdc-tooltip-surface {\n  word-break: normal;\n  overflow-wrap: anywhere;\n  padding: 4px 8px;\n  min-width: 40px;\n  max-width: 200px;\n  min-height: 24px;\n  max-height: 40vh;\n  box-sizing: border-box;\n  overflow: hidden;\n  text-align: center;\n  will-change: transform, opacity;\n  background-color: var(--mat-tooltip-container-color, var(--mat-sys-inverse-surface));\n  color: var(--mat-tooltip-supporting-text-color, var(--mat-sys-inverse-on-surface));\n  border-radius: var(--mat-tooltip-container-shape, var(--mat-sys-corner-extra-small));\n  font-family: var(--mat-tooltip-supporting-text-font, var(--mat-sys-body-small-font));\n  font-size: var(--mat-tooltip-supporting-text-size, var(--mat-sys-body-small-size));\n  font-weight: var(--mat-tooltip-supporting-text-weight, var(--mat-sys-body-small-weight));\n  line-height: var(--mat-tooltip-supporting-text-line-height, var(--mat-sys-body-small-line-height));\n  letter-spacing: var(--mat-tooltip-supporting-text-tracking, var(--mat-sys-body-small-tracking));\n}\n.mat-mdc-tooltip-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: left;\n}\n[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: right;\n}\n\n.mat-mdc-tooltip-panel {\n  line-height: normal;\n}\n.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive {\n  pointer-events: none;\n}\n\n@keyframes mat-mdc-tooltip-show {\n  0% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n@keyframes mat-mdc-tooltip-hide {\n  0% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n}\n.mat-mdc-tooltip-show {\n  animation: mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards;\n}\n\n.mat-mdc-tooltip-hide {\n  animation: mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards;\n}\n']
-    }]
-  }], null, {
-    _tooltip: [{
-      type: ViewChild,
-      args: ["tooltip", {
-        static: true
-      }]
-    }]
-  });
-})();
-
-// node_modules/@angular/material/fesm2022/tooltip.mjs
-var MatTooltipModule = class _MatTooltipModule {
-  static \u0275fac = function MatTooltipModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatTooltipModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _MatTooltipModule,
-    imports: [A11yModule, OverlayModule, MatTooltip, TooltipComponent],
-    exports: [MatTooltip, TooltipComponent, BidiModule, CdkScrollableModule]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    imports: [A11yModule, OverlayModule, BidiModule, CdkScrollableModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatTooltipModule, [{
-    type: NgModule,
-    args: [{
-      imports: [A11yModule, OverlayModule, MatTooltip, TooltipComponent],
-      exports: [MatTooltip, TooltipComponent, BidiModule, CdkScrollableModule]
-    }]
-  }], null, null);
-})();
 
 // libs/components/src/lib/map-viewer.class.ts
 var MAX_ZOOM = 10;
@@ -5334,8 +4191,8 @@ var MapViewer = class {
 };
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c04 = ["panel"];
-var _c13 = ["*"];
+var _c02 = ["panel"];
+var _c12 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275domElementStart(0, "div", 1, 0);
@@ -5493,7 +4350,7 @@ var MatAutocomplete = class _MatAutocomplete {
     },
     viewQuery: function MatAutocomplete_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 7)(_c04, 5);
+        \u0275\u0275viewQuery(TemplateRef, 7)(_c02, 5);
       }
       if (rf & 2) {
         let _t;
@@ -5525,7 +4382,7 @@ var MatAutocomplete = class _MatAutocomplete {
       provide: MAT_OPTION_PARENT_COMPONENT,
       useExisting: _MatAutocomplete
     }])],
-    ngContentSelectors: _c13,
+    ngContentSelectors: _c12,
     decls: 1,
     vars: 0,
     consts: [["panel", ""], ["role", "listbox", 1, "mat-mdc-autocomplete-panel", "mdc-menu-surface", "mdc-menu-surface--open", 3, "id"]],
@@ -5535,7 +4392,7 @@ var MatAutocomplete = class _MatAutocomplete {
         \u0275\u0275domTemplate(0, MatAutocomplete_ng_template_0_Template, 3, 17, "ng-template");
       }
     },
-    styles: ["div.mat-mdc-autocomplete-panel {\n  width: 100%;\n  max-height: 256px;\n  visibility: hidden;\n  transform-origin: center top;\n  overflow: auto;\n  padding: 8px 0;\n  box-sizing: border-box;\n  position: relative;\n  border-radius: var(--mat-autocomplete-container-shape, var(--mat-sys-corner-extra-small));\n  box-shadow: var(--mat-autocomplete-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  background-color: var(--mat-autocomplete-background-color, var(--mat-sys-surface-container));\n}\n@media (forced-colors: active) {\n  div.mat-mdc-autocomplete-panel {\n    outline: solid 1px;\n  }\n}\n.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel {\n  border-top-left-radius: 0;\n  border-top-right-radius: 0;\n}\n.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel {\n  border-bottom-left-radius: 0;\n  border-bottom-right-radius: 0;\n  transform-origin: center bottom;\n}\ndiv.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible {\n  visibility: visible;\n}\n\ndiv.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden,\n.cdk-overlay-pane:has(> .mat-mdc-autocomplete-hidden) {\n  visibility: hidden;\n  pointer-events: none;\n}\n\n@keyframes _mat-autocomplete-enter {\n  from {\n    opacity: 0;\n    transform: scaleY(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n.mat-autocomplete-panel-animations-enabled {\n  animation: _mat-autocomplete-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n}\n\nmat-autocomplete {\n  display: none;\n}\n"],
+    styles: ["div.mat-mdc-autocomplete-panel {\n  width: 100%;\n  max-height: 256px;\n  visibility: hidden;\n  transform-origin: center top;\n  overflow: auto;\n  padding: 8px 0;\n  box-sizing: border-box;\n  position: relative;\n  border-radius: var(--%NS%mat-autocomplete-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  box-shadow: var(--%NS%mat-autocomplete-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  background-color: var(--%NS%mat-autocomplete-background-color, var(--%NS%mat-sys-surface-container));\n}\n@media (forced-colors: active) {\n  div.mat-mdc-autocomplete-panel {\n    outline: solid 1px;\n  }\n}\n.cdk-overlay-pane:not(.mat-mdc-autocomplete-panel-above) div.mat-mdc-autocomplete-panel {\n  border-top-left-radius: 0;\n  border-top-right-radius: 0;\n}\n.mat-mdc-autocomplete-panel-above div.mat-mdc-autocomplete-panel {\n  border-bottom-left-radius: 0;\n  border-bottom-right-radius: 0;\n  transform-origin: center bottom;\n}\ndiv.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-visible {\n  visibility: visible;\n}\n\ndiv.mat-mdc-autocomplete-panel.mat-mdc-autocomplete-hidden,\n.cdk-overlay-pane:has(> .mat-mdc-autocomplete-hidden) {\n  visibility: hidden;\n  pointer-events: none;\n}\n\n@keyframes _mat-autocomplete-enter {\n  from {\n    opacity: 0;\n    transform: scaleY(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n.mat-autocomplete-panel-animations-enabled {\n  animation: _mat-autocomplete-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n}\n\nmat-autocomplete {\n  display: none;\n}\n"],
     encapsulation: 2
   });
 };
@@ -6319,6 +5176,66 @@ var MatAutocompleteModule = class _MatAutocompleteModule {
   }], null, null);
 })();
 
+// libs/assets/src/lib/desk-assets.fn.ts
+var DESK_CATEGORY_NAME = "_DESKS_";
+var DESK_TYPE_NAME = "_DESKS_";
+var _desk_type_id = null;
+var _desk_type_id_promise = null;
+async function bootstrap_desk_type() {
+  let category = findOldestByName(await ed({ hidden: true, limit: 500 }).then((response) => response.data), DESK_CATEGORY_NAME);
+  if (!category) {
+    category = await saveAssetCategory({
+      name: DESK_CATEGORY_NAME,
+      hidden: true
+    });
+  }
+  let type = findOldestByName(await Zl({
+    category_id: category.id,
+    limit: 500
+  }).then((response) => response.data), DESK_TYPE_NAME);
+  if (!type) {
+    type = await saveAssetType({
+      name: DESK_TYPE_NAME,
+      brand: "PlaceOS",
+      category_id: category.id
+    });
+  }
+  return type.id;
+}
+function resolveDeskTypeId() {
+  if (_desk_type_id)
+    return Promise.resolve(_desk_type_id);
+  if (!_desk_type_id_promise) {
+    _desk_type_id_promise = bootstrap_desk_type().then((id) => {
+      _desk_type_id = id;
+      return id;
+    });
+  }
+  return _desk_type_id_promise;
+}
+async function queryDeskAssets(zone_id) {
+  const type_id = await resolveDeskTypeId();
+  const response = await Fl({ zone_id, type_id, limit: 500 });
+  return response.data;
+}
+async function queryDeskAssetsForZones(zone_ids) {
+  if (!zone_ids.length)
+    return [];
+  const type_id = await resolveDeskTypeId();
+  const results = await Promise.all(zone_ids.map((zone_id) => Fl({ zone_id, type_id, limit: 500 }).then((response) => response.data)));
+  return flatten(results);
+}
+function deskFromAsset(asset, zone) {
+  const security = asset.security_system_groups?.[0] || "";
+  return new Desk(__spreadProps(__spreadValues({}, asset), {
+    name: asset.identifier || asset.name,
+    map_id: asset.map_id || asset.id,
+    zone: new Xt(zone || { id: asset.zone_id }),
+    groups: asset.place_groups,
+    security
+  }));
+}
+
 // libs/assets/src/lib/parking-assets.fn.ts
 var PARKING_CATEGORY_NAME = "_PARKING_";
 var PARKING_TYPE_NAME = "_PARKING_SPACES_";
@@ -6583,12 +5500,12 @@ function assetAvailable(item, rules, event) {
 }
 
 // libs/assets/src/lib/asset-state.service.ts
-function assetOptionsMatch(a, b) {
+function assetOptionsMatch(a, b2) {
   const keys = Array.from(/* @__PURE__ */ new Set([
     ...Object.keys(a),
-    ...Object.keys(b)
+    ...Object.keys(b2)
   ]));
-  return keys.every((key) => Object.is(a[key], b[key]));
+  return keys.every((key) => Object.is(a[key], b2[key]));
 }
 var AssetStateService = class _AssetStateService {
   constructor() {
@@ -6903,7 +5820,7 @@ var AssetStateService = class _AssetStateService {
       this._available_group_requests.set(key, request);
     const list = await request;
     request.finally(() => this._available_group_requests.delete(key));
-    const sorted_list = list.sort((a, b) => a.name.localeCompare(b.name));
+    const sorted_list = list.sort((a, b2) => a.name.localeCompare(b2.name));
     updateAssetGroupList(sorted_list);
     this._available_groups.set(sorted_list);
   }
@@ -6911,7 +5828,7 @@ var AssetStateService = class _AssetStateService {
     if (this._category_list_request)
       return this._category_list_request;
     this._category_list_request = queryAssetCategories().then((categories) => {
-      this._category_list.set(categories.data.sort((a, b) => a.name.localeCompare(b.name)).filter((c) => !c.hidden));
+      this._category_list.set(categories.data.sort((a, b2) => a.name.localeCompare(b2.name)).filter((c) => !c.hidden));
       return categories;
     }).finally(() => this._category_list_request = null);
     return this._category_list_request;
@@ -6943,91 +5860,177 @@ var AssetStateService = class _AssetStateService {
 })();
 
 // libs/form-fields/src/lib/duration-field.component.ts
-var _c05 = ["*"];
+var _c03 = ["*"];
 var _forTrack0 = ($index, $item) => $item.id;
-function DurationFieldComponent_Conditional_5_Template(rf, ctx) {
+function DurationFieldComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 4);
+    \u0275\u0275elementStart(0, "div", 10);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "date");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r0 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(2, 1, ctx_r0.selected()?.date, ctx_r0.time_format() + " (z)", ctx_r0.tz()), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(2, 1, ctx_r2.time() + ctx_r2.duration() * 6e4, ctx_r2.time_format() + " (z)", ctx_r2.tz()), " ");
   }
 }
-function DurationFieldComponent_For_11_Conditional_2_Conditional_4_Template(rf, ctx) {
+function DurationFieldComponent_Conditional_0_Conditional_7_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 4);
+    \u0275\u0275elementStart(0, "div", 11);
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r2.end_time_error(), " ");
+  }
+}
+function DurationFieldComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 6)(1, "input", 7, 1);
+    \u0275\u0275listener("change", function DurationFieldComponent_Conditional_0_Template_input_change_1_listener() {
+      \u0275\u0275restoreView(_r1);
+      const end_input_r2 = \u0275\u0275reference(2);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.setEndTime(end_input_r2.value));
+    })("blur", function DurationFieldComponent_Conditional_0_Template_input_blur_1_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.touch());
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "button", 8)(4, "icon", 9);
+    \u0275\u0275text(5, "arrow_drop_down");
+    \u0275\u0275elementEnd()()();
+    \u0275\u0275conditionalCreate(6, DurationFieldComponent_Conditional_0_Conditional_6_Template, 3, 5, "div", 10);
+    \u0275\u0275conditionalCreate(7, DurationFieldComponent_Conditional_0_Conditional_7_Template, 2, 1, "div", 11);
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    const menu_r4 = \u0275\u0275reference(3);
+    \u0275\u0275classProp("opacity-30", ctx_r2.disabled() || ctx_r2.no_options());
+    \u0275\u0275advance();
+    \u0275\u0275property("value", ctx_r2.end_time_value())("disabled", ctx_r2.disabled() || ctx_r2.no_options());
+    \u0275\u0275attribute("aria-invalid", !!ctx_r2.end_time_error());
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", ctx_r2.disabled() || ctx_r2.no_options())("matMenuTriggerFor", menu_r4);
+    \u0275\u0275advance(3);
+    \u0275\u0275conditional(ctx_r2.timezone() && ctx_r2.tz() ? 6 : -1);
+    \u0275\u0275advance();
+    \u0275\u0275conditional(ctx_r2.end_time_error() ? 7 : -1);
+  }
+}
+function DurationFieldComponent_Conditional_1_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 15);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "date");
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const option_r3 = \u0275\u0275nextContext(2).$implicit;
-    const ctx_r0 = \u0275\u0275nextContext();
+    const ctx_r2 = \u0275\u0275nextContext(2);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(2, 1, option_r3.date, ctx_r0.time_format() + " (z)", ctx_r0.tz()), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(2, 1, ctx_r2.selected()?.date, ctx_r2.time_format() + " (z)", ctx_r2.tz()), " ");
   }
 }
-function DurationFieldComponent_For_11_Conditional_2_Template(rf, ctx) {
+function DurationFieldComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 11)(1, "div", 3);
+    \u0275\u0275elementStart(0, "button", 12)(1, "div", 13)(2, "div", 14);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "date");
+    \u0275\u0275elementEnd();
+    \u0275\u0275conditionalCreate(5, DurationFieldComponent_Conditional_1_Conditional_5_Template, 3, 5, "div", 15);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "icon", 9);
+    \u0275\u0275text(7, "arrow_drop_down");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    const ctx_r2 = \u0275\u0275nextContext();
+    const menu_r4 = \u0275\u0275reference(3);
+    \u0275\u0275classProp("opacity-30", ctx_r2.disabled() || ctx_r2.no_options());
+    \u0275\u0275property("disabled", ctx_r2.disabled() || ctx_r2.no_options())("matMenuTriggerFor", menu_r4);
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate3(" ", ctx_r2.selected()?.date ? \u0275\u0275pipeBind2(4, 8, ctx_r2.selected()?.date, ctx_r2.selected().id >= 24 * 60 ? "mediumDate" : ctx_r2.time_format()) + " (" : ctx_r2.duration_options()?.length ? "" : "No duration options available", "", ctx_r2.selected()?.name, "", ctx_r2.selected()?.date ? ")" : "", " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx_r2.timezone() && ctx_r2.tz() ? 5 : -1);
+  }
+}
+function DurationFieldComponent_For_5_Conditional_2_Conditional_4_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 15);
+    \u0275\u0275text(1);
+    \u0275\u0275pipe(2, "date");
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const option_r6 = \u0275\u0275nextContext(2).$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(2, 1, option_r6.date, ctx_r2.time_format() + " (z)", ctx_r2.tz()), " ");
+  }
+}
+function DurationFieldComponent_For_5_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 18)(1, "div", 14);
     \u0275\u0275text(2);
     \u0275\u0275pipe(3, "date");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(4, DurationFieldComponent_For_11_Conditional_2_Conditional_4_Template, 3, 5, "div", 4);
+    \u0275\u0275conditionalCreate(4, DurationFieldComponent_For_5_Conditional_2_Conditional_4_Template, 3, 5, "div", 15);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const option_r3 = \u0275\u0275nextContext().$implicit;
-    const ctx_r0 = \u0275\u0275nextContext();
+    const option_r6 = \u0275\u0275nextContext().$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate3(" ", option_r3.date ? \u0275\u0275pipeBind2(3, 4, option_r3.date, option_r3.id >= 24 * 60 ? "mediumDate" : ctx_r0.time_format()) + " (" : "", "", option_r3.name, "", option_r3.date ? ")" : "", " ");
+    \u0275\u0275textInterpolate3(" ", option_r6.date ? \u0275\u0275pipeBind2(3, 4, option_r6.date, option_r6.id >= 24 * 60 ? "mediumDate" : ctx_r2.time_format()) + " (" : "", "", option_r6.name, "", option_r6.date ? ")" : "", " ");
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r0.timezone() && ctx_r0.tz() ? 4 : -1);
+    \u0275\u0275conditional(ctx_r2.timezone() && ctx_r2.tz() ? 4 : -1);
   }
 }
-function DurationFieldComponent_For_11_Conditional_5_Template(rf, ctx) {
+function DurationFieldComponent_For_5_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "icon", 12);
+    \u0275\u0275elementStart(0, "icon", 19);
     \u0275\u0275text(1, " done ");
     \u0275\u0275elementEnd();
   }
 }
-function DurationFieldComponent_For_11_Template(rf, ctx) {
+function DurationFieldComponent_For_5_Template(rf, ctx) {
   if (rf & 1) {
-    const _r2 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 9);
-    \u0275\u0275listener("click", function DurationFieldComponent_For_11_Template_button_click_0_listener() {
-      const option_r3 = \u0275\u0275restoreView(_r2).$implicit;
-      const ctx_r0 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r0.setValue(option_r3.id));
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 16);
+    \u0275\u0275listener("click", function DurationFieldComponent_For_5_Template_button_click_0_listener() {
+      const option_r6 = \u0275\u0275restoreView(_r5).$implicit;
+      const ctx_r2 = \u0275\u0275nextContext();
+      ctx_r2.setValue(option_r6.id);
+      return \u0275\u0275resetView(ctx_r2.touch());
     });
-    \u0275\u0275elementStart(1, "div", 10);
-    \u0275\u0275conditionalCreate(2, DurationFieldComponent_For_11_Conditional_2_Template, 5, 7, "div", 11);
+    \u0275\u0275elementStart(1, "div", 17);
+    \u0275\u0275conditionalCreate(2, DurationFieldComponent_For_5_Conditional_2_Template, 5, 7, "div", 18);
     \u0275\u0275elementStart(3, "div");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(5, DurationFieldComponent_For_11_Conditional_5_Template, 2, 0, "icon", 12);
+    \u0275\u0275conditionalCreate(5, DurationFieldComponent_For_5_Conditional_5_Template, 2, 0, "icon", 19);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
-    const option_r3 = ctx.$implicit;
-    const ctx_r0 = \u0275\u0275nextContext();
+    const option_r6 = ctx.$implicit;
+    const ctx_r2 = \u0275\u0275nextContext();
+    \u0275\u0275attribute("data-duration", option_r6.id);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(!ctx_r0.force() ? 2 : -1);
+    \u0275\u0275conditional(!ctx_r2.force() ? 2 : -1);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate(ctx_r0.force());
+    \u0275\u0275textInterpolate(ctx_r2.force());
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.selected()?.id === option_r3.id ? 5 : -1);
+    \u0275\u0275conditional(ctx_r2.selected()?.id === option_r6.id ? 5 : -1);
   }
 }
-function DurationFieldComponent_ForEmpty_12_Template(rf, ctx) {
+function DurationFieldComponent_ForEmpty_6_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "div", 8);
+    \u0275\u0275elementStart(0, "div", 5);
     \u0275\u0275text(1, "No duration options to select");
     \u0275\u0275elementEnd();
   }
@@ -7104,6 +6107,27 @@ var DurationFieldComponent = class _DurationFieldComponent {
         []
       )
     );
+    this.allow_end_time = input(
+      false,
+      ...ngDevMode ? [{ debugName: "allow_end_time" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.end_time_error = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "end_time_error" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.end_time_value = computed(
+      () => this.time() != null ? format(addMinutes(this.time(), this.duration()), "HH:mm") : "",
+      ...ngDevMode ? [{ debugName: "end_time_value" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.duration = signal(
       60,
       ...ngDevMode ? [{ debugName: "duration" }] : (
@@ -7160,7 +6184,8 @@ var DurationFieldComponent = class _DurationFieldComponent {
     this._updateOption();
   }
   ngOnChanges(changes) {
-    if (changes.max || changes.min || changes.step || changes.time || changes.custom_options || changes.end_time) {
+    this._clearEndTimeError();
+    if (changes.max || changes.min || changes.step || changes.time || changes.custom_options || changes.end_time || changes.timezone) {
       this._setDurationOptions();
       this._updateNoOptions();
       this._updateOption();
@@ -7171,10 +6196,44 @@ var DurationFieldComponent = class _DurationFieldComponent {
    * @param new_value New value to set on the form field
    */
   setValue(new_value) {
+    this._clearEndTimeError();
     this.duration.set(new_value);
     if (this._onChange) {
       this._onChange(+new_value);
     }
+  }
+  touch() {
+    this._onTouch?.(this.duration());
+  }
+  /** Convert a local end time on the reference date to a duration in minutes. */
+  setEndTime(value) {
+    const start = this.time();
+    if (!this.allow_end_time() || start == null || this.disabled() || this.no_options())
+      return;
+    const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value);
+    const end = match ? set(start, {
+      hours: +match[1],
+      minutes: +match[2],
+      seconds: 0,
+      milliseconds: 0
+    }) : void 0;
+    const duration = end ? differenceInMinutes(end, start) : NaN;
+    if (!Number.isFinite(duration) || duration <= 0 || duration < this.min() || duration > this._effectiveMax(this.max(), start)) {
+      this.end_time_error.set("Enter an end time after the start time and within the allowed duration.");
+      this._onValidatorChange?.();
+      this.touch();
+      return;
+    }
+    this.setValue(duration);
+    this._setDurationOptions();
+    this._updateNoOptions();
+    this.touch();
+  }
+  _clearEndTimeError() {
+    if (!this.end_time_error())
+      return;
+    this.end_time_error.set("");
+    this._onValidatorChange?.();
   }
   /* istanbul ignore next */
   /**
@@ -7182,6 +6241,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
    * @param value The new value for the component
    */
   writeValue(value) {
+    this._clearEndTimeError();
     this.duration.set(value);
     this._setDurationOptions();
     this._updateNoOptions();
@@ -7212,7 +6272,9 @@ var DurationFieldComponent = class _DurationFieldComponent {
   }
   /** Mark the control invalid when the selected date has no valid durations. */
   validate(_) {
-    return this.no_options() ? { no_duration_options: true } : null;
+    if (this.no_options())
+      return { no_duration_options: true };
+    return this.end_time_error() ? { invalid_end_time: true } : null;
   }
   registerOnValidatorChange(fn) {
     this._onValidatorChange = fn;
@@ -7250,7 +6312,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
       });
       time += step;
     }
-    blocks.sort((a, b) => a.id - b.id);
+    blocks.sort((a, b2) => a.id - b2.id);
     return blocks.filter((option, index, options) => (index === 0 || options[index - 1].id !== option.id) && option.id > 0 && (custom_option_ids.has(option.id) ? option.id <= latest_end_max : option.id >= min && option.id <= effective_max));
   }
   /** Update whether the field should show as disabled due to no options */
@@ -7286,7 +6348,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DurationFieldComponent, selectors: [["a-duration-field"], ["duration-field"]], inputs: { max: [1, "max"], min: [1, "min"], step: [1, "step"], time: [1, "time"], disabled: [1, "disabled"], custom_options: [1, "custom_options"], force: [1, "force"], use_24hr: [1, "use_24hr"], timezone: [1, "timezone"], end_time: [1, "end_time"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DurationFieldComponent, selectors: [["a-duration-field"], ["duration-field"]], inputs: { max: [1, "max"], min: [1, "min"], step: [1, "step"], time: [1, "time"], disabled: [1, "disabled"], custom_options: [1, "custom_options"], force: [1, "force"], use_24hr: [1, "use_24hr"], timezone: [1, "timezone"], end_time: [1, "end_time"], allow_end_time: [1, "allow_end_time"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([
       {
         provide: NG_VALUE_ACCESSOR,
         useExisting: forwardRef(() => _DurationFieldComponent),
@@ -7297,34 +6359,20 @@ var DurationFieldComponent = class _DurationFieldComponent {
         useExisting: forwardRef(() => _DurationFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c05, decls: 15, vars: 12, consts: [["menu", "matMenu"], ["type", "button", "duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], [1, "text-2xl"], [1, "max-h-60", "min-w-[18rem]"], ["type", "button", "mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c03, decls: 9, vars: 2, consts: [["menu", "matMenu"], ["end_input", ""], ["type", "button", "duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "opacity-30", "matMenuTriggerFor"], ["xPosition", "before", 1, "max-h-60", "min-w-[18rem]"], ["type", "button", "mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], [1, "border-neutral", "flex", "h-12", "w-full", "items-center", "rounded-sm", "border"], ["type", "time", "aria-label", "End time", 1, "h-full", "min-w-0", "flex-1", "border-0", "bg-transparent", "px-4", 3, "change", "blur", "value", "disabled"], ["type", "button", "end-time-options", "", "aria-label", "Choose duration", 1, "flex", "h-full", "w-12", "shrink-0", "items-center", "justify-center", 3, "disabled", "matMenuTriggerFor"], [1, "text-2xl"], [1, "text-xs", "opacity-30"], ["role", "alert", 1, "text-error", "text-sm"], ["type", "button", "duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
-        \u0275\u0275elementStart(0, "button", 1)(1, "div", 2)(2, "div", 3);
-        \u0275\u0275text(3);
-        \u0275\u0275pipe(4, "date");
+        \u0275\u0275conditionalCreate(0, DurationFieldComponent_Conditional_0_Template, 8, 9)(1, DurationFieldComponent_Conditional_1_Template, 8, 11, "button", 2);
+        \u0275\u0275elementStart(2, "mat-menu", 3, 0);
+        \u0275\u0275repeaterCreate(4, DurationFieldComponent_For_5_Template, 6, 4, "button", 4, _forTrack0, false, DurationFieldComponent_ForEmpty_6_Template, 2, 0, "div", 5);
         \u0275\u0275elementEnd();
-        \u0275\u0275conditionalCreate(5, DurationFieldComponent_Conditional_5_Template, 3, 5, "div", 4);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(6, "icon", 5);
-        \u0275\u0275text(7, "arrow_drop_down");
-        \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(8, "mat-menu", 6, 0);
-        \u0275\u0275repeaterCreate(10, DurationFieldComponent_For_11_Template, 6, 3, "button", 7, _forTrack0, false, DurationFieldComponent_ForEmpty_12_Template, 2, 0, "div", 8);
-        \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(13, "mat-error");
-        \u0275\u0275projection(14);
+        \u0275\u0275elementStart(7, "mat-error");
+        \u0275\u0275projection(8);
         \u0275\u0275elementEnd();
       }
       if (rf & 2) {
-        const menu_r4 = \u0275\u0275reference(9);
-        \u0275\u0275classProp("opacity-30", ctx.disabled() || ctx.no_options());
-        \u0275\u0275property("disabled", ctx.disabled() || ctx.no_options())("matMenuTriggerFor", menu_r4);
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate3(" ", ctx.selected()?.date ? \u0275\u0275pipeBind2(4, 9, ctx.selected()?.date, ctx.selected().id >= 24 * 60 ? "mediumDate" : ctx.time_format()) + " (" : ctx.duration_options()?.length ? "" : "No duration options available", "", ctx.selected()?.name, "", ctx.selected()?.date ? ")" : "", " ");
-        \u0275\u0275advance(2);
-        \u0275\u0275conditional(ctx.timezone() && ctx.tz() ? 5 : -1);
-        \u0275\u0275advance(5);
+        \u0275\u0275conditional(ctx.allow_end_time() && ctx.time() != null && !ctx.force() ? 0 : 1);
+        \u0275\u0275advance(4);
         \u0275\u0275repeater(ctx.duration_options());
       }
     }, dependencies: [MatMenuModule, MatMenu, MatMenuItem, MatMenuTrigger, MatFormFieldModule, MatError, CommonModule, IconComponent, DatePipe], styles: ["\n[_nghost-%COMP%] {\n  width: 100%;\n}\n.no-subscript[_nghost-%COMP%]   mat-error[_ngcontent-%COMP%] {\n  display: none;\n}\nmat-form-field[_ngcontent-%COMP%] {\n  width: 100%;\n}\n/*# sourceMappingURL=duration-field.component.css.map */"] });
@@ -7334,49 +6382,97 @@ var DurationFieldComponent = class _DurationFieldComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DurationFieldComponent, [{
     type: Component,
     args: [{ selector: "a-duration-field,duration-field", template: `
-        <button
-            type="button"
-            duration-field
-            class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
-            [disabled]="disabled() || no_options()"
-            [class.opacity-30]="disabled() || no_options()"
-            matRipple
-            [matMenuTriggerFor]="menu"
-        >
+        @if (allow_end_time() && time() != null && !force()) {
             <div
-                class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
+                class="border-neutral flex h-12 w-full items-center rounded-sm border"
+                [class.opacity-30]="disabled() || no_options()"
             >
-                <div class="truncate">
+                <input
+                    #end_input
+                    type="time"
+                    aria-label="End time"
+                    class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
+                    [value]="end_time_value()"
+                    [disabled]="disabled() || no_options()"
+                    [attr.aria-invalid]="!!end_time_error()"
+                    (change)="setEndTime(end_input.value)"
+                    (blur)="touch()"
+                />
+                <button
+                    type="button"
+                    end-time-options
+                    aria-label="Choose duration"
+                    class="flex h-full w-12 shrink-0 items-center justify-center"
+                    [disabled]="disabled() || no_options()"
+                    [matMenuTriggerFor]="menu"
+                >
+                    <icon class="text-2xl">arrow_drop_down</icon>
+                </button>
+            </div>
+            @if (timezone() && tz()) {
+                <div class="text-xs opacity-30">
                     {{
-                        selected()?.date
-                            ? (selected()?.date
-                                  | date
-                                      : (selected().id >= 24 * 60
-                                            ? 'mediumDate'
-                                            : time_format())) + ' ('
-                            : duration_options()?.length
-                              ? ''
-                              : 'No duration options available'
-                    }}{{ selected()?.name }}{{ selected()?.date ? ')' : '' }}
+                        time() + duration() * 60000
+                            | date: time_format() + ' (z)' : tz()
+                    }}
                 </div>
-                @if (timezone() && tz()) {
-                    <div class="truncate text-xs opacity-30">
+            }
+            @if (end_time_error()) {
+                <div role="alert" class="text-error text-sm">
+                    {{ end_time_error() }}
+                </div>
+            }
+        } @else {
+            <button
+                type="button"
+                duration-field
+                class="border-neutral flex h-12 w-full items-center justify-between rounded-sm border px-2"
+                [disabled]="disabled() || no_options()"
+                [class.opacity-30]="disabled() || no_options()"
+                matRipple
+                [matMenuTriggerFor]="menu"
+            >
+                <div
+                    class="flex w-1/2 flex-1 flex-col px-2 text-left leading-tight"
+                >
+                    <div class="truncate">
                         {{
                             selected()?.date
-                                | date: time_format() + ' (z)' : tz()
-                        }}
+                                ? (selected()?.date
+                                      | date
+                                          : (selected().id >= 24 * 60
+                                                ? 'mediumDate'
+                                                : time_format())) + ' ('
+                                : duration_options()?.length
+                                  ? ''
+                                  : 'No duration options available'
+                        }}{{ selected()?.name
+                        }}{{ selected()?.date ? ')' : '' }}
                     </div>
-                }
-            </div>
-            <icon class="text-2xl">arrow_drop_down</icon>
-        </button>
-        <mat-menu #menu="matMenu" class="max-h-60 min-w-[18rem]">
+                    @if (timezone() && tz()) {
+                        <div class="truncate text-xs opacity-30">
+                            {{
+                                selected()?.date
+                                    | date: time_format() + ' (z)' : tz()
+                            }}
+                        </div>
+                    }
+                </div>
+                <icon class="text-2xl">arrow_drop_down</icon>
+            </button>
+        }
+        <mat-menu
+            #menu="matMenu"
+            xPosition="before"
+            class="max-h-60 min-w-[18rem]"
+        >
             @for (option of duration_options(); track option.id) {
                 <button
                     type="button"
                     mat-menu-item
                     class="text-left"
-                    (click)="setValue(option.id)"
+                    [attr.data-duration]="option.id"
+                    (click)="setValue(option.id); touch()"
                 >
                     <div class="flex items-center justify-between">
                         @if (!force()) {
@@ -7429,10 +6525,10 @@ var DurationFieldComponent = class _DurationFieldComponent {
         multi: true
       }
     ], imports: [MatMenuModule, MatFormFieldModule, CommonModule, IconComponent], styles: ["/* angular:styles/component:css;1a90da3d4d9819e7500633b134638efb235f4203ba84410ba53431dd8a393b18;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/duration-field.component.ts */\n:host {\n  width: 100%;\n}\n:host.no-subscript mat-error {\n  display: none;\n}\nmat-form-field {\n  width: 100%;\n}\n/*# sourceMappingURL=duration-field.component.css.map */\n"] }]
-  }], null, { max: [{ type: Input, args: [{ isSignal: true, alias: "max", required: false }] }], min: [{ type: Input, args: [{ isSignal: true, alias: "min", required: false }] }], step: [{ type: Input, args: [{ isSignal: true, alias: "step", required: false }] }], time: [{ type: Input, args: [{ isSignal: true, alias: "time", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], custom_options: [{ type: Input, args: [{ isSignal: true, alias: "custom_options", required: false }] }], force: [{ type: Input, args: [{ isSignal: true, alias: "force", required: false }] }], use_24hr: [{ type: Input, args: [{ isSignal: true, alias: "use_24hr", required: false }] }], timezone: [{ type: Input, args: [{ isSignal: true, alias: "timezone", required: false }] }], end_time: [{ type: Input, args: [{ isSignal: true, alias: "end_time", required: false }] }] });
+  }], null, { max: [{ type: Input, args: [{ isSignal: true, alias: "max", required: false }] }], min: [{ type: Input, args: [{ isSignal: true, alias: "min", required: false }] }], step: [{ type: Input, args: [{ isSignal: true, alias: "step", required: false }] }], time: [{ type: Input, args: [{ isSignal: true, alias: "time", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], custom_options: [{ type: Input, args: [{ isSignal: true, alias: "custom_options", required: false }] }], force: [{ type: Input, args: [{ isSignal: true, alias: "force", required: false }] }], use_24hr: [{ type: Input, args: [{ isSignal: true, alias: "use_24hr", required: false }] }], timezone: [{ type: Input, args: [{ isSignal: true, alias: "timezone", required: false }] }], end_time: [{ type: Input, args: [{ isSignal: true, alias: "end_time", required: false }] }], allow_end_time: [{ type: Input, args: [{ isSignal: true, alias: "allow_end_time", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DurationFieldComponent, { className: "DurationFieldComponent", filePath: "libs/form-fields/src/lib/duration-field.component.ts", lineNumber: 155 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(DurationFieldComponent, { className: "DurationFieldComponent", filePath: "libs/form-fields/src/lib/duration-field.component.ts", lineNumber: 203 });
 })();
 
 // libs/assets/src/lib/locker-assets.fn.ts
@@ -7859,6 +6955,78 @@ var CalendarService = class _CalendarService extends AsyncHandler {
     }]
   }], () => [], null);
 })();
+
+// libs/events/src/lib/events.fn.ts
+var EVENTS_ENDPOINT = `/api/staff/v1/events`;
+var APP_VERSION = VERSION.raw || VERSION.version || VERSION.hash;
+function appName() {
+  return setting("app.name") || setting("app.short_name") || "PlaceOS";
+}
+function withAppVersion(data) {
+  return __spreadProps(__spreadValues({}, data), {
+    extension_data: __spreadProps(__spreadValues({}, data.extension_data || {}), {
+      app_name: appName(),
+      app_version: APP_VERSION
+    })
+  });
+}
+async function createEvent(data) {
+  const item = await v(`${EVENTS_ENDPOINT}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  return new CalendarEvent(item);
+}
+async function updateEvent(id, data, q = {}, method = "patch") {
+  const query = toQueryString(q);
+  const item = await (method === "patch" ? te : ce)(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, new CalendarEvent(withAppVersion(data)).toJSON());
+  return new CalendarEvent(item);
+}
+var saveEvent = async (data, q) => {
+  const id = data.update_master ? data.recurring_event_id || data.id : data.id;
+  delete data?.status;
+  return id ? updateEvent(id, __spreadProps(__spreadValues({}, data), { id }), q) : createEvent(data);
+};
+function removeEvent(id, q = {}) {
+  const query = toQueryString(q);
+  return V(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${query ? "?" + query : ""}`, {
+    response_type: "void"
+  });
+}
+async function removeEventGuest(id, guest, q = {}) {
+  const query = toQueryString(q);
+  const item = await V(`${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee/${encodeURIComponent(guest.email)}${query ? "?" + query : ""}`);
+  return new GuestUser(item);
+}
+async function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_period = [0, 0]) {
+  const end = addMinutes(start, duration).valueOf();
+  const [spaces, ignore_check] = await Promise.all([
+    queryCalendarAvailability({
+      system_ids: id_list.join(),
+      period_start: getUnixTime(start),
+      period_end: getUnixTime(end)
+    }).catch(() => []),
+    ignore && id_list.includes(ignore) ? querySpaceFreeBusy({
+      period_start: getUnixTime(start),
+      period_end: getUnixTime(end),
+      system_ids: ignore
+    }) : Promise.resolve([])
+  ]);
+  const short_list = id_list.map((id) => !!spaces.find((s) => s.id === id || s.resource?.id === id));
+  for (const space of ignore_check) {
+    if (!id_list.includes(space.id))
+      continue;
+    const availability = space.availability.filter((i) => !(i.date === ignore_period[0] && i.duration === ignore_period[1]));
+    short_list[id_list.indexOf(space.id)] = !availability.find((i) => i.status !== "free");
+  }
+  return short_list;
+}
+async function findEventClashes(event, q = {}) {
+  const query = toQueryString(__spreadProps(__spreadValues({}, q), { limit: 1e4 }));
+  try {
+    const list = await v(`${EVENTS_ENDPOINT}/clashing-assets${query ? "?" + query : ""}`, event.toJSON());
+    return q.include_clash_time ? list : list;
+  } catch (_) {
+    return [];
+  }
+}
 
 // libs/events/src/lib/calendar-links.ts
 function formatUTC(date) {
@@ -8559,7 +7727,7 @@ function generateBookingForm(booking = new Booking(), injector) {
       return value() < Date.now() && !!untracked(model2).id;
     });
   }, { injector });
-  onFieldChange(model2, (v) => v.user, (user) => {
+  onFieldChange(model2, (v2) => v2.user, (user) => {
     if (!user)
       return;
     model2.update((m) => __spreadProps(__spreadValues({}, m), {
@@ -8569,7 +7737,7 @@ function generateBookingForm(booking = new Booking(), injector) {
       user_name: user?.name ?? ""
     }));
   }, injector);
-  onFieldChange(model2, (v) => v.resources, (resources) => {
+  onFieldChange(model2, (v2) => v2.resources, (resources) => {
     if (untracked(model2).booking_type === "visitor")
       return;
     setBookingAsset(model2, (resources || [])[0]);
@@ -8894,7 +8062,7 @@ var DeskQuestionsModalComponent = class _DeskQuestionsModalComponent {
 })();
 
 // libs/payments/src/lib/card-input-field.component.ts
-var _c06 = ["input"];
+var _c04 = ["input"];
 function CardInputFieldComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -8906,7 +8074,7 @@ function CardInputFieldComponent_Conditional_9_Template(rf, ctx) {
 }
 function CardInputFieldComponent_For_24_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 15);
+    \u0275\u0275elementStart(0, "mat-option", 16);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -8919,7 +8087,7 @@ function CardInputFieldComponent_For_24_Template(rf, ctx) {
 }
 function CardInputFieldComponent_For_33_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "mat-option", 15);
+    \u0275\u0275elementStart(0, "mat-option", 16);
     \u0275\u0275text(1);
     \u0275\u0275elementEnd();
   }
@@ -8973,7 +8141,13 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
         []
       )
     );
-    this._input_el = viewChild.required("input");
+    this._input_el = viewChild.required(
+      "input",
+      ...ngDevMode ? [{ debugName: "_input_el" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.is_amex = computed(
       () => {
         const no = this._card_number();
@@ -9016,7 +8190,6 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
     );
     this.registerOnChange = (fn) => this._onChange = fn;
     this.registerOnTouched = (fn) => this._onTouch = fn;
-    this.setDisabledState = (s) => this.disabled = s;
   }
   ngOnInit() {
     this.subscription("changes", this.details.valueChanges.subscribe(() => this.timeout("update", () => {
@@ -9026,28 +8199,30 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
     })));
   }
   focusInput() {
+    if (this.disabled)
+      return;
     this._input_el().nativeElement.focus();
     this.card_focused.set(true);
     this._index.set(this._input_el().nativeElement.selectionStart || 0);
   }
   blurInput() {
     this.card_focused.set(false);
+    this._onTouch?.();
   }
   onInput(event) {
-    if (!event || !this.card_focused())
+    if (!event || this.disabled || !this.card_focused())
       return;
     const idx = this._index();
     if (idx < 0 || idx > 16)
       return;
-    let card_number = this.details.value.card_number;
+    let card_number = this.details.value.card_number ?? BLANK_CARD.card_number;
     if ((event.code.startsWith("Digit") || event.code.startsWith("Numpad")) && idx < (this.is_amex() ? 15 : 16)) {
       card_number = card_number.substring(0, idx) + event.key + card_number.substring(idx + 1);
       this.details.patchValue({ card_number });
       this._focusChange(idx, 1);
     } else if (event.code === "Backspace" && idx > 0) {
-      let card_number2 = this.details.value.card_number;
-      card_number2 = card_number2.substring(0, idx) + " " + card_number2.substring(idx + 1);
-      this.details.patchValue({ card_number: card_number2 });
+      card_number = card_number.substring(0, idx - 1) + " " + card_number.substring(idx);
+      this.details.patchValue({ card_number });
       this._focusChange(idx, -1);
     } else if (event.code === "ArrowLeft") {
       this._focusChange(idx, -1);
@@ -9073,7 +8248,14 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
   writeValue(value) {
     const details = value || BLANK_CARD;
     this._card_number.set(details.card_number || "");
-    this.details.patchValue(details);
+    this.details.patchValue(details, { emitEvent: false });
+  }
+  setDisabledState(state) {
+    this.disabled = state;
+    if (state)
+      this.details.disable({ emitEvent: false });
+    else
+      this.details.enable({ emitEvent: false });
   }
   static {
     this.\u0275fac = /* @__PURE__ */ (() => {
@@ -9086,7 +8268,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CardInputFieldComponent, selectors: [["card-input-field"]], viewQuery: function CardInputFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c06, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c04, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -9098,7 +8280,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
         useExisting: forwardRef(() => _CardInputFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275InheritDefinitionFeature], decls: 43, vars: 4, consts: [["input", ""], [3, "keyup", "formGroup"], [1, "flex", "flex-col"], ["for", "card-number"], ["tabindex", "0", 1, "border-base-200", "focus-within:border-base-200", "relative", "mb-4", "flex", "h-12", "w-full", "items-center", "rounded-sm", "border", "p-2", "font-mono", "focus-within:shadow-sm", 3, "focus", "focusout"], [1, "flex-1"], ["type", "tel", "maxlength", "17", 1, "absolute", "hidden", 3, "keydown", "value"], [1, "h-8", 3, "src"], [1, "flex", "flex-1", "flex-col"], ["for", "cardholder"], ["appearance", "outline"], ["name", "cardholder", "matInput", "", "placeholder", "Mr John Smith", "formControlName", "cardholder"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "w-1/4", "flex-1", "flex-col"], ["placeholder", "MM", "formControlName", "exp_month"], [3, "value"], ["placeholder", "YYYY", "formControlName", "exp_year"], ["for", "cvv"], ["appearance", "outline", 1, "w-20"], ["name", "cvv", "matInput", "", "formControlName", "cvv", "maxlength", "4"]], template: function CardInputFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275InheritDefinitionFeature], decls: 43, vars: 6, consts: [["input", ""], [3, "keyup", "formGroup"], [1, "flex", "flex-col"], ["for", "card-number"], ["id", "card-number", "role", "textbox", 1, "border-base-200", "focus-within:border-base-200", "relative", "mb-4", "flex", "h-12", "w-full", "items-center", "rounded-sm", "border", "p-2", "font-mono", "focus-within:shadow-sm", 3, "focus", "focusout"], [1, "flex-1"], ["type", "tel", "maxlength", "17", 1, "absolute", "hidden", 3, "keydown", "value"], [1, "h-8", 3, "src"], [1, "flex", "flex-1", "flex-col"], ["for", "cardholder"], ["appearance", "outline"], ["name", "cardholder", "id", "cardholder", "matInput", "", "placeholder", "Mr John Smith", "formControlName", "cardholder"], [1, "flex", "items-center", "space-x-2"], [1, "flex", "w-1/4", "flex-1", "flex-col"], ["for", "exp-month"], ["id", "exp-month", "placeholder", "MM", "formControlName", "exp_month"], [3, "value"], ["for", "exp-year"], ["id", "exp-year", "placeholder", "YYYY", "formControlName", "exp_year"], ["for", "cvv"], ["appearance", "outline", 1, "w-20"], ["name", "cvv", "id", "cvv", "matInput", "", "formControlName", "cvv", "maxlength", "4"]], template: function CardInputFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "form", 1);
         \u0275\u0275listener("keyup", function CardInputFieldComponent_Template_form_keyup_0_listener($event) {
@@ -9132,31 +8314,31 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
         \u0275\u0275elementStart(15, "mat-error");
         \u0275\u0275text(16, "Cardholder name is required");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(17, "div", 12)(18, "div", 13)(19, "label", 9);
+        \u0275\u0275elementStart(17, "div", 12)(18, "div", 13)(19, "label", 14);
         \u0275\u0275text(20, "Expiry Month");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(21, "mat-form-field", 10)(22, "mat-select", 14);
-        \u0275\u0275repeaterCreate(23, CardInputFieldComponent_For_24_Template, 2, 3, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
+        \u0275\u0275elementStart(21, "mat-form-field", 10)(22, "mat-select", 15);
+        \u0275\u0275repeaterCreate(23, CardInputFieldComponent_For_24_Template, 2, 3, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementStart(25, "mat-error");
         \u0275\u0275text(26, "Expiry month is required");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(27, "div", 13)(28, "label", 9);
+        \u0275\u0275elementStart(27, "div", 13)(28, "label", 17);
         \u0275\u0275text(29, "Expiry Year");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(30, "mat-form-field", 10)(31, "mat-select", 16);
-        \u0275\u0275repeaterCreate(32, CardInputFieldComponent_For_33_Template, 2, 2, "mat-option", 15, \u0275\u0275repeaterTrackByIdentity);
+        \u0275\u0275elementStart(30, "mat-form-field", 10)(31, "mat-select", 18);
+        \u0275\u0275repeaterCreate(32, CardInputFieldComponent_For_33_Template, 2, 2, "mat-option", 16, \u0275\u0275repeaterTrackByIdentity);
         \u0275\u0275elementEnd();
         \u0275\u0275controlCreate();
         \u0275\u0275elementStart(34, "mat-error");
         \u0275\u0275text(35, "Expiry year is required");
         \u0275\u0275elementEnd()()();
-        \u0275\u0275elementStart(36, "div", 2)(37, "label", 17);
+        \u0275\u0275elementStart(36, "div", 2)(37, "label", 19);
         \u0275\u0275text(38, "CVV");
         \u0275\u0275elementEnd();
-        \u0275\u0275elementStart(39, "mat-form-field", 18);
-        \u0275\u0275element(40, "input", 19);
+        \u0275\u0275elementStart(39, "mat-form-field", 20);
+        \u0275\u0275element(40, "input", 21);
         \u0275\u0275controlCreate();
         \u0275\u0275elementStart(41, "mat-error");
         \u0275\u0275text(42, "Invalid security code");
@@ -9164,7 +8346,9 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
       }
       if (rf & 2) {
         \u0275\u0275property("formGroup", ctx.details);
-        \u0275\u0275advance(6);
+        \u0275\u0275advance(4);
+        \u0275\u0275attribute("aria-disabled", ctx.disabled)("tabindex", ctx.disabled ? -1 : 0);
+        \u0275\u0275advance(2);
         \u0275\u0275textInterpolate(ctx.card_display());
         \u0275\u0275advance();
         \u0275\u0275property("value", ctx.details.value.card_number?.trim());
@@ -9194,7 +8378,10 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
             <div class="flex flex-col">
                 <label for="card-number">Card Number</label>
                 <div
-                    tabindex="0"
+                    id="card-number"
+                    role="textbox"
+                    [attr.aria-disabled]="disabled"
+                    [attr.tabindex]="disabled ? -1 : 0"
                     class="border-base-200 focus-within:border-base-200 relative mb-4 flex h-12 w-full items-center rounded-sm border p-2 font-mono focus-within:shadow-sm"
                     (focus)="focusInput()"
                     (focusout)="blurInput()"
@@ -9221,6 +8408,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
                 <mat-form-field appearance="outline">
                     <input
                         name="cardholder"
+                        id="cardholder"
                         matInput
                         placeholder="Mr John Smith"
                         formControlName="cardholder"
@@ -9230,9 +8418,10 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
             </div>
             <div class="flex items-center space-x-2">
                 <div class="flex w-1/4 flex-1 flex-col">
-                    <label for="cardholder">Expiry Month</label>
+                    <label for="exp-month">Expiry Month</label>
                     <mat-form-field appearance="outline">
                         <mat-select
+                            id="exp-month"
                             placeholder="MM"
                             formControlName="exp_month"
                         >
@@ -9246,9 +8435,10 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
                     </mat-form-field>
                 </div>
                 <div class="flex w-1/4 flex-1 flex-col">
-                    <label for="cardholder">Expiry Year</label>
+                    <label for="exp-year">Expiry Year</label>
                     <mat-form-field appearance="outline">
                         <mat-select
+                            id="exp-year"
                             placeholder="YYYY"
                             formControlName="exp_year"
                         >
@@ -9266,6 +8456,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
                     <mat-form-field appearance="outline" class="w-20">
                         <input
                             name="cvv"
+                            id="cvv"
                             matInput
                             formControlName="cvv"
                             maxlength="4"
@@ -9291,7 +8482,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
   }], null, { _input_el: [{ type: ViewChild, args: ["input", { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CardInputFieldComponent, { className: "CardInputFieldComponent", filePath: "libs/payments/src/lib/card-input-field.component.ts", lineNumber: 146 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CardInputFieldComponent, { className: "CardInputFieldComponent", filePath: "libs/payments/src/lib/card-input-field.component.ts", lineNumber: 154 });
 })();
 
 // libs/payments/src/lib/payment-modal.component.ts
@@ -9304,6 +8495,32 @@ function PaymentModalComponent_Conditional_0_Conditional_1_Conditional_7_Templat
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext(3);
     \u0275\u0275textInterpolate2(" between ", \u0275\u0275pipeBind2(1, 2, ctx_r1.details.date, "shortTime"), " and ", \u0275\u0275pipeBind2(2, 5, ctx_r1.details.date + ctx_r1.details.duration * 60 * 1e3, "shortTime"), " ");
+  }
+}
+function PaymentModalComponent_Conditional_0_Conditional_1_Conditional_14_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "card-input-field", 13);
+    \u0275\u0275twoWayListener("ngModelChange", function PaymentModalComponent_Conditional_0_Conditional_1_Conditional_14_Template_card_input_field_ngModelChange_0_listener($event) {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext(3);
+      \u0275\u0275twoWayBindingSet(ctx_r1.card_details, $event) || (ctx_r1.card_details = $event);
+      return \u0275\u0275resetView($event);
+    });
+    \u0275\u0275elementEnd();
+    \u0275\u0275controlCreate();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(3);
+    \u0275\u0275twoWayProperty("ngModel", ctx_r1.card_details);
+    \u0275\u0275control();
+  }
+}
+function PaymentModalComponent_Conditional_0_Conditional_1_Conditional_15_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "p", 6);
+    \u0275\u0275text(1, " Your saved payment method will be charged. ");
+    \u0275\u0275elementEnd();
   }
 }
 function PaymentModalComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
@@ -9325,26 +8542,18 @@ function PaymentModalComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
     \u0275\u0275text(12);
     \u0275\u0275pipe(13, "currency");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(14, "card-input-field", 8);
-    \u0275\u0275twoWayListener("ngModelChange", function PaymentModalComponent_Conditional_0_Conditional_1_Template_card_input_field_ngModelChange_14_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext(2);
-      \u0275\u0275twoWayBindingSet(ctx_r1.card_details, $event) || (ctx_r1.card_details = $event);
-      return \u0275\u0275resetView($event);
-    });
+    \u0275\u0275conditionalCreate(14, PaymentModalComponent_Conditional_0_Conditional_1_Conditional_14_Template, 1, 1, "card-input-field", 8)(15, PaymentModalComponent_Conditional_0_Conditional_1_Conditional_15_Template, 2, 0, "p", 6);
     \u0275\u0275elementEnd();
-    \u0275\u0275controlCreate();
-    \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(15, "footer", 9)(16, "button", 10);
-    \u0275\u0275listener("click", function PaymentModalComponent_Conditional_0_Conditional_1_Template_button_click_16_listener() {
+    \u0275\u0275elementStart(16, "footer", 9)(17, "button", 10);
+    \u0275\u0275listener("click", function PaymentModalComponent_Conditional_0_Conditional_1_Template_button_click_17_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext(2);
       return \u0275\u0275resetView(ctx_r1.processPayment());
     });
-    \u0275\u0275text(17, " Make Payment ");
+    \u0275\u0275text(18, " Make Payment ");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(18, "button", 11)(19, "i", 12);
-    \u0275\u0275text(20, "close");
+    \u0275\u0275elementStart(19, "button", 11)(20, "i", 12);
+    \u0275\u0275text(21, "close");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
@@ -9356,16 +8565,15 @@ function PaymentModalComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind2(13, 9, ctx_r1.details.amount / 100, ctx_r1.code()));
     \u0275\u0275advance(2);
-    \u0275\u0275twoWayProperty("ngModel", ctx_r1.card_details);
-    \u0275\u0275control();
+    \u0275\u0275conditional(!ctx_r1.details.has_payment_method ? 14 : 15);
   }
 }
 function PaymentModalComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275elementStart(0, "main", 13)(1, "h2", 3);
+    \u0275\u0275elementStart(0, "main", 14)(1, "h2", 3);
     \u0275\u0275text(2, "Payment Successful");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "h3", 14);
+    \u0275\u0275elementStart(3, "h3", 15);
     \u0275\u0275text(4);
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "p");
@@ -9384,8 +8592,8 @@ function PaymentModalComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
     \u0275\u0275pipe(15, "date");
     \u0275\u0275pipe(16, "date");
     \u0275\u0275elementEnd()();
-    \u0275\u0275element(17, "img", 15);
-    \u0275\u0275elementStart(18, "footer", 16)(19, "button", 17);
+    \u0275\u0275element(17, "img", 16);
+    \u0275\u0275elementStart(18, "footer", 17)(19, "button", 18);
     \u0275\u0275text(20, " Great, thanks. ");
     \u0275\u0275elementEnd()();
   }
@@ -9406,7 +8614,7 @@ function PaymentModalComponent_Conditional_0_Conditional_2_Template(rf, ctx) {
 function PaymentModalComponent_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 0);
-    \u0275\u0275conditionalCreate(1, PaymentModalComponent_Conditional_0_Conditional_1_Template, 21, 12)(2, PaymentModalComponent_Conditional_0_Conditional_2_Template, 21, 18);
+    \u0275\u0275conditionalCreate(1, PaymentModalComponent_Conditional_0_Conditional_1_Template, 22, 12)(2, PaymentModalComponent_Conditional_0_Conditional_2_Template, 21, 18);
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
@@ -9415,19 +8623,18 @@ function PaymentModalComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275conditional(!ctx_r1.success() ? 1 : 2);
   }
 }
-function PaymentModalComponent_Conditional_2_Template(rf, ctx) {
+function PaymentModalComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 1);
-    \u0275\u0275element(1, "mat-spinner", 18);
+    \u0275\u0275element(1, "mat-spinner", 19);
     \u0275\u0275elementStart(2, "p");
     \u0275\u0275text(3);
-    \u0275\u0275pipe(4, "async");
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(4, 1, ctx_r1.loading));
+    \u0275\u0275textInterpolate(ctx_r1.loading());
   }
 }
 var PaymentModalComponent = class _PaymentModalComponent {
@@ -9468,9 +8675,10 @@ var PaymentModalComponent = class _PaymentModalComponent {
   }
   async processPayment() {
     const details = this.card_details();
-    if (!details || !this._validCardDetails())
+    if (!this.details.has_payment_method && !this._validCardDetails())
       return;
-    this.event.emit(details);
+    if (details)
+      this.event.emit(details);
     await this._data.makePayment(details);
     this.success.set(true);
   }
@@ -9484,14 +8692,12 @@ var PaymentModalComponent = class _PaymentModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PaymentModalComponent, selectors: [["payment-modal"]], outputs: { event: "event" }, decls: 3, vars: 3, consts: [[1, "relative", "max-h-screen", "overflow-auto"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "p-8"], [1, "relative", "flex", "w-[24rem]", "flex-col", "items-center", "space-y-2", "px-4", "pt-8"], [1, "text-2xl", "font-medium"], ["src", "assets/icons/cost.svg", 1, "w-1/2"], [1, "pb-2", "text-center", "text-sm"], [1, "text-sm"], [1, "text-center", "text-lg", "font-medium"], [1, "w-full", 3, "ngModelChange", "ngModel"], [1, "p-4"], ["matRipple", "", 1, "w-full", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-1", "left-1"], [1, "material-symbols-rounded", "text-2xl"], [1, "relative", "flex", "w-[24rem]", "flex-col", "px-8", "pt-8"], [1, "mb-2", "text-xl", "font-medium"], ["src", "assets/icons/payment-confirmed.svg", 1, "w-full"], [1, "border-base-200", "border-t", "p-4"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "w-full"], ["diameter", "32"]], template: function PaymentModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PaymentModalComponent, selectors: [["payment-modal"]], outputs: { event: "event" }, decls: 2, vars: 1, consts: [[1, "relative", "max-h-screen", "overflow-auto"], [1, "flex", "h-full", "w-full", "flex-col", "items-center", "justify-center", "p-8"], [1, "relative", "flex", "w-[24rem]", "flex-col", "items-center", "space-y-2", "px-4", "pt-8"], [1, "text-2xl", "font-medium"], ["src", "assets/icons/cost.svg", 1, "w-1/2"], [1, "pb-2", "text-center", "text-sm"], [1, "text-sm"], [1, "text-center", "text-lg", "font-medium"], [1, "w-full", 3, "ngModel"], [1, "p-4"], ["matRipple", "", 1, "w-full", 3, "click"], ["icon", "", "matRipple", "", "mat-dialog-close", "", 1, "absolute", "top-1", "left-1"], [1, "material-symbols-rounded", "text-2xl"], [1, "w-full", 3, "ngModelChange", "ngModel"], [1, "relative", "flex", "w-[24rem]", "flex-col", "px-8", "pt-8"], [1, "mb-2", "text-xl", "font-medium"], ["src", "assets/icons/payment-confirmed.svg", 1, "w-full"], [1, "border-base-200", "border-t", "p-4"], ["btn", "", "matRipple", "", "mat-dialog-close", "", 1, "w-full"], ["diameter", "32"]], template: function PaymentModalComponent_Template(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275conditionalCreate(0, PaymentModalComponent_Conditional_0_Template, 3, 1, "div", 0);
-        \u0275\u0275pipe(1, "async");
-        \u0275\u0275conditionalBranchCreate(2, PaymentModalComponent_Conditional_2_Template, 5, 3, "div", 1);
+        \u0275\u0275conditionalCreate(0, PaymentModalComponent_Conditional_0_Template, 3, 1, "div", 0)(1, PaymentModalComponent_Conditional_1_Template, 4, 1, "div", 1);
       }
       if (rf & 2) {
-        \u0275\u0275conditional(!\u0275\u0275pipeBind1(1, 1, ctx.loading) ? 0 : 2);
+        \u0275\u0275conditional(!ctx.loading() ? 0 : 1);
       }
     }, dependencies: [
       CommonModule,
@@ -9505,7 +8711,6 @@ var PaymentModalComponent = class _PaymentModalComponent {
       MatRipple,
       MatDialogModule,
       MatDialogClose,
-      AsyncPipe,
       CurrencyPipe,
       DatePipe
     ], encapsulation: 2 });
@@ -9515,7 +8720,7 @@ var PaymentModalComponent = class _PaymentModalComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PaymentModalComponent, [{
     type: Component,
     args: [{ selector: "payment-modal", template: `
-        @if (!(loading | async)) {
+        @if (!loading()) {
             <div class="relative max-h-screen overflow-auto">
                 @if (!success()) {
                     <main
@@ -9542,10 +8747,16 @@ var PaymentModalComponent = class _PaymentModalComponent {
                                 details.amount / 100 | currency: code()
                             }}</strong>
                         </p>
-                        <card-input-field
-                            class="w-full"
-                            [(ngModel)]="card_details"
-                        ></card-input-field>
+                        @if (!details.has_payment_method) {
+                            <card-input-field
+                                class="w-full"
+                                [(ngModel)]="card_details"
+                            ></card-input-field>
+                        } @else {
+                            <p class="text-sm">
+                                Your saved payment method will be charged.
+                            </p>
+                        }
                     </main>
                     <footer class="p-4">
                         <button
@@ -9599,7 +8810,7 @@ var PaymentModalComponent = class _PaymentModalComponent {
                 class="flex h-full w-full flex-col items-center justify-center p-8"
             >
                 <mat-spinner diameter="32"></mat-spinner>
-                <p>{{ loading | async }}</p>
+                <p>{{ loading() }}</p>
             </div>
         }
     `, imports: [
@@ -9613,7 +8824,7 @@ var PaymentModalComponent = class _PaymentModalComponent {
   }], null, { event: [{ type: Output, args: ["event"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PaymentModalComponent, { className: "PaymentModalComponent", filePath: "libs/payments/src/lib/payment-modal.component.ts", lineNumber: 131 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PaymentModalComponent, { className: "PaymentModalComponent", filePath: "libs/payments/src/lib/payment-modal.component.ts", lineNumber: 143 });
 })();
 
 // libs/payments/src/lib/payments.service.ts
@@ -9656,7 +8867,7 @@ var PaymentsService = class _PaymentsService {
   async makePayment(details) {
     if (!this._org.module("payments", STRIPE_MODULE))
       throw "Payments not enabled";
-    const [cost, period] = await this._getCostOfProduct(details?.type).catch((_) => [0, 60]);
+    const [cost, period] = await this._getCostOfProduct(details?.type).catch(() => [0, 60]);
     console.log("Cost:", cost, period);
     if (cost <= 0)
       return;
@@ -9665,14 +8876,15 @@ var PaymentsService = class _PaymentsService {
       customer_id = await this._newCustomerID();
     this._settings.saveUserSetting("STRIPE_Customer_ID", customer_id);
     const amount = cost * (details.duration / period);
-    let result = void 0;
-    const makePayment = async (c) => {
-      result = await this._processPayment(amount, customer_id, c).catch((e) => {
+    let result;
+    const makePayment = async (card) => {
+      result = await this._processPayment(amount, customer_id, card).catch((e) => {
         this._loading.set("");
         throw e;
       });
     };
     const data = __spreadProps(__spreadValues({}, details), {
+      has_payment_method: !!this._active_card(),
       rate: `$${(cost / 100).toFixed(2)} per hour`,
       amount,
       makePayment,
@@ -9807,12 +9019,12 @@ var STORAGE_KEYS = {
   last_group_booking_ids: "PLACEOS.last_group_booking_ids",
   last_group_booking_errors: "PLACEOS.last_group_booking_errors"
 };
-function bookingOptionsMatch(a, b) {
+function bookingOptionsMatch(a, b2) {
   const keys = Array.from(/* @__PURE__ */ new Set([
     ...Object.keys(a),
-    ...Object.keys(b)
+    ...Object.keys(b2)
   ]));
-  return keys.every((key) => a[key] === b[key]);
+  return keys.every((key) => a[key] === b2[key]);
 }
 var AVAILABILITY_SELECTION_FIELDS = /* @__PURE__ */ new Set([
   "resources",
@@ -9824,11 +9036,11 @@ var AVAILABILITY_SELECTION_FIELDS = /* @__PURE__ */ new Set([
   "description",
   "zones"
 ]);
-function availabilityFormMatch(a, b) {
-  if (!a || !b)
-    return a === b;
-  const keys = /* @__PURE__ */ new Set([...Object.keys(a), ...Object.keys(b)]);
-  return [...keys].every((key) => AVAILABILITY_SELECTION_FIELDS.has(key) || Object.is(a[key], b[key]));
+function availabilityFormMatch(a, b2) {
+  if (!a || !b2)
+    return a === b2;
+  const keys = /* @__PURE__ */ new Set([...Object.keys(a), ...Object.keys(b2)]);
+  return [...keys].every((key) => AVAILABILITY_SELECTION_FIELDS.has(key) || Object.is(a[key], b2[key]));
 }
 function assetDateValue(date) {
   const date_value = date instanceof Date ? date.valueOf() : Number(date);
@@ -10028,6 +9240,12 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     const email2 = user_email?.toLowerCase();
     if (!email2)
       return false;
+    if (this._settings.get("app.desks.use_assets")) {
+      const building_ids = new Set(buildings.map((building) => building.id));
+      const level_ids = this._org.levels.filter((level) => building_ids.has(level.parent_id)).map((level) => level.id);
+      const desks = await queryDeskAssetsForZones(level_ids).catch(() => []);
+      return desks.some((desk) => desk.assigned_to?.toLowerCase() === email2);
+    }
     const map_metadata = (meta) => (meta?.metadata?.desks?.details instanceof Array ? meta.metadata.desks.details : []).map((desk) => new Desk(__spreadProps(__spreadValues({}, desk), { zone: meta.zone })));
     const desk_lists = await Promise.all(buildings.map((building) => ac(building.id, { name: "desks" }).then((data) => flatten(data.map(map_metadata))).catch(() => [])));
     return flatten(desk_lists).some((desk) => desk.assigned_to?.toLowerCase() === email2);
@@ -10331,7 +9549,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         for (const { features } of this.resources()) {
           features instanceof Array ? features.forEach((_) => list.push(_)) : null;
         }
-        return unique(list).sort((a, b) => a.localeCompare(b));
+        return unique(list).sort((a, b2) => a.localeCompare(b2));
       },
       ...ngDevMode ? [{ debugName: "features" }] : (
         /* istanbul ignore next */
@@ -10444,7 +9662,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         const options = this._options();
         const resource2 = this.available_resources();
         const groups = [];
-        const asset_list = [...resource2].sort((a, b) => a.zone?.id?.localeCompare(b.zone?.id));
+        const asset_list = [...resource2].sort((a, b2) => a.zone?.id?.localeCompare(b2.zone?.id));
         const members = options.members?.length ? options.members : [currentUser()];
         while (asset_list.length) {
           const group = [];
@@ -11061,17 +10279,19 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   async loadGroupSiblings(booking) {
     if (!booking?.id)
       return [];
-    const parent_id = booking.parent_id || booking.id;
-    const group_ref = `${booking.group || ""}`.trim();
-    const legacy_group = `${booking.description || ""}`.startsWith("grp-") ? booking.description : "";
+    const stored_booking = this._booking();
+    const lookup_booking = stored_booking?.id === booking.id ? stored_booking : booking;
+    const parent_id = lookup_booking.parent_id || lookup_booking.id;
+    const group_ref = `${lookup_booking.group || ""}`.trim();
+    const legacy_group = `${lookup_booking.description || ""}`.startsWith("grp-") ? lookup_booking.description : "";
     const { type } = this._options();
     const list = await queryBookings({
-      period_start: getUnixTime(booking.date),
-      period_end: getUnixTime(addMinutes(booking.date, booking.duration)),
+      period_start: getUnixTime(lookup_booking.date),
+      period_end: getUnixTime(addMinutes(lookup_booking.date, lookup_booking.duration)),
       type,
       include_booked_by: true
     });
-    return list.filter((b) => b.id === parent_id || b.parent_id === parent_id || !!group_ref && `${b.group || ""}`.trim() === group_ref || !!legacy_group && b.description === legacy_group);
+    return list.filter((b2) => b2.status !== "cancelled" && (b2.id === parent_id || b2.parent_id === parent_id || !!group_ref && `${b2.group || ""}`.trim() === group_ref || !!legacy_group && b2.description === legacy_group));
   }
   async loadGroupMembersForBooking(booking) {
     if (!booking?.id)
@@ -11106,7 +10326,35 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       const key = is_visitor ? s.asset_id : s.user_email;
       return key && !member_keys.has(key);
     });
-    await Promise.all(to_delete.map((s) => removeBooking(s.id)));
+    for (const booking of to_delete) {
+      const event = booking.linked_event;
+      const event_id = event?.event_id || event?.id;
+      if (is_visitor && event_id) {
+        await removeEventGuest(event_id, new GuestUser({ email: booking.asset_id }), {
+          system_id: event.system_id,
+          calendar: event.resource_calendar
+        });
+      }
+      if (is_visitor) {
+        await updateBooking(booking.id, {
+          extension_data: __spreadProps(__spreadValues({}, booking.extension_data), {
+            removed_from_group: true
+          })
+        });
+      }
+      try {
+        await removeBooking(booking.id);
+      } catch (error) {
+        if (is_visitor) {
+          await updateBooking(booking.id, {
+            extension_data: {
+              removed_from_group: booking.extension_data?.removed_from_group ?? false
+            }
+          });
+        }
+        throw error;
+      }
+    }
     const desk_resources = !is_visitor && type === "desk" ? await this._resolveDeskGroupResources(members, form2, [
       ...existing_siblings.filter((s) => !to_delete.find((item) => item.id === s.id))
     ]) : [];
@@ -11218,11 +10466,12 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       this._org.organisation.id,
       this._org.region?.id
     ].filter((_) => _));
-    return saveBooking(new Booking(__spreadProps(__spreadValues({}, formBookingData(form_data)), {
+    return saveBooking(new Booking(__spreadProps(__spreadValues(__spreadProps(__spreadValues({}, formBookingData(form_data)), {
       id,
       parent_id: "",
       asset_id: group_name,
-      asset_name: "Group Booking",
+      asset_name: "Group Booking"
+    }), resource_type === "visitor" ? { attendees: members } : {}), {
       booking_type: "group",
       type: "group",
       description: form2.title || "Group Booking",
@@ -11369,8 +10618,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     ref.close();
   }
   assignedResourceBooking(type) {
-    const setting = this.settingForType(type, "assigned_resource_booking");
-    return setting === "allow" || setting === "deny" || setting === "other_only" ? setting : "other_only";
+    const setting2 = this.settingForType(type, "assigned_resource_booking");
+    return setting2 === "allow" || setting2 === "deny" || setting2 === "other_only" ? setting2 : "other_only";
   }
   /**
    * Enforce the assigned-resource restriction for any assignable resource type
@@ -11381,10 +10630,10 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
    */
   async _checkAssignedResourceRestriction(user_email, type) {
     const is_self = !user_email || user_email.toLowerCase() === currentUser()?.email?.toLowerCase();
-    const setting = this.assignedResourceBooking(type);
-    if (setting === "allow")
+    const setting2 = this.assignedResourceBooking(type);
+    if (setting2 === "allow")
       return true;
-    if (setting === "deny" && !is_self && await this._computeHasAssignedResource(type)) {
+    if (setting2 === "deny" && !is_self && await this._computeHasAssignedResource(type)) {
       throw `You have an assigned ${type} and cannot book another ${type}.`;
     }
     if (await this._computeHasAssignedResource(type, user_email)) {
@@ -11429,7 +10678,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     await this._whenSettled(this._booking_rules_resource);
     const rules = this.booking_rules();
     const resource_rules = assets?.filter((s) => s?.zone)?.map((space) => {
-      const bld = this._org.buildings.find((b) => space.zone?.parent_id === b.id);
+      const bld = this._org.buildings.find((b2) => space.zone?.parent_id === b2.id);
       return rulesForResource({
         date,
         duration,
@@ -11475,7 +10724,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     if (!clashes?.length) {
       return true;
     }
-    const sorted_clashes = [...clashes].sort((a, b) => a.booking_start - b.booking_start);
+    const sorted_clashes = [...clashes].sort((a, b2) => a.booking_start - b2.booking_start);
     const booking_start_unix = Math.floor(booking.date / 1e3);
     const first_clash = sorted_clashes[0];
     const is_first_instance_clash = first_clash.booking_start === booking_start_unix;
@@ -11534,7 +10783,17 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       zone: this._org.levelWithID([s.zone_id])
     }));
   }
+  /** Load desk resources from the assets API for the active scope. */
+  async loadDeskResources() {
+    const use_region = this._settings.get("app.use_region");
+    const levels = use_region ? this._org.levelsForRegion() : this._org.levelsForBuilding();
+    const assets = await queryDeskAssetsForZones(levels.map((level) => level.id));
+    return assets.map((asset) => deskFromAsset(asset, this._org.levelWithID([asset.zone_id])));
+  }
   async loadResourceList(type) {
+    if (type === "desks" && this._settings.get("app.desks.use_assets")) {
+      return this.loadDeskResources();
+    }
     const use_region = this._settings.get("app.use_region");
     const map_metadata = (_) => (_?.metadata[type]?.details instanceof Array ? _.metadata[type].details : []).map((d) => __spreadProps(__spreadValues({}, d), {
       id: d.id || d.map_id,
@@ -11660,8 +10919,8 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
 })();
 
 // libs/form-fields/src/lib/user-search-field.component.ts
-var _c07 = ["input"];
-var _c14 = (a0) => ({ name: a0 });
+var _c05 = ["input"];
+var _c13 = (a0) => ({ name: a0 });
 function UserSearchFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "a-user-avatar", 5);
@@ -11732,7 +10991,7 @@ function UserSearchFieldComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275nextContext();
     const term_r4 = \u0275\u0275readContextLet(11);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c14, term_r4)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c13, term_r4)), " ");
   }
 }
 function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
@@ -11762,7 +11021,7 @@ function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275nextContext();
     const term_r4 = \u0275\u0275readContextLet(11);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 1, "FORM.USER_SET_EXTERNAL", \u0275\u0275pureFunction1(4, _c14, term_r4)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 1, "FORM.USER_SET_EXTERNAL", \u0275\u0275pureFunction1(4, _c13, term_r4)), " ");
   }
 }
 function UserSearchFieldComponent_Conditional_16_Template(rf, ctx) {
@@ -11966,7 +11225,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         if (s.length <= 2)
           return [];
         const list = await this.query_fn()(s).catch(() => []);
-        return list.filter((_) => !!_ && _.email !== EMPTY_USER.email).sort((a, b) => (a.name?.toLowerCase() || "").localeCompare(b.name?.toLowerCase()));
+        return list.filter((_) => !!_ && _.email !== EMPTY_USER.email).sort((a, b2) => (a.name?.toLowerCase() || "").localeCompare(b2.name?.toLowerCase()));
       }
     }));
     this.search_results = computed(
@@ -12080,7 +11339,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserSearchFieldComponent, selectors: [["a-user-search-field"]], viewQuery: function UserSearchFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c07, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c05, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -12350,14 +11609,13 @@ export {
   MatMenu,
   MatMenuTrigger,
   MatMenuModule,
-  MatTooltip,
-  MatTooltipModule,
   requestSpacesForZone,
   generateMockSpace,
-  CustomTooltipComponent,
   MapViewer,
-  queryCalendarAvailability,
-  querySpaceFreeBusy,
+  saveEvent,
+  removeEvent,
+  querySpaceAvailability,
+  findEventClashes,
   MatAutocomplete,
   MatAutocompleteOrigin,
   MatAutocompleteTrigger,
@@ -12368,14 +11626,18 @@ export {
   UserSearchFieldComponent,
   AssetStateService,
   DurationFieldComponent,
+  queryDeskAssets,
+  queryDeskAssetsForZones,
+  deskFromAsset,
   queryParkingSpacesForZones,
   queryParkingUsers,
   newBookingFromCalendarEvent,
   openRecurringClashModal,
+  CalendarService,
   generateCalendarFileLink,
   generateGoogleCalendarLink,
   generateMicrosoftCalendarLink,
-  CalendarService,
   BookingFormService
 };
-//# sourceMappingURL=chunk-MBCTN6VH.js.map
+//# debugId=ee62cd74-9f85-5e11-aada-5ad664aae14d
+//# sourceMappingURL=chunk-5OUYC6MH.js.map

@@ -3,18 +3,9 @@ import {
 } from "./chunk-SCRIU3HN.js";
 import {
   CheckinStateService
-} from "./chunk-2VPN44LU.js";
+} from "./chunk-SXNCTFXB.js";
 import {
-  ActivatedRoute,
-  AsyncHandler,
   AuthenticatedImageDirective,
-  CommonModule,
-  Component,
-  DatePipe,
-  DefaultValueAccessor,
-  DestroyRef,
-  FormsModule,
-  IconComponent,
   MatError,
   MatFormField,
   MatFormFieldModule,
@@ -22,6 +13,21 @@ import {
   MatInputModule,
   MatProgressSpinner,
   MatProgressSpinnerModule,
+  VirtualKeyboardComponent
+} from "./chunk-KJBGB7K5.js";
+import {
+  TranslatePipe
+} from "./chunk-KNX4PN2G.js";
+import {
+  ActivatedRoute,
+  AsyncHandler,
+  CommonModule,
+  Component,
+  DatePipe,
+  DefaultValueAccessor,
+  DestroyRef,
+  FormsModule,
+  IconComponent,
   MatRipple,
   MatRippleModule,
   NgControlStatus,
@@ -30,9 +36,7 @@ import {
   RouterLink,
   RouterModule,
   RouterOutlet,
-  TranslatePipe,
   ViewChild,
-  VirtualKeyboardComponent,
   computed,
   inject,
   isPublicMode,
@@ -73,7 +77,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-KCR3PI72.js";
+} from "./chunk-2CMJ6LSG.js";
 import {
   __spreadValues
 } from "./chunk-653SOEEV.js";
@@ -1197,7 +1201,8 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
     this.checking_code.set(true);
     const chunks = raw_text.split(",");
     let [visit_block, system_id, event_id, host_email] = chunks;
-    const [_, visitor_email] = visit_block.split(":");
+    const visit_parts = visit_block.split(":");
+    const visitor_email = (visit_parts.length > 1 ? visit_parts[1] : visit_block.includes("@") ? visit_block : "").trim();
     if (!visitor_email && !event_id) {
       notifyError("Invalid QRCode");
       void this.setupQRReader();
@@ -1241,7 +1246,7 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
       this.checking_code.set(false);
       return;
     }
-    if (this.is_induction_enabled() && event?.induction !== "accepted") {
+    if (this.is_induction_enabled() && event?.induction !== "accepted" && !this.induction_after_details()) {
       this._router.navigate(["/checkin", "induction"]);
     } else {
       this._router.navigate(["/checkin", "details"]);
@@ -1262,6 +1267,11 @@ var CheckinQRScanComponent = class _CheckinQRScanComponent extends AsyncHandler 
     const event = this._checkin.event();
     if (!event) {
       this.handleError("Unable to find visitor booking.");
+      this.checking_code.set(false);
+      return;
+    }
+    if (event.rejected) {
+      this.handleError("Your meeting has been rejected.");
       this.checking_code.set(false);
       return;
     }
@@ -1667,7 +1677,7 @@ var CheckinComponent = class _CheckinComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinComponent, selectors: [["", "app-checkin", ""]], decls: 9, vars: 10, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8", "print:static", "print:block", "print:p-0"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "print:hidden", 3, "source"], [1, "z-10", "flex", "w-full", "flex-col", "justify-center", "space-y-8"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white", "print:hidden"], ["src", "assets/img/building.png", 1, "absolute", "right-0", "bottom-0", "w-[60%]", "print:hidden"]], template: function CheckinComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CheckinComponent, selectors: [["", "app-checkin", ""]], decls: 9, vars: 10, consts: [[1, "absolute", "inset-0", "flex", "items-center", "p-8", "print:static", "print:block", "print:p-0"], ["auth", "", 1, "absolute", "top-1/2", "left-1/2", "min-h-full", "min-w-full", "-translate-x-1/2", "-translate-y-1/2", "print:hidden", 3, "source"], [1, "z-10", "flex", "w-full", "flex-col", "justify-center", "space-y-8"], [1, "absolute", "top-4", "right-4", "text-2xl", "text-white", "print:hidden"], ["src", "assets/img/building.webp", 1, "absolute", "right-0", "bottom-0", "w-[60%]", "print:hidden"]], template: function CheckinComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0);
         \u0275\u0275element(1, "img", 1);
@@ -1716,7 +1726,7 @@ var CheckinComponent = class _CheckinComponent {
             </div>
             @if (!hide_building_image()) {
                 <img
-                    src="assets/img/building.png"
+                    src="assets/img/building.webp"
                     class="absolute right-0 bottom-0 w-[60%] print:hidden"
                 />
             }
@@ -1725,7 +1735,7 @@ var CheckinComponent = class _CheckinComponent {
   }], () => [], null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinComponent, { className: "CheckinComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin.component.ts", lineNumber: 53 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinComponent, { className: "CheckinComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin.component.ts", lineNumber: 48 });
 })();
 
 export {
@@ -1733,4 +1743,5 @@ export {
   CheckinQRScanComponent,
   CheckinComponent
 };
-//# sourceMappingURL=chunk-THXVNQAH.js.map
+//# debugId=80338bd5-e956-5ba8-b784-ec7ff7cc520e
+//# sourceMappingURL=chunk-IHKFKRL7.js.map

@@ -1,7 +1,12 @@
 {
   "version": 3,
-  "sources": ["apps/visitor-kiosk/src/app/checkin/token-from-url.ts"],
-  "sourcesContent": ["export function parseTokenFromUrl(url: string): string {\n    if (!url) return '';\n    try {\n        const parsed_url = new URL(url, window.location.origin);\n        const query_token =\n            parsed_url.searchParams.get('access_token') ||\n            parsed_url.searchParams.get('jwt') ||\n            parsed_url.searchParams.get('token');\n        if (query_token) return query_token;\n\n        const hash_route = parsed_url.hash?.replace(/^#/, '') || '';\n        const hash_query = hash_route.includes('?')\n            ? hash_route.split('?')[1]\n            : hash_route;\n        const hash_params = new URLSearchParams(hash_query);\n        const hash_token =\n            hash_params.get('access_token') ||\n            hash_params.get('jwt') ||\n            hash_params.get('token');\n        if (hash_token) return hash_token;\n    } catch {\n        /* Ignore invalid URLs and continue to regex fallback */\n    }\n\n    const token_match = /(?:[?#&])(access_token|jwt|token)=([^&#]+)/.exec(url);\n    return token_match?.[2] ? decodeURIComponent(token_match[2]) : '';\n}\n"],
+  "sources": [
+    "apps/visitor-kiosk/src/app/checkin/token-from-url.ts"
+  ],
+  "sourcesContent": [
+    "export function parseTokenFromUrl(url: string): string {\n    if (!url) return '';\n    try {\n        const parsed_url = new URL(url, window.location.origin);\n        const query_token =\n            parsed_url.searchParams.get('access_token') ||\n            parsed_url.searchParams.get('jwt') ||\n            parsed_url.searchParams.get('token');\n        if (query_token) return query_token;\n\n        const hash_route = parsed_url.hash?.replace(/^#/, '') || '';\n        const hash_query = hash_route.includes('?')\n            ? hash_route.split('?')[1]\n            : hash_route;\n        const hash_params = new URLSearchParams(hash_query);\n        const hash_token =\n            hash_params.get('access_token') ||\n            hash_params.get('jwt') ||\n            hash_params.get('token');\n        if (hash_token) return hash_token;\n    } catch {\n        /* Ignore invalid URLs and continue to regex fallback */\n    }\n\n    const token_match = /(?:[?#&])(access_token|jwt|token)=([^&#]+)/.exec(url);\n    return token_match?.[2] ? decodeURIComponent(token_match[2]) : '';\n}\n"
+  ],
   "mappings": ";AAAM,SAAU,kBAAkB,KAAW;AACzC,MAAI,CAAC;AAAK,WAAO;AACjB,MAAI;AACA,UAAM,aAAa,IAAI,IAAI,KAAK,OAAO,SAAS,MAAM;AACtD,UAAM,cACF,WAAW,aAAa,IAAI,cAAc,KAC1C,WAAW,aAAa,IAAI,KAAK,KACjC,WAAW,aAAa,IAAI,OAAO;AACvC,QAAI;AAAa,aAAO;AAExB,UAAM,aAAa,WAAW,MAAM,QAAQ,MAAM,EAAE,KAAK;AACzD,UAAM,aAAa,WAAW,SAAS,GAAG,IACpC,WAAW,MAAM,GAAG,EAAE,CAAC,IACvB;AACN,UAAM,cAAc,IAAI,gBAAgB,UAAU;AAClD,UAAM,aACF,YAAY,IAAI,cAAc,KAC9B,YAAY,IAAI,KAAK,KACrB,YAAY,IAAI,OAAO;AAC3B,QAAI;AAAY,aAAO;EAC3B,QAAQ;EAER;AAEA,QAAM,cAAc,6CAA6C,KAAK,GAAG;AACzE,SAAO,cAAc,CAAC,IAAI,mBAAmB,YAAY,CAAC,CAAC,IAAI;AACnE;",
-  "names": []
+  "names": [],
+  "debugId": "bb9c0a4a-9456-5121-bc76-0341421b5d60"
 }

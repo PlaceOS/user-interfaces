@@ -5,13 +5,12 @@ import {
   CheckinComponent,
   CheckinErrorComponent,
   CheckinQRScanComponent
-} from "./chunk-THXVNQAH.js";
+} from "./chunk-IHKFKRL7.js";
 import "./chunk-SCRIU3HN.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
 import {
-  FormField,
   MatCheckbox,
   MatCheckboxModule,
   MatRadioButton,
@@ -19,21 +18,39 @@ import {
   MatRadioModule,
   MatSelect,
   MatSelectModule,
-  SanitizePipe,
   UserAvatarComponent,
-  email,
   findOldestByName,
-  form,
-  required,
   saveAssetCategory
-} from "./chunk-MJFGPOZ5.js";
+} from "./chunk-QS46I4RP.js";
 import {
   CheckinStateService
-} from "./chunk-2VPN44LU.js";
+} from "./chunk-SXNCTFXB.js";
+import {
+  AuthenticatedImageDirective,
+  FormField,
+  MatError,
+  MatFormField,
+  MatFormFieldModule,
+  MatInput,
+  MatInputModule,
+  MatProgressSpinner,
+  MatProgressSpinnerModule,
+  VirtualKeyboardComponent,
+  email,
+  form,
+  getGuestCateringItem,
+  required,
+  setGuestCateringItem
+} from "./chunk-KJBGB7K5.js";
+import {
+  SanitizePipe
+} from "./chunk-6AJNYHZS.js";
+import {
+  TranslatePipe
+} from "./chunk-KNX4PN2G.js";
 import {
   ActivatedRoute,
   AsyncHandler,
-  AuthenticatedImageDirective,
   CateringItem,
   CommonModule,
   Component,
@@ -42,14 +59,7 @@ import {
   FormsModule,
   IconComponent,
   Input,
-  MatError,
-  MatFormField,
-  MatFormFieldModule,
-  MatInput,
-  MatInputModule,
   MatOption,
-  MatProgressSpinner,
-  MatProgressSpinnerModule,
   MatRipple,
   MatRippleModule,
   NgControlStatus,
@@ -61,16 +71,13 @@ import {
   RouterLink,
   RouterModule,
   SettingsService,
-  TranslatePipe,
   ViewChild,
   ViewEncapsulation,
-  VirtualKeyboardComponent,
   Zl,
   computed,
   ed,
   effect,
   flatten,
-  getGuestCateringItem,
   i18n,
   inject,
   input,
@@ -82,7 +89,6 @@ import {
   parseJWT,
   roundToNearestMinutes,
   setClassMetadata,
-  setGuestCateringItem,
   settingSignal,
   signal,
   startOfMinute,
@@ -133,7 +139,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-KCR3PI72.js";
+} from "./chunk-2CMJ6LSG.js";
 import {
   __spreadProps,
   __spreadValues
@@ -563,12 +569,12 @@ var CheckinCovidComponent = class _CheckinCovidComponent {
       )
     );
   }
-  confirm() {
+  async confirm() {
     const symptoms = this.symptoms();
     const contact = this.contact();
     if (!symptoms || !contact)
       return notifyError("Please select yes or no for each question");
-    this._checkin.updateGuest({
+    await this._checkin.updateGuest({
       covid: contact === "true",
       symptoms: symptoms === "true"
     });
@@ -770,7 +776,7 @@ var CheckinCovidComponent = class _CheckinCovidComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinCovidComponent, { className: "CheckinCovidComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-covid.component.ts", lineNumber: 98 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinCovidComponent, { className: "CheckinCovidComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-covid.component.ts", lineNumber: 94 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-details.component.ts
@@ -884,7 +890,7 @@ function CheckinDetailsComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275property("formField", ctx_r1.form.name)("placeholder", \u0275\u0275pipeBind1(19, 28, "FORM.NAME"));
     \u0275\u0275control();
     \u0275\u0275advance(6);
-    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(25, 30, "FORM.NAME"));
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(25, 30, "FORM.EMAIL"));
     \u0275\u0275advance(3);
     \u0275\u0275property("formField", ctx_r1.form.email)("placeholder", \u0275\u0275pipeBind1(28, 32, "FORM.EMAIL"));
     \u0275\u0275control();
@@ -953,7 +959,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
     this.allow_pass_number = settingSignal("allow_pass_number", false);
     this.induction_enabled = settingSignal("induction_enabled", false);
     this.induction_details = settingSignal("induction_details");
-    this.allow_printing_label = settingSignal("allow_printing_label", false);
+    this.allow_printing_label = settingSignal("allow_printing_label");
     this.allow_user_photo_setting = settingSignal("allow_user_photo", false);
     this.induction_available = computed(
       () => this.induction_enabled() && this.induction_details(),
@@ -963,7 +969,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
       )
     );
     this.allow_user_photo = computed(
-      () => this.allow_user_photo_setting() && this.allow_printing_label(),
+      () => this.allow_user_photo_setting() && this.allow_printing_label() !== false,
       ...ngDevMode ? [{ debugName: "allow_user_photo" }] : (
         /* istanbul ignore next */
         []
@@ -1068,7 +1074,7 @@ var CheckinDetailsComponent = class _CheckinDetailsComponent {
                     </mat-form-field>
                 </div>
                 <div field class="flex flex-col">
-                    <label form="email">{{ 'FORM.NAME' | translate }}</label>
+                    <label form="email">{{ 'FORM.EMAIL' | translate }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             keyboard
@@ -1785,7 +1791,7 @@ var CheckinPhotoComponent = class _CheckinPhotoComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinPhotoComponent, { className: "CheckinPhotoComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-photo.component.ts", lineNumber: 42 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinPhotoComponent, { className: "CheckinPhotoComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-photo.component.ts", lineNumber: 37 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin-preferences.component.ts
@@ -2373,6 +2379,9 @@ var CheckinResultsComponent = class _CheckinResultsComponent extends AsyncHandle
     this.print = () => {
       this.printing.set(true);
       this.qr_code.set(generateQRCode(this.booking()?.asset_id));
+      window.addEventListener("afterprint", () => this.printing.set(false), {
+        once: true
+      });
       this.timeout("print", () => window.print());
     };
   }
@@ -2519,7 +2528,7 @@ var CheckinResultsComponent = class _CheckinResultsComponent extends AsyncHandle
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinResultsComponent, { className: "CheckinResultsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-result.component.ts", lineNumber: 114 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(CheckinResultsComponent, { className: "CheckinResultsComponent", filePath: "apps/visitor-kiosk/src/app/checkin/checkin-result.component.ts", lineNumber: 108 });
 })();
 
 // apps/visitor-kiosk/src/app/checkin/checkin.routes.ts
@@ -2548,4 +2557,5 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# sourceMappingURL=checkin.routes-JT34KCSW.js.map
+//# debugId=b72666b7-fada-5ee8-b66a-308c671ef8ea
+//# sourceMappingURL=checkin.routes-QRBAYNRE.js.map
