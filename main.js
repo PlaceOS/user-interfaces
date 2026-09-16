@@ -68103,15 +68103,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "7db136d",
-  "hash": "7db136d",
+  "raw": "59a17d7",
+  "hash": "59a17d7",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7db136d",
+  "suffix": "59a17d7",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1789010246612
+  "time": 1789519956170
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -125324,9 +125324,11 @@ var ParkingService = class _ParkingService extends AsyncHandler {
 })();
 
 // libs/bookings/src/lib/booking-card.component.ts
-var _c038 = () => ["./"];
-var _c119 = (a0) => ({ booking: a0 });
-var _c211 = (a0) => ({ name: a0 });
+var _c038 = [[["", "booking-status", ""]]];
+var _c119 = ["[booking-status]"];
+var _c211 = () => ["./"];
+var _c36 = (a0) => ({ booking: a0 });
+var _c44 = (a0) => ({ name: a0 });
 function BookingCardComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "span", 2);
@@ -125360,7 +125362,7 @@ function BookingCardComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275textInterpolate1("(", \u0275\u0275pipeBind2(6, 6, ctx_r0.booking()?.date, "zzzz"), ")");
   }
 }
-function BookingCardComponent_Conditional_1_Conditional_11_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Conditional_12_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 11)(1, "icon", 20);
     \u0275\u0275text(2, "person");
@@ -125373,10 +125375,10 @@ function BookingCardComponent_Conditional_1_Conditional_11_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(5, 1, "BOOKINGS.BOOKED_FOR", \u0275\u0275pureFunction1(4, _c211, ctx_r0.booked_for_label())), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(5, 1, "BOOKINGS.BOOKED_FOR", \u0275\u0275pureFunction1(4, _c44, ctx_r0.booked_for_label())), " ");
   }
 }
-function BookingCardComponent_Conditional_1_Conditional_12_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Conditional_13_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "icon", 12);
     \u0275\u0275text(1, "event_repeat");
@@ -125387,32 +125389,32 @@ function BookingCardComponent_Conditional_1_Conditional_12_Template(rf, ctx) {
     \u0275\u0275property("matTooltip", ctx_r0.recurr_tooltip());
   }
 }
-function BookingCardComponent_Conditional_1_Case_16_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Case_17_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " desk ");
   }
 }
-function BookingCardComponent_Conditional_1_Case_17_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Case_18_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " lock ");
   }
 }
-function BookingCardComponent_Conditional_1_Case_18_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Case_19_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " drive_eta ");
   }
 }
-function BookingCardComponent_Conditional_1_Case_19_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Case_20_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " people ");
   }
 }
-function BookingCardComponent_Conditional_1_Case_20_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Case_21_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0, " book ");
   }
 }
-function BookingCardComponent_Conditional_1_Conditional_23_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Conditional_24_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 16)(1, "icon");
     \u0275\u0275text(2, "place");
@@ -125427,7 +125429,7 @@ function BookingCardComponent_Conditional_1_Conditional_23_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", ctx_r0.location(), " ");
   }
 }
-function BookingCardComponent_Conditional_1_Conditional_26_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Conditional_27_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 18)(1, "icon", 23);
     \u0275\u0275text(2, "check_circle");
@@ -125442,7 +125444,7 @@ function BookingCardComponent_Conditional_1_Conditional_26_Template(rf, ctx) {
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 1, "COMMON.CHECKED_IN"));
   }
 }
-function BookingCardComponent_Conditional_1_Conditional_27_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Conditional_28_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275text(1);
@@ -125454,7 +125456,7 @@ function BookingCardComponent_Conditional_1_Conditional_27_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "BOOKINGS.ASSOCIATE"), " ");
   }
 }
-function BookingCardComponent_Conditional_1_Conditional_28_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Conditional_29_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275text(1);
@@ -125466,7 +125468,7 @@ function BookingCardComponent_Conditional_1_Conditional_28_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 1, "RESOURCE.EVENT"), " ");
   }
 }
-function BookingCardComponent_Conditional_1_Conditional_29_Template(rf, ctx) {
+function BookingCardComponent_Conditional_1_Conditional_30_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 19);
     \u0275\u0275text(1);
@@ -125498,30 +125500,31 @@ function BookingCardComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275elementStart(8, "div", 9)(9, "status-pill", 10);
     \u0275\u0275text(10);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(11, BookingCardComponent_Conditional_1_Conditional_11_Template, 6, 6, "div", 11);
-    \u0275\u0275conditionalCreate(12, BookingCardComponent_Conditional_1_Conditional_12_Template, 2, 1, "icon", 12);
+    \u0275\u0275projection(11);
+    \u0275\u0275conditionalCreate(12, BookingCardComponent_Conditional_1_Conditional_12_Template, 6, 6, "div", 11);
+    \u0275\u0275conditionalCreate(13, BookingCardComponent_Conditional_1_Conditional_13_Template, 2, 1, "icon", 12);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(13, "div", 13)(14, "div", 14)(15, "icon");
-    \u0275\u0275conditionalCreate(16, BookingCardComponent_Conditional_1_Case_16_Template, 1, 0)(17, BookingCardComponent_Conditional_1_Case_17_Template, 1, 0)(18, BookingCardComponent_Conditional_1_Case_18_Template, 1, 0)(19, BookingCardComponent_Conditional_1_Case_19_Template, 1, 0)(20, BookingCardComponent_Conditional_1_Case_20_Template, 1, 0);
+    \u0275\u0275elementStart(14, "div", 13)(15, "div", 14)(16, "icon");
+    \u0275\u0275conditionalCreate(17, BookingCardComponent_Conditional_1_Case_17_Template, 1, 0)(18, BookingCardComponent_Conditional_1_Case_18_Template, 1, 0)(19, BookingCardComponent_Conditional_1_Case_19_Template, 1, 0)(20, BookingCardComponent_Conditional_1_Case_20_Template, 1, 0)(21, BookingCardComponent_Conditional_1_Case_21_Template, 1, 0);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(21, "div", 15);
-    \u0275\u0275text(22);
+    \u0275\u0275elementStart(22, "div", 15);
+    \u0275\u0275text(23);
     \u0275\u0275elementEnd()();
-    \u0275\u0275conditionalCreate(23, BookingCardComponent_Conditional_1_Conditional_23_Template, 5, 1, "div", 16);
+    \u0275\u0275conditionalCreate(24, BookingCardComponent_Conditional_1_Conditional_24_Template, 5, 1, "div", 16);
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(24, "icon", 17);
-    \u0275\u0275text(25, " chevron_right ");
+    \u0275\u0275elementStart(25, "icon", 17);
+    \u0275\u0275text(26, " chevron_right ");
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(26, BookingCardComponent_Conditional_1_Conditional_26_Template, 6, 3, "div", 18);
-    \u0275\u0275conditionalCreate(27, BookingCardComponent_Conditional_1_Conditional_27_Template, 3, 3, "div", 19);
+    \u0275\u0275conditionalCreate(27, BookingCardComponent_Conditional_1_Conditional_27_Template, 6, 3, "div", 18);
     \u0275\u0275conditionalCreate(28, BookingCardComponent_Conditional_1_Conditional_28_Template, 3, 3, "div", 19);
     \u0275\u0275conditionalCreate(29, BookingCardComponent_Conditional_1_Conditional_29_Template, 3, 3, "div", 19);
+    \u0275\u0275conditionalCreate(30, BookingCardComponent_Conditional_1_Conditional_30_Template, 3, 3, "div", 19);
     \u0275\u0275elementEnd()();
   }
   if (rf & 2) {
     let tmp_12_0;
     const ctx_r0 = \u0275\u0275nextContext();
-    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(22, _c038))("queryParams", \u0275\u0275pureFunction1(23, _c119, ctx_r0.booking()?.id));
+    \u0275\u0275property("routerLink", \u0275\u0275pureFunction0(22, _c211))("queryParams", \u0275\u0275pureFunction1(23, _c36, ctx_r0.booking()?.id));
     \u0275\u0275advance(2);
     \u0275\u0275styleProp("background-color", ctx_r0.typeColors[0])("color", ctx_r0.typeColors[1]);
     \u0275\u0275advance();
@@ -125534,24 +125537,24 @@ function BookingCardComponent_Conditional_1_Template(rf, ctx) {
     \u0275\u0275property("status", ctx_r0.status());
     \u0275\u0275advance();
     \u0275\u0275textInterpolate(ctx_r0.period());
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(!ctx_r0.for_current_user() && ctx_r0.booked_for_label() ? 12 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r0.for_current_user() && ctx_r0.booked_for_label() ? 11 : -1);
-    \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.booking().instance ? 12 : -1);
+    \u0275\u0275conditional(ctx_r0.booking().instance ? 13 : -1);
     \u0275\u0275advance(4);
-    \u0275\u0275conditional((tmp_12_0 = ctx_r0.type()) === "desk" ? 16 : tmp_12_0 === "locker" ? 17 : tmp_12_0 === "parking" ? 18 : tmp_12_0 === "visitor" ? 19 : 20);
+    \u0275\u0275conditional((tmp_12_0 = ctx_r0.type()) === "desk" ? 17 : tmp_12_0 === "locker" ? 18 : tmp_12_0 === "parking" ? 19 : tmp_12_0 === "visitor" ? 20 : 21);
     \u0275\u0275advance(6);
     \u0275\u0275textInterpolate1(" ", ctx_r0.resource_label(), " ");
     \u0275\u0275advance();
-    \u0275\u0275conditional(ctx_r0.location() ? 23 : -1);
+    \u0275\u0275conditional(ctx_r0.location() ? 24 : -1);
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r0.booking()?.checked_in && !ctx_r0.booking()?.is_done ? 26 : -1);
+    \u0275\u0275conditional(ctx_r0.booking()?.checked_in && !ctx_r0.booking()?.is_done ? 27 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r0.booking()?.checked_in && !ctx_r0.for_current_user() && ctx_r0.booking()?.booking_type !== "group-event" ? 27 : -1);
+    \u0275\u0275conditional(!ctx_r0.booking()?.checked_in && !ctx_r0.for_current_user() && ctx_r0.booking()?.booking_type !== "group-event" ? 28 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r0.booking()?.checked_in && ctx_r0.booking()?.booking_type === "group-event" ? 28 : -1);
+    \u0275\u0275conditional(!ctx_r0.booking()?.checked_in && ctx_r0.booking()?.booking_type === "group-event" ? 29 : -1);
     \u0275\u0275advance();
-    \u0275\u0275conditional(!ctx_r0.booking()?.checked_in && ctx_r0.is_reserved_parking_space() ? 29 : -1);
+    \u0275\u0275conditional(!ctx_r0.booking()?.checked_in && ctx_r0.is_reserved_parking_space() ? 30 : -1);
   }
 }
 var BookingCardComponent = class _BookingCardComponent {
@@ -125847,10 +125850,11 @@ var BookingCardComponent = class _BookingCardComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingCardComponent, selectors: [["booking-card"]], inputs: { booking: [1, "booking"], show_day: [1, "show_day"], edit_fn: [1, "edit_fn"], remove_fn: [1, "remove_fn"], end_fn: [1, "end_fn"], refresh_fn: [1, "refresh_fn"] }, decls: 2, vars: 2, consts: [[1, "mb-2", "flex", "items-center", "px-2"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "routerLink", "queryParams"], ["day", ""], [1, "px-2", "text-xs"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "click", "routerLink", "queryParams"], [1, "border-base-300", "bg-base-100", "relative", "w-full", "rounded-xl", "border", "py-4", "shadow-sm"], [1, "bg-base-300", "absolute", "top-2", "right-2", "rounded-full", "p-1", "text-2xl"], ["matTooltipPosition", "left", 3, "matTooltip"], [1, "px-4", "text-lg"], [1, "mx-4", "my-2", "flex", "items-center", "space-x-2"], [3, "status"], ["booked-for", "", 1, "text-base-content/70", "flex", "min-w-0", "items-center", "space-x-1", "text-sm"], [1, "text-2xl", 3, "matTooltip"], [1, "divide-base-200-500", "flex", "flex-col", "flex-wrap", "space-y-2", "py-2", "sm:flex-row", "sm:space-y-0", "sm:divide-x"], [1, "flex", "max-w-[33%]", "items-center", "px-4"], [1, "mx-2", "w-1/2", "flex-1", "truncate"], [1, "flex", "items-center", "px-4"], [1, "absolute", "top-1/2", "right-1", "-translate-y-1/2", "text-4xl"], ["checked-in-badge", "", 1, "bg-success", "text-success-content", "absolute", "top-2", "right-2", "flex", "items-center", "space-x-1", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "bg-warning/50", "absolute", "top-14", "right-2", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "text-lg"], [1, "truncate"], [1, "mx-2", "truncate"], [1, "text-sm"]], template: function BookingCardComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _BookingCardComponent, selectors: [["booking-card"]], inputs: { booking: [1, "booking"], show_day: [1, "show_day"], edit_fn: [1, "edit_fn"], remove_fn: [1, "remove_fn"], end_fn: [1, "end_fn"], refresh_fn: [1, "refresh_fn"] }, ngContentSelectors: _c119, decls: 2, vars: 2, consts: [[1, "mb-2", "flex", "items-center", "px-2"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "routerLink", "queryParams"], ["day", ""], [1, "px-2", "text-xs"], ["name", "view-booking-details", 1, "relative", "w-full", "cursor-pointer", "overflow-hidden", 3, "click", "routerLink", "queryParams"], [1, "border-base-300", "bg-base-100", "relative", "w-full", "rounded-xl", "border", "py-4", "shadow-sm"], [1, "bg-base-300", "absolute", "top-2", "right-2", "rounded-full", "p-1", "text-2xl"], ["matTooltipPosition", "left", 3, "matTooltip"], [1, "px-4", "text-lg"], [1, "mx-4", "my-2", "flex", "items-center", "space-x-2"], [3, "status"], ["booked-for", "", 1, "text-base-content/70", "flex", "min-w-0", "items-center", "space-x-1", "text-sm"], [1, "text-2xl", 3, "matTooltip"], [1, "divide-base-200-500", "flex", "flex-col", "flex-wrap", "space-y-2", "py-2", "sm:flex-row", "sm:space-y-0", "sm:divide-x"], [1, "flex", "max-w-[33%]", "items-center", "px-4"], [1, "mx-2", "w-1/2", "flex-1", "truncate"], [1, "flex", "items-center", "px-4"], [1, "absolute", "top-1/2", "right-1", "-translate-y-1/2", "text-4xl"], ["checked-in-badge", "", 1, "bg-success", "text-success-content", "absolute", "top-2", "right-2", "flex", "items-center", "space-x-1", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "bg-warning/50", "absolute", "top-14", "right-2", "rounded-xl", "px-2", "py-1", "text-xs"], [1, "text-lg"], [1, "truncate"], [1, "mx-2", "truncate"], [1, "text-sm"]], template: function BookingCardComponent_Template(rf, ctx) {
       if (rf & 1) {
+        \u0275\u0275projectionDef(_c038);
         \u0275\u0275conditionalCreate(0, BookingCardComponent_Conditional_0_Template, 7, 9, "h4", 0);
-        \u0275\u0275conditionalCreate(1, BookingCardComponent_Conditional_1_Template, 30, 25, "a", 1);
+        \u0275\u0275conditionalCreate(1, BookingCardComponent_Conditional_1_Template, 31, 25, "a", 1);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.booking() ? 0 : -1);
@@ -125915,6 +125919,7 @@ var BookingCardComponent = class _BookingCardComponent {
                         <status-pill [status]="status()">{{
                             period()
                         }}</status-pill>
+                        <ng-content select="[booking-status]" />
                         @if (!for_current_user() && booked_for_label()) {
                             <div
                                 booked-for
@@ -126037,7 +126042,7 @@ var BookingCardComponent = class _BookingCardComponent {
   }], () => [], { booking: [{ type: Input, args: [{ isSignal: true, alias: "booking", required: false }] }], show_day: [{ type: Input, args: [{ isSignal: true, alias: "show_day", required: false }] }], edit_fn: [{ type: Input, args: [{ isSignal: true, alias: "edit_fn", required: false }] }], remove_fn: [{ type: Input, args: [{ isSignal: true, alias: "remove_fn", required: false }] }], end_fn: [{ type: Input, args: [{ isSignal: true, alias: "end_fn", required: false }] }], refresh_fn: [{ type: Input, args: [{ isSignal: true, alias: "refresh_fn", required: false }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingCardComponent, { className: "BookingCardComponent", filePath: "libs/bookings/src/lib/booking-card.component.ts", lineNumber: 205 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(BookingCardComponent, { className: "BookingCardComponent", filePath: "libs/bookings/src/lib/booking-card.component.ts", lineNumber: 206 });
 })();
 
 // libs/components/src/lib/recurring-clash-modal.component.ts
@@ -135664,7 +135669,7 @@ var HostSelectFieldComponent = class _HostSelectFieldComponent {
 var _c048 = ["search_field"];
 var _c124 = ["*"];
 var _c212 = (a0) => ({ name: a0 });
-var _c36 = (a0) => ({ email: a0 });
+var _c37 = (a0) => ({ email: a0 });
 function UserListFieldComponent_For_7_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
@@ -135717,7 +135722,7 @@ function UserListFieldComponent_Conditional_14_Template(rf, ctx) {
   if (rf & 2) {
     const ctx_r2 = \u0275\u0275nextContext();
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "FORM.USER_LIST_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c36, ctx_r2.search())), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(2, 1, "FORM.USER_LIST_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c37, ctx_r2.search())), " ");
   }
 }
 function UserListFieldComponent_For_16_Conditional_8_Template(rf, ctx) {
@@ -136551,7 +136556,7 @@ var SpacesService = class _SpacesService {
 var _c049 = (a0) => ({ time: a0 });
 var _c125 = (a0, a1) => ({ count: a0, cost: a1 });
 var _c213 = (a0) => ({ count: a0 });
-var _c37 = () => ({ disable_pan: true, disable_zoom: true });
+var _c38 = () => ({ disable_pan: true, disable_zoom: true });
 function EventDetailsModalComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "div", 4);
@@ -136889,7 +136894,7 @@ function EventDetailsModalComponent_Conditional_90_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("src", ctx_r1.level()?.map_id)("features", ctx_r1.features())("options", \u0275\u0275pureFunction0(3, _c37));
+    \u0275\u0275property("src", ctx_r1.level()?.map_id)("features", ctx_r1.features())("options", \u0275\u0275pureFunction0(3, _c38));
   }
 }
 function EventDetailsModalComponent_Conditional_91_Conditional_4_Template(rf, ctx) {
@@ -142210,7 +142215,7 @@ var SpaceSelectModalComponent = class _SpaceSelectModalComponent {
 var _c056 = () => ({ standalone: true });
 var _c129 = () => ({ count: 4 });
 var _c215 = () => ({ count: 10 });
-var _c38 = (a0) => ({ count: a0 });
+var _c39 = (a0) => ({ count: a0 });
 function SpaceListFieldComponent_For_22_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 10);
@@ -142291,7 +142296,7 @@ function SpaceListFieldComponent_For_22_Template(rf, ctx) {
     \u0275\u0275advance(5);
     \u0275\u0275textInterpolate1(" ", ctx_r2.level(space_r2.zones)?.display_name || ctx_r2.level(space_r2.zones)?.name, " ");
     \u0275\u0275advance(5);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(17, 9, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(16, _c38, space_r2.capacity < 1 ? 2 : space_r2.capacity)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(17, 9, "CALENDAR_EVENT.CAPACITY_COUNT", \u0275\u0275pureFunction1(16, _c39, space_r2.capacity < 1 ? 2 : space_r2.capacity)), " ");
     \u0275\u0275advance(7);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(24, 12, "COMMON.CHANGE"), " ");
     \u0275\u0275advance(6);
