@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "libs/components/src/lib/media-duration.pipe.ts"
+  ],
+  "sourcesContent": [
+    "import { Pipe } from '@angular/core';\nimport { padLength } from '@placeos/common';\n\n@Pipe({\n    name: 'mediaDuration',\n})\nexport class MediaDurationPipe {\n    public transform(period_length: number, show_ms = false): string {\n        const hours = Math.floor(period_length / 60 / 60);\n        const minutes = Math.floor((period_length / 60) % 60);\n        const seconds = Math.floor(period_length % 60);\n        const milliseconds = Math.floor((period_length * 1000) % 1000);\n        let str = `${padLength(minutes)}:${padLength(seconds)}`;\n        if (show_ms) {\n            str += `.${padLength(milliseconds, 3)}`;\n        }\n        if (hours > 0) str = `${padLength(hours)}:${str}`;\n        return str;\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;AAMM,IAAO,oBAAP,MAAO,mBAAiB;EACnB,UAAU,eAAuB,UAAU,OAAK;AACnD,UAAM,QAAQ,KAAK,MAAM,gBAAgB,KAAK,EAAE;AAChD,UAAM,UAAU,KAAK,MAAO,gBAAgB,KAAM,EAAE;AACpD,UAAM,UAAU,KAAK,MAAM,gBAAgB,EAAE;AAC7C,UAAM,eAAe,KAAK,MAAO,gBAAgB,MAAQ,GAAI;AAC7D,QAAI,MAAM,GAAG,UAAU,OAAO,CAAC,IAAI,UAAU,OAAO,CAAC;AACrD,QAAI,SAAS;AACT,aAAO,IAAI,UAAU,cAAc,CAAC,CAAC;IACzC;AACA,QAAI,QAAQ;AAAG,YAAM,GAAG,UAAU,KAAK,CAAC,IAAI,GAAG;AAC/C,WAAO;EACX;;;uCAZS,oBAAiB;IAAA;EAAA;;4FAAjB,oBAAiB,MAAA,KAAA,CAAA;EAAA;;;sEAAjB,mBAAiB,CAAA;UAH7B;WAAK;MACF,MAAM;KACT;;;",
+  "names": [],
+  "debugId": "f5dfb48d-998a-5e09-9aa3-df0797f184eb"
+}
