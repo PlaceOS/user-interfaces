@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["binding-debug-panel.component.ts"],
+  "sourcesContent": ["\n            button:not(:disabled) {\n                cursor: pointer;\n            }\n            button:not(:disabled):hover {\n                background-image: linear-gradient(#8080801f, #8080801f);\n            }\n            button:not(:disabled):active {\n                background-image: linear-gradient(#8080803d, #8080803d);\n            }\n            button:focus-visible,\n            summary:focus-visible {\n                outline: 2px solid currentColor;\n                outline-offset: -2px;\n            }\n        "],
+  "mappings": "AACY,MAAA,KAAA,WACI,OAAA,OACJ,CACA,MAAA,KAAA,UAAA,OACI,iBAAA,gBAAA,SAAA,CAAA,UACJ,CACA,MAAA,KAAA,UAAA,QACI,iBAAA,gBAAA,SAAA,CAAA,UACJ,CACA,MAAA,qCAEI,QAAA,IAAA,MAAA,aACA,eAAA,IACJ",
+  "names": []
+}
