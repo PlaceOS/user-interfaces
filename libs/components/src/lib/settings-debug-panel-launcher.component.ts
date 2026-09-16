@@ -38,7 +38,6 @@ type DebugPanel = 'settings' | 'bindings' | 'console';
             #menu_trigger="matMenuTrigger"
             (contextmenu)="openMenu($event, menu_trigger)"
         >
-            <span aria-hidden="true">⋮</span>
         </button>
         <mat-menu #debug_menu="matMenu" yPosition="above">
             <div

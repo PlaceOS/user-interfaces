@@ -277,25 +277,37 @@ installBindingDebugHooks();
                 </header>
 
                 <div
-                    class="border-base-300 bg-base-100 grid grid-cols-2 border-b p-1"
+                    class="border-base-300 bg-base-100 grid grid-cols-2 border-b p-1 gap-1"
                 >
                     <button
                         matRipple
-                        class="rounded-md px-3 py-1.5 text-sm"
-                        [class.bg-base-300]="tab() === 'bindings'"
+                        class="flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm"
+                        [class.bg-secondary]="tab() === 'bindings'"
+                        [class.text-secondary-content]="tab() === 'bindings'"
                         [attr.aria-pressed]="tab() === 'bindings'"
                         (click)="tab.set('bindings')"
                     >
-                        Bindings ({{ binding_count() }})
+                        <div>Bindings</div>
+                        <div
+                            class="bg-base-content/10 flex h-5 w-5 items-center justify-center rounded-full p-1 font-mono text-[0.625rem]"
+                        >
+                            {{ binding_count() }}
+                        </div>
                     </button>
                     <button
                         matRipple
-                        class="rounded-md px-3 py-1.5 text-sm"
-                        [class.bg-base-300]="tab() === 'executes'"
+                        class="flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm"
+                        [class.bg-secondary]="tab() === 'executes'"
+                        [class.text-secondary-content]="tab() === 'executes'"
                         [attr.aria-pressed]="tab() === 'executes'"
                         (click)="tab.set('executes')"
                     >
-                        Commands ({{ execute_count() }})
+                        <div>Commands</div>
+                        <div
+                            class="bg-base-content/10 flex h-5 w-5 items-center justify-center rounded-full p-1 font-mono text-[0.625rem]"
+                        >
+                            {{ execute_count() }}
+                        </div>
                     </button>
                 </div>
 

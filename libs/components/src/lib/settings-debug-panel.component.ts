@@ -247,8 +247,8 @@ function flattenSchemaKeys(
                                                 [data]="{ zones: row.zones }"
                                                 [hover]="true"
                                                 [backdrop]="false"
-                                                xPosition="start"
-                                                yPosition="center"
+                                                xPosition="center"
+                                                yPosition="bottom"
                                                 [xOffset]="20"
                                             >
                                                 <icon class="text-sm opacity-60"
