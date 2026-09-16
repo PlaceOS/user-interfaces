@@ -7,6 +7,7 @@ import {
     Building,
     CalendarEvent,
     currentUser,
+    EMPTY_USER,
     i18n,
     OrganisationService,
     setCurrentUser,
@@ -115,6 +116,97 @@ describe('EventFormService', () => {
         init_spy.mockRestore();
         sessionStorage.clear();
     });
+
+    it.each([EMPTY_USER.email, 'delegate@test.com'])(
+        'should exclude placeholder attendees and create only valid visitor bookings for host %s',
+        async (host) => {
+            const perform_booking_spy = vi
+                .spyOn(
+                    service as unknown as {
+                        _performBooking: (
+                            event: CalendarEvent,
+                        ) => Promise<CalendarEvent>;
+                    },
+                    '_performBooking',
+                )
+                .mockImplementation(
+                    async (event) =>
+                        new CalendarEvent({ ...event, id: 'event-1' }),
+                );
+            vi.mocked<(url: string) => Promise<unknown>>(
+                ts_client.get,
+            ).mockResolvedValue([]);
+            vi.mocked(ts_client.post).mockClear();
+            vi.mocked<(url: string, data: object) => Promise<unknown>>(
+                ts_client.post,
+            ).mockResolvedValue({
+                id: 'visitor-booking-1',
+            });
+            const guest = new User({
+                name: 'Test Visitor',
+                email: 'visitor@example.com',
+            });
+            const room = new Space({ id: 'space-1', email: 'room@test.com' });
+            const date = new Date(2028, 5, 16, 16).valueOf();
+            sessionStorage.setItem(
+                'PLACEOS.event',
+                JSON.stringify({
+                    id: 'event-1',
+                    date,
+                    duration: 60,
+                    resources: [room],
+                }),
+            );
+            sessionStorage.setItem(
+                'PLACEOS.event_form',
+                JSON.stringify({
+                    host,
+                    creator: EMPTY_USER.email,
+                    organiser: EMPTY_USER,
+                    title: 'Visitor meeting',
+                    date,
+                    duration: 60,
+                    attendees: [
+                        new User(EMPTY_USER),
+                        new User({ email: '@app.user' }),
+                        new User(),
+                        guest,
+                    ],
+                    resources: [room],
+                }),
+            );
+            service.loadForm();
+            await expect(service.postForm(true)).resolves.toMatchObject({
+                id: 'event-1',
+            });
+
+            const posted_event = perform_booking_spy.mock.calls[0][0];
+            expect(posted_event.attendees.map((user) => user.email)).toEqual([
+                guest.email,
+                host === EMPTY_USER.email ? currentUser().email : host,
+            ]);
+            expect(
+                posted_event.attendees.find(
+                    (user) => user.email === guest.email,
+                )?.name,
+            ).toBe(guest.name);
+            expect(ts_client.post).toHaveBeenCalledTimes(1);
+            expect(ts_client.post).toHaveBeenCalledWith(
+                expect.stringContaining('/bookings?'),
+                expect.objectContaining({
+                    booking_type: 'visitor',
+                    asset_id: guest.email,
+                    asset_name: guest.name,
+                    attendees: [
+                        expect.objectContaining({
+                            email: guest.email,
+                            name: guest.name,
+                        }),
+                    ],
+                }),
+            );
+        },
+    );
 
     it('should use the current user as booking rule host when enabled', async () => {
         const settings = TestBed.inject(SettingsService) as any;

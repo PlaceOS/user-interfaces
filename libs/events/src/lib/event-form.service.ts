@@ -806,16 +806,17 @@ export class EventFormService extends AsyncHandler {
         ignore_owner = false,
         force_calendar = false,
     ) {
+        await currentUserLoaded();
         const notify_new_attendees_only =
             this.notify_new_attendees_only() &&
             this.can_notify_new_attendees_only();
         // host/creator may have been seeded with the placeholder EMPTY_USER
         // before the signed-in user loaded. Refresh them from the now-loaded
         // current user so events are never saved against the empty user.
-        if (isEmptyUser({ email: this._model().host } as any)) {
+        if (isEmptyUser({ email: this._model().host })) {
             this._model.update((m) => ({ ...m, host: currentUser().email }));
         }
-        if (isEmptyUser({ email: this._model().creator } as any)) {
+        if (isEmptyUser({ email: this._model().creator })) {
             this._model.update((m) => ({ ...m, creator: currentUser().email }));
         }
         this._form().markAsTouched();
@@ -926,14 +927,25 @@ export class EventFormService extends AsyncHandler {
                     }),
                 ).catch(on_error);
             }
-            // Make sure host is an attendee
-            this._model.update((m) => ({
-                ...m,
-                attendees: unique(
-                    [...m.attendees, m.organiser || currentUser()],
-                    'email',
-                ),
-            }));
+            // Saved forms can contain the user placeholder from before login.
+            // Remove it before saving attendees or creating visitor bookings.
+            const valid_attendee = (user?: Partial<User>) =>
+                !isEmptyUser(user) && !!user.email.split('@')[0].trim();
+            this._model.update((m) => {
+                const organiser = valid_attendee(m.organiser)
+                    ? m.organiser
+                    : m.host === currentUser().email
+                      ? currentUser()
+                      : new User({ email: m.host });
+                return {
+                    ...m,
+                    organiser,
+                    attendees: unique(
+                        [...m.attendees, organiser].filter(valid_attendee),
+                        'email',
+                    ),
+                };
+            });
             // Prevent meeting with external users without a space set
             if (
                 !spaces.length &&
