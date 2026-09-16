@@ -1,0 +1,533 @@
+import {
+  ChangelogService,
+  OutputDisplayComponent
+} from "./chunk-5FVNNE5K.js";
+import {
+  ControlStateService,
+  ControlStatusBarComponent,
+  SourceSelectComponent,
+  TopbarHeaderComponent
+} from "./chunk-VW6TGGSS.js";
+import {
+  MatProgressSpinner,
+  MatProgressSpinnerModule,
+  TranslatePipe,
+  toSignal
+} from "./chunk-2XGFQRWL.js";
+import "./chunk-WKGOJXSY.js";
+import {
+  ActivatedRoute,
+  Component,
+  DatePipe,
+  MatRipple,
+  MatRippleModule,
+  VERSION,
+  computed,
+  effect,
+  inject,
+  setClassMetadata,
+  signal,
+  ɵsetClassDebugInfo,
+  ɵɵadvance,
+  ɵɵclassProp,
+  ɵɵconditional,
+  ɵɵconditionalCreate,
+  ɵɵdefineComponent,
+  ɵɵelement,
+  ɵɵelementContainerEnd,
+  ɵɵelementContainerStart,
+  ɵɵelementEnd,
+  ɵɵelementStart,
+  ɵɵgetCurrentView,
+  ɵɵlistener,
+  ɵɵnextContext,
+  ɵɵpipe,
+  ɵɵpipeBind1,
+  ɵɵpipeBind2,
+  ɵɵproperty,
+  ɵɵpureFunction1,
+  ɵɵrepeater,
+  ɵɵrepeaterCreate,
+  ɵɵrepeaterTrackByIndex,
+  ɵɵresetView,
+  ɵɵrestoreView,
+  ɵɵtext,
+  ɵɵtextInterpolate,
+  ɵɵtextInterpolate1,
+  ɵɵtextInterpolate2
+} from "./chunk-FRC7CM4W.js";
+import "./chunk-653SOEEV.js";
+
+// apps/control/src/app/advanced-view.component.ts
+var _forTrack0 = ($index, $item) => $item.id || $item.name;
+function ControlAdvancedViewComponent_Conditional_0_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "output-display", 3);
+  }
+  if (rf & 2) {
+    const output_r1 = ctx.$implicit;
+    \u0275\u0275property("item", output_r1);
+  }
+}
+function ControlAdvancedViewComponent_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275repeaterCreate(1, ControlAdvancedViewComponent_Conditional_0_For_2_Template, 1, 1, "output-display", 3, _forTrack0);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.paged_outputs());
+  }
+}
+function ControlAdvancedViewComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1)(1, "p");
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(3, 1, "APP.CONTROL.OUTPUTS_EMPTY"));
+  }
+}
+function ControlAdvancedViewComponent_Conditional_2_For_2_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "button", 5);
+    \u0275\u0275listener("click", function ControlAdvancedViewComponent_Conditional_2_For_2_Template_button_click_0_listener() {
+      const \u0275$index_17_r4 = \u0275\u0275restoreView(_r3).$index;
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.page.set(\u0275$index_17_r4));
+    });
+    \u0275\u0275text(1);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const \u0275$index_17_r4 = ctx.$index;
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275classProp("bg-primary", ctx_r1.page() === \u0275$index_17_r4)("text-black", ctx_r1.page() !== \u0275$index_17_r4)("bg-base-200", ctx_r1.page() !== \u0275$index_17_r4);
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", \u0275$index_17_r4 + 1, " ");
+  }
+}
+function ControlAdvancedViewComponent_Conditional_2_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 2);
+    \u0275\u0275repeaterCreate(1, ControlAdvancedViewComponent_Conditional_2_For_2_Template, 2, 7, "button", 4, \u0275\u0275repeaterTrackByIndex);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275repeater(ctx_r1.page_count());
+  }
+}
+var _ControlAdvancedViewComponent = class _ControlAdvancedViewComponent {
+  constructor() {
+    this._state = inject(ControlStateService);
+    this.page = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "page" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.outputs = this._state.output_list;
+    this.paged_outputs = computed(
+      () => {
+        const all = this.outputs();
+        const p = this.page();
+        return all.slice(p * 6, (p + 1) * 6);
+      },
+      ...ngDevMode ? [{ debugName: "paged_outputs" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.page_count = computed(
+      () => {
+        var _a;
+        const len = ((_a = this.outputs()) == null ? void 0 : _a.length) || 0;
+        return new Array(Math.floor(len / 6) + 1).fill(0);
+      },
+      ...ngDevMode ? [{ debugName: "page_count" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+};
+_ControlAdvancedViewComponent.\u0275fac = function ControlAdvancedViewComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ControlAdvancedViewComponent)();
+};
+_ControlAdvancedViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlAdvancedViewComponent, selectors: [["control-advanced-view"]], decls: 3, vars: 2, consts: [[1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "items-center", "overflow-auto", "sm:flex-row", "sm:flex-wrap", "sm:justify-center"], [1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "flex", "h-12", "w-full", "items-center", "justify-center", "space-x-2", "px-2", "pb-2"], [1, "w-full", "min-w-[33%]", "sm:w-auto", 3, "item"], ["icon", "", "matRipple", "", 3, "bg-primary", "text-black", "bg-base-200"], ["icon", "", "matRipple", "", 3, "click"]], template: function ControlAdvancedViewComponent_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, ControlAdvancedViewComponent_Conditional_0_Template, 3, 0, "div", 0)(1, ControlAdvancedViewComponent_Conditional_1_Template, 4, 3, "div", 1);
+    \u0275\u0275conditionalCreate(2, ControlAdvancedViewComponent_Conditional_2_Template, 3, 0, "div", 2);
+  }
+  if (rf & 2) {
+    \u0275\u0275conditional(((_a = ctx.outputs()) == null ? void 0 : _a.length) ? 0 : 1);
+    \u0275\u0275advance(2);
+    \u0275\u0275conditional(ctx.page_count().length > 1 ? 2 : -1);
+  }
+}, dependencies: [OutputDisplayComponent, MatRippleModule, MatRipple, TranslatePipe], styles: ["\n[_nghost-%COMP%] {\n  position: relative;\n  display: flex;\n  width: 100%;\n  height: 100%;\n  flex-direction: column;\n}\n/*# sourceMappingURL=advanced-view.component.css.map */"] });
+var ControlAdvancedViewComponent = _ControlAdvancedViewComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ControlAdvancedViewComponent, [{
+    type: Component,
+    args: [{ selector: "control-advanced-view", template: `
+        @if (outputs()?.length) {
+            <div
+                class="flex h-1/2 w-full flex-1 flex-col items-center overflow-auto sm:flex-row sm:flex-wrap sm:justify-center"
+            >
+                @for (
+                    output of paged_outputs();
+                    track output.id || output.name
+                ) {
+                    <output-display
+                        class="w-full min-w-[33%] sm:w-auto"
+                        [item]="output"
+                    ></output-display>
+                }
+            </div>
+        } @else {
+            <div
+                class="absolute inset-0 flex flex-col items-center justify-center"
+            >
+                <p>{{ 'APP.CONTROL.OUTPUTS_EMPTY' | translate }}</p>
+            </div>
+        }
+        @if (page_count().length > 1) {
+            <div
+                class="flex h-12 w-full items-center justify-center space-x-2 px-2 pb-2"
+            >
+                @for (idx of page_count(); track i; let i = $index) {
+                    <button
+                        icon
+                        matRipple
+                        [class.bg-primary]="page() === i"
+                        [class.text-black]="page() !== i"
+                        [class.bg-base-200]="page() !== i"
+                        (click)="page.set(i)"
+                    >
+                        {{ i + 1 }}
+                    </button>
+                }
+            </div>
+        }
+    `, imports: [TranslatePipe, OutputDisplayComponent, MatRippleModule], styles: ["/* angular:styles/component:css;43ec02d0efcfbbdd42fe6cb5c964f86cb4daff2b68049d266c8be00385b51f9e;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/advanced-view.component.ts */\n:host {\n  position: relative;\n  display: flex;\n  width: 100%;\n  height: 100%;\n  flex-direction: column;\n}\n/*# sourceMappingURL=advanced-view.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ControlAdvancedViewComponent, { className: "ControlAdvancedViewComponent", filePath: "apps/control/src/app/advanced-view.component.ts", lineNumber: 63 });
+})();
+
+// apps/control/src/app/page-view.component.ts
+function ControlPageViewComponent_Case_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "source-select", 0);
+  }
+}
+function ControlPageViewComponent_Case_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275element(0, "control-advanced-view");
+  }
+}
+var _ControlPageViewComponent = class _ControlPageViewComponent {
+  constructor() {
+    this.view = signal(
+      "advanced",
+      ...ngDevMode ? [{ debugName: "view" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+  }
+};
+_ControlPageViewComponent.\u0275fac = function ControlPageViewComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ControlPageViewComponent)();
+};
+_ControlPageViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlPageViewComponent, selectors: [["", "control-page-view", ""]], decls: 2, vars: 1, consts: [["output", "'ALL'"]], template: function ControlPageViewComponent_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, ControlPageViewComponent_Case_0_Template, 1, 0, "source-select", 0)(1, ControlPageViewComponent_Case_1_Template, 1, 0, "control-advanced-view");
+  }
+  if (rf & 2) {
+    let tmp_0_0;
+    \u0275\u0275conditional((tmp_0_0 = ctx.view()) === "basic" ? 0 : 1);
+  }
+}, dependencies: [ControlAdvancedViewComponent, SourceSelectComponent], styles: ["\n[_nghost-%COMP%] {\n  width: 100%;\n  flex: 1;\n  height: 50%;\n  overflow: hidden;\n  background: #f0f0f0;\n  color: rgba(0, 0, 0, 0.85);\n}\n/*# sourceMappingURL=page-view.component.css.map */"] });
+var ControlPageViewComponent = _ControlPageViewComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ControlPageViewComponent, [{
+    type: Component,
+    args: [{ selector: "[control-page-view]", template: `
+        @switch (view()) {
+            @case ('basic') {
+                <source-select output="'ALL'" />
+            }
+            @default {
+                <control-advanced-view />
+            }
+        }
+    `, imports: [ControlAdvancedViewComponent, SourceSelectComponent], styles: ["/* angular:styles/component:css;405420df6572f0e3056341d3cfbaf3906d9ff0fe780174c84056aa6473cb7e9a;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/page-view.component.ts */\n:host {\n  width: 100%;\n  flex: 1;\n  height: 50%;\n  overflow: hidden;\n  background: #f0f0f0;\n  color: rgba(0, 0, 0, 0.85);\n}\n/*# sourceMappingURL=page-view.component.css.map */\n"] }]
+  }], null, null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ControlPageViewComponent, { className: "ControlPageViewComponent", filePath: "apps/control/src/app/page-view.component.ts", lineNumber: 31 });
+})();
+
+// apps/control/src/app/main-view.component.ts
+var _c0 = (a0) => ({ id: a0 });
+function ControlMainViewComponent_Conditional_0_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 1);
+    \u0275\u0275element(1, "topbar-header")(2, "div", 3)(3, "control-status-bar");
+    \u0275\u0275elementEnd();
+  }
+}
+function ControlMainViewComponent_Conditional_0_Conditional_1_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    const _r1 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "div", 4);
+    \u0275\u0275listener("click", function ControlMainViewComponent_Conditional_0_Conditional_1_Template_div_click_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.powerOn());
+    })("touchend", function ControlMainViewComponent_Conditional_0_Conditional_1_Template_div_touchend_0_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.powerOn());
+    });
+    \u0275\u0275elementStart(1, "h2", 5);
+    \u0275\u0275text(2);
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(4, "p", 6);
+    \u0275\u0275text(5);
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "div", 7)(7, "div", 8);
+    \u0275\u0275elementContainerStart(8);
+    \u0275\u0275text(9);
+    \u0275\u0275pipe(10, "translate");
+    \u0275\u0275elementContainerEnd();
+    \u0275\u0275elementStart(11, "button", 9);
+    \u0275\u0275listener("click", function ControlMainViewComponent_Conditional_0_Conditional_1_Template_button_click_11_listener() {
+      \u0275\u0275restoreView(_r1);
+      const ctx_r1 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r1.viewChangelog());
+    });
+    \u0275\u0275text(12);
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(13, "div", 8);
+    \u0275\u0275text(14);
+    \u0275\u0275pipe(15, "date");
+    \u0275\u0275pipe(16, "date");
+    \u0275\u0275elementEnd()()();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext(2);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 7, "APP.CONTROL.TOUCH_TO_START"), " ");
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate((_a = ctx_r1.system()) == null ? void 0 : _a.name);
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate1("", \u0275\u0275pipeBind1(10, 9, "COMMON.CONTROLS_VERSION"), ": ");
+    \u0275\u0275advance(2);
+    \u0275\u0275property("disabled", !ctx_r1.changelog_available());
+    \u0275\u0275advance();
+    \u0275\u0275textInterpolate1(" ", ctx_r1.version.hash, " ");
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind2(15, 11, ctx_r1.version.time, "longDate"), " (", \u0275\u0275pipeBind2(16, 14, ctx_r1.version.time, "shortTime"), ") ");
+  }
+}
+function ControlMainViewComponent_Conditional_0_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, ControlMainViewComponent_Conditional_0_Conditional_0_Template, 4, 0, "div", 1)(1, ControlMainViewComponent_Conditional_0_Conditional_1_Template, 17, 17, "div", 2);
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(((_a = ctx_r1.system()) == null ? void 0 : _a.active) ? 0 : 1);
+  }
+}
+function ControlMainViewComponent_Conditional_1_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275elementStart(0, "div", 0);
+    \u0275\u0275element(1, "mat-spinner", 10);
+    \u0275\u0275elementStart(2, "div", 11);
+    \u0275\u0275text(3);
+    \u0275\u0275pipe(4, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275element(5, "div", 12);
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    const ctx_r1 = \u0275\u0275nextContext();
+    \u0275\u0275advance();
+    \u0275\u0275property("diameter", 64);
+    \u0275\u0275advance(2);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 2, "APP.CONTROL.CONNECTING", \u0275\u0275pureFunction1(5, _c0, ctx_r1.id)), " ");
+  }
+}
+var _ControlMainViewComponent = class _ControlMainViewComponent {
+  get id() {
+    return this._state.id;
+  }
+  get version() {
+    return VERSION;
+  }
+  constructor() {
+    this._route = inject(ActivatedRoute);
+    this._state = inject(ControlStateService);
+    this._changelog = inject(ChangelogService);
+    this._param_map = toSignal(this._route.paramMap);
+    this._query_param_map = toSignal(this._route.queryParamMap);
+    this.system = this._state.system;
+    this.changelog_available = this._changelog.available;
+    this.viewChangelog = () => this._changelog.view();
+    this.powerOn = () => this._state.powerOn();
+    effect(() => {
+      const params = this._param_map();
+      if (params == null ? void 0 : params.has("system"))
+        this._state.setID(params.get("system"));
+    });
+    effect(() => {
+      const params = this._query_param_map();
+      if ((params == null ? void 0 : params.get("join")) === "true")
+        this._state.selectMeeting();
+    });
+  }
+};
+_ControlMainViewComponent.\u0275fac = function ControlMainViewComponent_Factory(__ngFactoryType__) {
+  return new (__ngFactoryType__ || _ControlMainViewComponent)();
+};
+_ControlMainViewComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _ControlMainViewComponent, selectors: [["app-control-main-view"]], decls: 2, vars: 1, consts: [["name", "loader", 1, "bg-base-100", "text-base-content", "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center"], [1, "bg-base-200", "absolute", "inset-0", "flex", "flex-col"], ["name", "splash", 1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "text-white"], ["control-page-view", ""], ["name", "splash", 1, "absolute", "inset-0", "flex", "flex-col", "items-center", "justify-center", "text-white", 3, "click", "touchend"], [1, "mb-4", "text-4xl", "font-light"], [1, "text-lg"], [1, "absolute", "bottom-0", "left-0", "p-2"], [1, "w-full", "text-xs", "opacity-60"], [1, "m-0", "border-none", "bg-none", "p-0", "text-xs", "underline", 3, "click", "disabled"], [1, "mb-4", 3, "diameter"], [1, "my-4", "text-2xl"], [1, "text-base"]], template: function ControlMainViewComponent_Template(rf, ctx) {
+  var _a;
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, ControlMainViewComponent_Conditional_0_Template, 2, 1)(1, ControlMainViewComponent_Conditional_1_Template, 6, 7, "div", 0);
+  }
+  if (rf & 2) {
+    \u0275\u0275conditional(((_a = ctx.system()) == null ? void 0 : _a.connected) ? 0 : 1);
+  }
+}, dependencies: [
+  TopbarHeaderComponent,
+  ControlPageViewComponent,
+  ControlStatusBarComponent,
+  MatProgressSpinnerModule,
+  MatProgressSpinner,
+  TranslatePipe,
+  DatePipe
+], styles: [`
+[_nghost-%COMP%] {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+[_nghost-%COMP%]    > div[_ngcontent-%COMP%] {
+  color: #fff;
+}
+[name=loader][_ngcontent-%COMP%] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 304 304' width='304' height='304'%3E%3Cpath fill='%23000' fill-opacity='0.05' d='M44.1 224a5 5 0 1 1 0 2H0v-2h44.1zm160 48a5 5 0 1 1 0 2H82v-2h122.1zm57.8-46a5 5 0 1 1 0-2H304v2h-42.1zm0 16a5 5 0 1 1 0-2H304v2h-42.1zm6.2-114a5 5 0 1 1 0 2h-86.2a5 5 0 1 1 0-2h86.2zm-256-48a5 5 0 1 1 0 2H0v-2h12.1zm185.8 34a5 5 0 1 1 0-2h86.2a5 5 0 1 1 0 2h-86.2zM258 12.1a5 5 0 1 1-2 0V0h2v12.1zm-64 208a5 5 0 1 1-2 0v-54.2a5 5 0 1 1 2 0v54.2zm48-198.2V80h62v2h-64V21.9a5 5 0 1 1 2 0zm16 16V64h46v2h-48V37.9a5 5 0 1 1 2 0zm-128 96V208h16v12.1a5 5 0 1 1-2 0V210h-16v-76.1a5 5 0 1 1 2 0zm-5.9-21.9a5 5 0 1 1 0 2H114v48H85.9a5 5 0 1 1 0-2H112v-48h12.1zm-6.2 130a5 5 0 1 1 0-2H176v-74.1a5 5 0 1 1 2 0V242h-60.1zm-16-64a5 5 0 1 1 0-2H114v48h10.1a5 5 0 1 1 0 2H112v-48h-10.1zM66 284.1a5 5 0 1 1-2 0V274H50v30h-2v-32h18v12.1zM236.1 176a5 5 0 1 1 0 2H226v94h48v32h-2v-30h-48v-98h12.1zm25.8-30a5 5 0 1 1 0-2H274v44.1a5 5 0 1 1-2 0V146h-10.1zm-64 96a5 5 0 1 1 0-2H208v-80h16v-14h-42.1a5 5 0 1 1 0-2H226v18h-16v80h-12.1zm86.2-210a5 5 0 1 1 0 2H272V0h2v32h10.1zM98 101.9V146H53.9a5 5 0 1 1 0-2H96v-42.1a5 5 0 1 1 2 0zM53.9 34a5 5 0 1 1 0-2H80V0h2v34H53.9zm60.1 3.9V66H82v64H69.9a5 5 0 1 1 0-2H80V64h32V37.9a5 5 0 1 1 2 0zM101.9 82a5 5 0 1 1 0-2H128V37.9a5 5 0 1 1 2 0V82h-28.1zm16-64a5 5 0 1 1 0-2H146v44.1a5 5 0 1 1-2 0V18h-26.1zm102.2 270a5 5 0 1 1 0 2H98v14h-2v-16h124.1zM242 149.9V160h16v34h-16v62h48v48h-2v-46h-48v-66h16v-30h-16v-12.1a5 5 0 1 1 2 0zM53.9 18a5 5 0 1 1 0-2H64V2H48V0h18v18H53.9zm112 32a5 5 0 1 1 0-2H192V0h50v2h-48v48h-28.1zm-48-48a5 5 0 0 1-9.8-2h2.07a3 3 0 1 0 5.66 0H178v34h-18V21.9a5 5 0 1 1 2 0V32h14V2h-58.1zm0 96a5 5 0 1 1 0-2H137l32-32h39V21.9a5 5 0 1 1 2 0V66h-40.17l-32 32H117.9zm28.1 90.1a5 5 0 1 1-2 0v-76.51L175.59 80H224V21.9a5 5 0 1 1 2 0V82h-49.59L146 112.41v75.69zm16 32a5 5 0 1 1-2 0v-99.51L184.59 96H300.1a5 5 0 0 1 3.9-3.9v2.07a3 3 0 0 0 0 5.66v2.07a5 5 0 0 1-3.9-3.9H185.41L162 121.41v98.69zm-144-64a5 5 0 1 1-2 0v-3.51l48-48V48h32V0h2v50H66v55.41l-48 48v2.69zM50 53.9v43.51l-48 48V208h26.1a5 5 0 1 1 0 2H0v-65.41l48-48V53.9a5 5 0 1 1 2 0zm-16 16V89.41l-34 34v-2.82l32-32V69.9a5 5 0 1 1 2 0zM12.1 32a5 5 0 1 1 0 2H9.41L0 43.41V40.6L8.59 32h3.51zm265.8 18a5 5 0 1 1 0-2h18.69l7.41-7.41v2.82L297.41 50H277.9zm-16 160a5 5 0 1 1 0-2H288v-71.41l16-16v2.82l-14 14V210h-28.1zm-208 32a5 5 0 1 1 0-2H64v-22.59L40.59 194H21.9a5 5 0 1 1 0-2H41.41L66 216.59V242H53.9zm150.2 14a5 5 0 1 1 0 2H96v-56.6L56.6 162H37.9a5 5 0 1 1 0-2h19.5L98 200.6V256h106.1zm-150.2 2a5 5 0 1 1 0-2H80v-46.59L48.59 178H21.9a5 5 0 1 1 0-2H49.41L82 208.59V258H53.9zM34 39.8v1.61L9.41 66H0v-2h8.59L32 40.59V0h2v39.8zM2 300.1a5 5 0 0 1 3.9 3.9H3.83A3 3 0 0 0 0 302.17V256h18v48h-2v-46H2v42.1zM34 241v63h-2v-62H0v-2h34v1zM17 18H0v-2h16V0h2v18h-1zm273-2h14v2h-16V0h2v16zm-32 273v15h-2v-14h-14v14h-2v-16h18v1zM0 92.1A5.02 5.02 0 0 1 6 97a5 5 0 0 1-6 4.9v-2.07a3 3 0 1 0 0-5.66V92.1zM80 272h2v32h-2v-32zm37.9 32h-2.07a3 3 0 0 0-5.66 0h-2.07a5 5 0 0 1 9.8 0zM5.9 0A5.02 5.02 0 0 1 0 5.9V3.83A3 3 0 0 0 3.83 0H5.9zm294.2 0h2.07A3 3 0 0 0 304 3.83V5.9a5 5 0 0 1-3.9-5.9zm3.9 300.1v2.07a3 3 0 0 0-1.83 1.83h-2.07a5 5 0 0 1 3.9-3.9zM97 100a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-48 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 96a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-144a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM49 36a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM33 68a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 240a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm80-176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm112 176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 180a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 84a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'%3E%3C/path%3E%3C/svg%3E");
+}
+[name=splash][_ngcontent-%COMP%] {
+  animation: crossfade 10s linear;
+  animation-iteration-count: infinite;
+}
+/*# sourceMappingURL=main-view.component.css.map */`] });
+var ControlMainViewComponent = _ControlMainViewComponent;
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ControlMainViewComponent, [{
+    type: Component,
+    args: [{ selector: "app-control-main-view", template: `
+        @if (system()?.connected) {
+            @if (system()?.active) {
+                <div class="bg-base-200 absolute inset-0 flex flex-col">
+                    <topbar-header></topbar-header>
+                    <div control-page-view></div>
+                    <control-status-bar></control-status-bar>
+                </div>
+            } @else {
+                <div
+                    name="splash"
+                    class="absolute inset-0 flex flex-col items-center justify-center text-white"
+                    (click)="powerOn()"
+                    (touchend)="powerOn()"
+                >
+                    <h2 class="mb-4 text-4xl font-light">
+                        {{ 'APP.CONTROL.TOUCH_TO_START' | translate }}
+                    </h2>
+                    <p class="text-lg">{{ system()?.name }}</p>
+                    <div class="absolute bottom-0 left-0 p-2">
+                        <div class="w-full text-xs opacity-60">
+                            <ng-container
+                                >{{ 'COMMON.CONTROLS_VERSION' | translate }}:
+                            </ng-container>
+                            <button
+                                class="m-0 border-none bg-none p-0 text-xs underline"
+                                [disabled]="!changelog_available()"
+                                (click)="viewChangelog()"
+                            >
+                                {{ version.hash }}
+                            </button>
+                        </div>
+                        <div class="w-full text-xs opacity-60">
+                            {{ version.time | date: 'longDate' }}
+                            ({{ version.time | date: 'shortTime' }})
+                        </div>
+                    </div>
+                </div>
+            }
+        } @else {
+            <div
+                name="loader"
+                class="bg-base-100 text-base-content absolute inset-0 flex flex-col items-center justify-center"
+            >
+                <mat-spinner class="mb-4" [diameter]="64"></mat-spinner>
+                <div class="my-4 text-2xl">
+                    {{ 'APP.CONTROL.CONNECTING' | translate: { id: id } }}
+                </div>
+                <div class="text-base"></div>
+            </div>
+        }
+    `, imports: [
+      TopbarHeaderComponent,
+      ControlPageViewComponent,
+      ControlStatusBarComponent,
+      MatProgressSpinnerModule,
+      TranslatePipe,
+      DatePipe
+    ], styles: [`/* angular:styles/component:css;2d70648910af653423dbb2a6a2862f85533a0820b91f4b0ae71c9a2e5b05ede8;/home/runner/work/user-interfaces/user-interfaces/apps/control/src/app/main-view.component.ts */
+:host {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+:host > div {
+  color: #fff;
+}
+[name=loader] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 304 304' width='304' height='304'%3E%3Cpath fill='%23000' fill-opacity='0.05' d='M44.1 224a5 5 0 1 1 0 2H0v-2h44.1zm160 48a5 5 0 1 1 0 2H82v-2h122.1zm57.8-46a5 5 0 1 1 0-2H304v2h-42.1zm0 16a5 5 0 1 1 0-2H304v2h-42.1zm6.2-114a5 5 0 1 1 0 2h-86.2a5 5 0 1 1 0-2h86.2zm-256-48a5 5 0 1 1 0 2H0v-2h12.1zm185.8 34a5 5 0 1 1 0-2h86.2a5 5 0 1 1 0 2h-86.2zM258 12.1a5 5 0 1 1-2 0V0h2v12.1zm-64 208a5 5 0 1 1-2 0v-54.2a5 5 0 1 1 2 0v54.2zm48-198.2V80h62v2h-64V21.9a5 5 0 1 1 2 0zm16 16V64h46v2h-48V37.9a5 5 0 1 1 2 0zm-128 96V208h16v12.1a5 5 0 1 1-2 0V210h-16v-76.1a5 5 0 1 1 2 0zm-5.9-21.9a5 5 0 1 1 0 2H114v48H85.9a5 5 0 1 1 0-2H112v-48h12.1zm-6.2 130a5 5 0 1 1 0-2H176v-74.1a5 5 0 1 1 2 0V242h-60.1zm-16-64a5 5 0 1 1 0-2H114v48h10.1a5 5 0 1 1 0 2H112v-48h-10.1zM66 284.1a5 5 0 1 1-2 0V274H50v30h-2v-32h18v12.1zM236.1 176a5 5 0 1 1 0 2H226v94h48v32h-2v-30h-48v-98h12.1zm25.8-30a5 5 0 1 1 0-2H274v44.1a5 5 0 1 1-2 0V146h-10.1zm-64 96a5 5 0 1 1 0-2H208v-80h16v-14h-42.1a5 5 0 1 1 0-2H226v18h-16v80h-12.1zm86.2-210a5 5 0 1 1 0 2H272V0h2v32h10.1zM98 101.9V146H53.9a5 5 0 1 1 0-2H96v-42.1a5 5 0 1 1 2 0zM53.9 34a5 5 0 1 1 0-2H80V0h2v34H53.9zm60.1 3.9V66H82v64H69.9a5 5 0 1 1 0-2H80V64h32V37.9a5 5 0 1 1 2 0zM101.9 82a5 5 0 1 1 0-2H128V37.9a5 5 0 1 1 2 0V82h-28.1zm16-64a5 5 0 1 1 0-2H146v44.1a5 5 0 1 1-2 0V18h-26.1zm102.2 270a5 5 0 1 1 0 2H98v14h-2v-16h124.1zM242 149.9V160h16v34h-16v62h48v48h-2v-46h-48v-66h16v-30h-16v-12.1a5 5 0 1 1 2 0zM53.9 18a5 5 0 1 1 0-2H64V2H48V0h18v18H53.9zm112 32a5 5 0 1 1 0-2H192V0h50v2h-48v48h-28.1zm-48-48a5 5 0 0 1-9.8-2h2.07a3 3 0 1 0 5.66 0H178v34h-18V21.9a5 5 0 1 1 2 0V32h14V2h-58.1zm0 96a5 5 0 1 1 0-2H137l32-32h39V21.9a5 5 0 1 1 2 0V66h-40.17l-32 32H117.9zm28.1 90.1a5 5 0 1 1-2 0v-76.51L175.59 80H224V21.9a5 5 0 1 1 2 0V82h-49.59L146 112.41v75.69zm16 32a5 5 0 1 1-2 0v-99.51L184.59 96H300.1a5 5 0 0 1 3.9-3.9v2.07a3 3 0 0 0 0 5.66v2.07a5 5 0 0 1-3.9-3.9H185.41L162 121.41v98.69zm-144-64a5 5 0 1 1-2 0v-3.51l48-48V48h32V0h2v50H66v55.41l-48 48v2.69zM50 53.9v43.51l-48 48V208h26.1a5 5 0 1 1 0 2H0v-65.41l48-48V53.9a5 5 0 1 1 2 0zm-16 16V89.41l-34 34v-2.82l32-32V69.9a5 5 0 1 1 2 0zM12.1 32a5 5 0 1 1 0 2H9.41L0 43.41V40.6L8.59 32h3.51zm265.8 18a5 5 0 1 1 0-2h18.69l7.41-7.41v2.82L297.41 50H277.9zm-16 160a5 5 0 1 1 0-2H288v-71.41l16-16v2.82l-14 14V210h-28.1zm-208 32a5 5 0 1 1 0-2H64v-22.59L40.59 194H21.9a5 5 0 1 1 0-2H41.41L66 216.59V242H53.9zm150.2 14a5 5 0 1 1 0 2H96v-56.6L56.6 162H37.9a5 5 0 1 1 0-2h19.5L98 200.6V256h106.1zm-150.2 2a5 5 0 1 1 0-2H80v-46.59L48.59 178H21.9a5 5 0 1 1 0-2H49.41L82 208.59V258H53.9zM34 39.8v1.61L9.41 66H0v-2h8.59L32 40.59V0h2v39.8zM2 300.1a5 5 0 0 1 3.9 3.9H3.83A3 3 0 0 0 0 302.17V256h18v48h-2v-46H2v42.1zM34 241v63h-2v-62H0v-2h34v1zM17 18H0v-2h16V0h2v18h-1zm273-2h14v2h-16V0h2v16zm-32 273v15h-2v-14h-14v14h-2v-16h18v1zM0 92.1A5.02 5.02 0 0 1 6 97a5 5 0 0 1-6 4.9v-2.07a3 3 0 1 0 0-5.66V92.1zM80 272h2v32h-2v-32zm37.9 32h-2.07a3 3 0 0 0-5.66 0h-2.07a5 5 0 0 1 9.8 0zM5.9 0A5.02 5.02 0 0 1 0 5.9V3.83A3 3 0 0 0 3.83 0H5.9zm294.2 0h2.07A3 3 0 0 0 304 3.83V5.9a5 5 0 0 1-3.9-5.9zm3.9 300.1v2.07a3 3 0 0 0-1.83 1.83h-2.07a5 5 0 0 1 3.9-3.9zM97 100a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-48 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 96a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-144a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm96 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM49 36a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-32 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM33 68a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 240a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm80-176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 48a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm112 176a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-16 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 180a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0 16a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-32a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16 0a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM17 84a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm32 64a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm16-16a3 3 0 1 0 0-6 3 3 0 0 0 0 6z'%3E%3C/path%3E%3C/svg%3E");
+}
+[name=splash] {
+  animation: crossfade 10s linear;
+  animation-iteration-count: infinite;
+}
+/*# sourceMappingURL=main-view.component.css.map */
+`] }]
+  }], () => [], null);
+})();
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(ControlMainViewComponent, { className: "ControlMainViewComponent", filePath: "apps/control/src/app/main-view.component.ts", lineNumber: 101 });
+})();
+export {
+  ControlMainViewComponent
+};
+//# debugId=24eb91cf-6db7-5b7b-b3f8-1471413b9fd3
+//# sourceMappingURL=main-view.component-RBYN2IGL.js.map
