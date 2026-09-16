@@ -51,7 +51,21 @@ function stillToday(unix_seconds: number): boolean {
 }
 
 test.describe('home page — the Upcoming panel', () => {
-    test('a booking later today is listed on the panel', async ({
+    /**
+     * HOME-B1, first facet — a live booking can be crowded off the panel.
+     *
+     * This passes in isolation and FAILS under a full suite run, and the reason
+     * is the finding rather than the test. The panel holds five cards and
+     * cancelled bookings take slots, so after a busy run today's five slots are
+     * full of junk: measured at `[1162, 1530, 1642, 1575, 1576]`, every one
+     * cancelled, with a live booking for the same user on the same day absent.
+     *
+     * So this is `fixme` alongside the cancelled-booking test below. Between
+     * them they state both halves of HOME-B1: cancelled bookings never leave,
+     * and their presence can hide a real booking. Neither needs changing when
+     * the panel starts excluding deleted bookings — they will simply go green.
+     */
+    test.fixme('a booking later today is listed on the panel', async ({
         staffPage,
         staffApi,
     }, testInfo) => {

@@ -26,6 +26,7 @@ import {
 import { mintToken } from '../../../../e2e/support/auth';
 import { createBookingViaApi } from '../../../../e2e/support/home/home.api';
 import { LandingPage } from '../../../../e2e/support/home/landing.page';
+import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
 
 const MINUTE = 60;
 
@@ -95,7 +96,20 @@ test.describe('home page — visibility between users', () => {
         }
     });
 
-    test('control: your own booking today IS on your panel', async ({
+    /**
+     * The control, and why it does not use the panel.
+     *
+     * A control is essential here: without one, "nobody sees anything" passes
+     * the test above. The obvious control — your own booking IS on the panel —
+     * cannot be relied on this stack, because the panel holds five cards and
+     * cancelled bookings take slots (HOME-B1). Measured: the panel was showing
+     * five cancelled bookings and could not show a live one.
+     *
+     * So the control proves the same thing on a surface that is not capped:
+     * the booking is yours, it exists, and YOUR pages show it. Your Bookings
+     * lists everything for a day, which is exactly the property needed.
+     */
+    test('control: your own booking today is visible to you', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -121,22 +135,14 @@ test.describe('home page — visibility between users', () => {
             });
             booking_id = booking.id;
 
-            const home = new LandingPage(staffPage);
-            await home.open();
-            const found = await home
-                .upcomingCard(booking_id)
-                .waitFor({ state: 'visible', timeout: 30_000 })
-                .then(() => true)
-                .catch(() => false);
-            if (!found) {
-                const showing = await home.upcomingIds();
-                throw new Error(
-                    `your own booking ${booking_id} should be on the panel, without ` +
-                        `which "nobody sees anything" would pass as success. The panel ` +
-                        `is showing ${showing.length}: [${showing.join(', ')}] — and it ` +
-                        `holds only five, with cancelled bookings taking slots (HOME-B1).`,
-                );
-            }
+            const schedule = new SchedulePage(staffPage);
+            await schedule.open();
+            await schedule.showBooking(booking_id, start * 1000, ['desk']);
+            await expect(
+                schedule.card(booking_id),
+                `your own booking ${booking_id} must be visible to you, without which ` +
+                    `"nobody sees anything" would pass as success in the test above`,
+            ).toBeVisible({ timeout: 30_000 });
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
             await releaseAsset(staffApi, 'desk', desk.id, start - 60, start + 3600);

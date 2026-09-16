@@ -64,6 +64,14 @@ export const ROOM_SLOTS_2 = {
     approval: { approved: 15 },
     /** room-catering.spec.ts */
     catering: { ordered: 16 },
+    /** room-multi.spec.ts — two rooms at once */
+    multi: { hour: 17 },
+    /** room-allday.spec.ts */
+    allday: { hour: 18 },
+    /** room-delegate.spec.ts */
+    delegate: { hour: 19 },
+    /** room-features.spec.ts — no booking, so only the picker matters */
+    features: { hour: 20 },
 } as const;
 
 export interface RoomIdentity {

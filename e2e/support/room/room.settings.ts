@@ -123,6 +123,51 @@ export const STRICT_CAPACITY = {
 };
 
 /**
+ * Let a meeting hold more than one room.
+ *
+ * Two keys mean the same thing (`multipleSpacesEnabled` in
+ * `events/utilities.ts` accepts either), and the mode changes the picker: the
+ * confirm button becomes `space-return` instead of `toggle-space`, which is the
+ * trap recorded at the top of `meeting-form.page.ts`.
+ */
+export const MULTI_SPACE = {
+    'app.events.multiple_spaces': true,
+};
+
+/**
+ * Offer an All Day control on the meeting form.
+ *
+ * `app.events.allow_all_day`, read in `meeting-form-details.component.ts` —
+ * NOT `allow_multiday`, which only widens the date range the room picker
+ * offers. A first attempt at the all-day test set the multiday key, found no
+ * checkbox, and nearly concluded the app has no all-day meetings at all.
+ */
+export const ALLOW_ALL_DAY = {
+    'app.events.allow_all_day': true,
+};
+
+/** Let a meeting span more than one day (widens the picker's dates). */
+export const ALLOW_MULTIDAY = {
+    'app.events.allow_multiday': true,
+};
+
+/**
+ * Book a meeting on somebody else's behalf.
+ *
+ * Two different controls, depending on which key is set
+ * (`meeting-form-details.component.ts`): `can_book_for_anyone` renders a user
+ * SEARCH field, `can_book_for_others` renders a `host-select-field` of people
+ * the user may book for. The search field is the one that behaves like the desk
+ * form's, so that is the one these specs use.
+ */
+export const BOOK_FOR_ANYONE = {
+    'app.events.can_book_for_anyone': true,
+    // The local user list, not the calendar directory — see the desk settings
+    // for why: /api/staff/v1/people 500s on this stack.
+    'app.basic_user_search': true,
+};
+
+/**
  * Settings shared by every room spec.
  *
  * Just the booking mode. Bookings therefore land as `tentative`, which is the
