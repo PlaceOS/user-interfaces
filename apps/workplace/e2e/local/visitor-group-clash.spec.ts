@@ -83,7 +83,16 @@ test.describe('two group invites on one day', () => {
             start: number,
             label: string,
         ) => {
-            const container_asset = `${me.email}[${new Date().toDateString()}]`;
+            // The app's own format, measured from a real group invite:
+            // `${host}[${YYYY-MM-DD}]`. An earlier draft used
+            // `Date.toDateString()` ("Wed Sep 16 2026"), which demonstrated the
+            // same clash but did not mirror what the app writes.
+            const today = new Date();
+            const iso =
+                `${today.getFullYear()}-` +
+                `${`${today.getMonth() + 1}`.padStart(2, '0')}-` +
+                `${`${today.getDate()}`.padStart(2, '0')}`;
+            const container_asset = `${me.email}[${iso}]`;
             const container = await staffApi.post(`${STAFF_API}/bookings`, {
                 data: {
                     booking_type: 'group',
