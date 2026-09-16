@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage-manager/src/app/signage-template-mapping.ts"
+  ],
+  "sourcesContent": [
+    "import {\n    SignageMedia,\n    SignageTemplate,\n    SignageTemplateMapping,\n} from '@placeos/ts-client';\n\nexport type SignageTemplateMappingTarget =\n    | { control_system_id: string; zone_id?: never }\n    | { control_system_id?: never; zone_id: string };\n\nexport type SignageTemplateMappingQuery =\n    | SignageTemplateMappingTarget\n    | {\n          control_system_id?: never;\n          zone_id?: never;\n          template_id: string;\n      };\n\ninterface HydratedSignageTemplateData extends Partial<SignageTemplate> {\n    background_media?: Partial<SignageMedia> | null;\n}\n\nexport class HydratedSignageTemplate extends SignageTemplate {\n    public readonly background_media: SignageMedia | null;\n\n    constructor(data: HydratedSignageTemplateData = {}) {\n        super(data);\n        this.background_media = data.background_media\n            ? new SignageMedia(data.background_media)\n            : null;\n    }\n}\n\ninterface HydratedSignageTemplateMappingData extends Partial<SignageTemplateMapping> {\n    template_details?: HydratedSignageTemplateData;\n}\n\n/** Keeps the template preview returned with a template mapping. */\nexport class HydratedSignageTemplateMapping extends SignageTemplateMapping {\n    public readonly template_details: HydratedSignageTemplate;\n\n    constructor(data: HydratedSignageTemplateMappingData = {}) {\n        super(data);\n        this.template_details = new HydratedSignageTemplate({\n            id: data.template_id,\n            ...data.template_details,\n        });\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;AAsBM,IAAO,0BAAP,cAAuC,GAAe;EAGxD,YAAY,OAAoC,CAAA,GAAE;AAC9C,UAAM,IAAI;AACV,SAAK,mBAAmB,KAAK,mBACvB,IAAI,GAAa,KAAK,gBAAgB,IACtC;EACV;;AAQE,IAAO,iCAAP,cAA8C,GAAsB;EAGtE,YAAY,OAA2C,CAAA,GAAE;AACrD,UAAM,IAAI;AACV,SAAK,mBAAmB,IAAI,wBAAwB;MAChD,IAAI,KAAK;OACN,KAAK,iBACX;EACL;;",
+  "names": [],
+  "debugId": "307e0865-460b-50f8-9c87-6522efa7cb50"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage-manager/src/app/shared/decode-entity-names.util.ts"
+  ],
+  "sourcesContent": [
+    "/**\n * The backend HTML-encodes resource names on save (e.g. `Sales & Marketing`\n * becomes `Sales &amp; Marketing`). Angular then escapes again on render, so the\n * UI shows the literal `&amp;`. Decode names back to their real characters at the\n * data boundary so display, forms, search and sort all use the real value.\n */\n\nlet _decoder: HTMLTextAreaElement | null = null;\n\nexport function decodeEntities(value: string): string {\n    if (!value || value.indexOf('&') === -1) return value;\n    _decoder ??= document.createElement('textarea');\n    _decoder.innerHTML = value;\n    return _decoder.value;\n}\n\nconst NAME_FIELDS = ['name', 'display_name'];\nconst NESTED_FIELDS = ['group', 'user', 'zone'];\n\n/** Returns a shallow copy of `item` with name fields (and one nested level of\n * group/user/zone) HTML-entity decoded. Idempotent for already-decoded values. */\nexport function decodeEntityNames<T>(item: T): T {\n    if (!item || typeof item !== 'object') return item;\n    const copy: any = { ...item };\n    for (const field of NAME_FIELDS) {\n        if (typeof copy[field] === 'string') {\n            copy[field] = decodeEntities(copy[field]);\n        }\n    }\n    for (const field of NESTED_FIELDS) {\n        if (copy[field] && typeof copy[field] === 'object') {\n            copy[field] = decodeEntityNames(copy[field]);\n        }\n    }\n    return copy;\n}\n"
+  ],
+  "mappings": ";;;;;AAOA,IAAI,WAAuC;AAErC,SAAU,eAAe,OAAa;AACxC,MAAI,CAAC,SAAS,MAAM,QAAQ,GAAG,MAAM;AAAI,WAAO;AAChD,eAAa,SAAS,cAAc,UAAU;AAC9C,WAAS,YAAY;AACrB,SAAO,SAAS;AACpB;AAEA,IAAM,cAAc,CAAC,QAAQ,cAAc;AAC3C,IAAM,gBAAgB,CAAC,SAAS,QAAQ,MAAM;AAIxC,SAAU,kBAAqB,MAAO;AACxC,MAAI,CAAC,QAAQ,OAAO,SAAS;AAAU,WAAO;AAC9C,QAAM,OAAY,mBAAK;AACvB,aAAW,SAAS,aAAa;AAC7B,QAAI,OAAO,KAAK,KAAK,MAAM,UAAU;AACjC,WAAK,KAAK,IAAI,eAAe,KAAK,KAAK,CAAC;IAC5C;EACJ;AACA,aAAW,SAAS,eAAe;AAC/B,QAAI,KAAK,KAAK,KAAK,OAAO,KAAK,KAAK,MAAM,UAAU;AAChD,WAAK,KAAK,IAAI,kBAAkB,KAAK,KAAK,CAAC;IAC/C;EACJ;AACA,SAAO;AACX;",
+  "names": [],
+  "debugId": "48958f1d-e178-5936-b8f5-9c8243a84fd1"
+}
