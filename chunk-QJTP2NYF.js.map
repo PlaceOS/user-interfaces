@@ -1,0 +1,14 @@
+{
+  "version": 3,
+  "sources": [
+    "libs/components/src/lib/sanitise.pipe.ts"
+  ],
+  "sourcesContent": [
+    "import { Pipe, PipeTransform, inject } from '@angular/core';\nimport {\n    DomSanitizer,\n    SafeHtml,\n    SafeResourceUrl,\n    SafeScript,\n    SafeStyle,\n} from '@angular/platform-browser';\n\nenum SecurityContext {\n    NONE = 0,\n    HTML = 1,\n    STYLE = 2,\n    SCRIPT = 3,\n    URL = 4,\n    RESOURCE_URL = 5,\n}\n\n@Pipe({\n    name: 'sanitize',\n})\nexport class SanitizePipe implements PipeTransform {\n    private sanitizer = inject(DomSanitizer);\n\n    transform(\n        value: any,\n        type: 'resource' | 'url' | 'script' | 'style' | 'html' = 'html',\n    ): SafeHtml | SafeResourceUrl | SafeScript | SafeStyle {\n        switch (type) {\n            case 'resource':\n                return this.sanitizer.sanitize(\n                    SecurityContext.RESOURCE_URL,\n                    value,\n                );\n            case 'url':\n                return this.sanitizer.sanitize(SecurityContext.URL, value);\n            case 'script':\n                return this.sanitizer.sanitize(SecurityContext.SCRIPT, value);\n            case 'style':\n                return this.sanitizer.sanitize(SecurityContext.STYLE, value);\n            default:\n                return this.sanitizer.sanitize(SecurityContext.HTML, value);\n        }\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;;AASA,IAAK;CAAL,SAAKA,kBAAe;AAChB,EAAAA,iBAAAA,iBAAA,MAAA,IAAA,CAAA,IAAA;AACA,EAAAA,iBAAAA,iBAAA,MAAA,IAAA,CAAA,IAAA;AACA,EAAAA,iBAAAA,iBAAA,OAAA,IAAA,CAAA,IAAA;AACA,EAAAA,iBAAAA,iBAAA,QAAA,IAAA,CAAA,IAAA;AACA,EAAAA,iBAAAA,iBAAA,KAAA,IAAA,CAAA,IAAA;AACA,EAAAA,iBAAAA,iBAAA,cAAA,IAAA,CAAA,IAAA;AACJ,GAPK,oBAAA,kBAAe,CAAA,EAAA;AAYd,IAAO,gBAAP,MAAO,cAAY;EAHzB,cAAA;AAIY,SAAA,YAAY,OAAO,YAAY;;EAEvC,UACI,OACA,OAAyD,QAAM;AAE/D,YAAQ,MAAM;MACV,KAAK;AACD,eAAO,KAAK,UAAU,SAClB,gBAAgB,cAChB,KAAK;MAEb,KAAK;AACD,eAAO,KAAK,UAAU,SAAS,gBAAgB,KAAK,KAAK;MAC7D,KAAK;AACD,eAAO,KAAK,UAAU,SAAS,gBAAgB,QAAQ,KAAK;MAChE,KAAK;AACD,eAAO,KAAK,UAAU,SAAS,gBAAgB,OAAO,KAAK;MAC/D;AACI,eAAO,KAAK,UAAU,SAAS,gBAAgB,MAAM,KAAK;IAClE;EACJ;;;mCAtBS,eAAY;AAAA;4FAAZ,eAAY,MAAA,KAAA,CAAA;AAAnB,IAAO,eAAP;;sEAAO,cAAY,CAAA;UAHxB;WAAK;MACF,MAAM;KACT;;;",
+  "names": [
+    "SecurityContext"
+  ],
+  "debugId": "aad6f9d1-3a37-5f73-8964-552ec4547f14"
+}
