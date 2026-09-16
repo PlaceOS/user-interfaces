@@ -1,12 +1,15 @@
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import { signal } from '@angular/core';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
+import { ParkingService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
-import { ParkingService } from '@placeos/bookings';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('ScheduleStateService', () => {
@@ -40,7 +43,9 @@ describe('ScheduleStateService', () => {
         // loadLockerResources) are workspace fns that can't be spied; they all
         // funnel into ts-client `get`/`querySystems`, so stub + assert one
         // layer down.
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockResolvedValue([] as any);
         vi.mocked(ts_client.querySystems).mockResolvedValue({
             data: [],
         } as any);
@@ -94,6 +99,38 @@ describe('ScheduleStateService', () => {
         ]);
 
         expect(ts_client.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockResolvedValue([
+            { id: 'retained', booking_type: 'visitor' },
+            { id: 'cancelled', booking_type: 'visitor', deleted: true },
+            {
+                id: 'removed',
+                booking_type: 'visitor',
+                deleted: true,
+                extension_data: { removed_from_group: true },
+            },
+            {
+                id: 'failed-removal',
+                booking_type: 'visitor',
+                extension_data: { removed_from_group: true },
+            },
+        ]);
+
+        const bookings = await spectator.service['_bookingQuery'](
+            'visitor',
+            'day',
+            new Date(2026, 5, 22, 9).valueOf(),
+        );
+
+        expect(bookings.map((booking) => booking.id)).toEqual([
+            'retained',
+            'cancelled',
+            'failed-removal',
+        ]);
     });
 
     it('should request cancelled and ended bookings', async () => {

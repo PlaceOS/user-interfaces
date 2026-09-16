@@ -2776,7 +2776,7 @@ describe('BookingFormService', () => {
             }),
         ]);
 
-        expect(savedBookings()).toHaveLength(1);
+        expect(savedBookings()).toHaveLength(2);
         expect(savedBookings()[0]).toEqual(
             expect.objectContaining({
                 booking_type: 'group',
@@ -2985,7 +2985,7 @@ describe('BookingFormService', () => {
         );
     });
 
-    it('should cancel a removed visitor and update the linked event and parent group', async () => {
+    it('should mark a removed visitor and update the linked event and parent group', async () => {
         Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
             value: false,
         });
@@ -3034,6 +3034,14 @@ describe('BookingFormService', () => {
             }),
         ]);
 
+        expect(ts_client.patch).toHaveBeenCalledWith(
+            '/api/staff/v1/bookings/booking-removed',
+            expect.objectContaining({
+                extension_data: expect.objectContaining({
+                    removed_from_group: true,
+                }),
+            }),
+        );
         expect(ts_client.del).toHaveBeenCalledWith(
             '/api/staff/v1/events/calendar%2Fevent-id/attendee/removed%40example.com?system_id=sys-room&calendar=room%40example.com',
         );
@@ -3059,6 +3067,37 @@ describe('BookingFormService', () => {
         expect(visitor.attendees.map((attendee) => attendee.email)).toEqual([
             retained.email,
         ]);
+    });
+
+    it('should restore the removal marker if cancelling a removed visitor fails', async () => {
+        const booking = new Booking({
+            id: 'booking-removed',
+            parent_id: 'booking-group',
+            booking_type: 'visitor',
+            asset_id: 'removed@example.com',
+        });
+        spectator.service.newForm('visitor', booking);
+        spectator.service.setOptions({
+            type: 'visitor',
+            group: true,
+            members: [new User({ email: 'retained@example.com' })],
+        });
+        const error = new Error('Booking cancellation failed');
+        vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+
+        await expect(
+            spectator.service.editFormForGroup([booking]),
+        ).rejects.toThrow(error);
+
+        expect(ts_client.patch).toHaveBeenLastCalledWith(
+            '/api/staff/v1/bookings/booking-removed',
+            expect.objectContaining({
+                extension_data: expect.objectContaining({
+                    removed_from_group: false,
+                }),
+            }),
+        );
+        expect(ts_client.patch).toHaveBeenCalledTimes(2);
     });
 
     it('should leave the visitor booking active if linked event removal fails', async () => {

@@ -124,7 +124,13 @@ export class VisitorsStateService extends AsyncHandler {
             include_deleted: true,
             limit: 200,
         }).catch((_) => [] as Booking[]);
-        this.bookings.set(list);
+        this.bookings.set(
+            list.filter(
+                (booking) =>
+                    booking.status !== 'cancelled' ||
+                    !booking.extension_data?.removed_from_group,
+            ),
+        );
         this.loading.set(false);
     }
 

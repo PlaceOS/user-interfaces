@@ -72,6 +72,7 @@ import {
     queryBookings,
     removeBooking,
     saveBooking,
+    updateBooking,
 } from './bookings.fn';
 import { DeskQuestionsModalComponent } from './desk-questions-modal.component';
 
@@ -1899,7 +1900,29 @@ export class BookingFormService extends AsyncHandler {
                     },
                 );
             }
-            await removeBooking(booking.id);
+            if (is_visitor) {
+                // Distinguish removed invitees from ordinary cancellations.
+                await updateBooking(booking.id, {
+                    extension_data: {
+                        ...booking.extension_data,
+                        removed_from_group: true,
+                    },
+                });
+            }
+            try {
+                await removeBooking(booking.id);
+            } catch (error) {
+                if (is_visitor) {
+                    await updateBooking(booking.id, {
+                        extension_data: {
+                            removed_from_group:
+                                booking.extension_data?.removed_from_group ??
+                                false,
+                        },
+                    });
+                }
+                throw error;
+            }
         }
         const desk_resources =
             !is_visitor && type === 'desk'

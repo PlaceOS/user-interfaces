@@ -10,6 +10,7 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import {
+    Booking,
     getTimezoneDifferenceInHours,
     OrganisationService,
     setNotifyOutlet,
@@ -87,6 +88,38 @@ describe('VisitorStateService', () => {
                 }),
             }),
         );
+    });
+
+    it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [
+                new Booking({ id: 'retained', booking_type: 'visitor' }),
+                new Booking({
+                    id: 'cancelled',
+                    booking_type: 'visitor',
+                    deleted: true,
+                }),
+                new Booking({
+                    id: 'removed',
+                    booking_type: 'visitor',
+                    deleted: true,
+                    extension_data: { removed_from_group: true },
+                }),
+                new Booking({
+                    id: 'failed-removal',
+                    booking_type: 'visitor',
+                    extension_data: { removed_from_group: true },
+                }),
+            ],
+            total: 4,
+            next: null,
+        });
+        TestBed.flushEffects();
+        await wait(10);
+
+        expect(
+            spectator.service.bookings().map((booking) => booking.id),
+        ).toEqual(['retained', 'cancelled', 'failed-removal']);
     });
 
     it('should apply building timezone to visitor listing requests', async () => {
