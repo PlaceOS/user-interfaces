@@ -39,6 +39,8 @@ const PARKING_LEVEL_NAME = 'E2E Parking Level';
 /** Exact names the app looks for. Neither is ours to choose. */
 const PARKING_CATEGORY = '_PARKING_';
 const PARKING_TYPE = '_PARKING_SPACES_';
+/** The asset type parking USER records live under, for the deny flag. */
+const PARKING_USER_TYPE = '_PARKING_USERS_';
 
 export interface ParkingSpaceIdentity {
     id: string;
@@ -155,6 +157,85 @@ export async function ensureParking(): Promise<ParkingSeed> {
             spaces.push({ id: asset.id, name: want.name });
         }
         return { zone_id, type_id, spaces };
+    } finally {
+        await admin.dispose();
+    }
+}
+
+/**
+ * Mark a user as denied parking, or clear it.
+ *
+ * A user's parking permissions are an ASSET, not a user field:
+ * `parking-assets.fn.ts` keeps one `_PARKING_USERS_` asset per person, with the
+ * flags in `other_data` as the STRINGS 'true' and 'false' — `toParkingUser`
+ * compares `String(data.deny) === 'true'`, so a real boolean does not register.
+ *
+ * Returns the asset id so a spec can delete it in teardown. Needs ADMIN, like
+ * everything else asset-shaped.
+ */
+export async function setParkingDenied(
+    email: string,
+    denied: boolean,
+): Promise<string> {
+    const admin = await apiFor('admin', 0);
+    try {
+        const seed = await parkingSeed();
+        const categories = await listAll(admin, 'asset_categories', { hidden: 'true' });
+        let category = categories.find((c) => c.name === PARKING_CATEGORY);
+        category =
+            category ??
+            (await create(admin, 'asset_categories', { name: PARKING_CATEGORY, hidden: true }));
+        const types = await listAll(admin, 'asset_types', { category_id: category.id });
+        let type = types.find((t) => t.name === PARKING_USER_TYPE);
+        type =
+            type ??
+            (await create(admin, 'asset_types', {
+                name: PARKING_USER_TYPE,
+                category_id: category.id,
+                brand: 'E2E',
+                description: 'Parking user records owned by the e2e suite.',
+            }));
+
+        const existing = await listAll(admin, 'assets', {
+            zone_id: seed.zone_id,
+            type_id: type.id,
+        });
+        const found = existing.find(
+            (a) => `${a.other_data?.email ?? ''}`.toLowerCase() === email.toLowerCase(),
+        );
+        const data = {
+            identifier: email,
+            zone_id: seed.zone_id,
+            asset_type_id: type.id,
+            other_data: {
+                name: email,
+                email,
+                // STRINGS, deliberately: see the note above.
+                deny: denied ? 'true' : 'false',
+                special_needs: 'false',
+            },
+        };
+        if (found) {
+            const res = await admin.patch(`${ENGINE_API}/assets/${found.id}`, { data });
+            if (!res.ok()) {
+                throw new Error(
+                    `update parking user failed: HTTP ${res.status()} ${await res.text()}`,
+                );
+            }
+            return found.id;
+        }
+        const created = await create(admin, 'assets', data);
+        return created.id;
+    } finally {
+        await admin.dispose();
+    }
+}
+
+/** Remove a parking user record, by asset id. */
+export async function clearParkingUser(id: string): Promise<void> {
+    const admin = await apiFor('admin', 0);
+    try {
+        await admin.delete(`${ENGINE_API}/assets/${id}`).catch(() => null);
     } finally {
         await admin.dispose();
     }

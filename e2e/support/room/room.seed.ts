@@ -17,7 +17,13 @@
 import { APIRequestContext } from '@playwright/test';
 import { ENGINE_API, apiFor, zonesWithTag } from '../api';
 import { WORKERS } from '../env';
-import { ROOM_VARIANTS, RoomIdentity, RoomVariant, roomFor } from './room.env';
+import {
+    ALT_ROOM_FEATURE,
+    ROOM_VARIANTS,
+    RoomIdentity,
+    RoomVariant,
+    roomFor,
+} from './room.env';
 
 /**
  * `GET /systems` answers with a BARE ARRAY, not `{ results: [] }`.
@@ -74,6 +80,38 @@ export async function ensureRooms(): Promise<RoomSet> {
                 );
                 if (found) {
                     rooms[variant].push({ ...want, id: found.id });
+                    // The `alt` room carries a feature nothing else has, so the
+                    // picker's facilities filter has something to filter on.
+                    // Patched rather than only set at creation, because the
+                    // rooms are left in place between runs and were created
+                    // before this existed.
+                    if (
+                        variant === 'alt' &&
+                        !(found.features || []).includes(ALT_ROOM_FEATURE)
+                    ) {
+                        // `version` is REQUIRED on a System PATCH — without it
+                        // the request is a 422 "missing required parameter
+                        // 'version'" and the feature silently never lands.
+                        // `features` is an ARRAY; a space-separated string is a
+                        // 400 from the JSON parser.
+                        const patched = await admin.patch(
+                            `${ENGINE_API}/systems/${found.id}`,
+                            {
+                                // `version` goes in the QUERY STRING, not the
+                                // body — in the body it is ignored and the
+                                // request is still a 422 "missing required
+                                // parameter 'version'".
+                                params: { version: String(found.version ?? 0) },
+                                data: { features: [ALT_ROOM_FEATURE] },
+                            },
+                        );
+                        if (!patched.ok()) {
+                            throw new Error(
+                                `adding the feature to ${want.name} failed: HTTP ` +
+                                    `${patched.status()} ${await patched.text()}`,
+                            );
+                        }
+                    }
                     continue;
                 }
                 const res = await admin.post(`${ENGINE_API}/systems`, {
@@ -88,6 +126,7 @@ export async function ensureRooms(): Promise<RoomSet> {
                         // invisible in the picker while existing perfectly well.
                         signage: false,
                         zones,
+                        ...(variant === 'alt' ? { features: [ALT_ROOM_FEATURE] } : {}),
                         description: 'Room owned by the e2e suite. Safe to delete.',
                     },
                 });
@@ -132,4 +171,81 @@ export async function roomForWorker(
         );
     }
     return room;
+}
+
+/**
+ * Hide a room with a ZONE BOOKING RULE, and remove the rule again.
+ *
+ * Booking rules live in `booking_rules` metadata on a zone, as a list of
+ * rulesets (`libs/common/src/lib/booking-rules.ts`). Each ruleset names the zone
+ * it applies to, a set of CONDITIONS, and the RULES that result — and `hidden`
+ * is the one that takes a resource out of the picker entirely.
+ *
+ * The condition used here is `resource_ids`, which is the narrowest available:
+ * it matches one room by id, so the rest of the picker is unaffected and the
+ * test has a control.
+ *
+ * Writes the WHOLE document, which is safe because nothing else in this suite
+ * writes booking rules — unlike the user `settings` blob, which is shared and
+ * has to be read-modify-written.
+ *
+ * Needs ADMIN. Pass an empty list to clear.
+ */
+export async function setRoomBookingRules(
+    hidden_room_ids: string[],
+): Promise<void> {
+    const admin = await apiFor('admin', 0);
+    try {
+        // WHERE THE APP LOOKS, measured rather than guessed.
+        //
+        // The app fetches `GET /metadata/booking_rules/bulk?parent_ids=<building>`
+        // and the response comes back keyed by the BUILDING's own id, carrying
+        // the building's document — despite `parent_ids` reading like a query
+        // about children. `event-form.service.ts` then looks the rules up as
+        // `rules[building.id]`.
+        //
+        // So the document has to be on the building. It is written to the levels
+        // as well, because nothing else writes booking rules and a stale
+        // document on a level would be one more thing to explain later.
+        const [building] = await zonesWithTag(admin, 'building');
+        if (!building?.id) throw new Error('no building zone — the stack is not seeded');
+        const levels = await zonesWithTag(admin, 'level');
+        const targets = levels.filter((z) => (z.parent_id ?? building.id) === building.id);
+        if (!targets.length) {
+            throw new Error('no level zone under the building to write booking rules on');
+        }
+
+        const details = hidden_room_ids.length
+            ? [
+                  {
+                      id: 'e2e-hidden-rooms',
+                      name: 'E2E hidden rooms',
+                      // `*` matches any resource the ruleset is considered for;
+                      // the `resource_ids` condition below is what narrows it to
+                      // one room.
+                      zone: '*',
+                      conditions: { resource_ids: hidden_room_ids },
+                      rules: { hidden: true },
+                  },
+              ]
+            : [];
+
+        for (const zone of [building, ...targets]) {
+            const res = await admin.put(`${ENGINE_API}/metadata/${zone.id}`, {
+                data: {
+                    name: 'booking_rules',
+                    description: 'Booking rules owned by the e2e suite',
+                    details,
+                },
+            });
+            if (!res.ok()) {
+                throw new Error(
+                    `write booking_rules on ${zone.name} failed: HTTP ${res.status()} ` +
+                        `${await res.text()}`,
+                );
+            }
+        }
+    } finally {
+        await admin.dispose();
+    }
 }

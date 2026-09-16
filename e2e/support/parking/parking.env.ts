@@ -62,6 +62,10 @@ export const PARKING_SLOTS = {
     edit: { day: 3, hour: 16, moved_to: 18 },
     /** parking-api.spec.ts */
     api: { day: 4, hour: 20 },
+    /** parking-access.spec.ts — the deny flag */
+    access: { day: 3, hour: 11 },
+    /** parking-request.spec.ts — the separate request flow */
+    request: { day: 4, hour: 12 },
 } as const;
 
 export function slotOn(dayOffset: number, hour: number, minutes = 60) {

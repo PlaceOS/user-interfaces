@@ -101,6 +101,17 @@ export interface RoomIdentity {
  */
 export type RoomVariant = 'main' | 'alt' | 'small';
 
+/**
+ * A feature only the `alt` room has.
+ *
+ * Space features come from the engine System's own `features` list, and the
+ * picker's facilities filter is built from whatever the loaded rooms carry
+ * (`space-filters.component.ts`). With no room carrying anything, the filter
+ * section is not rendered at all — so testing it needs exactly this: one
+ * feature, on one room, so filtering by it has a right answer.
+ */
+export const ALT_ROOM_FEATURE = 'E2E Projector';
+
 export const ROOM_VARIANTS: RoomVariant[] = ['main', 'alt', 'small'];
 
 /** The name, address and capacity of a room this worker owns. */
