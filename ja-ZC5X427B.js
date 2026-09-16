@@ -17,4 +17,5 @@ var ja_default = ["ja", [["\u5348\u524D", "\u5348\u5F8C"]], u, [["\u65E5", "\u67
 export {
   ja_default as default
 };
+//# debugId=30bf81bd-b01b-5d20-99c4-ebd2d97f08b6
 //# sourceMappingURL=ja-ZC5X427B.js.map
