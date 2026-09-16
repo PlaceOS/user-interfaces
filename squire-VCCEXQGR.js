@@ -1848,4 +1848,5 @@ var Zi = ve;
 export {
   Zi as default
 };
+//# debugId=1f56ff83-466a-56b3-af2a-be7f34b65196
 //# sourceMappingURL=squire-VCCEXQGR.js.map
