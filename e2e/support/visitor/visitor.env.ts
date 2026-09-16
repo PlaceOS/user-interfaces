@@ -42,6 +42,12 @@ export const VISITOR_SLOTS = {
     validation: { badEmail: 18, keptA: 19, removedB: 20 },
     /** visitor-details.spec.ts */
     details: { extras: 21, company: 22 },
+    /** visitor-duplicate.spec.ts — the guard for VIS-B1 */
+    duplicate: { same: 23 },
+    /** visitor-group-clash.spec.ts — the guard for VIS-B9 */
+    group_clash: { morning_a: 24, morning_b: 25, afternoon_a: 26, afternoon_b: 27 },
+    /** visitor-edit.spec.ts, the group-time test added later */
+    group_time: { memberA: 28, memberB: 29 },
     /** visitor-times.spec.ts */
     times: { chosen: 23, limits: 24 },
 } as const;
