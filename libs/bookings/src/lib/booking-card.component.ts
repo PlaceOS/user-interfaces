@@ -72,6 +72,7 @@ import { ParkingService } from './parking.service';
                         <status-pill [status]="status()">{{
                             period()
                         }}</status-pill>
+                        <ng-content select="[booking-status]" />
                         @if (!for_current_user() && booked_for_label()) {
                             <div
                                 booked-for

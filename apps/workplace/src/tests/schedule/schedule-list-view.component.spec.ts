@@ -44,6 +44,24 @@ describe('ScheduleListViewComponent', () => {
         spectator = createComponent({ props: { date: day_one } });
     });
 
+    it('labels cancelled bookings while retaining their cards', async () => {
+        const active = bookingOn(day_one, 'active');
+        const cancelled = new Booking({
+            ...bookingOn(day_one, 'cancelled'),
+            deleted: true,
+        });
+        spectator.setInput('bookings', [active, cancelled]);
+        await spectator.fixture.whenStable();
+
+        expect(spectator.queryAll('booking-card')).toHaveLength(2);
+        expect(
+            spectator.queryAll('booking-card [booking-status]'),
+        ).toHaveLength(1);
+        expect(
+            spectator.query('booking-card [booking-status]')?.textContent,
+        ).toContain('COMMON.TYPE_CANCELLED');
+    });
+
     it('should create component', () => {
         expect(spectator.component).toBeTruthy();
     });
