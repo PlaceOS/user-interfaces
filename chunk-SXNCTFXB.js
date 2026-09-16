@@ -1,25 +1,27 @@
 import {
   Booking,
+  SpacePipe,
+  checkinBooking,
+  queryAllBookings,
+  showBooking,
+  showGuest,
+  updateBooking,
+  updateBookingInductionStatus
+} from "./chunk-KJBGB7K5.js";
+import {
   GuestUser,
   Injectable,
-  SpacePipe,
   addMinutes,
-  checkinBooking,
   getUnixTime,
   guardModelUndefinedWrites,
   i18n,
   isSameDay,
   notifyError,
   notifySuccess,
-  queryAllBookings,
   setClassMetadata,
-  showBooking,
-  showGuest,
   signal,
-  updateBooking,
-  updateBookingInductionStatus,
   ɵɵdefineInjectable
-} from "./chunk-KCR3PI72.js";
+} from "./chunk-2CMJ6LSG.js";
 import {
   __spreadProps,
   __spreadValues
@@ -150,7 +152,7 @@ var CheckinStateService = class _CheckinStateService {
       asset_id: form.email || booking.asset_id,
       asset_name: form.name || booking.asset_name,
       description: form.name || booking.description,
-      extension_data: __spreadProps(__spreadValues({}, booking.extension_data), {
+      extension_data: __spreadProps(__spreadValues(__spreadValues({}, booking.extension_data), data || {}), {
         pass_number: form.pass_number || booking.extension_data?.pass_number,
         organisation: form.organisation || booking.extension_data?.organisation,
         phone: form.phone || booking.extension_data?.phone
@@ -160,21 +162,22 @@ var CheckinStateService = class _CheckinStateService {
   }
   async completeInduction() {
     const guest = this._guest();
-    const event = this._booking() || guest.extension_data.event;
+    const event = this._booking() || guest?.extension_data?.event;
     if (!guest || !event)
       return;
-    await updateBookingInductionStatus(event.id, "accepted");
+    const updated_booking = await updateBookingInductionStatus(event.id, "accepted");
+    this._booking.set(updated_booking);
   }
   async declineInduction() {
     const guest = this._guest();
-    const event = this._booking() || guest.extension_data.event;
+    const event = this._booking() || guest?.extension_data?.event;
     if (!guest || !event)
       return;
     await updateBookingInductionStatus(event.id, "declined");
   }
   async checkinGuest(state = true) {
     const guest = this._guest();
-    const event = this._booking() || guest.extension_data.event;
+    const event = this._booking() || guest?.extension_data?.event;
     if (!guest || !event)
       return;
     const checkin_fn = checkinBooking(event.id, state);
@@ -190,14 +193,6 @@ var CheckinStateService = class _CheckinStateService {
       return;
     notifySuccess(i18n("APP.VISITOR_KIOSK.SUCCESS_CHECKIN", vars));
     this.metadata = "";
-  }
-  printPass() {
-    try {
-      return new Promise((res) => setTimeout(() => res(""), 5e3));
-    } catch (err) {
-      notifyError(i18n("APP.VISITOR_KIOSK.ERROR_PRINT"));
-    }
-    return Promise.reject();
   }
   static {
     this.\u0275fac = function CheckinStateService_Factory(__ngFactoryType__) {
@@ -220,4 +215,5 @@ var CheckinStateService = class _CheckinStateService {
 export {
   CheckinStateService
 };
-//# sourceMappingURL=chunk-2VPN44LU.js.map
+//# debugId=cbbc6b00-1fd7-50d5-b23c-3e1c24227d57
+//# sourceMappingURL=chunk-SXNCTFXB.js.map
