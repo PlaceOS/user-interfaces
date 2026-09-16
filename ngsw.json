@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1789531309473,
+  "timestamp": 1789544541108,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -12,9 +12,10 @@
       },
       "urls": [
         "./ar-LMOMQ4BE.js",
-        "./binding-debug-panel.component-CwCAuwVa.js",
+        "./binding-debug-panel.component-DaW4SVBw.js",
         "./chat.component-C9a25gwN.js",
         "./chunk-B6XOZ8n_.js",
+        "./chunk-CtQLQwoW.js",
         "./chunk-D0T_eVQV.js",
         "./chunk-D9XsI7iM.js",
         "./debug-console.component-DX9SP-tk.js",
@@ -29,7 +30,7 @@
         "./main.js",
         "./manifest.webmanifest",
         "./parking.component-DdvAyMIV.js",
-        "./settings-debug-panel.component-5Ah4UQuK.js",
+        "./settings-debug-panel.component-C6zQq0HY.js",
         "./settings.schema-Cp9j__XL.js",
         "./squire-7BCJDNZA.js",
         "./styles.css",
@@ -218,9 +219,10 @@
     "./assets/support/firefox-logo.svg": "5d92cf1198425c8696bbd4c4c79f7ee029a207b9",
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
-    "./binding-debug-panel.component-CwCAuwVa.js": "45779a292bc722bb4b9b3bd5d14eda4bb064a933",
+    "./binding-debug-panel.component-DaW4SVBw.js": "8ab9b0675d8badcd887c8eeb4003ced2912db949",
     "./chat.component-C9a25gwN.js": "e37a4673477a3d94f396165c4993203764080d8a",
     "./chunk-B6XOZ8n_.js": "f09291ba01053a2375ee268845a662ee61c35f9a",
+    "./chunk-CtQLQwoW.js": "d840a967a94d3d5fbee5c52cf7e311dba294b302",
     "./chunk-D0T_eVQV.js": "5b7d25d54c2038434288e70841fd4f0455551e08",
     "./chunk-D9XsI7iM.js": "0493981d513b119fd131f9d21ad73b81068a7a44",
     "./debug-console.component-DX9SP-tk.js": "0b3ea4434248bab7f29f2d29bd4d857352d938dc",
@@ -232,13 +234,13 @@
     "./index.html": "f5466b29a26decff46a12f91855ecb5783a26441",
     "./it-DP3AYVRR.js": "ee62a3cf464843d157a1df98ecc7ab58712ba2a6",
     "./ja-KPFTZVOP.js": "b1b88a5e25fc6aad4bb41cdb86a03766fb9598a9",
-    "./main.js": "c3ad6593278490e16511122fd893a79c480cc495",
+    "./main.js": "46e997c6dfb52d3a82392fc0ec4b8e841a8d8b8b",
     "./manifest.webmanifest": "e11f8649dc4906cc71e1c32c0e47d86466cbf191",
     "./parking.component-DdvAyMIV.js": "3297311b9341246c8fbba41d37d4e7579ad7ae7e",
-    "./settings-debug-panel.component-5Ah4UQuK.js": "a54272814ddfdc2644c070414aa0652f4ede35ac",
+    "./settings-debug-panel.component-C6zQq0HY.js": "4a9ebc0bbd790d2241c31b4c27f7c4e6aabdac3a",
     "./settings.schema-Cp9j__XL.js": "7fc5262bca9da78e775af91a51c01d6e806f36d0",
     "./squire-7BCJDNZA.js": "94e1264d3bba40b17587c819229731d20b5a6776",
-    "./styles.css": "48c283e89e23585db12ae16d468157a909814b33",
+    "./styles.css": "e6420a2d7b85569572db8e8d1fb161df16fe58e5",
     "./zh-7PPY3HOC.js": "7892070adb4b61f717b74ad03d93922da8e356bd"
   },
   "navigationUrls": [
