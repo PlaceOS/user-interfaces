@@ -105,6 +105,24 @@ export const LIMITED_HOURS = {
 };
 
 /**
+ * Refuse a meeting with more people in it than the rooms can hold.
+ *
+ * OFF by default, and the two states behave completely differently rather than
+ * one being a stronger version of the other:
+ *
+ *   unset ......... a WARNING is rendered next to the room list, and the booking
+ *                   goes through regardless.
+ *   true .......... `viewConfirm` stops before opening the confirm screen and
+ *                   shows a toast. Nothing is sent.
+ *
+ * Both halves are covered by `room-capacity.spec.ts`, because the one users
+ * complain about is the one that lets them book a room nobody fits in.
+ */
+export const STRICT_CAPACITY = {
+    'app.events.strict_capacity_check': true,
+};
+
+/**
  * Settings shared by every room spec.
  *
  * Just the booking mode. Bookings therefore land as `tentative`, which is the

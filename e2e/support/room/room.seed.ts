@@ -17,7 +17,7 @@
 import { APIRequestContext } from '@playwright/test';
 import { ENGINE_API, apiFor, zonesWithTag } from '../api';
 import { WORKERS } from '../env';
-import { RoomIdentity, roomFor } from './room.env';
+import { ROOM_VARIANTS, RoomIdentity, RoomVariant, roomFor } from './room.env';
 
 /**
  * `GET /systems` answers with a BARE ARRAY, not `{ results: [] }`.
@@ -36,14 +36,22 @@ async function listSystems(api: APIRequestContext): Promise<any[]> {
     return Array.isArray(body) ? body : (body?.results ?? []);
 }
 
+/** Every room this suite owns, keyed by variant then worker index. */
+export type RoomSet = Record<RoomVariant, RoomIdentity[]>;
+
 /**
- * Make sure every worker has a bookable room, and return them.
+ * Make sure every worker has its bookable rooms, and return them.
+ *
+ * Three per worker — see `ROOM_VARIANTS` in `room.env.ts` for why `alt` and
+ * `small` exist. They are created in the same pass as `main` rather than on
+ * first use, because listing every system in the org is the expensive part and
+ * doing it once is the whole point of the cache below.
  *
  * Rooms are placed on BOTH the building and the level zone: the app asks for
  * systems by zone and different screens ask with different zones, so a room on
  * only one of them appears in some places and not others.
  */
-export async function ensureRooms(): Promise<RoomIdentity[]> {
+export async function ensureRooms(): Promise<RoomSet> {
     const admin = await apiFor('admin', 0);
     try {
         const [building] = await zonesWithTag(admin, 'building');
@@ -56,38 +64,40 @@ export async function ensureRooms(): Promise<RoomIdentity[]> {
         }
         const zones = [building.id, level?.id].filter(Boolean) as string[];
         const existing = await listSystems(admin);
-        const rooms: RoomIdentity[] = [];
+        const rooms = { main: [], alt: [], small: [] } as RoomSet;
 
-        for (let i = 0; i < WORKERS; i++) {
-            const want = roomFor(i);
-            const found = existing.find(
-                (s) => `${s.email}`.toLowerCase() === want.email.toLowerCase(),
-            );
-            if (found) {
-                rooms.push({ ...want, id: found.id });
-                continue;
-            }
-            const res = await admin.post(`${ENGINE_API}/systems`, {
-                data: {
-                    name: want.name,
-                    display_name: want.name,
-                    email: want.email,
-                    capacity: want.capacity,
-                    bookable: true,
-                    // `signage: false` matters: the app's room lookup filters
-                    // signage systems out, so a room created without it is
-                    // invisible in the picker while existing perfectly well.
-                    signage: false,
-                    zones,
-                    description: 'Room owned by the e2e suite. Safe to delete.',
-                },
-            });
-            if (!res.ok()) {
-                throw new Error(
-                    `create room ${want.name} failed: HTTP ${res.status()} ${await res.text()}`,
+        for (const variant of ROOM_VARIANTS) {
+            for (let i = 0; i < WORKERS; i++) {
+                const want = roomFor(i, variant);
+                const found = existing.find(
+                    (s) => `${s.email}`.toLowerCase() === want.email.toLowerCase(),
                 );
+                if (found) {
+                    rooms[variant].push({ ...want, id: found.id });
+                    continue;
+                }
+                const res = await admin.post(`${ENGINE_API}/systems`, {
+                    data: {
+                        name: want.name,
+                        display_name: want.name,
+                        email: want.email,
+                        capacity: want.capacity,
+                        bookable: true,
+                        // `signage: false` matters: the app's room lookup filters
+                        // signage systems out, so a room created without it is
+                        // invisible in the picker while existing perfectly well.
+                        signage: false,
+                        zones,
+                        description: 'Room owned by the e2e suite. Safe to delete.',
+                    },
+                });
+                if (!res.ok()) {
+                    throw new Error(
+                        `create room ${want.name} failed: HTTP ${res.status()} ${await res.text()}`,
+                    );
+                }
+                rooms[variant].push({ ...want, id: (await res.json()).id });
             }
-            rooms.push({ ...want, id: (await res.json()).id });
         }
         return rooms;
     } finally {
@@ -101,8 +111,11 @@ export async function ensureRooms(): Promise<RoomIdentity[]> {
  * Cached for the life of the process so twenty specs do not each re-list every
  * system in the org.
  */
-let cache: Promise<RoomIdentity[]> | null = null;
-export async function roomForWorker(workerIndex: number): Promise<RoomIdentity> {
+let cache: Promise<RoomSet> | null = null;
+export async function roomForWorker(
+    workerIndex: number,
+    variant: RoomVariant = 'main',
+): Promise<RoomIdentity> {
     cache = cache ?? ensureRooms();
     const rooms = await cache.catch((error) => {
         // Do not poison the cache: a stack that was still starting up should not
@@ -110,11 +123,12 @@ export async function roomForWorker(workerIndex: number): Promise<RoomIdentity> 
         cache = null;
         throw error;
     });
-    const room = rooms[workerIndex];
+    const room = rooms[variant][workerIndex];
     if (!room) {
         throw new Error(
-            `no room seeded for worker ${workerIndex}. ${rooms.length} exist, one per ` +
-                `worker, so E2E_WORKERS is smaller than the number Playwright is running.`,
+            `no ${variant} room seeded for worker ${workerIndex}. ` +
+                `${rooms[variant].length} exist, one per worker, so E2E_WORKERS is ` +
+                `smaller than the number Playwright is running.`,
         );
     }
     return room;

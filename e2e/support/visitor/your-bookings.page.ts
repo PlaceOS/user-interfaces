@@ -302,11 +302,30 @@ export class YourBookingsPage {
     }
 
     /**
-     * Open a booking for editing and land on the pre-filled invite form.
+     * The form that pressing Edit is expected to land on.
      *
-     * Needs `visitors.allow_editing` — without it `can_edit` is false for a
-     * visitor booking and the menu simply has no Edit item, which would look
-     * like a broken selector.
+     * A hook, not a constant, because `startEdit` below is shared and only this
+     * differs by booking type — a room booking lands on the meeting form. See
+     * `room/schedule.page.ts`.
+     */
+    protected get editForm(): Locator {
+        return this.page.locator('invite-visitor-form');
+    }
+
+    /** What to suggest when the Edit item is missing. Type-specific. */
+    protected get editFormHint(): string {
+        return (
+            'Visitor bookings need `app.visitors.allow_editing = true`, and a booking ' +
+            'that is checked in or already done cannot be edited at all.'
+        );
+    }
+
+    /**
+     * Open a booking for editing and land on its pre-filled form.
+     *
+     * For visitors that needs `visitors.allow_editing` — without it `can_edit`
+     * is false and the menu simply has no Edit item, which would look like a
+     * broken selector.
      */
     async startEdit(bookingId: number): Promise<void> {
         const modal = await this.openDetails(bookingId);
@@ -324,14 +343,13 @@ export class YourBookingsPage {
             throw new Error(
                 `no Edit action in the booking menu. The menu contains ` +
                     `${items.length} item(s): ${JSON.stringify(items)}. ` +
-                    `Visitor bookings need \`app.visitors.allow_editing = true\`, and a ` +
-                    `booking that is checked in or already done cannot be edited at all.`,
+                    this.editFormHint,
             );
         }
         await edit.click();
         await expect(
-            this.page.locator('invite-visitor-form'),
-            'editing did not land on the visitor form',
+            this.editForm,
+            `pressing Edit did not land on the expected form. ${this.editFormHint}`,
         ).toBeVisible({ timeout: 30_000 });
     }
 }

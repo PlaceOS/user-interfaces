@@ -15,7 +15,14 @@
  * and the backend — not the UI — is what enforces it.
  */
 import { APIRequestContext } from '@playwright/test';
-import { Booking, STAFF_API, currentUser, releaseAsset, zonesWithTag } from '../api';
+import {
+    Booking,
+    ENGINE_API,
+    STAFF_API,
+    currentUser,
+    releaseAsset,
+    zonesWithTag,
+} from '../api';
 
 export interface RoomBooking extends Booking {
     attendees?: { name?: string; email: string }[];
@@ -83,6 +90,55 @@ export async function createRoomBookingViaApi(
         );
     }
     return JSON.parse(body);
+}
+
+/**
+ * The signed-in user's own settings blob.
+ *
+ * Favourite rooms are a USER SETTING, not a property of the room: the app
+ * writes the whole blob to `PUT /metadata/{user_id}` (debounced ~2.4s), and
+ * `favourite_spaces` is one key inside `details`. Read here so a spec can prove
+ * a favourite outlived the page rather than just checking a star turned blue.
+ */
+export async function readUserSettings(
+    api: APIRequestContext,
+): Promise<Record<string, any>> {
+    const me = await currentUser(api);
+    const res = await api.get(`${ENGINE_API}/metadata/${me.id}`, {
+        params: { name: 'settings' },
+    });
+    if (!res.ok()) {
+        throw new Error(`read user settings failed: HTTP ${res.status()} ${await res.text()}`);
+    }
+    const body = await res.json();
+    return body?.settings?.details ?? {};
+}
+
+/**
+ * Set the user's favourite rooms, leaving every other setting alone.
+ *
+ * Read-modify-write, because the app PUTs the WHOLE settings blob and this has
+ * to do the same — a PUT carrying only `favourite_spaces` would wipe the
+ * visitor specs' saved invitee list, which lives in the same object.
+ */
+export async function setFavouriteSpaces(
+    api: APIRequestContext,
+    ids: string[],
+): Promise<void> {
+    const me = await currentUser(api);
+    const details = await readUserSettings(api);
+    const res = await api.put(`${ENGINE_API}/metadata/${me.id}`, {
+        data: {
+            name: 'settings',
+            description: '',
+            details: { ...details, favourite_spaces: ids },
+        },
+    });
+    if (!res.ok()) {
+        throw new Error(
+            `write favourite_spaces failed: HTTP ${res.status()} ${await res.text()}`,
+        );
+    }
 }
 
 /**

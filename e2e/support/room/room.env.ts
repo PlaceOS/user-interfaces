@@ -42,6 +42,30 @@ export const ROOM_SLOTS = {
     cancel: { fromApp: 19, dismissed: 20 },
 } as const;
 
+/**
+ * Slots for the specs added after the first six files, on a DIFFERENT DAY.
+ *
+ * The hours above fill 9 to 20, and the ones left over (early morning, late
+ * evening) are outside the hours the form offers — so a spec that has to pick a
+ * time through the UI could not use them. Moving to `SECOND_DAY` reopens the
+ * whole working day instead. Same rule as before within it: one hour per test,
+ * because a worker's specs share one room and a sweep is per room, not per hour.
+ */
+export const SECOND_DAY = 4;
+
+export const ROOM_SLOTS_2 = {
+    /** room-edit.spec.ts — `moved_to` is the hour a booking is moved INTO */
+    edit: { time: 9, moved_to: 10, room: 11 },
+    /** room-capacity.spec.ts */
+    capacity: { strict: 12, warning: 13 },
+    /** room-favourites.spec.ts */
+    favourites: { toggled: 14 },
+    /** room-approval.spec.ts — blocked by ROOM-B1 */
+    approval: { approved: 15 },
+    /** room-catering.spec.ts */
+    catering: { ordered: 16 },
+} as const;
+
 export interface RoomIdentity {
     /** Engine system id, filled in by the seeder — not known up front. */
     id: string;
@@ -50,13 +74,52 @@ export interface RoomIdentity {
     capacity: number;
 }
 
-/** The name and address of the room this worker owns. */
-export function roomFor(workerIndex: number): Omit<RoomIdentity, 'id'> {
-    return {
-        name: `E2E Room ${workerIndex}`,
-        email: `${ROOM_PREFIX}${workerIndex}@place.tech`,
-        capacity: 8,
-    };
+/**
+ * Three rooms per worker, not one.
+ *
+ *  - `main` is the room every other spec books. Capacity 8.
+ *  - `alt` exists so a booking can be MOVED from one room to another
+ *    (ROOM-16). A second room is the only way to tell "the room was changed"
+ *    from "the room field was ignored".
+ *  - `small` has capacity ONE, so a single attendee is already over it
+ *    (ROOM-17). Capacity is a property of the System and cannot be set per
+ *    test, so the alternative would be adding eight attendees through the
+ *    autocomplete to overflow `main` — slower, and every extra chip is another
+ *    way for the test to fail for an unrelated reason.
+ *
+ * The names deliberately share no prefix with each other's full name, because
+ * the picker is searched by name text: "E2E Room 0" does not appear inside
+ * "E2E Alt Room 0" or "E2E Small Room 0".
+ */
+export type RoomVariant = 'main' | 'alt' | 'small';
+
+export const ROOM_VARIANTS: RoomVariant[] = ['main', 'alt', 'small'];
+
+/** The name, address and capacity of a room this worker owns. */
+export function roomFor(
+    workerIndex: number,
+    variant: RoomVariant = 'main',
+): Omit<RoomIdentity, 'id'> {
+    switch (variant) {
+        case 'alt':
+            return {
+                name: `E2E Alt Room ${workerIndex}`,
+                email: `${ROOM_PREFIX}alt-${workerIndex}@place.tech`,
+                capacity: 8,
+            };
+        case 'small':
+            return {
+                name: `E2E Small Room ${workerIndex}`,
+                email: `${ROOM_PREFIX}small-${workerIndex}@place.tech`,
+                capacity: 1,
+            };
+        default:
+            return {
+                name: `E2E Room ${workerIndex}`,
+                email: `${ROOM_PREFIX}${workerIndex}@place.tech`,
+                capacity: 8,
+            };
+    }
 }
 
 /**

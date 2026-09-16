@@ -109,6 +109,12 @@ export async function bookRoomViaUI(
          * someone the user removed.
          */
         removeAttendees?: string[];
+        /**
+         * Catering item names to order. Added AFTER the fill loop, because the
+         * catering modal is a three-click flow of its own and a retry would
+         * order lunch twice.
+         */
+        catering?: string[];
     } = {},
 ): Promise<RoomBooking> {
     const form = new MeetingForm(page);
@@ -149,6 +155,12 @@ export async function bookRoomViaUI(
     };
 
     await fillAndSettle(page, fill);
+
+    // Catering needs the room to be chosen first — the button is disabled until
+    // then — so it cannot go in the fill above, and it is not idempotent.
+    for (const item of options.catering ?? []) {
+        await form.addCateringItem(item);
+    }
 
     // The time and duration fields apply to the model ASYNCHRONOUSLY — measured
     // at up to ~2 seconds — and the confirm modal snapshots the model when it

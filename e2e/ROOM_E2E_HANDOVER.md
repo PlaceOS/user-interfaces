@@ -6,10 +6,17 @@ same shape. Written to be picked up cold. The coverage contract lives in
 conventions in [`README.md`](README.md); the visitor equivalent of this file is
 [`VISITOR_E2E_HANDOVER.md`](VISITOR_E2E_HANDOVER.md).
 
-**Status: 11 of 14 tests passing, 3 blocked on app bugs (ROOM-B2, ROOM-B3, ROOM-B4).**
-Six spec files, ~55 seconds. Nothing in the pre-existing suite was changed; the only
-edit to an existing file is **one word** in `e2e/support/visitor/your-bookings.page.ts`
-(`private` → `protected`), so the room schedule page can inherit it instead of copying it.
+**Status: 17 of 22 tests passing, 5 blocked (ROOM-B1 … ROOM-B5).** Ten spec files.
+Nothing in the pre-existing desk suite was changed. The only edits to existing files are
+in `e2e/support/visitor/your-bookings.page.ts`: the constructor argument became
+`protected`, and the form that "Edit" lands on became an overridable hook — both so the
+room schedule page can inherit the schedule rather than copy it.
+
+**2026-09-16 added seven tests** covering the scenarios this file used to list as "still
+to create": editing the time, editing the room, the capacity check in both its modes,
+favourites, and approval — plus catering, which turned out to be broken in this mode
+(ROOM-B5, a new finding). The eighth, **checking in, is blocked by the stack itself** and
+is written up below rather than left as an open to-do.
 
 ## The one thing to understand before reading anything else
 
@@ -45,8 +52,15 @@ bunx playwright test --config apps/workplace/playwright.config.ts \
   --project=local apps/workplace/e2e/local/room-*.spec.ts
 ```
 
-The first room run **creates the rooms** (one engine System per worker) and needs the
-admin identity from `seed.ts` to be present. They are left in place between runs.
+The first room run **creates the rooms** (three engine Systems per worker) and the first
+catering run creates the **menu**; both need the admin identity from `seed.ts` to be
+present, and both are left in place between runs.
+
+Runs on 2026-09-16 after this work: the **full suite** at 4 workers gave 52 passed,
+6 skipped, 1 failed — that one failure being the room-swap race described under *Traps*,
+which is now waited on properly. With the fix, the **room files** ran twice back to back at
+**18 passed, 5 skipped, 0 failed** (1.3 min, 1.2 min). Eighteen rather than seventeen
+because the count includes the preflight check.
 
 ---
 
@@ -58,8 +72,9 @@ Seven files, ~1,000 lines, sharing nothing with the desk or visitor support code
 
 | File | Holds |
 |---|---|
-| `room.env.ts` | one room per worker (`roomFor`), one time slot per spec file (`ROOM_SLOTS`), `slotFor(hour, daysAhead, minutes)` |
+| `room.env.ts` | **three** rooms per worker (`roomFor(worker, variant)` — `main`, `alt`, `small`), one time slot per spec file (`ROOM_SLOTS`, and `ROOM_SLOTS_2` on `SECOND_DAY` for the later files), `slotFor(hour, daysAhead, minutes)` |
 | `room.seed.ts` | creates the rooms as engine **Systems**, on demand, idempotent, cached per process. Needs ADMIN |
+| `catering.seed.ts` | creates a catering menu — a hidden `_CATERING_` asset category, a `CATERING:` asset type, one asset on the building. Needs ADMIN, and the asset APIs are on the **engine** api |
 | `room.api.ts` | create/sweep room bookings, plus `tryRoomBooking` — which returns the status instead of throwing, because the clash specs assert on `409` |
 | `room.settings.ts` | `useSettings()`, `ROOM_BASE_SETTINGS`, `LIMITED_HOURS`, and `NO_APPROVAL` (deliberately **unused** — it triggers ROOM-B1) |
 | `meeting-form.page.ts` | the meeting form: date, start time, duration, the room picker, attendees |
@@ -76,10 +91,15 @@ Seven files, ~1,000 lines, sharing nothing with the desk or visitor support code
 | `room-times.spec.ts` | 3 | 2 passing (day and start time stored as picked; limits control what is offered); 1 **`fixme`** — length, ROOM-B3 |
 | `room-attendees.spec.ts` | 2 | passing — an attendee added is stored; one removed before sending is not invited |
 | `room-cancel.spec.ts` | 2 | 1 **`fixme`** — cancelling from the app, ROOM-B4; 1 passing — declining the confirmation leaves it alone |
+| `room-edit.spec.ts` | 2 | passing — a new start time is stored; a booking moved to another room is stored against it |
+| `room-capacity.spec.ts` | 2 | passing — strict mode refuses before anything is sent (red-checked); the default only warns and still books |
+| `room-favourites.spec.ts` | 1 | passing — a favourite is saved to the user's settings and the filter narrows to it |
+| `room-approval.spec.ts` | 2 | 1 passing — the default stores the booking unapproved; 1 **`fixme`** — `no_approval`, ROOM-B1 |
+| `room-catering.spec.ts` | 1 | **`fixme`** — the order is refused in this mode, ROOM-B5 |
 
-Two tests per file, matching every other spec file in the suite. The two files carrying a
-third carry it as a `fixme` placeholder for a specific bug; fold each one into its sibling
-test when the bug is fixed.
+Two tests per file, matching every other spec file in the suite, except where a third is a
+`fixme` placeholder for a specific bug (fold it into its sibling when the bug is fixed) or
+where the subject is genuinely one thing (favourites, catering).
 
 **Four tests self-skip on a single worker** (clash ×2, scoping, attendees ×2 need a
 genuinely different second user). Run with the default worker count.
@@ -90,10 +110,11 @@ genuinely different second user). Run with the default worker count.
 
 | ID | Finding | Evidence |
 |---|---|---|
+| **ROOM-B5** | **Catering cannot be ordered with a PlaceOS-native room booking.** The meeting saves (`201`); the catering order that follows is refused **422 `error linking booking to event` / `Could not find metadata for event ARRAY['1138']`**. Orders are linked to a calendar EVENT by `event_id`, and in `use_bookings` mode the id handed over is a *booking* id, so the lookup finds nothing. **The room booking is left behind undeleted and no order exists** — the user sees an error and reasonably believes nothing was booked, while the room is held and the food was never ordered. | `room-catering.spec.ts` (`fixme`). Booked through the app with a seeded menu; the 422 body and the surviving booking were both measured on 2026-09-16 |
 | **ROOM-B4** | **Cancelling a room booking from the schedule does nothing.** Confirming fires `DELETE /api/staff/v1/events/<id>` → **500**, and the booking is still live. `schedule.component.ts` deletes whatever it displays as an event (`item instanceof CalendarEvent ? removeEvent : removeBooking`), and a room booking is rebuilt into a `CalendarEvent` for display, so it takes the calendar path. The room stays held by a booking the user believes they cancelled. | `room-cancel.spec.ts` test 1 (`fixme`). Test 2 passes, which is what shows the menu, dialog and wiring are fine and the delete is not |
 | **ROOM-B3** | **The meeting length picked is not the length booked.** Ask for 90: field reads "1 hour 30 minutes", confirmation shows 6:00–7:30 PM, request sends `booking_end` 7:00 PM while `extension_data.event_end` says 7:30. `newBookingFromCalendarEvent` takes `event.duration`, still the default. The user sees one range; the room is held for another. | `room-times.spec.ts` test 3 (`fixme`). Not timing and not ordering — both orders tried, and the field still reads 90 four seconds later, immediately before sending |
 | **ROOM-B2** | A room booked through the app is stored with **`zones: []`**, where desk and visitor bookings carry org/building/level. Anything scoping by zone cannot see it, and it is what walks the request into ROOM-B1. | `room-booking.spec.ts` test 3 (`fixme`) |
-| **ROOM-B1** | A non-admin sending `approved: true` **without** zones gets **500 `syntax error at or near ")" (PQ::PQError)`**. With zones it is correctly refused `403`; an admin gets `201`; desks do it too, so it is not room-specific — the approval permission check dies instead of refusing when it has no zones. | reached from the app via `app.bookings.no_approval = true`, which is why `NO_APPROVAL` is not in the base settings. No spec: the approval scenario is blocked on it |
+| **ROOM-B1** | A non-admin sending `approved: true` **without** zones gets **500 `syntax error at or near ")" (PQ::PQError)`**. With zones it is correctly refused `403`; an admin gets `201`; desks do it too, so it is not room-specific — the approval permission check dies instead of refusing when it has no zones. Compounds with ROOM-B2, which is why a room booking made through the form reaches it: that booking carries no zones at all. | `room-approval.spec.ts` test 2 (`fixme`). Re-measured through the app on 2026-09-16 by dropping the `fixme`: the booking POST is a `500` with an empty body |
 
 None of these are test defects. ROOM-B3 and ROOM-B4 are the two a user would actually be
 hurt by — both hold a room against everybody else while showing the person who booked it
@@ -114,6 +135,13 @@ something different.
 - **Settings per browser context**, via `localStorage['PLACEOS.setting_overrides']`, the
   same mechanism the visitor specs use — deliberately duplicated rather than imported,
   because a shared file could break both areas.
+- **Three rooms per worker, not one** (2026-09-16). `alt` exists so a booking can be moved
+  between rooms, and `small` has capacity 1 so a single guest is already over it. Capacity
+  is a property of the System, so it cannot be a per-test setting; the alternative was
+  adding eight attendees through the autocomplete to overflow a normal room, which is
+  slower and gives eight more ways to fail for unrelated reasons.
+- **The catering menu is seeded, and kept to one item.** The subject is whether an order
+  reaches the backend, not the menu, so `catering.seed.ts` creates exactly one item.
 - **One room per worker, one slot per spec file.** A room is exclusive like a desk, so two
   specs on one worker booking the same hour would clash with each other rather than with
   the thing under test.
@@ -124,22 +152,49 @@ something different.
 
 ## Next steps
 
-1. ~~`E2E_USER_STORIES.md` rows~~ — **done 2026-09-16.** §1b holds ROOM-01 … ROOM-14 and
-   the four findings; WP-E2E-15 is now **partial** rather than out of scope, split into
+1. ~~`E2E_USER_STORIES.md` rows~~ — **done 2026-09-16.** §1b holds ROOM-01 … ROOM-23 and
+   the five findings; WP-E2E-15 is now **partial** rather than out of scope, split into
    the native path (covered) and the calendar path (still external).
-2. **Commit and push.** Nothing is committed on `automated-testing` yet — visitor work
-   first, then rooms.
-3. **File the four findings.** Needs a project and an owner. ROOM-B3 and ROOM-B4 first.
-4. **Stale booking accumulation** — shared with the visitor work and bigger than either.
+2. ~~The seven scenarios this file used to list~~ — **done 2026-09-16**, as seven tests:
+   ROOM-15 … ROOM-22. Two of them land as `fixme` on bugs (ROOM-21 on ROOM-B1, ROOM-22 on
+   the new ROOM-B5), and the eighth — check-in, ROOM-23 — is blocked by the stack; see
+   below.
+3. **Push, and open the PR.** Still not done, and deliberately: the branch has never been
+   pushed. Two commits are local.
+4. **File the five findings.** Needs a project and an owner. **ROOM-B5, ROOM-B4 and
+   ROOM-B3 first** — all three leave a room held while telling the user something else.
+5. **Stale booking accumulation** — shared with the visitor work and bigger than either.
    Cancelled bookings pile up per user and the schedule counts them against a 100-row
    limit; past that, card-based specs fail for a reason that has nothing to do with the
    app. Backend change or purge step, and the user's decision.
-5. **Seven room scenarios still to write:** edit the time · edit the room · capacity
-   warning · approval (**blocked by ROOM-B1**) · check in · favourite rooms · catering and
-   equipment.
+6. **What is left to write**, now that the original seven are done: equipment/asset
+   requests on a meeting (the other half of "catering and equipment", and a separate flow
+   from catering) · recurring bookings in `use_bookings` mode · multi-room meetings
+   (`multipleSpacesEnabled` changes the picker's confirm button and the form's shape) ·
+   the picker's features/facilities filter, which has the same shape as favourites.
+
+## Checking in is blocked by the stack, not by effort
+
+Worth stating properly, because it looks like an oversight. The check-in control in
+`event-details-modal.component.ts` is gated on a live websocket **binding**:
+
+```html
+<i binding [(model)]="room_status" [sys]="space()?.id" mod="Bookings" bind="status"></i>
+```
+
+The button renders only when `room_status()` is set and is not `'free'`, so it needs a
+**`Bookings` driver module running on the room's System**. Measured on this stack:
+`GET /drivers` returns one (`spec_helper`) and `GET /modules` returns one
+(`PrivateHelper`). There is no `Bookings` driver to add, so no room can have that module
+and the control can never appear — no selector, no setting and no seeding changes that.
+
+Unblocking it means building and running a real driver inside the e2e stack, which is a
+stack change. Contrast VIS-11: visitor check-in is a plain staff-api call, which is why it
+is covered and this is not.
 
 **Cannot be tested here at all:** real Outlook/Google invites, free/busy, attendee
-availability · email of any kind · room panels and signage · recurring meetings.
+availability · email of any kind · room panels and signage · recurring meetings on the
+calendar path · checking in to a room (above).
 
 ---
 
@@ -177,3 +232,45 @@ availability · email of any kind · room panels and signage · recurring meetin
 - **Rooms ARE exclusive, like desks**: same slot `409`, partial overlap `409`, clear slot
   `201`. Unlike visitors, who can be double-booked (VIS-B1). Assert `409` specifically —
   a REG-09 `500` satisfies `>= 400` while proving nothing.
+
+### Added 2026-09-16, and every one of these cost a failing run first
+
+- **The picker only offers rooms for 4+ people until you say otherwise.** The form has a
+  "minimum people" radio (`space-list-field`, values 1 / 4 / 10) that starts at **4**, and
+  the picker filters to rooms at least that big. A capacity-1 room is simply absent, and
+  the picker's own error says the room does not exist — which sent the first capacity
+  attempt looking for a seeding bug. `MeetingForm.setRoomSize(1)` is the fix.
+- **A capacity of 0 escapes that filter entirely.** `Space` maps a falsy capacity to
+  **-1**, and the filter lets anything negative through — so a capacity-0 room is always
+  offered and is displayed as "Capacity 2". Do not reach for 0 to make a room "too small":
+  it makes every capacity comparison degenerate.
+- **An API-made booking cannot be edited through the form.** The room lives in
+  `extension_data`, which is what `newCalendarEventFromBooking` spreads over the event — so
+  a booking created by `createRoomBookingViaApi` opens the edit form with **no room on it**
+  and looks exactly like the app losing the room. `room-edit.spec.ts` books through the UI
+  for that reason, and says so.
+- **Assets, asset types and asset categories are on the ENGINE api.**
+  `/api/staff/v1/assets` is a `404` here. That matters for anything catering-shaped, since
+  a catering menu is made of assets.
+- **An asset type needs a `brand`.** Without it, `POST /asset_types` is a `422`
+  `"brand: should not be nil"`. The app's own menu editor always sends one, so this only
+  bites a seeder.
+- **"Add catering" is disabled until a room is chosen**, because catering is delivered to a
+  room. A spec that orders food before picking a room waits out the full timeout on a
+  button that was never going to enable.
+- **A favourite is a USER setting, not a room property.** It goes into the user's
+  `settings` metadata as `favourite_spaces`, debounced ~2.4 seconds, written as the WHOLE
+  blob — which is shared with the visitor specs' saved invitee list. Read-modify-write, or
+  you will wipe their data as collateral. `room.api.ts` does.
+- **The chosen ROOM reaches the model late too, not just the times.** Caught by a full
+  parallel run, not by the spec in isolation: `room-edit`'s "move to another room" picked
+  the new room, the confirm screen snapshotted the model before the change landed, and the
+  `PATCH` carried the ORIGINAL room id — so the test failed saying the room had not
+  changed, which is exactly what it would say if the app were broken. Worth knowing
+  because **the room count cannot see this**: it is 1 before and 1 after, so only the NAME
+  shows the swap. `MeetingForm.chosenRoomNames()` exists for that, and the spec waits on it
+  before confirming.
+- **One flake seen, once**: `room-clash` "the room frees up once the booking is deleted"
+  failed on the first run against a freshly started stack and passed on every run since,
+  including in isolation. The cause was not captured, because that run used a reporter that
+  swallowed it. If it reappears, run with the default reporter and keep the HTML report.

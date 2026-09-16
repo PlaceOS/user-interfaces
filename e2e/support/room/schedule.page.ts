@@ -56,6 +56,26 @@ export class RoomSchedulePage extends YourBookingsPage {
         }
     }
 
+    /**
+     * Editing a room booking lands on the MEETING form, not the visitor one.
+     *
+     * The rest of `startEdit` — details modal, overflow menu, the Edit item
+     * found by its icon — is identical, so only these two hooks are overridden.
+     */
+    protected override get editForm(): Locator {
+        return this.page.locator('meeting-flow-form');
+    }
+
+    protected override get editFormHint(): string {
+        return (
+            'A room booking is edited through `schedule.component.ts::edit`, which is ' +
+            'only offered for an event the user owns and which has not finished. Note ' +
+            'that path re-queries the CALENDAR when `creator !== mailbox`, and ' +
+            '/events 500s on this stack — so a missing Edit item and a failed edit are ' +
+            'two different problems.'
+        );
+    }
+
     /** Open a room booking's details and wait for the modal. */
     override async openDetails(bookingId: number): Promise<Locator> {
         const card = this.card(bookingId);
