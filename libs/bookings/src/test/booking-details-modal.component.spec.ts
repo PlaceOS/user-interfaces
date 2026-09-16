@@ -178,6 +178,25 @@ describe('BookingDetailsModalComponent', () => {
         }
     });
 
+    it('should hide all actions for a cancelled booking', () => {
+        const booking = new Booking({
+            id: 'booking-2',
+            booking_type: 'desk',
+            asset_id: 'desk-2',
+            date: Date.now() + 5 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        });
+        spectator.component.booking.set(booking);
+        spectator.detectChanges();
+        expect('[actions]').toExist();
+        spectator.component.booking.set(
+            new Booking({ ...booking, status: 'cancelled' } as any),
+        );
+        spectator.detectChanges();
+        expect('[actions]').not.toExist();
+    });
+
     it('should show cancel series for a recurring booking by default', () => {
         spectator.component.booking.set(
             new Booking({

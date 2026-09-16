@@ -107,7 +107,9 @@ export function canEditBooking(booking: Booking) {
                             >
                         }
                     </div>
-                    @if (!booking().is_done) {
+                    @if (
+                        !booking().is_done && booking().status !== 'cancelled'
+                    ) {
                         <div actions class="flex items-center space-x-2 px-2">
                             @if (can_checkin()) {
                                 @if (
