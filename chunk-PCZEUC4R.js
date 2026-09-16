@@ -179,7 +179,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-2CMJ6LSG.js";
+} from "./chunk-ZICKXSK2.js";
 import {
   __spreadProps,
   __spreadValues
@@ -6889,4 +6889,4 @@ export {
   setGuestCateringItem
 };
 //# debugId=4871782b-a3e9-57dc-b412-a450bb4125e5
-//# sourceMappingURL=chunk-KJBGB7K5.js.map
+//# sourceMappingURL=chunk-PCZEUC4R.js.map
