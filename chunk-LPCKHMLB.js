@@ -54981,15 +54981,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "e8a902e",
-  "hash": "e8a902e",
+  "raw": "b407f3d",
+  "hash": "b407f3d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e8a902e",
+  "suffix": "b407f3d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1789522240895
+  "time": 1789543131664
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -80895,5 +80895,5 @@ export {
   MatTooltip,
   MatTooltipModule
 };
-//# debugId=66abc69b-0683-5f4e-afc8-b696e195f946
-//# sourceMappingURL=chunk-4BLU4QNC.js.map
+//# debugId=20aea0c0-6db5-5679-a924-2aeff5d713ec
+//# sourceMappingURL=chunk-LPCKHMLB.js.map
