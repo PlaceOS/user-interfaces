@@ -56340,15 +56340,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "e8a902e",
-  "hash": "e8a902e",
+  "raw": "b407f3d",
+  "hash": "b407f3d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "e8a902e",
+  "suffix": "b407f3d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1789522236154
+  "time": 1789543129296
 };
 
 // libs/common/src/lib/google-analytics.service.ts
@@ -81886,5 +81886,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=c0a86b91-af48-5f71-9c0c-4236662b469f
-//# sourceMappingURL=chunk-T3EJMGSX.js.map
+//# debugId=31091959-b722-5eb6-9a12-1f2faa710c4a
+//# sourceMappingURL=chunk-COTYPJPA.js.map
