@@ -44,6 +44,75 @@ describe('BindingDebugPanelComponent', () => {
         expect(spectator.component.show()).toBe(true);
     });
 
+    it('resizes the panel and restores app spacing when closed', async () => {
+        const original_padding = document.body.style.paddingRight;
+        document.body.style.paddingRight = '12px';
+        try {
+            spectator.component.show.set(true);
+            await spectator.fixture.whenStable();
+
+            vi.spyOn(
+                document.documentElement,
+                'clientWidth',
+                'get',
+            ).mockReturnValue(1200);
+            const panel = spectator.query<HTMLElement>('aside');
+            vi.spyOn(panel, 'getBoundingClientRect').mockReturnValue({
+                width: 512,
+            } as DOMRect);
+            const handle = spectator.query<HTMLElement>('[role="separator"]');
+            let captured = false;
+            handle.setPointerCapture = () => {
+                captured = true;
+            };
+            handle.hasPointerCapture = () => captured;
+            handle.releasePointerCapture = () => {
+                captured = false;
+            };
+            const pointer = (type: string, clientX: number) => {
+                const event = new MouseEvent(type, {
+                    clientX,
+                    button: 0,
+                    bubbles: true,
+                });
+                Object.defineProperties(event, {
+                    pointerId: { value: 1 },
+                    isPrimary: { value: true },
+                });
+                handle.dispatchEvent(event);
+            };
+            pointer('pointerdown', 688);
+            pointer('pointermove', 432);
+            await spectator.fixture.whenStable();
+
+            expect(panel.style.width).toBe('min(768px, 100vw)');
+            expect(document.body.style.paddingRight).toBe('min(768px, 100vw)');
+
+            pointer('pointermove', -500);
+            await spectator.fixture.whenStable();
+            expect(panel.style.width).toBe('min(1200px, 100vw)');
+            pointer('pointermove', 1500);
+            await spectator.fixture.whenStable();
+            expect(panel.style.width).toBe('min(320px, 100vw)');
+            pointer('pointerup', 1500);
+            pointer('pointermove', 432);
+            await spectator.fixture.whenStable();
+            expect(panel.style.width).toBe('min(320px, 100vw)');
+            handle.dispatchEvent(
+                new KeyboardEvent('keydown', { key: 'ArrowLeft' }),
+            );
+            await spectator.fixture.whenStable();
+            expect(panel.style.width).toBe('min(336px, 100vw)');
+
+            spectator.component.show.set(false);
+            await spectator.fixture.whenStable();
+            expect(document.body.style.paddingRight).toBe('12px');
+        } finally {
+            document.body.style.paddingRight = original_padding;
+            vi.restoreAllMocks();
+        }
+    });
+
     it('starts groups collapsed', () => {
         expect(spectator.component.isExpanded('system|sys-1')).toBe(false);
         spectator.component.toggleGroup('system|sys-1');

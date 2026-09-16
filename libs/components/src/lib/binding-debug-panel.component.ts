@@ -20,6 +20,7 @@ import {
     PlaceVariableBinding,
     showSystem,
 } from '@placeos/ts-client';
+import { DebugPanelResize } from './debug-panel-resize';
 import { IconComponent } from './icon.component';
 
 interface ClientWritableSignal<T> {
@@ -238,9 +239,25 @@ installBindingDebugHooks();
     template: `
         @if (show()) {
             <aside
+                [style.width]="resize.panel_width()"
                 aria-label="Driver debug"
-                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-999 flex w-[32rem] max-w-full flex-col border-l shadow-xl"
+                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-999 flex max-w-full flex-col border-l shadow-xl"
             >
+                <div
+                    role="separator"
+                    tabindex="0"
+                    aria-label="Resize panel"
+                    aria-orientation="vertical"
+                    [attr.aria-valuemin]="resize.min_width"
+                    [attr.aria-valuemax]="resize.maxWidth()"
+                    [attr.aria-valuenow]="resize.width()"
+                    class="hover:bg-primary/30 focus-visible:bg-primary/30 absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize touch-none select-none focus-visible:outline-2"
+                    (pointerdown)="resize.start($event)"
+                    (pointermove)="resize.move($event)"
+                    (pointerup)="resize.end($event)"
+                    (pointercancel)="resize.end($event)"
+                    (keydown)="resize.onKeydown($event)"
+                ></div>
                 <header
                     class="border-base-300 bg-base-100 flex items-center border-b p-2"
                 >
@@ -277,7 +294,7 @@ installBindingDebugHooks();
                 </header>
 
                 <div
-                    class="border-base-300 bg-base-100 grid grid-cols-2 border-b p-1 gap-1"
+                    class="border-base-300 bg-base-100 grid grid-cols-2 gap-1 border-b p-1"
                 >
                     <button
                         matRipple
@@ -938,6 +955,7 @@ export class BindingDebugPanelComponent extends AsyncHandler {
     private _clipboard = inject(Clipboard);
 
     public readonly show = model(false);
+    public readonly resize = new DebugPanelResize(512, 100);
     public readonly hotkeysEnabled = input(true);
     public readonly tab = signal<'bindings' | 'executes'>('bindings');
     public readonly filter = signal('');
@@ -994,7 +1012,7 @@ export class BindingDebugPanelComponent extends AsyncHandler {
         if (!this.show()) return;
         const body = this._document.body;
         const padding_right = body.style.paddingRight;
-        body.style.paddingRight = 'min(32rem, 100vw)';
+        body.style.paddingRight = this.resize.panel_width();
         on_cleanup(() => (body.style.paddingRight = padding_right));
     });
 

@@ -17,6 +17,7 @@ import { OrganisationService } from 'libs/common/src/lib/org/organisation.servic
 import { DEFAULT_SETTINGS } from 'libs/common/src/lib/settings';
 import { HashMap } from 'libs/common/src/lib/types';
 import { CustomTooltipComponent } from './custom-tooltip.component';
+import { DebugPanelResize } from './debug-panel-resize';
 import { IconComponent } from './icon.component';
 
 interface SettingZone {
@@ -121,8 +122,24 @@ function flattenSchemaKeys(
     template: `
         @if (show()) {
             <aside
-                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-998 flex w-96 max-w-[90vw] flex-col border-l shadow-xl"
+                [style.width]="resize.panel_width()"
+                class="border-base-300 bg-base-200 text-base-content fixed inset-y-0 right-0 z-998 flex max-w-[90vw] flex-col border-l shadow-xl"
             >
+                <div
+                    role="separator"
+                    tabindex="0"
+                    aria-label="Resize panel"
+                    aria-orientation="vertical"
+                    [attr.aria-valuemin]="resize.min_width"
+                    [attr.aria-valuemax]="resize.maxWidth()"
+                    [attr.aria-valuenow]="resize.width()"
+                    class="hover:bg-primary/30 focus-visible:bg-primary/30 absolute inset-y-0 -left-1 z-10 w-2 cursor-col-resize touch-none select-none focus-visible:outline-2"
+                    (pointerdown)="resize.start($event)"
+                    (pointermove)="resize.move($event)"
+                    (pointerup)="resize.end($event)"
+                    (pointercancel)="resize.end($event)"
+                    (keydown)="resize.onKeydown($event)"
+                ></div>
                 <header
                     class="border-base-300 bg-base-100 flex items-center border-b p-2"
                 >
@@ -177,6 +194,7 @@ function flattenSchemaKeys(
                         }
                     </div>
                 </header>
+
                 <div class="relative m-1 flex">
                     <input
                         name="setting-filter"
@@ -480,11 +498,12 @@ export class SettingsDebugPanelComponent {
     public readonly schema = input<HashMap | null>(null);
 
     public readonly show = model(false);
+    public readonly resize = new DebugPanelResize(384, 90);
     private readonly _dock_app = effect((on_cleanup) => {
         if (!this.show()) return;
         const body = this._document.body;
         const padding_right = body.style.paddingRight;
-        body.style.paddingRight = 'min(24rem, 90vw)';
+        body.style.paddingRight = this.resize.panel_width();
         on_cleanup(() => (body.style.paddingRight = padding_right));
     });
     public readonly filter = signal('');
