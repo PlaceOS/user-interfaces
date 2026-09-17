@@ -13,6 +13,7 @@ import {
     SignageTemplate,
     SignageTemplateLayout,
 } from '@placeos/ts-client';
+import { isDebugEnabled } from './debug-state';
 import { MediaCacheService } from './media-cache.service';
 import { MediaPlayerComponent } from './media-player.component';
 import { SignagePanelComponent } from './signage.component';
@@ -213,6 +214,11 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     });
 
     public ngOnInit() {
+        // Read preview mode before the child panel starts and templates load.
+        const params = this._route.snapshot.queryParamMap;
+        if (params.has('debug')) {
+            this.debug.set(isDebugEnabled(params.get('debug')));
+        }
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
@@ -282,14 +288,11 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
             return;
         }
         try {
-            const template = await showSignageTemplate(template_id, {
-                approved: true,
-            }).catch((error) => {
-                // A new template has no approved version, so the manager
-                // preview falls back to the pending version.
-                if (!this.debug()) throw error;
-                return showSignageTemplate(template_id);
-            });
+            // Preview the pending template even before its first approval.
+            const template = await showSignageTemplate(
+                template_id,
+                this.debug() ? {} : { approved: true },
+            );
             const [plugin_result, background] = await Promise.all([
                 querySignagePlugins({ limit: 500 }).catch(() => ({ data: [] })),
                 template.background_item_id

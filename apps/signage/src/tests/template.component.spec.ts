@@ -251,19 +251,46 @@ describe('SignageTemplateComponent', () => {
     });
 
     it('previews the pending version of an unapproved template in debug mode', async () => {
-        const pending = { id: 'template-1', layouts: [] };
-        (ts_client.showSignageTemplate as any).mockImplementation(
+        const pending = new ts_client.SignageTemplate({
+            id: 'template-1',
+            layouts: [],
+        });
+        vi.mocked(ts_client.showSignageTemplate).mockImplementation(
             (_: string, query?: { approved?: boolean }) =>
                 query?.approved
                     ? Promise.reject(new Error('Not found'))
                     : Promise.resolve(pending),
         );
-        debug.set(true);
         spectator = create_component({
             params: { template_id: 'template-1', system_id: 'display-1' },
+            queryParams: { debug: 'true' },
         });
         await vi.waitFor(() => {
             expect(spectator.component.template()).toBe(pending);
+        });
+        expect(ts_client.showSignageTemplate).toHaveBeenCalledExactlyOnceWith(
+            'template-1',
+            {},
+        );
+
+        window.dispatchEvent(
+            new MessageEvent('message', {
+                data: {
+                    type: 'signage:template-layouts',
+                    layouts: [
+                        { position: 'top', y_pos: 0.2, plugin_id: 'plugin-1' },
+                    ],
+                },
+            }),
+        );
+        await spectator.fixture.whenStable();
+
+        expect(spectator.query('plugin-embed')).toBeTruthy();
+        expect(spectator.component.player_rect()).toEqual({
+            left: 0,
+            top: 20,
+            width: 100,
+            height: 80,
         });
     });
 
