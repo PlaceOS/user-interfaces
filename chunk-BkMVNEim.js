@@ -1,3 +1,0 @@
-import{Gr as W,Gt as J4,Tc as x,as as p}from"./chunk-DEJmmA2j.js";var a=(()=>{class e{constructor(){this._el=p(W),this.intersect=J4()}ngAfterViewInit(){this._observer=new IntersectionObserver(i=>{i.some(t=>t.isIntersecting)&&this.intersect.emit()},{rootMargin:`300px`}),this._observer.observe(this._el.nativeElement)}ngOnDestroy(){this._observer?.disconnect()}static{this.ɵfac=function(t){return new(t||e)}}static{this.ɵdir=x({type:e,selectors:[[``,`intersect`,``]],outputs:{intersect:`intersect`}})}}return e})();export{a as t};
-//# debugId=690ce642-cd4f-5533-864b-d6c96df4ef07
-//# sourceMappingURL=chunk-BkMVNEim.js.map
