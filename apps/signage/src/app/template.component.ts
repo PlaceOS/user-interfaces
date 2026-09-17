@@ -11,6 +11,7 @@ import {
     SignageMedia,
     SignagePlugin,
     SignageTemplate,
+    SignageTemplateLayout,
 } from '@placeos/ts-client';
 import { MediaCacheService } from './media-cache.service';
 import { MediaPlayerComponent } from './media-player.component';
@@ -20,6 +21,8 @@ import { computeTemplateLayout } from './template-layout';
 import { MediaPlayerItem } from './types';
 
 const STORE_DISPLAY_KEY = 'PlaceOS.SIGNAGE.display';
+/** Message type the signage manager posts with unsaved layouts to preview */
+const PREVIEW_LAYOUTS_MESSAGE = 'signage:template-layouts';
 
 interface RenderedLayoutItem {
     plugin: SignagePlugin;
@@ -159,6 +162,10 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
 
     public readonly debug = this._signage.debug;
     public readonly template = signal<SignageTemplate | null>(null);
+    // Unsaved layouts posted by the manager preview; only used in debug mode
+    private readonly _preview_layouts = signal<SignageTemplateLayout[] | null>(
+        null,
+    );
     public readonly background_playlist = signal<MediaPlayerItem[]>([]);
 
     private readonly _template_id = computed(
@@ -170,7 +177,11 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     private readonly _template_id$ = toObservable(this._template_id);
 
     private readonly _layout = computed(() =>
-        computeTemplateLayout(this.template()?.layouts || []),
+        computeTemplateLayout(
+            (this.debug() && this._preview_layouts()) ||
+                this.template()?.layouts ||
+                [],
+        ),
     );
 
     public readonly player_rect = computed(() => this._layout().player);
@@ -218,7 +229,22 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
                 this._loadTemplate(template_id),
             ),
         );
+        window.addEventListener('message', this._preview_message_handler);
+        this.subscription('preview-message', () =>
+            window.removeEventListener(
+                'message',
+                this._preview_message_handler,
+            ),
+        );
     }
+
+    private readonly _preview_message_handler = (event: MessageEvent) => {
+        const data = event?.data;
+        if (!this.debug() || data?.type !== PREVIEW_LAYOUTS_MESSAGE) return;
+        this._preview_layouts.set(
+            Array.isArray(data.layouts) ? data.layouts : null,
+        );
+    };
 
     private _bootstrapTemplate(template_id: string) {
         const display_id = localStorage.getItem(STORE_DISPLAY_KEY);
@@ -236,6 +262,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
 
     private async _loadTemplate(template_id: string) {
         const load_id = ++this._load_id;
+        this._preview_layouts.set(null);
         if (!template_id) {
             this._plugins.set([]);
             this.template.set(null);

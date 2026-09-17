@@ -1,6 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { SignageTemplateLayout } from '@placeos/ts-client';
+
 import { SignageService } from '../../app/signage.service';
 import { TemplatePreviewComponent } from '../../app/templates/template-preview.component';
 
@@ -16,7 +18,7 @@ describe('TemplatePreviewComponent', () => {
     const service_stub = {
         selected_template,
         selected_template_layout_index: signal<number | null>(null),
-        template_layout_draft: signal([]),
+        template_layout_draft: signal<SignageTemplateLayout[]>([]),
         widgets: signal([]),
         displays,
     };
@@ -47,7 +49,40 @@ describe('TemplatePreviewComponent', () => {
     beforeEach(() => {
         selected_template.set(null);
         displays.set([]);
+        service_stub.template_layout_draft.set([]);
         TestBed.resetTestingModule();
+    });
+
+    it('posts the layout draft to the live preview when it changes', async () => {
+        selected_template.set({ id: 'template-1' });
+        displays.set([{ id: 'display-1' }]);
+        const fixture = await render();
+        const component = fixture.componentInstance;
+        component.selected_display_id.set('display-1');
+        component.live_mode.set(true);
+        await fixture.whenStable();
+        const frame = (fixture.nativeElement as HTMLElement).querySelector(
+            'iframe',
+        ) as HTMLIFrameElement;
+        const post = vi.spyOn(frame.contentWindow!, 'postMessage');
+
+        service_stub.template_layout_draft.set([
+            { position: 'top', plugin_id: 'plugin-1' } as SignageTemplateLayout,
+        ]);
+        await fixture.whenStable();
+
+        expect(post).toHaveBeenLastCalledWith(
+            {
+                type: 'signage:template-layouts',
+                layouts: [
+                    expect.objectContaining({
+                        position: 'top',
+                        plugin_id: 'plugin-1',
+                    }),
+                ],
+            },
+            '*',
+        );
     });
 
     it('selects a display before enabling the live preview', async () => {

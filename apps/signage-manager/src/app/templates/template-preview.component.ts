@@ -1,4 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    ElementRef,
+    inject,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,6 +21,7 @@ import {
 import { mediaThumbnail } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 import {
+    applyLayoutPositionDefaults,
     computeTemplateLayoutRects,
     layoutPositionLabel,
 } from './template-layout.util';
@@ -22,6 +31,9 @@ interface AspectRatioOption {
     label: string;
     ratio: number;
 }
+
+/** Message type the signage player accepts to preview unsaved layouts */
+const PREVIEW_LAYOUTS_MESSAGE = 'signage:template-layouts';
 
 const ASPECT_RATIOS: AspectRatioOption[] = [
     { id: '16:9', label: '16:9', ratio: 16 / 9 },
@@ -90,9 +102,7 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                 </mat-form-field>
                 <settings-toggle
                     [toggle]="true"
-                    [label]="
-                        'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE' | translate
-                    "
+                    [label]="'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE' | translate"
                     [info]="
                         'SIGNAGE_MANAGER.TEMPLATE_LIVE_MODE_HINT' | translate
                     "
@@ -100,9 +110,7 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                     [(ngModel)]="live_mode"
                     [class.opacity-50]="!live_preview_available()"
                     [attr.aria-disabled]="!live_preview_available()"
-                    [attr.inert]="
-                        !live_preview_available() ? '' : null
-                    "
+                    [attr.inert]="!live_preview_available() ? '' : null"
                 />
             </div>
             <div
@@ -114,8 +122,10 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                 >
                     @if (live_mode() && live_preview_available()) {
                         <iframe
+                            #live_frame
                             class="absolute inset-0 h-full w-full border-0"
                             [src]="live_preview_url() | safe: 'resource'"
+                            (load)="postDraftLayouts()"
                             [title]="
                                 'SIGNAGE_MANAGER.TEMPLATE_LIVE_PREVIEW'
                                     | translate
@@ -260,6 +270,14 @@ export class TemplatePreviewComponent {
     public readonly selected_index =
         this._service.selected_template_layout_index;
     private readonly _layouts = this._service.template_layout_draft;
+    private readonly _live_frame =
+        viewChild<ElementRef<HTMLIFrameElement>>('live_frame');
+
+    // Keep the live player in sync with unsaved layout edits
+    private readonly _sync_draft = effect(() => {
+        this._layouts();
+        this.postDraftLayouts();
+    });
 
     public readonly layout_rects = computed(() => {
         const layouts = this._layouts();
@@ -292,6 +310,19 @@ export class TemplatePreviewComponent {
         const signage_path = this.signage_path() || '/signage';
         return `${signage_path.replace(/\/$/, '')}/#/template/${encodeURIComponent(template_id)}/${encodeURIComponent(display_id)}?debug=true`;
     });
+
+    /** Send the unsaved layout draft to the live player iframe */
+    public postDraftLayouts() {
+        const frame = this._live_frame()?.nativeElement;
+        if (!frame?.contentWindow) return;
+        frame.contentWindow.postMessage(
+            {
+                type: PREVIEW_LAYOUTS_MESSAGE,
+                layouts: this._layouts().map(applyLayoutPositionDefaults),
+            },
+            '*',
+        );
+    }
 
     public selectLayout(index: number) {
         this.selected_index.set(this.selected_index() === index ? null : index);

@@ -216,6 +216,40 @@ describe('SignageTemplateComponent', () => {
         );
     });
 
+    it('previews posted layouts only in debug mode', async () => {
+        spectator = create_component({
+            params: { template_id: 'template-1', system_id: 'display-1' },
+        });
+        await vi.waitFor(() => {
+            expect(spectator.component.layout_items()).toHaveLength(1);
+        });
+        const post = (layouts: unknown) =>
+            window.dispatchEvent(
+                new MessageEvent('message', {
+                    data: { type: 'signage:template-layouts', layouts },
+                }),
+            );
+
+        post([]);
+        expect(spectator.component.layout_items()).toHaveLength(1);
+
+        debug.set(true);
+        post([
+            { position: 'bottom', y_pos: 0.1, plugin_id: 'plugin-1' },
+            { position: 'top', y_pos: 0.2, plugin_id: 'plugin-1' },
+        ]);
+        expect(spectator.component.layout_items()).toHaveLength(2);
+        expect(spectator.component.player_rect()).toEqual({
+            left: 0,
+            top: 20,
+            width: 100,
+            height: 70,
+        });
+
+        post(null);
+        expect(spectator.component.layout_items()).toHaveLength(1);
+    });
+
     it('uses the stored display when opening a template without one', () => {
         localStorage.setItem('PlaceOS.SIGNAGE.display', 'display-2');
         spectator = create_component({ params: { template_id: 'template-1' } });
