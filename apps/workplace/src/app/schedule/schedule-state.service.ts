@@ -812,6 +812,10 @@ export class ScheduleStateService extends AsyncHandler {
             include_checked_out: true,
             include_booked_by: true,
             include_deleted: true,
+            // Recurring series only expand cancelled instances when the
+            // `deleted` flag is also set. Without it a cancelled day of a
+            // multi-day parking booking is dropped from the response.
+            deleted: true,
         };
         const key = JSON.stringify(query);
         const existing = this._booking_query_requests.get(key);

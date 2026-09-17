@@ -386,5 +386,6 @@ describe('ScheduleStateService', () => {
         const url = vi.mocked(ts_client.get).mock.lastCall?.[0] as string;
         expect(url).toContain('include_checked_out=true');
         expect(url).toContain('include_deleted=true');
+        expect(url).toMatch(/[?&]deleted=true/);
     });
 });
