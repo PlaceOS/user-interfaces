@@ -1,3 +1,0 @@
-import{Rc as yc,qr as Wo}from"./chunk-CINJnO0q.js";var p=(()=>{class r{transform(t,s=!1){let a=Math.floor(t/60/60),n=Math.floor(t/60%60),f=Math.floor(t%60),c=Math.floor(t*1e3%1e3),i=`${yc(n)}:${yc(f)}`;return s&&(i+=`.${yc(c,3)}`),a>0&&(i=`${yc(a)}:${i}`),i}static{this.ɵfac=function(s){return new(s||r)}}static{this.ɵpipe=Wo({name:`mediaDuration`,type:r,pure:!0})}}return r})();export{p as t};
-//# debugId=0a580fbf-6431-59f2-b851-4618094a4a40
-//# sourceMappingURL=chunk-DEtD4QLU.js.map
