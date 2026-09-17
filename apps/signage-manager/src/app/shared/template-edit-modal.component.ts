@@ -13,6 +13,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    removeEmptyFields,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -277,6 +278,7 @@ export class TemplateEditModalComponent {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
             const data: Partial<SignageTemplate> = { ...this.model() };
+            removeEmptyFields(data);
             try {
                 let result: SignageTemplate;
                 if (this.template.id) {
