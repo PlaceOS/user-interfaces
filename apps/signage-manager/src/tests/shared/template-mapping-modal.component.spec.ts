@@ -53,6 +53,27 @@ describe('TemplateMappingModalComponent', () => {
         TestBed.resetTestingModule();
     });
 
+    it('validates the validity limits only when scheduling is enabled', async () => {
+        const component = await createComponent();
+        component.model.update((value) => ({
+            ...value,
+            template_id: 'template-1',
+            scheduled: true,
+            schedule: {
+                ...value.schedule,
+                has_valid_from: true,
+                valid_from: 2000,
+                has_valid_until: true,
+                valid_until: 1000,
+            },
+        }));
+        await component.saveMapping();
+        expect(save).not.toHaveBeenCalled();
+        component.model.update((value) => ({ ...value, scheduled: false }));
+        await component.saveMapping();
+        expect(save).toHaveBeenCalledWith('template-1', null);
+    });
+
     it('saves an unscheduled mapping as the default template', async () => {
         const component = await createComponent();
         component.model.update((value) => ({

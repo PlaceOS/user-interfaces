@@ -1,5 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { form, FormField, required, submit } from '@angular/forms/signals';
+import {
+    applyWhen,
+    form,
+    FormField,
+    required,
+    submit,
+} from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -25,6 +31,7 @@ import {
     PlaylistScheduleFormComponent,
     PlaylistScheduleFormModel,
     playlistSchedulePayload,
+    playlistScheduleSchema,
 } from './playlist-schedule-form.component';
 
 export interface TemplateMappingModalData {
@@ -204,6 +211,11 @@ export class TemplateMappingModalComponent {
     });
     public readonly form_model = form(this.model, (path) => {
         required(path.template_id);
+        applyWhen(
+            path.schedule,
+            ({ valueOf }) => valueOf(path.scheduled),
+            playlistScheduleSchema,
+        );
     });
     public readonly selected_template = computed(() => {
         const template_id = this.model().template_id;

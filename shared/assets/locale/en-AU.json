@@ -687,6 +687,7 @@
         "USERS_COUNT_1": "User ({{ count }})",
         "USER_PERMISSIONS": "User permissions",
         "VALID_FROM": "Valid From",
+        "SCHEDULE_VALIDITY_ORDER": "Valid From must be before Valid Until.",
         "VERSION_TO_APPROVE": "New Version",
         "VIEW_FOLDER": "Folders",
         "VIEW_GRID": "Grid view",

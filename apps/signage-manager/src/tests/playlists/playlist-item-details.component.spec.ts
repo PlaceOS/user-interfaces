@@ -180,6 +180,36 @@ describe('PlaylistItemDetailsComponent', () => {
         expect(sessions[0]).toContain('–');
     });
 
+    it.each([0, 1])(
+        'applies the validity start to upcoming sessions with offset %s',
+        async (offset) => {
+            const start = new Date();
+            start.setDate(start.getDate() + 2);
+            start.setHours(9, 0, 0, 0);
+            const timestamp = Math.floor(start.getTime() / 1000);
+            const component = await make();
+            for (const timing of [
+                { play_cron: '0 9 * * *' },
+                { play_at: timestamp },
+            ]) {
+                selected_playlist.set({
+                    id: 'pl-1',
+                    schedules: [
+                        {
+                            ...timing,
+                            play_period: 30,
+                            valid_from: timestamp + offset,
+                            valid_until: timestamp,
+                        },
+                    ],
+                });
+                expect(component.next_play_sessions()).toHaveLength(
+                    offset ? 0 : 1,
+                );
+            }
+        },
+    );
+
     it('resets to the first tab when the selected playlist changes', async () => {
         selected_playlist.set({ id: 'pl-1' });
         const component = await make();

@@ -70,6 +70,28 @@ describe('PlaylistEditModalComponent', () => {
             .compileComponents();
     });
 
+    it('blocks saving a schedule with reversed validity limits', async () => {
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 2000,
+                has_valid_until: true,
+                valid_until: 1000,
+            })),
+        }));
+        await component.savePlaylist();
+        expect(onEdit).not.toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        component.model.update((value) => ({ ...value, distribution: true }));
+        await component.savePlaylist();
+        expect(onEdit).toHaveBeenCalled();
+    });
+
     it('saves monthly weekday schedules with multiple month instances', async () => {
         const fixture = TestBed.createComponent(PlaylistEditModalComponent);
         const component = fixture.componentInstance;
@@ -100,6 +122,7 @@ describe('PlaylistEditModalComponent', () => {
                         play_cron: '0 9 1-7,15-21 * 1,3',
                         play_period: 120,
                         play_takeover: false,
+                        valid_from: 0,
                         valid_until: 0,
                     },
                 ],
@@ -179,6 +202,8 @@ describe('PlaylistEditModalComponent', () => {
                           ...schedule,
                           schedule_type: 'play_at',
                           play_at,
+                          has_valid_from: true,
+                          valid_from: play_at - 3600000,
                           play_period: 45,
                           play_takeover: true,
                       }
@@ -197,6 +222,7 @@ describe('PlaylistEditModalComponent', () => {
                         play_cron: '0 9 * * *',
                         play_period: 120,
                         play_takeover: false,
+                        valid_from: 0,
                         valid_until: 0,
                     },
                     {
@@ -204,6 +230,7 @@ describe('PlaylistEditModalComponent', () => {
                         play_cron: '0 0 * * *',
                         play_period: 45,
                         play_takeover: true,
+                        valid_from: Math.floor(play_at / 1000) - 3600,
                         valid_until: 0,
                     },
                 ],

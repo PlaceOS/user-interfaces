@@ -1,9 +1,11 @@
+import { SignagePlaylist } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
 import {
     buildDisplayScheduleAssignments,
     buildScheduleBlocks,
     buildZoneScheduleAssignments,
 } from '../../app/schedules/signage-schedule.util';
+import { type PlaylistSchedule } from '../../app/signage-playlist.util';
 
 describe('signage-schedule.util', () => {
     // play_at arrives from the API as unix seconds, never milliseconds
@@ -100,6 +102,38 @@ describe('signage-schedule.util', () => {
             }),
         ]);
     });
+
+    it.each([0, 1])(
+        'applies the start boundary to calendar blocks with offset %s',
+        (offset) => {
+            const timestamp = getUnixTime(new Date('2026-03-02T09:00:00'));
+            for (const timing of [
+                { play_cron: '0 9 * * *' },
+                { play_at: timestamp },
+            ]) {
+                const schedule: PlaylistSchedule = {
+                    play_cron: '0 9 * * *',
+                    ...timing,
+                    play_period: 30,
+                    play_takeover: false,
+                    valid_from: timestamp + offset,
+                    valid_until: timestamp,
+                };
+                const blocks = buildScheduleBlocks(
+                    [
+                        {
+                            playlist: new SignagePlaylist({
+                                id: 'playlist-1',
+                                schedules: [schedule],
+                            }),
+                        },
+                    ],
+                    [new Date('2026-03-02T00:00:00')],
+                );
+                expect(blocks).toHaveLength(offset ? 0 : 1);
+            }
+        },
+    );
 
     it('does not build blocks after a schedule expires', () => {
         const days = [

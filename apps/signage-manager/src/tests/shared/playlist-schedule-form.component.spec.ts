@@ -16,6 +16,7 @@ import {
     PlaylistScheduleFormComponent,
     playlistSchedulePayload,
     playlistSchedules,
+    playlistScheduleSchema,
 } from '../../app/shared/playlist-schedule-form.component';
 
 describe('playlist-schedule-form helpers', () => {
@@ -71,8 +72,24 @@ describe('playlist-schedule-form helpers', () => {
             play_cron: '0 0 * * *',
             play_period: 45,
             play_takeover: true,
+            valid_from: 0,
             valid_until: 0,
         });
+    });
+
+    it('round trips a schedule start as unix seconds', () => {
+        const valid_from = getUnixTime(new Date(Date.UTC(2026, 3, 2, 8, 15)));
+
+        const model = createPlaylistScheduleModel({ valid_from });
+        const payload = playlistSchedulePayload(model);
+
+        expect(model.has_valid_from).toBe(true);
+        expect(model.valid_from).toBe(valid_from * 1000);
+        expect(payload.valid_from).toBe(valid_from);
+        expect(
+            playlistSchedulePayload({ ...model, has_valid_from: false })
+                .valid_from,
+        ).toBe(0);
     });
 
     it('round trips a schedule expiry as unix seconds', () => {
@@ -141,13 +158,54 @@ describe('PlaylistScheduleFormComponent', () => {
             ...createPlaylistScheduleModel(),
             ...overrides,
         });
-        const schedule = TestBed.runInInjectionContext(() => form(model));
+        const schedule = TestBed.runInInjectionContext(() =>
+            form(model, playlistScheduleSchema),
+        );
         fixture.componentRef.setInput('schedule', schedule);
         fixture.componentRef.setInput('index', 0);
         return { fixture, component: fixture.componentInstance, model };
     }
 
-    it('shows the timezone selector only for play-once schedules by default', async () => {
+    it.each([
+        [1000, 2000, true, true, false],
+        [2000, 2000, true, true, true],
+        [3000, 2000, true, true, true],
+        [3000, 2000, false, true, false],
+        [3000, 2000, true, false, false],
+    ])(
+        'validates the enabled validity limits %s to %s',
+        async (
+            valid_from,
+            valid_until,
+            has_valid_from,
+            has_valid_until,
+            invalid,
+        ) => {
+            const { fixture, component, model } = setup({
+                valid_from,
+                valid_until,
+                has_valid_from,
+                has_valid_until,
+            });
+            await fixture.whenStable();
+            expect(component.schedule()().invalid()).toBe(invalid);
+            const alert = fixture.debugElement.query(By.css('[role="alert"]'));
+            expect(!!alert).toBe(invalid);
+            if (invalid) {
+                expect(alert.nativeElement.textContent).toContain(
+                    'Valid From must be before Valid Until.',
+                );
+                model.update((value) => ({ ...value, valid_from: 1000 }));
+                await fixture.whenStable();
+                expect(component.schedule()().valid()).toBe(true);
+                expect(
+                    fixture.debugElement.query(By.css('[role="alert"]')),
+                ).toBeNull();
+            }
+        },
+    );
+
+    it('shows the recurring timezone selector in the validity block by default', async () => {
         const { fixture, component, model } = setup({
             schedule_type: 'play_at',
         });
@@ -159,7 +217,12 @@ describe('PlaylistScheduleFormComponent', () => {
 
         model.update((value) => ({ ...value, schedule_type: 'play_cron' }));
         await fixture.whenStable();
-        expect(fixture.debugElement.query(selector)).toBeNull();
+        expect(fixture.debugElement.queryAll(selector)).toHaveLength(1);
+        expect(
+            fixture.debugElement.query(
+                By.css('[schedule-validity] mat-select[name="timezone"]'),
+            ),
+        ).not.toBeNull();
 
         component.schedule_timezone_once_only.set(false);
         try {
@@ -173,36 +236,41 @@ describe('PlaylistScheduleFormComponent', () => {
         }
     });
 
-    it('changes the displayed timezone without changing stored timestamps', async () => {
-        const play_at = Date.UTC(2027, 0, 2, 18, 45);
-        const { fixture, component, model } = setup({
-            schedule_type: 'play_at',
-            play_at,
-            has_valid_until: true,
-            valid_until: play_at + 3600000,
-        });
-        fixture.componentRef.setInput('open', true);
-        component.timezone.set('UTC');
-        await fixture.whenStable();
-        const before = playlistSchedulePayload(model());
-        const summary = component.scheduleSummary();
-        component.timezone.set('Asia/Tokyo');
-        await fixture.whenStable();
-        expect(playlistSchedulePayload(model())).toEqual(before);
-        expect(component.scheduleSummary()).not.toBe(summary);
-        expect(component.scheduleSummary()).toContain('Asia/Tokyo');
-        for (const field of fixture.debugElement.queryAll(
-            By.directive(TimeFieldComponent),
-        )) {
-            expect(field.componentInstance.timezone()).toBe('Asia/Tokyo');
-            expect(field.componentInstance.time()).toMatch(/^(03|04):45$/);
-        }
-        for (const field of fixture.debugElement.queryAll(
-            By.directive(DateFieldComponent),
-        )) {
-            expect(field.componentInstance.timezone()).toBe('Asia/Tokyo');
-        }
-    });
+    it.each(['play_at', 'play_cron'] as const)(
+        'changes the displayed timezone without changing stored timestamps for %s',
+        async (schedule_type) => {
+            const play_at = Date.UTC(2027, 0, 2, 18, 45);
+            const { fixture, component, model } = setup({
+                schedule_type,
+                play_at,
+                has_valid_from: true,
+                valid_from: play_at,
+                has_valid_until: true,
+                valid_until: play_at + 3600000,
+            });
+            fixture.componentRef.setInput('open', true);
+            component.timezone.set('UTC');
+            await fixture.whenStable();
+            const before = playlistSchedulePayload(model());
+            const summary = component.scheduleSummary();
+            component.timezone.set('Asia/Tokyo');
+            await fixture.whenStable();
+            expect(playlistSchedulePayload(model())).toEqual(before);
+            expect(component.scheduleSummary()).not.toBe(summary);
+            expect(component.scheduleSummary()).toContain('Asia/Tokyo');
+            for (const field of fixture.debugElement.queryAll(
+                By.directive(TimeFieldComponent),
+            )) {
+                expect(field.componentInstance.timezone()).toBe('Asia/Tokyo');
+                expect(field.componentInstance.time()).toMatch(/^(03|04):45$/);
+            }
+            for (const field of fixture.debugElement.queryAll(
+                By.directive(DateFieldComponent),
+            )) {
+                expect(field.componentInstance.timezone()).toBe('Asia/Tokyo');
+            }
+        },
+    );
 
     it('uses the selected timezone for the recurring start and keeps the cron unchanged', () => {
         const { component, model } = setup({
@@ -245,6 +313,30 @@ describe('PlaylistScheduleFormComponent', () => {
             }
         },
     );
+
+    it.each([
+        ['2027-01-02T14:00:00Z', 1],
+        ['2027-01-02T14:00:01Z', 0],
+        ['2027-01-02T15:00:00Z', 0],
+    ])('respects a New York validity window starting at %s', (start, count) => {
+        const clock = vi
+            .spyOn(Date, 'now')
+            .mockReturnValue(Date.parse('2026-01-01T00:00:00Z'));
+        try {
+            const { component } = setup({
+                recurrence_type: 'daily',
+                play_start: 9 * 60,
+                has_valid_from: true,
+                valid_from: Date.parse(start),
+                has_valid_until: true,
+                valid_until: Date.parse('2027-01-02T14:00:00Z'),
+            });
+            component.timezone.set('America/New_York');
+            expect(component.nextCronPlayTimes()).toHaveLength(count);
+        } finally {
+            clock.mockRestore();
+        }
+    });
 
     it('accepts typed start times and displays their timezone conversion', async () => {
         const { fixture, component, model } = setup({

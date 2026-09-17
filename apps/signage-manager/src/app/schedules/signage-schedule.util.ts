@@ -1,9 +1,7 @@
 import { i18n } from '@placeos/common';
-import {
-    SignagePlaylist,
-    type SignagePlaylistSchedule,
-} from '@placeos/ts-client';
+import { SignagePlaylist } from '@placeos/ts-client';
 import { fromUnixTime, isSameDay, startOfDay } from 'date-fns';
+import { type PlaylistSchedule } from '../signage-playlist.util';
 
 const BLOCK_PALETTE = [
     { bg: '#dbeafe', text: '#1e40af' },
@@ -145,7 +143,9 @@ function matchesCronPart(value: number, cron_part: string): boolean {
     return Number(cron_part) === value;
 }
 
-function playlistSchedules(playlist: SignagePlaylist) {
+function playlistSchedules(
+    playlist: SignagePlaylist,
+): Partial<PlaylistSchedule>[] {
     const legacy_playlist = playlist as SignagePlaylist & {
         play_at?: number;
         play_cron?: string;
@@ -164,7 +164,7 @@ function playlistSchedules(playlist: SignagePlaylist) {
     ];
 }
 
-function playPeriodMinutes(schedule: Partial<SignagePlaylistSchedule>) {
+function playPeriodMinutes(schedule: Partial<PlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? Math.max(0, schedule.play_period || 0)
         : DEFAULT_PLAYLIST_DURATION;
@@ -188,12 +188,11 @@ function parsePlayAt(play_at: number): Date | null {
     return fromUnixTime(play_at);
 }
 
-function isScheduleValidAt(
-    schedule: Partial<SignagePlaylistSchedule>,
-    date: Date,
-) {
+function isScheduleValidAt(schedule: Partial<PlaylistSchedule>, date: Date) {
+    const time = date.getTime();
     return (
-        !schedule.valid_until || date.getTime() <= schedule.valid_until * 1000
+        (!schedule.valid_from || time >= schedule.valid_from * 1000) &&
+        (!schedule.valid_until || time <= schedule.valid_until * 1000)
     );
 }
 
@@ -216,7 +215,7 @@ function isDayInRange(
 
 function getCronBlocksForDay(
     cron: string,
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
 ): ScheduleBlockBase[] {
     const parts = cron.trim().split(/\s+/);
     if (parts.length !== 5) return [];

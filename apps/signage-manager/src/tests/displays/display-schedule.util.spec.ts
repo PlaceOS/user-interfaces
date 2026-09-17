@@ -1,15 +1,16 @@
-import { SignagePlaylist, SignagePlaylistSchedule } from '@placeos/ts-client';
+import { SignagePlaylist } from '@placeos/ts-client';
 import { buildDisplayScheduleDays } from '../../app/displays/display-schedule.util';
 import { buildScheduleBlocks } from '../../app/schedules/signage-schedule.util';
+import { type PlaylistSchedule } from '../../app/signage-playlist.util';
 import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
 
 const days = [new Date(2026, 8, 7)];
-const schedule = (hour: number, duration: number): SignagePlaylistSchedule => ({
+const schedule = (hour: number, duration: number): PlaylistSchedule => ({
     play_cron: `0 ${hour} * * *`,
     play_period: duration,
     play_takeover: false,
 });
-const mapping = (id: string, timing: SignagePlaylistSchedule | null = null) =>
+const mapping = (id: string, timing: PlaylistSchedule | null = null) =>
     new HydratedSignageTemplateMapping({
         id,
         template_id: `template-${id}`,
@@ -99,6 +100,21 @@ describe('buildDisplayScheduleDays', () => {
                 mapping('expired', {
                     ...schedule(9, 60),
                     valid_until: new Date(2026, 8, 6).getTime() / 1000,
+                }),
+            ],
+            days,
+        );
+        expect(day.items).toHaveLength(1);
+        expect(day.items[0].mapping).toBeUndefined();
+    });
+
+    it('omits template schedules that are not valid yet', () => {
+        const [day] = buildDisplayScheduleDays(
+            playlist(9, 60),
+            [
+                mapping('future', {
+                    ...schedule(9, 60),
+                    valid_from: new Date(2026, 8, 8).getTime() / 1000,
                 }),
             ],
             days,

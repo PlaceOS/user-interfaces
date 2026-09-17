@@ -126,6 +126,34 @@ describe('signage playlist util', () => {
         expect(labels[0]).toContain('–');
     });
 
+    it.each([0, 1])(
+        'applies the start boundary to recurring and one-off previews with offset %s',
+        (offset) => {
+            const play_at = new Date();
+            play_at.setDate(play_at.getDate() + 2);
+            play_at.setHours(9, 0, 0, 0);
+            const timestamp = getUnixTime(play_at);
+            const window = {
+                valid_from: timestamp + offset,
+                valid_until: timestamp,
+            };
+            expect(
+                playlistScheduleNextPlayLabels({
+                    ...window,
+                    play_cron: '0 9 * * *',
+                    play_period: 30,
+                }),
+            ).toHaveLength(offset ? 0 : 1);
+            expect(
+                playlistScheduleNextPlayLabels({
+                    ...window,
+                    play_at: timestamp,
+                    play_period: 30,
+                }),
+            ).toHaveLength(offset ? 0 : 1);
+        },
+    );
+
     it('does not list play blocks after a schedule expires', () => {
         const labels = playlistScheduleNextPlayLabels({
             play_cron: '0 9 * * *',

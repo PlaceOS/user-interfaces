@@ -9,14 +9,11 @@ import {
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
-import {
-    MediaAnimation,
-    SignagePlaylist,
-    type SignagePlaylistSchedule,
-} from '@placeos/ts-client';
+import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import { fromUnixTime } from 'date-fns';
 import { SignageSharedWithComponent } from '../shared/signage-shared-with.component';
 import {
+    type PlaylistSchedule,
     playlistScheduleExpiryLabel,
     playlistScheduleExpiryTooltip,
 } from '../signage-playlist.util';
@@ -235,15 +232,27 @@ function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
     return `${formatPlayDateTime(start)} – ${end_text}`;
 }
 
-function nextCronPlayDates(cron: string, count: number) {
+function nextCronPlayDates(
+    cron: string,
+    count: number,
+    valid_from = 0,
+    valid_until = 0,
+) {
     const result: Date[] = [];
     if (!cron?.trim()) return result;
-    const date = new Date();
+    let date = new Date();
     date.setSeconds(0, 0);
     date.setMinutes(date.getMinutes() + 1);
+    // Start the search at the validity window when it opens in the future.
+    if (valid_from && fromUnixTime(valid_from) > date) {
+        date = fromUnixTime(valid_from);
+        if (date.getSeconds()) date.setMinutes(date.getMinutes() + 1);
+        date.setSeconds(0, 0);
+    }
     const end = new Date(date);
     end.setFullYear(end.getFullYear() + 2);
-    while (date <= end && result.length < count) {
+    const expiry = valid_until ? fromUnixTime(valid_until) : end;
+    while (date <= end && date <= expiry && result.length < count) {
         if (doesCronMatchDate(cron, date)) result.push(new Date(date));
         date.setMinutes(date.getMinutes() + 1);
     }
@@ -269,13 +278,13 @@ function playlistSchedules(playlist: SignagePlaylist) {
     ];
 }
 
-function schedulePeriod(schedule: Partial<SignagePlaylistSchedule>) {
+function schedulePeriod(schedule: Partial<PlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? schedule.play_period || 0
         : DEFAULT_PLAY_PERIOD_MINUTES;
 }
 
-function scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
+function scheduleLabel(schedule: Partial<PlaylistSchedule>) {
     const period = schedulePeriod(schedule);
     const expiry = playlistScheduleExpiryLabel(schedule);
     const suffix = [schedule.play_takeover ? 'takeover' : '', expiry]
@@ -298,7 +307,7 @@ interface PlaySession {
 }
 
 function nextSchedulePlaySessions(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
     count: number,
 ): PlaySession[] {
     const period = schedulePeriod(schedule);
@@ -307,19 +316,20 @@ function nextSchedulePlaySessions(
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);
-        const expires_before_play =
-            !!schedule.valid_until && schedule.play_at > schedule.valid_until;
-        return end >= new Date() && !expires_before_play
+        const outside_valid_window =
+            (!!schedule.valid_until &&
+                schedule.play_at > schedule.valid_until) ||
+            (!!schedule.valid_from && schedule.play_at < schedule.valid_from);
+        return end >= new Date() && !outside_valid_window
             ? [{ start, period }]
             : [];
     }
-    return nextCronPlayDates(schedule.play_cron || '0 0 * * *', count)
-        .filter(
-            (start) =>
-                !schedule.valid_until ||
-                start.getTime() <= schedule.valid_until * 1000,
-        )
-        .map((start) => ({ start, period }));
+    return nextCronPlayDates(
+        schedule.play_cron || '0 0 * * *',
+        count,
+        schedule.valid_from,
+        schedule.valid_until,
+    ).map((start) => ({ start, period }));
 }
 
 @Component({

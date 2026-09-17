@@ -5,6 +5,15 @@ import {
 } from '@placeos/ts-client';
 import { formatDistance, fromUnixTime } from 'date-fns';
 
+/**
+ * Playlist schedule with the start of its validity window.
+ * `valid_from` is not in the ts-client type yet.
+ * It uses Unix seconds. Zero or omitted means no start limit.
+ */
+export type PlaylistSchedule = SignagePlaylistSchedule & {
+    readonly valid_from?: number;
+};
+
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_NAMES = [
     'Sunday',
@@ -225,14 +234,14 @@ function humanizeCronSchedule(cron: string, duration_minutes: number) {
     return `Custom schedule (${cron})`;
 }
 
-function schedulePeriod(schedule: Partial<SignagePlaylistSchedule>) {
+function schedulePeriod(schedule: Partial<PlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? schedule.play_period || 0
         : DEFAULT_PLAY_PERIOD_MINUTES;
 }
 
 export function playlistScheduleExpiryLabel(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
     now = Date.now(),
 ) {
     if (!schedule.valid_until) return '';
@@ -244,16 +253,14 @@ export function playlistScheduleExpiryLabel(
 }
 
 export function playlistScheduleExpiryTooltip(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
 ) {
     return schedule.valid_until
         ? fromUnixTime(schedule.valid_until).toLocaleString()
         : '';
 }
 
-export function playlistScheduleLabel(
-    schedule: Partial<SignagePlaylistSchedule>,
-) {
+export function playlistScheduleLabel(schedule: Partial<PlaylistSchedule>) {
     const period = schedulePeriod(schedule);
     const expiry = playlistScheduleExpiryLabel(schedule);
     const suffix = [schedule.play_takeover ? 'takeover' : '', expiry]
@@ -334,12 +341,23 @@ function formatPlayDateTimeRange(start: Date, duration_minutes: number) {
     return `${formatPlayDateTime(start)} – ${end_text}`;
 }
 
-function nextCronPlayDates(cron: string, count: number, valid_until = 0) {
+function nextCronPlayDates(
+    cron: string,
+    count: number,
+    valid_until = 0,
+    valid_from = 0,
+) {
     const result: Date[] = [];
     if (!cron?.trim()) return result;
-    const date = new Date();
+    let date = new Date();
     date.setSeconds(0, 0);
     date.setMinutes(date.getMinutes() + 1);
+    // Start the search at the validity window when it opens in the future.
+    if (valid_from && fromUnixTime(valid_from) > date) {
+        date = fromUnixTime(valid_from);
+        if (date.getSeconds()) date.setMinutes(date.getMinutes() + 1);
+        date.setSeconds(0, 0);
+    }
     const end = new Date(date);
     end.setFullYear(end.getFullYear() + 2);
     const expiry = valid_until ? fromUnixTime(valid_until) : end;
@@ -351,7 +369,7 @@ function nextCronPlayDates(cron: string, count: number, valid_until = 0) {
 }
 
 export function playlistScheduleNextPlayLabels(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
     count = 5,
 ) {
     const period = schedulePeriod(schedule);
@@ -360,9 +378,11 @@ export function playlistScheduleNextPlayLabels(
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);
-        const expires_before_play =
-            !!schedule.valid_until && schedule.play_at > schedule.valid_until;
-        return end >= new Date() && !expires_before_play
+        const outside_valid_window =
+            (!!schedule.valid_until &&
+                schedule.play_at > schedule.valid_until) ||
+            (!!schedule.valid_from && schedule.play_at < schedule.valid_from);
+        return end >= new Date() && !outside_valid_window
             ? [formatPlayDateTimeRange(start, period)]
             : [];
     }
@@ -370,5 +390,6 @@ export function playlistScheduleNextPlayLabels(
         schedule.play_cron || '0 0 * * *',
         count,
         schedule.valid_until,
+        schedule.valid_from,
     ).map((start) => formatPlayDateTimeRange(start, period));
 }
