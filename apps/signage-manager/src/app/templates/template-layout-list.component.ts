@@ -894,7 +894,9 @@ export class TemplateLayoutListComponent {
                     plugin_id: plugin_id || undefined,
                     plugin_params: {
                         ...defaults,
-                        ...(layout.plugin_params ?? {}),
+                        ...(layout.plugin_id === plugin_id
+                            ? (layout.plugin_params ?? {})
+                            : {}),
                     } as SignageTemplateLayout['plugin_params'],
                 };
             }),

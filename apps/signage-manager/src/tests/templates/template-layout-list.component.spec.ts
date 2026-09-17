@@ -209,7 +209,7 @@ describe('TemplateLayoutListComponent', () => {
         });
     });
 
-    it('keeps existing params ahead of defaults when switching plugin', async () => {
+    it('replaces old params with defaults when switching plugin', async () => {
         widgets.set([
             {
                 id: 'plugin-1',
@@ -222,12 +222,53 @@ describe('TemplateLayoutListComponent', () => {
             {
                 position: 'top',
                 plugin_id: 'other',
-                plugin_params: { size: 4 },
+                plugin_params: { size: 4, obsolete_setting: true },
+                x_pos: 0.25,
             },
         ]);
         const component = await make();
         component.setPlugin(0, 'plugin-1');
+        expect(draft()[0]).toEqual({
+            position: 'top',
+            plugin_id: 'plugin-1',
+            plugin_params: { size: 2 },
+            x_pos: 0.25,
+        });
+    });
+
+    it('keeps edited params when selecting the same plugin', async () => {
+        widgets.set([{ id: 'plugin-1', defaults: { size: 2 } }]);
+        draft.set([
+            {
+                position: 'top',
+                plugin_id: 'plugin-1',
+                plugin_params: { size: 4 },
+            },
+        ]);
+        const component = await make();
+
+        component.setPlugin(0, 'plugin-1');
+
         expect(draft()[0].plugin_params).toEqual({ size: 4 });
+    });
+
+    it('clears params when removing the plugin', async () => {
+        draft.set([
+            {
+                position: 'top',
+                plugin_id: 'plugin-1',
+                plugin_params: { size: 4 },
+            },
+        ]);
+        const component = await make();
+
+        component.setPlugin(0, '');
+
+        expect(draft()[0]).toEqual({
+            position: 'top',
+            plugin_id: undefined,
+            plugin_params: {},
+        });
     });
 
     it('stores axis percentages as API ratios', async () => {
