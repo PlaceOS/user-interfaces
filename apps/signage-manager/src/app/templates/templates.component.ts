@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
-import { SignageService } from '../signage.service';
+import { isSameSignageTemplate, SignageService } from '../signage.service';
 import { TemplateHeaderComponent } from './template-header.component';
 import { TemplateLayoutListComponent } from './template-layout-list.component';
 import { TemplateListComponent } from './template-list.component';
@@ -366,9 +366,23 @@ export class TemplatesSectionComponent {
                     (template) =>
                         template.id === id || template.live_template_id === id,
                 );
-                if (match && this._service.selected_template() !== match) {
+                const selected = this._service.selected_template();
+                const same_template =
+                    !!selected &&
+                    !!match &&
+                    isSameSignageTemplate(selected, match);
+                // A list reload returns new objects for the same templates.
+                // Keep the current object while layout edits are unsaved so
+                // the draft survives, and keep the expanded row otherwise.
+                if (
+                    match &&
+                    selected !== match &&
+                    !(same_template && this._service.template_layout_dirty())
+                ) {
                     this._service.selected_template.set(match);
-                    this._service.selected_template_layout_index.set(null);
+                    if (!same_template) {
+                        this._service.selected_template_layout_index.set(null);
+                    }
                 }
                 if (match?.id && match.id !== id) {
                     void this._router.navigate(['/templates', match.id], {

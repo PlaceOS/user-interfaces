@@ -12,6 +12,7 @@ describe('TemplatesSectionComponent', () => {
             live_template_id?: string;
         } | null>(null),
         selected_template_layout_index: signal<number | null>(null),
+        template_layout_dirty: signal(false),
         templates: signal<{ id: string; live_template_id?: string }[]>([]),
         selected_template_requires_approval: signal(false),
         template_approval_request_loading: signal(false),
@@ -49,6 +50,7 @@ describe('TemplatesSectionComponent', () => {
         vi.clearAllMocks();
         service_stub.selected_template.set(null);
         service_stub.selected_template_layout_index.set(null);
+        service_stub.template_layout_dirty.set(false);
         service_stub.templates.set([]);
         TestBed.resetTestingModule();
     });
@@ -133,5 +135,52 @@ describe('TemplatesSectionComponent', () => {
             queryParamsHandling: 'merge',
             replaceUrl: true,
         });
+    });
+
+    it('resets the layout selection when switching templates', async () => {
+        const fixture = await makeFixture();
+        const first = { id: 'template-1' };
+        const second = { id: 'template-2' };
+        service_stub.templates.set([first, second]);
+        service_stub.selected_template.set(first);
+        service_stub.selected_template_layout_index.set(1);
+        fixture.componentRef.setInput('id', 'template-2');
+        await fixture.whenStable();
+
+        expect(service_stub.selected_template()).toBe(second);
+        expect(service_stub.selected_template_layout_index()).toBeNull();
+    });
+
+    it('keeps the expanded row when a list reload refreshes the selection', async () => {
+        const fixture = await makeFixture();
+        const stale = { id: 'template-1' };
+        const fresh = { id: 'template-1' };
+        service_stub.templates.set([stale]);
+        service_stub.selected_template.set(stale);
+        service_stub.selected_template_layout_index.set(1);
+        fixture.componentRef.setInput('id', 'template-1');
+        await fixture.whenStable();
+
+        service_stub.templates.set([fresh]);
+        await fixture.whenStable();
+
+        expect(service_stub.selected_template()).toBe(fresh);
+        expect(service_stub.selected_template_layout_index()).toBe(1);
+    });
+
+    it('keeps unsaved layout edits when a list reload returns the same template', async () => {
+        const fixture = await makeFixture();
+        const stale = { id: 'template-1' };
+        const fresh = { id: 'template-1' };
+        service_stub.templates.set([stale]);
+        service_stub.selected_template.set(stale);
+        service_stub.template_layout_dirty.set(true);
+        fixture.componentRef.setInput('id', 'template-1');
+        await fixture.whenStable();
+
+        service_stub.templates.set([fresh]);
+        await fixture.whenStable();
+
+        expect(service_stub.selected_template()).toBe(stale);
     });
 });

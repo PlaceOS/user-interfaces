@@ -332,7 +332,7 @@ function persistSelectedGroupId(group_id: string) {
 }
 
 /** Whether two records are approved and draft versions of one template. */
-function isSameSignageTemplate(
+export function isSameSignageTemplate(
     first: SignageTemplate,
     second: SignageTemplate,
 ) {
