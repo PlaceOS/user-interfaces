@@ -8,6 +8,33 @@ import {
 import { type PlaylistSchedule } from '../../app/signage-playlist.util';
 
 describe('signage-schedule.util', () => {
+    it('applies the repeating mask before adding timeline blocks', () => {
+        const days = Array.from(
+            { length: 4 },
+            (_, index) => new Date(2026, 2, 2 + index),
+        );
+        const blocks = buildScheduleBlocks(
+            [
+                {
+                    playlist: new SignagePlaylist({
+                        id: 'masked',
+                        name: 'Masked',
+                        schedules: [
+                            {
+                                play_cron: '0 9 * * *',
+                                play_period: 60,
+                                play_takeover: false,
+                                valid_from: days[0].getTime() / 1000,
+                                mask: '10',
+                            } as PlaylistSchedule,
+                        ],
+                    }),
+                },
+            ],
+            days,
+        );
+        expect(blocks.map((block) => block.day_index)).toEqual([0, 2]);
+    });
     // play_at arrives from the API as unix seconds, never milliseconds
     it('places a one-off schedule at its stored time', () => {
         const play_at = new Date('2026-03-02T09:30:00');

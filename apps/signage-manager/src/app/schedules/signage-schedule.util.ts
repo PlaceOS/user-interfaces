@@ -1,7 +1,10 @@
 import { i18n } from '@placeos/common';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { fromUnixTime, isSameDay, startOfDay } from 'date-fns';
-import { type PlaylistSchedule } from '../signage-playlist.util';
+import {
+    createScheduleMaskFilter,
+    type PlaylistSchedule,
+} from '../signage-playlist.util';
 
 const BLOCK_PALETTE = [
     { bg: '#dbeafe', text: '#1e40af' },
@@ -285,12 +288,16 @@ function generateScheduleBlocks(
     const colour = BLOCK_PALETTE[palette_index % BLOCK_PALETTE.length];
     const blocks: ScheduleBlock[] = [];
     const { valid_from, valid_until } = playlist;
+    const schedules = playlistSchedules(playlist).map((schedule) => ({
+        schedule,
+        allows: createScheduleMaskFilter(schedule),
+    }));
 
     for (let index = 0; index < days.length; index++) {
         const day = days[index];
         if (!isDayInRange(day, valid_from, valid_until)) continue;
 
-        for (const schedule of playlistSchedules(playlist)) {
+        for (const { schedule, allows } of schedules) {
             const { play_at } = schedule;
             const play_cron = schedule.play_cron?.trim() || '0 0 * * *';
             const play_period = playPeriodMinutes(schedule);
@@ -300,7 +307,8 @@ function generateScheduleBlocks(
                 if (
                     !at_date ||
                     !isSameDay(day, at_date) ||
-                    !isScheduleValidAt(schedule, at_date)
+                    !isScheduleValidAt(schedule, at_date) ||
+                    !allows(at_date)
                 ) {
                     continue;
                 }
@@ -327,7 +335,11 @@ function generateScheduleBlocks(
             for (const block of cron_blocks) {
                 const starts_at = new Date(day);
                 starts_at.setHours(0, block.start_minutes, 0, 0);
-                if (!isScheduleValidAt(schedule, starts_at)) continue;
+                if (
+                    !isScheduleValidAt(schedule, starts_at) ||
+                    !allows(starts_at)
+                )
+                    continue;
                 blocks.push({
                     ...block,
                     playlist,

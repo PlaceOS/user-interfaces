@@ -4,14 +4,16 @@ import {
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
 import { formatDistance, fromUnixTime } from 'date-fns';
+import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 /**
- * Playlist schedule with the start of its validity window.
- * `valid_from` is not in the ts-client type yet.
- * It uses Unix seconds. Zero or omitted means no start limit.
+ * Schedule fields that are not in the ts-client type yet.
+ * valid_from uses Unix seconds. Zero or omitted means no start limit.
  */
 export type PlaylistSchedule = SignagePlaylistSchedule & {
     readonly valid_from?: number;
+    /** Up to 128 binary characters, first occurrence first. Empty disables the mask. */
+    readonly mask?: string;
 };
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
@@ -263,7 +265,13 @@ export function playlistScheduleExpiryTooltip(
 export function playlistScheduleLabel(schedule: Partial<PlaylistSchedule>) {
     const period = schedulePeriod(schedule);
     const expiry = playlistScheduleExpiryLabel(schedule);
-    const suffix = [schedule.play_takeover ? 'takeover' : '', expiry]
+    const suffix = [
+        schedule.play_takeover ? 'takeover' : '',
+        expiry,
+        schedule.mask
+            ? `mask ${schedule.mask}, repeats every ${schedule.mask.length} instances`
+            : '',
+    ]
         .filter((_) => _)
         .join(' · ');
     if (schedule.play_at) {
@@ -313,6 +321,114 @@ function doesCronMatchDate(cron: string, date: Date) {
     return day_matches || weekday_matches;
 }
 
+/** Validate an active mask without changing leading zeros or whitespace. */
+export function isValidScheduleMask(mask: string) {
+    return mask.length > 0 && mask.length <= 128 && !/[^01]/.test(mask);
+}
+
+/** Whether the mask can select any instances in its repeat cycle. */
+export function hasPlayableScheduleMask(schedule: Partial<PlaylistSchedule>) {
+    const mask = schedule.mask || '';
+    return (
+        !mask ||
+        (isValidScheduleMask(mask) &&
+            !!schedule.valid_from &&
+            mask.includes('1'))
+    );
+}
+
+/**
+ * Count cron instances from valid_from, before applying the repeating mask.
+ * Cache complete days so successive preview times do not recount the past.
+ * Call this filter only for timestamps that match the schedule.
+ */
+export function createScheduleMaskFilter(
+    schedule: Partial<PlaylistSchedule>,
+    timezone?: string,
+): (date: Date) => boolean {
+    const mask = schedule.mask || '';
+    const size = mask.length;
+    if (!size) return () => true;
+    if (!hasPlayableScheduleMask(schedule)) return () => false;
+    const anchor = schedule.valid_from * 1000;
+    if (!Number.isFinite(new Date(anchor).getTime())) return () => false;
+    if (schedule.play_at)
+        return (date) => date.getTime() >= anchor && mask[0] === '1';
+    const cron = schedule.play_cron || '0 0 * * *';
+    const parts = cron.trim().split(/\s+/);
+    if (parts.length !== 5) return () => false;
+    const slots: number[] = [];
+    for (let hour = 0; hour < 24; hour++) {
+        if (!matchesCronPart(hour, parts[1])) continue;
+        for (let minute = 0; minute < 60; minute++) {
+            if (matchesCronPart(minute, parts[0]))
+                slots.push(hour * 60 + minute);
+        }
+    }
+    if (!slots.length) return () => false;
+    const wallTime = (date: Date) =>
+        timezone ? toZonedTime(date, timezone) : new Date(date);
+    const instant = (date: Date) =>
+        timezone ? fromZonedTime(date, timezone) : new Date(date);
+    const first_day = wallTime(new Date(anchor));
+    first_day.setHours(0, 0, 0, 0);
+    let cursor = new Date(first_day);
+    let preceding = 0;
+    let cached_day = NaN;
+    let cached_times: number[] = [];
+    const countBefore = (day: Date, before: number) => {
+        const probe = new Date(day);
+        probe.setHours(0, slots[0], 0, 0);
+        if (!doesCronMatchDate(cron, probe)) return 0;
+        const next_day = new Date(day);
+        next_day.setDate(next_day.getDate() + 1);
+        const start = instant(day).getTime();
+        const end = instant(next_day).getTime();
+        // Normal complete days need no per-minute timezone conversion.
+        if (start >= anchor && end <= before && end - start === 86_400_000)
+            return slots.length;
+        if (cached_day !== day.getTime()) {
+            cached_day = day.getTime();
+            cached_times = [];
+            for (const slot of slots) {
+                const wall = new Date(day);
+                wall.setHours(0, slot, 0, 0);
+                const time = instant(wall);
+                if (
+                    time.getTime() >= anchor &&
+                    wallTime(time).getTime() === wall.getTime()
+                ) {
+                    cached_times.push(time.getTime());
+                }
+            }
+            cached_times.sort((left, right) => left - right);
+        }
+        let lower = 0;
+        let upper = cached_times.length;
+        while (lower < upper) {
+            const middle = Math.floor((lower + upper) / 2);
+            if (cached_times[middle] < before) lower = middle + 1;
+            else upper = middle;
+        }
+        return lower;
+    };
+    return (date) => {
+        const time = date.getTime();
+        if (!Number.isFinite(time) || time < anchor) return false;
+        const day = wallTime(date);
+        day.setHours(0, 0, 0, 0);
+        if (day < cursor) {
+            cursor = new Date(first_day);
+            preceding = 0;
+        }
+        for (; cursor < day; cursor.setDate(cursor.getDate() + 1)) {
+            preceding = (preceding + countBefore(cursor, Infinity)) % size;
+        }
+        const index = (preceding + countBefore(day, time)) % size;
+        return mask[index] === '1';
+    };
+}
+
 function formatPlayDateTime(date: Date) {
     return date.toLocaleString(undefined, {
         weekday: 'short',
@@ -346,9 +462,16 @@ function nextCronPlayDates(
     count: number,
     valid_until = 0,
     valid_from = 0,
+    mask = '',
 ) {
+    const allows = createScheduleMaskFilter({
+        play_cron: cron,
+        valid_from,
+        mask,
+    });
     const result: Date[] = [];
-    if (!cron?.trim()) return result;
+    if (!cron?.trim() || !hasPlayableScheduleMask({ mask, valid_from }))
+        return result;
     let date = new Date();
     date.setSeconds(0, 0);
     date.setMinutes(date.getMinutes() + 1);
@@ -362,7 +485,8 @@ function nextCronPlayDates(
     end.setFullYear(end.getFullYear() + 2);
     const expiry = valid_until ? fromUnixTime(valid_until) : end;
     while (date <= end && date <= expiry && result.length < count) {
-        if (doesCronMatchDate(cron, date)) result.push(new Date(date));
+        if (doesCronMatchDate(cron, date) && allows(date))
+            result.push(new Date(date));
         date.setMinutes(date.getMinutes() + 1);
     }
     return result;
@@ -382,7 +506,9 @@ export function playlistScheduleNextPlayLabels(
             (!!schedule.valid_until &&
                 schedule.play_at > schedule.valid_until) ||
             (!!schedule.valid_from && schedule.play_at < schedule.valid_from);
-        return end >= new Date() && !outside_valid_window
+        return end >= new Date() &&
+            !outside_valid_window &&
+            createScheduleMaskFilter(schedule)(start)
             ? [formatPlayDateTimeRange(start, period)]
             : [];
     }
@@ -391,5 +517,6 @@ export function playlistScheduleNextPlayLabels(
         count,
         schedule.valid_until,
         schedule.valid_from,
+        schedule.mask,
     ).map((start) => formatPlayDateTimeRange(start, period));
 }

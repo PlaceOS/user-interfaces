@@ -92,6 +92,42 @@ describe('PlaylistEditModalComponent', () => {
         expect(onEdit).toHaveBeenCalled();
     });
 
+    it('requires a start before saving a binary mask', async () => {
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_mask: true,
+                mask: '00101',
+            })),
+        }));
+        await component.savePlaylist();
+        expect(onEdit).not.toHaveBeenCalled();
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 1770000000000,
+            })),
+        }));
+        await component.savePlaylist();
+        expect(onEdit).toHaveBeenCalledWith(
+            'playlist-1',
+            expect.objectContaining({
+                schedules: [
+                    expect.objectContaining({
+                        mask: '00101',
+                        valid_from: 1770000000,
+                    }),
+                ],
+            }),
+        );
+    });
+
     it('saves monthly weekday schedules with multiple month instances', async () => {
         const fixture = TestBed.createComponent(PlaylistEditModalComponent);
         const component = fixture.componentInstance;
@@ -124,6 +160,7 @@ describe('PlaylistEditModalComponent', () => {
                         play_takeover: false,
                         valid_from: 0,
                         valid_until: 0,
+                        mask: '',
                     },
                 ],
             }),
@@ -224,6 +261,7 @@ describe('PlaylistEditModalComponent', () => {
                         play_takeover: false,
                         valid_from: 0,
                         valid_until: 0,
+                        mask: '',
                     },
                     {
                         play_at: Math.floor(play_at / 1000),
@@ -232,6 +270,7 @@ describe('PlaylistEditModalComponent', () => {
                         play_takeover: true,
                         valid_from: Math.floor(play_at / 1000) - 3600,
                         valid_until: 0,
+                        mask: '',
                     },
                 ],
             }),

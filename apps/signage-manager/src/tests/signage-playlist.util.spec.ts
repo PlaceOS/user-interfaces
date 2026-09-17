@@ -1,5 +1,6 @@
 import { getUnixTime } from 'date-fns';
 import {
+    createScheduleMaskFilter,
     playlistItemScheduleMap,
     playlistMediaIds,
     playlistMediaItems,
@@ -162,5 +163,96 @@ describe('signage playlist util', () => {
         });
 
         expect(labels).toEqual([]);
+    });
+});
+
+describe('schedule masks', () => {
+    const start = new Date('2026-03-02T09:00:00Z');
+    const schedule = {
+        play_cron: '0 9 * * *',
+        valid_from: start.getTime() / 1000,
+        mask: '101',
+    };
+
+    it('starts at valid_from and repeats play, skip, play', () => {
+        const allows = createScheduleMaskFilter(schedule, 'UTC');
+        expect(
+            Array.from({ length: 7 }, (_, index) =>
+                allows(new Date(start.getTime() + index * 86400000)),
+            ),
+        ).toEqual([true, false, true, true, false, true, true]);
+        expect(allows(start)).toBe(true);
+        expect(allows(new Date(start.getTime() - 86400000))).toBe(false);
+    });
+
+    it('counts cron occurrences rather than calendar days', () => {
+        const allows = createScheduleMaskFilter(
+            { ...schedule, play_cron: '0 9 * * 1,3,5', mask: '10' },
+            'UTC',
+        );
+        expect(allows(new Date('2026-03-04T09:00:00Z'))).toBe(false);
+        expect(allows(new Date('2026-03-06T09:00:00Z'))).toBe(true);
+        expect(allows(new Date('2026-03-09T09:00:00Z'))).toBe(false);
+    });
+
+    it('starts at the first occurrence after a partial minute', () => {
+        const allows = createScheduleMaskFilter(
+            {
+                ...schedule,
+                play_cron: '* * * * *',
+                valid_from: start.getTime() / 1000 + 30,
+                mask: '10',
+            },
+            'UTC',
+        );
+        expect(allows(new Date('2026-03-02T09:01:00Z'))).toBe(true);
+        expect(allows(new Date('2026-03-02T09:02:00Z'))).toBe(false);
+    });
+
+    it('uses the final character of a 128-character mask', () => {
+        const allows = createScheduleMaskFilter(
+            { ...schedule, mask: '0'.repeat(127) + '1' },
+            'UTC',
+        );
+        expect(allows(new Date(start.getTime() + 126 * 86400000))).toBe(false);
+        expect(allows(new Date(start.getTime() + 127 * 86400000))).toBe(true);
+        expect(allows(new Date(start.getTime() + 128 * 86400000))).toBe(false);
+    });
+
+    it('handles all-play masks, zero masks and missing anchors', () => {
+        expect(
+            createScheduleMaskFilter(
+                { ...schedule, mask: '1'.repeat(128) },
+                'UTC',
+            )(start),
+        ).toBe(true);
+        expect(
+            createScheduleMaskFilter(
+                { ...schedule, mask: '000' },
+                'UTC',
+            )(start),
+        ).toBe(false);
+        expect(
+            createScheduleMaskFilter(
+                { ...schedule, valid_from: 0 },
+                'UTC',
+            )(start),
+        ).toBe(false);
+        expect(createScheduleMaskFilter({ mask: '' }, 'UTC')(start)).toBe(true);
+    });
+
+    it('does not count nonexistent times during a daylight saving change', () => {
+        const allows = createScheduleMaskFilter(
+            {
+                ...schedule,
+                play_cron: '30 2 * * *',
+                valid_from: Date.parse('2026-03-07T07:30:00Z') / 1000,
+                mask: '10',
+            },
+            'America/New_York',
+        );
+        expect(allows(new Date('2026-03-07T07:30:00Z'))).toBe(true);
+        expect(allows(new Date('2026-03-09T06:30:00Z'))).toBe(false);
+        expect(allows(new Date('2026-03-10T06:30:00Z'))).toBe(true);
     });
 });
