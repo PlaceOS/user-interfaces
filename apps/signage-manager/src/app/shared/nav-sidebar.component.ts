@@ -21,9 +21,10 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
             [attr.aria-label]="'SIGNAGE_MANAGER.PRIMARY_NAV' | translate"
             class="bg-secondary text-secondary-content border-base-100 relative z-30 hidden h-full flex-col border-r p-2 shadow-lg sm:flex"
         >
-            <div
+            <a
                 logo
-                class="bg-base-300/20 mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-xl"
+                class="bg-base-100/80 mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl shadow-xl"
+                [routerLink]="['/']"
             >
                 @if (logo_src; as logo) {
                     <img
@@ -37,7 +38,7 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                         {{ 'SIGNAGE_MANAGER.LOGO_ALT' | translate }}
                     </div>
                 }
-            </div>
+            </a>
             <div
                 class="flex min-h-0 w-[calc(100%+0.5rem)] flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-2"
             >
