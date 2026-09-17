@@ -9,8 +9,8 @@ import {
     Component,
     computed,
     inject,
+    model,
     resource,
-    signal,
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -56,7 +56,7 @@ import {
             class="bg-base-100 border-base-300 flex h-full w-full flex-col lg:w-96 lg:border-l"
         >
             <div
-                class="border-base-300 flex border-b"
+                class="border-base-300 hidden border-b lg:flex"
                 role="tablist"
                 [attr.aria-label]="
                     'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' | translate
@@ -722,7 +722,10 @@ import {
 export class TemplateLayoutListComponent {
     private readonly _service = inject(SignageService);
 
-    public readonly view_tab = signal<'items' | 'details'>('items');
+    /** Active inner tab. Below lg the parent drives it from its own tabs. */
+    public readonly view_tab = model<'items' | 'details'>('items', {
+        alias: 'tab',
+    });
     public readonly positions = LAYOUT_POSITIONS;
     public readonly layouts = this._service.template_layout_draft;
     public readonly selected_template = this._service.selected_template;

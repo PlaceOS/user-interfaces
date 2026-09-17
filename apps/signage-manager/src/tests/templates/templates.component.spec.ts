@@ -65,18 +65,40 @@ describe('TemplatesSectionComponent', () => {
 
     it('switches and focuses tabs with the arrow keys', async () => {
         const component = await make();
+        const layouts_tab = { focus: vi.fn() };
+        const details_tab = { focus: vi.fn() };
+        const tablist = {
+            querySelectorAll: () => [
+                { focus: vi.fn() },
+                layouts_tab,
+                details_tab,
+            ],
+        };
         const event = {
             key: 'ArrowRight',
             preventDefault: vi.fn(),
+            currentTarget: { parentElement: tablist },
         } as unknown as KeyboardEvent;
-        const preview_tab = { focus: vi.fn() } as unknown as HTMLButtonElement;
-        const layouts_tab = { focus: vi.fn() } as unknown as HTMLButtonElement;
 
-        component.handleTabKeydown(event, preview_tab, layouts_tab);
+        component.handleTabKeydown(event);
 
         expect(component.view_tab()).toBe('layouts');
         expect(event.preventDefault).toHaveBeenCalled();
         expect(layouts_tab.focus).toHaveBeenCalled();
+
+        component.handleTabKeydown(event);
+
+        expect(component.view_tab()).toBe('details');
+        expect(details_tab.focus).toHaveBeenCalled();
+    });
+
+    it('mirrors the layout list tab into the mobile tabs', async () => {
+        const component = await make();
+
+        component.setLayoutTab('details');
+        expect(component.view_tab()).toBe('details');
+        component.setLayoutTab('items');
+        expect(component.view_tab()).toBe('layouts');
     });
 
     it('delegates approval actions for the selected template', async () => {

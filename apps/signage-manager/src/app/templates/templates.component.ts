@@ -12,6 +12,8 @@ import { TemplateLayoutListComponent } from './template-layout-list.component';
 import { TemplateListComponent } from './template-list.component';
 import { TemplatePreviewComponent } from './template-preview.component';
 
+type TemplateViewTab = 'preview' | 'layouts' | 'details';
+
 @Component({
     selector: 'templates-section',
     template: `
@@ -171,81 +173,39 @@ import { TemplatePreviewComponent } from './template-preview.component';
                                 role="tablist"
                                 [attr.aria-label]="'COMMON.DETAILS' | translate"
                             >
-                                <button
-                                    #preview_tab
-                                    type="button"
-                                    role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
-                                        view_tab() === 'preview'
-                                    "
-                                    [class.border-b-2]="
-                                        view_tab() === 'preview'
-                                    "
-                                    [class.text-primary]="
-                                        view_tab() === 'preview'
-                                    "
-                                    [class.opacity-60]="
-                                        view_tab() !== 'preview'
-                                    "
-                                    (click)="setViewTab('preview')"
-                                    (keydown)="
-                                        handleTabKeydown(
-                                            $event,
-                                            preview_tab,
-                                            layouts_tab
-                                        )
-                                    "
-                                    [attr.aria-selected]="
-                                        view_tab() === 'preview'
-                                    "
-                                    [tabIndex]="
-                                        view_tab() === 'preview' ? 0 : -1
-                                    "
-                                    aria-controls="template-preview-panel"
-                                    id="template-preview-tab"
-                                >
-                                    {{ 'COMMON.PREVIEW' | translate }}
-                                </button>
-                                <button
-                                    #layouts_tab
-                                    type="button"
-                                    role="tab"
-                                    class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
-                                    [class.border-primary]="
-                                        view_tab() === 'layouts'
-                                    "
-                                    [class.border-b-2]="
-                                        view_tab() === 'layouts'
-                                    "
-                                    [class.text-primary]="
-                                        view_tab() === 'layouts'
-                                    "
-                                    [class.opacity-60]="
-                                        view_tab() !== 'layouts'
-                                    "
-                                    (click)="setViewTab('layouts')"
-                                    (keydown)="
-                                        handleTabKeydown(
-                                            $event,
-                                            preview_tab,
-                                            layouts_tab
-                                        )
-                                    "
-                                    [attr.aria-selected]="
-                                        view_tab() === 'layouts'
-                                    "
-                                    [tabIndex]="
-                                        view_tab() === 'layouts' ? 0 : -1
-                                    "
-                                    aria-controls="template-layouts-panel"
-                                    id="template-layouts-tab"
-                                >
-                                    {{
-                                        'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS'
-                                            | translate
-                                    }}
-                                </button>
+                                @for (tab of tabs; track tab.id) {
+                                    <button
+                                        type="button"
+                                        role="tab"
+                                        class="flex-1 px-4 py-2.5 text-sm font-medium transition-colors"
+                                        [class.border-primary]="
+                                            view_tab() === tab.id
+                                        "
+                                        [class.border-b-2]="
+                                            view_tab() === tab.id
+                                        "
+                                        [class.text-primary]="
+                                            view_tab() === tab.id
+                                        "
+                                        [class.opacity-60]="
+                                            view_tab() !== tab.id
+                                        "
+                                        (click)="setViewTab(tab.id)"
+                                        (keydown)="handleTabKeydown($event)"
+                                        [attr.aria-selected]="
+                                            view_tab() === tab.id
+                                        "
+                                        [tabIndex]="
+                                            view_tab() === tab.id ? 0 : -1
+                                        "
+                                        [attr.aria-controls]="
+                                            'template-' + tab.id + '-panel'
+                                        "
+                                        [id]="'template-' + tab.id + '-tab'"
+                                    >
+                                        {{ tab.label | translate }}
+                                    </button>
+                                }
                             </div>
                             <div
                                 class="flex min-h-0 flex-1 flex-row overflow-hidden"
@@ -256,20 +216,28 @@ import { TemplatePreviewComponent } from './template-preview.component';
                                     aria-labelledby="template-preview-tab"
                                     class="min-h-0 w-full flex-1 lg:w-px"
                                     [class.tablet-hidden]="
-                                        view_tab() === 'layouts'
+                                        view_tab() !== 'preview'
                                     "
                                 />
                                 <template-layout-list
-                                    id="template-layouts-panel"
                                     role="tabpanel"
-                                    aria-labelledby="template-layouts-tab"
                                     class="h-full shrink-0"
+                                    [id]="'template-' + view_tab() + '-panel'"
+                                    [attr.aria-labelledby]="
+                                        'template-' + view_tab() + '-tab'
+                                    "
                                     [class.tablet-hidden]="
                                         view_tab() === 'preview'
                                     "
                                     [class.tablet-full]="
-                                        view_tab() === 'layouts'
+                                        view_tab() !== 'preview'
                                     "
+                                    [tab]="
+                                        view_tab() === 'details'
+                                            ? 'details'
+                                            : 'items'
+                                    "
+                                    (tabChange)="setLayoutTab($event)"
                                 />
                             </div>
                         } @else {
@@ -340,7 +308,13 @@ export class TemplatesSectionComponent {
     private readonly _router = inject(Router);
 
     public readonly id = input('');
-    public readonly view_tab = signal<'preview' | 'layouts'>('preview');
+    /** Tabs shown below the lg breakpoint. Wider screens show all panels. */
+    public readonly tabs: { id: TemplateViewTab; label: string }[] = [
+        { id: 'preview', label: 'COMMON.PREVIEW' },
+        { id: 'layouts', label: 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' },
+        { id: 'details', label: 'COMMON.DETAILS' },
+    ];
+    public readonly view_tab = signal<TemplateViewTab>('preview');
     public readonly selected_template = this._service.selected_template;
     public readonly requires_approval =
         this._service.selected_template_requires_approval;
@@ -445,24 +419,30 @@ export class TemplatesSectionComponent {
         this._router.navigate(['/templates'], {});
     }
 
-    public setViewTab(tab: 'preview' | 'layouts') {
+    public setViewTab(tab: TemplateViewTab) {
         this.view_tab.set(tab);
     }
 
-    public handleTabKeydown(
-        event: KeyboardEvent,
-        preview_tab: HTMLButtonElement,
-        layouts_tab: HTMLButtonElement,
-    ) {
-        let tab: 'preview' | 'layouts' | null = null;
-        if (event.key === 'Home') tab = 'preview';
-        else if (event.key === 'End') tab = 'layouts';
-        else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-            tab = this.view_tab() === 'preview' ? 'layouts' : 'preview';
-        }
-        if (!tab) return;
+    /** Mirror the layout list's inner tab into the mobile tabs. */
+    public setLayoutTab(tab: 'items' | 'details') {
+        this.view_tab.set(tab === 'details' ? 'details' : 'layouts');
+    }
+
+    public handleTabKeydown(event: KeyboardEvent) {
+        const ids = this.tabs.map(({ id }) => id);
+        const index = ids.indexOf(this.view_tab());
+        let next: number;
+        if (event.key === 'Home') next = 0;
+        else if (event.key === 'End') next = ids.length - 1;
+        else if (event.key === 'ArrowLeft') {
+            next = (index - 1 + ids.length) % ids.length;
+        } else if (event.key === 'ArrowRight') {
+            next = (index + 1) % ids.length;
+        } else return;
         event.preventDefault();
-        this.view_tab.set(tab);
-        (tab === 'preview' ? preview_tab : layouts_tab).focus();
+        this.view_tab.set(ids[next]);
+        (event.currentTarget as HTMLElement | null)?.parentElement
+            ?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+            [next]?.focus();
     }
 }
