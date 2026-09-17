@@ -85,6 +85,36 @@ describe('TemplatePreviewComponent', () => {
         );
     });
 
+    it('posts the layout draft when the live preview requests it', async () => {
+        selected_template.set({ id: 'template-1' });
+        displays.set([{ id: 'display-1' }]);
+        const fixture = await render();
+        const component = fixture.componentInstance;
+        component.selected_display_id.set('display-1');
+        component.live_mode.set(true);
+        await fixture.whenStable();
+        const frame = (fixture.nativeElement as HTMLElement).querySelector(
+            'iframe',
+        ) as HTMLIFrameElement;
+        const post = vi.spyOn(frame.contentWindow!, 'postMessage');
+        const request = (source: Window) =>
+            window.dispatchEvent(
+                new MessageEvent('message', {
+                    data: { type: 'signage:template-preview-ready' },
+                    source,
+                }),
+            );
+
+        request(window);
+        expect(post).not.toHaveBeenCalled();
+
+        request(frame.contentWindow!);
+        expect(post).toHaveBeenCalledWith(
+            { type: 'signage:template-layouts', layouts: [] },
+            '*',
+        );
+    });
+
     it('selects a display before enabling the live preview', async () => {
         selected_template.set({ id: 'template-1' });
         displays.set([{ id: 'display-1', display_name: 'Lobby' }]);

@@ -1,6 +1,7 @@
 import {
     Component,
     computed,
+    DestroyRef,
     effect,
     ElementRef,
     inject,
@@ -34,6 +35,8 @@ interface AspectRatioOption {
 
 /** Message type the signage player accepts to preview unsaved layouts */
 const PREVIEW_LAYOUTS_MESSAGE = 'signage:template-layouts';
+/** Message type the signage player posts to request the unsaved layouts */
+const PREVIEW_READY_MESSAGE = 'signage:template-preview-ready';
 
 const ASPECT_RATIOS: AspectRatioOption[] = [
     { id: '16:9', label: '16:9', ratio: 16 / 9 },
@@ -278,6 +281,26 @@ export class TemplatePreviewComponent {
         this._layouts();
         this.postDraftLayouts();
     });
+
+    // The player requests the draft when its listener is ready. The iframe
+    // load event can fire before that, which loses the first draft message.
+    private readonly _preview_ready_handler = (event: MessageEvent) => {
+        const frame = this._live_frame()?.nativeElement;
+        if (
+            event.data?.type !== PREVIEW_READY_MESSAGE ||
+            !frame?.contentWindow ||
+            event.source !== frame.contentWindow
+        )
+            return;
+        this.postDraftLayouts();
+    };
+
+    constructor() {
+        window.addEventListener('message', this._preview_ready_handler);
+        inject(DestroyRef).onDestroy(() =>
+            window.removeEventListener('message', this._preview_ready_handler),
+        );
+    }
 
     public readonly layout_rects = computed(() => {
         const layouts = this._layouts();

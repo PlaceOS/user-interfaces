@@ -23,6 +23,8 @@ import { MediaPlayerItem } from './types';
 const STORE_DISPLAY_KEY = 'PlaceOS.SIGNAGE.display';
 /** Message type the signage manager posts with unsaved layouts to preview */
 const PREVIEW_LAYOUTS_MESSAGE = 'signage:template-layouts';
+/** Message type posted to the signage manager to request its unsaved layouts */
+const PREVIEW_READY_MESSAGE = 'signage:template-preview-ready';
 
 interface RenderedLayoutItem {
     plugin: SignagePlugin;
@@ -246,6 +248,15 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         );
     };
 
+    /**
+     * Ask the embedding manager preview for its unsaved layouts. The manager
+     * cannot know when this listener is ready, so the player asks first.
+     */
+    private _requestPreviewLayouts() {
+        if (window.parent === window) return;
+        window.parent.postMessage({ type: PREVIEW_READY_MESSAGE }, '*');
+    }
+
     private _bootstrapTemplate(template_id: string) {
         const display_id = localStorage.getItem(STORE_DISPLAY_KEY);
         if (display_id) {
@@ -263,6 +274,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     private async _loadTemplate(template_id: string) {
         const load_id = ++this._load_id;
         this._preview_layouts.set(null);
+        this._requestPreviewLayouts();
         if (!template_id) {
             this._plugins.set([]);
             this.template.set(null);
@@ -272,6 +284,11 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         try {
             const template = await showSignageTemplate(template_id, {
                 approved: true,
+            }).catch((error) => {
+                // A new template has no approved version, so the manager
+                // preview falls back to the pending version.
+                if (!this.debug()) throw error;
+                return showSignageTemplate(template_id);
             });
             const [plugin_result, background] = await Promise.all([
                 querySignagePlugins({ limit: 500 }).catch(() => ({ data: [] })),
