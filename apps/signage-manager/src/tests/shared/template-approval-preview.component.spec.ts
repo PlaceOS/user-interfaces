@@ -74,9 +74,26 @@ describe('TemplateApprovalPreviewComponent', () => {
         expect(
             fixture.nativeElement.querySelectorAll('[data-template-preview]'),
         ).toHaveLength(2);
-        expect(
+        // The visual preview draws every layout and marks the changed ones
+        const statuses = Array.from(
             fixture.nativeElement.querySelectorAll('[data-template-layout]'),
-        ).toHaveLength(3);
+        ).map((item: Element) => item.getAttribute('data-status'));
+        expect(statuses).toEqual([
+            'unchanged',
+            'changed',
+            'added',
+            'unchanged',
+            'changed',
+        ]);
+        const status_labels = Array.from(
+            fixture.nativeElement.querySelectorAll('[data-layout-status]'),
+        ).map((item: Element) => item.textContent?.trim());
+        expect(status_labels).toEqual(['Changed', 'Added', 'Changed']);
+        const names: HTMLElement[] = Array.from(
+            fixture.nativeElement.querySelectorAll('[data-template-name]'),
+        );
+        expect(names[0].className).toContain('bg-success/20');
+        expect(names[1].className).toContain('bg-error/20');
         expect(
             fixture.nativeElement.querySelectorAll('[data-layout-item]'),
         ).toHaveLength(3);
