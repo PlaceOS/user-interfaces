@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["concierge-settings-form-modal.component.ts"],
+  "sourcesContent": ["\n            settings-toggle {\n                width: calc(50% - 1rem);\n                margin: 0.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA,KAAA,IAAA,EAAA;AACA,UAAA;AACJ;",
+  "names": []
+}
