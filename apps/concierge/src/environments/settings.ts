@@ -10,6 +10,10 @@ const app = {
     default_route: '/book/rooms',
     currency: 'USD',
     use_24_hour_time: false,
+    analytics: {
+        enabled: true,
+        tracking_id: 'G-S6TDS95BDH',
+    },
     admin_group: 'concierge_admins',
     features: [
         'spaces',

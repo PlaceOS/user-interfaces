@@ -267,6 +267,22 @@ Each custom report requires an `id` (unique, URL-safe), a `name` (shown in the r
 |---|---|---|---|
 | `group_events_calendar` | string | – | ID of the calendar used for storing group events. |
 
+## Analytics
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `analytics.enabled` | boolean | `true` | Enable Google Analytics. |
+| `analytics.tracking_id` | string | `""` | Google Analytics tracking ID. Analytics is only initialised when this is set. |
+
+```json
+{
+    "analytics": {
+        "enabled": true,
+        "tracking_id": "G-XXXXXXXXXX"
+    }
+}
+```
+
 ## Integration & Advanced
 
 Settings for linking Concierge to the other PlaceOS applications and metadata sources. Most deployments can leave these at their defaults.

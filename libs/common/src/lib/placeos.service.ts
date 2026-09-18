@@ -1,7 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { inject, Injectable, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
     authority,
@@ -17,6 +17,7 @@ import {
 } from '@placeos/ts-client';
 import * as Sentry from '@sentry/angular';
 import { addHours } from 'date-fns';
+import { filter } from 'rxjs/operators';
 
 import {
     hasNewVersion,
@@ -546,6 +547,19 @@ export class PlaceOS_Service extends AsyncHandler {
         this._analytics.init(tracking_id);
         this._analytics.load(tracking_id);
         this._analytics.setUser(currentUser().id);
+        this.subscription(
+            'analytics-router',
+            this._router.events
+                .pipe(
+                    filter(
+                        (event): event is NavigationEnd =>
+                            event instanceof NavigationEnd,
+                    ),
+                )
+                .subscribe((event: NavigationEnd) =>
+                    this._analytics.page(event.urlAfterRedirects),
+                ),
+        );
     }
 
     private _initLocale() {

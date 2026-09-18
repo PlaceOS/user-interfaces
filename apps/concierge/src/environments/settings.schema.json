@@ -592,6 +592,20 @@
                     "description": "Whether catering orders are sourced from the bookings API instead of calendar events. Affects catering reports."
                 }
             }
+        },
+        "analytics": {
+            "type": "object",
+            "description": "Settings for Google Analytics",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Whether Google Analytics is enabled"
+                },
+                "tracking_id": {
+                    "type": "string",
+                    "description": "Google Analytics tracking ID"
+                }
+            }
         }
     },
     "$defs": {
