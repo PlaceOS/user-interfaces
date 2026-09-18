@@ -48,6 +48,33 @@ describe('PluginEmbedComponent', () => {
         );
     });
 
+    it('should send config changes after an auto-play plugin is ready', () => {
+        spectator.setInput('plugin', {
+            id: 'plugin-1',
+            name: 'Local Plugin',
+            uri: '/plugins/weather/index.html',
+        });
+        spectator.setInput('auto_play', true);
+        const iframe = spectator.query('iframe') as HTMLIFrameElement;
+        const post_message = vi.fn();
+        Object.defineProperty(iframe, 'contentWindow', {
+            configurable: true,
+            value: { postMessage: post_message },
+        });
+
+        spectator.setInput('config', config);
+        expect(post_message).not.toHaveBeenCalled();
+
+        spectator.component.status.set('ready');
+        const updated = { ...config, config: { theme: 'light' } };
+        spectator.setInput('config', updated);
+
+        expect(post_message).toHaveBeenCalledWith(
+            { api: 'signage-plugin/v1', type: 'config', payload: updated },
+            window.location.origin,
+        );
+    });
+
     it('should emit loaded when the plugin iframe loads', () => {
         const loaded_spy = vi.spyOn(spectator.component.loaded, 'emit');
         spectator.setInput('plugin', {
