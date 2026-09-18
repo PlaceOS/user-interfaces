@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["locker-grid.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n            button[disabled] {\n                pointer-events: none;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACJ;AACA,MAAA,CAAA;AACI,kBAAA;AACJ;",
+  "names": []
+}
