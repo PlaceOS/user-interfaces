@@ -81,6 +81,22 @@ e2e/                          shared engine, all apps
     fixtures.ts                 worker-scoped auth fixtures — import test/expect from here
     api.ts                      engine/staff-api helpers + asset sweep
     flows.ts                    multi-step UI flows (bookDeskViaUI)
+    visitor/                    visitor-invite coverage, kept out of the files above
+      visitor.env.ts              per-worker visitor addresses + slot table
+      visitor.api.ts              guest + visitor-booking helpers and sweeps
+      visitor.settings.ts         per-context app settings presets
+      invite-form.page.ts         locators for the invite form
+      your-bookings.page.ts       locators for the schedule + details modal
+      visitor.flows.ts            multi-step UI flows (inviteVisitorViaUI)
+    room/                     room-booking coverage, kept out of the files above
+      room.env.ts                 per-worker rooms + slot table
+      room.seed.ts                creates the rooms as engine Systems (needs ADMIN)
+      room.api.ts                 room-booking helpers, sweeps, tryRoomBooking
+      room.settings.ts            per-context app settings presets (use_bookings mode)
+      meeting-form.page.ts        locators for the meeting form + room picker
+      schedule.page.ts            extends visitor/your-bookings.page.ts for event cards
+      room.flows.ts               multi-step UI flows (bookRoomViaUI)
+    repro/                      standalone reproducers for confirmed backend bugs
     preflight.ts                "is the stack up?" — fails in 1s, not 90
     preflight.setup.ts          setup project — `local` depends on it, `mock` does not
     seed.ts                     idempotent API-driven seeding
@@ -191,17 +207,22 @@ otherwise registering an OAuth app would require a token that requires an OAuth 
 staff-api only dereferences tenant credentials when it instantiates a
 PlaceCalendar client, which happens on the calendar-backed routes and nowhere else.
 So a placeholder tenant unblocks the **entire PlaceOS-native booking surface** —
-desks, lockers, parking, visitors — with zero external calls. Verified:
+desks, lockers, parking, visitors and **rooms** — with zero external calls. Verified:
 
 ```
-GET /bookings?type=desk|locker|parking|visitor   -> 200   (placeholder tenant)
-GET /calendars, GET /events                      -> 500   (need real credentials)
+GET /bookings?type=desk|locker|parking|visitor|room   -> 200   (placeholder tenant)
+GET /calendars, GET /events                           -> 500   (need real credentials)
 ```
 
-**Room/calendar events are the only surface that needs a real Microsoft/Google
-tenant.** Those specs are therefore opt-in, must live under a separate project, and
-must never be part of the PR gate — wiring real credentials in would make the suite
-depend on an external service, which is the one thing it is designed not to do.
+**The room CALENDAR path is the only surface that needs a real Microsoft/Google
+tenant — the room itself is not.** With `app.events.use_bookings = true` the meeting
+form saves an ordinary `room` booking through `/bookings`, which is how
+`apps/workplace/e2e/local/room-*.spec.ts` runs locally (see
+[`ROOM_E2E_HANDOVER.md`](ROOM_E2E_HANDOVER.md)). Anything genuinely calendar-backed
+stays opt-in, must live under a separate project, and must never be part of the PR
+gate — wiring real credentials in would make the suite depend on an external service,
+which is the one thing it is designed not to do. A green room run says nothing about
+the calendar path.
 
 ## CI
 

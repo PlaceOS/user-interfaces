@@ -1,0 +1,129 @@
+/**
+ * ROOM-26 — a meeting in more than one room.
+ *
+ * Every room spec so far books exactly one room, and multi-select is not a
+ * variation on that — it changes the picker's shape. `multipleSpacesEnabled`
+ * swaps the confirm button from `toggle-space` to **`space-return`**, and a
+ * spec written against the single-select button waits out its timeout on an
+ * element that is not in the DOM. That trap is recorded at the top of
+ * `meeting-form.page.ts`, and this is the test that exercises it.
+ *
+ * Why it matters beyond the picker: a two-room meeting has to hold BOTH rooms.
+ * A form that stored only the first would leave the second bookable by somebody
+ * else, and the people sent to it would find it occupied.
+ *
+ * ## `fixme` — ROOM-B6: only the first room is ever booked
+ *
+ * Measured, with `app.events.multiple_spaces` on and both rooms visibly on the
+ * form before sending:
+ *
+ *   two rooms on the form  ->  ONE booking
+ *   [{"id":1579,"asset":"sys-Ko~UXacdGR"}]   <- the first room only
+ *
+ * The meeting is accepted and the success screen appears, so the user is told
+ * they have both rooms. The second room is left free for anybody else to book,
+ * and everyone sent to it arrives to find it occupied — or, worse, double-booked
+ * by a colleague who saw it as available.
+ *
+ * The mechanism is visible in `newBookingFromCalendarEvent`: a booking carries
+ * ONE `asset_id`, taken from `event.system?.id || event.system_id`, and nothing
+ * in the `use_bookings` path creates a second booking for the second room. So
+ * multi-select renders, validates and confirms while only ever being able to
+ * hold one room.
+ *
+ * Either the native path needs a booking per room, or multi-select should not be
+ * offered when `use_bookings` is on. That is a product decision; the assertions
+ * below are what should be true once it is made.
+ */
+import { test, expect } from '../../../../e2e/support/fixtures';
+import { deleteBooking, listBookings, uniqueTitle } from '../../../../e2e/support/api';
+import { ROOM_SLOTS_2, SECOND_DAY, slotFor } from '../../../../e2e/support/room/room.env';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import { releaseRoom, type RoomBooking } from '../../../../e2e/support/room/room.api';
+import {
+    MULTI_SPACE,
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
+import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
+
+const DAY = 86_400;
+const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
+const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
+
+test.describe('a meeting in more than one room', () => {
+    test.fixme('both rooms chosen on the form end up held', async ({
+        staffPage,
+        staffApi,
+    }, testInfo) => {
+        const first = await roomForWorker(testInfo.parallelIndex);
+        const second = await roomForWorker(testInfo.parallelIndex, 'alt');
+        const slot = slotFor(ROOM_SLOTS_2.multi.hour, SECOND_DAY);
+        const title = uniqueTitle('E2E Room Multi');
+        const created: number[] = [];
+
+        await releaseRoom(staffApi, first.id, window_from(), window_to());
+        await releaseRoom(staffApi, second.id, window_from(), window_to());
+        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...MULTI_SPACE });
+
+        try {
+            const form = new MeetingForm(staffPage);
+            await form.open();
+
+            // Both rooms, one after the other. In multi-select mode the picker
+            // keeps the modal open and confirms with `space-return`.
+            await expect(async () => {
+                await form.title.fill(title);
+                expect(await form.title.inputValue()).toBe(title);
+            }).toPass({ timeout: 45_000 });
+
+            await form.chooseRooms([first.name, second.name]);
+            await expect(
+                form.chosenSpaces,
+                'both rooms should be on the form before it is sent',
+            ).toHaveCount(2, { timeout: 20_000 });
+
+            await staffPage.waitForTimeout(3_000);
+            await form.confirmAndSend();
+            await expect(
+                form.successPanel,
+                'a two-room meeting should be accepted',
+            ).toBeVisible({ timeout: 30_000 });
+
+            // Both rooms must be held. Read from the backend by asset, because
+            // the app may produce one booking per room or one booking carrying
+            // both — this test cares that neither room is left free.
+            const live = (await listBookings(
+                staffApi,
+                'room',
+                window_from(),
+                window_to(),
+            )) as RoomBooking[];
+            const mine = live.filter(
+                (b) => !b.deleted && `${b.extension_data?.title ?? ''}` === title,
+            );
+            for (const booking of mine) created.push(booking.id);
+
+            const held = new Set(mine.map((b) => `${b.asset_id}`));
+            expect(
+                [...held],
+                `both rooms should be held for this meeting. Bookings made: ` +
+                    `${JSON.stringify(
+                        mine.map((b) => ({ id: b.id, asset: b.asset_id })),
+                    )}`,
+            ).toContain(first.id);
+            expect(
+                [...held],
+                `the SECOND room (${second.id}) must be held too. Bookings made: ` +
+                    `${JSON.stringify(
+                        mine.map((b) => ({ id: b.id, asset: b.asset_id })),
+                    )}. A meeting that quietly booked only the first leaves the other ` +
+                    `bookable, and everyone sent to it finds it occupied`,
+            ).toContain(second.id);
+        } finally {
+            for (const id of created) await deleteBooking(staffApi, id);
+            await releaseRoom(staffApi, first.id, window_from(), window_to());
+            await releaseRoom(staffApi, second.id, window_from(), window_to());
+        }
+    });
+});
