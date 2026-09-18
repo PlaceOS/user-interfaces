@@ -1,1 +1,0 @@
-import{_ as B}from"./chunk-MQC0Kg73.js";function a(o,r){let t=B(o,r?.in);return t.setDate(1),t.setHours(0,0,0,0),t}export{a as t};
