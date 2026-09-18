@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["footer-menu.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n                z-index: 20;\n            }\n\n            a:not(.active) [filled],\n            a.active [outline] {\n                display: none;\n            }\n\n            a.active {\n                background: var(--brand-200) !important;\n                color: #fff !important;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACA,WAAA;AACJ;AAEA,CAAA,KAAA,CAAA,QAAA,CAAA;EAAA;AAEI,WAAA;AACJ;AAEA,CAAA,CALA;AAMI,cAAA,IAAA;AACA,SAAA;AACJ;",
+  "names": []
+}
