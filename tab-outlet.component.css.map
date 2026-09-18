@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["tab-outlet.component.ts"],
+  "sourcesContent": ["\n            a {\n                color: #000;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACJ;",
+  "names": []
+}
