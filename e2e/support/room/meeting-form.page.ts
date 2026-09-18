@@ -415,6 +415,96 @@ export class MeetingForm {
     }
 
     /**
+     * Request a piece of EQUIPMENT on the meeting — ROOM-24.
+     *
+     * ## Two preconditions, neither of which fails loudly
+     *
+     *  - `app.events.has_assets` must be on, or the section is not rendered at
+     *    all (`ROOM_ASSETS_MODE` in `room.settings.ts`).
+     *  - requestable assets must be seeded, or the modal opens with "0 results
+     *    found" (`asset.seed.ts`).
+     *
+     * Set one without the other and the failure looks like a missing control.
+     *
+     * ## The modal has no test ids, unlike the catering one
+     *
+     * Catering's modal carries `name="select-catering-item"` and friends; the
+     * asset modal (`asset-select-modal`) carries nothing equivalent, so these
+     * steps are matched by role and label inside the modal. Measured sequence,
+     * 2026-09-17:
+     *
+     *   "Request Assets"     on the field -> opens `asset-select-modal`
+     *   the GROUP row        in `asset-list` -> opens `asset-details`
+     *   "Add to booking"     -> adds one, and the button becomes
+     *                           "Remove from booking"
+     *   "Confirm Selection"  -> closes the modal and puts the request on the form
+     *
+     * `type_name` is the asset TYPE, not an individual item: the modal lists
+     * groups ("E2E AV Equipment — 3 available") and the app allocates specific
+     * units itself (`validateAssetRequestsForResource`).
+     *
+     * Nothing reaches the backend here. Asset requests are sent as their own
+     * `asset-request` bookings only when the meeting is confirmed.
+     */
+    async addAssetRequest(type_name: string): Promise<void> {
+        const field = this.page.locator('asset-list-field');
+        await expect(
+            field,
+            'the equipment section is missing — is `app.events.has_assets` set? ' +
+                'See ROOM_ASSETS_MODE in `room.settings.ts`',
+        ).toBeVisible({ timeout: 20_000 });
+
+        await field.getByRole('button', { name: /Request Assets/i }).first().click();
+
+        const modal = this.page.locator('asset-select-modal');
+        await expect(modal, 'the asset modal did not open').toBeVisible({
+            timeout: 20_000,
+        });
+
+        const group = modal
+            .locator('asset-list')
+            .getByText(type_name, { exact: false })
+            .first();
+        const found = await group
+            .waitFor({ state: 'visible', timeout: 20_000 })
+            .then(() => true)
+            .catch(() => false);
+        if (!found) {
+            const offered = await modal.locator('asset-list').innerText().catch(() => '');
+            throw new Error(
+                `no requestable asset group called "${type_name}". The modal shows: ` +
+                    `${JSON.stringify(offered.replace(/\n+/g, ' | ').slice(0, 300))}. ` +
+                    `A group is an ASSET TYPE in a VISIBLE category, with assets on the ` +
+                    `building zone — see \`asset.seed.ts\`. A hidden category leaves ` +
+                    `this list empty, because \`queryAssets\` filters those out.`,
+            );
+        }
+        await group.click();
+
+        const add = modal.getByRole('button', { name: /Add to booking/i });
+        await expect(add, "the asset details pane did not open").toBeVisible({
+            timeout: 15_000,
+        });
+        await add.click();
+        // The same button flips to "Remove from booking" once one is held, which
+        // is the only confirmation the modal gives that the add registered.
+        await expect(
+            modal.getByRole('button', { name: /Remove from booking/i }),
+            `"${type_name}" was not added to the booking — the add button never ` +
+                `flipped to "Remove from booking"`,
+        ).toBeVisible({ timeout: 15_000 });
+
+        await modal.getByRole('button', { name: /Confirm Selection/i }).click();
+        await expect(modal, 'the asset modal did not close').toBeHidden({
+            timeout: 20_000,
+        });
+        await expect(
+            field.getByText(type_name, { exact: false }).first(),
+            `"${type_name}" was requested but the form lists no asset request`,
+        ).toBeVisible({ timeout: 20_000 });
+    }
+
+    /**
      * Tick or clear All Day.
      *
      * Rendered only when `app.events.allow_multiday` is set, and matched by

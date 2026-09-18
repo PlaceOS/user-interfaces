@@ -116,6 +116,16 @@ export async function bookRoomViaUI(
          */
         catering?: string[];
         /**
+         * Asset TYPE names to request as equipment. Added in the same place and
+         * for the same reasons as `catering`: the request carries the room as
+         * its delivery location, so it cannot be made before a room is chosen,
+         * and the modal is a four-click flow that a retry would run twice.
+         *
+         * Needs `app.events.has_assets` (ROOM_ASSETS_MODE) and seeded assets
+         * (`asset.seed.ts`), or the section is absent / the modal is empty.
+         */
+        assets?: string[];
+        /**
          * Tick All Day. Replaces the window entirely — `_allDayTimeRange`
          * overwrites whatever start and length were chosen — so it is set inside
          * the fill loop and no times are passed with it.
@@ -175,6 +185,11 @@ export async function bookRoomViaUI(
     // then — so it cannot go in the fill above, and it is not idempotent.
     for (const item of options.catering ?? []) {
         await form.addCateringItem(item);
+    }
+
+    // Equipment, for the same reason and in the same place as catering.
+    for (const type_name of options.assets ?? []) {
+        await form.addAssetRequest(type_name);
     }
 
     // The time and duration fields apply to the model ASYNCHRONOUSLY — measured
@@ -286,7 +301,12 @@ export async function bookRoomViaUI(
 }
 
 /** Drive the form's date picker to a given day. */
-async function setDate(form: MeetingForm, page: Page, timestamp_ms: number) {
+/**
+ * Exported because a spec that drives the form WITHOUT booking still has to set
+ * the date before touching the times — the form defaults to today, so a slot on
+ * another day has its hour simply absent from the picker. That cost a run.
+ */
+export async function setDate(form: MeetingForm, page: Page, timestamp_ms: number) {
     await form.dateButton.click();
     const calendar = form.datePicker;
     await expect(calendar, 'the date picker did not open').toBeVisible({ timeout: 10_000 });

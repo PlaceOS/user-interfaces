@@ -55,6 +55,31 @@ export async function useSettings(
     }, overrides);
 }
 
+/**
+ * Turn on the meeting form's EQUIPMENT section — ROOM-24.
+ *
+ * `app.events.has_assets` is what `meeting-flow-form.component.ts` reads to
+ * decide whether to render the section at all, and it is off by default. The
+ * setting alone gives a section with nothing in it: the items also have to be
+ * seeded, by `asset.seed.ts`. Both are needed, and neither fails loudly without
+ * the other.
+ */
+export const ROOM_ASSETS_MODE = {
+    'app.events.has_assets': true,
+};
+
+/**
+ * Turn on the meeting form's RECURRENCE control — ROOM-25.
+ *
+ * `events.allow_recurrence` is what `meeting-form-details.component.ts` reads,
+ * and it is off by default. Note the component ALSO requires the meeting to be
+ * 24 hours or shorter (`allow_recurrence = _allow_recurrence() && duration <=
+ * 24 * 60`), so a recurrence test cannot also be an all-day-multi-day test.
+ */
+export const ROOM_RECURRENCE_MODE = {
+    'app.events.allow_recurrence': true,
+};
+
 /** The mode every room spec runs in. See the note at the top of this file. */
 export const ROOM_BOOKINGS_MODE = {
     'app.events.use_bookings': true,

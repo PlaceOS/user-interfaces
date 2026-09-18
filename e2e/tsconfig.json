@@ -22,5 +22,9 @@
         // Scoped to the e2e project so the app build is unaffected.
         "strictNullChecks": true
     },
-    "include": ["support/**/*.ts", "../apps/workplace/e2e/**/*.ts"]
+    "include": [
+        "support/**/*.ts",
+        "../apps/workplace/e2e/**/*.ts",
+        "../apps/concierge/e2e/**/*.ts"
+    ]
 }

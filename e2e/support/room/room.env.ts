@@ -74,6 +74,27 @@ export const ROOM_SLOTS_2 = {
     features: { hour: 20 },
 } as const;
 
+/**
+ * A THIRD day, for the two specs written after `ROOM_SLOTS_2` filled up.
+ *
+ * `ROOM_SLOTS_2` uses 9 to 20 on `SECOND_DAY`, which is every hour the form
+ * offers. Rather than double up an hour — a worker's specs share one room, so
+ * two tests in one hour contend for the same asset — these move to a day of
+ * their own.
+ *
+ * `recurring` needs more room than an hour: a weekly booking made on this day
+ * puts its later instances on +7 and +14 days, which is why it sits on a day
+ * nothing else uses rather than squeezing into `SECOND_DAY`.
+ */
+export const THIRD_DAY = 5;
+
+export const ROOM_SLOTS_3 = {
+    /** room-assets.spec.ts — ROOM-24, equipment requested on a meeting */
+    assets: { hour: 9, second: 10 },
+    /** room-recurring.spec.ts — ROOM-25, and its instances land on +7 and +14 */
+    recurring: { hour: 12 },
+} as const;
+
 export interface RoomIdentity {
     /** Engine system id, filled in by the seeder — not known up front. */
     id: string;

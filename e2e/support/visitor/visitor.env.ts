@@ -50,6 +50,14 @@ export const VISITOR_SLOTS = {
     group_time: { memberA: 28, memberB: 29 },
     /** visitor-times.spec.ts */
     times: { chosen: 23, limits: 24 },
+    /**
+     * visitor-concurrency.spec.ts — VIS-28.
+     *
+     * A BLOCK rather than a slot, because the test fires a burst: it needs one
+     * visitor identity per concurrent write, and it must not touch a slot any
+     * other file owns. 40 onwards is clear of everything above.
+     */
+    concurrency: { base: 40, count: 8 },
 } as const;
 
 export interface VisitorIdentity {
