@@ -20,7 +20,7 @@ import {
   signal,
   ɵɵdefineInjectable,
   ɵɵdefinePipe
-} from "./chunk-NUT7XERY.js";
+} from "./chunk-HRG3PBEH.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2515,4 +2515,4 @@ export {
   ChatService
 };
 //# debugId=74675b9e-c747-504f-921d-6ca1f65680b6
-//# sourceMappingURL=chunk-ZEK4PPWY.js.map
+//# sourceMappingURL=chunk-TD2MFJJF.js.map
