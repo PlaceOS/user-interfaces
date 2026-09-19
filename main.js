@@ -14,7 +14,7 @@ import {
   recordFatalError,
   requestRecovery,
   startWatchdog
-} from "./chunk-5RE5CYPQ.js";
+} from "./chunk-WH4Y2Y7I.js";
 import {
   A,
   ActivatedRoute,
@@ -243,7 +243,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuery
-} from "./chunk-QNCZZ7VS.js";
+} from "./chunk-ACEHVL5M.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2947,7 +2947,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-TYU4JGZ5.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-MUZJGK74.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -3043,7 +3043,7 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-TYU4JGZ5.js").then((m) => m.SettingsDebugPanelComponent)
+    import("./settings-debug-panel.component-MUZJGK74.js").then((m) => m.SettingsDebugPanelComponent)
   ], (SettingsDebugPanelComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -12251,7 +12251,7 @@ var BootstrapComponent = class _BootstrapComponent extends AsyncHandler {
 })();
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-K4P4TLPB.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-2Q3AW62E.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
