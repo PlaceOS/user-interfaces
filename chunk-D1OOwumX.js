@@ -1,0 +1,1 @@
+import{G}from"./chunk-9XXh-9ol.js";function a(o,r){let t=G(o,r?.in);return t.setDate(1),t.setHours(0,0,0,0),t}export{a as t};
