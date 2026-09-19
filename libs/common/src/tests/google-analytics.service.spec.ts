@@ -1,6 +1,6 @@
 import { GoogleAnalyticsService } from '../lib/google-analytics.service';
 
-type GtagCommand = any[];
+type GtagCommand = unknown[];
 
 function dataLayerCommands(): GtagCommand[] {
     return window.dataLayer as unknown as GtagCommand[];
@@ -11,17 +11,18 @@ describe('GoogleAnalyticsService', () => {
 
     beforeEach(() => {
         service = new GoogleAnalyticsService();
-        delete (window as any).gtag;
+        delete window.gtag;
         window.dataLayer = [];
         document.head.innerHTML = '';
         vi.spyOn(console, 'log').mockImplementation(() => undefined);
     });
 
     afterEach(() => {
-        delete (window as any).gtag;
+        delete window.gtag;
         window.dataLayer = [];
         document.head.innerHTML = '';
         vi.useRealTimers();
+        vi.restoreAllMocks();
     });
 
     it('should load gtag.js for a GA4 measurement ID', () => {
@@ -61,6 +62,9 @@ describe('GoogleAnalyticsService', () => {
         const commands = dataLayerCommands();
         expect(commands[commands.length - 1][0]).toBe('config');
         expect(commands[commands.length - 1][1]).toBe('G-S6TDS95BDH');
+        expect(commands[commands.length - 1][2]).toEqual({
+            send_page_view: false,
+        });
     });
 
     it('should emit a page_view command on navigation for GA4', () => {
@@ -81,12 +85,12 @@ describe('GoogleAnalyticsService', () => {
         vi.useFakeTimers();
         service.init('G-S6TDS95BDH');
         service.load('G-S6TDS95BDH');
-        service.event('bookings', 'desk-booked', 'Level 1');
+        service.event('bookings', 'desk_booked', 'Level 1');
         vi.advanceTimersByTime(200);
 
         const commands = dataLayerCommands();
         const event = commands.find((cmd) => cmd[0] === 'event');
-        expect(event?.[1]).toBe('desk-booked');
+        expect(event?.[1]).toBe('desk_booked');
         expect(event?.[2]).toMatchObject({
             event_category: 'bookings',
             event_label: 'Level 1',
@@ -102,9 +106,38 @@ describe('GoogleAnalyticsService', () => {
         );
     });
 
+    it('should send a valid GA4 authentication event name', () => {
+        vi.useFakeTimers();
+        service.init('G-S6TDS95BDH');
+        service.load('G-S6TDS95BDH');
+        service.setUser('user-123');
+        vi.advanceTimersByTime(200);
+
+        const events = dataLayerCommands().filter((cmd) => cmd[0] === 'event');
+        expect(events).toHaveLength(1);
+        expect(events[0][1]).toBe('user_id_available');
+    });
+
+    it('should preserve the GTM authentication action', () => {
+        vi.useFakeTimers();
+        service.init('GTM-ABC123');
+        service.setUser('user-123');
+        vi.advanceTimersByTime(200);
+
+        expect(window.dataLayer).toContainEqual({
+            event: 'event',
+            category: 'authentication',
+            action: 'user-id available',
+            label: undefined,
+        });
+    });
+
     it('should throw when disabled', () => {
         service.enabled = false;
         service.init('G-S6TDS95BDH');
+        expect(document.querySelector('script')).toBeNull();
+        expect(window.dataLayer).toEqual([]);
+        expect(window.gtag).toBeUndefined();
         expect(() => service.load('G-S6TDS95BDH')).toThrowError(
             'Google Analytics needs to be enabled before being initialised',
         );

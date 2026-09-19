@@ -173,7 +173,7 @@ export class SettingsService extends AsyncHandler {
             `${value} | ${this.get('app.name') || this._app_name}`,
         );
         const tracking_id = this.get('app.analytics.tracking_id');
-        if (!tracking_id) return;
+        if (!tracking_id || this.get('app.analytics.enabled') === false) return;
         this._analytics?.send('pagename', { title: value });
     }
 

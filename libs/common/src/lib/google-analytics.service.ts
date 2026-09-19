@@ -27,6 +27,7 @@ export class GoogleAnalyticsService {
     private timers: { [name: string]: number } = {};
 
     public init(tracking_id = '') {
+        if (!this.enabled) return;
         this._ga4 = !!tracking_id?.startsWith('G-');
         if (!window.gtag) {
             window.dataLayer = window.dataLayer || [];
@@ -78,8 +79,8 @@ export class GoogleAnalyticsService {
         }
         log('Analytics', 'Service', `Setup with tracking ID: ${tracking_id}`);
         if (this._ga4) {
-            // The config command queues the initial page_view automatically
-            this.service('config', tracking_id);
+            // Router navigation sends page views. Disable the automatic load event.
+            this.service('config', tracking_id, { send_page_view: false });
             return;
         }
         this.page('');
@@ -104,7 +105,10 @@ export class GoogleAnalyticsService {
                     } else {
                         this.service('set', 'userId', id);
                     }
-                    this.event('authentication', 'user-id available');
+                    this.event(
+                        'authentication',
+                        this._ga4 ? 'user_id_available' : 'user-id available',
+                    );
                 },
                 100,
             );
@@ -134,7 +138,7 @@ export class GoogleAnalyticsService {
     /**
      * Post event to Google Analytics API
      * @param category Event Category
-     * @param action Event Action
+     * @param action Event action; use a valid GA4 event name for GA4 tracking IDs
      * @param label Event Label
      * @param value Event Value
      */
