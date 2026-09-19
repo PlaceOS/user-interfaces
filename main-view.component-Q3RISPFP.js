@@ -1,20 +1,20 @@
 import {
   ChangelogService,
   OutputDisplayComponent
-} from "./chunk-7BXULGWA.js";
+} from "./chunk-GNITGPQF.js";
 import {
   ControlStateService,
   ControlStatusBarComponent,
   SourceSelectComponent,
   TopbarHeaderComponent
-} from "./chunk-LLOZRIAX.js";
+} from "./chunk-CJPLMZUU.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule,
   TranslatePipe,
   toSignal
-} from "./chunk-Z2ITJUOB.js";
-import "./chunk-ULKMS4OM.js";
+} from "./chunk-QAHXUG5G.js";
+import "./chunk-DW62KX5V.js";
 import {
   ActivatedRoute,
   Component,
@@ -55,7 +55,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2
-} from "./chunk-6TMBKRS3.js";
+} from "./chunk-AP4KUP7F.js";
 import "./chunk-653SOEEV.js";
 
 // apps/control/src/app/advanced-view.component.ts
@@ -530,4 +530,4 @@ export {
   ControlMainViewComponent
 };
 //# debugId=24eb91cf-6db7-5b7b-b3f8-1471413b9fd3
-//# sourceMappingURL=main-view.component-5VIB2OFP.js.map
+//# sourceMappingURL=main-view.component-Q3RISPFP.js.map
