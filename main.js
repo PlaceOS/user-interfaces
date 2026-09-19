@@ -17,14 +17,14 @@ import {
   setMinutes,
   subDays,
   toSignal
-} from "./chunk-J2I26RS7.js";
+} from "./chunk-3F3UHSLN.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-JLM5HOVO.js";
+} from "./chunk-ALHMNBQM.js";
 import {
   TranslatePipe
-} from "./chunk-BLV4CHAY.js";
+} from "./chunk-JQFIHYNF.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -184,7 +184,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-MECNIUOJ.js";
+} from "./chunk-DQ2S6R26.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1678,7 +1678,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-TUJHTNQY.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-5PUE4GWQ.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1774,7 +1774,7 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-TUJHTNQY.js").then((m) => m.SettingsDebugPanelComponent)
+    import("./settings-debug-panel.component-5PUE4GWQ.js").then((m) => m.SettingsDebugPanelComponent)
   ], (SettingsDebugPanelComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -10086,7 +10086,7 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-YTOUNLMU.js").then((m) => m.ChatComponent)
+  import("./chat.component-6EP4TXDY.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10136,7 +10136,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-YTOUNLMU.js").then((m) => m.ChatComponent)
+    import("./chat.component-6EP4TXDY.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11132,17 +11132,17 @@ var routes = [
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.component-7DY7HCKG.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.component-24Y54272.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-7HAWHOQA.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-BRGJU5PP.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-WGYGG2GA.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-CJ4YWDGD.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
