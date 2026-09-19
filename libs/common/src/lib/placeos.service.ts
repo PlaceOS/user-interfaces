@@ -542,11 +542,18 @@ export class PlaceOS_Service extends AsyncHandler {
 
     private _initAnalytics() {
         const tracking_id = this._settings.get('app.analytics.tracking_id');
-        if (!tracking_id) return;
+        if (!this._analytics) return;
+        this._analytics.enabled =
+            this._settings.get('app.analytics.enabled') !== false;
+        if (!tracking_id || !this._analytics.enabled) return;
         setLoadingMessage('Initialising analytics...');
         this._analytics.init(tracking_id);
         this._analytics.load(tracking_id);
         this._analytics.setUser(currentUser().id);
+        // Navigation may have completed while startup waited for user data.
+        if (tracking_id.startsWith('G-') && this._router.navigated) {
+            this._analytics.page(this._router.url);
+        }
         this.subscription(
             'analytics-router',
             this._router.events
