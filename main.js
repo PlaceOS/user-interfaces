@@ -1,22 +1,22 @@
 import {
   MatInput,
   MatInputModule
-} from "./chunk-PL7KGKST.js";
+} from "./chunk-TSA6EGSI.js";
 import {
   MatFormField,
   MatFormFieldModule,
   MatPrefix
-} from "./chunk-VJLKWSIA.js";
+} from "./chunk-LM3MAUUF.js";
 import {
   setInternalUserDomain
-} from "./chunk-HYTGTGE6.js";
+} from "./chunk-3LOCZFLB.js";
 import {
   TranslatePipe
-} from "./chunk-RANMVCJG.js";
+} from "./chunk-7P56JAGG.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-XSUVTMUN.js";
+} from "./chunk-AQHPGBQZ.js";
 import {
   AsyncHandler,
   BidiModule,
@@ -83,7 +83,7 @@ import {
   withTimeout,
   yi,
   ɵNgNoValidate
-} from "./chunk-4W7ZFZJS.js";
+} from "./chunk-FAZQEBWK.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -1653,7 +1653,7 @@ var routes = [
   },
   {
     path: "find",
-    loadComponent: () => import("./find-space.component-PYGHL2ZE.js").then((m) => m.FindSpaceComponent)
+    loadComponent: () => import("./find-space.component-E42VAQH2.js").then((m) => m.FindSpaceComponent)
   },
   {
     path: "",
@@ -1662,48 +1662,48 @@ var routes = [
     children: [
       {
         path: "ms-auth",
-        loadComponent: () => import("./room-booking.component-PWQLDS7D.js").then((m) => m.RoomBookingComponent)
+        loadComponent: () => import("./room-booking.component-GXNONJ6F.js").then((m) => m.RoomBookingComponent)
       },
       {
         path: "book",
         children: [
           {
             path: "spaces",
-            loadComponent: () => import("./room-booking.component-PWQLDS7D.js").then((m) => m.RoomBookingComponent)
+            loadComponent: () => import("./room-booking.component-GXNONJ6F.js").then((m) => m.RoomBookingComponent)
           },
           {
             path: "spaces/success",
-            loadComponent: () => import("./booking-confirmed.component-TUYXUKVP.js").then((m) => m.BookingConfirmedComponent)
+            loadComponent: () => import("./booking-confirmed.component-AG6CVIFL.js").then((m) => m.BookingConfirmedComponent)
           },
           {
             path: "meeting",
-            loadComponent: () => import("./meeting-booking.component-N7BR6GMI.js").then((m) => m.MeetingBookingComponent)
+            loadComponent: () => import("./meeting-booking.component-2LIN4VSP.js").then((m) => m.MeetingBookingComponent)
           },
           {
             path: "meeting/success",
-            loadComponent: () => import("./meeting-success.component-5EEEPBDM.js").then((m) => m.MeetingBookingSuccessComponent)
+            loadComponent: () => import("./meeting-success.component-WJ5LR2LD.js").then((m) => m.MeetingBookingSuccessComponent)
           },
           {
             path: "desks",
-            loadComponent: () => import("./desk-booking.component-TNWR6E3M.js").then((m) => m.DeskBookingComponent)
+            loadComponent: () => import("./desk-booking.component-E3H5Z6NI.js").then((m) => m.DeskBookingComponent)
           },
           {
             path: "desks/success",
-            loadComponent: () => import("./desk-success.component-JJDP7OMU.js").then((m) => m.DeskBookingSuccessComponent)
+            loadComponent: () => import("./desk-success.component-BEBC7VUR.js").then((m) => m.DeskBookingSuccessComponent)
           }
         ]
       },
       {
         path: "schedule/view",
-        loadComponent: () => import("./find-space.component-PYGHL2ZE.js").then((m) => m.FindSpaceComponent)
+        loadComponent: () => import("./find-space.component-E42VAQH2.js").then((m) => m.FindSpaceComponent)
       },
       {
         path: "confirm/success",
-        loadComponent: () => import("./booking-confirmed.component-TUYXUKVP.js").then((m) => m.BookingConfirmedComponent)
+        loadComponent: () => import("./booking-confirmed.component-AG6CVIFL.js").then((m) => m.BookingConfirmedComponent)
       },
       {
         path: "upcoming",
-        loadComponent: () => import("./upcoming-bookings.component-VPTWAB7K.js").then((m) => m.UpcomingBookingsComponent)
+        loadComponent: () => import("./upcoming-bookings.component-OVP5WSRC.js").then((m) => m.UpcomingBookingsComponent)
       },
       { path: "**", redirectTo: "book/meeting" }
     ]
