@@ -23,7 +23,7 @@ import {
   ɵɵproperty,
   ɵɵpureFunction0,
   ɵɵtext
-} from "./chunk-34JHM6MV.js";
+} from "./chunk-EJR6SPGD.js";
 import "./chunk-653SOEEV.js";
 
 // apps/map-kiosk/src/app/footer-menu.component.ts
@@ -153,4 +153,4 @@ export {
   DeskBookingComponent
 };
 //# debugId=feef3514-d420-5a6c-9421-7d90fa12cb44
-//# sourceMappingURL=desk-booking.component-YKIKHMEM.js.map
+//# sourceMappingURL=desk-booking.component-E3A2DKBI.js.map
