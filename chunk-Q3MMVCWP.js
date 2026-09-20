@@ -49492,24 +49492,35 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   constructor() {
     this.enabled = true;
     this.app_name = "GA_APP";
+    this._ga4 = false;
     this.timers = {};
   }
   init(tracking_id = "") {
+    if (!this.enabled)
+      return;
+    this._ga4 = !!tracking_id?.startsWith("G-");
     if (!window.gtag) {
       window.dataLayer = window.dataLayer || [];
-      (function(w2, d2, s, l, i) {
-        w2[l] = w2[l] || [];
-        w2[l].push({
+      window.gtag = function() {
+        window.dataLayer.push(arguments);
+      };
+      if (this._ga4) {
+        window.gtag("js", /* @__PURE__ */ new Date());
+      } else {
+        window.dataLayer.push({
           "gtm.start": (/* @__PURE__ */ new Date()).getTime(),
           event: "gtm.js"
         });
-        const f2 = d2.getElementsByTagName(s)[0];
-        const j = d2.createElement(s);
-        const dl = l != "dataLayer" ? "&l=" + l : "";
-        j.async = true;
-        j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-        f2.parentNode.insertBefore(j, f2);
-      })(window, document, "script", "dataLayer", tracking_id);
+      }
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = this._ga4 ? `https://www.googletagmanager.com/gtag/js?id=${tracking_id}` : `https://www.googletagmanager.com/gtm.js?id=${tracking_id}`;
+      const first_script = document.getElementsByTagName("script")[0];
+      if (first_script?.parentNode) {
+        first_script.parentNode.insertBefore(script, first_script);
+      } else {
+        document.head.appendChild(script);
+      }
       log("Analytics", "Service", "Injected Google Analytics into page");
     }
     this.service = window.gtag;
@@ -49529,6 +49540,10 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
       throw new Error("Google Analytics hasn't been installed on this page");
     }
     log("Analytics", "Service", `Setup with tracking ID: ${tracking_id}`);
+    if (this._ga4) {
+      this.service("config", tracking_id, { send_page_view: false });
+      return;
+    }
     this.page("");
   }
   /**
@@ -49542,8 +49557,12 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     if (this.enabled) {
       this.timeout(`user|${id}`, () => {
         log("Analytics", "Service", `Set user ID: ${id}`);
-        this.service("set", "userId", id);
-        this.event("authentication", "user-id available");
+        if (this._ga4) {
+          this.service("set", { user_id: id });
+        } else {
+          this.service("set", "userId", id);
+        }
+        this.event("authentication", this._ga4 ? "user_id_available" : "user-id available");
       }, 100);
     }
   }
@@ -49553,6 +49572,10 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     }
     if (this.enabled) {
       this.timeout(`end|${type}`, () => {
+        if (this._ga4) {
+          this.service("event", type, value);
+          return;
+        }
         this.push(__spreadProps(__spreadValues({}, value), {
           event: "event"
         }));
@@ -49562,7 +49585,7 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
   /**
    * Post event to Google Analytics API
    * @param category Event Category
-   * @param action Event Action
+   * @param action Event action; use a valid GA4 event name for GA4 tracking IDs
    * @param label Event Label
    * @param value Event Value
    */
@@ -49574,6 +49597,14 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
       this.timeout(`event|${category}|${action}|${label}|${value}`, () => {
         const l = label ? ", " + label : "";
         log("Analytics", "Service", `Event: ${category}, ${action}${l}${value ? ", " + value : ""}`);
+        if (this._ga4) {
+          this.service("event", action, {
+            event_category: category,
+            event_label: label,
+            value
+          });
+          return;
+        }
         this.push({
           event: "event",
           category,
@@ -49595,6 +49626,13 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     if (name && this.enabled) {
       this.timeout(`event|${name}|${app_name || this.app_name}`, () => {
         log("Analytics", "Service", `Screen: ${name}${app_name ? ", " + app_name : ""}`);
+        if (this._ga4) {
+          this.service("event", "screen_view", {
+            app_name: app_name || this.app_name,
+            screen_name: name
+          });
+          return;
+        }
         this.push({
           event: "screenview",
           appName: app_name || this.app_name,
@@ -49615,6 +49653,13 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     if (this.enabled) {
       this.timeout(`page|${route}`, () => {
         log("Analytics", "Service", `Page: ${route}`);
+        if (this._ga4) {
+          this.service("event", "page_view", {
+            page_path: route || location.pathname,
+            page_location: origin ? `${location.origin}${route}` : location.href
+          });
+          return;
+        }
         this.push({
           event: "pageview",
           url: `${origin ? location.origin : ""}${route}`
@@ -49636,6 +49681,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
     if (this.enabled) {
       this.timeout(`page|${category}|${variable}|${value}|${label}`, () => {
         log("Analytics", "Service", `Timing: ${category}, ${variable}, ${value}${label ? ", " + label : ""}`);
+        if (this._ga4) {
+          this.service("event", "timing_complete", {
+            event_category: category,
+            name: variable,
+            value: Number(value) || 0,
+            event_label: label
+          });
+          return;
+        }
         this.push({
           event: "timing",
           category,
@@ -49685,15 +49739,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "387e00a",
-  "hash": "387e00a",
+  "raw": "f4a5e98",
+  "hash": "f4a5e98",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "387e00a",
+  "suffix": "f4a5e98",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1789609470527
+  "time": 1789882485246
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -49787,7 +49841,7 @@ var SettingsService = class _SettingsService extends AsyncHandler {
   set title(value) {
     this._title.setTitle(`${value} | ${this.get("app.name") || this._app_name}`);
     const tracking_id = this.get("app.analytics.tracking_id");
-    if (!tracking_id)
+    if (!tracking_id || this.get("app.analytics.enabled") === false)
       return;
     this._analytics?.send("pagename", { title: value });
   }
@@ -77863,12 +77917,19 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
   }
   _initAnalytics() {
     const tracking_id = this._settings.get("app.analytics.tracking_id");
-    if (!tracking_id)
+    if (!this._analytics)
+      return;
+    this._analytics.enabled = this._settings.get("app.analytics.enabled") !== false;
+    if (!tracking_id || !this._analytics.enabled)
       return;
     setLoadingMessage("Initialising analytics...");
     this._analytics.init(tracking_id);
     this._analytics.load(tracking_id);
     this._analytics.setUser(currentUser().id);
+    if (tracking_id.startsWith("G-") && this._router.navigated) {
+      this._analytics.page(this._router.url);
+    }
+    this.subscription("analytics-router", this._router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event) => this._analytics.page(event.urlAfterRedirects)));
   }
   _initLocale() {
     setLoadingMessage("Loading locales...");
@@ -80804,5 +80865,5 @@ export {
   IconComponent,
   SanitizePipe
 };
-//# debugId=04593e9f-8441-5158-accf-fab27d5b6df7
-//# sourceMappingURL=chunk-EGVBOU76.js.map
+//# debugId=e8ab56b2-031e-59ba-b83a-15387b198612
+//# sourceMappingURL=chunk-Q3MMVCWP.js.map
