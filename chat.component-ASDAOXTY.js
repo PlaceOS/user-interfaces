@@ -1,9 +1,9 @@
 import {
   SanitizePipe
-} from "./chunk-QJTP2NYF.js";
+} from "./chunk-ZH2YCV3X.js";
 import {
   TranslatePipe
-} from "./chunk-XZRYB44G.js";
+} from "./chunk-QQYE4VV6.js";
 import {
   AsyncHandler,
   Component,
@@ -73,7 +73,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-COTYPJPA.js";
+} from "./chunk-IAXHJHGO.js";
 import {
   __privateAdd,
   __privateMethod,
@@ -3127,4 +3127,4 @@ export {
   ChatComponent
 };
 //# debugId=a9abc2a5-8da0-59ab-9214-091187b924e5
-//# sourceMappingURL=chat.component-4FGZ4AIK.js.map
+//# sourceMappingURL=chat.component-ASDAOXTY.js.map
