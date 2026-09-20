@@ -7,6 +7,7 @@ import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
 
+import { GoogleAnalyticsService } from '../lib/google-analytics.service';
 import { SettingsService } from '../lib/settings.service';
 import { setCurrentUser } from '../lib/user-state';
 
@@ -60,6 +61,21 @@ describe('SettingsService', () => {
         });
         expect(service.get('composer.route')).toBe('/placeos');
         expect(service.get('composer.local_login')).toBe(false);
+    });
+
+    it('should update the title without tracking when analytics is disabled', async () => {
+        const service = spectator.service;
+        await whenInitialised(service);
+        const send = vi.spyOn(spectator.inject(GoogleAnalyticsService), 'send');
+        const settings: Record<string, unknown> = {
+            'app.analytics.tracking_id': 'G-TEST123',
+            'app.analytics.enabled': false,
+        };
+        vi.spyOn(service, 'get').mockImplementation((key) => settings[key]);
+
+        expect(() => (service.title = 'Home')).not.toThrow();
+        expect(send).not.toHaveBeenCalled();
+        expect(spectator.inject(Title).setTitle).toHaveBeenCalled();
     });
 
     it('should return `null` for non-existing settings', async () => {

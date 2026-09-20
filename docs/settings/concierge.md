@@ -267,6 +267,32 @@ Each custom report requires an `id` (unique, URL-safe), a `name` (shown in the r
 |---|---|---|---|
 | `group_events_calendar` | string | – | ID of the calendar used for storing group events. |
 
+## Analytics
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `analytics.enabled` | boolean | `true` | Enable Google Analytics. |
+| `analytics.tracking_id` | string | `"G-S6TDS95BDH"` | Google Analytics tracking ID. Analytics is only initialised when this is set. |
+
+```json
+{
+    "analytics": {
+        "enabled": true,
+        "tracking_id": "G-XXXXXXXXXX"
+    }
+}
+```
+
+For GA4 tracking IDs (`G-...`), the app sends page views after successful router
+navigation. In the GA4 web data stream, open **Enhanced measurement > Page views >
+Advanced settings** and turn off **Page changes based on browser history events**.
+The app disables the automatic page view on tag load. The GA4 property setting
+must also be off to prevent duplicate navigation events. See
+[Google's manual page-view setup](https://developers.google.com/analytics/devguides/collection/ga4/views#manual_pageviews).
+
+Set `analytics.enabled` to `false` and reload the app to stop analytics
+initialisation and event tracking.
+
 ## Integration & Advanced
 
 Settings for linking Concierge to the other PlaceOS applications and metadata sources. Most deployments can leave these at their defaults.

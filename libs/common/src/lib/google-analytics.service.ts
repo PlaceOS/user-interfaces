@@ -20,26 +20,39 @@ export class GoogleAnalyticsService {
     public enabled = true;
     /** Name of the application */
     public app_name = 'GA_APP';
+    /** Whether the tracking ID is a GA4 measurement ID (`G-...`) */
+    private _ga4 = false;
 
     /** Store for timer ids */
     private timers: { [name: string]: number } = {};
 
     public init(tracking_id = '') {
+        if (!this.enabled) return;
+        this._ga4 = !!tracking_id?.startsWith('G-');
         if (!window.gtag) {
             window.dataLayer = window.dataLayer || [];
-            (function (w, d, s, l, i) {
-                w[l] = w[l] || [];
-                w[l].push({
+            window.gtag = function () {
+                window.dataLayer.push(arguments);
+            } as any;
+            if (this._ga4) {
+                window.gtag('js', new Date());
+            } else {
+                window.dataLayer.push({
                     'gtm.start': new Date().getTime(),
                     event: 'gtm.js',
                 });
-                const f = d.getElementsByTagName(s)[0];
-                const j = d.createElement(s) as any;
-                const dl = l != 'dataLayer' ? '&l=' + l : '';
-                j.async = true;
-                j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-                f.parentNode.insertBefore(j, f);
-            })(window, document, 'script', 'dataLayer', tracking_id);
+            }
+            const script = document.createElement('script') as any;
+            script.async = true;
+            script.src = this._ga4
+                ? `https://www.googletagmanager.com/gtag/js?id=${tracking_id}`
+                : `https://www.googletagmanager.com/gtm.js?id=${tracking_id}`;
+            const first_script = document.getElementsByTagName('script')[0];
+            if (first_script?.parentNode) {
+                first_script.parentNode.insertBefore(script, first_script);
+            } else {
+                document.head.appendChild(script);
+            }
             log('Analytics', 'Service', 'Injected Google Analytics into page');
         }
         this.service = window.gtag;
@@ -65,6 +78,11 @@ export class GoogleAnalyticsService {
             );
         }
         log('Analytics', 'Service', `Setup with tracking ID: ${tracking_id}`);
+        if (this._ga4) {
+            // Router navigation sends page views. Disable the automatic load event.
+            this.service('config', tracking_id, { send_page_view: false });
+            return;
+        }
         this.page('');
     }
     /**
@@ -82,8 +100,15 @@ export class GoogleAnalyticsService {
                 `user|${id}`,
                 () => {
                     log('Analytics', 'Service', `Set user ID: ${id}`);
-                    this.service('set', 'userId', id);
-                    this.event('authentication', 'user-id available');
+                    if (this._ga4) {
+                        this.service('set', { user_id: id });
+                    } else {
+                        this.service('set', 'userId', id);
+                    }
+                    this.event(
+                        'authentication',
+                        this._ga4 ? 'user_id_available' : 'user-id available',
+                    );
                 },
                 100,
             );
@@ -98,6 +123,10 @@ export class GoogleAnalyticsService {
         }
         if (this.enabled) {
             this.timeout(`end|${type}`, () => {
+                if (this._ga4) {
+                    this.service('event', type, value);
+                    return;
+                }
                 this.push({
                     ...value,
                     event: 'event',
@@ -109,7 +138,7 @@ export class GoogleAnalyticsService {
     /**
      * Post event to Google Analytics API
      * @param category Event Category
-     * @param action Event Action
+     * @param action Event action; use a valid GA4 event name for GA4 tracking IDs
      * @param label Event Label
      * @param value Event Value
      */
@@ -136,6 +165,14 @@ export class GoogleAnalyticsService {
                             value ? ', ' + value : ''
                         }`,
                     );
+                    if (this._ga4) {
+                        this.service('event', action, {
+                            event_category: category,
+                            event_label: label,
+                            value,
+                        });
+                        return;
+                    }
                     this.push({
                         event: 'event',
                         category: category,
@@ -168,6 +205,13 @@ export class GoogleAnalyticsService {
                         'Service',
                         `Screen: ${name}${app_name ? ', ' + app_name : ''}`,
                     );
+                    if (this._ga4) {
+                        this.service('event', 'screen_view', {
+                            app_name: app_name || this.app_name,
+                            screen_name: name,
+                        });
+                        return;
+                    }
                     this.push({
                         event: 'screenview',
                         appName: app_name || this.app_name,
@@ -195,6 +239,15 @@ export class GoogleAnalyticsService {
                 `page|${route}`,
                 () => {
                     log('Analytics', 'Service', `Page: ${route}`);
+                    if (this._ga4) {
+                        this.service('event', 'page_view', {
+                            page_path: route || location.pathname,
+                            page_location: origin
+                                ? `${location.origin}${route}`
+                                : location.href,
+                        });
+                        return;
+                    }
                     this.push({
                         event: 'pageview',
                         url: `${origin ? location.origin : ''}${route}`,
@@ -234,6 +287,15 @@ export class GoogleAnalyticsService {
                             label ? ', ' + label : ''
                         }`,
                     );
+                    if (this._ga4) {
+                        this.service('event', 'timing_complete', {
+                            event_category: category,
+                            name: variable,
+                            value: Number(value) || 0,
+                            event_label: label,
+                        });
+                        return;
+                    }
                     this.push({
                         event: 'timing',
                         category,
