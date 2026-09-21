@@ -261,6 +261,104 @@ describe('SignageService', () => {
         expect(upcoming[1].ends_at).toBe('single pass');
     });
 
+    it.each([false, true])(
+        'applies repeating masks to playback and templates, takeover=%s',
+        async (play_takeover) => {
+            const start = new Date(2026, 2, 2, 9).getTime();
+            vi.setSystemTime(start);
+            const schedule = {
+                play_cron: '* * * * *',
+                play_period: 10,
+                play_takeover,
+                valid_from: start / 1000,
+                mask: '01',
+            };
+            const display = create_display({
+                playlist_mappings: { 'display-1': ['scheduled-playlist'] },
+                playlist_config: {
+                    'scheduled-playlist': [
+                        {
+                            id: 'scheduled-playlist',
+                            enabled: true,
+                            schedules: [schedule],
+                        },
+                        ['media-3'],
+                    ],
+                },
+                template_schedules: [
+                    { template_id: 'masked-template', schedule },
+                ],
+            });
+            vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+            spectator.service.setDisplay('display-1');
+            await flush();
+            const playback = () =>
+                play_takeover
+                    ? spectator.service.override_playlist().playlist
+                    : spectator.service.playlist();
+            expect(playback()).toHaveLength(0);
+            expect(spectator.service.active_templates()).toHaveLength(0);
+
+            vi.advanceTimersByTime(60_000);
+            await flush();
+            expect(playback().map((item) => item.id)).toEqual(['media-3']);
+            expect(
+                spectator.service
+                    .active_templates()
+                    .map((item) => item.template_id),
+            ).toEqual(['masked-template']);
+
+            vi.advanceTimersByTime(60_000);
+            await flush();
+            expect(playback()).toHaveLength(0);
+            expect(spectator.service.active_templates()).toHaveLength(0);
+        },
+    );
+
+    it.each(['0', '01', 'invalid'])(
+        'excludes masked one-off runs from playback, cache and upcoming schedules: %s',
+        async (mask) => {
+            const start = new Date(2026, 2, 2, 9).getTime();
+            vi.setSystemTime(start);
+            const schedule = {
+                play_at: start / 1000 + 60,
+                play_period: 10,
+                valid_from: start / 1000,
+                mask,
+            };
+            const display = create_display({
+                playlist_mappings: { 'display-1': ['scheduled-playlist'] },
+                playlist_config: {
+                    'scheduled-playlist': [
+                        {
+                            id: 'scheduled-playlist',
+                            enabled: true,
+                            schedules: [schedule],
+                        },
+                        ['media-3'],
+                    ],
+                },
+            });
+            vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+            spectator.service.setDisplay('display-1');
+            await flush();
+            expect(spectator.service.diagnostics().upcoming_schedules).toEqual(
+                [],
+            );
+            expect(
+                media_cache.requestFilesToCache.mock.calls.every(
+                    ([urls]: [string[]]) => urls.length === 0,
+                ),
+            ).toBe(true);
+            vi.advanceTimersByTime(60_000);
+            await flush();
+            expect(spectator.service.playlist()).toHaveLength(0);
+            expect(spectator.service.override_playlist().playlist).toHaveLength(
+                0,
+            );
+        },
+    );
+
     it('should stop normal playlist playback when its schedule expires', async () => {
         const now = new Date('2026-01-01T10:00:00Z');
         vi.setSystemTime(now);

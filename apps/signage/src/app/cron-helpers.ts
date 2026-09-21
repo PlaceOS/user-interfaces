@@ -121,6 +121,121 @@ function cronParts(cron_string: string) {
     return parts;
 }
 
+/** Schedule start is in Unix seconds; mask characters repeat by cron occurrence. */
+export interface ScheduleMask {
+    readonly valid_from?: number;
+    readonly mask?: string;
+}
+
+/** Whether a schedule can have an enabled occurrence. */
+export function hasPlayableScheduleMask({
+    mask = '',
+    valid_from,
+}: ScheduleMask) {
+    return (
+        !mask ||
+        (mask.length <= 128 &&
+            !/[^01]/.test(mask) &&
+            mask.includes('1') &&
+            Number.isFinite(valid_from) &&
+            valid_from > 0 &&
+            Number.isFinite(new Date(valid_from * 1000).getTime()))
+    );
+}
+
+const MASK_FILTER_CACHE = new Map<string, (date: Date) => boolean>();
+
+/** Calculate the candidate occurrence index from cached calendar totals. */
+export function createScheduleMaskFilter(cron: string, schedule: ScheduleMask) {
+    const { mask = '', valid_from = 0 } = schedule;
+    const anchor = valid_from * 1000;
+    if (!hasPlayableScheduleMask(schedule)) return () => false;
+    if (!mask) return (date: Date) => !anchor || date.getTime() >= anchor;
+    const key = JSON.stringify([cron, mask, valid_from]);
+    const cached = MASK_FILTER_CACHE.get(key);
+    if (cached) return cached;
+    const parts = cronParts(cron);
+    const slots: number[] = [];
+    for (let hour = 0; hour < 24; hour++) {
+        if (!matchesCronPart(hour, parts[1])) continue;
+        for (let minute = 0; minute < 60; minute++) {
+            if (matchesCronPart(minute, parts[0]))
+                slots.push(hour * 60 + minute);
+        }
+    }
+    const calendar_parts = ['*', '*', ...parts.slice(2)];
+    const first_day = new Date(anchor);
+    first_day.setHours(0, 0, 0, 0);
+    const month_totals = new Map<number, number[]>();
+    const countBefore = (day: Date, before: number) => {
+        if (!slots.length || day.getTime() + 2 * 86_400_000 < anchor) return 0;
+        if (!doesCronMatchDate(calendar_parts, day)) return 0;
+        const next_day = new Date(day);
+        next_day.setDate(next_day.getDate() + 1);
+        if (next_day.getTime() <= anchor) return 0;
+        if (
+            day.getTime() >= anchor &&
+            next_day.getTime() <= before &&
+            next_day.getTime() - day.getTime() === 86_400_000
+        )
+            return slots.length;
+        let count = 0;
+        for (const slot of slots) {
+            const occurrence = new Date(day);
+            occurrence.setHours(0, slot, 0, 0);
+            // Date normalises nonexistent local times during a DST transition.
+            if (occurrence.getHours() * 60 + occurrence.getMinutes() !== slot)
+                continue;
+            const timestamp = occurrence.getTime();
+            if (timestamp >= anchor && timestamp < before) count++;
+        }
+        return count;
+    };
+    const monthTotals = (year: number, month: number) => {
+        const key = year * 12 + month;
+        const cached = month_totals.get(key);
+        if (cached) return cached;
+        const days = new Date(year, month + 1, 0).getDate();
+        const totals = [0];
+        for (let day = 1; day <= days; day++) {
+            totals.push(
+                (totals[day - 1] +
+                    countBefore(new Date(year, month, day), Infinity)) %
+                    mask.length,
+            );
+        }
+        if (month_totals.size >= 256) month_totals.clear();
+        month_totals.set(key, totals);
+        return totals;
+    };
+    const first_month = first_day.getFullYear() * 12 + first_day.getMonth();
+    const allows = (date: Date) => {
+        const timestamp = date.getTime();
+        if (!Number.isFinite(timestamp) || timestamp < anchor) return false;
+        const day = new Date(date);
+        day.setHours(0, 0, 0, 0);
+        const current_month = day.getFullYear() * 12 + day.getMonth();
+        let preceding = 0;
+        // Sum calendar totals, not prior cron instances. A backwards lookup
+        // reuses the same totals as a forwards lookup.
+        for (let month = first_month; month < current_month; month++) {
+            const totals = monthTotals(Math.floor(month / 12), month % 12);
+            preceding = (preceding + totals[totals.length - 1]) % mask.length;
+        }
+        const totals = monthTotals(day.getFullYear(), day.getMonth());
+        const index =
+            (preceding +
+                totals[day.getDate() - 1] +
+                countBefore(day, timestamp)) %
+            mask.length;
+        return mask[index] === '1';
+    };
+    // Displays can receive changed schedules for their entire uptime.
+    if (MASK_FILTER_CACHE.size >= 128) MASK_FILTER_CACHE.clear();
+    MASK_FILTER_CACHE.set(key, allows);
+    return allows;
+}
+
 /** Search limit below which a lookup is too cheap and too precise to memoise */
 const MIN_CACHEABLE_SEARCH_LIMIT_SECONDS = 60;
 
@@ -174,9 +289,13 @@ export function getNextCronRunTimestampInRange(
     cron_string: string,
     search_limit_in_seconds: number,
     now = Date.now(),
+    schedule: ScheduleMask = {},
 ): number | null {
     const parts = cronParts(cron_string);
-    const key = `next|${cron_string}|${search_limit_in_seconds}`;
+    if (!hasPlayableScheduleMask(schedule)) return null;
+    const allows = createScheduleMaskFilter(cron_string, schedule);
+    const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
+    const key = `next|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
     return cachedCronLookup(key, now, search_limit_in_seconds, () => {
         const searchLimitDate = new Date(now + search_limit_in_seconds * 1000);
         const start_time = new Date(now);
@@ -186,7 +305,10 @@ export function getNextCronRunTimestampInRange(
         const current_date = new Date(start_time.getTime());
 
         while (current_date <= searchLimitDate) {
-            if (doesCronMatchDate(parts, current_date)) {
+            if (
+                doesCronMatchDate(parts, current_date) &&
+                allows(current_date)
+            ) {
                 return Math.floor(current_date.getTime() / 1000);
             }
             current_date.setMinutes(current_date.getMinutes() + 1);
@@ -202,7 +324,8 @@ export function getNextCronRunTimestampInRange(
  *
  * A schedule that fires more often than its play period is long has several
  * runs inside the search window; the run that is currently playing is always
- * the latest one, so the search walks backwards from `now`.
+ * the latest one, so the search walks backwards from `now`. A masked latest
+ * run stops playback even when an earlier run still has time remaining.
  *
  * @param cron_string The 5-field CRON string (e.g., "* * * * *").
  * @param search_limit_in_seconds The maximum number of seconds before now to search for a run.
@@ -214,9 +337,13 @@ export function getLastCronRunTimestampInRange(
     cron_string: string,
     search_limit_in_seconds: number,
     now = Date.now(),
+    schedule: ScheduleMask = {},
 ): number | null {
     const parts = cronParts(cron_string);
-    const key = `last|${cron_string}|${search_limit_in_seconds}`;
+    if (!hasPlayableScheduleMask(schedule)) return null;
+    const allows = createScheduleMaskFilter(cron_string, schedule);
+    const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
+    const key = `last|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
     return cachedCronLookup(key, now, search_limit_in_seconds, () => {
         const search_limit_date = new Date(
             now - search_limit_in_seconds * 1000,
@@ -226,9 +353,16 @@ export function getLastCronRunTimestampInRange(
 
         while (current_date >= search_limit_date) {
             if (doesCronMatchDate(parts, current_date)) {
-                return Math.floor(current_date.getTime() / 1000);
+                return allows(current_date)
+                    ? Math.floor(current_date.getTime() / 1000)
+                    : null;
             }
+            const previous = current_date.getTime();
             current_date.setMinutes(current_date.getMinutes() - 1);
+            // A missing local hour can normalise a backwards step forwards.
+            if (current_date.getTime() >= previous) {
+                current_date.setTime(previous - 60_000);
+            }
         }
         return null;
     });

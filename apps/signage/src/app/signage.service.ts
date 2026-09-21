@@ -23,6 +23,7 @@ import {
 import {
     getLastCronRunTimestampInRange,
     getNextCronRunTimestampInRange,
+    hasPlayableScheduleMask,
 } from './cron-helpers';
 import { MediaCacheService } from './media-cache.service';
 import { mockTimeState, time, validateMedia } from './media-helpers';
@@ -59,6 +60,8 @@ interface PlaylistSchedule {
     readonly play_at?: number;
     readonly play_takeover?: boolean;
     readonly valid_until?: number;
+    readonly valid_from?: number;
+    readonly mask?: string;
 }
 
 interface ActivePlaylistSchedule {
@@ -219,10 +222,16 @@ function scheduledPlaylistWindow(
     const period_minutes = playlistPlayPeriodMinutes(schedule);
     const window_seconds = trigger_window_seconds || period_minutes * 60;
     const valid_until = parseValidUntilTimestamp(schedule.valid_until);
+    if (!hasPlayableScheduleMask(schedule)) return null;
     if (valid_until && now > valid_until) return null;
     if (schedule.play_at) {
         const starts_at = parsePlayAtTimestamp(schedule.play_at);
-        if (!starts_at) return null;
+        if (
+            !starts_at ||
+            starts_at < (schedule.valid_from || 0) * 1000 ||
+            (schedule.mask && schedule.mask[0] !== '1')
+        )
+            return null;
         const ends_at = capScheduleEnd(
             scheduledPlaylistEnd(starts_at, period_minutes),
             valid_until,
@@ -244,6 +253,7 @@ function scheduledPlaylistWindow(
                 schedule.play_cron,
                 Math.max(window_seconds, 30),
                 now,
+                schedule,
             );
             if (!last) return null;
             const starts_at = last * 1000;
@@ -305,10 +315,17 @@ function nextScheduledPlaylistStart(
     horizon_seconds: number,
 ) {
     const valid_until = parseValidUntilTimestamp(schedule.valid_until);
+    if (!hasPlayableScheduleMask(schedule)) return 0;
     if (valid_until && now > valid_until) return 0;
     if (schedule.play_at) {
         const starts_at = parsePlayAtTimestamp(schedule.play_at);
-        if (!starts_at || starts_at <= now) return 0;
+        if (
+            !starts_at ||
+            starts_at <= now ||
+            starts_at < (schedule.valid_from || 0) * 1000 ||
+            (schedule.mask && schedule.mask[0] !== '1')
+        )
+            return 0;
         if (valid_until && starts_at > valid_until) return 0;
         return starts_at <= now + horizon_seconds * 1000 ? starts_at : 0;
     }
@@ -318,6 +335,7 @@ function nextScheduledPlaylistStart(
                 schedule.play_cron,
                 horizon_seconds,
                 now,
+                schedule,
             );
             const starts_at = next ? next * 1000 : 0;
             return valid_until && starts_at > valid_until ? 0 : starts_at;
