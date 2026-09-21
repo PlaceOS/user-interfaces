@@ -59,6 +59,7 @@ export class AppComponent implements OnInit {
         setMocks(mocksInit);
         await this._placeos.init();
         this._uploads.init();
+
         // asks the backend once whether image generation is available here, so
         // the entry points can hide themselves on a domain without a provider
         await this._ai.load(authority()?.config?.org_zone);
