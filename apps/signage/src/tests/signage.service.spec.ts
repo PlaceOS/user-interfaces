@@ -488,7 +488,7 @@ describe('SignageService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
-    it('should select the latest active template schedule and break ties by creation time', async () => {
+    it('should order defaults before active schedules by start and creation time', async () => {
         const now = new Date('2026-01-01T10:30:00Z');
         vi.setSystemTime(now);
         const play_at = (minutes_ago: number) =>
@@ -523,9 +523,16 @@ describe('SignageService', () => {
         spectator.service.setDisplay('display-1');
         await flush();
 
-        expect(spectator.service.active_template()?.template_id).toBe(
+        expect(
+            spectator.service
+                .active_templates()
+                .map((mapping) => mapping.template_id),
+        ).toEqual([
+            'template-default',
+            'template-older-start',
+            'template-older-tie',
             'template-latest-tie',
-        );
+        ]);
     });
 
     it('should use the default template when no schedule is active', async () => {
@@ -554,14 +561,14 @@ describe('SignageService', () => {
         spectator.service.setDisplay('display-1');
         await flush();
 
-        expect(spectator.service.active_template()?.template_id).toBe(
+        expect(spectator.service.active_templates().at(-1)?.template_id).toBe(
             'template-default',
         );
 
         vi.advanceTimersByTime(15_000);
         await flush();
 
-        expect(spectator.service.active_template()?.template_id).toBe(
+        expect(spectator.service.active_templates().at(-1)?.template_id).toBe(
             'template-future',
         );
     });

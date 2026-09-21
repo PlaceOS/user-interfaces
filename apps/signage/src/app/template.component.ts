@@ -12,6 +12,7 @@ import {
     SignagePlugin,
     SignageTemplate,
     SignageTemplateLayout,
+    SignageTemplateMapping,
 } from '@placeos/ts-client';
 import { isDebugEnabled } from './debug-state';
 import { MediaCacheService } from './media-cache.service';
@@ -171,13 +172,15 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     );
     public readonly background_playlist = signal<MediaPlayerItem[]>([]);
 
-    private readonly _template_id = computed(
-        () =>
-            this._route_template_id() ||
-            this._signage.active_template()?.template_id ||
-            '',
+    private readonly _template_mappings = computed(() => {
+        const template_id = this._route_template_id();
+        return template_id
+            ? [new SignageTemplateMapping({ template_id })]
+            : this._signage.active_templates();
+    });
+    private readonly _template_mappings$ = toObservable(
+        this._template_mappings,
     );
-    private readonly _template_id$ = toObservable(this._template_id);
 
     private readonly _layout = computed(() =>
         computeTemplateLayout(
@@ -233,8 +236,8 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'template',
-            this._template_id$.subscribe((template_id) =>
-                this._loadTemplate(template_id),
+            this._template_mappings$.subscribe((mappings) =>
+                this._loadTemplates(mappings),
             ),
         );
         window.addEventListener('message', this._preview_message_handler);
@@ -277,11 +280,11 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    private async _loadTemplate(template_id: string) {
+    private async _loadTemplates(mappings: SignageTemplateMapping[]) {
         const load_id = ++this._load_id;
         this._preview_layouts.set(null);
         this._requestPreviewLayouts();
-        if (!template_id) {
+        if (!mappings.length) {
             this._plugins.set([]);
             this.template.set(null);
             this.background_playlist.set([]);
@@ -289,10 +292,33 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         }
         try {
             // Preview the pending template even before its first approval.
-            const template = await showSignageTemplate(
-                template_id,
-                this.debug() ? {} : { approved: true },
+            const candidates = await Promise.all(
+                mappings.map(async (mapping) => ({
+                    mapping,
+                    template: await showSignageTemplate(
+                        mapping.template_id,
+                        this.debug() ? {} : { approved: true },
+                    ),
+                })),
             );
+            const non_merge = candidates.filter(
+                ({ template }) => !template.merge,
+            );
+            const merge = candidates.filter(({ template }) => template.merge);
+            const base =
+                non_merge.filter(({ mapping }) => mapping.schedule).at(-1) ||
+                non_merge[0] ||
+                merge.shift();
+            if (!base || load_id !== this._load_id) return;
+            const template = merge.length
+                ? new SignageTemplate({
+                      ...base.template,
+                      layouts: [
+                          ...base.template.layouts,
+                          ...merge.flatMap(({ template }) => template.layouts),
+                      ],
+                  })
+                : base.template;
             const [plugin_result, background] = await Promise.all([
                 querySignagePlugins({ limit: 500 }).catch(() => ({ data: [] })),
                 template.background_item_id
@@ -312,7 +338,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
                               background,
                               plugins,
                               this._media_cache,
-                              `template:${template_id}`,
+                              `template:${template.id}`,
                           ),
                       ]
                     : [],
@@ -321,7 +347,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
             if (load_id !== this._load_id) return;
             log(
                 'SIGNAGE',
-                `Unable to load template "${template_id}"`,
+                `Unable to load templates "${mappings.map((mapping) => mapping.template_id).join(', ')}"`,
                 [error],
                 'error',
             );

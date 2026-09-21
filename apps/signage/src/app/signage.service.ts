@@ -397,34 +397,38 @@ export class SignageService extends AsyncHandler {
     /** Resolved display details for the active system */
     public readonly display = this._display_data.asReadonly();
 
-    /** Template mapping that applies to the display at the current time */
-    public readonly active_template = computed<SignageTemplateMapping | null>(
+    /** Active mappings, defaults first and then schedules by start and creation time. */
+    public readonly active_templates = computed<SignageTemplateMapping[]>(
         () => {
             this._tick();
-            const mappings = this._display_data()?.template_schedules;
-            if (!Array.isArray(mappings)) return null;
+            const mappings: SignageTemplateMapping[] =
+                this._display_data()?.template_schedules;
+            if (!Array.isArray(mappings)) return [];
+            const defaults = mappings.filter(
+                (mapping) => mapping?.template_id && !mapping.schedule,
+            );
             const scheduled = mappings
-                .map((mapping: SignageTemplateMapping) => {
+                .map((mapping, index) => {
                     if (!mapping?.template_id || !mapping.schedule) return null;
                     const window = scheduledPlaylistWindow(mapping.schedule);
                     return window
-                        ? { mapping, starts_at: window.starts_at }
+                        ? { mapping, index, starts_at: window.starts_at }
                         : null;
                 })
                 .filter((item) => !!item)
                 .sort(
                     (a, b) =>
-                        b.starts_at - a.starts_at ||
-                        templateMappingCreatedAt(b.mapping) -
-                            templateMappingCreatedAt(a.mapping),
+                        a.starts_at - b.starts_at ||
+                        templateMappingCreatedAt(a.mapping) -
+                            templateMappingCreatedAt(b.mapping) ||
+                        b.index - a.index,
                 );
-            if (scheduled.length) return scheduled[0].mapping;
-            return (
-                mappings.find(
-                    (mapping: SignageTemplateMapping) =>
-                        mapping?.template_id && !mapping.schedule,
-                ) || null
-            );
+            return [...defaults, ...scheduled.map(({ mapping }) => mapping)];
+        },
+        {
+            equal: (previous, current) =>
+                previous.length === current.length &&
+                previous.every((mapping, index) => mapping === current[index]),
         },
     );
 
