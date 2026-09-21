@@ -154,12 +154,12 @@ describe('PlaylistEditModalComponent', () => {
             expect.objectContaining({
                 schedules: [
                     {
-                        play_at: 0,
+                        play_at: undefined,
                         play_cron: '0 9 1-7,15-21 * 1,3',
                         play_period: 120,
                         play_takeover: false,
-                        valid_from: 0,
-                        valid_until: 0,
+                        valid_from: undefined,
+                        valid_until: undefined,
                         mask: '',
                     },
                 ],
@@ -255,12 +255,12 @@ describe('PlaylistEditModalComponent', () => {
             expect.objectContaining({
                 schedules: [
                     {
-                        play_at: 0,
+                        play_at: undefined,
                         play_cron: '0 9 * * *',
                         play_period: 120,
                         play_takeover: false,
-                        valid_from: 0,
-                        valid_until: 0,
+                        valid_from: undefined,
+                        valid_until: undefined,
                         mask: '',
                     },
                     {
@@ -269,7 +269,7 @@ describe('PlaylistEditModalComponent', () => {
                         play_period: 45,
                         play_takeover: true,
                         valid_from: Math.floor(play_at / 1000) - 3600,
-                        valid_until: 0,
+                        valid_until: undefined,
                         mask: '',
                     },
                 ],

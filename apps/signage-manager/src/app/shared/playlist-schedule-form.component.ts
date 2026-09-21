@@ -710,30 +710,32 @@ export function playlistSchedulePayload(
 ): PlaylistSchedule {
     return value.schedule_type === 'play_at'
         ? {
-              play_at: value.play_at ? getUnixTime(new Date(value.play_at)) : 0,
+              play_at: value.play_at
+                  ? getUnixTime(new Date(value.play_at))
+                  : undefined,
               play_cron: DEFAULT_RECURRING_CRON,
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
               mask: value.has_mask ? value.mask : '',
               valid_from: value.has_valid_from
                   ? getUnixTime(new Date(value.valid_from))
-                  : 0,
+                  : undefined,
               valid_until: value.has_valid_until
                   ? getUnixTime(new Date(value.valid_until))
-                  : 0,
+                  : undefined,
           }
         : {
-              play_at: 0,
+              play_at: undefined,
               play_cron: buildRecurringCron(value),
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
               mask: value.has_mask ? value.mask : '',
               valid_from: value.has_valid_from
                   ? getUnixTime(new Date(value.valid_from))
-                  : 0,
+                  : undefined,
               valid_until: value.has_valid_until
                   ? getUnixTime(new Date(value.valid_until))
-                  : 0,
+                  : undefined,
           };
 }
 

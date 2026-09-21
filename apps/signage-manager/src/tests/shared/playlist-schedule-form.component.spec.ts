@@ -21,6 +21,32 @@ import {
 } from '../../app/shared/playlist-schedule-form.component';
 
 describe('playlist-schedule-form helpers', () => {
+    it.each(['play_at', 'play_cron'] as const)(
+        'omits disabled validity limits from %s request JSON',
+        (schedule_type) => {
+            const model = createPlaylistScheduleModel({
+                valid_from: 1770000000,
+                valid_until: 1770086400,
+            });
+            const payload = playlistSchedulePayload({
+                ...model,
+                schedule_type,
+                has_valid_from: false,
+                has_valid_until: false,
+            });
+            const request: unknown = JSON.parse(JSON.stringify(payload));
+
+            expect(request).not.toHaveProperty('valid_from');
+            expect(request).not.toHaveProperty('valid_until');
+            expect(
+                playlistSchedulePayload({ ...model, schedule_type }),
+            ).toMatchObject({
+                valid_from: 1770000000,
+                valid_until: 1770086400,
+            });
+        },
+    );
+
     it('round trips all 128 characters including leading zeros and clears a disabled mask', () => {
         const stored = {
             mask: '0'.repeat(127) + '1',
@@ -86,8 +112,8 @@ describe('playlist-schedule-form helpers', () => {
             play_cron: '0 0 * * *',
             play_period: 45,
             play_takeover: true,
-            valid_from: 0,
-            valid_until: 0,
+            valid_from: undefined,
+            valid_until: undefined,
             mask: '',
         });
     });
@@ -104,7 +130,7 @@ describe('playlist-schedule-form helpers', () => {
         expect(
             playlistSchedulePayload({ ...model, has_valid_from: false })
                 .valid_from,
-        ).toBe(0);
+        ).toBeUndefined();
     });
 
     it('round trips a schedule expiry as unix seconds', () => {
@@ -118,14 +144,25 @@ describe('playlist-schedule-form helpers', () => {
         expect(payload.valid_until).toBe(valid_until);
     });
 
-    it('serialises a disabled schedule expiry as zero', () => {
+    it('omits a disabled schedule expiry', () => {
         const payload = playlistSchedulePayload({
             ...createPlaylistScheduleModel(),
             has_valid_until: false,
             valid_until: Date.UTC(2026, 3, 2, 18, 45),
         });
 
-        expect(payload.valid_until).toBe(0);
+        expect(payload.valid_until).toBeUndefined();
+    });
+
+    it('omits an unset one-off play time from request JSON', () => {
+        const payload = playlistSchedulePayload({
+            ...createPlaylistScheduleModel(),
+            schedule_type: 'play_at',
+            play_at: 0,
+        });
+        const request: unknown = JSON.parse(JSON.stringify(payload));
+
+        expect(request).not.toHaveProperty('play_at');
     });
 
     it('builds a recurring payload with a generated cron and no play_at', () => {
@@ -138,7 +175,8 @@ describe('playlist-schedule-form helpers', () => {
             play_period: 60,
         });
 
-        expect(payload.play_at).toBe(0);
+        expect(payload.play_at).toBeUndefined();
+        expect(JSON.parse(JSON.stringify(payload))).not.toHaveProperty('play_at');
         expect(payload.play_cron).toBe('0 9 * * 1,3');
         expect(payload.play_period).toBe(60);
     });
