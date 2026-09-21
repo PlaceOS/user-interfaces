@@ -2527,6 +2527,7 @@
         "TEMPLATE_MAPPINGS": "Mappings",
         "TEMPLATE_MAPPINGS_LOAD_ERROR": "Unable to load template mappings.",
         "TEMPLATE_FULLSCREEN_TAKEOVER": "Full screen takeover",
+        "TEMPLATE_MERGE": "Merge",
         "TEMPLATE_LAYOUT_COUNT": "{{ count }} layouts",
         "TEMPLATE_LAYOUT_ITEMS": "Layout Items",
         "TEMPLATE_LIVE_MODE": "Live",
