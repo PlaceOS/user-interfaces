@@ -26,7 +26,7 @@ describe('TemplateEditModalComponent', () => {
     const onEdit = vi.fn();
     const onAdd = vi.fn();
 
-    async function make(id = 'template-1') {
+    async function make(id = 'template-1', merge = false) {
         await TestBed.configureTestingModule({
             imports: [TemplateEditModalComponent],
             providers: [
@@ -35,6 +35,7 @@ describe('TemplateEditModalComponent', () => {
                     useValue: {
                         template: new SignageTemplate({
                             id,
+                            merge,
                             name: 'Welcome',
                             background_item_id: 'media-1',
                         }),
@@ -96,7 +97,11 @@ describe('TemplateEditModalComponent', () => {
 
             await component.saveTemplate();
 
-            const payload = { name: 'Welcome', full_screen_takeover: false };
+            const payload = {
+                name: 'Welcome',
+                full_screen_takeover: false,
+                merge: false,
+            };
             if (id) {
                 expect(onEdit).toHaveBeenCalledWith(id, payload);
             } else {
@@ -104,6 +109,25 @@ describe('TemplateEditModalComponent', () => {
             }
             expect(component.model().description).toBe(value);
             expect(component.model().background_item_id).toBe(value);
+        },
+    );
+
+    it.each(['', 'template-1'])(
+        'saves both merge values for template %j',
+        async (id) => {
+            const component = await make(id, true);
+            expect(component.form.merge().value()).toBe(true);
+
+            for (const merge of [false, true]) {
+                component.form.merge().value.set(merge);
+                await component.saveTemplate();
+                const payload = expect.objectContaining({ merge });
+                if (id) {
+                    expect(onEdit).toHaveBeenLastCalledWith(id, payload);
+                } else {
+                    expect(onAdd).toHaveBeenLastCalledWith(payload);
+                }
+            }
         },
     );
 

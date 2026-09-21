@@ -149,6 +149,24 @@ interface TemplateVersionPreview {
                                         }}
                                     </span>
                                 }
+                                @let merge_changed =
+                                    version.fields.includes('merge');
+                                @if (template.merge || merge_changed) {
+                                    <span
+                                        class="rounded px-2 py-1"
+                                        [class]="
+                                            merge_changed
+                                                ? version.mark
+                                                : 'bg-base-200'
+                                        "
+                                        [class.line-through]="!template.merge"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.TEMPLATE_MERGE'
+                                                | translate
+                                        }}
+                                    </span>
+                                }
                                 @let background_changed =
                                     version.fields.includes(
                                         'background_item_id'

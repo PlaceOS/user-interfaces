@@ -501,6 +501,24 @@ import {
                                             }}
                                         </dd>
                                     </div>
+                                    <div
+                                        class="flex items-center justify-between gap-3 px-3 py-2"
+                                    >
+                                        <dt class="text-sm">
+                                            {{
+                                                'SIGNAGE_MANAGER.TEMPLATE_MERGE'
+                                                    | translate
+                                            }}
+                                        </dt>
+                                        <dd class="font-medium">
+                                            {{
+                                                (template.merge
+                                                    ? 'COMMON.YES'
+                                                    : 'COMMON.NO'
+                                                ) | translate
+                                            }}
+                                        </dd>
+                                    </div>
                                 </dl>
                             </section>
 

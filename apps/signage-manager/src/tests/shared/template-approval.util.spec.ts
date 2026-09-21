@@ -104,3 +104,21 @@ describe('signageTemplateLayoutChanges', () => {
         ).toEqual([]);
     });
 });
+
+describe('merge flag approval changes', () => {
+    it('retains both versions when only merge differs', async () => {
+        const pending = new SignageTemplate({ id: 'template-1', merge: true });
+        const approved = new SignageTemplate({
+            id: 'template-1',
+            merge: false,
+        });
+        vi.mocked(showSignageTemplate)
+            .mockResolvedValueOnce(pending)
+            .mockResolvedValueOnce(approved);
+
+        expect(await loadTemplateApprovalVersions('template-1')).toEqual([
+            pending,
+            approved,
+        ]);
+    });
+});

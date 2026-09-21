@@ -36,7 +36,8 @@ export type TemplateField =
     | 'description'
     | 'tags'
     | 'background_item_id'
-    | 'full_screen_takeover';
+    | 'full_screen_takeover'
+    | 'merge';
 
 /** Position axes that have an effect for the given layout position. */
 export function layoutPositionAxes(layout: SignageTemplateLayout) {
@@ -103,6 +104,7 @@ export function signageTemplateFieldChanges(
     if (current.background_item_id !== older.background_item_id) {
         changes.push('background_item_id');
     }
+    if (current.merge !== older.merge) changes.push('merge');
     if (current.full_screen_takeover !== older.full_screen_takeover) {
         changes.push('full_screen_takeover');
     }
