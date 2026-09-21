@@ -622,6 +622,7 @@
         "TEMPLATE_DISCARD": "Discard",
         "TEMPLATE_EDIT": "Edit Template",
         "TEMPLATE_FULLSCREEN_TAKEOVER": "Full screen takeover",
+        "TEMPLATE_MERGE": "Merge",
         "TEMPLATE_LABEL": "Template",
         "TEMPLATE_LAYOUT_COUNT": "{{ count }} layouts",
         "TEMPLATE_LAYOUT_ITEMS": "Layout Items",
