@@ -509,6 +509,9 @@ export async function findNearbyFeature(
 
 export function newBookingFromCalendarEvent(event: CalendarEvent) {
     const date = event.date || event.event_start * 1000;
+    // Serialized events omit duration and store their start/end in seconds.
+    const duration =
+        event.duration ?? (event.event_end - event.event_start) / 60;
     const recurrence = event.recurrence?.pattern
         ? toBookingRecurrence(fromEventRecurrence(event.recurrence), date)
         : {};
@@ -518,7 +521,7 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
         user_email: event.host,
         user_name: event.organiser?.name || event.host,
         date,
-        duration: event.duration,
+        duration,
         asset_id: event.system?.id || (event as any).system_id,
         asset_name: event.system?.display_name || event.system?.name,
         zones: [...(event.system?.zones || [])],

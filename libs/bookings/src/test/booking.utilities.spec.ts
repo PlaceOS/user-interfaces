@@ -212,6 +212,23 @@ describe('Booking Utilities', () => {
     });
 
     describe('newBookingFromCalendarEvent', () => {
+        it.each([30, 90, 120, 480])(
+            'should preserve a %s-minute interval in native booking payloads',
+            (duration) => {
+                const date = new Date(2028, 5, 15, 13, 25).valueOf();
+                const event = new CalendarEvent({ date, duration });
+
+                for (const input of [event, event.toJSON() as CalendarEvent]) {
+                    const payload = newBookingFromCalendarEvent(input).toJSON();
+
+                    expect(payload.booking_start).toBe(date / 1000);
+                    expect(payload.booking_end).toBe(
+                        date / 1000 + duration * 60,
+                    );
+                }
+            },
+        );
+
         it.each([false, true])(
             'should preserve the delegated host identity, serialized event: %s',
             (serialized) => {
