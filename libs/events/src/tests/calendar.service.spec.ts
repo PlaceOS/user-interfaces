@@ -1,5 +1,8 @@
 import { signal } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
@@ -49,6 +52,23 @@ describe('CalendarService', () => {
         expect(list).toHaveLength(1);
         expect(list[0]).toBeInstanceOf(Calendar);
         expect(ts_client.get).toHaveBeenCalledWith(`/api/staff/v1/calendars`);
+    });
+
+    it('should handle a failed calendar request and retry on the next load', async () => {
+        vi.mocked(ts_client.get).mockRejectedValueOnce(
+            new Response(null, { status: 500 }),
+        );
+        await expect(
+            spectator.service.loadCalendars(),
+        ).resolves.toBeUndefined();
+        expect(spectator.service.calendar_list()).toEqual([]);
+
+        vi.mocked(ts_client.get).mockResolvedValueOnce([
+            {},
+        ] as unknown as Awaited<ReturnType<typeof ts_client.get>>);
+        await spectator.service.loadCalendars();
+        expect(spectator.service.calendar_list()).toHaveLength(1);
+        expect(ts_client.get).toHaveBeenCalledTimes(2);
     });
 
     it('should allow getting free busy', async () => {

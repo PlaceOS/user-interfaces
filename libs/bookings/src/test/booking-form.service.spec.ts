@@ -468,6 +468,35 @@ describe('BookingFormService', () => {
         }
     });
 
+    it('should follow form updates while quick-book availability is loading', async () => {
+        const metadata = await ts_client.listChildMetadata('bld-1', {});
+        vi.mocked(ts_client.listChildMetadata).mockImplementation(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 800));
+            return metadata;
+        });
+        settings_overrides.set([{}, {}]);
+        try {
+            spectator.service.newForm('desk');
+            const request = spectator.service.listAvailableResources();
+            TestBed.tick();
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            spectator.service.model.update((model) => ({
+                ...model,
+                duration: 120,
+            }));
+            TestBed.tick();
+
+            const available = await request;
+
+            expect(available.map((asset) => asset.id)).toEqual([
+                'desk-1',
+                'desk-1',
+            ]);
+        } finally {
+            settings_overrides.set([]);
+        }
+    });
+
     it('should exclude window-booked AND recurring-clash desks', async () => {
         // desk-1 is booked in the first-instance window, desk-2 clashes with a
         // later recurrence instance. Enabling recurrence must exclude both, not

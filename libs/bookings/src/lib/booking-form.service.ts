@@ -603,10 +603,13 @@ export class BookingFormService extends AsyncHandler {
             (ready) => ready,
             this._injector,
         );
-        const params = this._resource_params();
         await firstValueWhere(
-            this._resource_params_debounced.value,
-            (value) => value === params,
+            computed(
+                () =>
+                    this._resource_params_debounced.value() ===
+                    this._resource_params(),
+            ),
+            (ready) => ready,
             this._injector,
         );
         await this._whenSettled(this._resources_resource);
@@ -616,19 +619,23 @@ export class BookingFormService extends AsyncHandler {
     /** Resolve with the available resources for the current selection */
     public async listAvailableResources(): Promise<BookingAsset[]> {
         this._startNetwork();
-        const form = this.model();
-        this._form_value.set(form);
+        this._form_value.set(this.model());
         await this.listResources();
-        const rules_params = this._booking_rules_params();
         await firstValueWhere(
-            this._booking_rules_params_debounced.value,
-            (value) => value === rules_params,
+            computed(
+                () =>
+                    this._booking_rules_params_debounced.value() ===
+                    this._booking_rules_params(),
+            ),
+            (ready) => ready,
             this._injector,
         );
         await this._whenSettled(this._booking_rules_resource);
         await firstValueWhere(
-            this._form_value_debounced.value,
-            (value) => value === form,
+            // Form effects can replace the initial snapshot before the debounce
+            // completes. Wait for the current model, not an obsolete snapshot.
+            computed(() => this._form_value_debounced.value() === this.model()),
+            (ready) => ready,
             this._injector,
         );
         await this._whenSettled(this._available_resource);

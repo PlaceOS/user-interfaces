@@ -1,10 +1,11 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import {
     AsyncHandler,
     Calendar,
     CalendarEvent,
+    log,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -104,6 +105,14 @@ export class CalendarService extends AsyncHandler {
             this._calendars_request ||
             queryCalendars()
                 .then((list) => this._calendars.set(list))
+                .catch((error: unknown) => {
+                    log(
+                        'CalendarService',
+                        'Failed to load calendars',
+                        error,
+                        'warn',
+                    );
+                })
                 .finally(() => (this._calendars_request = null));
         await this._calendars_request;
     }
