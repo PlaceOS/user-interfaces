@@ -1,7 +1,12 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
 import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
+import {
+    Booking,
+    CalendarEvent,
     Organisation,
     OrganisationService,
     SettingsService,
@@ -19,6 +24,7 @@ import { ScheduleStateService } from '../../app/schedule/schedule-state.service'
 describe('LandingStateService', () => {
     let spectator: SpectatorService<LandingStateService>;
     const active_building = signal<any>(null);
+    const filtered_bookings = signal<(Booking | CalendarEvent)[]>([]);
     const flush = async () => {
         for (let i = 0; i < 5; i++) {
             TestBed.flushEffects();
@@ -34,7 +40,7 @@ describe('LandingStateService', () => {
                 freeBusy: vi.fn(() => of([])),
             } as any),
             MockProvider(ScheduleStateService, {
-                filtered_bookings: signal([]),
+                filtered_bookings,
             }),
             MockProvider(OrganisationService, {
                 levels: [],
@@ -51,6 +57,7 @@ describe('LandingStateService', () => {
 
     beforeEach(() => {
         active_building.set(null);
+        filtered_bookings.set([]);
         vi.clearAllMocks();
         // `requestSpacesForZone` (a workspace fn that can't be spied) calls
         // ts-client `querySystems` under the hood, so control the space list
@@ -71,11 +78,87 @@ describe('LandingStateService', () => {
     // Root effects from a previous test's service stay alive on the shared
     // `active_building` signal unless the testing module is torn down, which
     // makes the leaked instance re-bind space statuses in later tests.
-    afterEach(() => TestBed.resetTestingModule());
+    afterEach(() => {
+        TestBed.resetTestingModule();
+        vi.useRealTimers();
+    });
 
     it('should create service', () => {
         spectator = createService();
         expect(spectator.service).toBeTruthy();
+    });
+
+    it('should exclude cancelled history before the five-card limit', async () => {
+        const date = new Date().setHours(12, 0, 0, 0);
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(date);
+        const cancelled = Array.from(
+            { length: 5 },
+            (_, index) =>
+                new Booking({
+                    id: `cancelled-${index}`,
+                    booking_type: 'desk',
+                    date: date + 60_000,
+                    duration: 60,
+                    deleted: true,
+                }),
+        );
+        const active = new Booking({
+            id: 'active-desk',
+            booking_type: 'desk',
+            date: date + 120_000,
+            duration: 60,
+        });
+        filtered_bookings.set([...cancelled, active]);
+        spectator = createService();
+        await flush();
+
+        expect(spectator.service.upcoming_events()).toEqual([active]);
+
+        filtered_bookings.set(cancelled);
+        await flush();
+        expect(spectator.service.upcoming_events()).toEqual([]);
+    });
+
+    it('should keep current and upcoming bookings for a fresh account', async () => {
+        const date = new Date().setHours(12, 0, 0, 0);
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(date);
+        const current = new Booking({ date: date - 60_000, duration: 60 });
+        const upcoming = new Booking({ date: date + 60_000, duration: 60 });
+        const meeting = new CalendarEvent({
+            date: date + 120_000,
+            duration: 60,
+        });
+        filtered_bookings.set([
+            new Booking({ date: date - 7_200_000, duration: 60 }),
+            current,
+            upcoming,
+            meeting,
+            new Booking({ date: date + 86_400_000, duration: 60 }),
+        ]);
+        spectator = createService();
+        await flush();
+
+        expect(spectator.service.upcoming_events()).toEqual([
+            current,
+            upcoming,
+            meeting,
+        ]);
+    });
+
+    it('should exclude explicit cancellations and cancelled calendar events', async () => {
+        const date = new Date().setHours(12, 0, 0, 0);
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(date);
+        filtered_bookings.set([
+            new Booking({ date, duration: 60, status: 'cancelled' }),
+            new CalendarEvent({ date, duration: 60, deleted: true }),
+        ]);
+        spectator = createService();
+        await flush();
+
+        expect(spectator.service.upcoming_events()).toEqual([]);
     });
 
     it('should not rebind space status when a status value is received', async () => {
