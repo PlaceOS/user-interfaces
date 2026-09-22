@@ -6,8 +6,10 @@ import {
     setCurrentUser,
     Space,
     StaffUser,
+    User,
     VERSION,
 } from '@placeos/common';
+import { newBookingFromCalendarEvent } from '../lib/booking.utilities';
 import {
     approveBooking,
     bookedResourceList,
@@ -320,6 +322,38 @@ describe('[Booking API]', () => {
     });
 
     describe('saveBooking', () => {
+        it('should send the selected room host separately from the creator', async () => {
+            const host = new User({
+                id: 'staff-colleague',
+                email: 'colleague@example.com',
+                name: 'Selected Colleague',
+            });
+            const event = new CalendarEvent({
+                host: host.email,
+                creator: user_email,
+                attendees: [host],
+            });
+            const post = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue(undefined);
+
+            await saveBooking(
+                newBookingFromCalendarEvent(event.toJSON() as CalendarEvent),
+            );
+
+            expect(post).toHaveBeenCalledWith(
+                expect.stringContaining('/api/staff/v1/bookings?'),
+                expect.objectContaining({
+                    user_id: host.id,
+                    user_email: host.email,
+                    user_name: host.name,
+                    extension_data: expect.objectContaining({
+                        creator: user_email,
+                    }),
+                }),
+            );
+        });
+
         it('should create new bookings', async () => {
             const spy = vi.spyOn(ts_client, 'post');
             spy.mockResolvedValue({} as any);

@@ -514,7 +514,9 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
         : {};
     return new Booking({
         id: event.id,
+        user_id: event.organiser?.id || event.host,
         user_email: event.host,
+        user_name: event.organiser?.name || event.host,
         date,
         duration: event.duration,
         asset_id: event.system?.id || (event as any).system_id,

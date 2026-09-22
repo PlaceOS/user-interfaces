@@ -5,6 +5,7 @@ import {
     CalendarEvent,
     fromBookingRecurrence,
     Space,
+    User,
     WeekOfMonth,
 } from '@placeos/common';
 import {
@@ -211,6 +212,47 @@ describe('Booking Utilities', () => {
     });
 
     describe('newBookingFromCalendarEvent', () => {
+        it.each([false, true])(
+            'should preserve the delegated host identity, serialized event: %s',
+            (serialized) => {
+                const event = new CalendarEvent({
+                    host: 'colleague@example.com',
+                    creator: 'booker@example.com',
+                    attendees: [
+                        new User({
+                            id: 'staff-colleague',
+                            email: 'colleague@example.com',
+                            name: 'Selected Colleague',
+                        }),
+                    ],
+                });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON()).toMatchObject({
+                    user_id: 'staff-colleague',
+                    user_email: 'colleague@example.com',
+                    user_name: 'Selected Colleague',
+                    extension_data: { creator: 'booker@example.com' },
+                });
+            },
+        );
+
+        it('should use the host email as the identity when staff details are unavailable', () => {
+            const booking = newBookingFromCalendarEvent(
+                new CalendarEvent({
+                    host: 'colleague@example.com',
+                    creator: 'booker@example.com',
+                }),
+            );
+
+            expect(booking.toJSON()).toMatchObject({
+                user_id: 'colleague@example.com',
+                user_email: 'colleague@example.com',
+            });
+        });
+
         it.each([false, true])(
             'should include the selected room zones in the booking payload, serialized event: %s',
             (serialized) => {
