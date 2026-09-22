@@ -1,3 +1,0 @@
-import{en as Jr,qc as oxe}from"./chunk-BSsu6GcQ.js";var u=(()=>{class r{transform(t,e=!1){let i=oxe({hours:Math.floor(t/60),minutes:t%60});return e&&(i=i.replace(` hour`,`h`).replace(` minute`,`m`).replace(/s/gi,``)),i}static{this.ɵfac=function(e){return new(e||r)}}static{this.ɵpipe=Jr({name:`duration`,type:r,pure:!0})}}return r})();export{u as t};
-//# debugId=851d4250-acc9-52d7-a74b-8d10f759ffb3
-//# sourceMappingURL=chunk-B_k1H953.js.map
