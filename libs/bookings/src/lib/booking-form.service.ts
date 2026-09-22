@@ -1462,20 +1462,23 @@ export class BookingFormService extends AsyncHandler {
                 ),
             }).toJSON(),
             q,
-        ).catch((e) => {
+        ).catch(async (e) => {
             this._loading.set('');
-            const error = e?.error || e;
-            if (e?.status) {
-                if (typeof error === 'object' && error !== null) {
-                    error.status = e.status;
-                } else {
-                    if (this._isPermissionError(e))
-                        this._clearSavedHostChange();
-                    throw { message: error, status: e.status };
-                }
+            let error = e?.error || e;
+            if (error instanceof Response) {
+                error = await error
+                    .clone()
+                    .json()
+                    .catch(() => null);
             }
-            if (this._isPermissionError(error)) this._clearSavedHostChange();
-            throw error;
+            const failure = e?.status
+                ? {
+                      message: this._error_message(error),
+                      status: e.status,
+                  }
+                : error;
+            if (this._isPermissionError(failure)) this._clearSavedHostChange();
+            throw failure;
         });
         if (value.assets?.length || booking.extension_data.assets?.length) {
             // The booking record exists by this point, so a failure here must

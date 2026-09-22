@@ -2078,6 +2078,9 @@ describe('BookingFormService', () => {
     });
 
     it('should complete desk group bookings with child errors when rollback is disabled', async () => {
+        Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
+            value: false,
+        });
         const get = spectator.inject(SettingsService).get as Mock;
         const desk_list = [
             {
@@ -2121,19 +2124,25 @@ describe('BookingFormService', () => {
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const saved_users: string[] = [];
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-            const value = spectator.service.model();
+        vi.mocked(ts_client.post).mockImplementation((async (
+            url: string,
+            body: unknown,
+        ) => {
+            if (url.includes('/clashing-assets')) return [];
+            const value = body as ReturnType<Booking['toJSON']>;
+            if (value.type === 'group')
+                return { ...value, id: 'booking-group' };
             saved_users.push(value.user_email);
             if (value.user_email === 'member.one@example.com') {
-                throw new Error('Save failed');
+                throw new Response(
+                    JSON.stringify({ error: 'Member refused' }),
+                    {
+                        status: 409,
+                    },
+                );
             }
-            return new Booking({
-                id: `booking-child-${saved_users.length}`,
-                parent_id: value.parent_id,
-                user_email: value.user_email,
-                asset_id: value.asset_id,
-            });
-        });
+            return { ...value, id: `booking-child-${saved_users.length}` };
+        }) as unknown as typeof ts_client.post);
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2193,7 +2202,7 @@ describe('BookingFormService', () => {
                 name: 'Member One',
                 asset_id: 'desk-2',
                 asset_name: 'Desk 2',
-                error: 'Save failed',
+                error: 'Member refused',
             },
         ]);
     });
