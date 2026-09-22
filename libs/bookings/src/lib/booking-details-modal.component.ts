@@ -209,7 +209,10 @@ import { DeskSettingsModalComponent } from './desk-settings-modal.component';
                     }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate"
+                            <icon
+                                [matTooltip]="
+                                    'BOOKINGS.BOOKED_FOR_LABEL' | translate
+                                "
                                 >person</icon
                             >
                             <div>
