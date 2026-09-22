@@ -4,13 +4,17 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { settingSignal, SettingsService } from '@placeos/common';
+import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { UserPipe } from '@placeos/users';
+import {
+    canChangeDeskBooking,
+    isDeskBookingRejected,
+} from './desk-booking-actions';
 import { DesksStateService } from './desks-state.service';
 
 @Component({
@@ -184,11 +188,7 @@ import { DesksStateService } from './desks-state.service';
                             row?.status === 'ended' || row?.has_ended
                         "
                         [matMenuTriggerFor]="menu"
-                        [disabled]="
-                            row?.status === 'ended' ||
-                            row?.has_ended ||
-                            row.deleted
-                        "
+                        [disabled]="!canChangeBooking(row) || !!loading()"
                     >
                         <div class="flex items-center space-x-2 pr-2 pl-4">
                             <div class="flex-1 text-left">
@@ -206,20 +206,18 @@ import { DesksStateService } from './desks-state.service';
                                     ) | translate
                                 }}
                             </div>
-                            @if (
-                                !(
-                                    row?.status === 'ended' ||
-                                    row?.has_ended ||
-                                    row.deleted
-                                )
-                            ) {
+                            @if (canChangeBooking(row)) {
                                 <icon class="text-2xl"> arrow_drop_down </icon>
                             }
                         </div>
                     </button>
                 </div>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="approve(row)">
+                    <button
+                        mat-menu-item
+                        [disabled]="!canChangeBooking(row) || !!loading()"
+                        (click)="approve(row)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">event_available</icon>
                             <div class="pr-2">
@@ -230,7 +228,11 @@ import { DesksStateService } from './desks-state.service';
                             </div>
                         </div>
                     </button>
-                    <button mat-menu-item (click)="reject(row)">
+                    <button
+                        mat-menu-item
+                        [disabled]="!canChangeBooking(row) || !!loading()"
+                        (click)="reject(row)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">event_busy</icon>
                             <div class="pr-2">
@@ -253,8 +255,8 @@ import { DesksStateService } from './desks-state.service';
                         [class.text-neutral-content!]="!data"
                         [class.bg-success!]="data"
                         [class.text-success-content!]="data"
-                        [class.opacity-30]="row.status === 'ended'"
-                        [disabled]="row.status === 'ended'"
+                        [class.opacity-30]="!canChangeBooking(row)"
+                        [disabled]="!canChangeBooking(row) || !!loading()"
                         [matTooltip]="
                             row.status === 'ended'
                                 ? 'Desk booking has ended'
@@ -273,13 +275,29 @@ import { DesksStateService } from './desks-state.service';
                     </button>
                 </div>
                 <mat-menu #checkinMenu="matMenu">
-                    <button mat-menu-item (click)="checkin(row, true)">
+                    <button
+                        mat-menu-item
+                        [disabled]="
+                            !canChangeBooking(row) ||
+                            row.checked_in ||
+                            !!loading()
+                        "
+                        (click)="checkin(row, true)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">check</icon>
                             <div>{{ 'COMMON.CHECK_IN' | translate }}</div>
                         </div>
                     </button>
-                    <button mat-menu-item (click)="checkin(row, false)">
+                    <button
+                        mat-menu-item
+                        [disabled]="
+                            !canChangeBooking(row) ||
+                            !row.checked_in ||
+                            !!loading()
+                        "
+                        (click)="checkin(row, false)"
+                    >
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">cancel</icon>
                             <div>{{ 'COMMON.CHECK_OUT' | translate }}</div>
@@ -304,7 +322,7 @@ import { DesksStateService } from './desks-state.service';
                     >
                         <icon>history</icon>
                     </button>
-                    @if (can_delete()) {
+                    @if (can_delete() && !isRejected(row)) {
                         <button
                             icon
                             default
@@ -451,11 +469,10 @@ export class DeskBookingsComponent implements OnInit {
         ];
     }
 
-    public readonly checkin = (d, s?) =>
-        this.runMethod('checkin', async () => {
-            await this._state.checkinDesk(d, s);
-            d.checked_in = s ?? true;
-        });
+    public readonly isRejected = isDeskBookingRejected;
+    public readonly canChangeBooking = canChangeDeskBooking;
+    public readonly checkin = (d: Booking, s = true) =>
+        this.runMethod('checkin', async () => this._state.checkinDesk(d, s));
     public readonly approve = (d) =>
         this.runMethod('approve', async () => this._state.approveDesk(d));
     public readonly reject = (d) =>

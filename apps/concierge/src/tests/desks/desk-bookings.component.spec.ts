@@ -40,6 +40,60 @@ describe('DeskBookingsComponent', () => {
         spectator = createComponent();
     });
 
+    it.each([
+        { rejected: true },
+        { status: 'declined' as const },
+        { checked_out_at: Math.floor(Date.now() / 1000) },
+        { deleted: true },
+        { booking_start: Math.floor(Date.now() / 1000) - 7200, duration: 60 },
+    ])(
+        'should disable status and check-in menus for a completed booking: %j',
+        async (state) => {
+            bookings.set([
+                new Booking({
+                    id: 'booking-1',
+                    booking_start: Math.floor(Date.now() / 1000),
+                    duration: 60,
+                    ...state,
+                }),
+            ]);
+            await spectator.fixture.whenStable();
+            const triggers = spectator.queryAll<HTMLButtonElement>(
+                'button[matRipple][class*="rounded-3xl"]',
+            );
+            expect(triggers).toHaveLength(2);
+            expect(triggers.every((button) => button.disabled)).toBe(true);
+        },
+    );
+
+    it('should allow status and check-in menus for an active booking', async () => {
+        bookings.set([
+            new Booking({
+                id: 'booking-1',
+                booking_start: Math.floor(Date.now() / 1000),
+                duration: 60,
+            }),
+        ]);
+        await spectator.fixture.whenStable();
+        const triggers = spectator.queryAll<HTMLButtonElement>(
+            'button[matRipple][class*="rounded-3xl"]',
+        );
+        expect(triggers).toHaveLength(2);
+        expect(triggers.every((button) => !button.disabled)).toBe(true);
+    });
+
+    it('should hide cancellation for rejected bookings when deletion is enabled', async () => {
+        spectator.component.can_delete.set(true);
+        bookings.set([new Booking({ id: 'booking-1', rejected: true })]);
+        await spectator.fixture.whenStable();
+        expect(
+            spectator.query('button[icon][matRipple][matMenuTriggerFor]'),
+        ).not.toExist();
+        expect(
+            spectator.query('[data-testid="desk-booking-history"]'),
+        ).toExist();
+    });
+
     it('should keep the history action available when deleting is disabled', () => {
         bookings.set([new Booking({ id: 'booking-1' })]);
         spectator.detectChanges();
