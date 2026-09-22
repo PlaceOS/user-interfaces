@@ -24,6 +24,7 @@
 import { Locator, Page, expect } from '@playwright/test';
 import {
     calendarDayLabel,
+    calendarIndexForDate,
     pickCalendarDay,
     selectedCalendarIndex,
 } from './calendar';
@@ -72,13 +73,10 @@ export class YourBookingsPage {
      * there is no date in the URL, and `schedule-mobile-calendar` is `sm:hidden`
      * so it does not exist at the desktop viewport the suite runs at.
      *
-     * The grid is 42 consecutive day cells, so ONE known cell fixes every other
-     * one by counting. The known cell is the one carrying the "today" ring,
-     * which the component renders from its own `today`, captured when the page
-     * loaded. Its day-of-month is read back and matched against the clock to
-     * work out which real date the ring means — today, or yesterday if the run
-     * has just crossed midnight. Counting from there is immune to the clock
-     * moving underneath us afterwards.
+     * Resolve the date from the displayed month and its rendered day-1 position.
+     * Recalculate after loading, since selecting an adjacent-month day can
+     * rebuild the grid and move the target to a different index. This does not
+     * require today to be visible and respects the rendered week ordering.
      */
     async showDayOf(timestamp_ms: number): Promise<void> {
         const calendar = this.page.locator('schedule-sidebar date-calendar');
@@ -89,7 +87,7 @@ export class YourBookingsPage {
         // actually means "wrong day" costs a 30s timeout and looks like a bug
         // in the app.
         for (let attempt = 1; attempt <= 2; attempt++) {
-            const wanted = await pickCalendarDay(this.page, calendar, timestamp_ms);
+            await pickCalendarDay(this.page, calendar, timestamp_ms);
             // The list re-queries on a 300ms debounce and blanks itself while
             // loading, so settle before judging anything.
             await this.page.waitForTimeout(500);
@@ -98,7 +96,11 @@ export class YourBookingsPage {
                 'the schedule never finished reloading after the day changed',
             ).toHaveCount(0, { timeout: 30_000 });
 
-            if ((await selectedCalendarIndex(calendar)) === wanted) return;
+            if (
+                (await selectedCalendarIndex(calendar)) ===
+                (await calendarIndexForDate(calendar, timestamp_ms))
+            )
+                return;
         }
         const selected = await selectedCalendarIndex(calendar);
         throw new Error(

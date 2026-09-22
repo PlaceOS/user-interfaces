@@ -5,15 +5,12 @@
  * sidebar, and behind the date button on the invite form — so the awkward part
  * is written once here.
  *
- * WHY IT IS AWKWARD: the grid is 42 day cells with nothing on them but a day
- * number, and day numbers repeat (the 1st of next month sits in the same grid as
- * the 1st of this one). The month label and the weekday headings are locale
- * text, so they cannot be matched on either.
- *
- * What CAN be relied on: exactly one cell carries the "today" ring, drawn from a
- * value the component captured when the page loaded, and the cells are
- * consecutive days. So read that one cell, work out which real date it means,
- * and count from there.
+ * Day numbers repeat across adjacent months. Resolve the displayed month from
+ * its header and anchor it to the rendered, in-month day 1. Its actual position
+ * respects the configured week start without parsing translated weekday labels.
+ * Re-resolve after selection because the component may rebuild the month grid.
+ * Month headers must remain parseable by Date.parse; distant-month navigation
+ * is deliberately left to callers.
  */
 import { Locator, Page, expect } from '@playwright/test';
 
@@ -33,6 +30,36 @@ export function daysApart(from_ms: number, to_ms: number): number {
     return Math.round((to.valueOf() - from.valueOf()) / DAY_MS);
 }
 
+export async function calendarIndexForDate(
+    calendar: Locator,
+    timestamp_ms: number,
+): Promise<number> {
+    const month_label = (
+        (await calendar.locator('button').first().textContent()) ?? ''
+    ).trim();
+    const month_start = new Date(Date.parse(`1 ${month_label}`));
+    if (Number.isNaN(month_start.valueOf())) {
+        throw new Error(
+            `the calendar month header is not a parseable month: "${month_label}"`,
+        );
+    }
+    month_start.setHours(0, 0, 0, 0);
+    const first_index = await calendar
+        .locator('button[name="schedule-set-date"]')
+        .evaluateAll((cells) =>
+            cells.findIndex(
+                (cell) =>
+                    cell.textContent?.trim() === '1' &&
+                    !cell.classList.contains('text-base-300!'),
+            ),
+        );
+    if (first_index < 0) {
+        throw new Error('the calendar has no in-month day 1 to count from');
+    }
+
+    return first_index + daysApart(month_start.valueOf(), timestamp_ms);
+}
+
 /**
  * Click the cell for `timestamp_ms` in an already-visible calendar.
  *
@@ -40,7 +67,7 @@ export function daysApart(from_ms: number, to_ms: number): number {
  * it is inline (the schedule) or inside an overlay (the invite form).
  */
 export async function pickCalendarDay(
-    page: Page,
+    _page: Page,
     calendar: Locator,
     timestamp_ms: number,
     options: {
@@ -52,7 +79,7 @@ export async function pickCalendarDay(
          */
         closes_on_pick?: boolean;
     } = {},
-): Promise<number> {
+): Promise<void> {
     await expect(
         calendar,
         'the calendar is not on screen — the schedule renders it only in `day` ' +
@@ -61,44 +88,8 @@ export async function pickCalendarDay(
     ).toBeVisible({ timeout: 30_000 });
 
     const cells = calendar.locator('button[name="schedule-set-date"]');
-    // The ring is the only child div carrying `border-secondary`; every cell
-    // also holds a plain ripple div, so the class matters.
-    const today_index = await cells.evaluateAll((els) =>
-        els.findIndex((el) => !!el.querySelector('div.border-secondary')),
-    );
-    if (today_index < 0) {
-        throw new Error(
-            'no "today" cell in the calendar, so there is nothing to count from. ' +
-                'The grid only marks today while it is showing this month, and ' +
-                'nothing here navigates months.',
-        );
-    }
-
-    const day_of_month = Number(
-        ((await cells.nth(today_index).textContent()) ?? '').trim(),
-    );
-    const browser_now = await page.evaluate(() => Date.now());
-    // The ring means the day the PAGE loaded, which is today unless the run has
-    // just crossed midnight, in which case it means yesterday.
-    const anchor = [0, -1]
-        .map((offset) => {
-            const day = new Date(browser_now);
-            day.setHours(0, 0, 0, 0);
-            day.setDate(day.getDate() + offset);
-            return day;
-        })
-        .find((day) => day.getDate() === day_of_month);
-    if (!anchor) {
-        throw new Error(
-            `the calendar marks day ${day_of_month} as today, which is neither ` +
-                `today nor yesterday by the browser clock ` +
-                `(${new Date(browser_now).toString()}). The two should never be more ` +
-                `than a midnight apart.`,
-        );
-    }
-
-    const index = today_index + daysApart(anchor.valueOf(), timestamp_ms);
     const count = await cells.count();
+    const index = await calendarIndexForDate(calendar, timestamp_ms);
     if (index < 0 || index >= count) {
         throw new Error(
             `${new Date(timestamp_ms).toDateString()} is outside the ${count} days the ` +
@@ -121,12 +112,22 @@ export async function pickCalendarDay(
             calendar,
             'the date pop-up stayed open, so the day was probably not accepted',
         ).toBeHidden({ timeout: 10_000 });
-        return index;
+        return;
     }
-    // `bg-secondary` is how the component marks the selected day. Waiting on it
-    // proves the click landed before anything reads the result.
-    await expect(cell, 'the calendar did not select the day').toHaveClass(/bg-secondary/);
-    return index;
+
+    // The calendar can replace all 42 buttons while the schedule reloads. Do
+    // not assert against the old `nth(index)` locator: resolve the selected
+    // cell again and compare its full local date after the re-render.
+    await expect(async () => {
+        const selected = await calendar
+            .locator('button[name="schedule-set-date"]')
+            .evaluateAll((els) =>
+                els.findIndex((el) => el.className.includes('bg-secondary')),
+            );
+        expect(selected, 'the calendar did not select a date').toBe(
+            await calendarIndexForDate(calendar, timestamp_ms),
+        );
+    }).toPass({ timeout: 10_000 });
 }
 
 /** Which cell the calendar currently shows as selected, or -1. */

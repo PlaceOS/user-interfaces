@@ -12,14 +12,81 @@
  *
  * ## The day
  *
- * `SCHEDULE_DAYS.empty` is a day no spec ever seeds. That matters more here than
- * anywhere else on the page: the schedule requests bookings with
- * `include_deleted: true` and renders cancelled ones too, so a day this suite
- * has ever used keeps showing cards long after the bookings are gone.
+ * A fresh non-admin user owns no bookings, including cancelled history. A fixed
+ * relative day alone is not isolated: old runs eventually overlap that date.
+ * The temporary user is removed even if setup or authentication fails.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
+import { type BrowserContext } from '@playwright/test';
+import { apiFor, currentUser, ENGINE_API } from '../../../../e2e/support/api';
+import { buildStorageState, mintToken } from '../../../../e2e/support/auth';
+import { APP_URL, BACKEND_URL } from '../../../../e2e/support/env';
+import { test as base, expect } from '../../../../e2e/support/fixtures';
 import { SCHEDULE_DAYS, slotOn } from '../../../../e2e/support/bookings/bookings.env';
 import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
+
+// Override only this spec's page; shared worker identities remain untouched.
+const test = base.extend({
+    staffPage: async ({ browser, adminStorageState }, use, testInfo) => {
+        void adminStorageState;
+        const request = await apiFor('admin', testInfo.parallelIndex);
+        const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+        const email = `yb-empty-${suffix}@example.com`;
+        const password = `E2E-${suffix}-Password!`;
+        let user_id: string | undefined;
+        let context: BrowserContext | undefined;
+        try {
+            const admin = await currentUser(request);
+            const created = await request.post(`${ENGINE_API}/users`, {
+                data: {
+                    name: `YB Empty ${suffix}`,
+                    email,
+                    password,
+                    authority_id: admin.authority_id,
+                    sys_admin: false,
+                    support: false,
+                },
+            });
+            expect(created.ok(), 'temporary empty-user creation').toBe(true);
+            user_id = (await created.json()).id;
+            expect(user_id).toBeTruthy();
+            const token = await mintToken(BACKEND_URL, APP_URL, email, password);
+            context = await browser.newContext({
+                storageState: buildStorageState(token, APP_URL),
+            });
+            await use(await context.newPage());
+        } finally {
+            testInfo.setTimeout(testInfo.timeout + 30_000);
+            try {
+                // Recover a user created before its response could be read.
+                if (!user_id) {
+                    const found = await request.get(
+                        `${ENGINE_API}/users/${encodeURIComponent(email)}`,
+                        { timeout: 5_000 },
+                    );
+                    if (found.status() !== 404) {
+                        expect(found.ok(), 'temporary user lookup').toBe(true);
+                        user_id = (await found.json()).id;
+                        expect(user_id).toBeTruthy();
+                    }
+                }
+                if (user_id) {
+                    const deleted = await request.delete(
+                        `${ENGINE_API}/users/${user_id}`,
+                        { timeout: 5_000 },
+                    );
+                    expect(deleted.ok() || deleted.status() === 404,
+                        'temporary empty-user cleanup').toBe(true);
+                }
+            } finally {
+                try {
+                    await context?.close();
+                } finally {
+                    await request.dispose();
+                }
+            }
+        }
+    },
+});
 
 test.describe('your bookings — an empty day', () => {
     test('a day with no bookings shows the empty state, not a blank panel', async ({
