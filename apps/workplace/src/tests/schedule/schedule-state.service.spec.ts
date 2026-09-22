@@ -101,6 +101,25 @@ describe('ScheduleStateService', () => {
         expect(ts_client.get).toHaveBeenCalledTimes(1);
     });
 
+    it('should not reuse in-flight booking queries after a poll is triggered', async () => {
+        const date = new Date(2026, 5, 22, 9).valueOf();
+
+        const first = (spectator.service as any)._bookingQuery(
+            'desk',
+            'day',
+            date,
+        );
+        spectator.service.triggerPoll();
+        const second = (spectator.service as any)._bookingQuery(
+            'desk',
+            'day',
+            date,
+        );
+        await Promise.all([first, second]);
+
+        expect(ts_client.get).toHaveBeenCalledTimes(2);
+    });
+
     it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {
         vi.mocked<(url: string) => Promise<unknown>>(
             ts_client.get,

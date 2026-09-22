@@ -147,6 +147,63 @@ describe('BookingDetailsModalComponent', () => {
         expect(remove_fn).toHaveBeenCalledWith(booking, false);
     });
 
+    it('should hide the action controls for a cancelled desk booking', () => {
+        const booking = new Booking({
+            id: 'desk-booking-1',
+            booking_type: 'desk',
+            type: 'desk',
+            asset_id: 'desk-1',
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            status: 'approved',
+        } as any);
+        spectator.component.booking.set(booking);
+        spectator.detectChanges();
+        expect('[actions]').toExist();
+        expect(spectator.component.can_edit()).toBe(true);
+        expect(spectator.component.can_cancel()).toBe(true);
+
+        spectator.component.booking.set(
+            new Booking({ ...booking.toJSON(), deleted: true } as any),
+        );
+        spectator.detectChanges();
+
+        expect(spectator.component.show_actions()).toBe(false);
+        expect('[actions]').not.toExist();
+        expect(spectator.component.can_edit()).toBe(false);
+        expect(spectator.component.can_cancel()).toBe(false);
+        expect(spectator.component.booking_status()).toBe('error');
+    });
+
+    it('should keep the group delete action for a cancelled group member', () => {
+        spectator.component.booking.set(
+            new Booking({
+                booking_type: 'desk',
+                type: 'desk',
+                parent_id: 'booking-group',
+                user_email: currentUser().email,
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                deleted: true,
+                linked_parent_booking: {
+                    id: 'booking-group',
+                    booking_type: 'group',
+                    user_email: currentUser().email,
+                    date: Date.now() + 60 * 60 * 1000,
+                    duration: 60,
+                    status: 'approved',
+                },
+            } as any),
+        );
+        spectator.detectChanges();
+
+        expect(spectator.component.can_manage_group()).toBe(true);
+        expect(spectator.component.show_actions()).toBe(true);
+        expect('[actions]').toExist();
+        expect(spectator.component.can_edit()).toBe(false);
+        expect(spectator.component.can_cancel()).toBe(false);
+    });
+
     it('should block actions after a visitor booking is cancelled', () => {
         const allow_editing = settingSignal('visitors.allow_editing', false);
         const previous_value = allow_editing();

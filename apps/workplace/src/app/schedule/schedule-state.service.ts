@@ -389,11 +389,9 @@ export class ScheduleStateService extends AsyncHandler {
         return this._event_sources();
     }
 
+    /** Reload bookings. Drops in-flight requests so a change made just now is not masked by a stale response. */
     public triggerPoll() {
-        if (this._network_started) {
-            this._poll.set(Date.now());
-            return;
-        }
+        this._booking_query_requests.clear();
         this._poll.set(Date.now());
     }
 

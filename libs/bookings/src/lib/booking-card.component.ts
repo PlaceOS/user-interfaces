@@ -50,11 +50,12 @@ import { ParkingService } from './parking.service';
             >
                 <div
                     class="border-base-300 bg-base-100 relative w-full rounded-xl border py-4 shadow-sm"
+                    [class.opacity-60]="is_cancelled()"
                 >
                     <h4 class="px-4 text-lg">{{ booking()?.title }}</h4>
                     <div class="mx-4 my-2 flex items-center space-x-2">
                         <status-pill [status]="status()">
-                            @if (booking().status === 'cancelled') {
+                            @if (is_cancelled()) {
                                 {{ 'COMMON.TYPE_CANCELLED' | translate }} ·
                             }
                             {{ period() }}
@@ -238,6 +239,11 @@ export class BookingCardComponent {
         );
     });
 
+    /** Cancelled bookings stay in the list but are greyed out */
+    public readonly is_cancelled = computed(
+        () => this.booking()?.status === 'cancelled',
+    );
+
     public readonly for_current_user = computed(
         () =>
             this.booking()?.user_email?.toLowerCase() ===
@@ -275,10 +281,10 @@ export class BookingCardComponent {
 
     public readonly status = computed(() => {
         const booking = this.booking();
+        if (this.is_cancelled()) return 'error';
         if (booking?.is_done) return 'neutral';
         if (booking?.status === 'approved') return 'success';
         if (booking?.status === 'declined') return 'error';
-        if (booking?.status === 'cancelled') return 'error';
         if (booking?.status === 'tentative') {
             if (this._parking_status() === 'waitlist' && this.show_waitlist())
                 return 'info';
