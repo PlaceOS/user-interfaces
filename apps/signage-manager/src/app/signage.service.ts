@@ -4171,7 +4171,11 @@ export class SignageService {
             display.id,
             { playlists, version: display.version } as any,
             'patch',
-        );
+        ).catch(() => {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'));
+            return null;
+        });
+        if (!updated) return;
         this._cacheDisplay(updated);
         this.selected_display.set(updated);
         this.changed();
@@ -4198,7 +4202,12 @@ export class SignageService {
         // list never loaded.
         const display =
             this.displays().find((d: any) => d.id === display_id) ||
-            (await showSystem(display_id).catch(() => null));
+            (await showSystem(display_id).catch(() => {
+                notifyError(
+                    i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'),
+                );
+                return null;
+            }));
         if (!display) return;
         if (display.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
@@ -4209,7 +4218,11 @@ export class SignageService {
             display.id,
             { playlists, version: display.version } as any,
             'patch',
-        );
+        ).catch(() => {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'));
+            return null;
+        });
+        if (!updated) return;
         this._cacheDisplay(updated);
         if (this.selected_display()?.id === display.id) {
             this.selected_display.set(updated);

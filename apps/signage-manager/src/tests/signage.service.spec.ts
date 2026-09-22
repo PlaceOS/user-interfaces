@@ -14,6 +14,7 @@ import {
     del,
     listSignagePlaylistMedia,
     listSignageTemplateApprovers,
+    PlaceSystem,
     PlaceZone,
     query,
     querySignagePlugins,
@@ -26,6 +27,7 @@ import {
     shareSignagePlaylists,
     shareSignageTemplates,
     showSignagePlaylist,
+    showSystem,
     SignageMedia,
     SignagePlaylist,
     SignagePlaylistItemSchedule,
@@ -36,6 +38,7 @@ import {
     updateSignagePlaylistMediaSchedule,
     updateSignageTemplate,
     updateSignageTemplateMapping,
+    updateSystem,
     updateZone,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
@@ -151,6 +154,84 @@ describe('SignageService media uploads', () => {
             value: () => group_id,
         });
     }
+
+    it.each(['playlist', 'display'] as const)(
+        'shows an error when assigning from the %s fails and allows a retry',
+        async (source) => {
+            const service = createService();
+            const display = new PlaceSystem({
+                id: 'display-1',
+                version: 2,
+                playlists: ['existing-playlist'],
+            });
+            const playlist = new SignagePlaylist({ id: 'playlist-1' });
+            const updated = new PlaceSystem({
+                ...display,
+                version: 3,
+                playlists: ['existing-playlist', playlist.id],
+            });
+            service.selected_display.set(display);
+            vi.mocked(showSystem).mockResolvedValue(display);
+            vi.mocked(updateSystem)
+                .mockRejectedValueOnce(new Error('Save failed'))
+                .mockResolvedValueOnce(updated);
+            const changed = vi.spyOn(service, 'changed');
+            closeNextDialogWith(
+                source === 'playlist' ? display.id : playlist.id,
+            );
+            const assign = () =>
+                source === 'playlist'
+                    ? service.addDisplayToPlaylist(playlist)
+                    : service.addPlaylistToDisplay(display);
+
+            await assign();
+
+            expect(notify_open).toHaveBeenCalledExactlyOnceWith(
+                'Could not add the playlist to the display. Please try again.',
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+            expect(service.selected_display()).toBe(display);
+            expect(changed).not.toHaveBeenCalled();
+
+            await assign();
+
+            expect(updateSystem).toHaveBeenLastCalledWith(
+                display.id,
+                {
+                    playlists: ['existing-playlist', playlist.id],
+                    version: 2,
+                },
+                'patch',
+            );
+            expect(service.selected_display()).toBe(updated);
+            expect(changed).toHaveBeenCalledOnce();
+            expect(notify_open).toHaveBeenLastCalledWith(
+                expect.any(String),
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['success'] }),
+            );
+        },
+    );
+
+    it('shows an error when the selected display cannot be loaded', async () => {
+        const service = createService();
+        closeNextDialogWith('display-unloaded');
+        vi.mocked(showSystem).mockRejectedValueOnce(new Error('Load failed'));
+        const changed = vi.spyOn(service, 'changed');
+
+        await service.addDisplayToPlaylist(
+            new SignagePlaylist({ id: 'playlist-1' }),
+        );
+
+        expect(notify_open).toHaveBeenCalledExactlyOnceWith(
+            'Could not add the playlist to the display. Please try again.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+        expect(updateSystem).not.toHaveBeenCalled();
+        expect(changed).not.toHaveBeenCalled();
+    });
 
     it('requests plugins and widgets separately', async () => {
         vi.mocked(querySignagePlugins).mockImplementation(async (options) => {
