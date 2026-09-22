@@ -519,6 +519,7 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
         duration: event.duration,
         asset_id: event.system?.id || (event as any).system_id,
         asset_name: event.system?.display_name || event.system?.name,
+        zones: [...(event.system?.zones || [])],
         booking_type: 'room',
         approved: event.status === 'approved',
         ...recurrence,

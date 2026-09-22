@@ -4,6 +4,7 @@ import {
     Booking,
     CalendarEvent,
     fromBookingRecurrence,
+    Space,
     WeekOfMonth,
 } from '@placeos/common';
 import {
@@ -210,6 +211,34 @@ describe('Booking Utilities', () => {
     });
 
     describe('newBookingFromCalendarEvent', () => {
+        it.each([false, true])(
+            'should include the selected room zones in the booking payload, serialized event: %s',
+            (serialized) => {
+                const room = new Space({
+                    id: 'room-1',
+                    name: 'Meeting Room',
+                    email: 'room@example.com',
+                    zones: ['zone-building', 'zone-level'],
+                });
+                const event = new CalendarEvent({ resources: [room] });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON()).toMatchObject({
+                    asset_id: room.id,
+                    booking_type: 'room',
+                    zones: ['zone-building', 'zone-level'],
+                });
+            },
+        );
+
+        it('should allow an event without a room', () => {
+            const booking = newBookingFromCalendarEvent(new CalendarEvent());
+
+            expect(booking.toJSON().zones).toEqual([]);
+        });
+
         it('should serialise monthly nth-weekday recurrence for room bookings', () => {
             const booking = newBookingFromCalendarEvent(
                 new CalendarEvent({
