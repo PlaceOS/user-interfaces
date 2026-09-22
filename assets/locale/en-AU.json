@@ -549,6 +549,7 @@
         "SVC_NO_UPDATE_TEMPLATES": "You cannot update templates in this group.",
         "SVC_PERMISSION_DENIED": "Permission denied",
         "SVC_PLAYLIST_ADDED_DISPLAY": "Playlist added to display",
+        "SVC_PLAYLIST_ADD_DISPLAY_ERROR": "Could not add the playlist to the display. Please try again.",
         "SVC_PLAYLIST_ADDED_ZONE": "Playlist added to zone",
         "SVC_PLAYLIST_IN_DISPLAY": "Playlist already assigned to this display.",
         "SVC_PLAYLIST_IN_ZONE": "Playlist already assigned to this zone.",
