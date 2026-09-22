@@ -1294,14 +1294,15 @@ describe('SignageService media uploads', () => {
         vi.mocked(addZone).mockResolvedValue(saved_zone);
 
         const result = await service.saveZone(new PlaceZone({}), {
+            name: 'SIGNAGE Reception',
             display_name: 'Reception',
             description: 'Reception displays',
             parent_id: 'building-1',
         });
 
         expect(addZone).toHaveBeenCalledWith({
-            display_name: 'Reception',
             name: 'SIGNAGE Reception',
+            display_name: 'Reception',
             description: 'Reception displays',
             parent_id: 'building-1',
             tags: ['signage'],
@@ -1327,14 +1328,15 @@ describe('SignageService media uploads', () => {
         vi.mocked(updateZone).mockResolvedValue(saved_zone);
 
         await service.saveZone(zone, {
+            name: 'SIGNAGE Lobby',
             display_name: 'Lobby',
             description: 'Main lobby',
             parent_id: 'building-2',
         });
 
         expect(updateZone).toHaveBeenCalledWith('zone-1', {
-            display_name: 'Lobby',
             name: 'SIGNAGE Lobby',
+            display_name: 'Lobby',
             description: 'Main lobby',
             parent_id: 'building-2',
             tags: ['signage', 'public'],
@@ -1345,6 +1347,7 @@ describe('SignageService media uploads', () => {
         await service.saveZone(
             new PlaceZone({ id: 'building-1', tags: ['building'] }),
             {
+                name: 'Building',
                 display_name: 'Building',
                 description: '',
                 parent_id: 'org-1',

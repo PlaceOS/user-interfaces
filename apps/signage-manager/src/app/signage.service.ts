@@ -140,6 +140,7 @@ import {
     SignageTemplateMappingTarget,
 } from './signage-template-mapping';
 import { applyLayoutPositionDefaults } from './templates/template-layout.util';
+import type { ZoneEditFormModel } from './zones/zone-edit-modal.component';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -3824,13 +3825,8 @@ export class SignageService {
                     this.zoneChildren(parent_id),
                 query_zones: (search: string, parent_id: string) =>
                     this.querySelectableZones(search, parent_id),
-                onSave: (
-                    zone: PlaceZone,
-                    data: Pick<
-                        PlaceZone,
-                        'display_name' | 'description' | 'parent_id'
-                    >,
-                ) => this.saveZone(zone, data),
+                onSave: (zone: PlaceZone, data: ZoneEditFormModel) =>
+                    this.saveZone(zone, data),
             },
             panelClass: 'mobile-fullscreen',
         });
@@ -3860,23 +3856,15 @@ export class SignageService {
                     this.zoneChildren(parent_id),
                 query_zones: (search: string, parent_id: string) =>
                     this.querySelectableZones(search, parent_id),
-                onSave: (
-                    item: PlaceZone,
-                    data: Pick<
-                        PlaceZone,
-                        'display_name' | 'description' | 'parent_id'
-                    >,
-                ) => this.saveZone(item, data),
+                onSave: (item: PlaceZone, data: ZoneEditFormModel) =>
+                    this.saveZone(item, data),
             },
             panelClass: 'mobile-fullscreen',
         });
         return (await dialogClosed(ref)) as PlaceZone | null;
     }
 
-    public async saveZone(
-        zone: PlaceZone,
-        data: Pick<PlaceZone, 'display_name' | 'description' | 'parent_id'>,
-    ) {
+    public async saveZone(zone: PlaceZone, data: ZoneEditFormModel) {
         if (
             !this._requirePermission(
                 this.can_manage_zones(),
@@ -3889,8 +3877,8 @@ export class SignageService {
             return null;
         }
         const form_data: Partial<PlaceZone> = {
+            name: data.name,
             display_name: data.display_name,
-            name: `SIGNAGE ${data.display_name}`,
             description: data.description,
             parent_id: data.parent_id,
             tags: [...new Set([...(zone.tags || []), 'signage'])],
