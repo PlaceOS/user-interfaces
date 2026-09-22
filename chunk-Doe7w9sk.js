@@ -1,0 +1,3 @@
+import{n as bn}from"./chunk-BiZyad36.js";function h(o,e=`#fff0`,n=`#000`){let t=bn(o,`svg`,{ecc:`low`,border:1});return e&&e!==`#fff0`&&e!==`#0000`&&(t=t.replace(`>`,`><rect width="100%" height="100%" style="fill:${e};"/>`)),t=t.replace(`<path`,`<path style="fill:${n};"`),`data:image/svg+xml,${encodeURIComponent(t)}`}export{h as t};
+//# debugId=011b08c8-8e05-500e-bc02-1506aca847d3
+//# sourceMappingURL=chunk-Doe7w9sk.js.map
