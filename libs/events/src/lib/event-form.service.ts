@@ -1476,6 +1476,8 @@ export class EventFormService extends AsyncHandler {
             ? saveBooking(
                   newBookingFromCalendarEvent({
                       ...event.toJSON(),
+                      // Native recurrence needs weekday indices and millisecond dates.
+                      recurrence: event.recurrence,
                       status:
                           this._settings.get('app.bookings.no_approval') ===
                           true

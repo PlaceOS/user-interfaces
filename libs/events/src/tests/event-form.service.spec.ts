@@ -117,6 +117,62 @@ describe('EventFormService', () => {
         sessionStorage.clear();
     });
 
+    it.each([0, 1, 2, 3, 4, 5, 6])(
+        'should submit native weekly room recurrence for weekday %s',
+        async (weekday) => {
+            vi.spyOn(service, 'book_internal', 'get').mockReturnValue(true);
+            const date = new Date(2028, 5, 18 + weekday, 9).valueOf();
+            const end = new Date(2028, 7, 31, 23, 59).valueOf();
+            const room = new Space({
+                id: 'room-weekly',
+                email: 'room@example.com',
+                zones: ['bld-1'],
+            });
+            const event = new CalendarEvent({
+                date,
+                duration: 60,
+                resources: [room],
+                recurring: true,
+                recurrence: {
+                    pattern: 'weekly',
+                    interval: 1,
+                    days_of_week: [weekday],
+                    start: date,
+                    end,
+                },
+            });
+            const post = vi.mocked<
+                (url: string, data: object) => Promise<unknown>
+            >(ts_client.post);
+            post.mockClear();
+            post.mockImplementation(async (_, data) => ({
+                ...data,
+                id: 'booking-weekly',
+            }));
+
+            await (
+                service as unknown as {
+                    _performBooking: (
+                        event: CalendarEvent,
+                        query: Record<string, string | number>,
+                    ) => Promise<CalendarEvent>;
+                }
+            )._performBooking(event, {});
+
+            expect(post).toHaveBeenCalledWith(
+                expect.stringContaining('/api/staff/v1/bookings'),
+                expect.objectContaining({
+                    booking_type: 'room',
+                    asset_id: room.id,
+                    recurrence_type: 'daily',
+                    recurrence_days: 1 << weekday,
+                    recurrence_interval: 1,
+                    recurrence_end: end / 1000,
+                }),
+            );
+        },
+    );
+
     it.each([EMPTY_USER.email, 'delegate@test.com'])(
         'should exclude placeholder attendees and create only valid visitor bookings for host %s',
         async (host) => {
