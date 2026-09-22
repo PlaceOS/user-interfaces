@@ -39,6 +39,7 @@ import {
     notifyError,
     notifyWarn,
     OrganisationService,
+    randomString,
     rulesForResource,
     SettingsService,
     unique,
@@ -1999,12 +2000,9 @@ export class BookingFormService extends AsyncHandler {
         return first_result;
     }
 
-    /** Build the group identifier, reusing an existing one when supplied. */
+    /** Give each new group its own asset ID and preserve it during edits. */
     private _groupName(existing?: string) {
-        return (
-            existing ||
-            `${currentUser().email}[${format(Date.now(), 'yyyy-MM-dd')}]`
-        );
+        return existing || `grp-${randomString(24)}`;
     }
 
     /** Form patch for a single visitor in a group flow. */

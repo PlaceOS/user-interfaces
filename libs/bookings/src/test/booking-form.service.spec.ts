@@ -3174,6 +3174,112 @@ describe('BookingFormService', () => {
         expect(savedBookings()).toEqual([]);
     });
 
+    it('should keep overlapping visitor groups separate for the same host', async () => {
+        Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
+            value: false,
+        });
+        const now = Date.now();
+        vi.spyOn(Date, 'now').mockReturnValue(now);
+        const groups = [
+            ['alice@example.com', 'bob@example.com'],
+            ['carol@example.com', 'dave@example.com'],
+        ];
+        for (const emails of groups) {
+            spectator.service.newForm(
+                'visitor',
+                new Booking({
+                    booking_type: 'visitor',
+                    date: now + 60 * 60 * 1000,
+                    duration: 60,
+                }),
+            );
+            spectator.service.setOptions({
+                type: 'visitor',
+                group: true,
+                members: emails.map((email) => new User({ email })),
+            });
+
+            await spectator.service.postFormForVisitorGroup();
+        }
+
+        const saved = savedBookings();
+        const parents = saved.filter(
+            (booking) => booking.booking_type === 'group',
+        );
+        const visitors = saved.filter(
+            (booking) => booking.booking_type === 'visitor',
+        );
+        expect(parents).toHaveLength(2);
+        expect(parents[0].user_email).toBe(parents[1].user_email);
+        expect(parents[0].booking_start).toBe(parents[1].booking_start);
+        expect(parents[0].asset_id).toBeTruthy();
+        expect(parents[1].asset_id).toBeTruthy();
+        expect(parents[0].asset_id).not.toBe(parents[1].asset_id);
+        expect(visitors).toHaveLength(4);
+        for (const [index, emails] of groups.entries()) {
+            expect(parents[index].extension_data.group).toBe(
+                parents[index].asset_id,
+            );
+            const members = visitors.filter((booking) =>
+                emails.includes(booking.asset_id),
+            );
+            expect(members.map((booking) => booking.asset_id)).toEqual(emails);
+            expect(
+                members.every(
+                    (booking) =>
+                        booking.extension_data.group ===
+                            parents[index].asset_id &&
+                        booking.parent_id === 'booking-group',
+                ),
+            ).toBe(true);
+        }
+    });
+
+    it.each(['grp-existing-id', 'host@example.com[2026-09-22]'])(
+        'should preserve visitor group identifier %s during edits',
+        async (group) => {
+            Object.defineProperty(
+                spectator.inject(PaymentsService),
+                'enabled',
+                {
+                    value: false,
+                },
+            );
+            const member = new User({ email: 'alice@example.com' });
+            const booking = new Booking({
+                id: 'booking-alice',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: member.email,
+                extension_data: { group },
+            });
+            spectator.service.newForm('visitor', booking);
+            spectator.service.setOptions({
+                type: 'visitor',
+                group: true,
+                members: [member],
+            });
+
+            await spectator.service.editFormForGroup([booking]);
+
+            expect(savedBookings()).toEqual([
+                expect.objectContaining({
+                    id: 'booking-group',
+                    asset_id: group,
+                    extension_data: expect.objectContaining({ group }),
+                }),
+                expect.objectContaining({
+                    id: booking.id,
+                    parent_id: booking.parent_id,
+                    asset_id: member.email,
+                    extension_data: expect.objectContaining({ group }),
+                }),
+            ]);
+        },
+    );
+
     it('should save each visitor against their own asset on group edit', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
         spectator.service.newForm(
