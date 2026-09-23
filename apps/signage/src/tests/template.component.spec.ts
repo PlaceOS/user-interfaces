@@ -18,7 +18,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 describe('SignageTemplateComponent', () => {
     let spectator: SpectatorRouting<SignageTemplateComponent>;
     const debug = signal(false);
-    const active_template = signal<SignageTemplateMapping | null>(null);
+    const active_templates = signal<SignageTemplateMapping[]>([]);
 
     const create_component = createRoutingFactory({
         component: SignageTemplateComponent,
@@ -28,7 +28,7 @@ describe('SignageTemplateComponent', () => {
                 playlist: signal([]),
                 override_playlist: signal({ ends_at: 0, playlist: [] }),
                 debug,
-                active_template,
+                active_templates,
                 playing_id: signal(''),
                 setDisplay: vi.fn(),
                 clearPlaylistOverride: vi.fn(),
@@ -50,7 +50,7 @@ describe('SignageTemplateComponent', () => {
         vi.clearAllMocks();
         localStorage.clear();
         debug.set(false);
-        active_template.set(null);
+        active_templates.set([]);
         (ts_client.showSignageTemplate as any).mockResolvedValue({
             id: 'template-1',
             background_item_id: 'background-1',
@@ -154,9 +154,9 @@ describe('SignageTemplateComponent', () => {
             params: { system_id: 'display-1' },
         });
 
-        active_template.set(
+        active_templates.set([
             new SignageTemplateMapping({ template_id: 'template-1' }),
-        );
+        ]);
         await vi.waitFor(() => {
             expect(spectator.component.template()?.id).toBe('template-1');
         });
@@ -167,7 +167,7 @@ describe('SignageTemplateComponent', () => {
         );
         expect(spectator.query('signage-panel')).toBeTruthy();
 
-        active_template.set(null);
+        active_templates.set([]);
         await vi.waitFor(() => {
             expect(spectator.component.template()).toBeNull();
         });
@@ -180,6 +180,96 @@ describe('SignageTemplateComponent', () => {
             height: 100,
         });
     });
+
+    it.each([
+        { base_id: 'base-latest', non_merge: true },
+        { base_id: 'merge-default', non_merge: false },
+    ])(
+        'merges active layouts into $base_id',
+        async ({ base_id, non_merge }) => {
+            const template = (id: string, merge: boolean) =>
+                new ts_client.SignageTemplate({
+                    id,
+                    merge,
+                    background_item_id: `${id}-background`,
+                    layouts: [
+                        {
+                            position: 'top',
+                            y_pos: 0.1,
+                            plugin_id: id,
+                            plugin_params: {},
+                        },
+                    ],
+                });
+            const templates = [
+                ...(non_merge ? [template('base-default', false)] : []),
+                template('merge-default', true),
+                ...(non_merge ? [template('base-older', false)] : []),
+                template('merge-early', true),
+                ...(non_merge ? [template('base-latest', false)] : []),
+                template('merge-late', true),
+            ];
+            vi.mocked(ts_client.showSignageTemplate).mockImplementation(
+                async (id) => templates.find((template) => template.id === id)!,
+            );
+            const mappings = templates.map(
+                (template) =>
+                    new SignageTemplateMapping({
+                        template_id: template.id,
+                        schedule: template.id.endsWith('default')
+                            ? null
+                            : {
+                                  play_at: 1,
+                                  play_cron: '',
+                                  play_period: 60,
+                                  play_takeover: false,
+                              },
+                    }),
+            );
+            active_templates.set(mappings);
+            spectator = create_component({
+                params: { system_id: 'display-1' },
+            });
+
+            await vi.waitFor(() => {
+                expect(spectator.component.template()?.id).toBe(base_id);
+            });
+            expect(
+                spectator.component
+                    .template()
+                    ?.layouts.map((layout) => layout.plugin_id),
+            ).toEqual([
+                ...(non_merge ? [base_id] : []),
+                'merge-default',
+                'merge-early',
+                'merge-late',
+            ]);
+            expect(ts_client.showSignageMedia).toHaveBeenCalledWith(
+                `${base_id}-background`,
+            );
+            expect(
+                templates.find((template) => template.id === base_id)?.layouts,
+            ).toHaveLength(1);
+
+            // A merge schedule can end while the selected base stays the same.
+            active_templates.set(
+                mappings.filter(
+                    (mapping) => mapping.template_id !== 'merge-late',
+                ),
+            );
+            await vi.waitFor(() => {
+                expect(
+                    spectator.component
+                        .template()
+                        ?.layouts.map((layout) => layout.plugin_id),
+                ).toEqual([
+                    ...(non_merge ? [base_id] : []),
+                    'merge-default',
+                    'merge-early',
+                ]);
+            });
+        },
+    );
 
     it('uses the player background when the template has no background item', async () => {
         (ts_client.showSignageTemplate as any).mockResolvedValue({
@@ -214,6 +304,84 @@ describe('SignageTemplateComponent', () => {
         expect(spectator.query('plugin-embed')?.classList).toContain(
             'pointer-events-none',
         );
+    });
+
+    it('previews posted layouts only in debug mode', async () => {
+        spectator = create_component({
+            params: { template_id: 'template-1', system_id: 'display-1' },
+        });
+        await vi.waitFor(() => {
+            expect(spectator.component.layout_items()).toHaveLength(1);
+        });
+        const post = (layouts: unknown) =>
+            window.dispatchEvent(
+                new MessageEvent('message', {
+                    data: { type: 'signage:template-layouts', layouts },
+                }),
+            );
+
+        post([]);
+        expect(spectator.component.layout_items()).toHaveLength(1);
+
+        debug.set(true);
+        post([
+            { position: 'bottom', y_pos: 0.1, plugin_id: 'plugin-1' },
+            { position: 'top', y_pos: 0.2, plugin_id: 'plugin-1' },
+        ]);
+        expect(spectator.component.layout_items()).toHaveLength(2);
+        expect(spectator.component.player_rect()).toEqual({
+            left: 0,
+            top: 20,
+            width: 100,
+            height: 70,
+        });
+
+        post(null);
+        expect(spectator.component.layout_items()).toHaveLength(1);
+    });
+
+    it('previews the pending version of an unapproved template in debug mode', async () => {
+        const pending = new ts_client.SignageTemplate({
+            id: 'template-1',
+            layouts: [],
+        });
+        vi.mocked(ts_client.showSignageTemplate).mockImplementation(
+            (_: string, query?: { approved?: boolean }) =>
+                query?.approved
+                    ? Promise.reject(new Error('Not found'))
+                    : Promise.resolve(pending),
+        );
+        spectator = create_component({
+            params: { template_id: 'template-1', system_id: 'display-1' },
+            queryParams: { debug: 'true' },
+        });
+        await vi.waitFor(() => {
+            expect(spectator.component.template()).toBe(pending);
+        });
+        expect(ts_client.showSignageTemplate).toHaveBeenCalledExactlyOnceWith(
+            'template-1',
+            {},
+        );
+
+        window.dispatchEvent(
+            new MessageEvent('message', {
+                data: {
+                    type: 'signage:template-layouts',
+                    layouts: [
+                        { position: 'top', y_pos: 0.2, plugin_id: 'plugin-1' },
+                    ],
+                },
+            }),
+        );
+        await spectator.fixture.whenStable();
+
+        expect(spectator.query('plugin-embed')).toBeTruthy();
+        expect(spectator.component.player_rect()).toEqual({
+            left: 0,
+            top: 20,
+            width: 100,
+            height: 80,
+        });
     });
 
     it('uses the stored display when opening a template without one', () => {

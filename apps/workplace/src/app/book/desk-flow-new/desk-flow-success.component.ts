@@ -73,7 +73,7 @@ interface GroupBookingListItem {
                     </h2>
                 }
                 <img src="assets/icons/success.svg" />
-                @if (last_event()) {
+                @if (last_event() && (!is_group() || !group_loading())) {
                     <p class="max-w-160 text-center">
                         @let details =
                             {
@@ -88,10 +88,21 @@ interface GroupBookingListItem {
                                         last_event().duration * 60 * 1000
                                         | date: time_format),
                                 size: group_size(),
+                                booked: group_bookings().length,
+                                failed: group_failures().length,
                                 location: location(),
                             };
-                        @if (is_group()) {
-                            @if (last_event()?.all_day) {
+                        @if (is_group() && group_load_error()) {
+                            {{
+                                'BOOKINGS.DESK_GROUP_RESULTS_ERROR' | translate
+                            }}
+                        } @else if (is_group()) {
+                            @if (group_failures().length) {
+                                {{
+                                    'BOOKINGS.DESK_SUCCESS_GROUP_PARTIAL'
+                                        | translate: details
+                                }}
+                            } @else if (last_event()?.all_day) {
                                 {{
                                     'BOOKINGS.DESK_SUCCESS_GROUP_ALLDAY'
                                         | translate: details
@@ -291,6 +302,8 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
     public readonly google_link = signal('');
     public readonly ical_link = signal('');
     public readonly group_bookings = signal<Booking[]>([]);
+    public readonly group_loading = signal(true);
+    public readonly group_load_error = signal(false);
     public readonly group_failures = signal<GroupBookingFailure[]>([]);
     private readonly _desk_names = signal(new Map<string, string>());
     public readonly location = computed(() => {
@@ -377,6 +390,14 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         this.last_event.set(this._state.last_success);
+        if (this.is_group()) {
+            const stored_errors = localStorage.getItem(
+                'PLACEOS.last_group_booking_errors',
+            );
+            this.group_failures.set(
+                stored_errors ? JSON.parse(stored_errors) : [],
+            );
+        }
         const event: any = {
             ...this.last_event(),
             location: `${this.location()}, ${this.last_event()?.asset_name || ''}`,
@@ -410,7 +431,10 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
             'PLACEOS.last_group_booking_errors',
         );
         this.group_failures.set(stored_errors ? JSON.parse(stored_errors) : []);
-        if (booking_ids.length <= 1) return;
+        if (booking_ids.length <= 1) {
+            this.group_loading.set(false);
+            return;
+        }
 
         try {
             const [bookings, desks] = await Promise.all([
@@ -424,7 +448,10 @@ export class NewDeskFlowSuccessComponent implements OnInit, OnDestroy {
                 bookings.filter((_) => _.booking_type !== 'group'),
             );
         } catch (e) {
+            this.group_load_error.set(true);
             console.error('Failed to load group bookings', e);
+        } finally {
+            this.group_loading.set(false);
         }
     }
 }

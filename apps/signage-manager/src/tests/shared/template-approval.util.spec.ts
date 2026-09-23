@@ -1,5 +1,8 @@
 import { showSignageTemplate, SignageTemplate } from '@placeos/ts-client';
-import { loadTemplateApprovalVersions } from '../../app/shared/template-approval.util';
+import {
+    loadTemplateApprovalVersions,
+    signageTemplateLayoutChanges,
+} from '../../app/shared/template-approval.util';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -69,5 +72,53 @@ describe('loadTemplateApprovalVersions', () => {
         await expect(
             loadTemplateApprovalVersions('template-1'),
         ).resolves.toEqual([pending]);
+    });
+});
+
+describe('signageTemplateLayoutChanges', () => {
+    it('lists the fields that differ between two layouts', () => {
+        expect(
+            signageTemplateLayoutChanges(
+                {
+                    position: 'floating',
+                    plugin_id: 'clock',
+                    plugin_params: { zone: { id: 'a' } },
+                    x_pos: 0.5,
+                },
+                {
+                    position: 'left',
+                    plugin_id: 'clock',
+                    plugin_params: {},
+                    x_pos: 0.5,
+                },
+            ),
+        ).toEqual(['position', 'y_pos', 'plugin_params']);
+    });
+
+    it('treats an unset position value as its displayed default', () => {
+        expect(
+            signageTemplateLayoutChanges(
+                { position: 'left', plugin_params: {} },
+                { position: 'left', plugin_params: {}, x_pos: 0.2 },
+            ),
+        ).toEqual([]);
+    });
+});
+
+describe('merge flag approval changes', () => {
+    it('retains both versions when only merge differs', async () => {
+        const pending = new SignageTemplate({ id: 'template-1', merge: true });
+        const approved = new SignageTemplate({
+            id: 'template-1',
+            merge: false,
+        });
+        vi.mocked(showSignageTemplate)
+            .mockResolvedValueOnce(pending)
+            .mockResolvedValueOnce(approved);
+
+        expect(await loadTemplateApprovalVersions('template-1')).toEqual([
+            pending,
+            approved,
+        ]);
     });
 });

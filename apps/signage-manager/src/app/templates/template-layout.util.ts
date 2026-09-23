@@ -18,8 +18,8 @@ export interface TemplateLayoutRect {
  */
 export const EDGE_BAR_HEIGHT_PC = 15;
 export const SIDEBAR_WIDTH_PC = 20;
-export const FLOATING_DEFAULT_X_PC = 50;
-export const FLOATING_DEFAULT_Y_PC = 50;
+export const FLOATING_DEFAULT_X_PC = 0;
+export const FLOATING_DEFAULT_Y_PC = 0;
 
 export const LAYOUT_POSITIONS: SignageTemplateLayoutPosition[] = [
     'top',

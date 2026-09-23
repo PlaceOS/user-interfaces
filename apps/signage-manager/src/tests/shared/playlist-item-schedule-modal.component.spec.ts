@@ -104,6 +104,23 @@ describe('PlaylistItemScheduleModalComponent', () => {
         TestBed.resetTestingModule();
     });
 
+    it('blocks saving an item schedule with equal validity limits', async () => {
+        const component = await createComponent();
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 2000,
+                has_valid_until: true,
+                valid_until: 2000,
+            })),
+        }));
+        await component.saveSchedule();
+        expect(save).not.toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+    });
+
     it('shows the media preview, name, description and expiry', async () => {
         const valid_until = Math.floor(Date.UTC(2026, 6, 28, 3) / 1000);
         modal_data.item = {
@@ -176,6 +193,35 @@ describe('PlaylistItemScheduleModalComponent', () => {
 
         component.openSchedule(0);
         expect(component.isScheduleOpen(0)).toBe(true);
+    });
+
+    it('requires a start and preserves an item mask on save', async () => {
+        const component = await createComponent();
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_mask: true,
+                mask: '101',
+            })),
+        }));
+        await component.saveSchedule();
+        expect(save).not.toHaveBeenCalled();
+        component.model.update((value) => ({
+            ...value,
+            schedules: value.schedules.map((schedule) => ({
+                ...schedule,
+                has_valid_from: true,
+                valid_from: 1770000000000,
+            })),
+        }));
+        await component.saveSchedule();
+        expect(save).toHaveBeenCalledWith('item-1', [
+            expect.objectContaining({
+                mask: '101',
+                valid_from: 1770000000,
+            }),
+        ]);
     });
 
     it('saves schedule payloads and closes on success', async () => {

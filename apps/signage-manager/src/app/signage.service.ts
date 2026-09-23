@@ -140,6 +140,7 @@ import {
     SignageTemplateMappingTarget,
 } from './signage-template-mapping';
 import { applyLayoutPositionDefaults } from './templates/template-layout.util';
+import type { ZoneEditFormModel } from './zones/zone-edit-modal.component';
 
 function dataURLtoFile(data_url: string, filename: string) {
     const [prefix, data] = data_url.split(',');
@@ -332,7 +333,7 @@ function persistSelectedGroupId(group_id: string) {
 }
 
 /** Whether two records are approved and draft versions of one template. */
-function isSameSignageTemplate(
+export function isSameSignageTemplate(
     first: SignageTemplate,
     second: SignageTemplate,
 ) {
@@ -3824,13 +3825,8 @@ export class SignageService {
                     this.zoneChildren(parent_id),
                 query_zones: (search: string, parent_id: string) =>
                     this.querySelectableZones(search, parent_id),
-                onSave: (
-                    zone: PlaceZone,
-                    data: Pick<
-                        PlaceZone,
-                        'display_name' | 'description' | 'parent_id'
-                    >,
-                ) => this.saveZone(zone, data),
+                onSave: (zone: PlaceZone, data: ZoneEditFormModel) =>
+                    this.saveZone(zone, data),
             },
             panelClass: 'mobile-fullscreen',
         });
@@ -3860,23 +3856,15 @@ export class SignageService {
                     this.zoneChildren(parent_id),
                 query_zones: (search: string, parent_id: string) =>
                     this.querySelectableZones(search, parent_id),
-                onSave: (
-                    item: PlaceZone,
-                    data: Pick<
-                        PlaceZone,
-                        'display_name' | 'description' | 'parent_id'
-                    >,
-                ) => this.saveZone(item, data),
+                onSave: (item: PlaceZone, data: ZoneEditFormModel) =>
+                    this.saveZone(item, data),
             },
             panelClass: 'mobile-fullscreen',
         });
         return (await dialogClosed(ref)) as PlaceZone | null;
     }
 
-    public async saveZone(
-        zone: PlaceZone,
-        data: Pick<PlaceZone, 'display_name' | 'description' | 'parent_id'>,
-    ) {
+    public async saveZone(zone: PlaceZone, data: ZoneEditFormModel) {
         if (
             !this._requirePermission(
                 this.can_manage_zones(),
@@ -3889,8 +3877,8 @@ export class SignageService {
             return null;
         }
         const form_data: Partial<PlaceZone> = {
+            name: data.name,
             display_name: data.display_name,
-            name: `SIGNAGE ${data.display_name}`,
             description: data.description,
             parent_id: data.parent_id,
             tags: [...new Set([...(zone.tags || []), 'signage'])],
@@ -4171,7 +4159,11 @@ export class SignageService {
             display.id,
             { playlists, version: display.version } as any,
             'patch',
-        );
+        ).catch(() => {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'));
+            return null;
+        });
+        if (!updated) return;
         this._cacheDisplay(updated);
         this.selected_display.set(updated);
         this.changed();
@@ -4198,7 +4190,12 @@ export class SignageService {
         // list never loaded.
         const display =
             this.displays().find((d: any) => d.id === display_id) ||
-            (await showSystem(display_id).catch(() => null));
+            (await showSystem(display_id).catch(() => {
+                notifyError(
+                    i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'),
+                );
+                return null;
+            }));
         if (!display) return;
         if (display.playlists?.includes(playlist.id)) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
@@ -4209,7 +4206,11 @@ export class SignageService {
             display.id,
             { playlists, version: display.version } as any,
             'patch',
-        );
+        ).catch(() => {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_ADD_DISPLAY_ERROR'));
+            return null;
+        });
+        if (!updated) return;
         this._cacheDisplay(updated);
         if (this.selected_display()?.id === display.id) {
             this.selected_display.set(updated);

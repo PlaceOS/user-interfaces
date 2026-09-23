@@ -45,7 +45,7 @@
         "schedule_timezone_once_only": {
             "type": "boolean",
             "default": true,
-            "description": "Show the schedule timezone selector only for schedules that play once. Set to false to also show it for recurring schedules."
+            "description": "Show the timezone selector above the timing fields for schedules that play once and inside the validity block for recurring schedules. Set to false to show it above the timing fields for both schedule types."
         },
         "locales": {
             "type": "array",

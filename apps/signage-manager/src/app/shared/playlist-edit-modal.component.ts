@@ -1,5 +1,7 @@
 import { Component, DestroyRef, inject, signal } from '@angular/core';
 import {
+    applyEach,
+    applyWhen,
     form,
     FormField,
     minLength,
@@ -31,14 +33,15 @@ import {
     updateSignagePlaylist,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { SignageSharedWithComponent } from './signage-shared-with.component';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
     PlaylistScheduleFormModel,
     playlistSchedulePayload,
     playlistSchedules,
+    playlistScheduleSchema,
 } from './playlist-schedule-form.component';
+import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface PlaylistEditModalData {
     playlist: SignagePlaylist;
@@ -361,6 +364,13 @@ export class PlaylistEditModalComponent {
     public readonly form = form(this.model, (path) => {
         required(path.name);
         minLength(path.schedules, 1);
+        applyWhen(
+            path.schedules,
+            ({ valueOf }) => !valueOf(path.distribution),
+            (schedules) => {
+                applyEach(schedules, playlistScheduleSchema);
+            },
+        );
     });
 
     constructor() {

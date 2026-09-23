@@ -9,8 +9,8 @@ import {
     Component,
     computed,
     inject,
+    model,
     resource,
-    signal,
     viewChild,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -56,7 +56,7 @@ import {
             class="bg-base-100 border-base-300 flex h-full w-full flex-col lg:w-96 lg:border-l"
         >
             <div
-                class="border-base-300 flex border-b"
+                class="border-base-300 hidden border-b lg:flex"
                 role="tablist"
                 [attr.aria-label]="
                     'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_ITEMS' | translate
@@ -501,6 +501,24 @@ import {
                                             }}
                                         </dd>
                                     </div>
+                                    <div
+                                        class="flex items-center justify-between gap-3 px-3 py-2"
+                                    >
+                                        <dt class="text-sm">
+                                            {{
+                                                'SIGNAGE_MANAGER.TEMPLATE_MERGE'
+                                                    | translate
+                                            }}
+                                        </dt>
+                                        <dd class="font-medium">
+                                            {{
+                                                (template.merge
+                                                    ? 'COMMON.YES'
+                                                    : 'COMMON.NO'
+                                                ) | translate
+                                            }}
+                                        </dd>
+                                    </div>
                                 </dl>
                             </section>
 
@@ -722,7 +740,10 @@ import {
 export class TemplateLayoutListComponent {
     private readonly _service = inject(SignageService);
 
-    public readonly view_tab = signal<'items' | 'details'>('items');
+    /** Active inner tab. Below lg the parent drives it from its own tabs. */
+    public readonly view_tab = model<'items' | 'details'>('items', {
+        alias: 'tab',
+    });
     public readonly positions = LAYOUT_POSITIONS;
     public readonly layouts = this._service.template_layout_draft;
     public readonly selected_template = this._service.selected_template;
@@ -891,7 +912,9 @@ export class TemplateLayoutListComponent {
                     plugin_id: plugin_id || undefined,
                     plugin_params: {
                         ...defaults,
-                        ...(layout.plugin_params ?? {}),
+                        ...(layout.plugin_id === plugin_id
+                            ? (layout.plugin_params ?? {})
+                            : {}),
                     } as SignageTemplateLayout['plugin_params'],
                 };
             }),

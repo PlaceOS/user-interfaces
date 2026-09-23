@@ -13,6 +13,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    removeEmptyFields,
 } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
@@ -49,6 +50,7 @@ export interface TemplateEditFormModel {
     description: string;
     background_item_id: string;
     full_screen_takeover: boolean;
+    merge: boolean;
 }
 
 @Component({
@@ -194,6 +196,12 @@ export interface TemplateEditFormModel {
                     >
                     </settings-toggle>
                 </div>
+                <div class="mb-4">
+                    <settings-toggle
+                        [label]="'SIGNAGE_MANAGER.TEMPLATE_MERGE' | translate"
+                        [formField]="form.merge"
+                    ></settings-toggle>
+                </div>
                 <signage-shared-with
                     type="templates"
                     [item_id]="template.id"
@@ -229,6 +237,7 @@ export class TemplateEditModalComponent {
         description: this.template.description || '',
         background_item_id: this.template.background_item_id || '',
         full_screen_takeover: !!this.template.full_screen_takeover,
+        merge: !!this.template.merge,
     });
     public readonly selected_background = signal<SignageMedia | null>(null);
     public readonly background_url = computed(() => {
@@ -277,6 +286,7 @@ export class TemplateEditModalComponent {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
             const data: Partial<SignageTemplate> = { ...this.model() };
+            removeEmptyFields(data);
             try {
                 let result: SignageTemplate;
                 if (this.template.id) {

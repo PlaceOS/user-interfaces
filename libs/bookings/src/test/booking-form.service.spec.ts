@@ -572,6 +572,35 @@ describe('BookingFormService', () => {
         }
     });
 
+    it('should follow form updates while quick-book availability is loading', async () => {
+        const metadata = await ts_client.listChildMetadata('bld-1', {});
+        vi.mocked(ts_client.listChildMetadata).mockImplementation(async () => {
+            await new Promise((resolve) => setTimeout(resolve, 800));
+            return metadata;
+        });
+        settings_overrides.set([{}, {}]);
+        try {
+            spectator.service.newForm('desk');
+            const request = spectator.service.listAvailableResources();
+            TestBed.tick();
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            spectator.service.model.update((model) => ({
+                ...model,
+                duration: 120,
+            }));
+            TestBed.tick();
+
+            const available = await request;
+
+            expect(available.map((asset) => asset.id)).toEqual([
+                'desk-1',
+                'desk-1',
+            ]);
+        } finally {
+            settings_overrides.set([]);
+        }
+    });
+
     it('should exclude window-booked AND recurring-clash desks', async () => {
         // desk-1 is booked in the first-instance window, desk-2 clashes with a
         // later recurrence instance. Enabling recurrence must exclude both, not
@@ -2182,6 +2211,9 @@ describe('BookingFormService', () => {
     });
 
     it('should complete desk group bookings with child errors when rollback is disabled', async () => {
+        Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
+            value: false,
+        });
         const get = spectator.inject(SettingsService).get as Mock;
         const desk_list = [
             {
@@ -2225,19 +2257,25 @@ describe('BookingFormService', () => {
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const saved_users: string[] = [];
-        vi.spyOn(spectator.service, 'postForm').mockImplementation(async () => {
-            const value = spectator.service.model();
+        vi.mocked(ts_client.post).mockImplementation((async (
+            url: string,
+            body: unknown,
+        ) => {
+            if (url.includes('/clashing-assets')) return [];
+            const value = body as ReturnType<Booking['toJSON']>;
+            if (value.type === 'group')
+                return { ...value, id: 'booking-group' };
             saved_users.push(value.user_email);
             if (value.user_email === 'member.one@example.com') {
-                throw new Error('Save failed');
+                throw new Response(
+                    JSON.stringify({ error: 'Member refused' }),
+                    {
+                        status: 409,
+                    },
+                );
             }
-            return new Booking({
-                id: `booking-child-${saved_users.length}`,
-                parent_id: value.parent_id,
-                user_email: value.user_email,
-                asset_id: value.asset_id,
-            });
-        });
+            return { ...value, id: `booking-child-${saved_users.length}` };
+        }) as unknown as typeof ts_client.post);
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2297,7 +2335,7 @@ describe('BookingFormService', () => {
                 name: 'Member One',
                 asset_id: 'desk-2',
                 asset_name: 'Desk 2',
-                error: 'Save failed',
+                error: 'Member refused',
             },
         ]);
     });
@@ -3239,6 +3277,112 @@ describe('BookingFormService', () => {
         );
         expect(savedBookings()).toEqual([]);
     });
+
+    it('should keep overlapping visitor groups separate for the same host', async () => {
+        Object.defineProperty(spectator.inject(PaymentsService), 'enabled', {
+            value: false,
+        });
+        const now = Date.now();
+        vi.spyOn(Date, 'now').mockReturnValue(now);
+        const groups = [
+            ['alice@example.com', 'bob@example.com'],
+            ['carol@example.com', 'dave@example.com'],
+        ];
+        for (const emails of groups) {
+            spectator.service.newForm(
+                'visitor',
+                new Booking({
+                    booking_type: 'visitor',
+                    date: now + 60 * 60 * 1000,
+                    duration: 60,
+                }),
+            );
+            spectator.service.setOptions({
+                type: 'visitor',
+                group: true,
+                members: emails.map((email) => new User({ email })),
+            });
+
+            await spectator.service.postFormForVisitorGroup();
+        }
+
+        const saved = savedBookings();
+        const parents = saved.filter(
+            (booking) => booking.booking_type === 'group',
+        );
+        const visitors = saved.filter(
+            (booking) => booking.booking_type === 'visitor',
+        );
+        expect(parents).toHaveLength(2);
+        expect(parents[0].user_email).toBe(parents[1].user_email);
+        expect(parents[0].booking_start).toBe(parents[1].booking_start);
+        expect(parents[0].asset_id).toBeTruthy();
+        expect(parents[1].asset_id).toBeTruthy();
+        expect(parents[0].asset_id).not.toBe(parents[1].asset_id);
+        expect(visitors).toHaveLength(4);
+        for (const [index, emails] of groups.entries()) {
+            expect(parents[index].extension_data.group).toBe(
+                parents[index].asset_id,
+            );
+            const members = visitors.filter((booking) =>
+                emails.includes(booking.asset_id),
+            );
+            expect(members.map((booking) => booking.asset_id)).toEqual(emails);
+            expect(
+                members.every(
+                    (booking) =>
+                        booking.extension_data.group ===
+                            parents[index].asset_id &&
+                        booking.parent_id === 'booking-group',
+                ),
+            ).toBe(true);
+        }
+    });
+
+    it.each(['grp-existing-id', 'host@example.com[2026-09-22]'])(
+        'should preserve visitor group identifier %s during edits',
+        async (group) => {
+            Object.defineProperty(
+                spectator.inject(PaymentsService),
+                'enabled',
+                {
+                    value: false,
+                },
+            );
+            const member = new User({ email: 'alice@example.com' });
+            const booking = new Booking({
+                id: 'booking-alice',
+                parent_id: 'booking-group',
+                booking_type: 'visitor',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: member.email,
+                extension_data: { group },
+            });
+            spectator.service.newForm('visitor', booking);
+            spectator.service.setOptions({
+                type: 'visitor',
+                group: true,
+                members: [member],
+            });
+
+            await spectator.service.editFormForGroup([booking]);
+
+            expect(savedBookings()).toEqual([
+                expect.objectContaining({
+                    id: 'booking-group',
+                    asset_id: group,
+                    extension_data: expect.objectContaining({ group }),
+                }),
+                expect.objectContaining({
+                    id: booking.id,
+                    parent_id: booking.parent_id,
+                    asset_id: member.email,
+                    extension_data: expect.objectContaining({ group }),
+                }),
+            ]);
+        },
+    );
 
     it('should save each visitor against their own asset on group edit', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;

@@ -35,6 +35,7 @@ export interface DisplayEditModalData {
 
 interface DisplayEditFormModel {
     name: string;
+    display_name: string;
     description: string;
     orientation: PlaceSystem['orientation'];
     zones: string[];
@@ -58,18 +59,16 @@ interface DisplayEditFormModel {
         >
             <form class="flex flex-col gap-4">
                 <div>
-                    <label for="name"
+                    <label for="signage-display-name"
                         >{{ 'FORM.NAME' | translate
                         }}<span required>*</span></label
                     >
                     <mat-form-field appearance="outline" class="w-full">
                         <input
                             matInput
+                            id="signage-display-name"
                             [placeholder]="'FORM.NAME' | translate"
                             [formField]="form.name"
-                            [attr.aria-label]="
-                                'SIGNAGE_MANAGER.DISPLAY_NAME_ARIA' | translate
-                            "
                         />
                         <mat-error>{{
                             'FORM.NAME_REQUIRED' | translate
@@ -77,12 +76,26 @@ interface DisplayEditFormModel {
                     </mat-form-field>
                 </div>
                 <div>
-                    <label for="description">{{
+                    <label for="signage-display-display-name">{{
+                        'FORM.DISPLAY_NAME' | translate
+                    }}</label>
+                    <mat-form-field appearance="outline" class="w-full">
+                        <input
+                            matInput
+                            id="signage-display-display-name"
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                            [formField]="form.display_name"
+                        />
+                    </mat-form-field>
+                </div>
+                <div>
+                    <label for="signage-display-description">{{
                         'COMMON.DESCRIPTION' | translate
                     }}</label>
                     <mat-form-field appearance="outline" class="w-full">
                         <textarea
                             matInput
+                            id="signage-display-description"
                             class="min-h-24"
                             [placeholder]="'COMMON.DESCRIPTION' | translate"
                             [formField]="form.description"
@@ -212,7 +225,8 @@ export class DisplayEditModalComponent {
     }, byDisplayName);
     public readonly loadChildren = this._data.load_children;
     public readonly model = signal<DisplayEditFormModel>({
-        name: this.display.display_name || '',
+        name: this.display.name || '',
+        display_name: this.display.display_name || '',
         description: this.display.description || '',
         orientation: this.display.orientation || 'unspecified',
         zones: this.display.id
@@ -258,8 +272,8 @@ export class DisplayEditModalComponent {
             this._dialog_ref.disableClose = true;
             const form_value = this.model();
             const data: Partial<PlaceSystem> = {
-                name: `SIGNAGE ${form_value.name}`,
-                display_name: form_value.name,
+                name: form_value.name,
+                display_name: form_value.display_name,
                 description: form_value.description,
                 orientation: form_value.orientation,
                 signage: true,

@@ -135,6 +135,98 @@ describe('DesksStateService', () => {
         expect(spectator.service).toBeTruthy();
     });
 
+    it.each([
+        { rejected: true },
+        { status: 'declined' as const },
+        { checked_out_at: getUnixTime(Date.now()) },
+        { deleted: true },
+        { booking_start: getUnixTime(addHours(Date.now(), -2)), duration: 60 },
+    ])(
+        'should not send status changes for a completed booking: %j',
+        async (state) => {
+            const booking = new Booking({
+                id: 'booking-1',
+                booking_start: getUnixTime(Date.now()),
+                duration: 60,
+                ...state,
+            });
+            await spectator.service.approveDesk(booking);
+            await spectator.service.rejectDesk(booking);
+            await spectator.service.checkinDesk(booking, true);
+            await spectator.service.checkinDesk(booking, false);
+            expect(posted_bookings()).toEqual([]);
+        },
+    );
+
+    it('should prevent repeated status changes after rejecting an active booking', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            booking_start: getUnixTime(Date.now()),
+            duration: 60,
+        });
+        await spectator.service.rejectDesk(booking);
+        await spectator.service.approveDesk(booking);
+        await spectator.service.rejectDesk(booking);
+        await spectator.service.checkinDesk(booking);
+        expect(posted_bookings()).toHaveLength(1);
+        expect(booking.status).toBe('declined');
+    });
+
+    it.each([false, true])(
+        'should block cancellation after rejection, series: %s',
+        async (series) => {
+            const booking = new Booking({
+                id: 'booking-1',
+                booking_start: getUnixTime(Date.now()),
+                duration: 60,
+                rejected: true,
+            });
+            await spectator.service.cancelBooking(booking, series);
+            expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+            expect(del_urls()).toEqual([]);
+            expect(booking.status).toBe('declined');
+        },
+    );
+
+    it.each([false, true])(
+        'should retain check-out completion and block another check-in, recurring: %s',
+        async (recurring) => {
+            const booking = new Booking({
+                id: 'booking-1',
+                booking_start: getUnixTime(Date.now()),
+                duration: 60,
+                recurrence_type: recurring ? 'daily' : 'none',
+            });
+            const checked_in_at = getUnixTime(Date.now());
+            vi.mocked(ts_client_mod.post).mockResolvedValueOnce({
+                ...booking.toJSON(),
+                checked_in: true,
+                checked_in_at,
+            } as never);
+            await spectator.service.checkinDesk(booking);
+            expect(booking.checked_in).toBe(true);
+            const checked_out_at = checked_in_at + 1;
+            vi.mocked(ts_client_mod.post).mockResolvedValueOnce({
+                ...booking.toJSON(),
+                checked_in: false,
+                checked_in_at,
+                checked_out_at,
+            } as never);
+            await spectator.service.checkinDesk(booking, false);
+            expect(booking.checked_in).toBe(false);
+            expect(booking.checked_out_at).toBe(checked_out_at);
+            expect(booking.has_ended).toBe(true);
+            expect(booking.status).toBe('ended');
+            await spectator.service.checkinDesk(booking);
+            expect(posted_bookings()).toHaveLength(2);
+            expect(posted_bookings()[1][0]).toContain(
+                recurring
+                    ? `/check_in/${booking.booking_start}?state=false`
+                    : '/check_in?state=false',
+            );
+        },
+    );
+
     it('should manage desk resources through assets when enabled', async () => {
         settings_map['app.desks.use_assets'] = true;
         vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({

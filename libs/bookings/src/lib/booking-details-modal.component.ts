@@ -94,7 +94,7 @@ export function canEditBooking(booking: Booking) {
                 <div class="w-full items-center justify-between sm:flex">
                     <div class="m-2 flex items-center space-x-2">
                         <status-pill [status]="booking_status()">
-                            @if (booking().status === 'cancelled') {
+                            @if (is_cancelled()) {
                                 {{ 'COMMON.TYPE_CANCELLED' | translate }} ·
                             }
                             {{ period() }}
@@ -107,11 +107,9 @@ export function canEditBooking(booking: Booking) {
                             >
                         }
                     </div>
-                    @if (
-                        !booking().is_done && booking().status !== 'cancelled'
-                    ) {
+                    @if (show_actions()) {
                         <div actions class="flex items-center space-x-2 px-2">
-                            @if (can_checkin()) {
+                            @if (can_checkin() && !is_cancelled()) {
                                 @if (
                                     !booking().checked_out_at &&
                                     !checked_out() &&
@@ -228,7 +226,10 @@ export function canEditBooking(booking: Booking) {
                     }
                     @if (current_user()?.email !== booking().user_email) {
                         <div class="flex items-center space-x-2 px-2">
-                            <icon [matTooltip]="'BOOKED_FOR_LABEL' | translate"
+                            <icon
+                                [matTooltip]="
+                                    'BOOKINGS.BOOKED_FOR_LABEL' | translate
+                                "
                                 >person</icon
                             >
                             <div>
@@ -482,7 +483,7 @@ export function canEditBooking(booking: Booking) {
             }
             @if (
                 !booking().is_done &&
-                booking().status !== 'cancelled' &&
+                !is_cancelled() &&
                 booking().instance &&
                 allow_series_delete()
             ) {
@@ -589,11 +590,26 @@ export class BookingDetailsModalComponent {
         return building;
     });
 
+    public readonly is_cancelled = computed(
+        () => this.booking().status === 'cancelled',
+    );
+
+    /**
+     * Whether the check-in and action menu controls are shown.
+     * Finished bookings have no actions. Cancelled bookings only keep the
+     * group delete action for the group host.
+     */
+    public readonly show_actions = computed(
+        () =>
+            !this.booking().is_done &&
+            (!this.is_cancelled() || this.can_manage_group()),
+    );
+
     public readonly can_edit = computed(() => canEditBooking(this.booking()));
 
     public readonly can_cancel = computed(
         () =>
-            this.booking().status !== 'cancelled' &&
+            !this.is_cancelled() &&
             !this.booking().is_done &&
             !this.booking().checked_in,
     );
@@ -750,7 +766,7 @@ export class BookingDetailsModalComponent {
     });
 
     public readonly is_in_progress = computed(() => {
-        if (this.booking()?.status === 'cancelled') return false;
+        if (this.is_cancelled()) return false;
         const ts = Date.now();
         const start = this.booking()?.booking_start * 1000;
         const end = this.booking()?.booking_end * 1000;
@@ -770,7 +786,7 @@ export class BookingDetailsModalComponent {
     });
 
     public readonly booking_status = computed(() => {
-        if (this.booking()?.status === 'cancelled') return 'error';
+        if (this.is_cancelled()) return 'error';
         if (this.booking()?.is_done) return 'neutral';
         if (this.booking()?.status === 'approved') return 'success';
         if (this.booking()?.status === 'declined') return 'error';

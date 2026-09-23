@@ -12,9 +12,13 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { EventFormService, SpacesService } from '@placeos/events';
+import {
+    EventFormService,
+    newCalendarEventFromBooking,
+    SpacesService,
+} from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -344,6 +348,25 @@ describe('ScheduleStateService', () => {
         expect(ts_client.get).toHaveBeenCalledTimes(1);
     });
 
+    it('should not reuse in-flight booking queries after a poll is triggered', async () => {
+        const date = new Date(2026, 5, 22, 9).valueOf();
+
+        const first = (spectator.service as any)._bookingQuery(
+            'desk',
+            'day',
+            date,
+        );
+        spectator.service.triggerPoll();
+        const second = (spectator.service as any)._bookingQuery(
+            'desk',
+            'day',
+            date,
+        );
+        await Promise.all([first, second]);
+
+        expect(ts_client.get).toHaveBeenCalledTimes(2);
+    });
+
     it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {
         vi.mocked<(url: string) => Promise<unknown>>(
             ts_client.get,
@@ -387,5 +410,94 @@ describe('ScheduleStateService', () => {
         expect(url).toContain('include_checked_out=true');
         expect(url).toContain('include_deleted=true');
         expect(url).toMatch(/[?&]deleted=true/);
+    });
+
+    describe('room cancellation', () => {
+        function confirmRemoval(reason = 'done') {
+            const close = vi.fn();
+            vi.mocked(spectator.inject(MatDialog).open).mockReturnValue({
+                afterClosed: () => of({ reason }),
+                componentInstance: {
+                    event: reason === 'done' ? of({ reason }) : NEVER,
+                    loading: { set: vi.fn() },
+                },
+                close,
+            } as unknown as ReturnType<MatDialog['open']>);
+            return close;
+        }
+
+        function nativeRoom() {
+            return newCalendarEventFromBooking(
+                new Booking({
+                    id: 'room-booking-1',
+                    booking_type: 'room',
+                    asset_id: 'room-1',
+                    user_email: 'staff@example.com',
+                    extension_data: { creator: 'staff@example.com' },
+                    booking_start: 1800000000,
+                    booking_end: 1800003600,
+                }),
+            );
+        }
+
+        it.each([true, false])(
+            'uses the native API regardless of the current setting %s',
+            async (use_bookings) => {
+                confirmRemoval();
+                vi.mocked(
+                    spectator.inject(SettingsService).get,
+                ).mockReturnValue(use_bookings);
+                const removeItem = vi.spyOn(spectator.service, 'removeItem');
+                const booking = nativeRoom();
+
+                await spectator.service.remove(booking);
+
+                expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
+                    expect.stringMatching(/\/bookings\/room-booking-1\?/),
+                    { response_type: 'void' },
+                );
+                expect(ts_client.get).not.toHaveBeenCalled();
+                expect(removeItem).toHaveBeenCalledWith(booking);
+            },
+        );
+
+        it('keeps calendar events on the calendar API', async () => {
+            confirmRemoval();
+            const event = new CalendarEvent({
+                id: 'calendar-event-1',
+                creator: 'staff@example.com',
+                mailbox: 'staff@example.com',
+            });
+
+            await spectator.service.remove(event);
+
+            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
+                expect.stringMatching(/\/events\/calendar-event-1\?/),
+                { response_type: 'void' },
+            );
+        });
+
+        it('does not request an API when confirmation is dismissed', async () => {
+            confirmRemoval('close');
+
+            await spectator.service.remove(nativeRoom());
+
+            expect(ts_client.del).not.toHaveBeenCalled();
+            expect(ts_client.get).not.toHaveBeenCalled();
+        });
+
+        it('keeps the booking visible when native cancellation fails', async () => {
+            const close = confirmRemoval();
+            const removeItem = vi.spyOn(spectator.service, 'removeItem');
+            const error = new Error('Cancellation failed');
+            vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+
+            await expect(
+                spectator.service.remove(nativeRoom()),
+            ).rejects.toThrow(error);
+
+            expect(close).toHaveBeenCalled();
+            expect(removeItem).not.toHaveBeenCalled();
+        });
     });
 });

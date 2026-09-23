@@ -24,8 +24,9 @@ describe('TemplateEditModalComponent', () => {
         close: vi.fn(),
     };
     const onEdit = vi.fn();
+    const onAdd = vi.fn();
 
-    async function make() {
+    async function make(id = 'template-1', merge = false) {
         await TestBed.configureTestingModule({
             imports: [TemplateEditModalComponent],
             providers: [
@@ -33,11 +34,13 @@ describe('TemplateEditModalComponent', () => {
                     provide: MAT_DIALOG_DATA,
                     useValue: {
                         template: new SignageTemplate({
-                            id: 'template-1',
+                            id,
+                            merge,
                             name: 'Welcome',
                             background_item_id: 'media-1',
                         }),
                         onEdit,
+                        onAdd,
                     },
                 },
                 { provide: MatDialog, useValue: dialog },
@@ -60,6 +63,7 @@ describe('TemplateEditModalComponent', () => {
         vi.clearAllMocks();
         dialog_ref.disableClose = false;
         onEdit.mockResolvedValue(new SignageTemplate({ id: 'template-1' }));
+        onAdd.mockResolvedValue(new SignageTemplate({ id: 'template-1' }));
         setNotifyOutlet(
             {
                 open: vi.fn(() => ({
@@ -73,6 +77,59 @@ describe('TemplateEditModalComponent', () => {
         );
         TestBed.resetTestingModule();
     });
+
+    it.each([
+        ['', ''],
+        ['', undefined],
+        ['', null],
+        ['template-1', ''],
+        ['template-1', undefined],
+        ['template-1', null],
+    ])(
+        'omits empty fields when saving template %j with value %j',
+        async (id, value) => {
+            const component = await make(id);
+            component.model.update((model) => ({
+                ...model,
+                description: value as string,
+                background_item_id: value as string,
+            }));
+
+            await component.saveTemplate();
+
+            const payload = {
+                name: 'Welcome',
+                full_screen_takeover: false,
+                merge: false,
+            };
+            if (id) {
+                expect(onEdit).toHaveBeenCalledWith(id, payload);
+            } else {
+                expect(onAdd).toHaveBeenCalledWith(payload);
+            }
+            expect(component.model().description).toBe(value);
+            expect(component.model().background_item_id).toBe(value);
+        },
+    );
+
+    it.each(['', 'template-1'])(
+        'saves both merge values for template %j',
+        async (id) => {
+            const component = await make(id, true);
+            expect(component.form.merge().value()).toBe(true);
+
+            for (const merge of [false, true]) {
+                component.form.merge().value.set(merge);
+                await component.saveTemplate();
+                const payload = expect.objectContaining({ merge });
+                if (id) {
+                    expect(onEdit).toHaveBeenLastCalledWith(id, payload);
+                } else {
+                    expect(onAdd).toHaveBeenLastCalledWith(payload);
+                }
+            }
+        },
+    );
 
     it('selects, saves, and clears a background media item', async () => {
         const component = await make();

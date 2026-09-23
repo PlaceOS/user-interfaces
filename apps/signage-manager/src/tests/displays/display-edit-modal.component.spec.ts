@@ -59,7 +59,8 @@ describe('DisplayEditModalComponent', () => {
         const component = await make(new PlaceSystem({}), ['org', 'building']);
         component.model.update((model) => ({
             ...model,
-            name: 'Foyer',
+            name: 'SIGNAGE Foyer',
+            display_name: 'Foyer',
             description: 'Main entrance',
             orientation: 'portrait',
         }));
@@ -84,19 +85,27 @@ describe('DisplayEditModalComponent', () => {
         const component = await make(
             new PlaceSystem({
                 id: 'display-1',
+                name: 'SIGNAGE Old name',
                 display_name: 'Old name',
                 version: 7,
                 zones: ['existing-zone'],
             }),
             ['unused-default'],
         );
-        component.model.update((model) => ({ ...model, name: 'Cafe' }));
+        expect(component.model().name).toBe('SIGNAGE Old name');
+        expect(component.model().display_name).toBe('Old name');
+        component.model.update((model) => ({
+            ...model,
+            name: 'SIGNAGE Cafe',
+            display_name: 'Cafe',
+        }));
 
         await component.saveDisplay();
 
         expect(on_edit).toHaveBeenCalledWith(
             'display-1',
             expect.objectContaining({
+                name: 'SIGNAGE Cafe',
                 display_name: 'Cafe',
                 version: 7,
                 zones: ['existing-zone'],

@@ -66,6 +66,10 @@ import {
 
 import { openConfirmModal } from '@placeos/components';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
+import {
+    canChangeDeskBooking,
+    isDeskBookingRejected,
+} from './desk-booking-actions';
 import { DeskModalComponent } from './desk-modal.component';
 
 function addQRCodeToBooking(booking: Booking): Booking {
@@ -676,11 +680,11 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async checkinDesk(desk: Booking, state = true) {
-        const status: any = await setBookingCheckedIn(
-            desk,
-            state ?? true,
-        ).catch((_) => ({ failed: true, error: _ }));
-        if (status.failed) {
+        if (!canChangeDeskBooking(this._normaliseBooking(desk))) return;
+        const status = await setBookingCheckedIn(desk, state ?? true).catch(
+            (_) => ({ failed: true, error: _ }),
+        );
+        if ('failed' in status) {
             notifyError(
                 i18n(
                     state
@@ -691,6 +695,12 @@ export class DesksStateService extends AsyncHandler {
             );
             throw status.error;
         }
+        Object.assign(desk, {
+            checked_in: status.checked_in,
+            checked_in_at: status.checked_in_at,
+            checked_out_at: status.checked_out_at,
+            status: status.status,
+        });
         notifySuccess(
             i18n(
                 state
@@ -701,6 +711,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async approveDesk(desk: Booking) {
+        if (!canChangeDeskBooking(this._normaliseBooking(desk))) return;
         const status: any = await approveBooking(desk.id).catch((_) => ({
             failed: true,
             error: _,
@@ -721,6 +732,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectDesk(desk: Booking) {
+        if (!canChangeDeskBooking(this._normaliseBooking(desk))) return;
         const status: any = await this._rejectDeskBooking(desk).catch((_) => ({
             failed: true,
             error: _,
@@ -741,6 +753,7 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async cancelBooking(booking: Booking, series = false) {
+        if (isDeskBookingRejected(this._normaliseBooking(booking))) return;
         const result = await openConfirmModal(
             {
                 title: i18n(
@@ -823,8 +836,8 @@ export class DesksStateService extends AsyncHandler {
     }
 
     public async rejectAllDesks() {
-        const list = this.bookings().filter(
-            (desk) => desk.status === 'approved' || desk.status === 'tentative',
+        const list = this.bookings().filter((desk) =>
+            canChangeDeskBooking(this._normaliseBooking(desk)),
         );
         if (list.length <= 0)
             return notifyInfo('No desks to reject for the selected date');

@@ -40,6 +40,7 @@ import {
     notifyError,
     notifyWarn,
     OrganisationService,
+    randomString,
     rulesForResource,
     SETTING_KEYS,
     settingSignal,
@@ -658,10 +659,13 @@ export class BookingFormService extends AsyncHandler {
             (ready) => ready,
             this._injector,
         );
-        const params = this._resource_params();
         await firstValueWhere(
-            this._resource_params_debounced.value,
-            (value) => value === params,
+            computed(
+                () =>
+                    this._resource_params_debounced.value() ===
+                    this._resource_params(),
+            ),
+            (ready) => ready,
             this._injector,
         );
         await this._whenSettled(this._resources_resource);
@@ -672,10 +676,13 @@ export class BookingFormService extends AsyncHandler {
     public async listAvailableResources(): Promise<BookingAsset[]> {
         this._startNetwork();
         const resources = await this.listResources();
-        const rules_params = this._booking_rules_params();
         await firstValueWhere(
-            this._booking_rules_params_debounced.value,
-            (value) => value === rules_params,
+            computed(
+                () =>
+                    this._booking_rules_params_debounced.value() ===
+                    this._booking_rules_params(),
+            ),
+            (ready) => ready,
             this._injector,
         );
         await this._whenSettled(this._booking_rules_resource);
@@ -1564,20 +1571,23 @@ export class BookingFormService extends AsyncHandler {
                 ),
             }).toJSON(),
             q,
-        ).catch((e) => {
+        ).catch(async (e) => {
             this._loading.set('');
-            const error = e?.error || e;
-            if (e?.status) {
-                if (typeof error === 'object' && error !== null) {
-                    error.status = e.status;
-                } else {
-                    if (this._isPermissionError(e))
-                        this._clearSavedHostChange();
-                    throw { message: error, status: e.status };
-                }
+            let error = e?.error || e;
+            if (error instanceof Response) {
+                error = await error
+                    .clone()
+                    .json()
+                    .catch(() => null);
             }
-            if (this._isPermissionError(error)) this._clearSavedHostChange();
-            throw error;
+            const failure = e?.status
+                ? {
+                      message: this._error_message(error),
+                      status: e.status,
+                  }
+                : error;
+            if (this._isPermissionError(failure)) this._clearSavedHostChange();
+            throw failure;
         });
         if (value.assets?.length || booking.extension_data.assets?.length) {
             // The booking record exists by this point, so a failure here must
@@ -2129,12 +2139,9 @@ export class BookingFormService extends AsyncHandler {
         return first_result;
     }
 
-    /** Build the group identifier, reusing an existing one when supplied. */
+    /** Give each new group its own asset ID and preserve it during edits. */
     private _groupName(existing?: string) {
-        return (
-            existing ||
-            `${currentUser().email}[${format(Date.now(), 'yyyy-MM-dd')}]`
-        );
+        return existing || `grp-${randomString(24)}`;
     }
 
     /** Form patch for a single visitor in a group flow. */

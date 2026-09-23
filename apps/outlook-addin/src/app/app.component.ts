@@ -23,6 +23,7 @@ import {
     withTimeout,
 } from '@placeos/common';
 import { GlobalLoadingComponent } from '@placeos/components';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
 
@@ -38,11 +39,17 @@ interface OfficeAccessTokenResult {
 @Component({
     selector: 'app-root',
     template: `
+        <settings-debug-panel-launcher />
+
         <router-outlet />
         <global-loading />
     `,
     styles: [``],
-    imports: [RouterOutlet, GlobalLoadingComponent],
+    imports: [
+        SettingsDebugPanelLauncherComponent,
+        RouterOutlet,
+        GlobalLoadingComponent,
+    ],
 })
 export class AppComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);

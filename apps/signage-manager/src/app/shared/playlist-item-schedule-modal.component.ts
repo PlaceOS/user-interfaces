@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { form, minLength, submit } from '@angular/forms/signals';
+import { applyEach, form, minLength, submit } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
@@ -18,6 +18,7 @@ import {
     PlaylistScheduleFormComponent,
     PlaylistScheduleFormModel,
     playlistSchedulePayload,
+    playlistScheduleSchema,
 } from './playlist-schedule-form.component';
 
 export interface PlaylistItemScheduleModalData {
@@ -121,6 +122,7 @@ export class PlaylistItemScheduleModalComponent {
     });
     public readonly form_model = form(this.model, (path) => {
         minLength(path.schedules, 1);
+        applyEach(path.schedules, playlistScheduleSchema);
     });
 
     public addSchedule() {

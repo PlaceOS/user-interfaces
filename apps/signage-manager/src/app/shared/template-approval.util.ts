@@ -11,7 +11,8 @@ import {
     SIDEBAR_WIDTH_PC,
 } from '../templates/template-layout.util';
 
-function axisPercentage(
+/** Displayed percentage for a layout axis, with the default when unset. */
+export function layoutAxisPercentage(
     layout: SignageTemplateLayout,
     axis: 'x_pos' | 'y_pos',
 ) {
@@ -23,30 +24,91 @@ function axisPercentage(
     return axis === 'x_pos' ? SIDEBAR_WIDTH_PC : EDGE_BAR_HEIGHT_PC;
 }
 
+export type TemplateLayoutField =
+    | 'position'
+    | 'plugin_id'
+    | 'x_pos'
+    | 'y_pos'
+    | 'plugin_params';
+
+export type TemplateField =
+    | 'name'
+    | 'description'
+    | 'tags'
+    | 'background_item_id'
+    | 'full_screen_takeover'
+    | 'merge';
+
+/** Position axes that have an effect for the given layout position. */
+export function layoutPositionAxes(layout: SignageTemplateLayout) {
+    const axes: ('x_pos' | 'y_pos')[] = [];
+    if (['left', 'right', 'floating'].includes(layout.position)) {
+        axes.push('x_pos');
+    }
+    if (['top', 'bottom', 'floating'].includes(layout.position)) {
+        axes.push('y_pos');
+    }
+    return axes;
+}
+
+/**
+ * List the fields of `layout` that differ from `other`. Values are compared
+ * as displayed, so an unset position equals its displayed default.
+ */
+export function signageTemplateLayoutChanges(
+    layout: SignageTemplateLayout,
+    other: SignageTemplateLayout,
+) {
+    const changes: TemplateLayoutField[] = [];
+    if (layout.position !== other.position) changes.push('position');
+    if ((layout.plugin_id || '') !== (other.plugin_id || '')) {
+        changes.push('plugin_id');
+    }
+    const other_axes = layoutPositionAxes(other);
+    for (const axis of layoutPositionAxes(layout)) {
+        if (
+            !other_axes.includes(axis) ||
+            layoutAxisPercentage(layout, axis) !==
+                layoutAxisPercentage(other, axis)
+        ) {
+            changes.push(axis);
+        }
+    }
+    if (
+        JSON.stringify(layout.plugin_params || {}) !==
+        JSON.stringify(other.plugin_params || {})
+    ) {
+        changes.push('plugin_params');
+    }
+    return changes;
+}
+
 export function signageTemplateLayoutsEqual(
     current: SignageTemplateLayout,
     older?: SignageTemplateLayout,
 ) {
-    if (!older || current.position !== older.position) return false;
-    const uses_x =
-        current.position === 'left' ||
-        current.position === 'right' ||
-        current.position === 'floating';
-    const uses_y =
-        current.position === 'top' ||
-        current.position === 'bottom' ||
-        current.position === 'floating';
-    return (
-        (current.plugin_id || '') === (older.plugin_id || '') &&
-        (!uses_x ||
-            axisPercentage(current, 'x_pos') ===
-                axisPercentage(older, 'x_pos')) &&
-        (!uses_y ||
-            axisPercentage(current, 'y_pos') ===
-                axisPercentage(older, 'y_pos')) &&
-        JSON.stringify(current.plugin_params || {}) ===
-            JSON.stringify(older.plugin_params || {})
-    );
+    return !!older && !signageTemplateLayoutChanges(current, older).length;
+}
+
+/** List the template details that differ between two versions. */
+export function signageTemplateFieldChanges(
+    current: SignageTemplate,
+    older: SignageTemplate,
+) {
+    const changes: TemplateField[] = [];
+    if (current.name !== older.name) changes.push('name');
+    if (current.description !== older.description) changes.push('description');
+    if (JSON.stringify(current.tags) !== JSON.stringify(older.tags)) {
+        changes.push('tags');
+    }
+    if (current.background_item_id !== older.background_item_id) {
+        changes.push('background_item_id');
+    }
+    if (current.merge !== older.merge) changes.push('merge');
+    if (current.full_screen_takeover !== older.full_screen_takeover) {
+        changes.push('full_screen_takeover');
+    }
+    return changes;
 }
 
 export function signageTemplateVersionsEqual(
@@ -54,11 +116,7 @@ export function signageTemplateVersionsEqual(
     older: SignageTemplate,
 ) {
     return (
-        current.name === older.name &&
-        current.description === older.description &&
-        current.background_item_id === older.background_item_id &&
-        current.full_screen_takeover === older.full_screen_takeover &&
-        JSON.stringify(current.tags) === JSON.stringify(older.tags) &&
+        !signageTemplateFieldChanges(current, older).length &&
         current.layouts.length === older.layouts.length &&
         current.layouts.every((layout, index) =>
             signageTemplateLayoutsEqual(layout, older.layouts[index]),

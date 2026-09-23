@@ -3,6 +3,7 @@ import {
     computed,
     effect,
     inject,
+    input,
     model,
     signal,
 } from '@angular/core';
@@ -67,29 +68,29 @@ const URL_STARTS = [
                         class="h-120 max-h-full w-full flex-1"
                     >
                         <div
-                            class="hover:bg-base-100 flex h-8 max-w-full items-center space-x-1 truncate p-2 font-mono text-sm"
+                            class="hover:bg-base-100 flex h-8 max-w-full items-center space-x-1 truncate p-2 font-mono text-xs"
                             *cdkVirtualFor="
                                 let log of filtered_logs();
                                 trackBy: trackByFn
                             "
                         >
                             <div
-                                class="bg-base-100/10 rounded-sm p-1 font-mono text-xs uppercase"
+                                class="bg-base-100/10 rounded-sm p-1 font-mono text-[0.625rem] uppercase"
                             >
-                                {{ log.timestamp | date: 'MMM d HH:mm:ss' }}
+                                {{ log.timestamp | date: 'HH:mm:ss' }}
                             </div>
-                            <div
+                            <!-- <div
                                 [class]="
-                                    'p-1 text-xs uppercase ' +
+                                    'p-1 uppercase ' +
                                     colors[log.type] +
                                     ' rounded-sm font-mono'
                                 "
                             >
                                 {{ log.type }}
-                            </div>
+                            </div> -->
                             <div
                                 [class]="
-                                    'p-1 text-xs capitalize ' +
+                                    'p-1 capitalize ' +
                                     colors[log.subtype] +
                                     ' w-16 rounded-sm text-center font-mono'
                                 "
@@ -202,6 +203,7 @@ export class DebugConsoleComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
 
     public readonly show = model(false);
+    public readonly hotkeysEnabled = input(true);
     public readonly colors = COLOR_MAP;
     public readonly json_tooltip = JsonDisplayComponent;
     public readonly filter = signal<string>('');
@@ -249,6 +251,7 @@ export class DebugConsoleComponent extends AsyncHandler {
     }
 
     public ngOnInit() {
+        if (!this.hotkeysEnabled()) return;
         this.subscription(
             'toggle',
             this._hotkey.listen(['Control', 'Backquote'], () =>

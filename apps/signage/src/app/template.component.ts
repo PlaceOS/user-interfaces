@@ -11,7 +11,10 @@ import {
     SignageMedia,
     SignagePlugin,
     SignageTemplate,
+    SignageTemplateLayout,
+    SignageTemplateMapping,
 } from '@placeos/ts-client';
+import { isDebugEnabled } from './debug-state';
 import { MediaCacheService } from './media-cache.service';
 import { MediaPlayerComponent } from './media-player.component';
 import { SignagePanelComponent } from './signage.component';
@@ -20,6 +23,10 @@ import { computeTemplateLayout } from './template-layout';
 import { MediaPlayerItem } from './types';
 
 const STORE_DISPLAY_KEY = 'PlaceOS.SIGNAGE.display';
+/** Message type the signage manager posts with unsaved layouts to preview */
+const PREVIEW_LAYOUTS_MESSAGE = 'signage:template-layouts';
+/** Message type posted to the signage manager to request its unsaved layouts */
+const PREVIEW_READY_MESSAGE = 'signage:template-preview-ready';
 
 interface RenderedLayoutItem {
     plugin: SignagePlugin;
@@ -159,18 +166,28 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
 
     public readonly debug = this._signage.debug;
     public readonly template = signal<SignageTemplate | null>(null);
+    // Unsaved layouts posted by the manager preview; only used in debug mode
+    private readonly _preview_layouts = signal<SignageTemplateLayout[] | null>(
+        null,
+    );
     public readonly background_playlist = signal<MediaPlayerItem[]>([]);
 
-    private readonly _template_id = computed(
-        () =>
-            this._route_template_id() ||
-            this._signage.active_template()?.template_id ||
-            '',
+    private readonly _template_mappings = computed(() => {
+        const template_id = this._route_template_id();
+        return template_id
+            ? [new SignageTemplateMapping({ template_id })]
+            : this._signage.active_templates();
+    });
+    private readonly _template_mappings$ = toObservable(
+        this._template_mappings,
     );
-    private readonly _template_id$ = toObservable(this._template_id);
 
     private readonly _layout = computed(() =>
-        computeTemplateLayout(this.template()?.layouts || []),
+        computeTemplateLayout(
+            (this.debug() && this._preview_layouts()) ||
+                this.template()?.layouts ||
+                [],
+        ),
     );
 
     public readonly player_rect = computed(() => this._layout().player);
@@ -200,6 +217,11 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     });
 
     public ngOnInit() {
+        // Read preview mode before the child panel starts and templates load.
+        const params = this._route.snapshot.queryParamMap;
+        if (params.has('debug')) {
+            this.debug.set(isDebugEnabled(params.get('debug')));
+        }
         this.subscription(
             'route.params',
             this._route.paramMap.subscribe((params) => {
@@ -214,10 +236,34 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         );
         this.subscription(
             'template',
-            this._template_id$.subscribe((template_id) =>
-                this._loadTemplate(template_id),
+            this._template_mappings$.subscribe((mappings) =>
+                this._loadTemplates(mappings),
             ),
         );
+        window.addEventListener('message', this._preview_message_handler);
+        this.subscription('preview-message', () =>
+            window.removeEventListener(
+                'message',
+                this._preview_message_handler,
+            ),
+        );
+    }
+
+    private readonly _preview_message_handler = (event: MessageEvent) => {
+        const data = event?.data;
+        if (!this.debug() || data?.type !== PREVIEW_LAYOUTS_MESSAGE) return;
+        this._preview_layouts.set(
+            Array.isArray(data.layouts) ? data.layouts : null,
+        );
+    };
+
+    /**
+     * Ask the embedding manager preview for its unsaved layouts. The manager
+     * cannot know when this listener is ready, so the player asks first.
+     */
+    private _requestPreviewLayouts() {
+        if (window.parent === window) return;
+        window.parent.postMessage({ type: PREVIEW_READY_MESSAGE }, '*');
     }
 
     private _bootstrapTemplate(template_id: string) {
@@ -234,18 +280,45 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         });
     }
 
-    private async _loadTemplate(template_id: string) {
+    private async _loadTemplates(mappings: SignageTemplateMapping[]) {
         const load_id = ++this._load_id;
-        if (!template_id) {
+        this._preview_layouts.set(null);
+        this._requestPreviewLayouts();
+        if (!mappings.length) {
             this._plugins.set([]);
             this.template.set(null);
             this.background_playlist.set([]);
             return;
         }
         try {
-            const template = await showSignageTemplate(template_id, {
-                approved: true,
-            });
+            // Preview the pending template even before its first approval.
+            const candidates = await Promise.all(
+                mappings.map(async (mapping) => ({
+                    mapping,
+                    template: await showSignageTemplate(
+                        mapping.template_id,
+                        this.debug() ? {} : { approved: true },
+                    ),
+                })),
+            );
+            const non_merge = candidates.filter(
+                ({ template }) => !template.merge,
+            );
+            const merge = candidates.filter(({ template }) => template.merge);
+            const base =
+                non_merge.filter(({ mapping }) => mapping.schedule).at(-1) ||
+                non_merge[0] ||
+                merge.shift();
+            if (!base || load_id !== this._load_id) return;
+            const template = merge.length
+                ? new SignageTemplate({
+                      ...base.template,
+                      layouts: [
+                          ...base.template.layouts,
+                          ...merge.flatMap(({ template }) => template.layouts),
+                      ],
+                  })
+                : base.template;
             const [plugin_result, background] = await Promise.all([
                 querySignagePlugins({ limit: 500 }).catch(() => ({ data: [] })),
                 template.background_item_id
@@ -265,7 +338,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
                               background,
                               plugins,
                               this._media_cache,
-                              `template:${template_id}`,
+                              `template:${template.id}`,
                           ),
                       ]
                     : [],
@@ -274,7 +347,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
             if (load_id !== this._load_id) return;
             log(
                 'SIGNAGE',
-                `Unable to load template "${template_id}"`,
+                `Unable to load templates "${mappings.map((mapping) => mapping.template_id).join(', ')}"`,
                 [error],
                 'error',
             );

@@ -9,6 +9,7 @@ import {
     initialiseUploadService,
     OpenStack,
 } from '@placeos/cloud-uploads';
+import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 
 import {
     AsyncHandler,
@@ -51,11 +52,14 @@ export function initSentry(dsn: string, sample_rate: number = 0.2) {
 @Component({
     selector: 'app-root',
     imports: [
+        SettingsDebugPanelLauncherComponent,
         RouterOutlet,
         GlobalBannerComponent,
         ServiceWorkerUpdateCardComponent,
     ],
     template: `
+        <settings-debug-panel-launcher />
+
         <global-banner />
         @if (initialisation_error()) {
             <div

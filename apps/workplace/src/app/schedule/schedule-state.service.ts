@@ -445,11 +445,9 @@ export class ScheduleStateService extends AsyncHandler {
         return this._event_sources();
     }
 
+    /** Reload bookings. Drops in-flight requests so a change made just now is not masked by a stale response. */
     public triggerPoll() {
-        if (this._network_started) {
-            this._poll.set(Date.now());
-            return;
-        }
+        this._booking_query_requests.clear();
         this._poll.set(Date.now());
     }
 
@@ -1020,7 +1018,12 @@ export class ScheduleStateService extends AsyncHandler {
             },
             this._dialog,
         );
-        if (item instanceof CalendarEvent && item.creator !== item.mailbox) {
+        if (resp.reason !== 'done') return;
+        if (
+            item instanceof CalendarEvent &&
+            !item.from_bookings &&
+            item.creator !== item.mailbox
+        ) {
             item =
                 (
                     await queryEvents({
@@ -1032,7 +1035,6 @@ export class ScheduleStateService extends AsyncHandler {
                     (_) => _.ical_uid === (item as CalendarEvent).ical_uid,
                 ) || item;
         }
-        if (resp.reason !== 'done') return;
         resp.loading(
             i18n(
                 remove_series
@@ -1040,7 +1042,11 @@ export class ScheduleStateService extends AsyncHandler {
                     : 'APP.WORKPLACE.SCHEDULE_REMOVE_LOADING',
             ),
         );
-        await (item instanceof CalendarEvent ? removeEvent : removeBooking)(
+        await (
+            item instanceof CalendarEvent && !item.from_bookings
+                ? removeEvent
+                : removeBooking
+        )(
             remove_series
                 ? (item as any).recurring_event_id || item.id
                 : item.id,

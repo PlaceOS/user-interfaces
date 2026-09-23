@@ -1,4 +1,4 @@
-import { DatePipe } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
     afterNextRender,
     Component,
@@ -10,7 +10,7 @@ import {
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FieldTree, FormField } from '@angular/forms/signals';
+import { FieldTree, FormField, schema, validate } from '@angular/forms/signals';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
@@ -37,13 +37,16 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import {
-    SignagePlaylist,
-    type SignagePlaylistSchedule,
-} from '@placeos/ts-client';
-import { endOfDay, fromUnixTime, getUnixTime } from 'date-fns';
+import { SignagePlaylist } from '@placeos/ts-client';
+import { endOfDay, fromUnixTime, getUnixTime, startOfDay } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
-import { playlistScheduleExpiryLabel } from '../signage-playlist.util';
+import {
+    createScheduleMaskFilter,
+    hasPlayableScheduleMask,
+    isValidScheduleMask,
+    type PlaylistSchedule,
+    playlistScheduleExpiryLabel,
+} from '../signage-playlist.util';
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
 type RecurringScheduleType =
@@ -70,6 +73,10 @@ export interface PlaylistScheduleFormModel {
     recurrence_weekdays: number[];
     recurrence_day_of_month: number[];
     play_period: number;
+    has_mask: boolean;
+    mask: string;
+    has_valid_from: boolean;
+    valid_from: number;
     has_valid_until: boolean;
     valid_until: number;
 }
@@ -370,14 +377,14 @@ function buildRecurringCron(value: {
     return `${minute} ${hour} * * *`;
 }
 
-function playlistPlayPeriod(schedule: Partial<SignagePlaylistSchedule>) {
+function playlistPlayPeriod(schedule: Partial<PlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? Math.max(0, schedule.play_period)
         : DEFAULT_PLAY_PERIOD_MINUTES;
 }
 
 function scheduleTypeFor(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
 ): PlaylistScheduleType {
     return schedule.play_at ? 'play_at' : 'play_cron';
 }
@@ -508,13 +515,27 @@ function nextCronPlayTimes(
     duration_minutes: number,
     valid_until = 0,
     timezone = LOCAL_TIMEZONE,
+    valid_from = 0,
+    mask = '',
 ) {
+    const allows = createScheduleMaskFilter(
+        { play_cron: cron, valid_from: valid_from / 1000, mask },
+        timezone,
+    );
     const result: string[] = [];
-    if (!cron?.trim()) return result;
+    if (
+        !cron?.trim() ||
+        !hasPlayableScheduleMask({
+            mask,
+            valid_from: valid_from / 1000,
+        })
+    )
+        return result;
     const now = Date.now();
-    const date = toZonedTime(now, timezone);
+    // Start the search at the validity window when it opens in the future.
+    const date = toZonedTime(Math.max(now, valid_from), timezone);
     date.setSeconds(0, 0);
-    date.setMinutes(date.getMinutes() + 1);
+    if (valid_from <= now) date.setMinutes(date.getMinutes() + 1);
     const end = new Date(date);
     end.setFullYear(end.getFullYear() + 2);
     const expiry = valid_until ? toZonedTime(valid_until, timezone) : end;
@@ -524,8 +545,10 @@ function nextCronPlayTimes(
             // Skip wall-clock times that do not exist during a daylight saving change.
             if (
                 instant.getTime() > now &&
+                instant.getTime() >= valid_from &&
                 (!valid_until || instant.getTime() <= valid_until) &&
-                toZonedTime(instant, timezone).getTime() === date.getTime()
+                toZonedTime(instant, timezone).getTime() === date.getTime() &&
+                allows(instant)
             ) {
                 result.push(
                     formatPlayDateTimeRange(
@@ -541,8 +564,73 @@ function nextCronPlayTimes(
     return result;
 }
 
+/** Find the first mask cycle, including occurrences selected to skip. */
+function maskOccurrenceDates(
+    value: PlaylistScheduleFormModel,
+    timezone: string,
+) {
+    const result: Date[] = [];
+    const start = value.valid_from;
+    if (
+        !value.has_valid_from ||
+        !start ||
+        !Number.isFinite(new Date(start).getTime())
+    )
+        return result;
+    const expiry = value.has_valid_until ? value.valid_until : Infinity;
+    if (expiry < start) return result;
+    if (value.schedule_type === 'play_at') {
+        return value.play_at >= start && value.play_at <= expiry
+            ? [new Date(value.play_at)]
+            : result;
+    }
+    const cron = buildRecurringCron(value);
+    const parts = cron.trim().split(/\s+/);
+    if (parts.length !== 5) return result;
+    const slots: number[] = [];
+    for (let hour = 0; hour < 24; hour++) {
+        if (!matchesCronPart(hour, parts[1])) continue;
+        for (let minute = 0; minute < 60; minute++) {
+            if (matchesCronPart(minute, parts[0]))
+                slots.push(hour * 60 + minute);
+        }
+    }
+    if (!slots.length) return result;
+    const day = toZonedTime(start, timezone);
+    day.setHours(0, 0, 0, 0);
+    // A Gregorian calendar cycle bounds the search for invalid or rare cron dates.
+    const end = new Date(day);
+    end.setFullYear(end.getFullYear() + 400);
+    const last_day = Number.isFinite(expiry)
+        ? toZonedTime(expiry, timezone)
+        : end;
+    const count = Math.min(128, value.mask.length);
+    for (
+        ;
+        day <= end && day <= last_day && result.length < count;
+        day.setDate(day.getDate() + 1)
+    ) {
+        const probe = new Date(day);
+        probe.setHours(0, slots[0], 0, 0);
+        if (!doesCronMatchDate(cron, probe)) continue;
+        for (const slot of slots) {
+            if (result.length >= count) break;
+            const wall = new Date(day);
+            wall.setHours(0, slot, 0, 0);
+            const instant = fromZonedTime(wall, timezone);
+            if (
+                instant.getTime() >= start &&
+                instant.getTime() <= expiry &&
+                toZonedTime(instant, timezone).getTime() === wall.getTime()
+            )
+                result.push(instant);
+        }
+    }
+    return result;
+}
+
 export function createPlaylistScheduleModel(
-    schedule?: Partial<SignagePlaylistSchedule>,
+    schedule?: Partial<PlaylistSchedule>,
 ): PlaylistScheduleFormModel {
     const source = schedule || {};
     const recurring_schedule = parseRecurringCron(source.play_cron);
@@ -564,6 +652,12 @@ export function createPlaylistScheduleModel(
         recurrence_weekdays: recurring_schedule.recurrence_weekdays,
         recurrence_day_of_month: recurring_schedule.recurrence_day_of_month,
         play_period: playlistPlayPeriod(source),
+        has_mask: !!source.mask,
+        mask: source.mask || '',
+        has_valid_from: !!source.valid_from,
+        valid_from: source.valid_from
+            ? fromUnixTime(source.valid_from).getTime()
+            : startOfDay(Date.now()).getTime(),
         has_valid_until: !!source.valid_until,
         valid_until: source.valid_until
             ? fromUnixTime(source.valid_until).getTime()
@@ -571,27 +665,77 @@ export function createPlaylistScheduleModel(
     };
 }
 
+/** Validate the repeat mask and schedule validity window. */
+export const playlistScheduleSchema = schema<PlaylistScheduleFormModel>(
+    (path) => {
+        validate(path.mask, ({ value, valueOf }) => {
+            if (!valueOf(path.has_mask)) return undefined;
+            if (isValidScheduleMask(value())) return undefined;
+            return {
+                kind: 'mask_range',
+                message: i18n('SIGNAGE_MANAGER.SCHEDULE_MASK_RANGE'),
+            };
+        });
+        validate(path.valid_from, ({ value, valueOf }) => {
+            if (!valueOf(path.has_mask)) return undefined;
+            if (
+                valueOf(path.has_valid_from) &&
+                value() !== 0 &&
+                Number.isFinite(new Date(value()).getTime())
+            )
+                return undefined;
+            return {
+                kind: 'mask_valid_from',
+                message: i18n('SIGNAGE_MANAGER.SCHEDULE_MASK_VALID_FROM'),
+            };
+        });
+        validate(path.valid_until, ({ value, valueOf }) => {
+            if (
+                valueOf(path.has_valid_from) &&
+                valueOf(path.has_valid_until) &&
+                valueOf(path.valid_from) >= value()
+            ) {
+                return {
+                    kind: 'validity_order',
+                    message: i18n('SIGNAGE_MANAGER.SCHEDULE_VALIDITY_ORDER'),
+                };
+            }
+            return undefined;
+        });
+    },
+);
+
 export function playlistSchedulePayload(
     value: PlaylistScheduleFormModel,
-): SignagePlaylistSchedule {
+): PlaylistSchedule {
     return value.schedule_type === 'play_at'
         ? {
-              play_at: value.play_at ? getUnixTime(new Date(value.play_at)) : 0,
+              play_at: value.play_at
+                  ? getUnixTime(new Date(value.play_at))
+                  : undefined,
               play_cron: DEFAULT_RECURRING_CRON,
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
+              mask: value.has_mask ? value.mask : '',
+              valid_from: value.has_valid_from
+                  ? getUnixTime(new Date(value.valid_from))
+                  : undefined,
               valid_until: value.has_valid_until
                   ? getUnixTime(new Date(value.valid_until))
-                  : 0,
+                  : undefined,
           }
         : {
-              play_at: 0,
+              play_at: undefined,
               play_cron: buildRecurringCron(value),
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
+              mask: value.has_mask ? value.mask : '',
+              valid_from: value.has_valid_from
+                  ? getUnixTime(new Date(value.valid_from))
+                  : undefined,
               valid_until: value.has_valid_until
                   ? getUnixTime(new Date(value.valid_until))
-                  : 0,
+                  : undefined,
           };
 }
 
@@ -671,61 +815,7 @@ export function playlistSchedulePayload(
                         !schedule_timezone_once_only() ||
                         value().schedule_type === 'play_at'
                     ) {
-                        <label for="timezone">{{
-                            'COMMON.TIMEZONE' | translate
-                        }}</label>
-                        <mat-form-field
-                            appearance="outline"
-                            class="no-subscript w-full"
-                        >
-                            <mat-select
-                                #timezone_select
-                                name="timezone"
-                                [aria-label]="'COMMON.TIMEZONE' | translate"
-                                [(ngModel)]="timezone"
-                                [ngModelOptions]="{ standalone: true }"
-                                (openedChange)="
-                                    timezone_search.set('');
-                                    $event &&
-                                        focusTimezoneSearch(
-                                            timezone_select,
-                                            timezone_filter
-                                        )
-                                "
-                            >
-                                <mat-select-trigger>{{
-                                    timezone()
-                                }}</mat-select-trigger>
-                                <div class="bg-base-100 sticky -top-1.5 z-10">
-                                    <input
-                                        #timezone_filter
-                                        class="border-base-300 h-full w-full border-b px-4 py-3"
-                                        [placeholder]="
-                                            'COMMON.SEARCH' | translate
-                                        "
-                                        [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.SEARCH_TIMEZONES'
-                                                | translate
-                                        "
-                                        [(ngModel)]="timezone_search"
-                                        [ngModelOptions]="{ standalone: true }"
-                                        (keydown)="
-                                            onTimezoneSearchKeydown($event)
-                                        "
-                                    />
-                                </div>
-                                @for (zone of timezone_options(); track zone) {
-                                    <mat-option [value]="zone">{{
-                                        zone
-                                    }}</mat-option>
-                                }
-                                @if (!filtered_timezones().length) {
-                                    <mat-option disabled>{{
-                                        'COMMON.TIMEZONE_EMPTY' | translate
-                                    }}</mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
+                        <ng-container [ngTemplateOutlet]="timezone_field" />
                     }
                     @if (
                         !schedule_timezone_once_only() &&
@@ -1152,15 +1242,277 @@ export function playlistSchedulePayload(
                             }
                         </div>
                     }
+                    <settings-toggle
+                        [label]="'SIGNAGE_MANAGER.SCHEDULE_MASK' | translate"
+                        [ngModel]="value().has_mask"
+                        (ngModelChange)="setMaskEnabled($event)"
+                        [ngModelOptions]="{ standalone: true }"
+                    />
+                    @if (value().has_mask) {
+                        <div
+                            mask-editor
+                            class="border-base-300 space-y-3 rounded-lg border px-3 py-2"
+                        >
+                            <div class="space-y-1">
+                                <label for="mask-length">
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_REPEAT_LENGTH'
+                                            | translate
+                                    }}
+                                </label>
+                                <div class="flex items-center justify-between gap-2">
+                                    <a-counter
+                                        class="block max-w-64 min-w-0 flex-1 [&_[value]]:text-sm"
+                                        [render_fn]="formatMaskOccurrences"
+                                        name="mask-length"
+                                        [min]="1"
+                                        [max]="128"
+                                        [step]="1"
+                                        [ngModel]="value().mask.length"
+                                        (ngModelChange)="resizeMask($event)"
+                                        [ngModelOptions]="{
+                                            standalone: true,
+                                        }"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.MASK_REPEAT_LENGTH'
+                                                | translate
+                                        "
+                                    />
+                                    <p
+                                        class="text-base-content/70 shrink-0 text-sm whitespace-nowrap"
+                                        aria-live="polite"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.MASK_PLAY_COUNT'
+                                                | translate
+                                                    : {
+                                                          count: mask_play_count(),
+                                                          total: value().mask
+                                                              .length,
+                                                      }
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
+                            <p class="text-base-content/70 text-xs">
+                                {{
+                                    'SIGNAGE_MANAGER.SCHEDULE_MASK_HINT'
+                                        | translate
+                                }}
+                            </p>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button
+                                    type="button"
+                                    class="border-base-300 hover:bg-base-200 rounded border px-3 py-2 text-xs"
+                                    (click)="fillMask('play')"
+                                >
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_PLAY_ALL'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="border-base-300 hover:bg-base-200 rounded border px-3 py-2 text-xs"
+                                    (click)="fillMask('skip')"
+                                >
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_SKIP_ALL'
+                                            | translate
+                                    }}
+                                </button>
+                                <button
+                                    type="button"
+                                    class="border-base-300 hover:bg-base-200 rounded border px-3 py-2 text-xs"
+                                    (click)="fillMask('alternate')"
+                                >
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_ALTERNATE'
+                                            | translate
+                                    }}
+                                </button>
+                                <div
+                                    class="border-base-300 ml-auto flex shrink-0 overflow-hidden rounded-lg border"
+                                >
+                                    @for (view of mask_views; track view.mode) {
+                                        <button
+                                            type="button"
+                                            class="focus-visible:ring-primary flex min-h-10 items-center gap-2 px-3 text-xs focus-visible:ring-2 focus-visible:ring-inset"
+                                            [class.bg-base-200]="
+                                                mask_view() === view.mode
+                                            "
+                                            [class.font-semibold]="
+                                                mask_view() === view.mode
+                                            "
+                                            [attr.aria-pressed]="
+                                                mask_view() === view.mode
+                                            "
+                                            (click)="mask_view.set(view.mode)"
+                                        >
+                                            <icon aria-hidden="true">{{
+                                                view.icon
+                                            }}</icon>
+                                            {{ view.label | translate }}
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+                            <div
+                                role="group"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.MASK_PATTERN' | translate
+                                "
+                                class="grid max-h-80 gap-2 overflow-y-auto p-1"
+                                [class]="
+                                    mask_view() === 'grid'
+                                        ? 'grid-cols-4 sm:grid-cols-8'
+                                        : 'grid-cols-1'
+                                "
+                            >
+                                @for (bit of mask_bits(); track $index) {
+                                    <button
+                                        type="button"
+                                        mask-instance
+                                        [matTooltip]="
+                                            mask_occurrence_labels()[$index]
+                                        "
+                                        [matTooltipDisabled]="
+                                            mask_view() !== 'grid'
+                                        "
+                                        class="focus-visible:ring-primary flex items-center gap-1 rounded-lg border text-xs focus-visible:ring-2 focus-visible:ring-offset-2"
+                                        [class.flex-col]="
+                                            mask_view() === 'grid'
+                                        "
+                                        [class.justify-center]="
+                                            mask_view() === 'grid'
+                                        "
+                                        [class.min-h-14]="
+                                            mask_view() === 'grid'
+                                        "
+                                        [class.justify-between]="
+                                            mask_view() === 'list'
+                                        "
+                                        [class.min-h-11]="
+                                            mask_view() === 'list'
+                                        "
+                                        [class.px-3]="mask_view() === 'list'"
+                                        [class.bg-primary]="bit === '1'"
+                                        [class.text-primary-content]="
+                                            bit === '1'
+                                        "
+                                        [class.border-primary]="bit === '1'"
+                                        [class.border-base-300]="bit !== '1'"
+                                        [class.bg-base-100]="bit !== '1'"
+                                        [attr.aria-pressed]="bit === '1'"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.MASK_INSTANCE'
+                                                | translate
+                                                    : {
+                                                          number: $index + 1,
+                                                          state:
+                                                              ((bit === '1'
+                                                                  ? 'SIGNAGE_MANAGER.MASK_PLAY'
+                                                                  : 'SIGNAGE_MANAGER.MASK_SKIP'
+                                                              ) | translate) +
+                                                              (mask_view() ===
+                                                              'list'
+                                                                  ? ', ' +
+                                                                    mask_occurrence_labels()[
+                                                                        $index
+                                                                    ]
+                                                                  : ''),
+                                                      }
+                                        "
+                                        (click)="toggleMaskInstance($index)"
+                                    >
+                                        <span class="font-semibold">{{
+                                            $index + 1
+                                        }}</span>
+                                        @if (mask_view() === 'list') {
+                                            <span
+                                                class="min-w-0 flex-1 px-2 text-left leading-snug"
+                                                mask-instance-date
+                                                >{{
+                                                    mask_occurrence_labels()[
+                                                        $index
+                                                    ]
+                                                }}</span
+                                            >
+                                        }
+                                        <span
+                                            class="flex shrink-0 items-center gap-1"
+                                        >
+                                            <icon aria-hidden="true">{{
+                                                bit === '1'
+                                                    ? 'play_arrow'
+                                                    : 'block'
+                                            }}</icon>
+                                            @if (mask_view() === 'list') {
+                                                {{
+                                                    (bit === '1'
+                                                        ? 'SIGNAGE_MANAGER.MASK_PLAY'
+                                                        : 'SIGNAGE_MANAGER.MASK_SKIP'
+                                                    ) | translate
+                                                }}
+                                            }
+                                        </span>
+                                    </button>
+                                }
+                            </div>
+                            @if (!mask_play_count()) {
+                                <p class="text-base-content/70 text-xs">
+                                    {{
+                                        'SIGNAGE_MANAGER.MASK_NONE_PLAY'
+                                            | translate
+                                    }}
+                                </p>
+                            }
+                        </div>
+                    }
                     <div
-                        class="bg-base-200/40 border-base-300 mt-4 rounded-lg border p-3"
+                        schedule-validity
+                        class="bg-base-200/40 border-base-300 mt-4 rounded-lg border p-2"
                     >
+                        @if (
+                            value().schedule_type === 'play_cron' &&
+                            schedule_timezone_once_only()
+                        ) {
+                            <ng-container [ngTemplateOutlet]="timezone_field" />
+                        }
                         <settings-toggle
+                            [class.mt-2]="
+                                value().schedule_type === 'play_cron' &&
+                                schedule_timezone_once_only()
+                            "
+                            [label]="'SIGNAGE_MANAGER.VALID_FROM' | translate"
+                            [formField]="schedule().has_valid_from"
+                        />
+                        @if (value().has_valid_from) {
+                            <div class="mt-2 flex gap-2">
+                                <a-date-field
+                                    [timezone]="timezone()"
+                                    class="w-full flex-1"
+                                    [formField]="schedule().valid_from"
+                                ></a-date-field>
+                                @for (zone of [timezone()]; track zone) {
+                                    <a-time-field
+                                        [timezone]="timezone()"
+                                        class="w-full flex-1"
+                                        [(ngModel)]="
+                                            schedule().valid_from().value
+                                        "
+                                        [ngModelOptions]="{ standalone: true }"
+                                    ></a-time-field>
+                                }
+                            </div>
+                        }
+                        <settings-toggle
+                            class="mt-2"
                             [label]="'FORM.EXPIRES_AT' | translate"
                             [formField]="schedule().has_valid_until"
                         />
                         @if (value().has_valid_until) {
-                            <div class="mt-3 flex space-x-4">
+                            <div class="mt-2 flex gap-2">
                                 <a-date-field
                                     [timezone]="timezone()"
                                     class="w-full flex-1"
@@ -1184,11 +1536,60 @@ export function playlistSchedulePayload(
                     </div>
                 </div>
             }
+            @for (error of schedule()().errorSummary(); track error.kind) {
+                <p role="alert" class="text-error px-3 pb-3 text-sm">
+                    {{ error.message }}
+                </p>
+            }
         </div>
+        <ng-template #timezone_field>
+            <label for="timezone">{{ 'COMMON.TIMEZONE' | translate }}</label>
+            <mat-form-field appearance="outline" class="no-subscript w-full">
+                <mat-select
+                    #timezone_select
+                    name="timezone"
+                    [aria-label]="'COMMON.TIMEZONE' | translate"
+                    [(ngModel)]="timezone"
+                    [ngModelOptions]="{ standalone: true }"
+                    (openedChange)="
+                        timezone_search.set('');
+                        $event &&
+                            focusTimezoneSearch(
+                                timezone_select,
+                                timezone_filter
+                            )
+                    "
+                >
+                    <mat-select-trigger>{{ timezone() }}</mat-select-trigger>
+                    <div class="bg-base-100 sticky -top-1.5 z-10">
+                        <input
+                            #timezone_filter
+                            class="border-base-300 h-full w-full border-b px-4 py-3"
+                            [placeholder]="'COMMON.SEARCH' | translate"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.SEARCH_TIMEZONES' | translate
+                            "
+                            [(ngModel)]="timezone_search"
+                            [ngModelOptions]="{ standalone: true }"
+                            (keydown)="onTimezoneSearchKeydown($event)"
+                        />
+                    </div>
+                    @for (zone of timezone_options(); track zone) {
+                        <mat-option [value]="zone">{{ zone }}</mat-option>
+                    }
+                    @if (!filtered_timezones().length) {
+                        <mat-option disabled>{{
+                            'COMMON.TIMEZONE_EMPTY' | translate
+                        }}</mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </ng-template>
     `,
     styles: [``],
     imports: [
         DatePipe,
+        NgTemplateOutlet,
         FormField,
         FormsModule,
         DateFieldComponent,
@@ -1249,6 +1650,86 @@ export class PlaylistScheduleFormComponent {
     );
     public readonly ordinal = ordinal;
     public readonly value = computed(() => this.schedule()().value());
+    public readonly mask_occurrence_dates = computed(() =>
+        maskOccurrenceDates(this.value(), this.timezone()),
+    );
+    public readonly mask_occurrence_labels = computed(() => {
+        const formatter = new Intl.DateTimeFormat(this._locale.locale, {
+            timeZone: this.timezone(),
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            timeZoneName: 'short',
+        });
+        const dates = this.mask_occurrence_dates();
+        const missing = i18n(
+            this.value().has_valid_from
+                ? 'SIGNAGE_MANAGER.MASK_INSTANCE_UNAVAILABLE'
+                : 'SIGNAGE_MANAGER.MASK_INSTANCE_START_REQUIRED',
+        );
+        return this.mask_bits().map((_, index) =>
+            dates[index] ? formatter.format(dates[index]) : missing,
+        );
+    });
+    public readonly formatMaskOccurrences = (count: number) =>
+        i18n('SIGNAGE_MANAGER.MASK_OCCURRENCES', { count }, count);
+
+    public readonly mask_view = signal<'grid' | 'list'>('grid');
+    public readonly mask_views = [
+        { mode: 'grid', icon: 'grid_view', label: 'SIGNAGE_MANAGER.VIEW_GRID' },
+        { mode: 'list', icon: 'view_list', label: 'SIGNAGE_MANAGER.VIEW_LIST' },
+    ] as const;
+    public readonly mask_bits = computed(() =>
+        this.value().mask.slice(0, 128).split(''),
+    );
+    public readonly mask_play_count = computed(
+        () => this.mask_bits().filter((bit) => bit === '1').length,
+    );
+
+    public setMaskEnabled(enabled: boolean) {
+        if (enabled && !this.value().mask)
+            this.schedule().mask().value.set('11');
+        this.schedule().has_mask().value.set(enabled);
+    }
+
+    /** Keep existing choices when resizing. New occurrences play by default. */
+    public resizeMask(length: number) {
+        if (!Number.isFinite(length)) return;
+        const size = Math.max(1, Math.min(128, Math.floor(length)));
+        this.schedule()
+            .mask()
+            .value.set(this.value().mask.slice(0, size).padEnd(size, '1'));
+    }
+
+    public toggleMaskInstance(index: number) {
+        if (
+            !Number.isInteger(index) ||
+            index < 0 ||
+            index >= Math.min(128, this.value().mask.length)
+        )
+            return;
+        const bits = [...this.value().mask];
+        bits[index] = bits[index] === '1' ? '0' : '1';
+        this.schedule().mask().value.set(bits.join(''));
+    }
+
+    public fillMask(pattern: 'play' | 'skip' | 'alternate') {
+        const size = Math.max(1, Math.min(128, this.value().mask.length));
+        this.schedule()
+            .mask()
+            .value.set(
+                Array.from({ length: size }, (_, index) =>
+                    pattern === 'play' ||
+                    (pattern === 'alternate' && index % 2 === 0)
+                        ? '1'
+                        : '0',
+                ).join(''),
+            );
+    }
+
     public readonly formatPlayHour = (value: number | null | undefined) =>
         minutesToTime(value || 0);
 
@@ -1292,6 +1773,8 @@ export class PlaylistScheduleFormComponent {
             value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES,
             value.has_valid_until ? value.valid_until : 0,
             this.timezone(),
+            value.has_valid_from ? value.valid_from : 0,
+            value.has_mask ? value.mask : '',
         );
     }
 
@@ -1371,7 +1854,11 @@ export class PlaylistScheduleFormComponent {
         const expiry = playlistScheduleExpiryLabel(
             playlistSchedulePayload(value),
         );
-        const expiry_suffix = expiry ? ` · ${expiry}` : '';
+        const expiry_suffix =
+            (expiry ? ` · ${expiry}` : '') +
+            (value.has_mask
+                ? ` · ${i18n('SIGNAGE_MANAGER.SCHEDULE_MASK_SUMMARY', { mask: value.mask, size: value.mask.length })}`
+                : '');
         if (value.schedule_type === 'play_at') {
             const date = new Date(value.play_at || Date.now());
             return `${i18n('SIGNAGE_MANAGER.SUMMARY_PLAY_ONCE', {
