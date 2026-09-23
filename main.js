@@ -1,29 +1,29 @@
 import {
   MatInput,
   MatInputModule
-} from "./chunk-BK3RSQJG.js";
+} from "./chunk-FN2NPPHY.js";
 import {
   MatMenu,
   MatMenuItem,
   MatMenuModule,
   MatMenuTrigger
-} from "./chunk-CT6DVU4Q.js";
+} from "./chunk-4TVIGNIH.js";
 import {
   MatFormField,
   MatFormFieldModule,
   MatPrefix
-} from "./chunk-BQAGEMR5.js";
+} from "./chunk-KW34JLIM.js";
 import {
   setInternalUserDomain
-} from "./chunk-D7ZBEWDE.js";
-import "./chunk-BUXLBBSZ.js";
+} from "./chunk-BSIC25KF.js";
+import "./chunk-GGWN2GHB.js";
 import {
   TranslatePipe
-} from "./chunk-IBKNRV7T.js";
+} from "./chunk-7RFEFXNS.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-KZUOTIU5.js";
+} from "./chunk-QAIZNU2H.js";
 import {
   AsyncHandler,
   BidiModule,
@@ -91,7 +91,7 @@ import {
   withTimeout,
   yi,
   ɵNgNoValidate
-} from "./chunk-3OQ2BSWE.js";
+} from "./chunk-F2KCMQDL.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -1258,15 +1258,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-DSI7NOE7.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-HF5MAOPS.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-KSPKBXBO.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-VQF7ICQN.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-JDJQTLV7.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-3AOSR5ZJ.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1501,11 +1501,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-DSI7NOE7.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-HF5MAOPS.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-KSPKBXBO.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-VQF7ICQN.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-JDJQTLV7.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-3AOSR5ZJ.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -2012,7 +2012,7 @@ var routes = [
   },
   {
     path: "find",
-    loadComponent: () => import("./find-space.component-QO2PXNGQ.js").then((m) => m.FindSpaceComponent)
+    loadComponent: () => import("./find-space.component-NZYNQMLO.js").then((m) => m.FindSpaceComponent)
   },
   {
     path: "",
@@ -2021,48 +2021,48 @@ var routes = [
     children: [
       {
         path: "ms-auth",
-        loadComponent: () => import("./room-booking.component-ZIBX3FK7.js").then((m) => m.RoomBookingComponent)
+        loadComponent: () => import("./room-booking.component-WSOAUT2H.js").then((m) => m.RoomBookingComponent)
       },
       {
         path: "book",
         children: [
           {
             path: "spaces",
-            loadComponent: () => import("./room-booking.component-ZIBX3FK7.js").then((m) => m.RoomBookingComponent)
+            loadComponent: () => import("./room-booking.component-WSOAUT2H.js").then((m) => m.RoomBookingComponent)
           },
           {
             path: "spaces/success",
-            loadComponent: () => import("./booking-confirmed.component-HKIKOMCD.js").then((m) => m.BookingConfirmedComponent)
+            loadComponent: () => import("./booking-confirmed.component-LPRCTLBC.js").then((m) => m.BookingConfirmedComponent)
           },
           {
             path: "meeting",
-            loadComponent: () => import("./meeting-booking.component-FB3WMCFG.js").then((m) => m.MeetingBookingComponent)
+            loadComponent: () => import("./meeting-booking.component-6KOVQI53.js").then((m) => m.MeetingBookingComponent)
           },
           {
             path: "meeting/success",
-            loadComponent: () => import("./meeting-success.component-OBSTQY7S.js").then((m) => m.MeetingBookingSuccessComponent)
+            loadComponent: () => import("./meeting-success.component-AL44ZXOL.js").then((m) => m.MeetingBookingSuccessComponent)
           },
           {
             path: "desks",
-            loadComponent: () => import("./desk-booking.component-GQD62E3D.js").then((m) => m.DeskBookingComponent)
+            loadComponent: () => import("./desk-booking.component-YXKIDGII.js").then((m) => m.DeskBookingComponent)
           },
           {
             path: "desks/success",
-            loadComponent: () => import("./desk-success.component-WJHGMDLU.js").then((m) => m.DeskBookingSuccessComponent)
+            loadComponent: () => import("./desk-success.component-3KHQ3XXW.js").then((m) => m.DeskBookingSuccessComponent)
           }
         ]
       },
       {
         path: "schedule/view",
-        loadComponent: () => import("./find-space.component-QO2PXNGQ.js").then((m) => m.FindSpaceComponent)
+        loadComponent: () => import("./find-space.component-NZYNQMLO.js").then((m) => m.FindSpaceComponent)
       },
       {
         path: "confirm/success",
-        loadComponent: () => import("./booking-confirmed.component-HKIKOMCD.js").then((m) => m.BookingConfirmedComponent)
+        loadComponent: () => import("./booking-confirmed.component-LPRCTLBC.js").then((m) => m.BookingConfirmedComponent)
       },
       {
         path: "upcoming",
-        loadComponent: () => import("./upcoming-bookings.component-F23WIIUS.js").then((m) => m.UpcomingBookingsComponent)
+        loadComponent: () => import("./upcoming-bookings.component-EBVVREBD.js").then((m) => m.UpcomingBookingsComponent)
       },
       { path: "**", redirectTo: "book/meeting" }
     ]
