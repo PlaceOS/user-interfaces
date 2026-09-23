@@ -107,7 +107,7 @@ describe('TemplateMappingModalComponent', () => {
         expect(save).toHaveBeenCalledWith(
             'template-1',
             expect.objectContaining({
-                play_at: 0,
+                play_at: undefined,
                 play_cron: '0 9 * * *',
                 play_period: 30,
             }),

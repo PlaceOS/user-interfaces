@@ -1123,8 +1123,8 @@ describe('SignageService media uploads', () => {
                 {
                     position: 'floating',
                     plugin_params: {},
-                    x_pos: 0.5,
-                    y_pos: 0.5,
+                    x_pos: 0,
+                    y_pos: 0,
                 },
             ],
         });
