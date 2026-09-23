@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["control.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background: #f0f0f0;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,cAAA;AACJ;",
+  "names": []
+}
