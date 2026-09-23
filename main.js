@@ -1,12 +1,12 @@
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-KSA73MDW.js";
+} from "./chunk-V6G5YMDQ.js";
 import {
   ChatService,
   DateFromPipe,
   TranslatePipe
-} from "./chunk-CMIVU5XJ.js";
+} from "./chunk-JKU67QSS.js";
 import {
   A,
   ActivatedRoute,
@@ -275,7 +275,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-T4W2OICP.js";
+} from "./chunk-XL7IPLFN.js";
 import {
   __spreadProps,
   __spreadValues
@@ -6714,7 +6714,7 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-M4EDTYTP.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-CVFUEX45.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -6810,7 +6810,7 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-M4EDTYTP.js").then((m) => m.SettingsDebugPanelComponent)
+    import("./settings-debug-panel.component-CVFUEX45.js").then((m) => m.SettingsDebugPanelComponent)
   ], (SettingsDebugPanelComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -7157,7 +7157,7 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-QCJTLX3I.js").then((m) => m.ChatComponent)
+  import("./chat.component-KEXK2ZK6.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -7207,7 +7207,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-QCJTLX3I.js").then((m) => m.ChatComponent)
+    import("./chat.component-KEXK2ZK6.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
