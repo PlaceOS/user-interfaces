@@ -4,6 +4,7 @@ import {
     Booking,
     CalendarEvent,
     fromBookingRecurrence,
+    getAllDayTimeRange,
     Space,
     User,
     WeekOfMonth,
@@ -228,6 +229,27 @@ describe('Booking Utilities', () => {
                 }
             },
         );
+
+        it('should reserve the full day for an all-day room booking', () => {
+            const period = getAllDayTimeRange(
+                new Date(2028, 5, 15, 13).valueOf(),
+                '',
+            );
+            const event = new CalendarEvent({ all_day: true, ...period });
+
+            const payload = newBookingFromCalendarEvent(
+                event.toJSON() as CalendarEvent,
+            ).toJSON();
+
+            expect(payload.booking_start).toBe(
+                new Date(2028, 5, 15).valueOf() / 1000,
+            );
+            expect(payload.booking_end).toBe(
+                new Date(2028, 5, 16).valueOf() / 1000,
+            );
+            expect(payload.all_day).toBe(true);
+            expect(payload.extension_data.custom_all_day).toBeUndefined();
+        });
 
         it.each([false, true])(
             'should preserve the delegated host identity, serialized event: %s',
