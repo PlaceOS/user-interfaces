@@ -5,14 +5,20 @@ import {
   MatInputModule,
   MatProgressSpinner,
   MatProgressSpinnerModule,
-  TranslatePipe,
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-ZMRD5U3J.js";
+} from "./chunk-GD5NI5V5.js";
+import {
+  TranslatePipe
+} from "./chunk-LXMF3UIU.js";
 import {
   CustomTooltipComponent
-} from "./chunk-WXBB5IGR.js";
+} from "./chunk-NF4SN4MH.js";
+import {
+  MatTooltip,
+  MatTooltipModule
+} from "./chunk-KWM4UXLQ.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -34,8 +40,6 @@ import {
   MINUTES,
   MatRipple,
   MatRippleModule,
-  MatTooltip,
-  MatTooltipModule,
   NG_VALUE_ACCESSOR,
   NgControl,
   NgControlStatus,
@@ -68,6 +72,7 @@ import {
   fromZonedTime,
   getTimeInTimezone,
   getTimezoneOffsetString,
+  gr,
   hl,
   il,
   inject,
@@ -107,6 +112,7 @@ import {
   viewChild,
   viewChildren,
   ws,
+  yr,
   zi,
   ɵsetClassDebugInfo,
   ɵɵInheritDefinitionFeature,
@@ -162,7 +168,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-KUO3ZYBY.js";
+} from "./chunk-4JTRKPZR.js";
 import {
   __spreadProps,
   __spreadValues
@@ -413,14 +419,27 @@ var PluginEmbedComponent = class _PluginEmbedComponent extends AsyncHandler {
       this._pending_auto_config = this.auto_play() && !!this.config();
       this._setupChannels();
     }
-    if (changes.config && this.auto_play()) {
-      this._pending_auto_config = !!this.config();
-    }
     if (changes.play && this.play())
       this.send("play");
-    if (changes.config && this.config() && !this.auto_play()) {
-      this.send("config", this.config());
+    if (changes.config && !changes.plugin)
+      this._applyConfigChange();
+  }
+  /**
+   * Push a new config to the plugin. With auto_play the first config waits
+   * for the plugin to report loaded/ready, but later changes (e.g. unsaved
+   * parameter edits in the manager preview) go straight through.
+   */
+  _applyConfigChange() {
+    const config = this.config();
+    if (!config) {
+      this._pending_auto_config = false;
+      return;
     }
+    if (this.auto_play() && this.status() === "unknown") {
+      this._pending_auto_config = true;
+      return;
+    }
+    this.send("config", config);
   }
   send(type, payload = null, request_id) {
     const origin = this.plugin_origin();
@@ -6181,6 +6200,95 @@ function cronParts(cron_string) {
   }
   return parts;
 }
+function hasPlayableScheduleMask({ mask = "", valid_from }) {
+  return !mask || mask.length <= 128 && !/[^01]/.test(mask) && mask.includes("1") && Number.isFinite(valid_from) && valid_from > 0 && Number.isFinite(new Date(valid_from * 1e3).getTime());
+}
+var MASK_FILTER_CACHE = /* @__PURE__ */ new Map();
+function createScheduleMaskFilter(cron, schedule) {
+  const { mask = "", valid_from = 0 } = schedule;
+  const anchor = valid_from * 1e3;
+  if (!hasPlayableScheduleMask(schedule))
+    return () => false;
+  if (!mask)
+    return (date) => !anchor || date.getTime() >= anchor;
+  const key = JSON.stringify([cron, mask, valid_from]);
+  const cached = MASK_FILTER_CACHE.get(key);
+  if (cached)
+    return cached;
+  const parts = cronParts(cron);
+  const slots = [];
+  for (let hour = 0; hour < 24; hour++) {
+    if (!matchesCronPart(hour, parts[1]))
+      continue;
+    for (let minute = 0; minute < 60; minute++) {
+      if (matchesCronPart(minute, parts[0]))
+        slots.push(hour * 60 + minute);
+    }
+  }
+  const calendar_parts = ["*", "*", ...parts.slice(2)];
+  const first_day = new Date(anchor);
+  first_day.setHours(0, 0, 0, 0);
+  const month_totals = /* @__PURE__ */ new Map();
+  const countBefore = (day, before) => {
+    if (!slots.length || day.getTime() + 2 * 864e5 < anchor)
+      return 0;
+    if (!doesCronMatchDate(calendar_parts, day))
+      return 0;
+    const next_day = new Date(day);
+    next_day.setDate(next_day.getDate() + 1);
+    if (next_day.getTime() <= anchor)
+      return 0;
+    if (day.getTime() >= anchor && next_day.getTime() <= before && next_day.getTime() - day.getTime() === 864e5)
+      return slots.length;
+    let count = 0;
+    for (const slot of slots) {
+      const occurrence = new Date(day);
+      occurrence.setHours(0, slot, 0, 0);
+      if (occurrence.getHours() * 60 + occurrence.getMinutes() !== slot)
+        continue;
+      const timestamp = occurrence.getTime();
+      if (timestamp >= anchor && timestamp < before)
+        count++;
+    }
+    return count;
+  };
+  const monthTotals = (year, month) => {
+    const key2 = year * 12 + month;
+    const cached2 = month_totals.get(key2);
+    if (cached2)
+      return cached2;
+    const days = new Date(year, month + 1, 0).getDate();
+    const totals = [0];
+    for (let day = 1; day <= days; day++) {
+      totals.push((totals[day - 1] + countBefore(new Date(year, month, day), Infinity)) % mask.length);
+    }
+    if (month_totals.size >= 256)
+      month_totals.clear();
+    month_totals.set(key2, totals);
+    return totals;
+  };
+  const first_month = first_day.getFullYear() * 12 + first_day.getMonth();
+  const allows = (date) => {
+    const timestamp = date.getTime();
+    if (!Number.isFinite(timestamp) || timestamp < anchor)
+      return false;
+    const day = new Date(date);
+    day.setHours(0, 0, 0, 0);
+    const current_month = day.getFullYear() * 12 + day.getMonth();
+    let preceding = 0;
+    for (let month = first_month; month < current_month; month++) {
+      const totals2 = monthTotals(Math.floor(month / 12), month % 12);
+      preceding = (preceding + totals2[totals2.length - 1]) % mask.length;
+    }
+    const totals = monthTotals(day.getFullYear(), day.getMonth());
+    const index = (preceding + totals[day.getDate() - 1] + countBefore(day, timestamp)) % mask.length;
+    return mask[index] === "1";
+  };
+  if (MASK_FILTER_CACHE.size >= 128)
+    MASK_FILTER_CACHE.clear();
+  MASK_FILTER_CACHE.set(key, allows);
+  return allows;
+}
 var MIN_CACHEABLE_SEARCH_LIMIT_SECONDS = 60;
 var CRON_LOOKUP_CACHE = /* @__PURE__ */ new Map();
 var cron_lookup_second = 0;
@@ -6199,9 +6307,13 @@ function cachedCronLookup(key, now, search_limit_in_seconds, lookup) {
   CRON_LOOKUP_CACHE.set(key, result);
   return result;
 }
-function getNextCronRunTimestampInRange(cron_string, search_limit_in_seconds, now = Date.now()) {
+function getNextCronRunTimestampInRange(cron_string, search_limit_in_seconds, now = Date.now(), schedule = {}) {
   const parts = cronParts(cron_string);
-  const key = `next|${cron_string}|${search_limit_in_seconds}`;
+  if (!hasPlayableScheduleMask(schedule))
+    return null;
+  const allows = createScheduleMaskFilter(cron_string, schedule);
+  const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
+  const key = `next|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
   return cachedCronLookup(key, now, search_limit_in_seconds, () => {
     const searchLimitDate = new Date(now + search_limit_in_seconds * 1e3);
     const start_time = new Date(now);
@@ -6209,7 +6321,7 @@ function getNextCronRunTimestampInRange(cron_string, search_limit_in_seconds, no
     start_time.setMinutes(start_time.getMinutes() + 1);
     const current_date = new Date(start_time.getTime());
     while (current_date <= searchLimitDate) {
-      if (doesCronMatchDate(parts, current_date)) {
+      if (doesCronMatchDate(parts, current_date) && allows(current_date)) {
         return Math.floor(current_date.getTime() / 1e3);
       }
       current_date.setMinutes(current_date.getMinutes() + 1);
@@ -6217,18 +6329,26 @@ function getNextCronRunTimestampInRange(cron_string, search_limit_in_seconds, no
     return null;
   });
 }
-function getLastCronRunTimestampInRange(cron_string, search_limit_in_seconds, now = Date.now()) {
+function getLastCronRunTimestampInRange(cron_string, search_limit_in_seconds, now = Date.now(), schedule = {}) {
   const parts = cronParts(cron_string);
-  const key = `last|${cron_string}|${search_limit_in_seconds}`;
+  if (!hasPlayableScheduleMask(schedule))
+    return null;
+  const allows = createScheduleMaskFilter(cron_string, schedule);
+  const mask_key = JSON.stringify([schedule.valid_from, schedule.mask]);
+  const key = `last|${cron_string}|${search_limit_in_seconds}|${mask_key}`;
   return cachedCronLookup(key, now, search_limit_in_seconds, () => {
     const search_limit_date = new Date(now - search_limit_in_seconds * 1e3);
     const current_date = new Date(now);
     current_date.setSeconds(0, 0);
     while (current_date >= search_limit_date) {
       if (doesCronMatchDate(parts, current_date)) {
-        return Math.floor(current_date.getTime() / 1e3);
+        return allows(current_date) ? Math.floor(current_date.getTime() / 1e3) : null;
       }
+      const previous = current_date.getTime();
       current_date.setMinutes(current_date.getMinutes() - 1);
+      if (current_date.getTime() >= previous) {
+        current_date.setTime(previous - 6e4);
+      }
     }
     return null;
   });
@@ -6331,11 +6451,13 @@ function scheduledPlaylistWindow(schedule, now = time(), trigger_window_seconds 
   const period_minutes = playlistPlayPeriodMinutes(schedule);
   const window_seconds = trigger_window_seconds || period_minutes * 60;
   const valid_until = parseValidUntilTimestamp(schedule.valid_until);
+  if (!hasPlayableScheduleMask(schedule))
+    return null;
   if (valid_until && now > valid_until)
     return null;
   if (schedule.play_at) {
     const starts_at = parsePlayAtTimestamp(schedule.play_at);
-    if (!starts_at)
+    if (!starts_at || starts_at < (schedule.valid_from || 0) * 1e3 || schedule.mask && schedule.mask[0] !== "1")
       return null;
     const ends_at = capScheduleEnd(scheduledPlaylistEnd(starts_at, period_minutes), valid_until);
     const expires_at = capScheduleEnd(scheduledPlaylistExpiry(starts_at, period_minutes), valid_until);
@@ -6343,7 +6465,7 @@ function scheduledPlaylistWindow(schedule, now = time(), trigger_window_seconds 
   }
   if (schedule.play_cron?.trim()) {
     try {
-      const last = getLastCronRunTimestampInRange(schedule.play_cron, Math.max(window_seconds, 30), now);
+      const last = getLastCronRunTimestampInRange(schedule.play_cron, Math.max(window_seconds, 30), now, schedule);
       if (!last)
         return null;
       const starts_at = last * 1e3;
@@ -6372,11 +6494,13 @@ function activePlaylistSchedule(playlist, now = time(), trigger_window_seconds =
 }
 function nextScheduledPlaylistStart(schedule, now, horizon_seconds) {
   const valid_until = parseValidUntilTimestamp(schedule.valid_until);
+  if (!hasPlayableScheduleMask(schedule))
+    return 0;
   if (valid_until && now > valid_until)
     return 0;
   if (schedule.play_at) {
     const starts_at = parsePlayAtTimestamp(schedule.play_at);
-    if (!starts_at || starts_at <= now)
+    if (!starts_at || starts_at <= now || starts_at < (schedule.valid_from || 0) * 1e3 || schedule.mask && schedule.mask[0] !== "1")
       return 0;
     if (valid_until && starts_at > valid_until)
       return 0;
@@ -6384,7 +6508,7 @@ function nextScheduledPlaylistStart(schedule, now, horizon_seconds) {
   }
   if (schedule.play_cron?.trim()) {
     try {
-      const next = getNextCronRunTimestampInRange(schedule.play_cron, horizon_seconds, now);
+      const next = getNextCronRunTimestampInRange(schedule.play_cron, horizon_seconds, now, schedule);
       const starts_at = next ? next * 1e3 : 0;
       return valid_until && starts_at > valid_until ? 0 : starts_at;
     } catch {
@@ -6480,27 +6604,23 @@ var SignageService = class _SignageService extends AsyncHandler {
       )
     );
     this.display = this._display_data.asReadonly();
-    this.active_template = computed(
-      () => {
-        this._tick();
-        const mappings = this._display_data()?.template_schedules;
-        if (!Array.isArray(mappings))
+    this.active_templates = computed(() => {
+      this._tick();
+      const mappings = this._display_data()?.template_schedules;
+      if (!Array.isArray(mappings))
+        return [];
+      const defaults = mappings.filter((mapping) => mapping?.template_id && !mapping.schedule);
+      const scheduled = mappings.map((mapping, index) => {
+        if (!mapping?.template_id || !mapping.schedule)
           return null;
-        const scheduled = mappings.map((mapping) => {
-          if (!mapping?.template_id || !mapping.schedule)
-            return null;
-          const window2 = scheduledPlaylistWindow(mapping.schedule);
-          return window2 ? { mapping, starts_at: window2.starts_at } : null;
-        }).filter((item) => !!item).sort((a, b) => b.starts_at - a.starts_at || templateMappingCreatedAt(b.mapping) - templateMappingCreatedAt(a.mapping));
-        if (scheduled.length)
-          return scheduled[0].mapping;
-        return mappings.find((mapping) => mapping?.template_id && !mapping.schedule) || null;
-      },
-      ...ngDevMode ? [{ debugName: "active_template" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
+        const window2 = scheduledPlaylistWindow(mapping.schedule);
+        return window2 ? { mapping, index, starts_at: window2.starts_at } : null;
+      }).filter((item) => !!item).sort((a, b) => a.starts_at - b.starts_at || templateMappingCreatedAt(a.mapping) - templateMappingCreatedAt(b.mapping) || b.index - a.index);
+      return [...defaults, ...scheduled.map(({ mapping }) => mapping)];
+    }, __spreadProps(__spreadValues({}, ngDevMode ? { debugName: "active_templates" } : (
+      /* istanbul ignore next */
+      {}
+    )), { equal: (previous, current) => previous.length === current.length && previous.every((mapping, index) => mapping === current[index]) }));
     this.playlist = computed(
       () => {
         this._tick();
@@ -7806,6 +7926,8 @@ function SignageTemplateComponent_Conditional_2_Template(rf, ctx) {
   }
 }
 var STORE_DISPLAY_KEY = "PlaceOS.SIGNAGE.display";
+var PREVIEW_LAYOUTS_MESSAGE = "signage:template-layouts";
+var PREVIEW_READY_MESSAGE = "signage:template-preview-ready";
 function backgroundPlayerItem(media, plugins, media_cache, cache_owner) {
   const plugin = plugins.find((item) => item.id === media.plugin_id);
   const cacheable = media.media_type !== "webpage" && media.media_type !== "plugin";
@@ -7878,6 +8000,13 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
         []
       )
     );
+    this._preview_layouts = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_preview_layouts" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.background_playlist = signal(
       [],
       ...ngDevMode ? [{ debugName: "background_playlist" }] : (
@@ -7885,16 +8014,19 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
         []
       )
     );
-    this._template_id = computed(
-      () => this._route_template_id() || this._signage.active_template()?.template_id || "",
-      ...ngDevMode ? [{ debugName: "_template_id" }] : (
+    this._template_mappings = computed(
+      () => {
+        const template_id = this._route_template_id();
+        return template_id ? [new yr({ template_id })] : this._signage.active_templates();
+      },
+      ...ngDevMode ? [{ debugName: "_template_mappings" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this._template_id$ = toObservable(this._template_id);
+    this._template_mappings$ = toObservable(this._template_mappings);
     this._layout = computed(
-      () => computeTemplateLayout(this.template()?.layouts || []),
+      () => computeTemplateLayout(this.debug() && this._preview_layouts() || this.template()?.layouts || []),
       ...ngDevMode ? [{ debugName: "_layout" }] : (
         /* istanbul ignore next */
         []
@@ -7928,18 +8060,39 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
         []
       )
     );
+    this._preview_message_handler = (event) => {
+      const data = event?.data;
+      if (!this.debug() || data?.type !== PREVIEW_LAYOUTS_MESSAGE)
+        return;
+      this._preview_layouts.set(Array.isArray(data.layouts) ? data.layouts : null);
+    };
   }
   ngOnInit() {
-    this.subscription("route.params", this._route.paramMap.subscribe((params) => {
-      const template_id = params.get("template_id") || "";
-      const system_id = params.get("system_id") || "";
+    const params = this._route.snapshot.queryParamMap;
+    if (params.has("debug")) {
+      this.debug.set(isDebugEnabled(params.get("debug")));
+    }
+    this.subscription("route.params", this._route.paramMap.subscribe((params2) => {
+      const template_id = params2.get("template_id") || "";
+      const system_id = params2.get("system_id") || "";
       if (template_id && !system_id) {
         this._bootstrapTemplate(template_id);
         return;
       }
       this._route_template_id.set(template_id);
     }));
-    this.subscription("template", this._template_id$.subscribe((template_id) => this._loadTemplate(template_id)));
+    this.subscription("template", this._template_mappings$.subscribe((mappings) => this._loadTemplates(mappings)));
+    window.addEventListener("message", this._preview_message_handler);
+    this.subscription("preview-message", () => window.removeEventListener("message", this._preview_message_handler));
+  }
+  /**
+   * Ask the embedding manager preview for its unsaved layouts. The manager
+   * cannot know when this listener is ready, so the player asks first.
+   */
+  _requestPreviewLayouts() {
+    if (window.parent === window)
+      return;
+    window.parent.postMessage({ type: PREVIEW_READY_MESSAGE }, "*");
   }
   _bootstrapTemplate(template_id) {
     const display_id = localStorage.getItem(STORE_DISPLAY_KEY);
@@ -7954,18 +8107,32 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
       replaceUrl: true
     });
   }
-  async _loadTemplate(template_id) {
+  async _loadTemplates(mappings) {
     const load_id = ++this._load_id;
-    if (!template_id) {
+    this._preview_layouts.set(null);
+    this._requestPreviewLayouts();
+    if (!mappings.length) {
       this._plugins.set([]);
       this.template.set(null);
       this.background_playlist.set([]);
       return;
     }
     try {
-      const template = await hl(template_id, {
-        approved: true
-      });
+      const candidates = await Promise.all(mappings.map(async (mapping) => ({
+        mapping,
+        template: await hl(mapping.template_id, this.debug() ? {} : { approved: true })
+      })));
+      const non_merge = candidates.filter(({ template: template2 }) => !template2.merge);
+      const merge = candidates.filter(({ template: template2 }) => template2.merge);
+      const base = non_merge.filter(({ mapping }) => mapping.schedule).at(-1) || non_merge[0] || merge.shift();
+      if (!base || load_id !== this._load_id)
+        return;
+      const template = merge.length ? new gr(__spreadProps(__spreadValues({}, base.template), {
+        layouts: [
+          ...base.template.layouts,
+          ...merge.flatMap(({ template: template2 }) => template2.layouts)
+        ]
+      })) : base.template;
       const [plugin_result, background] = await Promise.all([
         il({ limit: 500 }).catch(() => ({ data: [] })),
         template.background_item_id ? Dh(template.background_item_id).catch(() => null) : null
@@ -7976,12 +8143,12 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
       this._plugins.set(plugins);
       this.template.set(template);
       this.background_playlist.set(background ? [
-        backgroundPlayerItem(background, plugins, this._media_cache, `template:${template_id}`)
+        backgroundPlayerItem(background, plugins, this._media_cache, `template:${template.id}`)
       ] : []);
     } catch (error) {
       if (load_id !== this._load_id)
         return;
-      log("SIGNAGE", `Unable to load template "${template_id}"`, [error], "error");
+      log("SIGNAGE", `Unable to load templates "${mappings.map((mapping) => mapping.template_id).join(", ")}"`, [error], "error");
       this.template.set(null);
       this.background_playlist.set([]);
     }
@@ -8062,10 +8229,10 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageTemplateComponent, { className: "SignageTemplateComponent", filePath: "apps/signage/src/app/template.component.ts", lineNumber: 151 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SignageTemplateComponent, { className: "SignageTemplateComponent", filePath: "apps/signage/src/app/template.component.ts", lineNumber: 158 });
 })();
 export {
   SignageTemplateComponent
 };
-//# debugId=2c62f685-9f29-5cf6-ab96-d188468dc867
-//# sourceMappingURL=template.component-2GL6ZEKD.js.map
+//# debugId=aa429113-65cf-56af-9e6f-fe09bedcd338
+//# sourceMappingURL=template.component-BOVLLAXY.js.map

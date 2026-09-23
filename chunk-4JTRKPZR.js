@@ -2993,6 +2993,15 @@ function skip(count) {
   return filter((_2, index) => count <= index);
 }
 
+// node_modules/rxjs/dist/esm/internal/operators/skipWhile.js
+function skipWhile(predicate) {
+  return operate((source, subscriber) => {
+    let taking = false;
+    let index = 0;
+    source.subscribe(createOperatorSubscriber(subscriber, (value) => (taking || (taking = !predicate(value, index++))) && subscriber.next(value)));
+  });
+}
+
 // node_modules/rxjs/dist/esm/internal/operators/startWith.js
 function startWith(...values) {
   const scheduler = popScheduler(values);
@@ -47268,8 +47277,9 @@ var Cn = class extends F {
   password = "";
   /** Password */
   confirm_password = "";
+  deleted;
   constructor(e = {}) {
-    super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true;
+    super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true, this.deleted = e.deleted ?? false;
   }
 };
 var Fe = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(Fe || {});
@@ -47784,6 +47794,7 @@ var gr = class {
   background_item_id;
   layouts;
   full_screen_takeover;
+  merge;
   approval_requested;
   requested_by_id;
   approved;
@@ -47793,7 +47804,19 @@ var gr = class {
   live_template_id;
   shared_with;
   constructor(e = {}) {
-    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.tags = e.tags || [], this.authority_id = e.authority_id || "", this.background_item_id = e.background_item_id || "", this.layouts = e.layouts || [], this.full_screen_takeover = e.full_screen_takeover || false, this.approval_requested = e.approval_requested || false, this.requested_by_id = e.requested_by_id || "", this.approved = e.approved || false, this.approved_by_id = e.approved_by_id || "", this.approved_by_name = e.approved_by_name || "", this.approved_by_email = e.approved_by_email || "", this.live_template_id = e.live_template_id || "", this.shared_with = e.shared_with || [];
+    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.tags = e.tags || [], this.authority_id = e.authority_id || "", this.background_item_id = e.background_item_id || "", this.layouts = e.layouts || [], this.full_screen_takeover = e.full_screen_takeover || false, this.merge = e.merge ?? false, this.approval_requested = e.approval_requested || false, this.requested_by_id = e.requested_by_id || "", this.approved = e.approved || false, this.approved_by_id = e.approved_by_id || "", this.approved_by_name = e.approved_by_name || "", this.approved_by_email = e.approved_by_email || "", this.live_template_id = e.live_template_id || "", this.shared_with = e.shared_with || [];
+  }
+};
+var yr = class {
+  created_at;
+  updated_at;
+  id;
+  control_system_id;
+  zone_id;
+  template_id;
+  schedule;
+  constructor(e = {}) {
+    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.control_system_id = e.control_system_id || "", this.zone_id = e.zone_id || "", this.template_id = e.template_id || "", this.schedule = e.schedule || null;
   }
 };
 var Ns = "signage";
@@ -50929,7 +50952,6 @@ var SIGNAGE_MANAGER = {
   DISPLAY_COUNT_LABEL_1: "{{ count }} display",
   DISPLAY_DETAILS_TABS: "Display details tabs",
   DISPLAY_EDIT: "Edit Display",
-  DISPLAY_NAME_ARIA: "Display name",
   DISPLAY_NO_ZONES: "This display is not in any zones.",
   DISPLAY_ORIENTATION_ARIA: "Display orientation",
   DISPLAY_SAVING: "Saving display...",
@@ -51264,6 +51286,7 @@ var SIGNAGE_MANAGER = {
   SVC_NO_UPDATE_TEMPLATES: "You cannot update templates in this group.",
   SVC_PERMISSION_DENIED: "Permission denied",
   SVC_PLAYLIST_ADDED_DISPLAY: "Playlist added to display",
+  SVC_PLAYLIST_ADD_DISPLAY_ERROR: "Could not add the playlist to the display. Please try again.",
   SVC_PLAYLIST_ADDED_ZONE: "Playlist added to zone",
   SVC_PLAYLIST_IN_DISPLAY: "Playlist already assigned to this display.",
   SVC_PLAYLIST_IN_ZONE: "Playlist already assigned to this zone.",
@@ -51329,11 +51352,15 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_BACKGROUND_SEARCH: "Search media",
   TEMPLATE_BACKGROUND_SELECT: "Select background media",
   TEMPLATE_BACKGROUND_SELECTED: "Selected background",
+  TEMPLATE_CHANGE_ADDED: "Added",
+  TEMPLATE_CHANGE_CHANGED: "Changed",
+  TEMPLATE_CHANGE_REMOVED: "Removed",
   TEMPLATE_CONFIGURATION: "Configuration",
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
+  TEMPLATE_MERGE: "Merge",
   TEMPLATE_LABEL: "Template",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
@@ -51399,6 +51426,26 @@ var SIGNAGE_MANAGER = {
   USERS_COUNT_1: "User ({{ count }})",
   USER_PERMISSIONS: "User permissions",
   VALID_FROM: "Valid From",
+  SCHEDULE_MASK_RANGE: "Enter 1 to 128 characters using only 0 and 1.",
+  SCHEDULE_MASK_VALID_FROM: "Set Valid From to use a repeat mask.",
+  SCHEDULE_MASK: "Repeat mask",
+  SCHEDULE_MASK_HINT: "Select each occurrence to switch between Play and Skip. Occurrence 1 starts at or after Valid From. The pattern then repeats.",
+  SCHEDULE_MASK_SUMMARY: "Mask {{ mask }}, repeats every {{ size }} instances",
+  MASK_REPEAT_LENGTH: "Repeat every",
+  MASK_OCCURRENCES: "{{ count }} occurrences",
+  MASK_OCCURRENCES_1: "{{ count }} occurrence",
+  MASK_PLAY_COUNT: "{{ count }} of {{ total }} play",
+  MASK_PLAY_ALL: "Play all",
+  MASK_SKIP_ALL: "Skip all",
+  MASK_ALTERNATE: "Play every other",
+  MASK_PATTERN: "Occurrence pattern",
+  MASK_INSTANCE_UNAVAILABLE: "No occurrence in the preview range",
+  MASK_INSTANCE_START_REQUIRED: "Set Valid From to show occurrence dates",
+  MASK_INSTANCE: "Occurrence {{ number }}: {{ state }}",
+  MASK_PLAY: "Play",
+  MASK_SKIP: "Skip",
+  MASK_NONE_PLAY: "All occurrences are skipped. This schedule will not play.",
+  SCHEDULE_VALIDITY_ORDER: "Valid From must be before Valid Until.",
   VERSION_TO_APPROVE: "New Version",
   VIEW_FOLDER: "Folders",
   VIEW_GRID: "Grid view",
@@ -51414,7 +51461,6 @@ var SIGNAGE_MANAGER = {
   ZONE_COUNT_LABEL_1: "{{ count }} zone",
   ZONE_DETAILS_TABS: "Zone details tabs",
   ZONE_EDIT: "Edit Zone",
-  ZONE_NAME_ARIA: "Zone name",
   ZONE_PARENT: "Parent zone",
   ZONE_PARENT_HINT: "Select a parent from the zones available to the active signage group.",
   ZONE_PARENT_REQUIRED: "Parent zone is required",
@@ -52002,6 +52048,8 @@ var BOOKINGS = {
   DESK_RESERVED_MESSAGE: "A desk has already been reserved for you, so you are unable to book another desk.",
   ITEM_BOOKED: "{{ name }} booked!",
   DESK_SUCCESS_LONE: "Your desk booking at {{ location }} has been successfully booked for {{ date }} at {{ time }}",
+  DESK_GROUP_RESULTS_ERROR: "Unable to load the group booking results. Check Your Bookings before booking again.",
+  DESK_SUCCESS_GROUP_PARTIAL: "Booked {{ booked }} of {{ size }} desks. Failed bookings: {{ failed }}. See the results below.",
   DESK_SUCCESS_GROUP: "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }} at {{ time }}",
   DESK_SUCCESS_LONE_ALLDAY: "Your desk booking at {{ location }} has been successfully booked for {{ date }}",
   DESK_SUCCESS_GROUP_ALLDAY: "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }}",
@@ -54215,6 +54263,153 @@ function withTimeout(promise, timeout_ms, message2 = "Operation timed out.") {
   });
 }
 
+// libs/common/src/lib/hotkeys.service.ts
+var INVALID_STANDALONE_KEYS = [
+  "control",
+  "shift",
+  "alt",
+  "meta",
+  "os"
+];
+var HotkeysService = class _HotkeysService {
+  constructor() {
+    this.keydown_states = {};
+    this.keydown_callbacks = {};
+    this.combo_end = [];
+    this.registered_combos = [];
+    this.counter = 0;
+    window.addEventListener("keydown", (event) => {
+      if (document.getSelection()?.type === "Range" || this.isEditableElementFocused()) {
+        return;
+      }
+      const code = this.mapKey((event.code || "").toLowerCase());
+      if (this.last_down !== code) {
+        if (!this.keydown_states[code]) {
+          this.keydown_states[code] = signal(null);
+        }
+        this.keydown_states[code].set(++this.counter);
+        this._handleKeyPress(code, this.counter);
+        if (this.combo_end.indexOf(code) >= 0) {
+          event.preventDefault();
+        }
+        this.last_down = code;
+      }
+    });
+    window.addEventListener("keyup", (event) => {
+      const code = this.mapKey((event.code || "").toLowerCase());
+      this.keydown_states[code]?.set(null);
+      if (this.last_down === code) {
+        this.last_down = null;
+      }
+    });
+  }
+  /**
+   * Listen to the given key combination
+   * @param combo Array of key codes to listen to or a hotkey string e.g. `Alt+Shift+KeyK`
+   * @param next Callback for combination presses
+   */
+  listen(combo, next) {
+    combo = combo instanceof Array ? combo : combo.split("+");
+    const combination = combo.map((i) => this.mapKey(i.toLowerCase()));
+    if (combination.length > 0 && this.validCombination(combination)) {
+      this.registered_combos.push(combination);
+      const last_key = combination[combination.length - 1];
+      if (!this.keydown_states[last_key]) {
+        this.keydown_states[last_key] = signal(null);
+      }
+      this.updateCombinationEndList();
+      const callback = (count) => {
+        if (count) {
+          const presses = [];
+          if (combination.length > 0) {
+            for (const key of combination) {
+              const state = this.keydown_states[key];
+              presses.push(state ? state() || -1 : -1);
+            }
+            for (let i = 0; i < combination.length - 1; i++) {
+              if (presses[i] > presses[i + 1]) {
+                return;
+              }
+            }
+          }
+          const total = presses.reduce((a, v2) => a + (v2 > 0 ? 1 : -1), 0);
+          if (total >= combination.length) {
+            next();
+          }
+        }
+      };
+      this.keydown_callbacks[last_key] ||= /* @__PURE__ */ new Set();
+      this.keydown_callbacks[last_key].add(callback);
+      return {
+        unsubscribe: () => this.keydown_callbacks[last_key]?.delete(callback)
+      };
+    }
+    return null;
+  }
+  _handleKeyPress(code, count) {
+    for (const callback of this.keydown_callbacks[code] || []) {
+      callback(count);
+    }
+  }
+  /** Check if keyboard input should remain with the focused editor. */
+  isEditableElementFocused() {
+    const active = document.activeElement;
+    if (!active)
+      return false;
+    const tag_name = active.tagName.toLowerCase();
+    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
+  }
+  /**
+   * Map key codes with multiple versions to simple form
+   * @param code Code to transform
+   */
+  mapKey(code) {
+    if (code.indexOf("alt") >= 0 || code.indexOf("shift") >= 0 || code.indexOf("control") >= 0) {
+      return code.replace("left", "").replace("right", "");
+    }
+    return code;
+  }
+  /**
+   * Update the list of the last keys in combinations to allow for prevent default actions on pre-existing hotkeys
+   */
+  updateCombinationEndList() {
+    const key_list = [];
+    for (const combo of this.registered_combos) {
+      this.combo_end.push(combo[combo.length - 1]);
+    }
+    this.combo_end = unique(key_list);
+  }
+  /**
+   * Checks if the given hotkey combination is allowed and valid
+   * @param combo Array of key codes
+   */
+  validCombination(combo) {
+    let non_meta = 0;
+    for (const key of combo) {
+      if (INVALID_STANDALONE_KEYS.indexOf(key) < 0) {
+        non_meta++;
+      }
+    }
+    return non_meta > 0;
+  }
+  static {
+    this.\u0275fac = function HotkeysService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _HotkeysService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _HotkeysService, factory: _HotkeysService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HotkeysService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
 // libs/common/src/lib/settings.ts
 var app = {
   name: "Signage",
@@ -55035,15 +55230,15 @@ setTimeout(() => initialiseUser(), 50);
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "5d0246b",
-  "hash": "5d0246b",
+  "raw": "53273a8",
+  "hash": "53273a8",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5d0246b",
+  "suffix": "53273a8",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1790126023718
+  "time": 1790128785841
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -55372,153 +55567,6 @@ var SettingsService = class _SettingsService extends AsyncHandler {
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsService, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [], null);
-})();
-
-// libs/common/src/lib/hotkeys.service.ts
-var INVALID_STANDALONE_KEYS = [
-  "control",
-  "shift",
-  "alt",
-  "meta",
-  "os"
-];
-var HotkeysService = class _HotkeysService {
-  constructor() {
-    this.keydown_states = {};
-    this.keydown_callbacks = {};
-    this.combo_end = [];
-    this.registered_combos = [];
-    this.counter = 0;
-    window.addEventListener("keydown", (event) => {
-      if (document.getSelection()?.type === "Range" || this.isEditableElementFocused()) {
-        return;
-      }
-      const code = this.mapKey((event.code || "").toLowerCase());
-      if (this.last_down !== code) {
-        if (!this.keydown_states[code]) {
-          this.keydown_states[code] = signal(null);
-        }
-        this.keydown_states[code].set(++this.counter);
-        this._handleKeyPress(code, this.counter);
-        if (this.combo_end.indexOf(code) >= 0) {
-          event.preventDefault();
-        }
-        this.last_down = code;
-      }
-    });
-    window.addEventListener("keyup", (event) => {
-      const code = this.mapKey((event.code || "").toLowerCase());
-      this.keydown_states[code]?.set(null);
-      if (this.last_down === code) {
-        this.last_down = null;
-      }
-    });
-  }
-  /**
-   * Listen to the given key combination
-   * @param combo Array of key codes to listen to or a hotkey string e.g. `Alt+Shift+KeyK`
-   * @param next Callback for combination presses
-   */
-  listen(combo, next) {
-    combo = combo instanceof Array ? combo : combo.split("+");
-    const combination = combo.map((i) => this.mapKey(i.toLowerCase()));
-    if (combination.length > 0 && this.validCombination(combination)) {
-      this.registered_combos.push(combination);
-      const last_key = combination[combination.length - 1];
-      if (!this.keydown_states[last_key]) {
-        this.keydown_states[last_key] = signal(null);
-      }
-      this.updateCombinationEndList();
-      const callback = (count) => {
-        if (count) {
-          const presses = [];
-          if (combination.length > 0) {
-            for (const key of combination) {
-              const state = this.keydown_states[key];
-              presses.push(state ? state() || -1 : -1);
-            }
-            for (let i = 0; i < combination.length - 1; i++) {
-              if (presses[i] > presses[i + 1]) {
-                return;
-              }
-            }
-          }
-          const total = presses.reduce((a, v2) => a + (v2 > 0 ? 1 : -1), 0);
-          if (total >= combination.length) {
-            next();
-          }
-        }
-      };
-      this.keydown_callbacks[last_key] ||= /* @__PURE__ */ new Set();
-      this.keydown_callbacks[last_key].add(callback);
-      return {
-        unsubscribe: () => this.keydown_callbacks[last_key]?.delete(callback)
-      };
-    }
-    return null;
-  }
-  _handleKeyPress(code, count) {
-    for (const callback of this.keydown_callbacks[code] || []) {
-      callback(count);
-    }
-  }
-  /** Check if keyboard input should remain with the focused editor. */
-  isEditableElementFocused() {
-    const active = document.activeElement;
-    if (!active)
-      return false;
-    const tag_name = active.tagName.toLowerCase();
-    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
-  }
-  /**
-   * Map key codes with multiple versions to simple form
-   * @param code Code to transform
-   */
-  mapKey(code) {
-    if (code.indexOf("alt") >= 0 || code.indexOf("shift") >= 0 || code.indexOf("control") >= 0) {
-      return code.replace("left", "").replace("right", "");
-    }
-    return code;
-  }
-  /**
-   * Update the list of the last keys in combinations to allow for prevent default actions on pre-existing hotkeys
-   */
-  updateCombinationEndList() {
-    const key_list = [];
-    for (const combo of this.registered_combos) {
-      this.combo_end.push(combo[combo.length - 1]);
-    }
-    this.combo_end = unique(key_list);
-  }
-  /**
-   * Checks if the given hotkey combination is allowed and valid
-   * @param combo Array of key codes
-   */
-  validCombination(combo) {
-    let non_meta = 0;
-    for (const key of combo) {
-      if (INVALID_STANDALONE_KEYS.indexOf(key) < 0) {
-        non_meta++;
-      }
-    }
-    return non_meta > 0;
-  }
-  static {
-    this.\u0275fac = function HotkeysService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _HotkeysService)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _HotkeysService, factory: _HotkeysService.\u0275fac, providedIn: "root" });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HotkeysService, [{
     type: Injectable,
     args: [{
       providedIn: "root"
@@ -58003,6 +58051,21 @@ var ActiveDescendantKeyManager = class extends ListKeyManager {
     super.setActiveItem(index);
     if (this.activeItem) {
       this.activeItem.setActiveStyles();
+    }
+  }
+};
+
+// node_modules/@angular/cdk/fesm2022/_focus-key-manager-chunk.mjs
+var FocusKeyManager = class extends ListKeyManager {
+  _origin = "program";
+  setFocusOrigin(origin) {
+    this._origin = origin;
+    return this;
+  }
+  setActiveItem(item) {
+    super.setActiveItem(item);
+    if (this.activeItem) {
+      this.activeItem.focus(this._origin);
     }
   }
 };
@@ -79775,850 +79838,6 @@ var IconComponent = class _IconComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(IconComponent, { className: "IconComponent", filePath: "libs/components/src/lib/icon.component.ts", lineNumber: 40 });
 })();
 
-// node_modules/@angular/material/fesm2022/_tooltip-chunk.mjs
-var _c07 = ["tooltip"];
-var SCROLL_THROTTLE_MS = 20;
-function getMatTooltipInvalidPositionError(position) {
-  return Error(`Tooltip position "${position}" is invalid.`);
-}
-var MAT_TOOLTIP_SCROLL_STRATEGY = new InjectionToken("mat-tooltip-scroll-strategy", {
-  providedIn: "root",
-  factory: () => {
-    const injector = inject2(Injector);
-    return () => createRepositionScrollStrategy(injector, {
-      scrollThrottle: SCROLL_THROTTLE_MS
-    });
-  }
-});
-var MAT_TOOLTIP_DEFAULT_OPTIONS = new InjectionToken("mat-tooltip-default-options", {
-  providedIn: "root",
-  factory: () => ({
-    showDelay: 0,
-    hideDelay: 0,
-    touchendHideDelay: 1500
-  })
-});
-var PANEL_CLASS = "tooltip-panel";
-var passiveListenerOptions = {
-  passive: true
-};
-var MIN_VIEWPORT_TOOLTIP_THRESHOLD = 8;
-var UNBOUNDED_ANCHOR_GAP = 8;
-var MIN_HEIGHT = 24;
-var MAX_WIDTH = 200;
-var MatTooltip = class _MatTooltip {
-  _elementRef = inject2(ElementRef);
-  _ngZone = inject2(NgZone);
-  _platform = inject2(Platform);
-  _ariaDescriber = inject2(AriaDescriber);
-  _focusMonitor = inject2(FocusMonitor);
-  _dir = inject2(Directionality);
-  _injector = inject2(Injector);
-  _viewContainerRef = inject2(ViewContainerRef);
-  _mediaMatcher = inject2(MediaMatcher);
-  _document = inject2(DOCUMENT);
-  _renderer = inject2(Renderer2);
-  _animationsDisabled = _animationsDisabled();
-  _defaultOptions = inject2(MAT_TOOLTIP_DEFAULT_OPTIONS, {
-    optional: true
-  });
-  _overlayRef = null;
-  _tooltipInstance = null;
-  _overlayPanelClass;
-  _portal;
-  _position = "below";
-  _positionAtOrigin = false;
-  _disabled = false;
-  _tooltipClass;
-  _viewInitialized = false;
-  _pointerExitEventsInitialized = false;
-  _tooltipComponent = TooltipComponent;
-  _viewportMargin = 8;
-  _currentPosition;
-  _cssClassPrefix = "mat-mdc";
-  _ariaDescriptionPending = false;
-  _dirSubscribed = false;
-  get position() {
-    return this._position;
-  }
-  set position(value) {
-    if (value !== this._position) {
-      this._position = value;
-      if (this._overlayRef) {
-        this._updatePosition(this._overlayRef);
-        this._tooltipInstance?.show(0);
-        this._overlayRef.updatePosition();
-      }
-    }
-  }
-  get positionAtOrigin() {
-    return this._positionAtOrigin;
-  }
-  set positionAtOrigin(value) {
-    this._positionAtOrigin = coerceBooleanProperty(value);
-    this._detach();
-    this._overlayRef = null;
-  }
-  get disabled() {
-    return this._disabled;
-  }
-  set disabled(value) {
-    const isDisabled = coerceBooleanProperty(value);
-    if (this._disabled !== isDisabled) {
-      this._disabled = isDisabled;
-      if (isDisabled) {
-        this.hide(0);
-      } else {
-        this._setupPointerEnterEventsIfNeeded();
-      }
-      this._syncAriaDescription(this.message);
-    }
-  }
-  get showDelay() {
-    return this._showDelay;
-  }
-  set showDelay(value) {
-    this._showDelay = coerceNumberProperty(value);
-  }
-  _showDelay;
-  get hideDelay() {
-    return this._hideDelay;
-  }
-  set hideDelay(value) {
-    this._hideDelay = coerceNumberProperty(value);
-    if (this._tooltipInstance) {
-      this._tooltipInstance._mouseLeaveHideDelay = this._hideDelay;
-    }
-  }
-  _hideDelay;
-  touchGestures = "auto";
-  get message() {
-    return this._message;
-  }
-  set message(value) {
-    const oldMessage = this._message;
-    this._message = value != null ? String(value).trim() : "";
-    if (!this._message && this._isTooltipVisible()) {
-      this.hide(0);
-    } else {
-      this._setupPointerEnterEventsIfNeeded();
-      this._updateTooltipMessage();
-    }
-    this._syncAriaDescription(oldMessage);
-  }
-  _message = "";
-  get tooltipClass() {
-    return this._tooltipClass;
-  }
-  set tooltipClass(value) {
-    this._tooltipClass = value;
-    if (this._tooltipInstance) {
-      this._setTooltipClass(this._tooltipClass);
-    }
-  }
-  _eventCleanups = [];
-  _touchstartTimeout = null;
-  _destroyed = new Subject();
-  _isDestroyed = false;
-  constructor() {
-    const defaultOptions2 = this._defaultOptions;
-    if (defaultOptions2) {
-      this._showDelay = defaultOptions2.showDelay;
-      this._hideDelay = defaultOptions2.hideDelay;
-      if (defaultOptions2.position) {
-        this.position = defaultOptions2.position;
-      }
-      if (defaultOptions2.positionAtOrigin) {
-        this.positionAtOrigin = defaultOptions2.positionAtOrigin;
-      }
-      if (defaultOptions2.touchGestures) {
-        this.touchGestures = defaultOptions2.touchGestures;
-      }
-      if (defaultOptions2.tooltipClass) {
-        this.tooltipClass = defaultOptions2.tooltipClass;
-      }
-    }
-    this._viewportMargin = MIN_VIEWPORT_TOOLTIP_THRESHOLD;
-  }
-  ngAfterViewInit() {
-    this._viewInitialized = true;
-    this._setupPointerEnterEventsIfNeeded();
-    this._focusMonitor.monitor(this._elementRef).pipe(takeUntil(this._destroyed)).subscribe((origin) => {
-      if (!origin) {
-        this._ngZone.run(() => this.hide(0));
-      } else if (origin === "keyboard") {
-        this._ngZone.run(() => this.show());
-      }
-    });
-  }
-  ngOnDestroy() {
-    const nativeElement = this._elementRef.nativeElement;
-    if (this._touchstartTimeout) {
-      clearTimeout(this._touchstartTimeout);
-    }
-    if (this._overlayRef) {
-      this._overlayRef.dispose();
-      this._tooltipInstance = null;
-    }
-    this._eventCleanups.forEach((cleanup) => cleanup());
-    this._eventCleanups.length = 0;
-    this._destroyed.next();
-    this._destroyed.complete();
-    this._isDestroyed = true;
-    this._ariaDescriber.removeDescription(nativeElement, this.message, "tooltip");
-    this._focusMonitor.stopMonitoring(nativeElement);
-  }
-  show(delay = this.showDelay, origin) {
-    if (this.disabled || !this.message || this._isTooltipVisible()) {
-      this._tooltipInstance?._cancelPendingAnimations();
-      return;
-    }
-    const overlayRef = this._createOverlay(origin);
-    this._detach();
-    this._portal = this._portal || new ComponentPortal(this._tooltipComponent, this._viewContainerRef);
-    const instance = this._tooltipInstance = overlayRef.attach(this._portal).instance;
-    instance._triggerElement = this._elementRef.nativeElement;
-    instance._mouseLeaveHideDelay = this._hideDelay;
-    instance.afterHidden().pipe(takeUntil(this._destroyed)).subscribe(() => this._detach());
-    this._setTooltipClass(this._tooltipClass);
-    this._updateTooltipMessage();
-    instance.show(delay);
-  }
-  hide(delay = this.hideDelay) {
-    const instance = this._tooltipInstance;
-    if (instance) {
-      if (instance.isVisible()) {
-        instance.hide(delay);
-      } else {
-        instance._cancelPendingAnimations();
-        this._detach();
-      }
-    }
-  }
-  toggle(origin) {
-    this._isTooltipVisible() ? this.hide() : this.show(void 0, origin);
-  }
-  _isTooltipVisible() {
-    return !!this._tooltipInstance && this._tooltipInstance.isVisible();
-  }
-  _createOverlay(origin) {
-    if (this._overlayRef) {
-      const existingStrategy = this._overlayRef.getConfig().positionStrategy;
-      if ((!this.positionAtOrigin || !origin) && existingStrategy._origin instanceof ElementRef) {
-        return this._overlayRef;
-      }
-      this._detach();
-    }
-    const scrollableAncestors = this._injector.get(ScrollDispatcher).getAncestorScrollContainers(this._elementRef);
-    const panelClass = `${this._cssClassPrefix}-${PANEL_CLASS}`;
-    const strategy = createFlexibleConnectedPositionStrategy(this._injector, this.positionAtOrigin ? origin || this._elementRef : this._elementRef).withTransformOriginOn(`.${this._cssClassPrefix}-tooltip`).withFlexibleDimensions(false).withViewportMargin(this._viewportMargin).withScrollableContainers(scrollableAncestors).withPopoverLocation("global");
-    strategy.positionChanges.pipe(takeUntil(this._destroyed)).subscribe((change) => {
-      this._updateCurrentPositionClass(change.connectionPair);
-      if (this._tooltipInstance) {
-        if (change.scrollableViewProperties.isOverlayClipped && this._tooltipInstance.isVisible()) {
-          this._ngZone.run(() => this.hide(0));
-        }
-      }
-    });
-    this._overlayRef = createOverlayRef(this._injector, {
-      direction: this._dir,
-      positionStrategy: strategy,
-      panelClass: this._overlayPanelClass ? [...this._overlayPanelClass, panelClass] : panelClass,
-      scrollStrategy: this._injector.get(MAT_TOOLTIP_SCROLL_STRATEGY)(),
-      disableAnimations: this._animationsDisabled,
-      eventPredicate: this._overlayEventPredicate
-    });
-    this._updatePosition(this._overlayRef);
-    this._overlayRef.detachments().pipe(takeUntil(this._destroyed)).subscribe(() => this._detach());
-    this._overlayRef.outsidePointerEvents().pipe(takeUntil(this._destroyed)).subscribe(() => this._tooltipInstance?._handleBodyInteraction());
-    this._overlayRef.keydownEvents().pipe(takeUntil(this._destroyed)).subscribe((event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      this._ngZone.run(() => this.hide(0));
-    });
-    if (this._defaultOptions?.disableTooltipInteractivity) {
-      this._overlayRef.addPanelClass(`${this._cssClassPrefix}-tooltip-panel-non-interactive`);
-    }
-    if (!this._dirSubscribed) {
-      this._dirSubscribed = true;
-      this._dir.change.pipe(takeUntil(this._destroyed)).subscribe(() => {
-        if (this._overlayRef) {
-          this._updatePosition(this._overlayRef);
-        }
-      });
-    }
-    return this._overlayRef;
-  }
-  _detach() {
-    if (this._overlayRef && this._overlayRef.hasAttached()) {
-      this._overlayRef.detach();
-    }
-    this._tooltipInstance = null;
-  }
-  _updatePosition(overlayRef) {
-    const position = overlayRef.getConfig().positionStrategy;
-    const origin = this._getOrigin();
-    const overlay = this._getOverlayPosition();
-    position.withPositions([this._addOffset(__spreadValues(__spreadValues({}, origin.main), overlay.main)), this._addOffset(__spreadValues(__spreadValues({}, origin.fallback), overlay.fallback))]);
-  }
-  _addOffset(position) {
-    const offset = UNBOUNDED_ANCHOR_GAP;
-    const isLtr = !this._dir || this._dir.value == "ltr";
-    if (position.originY === "top") {
-      position.offsetY = -offset;
-    } else if (position.originY === "bottom") {
-      position.offsetY = offset;
-    } else if (position.originX === "start") {
-      position.offsetX = isLtr ? -offset : offset;
-    } else if (position.originX === "end") {
-      position.offsetX = isLtr ? offset : -offset;
-    }
-    return position;
-  }
-  _getOrigin() {
-    const isLtr = !this._dir || this._dir.value == "ltr";
-    const position = this.position;
-    let originPosition;
-    if (position == "above" || position == "below") {
-      originPosition = {
-        originX: "center",
-        originY: position == "above" ? "top" : "bottom"
-      };
-    } else if (position == "before" || position == "left" && isLtr || position == "right" && !isLtr) {
-      originPosition = {
-        originX: "start",
-        originY: "center"
-      };
-    } else if (position == "after" || position == "right" && isLtr || position == "left" && !isLtr) {
-      originPosition = {
-        originX: "end",
-        originY: "center"
-      };
-    } else if (typeof ngDevMode === "undefined" || ngDevMode) {
-      throw getMatTooltipInvalidPositionError(position);
-    }
-    const {
-      x,
-      y: y2
-    } = this._invertPosition(originPosition.originX, originPosition.originY);
-    return {
-      main: originPosition,
-      fallback: {
-        originX: x,
-        originY: y2
-      }
-    };
-  }
-  _getOverlayPosition() {
-    const isLtr = !this._dir || this._dir.value == "ltr";
-    const position = this.position;
-    let overlayPosition;
-    if (position == "above") {
-      overlayPosition = {
-        overlayX: "center",
-        overlayY: "bottom"
-      };
-    } else if (position == "below") {
-      overlayPosition = {
-        overlayX: "center",
-        overlayY: "top"
-      };
-    } else if (position == "before" || position == "left" && isLtr || position == "right" && !isLtr) {
-      overlayPosition = {
-        overlayX: "end",
-        overlayY: "center"
-      };
-    } else if (position == "after" || position == "right" && isLtr || position == "left" && !isLtr) {
-      overlayPosition = {
-        overlayX: "start",
-        overlayY: "center"
-      };
-    } else if (typeof ngDevMode === "undefined" || ngDevMode) {
-      throw getMatTooltipInvalidPositionError(position);
-    }
-    const {
-      x,
-      y: y2
-    } = this._invertPosition(overlayPosition.overlayX, overlayPosition.overlayY);
-    return {
-      main: overlayPosition,
-      fallback: {
-        overlayX: x,
-        overlayY: y2
-      }
-    };
-  }
-  _updateTooltipMessage() {
-    if (this._tooltipInstance) {
-      this._tooltipInstance.message = this.message;
-      this._tooltipInstance._markForCheck();
-      afterNextRender(() => {
-        if (this._tooltipInstance) {
-          this._overlayRef.updatePosition();
-        }
-      }, {
-        injector: this._injector
-      });
-    }
-  }
-  _setTooltipClass(tooltipClass) {
-    if (this._tooltipInstance) {
-      this._tooltipInstance.tooltipClass = tooltipClass instanceof Set ? Array.from(tooltipClass) : tooltipClass;
-      this._tooltipInstance._markForCheck();
-    }
-  }
-  _invertPosition(x, y2) {
-    if (this.position === "above" || this.position === "below") {
-      if (y2 === "top") {
-        y2 = "bottom";
-      } else if (y2 === "bottom") {
-        y2 = "top";
-      }
-    } else {
-      if (x === "end") {
-        x = "start";
-      } else if (x === "start") {
-        x = "end";
-      }
-    }
-    return {
-      x,
-      y: y2
-    };
-  }
-  _updateCurrentPositionClass(connectionPair) {
-    const {
-      overlayY,
-      originX,
-      originY
-    } = connectionPair;
-    let newPosition;
-    if (overlayY === "center") {
-      if (this._dir && this._dir.value === "rtl") {
-        newPosition = originX === "end" ? "left" : "right";
-      } else {
-        newPosition = originX === "start" ? "left" : "right";
-      }
-    } else {
-      newPosition = overlayY === "bottom" && originY === "top" ? "above" : "below";
-    }
-    if (newPosition !== this._currentPosition) {
-      const overlayRef = this._overlayRef;
-      if (overlayRef) {
-        const classPrefix = `${this._cssClassPrefix}-${PANEL_CLASS}-`;
-        overlayRef.removePanelClass(classPrefix + this._currentPosition);
-        overlayRef.addPanelClass(classPrefix + newPosition);
-      }
-      this._currentPosition = newPosition;
-    }
-  }
-  _setupPointerEnterEventsIfNeeded() {
-    if (this._disabled || !this.message || !this._viewInitialized || this._eventCleanups.length) {
-      return;
-    }
-    if (!this._isTouchPlatform()) {
-      this._addListener("mouseenter", (event) => {
-        this._setupPointerExitEventsIfNeeded();
-        let point = void 0;
-        if (event.x !== void 0 && event.y !== void 0) {
-          point = event;
-        }
-        this.show(void 0, point);
-      });
-    } else if (this.touchGestures !== "off") {
-      this._disableNativeGesturesIfNecessary();
-      this._addListener("touchstart", (event) => {
-        const touch = event.targetTouches?.[0];
-        const origin = touch ? {
-          x: touch.clientX,
-          y: touch.clientY
-        } : void 0;
-        this._setupPointerExitEventsIfNeeded();
-        if (this._touchstartTimeout) {
-          clearTimeout(this._touchstartTimeout);
-        }
-        const DEFAULT_LONGPRESS_DELAY = 500;
-        this._touchstartTimeout = setTimeout(() => {
-          this._touchstartTimeout = null;
-          this.show(void 0, origin);
-        }, this._defaultOptions?.touchLongPressShowDelay ?? DEFAULT_LONGPRESS_DELAY);
-      });
-    }
-  }
-  _setupPointerExitEventsIfNeeded() {
-    if (this._pointerExitEventsInitialized) {
-      return;
-    }
-    this._pointerExitEventsInitialized = true;
-    if (!this._isTouchPlatform()) {
-      this._addListener("mouseleave", (event) => {
-        const newTarget = event.relatedTarget;
-        if (!newTarget || !this._overlayRef?.overlayElement.contains(newTarget)) {
-          this.hide();
-        }
-      });
-      this._addListener("wheel", (event) => {
-        if (this._isTooltipVisible()) {
-          const elementUnderPointer = this._document.elementFromPoint(event.clientX, event.clientY);
-          const element = this._elementRef.nativeElement;
-          if (elementUnderPointer !== element && !element.contains(elementUnderPointer)) {
-            this.hide();
-          }
-        }
-      });
-    } else if (this.touchGestures !== "off") {
-      this._disableNativeGesturesIfNecessary();
-      const touchendListener = () => {
-        if (this._touchstartTimeout) {
-          clearTimeout(this._touchstartTimeout);
-        }
-        this.hide(this._defaultOptions?.touchendHideDelay);
-      };
-      this._addListener("touchend", touchendListener);
-      this._addListener("touchcancel", touchendListener);
-    }
-  }
-  _addListener(name, listener) {
-    this._eventCleanups.push(this._renderer.listen(this._elementRef.nativeElement, name, listener, passiveListenerOptions));
-  }
-  _isTouchPlatform() {
-    const detectHoverCapability = this._defaultOptions?.detectHoverCapability;
-    if (typeof detectHoverCapability === "function") {
-      return !detectHoverCapability();
-    }
-    if (this._platform.IOS || this._platform.ANDROID) {
-      return true;
-    } else if (!this._platform.isBrowser) {
-      return false;
-    }
-    return !!detectHoverCapability && this._mediaMatcher.matchMedia("(any-hover: none)").matches;
-  }
-  _disableNativeGesturesIfNecessary() {
-    const gestures = this.touchGestures;
-    if (gestures !== "off") {
-      const element = this._elementRef.nativeElement;
-      const style = element.style;
-      if (gestures === "on" || element.nodeName !== "INPUT" && element.nodeName !== "TEXTAREA") {
-        style["userSelect"] = style["msUserSelect"] = style["webkitUserSelect"] = style["MozUserSelect"] = "none";
-      }
-      if (gestures === "on" || !element.draggable) {
-        style["webkitUserDrag"] = "none";
-      }
-      style["touchAction"] = "none";
-      style["webkitTapHighlightColor"] = "transparent";
-    }
-  }
-  _syncAriaDescription(oldMessage) {
-    if (this._ariaDescriptionPending) {
-      return;
-    }
-    this._ariaDescriptionPending = true;
-    this._ariaDescriber.removeDescription(this._elementRef.nativeElement, oldMessage, "tooltip");
-    if (!this._isDestroyed) {
-      afterNextRender({
-        write: () => {
-          this._ariaDescriptionPending = false;
-          if (this.message && !this.disabled) {
-            this._ariaDescriber.describe(this._elementRef.nativeElement, this.message, "tooltip");
-          }
-        }
-      }, {
-        injector: this._injector
-      });
-    }
-  }
-  _overlayEventPredicate = (event) => {
-    if (event.type === "keydown") {
-      return this._isTooltipVisible() && event.keyCode === ESCAPE && !hasModifierKey(event);
-    }
-    return true;
-  };
-  static \u0275fac = function MatTooltip_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatTooltip)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatTooltip,
-    selectors: [["", "matTooltip", ""]],
-    hostAttrs: [1, "mat-mdc-tooltip-trigger"],
-    hostVars: 2,
-    hostBindings: function MatTooltip_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        \u0275\u0275classProp("mat-mdc-tooltip-disabled", ctx.disabled);
-      }
-    },
-    inputs: {
-      position: [0, "matTooltipPosition", "position"],
-      positionAtOrigin: [0, "matTooltipPositionAtOrigin", "positionAtOrigin"],
-      disabled: [0, "matTooltipDisabled", "disabled"],
-      showDelay: [0, "matTooltipShowDelay", "showDelay"],
-      hideDelay: [0, "matTooltipHideDelay", "hideDelay"],
-      touchGestures: [0, "matTooltipTouchGestures", "touchGestures"],
-      message: [0, "matTooltip", "message"],
-      tooltipClass: [0, "matTooltipClass", "tooltipClass"]
-    },
-    exportAs: ["matTooltip"]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatTooltip, [{
-    type: Directive,
-    args: [{
-      selector: "[matTooltip]",
-      exportAs: "matTooltip",
-      host: {
-        "class": "mat-mdc-tooltip-trigger",
-        "[class.mat-mdc-tooltip-disabled]": "disabled"
-      }
-    }]
-  }], () => [], {
-    position: [{
-      type: Input,
-      args: ["matTooltipPosition"]
-    }],
-    positionAtOrigin: [{
-      type: Input,
-      args: ["matTooltipPositionAtOrigin"]
-    }],
-    disabled: [{
-      type: Input,
-      args: ["matTooltipDisabled"]
-    }],
-    showDelay: [{
-      type: Input,
-      args: ["matTooltipShowDelay"]
-    }],
-    hideDelay: [{
-      type: Input,
-      args: ["matTooltipHideDelay"]
-    }],
-    touchGestures: [{
-      type: Input,
-      args: ["matTooltipTouchGestures"]
-    }],
-    message: [{
-      type: Input,
-      args: ["matTooltip"]
-    }],
-    tooltipClass: [{
-      type: Input,
-      args: ["matTooltipClass"]
-    }]
-  });
-})();
-var TooltipComponent = class _TooltipComponent {
-  _changeDetectorRef = inject2(ChangeDetectorRef);
-  _elementRef = inject2(ElementRef);
-  _isMultiline = false;
-  message;
-  tooltipClass;
-  _showTimeoutId;
-  _hideTimeoutId;
-  _triggerElement;
-  _mouseLeaveHideDelay;
-  _animationsDisabled = _animationsDisabled();
-  _tooltip;
-  _closeOnInteraction = false;
-  _isVisible = false;
-  _onHide = new Subject();
-  _showAnimation = "mat-mdc-tooltip-show";
-  _hideAnimation = "mat-mdc-tooltip-hide";
-  show(delay) {
-    if (this._hideTimeoutId != null) {
-      clearTimeout(this._hideTimeoutId);
-    }
-    this._showTimeoutId = setTimeout(() => {
-      this._toggleVisibility(true);
-      this._showTimeoutId = void 0;
-    }, delay);
-  }
-  hide(delay) {
-    if (this._showTimeoutId != null) {
-      clearTimeout(this._showTimeoutId);
-    }
-    this._hideTimeoutId = setTimeout(() => {
-      this._toggleVisibility(false);
-      this._hideTimeoutId = void 0;
-    }, delay);
-  }
-  afterHidden() {
-    return this._onHide;
-  }
-  isVisible() {
-    return this._isVisible;
-  }
-  ngOnDestroy() {
-    this._cancelPendingAnimations();
-    this._onHide.complete();
-    this._triggerElement = null;
-  }
-  _handleBodyInteraction() {
-    if (this._closeOnInteraction) {
-      this.hide(0);
-    }
-  }
-  _markForCheck() {
-    this._changeDetectorRef.markForCheck();
-  }
-  _handleMouseLeave({
-    relatedTarget
-  }) {
-    if (!relatedTarget || !this._triggerElement.contains(relatedTarget)) {
-      if (this.isVisible()) {
-        this.hide(this._mouseLeaveHideDelay);
-      } else {
-        this._finalizeAnimation(false);
-      }
-    }
-  }
-  _onShow() {
-    this._isMultiline = this._isTooltipMultiline();
-    this._markForCheck();
-  }
-  _isTooltipMultiline() {
-    const rect = this._elementRef.nativeElement.getBoundingClientRect();
-    return rect.height > MIN_HEIGHT && rect.width >= MAX_WIDTH;
-  }
-  _handleAnimationEnd({
-    animationName
-  }) {
-    if (animationName === this._showAnimation || animationName === this._hideAnimation) {
-      this._finalizeAnimation(animationName === this._showAnimation);
-    }
-  }
-  _cancelPendingAnimations() {
-    if (this._showTimeoutId != null) {
-      clearTimeout(this._showTimeoutId);
-    }
-    if (this._hideTimeoutId != null) {
-      clearTimeout(this._hideTimeoutId);
-    }
-    this._showTimeoutId = this._hideTimeoutId = void 0;
-  }
-  _finalizeAnimation(toVisible) {
-    if (toVisible) {
-      this._closeOnInteraction = true;
-    } else if (!this.isVisible()) {
-      this._onHide.next();
-    }
-  }
-  _toggleVisibility(isVisible) {
-    const tooltip = this._tooltip.nativeElement;
-    const showClass = this._showAnimation;
-    const hideClass = this._hideAnimation;
-    tooltip.classList.remove(isVisible ? hideClass : showClass);
-    tooltip.classList.add(isVisible ? showClass : hideClass);
-    if (this._isVisible !== isVisible) {
-      this._isVisible = isVisible;
-      this._changeDetectorRef.markForCheck();
-    }
-    if (isVisible && !this._animationsDisabled && typeof getComputedStyle === "function") {
-      const styles = getComputedStyle(tooltip);
-      if (styles.getPropertyValue("animation-duration") === "0s" || styles.getPropertyValue("animation-name") === "none") {
-        this._animationsDisabled = true;
-      }
-    }
-    if (isVisible) {
-      this._onShow();
-    }
-    if (this._animationsDisabled) {
-      tooltip.classList.add("_mat-animation-noopable");
-      this._finalizeAnimation(isVisible);
-    }
-  }
-  static \u0275fac = function TooltipComponent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _TooltipComponent)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _TooltipComponent,
-    selectors: [["mat-tooltip-component"]],
-    viewQuery: function TooltipComponent_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuery(_c07, 7);
-      }
-      if (rf & 2) {
-        let _t;
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._tooltip = _t.first);
-      }
-    },
-    hostAttrs: ["aria-hidden", "true"],
-    hostBindings: function TooltipComponent_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("mouseleave", function TooltipComponent_mouseleave_HostBindingHandler($event) {
-          return ctx._handleMouseLeave($event);
-        });
-      }
-    },
-    decls: 4,
-    vars: 5,
-    consts: [["tooltip", ""], [1, "mdc-tooltip", "mat-mdc-tooltip", 3, "animationend"], [1, "mat-mdc-tooltip-surface", "mdc-tooltip__surface"]],
-    template: function TooltipComponent_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275domElementStart(0, "div", 1, 0);
-        \u0275\u0275domListener("animationend", function TooltipComponent_Template_div_animationend_0_listener($event) {
-          return ctx._handleAnimationEnd($event);
-        });
-        \u0275\u0275domElementStart(2, "div", 2);
-        \u0275\u0275text(3);
-        \u0275\u0275domElementEnd()();
-      }
-      if (rf & 2) {
-        \u0275\u0275classMap(ctx.tooltipClass);
-        \u0275\u0275classProp("mdc-tooltip--multiline", ctx._isMultiline);
-        \u0275\u0275advance(3);
-        \u0275\u0275textInterpolate(ctx.message);
-      }
-    },
-    styles: ['.mat-mdc-tooltip {\n  position: relative;\n  transform: scale(0);\n  display: inline-flex;\n}\n.mat-mdc-tooltip::before {\n  content: "";\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  z-index: -1;\n  position: absolute;\n}\n.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before {\n  top: -8px;\n}\n.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before {\n  bottom: -8px;\n}\n.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before {\n  left: -8px;\n}\n.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before {\n  right: -8px;\n}\n.mat-mdc-tooltip._mat-animation-noopable {\n  animation: none;\n  transform: scale(1);\n}\n\n.mat-mdc-tooltip-surface {\n  word-break: normal;\n  overflow-wrap: anywhere;\n  padding: 4px 8px;\n  min-width: 40px;\n  max-width: 200px;\n  min-height: 24px;\n  max-height: 40vh;\n  box-sizing: border-box;\n  overflow: hidden;\n  text-align: center;\n  will-change: transform, opacity;\n  background-color: var(--%NS%mat-tooltip-container-color, var(--%NS%mat-sys-inverse-surface));\n  color: var(--%NS%mat-tooltip-supporting-text-color, var(--%NS%mat-sys-inverse-on-surface));\n  border-radius: var(--%NS%mat-tooltip-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  font-family: var(--%NS%mat-tooltip-supporting-text-font, var(--%NS%mat-sys-body-small-font));\n  font-size: var(--%NS%mat-tooltip-supporting-text-size, var(--%NS%mat-sys-body-small-size));\n  font-weight: var(--%NS%mat-tooltip-supporting-text-weight, var(--%NS%mat-sys-body-small-weight));\n  line-height: var(--%NS%mat-tooltip-supporting-text-line-height, var(--%NS%mat-sys-body-small-line-height));\n  letter-spacing: var(--%NS%mat-tooltip-supporting-text-tracking, var(--%NS%mat-sys-body-small-tracking));\n}\n.mat-mdc-tooltip-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: left;\n}\n[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: right;\n}\n\n.mat-mdc-tooltip-panel {\n  line-height: normal;\n}\n.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive {\n  pointer-events: none;\n}\n\n@keyframes mat-mdc-tooltip-show {\n  0% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n@keyframes mat-mdc-tooltip-hide {\n  0% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n}\n.mat-mdc-tooltip-show {\n  animation: mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards;\n}\n\n.mat-mdc-tooltip-hide {\n  animation: mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards;\n}\n'],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TooltipComponent, [{
-    type: Component,
-    args: [{
-      selector: "mat-tooltip-component",
-      encapsulation: ViewEncapsulation.None,
-      host: {
-        "(mouseleave)": "_handleMouseLeave($event)",
-        "aria-hidden": "true"
-      },
-      template: '<div\n  #tooltip\n  class="mdc-tooltip mat-mdc-tooltip"\n  [class]="tooltipClass"\n  (animationend)="_handleAnimationEnd($event)"\n  [class.mdc-tooltip--multiline]="_isMultiline">\n  <div class="mat-mdc-tooltip-surface mdc-tooltip__surface">{{message}}</div>\n</div>\n',
-      styles: ['.mat-mdc-tooltip {\n  position: relative;\n  transform: scale(0);\n  display: inline-flex;\n}\n.mat-mdc-tooltip::before {\n  content: "";\n  top: 0;\n  right: 0;\n  bottom: 0;\n  left: 0;\n  z-index: -1;\n  position: absolute;\n}\n.mat-mdc-tooltip-panel-below .mat-mdc-tooltip::before {\n  top: -8px;\n}\n.mat-mdc-tooltip-panel-above .mat-mdc-tooltip::before {\n  bottom: -8px;\n}\n.mat-mdc-tooltip-panel-right .mat-mdc-tooltip::before {\n  left: -8px;\n}\n.mat-mdc-tooltip-panel-left .mat-mdc-tooltip::before {\n  right: -8px;\n}\n.mat-mdc-tooltip._mat-animation-noopable {\n  animation: none;\n  transform: scale(1);\n}\n\n.mat-mdc-tooltip-surface {\n  word-break: normal;\n  overflow-wrap: anywhere;\n  padding: 4px 8px;\n  min-width: 40px;\n  max-width: 200px;\n  min-height: 24px;\n  max-height: 40vh;\n  box-sizing: border-box;\n  overflow: hidden;\n  text-align: center;\n  will-change: transform, opacity;\n  background-color: var(--mat-tooltip-container-color, var(--mat-sys-inverse-surface));\n  color: var(--mat-tooltip-supporting-text-color, var(--mat-sys-inverse-on-surface));\n  border-radius: var(--mat-tooltip-container-shape, var(--mat-sys-corner-extra-small));\n  font-family: var(--mat-tooltip-supporting-text-font, var(--mat-sys-body-small-font));\n  font-size: var(--mat-tooltip-supporting-text-size, var(--mat-sys-body-small-size));\n  font-weight: var(--mat-tooltip-supporting-text-weight, var(--mat-sys-body-small-weight));\n  line-height: var(--mat-tooltip-supporting-text-line-height, var(--mat-sys-body-small-line-height));\n  letter-spacing: var(--mat-tooltip-supporting-text-tracking, var(--mat-sys-body-small-tracking));\n}\n.mat-mdc-tooltip-surface::before {\n  position: absolute;\n  box-sizing: border-box;\n  width: 100%;\n  height: 100%;\n  top: 0;\n  left: 0;\n  border: 1px solid transparent;\n  border-radius: inherit;\n  content: "";\n  pointer-events: none;\n}\n.mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: left;\n}\n[dir=rtl] .mdc-tooltip--multiline .mat-mdc-tooltip-surface {\n  text-align: right;\n}\n\n.mat-mdc-tooltip-panel {\n  line-height: normal;\n}\n.mat-mdc-tooltip-panel.mat-mdc-tooltip-panel-non-interactive {\n  pointer-events: none;\n}\n\n@keyframes mat-mdc-tooltip-show {\n  0% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  100% {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n@keyframes mat-mdc-tooltip-hide {\n  0% {\n    opacity: 1;\n    transform: scale(1);\n  }\n  100% {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n}\n.mat-mdc-tooltip-show {\n  animation: mat-mdc-tooltip-show 150ms cubic-bezier(0, 0, 0.2, 1) forwards;\n}\n\n.mat-mdc-tooltip-hide {\n  animation: mat-mdc-tooltip-hide 75ms cubic-bezier(0.4, 0, 1, 1) forwards;\n}\n']
-    }]
-  }], null, {
-    _tooltip: [{
-      type: ViewChild,
-      args: ["tooltip", {
-        static: true
-      }]
-    }]
-  });
-})();
-
-// node_modules/@angular/material/fesm2022/tooltip.mjs
-var MatTooltipModule = class _MatTooltipModule {
-  static \u0275fac = function MatTooltipModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatTooltipModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _MatTooltipModule,
-    imports: [A11yModule, OverlayModule, MatTooltip, TooltipComponent],
-    exports: [MatTooltip, TooltipComponent, BidiModule, CdkScrollableModule]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    imports: [A11yModule, OverlayModule, BidiModule, CdkScrollableModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatTooltipModule, [{
-    type: NgModule,
-    args: [{
-      imports: [A11yModule, OverlayModule, MatTooltip, TooltipComponent],
-      exports: [MatTooltip, TooltipComponent, BidiModule, CdkScrollableModule]
-    }]
-  }], null, null);
-})();
-
 export {
   Subscription,
   Observable,
@@ -80636,6 +79855,7 @@ export {
   take,
   pairwise,
   shareReplay,
+  skipWhile,
   startWith,
   switchMap,
   takeUntil,
@@ -80668,16 +79888,21 @@ export {
   Injectable,
   Service,
   ElementRef,
+  QueryList,
   ViewEncapsulation,
   ɵɵsanitizeHtml,
+  ɵɵsanitizeUrl,
   ɵɵsanitizeResourceUrl,
   ɵɵresolveWindow,
+  ɵɵresolveDocument,
+  afterNextRender,
   ɵɵadvance,
   TemplateRef,
   RendererFactory2,
   Renderer2,
   ɵɵcontrolCreate,
   ɵɵcontrol,
+  ɵɵinvalidFactory,
   ViewContainerRef,
   ɵɵdefineComponent,
   ɵɵdefineNgModule,
@@ -80690,6 +79915,7 @@ export {
   ɵɵInheritDefinitionFeature,
   ɵɵtemplate,
   ɵɵdomTemplate,
+  ApplicationRef,
   ɵɵdefer,
   ɵɵdeferWhen,
   ɵɵattribute,
@@ -80735,6 +79961,7 @@ export {
   ɵɵProvidersFeature,
   ɵɵpureFunction0,
   ɵɵpureFunction1,
+  ɵɵpureFunction2,
   ɵɵpipe,
   ɵɵpipeBind1,
   ɵɵpipeBind2,
@@ -80841,6 +80068,8 @@ export {
   Cs,
   ws,
   mr,
+  gr,
+  yr,
   Uh,
   Dh,
   il,
@@ -80898,6 +80127,8 @@ export {
   lookupNativeDomainByEmail,
   firstValueWhere,
   Clipboard,
+  isFakeMousedownFromScreenReader,
+  isFakeTouchstartFromScreenReader,
   ENTER,
   ESCAPE,
   SPACE,
@@ -80906,23 +80137,39 @@ export {
   RIGHT_ARROW,
   DOWN_ARROW,
   A,
+  _getShadowRoot,
   _getEventTarget,
   Platform,
   coerceNumberProperty,
   coerceElement,
+  FocusMonitor,
   _CdkPrivateStyleLoader,
+  MediaMatcher,
   ObserversModule,
   LiveAnnouncer,
+  A11yModule,
   hasModifierKey,
   ActiveDescendantKeyManager,
+  FocusKeyManager,
   _IdGenerator,
+  AriaDescriber,
   Directionality,
   BidiModule,
+  CdkFixedSizeVirtualScroll,
+  ScrollDispatcher,
   ViewportRuler,
+  CdkVirtualScrollViewport,
+  CdkVirtualForOf,
   CdkScrollableModule,
+  ScrollingModule,
+  ComponentPortal,
   TemplatePortal,
+  DomPortalOutlet,
   createRepositionScrollStrategy,
+  OverlayConfig,
+  createFlexibleConnectedPositionStrategy,
   OVERLAY_DEFAULT_CONFIG,
+  createOverlayRef,
   Overlay,
   CdkOverlayOrigin,
   CdkConnectedOverlay,
@@ -80932,6 +80179,7 @@ export {
   _animationsDisabled,
   coerceBooleanProperty,
   MatRipple,
+  _StructuralStylesLoader,
   MatRippleModule,
   provideServiceWorker,
   createErrorHandler,
@@ -80952,9 +80200,7 @@ export {
   MatOptionModule,
   _ErrorStateTracker,
   SafePipe,
-  IconComponent,
-  MatTooltip,
-  MatTooltipModule
+  IconComponent
 };
-//# debugId=0c12a86f-de3a-5de3-824d-e4f7f85804dc
-//# sourceMappingURL=chunk-KUO3ZYBY.js.map
+//# debugId=fb93bb25-8797-5c8d-8914-6059ee6c9512
+//# sourceMappingURL=chunk-4JTRKPZR.js.map
