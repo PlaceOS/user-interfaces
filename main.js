@@ -8,26 +8,26 @@ import {
 import {
   FooterMenuComponent,
   TopbarComponent
-} from "./chunk-DI2VXAOW.js";
-import "./chunk-XC5DDUCA.js";
-import "./chunk-RLA5H73K.js";
-import "./chunk-RW7HIA2Y.js";
-import "./chunk-WYEOJGIY.js";
-import "./chunk-3RIHMSHD.js";
-import "./chunk-DOBCMUAP.js";
-import "./chunk-NB6ALTXM.js";
-import "./chunk-BWSW5CJW.js";
+} from "./chunk-NOVGQXJM.js";
+import "./chunk-CSH677YW.js";
+import "./chunk-OUAPBFVO.js";
+import "./chunk-7TSSGXSP.js";
+import "./chunk-NRS5WDE2.js";
+import "./chunk-XTROC27H.js";
+import "./chunk-I6M7ATJE.js";
+import "./chunk-GZUVULSX.js";
+import "./chunk-NRIRDLNQ.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-KMD2FZLF.js";
+} from "./chunk-WAAPLEXP.js";
 import {
   generateMockSpace,
   setMinutes
-} from "./chunk-YVH3663G.js";
-import "./chunk-UCGV6JDF.js";
-import "./chunk-4I6T3ANR.js";
-import "./chunk-ZRPAUKQL.js";
+} from "./chunk-HYM5TIGP.js";
+import "./chunk-WJF5DQ4W.js";
+import "./chunk-27X6IIX6.js";
+import "./chunk-WVBRHOX2.js";
 import {
   MatFormField,
   MatFormFieldModule,
@@ -36,7 +36,7 @@ import {
   MatPrefix,
   setHours,
   subDays
-} from "./chunk-QAKT6UQ6.js";
+} from "./chunk-QQET7ATL.js";
 import "./chunk-2QAVTKHL.js";
 import {
   AsyncHandler,
@@ -82,7 +82,7 @@ import {
   setNativeEmail,
   settingSignal,
   user_groups_loaded
-} from "./chunk-XR3OP2UZ.js";
+} from "./chunk-NK4PYJZR.js";
 import {
   TranslatePipe
 } from "./chunk-45XEP3DZ.js";
@@ -1277,7 +1277,7 @@ var RedirectComponent = class _RedirectComponent {
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-NU6WFJWE.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-2PYGQ2OD.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1373,7 +1373,7 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-NU6WFJWE.js").then((m) => m.SettingsDebugPanelComponent)
+    import("./settings-debug-panel.component-2PYGQ2OD.js").then((m) => m.SettingsDebugPanelComponent)
   ], (SettingsDebugPanelComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -9685,7 +9685,7 @@ function mocksInit() {
 // apps/workplace/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-PN2L256K.js").then((m) => m.ChatComponent)
+  import("./chat.component-2K2M44JO.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9739,7 +9739,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-PN2L256K.js").then((m) => m.ChatComponent)
+    import("./chat.component-2K2M44JO.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9920,62 +9920,62 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-N2WYCZP4.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-G2JT2EAX.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-2DRS7KL3.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-FFA7H6UN.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-CAUFSAZZ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-S57YY64P.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-R7UB5GOB.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-YBOFFB2V.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-2HLKJJUY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-QY4NCTS6.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-LFG5BCCV.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-HY6BSQ6L.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-GTNJJVNW.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-KXMYOPHF.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-G5BFEEQD.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-MUJLD63X.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-CNSLXIXL.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-BQRPXC5R.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
