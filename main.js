@@ -11,7 +11,7 @@ import {
   MatSuffix,
   TranslatePipe,
   toSignal
-} from "./chunk-7Q4GIKPT.js";
+} from "./chunk-K6HXCN7K.js";
 import {
   ActivatedRoute,
   ActiveDescendantKeyManager,
@@ -235,7 +235,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuery
-} from "./chunk-A2OFOUNK.js";
+} from "./chunk-HHO3QMCS.js";
 import {
   __spreadProps,
   __spreadValues
@@ -11388,22 +11388,22 @@ var routes = [
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-UHFRTRDV.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-6RZBQM3O.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "tabbed/:system",
-    loadComponent: () => import("./tabbed-view.component-MKOQC6AC.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-AKBDLY2Y.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "tabbed/:system/:tab",
-    loadComponent: () => import("./tabbed-view.component-MKOQC6AC.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-AKBDLY2Y.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-3UXEVIXC.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-LFZMPDM4.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
