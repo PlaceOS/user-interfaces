@@ -18,10 +18,6 @@ import {
   MatDialog,
   MatDialogClose,
   MatDialogModule,
-  MatMenu,
-  MatMenuItem,
-  MatMenuModule,
-  MatMenuTrigger,
   SpacesService,
   UserSearchFieldComponent,
   deskFromAsset,
@@ -33,26 +29,30 @@ import {
   rulesForResource,
   searchStaff,
   showStaff
-} from "./chunk-BWVUVTBB.js";
+} from "./chunk-DI24D3OI.js";
 import {
   CustomTooltipComponent
-} from "./chunk-YXQF7K7R.js";
+} from "./chunk-2OWLHAHZ.js";
 import {
   MatCheckbox,
   MatCheckboxModule,
   MatError,
   MatFormFieldModule,
+  MatMenu,
+  MatMenuItem,
+  MatMenuModule,
+  MatMenuTrigger,
   MatProgressSpinner,
   MatProgressSpinnerModule,
   SpacePipe,
   VirtualKeyboardComponent,
   toSignal
-} from "./chunk-3BTXLSOU.js";
-import "./chunk-VSGTS5RO.js";
-import "./chunk-Q2FZ7CPV.js";
+} from "./chunk-4LH35PWC.js";
+import "./chunk-MOPIICML.js";
+import "./chunk-6AKQTVNH.js";
 import {
   TranslatePipe
-} from "./chunk-7EYVEWBB.js";
+} from "./chunk-KTZREDEW.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -240,7 +240,7 @@ import {
   ɵɵtextInterpolate2,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-EJR6SPGD.js";
+} from "./chunk-U4PRGDFR.js";
 import {
   __spreadProps,
   __spreadValues
@@ -6692,5 +6692,5 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
 export {
   ExploreComponent
 };
-//# debugId=4cae099c-8f39-5790-9715-09e59dba8e93
-//# sourceMappingURL=explore.component-U5TFYPLN.js.map
+//# debugId=117f99f8-ed48-5510-92e4-089cff745640
+//# sourceMappingURL=explore.component-PROTDJCG.js.map
