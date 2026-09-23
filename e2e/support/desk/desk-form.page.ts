@@ -163,6 +163,54 @@ export class DeskForm {
         );
     }
 
+    /** Add a colleague to the group member list from the user autocomplete. */
+    async addGroupMember(email: string): Promise<void> {
+        const field = this.root.locator('a-user-list-field');
+        const input = field.locator('input[name="user_email"]');
+        // Wait for actual directory users, not the immediately offered
+        // "Add external" option containing the same email.
+        const options = this.page.locator('mat-option').filter({
+            has: this.page.locator('a-user-avatar'),
+        });
+        const flat = (value: string) =>
+            value.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            await input.click();
+            await input.press('ControlOrMeta+a');
+            await input.press('Backspace');
+            await input.pressSequentially(email, { delay: 30 });
+            const appeared = await options
+                .first()
+                .waitFor({ state: 'visible', timeout: 10_000 })
+                .then(() => true)
+                .catch(() => false);
+            if (!appeared) continue;
+
+            const texts = await options.allInnerTexts();
+            const index = texts.findIndex((text) =>
+                flat(text).includes(flat(email)),
+            );
+            if (index >= 0) {
+                await options.nth(index).click();
+                // The component clears search asynchronously after selection.
+                await expect(input).toHaveValue('');
+                return;
+            }
+        }
+
+        throw new Error(`no group member autocomplete option for ${email}`);
+    }
+
+    get groupMembers(): Locator {
+        return this.root.locator('a-user-list-field mat-chip-row[user]');
+    }
+
+    get groupModeButton(): Locator {
+        // English-label exception: no additional application selector is needed.
+        return this.root.getByRole('button', { name: /\bGroup$/ });
+    }
+
     get addDeskButton(): Locator {
         return this.page.locator('button[name="add-desk"]');
     }

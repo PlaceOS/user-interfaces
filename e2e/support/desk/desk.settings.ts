@@ -76,3 +76,9 @@ export const BOOK_FOR_OTHERS = {
     // would use. Same boundary as the room specs' `use_bookings` mode.
     'app.basic_user_search': true,
 };
+
+/** Enable the desk form's group mode and its local user search backend. */
+export const ALLOW_GROUP_BOOKING = {
+    'app.desks.allow_groups': true,
+    'app.basic_user_search': true,
+};
