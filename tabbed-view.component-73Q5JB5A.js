@@ -1,10 +1,10 @@
 import {
   ChangelogService,
   ICON_MAP
-} from "./chunk-BZTJRDA2.js";
+} from "./chunk-S3W2MBPN.js";
 import {
   VideoCallPageComponent
-} from "./chunk-FZ2N4QXE.js";
+} from "./chunk-RIUY3ARU.js";
 import {
   AuthenticatedImageDirective,
   BindingDirective,
@@ -18,7 +18,7 @@ import {
   VideoCallStateService,
   marked,
   parse
-} from "./chunk-54JGWFPQ.js";
+} from "./chunk-3FBKL7AP.js";
 import {
   MatFormField,
   MatFormFieldModule,
@@ -27,12 +27,12 @@ import {
   MatSelect,
   MatSelectModule,
   toSignal
-} from "./chunk-PPF3TODQ.js";
+} from "./chunk-QRSKK23Q.js";
 import {
   TranslatePipe
-} from "./chunk-66FGSBLG.js";
-import "./chunk-JGRRD5KV.js";
-import "./chunk-SP74N3BN.js";
+} from "./chunk-4E7G7LOA.js";
+import "./chunk-46QYOZ72.js";
+import "./chunk-4YFRAJIN.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -114,7 +114,7 @@ import {
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty
-} from "./chunk-WL7WGIFQ.js";
+} from "./chunk-LO646HYG.js";
 import {
   __spreadProps,
   __spreadValues
@@ -2425,4 +2425,4 @@ export {
   ControlTabbedViewComponent
 };
 //# debugId=14c8eaac-410f-56cd-b682-fd0ffb8cc0cf
-//# sourceMappingURL=tabbed-view.component-2BWUD4EO.js.map
+//# sourceMappingURL=tabbed-view.component-73Q5JB5A.js.map
