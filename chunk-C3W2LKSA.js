@@ -47376,8 +47376,9 @@ var Cn = class extends F {
   password = "";
   /** Password */
   confirm_password = "";
+  deleted;
   constructor(e = {}) {
-    super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true;
+    super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true, this.deleted = e.deleted ?? false;
   }
 };
 var Fe = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(Fe || {});
@@ -51216,7 +51217,6 @@ var SIGNAGE_MANAGER = {
   DISPLAY_COUNT_LABEL_1: "{{ count }} display",
   DISPLAY_DETAILS_TABS: "Display details tabs",
   DISPLAY_EDIT: "Edit Display",
-  DISPLAY_NAME_ARIA: "Display name",
   DISPLAY_NO_ZONES: "This display is not in any zones.",
   DISPLAY_ORIENTATION_ARIA: "Display orientation",
   DISPLAY_SAVING: "Saving display...",
@@ -51551,6 +51551,7 @@ var SIGNAGE_MANAGER = {
   SVC_NO_UPDATE_TEMPLATES: "You cannot update templates in this group.",
   SVC_PERMISSION_DENIED: "Permission denied",
   SVC_PLAYLIST_ADDED_DISPLAY: "Playlist added to display",
+  SVC_PLAYLIST_ADD_DISPLAY_ERROR: "Could not add the playlist to the display. Please try again.",
   SVC_PLAYLIST_ADDED_ZONE: "Playlist added to zone",
   SVC_PLAYLIST_IN_DISPLAY: "Playlist already assigned to this display.",
   SVC_PLAYLIST_IN_ZONE: "Playlist already assigned to this zone.",
@@ -51616,11 +51617,15 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_BACKGROUND_SEARCH: "Search media",
   TEMPLATE_BACKGROUND_SELECT: "Select background media",
   TEMPLATE_BACKGROUND_SELECTED: "Selected background",
+  TEMPLATE_CHANGE_ADDED: "Added",
+  TEMPLATE_CHANGE_CHANGED: "Changed",
+  TEMPLATE_CHANGE_REMOVED: "Removed",
   TEMPLATE_CONFIGURATION: "Configuration",
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
+  TEMPLATE_MERGE: "Merge",
   TEMPLATE_LABEL: "Template",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
@@ -51686,6 +51691,26 @@ var SIGNAGE_MANAGER = {
   USERS_COUNT_1: "User ({{ count }})",
   USER_PERMISSIONS: "User permissions",
   VALID_FROM: "Valid From",
+  SCHEDULE_MASK_RANGE: "Enter 1 to 128 characters using only 0 and 1.",
+  SCHEDULE_MASK_VALID_FROM: "Set Valid From to use a repeat mask.",
+  SCHEDULE_MASK: "Repeat mask",
+  SCHEDULE_MASK_HINT: "Select each occurrence to switch between Play and Skip. Occurrence 1 starts at or after Valid From. The pattern then repeats.",
+  SCHEDULE_MASK_SUMMARY: "Mask {{ mask }}, repeats every {{ size }} instances",
+  MASK_REPEAT_LENGTH: "Repeat every",
+  MASK_OCCURRENCES: "{{ count }} occurrences",
+  MASK_OCCURRENCES_1: "{{ count }} occurrence",
+  MASK_PLAY_COUNT: "{{ count }} of {{ total }} play",
+  MASK_PLAY_ALL: "Play all",
+  MASK_SKIP_ALL: "Skip all",
+  MASK_ALTERNATE: "Play every other",
+  MASK_PATTERN: "Occurrence pattern",
+  MASK_INSTANCE_UNAVAILABLE: "No occurrence in the preview range",
+  MASK_INSTANCE_START_REQUIRED: "Set Valid From to show occurrence dates",
+  MASK_INSTANCE: "Occurrence {{ number }}: {{ state }}",
+  MASK_PLAY: "Play",
+  MASK_SKIP: "Skip",
+  MASK_NONE_PLAY: "All occurrences are skipped. This schedule will not play.",
+  SCHEDULE_VALIDITY_ORDER: "Valid From must be before Valid Until.",
   VERSION_TO_APPROVE: "New Version",
   VIEW_FOLDER: "Folders",
   VIEW_GRID: "Grid view",
@@ -51701,7 +51726,6 @@ var SIGNAGE_MANAGER = {
   ZONE_COUNT_LABEL_1: "{{ count }} zone",
   ZONE_DETAILS_TABS: "Zone details tabs",
   ZONE_EDIT: "Edit Zone",
-  ZONE_NAME_ARIA: "Zone name",
   ZONE_PARENT: "Parent zone",
   ZONE_PARENT_HINT: "Select a parent from the zones available to the active signage group.",
   ZONE_PARENT_REQUIRED: "Parent zone is required",
@@ -52289,6 +52313,8 @@ var BOOKINGS = {
   DESK_RESERVED_MESSAGE: "A desk has already been reserved for you, so you are unable to book another desk.",
   ITEM_BOOKED: "{{ name }} booked!",
   DESK_SUCCESS_LONE: "Your desk booking at {{ location }} has been successfully booked for {{ date }} at {{ time }}",
+  DESK_GROUP_RESULTS_ERROR: "Unable to load the group booking results. Check Your Bookings before booking again.",
+  DESK_SUCCESS_GROUP_PARTIAL: "Booked {{ booked }} of {{ size }} desks. Failed bookings: {{ failed }}. See the results below.",
   DESK_SUCCESS_GROUP: "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }} at {{ time }}",
   DESK_SUCCESS_LONE_ALLDAY: "Your desk booking at {{ location }} has been successfully booked for {{ date }}",
   DESK_SUCCESS_GROUP_ALLDAY: "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }}",
@@ -55102,6 +55128,153 @@ function errorMessage(error2) {
   return "";
 }
 
+// libs/common/src/lib/hotkeys.service.ts
+var INVALID_STANDALONE_KEYS = [
+  "control",
+  "shift",
+  "alt",
+  "meta",
+  "os"
+];
+var HotkeysService = class _HotkeysService {
+  constructor() {
+    this.keydown_states = {};
+    this.keydown_callbacks = {};
+    this.combo_end = [];
+    this.registered_combos = [];
+    this.counter = 0;
+    window.addEventListener("keydown", (event) => {
+      if (document.getSelection()?.type === "Range" || this.isEditableElementFocused()) {
+        return;
+      }
+      const code = this.mapKey((event.code || "").toLowerCase());
+      if (this.last_down !== code) {
+        if (!this.keydown_states[code]) {
+          this.keydown_states[code] = signal(null);
+        }
+        this.keydown_states[code].set(++this.counter);
+        this._handleKeyPress(code, this.counter);
+        if (this.combo_end.indexOf(code) >= 0) {
+          event.preventDefault();
+        }
+        this.last_down = code;
+      }
+    });
+    window.addEventListener("keyup", (event) => {
+      const code = this.mapKey((event.code || "").toLowerCase());
+      this.keydown_states[code]?.set(null);
+      if (this.last_down === code) {
+        this.last_down = null;
+      }
+    });
+  }
+  /**
+   * Listen to the given key combination
+   * @param combo Array of key codes to listen to or a hotkey string e.g. `Alt+Shift+KeyK`
+   * @param next Callback for combination presses
+   */
+  listen(combo, next) {
+    combo = combo instanceof Array ? combo : combo.split("+");
+    const combination = combo.map((i) => this.mapKey(i.toLowerCase()));
+    if (combination.length > 0 && this.validCombination(combination)) {
+      this.registered_combos.push(combination);
+      const last_key = combination[combination.length - 1];
+      if (!this.keydown_states[last_key]) {
+        this.keydown_states[last_key] = signal(null);
+      }
+      this.updateCombinationEndList();
+      const callback = (count) => {
+        if (count) {
+          const presses = [];
+          if (combination.length > 0) {
+            for (const key of combination) {
+              const state = this.keydown_states[key];
+              presses.push(state ? state() || -1 : -1);
+            }
+            for (let i = 0; i < combination.length - 1; i++) {
+              if (presses[i] > presses[i + 1]) {
+                return;
+              }
+            }
+          }
+          const total = presses.reduce((a2, v2) => a2 + (v2 > 0 ? 1 : -1), 0);
+          if (total >= combination.length) {
+            next();
+          }
+        }
+      };
+      this.keydown_callbacks[last_key] ||= /* @__PURE__ */ new Set();
+      this.keydown_callbacks[last_key].add(callback);
+      return {
+        unsubscribe: () => this.keydown_callbacks[last_key]?.delete(callback)
+      };
+    }
+    return null;
+  }
+  _handleKeyPress(code, count) {
+    for (const callback of this.keydown_callbacks[code] || []) {
+      callback(count);
+    }
+  }
+  /** Check if keyboard input should remain with the focused editor. */
+  isEditableElementFocused() {
+    const active = document.activeElement;
+    if (!active)
+      return false;
+    const tag_name = active.tagName.toLowerCase();
+    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
+  }
+  /**
+   * Map key codes with multiple versions to simple form
+   * @param code Code to transform
+   */
+  mapKey(code) {
+    if (code.indexOf("alt") >= 0 || code.indexOf("shift") >= 0 || code.indexOf("control") >= 0) {
+      return code.replace("left", "").replace("right", "");
+    }
+    return code;
+  }
+  /**
+   * Update the list of the last keys in combinations to allow for prevent default actions on pre-existing hotkeys
+   */
+  updateCombinationEndList() {
+    const key_list = [];
+    for (const combo of this.registered_combos) {
+      this.combo_end.push(combo[combo.length - 1]);
+    }
+    this.combo_end = unique(key_list);
+  }
+  /**
+   * Checks if the given hotkey combination is allowed and valid
+   * @param combo Array of key codes
+   */
+  validCombination(combo) {
+    let non_meta = 0;
+    for (const key of combo) {
+      if (INVALID_STANDALONE_KEYS.indexOf(key) < 0) {
+        non_meta++;
+      }
+    }
+    return non_meta > 0;
+  }
+  static {
+    this.\u0275fac = function HotkeysService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _HotkeysService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _HotkeysService, factory: _HotkeysService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HotkeysService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
 // libs/common/src/lib/settings.ts
 var general = {};
 var desks = {
@@ -56441,15 +56614,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "5d0246b",
-  "hash": "5d0246b",
+  "raw": "53273a8",
+  "hash": "53273a8",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5d0246b",
+  "suffix": "53273a8",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1790125948154
+  "time": 1790128666280
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -56778,153 +56951,6 @@ var SettingsService = class _SettingsService extends AsyncHandler {
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsService, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [], null);
-})();
-
-// libs/common/src/lib/hotkeys.service.ts
-var INVALID_STANDALONE_KEYS = [
-  "control",
-  "shift",
-  "alt",
-  "meta",
-  "os"
-];
-var HotkeysService = class _HotkeysService {
-  constructor() {
-    this.keydown_states = {};
-    this.keydown_callbacks = {};
-    this.combo_end = [];
-    this.registered_combos = [];
-    this.counter = 0;
-    window.addEventListener("keydown", (event) => {
-      if (document.getSelection()?.type === "Range" || this.isEditableElementFocused()) {
-        return;
-      }
-      const code = this.mapKey((event.code || "").toLowerCase());
-      if (this.last_down !== code) {
-        if (!this.keydown_states[code]) {
-          this.keydown_states[code] = signal(null);
-        }
-        this.keydown_states[code].set(++this.counter);
-        this._handleKeyPress(code, this.counter);
-        if (this.combo_end.indexOf(code) >= 0) {
-          event.preventDefault();
-        }
-        this.last_down = code;
-      }
-    });
-    window.addEventListener("keyup", (event) => {
-      const code = this.mapKey((event.code || "").toLowerCase());
-      this.keydown_states[code]?.set(null);
-      if (this.last_down === code) {
-        this.last_down = null;
-      }
-    });
-  }
-  /**
-   * Listen to the given key combination
-   * @param combo Array of key codes to listen to or a hotkey string e.g. `Alt+Shift+KeyK`
-   * @param next Callback for combination presses
-   */
-  listen(combo, next) {
-    combo = combo instanceof Array ? combo : combo.split("+");
-    const combination = combo.map((i) => this.mapKey(i.toLowerCase()));
-    if (combination.length > 0 && this.validCombination(combination)) {
-      this.registered_combos.push(combination);
-      const last_key = combination[combination.length - 1];
-      if (!this.keydown_states[last_key]) {
-        this.keydown_states[last_key] = signal(null);
-      }
-      this.updateCombinationEndList();
-      const callback = (count) => {
-        if (count) {
-          const presses = [];
-          if (combination.length > 0) {
-            for (const key of combination) {
-              const state = this.keydown_states[key];
-              presses.push(state ? state() || -1 : -1);
-            }
-            for (let i = 0; i < combination.length - 1; i++) {
-              if (presses[i] > presses[i + 1]) {
-                return;
-              }
-            }
-          }
-          const total = presses.reduce((a2, v2) => a2 + (v2 > 0 ? 1 : -1), 0);
-          if (total >= combination.length) {
-            next();
-          }
-        }
-      };
-      this.keydown_callbacks[last_key] ||= /* @__PURE__ */ new Set();
-      this.keydown_callbacks[last_key].add(callback);
-      return {
-        unsubscribe: () => this.keydown_callbacks[last_key]?.delete(callback)
-      };
-    }
-    return null;
-  }
-  _handleKeyPress(code, count) {
-    for (const callback of this.keydown_callbacks[code] || []) {
-      callback(count);
-    }
-  }
-  /** Check if keyboard input should remain with the focused editor. */
-  isEditableElementFocused() {
-    const active = document.activeElement;
-    if (!active)
-      return false;
-    const tag_name = active.tagName.toLowerCase();
-    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
-  }
-  /**
-   * Map key codes with multiple versions to simple form
-   * @param code Code to transform
-   */
-  mapKey(code) {
-    if (code.indexOf("alt") >= 0 || code.indexOf("shift") >= 0 || code.indexOf("control") >= 0) {
-      return code.replace("left", "").replace("right", "");
-    }
-    return code;
-  }
-  /**
-   * Update the list of the last keys in combinations to allow for prevent default actions on pre-existing hotkeys
-   */
-  updateCombinationEndList() {
-    const key_list = [];
-    for (const combo of this.registered_combos) {
-      this.combo_end.push(combo[combo.length - 1]);
-    }
-    this.combo_end = unique(key_list);
-  }
-  /**
-   * Checks if the given hotkey combination is allowed and valid
-   * @param combo Array of key codes
-   */
-  validCombination(combo) {
-    let non_meta = 0;
-    for (const key of combo) {
-      if (INVALID_STANDALONE_KEYS.indexOf(key) < 0) {
-        non_meta++;
-      }
-    }
-    return non_meta > 0;
-  }
-  static {
-    this.\u0275fac = function HotkeysService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _HotkeysService)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _HotkeysService, factory: _HotkeysService.\u0275fac, providedIn: "root" });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HotkeysService, [{
     type: Injectable,
     args: [{
       providedIn: "root"
@@ -81324,6 +81350,7 @@ export {
   ɵɵsanitizeHtml,
   ɵɵsanitizeUrl,
   ɵɵresolveWindow,
+  ɵɵresolveDocument,
   afterNextRender,
   ɵɵadvance,
   TemplateRef,
@@ -81398,6 +81425,7 @@ export {
   ɵɵProvidersFeature,
   ɵɵpureFunction0,
   ɵɵpureFunction1,
+  ɵɵpureFunction2,
   ɵɵpipe,
   ɵɵpipeBind1,
   ɵɵpipeBind2,
@@ -81667,10 +81695,14 @@ export {
   Breakpoints,
   Directionality,
   BidiModule,
+  CdkFixedSizeVirtualScroll,
   ScrollDispatcher,
   CdkScrollable,
   ViewportRuler,
+  CdkVirtualScrollViewport,
+  CdkVirtualForOf,
   CdkScrollableModule,
+  ScrollingModule,
   ComponentPortal,
   TemplatePortal,
   BasePortalOutlet,
@@ -81720,5 +81752,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=2fc4a85b-53ac-5578-b506-ce6ff3b417b6
-//# sourceMappingURL=chunk-DX2RYTON.js.map
+//# debugId=c5f37680-62ed-5fef-bdaa-35a7e2b3a69e
+//# sourceMappingURL=chunk-C3W2LKSA.js.map

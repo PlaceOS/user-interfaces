@@ -18,10 +18,6 @@ import {
   MatDialog,
   MatDialogClose,
   MatDialogModule,
-  MatMenu,
-  MatMenuItem,
-  MatMenuModule,
-  MatMenuTrigger,
   SpacesService,
   UserSearchFieldComponent,
   deskFromAsset,
@@ -33,26 +29,30 @@ import {
   rulesForResource,
   searchStaff,
   showStaff
-} from "./chunk-H5G7FKPL.js";
+} from "./chunk-325FP3QD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-GZMKUKM6.js";
+} from "./chunk-7Q447RQI.js";
 import {
   MatCheckbox,
   MatCheckboxModule,
   MatError,
   MatFormFieldModule,
+  MatMenu,
+  MatMenuItem,
+  MatMenuModule,
+  MatMenuTrigger,
   MatProgressSpinner,
   MatProgressSpinnerModule,
   SpacePipe,
   VirtualKeyboardComponent,
   toSignal
-} from "./chunk-QEVH73QM.js";
-import "./chunk-XCBQKULL.js";
-import "./chunk-YPMFLHXA.js";
+} from "./chunk-QDS2VW22.js";
+import "./chunk-OHUJO276.js";
+import "./chunk-AFJIRLVN.js";
 import {
   TranslatePipe
-} from "./chunk-BQGZYLAS.js";
+} from "./chunk-SVSKNMU5.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -240,7 +240,7 @@ import {
   ɵɵtextInterpolate2,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-DX2RYTON.js";
+} from "./chunk-C3W2LKSA.js";
 import {
   __spreadProps,
   __spreadValues
@@ -6693,4 +6693,4 @@ export {
   ExploreComponent
 };
 //# debugId=117f99f8-ed48-5510-92e4-089cff745640
-//# sourceMappingURL=explore.component-QL2QDOCL.js.map
+//# sourceMappingURL=explore.component-BX2TKAV5.js.map

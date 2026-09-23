@@ -1,6 +1,6 @@
 import {
   CustomTooltipComponent
-} from "./chunk-GZMKUKM6.js";
+} from "./chunk-7Q447RQI.js";
 import {
   FormField,
   MAT_FORM_FIELD,
@@ -11,6 +11,10 @@ import {
   MatFormFieldModule,
   MatInput,
   MatInputModule,
+  MatMenu,
+  MatMenuItem,
+  MatMenuModule,
+  MatMenuTrigger,
   MatPrefix,
   MatProgressSpinner,
   MatProgressSpinnerModule,
@@ -28,21 +32,20 @@ import {
   setHours,
   setMinutes,
   validate
-} from "./chunk-QEVH73QM.js";
+} from "./chunk-QDS2VW22.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-XCBQKULL.js";
+} from "./chunk-OHUJO276.js";
 import {
   SanitizePipe
-} from "./chunk-YPMFLHXA.js";
+} from "./chunk-AFJIRLVN.js";
 import {
   TranslatePipe
-} from "./chunk-BQGZYLAS.js";
+} from "./chunk-SVSKNMU5.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
-  ApplicationRef,
   AssetRequest,
   AsyncHandler,
   AsyncPipe,
@@ -59,7 +62,6 @@ import {
   CommonModule,
   Component,
   ComponentPortal,
-  ContentChild,
   ContentChildren,
   CurrencyPipe,
   DEFAULT_SETTINGS,
@@ -70,7 +72,6 @@ import {
   DefaultValueAccessor,
   Directionality,
   Directive,
-  DomPortalOutlet,
   EMPTY_USER,
   ENTER,
   ESCAPE,
@@ -78,7 +79,6 @@ import {
   EnvironmentInjector,
   EventEmitter,
   Fl,
-  FocusKeyManager,
   FocusMonitor,
   FocusTrapFactory,
   FormControl,
@@ -98,7 +98,6 @@ import {
   J,
   Jl,
   Ka,
-  LEFT_ARROW,
   LOCAL_TIMEZONE,
   MAP_FEATURE_DATA,
   MAT_OPTGROUP,
@@ -130,17 +129,13 @@ import {
   Pipe,
   Platform,
   PortalModule,
-  QueryList,
-  RIGHT_ARROW,
   ReactiveFormsModule,
   Renderer2,
   ReplaySubject,
   Rn,
   Router,
   SETTING_KEYS,
-  SPACE,
   SafePipe,
-  ScrollDispatcher,
   Service,
   SettingsService,
   Space,
@@ -176,7 +171,6 @@ import {
   _getEventTarget,
   _getFocusedElementPierceShadowDom,
   _getOptionScrollPosition,
-  _getShadowRoot,
   ac,
   add,
   addDays,
@@ -237,12 +231,11 @@ import {
   isAfter,
   isBefore,
   isEmptyUser,
-  isFakeMousedownFromScreenReader,
-  isFakeTouchstartFromScreenReader,
   isMobileSafari,
   isSameDay,
   isWithinBookableHours,
   localToTimezone,
+  log,
   map,
   merge,
   model,
@@ -269,14 +262,12 @@ import {
   settingSignal,
   setupFormTimeSync,
   signal,
-  skipWhile,
   startOfDay,
   startOfDayInTimezone,
   startOfMinute,
   startWith,
   switchMap,
   take,
-  takeUntil,
   tap,
   te,
   toDate,
@@ -312,7 +303,6 @@ import {
   ɵɵdomElement,
   ɵɵdomElementEnd,
   ɵɵdomElementStart,
-  ɵɵdomListener,
   ɵɵdomProperty,
   ɵɵdomTemplate,
   ɵɵelement,
@@ -321,10 +311,8 @@ import {
   ɵɵelementStart,
   ɵɵgetCurrentView,
   ɵɵgetInheritedFactory,
-  ɵɵinvalidFactory,
   ɵɵlistener,
   ɵɵloadQuery,
-  ɵɵnamespaceSVG,
   ɵɵnextContext,
   ɵɵpipe,
   ɵɵpipeBind1,
@@ -361,7 +349,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-DX2RYTON.js";
+} from "./chunk-C3W2LKSA.js";
 import {
   __objRest,
   __spreadProps,
@@ -1741,1389 +1729,6 @@ var MatDialogModule = class _MatDialogModule {
   }], null, null);
 })();
 
-// node_modules/@angular/material/fesm2022/menu.mjs
-var _c0 = [[["mat-icon"], ["", "matMenuItemIcon", ""]], "*"];
-var _c1 = ["mat-icon, [matMenuItemIcon]", "*"];
-function MatMenuItem_Conditional_4_Template(rf, ctx) {
-  if (rf & 1) {
-    \u0275\u0275namespaceSVG();
-    \u0275\u0275elementStart(0, "svg", 2);
-    \u0275\u0275element(1, "polygon", 3);
-    \u0275\u0275elementEnd();
-  }
-}
-var _c2 = ["*"];
-function MatMenu_ng_template_0_Template(rf, ctx) {
-  if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275domElementStart(0, "div", 0);
-    \u0275\u0275domListener("click", function MatMenu_ng_template_0_Template_div_click_0_listener() {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1.closed.emit("click"));
-    })("animationstart", function MatMenu_ng_template_0_Template_div_animationstart_0_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1._onAnimationStart($event.animationName));
-    })("animationend", function MatMenu_ng_template_0_Template_div_animationend_0_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1._onAnimationDone($event.animationName));
-    })("animationcancel", function MatMenu_ng_template_0_Template_div_animationcancel_0_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      return \u0275\u0275resetView(ctx_r1._onAnimationDone($event.animationName));
-    });
-    \u0275\u0275domElementStart(1, "div", 1);
-    \u0275\u0275projection(2);
-    \u0275\u0275domElementEnd()();
-  }
-  if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275classMap(ctx_r1._classList);
-    \u0275\u0275classProp("mat-menu-panel-animations-disabled", ctx_r1._animationsDisabled)("mat-menu-panel-exit-animation", ctx_r1._panelAnimationState === "void")("mat-menu-panel-animating", ctx_r1._isAnimating());
-    \u0275\u0275domProperty("id", ctx_r1.panelId);
-    \u0275\u0275attribute("aria-label", ctx_r1.ariaLabel || null)("aria-labelledby", ctx_r1.ariaLabelledby || null)("aria-describedby", ctx_r1.ariaDescribedby || null);
-  }
-}
-var MAT_MENU_PANEL = new InjectionToken("MAT_MENU_PANEL");
-var MatMenuItem = class _MatMenuItem {
-  _elementRef = inject(ElementRef);
-  _document = inject(DOCUMENT);
-  _focusMonitor = inject(FocusMonitor);
-  _parentMenu = inject(MAT_MENU_PANEL, {
-    optional: true
-  });
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  role = "menuitem";
-  disabled = false;
-  disableRipple = false;
-  _hovered = new Subject();
-  _focused = new Subject();
-  _highlighted = false;
-  _triggersSubmenu = false;
-  constructor() {
-    inject(_CdkPrivateStyleLoader).load(_StructuralStylesLoader);
-    this._parentMenu?.addItem?.(this);
-  }
-  focus(origin, options) {
-    if (this._focusMonitor && origin) {
-      this._focusMonitor.focusVia(this._getHostElement(), origin, options);
-    } else {
-      this._getHostElement().focus(options);
-    }
-    this._focused.next(this);
-  }
-  ngAfterViewInit() {
-    if (this._focusMonitor) {
-      this._focusMonitor.monitor(this._elementRef, false);
-    }
-  }
-  ngOnDestroy() {
-    if (this._focusMonitor) {
-      this._focusMonitor.stopMonitoring(this._elementRef);
-    }
-    if (this._parentMenu && this._parentMenu.removeItem) {
-      this._parentMenu.removeItem(this);
-    }
-    this._hovered.complete();
-    this._focused.complete();
-  }
-  _getTabIndex() {
-    return this.disabled ? "-1" : "0";
-  }
-  _getHostElement() {
-    return this._elementRef.nativeElement;
-  }
-  _checkDisabled(event) {
-    if (this.disabled) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  }
-  _handleMouseEnter() {
-    this._hovered.next(this);
-  }
-  getLabel() {
-    const clone = this._elementRef.nativeElement.cloneNode(true);
-    const icons = clone.querySelectorAll("mat-icon, .material-icons");
-    for (let i = 0; i < icons.length; i++) {
-      icons[i].remove();
-    }
-    return clone.textContent?.trim() || "";
-  }
-  _setHighlighted(isHighlighted) {
-    this._highlighted = isHighlighted;
-    this._changeDetectorRef.markForCheck();
-  }
-  _setTriggersSubmenu(triggersSubmenu) {
-    this._triggersSubmenu = triggersSubmenu;
-    this._changeDetectorRef.markForCheck();
-  }
-  _hasFocus() {
-    return this._document && this._document.activeElement === this._getHostElement();
-  }
-  static \u0275fac = function MatMenuItem_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenuItem)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _MatMenuItem,
-    selectors: [["", "mat-menu-item", ""]],
-    hostAttrs: [1, "mat-mdc-menu-item", "mat-focus-indicator"],
-    hostVars: 8,
-    hostBindings: function MatMenuItem_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("click", function MatMenuItem_click_HostBindingHandler($event) {
-          return ctx._checkDisabled($event);
-        })("mouseenter", function MatMenuItem_mouseenter_HostBindingHandler() {
-          return ctx._handleMouseEnter();
-        });
-      }
-      if (rf & 2) {
-        \u0275\u0275attribute("role", ctx.role)("tabindex", ctx._getTabIndex())("aria-disabled", ctx.disabled)("disabled", ctx.disabled || null);
-        \u0275\u0275classProp("mat-mdc-menu-item-highlighted", ctx._highlighted)("mat-mdc-menu-item-submenu-trigger", ctx._triggersSubmenu);
-      }
-    },
-    inputs: {
-      role: "role",
-      disabled: [2, "disabled", "disabled", booleanAttribute],
-      disableRipple: [2, "disableRipple", "disableRipple", booleanAttribute]
-    },
-    exportAs: ["matMenuItem"],
-    ngContentSelectors: _c1,
-    decls: 5,
-    vars: 3,
-    consts: [[1, "mat-mdc-menu-item-text"], ["matRipple", "", 1, "mat-mdc-menu-ripple", 3, "matRippleDisabled", "matRippleTrigger"], ["viewBox", "0 0 5 10", "focusable", "false", "aria-hidden", "true", 1, "mat-mdc-menu-submenu-icon"], ["points", "0,0 5,5 0,10"]],
-    template: function MatMenuItem_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275projectionDef(_c0);
-        \u0275\u0275projection(0);
-        \u0275\u0275elementStart(1, "span", 0);
-        \u0275\u0275projection(2, 1);
-        \u0275\u0275elementEnd();
-        \u0275\u0275element(3, "div", 1);
-        \u0275\u0275conditionalCreate(4, MatMenuItem_Conditional_4_Template, 2, 0, ":svg:svg", 2);
-      }
-      if (rf & 2) {
-        \u0275\u0275advance(3);
-        \u0275\u0275property("matRippleDisabled", ctx.disableRipple || ctx.disabled)("matRippleTrigger", ctx._getHostElement());
-        \u0275\u0275advance();
-        \u0275\u0275conditional(ctx._triggersSubmenu ? 4 : -1);
-      }
-    },
-    dependencies: [MatRipple],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuItem, [{
-    type: Component,
-    args: [{
-      selector: "[mat-menu-item]",
-      exportAs: "matMenuItem",
-      host: {
-        "[attr.role]": "role",
-        "class": "mat-mdc-menu-item mat-focus-indicator",
-        "[class.mat-mdc-menu-item-highlighted]": "_highlighted",
-        "[class.mat-mdc-menu-item-submenu-trigger]": "_triggersSubmenu",
-        "[attr.tabindex]": "_getTabIndex()",
-        "[attr.aria-disabled]": "disabled",
-        "[attr.disabled]": "disabled || null",
-        "(click)": "_checkDisabled($event)",
-        "(mouseenter)": "_handleMouseEnter()"
-      },
-      encapsulation: ViewEncapsulation.None,
-      imports: [MatRipple],
-      template: '<ng-content select="mat-icon, [matMenuItemIcon]"></ng-content>\n<span class="mat-mdc-menu-item-text"><ng-content></ng-content></span>\n<div class="mat-mdc-menu-ripple" matRipple\n     [matRippleDisabled]="disableRipple || disabled"\n     [matRippleTrigger]="_getHostElement()">\n</div>\n\n@if (_triggersSubmenu) {\n     <svg\n       class="mat-mdc-menu-submenu-icon"\n       viewBox="0 0 5 10"\n       focusable="false"\n       aria-hidden="true"><polygon points="0,0 5,5 0,10"/></svg>\n}\n'
-    }]
-  }], () => [], {
-    role: [{
-      type: Input
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    disableRipple: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }]
-  });
-})();
-function throwMatMenuInvalidPositionX() {
-  throw Error(`xPosition value must be either 'before' or after'.
-      Example: <mat-menu xPosition="before" #menu="matMenu"></mat-menu>`);
-}
-function throwMatMenuInvalidPositionY() {
-  throw Error(`yPosition value must be either 'above' or below'.
-      Example: <mat-menu yPosition="above" #menu="matMenu"></mat-menu>`);
-}
-function throwMatMenuRecursiveError() {
-  throw Error(`matMenuTriggerFor: menu cannot contain its own trigger. Assign a menu that is not a parent of the trigger or move the trigger outside of the menu.`);
-}
-var MAT_MENU_CONTENT = new InjectionToken("MatMenuContent");
-var MatMenuContent = class _MatMenuContent {
-  _template = inject(TemplateRef);
-  _appRef = inject(ApplicationRef);
-  _injector = inject(Injector);
-  _viewContainerRef = inject(ViewContainerRef);
-  _document = inject(DOCUMENT);
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  _portal;
-  _outlet;
-  _attached = new Subject();
-  attach(context = {}) {
-    if (!this._portal) {
-      this._portal = new TemplatePortal(this._template, this._viewContainerRef);
-    }
-    this.detach();
-    if (!this._outlet) {
-      this._outlet = new DomPortalOutlet(this._document.createElement("div"), this._appRef, this._injector);
-    }
-    const element = this._template.elementRef.nativeElement;
-    element.parentNode.insertBefore(this._outlet.outletElement, element);
-    this._changeDetectorRef.markForCheck();
-    this._portal.attach(this._outlet, context);
-    this._attached.next();
-  }
-  detach() {
-    if (this._portal?.isAttached) {
-      this._portal.detach();
-    }
-  }
-  ngOnDestroy() {
-    this.detach();
-    this._outlet?.dispose();
-  }
-  static \u0275fac = function MatMenuContent_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenuContent)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatMenuContent,
-    selectors: [["ng-template", "matMenuContent", ""]],
-    features: [\u0275\u0275ProvidersFeature([{
-      provide: MAT_MENU_CONTENT,
-      useExisting: _MatMenuContent
-    }])]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuContent, [{
-    type: Directive,
-    args: [{
-      selector: "ng-template[matMenuContent]",
-      providers: [{
-        provide: MAT_MENU_CONTENT,
-        useExisting: MatMenuContent
-      }]
-    }]
-  }], null, null);
-})();
-var MAT_MENU_DEFAULT_OPTIONS = new InjectionToken("mat-menu-default-options", {
-  providedIn: "root",
-  factory: () => ({
-    overlapTrigger: false,
-    xPosition: "after",
-    yPosition: "below",
-    backdropClass: "cdk-overlay-transparent-backdrop"
-  })
-});
-var ENTER_ANIMATION = "_mat-menu-enter";
-var EXIT_ANIMATION = "_mat-menu-exit";
-var MatMenu = class _MatMenu {
-  _elementRef = inject(ElementRef);
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  _injector = inject(Injector);
-  _keyManager;
-  _xPosition;
-  _yPosition;
-  _firstItemFocusRef;
-  _exitFallbackTimeout;
-  _animationsDisabled = _animationsDisabled();
-  _allItems;
-  _directDescendantItems = new QueryList();
-  _classList = {};
-  _panelAnimationState = "void";
-  _animationDone = new Subject();
-  _isAnimating = signal(false, ...ngDevMode ? [{
-    debugName: "_isAnimating"
-  }] : []);
-  parentMenu;
-  direction;
-  overlayPanelClass;
-  backdropClass;
-  ariaLabel;
-  ariaLabelledby;
-  ariaDescribedby;
-  get xPosition() {
-    return this._xPosition;
-  }
-  set xPosition(value) {
-    if (value !== "before" && value !== "after" && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throwMatMenuInvalidPositionX();
-    }
-    this._xPosition = value;
-    this.setPositionClasses();
-  }
-  get yPosition() {
-    return this._yPosition;
-  }
-  set yPosition(value) {
-    if (value !== "above" && value !== "below" && (typeof ngDevMode === "undefined" || ngDevMode)) {
-      throwMatMenuInvalidPositionY();
-    }
-    this._yPosition = value;
-    this.setPositionClasses();
-  }
-  templateRef;
-  items;
-  lazyContent;
-  overlapTrigger = false;
-  hasBackdrop;
-  get panelClass() {
-    return this._previousPanelClass;
-  }
-  set panelClass(classes) {
-    const previousPanelClass = this._previousPanelClass;
-    const newClassList = __spreadValues({}, this._classList);
-    if (previousPanelClass && previousPanelClass.length) {
-      previousPanelClass.split(" ").forEach((className) => {
-        newClassList[className] = false;
-      });
-    }
-    this._previousPanelClass = classes;
-    if (classes && classes.length) {
-      classes.split(" ").forEach((className) => {
-        newClassList[className] = true;
-      });
-      this._elementRef.nativeElement.className = "";
-    }
-    this._classList = newClassList;
-  }
-  _previousPanelClass = "";
-  get classList() {
-    return this.panelClass;
-  }
-  set classList(classes) {
-    this.panelClass = classes;
-  }
-  closed = new EventEmitter();
-  close = this.closed;
-  panelId = inject(_IdGenerator).getId("mat-menu-panel-");
-  constructor() {
-    const defaultOptions = inject(MAT_MENU_DEFAULT_OPTIONS);
-    this.overlayPanelClass = defaultOptions.overlayPanelClass || "";
-    this._xPosition = defaultOptions.xPosition;
-    this._yPosition = defaultOptions.yPosition;
-    this.backdropClass = defaultOptions.backdropClass;
-    this.overlapTrigger = defaultOptions.overlapTrigger;
-    this.hasBackdrop = defaultOptions.hasBackdrop;
-  }
-  ngOnInit() {
-    this.setPositionClasses();
-  }
-  ngAfterContentInit() {
-    this._updateDirectDescendants();
-    this._keyManager = new FocusKeyManager(this._directDescendantItems).withWrap().withTypeAhead().withHomeAndEnd();
-    this._keyManager.tabOut.subscribe(() => this.closed.emit("tab"));
-    this._directDescendantItems.changes.pipe(startWith(this._directDescendantItems), switchMap((items) => merge(...items.map((item) => item._focused)))).subscribe((focusedItem) => this._keyManager.updateActiveItem(focusedItem));
-    this._directDescendantItems.changes.subscribe((itemsList) => {
-      const manager = this._keyManager;
-      if (this._panelAnimationState === "enter" && manager.activeItem?._hasFocus()) {
-        const items = itemsList.toArray();
-        const index = Math.max(0, Math.min(items.length - 1, manager.activeItemIndex || 0));
-        if (items[index] && !items[index].disabled) {
-          manager.setActiveItem(index);
-        } else {
-          manager.setNextItemActive();
-        }
-      }
-    });
-  }
-  ngOnDestroy() {
-    this._keyManager?.destroy();
-    this._directDescendantItems.destroy();
-    this.closed.complete();
-    this._firstItemFocusRef?.destroy();
-    clearTimeout(this._exitFallbackTimeout);
-  }
-  _hovered() {
-    const itemChanges = this._directDescendantItems.changes;
-    return itemChanges.pipe(startWith(this._directDescendantItems), switchMap((items) => merge(...items.map((item) => item._hovered))));
-  }
-  addItem(_item) {
-  }
-  removeItem(_item) {
-  }
-  _handleKeydown(event) {
-    const keyCode = event.keyCode;
-    const manager = this._keyManager;
-    switch (keyCode) {
-      case ESCAPE:
-        if (!hasModifierKey(event)) {
-          event.preventDefault();
-          this.closed.emit("keydown");
-        }
-        break;
-      case LEFT_ARROW:
-        if (this.parentMenu && this.direction === "ltr") {
-          this.closed.emit("keydown");
-        }
-        break;
-      case RIGHT_ARROW:
-        if (this.parentMenu && this.direction === "rtl") {
-          this.closed.emit("keydown");
-        }
-        break;
-      default:
-        if (keyCode === UP_ARROW || keyCode === DOWN_ARROW) {
-          manager.setFocusOrigin("keyboard");
-        }
-        manager.onKeydown(event);
-        return;
-    }
-  }
-  focusFirstItem(origin = "program") {
-    this._firstItemFocusRef?.destroy();
-    this._firstItemFocusRef = afterNextRender(() => {
-      const menuPanel = this._resolvePanel();
-      if (!menuPanel || !menuPanel.contains(document.activeElement)) {
-        const manager = this._keyManager;
-        manager.setFocusOrigin(origin).setFirstItemActive();
-        if (!manager.activeItem && menuPanel) {
-          menuPanel.focus();
-        }
-      }
-    }, {
-      injector: this._injector
-    });
-  }
-  resetActiveItem() {
-    this._keyManager.setActiveItem(-1);
-  }
-  setElevation(_depth) {
-  }
-  setPositionClasses(posX = this.xPosition, posY = this.yPosition) {
-    this._classList = __spreadProps(__spreadValues({}, this._classList), {
-      ["mat-menu-before"]: posX === "before",
-      ["mat-menu-after"]: posX === "after",
-      ["mat-menu-above"]: posY === "above",
-      ["mat-menu-below"]: posY === "below"
-    });
-    this._changeDetectorRef.markForCheck();
-  }
-  _onAnimationDone(state) {
-    const isExit = state === EXIT_ANIMATION;
-    if (isExit || state === ENTER_ANIMATION) {
-      if (isExit) {
-        clearTimeout(this._exitFallbackTimeout);
-        this._exitFallbackTimeout = void 0;
-      }
-      this._animationDone.next(isExit ? "void" : "enter");
-      this._isAnimating.set(false);
-    }
-  }
-  _onAnimationStart(state) {
-    if (state === ENTER_ANIMATION || state === EXIT_ANIMATION) {
-      this._isAnimating.set(true);
-    }
-  }
-  _setIsOpen(isOpen) {
-    this._panelAnimationState = isOpen ? "enter" : "void";
-    if (isOpen) {
-      if (this._keyManager.activeItemIndex === 0) {
-        const menuPanel = this._resolvePanel();
-        if (menuPanel) {
-          menuPanel.scrollTop = 0;
-        }
-      }
-    } else if (!this._animationsDisabled) {
-      this._exitFallbackTimeout = setTimeout(() => this._onAnimationDone(EXIT_ANIMATION), 200);
-    }
-    if (this._animationsDisabled) {
-      setTimeout(() => {
-        this._onAnimationDone(isOpen ? ENTER_ANIMATION : EXIT_ANIMATION);
-      });
-    }
-    this._changeDetectorRef.markForCheck();
-  }
-  _updateDirectDescendants() {
-    this._allItems.changes.pipe(startWith(this._allItems)).subscribe((items) => {
-      this._directDescendantItems.reset(items.filter((item) => item._parentMenu === this));
-      this._directDescendantItems.notifyOnChanges();
-    });
-  }
-  _resolvePanel() {
-    let menuPanel = null;
-    if (this._directDescendantItems.length) {
-      menuPanel = this._directDescendantItems.first._getHostElement().closest('[role="menu"]');
-    }
-    return menuPanel;
-  }
-  static \u0275fac = function MatMenu_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenu)();
-  };
-  static \u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({
-    type: _MatMenu,
-    selectors: [["mat-menu"]],
-    contentQueries: function MatMenu_ContentQueries(rf, ctx, dirIndex) {
-      if (rf & 1) {
-        \u0275\u0275contentQuery(dirIndex, MAT_MENU_CONTENT, 5)(dirIndex, MatMenuItem, 5)(dirIndex, MatMenuItem, 4);
-      }
-      if (rf & 2) {
-        let _t;
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.lazyContent = _t.first);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx._allItems = _t);
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.items = _t);
-      }
-    },
-    viewQuery: function MatMenu_Query(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 5);
-      }
-      if (rf & 2) {
-        let _t;
-        \u0275\u0275queryRefresh(_t = \u0275\u0275loadQuery()) && (ctx.templateRef = _t.first);
-      }
-    },
-    hostVars: 3,
-    hostBindings: function MatMenu_HostBindings(rf, ctx) {
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-label", null)("aria-labelledby", null)("aria-describedby", null);
-      }
-    },
-    inputs: {
-      backdropClass: "backdropClass",
-      ariaLabel: [0, "aria-label", "ariaLabel"],
-      ariaLabelledby: [0, "aria-labelledby", "ariaLabelledby"],
-      ariaDescribedby: [0, "aria-describedby", "ariaDescribedby"],
-      xPosition: "xPosition",
-      yPosition: "yPosition",
-      overlapTrigger: [2, "overlapTrigger", "overlapTrigger", booleanAttribute],
-      hasBackdrop: [2, "hasBackdrop", "hasBackdrop", (value) => value == null ? null : booleanAttribute(value)],
-      panelClass: [0, "class", "panelClass"],
-      classList: "classList"
-    },
-    outputs: {
-      closed: "closed",
-      close: "close"
-    },
-    exportAs: ["matMenu"],
-    features: [\u0275\u0275ProvidersFeature([{
-      provide: MAT_MENU_PANEL,
-      useExisting: _MatMenu
-    }])],
-    ngContentSelectors: _c2,
-    decls: 1,
-    vars: 0,
-    consts: [["tabindex", "-1", "role", "menu", 1, "mat-mdc-menu-panel", 3, "click", "animationstart", "animationend", "animationcancel", "id"], [1, "mat-mdc-menu-content"]],
-    template: function MatMenu_Template(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275projectionDef();
-        \u0275\u0275domTemplate(0, MatMenu_ng_template_0_Template, 3, 12, "ng-template");
-      }
-    },
-    styles: ['mat-menu {\n  display: none;\n}\n\n.mat-mdc-menu-content {\n  margin: 0;\n  padding: 8px 0;\n  outline: 0;\n}\n.mat-mdc-menu-content,\n.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  flex: 1;\n  white-space: normal;\n  font-family: var(--%NS%mat-menu-item-label-text-font, var(--%NS%mat-sys-label-large-font));\n  line-height: var(--%NS%mat-menu-item-label-text-line-height, var(--%NS%mat-sys-label-large-line-height));\n  font-size: var(--%NS%mat-menu-item-label-text-size, var(--%NS%mat-sys-label-large-size));\n  letter-spacing: var(--%NS%mat-menu-item-label-text-tracking, var(--%NS%mat-sys-label-large-tracking));\n  font-weight: var(--%NS%mat-menu-item-label-text-weight, var(--%NS%mat-sys-label-large-weight));\n}\n\n@keyframes _mat-menu-enter {\n  from {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-menu-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-menu-panel {\n  min-width: 112px;\n  max-width: 280px;\n  overflow: auto;\n  box-sizing: border-box;\n  outline: 0;\n  animation: _mat-menu-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n  border-radius: var(--%NS%mat-menu-container-shape, var(--%NS%mat-sys-corner-extra-small));\n  background-color: var(--%NS%mat-menu-container-color, var(--%NS%mat-sys-surface-container));\n  box-shadow: var(--%NS%mat-menu-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  will-change: transform, opacity;\n}\n.mat-mdc-menu-panel.mat-menu-panel-exit-animation {\n  animation: _mat-menu-exit 100ms 25ms linear forwards;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animations-disabled {\n  animation: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating {\n  pointer-events: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating:has(.mat-mdc-menu-content:empty) {\n  display: none;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-panel {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-menu-panel .mat-divider {\n  border-top-color: var(--%NS%mat-menu-divider-color, var(--%NS%mat-sys-surface-variant));\n  margin-bottom: var(--%NS%mat-menu-divider-bottom-spacing, 8px);\n  margin-top: var(--%NS%mat-menu-divider-top-spacing, 8px);\n}\n\n.mat-mdc-menu-item {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  padding: 0;\n  cursor: pointer;\n  width: 100%;\n  text-align: left;\n  box-sizing: border-box;\n  color: inherit;\n  font-size: inherit;\n  background: none;\n  text-decoration: none;\n  margin: 0;\n  min-height: 48px;\n  padding-left: var(--%NS%mat-menu-item-leading-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-trailing-spacing, 12px);\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: pointer;\n  outline: none;\n  border: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-menu-item::-moz-focus-inner {\n  border: 0;\n}\n[dir=rtl] .mat-mdc-menu-item {\n  padding-left: var(--%NS%mat-menu-item-trailing-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-leading-spacing, 12px);\n}\n.mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--%NS%mat-menu-item-with-icon-leading-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-with-icon-trailing-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--%NS%mat-menu-item-with-icon-trailing-spacing, 12px);\n  padding-right: var(--%NS%mat-menu-item-with-icon-leading-spacing, 12px);\n}\n.mat-mdc-menu-item, .mat-mdc-menu-item:visited, .mat-mdc-menu-item:link {\n  color: var(--%NS%mat-menu-item-label-text-color, var(--%NS%mat-sys-on-surface));\n}\n.mat-mdc-menu-item .mat-icon-no-color,\n.mat-mdc-menu-item .mat-mdc-menu-submenu-icon {\n  color: var(--%NS%mat-menu-item-icon-color, var(--%NS%mat-sys-on-surface-variant));\n}\n.mat-mdc-menu-item[disabled] {\n  cursor: default;\n  opacity: 0.38;\n}\n.mat-mdc-menu-item[disabled]::after {\n  display: block;\n  position: absolute;\n  content: "";\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.mat-mdc-menu-item:focus {\n  outline: 0;\n}\n.mat-mdc-menu-item .mat-icon {\n  flex-shrink: 0;\n  margin-right: var(--%NS%mat-menu-item-spacing, 12px);\n  height: var(--%NS%mat-menu-item-icon-size, 24px);\n  width: var(--%NS%mat-menu-item-icon-size, 24px);\n}\n[dir=rtl] .mat-mdc-menu-item {\n  text-align: right;\n}\n[dir=rtl] .mat-mdc-menu-item .mat-icon {\n  margin-right: 0;\n  margin-left: var(--%NS%mat-menu-item-spacing, 12px);\n}\n.mat-mdc-menu-item:not([disabled]):hover {\n  background-color: var(--%NS%mat-menu-item-hover-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-menu-item:not([disabled]).cdk-program-focused, .mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused, .mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted {\n  background-color: var(--%NS%mat-menu-item-focus-state-layer-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) calc(var(--%NS%mat-sys-focus-state-layer-opacity) * 100%), transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-item {\n    margin-top: 1px;\n  }\n}\n\n.mat-mdc-menu-submenu-icon {\n  width: var(--%NS%mat-menu-item-icon-size, 24px);\n  height: 10px;\n  fill: currentColor;\n  padding-left: var(--%NS%mat-menu-item-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon {\n  padding-right: var(--%NS%mat-menu-item-spacing, 12px);\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon polygon {\n  transform: scaleX(-1);\n  transform-origin: center;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-submenu-icon {\n    fill: CanvasText;\n  }\n}\n\n.mat-mdc-menu-item .mat-mdc-menu-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n'],
-    encapsulation: 2
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenu, [{
-    type: Component,
-    args: [{
-      selector: "mat-menu",
-      encapsulation: ViewEncapsulation.None,
-      exportAs: "matMenu",
-      host: {
-        "[attr.aria-label]": "null",
-        "[attr.aria-labelledby]": "null",
-        "[attr.aria-describedby]": "null"
-      },
-      providers: [{
-        provide: MAT_MENU_PANEL,
-        useExisting: MatMenu
-      }],
-      template: `<ng-template>
-  <div
-    class="mat-mdc-menu-panel"
-    [id]="panelId"
-    [class]="_classList"
-    [class.mat-menu-panel-animations-disabled]="_animationsDisabled"
-    [class.mat-menu-panel-exit-animation]="_panelAnimationState === 'void'"
-    [class.mat-menu-panel-animating]="_isAnimating()"
-    (click)="closed.emit('click')"
-    tabindex="-1"
-    role="menu"
-    (animationstart)="_onAnimationStart($event.animationName)"
-    (animationend)="_onAnimationDone($event.animationName)"
-    (animationcancel)="_onAnimationDone($event.animationName)"
-    [attr.aria-label]="ariaLabel || null"
-    [attr.aria-labelledby]="ariaLabelledby || null"
-    [attr.aria-describedby]="ariaDescribedby || null">
-    <div class="mat-mdc-menu-content">
-      <ng-content></ng-content>
-    </div>
-  </div>
-</ng-template>
-`,
-      styles: ['mat-menu {\n  display: none;\n}\n\n.mat-mdc-menu-content {\n  margin: 0;\n  padding: 8px 0;\n  outline: 0;\n}\n.mat-mdc-menu-content,\n.mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {\n  -moz-osx-font-smoothing: grayscale;\n  -webkit-font-smoothing: antialiased;\n  flex: 1;\n  white-space: normal;\n  font-family: var(--mat-menu-item-label-text-font, var(--mat-sys-label-large-font));\n  line-height: var(--mat-menu-item-label-text-line-height, var(--mat-sys-label-large-line-height));\n  font-size: var(--mat-menu-item-label-text-size, var(--mat-sys-label-large-size));\n  letter-spacing: var(--mat-menu-item-label-text-tracking, var(--mat-sys-label-large-tracking));\n  font-weight: var(--mat-menu-item-label-text-weight, var(--mat-sys-label-large-weight));\n}\n\n@keyframes _mat-menu-enter {\n  from {\n    opacity: 0;\n    transform: scale(0.8);\n  }\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n@keyframes _mat-menu-exit {\n  from {\n    opacity: 1;\n  }\n  to {\n    opacity: 0;\n  }\n}\n.mat-mdc-menu-panel {\n  min-width: 112px;\n  max-width: 280px;\n  overflow: auto;\n  box-sizing: border-box;\n  outline: 0;\n  animation: _mat-menu-enter 120ms cubic-bezier(0, 0, 0.2, 1);\n  border-radius: var(--mat-menu-container-shape, var(--mat-sys-corner-extra-small));\n  background-color: var(--mat-menu-container-color, var(--mat-sys-surface-container));\n  box-shadow: var(--mat-menu-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));\n  will-change: transform, opacity;\n}\n.mat-mdc-menu-panel.mat-menu-panel-exit-animation {\n  animation: _mat-menu-exit 100ms 25ms linear forwards;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animations-disabled {\n  animation: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating {\n  pointer-events: none;\n}\n.mat-mdc-menu-panel.mat-menu-panel-animating:has(.mat-mdc-menu-content:empty) {\n  display: none;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-panel {\n    outline: solid 1px;\n  }\n}\n.mat-mdc-menu-panel .mat-divider {\n  border-top-color: var(--mat-menu-divider-color, var(--mat-sys-surface-variant));\n  margin-bottom: var(--mat-menu-divider-bottom-spacing, 8px);\n  margin-top: var(--mat-menu-divider-top-spacing, 8px);\n}\n\n.mat-mdc-menu-item {\n  display: flex;\n  position: relative;\n  align-items: center;\n  justify-content: flex-start;\n  overflow: hidden;\n  padding: 0;\n  cursor: pointer;\n  width: 100%;\n  text-align: left;\n  box-sizing: border-box;\n  color: inherit;\n  font-size: inherit;\n  background: none;\n  text-decoration: none;\n  margin: 0;\n  min-height: 48px;\n  padding-left: var(--mat-menu-item-leading-spacing, 12px);\n  padding-right: var(--mat-menu-item-trailing-spacing, 12px);\n  -webkit-user-select: none;\n  user-select: none;\n  cursor: pointer;\n  outline: none;\n  border: none;\n  -webkit-tap-highlight-color: transparent;\n}\n.mat-mdc-menu-item::-moz-focus-inner {\n  border: 0;\n}\n[dir=rtl] .mat-mdc-menu-item {\n  padding-left: var(--mat-menu-item-trailing-spacing, 12px);\n  padding-right: var(--mat-menu-item-leading-spacing, 12px);\n}\n.mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--mat-menu-item-with-icon-leading-spacing, 12px);\n  padding-right: var(--mat-menu-item-with-icon-trailing-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-item:has(.material-icons, mat-icon, [matButtonIcon]) {\n  padding-left: var(--mat-menu-item-with-icon-trailing-spacing, 12px);\n  padding-right: var(--mat-menu-item-with-icon-leading-spacing, 12px);\n}\n.mat-mdc-menu-item, .mat-mdc-menu-item:visited, .mat-mdc-menu-item:link {\n  color: var(--mat-menu-item-label-text-color, var(--mat-sys-on-surface));\n}\n.mat-mdc-menu-item .mat-icon-no-color,\n.mat-mdc-menu-item .mat-mdc-menu-submenu-icon {\n  color: var(--mat-menu-item-icon-color, var(--mat-sys-on-surface-variant));\n}\n.mat-mdc-menu-item[disabled] {\n  cursor: default;\n  opacity: 0.38;\n}\n.mat-mdc-menu-item[disabled]::after {\n  display: block;\n  position: absolute;\n  content: "";\n  top: 0;\n  left: 0;\n  bottom: 0;\n  right: 0;\n}\n.mat-mdc-menu-item:focus {\n  outline: 0;\n}\n.mat-mdc-menu-item .mat-icon {\n  flex-shrink: 0;\n  margin-right: var(--mat-menu-item-spacing, 12px);\n  height: var(--mat-menu-item-icon-size, 24px);\n  width: var(--mat-menu-item-icon-size, 24px);\n}\n[dir=rtl] .mat-mdc-menu-item {\n  text-align: right;\n}\n[dir=rtl] .mat-mdc-menu-item .mat-icon {\n  margin-right: 0;\n  margin-left: var(--mat-menu-item-spacing, 12px);\n}\n.mat-mdc-menu-item:not([disabled]):hover {\n  background-color: var(--mat-menu-item-hover-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-hover-state-layer-opacity) * 100%), transparent));\n}\n.mat-mdc-menu-item:not([disabled]).cdk-program-focused, .mat-mdc-menu-item:not([disabled]).cdk-keyboard-focused, .mat-mdc-menu-item:not([disabled]).mat-mdc-menu-item-highlighted {\n  background-color: var(--mat-menu-item-focus-state-layer-color, color-mix(in srgb, var(--mat-sys-on-surface) calc(var(--mat-sys-focus-state-layer-opacity) * 100%), transparent));\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-item {\n    margin-top: 1px;\n  }\n}\n\n.mat-mdc-menu-submenu-icon {\n  width: var(--mat-menu-item-icon-size, 24px);\n  height: 10px;\n  fill: currentColor;\n  padding-left: var(--mat-menu-item-spacing, 12px);\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon {\n  padding-right: var(--mat-menu-item-spacing, 12px);\n  padding-left: 0;\n}\n[dir=rtl] .mat-mdc-menu-submenu-icon polygon {\n  transform: scaleX(-1);\n  transform-origin: center;\n}\n@media (forced-colors: active) {\n  .mat-mdc-menu-submenu-icon {\n    fill: CanvasText;\n  }\n}\n\n.mat-mdc-menu-item .mat-mdc-menu-ripple {\n  top: 0;\n  left: 0;\n  right: 0;\n  bottom: 0;\n  position: absolute;\n  pointer-events: none;\n}\n']
-    }]
-  }], () => [], {
-    _allItems: [{
-      type: ContentChildren,
-      args: [MatMenuItem, {
-        descendants: true
-      }]
-    }],
-    backdropClass: [{
-      type: Input
-    }],
-    ariaLabel: [{
-      type: Input,
-      args: ["aria-label"]
-    }],
-    ariaLabelledby: [{
-      type: Input,
-      args: ["aria-labelledby"]
-    }],
-    ariaDescribedby: [{
-      type: Input,
-      args: ["aria-describedby"]
-    }],
-    xPosition: [{
-      type: Input
-    }],
-    yPosition: [{
-      type: Input
-    }],
-    templateRef: [{
-      type: ViewChild,
-      args: [TemplateRef]
-    }],
-    items: [{
-      type: ContentChildren,
-      args: [MatMenuItem, {
-        descendants: false
-      }]
-    }],
-    lazyContent: [{
-      type: ContentChild,
-      args: [MAT_MENU_CONTENT]
-    }],
-    overlapTrigger: [{
-      type: Input,
-      args: [{
-        transform: booleanAttribute
-      }]
-    }],
-    hasBackdrop: [{
-      type: Input,
-      args: [{
-        transform: (value) => value == null ? null : booleanAttribute(value)
-      }]
-    }],
-    panelClass: [{
-      type: Input,
-      args: ["class"]
-    }],
-    classList: [{
-      type: Input
-    }],
-    closed: [{
-      type: Output
-    }],
-    close: [{
-      type: Output
-    }]
-  });
-})();
-var MAT_MENU_SCROLL_STRATEGY = new InjectionToken("mat-menu-scroll-strategy", {
-  providedIn: "root",
-  factory: () => {
-    const injector = inject(Injector);
-    return () => createRepositionScrollStrategy(injector);
-  }
-});
-var PANELS_TO_TRIGGERS = /* @__PURE__ */ new WeakMap();
-var MatMenuTriggerBase = class _MatMenuTriggerBase {
-  _canHaveBackdrop;
-  _element = inject(ElementRef);
-  _viewContainerRef = inject(ViewContainerRef);
-  _menuItemInstance = inject(MatMenuItem, {
-    optional: true,
-    self: true
-  });
-  _dir = inject(Directionality, {
-    optional: true
-  });
-  _focusMonitor = inject(FocusMonitor);
-  _ngZone = inject(NgZone);
-  _injector = inject(Injector);
-  _scrollStrategy = inject(MAT_MENU_SCROLL_STRATEGY);
-  _changeDetectorRef = inject(ChangeDetectorRef);
-  _animationsDisabled = _animationsDisabled();
-  _portal;
-  _overlayRef = null;
-  _menuOpen = false;
-  _closingActionsSubscription = Subscription.EMPTY;
-  _menuCloseSubscription = Subscription.EMPTY;
-  _pendingRemoval;
-  _parentMaterialMenu;
-  _parentInnerPadding;
-  _openedBy = void 0;
-  get _menu() {
-    return this._menuInternal;
-  }
-  set _menu(menu) {
-    if (menu === this._menuInternal) {
-      return;
-    }
-    this._menuInternal = menu;
-    this._menuCloseSubscription.unsubscribe();
-    if (menu) {
-      if (menu === this._parentMaterialMenu && (typeof ngDevMode === "undefined" || ngDevMode)) {
-        throwMatMenuRecursiveError();
-      }
-      this._menuCloseSubscription = menu.close.subscribe((reason) => {
-        this._destroyMenu(reason);
-        if ((reason === "click" || reason === "tab") && this._parentMaterialMenu) {
-          this._parentMaterialMenu.closed.emit(reason);
-        }
-      });
-    } else {
-      this._destroyMenu();
-    }
-    this._menuItemInstance?._setTriggersSubmenu(this._triggersSubmenu());
-  }
-  _menuInternal = null;
-  constructor(_canHaveBackdrop) {
-    this._canHaveBackdrop = _canHaveBackdrop;
-    const parentMenu = inject(MAT_MENU_PANEL, {
-      optional: true
-    });
-    this._parentMaterialMenu = parentMenu instanceof MatMenu ? parentMenu : void 0;
-  }
-  ngOnDestroy() {
-    if (this._menu && this._ownsMenu(this._menu)) {
-      PANELS_TO_TRIGGERS.delete(this._menu);
-    }
-    this._pendingRemoval?.unsubscribe();
-    this._menuCloseSubscription.unsubscribe();
-    this._closingActionsSubscription.unsubscribe();
-    if (this._overlayRef) {
-      this._overlayRef.dispose();
-      this._overlayRef = null;
-    }
-  }
-  get menuOpen() {
-    return this._menuOpen;
-  }
-  get dir() {
-    return this._dir && this._dir.value === "rtl" ? "rtl" : "ltr";
-  }
-  _triggersSubmenu() {
-    return !!(this._menuItemInstance && this._parentMaterialMenu && this._menu);
-  }
-  _closeMenu() {
-    this._menu?.close.emit();
-  }
-  _openMenu(autoFocus) {
-    if (this._triggerIsAriaDisabled()) {
-      return;
-    }
-    const menu = this._menu;
-    if (this._menuOpen || !menu) {
-      return;
-    }
-    this._pendingRemoval?.unsubscribe();
-    const previousTrigger = PANELS_TO_TRIGGERS.get(menu);
-    PANELS_TO_TRIGGERS.set(menu, this);
-    if (previousTrigger && previousTrigger !== this) {
-      previousTrigger._closeMenu();
-    }
-    const overlayRef = this._createOverlay(menu);
-    const overlayConfig = overlayRef.getConfig();
-    const positionStrategy = overlayConfig.positionStrategy;
-    this._setPosition(menu, positionStrategy);
-    if (this._canHaveBackdrop) {
-      overlayConfig.hasBackdrop = menu.hasBackdrop == null ? !this._triggersSubmenu() : menu.hasBackdrop;
-    } else {
-      overlayConfig.hasBackdrop = menu.hasBackdrop ?? false;
-    }
-    if (!overlayRef.hasAttached()) {
-      overlayRef.attach(this._getPortal(menu));
-      menu.lazyContent?.attach(this.menuData);
-    }
-    this._closingActionsSubscription = this._menuClosingActions().subscribe(() => this._closeMenu());
-    menu.parentMenu = this._triggersSubmenu() ? this._parentMaterialMenu : void 0;
-    menu.direction = this.dir;
-    if (autoFocus) {
-      menu.focusFirstItem(this._openedBy || "program");
-    }
-    this._setIsMenuOpen(true);
-    if (menu instanceof MatMenu) {
-      menu._setIsOpen(true);
-      menu._directDescendantItems.changes.pipe(takeUntil(menu.close)).subscribe(() => {
-        positionStrategy.withLockedPosition(false).reapplyLastPosition();
-        positionStrategy.withLockedPosition(true);
-      });
-    }
-  }
-  focus(origin, options) {
-    if (this._focusMonitor && origin) {
-      this._focusMonitor.focusVia(this._element, origin, options);
-    } else {
-      this._element.nativeElement.focus(options);
-    }
-  }
-  _destroyMenu(reason) {
-    const overlayRef = this._overlayRef;
-    const menu = this._menu;
-    if (!overlayRef || !this.menuOpen) {
-      return;
-    }
-    this._closingActionsSubscription.unsubscribe();
-    this._pendingRemoval?.unsubscribe();
-    if (menu instanceof MatMenu && this._ownsMenu(menu)) {
-      this._pendingRemoval = menu._animationDone.pipe(take(1)).subscribe(() => {
-        overlayRef.detach();
-        if (!PANELS_TO_TRIGGERS.has(menu)) {
-          menu.lazyContent?.detach();
-        }
-      });
-      menu._setIsOpen(false);
-    } else {
-      overlayRef.detach();
-      menu?.lazyContent?.detach();
-    }
-    if (menu && this._ownsMenu(menu)) {
-      PANELS_TO_TRIGGERS.delete(menu);
-    }
-    if (this.restoreFocus && (reason === "keydown" || !this._openedBy || !this._triggersSubmenu())) {
-      this.focus(this._openedBy);
-    }
-    this._openedBy = void 0;
-    this._setIsMenuOpen(false);
-  }
-  _setIsMenuOpen(isOpen) {
-    if (isOpen !== this._menuOpen) {
-      this._menuOpen = isOpen;
-      this._menuOpen ? this.menuOpened.emit() : this.menuClosed.emit();
-      if (this._triggersSubmenu()) {
-        this._menuItemInstance._setHighlighted(isOpen);
-      }
-      this._changeDetectorRef.markForCheck();
-    }
-  }
-  _createOverlay(menu) {
-    if (!this._overlayRef) {
-      const config = this._getOverlayConfig(menu);
-      this._subscribeToPositions(menu, config.positionStrategy);
-      this._overlayRef = createOverlayRef(this._injector, config);
-      this._overlayRef.keydownEvents().subscribe((event) => {
-        if (this._menu instanceof MatMenu) {
-          this._menu._handleKeydown(event);
-        }
-      });
-    }
-    return this._overlayRef;
-  }
-  _getOverlayConfig(menu) {
-    return new OverlayConfig({
-      positionStrategy: createFlexibleConnectedPositionStrategy(this._injector, this._getOverlayOrigin()).withLockedPosition().withGrowAfterOpen().withTransformOriginOn(".mat-menu-panel, .mat-mdc-menu-panel"),
-      backdropClass: menu.backdropClass || "cdk-overlay-transparent-backdrop",
-      panelClass: menu.overlayPanelClass,
-      scrollStrategy: this._scrollStrategy(),
-      direction: this._dir || "ltr",
-      disableAnimations: this._animationsDisabled
-    });
-  }
-  _subscribeToPositions(menu, position) {
-    if (menu.setPositionClasses) {
-      position.positionChanges.subscribe((change) => {
-        this._ngZone.run(() => {
-          const posX = change.connectionPair.overlayX === "start" ? "after" : "before";
-          const posY = change.connectionPair.overlayY === "top" ? "below" : "above";
-          menu.setPositionClasses(posX, posY);
-        });
-      });
-    }
-  }
-  _setPosition(menu, positionStrategy) {
-    let [originX, originFallbackX] = menu.xPosition === "before" ? ["end", "start"] : ["start", "end"];
-    let [overlayY, overlayFallbackY] = menu.yPosition === "above" ? ["bottom", "top"] : ["top", "bottom"];
-    let [originY, originFallbackY] = [overlayY, overlayFallbackY];
-    let [overlayX, overlayFallbackX] = [originX, originFallbackX];
-    let offsetY = 0;
-    if (this._triggersSubmenu()) {
-      overlayFallbackX = originX = menu.xPosition === "before" ? "start" : "end";
-      originFallbackX = overlayX = originX === "end" ? "start" : "end";
-      if (this._parentMaterialMenu) {
-        if (this._parentInnerPadding == null) {
-          const firstItem = this._parentMaterialMenu.items.first;
-          this._parentInnerPadding = firstItem ? firstItem._getHostElement().offsetTop : 0;
-        }
-        offsetY = overlayY === "bottom" ? this._parentInnerPadding : -this._parentInnerPadding;
-      }
-    } else if (!menu.overlapTrigger) {
-      originY = overlayY === "top" ? "bottom" : "top";
-      originFallbackY = overlayFallbackY === "top" ? "bottom" : "top";
-    }
-    positionStrategy.withPositions([{
-      originX,
-      originY,
-      overlayX,
-      overlayY,
-      offsetY
-    }, {
-      originX: originFallbackX,
-      originY,
-      overlayX: overlayFallbackX,
-      overlayY,
-      offsetY
-    }, {
-      originX,
-      originY: originFallbackY,
-      overlayX,
-      overlayY: overlayFallbackY,
-      offsetY: -offsetY
-    }, {
-      originX: originFallbackX,
-      originY: originFallbackY,
-      overlayX: overlayFallbackX,
-      overlayY: overlayFallbackY,
-      offsetY: -offsetY
-    }]);
-  }
-  _menuClosingActions() {
-    const outsideClicks = this._getOutsideClickStream(this._overlayRef);
-    const detachments = this._overlayRef.detachments();
-    const parentClose = this._parentMaterialMenu ? this._parentMaterialMenu.closed : of();
-    const hover = this._parentMaterialMenu ? this._parentMaterialMenu._hovered().pipe(filter((active) => this._menuOpen && active !== this._menuItemInstance)) : of();
-    return merge(outsideClicks, parentClose, hover, detachments);
-  }
-  _getPortal(menu) {
-    if (!this._portal || this._portal.templateRef !== menu.templateRef) {
-      this._portal = new TemplatePortal(menu.templateRef, this._viewContainerRef);
-    }
-    return this._portal;
-  }
-  _ownsMenu(menu) {
-    return PANELS_TO_TRIGGERS.get(menu) === this;
-  }
-  _triggerIsAriaDisabled() {
-    return booleanAttribute(this._element.nativeElement.getAttribute("aria-disabled"));
-  }
-  static \u0275fac = function MatMenuTriggerBase_Factory(__ngFactoryType__) {
-    \u0275\u0275invalidFactory();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatMenuTriggerBase
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuTriggerBase, [{
-    type: Directive
-  }], () => [{
-    type: void 0
-  }], null);
-})();
-var MatMenuTrigger = class _MatMenuTrigger extends MatMenuTriggerBase {
-  _cleanupTouchstart;
-  _hoverSubscription = Subscription.EMPTY;
-  get _deprecatedMatMenuTriggerFor() {
-    return this.menu;
-  }
-  set _deprecatedMatMenuTriggerFor(v2) {
-    this.menu = v2;
-  }
-  get menu() {
-    return this._menu;
-  }
-  set menu(menu) {
-    this._menu = menu;
-  }
-  menuData;
-  restoreFocus = true;
-  menuOpened = new EventEmitter();
-  onMenuOpen = this.menuOpened;
-  menuClosed = new EventEmitter();
-  onMenuClose = this.menuClosed;
-  constructor() {
-    super(true);
-    const renderer = inject(Renderer2);
-    this._cleanupTouchstart = renderer.listen(this._element.nativeElement, "touchstart", (event) => {
-      if (!isFakeTouchstartFromScreenReader(event)) {
-        this._openedBy = "touch";
-      }
-    }, {
-      passive: true
-    });
-  }
-  triggersSubmenu() {
-    return super._triggersSubmenu();
-  }
-  toggleMenu() {
-    return this.menuOpen ? this.closeMenu() : this.openMenu();
-  }
-  openMenu() {
-    this._openMenu(true);
-  }
-  closeMenu() {
-    this._closeMenu();
-  }
-  updatePosition() {
-    this._overlayRef?.updatePosition();
-  }
-  ngAfterContentInit() {
-    this._handleHover();
-  }
-  ngOnDestroy() {
-    super.ngOnDestroy();
-    this._cleanupTouchstart();
-    this._hoverSubscription.unsubscribe();
-  }
-  _getOverlayOrigin() {
-    return this._element;
-  }
-  _getOutsideClickStream(overlayRef) {
-    return overlayRef.backdropClick();
-  }
-  _handleMousedown(event) {
-    if (!isFakeMousedownFromScreenReader(event)) {
-      this._openedBy = event.button === 0 ? "mouse" : void 0;
-      if (this.triggersSubmenu()) {
-        event.preventDefault();
-      }
-    }
-  }
-  _handleKeydown(event) {
-    const keyCode = event.keyCode;
-    if (keyCode === ENTER || keyCode === SPACE) {
-      this._openedBy = "keyboard";
-    }
-    if (this.triggersSubmenu() && (keyCode === RIGHT_ARROW && this.dir === "ltr" || keyCode === LEFT_ARROW && this.dir === "rtl")) {
-      this._openedBy = "keyboard";
-      this.openMenu();
-    }
-  }
-  _handleClick(event) {
-    if (this.triggersSubmenu()) {
-      event.stopPropagation();
-      this.openMenu();
-    } else {
-      this.toggleMenu();
-    }
-  }
-  _handleHover() {
-    if (this.triggersSubmenu() && this._parentMaterialMenu) {
-      this._hoverSubscription = this._parentMaterialMenu._hovered().subscribe((active) => {
-        if (active === this._menuItemInstance && !active.disabled && this._parentMaterialMenu?._panelAnimationState !== "void") {
-          this._openedBy = "mouse";
-          this._openMenu(false);
-        }
-      });
-    }
-  }
-  static \u0275fac = function MatMenuTrigger_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenuTrigger)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatMenuTrigger,
-    selectors: [["", "mat-menu-trigger-for", ""], ["", "matMenuTriggerFor", ""]],
-    hostAttrs: [1, "mat-mdc-menu-trigger"],
-    hostVars: 3,
-    hostBindings: function MatMenuTrigger_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("click", function MatMenuTrigger_click_HostBindingHandler($event) {
-          return ctx._handleClick($event);
-        })("mousedown", function MatMenuTrigger_mousedown_HostBindingHandler($event) {
-          return ctx._handleMousedown($event);
-        })("keydown", function MatMenuTrigger_keydown_HostBindingHandler($event) {
-          return ctx._handleKeydown($event);
-        });
-      }
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-haspopup", ctx.menu ? "menu" : null)("aria-expanded", ctx.menuOpen)("aria-controls", ctx.menuOpen ? ctx.menu?.panelId : null);
-      }
-    },
-    inputs: {
-      _deprecatedMatMenuTriggerFor: [0, "mat-menu-trigger-for", "_deprecatedMatMenuTriggerFor"],
-      menu: [0, "matMenuTriggerFor", "menu"],
-      menuData: [0, "matMenuTriggerData", "menuData"],
-      restoreFocus: [0, "matMenuTriggerRestoreFocus", "restoreFocus"]
-    },
-    outputs: {
-      menuOpened: "menuOpened",
-      onMenuOpen: "onMenuOpen",
-      menuClosed: "menuClosed",
-      onMenuClose: "onMenuClose"
-    },
-    exportAs: ["matMenuTrigger"],
-    features: [\u0275\u0275InheritDefinitionFeature]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuTrigger, [{
-    type: Directive,
-    args: [{
-      selector: "[mat-menu-trigger-for], [matMenuTriggerFor]",
-      host: {
-        "class": "mat-mdc-menu-trigger",
-        "[attr.aria-haspopup]": 'menu ? "menu" : null',
-        "[attr.aria-expanded]": "menuOpen",
-        "[attr.aria-controls]": "menuOpen ? menu?.panelId : null",
-        "(click)": "_handleClick($event)",
-        "(mousedown)": "_handleMousedown($event)",
-        "(keydown)": "_handleKeydown($event)"
-      },
-      exportAs: "matMenuTrigger"
-    }]
-  }], () => [], {
-    _deprecatedMatMenuTriggerFor: [{
-      type: Input,
-      args: ["mat-menu-trigger-for"]
-    }],
-    menu: [{
-      type: Input,
-      args: ["matMenuTriggerFor"]
-    }],
-    menuData: [{
-      type: Input,
-      args: ["matMenuTriggerData"]
-    }],
-    restoreFocus: [{
-      type: Input,
-      args: ["matMenuTriggerRestoreFocus"]
-    }],
-    menuOpened: [{
-      type: Output
-    }],
-    onMenuOpen: [{
-      type: Output
-    }],
-    menuClosed: [{
-      type: Output
-    }],
-    onMenuClose: [{
-      type: Output
-    }]
-  });
-})();
-var MatContextMenuTrigger = class _MatContextMenuTrigger extends MatMenuTriggerBase {
-  _point = {
-    x: 0,
-    y: 0,
-    initialX: 0,
-    initialY: 0,
-    initialScrollX: 0,
-    initialScrollY: 0
-  };
-  _triggerPressedControl = false;
-  _rootNode;
-  _document = inject(DOCUMENT);
-  _viewportRuler = inject(ViewportRuler);
-  _scrollDispatcher = inject(ScrollDispatcher);
-  _scrollSubscription;
-  get menu() {
-    return this._menu;
-  }
-  set menu(menu) {
-    this._menu = menu;
-  }
-  menuData;
-  restoreFocus = true;
-  disabled = false;
-  menuOpened = new EventEmitter();
-  menuClosed = new EventEmitter();
-  constructor() {
-    super(false);
-  }
-  ngOnDestroy() {
-    super.ngOnDestroy();
-    this._scrollSubscription?.unsubscribe();
-  }
-  _handleContextMenuEvent(event) {
-    if (!this.disabled) {
-      event.preventDefault();
-      if (this.menuOpen) {
-        this._initializePoint(event.clientX, event.clientY);
-        this._updatePosition();
-      } else {
-        this._openContextMenu(event);
-      }
-    }
-  }
-  _destroyMenu(reason) {
-    super._destroyMenu(reason);
-    this._scrollSubscription?.unsubscribe();
-  }
-  _getOverlayOrigin() {
-    return this._point;
-  }
-  _getOutsideClickStream(overlayRef) {
-    return overlayRef.outsidePointerEvents().pipe(skipWhile((event, index) => {
-      if (event.type === "contextmenu") {
-        return this._isWithinMenuOrTrigger(_getEventTarget(event));
-      } else if (event.type === "auxclick") {
-        if (index === 0) {
-          return true;
-        }
-        this._rootNode ??= _getShadowRoot(this._element.nativeElement) || this._document;
-        return this._isWithinMenuOrTrigger(this._rootNode.elementFromPoint(event.clientX, event.clientY));
-      }
-      return this._triggerPressedControl && index === 0 && event.ctrlKey;
-    }));
-  }
-  _isWithinMenuOrTrigger(target) {
-    if (!target) {
-      return false;
-    }
-    const element = this._element.nativeElement;
-    if (target === element || element.contains(target)) {
-      return true;
-    }
-    const overlay = this._overlayRef?.hostElement;
-    return overlay === target || !!overlay?.contains(target);
-  }
-  _openContextMenu(event) {
-    if (event.button === 2) {
-      this._openedBy = "mouse";
-    } else {
-      this._openedBy = event.button === 0 ? "keyboard" : void 0;
-    }
-    this._initializePoint(event.clientX, event.clientY);
-    this._triggerPressedControl = event.ctrlKey;
-    super._openMenu(true);
-    this._scrollSubscription?.unsubscribe();
-    this._scrollSubscription = this._scrollDispatcher.scrolled(0).subscribe(() => {
-      const position = this._viewportRuler.getViewportScrollPosition();
-      const point = this._point;
-      point.y = point.initialY + (point.initialScrollY - position.top);
-      point.x = point.initialX + (point.initialScrollX - position.left);
-      this._updatePosition();
-    });
-  }
-  _initializePoint(x, y) {
-    const scrollPosition = this._viewportRuler.getViewportScrollPosition();
-    const point = this._point;
-    point.x = point.initialX = x;
-    point.y = point.initialY = y;
-    point.initialScrollX = scrollPosition.left;
-    point.initialScrollY = scrollPosition.top;
-  }
-  _updatePosition() {
-    const overlayRef = this._overlayRef;
-    if (overlayRef) {
-      const positionStrategy = overlayRef.getConfig().positionStrategy;
-      positionStrategy.setOrigin(this._point);
-      overlayRef.updatePosition();
-    }
-  }
-  static \u0275fac = function MatContextMenuTrigger_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatContextMenuTrigger)();
-  };
-  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
-    type: _MatContextMenuTrigger,
-    selectors: [["", "matContextMenuTriggerFor", ""]],
-    hostAttrs: [1, "mat-context-menu-trigger"],
-    hostVars: 3,
-    hostBindings: function MatContextMenuTrigger_HostBindings(rf, ctx) {
-      if (rf & 1) {
-        \u0275\u0275listener("contextmenu", function MatContextMenuTrigger_contextmenu_HostBindingHandler($event) {
-          return ctx._handleContextMenuEvent($event);
-        });
-      }
-      if (rf & 2) {
-        \u0275\u0275attribute("aria-controls", ctx.menuOpen ? ctx.menu?.panelId : null);
-        \u0275\u0275classProp("mat-context-menu-trigger-disabled", ctx.disabled);
-      }
-    },
-    inputs: {
-      menu: [0, "matContextMenuTriggerFor", "menu"],
-      menuData: [0, "matContextMenuTriggerData", "menuData"],
-      restoreFocus: [0, "matContextMenuTriggerRestoreFocus", "restoreFocus"],
-      disabled: [2, "matContextMenuTriggerDisabled", "disabled", booleanAttribute]
-    },
-    outputs: {
-      menuOpened: "menuOpened",
-      menuClosed: "menuClosed"
-    },
-    exportAs: ["matContextMenuTrigger"],
-    features: [\u0275\u0275InheritDefinitionFeature]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatContextMenuTrigger, [{
-    type: Directive,
-    args: [{
-      selector: "[matContextMenuTriggerFor]",
-      host: {
-        "class": "mat-context-menu-trigger",
-        "[class.mat-context-menu-trigger-disabled]": "disabled",
-        "[attr.aria-controls]": "menuOpen ? menu?.panelId : null",
-        "(contextmenu)": "_handleContextMenuEvent($event)"
-      },
-      exportAs: "matContextMenuTrigger"
-    }]
-  }], () => [], {
-    menu: [{
-      type: Input,
-      args: [{
-        alias: "matContextMenuTriggerFor",
-        required: true
-      }]
-    }],
-    menuData: [{
-      type: Input,
-      args: ["matContextMenuTriggerData"]
-    }],
-    restoreFocus: [{
-      type: Input,
-      args: ["matContextMenuTriggerRestoreFocus"]
-    }],
-    disabled: [{
-      type: Input,
-      args: [{
-        alias: "matContextMenuTriggerDisabled",
-        transform: booleanAttribute
-      }]
-    }],
-    menuOpened: [{
-      type: Output
-    }],
-    menuClosed: [{
-      type: Output
-    }]
-  });
-})();
-var MatMenuModule = class _MatMenuModule {
-  static \u0275fac = function MatMenuModule_Factory(__ngFactoryType__) {
-    return new (__ngFactoryType__ || _MatMenuModule)();
-  };
-  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
-    type: _MatMenuModule,
-    imports: [MatRippleModule, OverlayModule, MatMenu, MatMenuItem, MatMenuContent, MatMenuTrigger, MatContextMenuTrigger],
-    exports: [BidiModule, CdkScrollableModule, MatMenu, MatMenuItem, MatMenuContent, MatMenuTrigger, MatContextMenuTrigger]
-  });
-  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
-    imports: [MatRippleModule, OverlayModule, BidiModule, CdkScrollableModule]
-  });
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MatMenuModule, [{
-    type: NgModule,
-    args: [{
-      imports: [MatRippleModule, OverlayModule, MatMenu, MatMenuItem, MatMenuContent, MatMenuTrigger, MatContextMenuTrigger],
-      exports: [BidiModule, CdkScrollableModule, MatMenu, MatMenuItem, MatMenuContent, MatMenuTrigger, MatContextMenuTrigger]
-    }]
-  }], null, null);
-})();
-
 // node_modules/date-fns/differenceInCalendarMonths.js
 function differenceInCalendarMonths(laterDate, earlierDate, options) {
   const [laterDate_, earlierDate_] = normalizeDates(
@@ -3474,15 +2079,15 @@ var LENGTH_BITS = {
 };
 var GF256 = /* @__PURE__ */ (() => {
   const exp = new Uint8Array(510);
-  const log = new Uint8Array(256);
+  const log2 = new Uint8Array(256);
   for (let i = 0, x = 1; i < 255; i++) {
     exp[i] = exp[i + 255] = x;
-    log[x] = i;
+    log2[x] = i;
     x <<= 1;
     if (x & 256)
       x ^= 285;
   }
-  return { exp, log };
+  return { exp, log: log2 };
 })();
 function rsGenerator(eccWords) {
   const { exp: EXP, log: LOG } = GF256;
@@ -5986,9 +4591,9 @@ var MapZoomControlsComponent = class _MapZoomControlsComponent {
 })();
 
 // libs/components/src/lib/dynamic-map.component.ts
-var _c02 = ["mapContainer"];
-var _c12 = ["feature"];
-var _c22 = ["*"];
+var _c0 = ["mapContainer"];
+var _c1 = ["feature"];
+var _c2 = ["*"];
 var _forTrack0 = ($index, $item) => $item.key;
 var _forTrack1 = ($index, $item) => $item.selector;
 var _forTrack2 = ($index, $item) => $item.name;
@@ -6948,12 +5553,12 @@ var DynamicMapComponent = class _DynamicMapComponent {
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _DynamicMapComponent, selectors: [["dynamic-map"]], viewQuery: function DynamicMapComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._map_container, _c02, 5)(ctx._feature_elements, _c12, 5);
+        \u0275\u0275viewQuerySignal(ctx._map_container, _c0, 5)(ctx._feature_elements, _c1, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
       }
-    }, inputs: { src: [1, "src"], zoom: [1, "zoom"], center: [1, "center"], fixedResolution: [1, "fixedResolution"], debug: [1, "debug"], reset: [1, "reset"], styles: [1, "styles"], features: [1, "features"], labels: [1, "labels"], actions: [1, "actions"], options: [1, "options"], focus: [1, "focus"] }, outputs: { zoom: "zoomChange", center: "centerChange", debug: "debugChange", reset: "resetChange", mapInfo: "mapInfo" }, ngContentSelectors: _c22, decls: 8, vars: 6, consts: [["mapContainer", ""], ["feature", ""], ["tabindex", "0", "role", "map", 1, "absolute", "inset-0"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center"], [3, "zoom", "reset"], [1, "absolute", "top-2", "right-2", "z-40", "flex", "max-h-[80%]", "max-w-[32rem]", "flex-col", "rounded", "bg-black/80", "font-mono", "text-[11px]", "leading-4", "text-white"], ["hidden", ""], [1, "absolute", "z-30", 3, "diameter"], [1, "opacity-30"], [3, "zoomChange", "resetChange", "zoom", "reset"], [1, "pointer-events-none", "p-2", "whitespace-pre"], [1, "flex", "gap-1", "px-2", "pb-2"], [1, "rounded", "border", "border-white/30", "px-1", "hover:bg-white/20", 3, "bg-white/30"], [1, "rounded", "border", "border-white/30", "px-1", "hover:bg-white/20", 3, "click"], ["placeholder", "Filter...", 1, "mx-2", "mb-2", "rounded", "border", "border-white/30", "bg-white/10", "px-1", "outline-none", "placeholder:text-white/40", 3, "ngModelChange", "ngModel"], [1, "overflow-auto", "border-t", "border-white/20", "p-2", "whitespace-pre", "select-text"], [1, "flex", "items-center"], [1, "ml-1.5", "inline-block", "h-2.5", "w-2.5", "rounded-sm", "border", "border-white/40", 3, "background"], [1, "ml-1.5", "inline-block", "h-2.5", "w-2.5", "rounded-sm", "border", "border-white/40"], [1, "rounded", "px-1", 3, "bg-red-500/20", "text-red-200", "cursor-default"], [1, "rounded", "px-1", 3, "mouseenter", "mouseleave"], [1, "ml-1", "text-red-300"], [1, "pointer-events-none", "h-full", "w-full"], [3, "innerHTML"], [4, "ngComponentOutlet", "ngComponentOutletInjector"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"]], template: function DynamicMapComponent_Template(rf, ctx) {
+    }, inputs: { src: [1, "src"], zoom: [1, "zoom"], center: [1, "center"], fixedResolution: [1, "fixedResolution"], debug: [1, "debug"], reset: [1, "reset"], styles: [1, "styles"], features: [1, "features"], labels: [1, "labels"], actions: [1, "actions"], options: [1, "options"], focus: [1, "focus"] }, outputs: { zoom: "zoomChange", center: "centerChange", debug: "debugChange", reset: "resetChange", mapInfo: "mapInfo" }, ngContentSelectors: _c2, decls: 8, vars: 6, consts: [["mapContainer", ""], ["feature", ""], ["tabindex", "0", "role", "map", 1, "absolute", "inset-0"], [1, "absolute", "inset-0", "flex", "items-center", "justify-center"], [3, "zoom", "reset"], [1, "absolute", "top-2", "right-2", "z-40", "flex", "max-h-[80%]", "max-w-[32rem]", "flex-col", "rounded", "bg-black/80", "font-mono", "text-[11px]", "leading-4", "text-white"], ["hidden", ""], [1, "absolute", "z-30", 3, "diameter"], [1, "opacity-30"], [3, "zoomChange", "resetChange", "zoom", "reset"], [1, "pointer-events-none", "p-2", "whitespace-pre"], [1, "flex", "gap-1", "px-2", "pb-2"], [1, "rounded", "border", "border-white/30", "px-1", "hover:bg-white/20", 3, "bg-white/30"], [1, "rounded", "border", "border-white/30", "px-1", "hover:bg-white/20", 3, "click"], ["placeholder", "Filter...", 1, "mx-2", "mb-2", "rounded", "border", "border-white/30", "bg-white/10", "px-1", "outline-none", "placeholder:text-white/40", 3, "ngModelChange", "ngModel"], [1, "overflow-auto", "border-t", "border-white/20", "p-2", "whitespace-pre", "select-text"], [1, "flex", "items-center"], [1, "ml-1.5", "inline-block", "h-2.5", "w-2.5", "rounded-sm", "border", "border-white/40", 3, "background"], [1, "ml-1.5", "inline-block", "h-2.5", "w-2.5", "rounded-sm", "border", "border-white/40"], [1, "rounded", "px-1", 3, "bg-red-500/20", "text-red-200", "cursor-default"], [1, "rounded", "px-1", 3, "mouseenter", "mouseleave"], [1, "ml-1", "text-red-300"], [1, "pointer-events-none", "h-full", "w-full"], [3, "innerHTML"], [4, "ngComponentOutlet", "ngComponentOutletInjector"], [4, "ngTemplateOutlet", "ngTemplateOutletContext"]], template: function DynamicMapComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275element(0, "div", 2, 0);
@@ -7983,8 +6588,8 @@ async function querySpaceFreeBusy(q, org) {
 }
 
 // node_modules/@angular/material/fesm2022/autocomplete.mjs
-var _c03 = ["panel"];
-var _c13 = ["*"];
+var _c02 = ["panel"];
+var _c12 = ["*"];
 function MatAutocomplete_ng_template_0_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275domElementStart(0, "div", 1, 0);
@@ -8142,7 +6747,7 @@ var MatAutocomplete = class _MatAutocomplete {
     },
     viewQuery: function MatAutocomplete_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(TemplateRef, 7)(_c03, 5);
+        \u0275\u0275viewQuery(TemplateRef, 7)(_c02, 5);
       }
       if (rf & 2) {
         let _t;
@@ -8174,7 +6779,7 @@ var MatAutocomplete = class _MatAutocomplete {
       provide: MAT_OPTION_PARENT_COMPONENT,
       useExisting: _MatAutocomplete
     }])],
-    ngContentSelectors: _c13,
+    ngContentSelectors: _c12,
     decls: 1,
     vars: 0,
     consts: [["panel", ""], ["role", "listbox", 1, "mat-mdc-autocomplete-panel", "mdc-menu-surface", "mdc-menu-surface--open", 3, "id"]],
@@ -9197,9 +7802,9 @@ var ConfirmModalComponent = class _ConfirmModalComponent extends AsyncHandler {
 })();
 
 // node_modules/@angular/material/fesm2022/radio.mjs
-var _c04 = ["input"];
-var _c14 = ["formField"];
-var _c23 = ["*"];
+var _c03 = ["input"];
+var _c13 = ["formField"];
+var _c22 = ["*"];
 var MatRadioChange = class {
   source;
   value;
@@ -9681,7 +8286,7 @@ var MatRadioButton = class _MatRadioButton {
     selectors: [["mat-radio-button"]],
     viewQuery: function MatRadioButton_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuery(_c04, 5)(_c14, 7, ElementRef);
+        \u0275\u0275viewQuery(_c03, 5)(_c13, 7, ElementRef);
       }
       if (rf & 2) {
         let _t;
@@ -9722,7 +8327,7 @@ var MatRadioButton = class _MatRadioButton {
       change: "change"
     },
     exportAs: ["matRadioButton"],
-    ngContentSelectors: _c23,
+    ngContentSelectors: _c22,
     decls: 13,
     vars: 17,
     consts: [["formField", ""], ["input", ""], ["mat-internal-form-field", "", 3, "labelPosition", "for"], [1, "mdc-radio"], [1, "mat-mdc-radio-touch-target"], ["type", "radio", "aria-invalid", "false", 1, "mdc-radio__native-control", 3, "change", "id", "checked", "disabled", "required"], ["aria-hidden", "true", 1, "mdc-radio__background"], [1, "mdc-radio__outer-circle"], [1, "mdc-radio__inner-circle"], ["mat-ripple", "", "aria-hidden", "true", 1, "mat-radio-ripple", "mat-focus-indicator", 3, "matRippleTrigger", "matRippleDisabled", "matRippleCentered"], [1, "mat-ripple-element", "mat-radio-persistent-ripple"], [1, "mat-internal-form-field-label", "mdc-label"]],
@@ -9904,8 +8509,8 @@ async function showGuest(id) {
 }
 
 // libs/form-fields/src/lib/user-search-field.component.ts
-var _c05 = ["input"];
-var _c15 = (a0) => ({ name: a0 });
+var _c04 = ["input"];
+var _c14 = (a0) => ({ name: a0 });
 function UserSearchFieldComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "a-user-avatar", 5);
@@ -9976,7 +8581,7 @@ function UserSearchFieldComponent_Conditional_14_Template(rf, ctx) {
     \u0275\u0275nextContext();
     const term_r4 = \u0275\u0275readContextLet(11);
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c15, term_r4)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(4, 1, "FORM.USER_ADD_EXTERNAL", \u0275\u0275pureFunction1(4, _c14, term_r4)), " ");
   }
 }
 function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
@@ -10006,7 +8611,7 @@ function UserSearchFieldComponent_Conditional_15_Template(rf, ctx) {
     \u0275\u0275nextContext();
     const term_r4 = \u0275\u0275readContextLet(11);
     \u0275\u0275advance(2);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 1, "FORM.USER_SET_EXTERNAL", \u0275\u0275pureFunction1(4, _c15, term_r4)), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 1, "FORM.USER_SET_EXTERNAL", \u0275\u0275pureFunction1(4, _c14, term_r4)), " ");
   }
 }
 function UserSearchFieldComponent_Conditional_16_Template(rf, ctx) {
@@ -10324,7 +8929,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _UserSearchFieldComponent, selectors: [["a-user-search-field"]], viewQuery: function UserSearchFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c05, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c04, 5, ElementRef)(ctx._autocomplete_trigger, MatAutocompleteTrigger, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
@@ -11339,7 +9944,7 @@ var AssetStateService = class _AssetStateService {
 })();
 
 // libs/form-fields/src/lib/duration-field.component.ts
-var _c06 = ["*"];
+var _c05 = ["*"];
 var _forTrack02 = ($index, $item) => $item.id;
 function DurationFieldComponent_Conditional_0_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
@@ -11838,7 +10443,7 @@ var DurationFieldComponent = class _DurationFieldComponent {
         useExisting: forwardRef(() => _DurationFieldComponent),
         multi: true
       }
-    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c06, decls: 9, vars: 2, consts: [["menu", "matMenu"], ["end_input", ""], ["type", "button", "duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "opacity-30", "matMenuTriggerFor"], ["xPosition", "before", 1, "max-h-60", "min-w-[18rem]"], ["type", "button", "mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], [1, "border-neutral", "flex", "h-12", "w-full", "items-center", "rounded-sm", "border"], ["type", "time", "aria-label", "End time", 1, "h-full", "min-w-0", "flex-1", "border-0", "bg-transparent", "px-4", 3, "change", "blur", "value", "disabled"], ["type", "button", "end-time-options", "", "aria-label", "Choose duration", 1, "flex", "h-full", "w-12", "shrink-0", "items-center", "justify-center", 3, "disabled", "matMenuTriggerFor"], [1, "text-2xl"], [1, "text-xs", "opacity-30"], ["role", "alert", 1, "text-error", "text-sm"], ["type", "button", "duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
+    ]), \u0275\u0275NgOnChangesFeature], ngContentSelectors: _c05, decls: 9, vars: 2, consts: [["menu", "matMenu"], ["end_input", ""], ["type", "button", "duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "opacity-30", "matMenuTriggerFor"], ["xPosition", "before", 1, "max-h-60", "min-w-[18rem]"], ["type", "button", "mat-menu-item", "", 1, "text-left"], ["mat-menu-item", "", "disabled", ""], [1, "border-neutral", "flex", "h-12", "w-full", "items-center", "rounded-sm", "border"], ["type", "time", "aria-label", "End time", 1, "h-full", "min-w-0", "flex-1", "border-0", "bg-transparent", "px-4", 3, "change", "blur", "value", "disabled"], ["type", "button", "end-time-options", "", "aria-label", "Choose duration", 1, "flex", "h-full", "w-12", "shrink-0", "items-center", "justify-center", 3, "disabled", "matMenuTriggerFor"], [1, "text-2xl"], [1, "text-xs", "opacity-30"], ["role", "alert", 1, "text-error", "text-sm"], ["type", "button", "duration-field", "", "matRipple", "", 1, "border-neutral", "flex", "h-12", "w-full", "items-center", "justify-between", "rounded-sm", "border", "px-2", 3, "disabled", "matMenuTriggerFor"], [1, "flex", "w-1/2", "flex-1", "flex-col", "px-2", "text-left", "leading-tight"], [1, "truncate"], [1, "truncate", "text-xs", "opacity-30"], ["type", "button", "mat-menu-item", "", 1, "text-left", 3, "click"], [1, "flex", "items-center", "justify-between"], [1, "flex", "flex-col", "leading-tight"], [1, "ml-2", "text-2xl"]], template: function DurationFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef();
         \u0275\u0275conditionalCreate(0, DurationFieldComponent_Conditional_0_Template, 8, 9)(1, DurationFieldComponent_Conditional_1_Template, 8, 11, "button", 2);
@@ -12564,14 +11169,18 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
 }
 function newBookingFromCalendarEvent(event) {
   const date = event.date || event.event_start * 1e3;
+  const duration = event.duration ?? (event.event_end - event.event_start) / 60;
   const recurrence = event.recurrence?.pattern ? toBookingRecurrence(fromEventRecurrence(event.recurrence), date) : {};
   return new Booking(__spreadProps(__spreadValues({
     id: event.id,
+    user_id: event.organiser?.id || event.host,
     user_email: event.host,
+    user_name: event.organiser?.name || event.host,
     date,
-    duration: event.duration,
+    duration,
     asset_id: event.system?.id || event.system_id,
     asset_name: event.system?.display_name || event.system?.name,
+    zones: [...event.system?.zones || []],
     booking_type: "room",
     approved: event.status === "approved"
   }, recurrence), {
@@ -12884,7 +11493,9 @@ var CalendarService = class _CalendarService extends AsyncHandler {
   async loadCalendars() {
     if (this._calendars().length)
       return;
-    this._calendars_request = this._calendars_request || queryCalendars().then((list) => this._calendars.set(list)).finally(() => this._calendars_request = null);
+    this._calendars_request = this._calendars_request || queryCalendars().then((list) => this._calendars.set(list)).catch((error) => {
+      log("CalendarService", "Failed to load calendars", error, "warn");
+    }).finally(() => this._calendars_request = null);
     await this._calendars_request;
   }
   _waitForOrg() {
@@ -13974,10 +12585,12 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form().reset();
     this._applyDurationSettings();
     this._setInitialEvent(this._model());
-    if (!event.id)
+    this._event.set(event.id ? event : new CalendarEvent());
+    if (!event.id) {
+      sessionStorage.removeItem("PLACEOS.event");
       return;
+    }
     sessionStorage.setItem("PLACEOS.event", JSON.stringify(event?.toJSON() || {}));
-    this._event.set(event);
   }
   resetForm() {
     if (!currentUserIsLoaded()) {
@@ -14396,6 +13009,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       event.attendees = event.attendees.filter((_) => _.email !== old_system || _.id !== old_system);
     }
     return this.book_internal ? saveBooking(newBookingFromCalendarEvent(__spreadProps(__spreadValues({}, event.toJSON()), {
+      // Native recurrence needs weekday indices and millisecond dates.
+      recurrence: event.recurrence,
       status: this._settings.get("app.bookings.no_approval") === true ? "approved" : "tentative"
     }))).then((_) => newCalendarEventFromBooking(_)) : saveEvent(event, query);
   }
@@ -14471,7 +13086,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
 })();
 
 // libs/explore/src/lib/explore-book-qr.component.ts
-var _c07 = (a0) => ({ name: a0 });
+var _c06 = (a0) => ({ name: a0 });
 var DEFAULT_PATH = `workplace/#/explore?space={{id}}`;
 var ExploreBookQrComponent = class _ExploreBookQrComponent {
   constructor() {
@@ -14514,7 +13129,7 @@ var ExploreBookQrComponent = class _ExploreBookQrComponent {
       }
       if (rf & 2) {
         \u0275\u0275advance(2);
-        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c07, ctx.space()?.name)), " ");
+        \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(3, 2, "EXPLORE.BOOK_RESOURCE", \u0275\u0275pureFunction1(5, _c06, ctx.space()?.name)), " ");
         \u0275\u0275advance(7);
         \u0275\u0275property("src", ctx.qr_code(), \u0275\u0275sanitizeUrl);
       }
@@ -15089,7 +13704,7 @@ var ExploreIconComponent = class _ExploreIconComponent {
 })();
 
 // libs/explore/src/lib/explore-space-info.component.ts
-var _c08 = (a0) => ({ count: a0 });
+var _c07 = (a0) => ({ count: a0 });
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -15129,7 +13744,7 @@ function ExploreSpaceInfoComponent_ng_template_2_Conditional_15_Template(rf, ctx
   if (rf & 2) {
     const ctx_r0 = \u0275\u0275nextContext(2);
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c08, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind3(5, 1, "COMMON.PEOPLE_COUNT", \u0275\u0275pureFunction1(5, _c07, ctx_r0.space().capacity), ctx_r0.space().capacity), " ");
   }
 }
 function ExploreSpaceInfoComponent_ng_template_2_Conditional_16_For_2_Template(rf, ctx) {
@@ -16196,7 +14811,7 @@ var DeskQuestionsModalComponent = class _DeskQuestionsModalComponent {
 })();
 
 // libs/payments/src/lib/card-input-field.component.ts
-var _c09 = ["input"];
+var _c08 = ["input"];
 function CardInputFieldComponent_Conditional_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "img", 7);
@@ -16402,7 +15017,7 @@ var CardInputFieldComponent = class _CardInputFieldComponent extends AsyncHandle
   static {
     this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _CardInputFieldComponent, selectors: [["card-input-field"]], viewQuery: function CardInputFieldComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275viewQuerySignal(ctx._input_el, _c09, 5);
+        \u0275\u0275viewQuerySignal(ctx._input_el, _c08, 5);
       }
       if (rf & 2) {
         \u0275\u0275queryAdvance();
@@ -17328,8 +15943,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   async listResources() {
     this._startNetwork();
     await firstValueWhere(this._requests_ready, (ready) => ready, this._injector);
-    const params = this._resource_params();
-    await firstValueWhere(this._resource_params_debounced.value, (value) => value === params, this._injector);
+    await firstValueWhere(computed(() => this._resource_params_debounced.value() === this._resource_params()), (ready) => ready, this._injector);
     await this._whenSettled(this._resources_resource);
     return this.resources();
   }
@@ -17337,8 +15951,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   async listAvailableResources() {
     this._startNetwork();
     const resources = await this.listResources();
-    const rules_params = this._booking_rules_params();
-    await firstValueWhere(this._booking_rules_params_debounced.value, (value) => value === rules_params, this._injector);
+    await firstValueWhere(computed(() => this._booking_rules_params_debounced.value() === this._booking_rules_params()), (ready) => ready, this._injector);
     await this._whenSettled(this._booking_rules_resource);
     return this._computeAvailableResources(this._options(), resources, this.booking_rules(), this.model());
   }
@@ -18132,21 +16745,19 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       extension_data: buildBookingExtensionData(value, group_members),
       approved: this._settings.get("app.bookings.no_approval") === true,
       zones: unique([...zones, ...value.zones || []]).filter((_) => _)
-    })).toJSON(), q).catch((e) => {
+    })).toJSON(), q).catch(async (e) => {
       this._loading.set("");
-      const error = e?.error || e;
-      if (e?.status) {
-        if (typeof error === "object" && error !== null) {
-          error.status = e.status;
-        } else {
-          if (this._isPermissionError(e))
-            this._clearSavedHostChange();
-          throw { message: error, status: e.status };
-        }
+      let error = e?.error || e;
+      if (error instanceof Response) {
+        error = await error.clone().json().catch(() => null);
       }
-      if (this._isPermissionError(error))
+      const failure = e?.status ? {
+        message: this._error_message(error),
+        status: e.status
+      } : error;
+      if (this._isPermissionError(failure))
         this._clearSavedHostChange();
-      throw error;
+      throw failure;
     });
     if (value.assets?.length || booking.extension_data.assets?.length) {
       const is_new_booking = !booking.id && !value.id;
@@ -18548,9 +17159,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     this._finishGroupFlow(type);
     return first_result;
   }
-  /** Build the group identifier, reusing an existing one when supplied. */
+  /** Give each new group its own asset ID and preserve it during edits. */
   _groupName(existing) {
-    return existing || `${currentUser().email}[${format(Date.now(), "yyyy-MM-dd")}]`;
+    return existing || `grp-${randomString(24)}`;
   }
   /** Form patch for a single visitor in a group flow. */
   _visitorMemberPatch(member, base_form, opts) {
@@ -19810,10 +18421,6 @@ export {
   MatDialogModule,
   Booking,
   Desk,
-  MatMenuItem,
-  MatMenu,
-  MatMenuTrigger,
-  MatMenuModule,
   AuthenticatedImageDirective,
   MapZoomControlsComponent,
   DynamicMapComponent,
@@ -19837,5 +18444,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=5820473c-c30b-533e-9858-fa53dc4852c2
-//# sourceMappingURL=chunk-H5G7FKPL.js.map
+//# debugId=35009df3-ae46-5583-9ca1-7d679e0d0770
+//# sourceMappingURL=chunk-325FP3QD.js.map

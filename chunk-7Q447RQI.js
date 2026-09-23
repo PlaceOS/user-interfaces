@@ -1,6 +1,6 @@
 import {
   SanitizePipe
-} from "./chunk-YPMFLHXA.js";
+} from "./chunk-AFJIRLVN.js";
 import {
   AsyncHandler,
   CommonModule,
@@ -47,7 +47,7 @@ import {
   ɵɵtemplate,
   ɵɵtemplateRefExtractor,
   ɵɵviewQuerySignal
-} from "./chunk-DX2RYTON.js";
+} from "./chunk-C3W2LKSA.js";
 import {
   __spreadProps,
   __spreadValues
@@ -362,7 +362,8 @@ var CustomTooltipComponent = class _CustomTooltipComponent extends AsyncHandler 
 })();
 
 export {
+  CustomTooltipData,
   CustomTooltipComponent
 };
 //# debugId=12722046-0f2d-5237-83ae-9ab5c2576cb3
-//# sourceMappingURL=chunk-GZMKUKM6.js.map
+//# sourceMappingURL=chunk-7Q447RQI.js.map
