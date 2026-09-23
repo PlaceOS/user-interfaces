@@ -1,46 +1,51 @@
 import {
   subMonths
-} from "./chunk-WQU7XPKJ.js";
+} from "./chunk-RUEVYU2F.js";
 import {
   subMinutes
-} from "./chunk-ETV22SFS.js";
-import {
-  setMinutes
-} from "./chunk-SFAK5P75.js";
+} from "./chunk-X76CU2K3.js";
 import {
   MatProgressBar,
   MatProgressBarModule
-} from "./chunk-O5N4GXRQ.js";
+} from "./chunk-JCPZYOU4.js";
+import {
+  setMinutes
+} from "./chunk-XIJFZOCD.js";
 import {
   setHours
-} from "./chunk-UQQ5TJHH.js";
+} from "./chunk-DJSSKAKA.js";
 import {
   generateMockSpace
-} from "./chunk-TAEEEBP3.js";
-import "./chunk-DRUYYY46.js";
-import "./chunk-HMVBNOQ6.js";
+} from "./chunk-QCTH3YWD.js";
+import "./chunk-KWHKLHYF.js";
+import "./chunk-GQTGV4ID.js";
 import {
   subDays
-} from "./chunk-FR34FZDV.js";
+} from "./chunk-XVDSIOLS.js";
 import {
   MAT_CHIPS_DEFAULT_OPTIONS,
   MatFormField,
   MatFormFieldModule,
   MatInput,
   MatInputModule,
+  MatMenu,
+  MatMenuItem,
+  MatMenuModule,
+  MatMenuTrigger,
   MatPrefix
-} from "./chunk-CMZIA2YR.js";
+} from "./chunk-RY66GE55.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-PNVLSR7J.js";
+} from "./chunk-FM7YIK67.js";
 import {
   TranslatePipe
-} from "./chunk-UBY3X7OO.js";
+} from "./chunk-NGEN7IAC.js";
 import {
   AsyncHandler,
   COMMA,
   Component,
+  DOCUMENT,
   DefaultValueAccessor,
   ENTER,
   ErrorHandler,
@@ -76,6 +81,7 @@ import {
   TitleStrategy,
   TraceService,
   UploadsService,
+  ViewChild,
   Xr,
   Zr,
   addDays,
@@ -93,6 +99,7 @@ import {
   eo,
   firstTruthyValueFrom,
   firstValueWhere,
+  forwardRef,
   getLoadingMessage,
   getNativeApiKey,
   getNativeDomain,
@@ -138,6 +145,7 @@ import {
   untracked,
   uo,
   user_groups_loaded,
+  viewChild,
   withHashLocation,
   withInterceptorsFromDi,
   withNavigationErrorHandler,
@@ -167,7 +175,10 @@ import {
   ɵɵpipeBind1,
   ɵɵproperty,
   ɵɵpureFunction0,
+  ɵɵqueryAdvance,
+  ɵɵreference,
   ɵɵresetView,
+  ɵɵresolveDocument,
   ɵɵresolveWindow,
   ɵɵrestoreView,
   ɵɵstyleProp,
@@ -176,8 +187,9 @@ import {
   ɵɵtextInterpolate1,
   ɵɵtwoWayBindingSet,
   ɵɵtwoWayListener,
-  ɵɵtwoWayProperty
-} from "./chunk-5YWVVLTN.js";
+  ɵɵtwoWayProperty,
+  ɵɵviewQuerySignal
+} from "./chunk-Q4H2MJSF.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1201,41 +1213,105 @@ var RedirectComponent = class _RedirectComponent {
 })();
 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
-var SettingsDebugPanelLauncherComponent_Defer_1_DepsFn = () => [
+var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-JY6P6NQP.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-U46NG364.js").then((m) => m.SettingsDebugPanelComponent)
 ];
-function SettingsDebugPanelLauncherComponent_Defer_0_Template(rf, ctx) {
+var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
+  /* @ts-ignore */
+  import("./binding-debug-panel.component-R4W37DJK.js").then((m) => m.BindingDebugPanelComponent)
+];
+var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
+  /* @ts-ignore */
+  import("./debug-console.component-62LIGW6Y.js").then((m) => m.DebugConsoleComponent)
+];
+function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
-    const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "settings-debug-panel", 0);
-    \u0275\u0275twoWayListener("showChange", function SettingsDebugPanelLauncherComponent_Defer_0_Template_settings_debug_panel_showChange_0_listener($event) {
-      \u0275\u0275restoreView(_r1);
-      const ctx_r1 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r1.show, $event) || (ctx_r1.show = $event);
-      return \u0275\u0275resetView($event);
+    const _r3 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "settings-debug-panel", 8);
+    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template_settings_debug_panel_showChange_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r3 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r3.panel.set(null));
     });
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
-    const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275twoWayProperty("show", ctx_r1.show);
-    \u0275\u0275property("schema", ctx_r1.schema());
+    const ctx_r3 = \u0275\u0275nextContext(2);
+    \u0275\u0275property("show", true)("schema", ctx_r3.schema());
+  }
+}
+function SettingsDebugPanelLauncherComponent_Defer_24_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template, 1, 2, "settings-debug-panel", 7);
+  }
+  if (rf & 2) {
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r3.panel() === "settings" ? 0 : -1);
+  }
+}
+function SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r5 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "binding-debug-panel", 10);
+    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template_binding_debug_panel_showChange_0_listener() {
+      \u0275\u0275restoreView(_r5);
+      const ctx_r3 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r3.panel.set(null));
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("show", true)("hotkeysEnabled", false);
+  }
+}
+function SettingsDebugPanelLauncherComponent_Defer_27_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_27_Conditional_0_Template, 1, 2, "binding-debug-panel", 9);
+  }
+  if (rf & 2) {
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r3.panel() === "bindings" ? 0 : -1);
+  }
+}
+function SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r6 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "debug-console", 10);
+    \u0275\u0275listener("showChange", function SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template_debug_console_showChange_0_listener() {
+      \u0275\u0275restoreView(_r6);
+      const ctx_r3 = \u0275\u0275nextContext(2);
+      return \u0275\u0275resetView(ctx_r3.panel.set(null));
+    });
+    \u0275\u0275elementEnd();
+  }
+  if (rf & 2) {
+    \u0275\u0275property("show", true)("hotkeysEnabled", false);
+  }
+}
+function SettingsDebugPanelLauncherComponent_Defer_30_Template(rf, ctx) {
+  if (rf & 1) {
+    \u0275\u0275conditionalCreate(0, SettingsDebugPanelLauncherComponent_Defer_30_Conditional_0_Template, 1, 2, "debug-console", 9);
+  }
+  if (rf & 2) {
+    const ctx_r3 = \u0275\u0275nextContext();
+    \u0275\u0275conditional(ctx_r3.panel() === "console" ? 0 : -1);
   }
 }
 var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherComponent extends AsyncHandler {
   constructor() {
     super(...arguments);
     this._hotkey = inject(HotkeysService);
-    this._loaded = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "_loaded" }] : (
+    this._document = inject(DOCUMENT);
+    this._menu_trigger = viewChild.required(
+      MatMenuTrigger,
+      ...ngDevMode ? [{ debugName: "_menu_trigger" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this.loadSchema = input.required(
-      ...ngDevMode ? [{ debugName: "loadSchema" }] : (
+    this.loadSchema = input(
+      ...ngDevMode ? [void 0, { debugName: "loadSchema" }] : (
         /* istanbul ignore next */
         []
       )
@@ -1247,33 +1323,52 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
         []
       )
     );
-    this.show = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "show" }] : (
+    this.panel = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "panel" }] : (
         /* istanbul ignore next */
         []
       )
     );
   }
   ngOnInit() {
-    this.subscription("toggle", this._hotkey.listen(["Control", "Alt", "Shift", "KeyS"], () => {
-      void this.toggle();
-    }));
+    const shortcuts = [
+      ["settings", ["Control", "Alt", "Shift", "KeyS"]],
+      ["bindings", ["Control", "Alt", "Shift", "KeyB"]],
+      ["console", ["Control", "Backquote"]]
+    ];
+    for (const [panel, keys] of shortcuts) {
+      this.subscription(panel, this._hotkey.listen(keys, () => {
+        if (this.panel() === panel)
+          this.panel.set(null);
+        else
+          this.openPanel(panel);
+      }));
+    }
   }
-  async toggle() {
-    if (this.show()) {
-      this.show.set(false);
+  /** Observe the corner without placing a pointer target over app controls. */
+  onContextMenu(event) {
+    const height = this._document.documentElement.clientHeight;
+    if (event.clientX < 0 || event.clientX > 32 || event.clientY < height - 32 || event.clientY > height)
       return;
+    this.openMenu(event, this._menu_trigger());
+  }
+  openMenu(event, trigger) {
+    event.preventDefault();
+    trigger.openMenu();
+  }
+  openPanel(panel) {
+    this.panel.set(panel);
+    if (panel === "settings") {
+      this._schema_request ??= this.loadSettingsSchema();
     }
-    if (!this._loaded()) {
-      try {
-        this.schema.set(await this.loadSchema()());
-      } catch {
-        this.schema.set(null);
-      }
-      this._loaded.set(true);
+  }
+  async loadSettingsSchema() {
+    try {
+      this.schema.set(await this.loadSchema()?.() ?? null);
+    } catch {
+      this.schema.set(null);
     }
-    this.show.set(true);
   }
   static {
     this.\u0275fac = /* @__PURE__ */ (() => {
@@ -1284,39 +1379,167 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
     })();
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelLauncherComponent, selectors: [["settings-debug-panel-launcher"]], inputs: { loadSchema: [1, "loadSchema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 3, vars: 1, consts: [[3, "showChange", "show", "schema"]], template: function SettingsDebugPanelLauncherComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _SettingsDebugPanelLauncherComponent, selectors: [["settings-debug-panel-launcher"]], viewQuery: function SettingsDebugPanelLauncherComponent_Query(rf, ctx) {
       if (rf & 1) {
-        \u0275\u0275domTemplate(0, SettingsDebugPanelLauncherComponent_Defer_0_Template, 1, 2);
-        \u0275\u0275defer(1, 0, SettingsDebugPanelLauncherComponent_Defer_1_DepsFn);
+        \u0275\u0275viewQuerySignal(ctx._menu_trigger, MatMenuTrigger, 5);
       }
       if (rf & 2) {
-        \u0275\u0275advance();
-        \u0275\u0275deferWhen(ctx.show());
+        \u0275\u0275queryAdvance();
       }
-    }, encapsulation: 2 });
+    }, hostBindings: function SettingsDebugPanelLauncherComponent_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("contextmenu", function SettingsDebugPanelLauncherComponent_contextmenu_HostBindingHandler($event) {
+          return ctx.onContextMenu($event);
+        }, \u0275\u0275resolveDocument);
+      }
+    }, inputs: { loadSchema: [1, "loadSchema"] }, features: [\u0275\u0275InheritDefinitionFeature], decls: 33, vars: 4, consts: [["menu_trigger", "matMenuTrigger"], ["debug_menu", "matMenu"], ["type", "button", "aria-label", "Open debugging tools", 1, "absolute", "bottom-0", "left-0", "z-999", "h-px", "w-px", 3, "contextmenu", "matMenuTriggerFor"], ["yPosition", "above"], [1, "flex", "w-64", "items-center", "justify-center", "pb-2", "text-sm", "opacity-60"], ["mat-menu-item", "", 3, "click"], [1, "flex", "items-center", "gap-2"], [3, "show", "schema"], [3, "showChange", "show", "schema"], [3, "show", "hotkeysEnabled"], [3, "showChange", "show", "hotkeysEnabled"]], template: function SettingsDebugPanelLauncherComponent_Template(rf, ctx) {
+      if (rf & 1) {
+        const _r1 = \u0275\u0275getCurrentView();
+        \u0275\u0275elementStart(0, "button", 2, 0);
+        \u0275\u0275listener("contextmenu", function SettingsDebugPanelLauncherComponent_Template_button_contextmenu_0_listener($event) {
+          \u0275\u0275restoreView(_r1);
+          const menu_trigger_r2 = \u0275\u0275reference(1);
+          return \u0275\u0275resetView(ctx.openMenu($event, menu_trigger_r2));
+        });
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(2, "mat-menu", 3, 1)(4, "div", 4);
+        \u0275\u0275text(5, " Debugging Panels ");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(6, "button", 5);
+        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_6_listener() {
+          return ctx.openPanel("settings");
+        });
+        \u0275\u0275elementStart(7, "div", 6)(8, "icon");
+        \u0275\u0275text(9, "discover_tune");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(10, "div");
+        \u0275\u0275text(11, "Settings");
+        \u0275\u0275elementEnd()()();
+        \u0275\u0275elementStart(12, "button", 5);
+        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_12_listener() {
+          return ctx.openPanel("bindings");
+        });
+        \u0275\u0275elementStart(13, "div", 6)(14, "icon");
+        \u0275\u0275text(15, "linked_services");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(16, "div");
+        \u0275\u0275text(17, "Driver bindings");
+        \u0275\u0275elementEnd()()();
+        \u0275\u0275elementStart(18, "button", 5);
+        \u0275\u0275listener("click", function SettingsDebugPanelLauncherComponent_Template_button_click_18_listener() {
+          return ctx.openPanel("console");
+        });
+        \u0275\u0275elementStart(19, "div", 6)(20, "icon");
+        \u0275\u0275text(21, "terminal_2");
+        \u0275\u0275elementEnd();
+        \u0275\u0275elementStart(22, "div");
+        \u0275\u0275text(23, "Console");
+        \u0275\u0275elementEnd()()()();
+        \u0275\u0275domTemplate(24, SettingsDebugPanelLauncherComponent_Defer_24_Template, 1, 1);
+        \u0275\u0275defer(25, 24, SettingsDebugPanelLauncherComponent_Defer_25_DepsFn);
+        \u0275\u0275domTemplate(27, SettingsDebugPanelLauncherComponent_Defer_27_Template, 1, 1);
+        \u0275\u0275defer(28, 27, SettingsDebugPanelLauncherComponent_Defer_28_DepsFn);
+        \u0275\u0275domTemplate(30, SettingsDebugPanelLauncherComponent_Defer_30_Template, 1, 1);
+        \u0275\u0275defer(31, 30, SettingsDebugPanelLauncherComponent_Defer_31_DepsFn);
+      }
+      if (rf & 2) {
+        const debug_menu_r7 = \u0275\u0275reference(3);
+        \u0275\u0275property("matMenuTriggerFor", debug_menu_r7);
+        \u0275\u0275advance(25);
+        \u0275\u0275deferWhen(ctx.panel() === "settings");
+        \u0275\u0275advance(3);
+        \u0275\u0275deferWhen(ctx.panel() === "bindings");
+        \u0275\u0275advance(3);
+        \u0275\u0275deferWhen(ctx.panel() === "console");
+      }
+    }, dependencies: [MatMenuModule, MatMenu, MatMenuItem, MatMenuTrigger, IconComponent], encapsulation: 2 });
   }
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-JY6P6NQP.js").then((m) => m.SettingsDebugPanelComponent)
-  ], (SettingsDebugPanelComponent) => {
+    import("./settings-debug-panel.component-U46NG364.js").then((m) => m.SettingsDebugPanelComponent),
+    /* @ts-ignore */
+    import("./binding-debug-panel.component-R4W37DJK.js").then((m) => m.BindingDebugPanelComponent),
+    /* @ts-ignore */
+    import("./debug-console.component-62LIGW6Y.js").then((m) => m.DebugConsoleComponent)
+  ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
-      args: [{
-        selector: "settings-debug-panel-launcher",
-        imports: [SettingsDebugPanelComponent],
-        template: `
-        @defer (when show()) {
-            <settings-debug-panel [(show)]="show" [schema]="schema()" />
+      args: [{ selector: "settings-debug-panel-launcher", host: { "(document:contextmenu)": "onContextMenu($event)" }, imports: [
+        MatMenuModule,
+        SettingsDebugPanelComponent,
+        BindingDebugPanelComponent,
+        DebugConsoleComponent,
+        IconComponent
+      ], template: `
+        <button
+            type="button"
+            class="absolute bottom-0 left-0 z-999 h-px w-px"
+            aria-label="Open debugging tools"
+            [matMenuTriggerFor]="debug_menu"
+            #menu_trigger="matMenuTrigger"
+            (contextmenu)="openMenu($event, menu_trigger)"
+        >
+        </button>
+        <mat-menu #debug_menu="matMenu" yPosition="above">
+            <div
+                class="flex w-64 items-center justify-center pb-2 text-sm opacity-60"
+            >
+                Debugging Panels
+            </div>
+            <button mat-menu-item (click)="openPanel('settings')">
+                <div class="flex items-center gap-2">
+                    <icon>discover_tune</icon>
+                    <div>Settings</div>
+                </div>
+            </button>
+            <button mat-menu-item (click)="openPanel('bindings')">
+                <div class="flex items-center gap-2">
+                    <icon>linked_services</icon>
+                    <div>Driver bindings</div>
+                </div>
+            </button>
+            <button mat-menu-item (click)="openPanel('console')">
+                <div class="flex items-center gap-2">
+                    <icon>terminal_2</icon>
+                    <div>Console</div>
+                </div>
+            </button>
+        </mat-menu>
+        @defer (when panel() === 'settings') {
+            @if (panel() === 'settings') {
+                <settings-debug-panel
+                    [show]="true"
+                    (showChange)="panel.set(null)"
+                    [schema]="schema()"
+                />
+            }
         }
-    `
-      }]
-    }], null, { loadSchema: [{ type: Input, args: [{ isSignal: true, alias: "loadSchema", required: true }] }] });
+        @defer (when panel() === 'bindings') {
+            @if (panel() === 'bindings') {
+                <binding-debug-panel
+                    [show]="true"
+                    (showChange)="panel.set(null)"
+                    [hotkeysEnabled]="false"
+                />
+            }
+        }
+        @defer (when panel() === 'console') {
+            @if (panel() === 'console') {
+                <debug-console
+                    [show]="true"
+                    (showChange)="panel.set(null)"
+                    [hotkeysEnabled]="false"
+                />
+            }
+        }
+    ` }]
+    }], null, { _menu_trigger: [{ type: ViewChild, args: [forwardRef(() => MatMenuTrigger), { isSignal: true }] }], loadSchema: [{ type: Input, args: [{ isSignal: true, alias: "loadSchema", required: false }] }] });
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelLauncherComponent, { className: "SettingsDebugPanelLauncherComponent", filePath: "libs/components/src/lib/settings-debug-panel-launcher.component.ts", lineNumber: 15 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(SettingsDebugPanelLauncherComponent, { className: "SettingsDebugPanelLauncherComponent", filePath: "libs/components/src/lib/settings-debug-panel-launcher.component.ts", lineNumber: 97 });
 })();
 
 // libs/components/src/lib/unauthorised.component.ts
@@ -4954,6 +5177,9 @@ function registerMockBookings() {
       if (_.query_params.period_start && _.query_params.period_end) {
         events = events.filter((event) => timePeriodsIntersect(+_.query_params.period_start, +_.query_params.period_end, event.booking_start, event.booking_end));
       }
+      if (!_.query_params.include_deleted && !_.query_params.deleted) {
+        events = events.filter((booking) => !booking.deleted);
+      }
       if (_.query_params.type) {
         events = events.filter((event) => event.type === _.query_params.type || event.booking_type === _.query_params.type);
       }
@@ -5183,13 +5409,14 @@ function registerMockBookings() {
     metadata: {},
     method: "DELETE",
     callback: (req) => {
-      const index = ALL_BOOKINGS.findIndex((e) => `${e.id}` === `${req.route_params.id}`);
-      if (index < 0)
+      const booking = ALL_BOOKINGS.find((e) => `${e.id}` === `${req.route_params.id}`);
+      if (!booking)
         throw {
           status: 404,
           message: `Unable to find booking with ID ${req.route_params.id}`
         };
-      ALL_BOOKINGS.splice(index, 1);
+      booking.deleted = true;
+      booking.deleted_at = Math.floor(Date.now() / 1e3);
       return;
     }
   });
@@ -9611,7 +9838,7 @@ function mocksInit() {
 // apps/concierge/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-LKZN3K7I.js").then((m) => m.ChatComponent)
+  import("./chat.component-WN36BL5G.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -9671,7 +9898,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-LKZN3K7I.js").then((m) => m.ChatComponent)
+    import("./chat.component-WN36BL5G.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -9715,105 +9942,105 @@ var routes = [
   {
     path: "book/rooms",
     title: "Room Bookings",
-    loadChildren: () => import("./day-view.routes-VFGLUKRM.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./day-view.routes-ST45S5ZK.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "facilities",
     title: "Facilities",
-    loadChildren: () => import("./facilities.routes-KFZKHTVZ.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./facilities.routes-5HKDNHL6.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/visitors",
     title: "Visitors",
-    loadChildren: () => import("./visitors.routes-3EKQDRSU.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./visitors.routes-TAAE7YIY.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/assets",
     title: "Assets",
-    loadChildren: () => import("./asset-manager.routes-LVRQOQ3V.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./asset-manager.routes-VR7KWSEK.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/desks",
     title: "Desk Bookings",
-    loadChildren: () => import("./desks.routes-YGN7W6E2.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./desks.routes-JMEIZXM7.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/lockers",
     title: "Locker Bookings",
-    loadChildren: () => import("./lockers.routes-QIH2H4ND.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./lockers.routes-XUPB5NOL.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "reports",
     title: "Reports",
-    loadChildren: () => import("./reports.routes-BDADULAL.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./reports.routes-LFHDEB7P.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "entertainment/events",
     title: "Events",
-    loadChildren: () => import("./events.routes-TUDLEO5M.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./events.routes-32FDPKYM.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "users/staff",
     title: "Staff",
-    loadChildren: () => import("./staff.routes-WERL5EYW.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./staff.routes-PUI25PBG.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/catering",
     title: "Catering",
-    loadChildren: () => import("./catering.routes-3ZGOL3LX.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./catering.routes-354DCL73.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-management",
     title: "Points Management",
-    loadChildren: () => import("./points.routes-PSQEOOIO.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./points.routes-CDBJGIVJ.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/parking",
     title: "Parking Bookings",
-    loadChildren: () => import("./parking.routes-DMJLAHCO.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./parking.routes-SZI7RLMX.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "surveys",
     title: "Surveys",
-    loadChildren: () => import("./surveys.routes-GY24GWZ2.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./surveys.routes-4DU74MQP.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "room-management",
     title: "Room Management",
-    loadChildren: () => import("./room-manager.routes-VZ4ICMYO.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./room-manager.routes-QVZ7WKZC.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "zone-management",
     title: "Zone Management",
-    loadChildren: () => import("./zone-manager.routes-H2HKVSPU.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./zone-manager.routes-54LQQCCU.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -9832,31 +10059,31 @@ var routes = [
   {
     path: "email-templates",
     title: "Email Templates",
-    loadChildren: () => import("./email-templates.routes-QYMMLLOF.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./email-templates.routes-GR6QEMNG.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
-    loadChildren: () => import("./deals.routes-QDDSS63S.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-TFH6SFHX.js").then((m) => m.ROUTES)
   },
   {
     path: "points-of-interest",
     title: "Points of Interest",
-    loadChildren: () => import("./poi-manager.routes-S426MXMB.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./poi-manager.routes-EYA3LGWI.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "url-management",
     title: "URL Management",
-    loadChildren: () => import("./url-manager.routes-S6GD2WNS.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./url-manager.routes-45ERERPA.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "signage",
     title: "Signage",
-    loadChildren: () => import("./signage.routes-QD2PAGSM.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./signage.routes-BO3NGAX2.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -9904,5 +10131,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=6b4fdfe4-281a-5974-b9d6-46bb4ee2f612
+//# debugId=00216033-6ce0-581e-89db-71b715ab2e64
 //# sourceMappingURL=main.js.map
