@@ -1,20 +1,23 @@
 import {
+  RemoteLoggingService
+} from "./chunk-5Z57MJBO.js";
+import {
   currentPeriod,
   nextPeriod,
   timelineData,
   timelineStart
-} from "./chunk-S6HS3QTL.js";
+} from "./chunk-KGLA6YHS.js";
 import {
   generateQRCode
 } from "./chunk-NVKVY6H5.js";
 import {
   PanelStateService
-} from "./chunk-H47ZJMW5.js";
-import "./chunk-R2LDNVTX.js";
-import "./chunk-TV3XMBDI.js";
+} from "./chunk-U75F4ZUE.js";
+import "./chunk-GI6WC6PW.js";
+import "./chunk-O2WPSIU2.js";
 import {
   TranslatePipe
-} from "./chunk-6SUUQE6E.js";
+} from "./chunk-JROEG3FB.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -22,9 +25,7 @@ import {
   CommonModule,
   Component,
   DatePipe,
-  Dd,
   IconComponent,
-  Injectable,
   Input,
   SafePipe,
   VERSION,
@@ -32,9 +33,6 @@ import {
   effect,
   inject,
   input,
-  log,
-  randomInt,
-  randomString,
   setClassMetadata,
   signal,
   startOfMinute,
@@ -48,7 +46,6 @@ import {
   ɵɵconditionalCreate,
   ɵɵdeclareLet,
   ɵɵdefineComponent,
-  ɵɵdefineInjectable,
   ɵɵdomElement,
   ɵɵdomElementEnd,
   ɵɵdomElementStart,
@@ -78,115 +75,8 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2
-} from "./chunk-K5FI6TTE.js";
+} from "./chunk-7IW2FI7S.js";
 import "./chunk-KUGYOAP2.js";
-
-// libs/common/src/lib/remote-logging.service.ts
-function hookMethod(rootObject, functionToHook, hookingFunction) {
-  var previousFunction = rootObject[functionToHook];
-  rootObject[functionToHook] = (...args) => {
-    hookingFunction(args);
-    previousFunction.call(rootObject, ...args);
-  };
-  return previousFunction;
-}
-var _a;
-var DEVICE_ID = ((_a = globalThis.localStorage) == null ? void 0 : _a.getItem("PLACEOS.DEVICE_ID")) || `DEV-${randomString(8)}`;
-var _RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
-  setMetadata(metadata) {
-  }
-  constructor() {
-    var _a2;
-    super();
-    this._disable_handling = false;
-    this._system_id = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "_system_id" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._logging_system = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "_logging_system" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._event_history = signal(
-      [],
-      ...ngDevMode ? [{ debugName: "_event_history" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._metadata = null;
-    this.history = this._event_history.asReadonly();
-    (_a2 = globalThis.localStorage) == null ? void 0 : _a2.setItem("PLACEOS.DEVICE_ID", DEVICE_ID);
-    this._patchConsoleMethods();
-    log("Logger", "Remote logging initialised...");
-  }
-  setSystem(id) {
-    this._system_id.set(id);
-    if (id)
-      this._bindTo(id, "enabled");
-  }
-  _patchConsoleMethods() {
-    const types = [
-      "log",
-      "debug",
-      "info",
-      "warn",
-      "error"
-    ];
-    for (const key of types) {
-      hookMethod(console, key, (...args) => this._handleEvent(key, args));
-    }
-  }
-  _handleEvent(type, data, event_type = "console") {
-    if (data.includes('"Logger"') || this._disable_handling)
-      return;
-    const blob = [...data[0]];
-    blob[0] = typeof blob[0] === "string" ? blob[0].replace(/\%c/g, "") : blob[0];
-    const event = {
-      id: `${event_type}-${randomInt(9999999999)}`,
-      device_id: DEVICE_ID,
-      type: event_type,
-      subtype: type,
-      timestamp: Date.now(),
-      raw: data,
-      data: blob.filter((_) => typeof _ !== "string" || !_.startsWith("color:")),
-      metadata: this._metadata || null
-    };
-    this._event_history.update((history) => [...history, event].slice(-2e4));
-    const system_id = this._logging_system();
-    if (!system_id)
-      return;
-    this._disable_handling = true;
-    Dd(system_id, "Logger").execute("post_event", [event]).catch().finally(() => this._disable_handling = false);
-  }
-  /** List to binding */
-  _bindTo(id, name, mod = "Logger") {
-    const module = Dd(id, mod).variable(name);
-    this.subscription(`bind:${name}`, module.bind());
-    this.subscription(`listen:${name}`, module.listen().subscribe((enabled) => {
-      this._logging_system.set(enabled ? id : "");
-    }));
-  }
-};
-_RemoteLoggingService.\u0275fac = function RemoteLoggingService_Factory(__ngFactoryType__) {
-  return new (__ngFactoryType__ || _RemoteLoggingService)();
-};
-_RemoteLoggingService.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _RemoteLoggingService, factory: _RemoteLoggingService.\u0275fac, providedIn: "root" });
-var RemoteLoggingService = _RemoteLoggingService;
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RemoteLoggingService, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [], null);
-})();
 
 // apps/booking-panel/src/app/new-panel/panel-view-details.component.ts
 function PanelViewDetailsComponent_Conditional_2_Template(rf, ctx) {
@@ -246,7 +136,7 @@ function PanelViewDetailsComponent_Conditional_7_Template(rf, ctx) {
   }
 }
 function PanelViewDetailsComponent_Conditional_12_Template(rf, ctx) {
-  var _a2;
+  var _a;
   if (rf & 1) {
     \u0275\u0275domElementStart(0, "p", 8);
     \u0275\u0275text(1);
@@ -257,7 +147,7 @@ function PanelViewDetailsComponent_Conditional_12_Template(rf, ctx) {
     \u0275\u0275nextContext();
     const cur_r2 = \u0275\u0275readContextLet(1);
     \u0275\u0275advance();
-    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(2, 2, "APP.BOOKING_PANEL.HOST"), " ", ((_a2 = cur_r2 == null ? void 0 : cur_r2.organiser) == null ? void 0 : _a2.name) || (cur_r2 == null ? void 0 : cur_r2.host), " ");
+    \u0275\u0275textInterpolate2(" ", \u0275\u0275pipeBind1(2, 2, "APP.BOOKING_PANEL.HOST"), " ", ((_a = cur_r2 == null ? void 0 : cur_r2.organiser) == null ? void 0 : _a.name) || (cur_r2 == null ? void 0 : cur_r2.host), " ");
   }
 }
 var _PanelViewDetailsComponent = class _PanelViewDetailsComponent extends AsyncHandler {
@@ -698,7 +588,7 @@ _PanelViewStatusComponent.\u0275fac = function PanelViewStatusComponent_Factory(
   return new (__ngFactoryType__ || _PanelViewStatusComponent)();
 };
 _PanelViewStatusComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PanelViewStatusComponent, selectors: [["panel-view-status"]], decls: 24, vars: 35, consts: [["status-layout", "", 1, "flex", "h-full", "w-full", "items-center", "justify-center", "bg-[#424242]"], [1, "relative", "flex", "h-full", "flex-1", "flex-col", "items-center", "justify-center", "text-white"], [3, "innerHTML"], [1, "mt-4", "text-4xl", "font-medium", "uppercase"], [1, "mt-4", "text-2xl", "font-light"], [1, "absolute", "inset-x-0", "top-0", "flex", "items-center", "justify-center", "space-x-4", "bg-[#0008]", "p-4", "text-2xl", 3, "padding-left"], [1, "bg-base-100", "text-base-content", "flex", "h-full", "flex-1", "flex-col", "items-center", "justify-center", "space-y-4"], [1, "text-4xl", "font-medium", "uppercase"], [1, "text-2xl", "font-light"], [1, "absolute", "inset-x-0", "top-0", "flex", "items-center", "justify-center", "space-x-4", "bg-[#0008]", "p-4", "text-2xl"], [1, "uppercase"]], template: function PanelViewStatusComponent_Template(rf, ctx) {
-  var _a2;
+  var _a;
   if (rf & 1) {
     \u0275\u0275declareLet(0)(1);
     \u0275\u0275elementStart(2, "div", 0)(3, "div", 1);
@@ -740,7 +630,7 @@ _PanelViewStatusComponent.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponen
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 27, "APP.BOOKING_PANEL.NOW"), " ");
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(((_a2 = es_r5 == null ? void 0 : es_r5.current) == null ? void 0 : _a2.length) ? 10 : 11);
+    \u0275\u0275conditional(((_a = es_r5 == null ? void 0 : es_r5.current) == null ? void 0 : _a.length) ? 10 : 11);
     \u0275\u0275advance(2);
     \u0275\u0275conditional(s_r4 === "pending" && ctx.can_book ? 12 : -1);
     \u0275\u0275advance();
@@ -1117,7 +1007,7 @@ function PanelViewComponent_Conditional_19_Template(rf, ctx) {
   }
 }
 function PanelViewComponent_Conditional_20_Template(rf, ctx) {
-  var _a2, _b;
+  var _a, _b;
   if (rf & 1) {
     \u0275\u0275elementStart(0, "div", 12);
     \u0275\u0275pipe(1, "safe");
@@ -1136,7 +1026,7 @@ function PanelViewComponent_Conditional_20_Template(rf, ctx) {
     const ctx_r0 = \u0275\u0275nextContext();
     \u0275\u0275styleProp("background-color", ctx_r0.offline_color)("background-image", \u0275\u0275pipeBind2(1, 7, "url(" + ctx_r0.offline_image + ")", "resource"));
     \u0275\u0275advance(3);
-    \u0275\u0275textInterpolate1(" ", ctx_r0.name || ((_a2 = ctx_r0.system()) == null ? void 0 : _a2.display_name) || ((_b = ctx_r0.system()) == null ? void 0 : _b.name) || "<Unknown Space>", " ");
+    \u0275\u0275textInterpolate1(" ", ctx_r0.name || ((_a = ctx_r0.system()) == null ? void 0 : _a.display_name) || ((_b = ctx_r0.system()) == null ? void 0 : _b.name) || "<Unknown Space>", " ");
     \u0275\u0275advance(3);
     \u0275\u0275textInterpolate(ctx_r0.capacity);
     \u0275\u0275advance(2);
@@ -1388,5 +1278,5 @@ var PanelViewComponent = _PanelViewComponent;
 export {
   PanelViewComponent
 };
-//# debugId=9f2c590b-fbe9-5c5b-9584-6cc4bfe6ee6b
-//# sourceMappingURL=panel-view.component-CUBOW3AB.js.map
+//# debugId=b0879275-d633-5f89-bd10-78aa539358e7
+//# sourceMappingURL=panel-view.component-JV3YK7WL.js.map
