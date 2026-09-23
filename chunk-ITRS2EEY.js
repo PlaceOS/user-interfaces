@@ -2948,6 +2948,15 @@ function skip(count) {
   return filter((_2, index) => count <= index);
 }
 
+// node_modules/rxjs/dist/esm/internal/operators/skipWhile.js
+function skipWhile(predicate) {
+  return operate((source, subscriber) => {
+    let taking = false;
+    let index = 0;
+    source.subscribe(createOperatorSubscriber(subscriber, (value) => (taking || (taking = !predicate(value, index++))) && subscriber.next(value)));
+  });
+}
+
 // node_modules/rxjs/dist/esm/internal/operators/startWith.js
 function startWith(...values) {
   const scheduler = popScheduler(values);
@@ -4614,14 +4623,14 @@ function assertNodeInjector(lView, injectorIndex) {
   assertNumber(lView[injectorIndex + 8], "injectorIndex should point to parent injector");
 }
 var SecurityContext;
-(function(SecurityContext3) {
-  SecurityContext3[SecurityContext3["NONE"] = 0] = "NONE";
-  SecurityContext3[SecurityContext3["HTML"] = 1] = "HTML";
-  SecurityContext3[SecurityContext3["STYLE"] = 2] = "STYLE";
-  SecurityContext3[SecurityContext3["SCRIPT"] = 3] = "SCRIPT";
-  SecurityContext3[SecurityContext3["URL"] = 4] = "URL";
-  SecurityContext3[SecurityContext3["RESOURCE_URL"] = 5] = "RESOURCE_URL";
-  SecurityContext3[SecurityContext3["ATTRIBUTE_NO_BINDING"] = 6] = "ATTRIBUTE_NO_BINDING";
+(function(SecurityContext2) {
+  SecurityContext2[SecurityContext2["NONE"] = 0] = "NONE";
+  SecurityContext2[SecurityContext2["HTML"] = 1] = "HTML";
+  SecurityContext2[SecurityContext2["STYLE"] = 2] = "STYLE";
+  SecurityContext2[SecurityContext2["SCRIPT"] = 3] = "SCRIPT";
+  SecurityContext2[SecurityContext2["URL"] = 4] = "URL";
+  SecurityContext2[SecurityContext2["RESOURCE_URL"] = 5] = "RESOURCE_URL";
+  SecurityContext2[SecurityContext2["ATTRIBUTE_NO_BINDING"] = 6] = "ATTRIBUTE_NO_BINDING";
 })(SecurityContext || (SecurityContext = {}));
 var _SECURITY_SCHEMA;
 var SVG_NAMESPACE = "svg";
@@ -40016,39 +40025,2498 @@ var ReactiveFormsModule = class _ReactiveFormsModule {
   }], null, null);
 })();
 
-// libs/common/src/lib/settings.ts
-var general = {};
-var app = {
-  name: "Assistant",
-  title: "PlaceOS",
-  description: "Assistant UI",
-  short_name: "PlaceOS",
-  logo: {
-    type: "img",
-    src: "assets/logo-light.svg"
-  },
-  logo_dark: {
-    type: "img",
-    src: "assets/logo-dark.svg"
-  },
-  general,
-  prevent_space_init: true
+// node_modules/@placeos/ts-client/dist/index.es.js
+var le = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+  "i",
+  "j",
+  "k",
+  "l",
+  "m",
+  "n",
+  "o",
+  "p",
+  "q",
+  "r",
+  "s",
+  "t",
+  "u",
+  "v",
+  "w",
+  "x",
+  "y",
+  "z",
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "+",
+  "/"
+];
+var Qn = [
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  62,
+  255,
+  255,
+  255,
+  63,
+  52,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  59,
+  60,
+  61,
+  255,
+  255,
+  255,
+  0,
+  255,
+  255,
+  255,
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  255,
+  255,
+  255,
+  255,
+  255,
+  255,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  40,
+  41,
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  50,
+  51
+];
+function xt(t) {
+  if (t >= Qn.length)
+    throw new Error("Unable to parse base64 string.");
+  const e = Qn[t];
+  if (e === 255)
+    throw new Error("Unable to parse base64 string.");
+  return e;
+}
+function is(t) {
+  let e = "", n, s = t.length;
+  for (n = 2; n < s; n += 3)
+    e += le[t[n - 2] >> 2], e += le[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += le[(t[n - 1] & 15) << 2 | t[n] >> 6], e += le[t[n] & 63];
+  return n === s + 1 && (e += le[t[n - 2] >> 2], e += le[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += le[t[n - 2] >> 2], e += le[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += le[(t[n - 1] & 15) << 2], e += "="), e;
+}
+function Ks(t) {
+  if (t.length % 4 !== 0)
+    throw new Error("Unable to parse base64 string.");
+  const e = t.indexOf("=");
+  if (e !== -1 && e < t.length - 2)
+    throw new Error("Unable to parse base64 string.");
+  let n = t.endsWith("==") ? 2 : t.endsWith("=") ? 1 : 0, s = t.length, i = new Uint8Array(3 * (s / 4)), r;
+  for (let o = 0, h = 0; o < s; o += 4, h += 3)
+    r = xt(t.charCodeAt(o)) << 18 | xt(t.charCodeAt(o + 1)) << 12 | xt(t.charCodeAt(o + 2)) << 6 | xt(t.charCodeAt(o + 3)), i[h] = r >> 16, i[h + 1] = r >> 8 & 255, i[h + 2] = r & 255;
+  return i.subarray(0, i.length - n);
+}
+function Zs(t, e = new TextEncoder()) {
+  return is(e.encode(t));
+}
+var qt = { exports: {} };
+var Js = qt.exports;
+var Kn;
+function Vs() {
+  return Kn || (Kn = 1, (function(t) {
+    (function(e, n) {
+      var s = {};
+      n(s);
+      var i = s.default;
+      for (var r in s)
+        i[r] = s[r];
+      t.exports = i;
+    })(Js, function(e) {
+      e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
+      var n = new Uint32Array([
+        1116352408,
+        1899447441,
+        3049323471,
+        3921009573,
+        961987163,
+        1508970993,
+        2453635748,
+        2870763221,
+        3624381080,
+        310598401,
+        607225278,
+        1426881987,
+        1925078388,
+        2162078206,
+        2614888103,
+        3248222580,
+        3835390401,
+        4022224774,
+        264347078,
+        604807628,
+        770255983,
+        1249150122,
+        1555081692,
+        1996064986,
+        2554220882,
+        2821834349,
+        2952996808,
+        3210313671,
+        3336571891,
+        3584528711,
+        113926993,
+        338241895,
+        666307205,
+        773529912,
+        1294757372,
+        1396182291,
+        1695183700,
+        1986661051,
+        2177026350,
+        2456956037,
+        2730485921,
+        2820302411,
+        3259730800,
+        3345764771,
+        3516065817,
+        3600352804,
+        4094571909,
+        275423344,
+        430227734,
+        506948616,
+        659060556,
+        883997877,
+        958139571,
+        1322822218,
+        1537002063,
+        1747873779,
+        1955562222,
+        2024104815,
+        2227730452,
+        2361852424,
+        2428436474,
+        2756734187,
+        3204031479,
+        3329325298
+      ]);
+      function s(k, c, l, p, C2) {
+        for (var P2, I2, S2, Q2, D2, E2, re, H2, j, z, Qe, Ke, At; C2 >= 64; ) {
+          for (P2 = c[0], I2 = c[1], S2 = c[2], Q2 = c[3], D2 = c[4], E2 = c[5], re = c[6], H2 = c[7], z = 0; z < 16; z++)
+            Qe = p + z * 4, k[z] = (l[Qe] & 255) << 24 | (l[Qe + 1] & 255) << 16 | (l[Qe + 2] & 255) << 8 | l[Qe + 3] & 255;
+          for (z = 16; z < 64; z++)
+            j = k[z - 2], Ke = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = k[z - 15], At = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, k[z] = (Ke + k[z - 7] | 0) + (At + k[z - 16] | 0);
+          for (z = 0; z < 64; z++)
+            Ke = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & re) | 0) + (H2 + (n[z] + k[z] | 0) | 0) | 0, At = ((P2 >>> 2 | P2 << 30) ^ (P2 >>> 13 | P2 << 19) ^ (P2 >>> 22 | P2 << 10)) + (P2 & I2 ^ P2 & S2 ^ I2 & S2) | 0, H2 = re, re = E2, E2 = D2, D2 = Q2 + Ke | 0, Q2 = S2, S2 = I2, I2 = P2, P2 = Ke + At | 0;
+          c[0] += P2, c[1] += I2, c[2] += S2, c[3] += Q2, c[4] += D2, c[5] += E2, c[6] += re, c[7] += H2, p += 64, C2 -= 64;
+        }
+        return p;
+      }
+      var i = (
+        /** @class */
+        (function() {
+          function k() {
+            this.digestLength = e.digestLength, this.blockSize = e.blockSize, this.state = new Int32Array(8), this.temp = new Int32Array(64), this.buffer = new Uint8Array(128), this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this.reset();
+          }
+          return k.prototype.reset = function() {
+            return this.state[0] = 1779033703, this.state[1] = 3144134277, this.state[2] = 1013904242, this.state[3] = 2773480762, this.state[4] = 1359893119, this.state[5] = 2600822924, this.state[6] = 528734635, this.state[7] = 1541459225, this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this;
+          }, k.prototype.clean = function() {
+            for (var c = 0; c < this.buffer.length; c++)
+              this.buffer[c] = 0;
+            for (var c = 0; c < this.temp.length; c++)
+              this.temp[c] = 0;
+            this.reset();
+          }, k.prototype.update = function(c, l) {
+            if (l === void 0 && (l = c.length), this.finished)
+              throw new Error("SHA256: can't update because hash was finished.");
+            var p = 0;
+            if (this.bytesHashed += l, this.bufferLength > 0) {
+              for (; this.bufferLength < 64 && l > 0; )
+                this.buffer[this.bufferLength++] = c[p++], l--;
+              this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
+            }
+            for (l >= 64 && (p = s(this.temp, this.state, c, p, l), l %= 64); l > 0; )
+              this.buffer[this.bufferLength++] = c[p++], l--;
+            return this;
+          }, k.prototype.finish = function(c) {
+            if (!this.finished) {
+              var l = this.bytesHashed, p = this.bufferLength, C2 = l / 536870912 | 0, P2 = l << 3, I2 = l % 64 < 56 ? 64 : 128;
+              this.buffer[p] = 128;
+              for (var S2 = p + 1; S2 < I2 - 8; S2++)
+                this.buffer[S2] = 0;
+              this.buffer[I2 - 8] = C2 >>> 24 & 255, this.buffer[I2 - 7] = C2 >>> 16 & 255, this.buffer[I2 - 6] = C2 >>> 8 & 255, this.buffer[I2 - 5] = C2 >>> 0 & 255, this.buffer[I2 - 4] = P2 >>> 24 & 255, this.buffer[I2 - 3] = P2 >>> 16 & 255, this.buffer[I2 - 2] = P2 >>> 8 & 255, this.buffer[I2 - 1] = P2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, I2), this.finished = true;
+            }
+            for (var S2 = 0; S2 < 8; S2++)
+              c[S2 * 4 + 0] = this.state[S2] >>> 24 & 255, c[S2 * 4 + 1] = this.state[S2] >>> 16 & 255, c[S2 * 4 + 2] = this.state[S2] >>> 8 & 255, c[S2 * 4 + 3] = this.state[S2] >>> 0 & 255;
+            return this;
+          }, k.prototype.digest = function() {
+            var c = new Uint8Array(this.digestLength);
+            return this.finish(c), c;
+          }, k.prototype._saveState = function(c) {
+            for (var l = 0; l < this.state.length; l++)
+              c[l] = this.state[l];
+          }, k.prototype._restoreState = function(c, l) {
+            for (var p = 0; p < this.state.length; p++)
+              this.state[p] = c[p];
+            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
+          }, k;
+        })()
+      );
+      e.Hash = i;
+      var r = (
+        /** @class */
+        (function() {
+          function k(c) {
+            this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
+            var l = new Uint8Array(this.blockSize);
+            if (c.length > this.blockSize)
+              new i().update(c).finish(l).clean();
+            else
+              for (var p = 0; p < c.length; p++)
+                l[p] = c[p];
+            for (var p = 0; p < l.length; p++)
+              l[p] ^= 54;
+            this.inner.update(l);
+            for (var p = 0; p < l.length; p++)
+              l[p] ^= 106;
+            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
+            for (var p = 0; p < l.length; p++)
+              l[p] = 0;
+          }
+          return k.prototype.reset = function() {
+            return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
+          }, k.prototype.clean = function() {
+            for (var c = 0; c < this.istate.length; c++)
+              this.ostate[c] = this.istate[c] = 0;
+            this.inner.clean(), this.outer.clean();
+          }, k.prototype.update = function(c) {
+            return this.inner.update(c), this;
+          }, k.prototype.finish = function(c) {
+            return this.outer.finished ? this.outer.finish(c) : (this.inner.finish(c), this.outer.update(c, this.digestLength).finish(c)), this;
+          }, k.prototype.digest = function() {
+            var c = new Uint8Array(this.digestLength);
+            return this.finish(c), c;
+          }, k;
+        })()
+      );
+      e.HMAC = r;
+      function o(k) {
+        var c = new i().update(k), l = c.digest();
+        return c.clean(), l;
+      }
+      e.hash = o, e.default = o;
+      function h(k, c) {
+        var l = new r(k).update(c), p = l.digest();
+        return l.clean(), p;
+      }
+      e.hmac = h;
+      function $(k, c, l, p) {
+        var C2 = p[0];
+        if (C2 === 0)
+          throw new Error("hkdf: cannot expand more");
+        c.reset(), C2 > 1 && c.update(k), l && c.update(l), c.update(p), c.finish(k), p[0]++;
+      }
+      var L2 = new Uint8Array(e.digestLength);
+      function R2(k, c, l, p) {
+        c === void 0 && (c = L2), p === void 0 && (p = 32);
+        for (var C2 = new Uint8Array([1]), P2 = h(c, k), I2 = new r(P2), S2 = new Uint8Array(I2.digestLength), Q2 = S2.length, D2 = new Uint8Array(p), E2 = 0; E2 < p; E2++)
+          Q2 === S2.length && ($(S2, I2, l, C2), Q2 = 0), D2[E2] = S2[Q2++];
+        return I2.clean(), S2.fill(0), C2.fill(0), D2;
+      }
+      e.hkdf = R2;
+      function W2(k, c, l, p) {
+        for (var C2 = new r(k), P2 = C2.digestLength, I2 = new Uint8Array(4), S2 = new Uint8Array(P2), Q2 = new Uint8Array(P2), D2 = new Uint8Array(p), E2 = 0; E2 * P2 < p; E2++) {
+          var re = E2 + 1;
+          I2[0] = re >>> 24 & 255, I2[1] = re >>> 16 & 255, I2[2] = re >>> 8 & 255, I2[3] = re >>> 0 & 255, C2.reset(), C2.update(c), C2.update(I2), C2.finish(Q2);
+          for (var H2 = 0; H2 < P2; H2++)
+            S2[H2] = Q2[H2];
+          for (var H2 = 2; H2 <= l; H2++) {
+            C2.reset(), C2.update(Q2).finish(Q2);
+            for (var j = 0; j < P2; j++)
+              S2[j] ^= Q2[j];
+          }
+          for (var H2 = 0; H2 < P2 && E2 * P2 + H2 < p; H2++)
+            D2[E2 * P2 + H2] = S2[H2];
+        }
+        for (var E2 = 0; E2 < P2; E2++)
+          S2[E2] = Q2[E2] = 0;
+        for (var E2 = 0; E2 < 4; E2++)
+          I2[E2] = 0;
+        return C2.clean(), D2;
+      }
+      e.pbkdf2 = W2;
+    });
+  })(qt)), qt.exports;
+}
+var Ys = Vs();
+var Xs = new Int32Array(4);
+var K = class _K {
+  static hashStr(e, n = false) {
+    return this.onePassHasher.start().appendStr(e).end(n);
+  }
+  static hashAsciiStr(e, n = false) {
+    return this.onePassHasher.start().appendAsciiStr(e).end(n);
+  }
+  // Private Static Variables
+  static stateIdentity = new Int32Array([
+    1732584193,
+    -271733879,
+    -1732584194,
+    271733878
+  ]);
+  static buffer32Identity = new Int32Array([
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ]);
+  static hexChars = "0123456789abcdef";
+  static hexOut = [];
+  // Permanent instance is to use for one-call hashing
+  static onePassHasher = new _K();
+  static _hex(e) {
+    const n = _K.hexChars, s = _K.hexOut;
+    let i, r, o, h;
+    for (h = 0; h < 4; h += 1)
+      for (r = h * 8, i = e[h], o = 0; o < 8; o += 2)
+        s[r + 1 + o] = n.charAt(i & 15), i >>>= 4, s[r + 0 + o] = n.charAt(i & 15), i >>>= 4;
+    return s.join("");
+  }
+  static _md5cycle(e, n) {
+    let s = e[0], i = e[1], r = e[2], o = e[3];
+    s += (i & r | ~i & o) + n[0] - 680876936 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[1] - 389564586 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[2] + 606105819 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[3] - 1044525330 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[4] - 176418897 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[5] + 1200080426 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[6] - 1473231341 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[7] - 45705983 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[8] + 1770035416 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[9] - 1958414417 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[10] - 42063 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[11] - 1990404162 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[12] + 1804603682 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[13] - 40341101 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[14] - 1502002290 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[15] + 1236535329 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & o | r & ~o) + n[1] - 165796510 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[6] - 1069501632 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[11] + 643717713 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[0] - 373897302 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[5] - 701558691 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[10] + 38016083 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[15] - 660478335 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[4] - 405537848 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[9] + 568446438 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[14] - 1019803690 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[3] - 187363961 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[8] + 1163531501 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[13] - 1444681467 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[2] - 51403784 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[7] + 1735328473 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[12] - 1926607734 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i ^ r ^ o) + n[5] - 378558 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[8] - 2022574463 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[11] + 1839030562 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[14] - 35309556 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[1] - 1530992060 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[4] + 1272893353 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[7] - 155497632 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[10] - 1094730640 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[13] + 681279174 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[0] - 358537222 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[3] - 722521979 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[6] + 76029189 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[9] - 640364487 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[12] - 421815835 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[15] + 530742520 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[2] - 995338651 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (r ^ (i | ~o)) + n[0] - 198630844 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[7] + 1126891415 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[14] - 1416354905 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[5] - 57434055 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[12] + 1700485571 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[3] - 1894986606 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[10] - 1051523 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[1] - 2054922799 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[8] + 1873313359 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[15] - 30611744 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[6] - 1560198380 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[13] + 1309151649 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[4] - 145523070 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[11] - 1120210379 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[2] + 718787259 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[9] - 343485551 | 0, i = (i << 21 | i >>> 11) + r | 0, e[0] = s + e[0] | 0, e[1] = i + e[1] | 0, e[2] = r + e[2] | 0, e[3] = o + e[3] | 0;
+  }
+  _dataLength = 0;
+  _bufferLength = 0;
+  _state = new Int32Array(4);
+  _buffer = new ArrayBuffer(68);
+  _buffer8;
+  _buffer32;
+  constructor() {
+    this._buffer8 = new Uint8Array(this._buffer, 0, 68), this._buffer32 = new Uint32Array(this._buffer, 0, 17), this.start();
+  }
+  /**
+   * Initialise buffer to be hashed
+   */
+  start() {
+    return this._dataLength = 0, this._bufferLength = 0, this._state.set(_K.stateIdentity), this;
+  }
+  // Char to code point to to array conversion:
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt
+  // #Example.3A_Fixing_charCodeAt_to_handle_non-Basic-Multilingual-Plane_characters_if_their_presence_earlier_in_the_string_is_unknown
+  /**
+   * Append a UTF-8 string to the hash buffer
+   * @param str String to append
+   */
+  appendStr(e) {
+    const n = this._buffer8, s = this._buffer32;
+    let i = this._bufferLength, r, o;
+    for (o = 0; o < e.length; o += 1) {
+      if (r = e.charCodeAt(o), r < 128)
+        n[i++] = r;
+      else if (r < 2048)
+        n[i++] = (r >>> 6) + 192, n[i++] = r & 63 | 128;
+      else if (r < 55296 || r > 56319)
+        n[i++] = (r >>> 12) + 224, n[i++] = r >>> 6 & 63 | 128, n[i++] = r & 63 | 128;
+      else {
+        if (r = (r - 55296) * 1024 + (e.charCodeAt(++o) - 56320) + 65536, r > 1114111)
+          throw new Error(
+            "Unicode standard supports code points up to U+10FFFF"
+          );
+        n[i++] = (r >>> 18) + 240, n[i++] = r >>> 12 & 63 | 128, n[i++] = r >>> 6 & 63 | 128, n[i++] = r & 63 | 128;
+      }
+      i >= 64 && (this._dataLength += 64, _K._md5cycle(this._state, s), i -= 64, s[0] = s[16]);
+    }
+    return this._bufferLength = i, this;
+  }
+  /**
+   * Append an ASCII string to the hash buffer
+   * @param str String to append
+   */
+  appendAsciiStr(e) {
+    const n = this._buffer8, s = this._buffer32;
+    let i = this._bufferLength, r, o = 0;
+    for (; ; ) {
+      for (r = Math.min(e.length - o, 64 - i); r--; )
+        n[i++] = e.charCodeAt(o++);
+      if (i < 64)
+        break;
+      this._dataLength += 64, _K._md5cycle(this._state, s), i = 0;
+    }
+    return this._bufferLength = i, this;
+  }
+  /**
+   * Append a byte array to the hash buffer
+   * @param input array to append
+   */
+  appendByteArray(e) {
+    const n = this._buffer8, s = this._buffer32;
+    let i = this._bufferLength, r, o = 0;
+    for (; ; ) {
+      for (r = Math.min(e.length - o, 64 - i); r--; )
+        n[i++] = e[o++];
+      if (i < 64)
+        break;
+      this._dataLength += 64, _K._md5cycle(this._state, s), i = 0;
+    }
+    return this._bufferLength = i, this;
+  }
+  /**
+   * Get the state of the hash buffer
+   */
+  getState() {
+    const e = this._state;
+    return {
+      buffer: String.fromCharCode.apply(null, Array.from(this._buffer8)),
+      buflen: this._bufferLength,
+      length: this._dataLength,
+      state: [e[0], e[1], e[2], e[3]]
+    };
+  }
+  /**
+   * Override the current state of the hash buffer
+   * @param state New hash buffer state
+   */
+  setState(e) {
+    const n = e.buffer, s = e.state, i = this._state;
+    let r;
+    for (this._dataLength = e.length, this._bufferLength = e.buflen, i[0] = s[0], i[1] = s[1], i[2] = s[2], i[3] = s[3], r = 0; r < n.length; r += 1)
+      this._buffer8[r] = n.charCodeAt(r);
+  }
+  /**
+   * Hash the current state of the hash buffer and return the result
+   * @param raw Whether to return the value as an `Int32Array`
+   */
+  end(e = false) {
+    const n = this._bufferLength, s = this._buffer8, i = this._buffer32, r = (n >> 2) + 1;
+    this._dataLength += n;
+    const o = this._dataLength * 8;
+    if (s[n] = 128, s[n + 1] = s[n + 2] = s[n + 3] = 0, i.set(_K.buffer32Identity.subarray(r), r), n > 55 && (_K._md5cycle(this._state, i), i.set(_K.buffer32Identity)), o <= 4294967295)
+      i[14] = o;
+    else {
+      const h = o.toString(16).match(/(.*?)(.{0,8})$/);
+      if (h === null) return e ? Xs : "";
+      const $ = parseInt(h[2], 16), L2 = parseInt(h[1], 16) || 0;
+      i[14] = $, i[15] = L2;
+    }
+    return _K._md5cycle(this._state, i), e ? this._state : _K._hex(this._state);
+  }
 };
-var DEFAULT_SETTINGS = {
-  debug: true,
-  composer: {
-    domain: "",
-    route: "/assistant-panel",
-    protocol: "",
-    port: "",
-    use_domain: false,
-    local_login: false
-  },
-  service_worker: {
-    auto_reload: true
-  },
-  app
+if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
+  throw new Error("Md5 self test failed.");
+var ei = 36e5;
+var Zn = /* @__PURE__ */ Symbol.for("constructDateFrom");
+function Tt(t, e) {
+  return typeof t == "function" ? t(e) : t && typeof t == "object" && Zn in t ? t[Zn](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
+}
+function Ve(t, e) {
+  return Tt(t, t);
+}
+function ti(t, e, n) {
+  const s = Ve(t);
+  if (isNaN(e)) return Tt(t, NaN);
+  const i = s.getDate(), r = Tt(t, s.getTime());
+  r.setMonth(s.getMonth() + e + 1, 0);
+  const o = r.getDate();
+  return i >= o ? r : (s.setFullYear(
+    r.getFullYear(),
+    r.getMonth(),
+    i
+  ), s);
+}
+function rs(t, e, n) {
+  return Tt(t, +Ve(t) + e);
+}
+function ni(t, e, n) {
+  return rs(t, e * ei);
+}
+function si(t, e, n) {
+  return rs(t, e * 1e3);
+}
+function ii(t, e, n) {
+  return ti(t, e * 12);
+}
+function xn(t) {
+  return Math.trunc(+Ve(t) / 1e3);
+}
+function os(t, e) {
+  return +Ve(t) < +Ve(e);
+}
+function Rt(t, e, n, s = "debug", i) {
+  if (window.debug) {
+    const o = ["color: #0288D1", `color:${i || "#009688"}`, "color: default"];
+    n ? Jn() ? console[s](
+      `%c[PlaceOS]%c[${t}] %c${e}`,
+      ...o,
+      n
+    ) : console[s](`[PlaceOS][${t}] ${e}`, n) : Jn() ? console[s](`%c[PlaceOS]%c[${t}] %c${e}`, ...o) : console[s](`[PlaceOS][${t}] ${e}`);
+  }
+}
+function Ft(t) {
+  const e = (i) => i.length <= 0 ? void 0 : i.length === 1 ? i[0] : i, n = (i, r, o) => Rt(t, r, e(o), i), s = (i, ...r) => n("debug", i, r);
+  return s.debug = (i, ...r) => n("debug", i, r), s.info = (i, ...r) => n("info", i, r), s.error = (i, ...r) => n("error", i, r), s.warn = (i, ...r) => n("warn", i, r), s.log = (i, ...r) => n("log", i, r), s.group = (i, ...r) => n("group", i, r), s.groupCollapsed = (i, ...r) => n("groupCollapsed", i, r), s.groupEnd = (i, ...r) => n("groupEnd", i, r), s;
+}
+function Jn() {
+  return !(document.documentMode || /Edge/.test(navigator.userAgent));
+}
+function us() {
+  const t = window.location?.hash ? window.location?.hash.slice(1) : window.location?.href.split("#")[1] || "";
+  let e = window.location?.search ? window.location?.search.slice(1) : window.location?.href.split("?")[1] || "", n = {};
+  if (t)
+    if (t.indexOf("?") >= 0) {
+      const i = t.split("?");
+      n = Me(i[0]), e || (e = i[1]);
+    } else
+      n = Me(t);
+  let s = {};
+  return e && (s = Me(e)), __spreadValues(__spreadValues({}, n), s);
+}
+function Me(t) {
+  const e = {}, n = t.split("&");
+  for (const s of n) {
+    const i = s.split("=");
+    i[1] && (e[decodeURIComponent(i[0])] = decodeURIComponent(
+      i[1]
+    ));
+  }
+  return e;
+}
+var Ze = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+function cs(t = 40) {
+  let e = "";
+  const n = window?.crypto;
+  if (n?.getRandomValues) {
+    const s = 256 - 256 % Ze.length, i = new Uint8Array(t * 2);
+    for (; e.length < t; ) {
+      n.getRandomValues(i);
+      for (const r of i)
+        r < s && e.length < t && (e += Ze.charAt(r % Ze.length));
+    }
+    return e;
+  }
+  for (let s = 0; s < t; s++)
+    e += Ze.charAt(
+      Math.floor(Math.random() * Ze.length)
+    );
+  return e;
+}
+function oe(t) {
+  const e = (window.location?.hash || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/#&/g, "#").replace(/&$/g, "#"), n = (window.location?.search || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/\?&/g, "#").replace(/&$/g, "#");
+  window.history?.replaceState && window.history?.replaceState(
+    null,
+    "",
+    `${window.location?.pathname}${e}${n}`
+  );
+}
+function ri(t) {
+  if (t.length === 0)
+    throw new Error("Input must not be of zero length");
+  const e = t.split(","), n = {};
+  for (const s of e) {
+    const i = s.split(";");
+    if (i.length !== 2)
+      throw new Error("Section could not be split on ';'");
+    const r = i[0].replace(/<(.*)>/, "$1").trim(), o = i[1].replace(/rel="(.*)"/, "$1").trim();
+    n[o] = r;
+  }
+  return n;
+}
+function oi(t, e) {
+  for (const n in t)
+    t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
+  return t;
+}
+function ui() {
+  return [
+    "iPad Simulator",
+    "iPhone Simulator",
+    "iPod Simulator",
+    "iPad",
+    "iPhone",
+    "iPod"
+  ].includes(navigator.platform) || // iPad on iOS 13 detection
+  navigator.userAgent.includes("Mac") && "ontouchend" in document;
+}
+function ci() {
+  return window.location !== window.parent.location;
+}
+function ai(t = Date.now(), e = 60 * 1e3) {
+  return Math.floor(t / e);
+}
+var hi = class {
+  abort() {
+    Rt("Stub", "Aborted");
+  }
 };
+function y(t) {
+  let e = "";
+  if (t)
+    for (const n in t)
+      t.hasOwnProperty(n) && t[n] !== void 0 && t[n] !== null && (e += `${e ? "&" : ""}${n}=${encodeURIComponent(
+        t[n]
+      )}`);
+  return e;
+}
+var xe = {};
+function ue(t, e, n = 300) {
+  if (t && e && e instanceof Function)
+    be(t), xe[t] = setTimeout(() => {
+      e(), delete xe[t];
+    }, n);
+  else
+    throw new Error(
+      t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
+    );
+}
+function be(t) {
+  xe[t] && (clearTimeout(xe[t]), delete xe[t]);
+}
+function se(t) {
+  let e = t;
+  const n = /* @__PURE__ */ new Set(), s = () => e;
+  return Object.defineProperty(s, "value", {
+    get: () => e,
+    enumerable: true
+  }), s.subscribe = (i, r = {}) => (n.add(i), r.emitCurrent !== false && i(e, e), () => n.delete(i)), s.set = (i) => {
+    if (Object.is(i, e)) return;
+    const r = e;
+    e = i;
+    for (const o of [...n])
+      o(e, r);
+  }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
+}
+function Zr(t, e = Boolean) {
+  return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
+    const s = t.subscribe(
+      (i) => {
+        e(i) && (s(), n(i));
+      },
+      { emitCurrent: false }
+    );
+  });
+}
+function fi(t) {
+  return new Promise((e) => setTimeout(e, t));
+}
+var _i = {
+  id: "mock-authority",
+  name: "localhost:4200",
+  description: "",
+  domain: "localhost:4200",
+  login_url: "/login?continue={{url}}",
+  logout_url: "/logout",
+  session: true,
+  production: false,
+  config: {},
+  version: "2.0.0"
+};
+var _ = Ft("Auth");
+var m = {};
+var T = localStorage;
+var w;
+var g = {};
+var U = "";
+var $e = "";
+var ve = se("");
+var Ye = se("");
+var Pn = "/api/engine/v2";
+var ye = se(false);
+var Tn = se(false);
+var Ut = 0;
+function as() {
+  if (m.mock) return true;
+  if (!T) return false;
+  if (Xe() && !m.ignore_api_key) return true;
+  const t = T.getItem(`${U}_expires_at`) || "";
+  return os(+t, /* @__PURE__ */ new Date()) ? false : !!(ve.value || T.getItem(`${U}_access_token`));
+}
+function we() {
+  Tn.set(as());
+}
+function hs(t) {
+  if (!t || t.startsWith("http://") || t.startsWith("https://"))
+    return t;
+  const e = w?.domain;
+  return e ? `${m.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${e}${t}` : t;
+}
+function u2() {
+  return `${`${m.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${m.host || window.location?.host}`}${ls()}`;
+}
+function ls() {
+  return m.version === "ACA Engine" ? "/control/api" : Pn;
+}
+function mi() {
+  return !!m.token_header;
+}
+function gi() {
+  return U;
+}
+function Vr(t, e = true) {
+  T.setItem(`${U}_x-api-key`, `${t}`), T.setItem("trusted", `${e}`), yi("x-api-key", ii(/* @__PURE__ */ new Date(), 5).valueOf());
+}
+function Xe() {
+  return Ot("x-api-key", false) || "";
+}
+function yi(t, e = ni(/* @__PURE__ */ new Date(), 2).valueOf()) {
+  m.ignore_api_key && t === "x-api-key" || (T.setItem(`${U}_expires_at`, `${e}`), T.setItem(`${U}_access_token`, t), ve.set(t), we());
+}
+function J(t = true) {
+  if (m.mock) return "mock-token";
+  if (!T) return "";
+  if (Xe() && !m.ignore_api_key) return "x-api-key";
+  const e = T.getItem(`${U}_expires_at`) || "", n = ve.value;
+  return os(+e, /* @__PURE__ */ new Date()) && (_("Token expired. Requesting new token..."), En(), g.load_authority || (Ut += 1, ue(
+    "re-authorise",
+    async () => {
+      delete g.authorise, await Lt().catch(
+        (s) => _.error("Failed to get token:", s)
+      );
+    },
+    200 * Math.min(20, Ut)
+  )), !t) ? "" : n || T.getItem(`${U}_access_token`) || "";
+}
+function Et() {
+  return Ye.value || T.getItem(`${U}_refresh_token`) || "";
+}
+function qn() {
+  return m.host || window.location?.host;
+}
+function bi() {
+  return we(), Tn.asReadonly();
+}
+function Mt() {
+  return w;
+}
+function Xr() {
+  return ye.value;
+}
+function Rn() {
+  return !!m.mock;
+}
+function $i() {
+  return !!m.secure;
+}
+function eo() {
+  return ye.asReadonly();
+}
+function In() {
+  return Ot("trust") === "true" || Ot("trusted") === "true";
+}
+function ds() {
+  return !!Xe() && !m.ignore_api_key || Ot("fixed_device") === "true";
+}
+function Ot(t, e = true) {
+  let s = us()[t];
+  if (T) {
+    const i = `${gi()}_${t}`;
+    s = s || T.getItem(i) || T.getItem(t) || "", e && T.setItem(i, `${s}`);
+  }
+  return s;
+}
+async function to(t) {
+  return m = t || m, m.token_header = m.token_header ?? ci(), window.AbortController || (window.AbortController = hi), T = m.storage === "session" ? sessionStorage : localStorage, U = K.hashStr(m.redirect_uri, false), vi2(), m.delay && m.delay > 0 && await fi(m.delay), Mn();
+}
+var Ct = false;
+function vi2() {
+  Ct || (Ct = true, window.addEventListener("focus", wt), document.addEventListener("visibilitychange", wt));
+}
+async function wt() {
+  if (document.visibilityState === "hidden" || m.mock || !w || w.session || as()) return;
+  if (delete g.check_params, await fs().catch(() => false) || $e || Et()) {
+    _("Application focused with new credentials. Authorising..."), Ce = false, delete g.authorise, await Lt().catch(
+      (e) => _.error("Failed to authorise on focus:", e)
+    );
+    return;
+  }
+  _("Application focused without a session. Reloading authority..."), Ce = false, Un().catch(
+    (e) => _.error("Failed to refresh authority:", e)
+  );
+}
+function Un() {
+  return _("Refreshing authorty."), w = void 0, Mn();
+}
+function En() {
+  _("Invalidating tokens."), T.removeItem(`${U}_access_token`), T.removeItem(`${U}_expires_at`), ve.value && ve.set(""), we();
+}
+function Lt(t, e = w) {
+  return g.authorise || (g.authorise = new Promise((n, s) => {
+    if (!e)
+      return delete g.authorise, s("Authority is not loaded");
+    _("Authorising user...");
+    const i = () => {
+      if (J(false))
+        _("Valid token found."), delete g.authorise, n(J());
+      else {
+        const r = [
+          () => {
+            _("Successfully generated token."), n(J()), delete g.authorise;
+          },
+          () => {
+            _.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete g.authorise, 200);
+          }
+        ];
+        if (m && m.auth_type === "password")
+          _("Logging in with credentials."), Ii(m).then(
+            ...r
+          ), Ut = 0;
+        else if ($e || Et())
+          _(
+            `Generating token with ${$e ? "code" : "refresh token"}`
+          ), _s().then(...r), Ut = 0;
+        else if (e.session)
+          _(
+            "Users has session. Authorising application..."
+          ), Si(t).then(...r);
+        else {
+          _("No user session"), s("No user session"), setTimeout(() => delete g.authorise, 200);
+          try {
+            ps(e);
+          } catch {
+          }
+        }
+      }
+    };
+    xi().then(i, i);
+  })), g.authorise;
+}
+function Mn(t = 0) {
+  return g.load_authority || (g.load_authority = new Promise((e) => {
+    if (ye.set(false), m.mock) {
+      w = _i, _("System in mock mode"), ye.set(true), e();
+      return;
+    }
+    _(`Fixed: ${ds()} | Trusted: ${In()}`), _("Loading authority...");
+    const n = m.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
+      _.error(`Failed to load authority(${i})`), ye.set(false), ue(
+        "load_authority",
+        () => {
+          delete g.load_authority, Mn(t).then((r) => e());
+        },
+        300 * Math.min(20, ++t)
+      );
+    };
+    fetch(`${n ? "https:" : "http:"}//${qn()}/auth/authority`, {
+      credentials: "same-origin"
+    }).then(async (i) => {
+      if (!i.ok)
+        return s(await i.text().catch((o) => o));
+      w = await i.json(), Pn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
+        w.version || ""
+      ) ? "/api/engine/v2" : "/control/api", _.group("Loaded authority."), w && (_(`Name: ${w.name}`), _(`Version: ${w.version}`), _(`Domain: ${w.domain}`), _(`Session: ${w.session}`), _(`Production: ${w.production}`), _(
+        `Config Keys: ${Object.keys(w.config || {}).length}`
+      )), _.groupEnd("");
+      const r = () => {
+        ye.set(true), _("Application set online."), e();
+      };
+      delete g.load_authority, Lt("").then(r, r);
+    }, s);
+  })), g.load_authority;
+}
+async function Si(t) {
+  const e = qi(t);
+  if (m.use_iframe)
+    return Ai(e);
+  window.location?.assign(e);
+}
+function Ai(t) {
+  return g.iframe_auth || (g.iframe_auth = new Promise((e, n) => {
+    _("Authorizing in an iFrame...");
+    const s = document.createElement("iframe");
+    s.style.position = "absolute", s.style.top = "0", s.style.left = "0", s.style.height = "1px", s.style.width = "1px", s.style.zIndex = "-1", s.id = "place-authorize", s.src = `${t}`;
+    const i = (o) => {
+      if (o.origin === window.location?.origin && o.data.type === "place-os") {
+        const h = o.data;
+        if (_("Received credentials from iFrame..."), document.body.removeChild(s), be("iframe_auth"), window.removeEventListener("message", i), delete g.iframe_auth, h.token)
+          return e(), On(__spreadValues({
+            access_token: h.token
+          }, h));
+        $e = h.code || "", _s().then(
+          ($) => e($),
+          ($) => n($)
+        );
+      }
+    }, r = () => {
+      window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete g.iframe_auth;
+    };
+    ue(
+      "iframe_auth",
+      () => {
+        _.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
+      },
+      15 * 1e3
+    ), window.addEventListener("message", i), s.onerror = (o) => {
+      _.error("iFrame error.", o), be("iframe_auth"), r(), n();
+    }, document.body.appendChild(s);
+  })), g.iframe_auth;
+}
+var Ce = false;
+function ps(t) {
+  if (m.handle_login !== false && !Ce) {
+    _("Redirecting to login page...");
+    const e = hs(
+      t.login_url?.replace(
+        "{{url}}",
+        encodeURIComponent(window.location?.href)
+      )
+    );
+    throw setTimeout(() => window.location?.assign(e), 300), Ce = true, new Error("Redirecting to login page...");
+  } else
+    _("Login being handled locally.");
+  delete g.authorise;
+}
+function xi() {
+  return g.check_token || (g.check_token = new Promise(async (t, e) => {
+    J() ? (_("Valid token found."), t(J())) : (_("No token. Checking URL for auth credentials..."), await fs() ? t(true) : e()), delete g.check_token;
+  })), g.check_token;
+}
+function fs() {
+  return g.check_params || (g.check_params = new Promise((t) => {
+    _("Checking for auth parameters...");
+    let e = us();
+    if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
+      sessionStorage.getItem("ENGINE.auth.params") || "{}"
+    ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
+      const n = T.getItem(`${U}_nonce`) || "", s = (e.state || "").split(";");
+      oe("state"), oe("token_type");
+      const i = s[0];
+      n === i ? (e.code && ($e = e.code, oe("code")), e.refresh_token && (T.setItem(
+        `${U}_refresh_token`,
+        e.refresh_token
+      ), oe("refresh_token")), On(e), t(!!e.access_token)) : (oe("code"), oe("access_token"), oe("refresh_token"), t(false));
+    } else
+      t(false);
+    ue(
+      "check_params_promise",
+      () => delete g.check_params,
+      50
+    );
+  })), g.check_params;
+}
+function qi(t) {
+  const e = Ui();
+  t = t ? `${e};${t}` : e;
+  const n = m ? (m.auth_uri || "").indexOf("?") >= 0 : false, s = (m ? m.auth_uri : null) || "/auth/oauth/authorize", i = In() || m.auth_type === "auth_code" ? "code" : "token";
+  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(U)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(m.redirect_uri)}&scope=${encodeURIComponent(m.scope)}`;
+  if (m.auth_type === "auth_code") {
+    const { challenge: o, verify: h } = Pi();
+    sessionStorage.setItem(`${U}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${h}`;
+  }
+  return r;
+}
+function Pi(t = 43) {
+  const e = cs(t), n = Ks(Zs(e)), s = is(Ys.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
+  return { challenge: e, verify: s };
+}
+function Ti() {
+  let e = (m.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(U)}`, n = "";
+  if (e += `&redirect_uri=${encodeURIComponent(m.redirect_uri)}`, Et()) {
+    e += `&refresh_token=${encodeURIComponent(Et())}`, e += "&grant_type=refresh_token";
+    const s = e.indexOf("?");
+    n = e.slice(s + 1), e = e.slice(0, s);
+  } else {
+    e += `&code=${encodeURIComponent($e)}`, e += "&grant_type=authorization_code";
+    const s = sessionStorage.getItem(`${U}_challenge`);
+    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${U}_challenge`)), $e = "";
+  }
+  return [e, n];
+}
+function Ri(t) {
+  const e = t.token_uri || "/auth/token", n = y({
+    grant_type: "password",
+    client_id: U,
+    client_secret: t.client_secret,
+    redirect_uri: t.redirect_uri,
+    authority: w?.id,
+    scope: t.scope,
+    username: t.username,
+    password: t.password
+  });
+  return `${e}?${n}`;
+}
+function _s() {
+  return ms(...Ti());
+}
+function Ii(t) {
+  return ms(Ri(t));
+}
+function ms(t, e = "") {
+  return g.generate_tokens || (g.generate_tokens = new Promise((n, s) => {
+    _("Generating new token...");
+    const i = (r) => {
+      _.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T.removeItem(`${U}_refresh_token`), Ye.set("")), we(), s(), delete g.generate_tokens;
+    };
+    fetch(t, {
+      method: "POST",
+      body: e,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    }).then(async (r) => {
+      if (!r.ok) return i(r);
+      const o = await r.json();
+      On(o), n(), delete g.generate_tokens;
+    }, i);
+  })), g.generate_tokens;
+}
+function On(t) {
+  const e = si(
+    /* @__PURE__ */ new Date(),
+    Math.max(60, parseInt(t.expires_in, 10) - 300)
+  );
+  _("Tokens generated storing..."), In() && (t.access_token && (T.setItem(
+    `${U}_access_token`,
+    t.access_token
+  ), oe("access_token")), t.refresh_token && (T.setItem(
+    `${U}_refresh_token`,
+    t.refresh_token
+  ), oe("refresh_token"))), t.expires_in && (T.setItem(`${U}_expires_at`, `${e.valueOf()}`), oe("expires_in")), ye.set(true), ve.set(t.access_token || ""), Ye.set(t.refresh_token || ""), we();
+}
+function Ui() {
+  const t = cs();
+  return T.setItem(`${U}_nonce`, t), t;
+}
+var qe = Ft("HTTP(M)");
+var jt = {};
+var gs = (t, e) => {
+  const n = new Error(`Mock endpoint not found: ${t} ${e}`);
+  return n.status = 404, qe(`404 ${t}:`, e), Promise.reject(n);
+};
+function Mi(t, e, n, s = jt) {
+  const i = Oi(t, e, s);
+  if (i) {
+    const r = Ci(e, i, n);
+    return wi(i, r);
+  }
+  try {
+    return gs(t, e);
+  } catch (r) {
+    return qe.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
+  }
+}
+function Oi(t, e, n = jt) {
+  const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
+    n
+  ).reduce((o, h) => (h.indexOf(`${t}|`) === 0 && o.push(n[h]), o), []);
+  for (const o of r)
+    if (o.path_structure.length === i.length) {
+      let h = true;
+      for (let $ = 0; $ < o.path_structure.length; $++)
+        if (!o.path_structure[$] && o.path_parts[$] !== i[$]) {
+          h = false;
+          break;
+        }
+      if (h)
+        return o;
+    }
+  return null;
+}
+function Ci(t, e, n) {
+  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Me(r), h = i.split("/"), $ = {};
+  for (let R2 = 0; R2 < e.path_structure.length; R2++) {
+    const W2 = e.path_structure[R2];
+    W2 && ($[W2] = h[R2]);
+  }
+  const L2 = {
+    url: t,
+    path: e.path,
+    method: e.method,
+    metadata: e.metadata,
+    route_params: $,
+    query_params: o,
+    body: n
+  };
+  return qe(`MATCHED ${L2.method}:`, L2), L2;
+}
+function wi(t, e) {
+  let n;
+  try {
+    n = t.callback ? t.callback(e) : t.metadata;
+  } catch (o) {
+    return qe.error(`ERROR ${e.method}:`, e.url, o), Promise.reject(o);
+  }
+  const s = t.delay_variance || 100, i = t.delay || 300, r = Math.floor(Math.random() * s - s / 2) + i;
+  return qe(`RESP ${e.method}:`, e.url, n), new Promise((o) => {
+    setTimeout(() => o(n), Math.max(200, r));
+  });
+}
+var Ni = Ft("HTTP");
+var Di = 3e4;
+async function Hi() {
+  J(false);
+  const t = bi();
+  t.value || await new Promise((e, n) => {
+    const s = setTimeout(() => {
+      i(), n(new Error("Timed out waiting for authentication."));
+    }, Di), i = t.subscribe(
+      (r) => {
+        r && (clearTimeout(s), i(), e());
+      },
+      { emitCurrent: false }
+    );
+  });
+}
+var ys = {};
+function zi(t, e = ys) {
+  return e[t] || {};
+}
+function f(t, e, n = et) {
+  return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
+}
+function ce(t, e, n, s = et) {
+  return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
+}
+function te(t, e, n, s = et) {
+  return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
+}
+async function Fi(t, e, n = ys) {
+  if (t.headers) {
+    const s = {};
+    t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
+      (i) => s[i.toLowerCase()] = t.headers[i]
+    ), n[t.url || ""] = s;
+  }
+  switch (e) {
+    case "blob":
+      return await t.blob();
+    case "json":
+      return await t.json().catch(() => ({}));
+    case "text":
+      return await t.text();
+    case "void":
+      return;
+    default:
+      return await t.json().catch(() => ({}));
+  }
+}
+var bs = () => (En(), Un().then(
+  () => Promise.resolve(),
+  () => new Promise((t) => {
+    setTimeout(() => {
+      bs().then(() => t());
+    }, 1e3);
+  })
+));
+function et(t, e, n, s = Rn, i = Mi, r = Fi) {
+  if (s()) {
+    const R2 = i(t, e, n?.body);
+    if (R2) return R2;
+  }
+  n.headers = n.headers || {}, !n.headers["Content-Type"] && !n.headers["content-type"] && (n.headers["Content-Type"] = "application/json");
+  const o = () => {
+    const R2 = __spreadProps(__spreadValues({}, n), {
+      method: t,
+      credentials: "same-origin"
+    });
+    return delete R2.response_type, delete R2.skip_auth, delete R2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (R2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, R2);
+  }, h = async () => {
+    n.skip_auth || (await Hi(), J() === "x-api-key" ? n.headers["X-API-Key"] = Xe() : n.headers.Authorization = `Bearer ${J()}`);
+    const R2 = await o();
+    if (R2.ok) return r(R2, n.response_type);
+    throw R2;
+  }, $ = 4, L2 = async (R2) => {
+    try {
+      return await h();
+    } catch (W2) {
+      if (R2 >= $) throw W2 || {};
+      if (n.skip_auth || n.skip_auth_flow) throw W2 || {};
+      if (W2.status === 511)
+        throw ps(Mt()), W2;
+      if (W2.status !== 401) throw W2 || {};
+      return Ni.warn("Auth error:", W2), await bs().catch(() => {
+        throw W2;
+      }), L2(R2 + 1);
+    }
+  };
+  return L2(0);
+}
+var F = class {
+  /** Unique Identifier of the object */
+  id;
+  /** Human readable name of the object */
+  name;
+  /** Unix epoch in seconds of the creation time of the object */
+  created_at;
+  /** Unix epoch in seconds of the creation time of the object */
+  updated_at;
+  /** Version of the data */
+  version;
+  constructor(e = {}) {
+    this.id = e.id || "", this.name = e.name || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.version = e.version || 0;
+  }
+  /**
+   * Convert object into plain object
+   */
+  toJSON() {
+    const e = __spreadValues({}, this);
+    return e.version = this.version, delete e.created_at, oi(e, [void 0, null, ""]);
+  }
+};
+var $s = {};
+var vs = {};
+var Yn = "";
+var Bt = (t) => t;
+var Bi = 300;
+var Ee = {};
+function b(t) {
+  const { query_params: e, fn: n, path: s, endpoint: i } = t, r = y(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
+  if (Ee[o]) return Ee[o].promise;
+  const h = f(o).then(($) => {
+    const L2 = Wi(o, r, s);
+    return {
+      total: L2.total || 0,
+      next: L2.next ? () => b({
+        query_params: L2.next,
+        fn: n,
+        endpoint: i,
+        path: s
+      }) : null,
+      data: $ && $ instanceof Array ? $.map((R2) => (n || Bt)(R2)) : $ && !($ instanceof Array) && $.results ? $.results.map((R2) => R2) : []
+    };
+  });
+  return Ee[o] = {
+    promise: h,
+    timeout: setTimeout(() => delete Ee[o], Bi)
+  }, h.catch(() => {
+    clearTimeout(Ee[o]?.timeout), delete Ee[o];
+  }), h;
+}
+function d(t) {
+  const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = y(e), h = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
+  return f(h, r).then(($) => (i || Bt)($));
+}
+function q(t) {
+  const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, h = y(__spreadProps(__spreadValues({}, n), {
+    version: s.version || 0
+  })), $ = `${u2()}/${r}/${e}${h ? "?" + h : ""}`;
+  return (i === "put" ? ce : te)($, s).then(
+    (L2) => (o || Bt)(L2)
+  );
+}
+function Wi(t, e, n) {
+  const s = zi(
+    t[0] === "/" ? `${location.origin}${t}` : t
+  ), i = {
+    total: 0,
+    next: null
+  };
+  if (s && s["x-total-count"]) {
+    const r = +(s["x-total-count"] || 0);
+    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && ($s[n] = r), vs[n] = r, i.total = r;
+  }
+  return s && s.link && (Yn = ri(s.link || "").next, i.next = Me(Yn.split("?")[1])), i;
+}
+var Cn = class extends F {
+  /** Hash of the email address of the user */
+  email_digest;
+  /** ID of the authority associated with the user */
+  authority_id;
+  /** Email address of the user */
+  email;
+  /** Phone number of the user */
+  phone;
+  /** Display nickname of the user */
+  nickname;
+  /** Country that the user resides in */
+  country;
+  /** Office building the user is associated */
+  building;
+  /** Access control groups that user is associated */
+  groups;
+  /** Avatar image for the user */
+  image;
+  /** Additional metadata associated with the user */
+  metadata;
+  /** Miscellaneous user data */
+  misc;
+  /** Username credential of the user */
+  login_name;
+  /** Organisation ID of the user */
+  staff_id;
+  /** First name of the user */
+  first_name;
+  /** Last name of the user */
+  last_name;
+  /** Whether user is a support role */
+  support;
+  /** Whether user is a system admin role */
+  sys_admin;
+  /** Name of the active theme on the displayed UI */
+  ui_theme;
+  /** Preferred language of the user */
+  preferred_language;
+  /** Card Number associated with the user */
+  card_number;
+  /** Organisational department the user belongs */
+  department;
+  /** Default worktime preferences for the user */
+  work_preferences;
+  /** Overrides of the worktime preferences for the user */
+  work_overrides;
+  /** ID of the user's photo in the PlaceOS uploads service */
+  photo_upload_id;
+  /** Whether the user has opted in to location tracking */
+  locatable;
+  /** Password */
+  password = "";
+  /** Password */
+  confirm_password = "";
+  deleted;
+  constructor(e = {}) {
+    super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true, this.deleted = e.deleted ?? false;
+  }
+};
+var Fe = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(Fe || {});
+var Pe = class extends F {
+  /** ID of the parent zone/system/module/driver */
+  parent_id;
+  /** Unix timestamp in seconds of when the settings where last updated */
+  updated_at;
+  /** Access level for the settings data */
+  encryption_level;
+  /** Contents of the settings */
+  settings_string;
+  /** Top level keys for the parsed settings */
+  keys;
+  /** ID of the user that last modified the metadata */
+  modified_by_id;
+  /** Contents of the settings */
+  get value() {
+    return this.settings_string;
+  }
+  constructor(e = {}) {
+    super(e), this.parent_id = e.parent_id || "", this.updated_at = e.updated_at || Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3), this.settings_string = e.settings_string || "", this.encryption_level = e.encryption_level || Fe.None, this.keys = e.keys || [], this.modified_by_id = e.modified_by_id || "";
+  }
+};
+var Nt = /* @__PURE__ */ ((t) => (t[t.SSH = 0] = "SSH", t[t.Device = 1] = "Device", t[t.Service = 2] = "Service", t[t.Websocket = 3] = "Websocket", t[t.Logic = 99] = "Logic", t))(Nt || {});
+var As = class extends F {
+  /** Place class name of the driver */
+  class_name;
+  /** Description of the driver functionality */
+  description;
+  /** Name to use for modules that inherit this driver */
+  module_name;
+  /** Role of the driver in engine */
+  role;
+  /** Default URI for the driver */
+  default_uri;
+  /** Default port number for the driver */
+  default_port;
+  /** ID of the repository the driver is from */
+  repository_id;
+  /** Name of the file from the repository to load the driver logic from */
+  file_name;
+  /** Version of the driver logic to use */
+  commit;
+  /** Ignore connection issues */
+  ignore_connected;
+  /** Whether newer version of driver is available */
+  update_available;
+  update_info;
+  /**  */
+  alert_level;
+  /** Tuple of user settings of differring encryption levels for the driver */
+  settings;
+  constructor(e = {}) {
+    super(e), this.description = e.description || "", this.module_name = e.module_name || "", this.role = e.role ?? Nt.Logic, this.default_uri = e.default_uri || "", this.default_port = e.default_port || 1, this.ignore_connected = e.ignore_connected || false, this.class_name = e.class_name || "", this.repository_id = e.repository_id || "", this.file_name = e.file_name || "", this.commit = e.commit || "", this.update_available = e.update_available || false, this.update_info = e.update_info, this.alert_level = e.alert_level || "medium", this.settings = e.settings || [null, null, null, null], typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in Fe)
+      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
+        parent_id: this.id,
+        encryption_level: +n
+      }));
+  }
+};
+var wn = class {
+  /** ISO8601 timestamp of the creation time of the group */
+  created_at;
+  /** ISO8601 timestamp of the last update time of the group */
+  updated_at;
+  /** Unique identifier of the group */
+  id;
+  /** Human readable name of the group */
+  name;
+  /** Description of the group's purpose */
+  description;
+  /** Subsystems this group participates in */
+  subsystems;
+  /** ID of the authority associated with the group */
+  authority_id;
+  /** ID of the parent group */
+  parent_id;
+  /** Count of child groups for this group */
+  children_count;
+  constructor(e = {}) {
+    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.subsystems = e.subsystems || [], this.authority_id = e.authority_id || "", this.parent_id = e.parent_id || "", isFinite(Number(e.children_count)) && (this.children_count = e.children_count);
+  }
+};
+var Le = "groups";
+function ot(t) {
+  return new wn(t);
+}
+function Iu(t = {}) {
+  const e = y(t), n = `${u2()}/${Le}/current${e ? "?" + e : ""}`;
+  return f(n).then(
+    (s) => (s || []).map((i) => ({
+      group: ot(i.group || {}),
+      permissions: i.permissions || 0
+    }))
+  );
+}
+var pe = class extends F {
+  /** Name of the system assocaited with the trigger */
+  system_name;
+  /** Number of times the trigger has been activated/triggered */
+  activated_count;
+  /** Description of the trigger */
+  description;
+  /** Duration with which to ignore sequential activations of the trigger */
+  debounce_period;
+  /** Whether the trigger should take priority */
+  important;
+  /** Whether trigger is enabled on the associated zone or system */
+  enabled;
+  /** Whether the trigger can call webhooks */
+  enable_webhook;
+  /** Whether the trigger instance can execute methods */
+  exec_enabled;
+  /** Auth key for trigger's webhook */
+  webhook_secret;
+  /** HTTP verbs supported by the webhook */
+  supported_methods;
+  /** ID of the system associated with the trigger */
+  control_system_id;
+  /** ID of the zone associated with the trigger */
+  zone_id;
+  /** ID of the Parent trigger */
+  trigger_id;
+  /** List of playlist IDs associated with the system */
+  playlists;
+  // Whether condition checks should match any single condition to pass or all of them
+  any_match;
+  /** ID of the system associated with the trigger */
+  get system_id() {
+    return this.control_system_id;
+  }
+  /** Actions to perform when the trigger is activated */
+  get actions() {
+    const e = this._actions, n = (e.functions || []).map((i) => __spreadProps(__spreadValues({}, i), {
+      args: __spreadValues({}, i.args)
+    })), s = (e.mailers || []).map((i) => __spreadProps(__spreadValues({}, i), {
+      emails: [...i.emails]
+    }));
+    return { functions: n, mailers: s };
+  }
+  /** Conditions for activating the trigger */
+  get conditions() {
+    const e = this._conditions, n = (e.comparisons || []).map((i) => __spreadProps(__spreadValues({}, i), {
+      left: typeof i.left == "object" ? __spreadValues({}, i.left) : i.left,
+      right: typeof i.right == "object" ? __spreadValues({}, i.right) : i.right
+    })), s = (e.time_dependents || []).map((i) => __spreadValues({}, i));
+    return { comparisons: n, time_dependents: s };
+  }
+  /** Actions to perform when the trigger is activated */
+  _actions;
+  /** Conditions for activating the trigger */
+  _conditions;
+  constructor(e = {}) {
+    super(e), this.description = e.description || "", this._actions = e.actions || { functions: [], mailers: [] }, this._conditions = e.conditions || {
+      comparisons: [],
+      time_dependents: []
+    }, this.debounce_period = e.debounce_period || 0, this.important = e.important || false, this.enabled = e.enabled || false, this.webhook_secret = e.webhook_secret || "", this.control_system_id = e.system_id || e.control_system_id || "", this.zone_id = e.zone_id || "", this.system_name = e.system_name || (e.control_system ? e.control_system.name : ""), this.enable_webhook = e.enable_webhook || false, this.exec_enabled = e.exec_enabled || false, this.supported_methods = e.supported_methods || ["POST"], this.activated_count = e.activated_count || e.trigger_count || 0, this.playlists = e.playlists || [], this.trigger_id = e.trigger_id || "", this.any_match = e.any_match || false;
+  }
+};
+var Xt = class extends F {
+  /** Tuple of user settings of differring encryption levels for the zone */
+  settings = [null, null, null, null];
+  /** Description of the zone's purpose */
+  description;
+  /** ID of the parent zone */
+  parent_id;
+  /** List of triggers associated with the zone */
+  triggers;
+  /** List of tags associated with the zone */
+  tags;
+  /** Geo-location details associated with the zone */
+  location;
+  /** Custom display name for the zone */
+  display_name;
+  /** Organisational code associated with the zone */
+  code;
+  /** Organisational categorisation of the zone */
+  type;
+  /** Count of resources associated with the zone */
+  count;
+  /** Count of child zones for this zone */
+  children_count;
+  /** Amount of physical capacity associated with the zone */
+  capacity;
+  /** ID or URL of or in a map associated with the zone */
+  map_id;
+  /** List of image URLs */
+  images;
+  /** Timezone of the associated real world location */
+  timezone;
+  /** List of playlist IDs associated with the system */
+  playlists;
+  /**
+   * List of modules associated with the system.
+   * Only available from the show method with the `complete` query parameter
+   */
+  trigger_list = [];
+  constructor(e = {}) {
+    super(e), this.description = e.description || "", this.tags = e.tags || [], this.triggers = e.triggers || [], this.settings = e.settings || [null, null, null, null], this.parent_id = e.parent_id || "", this.location = e.location || "", this.display_name = e.display_name || "", this.code = e.code || "", this.type = e.type || "", this.count = e.count || 0, this.capacity = e.capacity || 0, this.map_id = e.map_id || "", this.timezone = e.timezone || "", this.images = e.images || [], this.playlists = e.playlists || [], isFinite(Number(e.children_count)) && (this.children_count = e.children_count), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in Fe)
+      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
+        parent_id: this.id,
+        encryption_level: +n
+      }));
+    e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
+      (n) => new pe(n)
+    ));
+  }
+};
+var Ts = class {
+  /** ID of the parent resource associated with the metadata */
+  id;
+  /** ID of the parent resource associated with the metadata */
+  parent_id;
+  /** Name/ID of the zone metadata */
+  name;
+  /** Description of what this metadata represents */
+  description;
+  /** Metadata associated with this key. */
+  details;
+  /** List user groups allowed to edit the metadata */
+  editors;
+  /** JSON schema associated with the metadata details */
+  schema;
+  /** ID of the schema associated with the metadata details */
+  schema_id;
+  /** Unix timestamp that the metadata was created at */
+  created_at;
+  /** Unix timestamp that the metadata was last modified at */
+  updated_at;
+  /** ID of the user that last modified the metadata */
+  modified_by_id;
+  /** Version of the data */
+  version;
+  constructor(e = {}) {
+    this.parent_id = e.parent_id || e.id || "", this.id = this.parent_id, this.name = e.name || "", this.description = e.description || "";
+    try {
+      this.details = (typeof e.details == "string" ? JSON.parse(e.details) : e.details) || {};
+    } catch {
+      this.details = e.details || {};
+    }
+    this.editors = e.editors || [], this.schema_id = e.schema_id || e.schema || "", this.schema = this.schema_id, this.created_at = (e.created_at || 0) * 1e3 || Date.now(), this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
+  }
+};
+var fe = "metadata";
+function Te(t) {
+  return new Ts(t);
+}
+function ic(t, e) {
+  return d({
+    id: t,
+    query_params: { name: e },
+    fn: (n) => Te(n[e]),
+    path: fe
+  });
+}
+function rc(t, e, n = "put") {
+  return q({
+    id: t,
+    form_data: e,
+    query_params: {},
+    method: n,
+    fn: Te,
+    path: fe
+  });
+}
+function hc(t, e) {
+  const n = y(e), s = `${u2()}/${fe}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
+  return f(s).then(
+    (i) => Object.keys(i || {}).reduce(
+      (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Te(i[o]) }),
+      {}
+    )
+  );
+}
+var Rs = class extends F {
+  /** Tuple of user settings of differring encryption levels for the system */
+  settings = [null, null, null, null];
+  /** Display name of the system */
+  display_name;
+  /** Description of the system */
+  description;
+  /** Email address associated with the system */
+  email;
+  /** Email address associated with the system */
+  code;
+  /** Capacity of the space associated with the system */
+  capacity;
+  /** Features associated with the system */
+  features;
+  /** Whether system is bookable by end users */
+  bookable;
+  /** Whether system is public accessible */
+  public;
+  /** Count of UI devices attached to the system */
+  installed_ui_devices;
+  /** Support URL for the system */
+  support_url;
+  /** URL for the timetable UI linked to the system */
+  timetable_url;
+  /** URLs for requesting snapshots of the assosiated camera */
+  camera_snapshot_url;
+  /** URLs for requesting snapshots of the assosiated camera */
+  camera_snapshot_urls;
+  /** URL for managing the attached camera */
+  camera_url;
+  /** External booking URL for the system */
+  room_booking_url;
+  /** ID on the SVG Map associated with this system */
+  map_id;
+  /** List of module IDs that belong to the system */
+  modules;
+  /** List of images associated with the system */
+  images;
+  /** List of the zone IDs that the system belongs */
+  zones;
+  /** Timezone of the associated real world space */
+  timezone;
+  /**
+   * List of modules associated with the system.
+   * Only available from the show method with the `complete` query parameter
+   */
+  module_list = [];
+  /** Whether the system has signage capabilities */
+  signage;
+  /** List of playlist IDs associated with the system */
+  playlists;
+  /** List of security groups with access to the system */
+  security_groups;
+  /** Unix timestamp of the last ping from the signage player UI */
+  signage_last_seen;
+  approval;
+  /** Orientation of the signage system */
+  orientation;
+  constructor(e = {}) {
+    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || xn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in Fe)
+      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
+        parent_id: this.id,
+        encryption_level: +n
+      }));
+    e.module_data && e.module_data instanceof Array && (this.module_list = e.module_data.map(
+      (n) => new Is(n)
+    ));
+  }
+};
+var Is = class extends F {
+  /** Whether the associated hardware is connected */
+  connected;
+  /** Whether the module driver is running */
+  running;
+  /** Timestamp of last update in ms since UTC epoch */
+  updated_at;
+  /** ID of the edge associated with the module */
+  edge_id;
+  /** ID of the driver associated with the module */
+  driver_id;
+  /** Driver/dependancy associated with the module */
+  driver;
+  /** ID of the system associated with the module */
+  control_system_id;
+  /** System associated with the module */
+  system;
+  /** IP address of the hardware associated with the module */
+  ip;
+  /** Whether the hardware connection requires TLS */
+  tls;
+  /** Whether the hardware connection is over UDP */
+  udp;
+  /** Port number connections to the hardware are made on */
+  port;
+  /**  */
+  makebreak;
+  /** URI associated with the module */
+  uri;
+  /** Custom name of the module */
+  custom_name;
+  /** Type of module */
+  role;
+  /** Notes associated with the module */
+  notes;
+  /** Ignore connection issues */
+  ignore_connected;
+  /** Tuple of user settings of differring encryption levels for the module */
+  settings = [null, null, null, null];
+  /** Whether the module has a runtime error */
+  has_runtime_error;
+  /** Timestamp of the last runtime error in ms since UTC epoch */
+  error_timestamp;
+  /**  */
+  alert_level;
+  /** ID of the system associated with the module */
+  get system_id() {
+    return this.control_system_id;
+  }
+  constructor(e = {}) {
+    super(e), this.driver_id = e.driver_id || e.dependency_id || "", this.control_system_id = e.control_system_id || "", this.edge_id = e.edge_id || "", this.ip = e.ip || "", this.tls = e.tls || false, this.udp = e.udp || false, this.port = e.port || 1, this.makebreak = e.makebreak || false, this.uri = e.uri || "", this.custom_name = e.custom_name || "", this.role = e.role ?? Nt.Logic, this.notes = e.notes || "", this.ignore_connected = e.ignore_connected || false, this.connected = e.connected, this.running = e.running || false, this.updated_at = e.updated_at || 0, this.system = new Rs(
+      e.control_system || e.system
+    ), this.has_runtime_error = e.has_runtime_error || false, this.error_timestamp = e.error_timestamp || 0, this.driver = new As(e.dependency || e.driver), this.settings = e.settings || [null, null, null, null], this.alert_level = e.alert_level || "medium", typeof this.settings != "object" && (this.settings = [null, null, null, null]);
+    for (const n in Fe)
+      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
+        parent_id: this.id,
+        encryption_level: +n
+      }));
+  }
+  /**
+   * Convert object into plain object
+   */
+  toJSON(e = false) {
+    const n = super.toJSON();
+    return (n.role !== Nt.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
+  }
+};
+var M = "systems";
+function Re(t) {
+  return new Rs(t);
+}
+function ga(t = {}) {
+  return b({ query_params: t, fn: Re, path: M });
+}
+function ba(t, e = {}) {
+  return d({ id: t, query_params: e, fn: Re, path: M });
+}
+var X = "users";
+function Ie(t) {
+  return new Cn(t);
+}
+function Za(t, e = {}) {
+  return d({ id: t, query_params: e, fn: Ie, path: X });
+}
+function Va(t, e, n = "patch") {
+  return q({
+    id: t,
+    form_data: e,
+    query_params: {},
+    method: n,
+    fn: Ie,
+    path: X
+  });
+}
+var _e = "zones";
+function cn(t) {
+  return new Xt(t);
+}
+function uh(t = {}) {
+  return b({ query_params: t, fn: cn, path: _e });
+}
+var zs = class {
+  _listeners = /* @__PURE__ */ new Set();
+  _error_listeners = /* @__PURE__ */ new Set();
+  _complete_listeners = /* @__PURE__ */ new Set();
+  _closed = false;
+  next(e) {
+    if (!this._closed)
+      for (const n of [...this._listeners]) n(e);
+  }
+  error(e) {
+    if (!this._closed) {
+      for (const n of [...this._error_listeners]) n(e);
+      this._closed = true, this._clear();
+    }
+  }
+  complete() {
+    if (!this._closed) {
+      for (const e of [...this._complete_listeners]) e();
+      this._closed = true, this._clear();
+    }
+  }
+  subscribe(e, n, s) {
+    return this._closed ? (s?.(), () => null) : (this._listeners.add(e), n && this._error_listeners.add(n), s && this._complete_listeners.add(s), () => {
+      this._listeners.delete(e), n && this._error_listeners.delete(n), s && this._complete_listeners.delete(s);
+    });
+  }
+  _clear() {
+    this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
+  }
+};
+var qr = class extends zs {
+  constructor(e) {
+    super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
+      const n = [...this._queue];
+      this._queue = [];
+      for (const s of n) this.next(s);
+    }, this._socket.onmessage = (n) => {
+      super.next(this._deserialize(n));
+    }, this._socket.onerror = (n) => this.error(n), this._socket.onclose = () => super.complete();
+  }
+  _socket;
+  _queue = [];
+  next(e) {
+    this._socket.readyState === WebSocket.OPEN ? this._socket.send(this._serialize(e)) : this._queue.push(e);
+  }
+  complete() {
+    this._socket.close(), super.complete();
+  }
+  _serialize(e) {
+    return this._config.serializer ? this._config.serializer(e) : `${e}`;
+  }
+  _deserialize(e) {
+    return this._config.deserializer ? this._config.deserializer(e) : e.data;
+  }
+};
+function Pr(t) {
+  return new qr(
+    typeof t == "string" ? { url: t } : t
+  );
+}
+var ne = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(ne || {});
+var Fs = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Fs || {});
+var Dt = {};
+function Ir(t) {
+  return Dt[t];
+}
+var O = Ft("WS");
+var Ls = 15;
+var kt = 0;
+var ee;
+var js = 0;
+var G = {};
+var Gn = {};
+var Ur = {};
+var Ae = se(false);
+var Gs = se([0, 0]);
+var Bs = Date.now();
+var Oe;
+var Ht = 0;
+var me = null;
+var Pt;
+var Bn = 0;
+var St = 10 * 1e3;
+var Er = se(null);
+function kn() {
+  return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${ls()}/systems/control`;
+}
+function Ws() {
+  return Ae.value;
+}
+function Mr() {
+  return Ae.asReadonly();
+}
+function Or(t, e = Gn) {
+  const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
+  return e[n] || (e[n] = se(void 0)), e[n].asReadonly();
+}
+function Cr(t, e = Gn) {
+  const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
+  if (e[n])
+    return e[n].value;
+}
+function Xn(t, e = 0, n = We) {
+  const s = __spreadValues({
+    id: ++kt,
+    cmd: "bind"
+  }, t);
+  return n(s, e);
+}
+function wr(t, e = 0, n = We) {
+  const s = __spreadValues({
+    id: ++kt,
+    cmd: "unbind"
+  }, t);
+  return n(s, e);
+}
+function Nr(t, e = St, n = We) {
+  const s = __spreadValues({
+    id: ++kt,
+    cmd: "exec"
+  }, t);
+  return n(s, e);
+}
+function We(t, e = St, n = 0) {
+  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ai()}`;
+  if (G[s])
+    O("Request already in progress. Waiting...", t);
+  else {
+    const i = __spreadProps(__spreadValues({}, t), { key: s });
+    i.promise = new Promise((r, o) => {
+      const h = () => {
+        delete G[s], G[s] = null, We(t, e, n).then(
+          ($) => r($),
+          ($) => o($)
+        );
+      };
+      if (ee && Ws()) {
+        Rn() && Gr(t, ee, Ur), i.resolve = r, i.reject = o;
+        const $ = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
+        O(
+          `[${t.cmd.toUpperCase()}](${t.id}) ${$}`,
+          t.args
+        ), ee.next(t), e > 0 && ue(
+          `${s}`,
+          () => {
+            o("Request timed out."), delete G[s], G[s] = null;
+          },
+          e
+        );
+      } else me ? setTimeout(() => h(), 1e3) : Wn().then(() => h());
+    }), G[s] = i;
+  }
+  return G[s].promise;
+}
+function Qs(t) {
+  if (t !== "pong" && t instanceof Object) {
+    if (t.type === "notify" && t.meta)
+      zr(t.meta, t.value);
+    else if (t.type === "success")
+      Dr(t);
+    else if (t.type === "debug") {
+      O(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
+      const e = t.meta || { mod: "", index: "" };
+      Er.set({
+        mod_id: t.mod || "<empty>",
+        module: `${e.mod}_${e.index}`,
+        class_name: t.klass || "<empty>",
+        message: t.msg || "<empty>",
+        level: t.level || Fs.Debug,
+        time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
+      });
+    } else t.type === "error" ? Hr(t) : t.cmd || O.error("Invalid websocket message", t);
+    be(`${t.id}`);
+  } else t === "pong" && (Bn = Date.now(), O("Pong!"));
+}
+function Dr(t) {
+  const e = Object.keys(G).map((n) => G[n]).find((n) => n?.id === t.id);
+  O(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
+}
+function Hr(t) {
+  let e = "UNEXPECTED FAILURE";
+  switch (t.code) {
+    case ne.ACCESS_DENIED:
+      e = "ACCESS DENIED";
+      break;
+    case ne.BAD_REQUEST:
+      e = "BAD REQUEST";
+      break;
+    case ne.MOD_NOT_FOUND:
+      e = "MODULE NOT FOUND";
+      break;
+    case ne.SYS_NOT_FOUND:
+      e = "SYSTEM NOT FOUND";
+      break;
+    case ne.PARSE_ERROR:
+      e = "PARSE ERROR";
+      break;
+    case ne.REQUEST_FAILED:
+      e = "REQUEST FAILED";
+      break;
+    case ne.UNKNOWN_CMD:
+      e = "UNKNOWN COMMAND";
+      break;
+  }
+  O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
+  const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
+  n && n.reject && (n.reject(t), be(`${n.key}`), delete G[n.key]);
+}
+function zr(t, e, n = Gn) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
+  n[s] || (n[s] = se(null));
+  const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
+  O(`[NOTIFY] ${i} changed`, [
+    n[s].value,
+    "\u2192",
+    e
+  ]), n[s].set(e);
+}
+function Wn(t = 0) {
+  return me == null && (me = new Promise((e) => {
+    if (t > 40)
+      return location.reload();
+    Ht++, Bs = Date.now(), ee = Rn() ? jr() : Fr(), ee ? (O.debug("Authority:", Mt()), O("Connecting to websocket..."), ee.subscribe(
+      (n) => {
+        Ae.value || (O("Connection established."), e()), Ae.set(true), Ht = 0, Sn(), Qs(n);
+      },
+      (n) => {
+        ee = void 0, me = null, ns(), Sn(), Lr(n);
+      },
+      () => {
+        ee = void 0, me = null, ns(), O("Connection closed by browser."), Ae.set(false), zt();
+      }
+    ), Oe && clearInterval(Oe), Bn = Date.now(), es(), Oe = setInterval(
+      () => es(),
+      Ls * 1e3
+    ), Sn(), js += 1, Pt = setTimeout(() => {
+      O("Unhealthy connection. Reconnecting..."), Ae.set(false), me = null, zt();
+    }, 30 * 1e3)) : (ee ? O(
+      `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
+      [!!J(), !!Mt()],
+      "info"
+    ) : O.error(
+      `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
+    ), setTimeout(
+      () => {
+        me = null, Wn(t).then((n) => e(n));
+      },
+      1e3 * Math.min(10, ++t)
+    ));
+  })), me;
+}
+function Fr() {
+  if (!Mt() || !J()) return null;
+  const t = $i() || location.protocol.indexOf("https") >= 0;
+  let e = `ws${t ? "s" : ""}://${qn()}${kn()}${ds() ? "?fixed_device=true" : ""}`;
+  const n = J();
+  let s = n === "x-api-key" ? `api-key=${Xe()}` : `bearer_token=${n}`;
+  return !mi() && !ui() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${kn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
+    `Creating websocket connection to ws${t ? "s" : ""}://${qn()}${kn()}`
+  ), Pr({
+    url: e,
+    serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
+    deserializer: (i) => {
+      let r = i.data;
+      if (r === "pong") return r;
+      try {
+        return JSON.parse(i.data);
+      } catch {
+        return r;
+      }
+    }
+  });
+}
+function zt() {
+  Gs.set([js, Date.now() - Bs]), ee && Ws() && (ee.complete(), Oe && (clearInterval(Oe), Oe = void 0)), O(
+    `Reconnecting in ${Math.min(
+      5e3,
+      Ht * 300 || 1e3
+    )}ms...`
+  ), ue(
+    "reconnect",
+    () => Wn(),
+    Math.min(5e3, (Ht + 1) * 300 || 1e3)
+  );
+}
+function es() {
+  if (Date.now() - Bn > 4 * Ls * 1e3)
+    return zt();
+  ee?.next("ping");
+}
+function Lr(t) {
+  Ae.set(false), O.error("Websocket error:", t), t.status === 401 && En(), Un(), zt();
+}
+function Sn() {
+  Pt && (clearTimeout(Pt), Pt = void 0);
+}
+function jr() {
+  const t = new zs();
+  return t.subscribe(
+    (e) => Qs(e)
+  ), t;
+}
+function ts(t, e) {
+  const n = typeof e == "string" ? e : e?.message || e?.msg || "Mock realtime callback failed";
+  return {
+    id: t.id,
+    type: "error",
+    code: e?.code || ne.UNEXPECTED_FAILURE,
+    msg: n
+  };
+}
+function Gr(t, e, n) {
+  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = Ir(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
+  if (r) {
+    try {
+      switch (t.cmd) {
+        case "bind":
+          n[s] = r.listen(t.name).subscribe((o) => {
+            setTimeout(
+              () => {
+                e.next({
+                  type: "notify",
+                  value: o,
+                  meta: t
+                });
+              },
+              Math.floor(Math.random() * 100 + 50)
+              // Add natural delay before response
+            );
+          });
+          break;
+        case "unbind":
+          n[s] && (n[s](), delete n[s], be(`${s}`));
+          break;
+      }
+    } catch (o) {
+      O.error(`[MOCK ERROR](${t.id}) request failed`, o), ue(
+        `${t.id}-error`,
+        () => e.next(ts(t, o)),
+        10
+      );
+      return;
+    }
+    ue(
+      `${t.id}-response`,
+      () => {
+        try {
+          const o = {
+            id: t.id,
+            type: "success",
+            value: t.cmd === "exec" ? r.call(t.name, t.args) : null
+          };
+          e.next(o);
+        } catch (o) {
+          O.error(
+            `[MOCK ERROR](${t.id}) execute failed`,
+            o
+          ), e.next(ts(t, o));
+        }
+      },
+      10
+    );
+  } else
+    ue(
+      `${t.id}-error`,
+      () => e.next({
+        id: t.id,
+        type: "error",
+        code: i ? ne.SYS_NOT_FOUND : ne.MOD_NOT_FOUND
+      }),
+      10
+    );
+}
+function ns() {
+  for (const t in G)
+    G[t] && delete G[t];
+}
+var ss = class {
+  constructor(e, n) {
+    this._module = e, this.name = n, Mr().subscribe((s, i) => {
+      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Rt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (be(`rebind:${JSON.stringify(this.binding())}`), Rt(
+        "VAR",
+        "Binding dropped due to disconnection, re-binding when possible.",
+        this.binding()
+      ), this._stale_bindings = this._binding_count || this._stale_bindings, this._binding_count = 0));
+    });
+  }
+  /** Status variable name */
+  name;
+  /** Active pending state of the variable binding */
+  _pending = 0;
+  /** Number of active bindings to this variable */
+  _binding_count = 0;
+  /** Number of bindings to restore on reconnection */
+  _stale_bindings = 0;
+  /** Number of bindings to this status variable */
+  get count() {
+    return this._binding_count;
+  }
+  /** Current value of the binding */
+  get value() {
+    return Cr(this.binding());
+  }
+  /**
+   * Get a signal that emits the current value of the binding
+   */
+  listen() {
+    return Or(this.binding());
+  }
+  /**
+   * Subscribe to changes of the variable's binding value.
+   * Note: Initial value emitted may be `undefined`
+   * @param next Callback for changes to the bindings value
+   */
+  subscribe(e) {
+    return this.listen().subscribe(e);
+  }
+  bindThenSubscribe(e) {
+    const n = this.bind(), s = this.listen().subscribe((i) => {
+      try {
+        e(i);
+      } catch (r) {
+        console.error(r);
+      }
+    });
+    return () => {
+      try {
+        s();
+      } finally {
+        try {
+          n();
+        } catch {
+        }
+      }
+    };
+  }
+  /**
+   * Bind to the status variable's value
+   */
+  bind() {
+    return (this._binding_count <= 0 && this._stale_bindings <= 0 || this._pending === 2) && (this._pending = 1, Xn(this.binding()).then(() => {
+      this._binding_count++, this._pending = 0;
+    }).catch(() => null)), () => this.unbind();
+  }
+  /**
+   * Unbind from status variable
+   */
+  unbind() {
+    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, wr(this.binding()).then(() => {
+      this._pending === 2 && (this._pending = 0), this._binding_count--;
+    })) : this._binding_count = Math.max(this._binding_count - 1, 0);
+  }
+  /**
+   * Rebind to the status variable
+   */
+  async rebind() {
+    !this._stale_bindings && this._pending !== 1 || ue(
+      `rebind:${JSON.stringify(this.binding())}`,
+      async () => {
+        await Xn(this.binding()), this._binding_count = this._stale_bindings || 1, this._stale_bindings = 0;
+      },
+      100
+    );
+  }
+  /**
+   * Generate binding details for the status variable
+   */
+  binding() {
+    return {
+      sys: this._module.system.id,
+      mod: this._module.name,
+      index: this._module.index,
+      name: this.name
+    };
+  }
+};
+var Br = class {
+  constructor(e, n) {
+    this._system = e, this._id = n;
+  }
+  /** Mapping of module bindings */
+  _bindings = {};
+  get id() {
+    return `${this.name}_${this.index}`;
+  }
+  /** Parent system of the module */
+  get system() {
+    return this._system;
+  }
+  /** Module index */
+  get index() {
+    const n = this._id.split("_").pop();
+    return parseInt(n || "", 10) || 1;
+  }
+  /** Module name */
+  get name() {
+    const e = this._id.split("_");
+    return e.pop(), e.join("_");
+  }
+  /**
+   * Get binding with the given name
+   * @param name Name of the binding
+   * @deprecated Use `variable` instead
+   */
+  binding(e) {
+    return this._bindings[e] || (this._bindings[e] = new ss(this, e)), this._bindings[e];
+  }
+  /**
+   * Get binding with the given name
+   * @param name Name of the binding
+   */
+  variable(e) {
+    return this._bindings[e] || (this._bindings[e] = new ss(this, e)), this._bindings[e];
+  }
+  /**
+   * Execute method on the engine module
+   * @param method Name of the method
+   * @param args Array of arguments to pass to the method
+   */
+  execute(e, n, s = St) {
+    return Nr(
+      {
+        sys: this._system.id,
+        mod: this.name,
+        index: this.index,
+        name: e,
+        args: n
+      },
+      s
+    );
+  }
+};
+var Wr = class {
+  /** Unique idetifier of the system */
+  id;
+  /** Mapping of engine modules within the system */
+  _module_list = {};
+  constructor(e) {
+    this.id = e;
+  }
+  /**
+   * Get binding interface for the given module
+   * @param module_id ID of the module
+   * @param index Index of the module within the system
+   */
+  module(e, n = 1) {
+    if (!e)
+      throw new Error("Invalid module ID");
+    const s = e.split("_");
+    s.length > 1 && Number.isInteger(+s[s.length - 1]) && (n = +s[s.length - 1], s.pop()), n < 1 && (n = 1);
+    const i = s.join("_");
+    for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
+      this._module_list[i].push(
+        new Br(
+          this,
+          `${i}_${this._module_list[i].length + 1}`
+        )
+      );
+    return this._module_list[i][n - 1];
+  }
+};
+var An = {};
+function Qr(t) {
+  return An[t] || (An[t] = new Wr(t)), An[t];
+}
+function Dd(t, e, n = 1) {
+  return Qr(t).module(e, n);
+}
 
 // node_modules/date-fns/constants.js
 var daysInYear = 365.2425;
@@ -41912,7 +44380,6 @@ var SIGNAGE_MANAGER = {
   DISPLAY_COUNT_LABEL_1: "{{ count }} display",
   DISPLAY_DETAILS_TABS: "Display details tabs",
   DISPLAY_EDIT: "Edit Display",
-  DISPLAY_NAME_ARIA: "Display name",
   DISPLAY_NO_ZONES: "This display is not in any zones.",
   DISPLAY_ORIENTATION_ARIA: "Display orientation",
   DISPLAY_SAVING: "Saving display...",
@@ -42247,6 +44714,7 @@ var SIGNAGE_MANAGER = {
   SVC_NO_UPDATE_TEMPLATES: "You cannot update templates in this group.",
   SVC_PERMISSION_DENIED: "Permission denied",
   SVC_PLAYLIST_ADDED_DISPLAY: "Playlist added to display",
+  SVC_PLAYLIST_ADD_DISPLAY_ERROR: "Could not add the playlist to the display. Please try again.",
   SVC_PLAYLIST_ADDED_ZONE: "Playlist added to zone",
   SVC_PLAYLIST_IN_DISPLAY: "Playlist already assigned to this display.",
   SVC_PLAYLIST_IN_ZONE: "Playlist already assigned to this zone.",
@@ -42312,11 +44780,15 @@ var SIGNAGE_MANAGER = {
   TEMPLATE_BACKGROUND_SEARCH: "Search media",
   TEMPLATE_BACKGROUND_SELECT: "Select background media",
   TEMPLATE_BACKGROUND_SELECTED: "Selected background",
+  TEMPLATE_CHANGE_ADDED: "Added",
+  TEMPLATE_CHANGE_CHANGED: "Changed",
+  TEMPLATE_CHANGE_REMOVED: "Removed",
   TEMPLATE_CONFIGURATION: "Configuration",
   TEMPLATE_DESCRIPTION_ARIA: "Template description",
   TEMPLATE_DISCARD: "Discard",
   TEMPLATE_EDIT: "Edit Template",
   TEMPLATE_FULLSCREEN_TAKEOVER: "Full screen takeover",
+  TEMPLATE_MERGE: "Merge",
   TEMPLATE_LABEL: "Template",
   TEMPLATE_LAYOUT_COUNT: "{{ count }} layouts",
   TEMPLATE_LAYOUT_ITEMS: "Layout Items",
@@ -42382,6 +44854,26 @@ var SIGNAGE_MANAGER = {
   USERS_COUNT_1: "User ({{ count }})",
   USER_PERMISSIONS: "User permissions",
   VALID_FROM: "Valid From",
+  SCHEDULE_MASK_RANGE: "Enter 1 to 128 characters using only 0 and 1.",
+  SCHEDULE_MASK_VALID_FROM: "Set Valid From to use a repeat mask.",
+  SCHEDULE_MASK: "Repeat mask",
+  SCHEDULE_MASK_HINT: "Select each occurrence to switch between Play and Skip. Occurrence 1 starts at or after Valid From. The pattern then repeats.",
+  SCHEDULE_MASK_SUMMARY: "Mask {{ mask }}, repeats every {{ size }} instances",
+  MASK_REPEAT_LENGTH: "Repeat every",
+  MASK_OCCURRENCES: "{{ count }} occurrences",
+  MASK_OCCURRENCES_1: "{{ count }} occurrence",
+  MASK_PLAY_COUNT: "{{ count }} of {{ total }} play",
+  MASK_PLAY_ALL: "Play all",
+  MASK_SKIP_ALL: "Skip all",
+  MASK_ALTERNATE: "Play every other",
+  MASK_PATTERN: "Occurrence pattern",
+  MASK_INSTANCE_UNAVAILABLE: "No occurrence in the preview range",
+  MASK_INSTANCE_START_REQUIRED: "Set Valid From to show occurrence dates",
+  MASK_INSTANCE: "Occurrence {{ number }}: {{ state }}",
+  MASK_PLAY: "Play",
+  MASK_SKIP: "Skip",
+  MASK_NONE_PLAY: "All occurrences are skipped. This schedule will not play.",
+  SCHEDULE_VALIDITY_ORDER: "Valid From must be before Valid Until.",
   VERSION_TO_APPROVE: "New Version",
   VIEW_FOLDER: "Folders",
   VIEW_GRID: "Grid view",
@@ -42397,7 +44889,6 @@ var SIGNAGE_MANAGER = {
   ZONE_COUNT_LABEL_1: "{{ count }} zone",
   ZONE_DETAILS_TABS: "Zone details tabs",
   ZONE_EDIT: "Edit Zone",
-  ZONE_NAME_ARIA: "Zone name",
   ZONE_PARENT: "Parent zone",
   ZONE_PARENT_HINT: "Select a parent from the zones available to the active signage group.",
   ZONE_PARENT_REQUIRED: "Parent zone is required",
@@ -42985,6 +45476,8 @@ var BOOKINGS = {
   DESK_RESERVED_MESSAGE: "A desk has already been reserved for you, so you are unable to book another desk.",
   ITEM_BOOKED: "{{ name }} booked!",
   DESK_SUCCESS_LONE: "Your desk booking at {{ location }} has been successfully booked for {{ date }} at {{ time }}",
+  DESK_GROUP_RESULTS_ERROR: "Unable to load the group booking results. Check Your Bookings before booking again.",
+  DESK_SUCCESS_GROUP_PARTIAL: "Booked {{ booked }} of {{ size }} desks. Failed bookings: {{ failed }}. See the results below.",
   DESK_SUCCESS_GROUP: "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }} at {{ time }}",
   DESK_SUCCESS_LONE_ALLDAY: "Your desk booking at {{ location }} has been successfully booked for {{ date }}",
   DESK_SUCCESS_GROUP_ALLDAY: "Your group of {{ size }} desks at {{ location }} have been successfully booked for {{ date }}",
@@ -44776,2498 +47269,6 @@ var en_AU_default = {
   TRIGGERS
 };
 
-// node_modules/@placeos/ts-client/dist/index.es.js
-var le = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-  "a",
-  "b",
-  "c",
-  "d",
-  "e",
-  "f",
-  "g",
-  "h",
-  "i",
-  "j",
-  "k",
-  "l",
-  "m",
-  "n",
-  "o",
-  "p",
-  "q",
-  "r",
-  "s",
-  "t",
-  "u",
-  "v",
-  "w",
-  "x",
-  "y",
-  "z",
-  "0",
-  "1",
-  "2",
-  "3",
-  "4",
-  "5",
-  "6",
-  "7",
-  "8",
-  "9",
-  "+",
-  "/"
-];
-var Qn = [
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  62,
-  255,
-  255,
-  255,
-  63,
-  52,
-  53,
-  54,
-  55,
-  56,
-  57,
-  58,
-  59,
-  60,
-  61,
-  255,
-  255,
-  255,
-  0,
-  255,
-  255,
-  255,
-  0,
-  1,
-  2,
-  3,
-  4,
-  5,
-  6,
-  7,
-  8,
-  9,
-  10,
-  11,
-  12,
-  13,
-  14,
-  15,
-  16,
-  17,
-  18,
-  19,
-  20,
-  21,
-  22,
-  23,
-  24,
-  25,
-  255,
-  255,
-  255,
-  255,
-  255,
-  255,
-  26,
-  27,
-  28,
-  29,
-  30,
-  31,
-  32,
-  33,
-  34,
-  35,
-  36,
-  37,
-  38,
-  39,
-  40,
-  41,
-  42,
-  43,
-  44,
-  45,
-  46,
-  47,
-  48,
-  49,
-  50,
-  51
-];
-function xt(t) {
-  if (t >= Qn.length)
-    throw new Error("Unable to parse base64 string.");
-  const e = Qn[t];
-  if (e === 255)
-    throw new Error("Unable to parse base64 string.");
-  return e;
-}
-function is(t) {
-  let e = "", n, s = t.length;
-  for (n = 2; n < s; n += 3)
-    e += le[t[n - 2] >> 2], e += le[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += le[(t[n - 1] & 15) << 2 | t[n] >> 6], e += le[t[n] & 63];
-  return n === s + 1 && (e += le[t[n - 2] >> 2], e += le[(t[n - 2] & 3) << 4], e += "=="), n === s && (e += le[t[n - 2] >> 2], e += le[(t[n - 2] & 3) << 4 | t[n - 1] >> 4], e += le[(t[n - 1] & 15) << 2], e += "="), e;
-}
-function Ks(t) {
-  if (t.length % 4 !== 0)
-    throw new Error("Unable to parse base64 string.");
-  const e = t.indexOf("=");
-  if (e !== -1 && e < t.length - 2)
-    throw new Error("Unable to parse base64 string.");
-  let n = t.endsWith("==") ? 2 : t.endsWith("=") ? 1 : 0, s = t.length, i = new Uint8Array(3 * (s / 4)), r;
-  for (let o = 0, h = 0; o < s; o += 4, h += 3)
-    r = xt(t.charCodeAt(o)) << 18 | xt(t.charCodeAt(o + 1)) << 12 | xt(t.charCodeAt(o + 2)) << 6 | xt(t.charCodeAt(o + 3)), i[h] = r >> 16, i[h + 1] = r >> 8 & 255, i[h + 2] = r & 255;
-  return i.subarray(0, i.length - n);
-}
-function Zs(t, e = new TextEncoder()) {
-  return is(e.encode(t));
-}
-var qt = { exports: {} };
-var Js = qt.exports;
-var Kn;
-function Vs() {
-  return Kn || (Kn = 1, (function(t) {
-    (function(e, n) {
-      var s = {};
-      n(s);
-      var i = s.default;
-      for (var r in s)
-        i[r] = s[r];
-      t.exports = i;
-    })(Js, function(e) {
-      e.__esModule = true, e.digestLength = 32, e.blockSize = 64;
-      var n = new Uint32Array([
-        1116352408,
-        1899447441,
-        3049323471,
-        3921009573,
-        961987163,
-        1508970993,
-        2453635748,
-        2870763221,
-        3624381080,
-        310598401,
-        607225278,
-        1426881987,
-        1925078388,
-        2162078206,
-        2614888103,
-        3248222580,
-        3835390401,
-        4022224774,
-        264347078,
-        604807628,
-        770255983,
-        1249150122,
-        1555081692,
-        1996064986,
-        2554220882,
-        2821834349,
-        2952996808,
-        3210313671,
-        3336571891,
-        3584528711,
-        113926993,
-        338241895,
-        666307205,
-        773529912,
-        1294757372,
-        1396182291,
-        1695183700,
-        1986661051,
-        2177026350,
-        2456956037,
-        2730485921,
-        2820302411,
-        3259730800,
-        3345764771,
-        3516065817,
-        3600352804,
-        4094571909,
-        275423344,
-        430227734,
-        506948616,
-        659060556,
-        883997877,
-        958139571,
-        1322822218,
-        1537002063,
-        1747873779,
-        1955562222,
-        2024104815,
-        2227730452,
-        2361852424,
-        2428436474,
-        2756734187,
-        3204031479,
-        3329325298
-      ]);
-      function s(k, c, l, p, C2) {
-        for (var P2, I2, S2, Q2, D2, E2, re, H2, j, z, Qe, Ke, At; C2 >= 64; ) {
-          for (P2 = c[0], I2 = c[1], S2 = c[2], Q2 = c[3], D2 = c[4], E2 = c[5], re = c[6], H2 = c[7], z = 0; z < 16; z++)
-            Qe = p + z * 4, k[z] = (l[Qe] & 255) << 24 | (l[Qe + 1] & 255) << 16 | (l[Qe + 2] & 255) << 8 | l[Qe + 3] & 255;
-          for (z = 16; z < 64; z++)
-            j = k[z - 2], Ke = (j >>> 17 | j << 15) ^ (j >>> 19 | j << 13) ^ j >>> 10, j = k[z - 15], At = (j >>> 7 | j << 25) ^ (j >>> 18 | j << 14) ^ j >>> 3, k[z] = (Ke + k[z - 7] | 0) + (At + k[z - 16] | 0);
-          for (z = 0; z < 64; z++)
-            Ke = (((D2 >>> 6 | D2 << 26) ^ (D2 >>> 11 | D2 << 21) ^ (D2 >>> 25 | D2 << 7)) + (D2 & E2 ^ ~D2 & re) | 0) + (H2 + (n[z] + k[z] | 0) | 0) | 0, At = ((P2 >>> 2 | P2 << 30) ^ (P2 >>> 13 | P2 << 19) ^ (P2 >>> 22 | P2 << 10)) + (P2 & I2 ^ P2 & S2 ^ I2 & S2) | 0, H2 = re, re = E2, E2 = D2, D2 = Q2 + Ke | 0, Q2 = S2, S2 = I2, I2 = P2, P2 = Ke + At | 0;
-          c[0] += P2, c[1] += I2, c[2] += S2, c[3] += Q2, c[4] += D2, c[5] += E2, c[6] += re, c[7] += H2, p += 64, C2 -= 64;
-        }
-        return p;
-      }
-      var i = (
-        /** @class */
-        (function() {
-          function k() {
-            this.digestLength = e.digestLength, this.blockSize = e.blockSize, this.state = new Int32Array(8), this.temp = new Int32Array(64), this.buffer = new Uint8Array(128), this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this.reset();
-          }
-          return k.prototype.reset = function() {
-            return this.state[0] = 1779033703, this.state[1] = 3144134277, this.state[2] = 1013904242, this.state[3] = 2773480762, this.state[4] = 1359893119, this.state[5] = 2600822924, this.state[6] = 528734635, this.state[7] = 1541459225, this.bufferLength = 0, this.bytesHashed = 0, this.finished = false, this;
-          }, k.prototype.clean = function() {
-            for (var c = 0; c < this.buffer.length; c++)
-              this.buffer[c] = 0;
-            for (var c = 0; c < this.temp.length; c++)
-              this.temp[c] = 0;
-            this.reset();
-          }, k.prototype.update = function(c, l) {
-            if (l === void 0 && (l = c.length), this.finished)
-              throw new Error("SHA256: can't update because hash was finished.");
-            var p = 0;
-            if (this.bytesHashed += l, this.bufferLength > 0) {
-              for (; this.bufferLength < 64 && l > 0; )
-                this.buffer[this.bufferLength++] = c[p++], l--;
-              this.bufferLength === 64 && (s(this.temp, this.state, this.buffer, 0, 64), this.bufferLength = 0);
-            }
-            for (l >= 64 && (p = s(this.temp, this.state, c, p, l), l %= 64); l > 0; )
-              this.buffer[this.bufferLength++] = c[p++], l--;
-            return this;
-          }, k.prototype.finish = function(c) {
-            if (!this.finished) {
-              var l = this.bytesHashed, p = this.bufferLength, C2 = l / 536870912 | 0, P2 = l << 3, I2 = l % 64 < 56 ? 64 : 128;
-              this.buffer[p] = 128;
-              for (var S2 = p + 1; S2 < I2 - 8; S2++)
-                this.buffer[S2] = 0;
-              this.buffer[I2 - 8] = C2 >>> 24 & 255, this.buffer[I2 - 7] = C2 >>> 16 & 255, this.buffer[I2 - 6] = C2 >>> 8 & 255, this.buffer[I2 - 5] = C2 >>> 0 & 255, this.buffer[I2 - 4] = P2 >>> 24 & 255, this.buffer[I2 - 3] = P2 >>> 16 & 255, this.buffer[I2 - 2] = P2 >>> 8 & 255, this.buffer[I2 - 1] = P2 >>> 0 & 255, s(this.temp, this.state, this.buffer, 0, I2), this.finished = true;
-            }
-            for (var S2 = 0; S2 < 8; S2++)
-              c[S2 * 4 + 0] = this.state[S2] >>> 24 & 255, c[S2 * 4 + 1] = this.state[S2] >>> 16 & 255, c[S2 * 4 + 2] = this.state[S2] >>> 8 & 255, c[S2 * 4 + 3] = this.state[S2] >>> 0 & 255;
-            return this;
-          }, k.prototype.digest = function() {
-            var c = new Uint8Array(this.digestLength);
-            return this.finish(c), c;
-          }, k.prototype._saveState = function(c) {
-            for (var l = 0; l < this.state.length; l++)
-              c[l] = this.state[l];
-          }, k.prototype._restoreState = function(c, l) {
-            for (var p = 0; p < this.state.length; p++)
-              this.state[p] = c[p];
-            this.bytesHashed = l, this.finished = false, this.bufferLength = 0;
-          }, k;
-        })()
-      );
-      e.Hash = i;
-      var r = (
-        /** @class */
-        (function() {
-          function k(c) {
-            this.inner = new i(), this.outer = new i(), this.blockSize = this.inner.blockSize, this.digestLength = this.inner.digestLength;
-            var l = new Uint8Array(this.blockSize);
-            if (c.length > this.blockSize)
-              new i().update(c).finish(l).clean();
-            else
-              for (var p = 0; p < c.length; p++)
-                l[p] = c[p];
-            for (var p = 0; p < l.length; p++)
-              l[p] ^= 54;
-            this.inner.update(l);
-            for (var p = 0; p < l.length; p++)
-              l[p] ^= 106;
-            this.outer.update(l), this.istate = new Uint32Array(8), this.ostate = new Uint32Array(8), this.inner._saveState(this.istate), this.outer._saveState(this.ostate);
-            for (var p = 0; p < l.length; p++)
-              l[p] = 0;
-          }
-          return k.prototype.reset = function() {
-            return this.inner._restoreState(this.istate, this.inner.blockSize), this.outer._restoreState(this.ostate, this.outer.blockSize), this;
-          }, k.prototype.clean = function() {
-            for (var c = 0; c < this.istate.length; c++)
-              this.ostate[c] = this.istate[c] = 0;
-            this.inner.clean(), this.outer.clean();
-          }, k.prototype.update = function(c) {
-            return this.inner.update(c), this;
-          }, k.prototype.finish = function(c) {
-            return this.outer.finished ? this.outer.finish(c) : (this.inner.finish(c), this.outer.update(c, this.digestLength).finish(c)), this;
-          }, k.prototype.digest = function() {
-            var c = new Uint8Array(this.digestLength);
-            return this.finish(c), c;
-          }, k;
-        })()
-      );
-      e.HMAC = r;
-      function o(k) {
-        var c = new i().update(k), l = c.digest();
-        return c.clean(), l;
-      }
-      e.hash = o, e.default = o;
-      function h(k, c) {
-        var l = new r(k).update(c), p = l.digest();
-        return l.clean(), p;
-      }
-      e.hmac = h;
-      function $(k, c, l, p) {
-        var C2 = p[0];
-        if (C2 === 0)
-          throw new Error("hkdf: cannot expand more");
-        c.reset(), C2 > 1 && c.update(k), l && c.update(l), c.update(p), c.finish(k), p[0]++;
-      }
-      var L2 = new Uint8Array(e.digestLength);
-      function R2(k, c, l, p) {
-        c === void 0 && (c = L2), p === void 0 && (p = 32);
-        for (var C2 = new Uint8Array([1]), P2 = h(c, k), I2 = new r(P2), S2 = new Uint8Array(I2.digestLength), Q2 = S2.length, D2 = new Uint8Array(p), E2 = 0; E2 < p; E2++)
-          Q2 === S2.length && ($(S2, I2, l, C2), Q2 = 0), D2[E2] = S2[Q2++];
-        return I2.clean(), S2.fill(0), C2.fill(0), D2;
-      }
-      e.hkdf = R2;
-      function W2(k, c, l, p) {
-        for (var C2 = new r(k), P2 = C2.digestLength, I2 = new Uint8Array(4), S2 = new Uint8Array(P2), Q2 = new Uint8Array(P2), D2 = new Uint8Array(p), E2 = 0; E2 * P2 < p; E2++) {
-          var re = E2 + 1;
-          I2[0] = re >>> 24 & 255, I2[1] = re >>> 16 & 255, I2[2] = re >>> 8 & 255, I2[3] = re >>> 0 & 255, C2.reset(), C2.update(c), C2.update(I2), C2.finish(Q2);
-          for (var H2 = 0; H2 < P2; H2++)
-            S2[H2] = Q2[H2];
-          for (var H2 = 2; H2 <= l; H2++) {
-            C2.reset(), C2.update(Q2).finish(Q2);
-            for (var j = 0; j < P2; j++)
-              S2[j] ^= Q2[j];
-          }
-          for (var H2 = 0; H2 < P2 && E2 * P2 + H2 < p; H2++)
-            D2[E2 * P2 + H2] = S2[H2];
-        }
-        for (var E2 = 0; E2 < P2; E2++)
-          S2[E2] = Q2[E2] = 0;
-        for (var E2 = 0; E2 < 4; E2++)
-          I2[E2] = 0;
-        return C2.clean(), D2;
-      }
-      e.pbkdf2 = W2;
-    });
-  })(qt)), qt.exports;
-}
-var Ys = Vs();
-var Xs = new Int32Array(4);
-var K = class _K {
-  static hashStr(e, n = false) {
-    return this.onePassHasher.start().appendStr(e).end(n);
-  }
-  static hashAsciiStr(e, n = false) {
-    return this.onePassHasher.start().appendAsciiStr(e).end(n);
-  }
-  // Private Static Variables
-  static stateIdentity = new Int32Array([
-    1732584193,
-    -271733879,
-    -1732584194,
-    271733878
-  ]);
-  static buffer32Identity = new Int32Array([
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
-  ]);
-  static hexChars = "0123456789abcdef";
-  static hexOut = [];
-  // Permanent instance is to use for one-call hashing
-  static onePassHasher = new _K();
-  static _hex(e) {
-    const n = _K.hexChars, s = _K.hexOut;
-    let i, r, o, h;
-    for (h = 0; h < 4; h += 1)
-      for (r = h * 8, i = e[h], o = 0; o < 8; o += 2)
-        s[r + 1 + o] = n.charAt(i & 15), i >>>= 4, s[r + 0 + o] = n.charAt(i & 15), i >>>= 4;
-    return s.join("");
-  }
-  static _md5cycle(e, n) {
-    let s = e[0], i = e[1], r = e[2], o = e[3];
-    s += (i & r | ~i & o) + n[0] - 680876936 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[1] - 389564586 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[2] + 606105819 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[3] - 1044525330 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[4] - 176418897 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[5] + 1200080426 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[6] - 1473231341 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[7] - 45705983 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[8] + 1770035416 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[9] - 1958414417 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[10] - 42063 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[11] - 1990404162 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & r | ~i & o) + n[12] + 1804603682 | 0, s = (s << 7 | s >>> 25) + i | 0, o += (s & i | ~s & r) + n[13] - 40341101 | 0, o = (o << 12 | o >>> 20) + s | 0, r += (o & s | ~o & i) + n[14] - 1502002290 | 0, r = (r << 17 | r >>> 15) + o | 0, i += (r & o | ~r & s) + n[15] + 1236535329 | 0, i = (i << 22 | i >>> 10) + r | 0, s += (i & o | r & ~o) + n[1] - 165796510 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[6] - 1069501632 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[11] + 643717713 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[0] - 373897302 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[5] - 701558691 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[10] + 38016083 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[15] - 660478335 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[4] - 405537848 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[9] + 568446438 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[14] - 1019803690 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[3] - 187363961 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[8] + 1163531501 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i & o | r & ~o) + n[13] - 1444681467 | 0, s = (s << 5 | s >>> 27) + i | 0, o += (s & r | i & ~r) + n[2] - 51403784 | 0, o = (o << 9 | o >>> 23) + s | 0, r += (o & i | s & ~i) + n[7] + 1735328473 | 0, r = (r << 14 | r >>> 18) + o | 0, i += (r & s | o & ~s) + n[12] - 1926607734 | 0, i = (i << 20 | i >>> 12) + r | 0, s += (i ^ r ^ o) + n[5] - 378558 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[8] - 2022574463 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[11] + 1839030562 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[14] - 35309556 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[1] - 1530992060 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[4] + 1272893353 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[7] - 155497632 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[10] - 1094730640 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[13] + 681279174 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[0] - 358537222 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[3] - 722521979 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[6] + 76029189 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (i ^ r ^ o) + n[9] - 640364487 | 0, s = (s << 4 | s >>> 28) + i | 0, o += (s ^ i ^ r) + n[12] - 421815835 | 0, o = (o << 11 | o >>> 21) + s | 0, r += (o ^ s ^ i) + n[15] + 530742520 | 0, r = (r << 16 | r >>> 16) + o | 0, i += (r ^ o ^ s) + n[2] - 995338651 | 0, i = (i << 23 | i >>> 9) + r | 0, s += (r ^ (i | ~o)) + n[0] - 198630844 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[7] + 1126891415 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[14] - 1416354905 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[5] - 57434055 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[12] + 1700485571 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[3] - 1894986606 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[10] - 1051523 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[1] - 2054922799 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[8] + 1873313359 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[15] - 30611744 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[6] - 1560198380 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[13] + 1309151649 | 0, i = (i << 21 | i >>> 11) + r | 0, s += (r ^ (i | ~o)) + n[4] - 145523070 | 0, s = (s << 6 | s >>> 26) + i | 0, o += (i ^ (s | ~r)) + n[11] - 1120210379 | 0, o = (o << 10 | o >>> 22) + s | 0, r += (s ^ (o | ~i)) + n[2] + 718787259 | 0, r = (r << 15 | r >>> 17) + o | 0, i += (o ^ (r | ~s)) + n[9] - 343485551 | 0, i = (i << 21 | i >>> 11) + r | 0, e[0] = s + e[0] | 0, e[1] = i + e[1] | 0, e[2] = r + e[2] | 0, e[3] = o + e[3] | 0;
-  }
-  _dataLength = 0;
-  _bufferLength = 0;
-  _state = new Int32Array(4);
-  _buffer = new ArrayBuffer(68);
-  _buffer8;
-  _buffer32;
-  constructor() {
-    this._buffer8 = new Uint8Array(this._buffer, 0, 68), this._buffer32 = new Uint32Array(this._buffer, 0, 17), this.start();
-  }
-  /**
-   * Initialise buffer to be hashed
-   */
-  start() {
-    return this._dataLength = 0, this._bufferLength = 0, this._state.set(_K.stateIdentity), this;
-  }
-  // Char to code point to to array conversion:
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/charCodeAt
-  // #Example.3A_Fixing_charCodeAt_to_handle_non-Basic-Multilingual-Plane_characters_if_their_presence_earlier_in_the_string_is_unknown
-  /**
-   * Append a UTF-8 string to the hash buffer
-   * @param str String to append
-   */
-  appendStr(e) {
-    const n = this._buffer8, s = this._buffer32;
-    let i = this._bufferLength, r, o;
-    for (o = 0; o < e.length; o += 1) {
-      if (r = e.charCodeAt(o), r < 128)
-        n[i++] = r;
-      else if (r < 2048)
-        n[i++] = (r >>> 6) + 192, n[i++] = r & 63 | 128;
-      else if (r < 55296 || r > 56319)
-        n[i++] = (r >>> 12) + 224, n[i++] = r >>> 6 & 63 | 128, n[i++] = r & 63 | 128;
-      else {
-        if (r = (r - 55296) * 1024 + (e.charCodeAt(++o) - 56320) + 65536, r > 1114111)
-          throw new Error(
-            "Unicode standard supports code points up to U+10FFFF"
-          );
-        n[i++] = (r >>> 18) + 240, n[i++] = r >>> 12 & 63 | 128, n[i++] = r >>> 6 & 63 | 128, n[i++] = r & 63 | 128;
-      }
-      i >= 64 && (this._dataLength += 64, _K._md5cycle(this._state, s), i -= 64, s[0] = s[16]);
-    }
-    return this._bufferLength = i, this;
-  }
-  /**
-   * Append an ASCII string to the hash buffer
-   * @param str String to append
-   */
-  appendAsciiStr(e) {
-    const n = this._buffer8, s = this._buffer32;
-    let i = this._bufferLength, r, o = 0;
-    for (; ; ) {
-      for (r = Math.min(e.length - o, 64 - i); r--; )
-        n[i++] = e.charCodeAt(o++);
-      if (i < 64)
-        break;
-      this._dataLength += 64, _K._md5cycle(this._state, s), i = 0;
-    }
-    return this._bufferLength = i, this;
-  }
-  /**
-   * Append a byte array to the hash buffer
-   * @param input array to append
-   */
-  appendByteArray(e) {
-    const n = this._buffer8, s = this._buffer32;
-    let i = this._bufferLength, r, o = 0;
-    for (; ; ) {
-      for (r = Math.min(e.length - o, 64 - i); r--; )
-        n[i++] = e[o++];
-      if (i < 64)
-        break;
-      this._dataLength += 64, _K._md5cycle(this._state, s), i = 0;
-    }
-    return this._bufferLength = i, this;
-  }
-  /**
-   * Get the state of the hash buffer
-   */
-  getState() {
-    const e = this._state;
-    return {
-      buffer: String.fromCharCode.apply(null, Array.from(this._buffer8)),
-      buflen: this._bufferLength,
-      length: this._dataLength,
-      state: [e[0], e[1], e[2], e[3]]
-    };
-  }
-  /**
-   * Override the current state of the hash buffer
-   * @param state New hash buffer state
-   */
-  setState(e) {
-    const n = e.buffer, s = e.state, i = this._state;
-    let r;
-    for (this._dataLength = e.length, this._bufferLength = e.buflen, i[0] = s[0], i[1] = s[1], i[2] = s[2], i[3] = s[3], r = 0; r < n.length; r += 1)
-      this._buffer8[r] = n.charCodeAt(r);
-  }
-  /**
-   * Hash the current state of the hash buffer and return the result
-   * @param raw Whether to return the value as an `Int32Array`
-   */
-  end(e = false) {
-    const n = this._bufferLength, s = this._buffer8, i = this._buffer32, r = (n >> 2) + 1;
-    this._dataLength += n;
-    const o = this._dataLength * 8;
-    if (s[n] = 128, s[n + 1] = s[n + 2] = s[n + 3] = 0, i.set(_K.buffer32Identity.subarray(r), r), n > 55 && (_K._md5cycle(this._state, i), i.set(_K.buffer32Identity)), o <= 4294967295)
-      i[14] = o;
-    else {
-      const h = o.toString(16).match(/(.*?)(.{0,8})$/);
-      if (h === null) return e ? Xs : "";
-      const $ = parseInt(h[2], 16), L2 = parseInt(h[1], 16) || 0;
-      i[14] = $, i[15] = L2;
-    }
-    return _K._md5cycle(this._state, i), e ? this._state : _K._hex(this._state);
-  }
-};
-if (K.hashStr("hello") !== "5d41402abc4b2a76b9719d911017c592")
-  throw new Error("Md5 self test failed.");
-var ei = 36e5;
-var Zn = /* @__PURE__ */ Symbol.for("constructDateFrom");
-function Tt(t, e) {
-  return typeof t == "function" ? t(e) : t && typeof t == "object" && Zn in t ? t[Zn](e) : t instanceof Date ? new t.constructor(e) : new Date(e);
-}
-function Ve(t, e) {
-  return Tt(t, t);
-}
-function ti(t, e, n) {
-  const s = Ve(t);
-  if (isNaN(e)) return Tt(t, NaN);
-  const i = s.getDate(), r = Tt(t, s.getTime());
-  r.setMonth(s.getMonth() + e + 1, 0);
-  const o = r.getDate();
-  return i >= o ? r : (s.setFullYear(
-    r.getFullYear(),
-    r.getMonth(),
-    i
-  ), s);
-}
-function rs(t, e, n) {
-  return Tt(t, +Ve(t) + e);
-}
-function ni(t, e, n) {
-  return rs(t, e * ei);
-}
-function si(t, e, n) {
-  return rs(t, e * 1e3);
-}
-function ii(t, e, n) {
-  return ti(t, e * 12);
-}
-function xn(t) {
-  return Math.trunc(+Ve(t) / 1e3);
-}
-function os(t, e) {
-  return +Ve(t) < +Ve(e);
-}
-function Rt(t, e, n, s = "debug", i) {
-  if (window.debug) {
-    const o = ["color: #0288D1", `color:${i || "#009688"}`, "color: default"];
-    n ? Jn() ? console[s](
-      `%c[PlaceOS]%c[${t}] %c${e}`,
-      ...o,
-      n
-    ) : console[s](`[PlaceOS][${t}] ${e}`, n) : Jn() ? console[s](`%c[PlaceOS]%c[${t}] %c${e}`, ...o) : console[s](`[PlaceOS][${t}] ${e}`);
-  }
-}
-function Ft(t) {
-  const e = (i) => i.length <= 0 ? void 0 : i.length === 1 ? i[0] : i, n = (i, r, o) => Rt(t, r, e(o), i), s = (i, ...r) => n("debug", i, r);
-  return s.debug = (i, ...r) => n("debug", i, r), s.info = (i, ...r) => n("info", i, r), s.error = (i, ...r) => n("error", i, r), s.warn = (i, ...r) => n("warn", i, r), s.log = (i, ...r) => n("log", i, r), s.group = (i, ...r) => n("group", i, r), s.groupCollapsed = (i, ...r) => n("groupCollapsed", i, r), s.groupEnd = (i, ...r) => n("groupEnd", i, r), s;
-}
-function Jn() {
-  return !(document.documentMode || /Edge/.test(navigator.userAgent));
-}
-function us() {
-  const t = window.location?.hash ? window.location?.hash.slice(1) : window.location?.href.split("#")[1] || "";
-  let e = window.location?.search ? window.location?.search.slice(1) : window.location?.href.split("?")[1] || "", n = {};
-  if (t)
-    if (t.indexOf("?") >= 0) {
-      const i = t.split("?");
-      n = Me(i[0]), e || (e = i[1]);
-    } else
-      n = Me(t);
-  let s = {};
-  return e && (s = Me(e)), __spreadValues(__spreadValues({}, n), s);
-}
-function Me(t) {
-  const e = {}, n = t.split("&");
-  for (const s of n) {
-    const i = s.split("=");
-    i[1] && (e[decodeURIComponent(i[0])] = decodeURIComponent(
-      i[1]
-    ));
-  }
-  return e;
-}
-var Ze = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-function cs(t = 40) {
-  let e = "";
-  const n = window?.crypto;
-  if (n?.getRandomValues) {
-    const s = 256 - 256 % Ze.length, i = new Uint8Array(t * 2);
-    for (; e.length < t; ) {
-      n.getRandomValues(i);
-      for (const r of i)
-        r < s && e.length < t && (e += Ze.charAt(r % Ze.length));
-    }
-    return e;
-  }
-  for (let s = 0; s < t; s++)
-    e += Ze.charAt(
-      Math.floor(Math.random() * Ze.length)
-    );
-  return e;
-}
-function oe(t) {
-  const e = (window.location?.hash || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/#&/g, "#").replace(/&$/g, "#"), n = (window.location?.search || "").replace(new RegExp(`${t}[a-zA-Z0-9_+-.%=]*&?`, "g"), "").replace(/&&/g, "&").replace(/\?&/g, "#").replace(/&$/g, "#");
-  window.history?.replaceState && window.history?.replaceState(
-    null,
-    "",
-    `${window.location?.pathname}${e}${n}`
-  );
-}
-function ri(t) {
-  if (t.length === 0)
-    throw new Error("Input must not be of zero length");
-  const e = t.split(","), n = {};
-  for (const s of e) {
-    const i = s.split(";");
-    if (i.length !== 2)
-      throw new Error("Section could not be split on ';'");
-    const r = i[0].replace(/<(.*)>/, "$1").trim(), o = i[1].replace(/rel="(.*)"/, "$1").trim();
-    n[o] = r;
-  }
-  return n;
-}
-function oi(t, e) {
-  for (const n in t)
-    t.hasOwnProperty(n) && e.indexOf(t[n]) >= 0 && delete t[n];
-  return t;
-}
-function ui() {
-  return [
-    "iPad Simulator",
-    "iPhone Simulator",
-    "iPod Simulator",
-    "iPad",
-    "iPhone",
-    "iPod"
-  ].includes(navigator.platform) || // iPad on iOS 13 detection
-  navigator.userAgent.includes("Mac") && "ontouchend" in document;
-}
-function ci() {
-  return window.location !== window.parent.location;
-}
-function ai(t = Date.now(), e = 60 * 1e3) {
-  return Math.floor(t / e);
-}
-var hi = class {
-  abort() {
-    Rt("Stub", "Aborted");
-  }
-};
-function y(t) {
-  let e = "";
-  if (t)
-    for (const n in t)
-      t.hasOwnProperty(n) && t[n] !== void 0 && t[n] !== null && (e += `${e ? "&" : ""}${n}=${encodeURIComponent(
-        t[n]
-      )}`);
-  return e;
-}
-var xe = {};
-function ue(t, e, n = 300) {
-  if (t && e && e instanceof Function)
-    be(t), xe[t] = setTimeout(() => {
-      e(), delete xe[t];
-    }, n);
-  else
-    throw new Error(
-      t ? "Cannot create named timeout without a name" : "Cannot create a timeout without a callback"
-    );
-}
-function be(t) {
-  xe[t] && (clearTimeout(xe[t]), delete xe[t]);
-}
-function se(t) {
-  let e = t;
-  const n = /* @__PURE__ */ new Set(), s = () => e;
-  return Object.defineProperty(s, "value", {
-    get: () => e,
-    enumerable: true
-  }), s.subscribe = (i, r = {}) => (n.add(i), r.emitCurrent !== false && i(e, e), () => n.delete(i)), s.set = (i) => {
-    if (Object.is(i, e)) return;
-    const r = e;
-    e = i;
-    for (const o of [...n])
-      o(e, r);
-  }, s.update = (i) => s.set(i(e)), s.asReadonly = () => s, s;
-}
-function Zr(t, e = Boolean) {
-  return e(t.value) ? Promise.resolve(t.value) : new Promise((n) => {
-    const s = t.subscribe(
-      (i) => {
-        e(i) && (s(), n(i));
-      },
-      { emitCurrent: false }
-    );
-  });
-}
-function fi(t) {
-  return new Promise((e) => setTimeout(e, t));
-}
-var _i = {
-  id: "mock-authority",
-  name: "localhost:4200",
-  description: "",
-  domain: "localhost:4200",
-  login_url: "/login?continue={{url}}",
-  logout_url: "/logout",
-  session: true,
-  production: false,
-  config: {},
-  version: "2.0.0"
-};
-var _ = Ft("Auth");
-var m = {};
-var T = localStorage;
-var w;
-var g = {};
-var U = "";
-var $e = "";
-var ve = se("");
-var Ye = se("");
-var Pn = "/api/engine/v2";
-var ye = se(false);
-var Tn = se(false);
-var Ut = 0;
-function as() {
-  if (m.mock) return true;
-  if (!T) return false;
-  if (Xe() && !m.ignore_api_key) return true;
-  const t = T.getItem(`${U}_expires_at`) || "";
-  return os(+t, /* @__PURE__ */ new Date()) ? false : !!(ve.value || T.getItem(`${U}_access_token`));
-}
-function we() {
-  Tn.set(as());
-}
-function hs(t) {
-  if (!t || t.startsWith("http://") || t.startsWith("https://"))
-    return t;
-  const e = w?.domain;
-  return e ? `${m.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${e}${t}` : t;
-}
-function u2() {
-  return `${`${m.secure || window.location?.protocol.indexOf("https") >= 0 ? "https:" : "http:"}//${m.host || window.location?.host}`}${ls()}`;
-}
-function ls() {
-  return m.version === "ACA Engine" ? "/control/api" : Pn;
-}
-function mi() {
-  return !!m.token_header;
-}
-function gi() {
-  return U;
-}
-function Vr(t, e = true) {
-  T.setItem(`${U}_x-api-key`, `${t}`), T.setItem("trusted", `${e}`), yi("x-api-key", ii(/* @__PURE__ */ new Date(), 5).valueOf());
-}
-function Xe() {
-  return Ot("x-api-key", false) || "";
-}
-function yi(t, e = ni(/* @__PURE__ */ new Date(), 2).valueOf()) {
-  m.ignore_api_key && t === "x-api-key" || (T.setItem(`${U}_expires_at`, `${e}`), T.setItem(`${U}_access_token`, t), ve.set(t), we());
-}
-function J(t = true) {
-  if (m.mock) return "mock-token";
-  if (!T) return "";
-  if (Xe() && !m.ignore_api_key) return "x-api-key";
-  const e = T.getItem(`${U}_expires_at`) || "", n = ve.value;
-  return os(+e, /* @__PURE__ */ new Date()) && (_("Token expired. Requesting new token..."), En(), g.load_authority || (Ut += 1, ue(
-    "re-authorise",
-    async () => {
-      delete g.authorise, await Lt().catch(
-        (s) => _.error("Failed to get token:", s)
-      );
-    },
-    200 * Math.min(20, Ut)
-  )), !t) ? "" : n || T.getItem(`${U}_access_token`) || "";
-}
-function Et() {
-  return Ye.value || T.getItem(`${U}_refresh_token`) || "";
-}
-function qn() {
-  return m.host || window.location?.host;
-}
-function bi() {
-  return we(), Tn.asReadonly();
-}
-function Mt() {
-  return w;
-}
-function Xr() {
-  return ye.value;
-}
-function Rn() {
-  return !!m.mock;
-}
-function $i() {
-  return !!m.secure;
-}
-function eo() {
-  return ye.asReadonly();
-}
-function In() {
-  return Ot("trust") === "true" || Ot("trusted") === "true";
-}
-function ds() {
-  return !!Xe() && !m.ignore_api_key || Ot("fixed_device") === "true";
-}
-function Ot(t, e = true) {
-  let s = us()[t];
-  if (T) {
-    const i = `${gi()}_${t}`;
-    s = s || T.getItem(i) || T.getItem(t) || "", e && T.setItem(i, `${s}`);
-  }
-  return s;
-}
-async function to(t) {
-  return m = t || m, m.token_header = m.token_header ?? ci(), window.AbortController || (window.AbortController = hi), T = m.storage === "session" ? sessionStorage : localStorage, U = K.hashStr(m.redirect_uri, false), vi2(), m.delay && m.delay > 0 && await fi(m.delay), Mn();
-}
-var Ct = false;
-function vi2() {
-  Ct || (Ct = true, window.addEventListener("focus", wt), document.addEventListener("visibilitychange", wt));
-}
-async function wt() {
-  if (document.visibilityState === "hidden" || m.mock || !w || w.session || as()) return;
-  if (delete g.check_params, await fs().catch(() => false) || $e || Et()) {
-    _("Application focused with new credentials. Authorising..."), Ce = false, delete g.authorise, await Lt().catch(
-      (e) => _.error("Failed to authorise on focus:", e)
-    );
-    return;
-  }
-  _("Application focused without a session. Reloading authority..."), Ce = false, Un().catch(
-    (e) => _.error("Failed to refresh authority:", e)
-  );
-}
-function Un() {
-  return _("Refreshing authorty."), w = void 0, Mn();
-}
-function En() {
-  _("Invalidating tokens."), T.removeItem(`${U}_access_token`), T.removeItem(`${U}_expires_at`), ve.value && ve.set(""), we();
-}
-function Lt(t, e = w) {
-  return g.authorise || (g.authorise = new Promise((n, s) => {
-    if (!e)
-      return delete g.authorise, s("Authority is not loaded");
-    _("Authorising user...");
-    const i = () => {
-      if (J(false))
-        _("Valid token found."), delete g.authorise, n(J());
-      else {
-        const r = [
-          () => {
-            _("Successfully generated token."), n(J()), delete g.authorise;
-          },
-          () => {
-            _.error("Failed to generate token."), s("Failed to generate token"), setTimeout(() => delete g.authorise, 200);
-          }
-        ];
-        if (m && m.auth_type === "password")
-          _("Logging in with credentials."), Ii(m).then(
-            ...r
-          ), Ut = 0;
-        else if ($e || Et())
-          _(
-            `Generating token with ${$e ? "code" : "refresh token"}`
-          ), _s().then(...r), Ut = 0;
-        else if (e.session)
-          _(
-            "Users has session. Authorising application..."
-          ), Si(t).then(...r);
-        else {
-          _("No user session"), s("No user session"), setTimeout(() => delete g.authorise, 200);
-          try {
-            ps(e);
-          } catch {
-          }
-        }
-      }
-    };
-    xi().then(i, i);
-  })), g.authorise;
-}
-function Mn(t = 0) {
-  return g.load_authority || (g.load_authority = new Promise((e) => {
-    if (ye.set(false), m.mock) {
-      w = _i, _("System in mock mode"), ye.set(true), e();
-      return;
-    }
-    _(`Fixed: ${ds()} | Trusted: ${In()}`), _("Loading authority...");
-    const n = m.secure || window.location?.protocol.indexOf("https") >= 0, s = (i) => {
-      _.error(`Failed to load authority(${i})`), ye.set(false), ue(
-        "load_authority",
-        () => {
-          delete g.load_authority, Mn(t).then((r) => e());
-        },
-        300 * Math.min(20, ++t)
-      );
-    };
-    fetch(`${n ? "https:" : "http:"}//${qn()}/auth/authority`, {
-      credentials: "same-origin"
-    }).then(async (i) => {
-      if (!i.ok)
-        return s(await i.text().catch((o) => o));
-      w = await i.json(), Pn = /[2-9]\.[0-9]+\.[0-9]+/g.test(
-        w.version || ""
-      ) ? "/api/engine/v2" : "/control/api", _.group("Loaded authority."), w && (_(`Name: ${w.name}`), _(`Version: ${w.version}`), _(`Domain: ${w.domain}`), _(`Session: ${w.session}`), _(`Production: ${w.production}`), _(
-        `Config Keys: ${Object.keys(w.config || {}).length}`
-      )), _.groupEnd("");
-      const r = () => {
-        ye.set(true), _("Application set online."), e();
-      };
-      delete g.load_authority, Lt("").then(r, r);
-    }, s);
-  })), g.load_authority;
-}
-async function Si(t) {
-  const e = qi(t);
-  if (m.use_iframe)
-    return Ai(e);
-  window.location?.assign(e);
-}
-function Ai(t) {
-  return g.iframe_auth || (g.iframe_auth = new Promise((e, n) => {
-    _("Authorizing in an iFrame...");
-    const s = document.createElement("iframe");
-    s.style.position = "absolute", s.style.top = "0", s.style.left = "0", s.style.height = "1px", s.style.width = "1px", s.style.zIndex = "-1", s.id = "place-authorize", s.src = `${t}`;
-    const i = (o) => {
-      if (o.origin === window.location?.origin && o.data.type === "place-os") {
-        const h = o.data;
-        if (_("Received credentials from iFrame..."), document.body.removeChild(s), be("iframe_auth"), window.removeEventListener("message", i), delete g.iframe_auth, h.token)
-          return e(), On(__spreadValues({
-            access_token: h.token
-          }, h));
-        $e = h.code || "", _s().then(
-          ($) => e($),
-          ($) => n($)
-        );
-      }
-    }, r = () => {
-      window.removeEventListener("message", i), s.parentNode && s.parentNode.removeChild(s), delete g.iframe_auth;
-    };
-    ue(
-      "iframe_auth",
-      () => {
-        _.error("Unable to resolve iFrame after 15 seconds..."), r(), n();
-      },
-      15 * 1e3
-    ), window.addEventListener("message", i), s.onerror = (o) => {
-      _.error("iFrame error.", o), be("iframe_auth"), r(), n();
-    }, document.body.appendChild(s);
-  })), g.iframe_auth;
-}
-var Ce = false;
-function ps(t) {
-  if (m.handle_login !== false && !Ce) {
-    _("Redirecting to login page...");
-    const e = hs(
-      t.login_url?.replace(
-        "{{url}}",
-        encodeURIComponent(window.location?.href)
-      )
-    );
-    throw setTimeout(() => window.location?.assign(e), 300), Ce = true, new Error("Redirecting to login page...");
-  } else
-    _("Login being handled locally.");
-  delete g.authorise;
-}
-function xi() {
-  return g.check_token || (g.check_token = new Promise(async (t, e) => {
-    J() ? (_("Valid token found."), t(J())) : (_("No token. Checking URL for auth credentials..."), await fs() ? t(true) : e()), delete g.check_token;
-  })), g.check_token;
-}
-function fs() {
-  return g.check_params || (g.check_params = new Promise((t) => {
-    _("Checking for auth parameters...");
-    let e = us();
-    if ((!e || Object.keys(e).length <= 0) && sessionStorage && (e = JSON.parse(
-      sessionStorage.getItem("ENGINE.auth.params") || "{}"
-    ), sessionStorage.removeItem("ENGINE.auth.params")), e && (e.code || e.access_token || e.refresh_token)) {
-      const n = T.getItem(`${U}_nonce`) || "", s = (e.state || "").split(";");
-      oe("state"), oe("token_type");
-      const i = s[0];
-      n === i ? (e.code && ($e = e.code, oe("code")), e.refresh_token && (T.setItem(
-        `${U}_refresh_token`,
-        e.refresh_token
-      ), oe("refresh_token")), On(e), t(!!e.access_token)) : (oe("code"), oe("access_token"), oe("refresh_token"), t(false));
-    } else
-      t(false);
-    ue(
-      "check_params_promise",
-      () => delete g.check_params,
-      50
-    );
-  })), g.check_params;
-}
-function qi(t) {
-  const e = Ui();
-  t = t ? `${e};${t}` : e;
-  const n = m ? (m.auth_uri || "").indexOf("?") >= 0 : false, s = (m ? m.auth_uri : null) || "/auth/oauth/authorize", i = In() || m.auth_type === "auth_code" ? "code" : "token";
-  let r = `${s}${n ? "&" : "?"}response_type=${encodeURIComponent(i)}&client_id=${encodeURIComponent(U)}&state=${encodeURIComponent(t)}&redirect_uri=${encodeURIComponent(m.redirect_uri)}&scope=${encodeURIComponent(m.scope)}`;
-  if (m.auth_type === "auth_code") {
-    const { challenge: o, verify: h } = Pi();
-    sessionStorage.setItem(`${U}_challenge`, o), r += "&code_challenge_method=S256", r += `&code_challenge=${h}`;
-  }
-  return r;
-}
-function Pi(t = 43) {
-  const e = cs(t), n = Ks(Zs(e)), s = is(Ys.hash(n)).split("=")[0].replace(/\//g, "_").replace(/\+/g, "-");
-  return { challenge: e, verify: s };
-}
-function Ti() {
-  let e = (m.token_uri || "/auth/token") + `?client_id=${encodeURIComponent(U)}`, n = "";
-  if (e += `&redirect_uri=${encodeURIComponent(m.redirect_uri)}`, Et()) {
-    e += `&refresh_token=${encodeURIComponent(Et())}`, e += "&grant_type=refresh_token";
-    const s = e.indexOf("?");
-    n = e.slice(s + 1), e = e.slice(0, s);
-  } else {
-    e += `&code=${encodeURIComponent($e)}`, e += "&grant_type=authorization_code";
-    const s = sessionStorage.getItem(`${U}_challenge`);
-    s && (e += `&code_verifier=${s}`, sessionStorage.removeItem(`${U}_challenge`)), $e = "";
-  }
-  return [e, n];
-}
-function Ri(t) {
-  const e = t.token_uri || "/auth/token", n = y({
-    grant_type: "password",
-    client_id: U,
-    client_secret: t.client_secret,
-    redirect_uri: t.redirect_uri,
-    authority: w?.id,
-    scope: t.scope,
-    username: t.username,
-    password: t.password
-  });
-  return `${e}?${n}`;
-}
-function _s() {
-  return ms(...Ti());
-}
-function Ii(t) {
-  return ms(Ri(t));
-}
-function ms(t, e = "") {
-  return g.generate_tokens || (g.generate_tokens = new Promise((n, s) => {
-    _("Generating new token...");
-    const i = (r) => {
-      _.error("Error generating new tokens:", r), r && r.status >= 400 && r.status < 500 && (T.removeItem(`${U}_refresh_token`), Ye.set("")), we(), s(), delete g.generate_tokens;
-    };
-    fetch(t, {
-      method: "POST",
-      body: e,
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded"
-      }
-    }).then(async (r) => {
-      if (!r.ok) return i(r);
-      const o = await r.json();
-      On(o), n(), delete g.generate_tokens;
-    }, i);
-  })), g.generate_tokens;
-}
-function On(t) {
-  const e = si(
-    /* @__PURE__ */ new Date(),
-    Math.max(60, parseInt(t.expires_in, 10) - 300)
-  );
-  _("Tokens generated storing..."), In() && (t.access_token && (T.setItem(
-    `${U}_access_token`,
-    t.access_token
-  ), oe("access_token")), t.refresh_token && (T.setItem(
-    `${U}_refresh_token`,
-    t.refresh_token
-  ), oe("refresh_token"))), t.expires_in && (T.setItem(`${U}_expires_at`, `${e.valueOf()}`), oe("expires_in")), ye.set(true), ve.set(t.access_token || ""), Ye.set(t.refresh_token || ""), we();
-}
-function Ui() {
-  const t = cs();
-  return T.setItem(`${U}_nonce`, t), t;
-}
-var qe = Ft("HTTP(M)");
-var jt = {};
-var gs = (t, e) => {
-  const n = new Error(`Mock endpoint not found: ${t} ${e}`);
-  return n.status = 404, qe(`404 ${t}:`, e), Promise.reject(n);
-};
-function Mi(t, e, n, s = jt) {
-  const i = Oi(t, e, s);
-  if (i) {
-    const r = Ci(e, i, n);
-    return wi(i, r);
-  }
-  try {
-    return gs(t, e);
-  } catch (r) {
-    return qe.error(`ERROR ${t}:`, [e, r]), Promise.reject(r);
-  }
-}
-function Oi(t, e, n = jt) {
-  const i = e.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").replace(/^\//, "").split("?")[0].split("/"), r = Object.keys(
-    n
-  ).reduce((o, h) => (h.indexOf(`${t}|`) === 0 && o.push(n[h]), o), []);
-  for (const o of r)
-    if (o.path_structure.length === i.length) {
-      let h = true;
-      for (let $ = 0; $ < o.path_structure.length; $++)
-        if (!o.path_structure[$] && o.path_parts[$] !== i[$]) {
-          h = false;
-          break;
-        }
-      if (h)
-        return o;
-    }
-  return null;
-}
-function Ci(t, e, n) {
-  const s = t.replace(/(http|https):\/\/[a-zA-Z0-9.-]*:?([0-9]*)?/g, "").split("?"), i = s[0].replace(/^\//, ""), r = s[1] || "", o = Me(r), h = i.split("/"), $ = {};
-  for (let R2 = 0; R2 < e.path_structure.length; R2++) {
-    const W2 = e.path_structure[R2];
-    W2 && ($[W2] = h[R2]);
-  }
-  const L2 = {
-    url: t,
-    path: e.path,
-    method: e.method,
-    metadata: e.metadata,
-    route_params: $,
-    query_params: o,
-    body: n
-  };
-  return qe(`MATCHED ${L2.method}:`, L2), L2;
-}
-function wi(t, e) {
-  let n;
-  try {
-    n = t.callback ? t.callback(e) : t.metadata;
-  } catch (o) {
-    return qe.error(`ERROR ${e.method}:`, e.url, o), Promise.reject(o);
-  }
-  const s = t.delay_variance || 100, i = t.delay || 300, r = Math.floor(Math.random() * s - s / 2) + i;
-  return qe(`RESP ${e.method}:`, e.url, n), new Promise((o) => {
-    setTimeout(() => o(n), Math.max(200, r));
-  });
-}
-var Ni = Ft("HTTP");
-var Di = 3e4;
-async function Hi() {
-  J(false);
-  const t = bi();
-  t.value || await new Promise((e, n) => {
-    const s = setTimeout(() => {
-      i(), n(new Error("Timed out waiting for authentication."));
-    }, Di), i = t.subscribe(
-      (r) => {
-        r && (clearTimeout(s), i(), e());
-      },
-      { emitCurrent: false }
-    );
-  });
-}
-var ys = {};
-function zi(t, e = ys) {
-  return e[t] || {};
-}
-function f(t, e, n = et) {
-  return e || (e = { response_type: "json" }), n("GET", t, __spreadValues({ response_type: "json" }, e));
-}
-function ce(t, e, n, s = et) {
-  return n || (n = { response_type: "json" }), s("PUT", t, __spreadValues({ body: e, response_type: "json" }, n));
-}
-function te(t, e, n, s = et) {
-  return n || (n = { response_type: "json" }), s("PATCH", t, __spreadValues({ body: e, response_type: "json" }, n));
-}
-async function Fi(t, e, n = ys) {
-  if (t.headers) {
-    const s = {};
-    t.headers.forEach ? t.headers.forEach((i, r) => s[r.toLowerCase()] = i) : Object.keys(t.headers).forEach(
-      (i) => s[i.toLowerCase()] = t.headers[i]
-    ), n[t.url || ""] = s;
-  }
-  switch (e) {
-    case "blob":
-      return await t.blob();
-    case "json":
-      return await t.json().catch(() => ({}));
-    case "text":
-      return await t.text();
-    case "void":
-      return;
-    default:
-      return await t.json().catch(() => ({}));
-  }
-}
-var bs = () => (En(), Un().then(
-  () => Promise.resolve(),
-  () => new Promise((t) => {
-    setTimeout(() => {
-      bs().then(() => t());
-    }, 1e3);
-  })
-));
-function et(t, e, n, s = Rn, i = Mi, r = Fi) {
-  if (s()) {
-    const R2 = i(t, e, n?.body);
-    if (R2) return R2;
-  }
-  n.headers = n.headers || {}, !n.headers["Content-Type"] && !n.headers["content-type"] && (n.headers["Content-Type"] = "application/json");
-  const o = () => {
-    const R2 = __spreadProps(__spreadValues({}, n), {
-      method: t,
-      credentials: "same-origin"
-    });
-    return delete R2.response_type, delete R2.skip_auth, delete R2.skip_auth_flow, ["POST", "PUT", "PATCH"].includes(t) && n.body !== void 0 && (R2.body = typeof n.body == "string" ? n.body : JSON.stringify(n.body)), fetch(e, R2);
-  }, h = async () => {
-    n.skip_auth || (await Hi(), J() === "x-api-key" ? n.headers["X-API-Key"] = Xe() : n.headers.Authorization = `Bearer ${J()}`);
-    const R2 = await o();
-    if (R2.ok) return r(R2, n.response_type);
-    throw R2;
-  }, $ = 4, L2 = async (R2) => {
-    try {
-      return await h();
-    } catch (W2) {
-      if (R2 >= $) throw W2 || {};
-      if (n.skip_auth || n.skip_auth_flow) throw W2 || {};
-      if (W2.status === 511)
-        throw ps(Mt()), W2;
-      if (W2.status !== 401) throw W2 || {};
-      return Ni.warn("Auth error:", W2), await bs().catch(() => {
-        throw W2;
-      }), L2(R2 + 1);
-    }
-  };
-  return L2(0);
-}
-var F = class {
-  /** Unique Identifier of the object */
-  id;
-  /** Human readable name of the object */
-  name;
-  /** Unix epoch in seconds of the creation time of the object */
-  created_at;
-  /** Unix epoch in seconds of the creation time of the object */
-  updated_at;
-  /** Version of the data */
-  version;
-  constructor(e = {}) {
-    this.id = e.id || "", this.name = e.name || "", this.created_at = e.created_at || 0, this.updated_at = e.updated_at || 0, this.version = e.version || 0;
-  }
-  /**
-   * Convert object into plain object
-   */
-  toJSON() {
-    const e = __spreadValues({}, this);
-    return e.version = this.version, delete e.created_at, oi(e, [void 0, null, ""]);
-  }
-};
-var $s = {};
-var vs = {};
-var Yn = "";
-var Bt = (t) => t;
-var Bi = 300;
-var Ee = {};
-function b(t) {
-  const { query_params: e, fn: n, path: s, endpoint: i } = t, r = y(e), o = `${i || u2()}${s ? "/" + s : ""}${r ? "?" + r : ""}`;
-  if (Ee[o]) return Ee[o].promise;
-  const h = f(o).then(($) => {
-    const L2 = Wi(o, r, s);
-    return {
-      total: L2.total || 0,
-      next: L2.next ? () => b({
-        query_params: L2.next,
-        fn: n,
-        endpoint: i,
-        path: s
-      }) : null,
-      data: $ && $ instanceof Array ? $.map((R2) => (n || Bt)(R2)) : $ && !($ instanceof Array) && $.results ? $.results.map((R2) => R2) : []
-    };
-  });
-  return Ee[o] = {
-    promise: h,
-    timeout: setTimeout(() => delete Ee[o], Bi)
-  }, h.catch(() => {
-    clearTimeout(Ee[o]?.timeout), delete Ee[o];
-  }), h;
-}
-function d(t) {
-  const { query_params: e, id: n, path: s, fn: i, options: r } = t, o = y(e), h = `${u2()}/${s}/${n}${o ? "?" + o : ""}`;
-  return f(h, r).then(($) => (i || Bt)($));
-}
-function q(t) {
-  const { id: e, query_params: n, form_data: s, method: i, path: r, fn: o } = t, h = y(__spreadProps(__spreadValues({}, n), {
-    version: s.version || 0
-  })), $ = `${u2()}/${r}/${e}${h ? "?" + h : ""}`;
-  return (i === "put" ? ce : te)($, s).then(
-    (L2) => (o || Bt)(L2)
-  );
-}
-function Wi(t, e, n) {
-  const s = zi(
-    t[0] === "/" ? `${location.origin}${t}` : t
-  ), i = {
-    total: 0,
-    next: null
-  };
-  if (s && s["x-total-count"]) {
-    const r = +(s["x-total-count"] || 0);
-    (e.length < 2 || e.length < 12 && e.indexOf("offset=") >= 0) && ($s[n] = r), vs[n] = r, i.total = r;
-  }
-  return s && s.link && (Yn = ri(s.link || "").next, i.next = Me(Yn.split("?")[1])), i;
-}
-var Cn = class extends F {
-  /** Hash of the email address of the user */
-  email_digest;
-  /** ID of the authority associated with the user */
-  authority_id;
-  /** Email address of the user */
-  email;
-  /** Phone number of the user */
-  phone;
-  /** Display nickname of the user */
-  nickname;
-  /** Country that the user resides in */
-  country;
-  /** Office building the user is associated */
-  building;
-  /** Access control groups that user is associated */
-  groups;
-  /** Avatar image for the user */
-  image;
-  /** Additional metadata associated with the user */
-  metadata;
-  /** Miscellaneous user data */
-  misc;
-  /** Username credential of the user */
-  login_name;
-  /** Organisation ID of the user */
-  staff_id;
-  /** First name of the user */
-  first_name;
-  /** Last name of the user */
-  last_name;
-  /** Whether user is a support role */
-  support;
-  /** Whether user is a system admin role */
-  sys_admin;
-  /** Name of the active theme on the displayed UI */
-  ui_theme;
-  /** Preferred language of the user */
-  preferred_language;
-  /** Card Number associated with the user */
-  card_number;
-  /** Organisational department the user belongs */
-  department;
-  /** Default worktime preferences for the user */
-  work_preferences;
-  /** Overrides of the worktime preferences for the user */
-  work_overrides;
-  /** ID of the user's photo in the PlaceOS uploads service */
-  photo_upload_id;
-  /** Whether the user has opted in to location tracking */
-  locatable;
-  /** Password */
-  password = "";
-  /** Password */
-  confirm_password = "";
-  constructor(e = {}) {
-    super(e), this.authority_id = e.authority_id || "", this.email = e.email || "", this.email_digest = e.email_digest || "", this.phone = e.phone || "", this.nickname = e.nickname || "", this.country = e.country || "", this.building = e.building || "", this.image = e.image || "", this.metadata = e.metadata || "", this.misc = e.misc || "", this.login_name = e.login_name || "", this.staff_id = e.staff_id || "", this.first_name = e.first_name || "", this.last_name = e.last_name || "", this.support = !!e.support, this.sys_admin = !!e.sys_admin, this.ui_theme = e.ui_theme || "", this.preferred_language = e.preferred_language || "", this.card_number = e.card_number || "", this.groups = e.groups || [], this.department = e.department || "", this.photo_upload_id = e.photo_upload_id || "", this.work_preferences = e.work_preferences || [], this.work_overrides = e.work_overrides || {}, this.locatable = e.locatable ?? true;
-  }
-};
-var Fe = /* @__PURE__ */ ((t) => (t[t.None = 0] = "None", t[t.Support = 1] = "Support", t[t.Admin = 2] = "Admin", t[t.NeverDisplay = 3] = "NeverDisplay", t))(Fe || {});
-var Pe = class extends F {
-  /** ID of the parent zone/system/module/driver */
-  parent_id;
-  /** Unix timestamp in seconds of when the settings where last updated */
-  updated_at;
-  /** Access level for the settings data */
-  encryption_level;
-  /** Contents of the settings */
-  settings_string;
-  /** Top level keys for the parsed settings */
-  keys;
-  /** ID of the user that last modified the metadata */
-  modified_by_id;
-  /** Contents of the settings */
-  get value() {
-    return this.settings_string;
-  }
-  constructor(e = {}) {
-    super(e), this.parent_id = e.parent_id || "", this.updated_at = e.updated_at || Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3), this.settings_string = e.settings_string || "", this.encryption_level = e.encryption_level || Fe.None, this.keys = e.keys || [], this.modified_by_id = e.modified_by_id || "";
-  }
-};
-var Nt = /* @__PURE__ */ ((t) => (t[t.SSH = 0] = "SSH", t[t.Device = 1] = "Device", t[t.Service = 2] = "Service", t[t.Websocket = 3] = "Websocket", t[t.Logic = 99] = "Logic", t))(Nt || {});
-var As = class extends F {
-  /** Place class name of the driver */
-  class_name;
-  /** Description of the driver functionality */
-  description;
-  /** Name to use for modules that inherit this driver */
-  module_name;
-  /** Role of the driver in engine */
-  role;
-  /** Default URI for the driver */
-  default_uri;
-  /** Default port number for the driver */
-  default_port;
-  /** ID of the repository the driver is from */
-  repository_id;
-  /** Name of the file from the repository to load the driver logic from */
-  file_name;
-  /** Version of the driver logic to use */
-  commit;
-  /** Ignore connection issues */
-  ignore_connected;
-  /** Whether newer version of driver is available */
-  update_available;
-  update_info;
-  /**  */
-  alert_level;
-  /** Tuple of user settings of differring encryption levels for the driver */
-  settings;
-  constructor(e = {}) {
-    super(e), this.description = e.description || "", this.module_name = e.module_name || "", this.role = e.role ?? Nt.Logic, this.default_uri = e.default_uri || "", this.default_port = e.default_port || 1, this.ignore_connected = e.ignore_connected || false, this.class_name = e.class_name || "", this.repository_id = e.repository_id || "", this.file_name = e.file_name || "", this.commit = e.commit || "", this.update_available = e.update_available || false, this.update_info = e.update_info, this.alert_level = e.alert_level || "medium", this.settings = e.settings || [null, null, null, null], typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in Fe)
-      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
-        parent_id: this.id,
-        encryption_level: +n
-      }));
-  }
-};
-var wn = class {
-  /** ISO8601 timestamp of the creation time of the group */
-  created_at;
-  /** ISO8601 timestamp of the last update time of the group */
-  updated_at;
-  /** Unique identifier of the group */
-  id;
-  /** Human readable name of the group */
-  name;
-  /** Description of the group's purpose */
-  description;
-  /** Subsystems this group participates in */
-  subsystems;
-  /** ID of the authority associated with the group */
-  authority_id;
-  /** ID of the parent group */
-  parent_id;
-  /** Count of child groups for this group */
-  children_count;
-  constructor(e = {}) {
-    this.created_at = e.created_at || "", this.updated_at = e.updated_at || "", this.id = e.id || "", this.name = e.name || "", this.description = e.description || "", this.subsystems = e.subsystems || [], this.authority_id = e.authority_id || "", this.parent_id = e.parent_id || "", isFinite(Number(e.children_count)) && (this.children_count = e.children_count);
-  }
-};
-var Le = "groups";
-function ot(t) {
-  return new wn(t);
-}
-function Iu(t = {}) {
-  const e = y(t), n = `${u2()}/${Le}/current${e ? "?" + e : ""}`;
-  return f(n).then(
-    (s) => (s || []).map((i) => ({
-      group: ot(i.group || {}),
-      permissions: i.permissions || 0
-    }))
-  );
-}
-var pe = class extends F {
-  /** Name of the system assocaited with the trigger */
-  system_name;
-  /** Number of times the trigger has been activated/triggered */
-  activated_count;
-  /** Description of the trigger */
-  description;
-  /** Duration with which to ignore sequential activations of the trigger */
-  debounce_period;
-  /** Whether the trigger should take priority */
-  important;
-  /** Whether trigger is enabled on the associated zone or system */
-  enabled;
-  /** Whether the trigger can call webhooks */
-  enable_webhook;
-  /** Whether the trigger instance can execute methods */
-  exec_enabled;
-  /** Auth key for trigger's webhook */
-  webhook_secret;
-  /** HTTP verbs supported by the webhook */
-  supported_methods;
-  /** ID of the system associated with the trigger */
-  control_system_id;
-  /** ID of the zone associated with the trigger */
-  zone_id;
-  /** ID of the Parent trigger */
-  trigger_id;
-  /** List of playlist IDs associated with the system */
-  playlists;
-  // Whether condition checks should match any single condition to pass or all of them
-  any_match;
-  /** ID of the system associated with the trigger */
-  get system_id() {
-    return this.control_system_id;
-  }
-  /** Actions to perform when the trigger is activated */
-  get actions() {
-    const e = this._actions, n = (e.functions || []).map((i) => __spreadProps(__spreadValues({}, i), {
-      args: __spreadValues({}, i.args)
-    })), s = (e.mailers || []).map((i) => __spreadProps(__spreadValues({}, i), {
-      emails: [...i.emails]
-    }));
-    return { functions: n, mailers: s };
-  }
-  /** Conditions for activating the trigger */
-  get conditions() {
-    const e = this._conditions, n = (e.comparisons || []).map((i) => __spreadProps(__spreadValues({}, i), {
-      left: typeof i.left == "object" ? __spreadValues({}, i.left) : i.left,
-      right: typeof i.right == "object" ? __spreadValues({}, i.right) : i.right
-    })), s = (e.time_dependents || []).map((i) => __spreadValues({}, i));
-    return { comparisons: n, time_dependents: s };
-  }
-  /** Actions to perform when the trigger is activated */
-  _actions;
-  /** Conditions for activating the trigger */
-  _conditions;
-  constructor(e = {}) {
-    super(e), this.description = e.description || "", this._actions = e.actions || { functions: [], mailers: [] }, this._conditions = e.conditions || {
-      comparisons: [],
-      time_dependents: []
-    }, this.debounce_period = e.debounce_period || 0, this.important = e.important || false, this.enabled = e.enabled || false, this.webhook_secret = e.webhook_secret || "", this.control_system_id = e.system_id || e.control_system_id || "", this.zone_id = e.zone_id || "", this.system_name = e.system_name || (e.control_system ? e.control_system.name : ""), this.enable_webhook = e.enable_webhook || false, this.exec_enabled = e.exec_enabled || false, this.supported_methods = e.supported_methods || ["POST"], this.activated_count = e.activated_count || e.trigger_count || 0, this.playlists = e.playlists || [], this.trigger_id = e.trigger_id || "", this.any_match = e.any_match || false;
-  }
-};
-var Xt = class extends F {
-  /** Tuple of user settings of differring encryption levels for the zone */
-  settings = [null, null, null, null];
-  /** Description of the zone's purpose */
-  description;
-  /** ID of the parent zone */
-  parent_id;
-  /** List of triggers associated with the zone */
-  triggers;
-  /** List of tags associated with the zone */
-  tags;
-  /** Geo-location details associated with the zone */
-  location;
-  /** Custom display name for the zone */
-  display_name;
-  /** Organisational code associated with the zone */
-  code;
-  /** Organisational categorisation of the zone */
-  type;
-  /** Count of resources associated with the zone */
-  count;
-  /** Count of child zones for this zone */
-  children_count;
-  /** Amount of physical capacity associated with the zone */
-  capacity;
-  /** ID or URL of or in a map associated with the zone */
-  map_id;
-  /** List of image URLs */
-  images;
-  /** Timezone of the associated real world location */
-  timezone;
-  /** List of playlist IDs associated with the system */
-  playlists;
-  /**
-   * List of modules associated with the system.
-   * Only available from the show method with the `complete` query parameter
-   */
-  trigger_list = [];
-  constructor(e = {}) {
-    super(e), this.description = e.description || "", this.tags = e.tags || [], this.triggers = e.triggers || [], this.settings = e.settings || [null, null, null, null], this.parent_id = e.parent_id || "", this.location = e.location || "", this.display_name = e.display_name || "", this.code = e.code || "", this.type = e.type || "", this.count = e.count || 0, this.capacity = e.capacity || 0, this.map_id = e.map_id || "", this.timezone = e.timezone || "", this.images = e.images || [], this.playlists = e.playlists || [], isFinite(Number(e.children_count)) && (this.children_count = e.children_count), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in Fe)
-      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
-        parent_id: this.id,
-        encryption_level: +n
-      }));
-    e.trigger_data && e.trigger_data instanceof Array && (this.trigger_list = e.trigger_data.map(
-      (n) => new pe(n)
-    ));
-  }
-};
-var Ts = class {
-  /** ID of the parent resource associated with the metadata */
-  id;
-  /** ID of the parent resource associated with the metadata */
-  parent_id;
-  /** Name/ID of the zone metadata */
-  name;
-  /** Description of what this metadata represents */
-  description;
-  /** Metadata associated with this key. */
-  details;
-  /** List user groups allowed to edit the metadata */
-  editors;
-  /** JSON schema associated with the metadata details */
-  schema;
-  /** ID of the schema associated with the metadata details */
-  schema_id;
-  /** Unix timestamp that the metadata was created at */
-  created_at;
-  /** Unix timestamp that the metadata was last modified at */
-  updated_at;
-  /** ID of the user that last modified the metadata */
-  modified_by_id;
-  /** Version of the data */
-  version;
-  constructor(e = {}) {
-    this.parent_id = e.parent_id || e.id || "", this.id = this.parent_id, this.name = e.name || "", this.description = e.description || "";
-    try {
-      this.details = (typeof e.details == "string" ? JSON.parse(e.details) : e.details) || {};
-    } catch {
-      this.details = e.details || {};
-    }
-    this.editors = e.editors || [], this.schema_id = e.schema_id || e.schema || "", this.schema = this.schema_id, this.created_at = (e.created_at || 0) * 1e3 || Date.now(), this.updated_at = (e.updated_at || 0) * 1e3 || Date.now(), this.modified_by_id = e.modified_by_id || "", this.version = e.version || 0;
-  }
-};
-var fe = "metadata";
-function Te(t) {
-  return new Ts(t);
-}
-function ic(t, e) {
-  return d({
-    id: t,
-    query_params: { name: e },
-    fn: (n) => Te(n[e]),
-    path: fe
-  });
-}
-function rc(t, e, n = "put") {
-  return q({
-    id: t,
-    form_data: e,
-    query_params: {},
-    method: n,
-    fn: Te,
-    path: fe
-  });
-}
-function hc(t, e) {
-  const n = y(e), s = `${u2()}/${fe}/${encodeURIComponent(t)}/bulk${n ? "?" + n : ""}`;
-  return f(s).then(
-    (i) => Object.keys(i || {}).reduce(
-      (r, o) => __spreadProps(__spreadValues({}, r), { [o]: Te(i[o]) }),
-      {}
-    )
-  );
-}
-var Rs = class extends F {
-  /** Tuple of user settings of differring encryption levels for the system */
-  settings = [null, null, null, null];
-  /** Display name of the system */
-  display_name;
-  /** Description of the system */
-  description;
-  /** Email address associated with the system */
-  email;
-  /** Email address associated with the system */
-  code;
-  /** Capacity of the space associated with the system */
-  capacity;
-  /** Features associated with the system */
-  features;
-  /** Whether system is bookable by end users */
-  bookable;
-  /** Whether system is public accessible */
-  public;
-  /** Count of UI devices attached to the system */
-  installed_ui_devices;
-  /** Support URL for the system */
-  support_url;
-  /** URL for the timetable UI linked to the system */
-  timetable_url;
-  /** URLs for requesting snapshots of the assosiated camera */
-  camera_snapshot_url;
-  /** URLs for requesting snapshots of the assosiated camera */
-  camera_snapshot_urls;
-  /** URL for managing the attached camera */
-  camera_url;
-  /** External booking URL for the system */
-  room_booking_url;
-  /** ID on the SVG Map associated with this system */
-  map_id;
-  /** List of module IDs that belong to the system */
-  modules;
-  /** List of images associated with the system */
-  images;
-  /** List of the zone IDs that the system belongs */
-  zones;
-  /** Timezone of the associated real world space */
-  timezone;
-  /**
-   * List of modules associated with the system.
-   * Only available from the show method with the `complete` query parameter
-   */
-  module_list = [];
-  /** Whether the system has signage capabilities */
-  signage;
-  /** List of playlist IDs associated with the system */
-  playlists;
-  /** List of security groups with access to the system */
-  security_groups;
-  /** Unix timestamp of the last ping from the signage player UI */
-  signage_last_seen;
-  approval;
-  /** Orientation of the signage system */
-  orientation;
-  constructor(e = {}) {
-    super(e), this.display_name = e.display_name || "", this.description = e.description || "", this.email = e.email || "", this.code = e.code || "", this.capacity = e.capacity || 0, this.features = e.features || [], this.bookable = e.bookable || false, this.public = e.public ?? false, this.installed_ui_devices = e.installed_ui_devices || 0, this.support_url = e.support_url || "", this.camera_snapshot_url = e.camera_snapshot_url || "", this.camera_snapshot_urls = e.camera_snapshot_urls || [], this.camera_url = e.camera_url || "", this.timetable_url = e.timetable_url || "", this.room_booking_url = e.room_booking_url || "", this.map_id = e.map_id || "", this.modules = e.modules || [], this.images = e.images || [], this.zones = e.zones || [], this.settings = e.settings || [null, null, null, null], this.timezone = e.timezone || "", this.signage = e.signage || false, this.playlists = e.playlists || [], this.security_groups = e.security_groups || [], this.orientation = e.orientation || "unspecified", this.approval = e.approval || false, this.signage_last_seen = e.signage_last_seen || xn(Date.now()), typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in Fe)
-      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
-        parent_id: this.id,
-        encryption_level: +n
-      }));
-    e.module_data && e.module_data instanceof Array && (this.module_list = e.module_data.map(
-      (n) => new Is(n)
-    ));
-  }
-};
-var Is = class extends F {
-  /** Whether the associated hardware is connected */
-  connected;
-  /** Whether the module driver is running */
-  running;
-  /** Timestamp of last update in ms since UTC epoch */
-  updated_at;
-  /** ID of the edge associated with the module */
-  edge_id;
-  /** ID of the driver associated with the module */
-  driver_id;
-  /** Driver/dependancy associated with the module */
-  driver;
-  /** ID of the system associated with the module */
-  control_system_id;
-  /** System associated with the module */
-  system;
-  /** IP address of the hardware associated with the module */
-  ip;
-  /** Whether the hardware connection requires TLS */
-  tls;
-  /** Whether the hardware connection is over UDP */
-  udp;
-  /** Port number connections to the hardware are made on */
-  port;
-  /**  */
-  makebreak;
-  /** URI associated with the module */
-  uri;
-  /** Custom name of the module */
-  custom_name;
-  /** Type of module */
-  role;
-  /** Notes associated with the module */
-  notes;
-  /** Ignore connection issues */
-  ignore_connected;
-  /** Tuple of user settings of differring encryption levels for the module */
-  settings = [null, null, null, null];
-  /** Whether the module has a runtime error */
-  has_runtime_error;
-  /** Timestamp of the last runtime error in ms since UTC epoch */
-  error_timestamp;
-  /**  */
-  alert_level;
-  /** ID of the system associated with the module */
-  get system_id() {
-    return this.control_system_id;
-  }
-  constructor(e = {}) {
-    super(e), this.driver_id = e.driver_id || e.dependency_id || "", this.control_system_id = e.control_system_id || "", this.edge_id = e.edge_id || "", this.ip = e.ip || "", this.tls = e.tls || false, this.udp = e.udp || false, this.port = e.port || 1, this.makebreak = e.makebreak || false, this.uri = e.uri || "", this.custom_name = e.custom_name || "", this.role = e.role ?? Nt.Logic, this.notes = e.notes || "", this.ignore_connected = e.ignore_connected || false, this.connected = e.connected, this.running = e.running || false, this.updated_at = e.updated_at || 0, this.system = new Rs(
-      e.control_system || e.system
-    ), this.has_runtime_error = e.has_runtime_error || false, this.error_timestamp = e.error_timestamp || 0, this.driver = new As(e.dependency || e.driver), this.settings = e.settings || [null, null, null, null], this.alert_level = e.alert_level || "medium", typeof this.settings != "object" && (this.settings = [null, null, null, null]);
-    for (const n in Fe)
-      !isNaN(Number(n)) && !this.settings[n] && (this.settings[n] = new Pe({
-        parent_id: this.id,
-        encryption_level: +n
-      }));
-  }
-  /**
-   * Convert object into plain object
-   */
-  toJSON(e = false) {
-    const n = super.toJSON();
-    return (n.role !== Nt.Logic && !e || !n.control_system_id) && delete n.control_system_id, delete n.driver, delete n.system, delete n.error_timestamp, delete n.has_runtime_error, n;
-  }
-};
-var M = "systems";
-function Re(t) {
-  return new Rs(t);
-}
-function ga(t = {}) {
-  return b({ query_params: t, fn: Re, path: M });
-}
-function ba(t, e = {}) {
-  return d({ id: t, query_params: e, fn: Re, path: M });
-}
-var X = "users";
-function Ie(t) {
-  return new Cn(t);
-}
-function Za(t, e = {}) {
-  return d({ id: t, query_params: e, fn: Ie, path: X });
-}
-function Va(t, e, n = "patch") {
-  return q({
-    id: t,
-    form_data: e,
-    query_params: {},
-    method: n,
-    fn: Ie,
-    path: X
-  });
-}
-var _e = "zones";
-function cn(t) {
-  return new Xt(t);
-}
-function uh(t = {}) {
-  return b({ query_params: t, fn: cn, path: _e });
-}
-var zs = class {
-  _listeners = /* @__PURE__ */ new Set();
-  _error_listeners = /* @__PURE__ */ new Set();
-  _complete_listeners = /* @__PURE__ */ new Set();
-  _closed = false;
-  next(e) {
-    if (!this._closed)
-      for (const n of [...this._listeners]) n(e);
-  }
-  error(e) {
-    if (!this._closed) {
-      for (const n of [...this._error_listeners]) n(e);
-      this._closed = true, this._clear();
-    }
-  }
-  complete() {
-    if (!this._closed) {
-      for (const e of [...this._complete_listeners]) e();
-      this._closed = true, this._clear();
-    }
-  }
-  subscribe(e, n, s) {
-    return this._closed ? (s?.(), () => null) : (this._listeners.add(e), n && this._error_listeners.add(n), s && this._complete_listeners.add(s), () => {
-      this._listeners.delete(e), n && this._error_listeners.delete(n), s && this._complete_listeners.delete(s);
-    });
-  }
-  _clear() {
-    this._listeners.clear(), this._error_listeners.clear(), this._complete_listeners.clear();
-  }
-};
-var qr = class extends zs {
-  constructor(e) {
-    super(), this._config = e, this._socket = new WebSocket(e.url), this._socket.onopen = () => {
-      const n = [...this._queue];
-      this._queue = [];
-      for (const s of n) this.next(s);
-    }, this._socket.onmessage = (n) => {
-      super.next(this._deserialize(n));
-    }, this._socket.onerror = (n) => this.error(n), this._socket.onclose = () => super.complete();
-  }
-  _socket;
-  _queue = [];
-  next(e) {
-    this._socket.readyState === WebSocket.OPEN ? this._socket.send(this._serialize(e)) : this._queue.push(e);
-  }
-  complete() {
-    this._socket.close(), super.complete();
-  }
-  _serialize(e) {
-    return this._config.serializer ? this._config.serializer(e) : `${e}`;
-  }
-  _deserialize(e) {
-    return this._config.deserializer ? this._config.deserializer(e) : e.data;
-  }
-};
-function Pr(t) {
-  return new qr(
-    typeof t == "string" ? { url: t } : t
-  );
-}
-var ne = /* @__PURE__ */ ((t) => (t[t.PARSE_ERROR = 0] = "PARSE_ERROR", t[t.BAD_REQUEST = 1] = "BAD_REQUEST", t[t.ACCESS_DENIED = 2] = "ACCESS_DENIED", t[t.REQUEST_FAILED = 3] = "REQUEST_FAILED", t[t.UNKNOWN_CMD = 4] = "UNKNOWN_CMD", t[t.SYS_NOT_FOUND = 5] = "SYS_NOT_FOUND", t[t.MOD_NOT_FOUND = 6] = "MOD_NOT_FOUND", t[t.UNEXPECTED_FAILURE = 7] = "UNEXPECTED_FAILURE", t))(ne || {});
-var Fs = /* @__PURE__ */ ((t) => (t.Info = "info", t.Debug = "debug", t.Warning = "warn", t.Error = "error", t.Fatal = "fatal", t.Trace = "trace", t))(Fs || {});
-var Dt = {};
-function Ir(t) {
-  return Dt[t];
-}
-var O = Ft("WS");
-var Ls = 15;
-var kt = 0;
-var ee;
-var js = 0;
-var G = {};
-var Gn = {};
-var Ur = {};
-var Ae = se(false);
-var Gs = se([0, 0]);
-var Bs = Date.now();
-var Oe;
-var Ht = 0;
-var me = null;
-var Pt;
-var Bn = 0;
-var St = 10 * 1e3;
-var Er = se(null);
-function kn() {
-  return u2().indexOf("/control/") >= 0 ? "/control/websocket" : `${ls()}/systems/control`;
-}
-function Ws() {
-  return Ae.value;
-}
-function Mr() {
-  return Ae.asReadonly();
-}
-function Or(t, e = Gn) {
-  const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
-  return e[n] || (e[n] = se(void 0)), e[n].asReadonly();
-}
-function Cr(t, e = Gn) {
-  const n = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
-  if (e[n])
-    return e[n].value;
-}
-function Xn(t, e = 0, n = We) {
-  const s = __spreadValues({
-    id: ++kt,
-    cmd: "bind"
-  }, t);
-  return n(s, e);
-}
-function wr(t, e = 0, n = We) {
-  const s = __spreadValues({
-    id: ++kt,
-    cmd: "unbind"
-  }, t);
-  return n(s, e);
-}
-function Nr(t, e = St, n = We) {
-  const s = __spreadValues({
-    id: ++kt,
-    cmd: "exec"
-  }, t);
-  return n(s, e);
-}
-function We(t, e = St, n = 0) {
-  const s = `${t.cmd}|${t.sys}|${t.mod}${t.index}|${t.name}|${t.args}|${ai()}`;
-  if (G[s])
-    O("Request already in progress. Waiting...", t);
-  else {
-    const i = __spreadProps(__spreadValues({}, t), { key: s });
-    i.promise = new Promise((r, o) => {
-      const h = () => {
-        delete G[s], G[s] = null, We(t, e, n).then(
-          ($) => r($),
-          ($) => o($)
-        );
-      };
-      if (ee && Ws()) {
-        Rn() && Gr(t, ee, Ur), i.resolve = r, i.reject = o;
-        const $ = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-        O(
-          `[${t.cmd.toUpperCase()}](${t.id}) ${$}`,
-          t.args
-        ), ee.next(t), e > 0 && ue(
-          `${s}`,
-          () => {
-            o("Request timed out."), delete G[s], G[s] = null;
-          },
-          e
-        );
-      } else me ? setTimeout(() => h(), 1e3) : Wn().then(() => h());
-    }), G[s] = i;
-  }
-  return G[s].promise;
-}
-function Qs(t) {
-  if (t !== "pong" && t instanceof Object) {
-    if (t.type === "notify" && t.meta)
-      zr(t.meta, t.value);
-    else if (t.type === "success")
-      Dr(t);
-    else if (t.type === "debug") {
-      O(`[DEBUG] ${t.mod}${t.klass || ""} \u2192`, t.msg);
-      const e = t.meta || { mod: "", index: "" };
-      Er.set({
-        mod_id: t.mod || "<empty>",
-        module: `${e.mod}_${e.index}`,
-        class_name: t.klass || "<empty>",
-        message: t.msg || "<empty>",
-        level: t.level || Fs.Debug,
-        time: Math.floor((/* @__PURE__ */ new Date()).getTime() / 1e3)
-      });
-    } else t.type === "error" ? Hr(t) : t.cmd || O.error("Invalid websocket message", t);
-    be(`${t.id}`);
-  } else t === "pong" && (Bn = Date.now(), O("Pong!"));
-}
-function Dr(t) {
-  const e = Object.keys(G).map((n) => G[n]).find((n) => n?.id === t.id);
-  O(`[SUCCESS](${t.id})`), e && e.resolve && (e.resolve(t.value), delete G[e.key]);
-}
-function Hr(t) {
-  let e = "UNEXPECTED FAILURE";
-  switch (t.code) {
-    case ne.ACCESS_DENIED:
-      e = "ACCESS DENIED";
-      break;
-    case ne.BAD_REQUEST:
-      e = "BAD REQUEST";
-      break;
-    case ne.MOD_NOT_FOUND:
-      e = "MODULE NOT FOUND";
-      break;
-    case ne.SYS_NOT_FOUND:
-      e = "SYSTEM NOT FOUND";
-      break;
-    case ne.PARSE_ERROR:
-      e = "PARSE ERROR";
-      break;
-    case ne.REQUEST_FAILED:
-      e = "REQUEST FAILED";
-      break;
-    case ne.UNKNOWN_CMD:
-      e = "UNKNOWN COMMAND";
-      break;
-  }
-  O.error(`[ERROR] ${e}(${t.id}): ${t.msg}`);
-  const n = Object.keys(G).map((s) => G[s]).filter((s) => s).find((s) => s.id === t.id);
-  n && n.reject && (n.reject(t), be(`${n.key}`), delete G[n.key]);
-}
-function zr(t, e, n = Gn) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`;
-  n[s] || (n[s] = se(null));
-  const i = `${t.sys}, ${t.mod}_${t.index}, ${t.name}`;
-  O(`[NOTIFY] ${i} changed`, [
-    n[s].value,
-    "\u2192",
-    e
-  ]), n[s].set(e);
-}
-function Wn(t = 0) {
-  return me == null && (me = new Promise((e) => {
-    if (t > 40)
-      return location.reload();
-    Ht++, Bs = Date.now(), ee = Rn() ? jr() : Fr(), ee ? (O.debug("Authority:", Mt()), O("Connecting to websocket..."), ee.subscribe(
-      (n) => {
-        Ae.value || (O("Connection established."), e()), Ae.set(true), Ht = 0, Sn(), Qs(n);
-      },
-      (n) => {
-        ee = void 0, me = null, ns(), Sn(), Lr(n);
-      },
-      () => {
-        ee = void 0, me = null, ns(), O("Connection closed by browser."), Ae.set(false), zt();
-      }
-    ), Oe && clearInterval(Oe), Bn = Date.now(), es(), Oe = setInterval(
-      () => es(),
-      Ls * 1e3
-    ), Sn(), js += 1, Pt = setTimeout(() => {
-      O("Unhealthy connection. Reconnecting..."), Ae.set(false), me = null, zt();
-    }, 30 * 1e3)) : (ee ? O(
-      `Waiting on auth(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`,
-      [!!J(), !!Mt()],
-      "info"
-    ) : O.error(
-      `Failed to create websocket(${t}). Retrying in ${1e3 * Math.min(10, t + 1)}ms...`
-    ), setTimeout(
-      () => {
-        me = null, Wn(t).then((n) => e(n));
-      },
-      1e3 * Math.min(10, ++t)
-    ));
-  })), me;
-}
-function Fr() {
-  if (!Mt() || !J()) return null;
-  const t = $i() || location.protocol.indexOf("https") >= 0;
-  let e = `ws${t ? "s" : ""}://${qn()}${kn()}${ds() ? "?fixed_device=true" : ""}`;
-  const n = J();
-  let s = n === "x-api-key" ? `api-key=${Xe()}` : `bearer_token=${n}`;
-  return !mi() && !ui() ? (O("Authenticating through cookie..."), s += `;max-age=120;path=${kn()};`, s += `${t ? "secure;" : ""}samesite=strict`, document.cookie = s, O("Cookies:", [document.cookie, s])) : (O("Authenticating through URL query parameter..."), e += `${e.indexOf("?") >= 0 ? "&" : "?"}${s}`), O(
-    `Creating websocket connection to ws${t ? "s" : ""}://${qn()}${kn()}`
-  ), Pr({
-    url: e,
-    serializer: (i) => typeof i == "object" ? JSON.stringify(i) : i,
-    deserializer: (i) => {
-      let r = i.data;
-      if (r === "pong") return r;
-      try {
-        return JSON.parse(i.data);
-      } catch {
-        return r;
-      }
-    }
-  });
-}
-function zt() {
-  Gs.set([js, Date.now() - Bs]), ee && Ws() && (ee.complete(), Oe && (clearInterval(Oe), Oe = void 0)), O(
-    `Reconnecting in ${Math.min(
-      5e3,
-      Ht * 300 || 1e3
-    )}ms...`
-  ), ue(
-    "reconnect",
-    () => Wn(),
-    Math.min(5e3, (Ht + 1) * 300 || 1e3)
-  );
-}
-function es() {
-  if (Date.now() - Bn > 4 * Ls * 1e3)
-    return zt();
-  ee?.next("ping");
-}
-function Lr(t) {
-  Ae.set(false), O.error("Websocket error:", t), t.status === 401 && En(), Un(), zt();
-}
-function Sn() {
-  Pt && (clearTimeout(Pt), Pt = void 0);
-}
-function jr() {
-  const t = new zs();
-  return t.subscribe(
-    (e) => Qs(e)
-  ), t;
-}
-function ts(t, e) {
-  const n = typeof e == "string" ? e : e?.message || e?.msg || "Mock realtime callback failed";
-  return {
-    id: t.id,
-    type: "error",
-    code: e?.code || ne.UNEXPECTED_FAILURE,
-    msg: n
-  };
-}
-function Gr(t, e, n) {
-  const s = `${t.sys}|${t.mod}_${t.index}|${t.name}`, i = Ir(t.sys), r = i && i[t.mod] ? i[t.mod][t.index - 1 || 0] : null;
-  if (r) {
-    try {
-      switch (t.cmd) {
-        case "bind":
-          n[s] = r.listen(t.name).subscribe((o) => {
-            setTimeout(
-              () => {
-                e.next({
-                  type: "notify",
-                  value: o,
-                  meta: t
-                });
-              },
-              Math.floor(Math.random() * 100 + 50)
-              // Add natural delay before response
-            );
-          });
-          break;
-        case "unbind":
-          n[s] && (n[s](), delete n[s], be(`${s}`));
-          break;
-      }
-    } catch (o) {
-      O.error(`[MOCK ERROR](${t.id}) request failed`, o), ue(
-        `${t.id}-error`,
-        () => e.next(ts(t, o)),
-        10
-      );
-      return;
-    }
-    ue(
-      `${t.id}-response`,
-      () => {
-        try {
-          const o = {
-            id: t.id,
-            type: "success",
-            value: t.cmd === "exec" ? r.call(t.name, t.args) : null
-          };
-          e.next(o);
-        } catch (o) {
-          O.error(
-            `[MOCK ERROR](${t.id}) execute failed`,
-            o
-          ), e.next(ts(t, o));
-        }
-      },
-      10
-    );
-  } else
-    ue(
-      `${t.id}-error`,
-      () => e.next({
-        id: t.id,
-        type: "error",
-        code: i ? ne.SYS_NOT_FOUND : ne.MOD_NOT_FOUND
-      }),
-      10
-    );
-}
-function ns() {
-  for (const t in G)
-    G[t] && delete G[t];
-}
-var ss = class {
-  constructor(e, n) {
-    this._module = e, this.name = n, Mr().subscribe((s, i) => {
-      s !== i && (s && (this._stale_bindings || this._pending === 1) ? (Rt("VAR", "Re-binding to status variable", this.binding()), this.rebind()) : s || (be(`rebind:${JSON.stringify(this.binding())}`), Rt(
-        "VAR",
-        "Binding dropped due to disconnection, re-binding when possible.",
-        this.binding()
-      ), this._stale_bindings = this._binding_count || this._stale_bindings, this._binding_count = 0));
-    });
-  }
-  /** Status variable name */
-  name;
-  /** Active pending state of the variable binding */
-  _pending = 0;
-  /** Number of active bindings to this variable */
-  _binding_count = 0;
-  /** Number of bindings to restore on reconnection */
-  _stale_bindings = 0;
-  /** Number of bindings to this status variable */
-  get count() {
-    return this._binding_count;
-  }
-  /** Current value of the binding */
-  get value() {
-    return Cr(this.binding());
-  }
-  /**
-   * Get a signal that emits the current value of the binding
-   */
-  listen() {
-    return Or(this.binding());
-  }
-  /**
-   * Subscribe to changes of the variable's binding value.
-   * Note: Initial value emitted may be `undefined`
-   * @param next Callback for changes to the bindings value
-   */
-  subscribe(e) {
-    return this.listen().subscribe(e);
-  }
-  bindThenSubscribe(e) {
-    const n = this.bind(), s = this.listen().subscribe((i) => {
-      try {
-        e(i);
-      } catch (r) {
-        console.error(r);
-      }
-    });
-    return () => {
-      try {
-        s();
-      } finally {
-        try {
-          n();
-        } catch {
-        }
-      }
-    };
-  }
-  /**
-   * Bind to the status variable's value
-   */
-  bind() {
-    return (this._binding_count <= 0 && this._stale_bindings <= 0 || this._pending === 2) && (this._pending = 1, Xn(this.binding()).then(() => {
-      this._binding_count++, this._pending = 0;
-    }).catch(() => null)), () => this.unbind();
-  }
-  /**
-   * Unbind from status variable
-   */
-  unbind() {
-    this._binding_count === 1 && this._pending === 0 ? (this._pending = 2, wr(this.binding()).then(() => {
-      this._pending === 2 && (this._pending = 0), this._binding_count--;
-    })) : this._binding_count = Math.max(this._binding_count - 1, 0);
-  }
-  /**
-   * Rebind to the status variable
-   */
-  async rebind() {
-    !this._stale_bindings && this._pending !== 1 || ue(
-      `rebind:${JSON.stringify(this.binding())}`,
-      async () => {
-        await Xn(this.binding()), this._binding_count = this._stale_bindings || 1, this._stale_bindings = 0;
-      },
-      100
-    );
-  }
-  /**
-   * Generate binding details for the status variable
-   */
-  binding() {
-    return {
-      sys: this._module.system.id,
-      mod: this._module.name,
-      index: this._module.index,
-      name: this.name
-    };
-  }
-};
-var Br = class {
-  constructor(e, n) {
-    this._system = e, this._id = n;
-  }
-  /** Mapping of module bindings */
-  _bindings = {};
-  get id() {
-    return `${this.name}_${this.index}`;
-  }
-  /** Parent system of the module */
-  get system() {
-    return this._system;
-  }
-  /** Module index */
-  get index() {
-    const n = this._id.split("_").pop();
-    return parseInt(n || "", 10) || 1;
-  }
-  /** Module name */
-  get name() {
-    const e = this._id.split("_");
-    return e.pop(), e.join("_");
-  }
-  /**
-   * Get binding with the given name
-   * @param name Name of the binding
-   * @deprecated Use `variable` instead
-   */
-  binding(e) {
-    return this._bindings[e] || (this._bindings[e] = new ss(this, e)), this._bindings[e];
-  }
-  /**
-   * Get binding with the given name
-   * @param name Name of the binding
-   */
-  variable(e) {
-    return this._bindings[e] || (this._bindings[e] = new ss(this, e)), this._bindings[e];
-  }
-  /**
-   * Execute method on the engine module
-   * @param method Name of the method
-   * @param args Array of arguments to pass to the method
-   */
-  execute(e, n, s = St) {
-    return Nr(
-      {
-        sys: this._system.id,
-        mod: this.name,
-        index: this.index,
-        name: e,
-        args: n
-      },
-      s
-    );
-  }
-};
-var Wr = class {
-  /** Unique idetifier of the system */
-  id;
-  /** Mapping of engine modules within the system */
-  _module_list = {};
-  constructor(e) {
-    this.id = e;
-  }
-  /**
-   * Get binding interface for the given module
-   * @param module_id ID of the module
-   * @param index Index of the module within the system
-   */
-  module(e, n = 1) {
-    if (!e)
-      throw new Error("Invalid module ID");
-    const s = e.split("_");
-    s.length > 1 && Number.isInteger(+s[s.length - 1]) && (n = +s[s.length - 1], s.pop()), n < 1 && (n = 1);
-    const i = s.join("_");
-    for (this._module_list[i] || (this._module_list[i] = []); this._module_list[i].length < n; )
-      this._module_list[i].push(
-        new Br(
-          this,
-          `${i}_${this._module_list[i].length + 1}`
-        )
-      );
-    return this._module_list[i][n - 1];
-  }
-};
-var An = {};
-function Qr(t) {
-  return An[t] || (An[t] = new Wr(t)), An[t];
-}
-function Dd(t, e, n = 1) {
-  return Qr(t).module(e, n);
-}
-
 // libs/common/src/lib/locale.service.ts
 var _service;
 function setTranslationService(service) {
@@ -47580,6 +47581,187 @@ function withTimeout(promise, timeout_ms, message2 = "Operation timed out.") {
     });
   });
 }
+
+// libs/common/src/lib/hotkeys.service.ts
+var INVALID_STANDALONE_KEYS = [
+  "control",
+  "shift",
+  "alt",
+  "meta",
+  "os"
+];
+var HotkeysService = class _HotkeysService {
+  constructor() {
+    this.keydown_states = {};
+    this.keydown_callbacks = {};
+    this.combo_end = [];
+    this.registered_combos = [];
+    this.counter = 0;
+    window.addEventListener("keydown", (event) => {
+      if (document.getSelection()?.type === "Range" || this.isEditableElementFocused()) {
+        return;
+      }
+      const code = this.mapKey((event.code || "").toLowerCase());
+      if (this.last_down !== code) {
+        if (!this.keydown_states[code]) {
+          this.keydown_states[code] = signal(null);
+        }
+        this.keydown_states[code].set(++this.counter);
+        this._handleKeyPress(code, this.counter);
+        if (this.combo_end.indexOf(code) >= 0) {
+          event.preventDefault();
+        }
+        this.last_down = code;
+      }
+    });
+    window.addEventListener("keyup", (event) => {
+      const code = this.mapKey((event.code || "").toLowerCase());
+      this.keydown_states[code]?.set(null);
+      if (this.last_down === code) {
+        this.last_down = null;
+      }
+    });
+  }
+  /**
+   * Listen to the given key combination
+   * @param combo Array of key codes to listen to or a hotkey string e.g. `Alt+Shift+KeyK`
+   * @param next Callback for combination presses
+   */
+  listen(combo, next) {
+    combo = combo instanceof Array ? combo : combo.split("+");
+    const combination = combo.map((i) => this.mapKey(i.toLowerCase()));
+    if (combination.length > 0 && this.validCombination(combination)) {
+      this.registered_combos.push(combination);
+      const last_key = combination[combination.length - 1];
+      if (!this.keydown_states[last_key]) {
+        this.keydown_states[last_key] = signal(null);
+      }
+      this.updateCombinationEndList();
+      const callback = (count) => {
+        if (count) {
+          const presses = [];
+          if (combination.length > 0) {
+            for (const key of combination) {
+              const state = this.keydown_states[key];
+              presses.push(state ? state() || -1 : -1);
+            }
+            for (let i = 0; i < combination.length - 1; i++) {
+              if (presses[i] > presses[i + 1]) {
+                return;
+              }
+            }
+          }
+          const total = presses.reduce((a, v) => a + (v > 0 ? 1 : -1), 0);
+          if (total >= combination.length) {
+            next();
+          }
+        }
+      };
+      this.keydown_callbacks[last_key] ||= /* @__PURE__ */ new Set();
+      this.keydown_callbacks[last_key].add(callback);
+      return {
+        unsubscribe: () => this.keydown_callbacks[last_key]?.delete(callback)
+      };
+    }
+    return null;
+  }
+  _handleKeyPress(code, count) {
+    for (const callback of this.keydown_callbacks[code] || []) {
+      callback(count);
+    }
+  }
+  /** Check if keyboard input should remain with the focused editor. */
+  isEditableElementFocused() {
+    const active = document.activeElement;
+    if (!active)
+      return false;
+    const tag_name = active.tagName.toLowerCase();
+    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
+  }
+  /**
+   * Map key codes with multiple versions to simple form
+   * @param code Code to transform
+   */
+  mapKey(code) {
+    if (code.indexOf("alt") >= 0 || code.indexOf("shift") >= 0 || code.indexOf("control") >= 0) {
+      return code.replace("left", "").replace("right", "");
+    }
+    return code;
+  }
+  /**
+   * Update the list of the last keys in combinations to allow for prevent default actions on pre-existing hotkeys
+   */
+  updateCombinationEndList() {
+    const key_list = [];
+    for (const combo of this.registered_combos) {
+      this.combo_end.push(combo[combo.length - 1]);
+    }
+    this.combo_end = unique(key_list);
+  }
+  /**
+   * Checks if the given hotkey combination is allowed and valid
+   * @param combo Array of key codes
+   */
+  validCombination(combo) {
+    let non_meta = 0;
+    for (const key of combo) {
+      if (INVALID_STANDALONE_KEYS.indexOf(key) < 0) {
+        non_meta++;
+      }
+    }
+    return non_meta > 0;
+  }
+  static {
+    this.\u0275fac = function HotkeysService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _HotkeysService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _HotkeysService, factory: _HotkeysService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HotkeysService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
+// libs/common/src/lib/settings.ts
+var general = {};
+var app = {
+  name: "Assistant",
+  title: "PlaceOS",
+  description: "Assistant UI",
+  short_name: "PlaceOS",
+  logo: {
+    type: "img",
+    src: "assets/logo-light.svg"
+  },
+  logo_dark: {
+    type: "img",
+    src: "assets/logo-dark.svg"
+  },
+  general,
+  prevent_space_init: true
+};
+var DEFAULT_SETTINGS = {
+  debug: true,
+  composer: {
+    domain: "",
+    route: "/assistant-panel",
+    protocol: "",
+    port: "",
+    use_domain: false,
+    local_login: false
+  },
+  service_worker: {
+    auto_reload: true
+  },
+  app
+};
 
 // libs/common/src/lib/types/user.class.ts
 var USER_DOMAIN = "@dev.place.tech";
@@ -48402,15 +48584,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "5d0246b",
-  "hash": "5d0246b",
+  "raw": "53273a8",
+  "hash": "53273a8",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5d0246b",
+  "suffix": "53273a8",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1790126016052
+  "time": 1790128758739
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -48739,153 +48921,6 @@ var SettingsService = class _SettingsService extends AsyncHandler {
 };
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsService, [{
-    type: Injectable,
-    args: [{
-      providedIn: "root"
-    }]
-  }], () => [], null);
-})();
-
-// libs/common/src/lib/hotkeys.service.ts
-var INVALID_STANDALONE_KEYS = [
-  "control",
-  "shift",
-  "alt",
-  "meta",
-  "os"
-];
-var HotkeysService = class _HotkeysService {
-  constructor() {
-    this.keydown_states = {};
-    this.keydown_callbacks = {};
-    this.combo_end = [];
-    this.registered_combos = [];
-    this.counter = 0;
-    window.addEventListener("keydown", (event) => {
-      if (document.getSelection()?.type === "Range" || this.isEditableElementFocused()) {
-        return;
-      }
-      const code = this.mapKey((event.code || "").toLowerCase());
-      if (this.last_down !== code) {
-        if (!this.keydown_states[code]) {
-          this.keydown_states[code] = signal(null);
-        }
-        this.keydown_states[code].set(++this.counter);
-        this._handleKeyPress(code, this.counter);
-        if (this.combo_end.indexOf(code) >= 0) {
-          event.preventDefault();
-        }
-        this.last_down = code;
-      }
-    });
-    window.addEventListener("keyup", (event) => {
-      const code = this.mapKey((event.code || "").toLowerCase());
-      this.keydown_states[code]?.set(null);
-      if (this.last_down === code) {
-        this.last_down = null;
-      }
-    });
-  }
-  /**
-   * Listen to the given key combination
-   * @param combo Array of key codes to listen to or a hotkey string e.g. `Alt+Shift+KeyK`
-   * @param next Callback for combination presses
-   */
-  listen(combo, next) {
-    combo = combo instanceof Array ? combo : combo.split("+");
-    const combination = combo.map((i) => this.mapKey(i.toLowerCase()));
-    if (combination.length > 0 && this.validCombination(combination)) {
-      this.registered_combos.push(combination);
-      const last_key = combination[combination.length - 1];
-      if (!this.keydown_states[last_key]) {
-        this.keydown_states[last_key] = signal(null);
-      }
-      this.updateCombinationEndList();
-      const callback = (count) => {
-        if (count) {
-          const presses = [];
-          if (combination.length > 0) {
-            for (const key of combination) {
-              const state = this.keydown_states[key];
-              presses.push(state ? state() || -1 : -1);
-            }
-            for (let i = 0; i < combination.length - 1; i++) {
-              if (presses[i] > presses[i + 1]) {
-                return;
-              }
-            }
-          }
-          const total = presses.reduce((a, v) => a + (v > 0 ? 1 : -1), 0);
-          if (total >= combination.length) {
-            next();
-          }
-        }
-      };
-      this.keydown_callbacks[last_key] ||= /* @__PURE__ */ new Set();
-      this.keydown_callbacks[last_key].add(callback);
-      return {
-        unsubscribe: () => this.keydown_callbacks[last_key]?.delete(callback)
-      };
-    }
-    return null;
-  }
-  _handleKeyPress(code, count) {
-    for (const callback of this.keydown_callbacks[code] || []) {
-      callback(count);
-    }
-  }
-  /** Check if keyboard input should remain with the focused editor. */
-  isEditableElementFocused() {
-    const active = document.activeElement;
-    if (!active)
-      return false;
-    const tag_name = active.tagName.toLowerCase();
-    return tag_name === "input" || tag_name === "textarea" || active.getAttribute("contenteditable") === "true" || !!active.closest(".monaco-editor");
-  }
-  /**
-   * Map key codes with multiple versions to simple form
-   * @param code Code to transform
-   */
-  mapKey(code) {
-    if (code.indexOf("alt") >= 0 || code.indexOf("shift") >= 0 || code.indexOf("control") >= 0) {
-      return code.replace("left", "").replace("right", "");
-    }
-    return code;
-  }
-  /**
-   * Update the list of the last keys in combinations to allow for prevent default actions on pre-existing hotkeys
-   */
-  updateCombinationEndList() {
-    const key_list = [];
-    for (const combo of this.registered_combos) {
-      this.combo_end.push(combo[combo.length - 1]);
-    }
-    this.combo_end = unique(key_list);
-  }
-  /**
-   * Checks if the given hotkey combination is allowed and valid
-   * @param combo Array of key codes
-   */
-  validCombination(combo) {
-    let non_meta = 0;
-    for (const key of combo) {
-      if (INVALID_STANDALONE_KEYS.indexOf(key) < 0) {
-        non_meta++;
-      }
-    }
-    return non_meta > 0;
-  }
-  static {
-    this.\u0275fac = function HotkeysService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _HotkeysService)();
-    };
-  }
-  static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _HotkeysService, factory: _HotkeysService.\u0275fac, providedIn: "root" });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(HotkeysService, [{
     type: Injectable,
     args: [{
       providedIn: "root"
@@ -57195,6 +57230,21 @@ var ActiveDescendantKeyManager = class extends ListKeyManager {
     super.setActiveItem(index);
     if (this.activeItem) {
       this.activeItem.setActiveStyles();
+    }
+  }
+};
+
+// node_modules/@angular/cdk/fesm2022/_focus-key-manager-chunk.mjs
+var FocusKeyManager = class extends ListKeyManager {
+  _origin = "program";
+  setFocusOrigin(origin) {
+    this._origin = origin;
+    return this;
+  }
+  setActiveItem(item) {
+    super.setActiveItem(item);
+    if (this.activeItem) {
+      this.activeItem.focus(this._origin);
     }
   }
 };
@@ -78964,52 +79014,6 @@ var IconComponent = class _IconComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(IconComponent, { className: "IconComponent", filePath: "libs/components/src/lib/icon.component.ts", lineNumber: 40 });
 })();
 
-// libs/components/src/lib/sanitise.pipe.ts
-var SecurityContext2;
-(function(SecurityContext3) {
-  SecurityContext3[SecurityContext3["NONE"] = 0] = "NONE";
-  SecurityContext3[SecurityContext3["HTML"] = 1] = "HTML";
-  SecurityContext3[SecurityContext3["STYLE"] = 2] = "STYLE";
-  SecurityContext3[SecurityContext3["SCRIPT"] = 3] = "SCRIPT";
-  SecurityContext3[SecurityContext3["URL"] = 4] = "URL";
-  SecurityContext3[SecurityContext3["RESOURCE_URL"] = 5] = "RESOURCE_URL";
-})(SecurityContext2 || (SecurityContext2 = {}));
-var SanitizePipe = class _SanitizePipe {
-  constructor() {
-    this.sanitizer = inject2(DomSanitizer);
-  }
-  transform(value, type = "html") {
-    switch (type) {
-      case "resource":
-        return this.sanitizer.sanitize(SecurityContext2.RESOURCE_URL, value);
-      case "url":
-        return this.sanitizer.sanitize(SecurityContext2.URL, value);
-      case "script":
-        return this.sanitizer.sanitize(SecurityContext2.SCRIPT, value);
-      case "style":
-        return this.sanitizer.sanitize(SecurityContext2.STYLE, value);
-      default:
-        return this.sanitizer.sanitize(SecurityContext2.HTML, value);
-    }
-  }
-  static {
-    this.\u0275fac = function SanitizePipe_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _SanitizePipe)();
-    };
-  }
-  static {
-    this.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "sanitize", type: _SanitizePipe, pure: true });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SanitizePipe, [{
-    type: Pipe,
-    args: [{
-      name: "sanitize"
-    }]
-  }], null, null);
-})();
-
 export {
   Subscription,
   Observable,
@@ -79025,6 +79029,7 @@ export {
   delay,
   pairwise,
   shareReplay,
+  skipWhile,
   startWith,
   switchMap,
   takeUntil,
@@ -79058,9 +79063,12 @@ export {
   Injectable,
   Service,
   ElementRef,
+  QueryList,
   ViewEncapsulation,
   ɵɵsanitizeHtml,
+  ɵɵsanitizeUrl,
   ɵɵresolveWindow,
+  ɵɵresolveDocument,
   afterNextRender,
   ɵɵadvance,
   TemplateRef,
@@ -79068,6 +79076,7 @@ export {
   Renderer2,
   ɵɵcontrolCreate,
   ɵɵcontrol,
+  ɵɵinvalidFactory,
   ViewContainerRef,
   ɵɵdefineComponent,
   ɵɵdefineNgModule,
@@ -79079,6 +79088,7 @@ export {
   ɵɵInheritDefinitionFeature,
   ɵɵtemplate,
   ɵɵdomTemplate,
+  ApplicationRef,
   ɵɵdefer,
   ɵɵdeferWhen,
   ɵɵattribute,
@@ -79164,6 +79174,7 @@ export {
   provideHttpClient,
   withInterceptorsFromDi,
   withXhr,
+  DomSanitizer,
   ActivatedRoute,
   RouterOutlet,
   Router,
@@ -79208,6 +79219,7 @@ export {
   Dd,
   LocaleService,
   log,
+  randomInt,
   randomString,
   firstTruthyValueFrom,
   HotkeysService,
@@ -79236,6 +79248,8 @@ export {
   lookupNativeDomainByEmail,
   firstValueWhere,
   Clipboard,
+  isFakeMousedownFromScreenReader,
+  isFakeTouchstartFromScreenReader,
   TAB,
   ENTER,
   ESCAPE,
@@ -79245,6 +79259,7 @@ export {
   RIGHT_ARROW,
   DOWN_ARROW,
   A,
+  _getShadowRoot,
   _getFocusedElementPierceShadowDom,
   _getEventTarget,
   Platform,
@@ -79260,16 +79275,22 @@ export {
   A11yModule,
   hasModifierKey,
   ActiveDescendantKeyManager,
+  FocusKeyManager,
   _IdGenerator,
   AriaDescriber,
   Breakpoints,
   Directionality,
   BidiModule,
+  CdkFixedSizeVirtualScroll,
   ScrollDispatcher,
   ViewportRuler,
+  CdkVirtualScrollViewport,
+  CdkVirtualForOf,
   CdkScrollableModule,
+  ScrollingModule,
   ComponentPortal,
   TemplatePortal,
+  DomPortalOutlet,
   createRepositionScrollStrategy,
   OverlayConfig,
   createFlexibleConnectedPositionStrategy,
@@ -79284,6 +79305,7 @@ export {
   _animationsDisabled,
   coerceBooleanProperty,
   MatRipple,
+  _StructuralStylesLoader,
   MatRippleModule,
   provideServiceWorker,
   createErrorHandler,
@@ -79303,8 +79325,7 @@ export {
   _getOptionScrollPosition,
   MatOptionModule,
   _ErrorStateTracker,
-  IconComponent,
-  SanitizePipe
+  IconComponent
 };
-//# debugId=cc3a7f4a-8681-59c5-8d69-908ad9c98987
-//# sourceMappingURL=chunk-XL7IPLFN.js.map
+//# debugId=e5dc4486-3f2d-578e-b934-20b8225f0582
+//# sourceMappingURL=chunk-ITRS2EEY.js.map
