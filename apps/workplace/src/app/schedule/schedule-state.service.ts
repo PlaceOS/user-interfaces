@@ -29,6 +29,7 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
+    responseErrorMessage,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -1060,13 +1061,13 @@ export class ScheduleStateService extends AsyncHandler {
                     ? (item as any).instance
                     : undefined,
             } as any,
-        ).catch((e) => {
+        ).catch(async (e) => {
             notifyError(
                 i18n(
                     remove_series
                         ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_ERROR'
                         : 'APP.WORKPLACE.SCHEDULE_REMOVE_ERROR',
-                    { error: e },
+                    { error: await responseErrorMessage(e) },
                 ),
             );
             resp.close();
@@ -1115,8 +1116,12 @@ export class ScheduleStateService extends AsyncHandler {
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        const promise = setBookingCheckedIn(item, false).catch((e) => {
-            notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
+        const promise = setBookingCheckedIn(item, false).catch(async (e) => {
+            notifyError(
+                i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', {
+                    error: await responseErrorMessage(e),
+                }),
+            );
             resp.close();
             throw e;
         });

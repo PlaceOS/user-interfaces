@@ -16,6 +16,7 @@ import {
     i18n,
     notifyError,
     notifySuccess,
+    responseErrorMessage,
     SettingsService,
 } from '@placeos/common';
 import { openConfirmModal, TranslatePipe } from '@placeos/components';
@@ -212,9 +213,11 @@ export class LandingUpcomingComponent
             remove_result?.then instanceof Function
                 ? remove_result
                 : remove_result.toPromise()
-        ).catch((e) => {
+        ).catch(async (e) => {
             notifyError(
-                i18n('APP.WORKPLACE.SCHEDULE_REMOVE_ERROR', { error: e }),
+                i18n('APP.WORKPLACE.SCHEDULE_REMOVE_ERROR', {
+                    error: await responseErrorMessage(e),
+                }),
             );
             resp.close();
             throw e;
@@ -241,8 +244,12 @@ export class LandingUpcomingComponent
 
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.WORKPLACE.SCHEDULE_END_LOADING'));
-        await setBookingCheckedIn(item, false).catch((e) => {
-            notifyError(i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', { error: e }));
+        await setBookingCheckedIn(item, false).catch(async (e) => {
+            notifyError(
+                i18n('APP.WORKPLACE.SCHEDULE_END_ERROR', {
+                    error: await responseErrorMessage(e),
+                }),
+            );
             resp.close();
             throw e;
         });

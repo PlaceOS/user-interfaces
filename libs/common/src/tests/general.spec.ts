@@ -11,6 +11,7 @@ import {
     isWithinBookableHours,
     jsonToCsv,
     markUserDateChange,
+    responseErrorMessage,
     setupFormTimeSync,
     timePeriodsIntersect,
     withTimeout,
@@ -1480,6 +1481,45 @@ describe('General Methods', () => {
             expect(errorMessage({})).toBe('');
             expect(errorMessage(null)).toBe('');
             expect(errorMessage({ error: { status: 409 } })).toBe('');
+        });
+    });
+
+    describe('responseErrorMessage', () => {
+        it('should read the message from a failed request body', async () => {
+            const json = new Response(
+                JSON.stringify({ error: 'error validating booking data' }),
+                {
+                    status: 422,
+                    headers: { 'content-type': 'application/json' },
+                },
+            );
+            const text = new Response('domain does not match token', {
+                status: 401,
+                headers: { 'content-type': 'text/plain' },
+            });
+            expect(await responseErrorMessage(json)).toBe(
+                'error validating booking data',
+            );
+            expect(await responseErrorMessage(text)).toBe(
+                'domain does not match token',
+            );
+        });
+
+        it('should fall back to the HTTP status without a readable body', async () => {
+            const empty = new Response(null, {
+                status: 403,
+                statusText: 'Forbidden',
+            });
+            const html = new Response('<html>Bad gateway</html>', {
+                status: 502,
+                headers: { 'content-type': 'text/html' },
+            });
+            expect(await responseErrorMessage(empty)).toBe('403 Forbidden');
+            expect(await responseErrorMessage(html)).toBe('502');
+        });
+
+        it('should read other thrown values like errorMessage', async () => {
+            expect(await responseErrorMessage('Desk taken')).toBe('Desk taken');
         });
     });
 });

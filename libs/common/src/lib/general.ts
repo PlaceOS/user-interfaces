@@ -1775,3 +1775,29 @@ export function errorMessage(error: unknown): string {
     if (typeof value?.error?.message === 'string') return value.error.message;
     return '';
 }
+
+/**
+ * Async form of {@link errorMessage} that also reads failed API requests. The
+ * API client throws the fetch `Response`, so this reads a JSON or plain text
+ * body for the message. Falls back to the HTTP status when the body has no
+ * readable message.
+ */
+export async function responseErrorMessage(error: unknown): Promise<string> {
+    if (!(error instanceof Response)) return errorMessage(error);
+    const type = (error.headers.get('content-type') || '').toLowerCase();
+    const body = await error
+        .clone()
+        .text()
+        .catch(() => '');
+    let message = '';
+    if (type.includes('json')) {
+        try {
+            message = errorMessage(JSON.parse(body));
+        } catch {
+            message = '';
+        }
+    } else if (type.includes('text/plain')) {
+        message = body.trim();
+    }
+    return message || `${error.status} ${error.statusText}`.trim();
+}
