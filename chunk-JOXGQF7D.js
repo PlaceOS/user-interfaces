@@ -3,7 +3,6 @@ import {
   Dd,
   Injectable,
   J,
-  LocaleService,
   OrganisationService,
   Pipe,
   SettingsService,
@@ -20,38 +19,11 @@ import {
   signal,
   ɵɵdefineInjectable,
   ɵɵdefinePipe
-} from "./chunk-XL7IPLFN.js";
+} from "./chunk-ITRS2EEY.js";
 import {
   __spreadProps,
   __spreadValues
 } from "./chunk-653SOEEV.js";
-
-// libs/components/src/lib/translate.pipe.ts
-var TranslatePipe = class _TranslatePipe {
-  constructor() {
-    this._locale = inject(LocaleService);
-  }
-  transform(value, args = {}, plural) {
-    return this._locale.get(value, args, plural) || value;
-  }
-  static {
-    this.\u0275fac = function TranslatePipe_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _TranslatePipe)();
-    };
-  }
-  static {
-    this.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "translate", type: _TranslatePipe, pure: false });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TranslatePipe, [{
-    type: Pipe,
-    args: [{
-      name: "translate",
-      pure: false
-    }]
-  }], null, null);
-})();
 
 // libs/components/src/lib/date-from.pipe.ts
 var DateFromPipe = class _DateFromPipe {
@@ -2510,9 +2482,8 @@ var ChatService = class _ChatService extends AsyncHandler {
 })();
 
 export {
-  TranslatePipe,
   DateFromPipe,
   ChatService
 };
-//# debugId=74675b9e-c747-504f-921d-6ca1f65680b6
-//# sourceMappingURL=chunk-JKU67QSS.js.map
+//# debugId=654245db-c229-5741-9642-484d888ba8c5
+//# sourceMappingURL=chunk-JOXGQF7D.js.map
