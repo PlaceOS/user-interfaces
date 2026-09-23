@@ -1,6 +1,6 @@
 import {
   CustomTooltipComponent
-} from "./chunk-YXQF7K7R.js";
+} from "./chunk-GZMKUKM6.js";
 import {
   FormField,
   MAT_FORM_FIELD,
@@ -28,17 +28,17 @@ import {
   setHours,
   setMinutes,
   validate
-} from "./chunk-3BTXLSOU.js";
+} from "./chunk-QEVH73QM.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-VSGTS5RO.js";
+} from "./chunk-XCBQKULL.js";
 import {
   SanitizePipe
-} from "./chunk-Q2FZ7CPV.js";
+} from "./chunk-YPMFLHXA.js";
 import {
   TranslatePipe
-} from "./chunk-7EYVEWBB.js";
+} from "./chunk-BQGZYLAS.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -361,7 +361,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-EJR6SPGD.js";
+} from "./chunk-DX2RYTON.js";
 import {
   __objRest,
   __spreadProps,
@@ -17848,6 +17848,20 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       all_day_end: period?.end
     });
   }
+  /**
+   * Start and end times (ms) of the booking window for a form value.
+   * All-day values use the configured all-day period.
+   */
+  bookingWindow(value) {
+    if (value.all_day) {
+      const { date, date_end } = this._allDayTimeRange(value.date);
+      return { start: date, end: date_end };
+    }
+    return {
+      start: value.date,
+      end: addMinutes(value.date, value.duration).valueOf()
+    };
+  }
   _allDayTimeRange(date) {
     const period = this.setting("all_day_period");
     return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
@@ -19823,5 +19837,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=eaace9d8-669d-5d19-9cf1-13834f0a8552
-//# sourceMappingURL=chunk-BWVUVTBB.js.map
+//# debugId=5820473c-c30b-533e-9858-fa53dc4852c2
+//# sourceMappingURL=chunk-H5G7FKPL.js.map
