@@ -1,0 +1,1 @@
+import{t as $}from"./chunk-CAzVRdzz.js";function a(o,r){let t=$(o,r?.in);return t.setDate(1),t.setHours(0,0,0,0),t}export{a as t};
