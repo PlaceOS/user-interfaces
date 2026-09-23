@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["template-preview.component.ts"],
+  "sourcesContent": ["\n            .preview-frame-container {\n                container-type: size;\n            }\n\n            /* Largest frame with the chosen aspect ratio that fits the pane */\n            .preview-frame {\n                width: min(100%, calc(100cqh * var(--ratio)));\n                aspect-ratio: var(--ratio);\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,kBAAA;AACJ;AAGA,CAAA;AACI,SAAA,IAAA,IAAA,EAAA,KAAA,OAAA,EAAA,IAAA;AACA,gBAAA,IAAA;AACJ;",
+  "names": []
+}
