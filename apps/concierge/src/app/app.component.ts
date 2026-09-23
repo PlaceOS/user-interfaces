@@ -1,6 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
+import {
+    PlaceOS_Service,
+    setMocks,
+    UploadsService,
+    watchUserGroupSync,
+} from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
@@ -47,6 +52,10 @@ export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
     public readonly has_chat = signal(this._placeos.has_chat);
+
+    constructor() {
+        watchUserGroupSync();
+    }
 
     public async ngOnInit() {
         setMocks(mocksInit);

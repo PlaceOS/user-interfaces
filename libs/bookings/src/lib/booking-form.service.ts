@@ -44,6 +44,7 @@ import {
     SettingsService,
     unique,
     User,
+    user_group_names,
 } from '@placeos/common';
 import {
     cleanObject,
@@ -266,7 +267,8 @@ function buildBookingExtensionData(
             ? {
                   requires_manual_approval: !!value.requires_manual_approval,
                   user_groups: [
-                      ...(value.user
+                      ...(value.user &&
+                      value.user.email !== currentUser()?.email
                           ? value.user.groups || []
                           : currentUser()?.groups || []),
                   ],
@@ -532,6 +534,8 @@ export class BookingFormService extends AsyncHandler {
                 options: this._options(),
                 resources: this.resources(),
                 rules: this.booking_rules(),
+                // Rules and resource groups can depend on the user's groups
+                groups: user_group_names(),
                 form: this._form_value_debounced.value(),
             };
         },
@@ -2491,9 +2495,16 @@ export class BookingFormService extends AsyncHandler {
     }
 
     private _bookingRulesHost(user?: User) {
-        return this._useCurrentUserForBookingRules()
-            ? currentUser()
-            : user || currentUser();
+        const current_user = currentUser();
+        // The form keeps a copy of the current user that can have old groups
+        if (
+            this._useCurrentUserForBookingRules() ||
+            !user ||
+            user.email === current_user.email
+        ) {
+            return current_user;
+        }
+        return user;
     }
 
     private async _loadBookingRulesHost(host: string) {
