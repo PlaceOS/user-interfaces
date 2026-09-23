@@ -49912,15 +49912,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION3 = {
   "dirty": false,
-  "raw": "53273a8",
-  "hash": "53273a8",
+  "raw": "29943ae",
+  "hash": "29943ae",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "53273a8",
+  "suffix": "29943ae",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1790128767551
+  "time": 1790132555591
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -80851,5 +80851,5 @@ export {
   _MatInternalFormField,
   IconComponent
 };
-//# debugId=0295e35b-7d10-5dc7-8f68-2992f32e3a6d
-//# sourceMappingURL=chunk-PWZG2X6B.js.map
+//# debugId=a3b353c3-0b10-533e-bd6f-a20d5e0aac85
+//# sourceMappingURL=chunk-WMP6ELDR.js.map
