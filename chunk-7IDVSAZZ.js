@@ -12,7 +12,7 @@ import {
   saveAssetCategory,
   saveAssetType,
   validateAssetRequestsForResource
-} from "./chunk-7CKC6MWU.js";
+} from "./chunk-Q2IMPMLI.js";
 import {
   Booking,
   FormField,
@@ -43,13 +43,13 @@ import {
   updateBooking,
   updateSpaceList,
   validate
-} from "./chunk-XM2IJYGS.js";
+} from "./chunk-DPDU2BCW.js";
 import {
   SanitizePipe
-} from "./chunk-Y7O26H5P.js";
+} from "./chunk-DVETEXZ4.js";
 import {
   TranslatePipe
-} from "./chunk-BR3SM4VB.js";
+} from "./chunk-WDQ3IO55.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -230,6 +230,7 @@ import {
   isMobileSafari,
   isWithinBookableHours,
   localToTimezone,
+  log,
   map,
   merge,
   model,
@@ -336,7 +337,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-IAED2UK4.js";
+} from "./chunk-HIR34S43.js";
 import {
   __objRest,
   __spreadProps,
@@ -6927,7 +6928,9 @@ var CalendarService = class _CalendarService extends AsyncHandler {
   async loadCalendars() {
     if (this._calendars().length)
       return;
-    this._calendars_request = this._calendars_request || queryCalendars().then((list) => this._calendars.set(list)).finally(() => this._calendars_request = null);
+    this._calendars_request = this._calendars_request || queryCalendars().then((list) => this._calendars.set(list)).catch((error) => {
+      log("CalendarService", "Failed to load calendars", error, "warn");
+    }).finally(() => this._calendars_request = null);
     await this._calendars_request;
   }
   _waitForOrg() {
@@ -7777,14 +7780,18 @@ async function findNearbyFeature(map_url, centered_at, desk_ids = []) {
 }
 function newBookingFromCalendarEvent(event) {
   const date = event.date || event.event_start * 1e3;
+  const duration = event.duration ?? (event.event_end - event.event_start) / 60;
   const recurrence = event.recurrence?.pattern ? toBookingRecurrence(fromEventRecurrence(event.recurrence), date) : {};
   return new Booking(__spreadProps(__spreadValues({
     id: event.id,
+    user_id: event.organiser?.id || event.host,
     user_email: event.host,
+    user_name: event.organiser?.name || event.host,
     date,
-    duration: event.duration,
+    duration,
     asset_id: event.system?.id || event.system_id,
     asset_name: event.system?.display_name || event.system?.name,
+    zones: [...event.system?.zones || []],
     booking_type: "room",
     approved: event.status === "approved"
   }, recurrence), {
@@ -9194,8 +9201,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   async listResources() {
     this._startNetwork();
     await firstValueWhere(this._requests_ready, (ready) => ready, this._injector);
-    const params = this._resource_params();
-    await firstValueWhere(this._resource_params_debounced.value, (value) => value === params, this._injector);
+    await firstValueWhere(computed(() => this._resource_params_debounced.value() === this._resource_params()), (ready) => ready, this._injector);
     await this._whenSettled(this._resources_resource);
     return this.resources();
   }
@@ -9203,8 +9209,7 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
   async listAvailableResources() {
     this._startNetwork();
     const resources = await this.listResources();
-    const rules_params = this._booking_rules_params();
-    await firstValueWhere(this._booking_rules_params_debounced.value, (value) => value === rules_params, this._injector);
+    await firstValueWhere(computed(() => this._booking_rules_params_debounced.value() === this._booking_rules_params()), (ready) => ready, this._injector);
     await this._whenSettled(this._booking_rules_resource);
     return this._computeAvailableResources(this._options(), resources, this.booking_rules(), this.model());
   }
@@ -9998,21 +10003,19 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       extension_data: buildBookingExtensionData(value, group_members),
       approved: this._settings.get("app.bookings.no_approval") === true,
       zones: unique([...zones, ...value.zones || []]).filter((_) => _)
-    })).toJSON(), q).catch((e) => {
+    })).toJSON(), q).catch(async (e) => {
       this._loading.set("");
-      const error = e?.error || e;
-      if (e?.status) {
-        if (typeof error === "object" && error !== null) {
-          error.status = e.status;
-        } else {
-          if (this._isPermissionError(e))
-            this._clearSavedHostChange();
-          throw { message: error, status: e.status };
-        }
+      let error = e?.error || e;
+      if (error instanceof Response) {
+        error = await error.clone().json().catch(() => null);
       }
-      if (this._isPermissionError(error))
+      const failure = e?.status ? {
+        message: this._error_message(error),
+        status: e.status
+      } : error;
+      if (this._isPermissionError(failure))
         this._clearSavedHostChange();
-      throw error;
+      throw failure;
     });
     if (value.assets?.length || booking.extension_data.assets?.length) {
       const is_new_booking = !booking.id && !value.id;
@@ -10414,9 +10417,9 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
     this._finishGroupFlow(type);
     return first_result;
   }
-  /** Build the group identifier, reusing an existing one when supplied. */
+  /** Give each new group its own asset ID and preserve it during edits. */
   _groupName(existing) {
-    return existing || `${currentUser().email}[${format(Date.now(), "yyyy-MM-dd")}]`;
+    return existing || `grp-${randomString(24)}`;
   }
   /** Form patch for a single visitor in a group flow. */
   _visitorMemberPatch(member, base_form, opts) {
@@ -11653,5 +11656,5 @@ export {
   generateMicrosoftCalendarLink,
   BookingFormService
 };
-//# debugId=1cf1296c-5fab-56db-b8ca-a64b7d510f72
-//# sourceMappingURL=chunk-VBSC45JI.js.map
+//# debugId=de208e71-2604-579f-a8eb-8c0cf5ec0804
+//# sourceMappingURL=chunk-7IDVSAZZ.js.map
