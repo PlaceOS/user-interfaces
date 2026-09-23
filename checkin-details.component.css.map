@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["checkin-details.component.ts"],
+  "sourcesContent": ["\n            form {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n            }\n\n            [field] {\n                width: calc(100% - 2rem);\n            }\n\n            button {\n                margin-bottom: 1rem;\n                width: 8rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACA,aAAA,KAAA,MAAA,EAAA;AACJ;AAEA,CAAA;AACI,SAAA,KAAA,KAAA,EAAA;AACJ;AAEA;AACI,iBAAA;AACA,SAAA;AACJ;",
+  "names": []
+}

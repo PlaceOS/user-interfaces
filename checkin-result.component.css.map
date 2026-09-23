@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["checkin-result.component.ts"],
+  "sourcesContent": ["\n            :host > div {\n                max-width: calc(100vw - 2rem);\n            }\n        "],
+  "mappings": ";AACY,MAAA,EAAA;AACI,aAAA,KAAA,MAAA,EAAA;AACJ;",
+  "names": []
+}
