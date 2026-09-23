@@ -2,16 +2,18 @@ import {
   ControlStateService,
   DialpadComponent,
   VideoCallStateService
-} from "./chunk-XNRMOYPT.js";
+} from "./chunk-54JGWFPQ.js";
 import {
   MatFormField,
   MatFormFieldModule,
   MatProgressSpinner,
   MatProgressSpinnerModule,
   MatSelect,
-  MatSelectModule,
+  MatSelectModule
+} from "./chunk-PPF3TODQ.js";
+import {
   TranslatePipe
-} from "./chunk-K6HXCN7K.js";
+} from "./chunk-66FGSBLG.js";
 import {
   AsyncHandler,
   Component,
@@ -61,7 +63,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-HHO3QMCS.js";
+} from "./chunk-WL7WGIFQ.js";
 
 // apps/control/src/app/video-call/video-call-page.component.ts
 function VideoCallPageComponent_Conditional_0_Conditional_3_For_3_Template(rf, ctx) {
@@ -665,5 +667,5 @@ var VideoCallPageComponent = _VideoCallPageComponent;
 export {
   VideoCallPageComponent
 };
-//# debugId=ba9dac99-6965-55cf-a043-1bbda467c39d
-//# sourceMappingURL=chunk-MDSAQTOY.js.map
+//# debugId=3a22a5c6-0635-5973-96fb-aa820bbd52dc
+//# sourceMappingURL=chunk-FZ2N4QXE.js.map
