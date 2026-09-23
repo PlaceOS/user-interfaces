@@ -4,14 +4,14 @@ import {
 import {
   AuthenticatedImageDirective,
   PanelStateService
-} from "./chunk-CZKYXOQU.js";
-import "./chunk-2EGXKPHK.js";
+} from "./chunk-H47ZJMW5.js";
+import "./chunk-R2LDNVTX.js";
 import {
   SanitizePipe
-} from "./chunk-ZH2YCV3X.js";
+} from "./chunk-TV3XMBDI.js";
 import {
   TranslatePipe
-} from "./chunk-QQYE4VV6.js";
+} from "./chunk-6SUUQE6E.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -58,7 +58,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2
-} from "./chunk-IAXHJHGO.js";
+} from "./chunk-K5FI6TTE.js";
 import "./chunk-KUGYOAP2.js";
 
 // apps/booking-panel/src/app/event-panel.component.ts
@@ -514,4 +514,4 @@ export {
   EventPanelComponent
 };
 //# debugId=30efe565-e99d-51f7-825e-34b8644c4c6e
-//# sourceMappingURL=event-panel.component-7MNG54U7.js.map
+//# sourceMappingURL=event-panel.component-4WGRAA6E.js.map
