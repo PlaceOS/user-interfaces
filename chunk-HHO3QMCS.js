@@ -51024,15 +51024,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION4 = {
   "dirty": false,
-  "raw": "f4a5e98",
-  "hash": "f4a5e98",
+  "raw": "5d0246b",
+  "hash": "5d0246b",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "f4a5e98",
+  "suffix": "5d0246b",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1789882473440
+  "time": 1790126007568
 };
 
 // node_modules/@placeos/ts-client/dist/index.es.js
@@ -81938,5 +81938,5 @@ export {
   MatTooltip,
   MatTooltipModule
 };
-//# debugId=c0c50539-7d8d-5e60-af1c-ad493872bb2e
-//# sourceMappingURL=chunk-A2OFOUNK.js.map
+//# debugId=4360979d-4c26-5107-b3ff-46d11acde4e2
+//# sourceMappingURL=chunk-HHO3QMCS.js.map
