@@ -261,6 +261,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `desks.has_assets` | boolean | – | Make asset requests available in the desk booking flow. Overrides `bookings.has_assets`. |
 | `desks.hide_map` | boolean | `false` | Hide the map when selecting desks. |
 | `desks.default_select_as_map` | boolean | `false` | Open the desk selection modal on the map view instead of the list view. |
+| `desks.show_users` | boolean | `true` | Show desk users in desk tooltips. On the Explore map, this controls the staff name from the building system. On the desk booking map, this controls the names of the people who booked the desk in the selected time window. |
 | `desks.needs_reason` | boolean | – | Require users to enter a reason for their desk booking. |
 | `desks.hide_reason` | boolean | – | Hide the ability to enter a reason for a desk booking. |
 | `desks.show_calendar_links` | boolean | `true` | Show "add to calendar" links on the desk booking success view. |

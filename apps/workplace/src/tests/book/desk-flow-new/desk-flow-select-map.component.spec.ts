@@ -2,11 +2,14 @@ import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { InteractiveMapComponent } from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
 import { mockComponent } from '@placeos/common/tests';
+import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { DeskFlowSelectMapComponent } from '../../../app/book/desk-flow-new/desk-flow-select-map.component';
 
@@ -17,6 +20,7 @@ describe('DeskFlowSelectMapComponent', () => {
     let model: WritableSignal<any>;
     let options: WritableSignal<any>;
     let use_region: WritableSignal<boolean>;
+    let show_users: WritableSignal<boolean>;
     let set_options: any;
     let settings_get: any;
 
@@ -64,6 +68,10 @@ describe('DeskFlowSelectMapComponent', () => {
                     model,
                     options,
                     setOptions: (set_options = vi.fn()),
+                    bookingWindow: ({ date, duration }) => ({
+                        start: date,
+                        end: date + duration * 60 * 1000,
+                    }),
                 }),
             },
             MockProvider(OrganisationService, {
@@ -86,7 +94,10 @@ describe('DeskFlowSelectMapComponent', () => {
             } as any),
             MockProvider(SettingsService, {
                 get: (settings_get = vi.fn(() => ({}))),
-                signal: ((_key: string, _def: boolean) => use_region) as any,
+                signal: ((key: string) =>
+                    key === 'desks.show_users'
+                        ? show_users
+                        : use_region) as any,
             } as any),
         ],
     });
@@ -94,6 +105,12 @@ describe('DeskFlowSelectMapComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         use_region = signal(false);
+        show_users = signal(true);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [],
+            total: 0,
+            next: null,
+        } as any);
         resources = signal<any[]>([desk_1, desk_2]);
         available_resources = signal<any[]>([desk_1]);
         model = signal<any>({ resources: [] });
@@ -181,6 +198,62 @@ describe('DeskFlowSelectMapComponent', () => {
 
         spectator.setInput('selected_items', ['desk-1']);
         expect((features[0].data.status as () => string)()).toBe('pending');
+    });
+
+    it('should show who booked each desk in the search window', async () => {
+        const date = new Date(2026, 8, 23, 9).valueOf();
+        model.set({ resources: [], date, duration: 60 });
+        spectator.component.level.set(level_1 as any);
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [
+                new Booking({
+                    id: 'b-1',
+                    asset_id: 'desk-2',
+                    user_name: 'Taylor',
+                }),
+                new Booking({
+                    id: 'b-2',
+                    asset_id: 'desk-2',
+                    user_name: 'Jordan',
+                }),
+                new Booking({
+                    id: 'b-3',
+                    asset_id: 'desk-1',
+                    user_name: 'Casey',
+                    deleted: true,
+                }),
+            ],
+            total: 3,
+            next: null,
+        } as any);
+        TestBed.flushEffects();
+        await vi.waitFor(() =>
+            expect(spectator.component.features()[1].data.user()).toBe(
+                'Taylor, Jordan',
+            ),
+        );
+
+        expect(ts_client.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({
+                    type: 'desk',
+                    zones: 'level-1',
+                    period_start: date / 1000,
+                    period_end: date / 1000 + 3600,
+                }),
+            }),
+        );
+        // Cancelled bookings do not name the desk user
+        expect(spectator.component.features()[0].data.user()).toBe('');
+    });
+
+    it('should not load desk users when users are hidden', () => {
+        show_users.set(false);
+        model.set({ resources: [], date: Date.now(), duration: 60 });
+        spectator.component.level.set(level_1 as any);
+        TestBed.flushEffects();
+
+        expect(ts_client.query).not.toHaveBeenCalled();
     });
 
     it('should emit the desk when a map action callback fires', () => {

@@ -2,20 +2,27 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    debounced,
     effect,
     inject,
     Injector,
     input,
     OnInit,
     output,
+    resource,
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { BookingAsset, BookingFormService } from '@placeos/bookings';
+import {
+    BookingAsset,
+    BookingFormService,
+    queryAllBookings,
+} from '@placeos/bookings';
 import {
     AsyncHandler,
+    Booking,
     BuildingLevel,
     OrganisationService,
     SettingsService,
@@ -28,8 +35,12 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
+import { getUnixTime } from 'date-fns';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { ExploreDeskInfoComponent } from 'libs/explore/src/lib/explore-desk-info.component';
+import {
+    DeskInfoData,
+    ExploreDeskInfoComponent,
+} from 'libs/explore/src/lib/explore-desk-info.component';
 
 @Component({
     selector: 'desk-flow-select-map',
@@ -145,6 +156,10 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _injector = inject(Injector);
     private readonly _use_region = this._settings.signal('use_region', false);
+    private readonly _show_users = this._settings.signal(
+        'desks.show_users',
+        true,
+    );
 
     public readonly selected_items = input<string[]>([]);
     public readonly active = input<string>(undefined);
@@ -197,14 +212,63 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
                     id: space.id,
                     map_id,
                     name: space.display_name || space.name || space.id,
-                    user: signal(''),
+                    user: computed(
+                        () => this._booked_users()[space.id]?.join(', ') || '',
+                    ),
                     status: computed(() => this._deskStatus(space)),
                     bookings: signal([]),
-                },
+                } satisfies DeskInfoData,
                 z_index: 20,
             };
         }),
     );
+    /** Level and time window used to find who booked each desk */
+    private readonly _booking_query = computed(() => {
+        const zone = this.level()?.id;
+        const form = this.form_value();
+        if (!this._show_users() || !zone || !(form?.date > 0)) return;
+        const { start, end } = this._booking_form.bookingWindow(form);
+        if (!(end > start)) return;
+        return { zone, start, end };
+    });
+    /** Booking query, debounced to coalesce rapid form changes */
+    private readonly _booking_query_debounced = debounced(
+        this._booking_query,
+        500,
+        {
+            equal: (a, b) =>
+                a?.zone === b?.zone &&
+                a?.start === b?.start &&
+                a?.end === b?.end,
+        },
+    );
+    /** Desk bookings on the active level within the search window */
+    private readonly _level_bookings = resource({
+        params: () => this._booking_query_debounced.value(),
+        loader: ({ params: { zone, start, end } }) =>
+            queryAllBookings({
+                type: 'desk',
+                zones: zone,
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
+                limit: 200,
+            }),
+    });
+    /** Names of the people who booked each desk, mapped by desk ID */
+    private readonly _booked_users = computed(() => {
+        const users: Record<string, string[]> = {};
+        const bookings: Booking[] = this._level_bookings.value() ?? [];
+        for (const booking of bookings) {
+            if (['cancelled', 'declined'].includes(booking.status)) continue;
+            const name = booking.user_name || booking.booked_by_name;
+            if (!name) continue;
+            for (const id of booking.asset_ids) {
+                users[id] ??= [];
+                if (!users[id].includes(name)) users[id].push(name);
+            }
+        }
+        return users;
+    });
     public readonly use_region = this._use_region;
     public readonly levels = computed(() => {
         const region = this._org.active_region();

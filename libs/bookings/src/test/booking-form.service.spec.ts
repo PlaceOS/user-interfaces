@@ -387,6 +387,30 @@ describe('BookingFormService', () => {
         expect(show_user).not.toHaveBeenCalled();
     });
 
+    it('should use the all-day period for the booking window', () => {
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.all_day_period'
+                    ? { start: 8, end: 18 }
+                    : undefined,
+        );
+        const date = new Date(2026, 8, 23, 13, 30).valueOf();
+
+        expect(spectator.service.bookingWindow({ date, duration: 60 })).toEqual(
+            { start: date, end: date + 60 * 60 * 1000 },
+        );
+        expect(
+            spectator.service.bookingWindow({
+                date,
+                duration: 60,
+                all_day: true,
+            }),
+        ).toEqual({
+            start: new Date(2026, 8, 23, 8).valueOf(),
+            end: new Date(2026, 8, 23, 18).valueOf(),
+        });
+    });
+
     it('should handle view changes', () => {
         expect(spectator.service.view()).toBe('form');
         spectator.service.setView('map');

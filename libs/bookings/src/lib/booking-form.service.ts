@@ -1084,6 +1084,25 @@ export class BookingFormService extends AsyncHandler {
         });
     }
 
+    /**
+     * Start and end times (ms) of the booking window for a form value.
+     * All-day values use the configured all-day period.
+     */
+    public bookingWindow(value: {
+        date?: number;
+        duration?: number;
+        all_day?: boolean;
+    }) {
+        if (value.all_day) {
+            const { date, date_end } = this._allDayTimeRange(value.date);
+            return { start: date, end: date_end };
+        }
+        return {
+            start: value.date,
+            end: addMinutes(value.date, value.duration).valueOf(),
+        };
+    }
+
     private _allDayTimeRange(date: number) {
         const period = this.setting('all_day_period');
         return getAllDayTimeRange(
