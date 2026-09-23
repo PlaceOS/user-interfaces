@@ -1,23 +1,23 @@
 import {
   RemoteLoggingService
-} from "./chunk-5Z57MJBO.js";
+} from "./chunk-HCRERGGY.js";
 import {
   currentPeriod,
   nextPeriod,
   timelineData,
   timelineStart
-} from "./chunk-KGLA6YHS.js";
+} from "./chunk-AQSLTQOT.js";
 import {
   generateQRCode
 } from "./chunk-NVKVY6H5.js";
 import {
   PanelStateService
-} from "./chunk-U75F4ZUE.js";
-import "./chunk-GI6WC6PW.js";
-import "./chunk-O2WPSIU2.js";
+} from "./chunk-3C2PSCP2.js";
+import "./chunk-FWA3L6IB.js";
+import "./chunk-AKWZDV2K.js";
 import {
   TranslatePipe
-} from "./chunk-JROEG3FB.js";
+} from "./chunk-T5GLOUSK.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -75,7 +75,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2
-} from "./chunk-7IW2FI7S.js";
+} from "./chunk-PTLVLBYT.js";
 import "./chunk-KUGYOAP2.js";
 
 // apps/booking-panel/src/app/new-panel/panel-view-details.component.ts
@@ -1279,4 +1279,4 @@ export {
   PanelViewComponent
 };
 //# debugId=b0879275-d633-5f89-bd10-78aa539358e7
-//# sourceMappingURL=panel-view.component-JV3YK7WL.js.map
+//# sourceMappingURL=panel-view.component-KYOZYLX2.js.map
