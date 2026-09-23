@@ -1,20 +1,20 @@
 import {
   currentPeriod,
   nextPeriod
-} from "./chunk-S6HS3QTL.js";
+} from "./chunk-KGLA6YHS.js";
 import {
   PanelStateService,
   getNextFreeTimeSlot,
   subHours
-} from "./chunk-H47ZJMW5.js";
+} from "./chunk-U75F4ZUE.js";
 import {
   subMinutes
-} from "./chunk-YNM725ZE.js";
-import "./chunk-R2LDNVTX.js";
-import "./chunk-TV3XMBDI.js";
+} from "./chunk-HQEXJWBV.js";
+import "./chunk-GI6WC6PW.js";
+import "./chunk-O2WPSIU2.js";
 import {
   TranslatePipe
-} from "./chunk-6SUUQE6E.js";
+} from "./chunk-JROEG3FB.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -70,7 +70,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-K5FI6TTE.js";
+} from "./chunk-7IW2FI7S.js";
 import "./chunk-KUGYOAP2.js";
 
 // apps/booking-panel/src/app/checkin/checkin-timetable.component.ts
@@ -950,4 +950,4 @@ export {
   CheckinViewComponent
 };
 //# debugId=17cf7ea3-fdd4-5d2a-878c-67cf90a45eb8
-//# sourceMappingURL=checkin-view.component-LT7OK7QP.js.map
+//# sourceMappingURL=checkin-view.component-3HYZX52L.js.map
