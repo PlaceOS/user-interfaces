@@ -18,7 +18,6 @@ import {
   InjectionToken,
   Injector,
   Input,
-  LocaleService,
   MINUTES,
   NG_VALIDATORS,
   NG_VALUE_ACCESSOR,
@@ -30,7 +29,6 @@ import {
   Observable,
   ObserversModule,
   Output,
-  Pipe,
   Platform,
   Renderer2,
   RendererFactory2,
@@ -98,7 +96,6 @@ import {
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
-  ɵɵdefinePipe,
   ɵɵdefineService,
   ɵɵdomElement,
   ɵɵdomElementEnd,
@@ -127,7 +124,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-KUO3ZYBY.js";
+} from "./chunk-4JTRKPZR.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4007,33 +4004,6 @@ var MatInputModule = class _MatInputModule {
   }], null, null);
 })();
 
-// libs/components/src/lib/translate.pipe.ts
-var TranslatePipe = class _TranslatePipe {
-  constructor() {
-    this._locale = inject(LocaleService);
-  }
-  transform(value, args = {}, plural) {
-    return this._locale.get(value, args, plural) || value;
-  }
-  static {
-    this.\u0275fac = function TranslatePipe_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _TranslatePipe)();
-    };
-  }
-  static {
-    this.\u0275pipe = /* @__PURE__ */ \u0275\u0275definePipe({ name: "translate", type: _TranslatePipe, pure: false });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(TranslatePipe, [{
-    type: Pipe,
-    args: [{
-      name: "translate",
-      pure: false
-    }]
-  }], null, null);
-})();
-
 export {
   MatProgressSpinner,
   MatProgressSpinnerModule,
@@ -4045,7 +4015,6 @@ export {
   FORM_FIELD,
   MatInput,
   MatInputModule,
-  TranslatePipe,
   isDebugEnabled,
   isDebugMode,
   recordHeartbeat,
@@ -4054,5 +4023,5 @@ export {
   startWatchdog,
   watchdogState
 };
-//# debugId=e5ad87fc-10d4-5c55-b629-05cb55cb8e0d
-//# sourceMappingURL=chunk-ZMRD5U3J.js.map
+//# debugId=7ef1299f-10ef-5e06-b18f-c5281efab9dd
+//# sourceMappingURL=chunk-GD5NI5V5.js.map
