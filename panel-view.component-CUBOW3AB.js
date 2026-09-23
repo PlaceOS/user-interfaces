@@ -3,18 +3,18 @@ import {
   nextPeriod,
   timelineData,
   timelineStart
-} from "./chunk-OXR65EWE.js";
+} from "./chunk-S6HS3QTL.js";
 import {
   generateQRCode
 } from "./chunk-NVKVY6H5.js";
 import {
   PanelStateService
-} from "./chunk-CZKYXOQU.js";
-import "./chunk-2EGXKPHK.js";
-import "./chunk-ZH2YCV3X.js";
+} from "./chunk-H47ZJMW5.js";
+import "./chunk-R2LDNVTX.js";
+import "./chunk-TV3XMBDI.js";
 import {
   TranslatePipe
-} from "./chunk-QQYE4VV6.js";
+} from "./chunk-6SUUQE6E.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -78,7 +78,7 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵtextInterpolate2
-} from "./chunk-IAXHJHGO.js";
+} from "./chunk-K5FI6TTE.js";
 import "./chunk-KUGYOAP2.js";
 
 // libs/common/src/lib/remote-logging.service.ts
@@ -1389,4 +1389,4 @@ export {
   PanelViewComponent
 };
 //# debugId=9f2c590b-fbe9-5c5b-9584-6cc4bfe6ee6b
-//# sourceMappingURL=panel-view.component-VU3KGL5U.js.map
+//# sourceMappingURL=panel-view.component-CUBOW3AB.js.map
