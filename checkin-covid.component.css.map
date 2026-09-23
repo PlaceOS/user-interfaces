@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["checkin-covid.component.ts"],
+  "sourcesContent": ["\n            :host > div {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n                max-height: calc(100% - 2rem);\n            }\n\n            button {\n                margin: 1rem 11rem 0;\n                width: 8rem;\n            }\n        "],
+  "mappings": ";AACY,MAAA,EAAA;AACI,SAAA;AACA,aAAA,KAAA,MAAA,EAAA;AACA,cAAA,KAAA,KAAA,EAAA;AACJ;AAEA;AACI,UAAA,KAAA,MAAA;AACA,SAAA;AACJ;",
+  "names": []
+}
