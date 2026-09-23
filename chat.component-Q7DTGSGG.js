@@ -1,8 +1,13 @@
 import {
   ChatService,
-  DateFromPipe,
+  DateFromPipe
+} from "./chunk-EHVUWVAU.js";
+import {
   TranslatePipe
-} from "./chunk-CMIVU5XJ.js";
+} from "./chunk-B7WLEFKZ.js";
+import {
+  SanitizePipe
+} from "./chunk-LXNRIXK4.js";
 import {
   AsyncHandler,
   Component,
@@ -13,7 +18,6 @@ import {
   MatRippleModule,
   NgControlStatus,
   NgModel,
-  SanitizePipe,
   SettingsService,
   User,
   ViewChild,
@@ -60,7 +64,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-T4W2OICP.js";
+} from "./chunk-CZBUHK7A.js";
 import "./chunk-653SOEEV.js";
 
 // libs/components/src/lib/chat/chat.component.ts
@@ -651,5 +655,5 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
 export {
   ChatComponent
 };
-//# debugId=4c32af7b-63f1-5141-8dad-02a3d372e0be
-//# sourceMappingURL=chat.component-QCJTLX3I.js.map
+//# debugId=2723d124-538c-5412-aaa5-6e5577e1c240
+//# sourceMappingURL=chat.component-Q7DTGSGG.js.map
