@@ -9,11 +9,11 @@ import {
   generateMockSpace,
   setHours,
   setMinutes
-} from "./chunk-7IDVSAZZ.js";
+} from "./chunk-PT4WEO5N.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-HTUP3OHY.js";
+} from "./chunk-MDG73ZY5.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
@@ -23,10 +23,10 @@ import {
   MatSelect,
   MatSelectModule,
   MatSelectTrigger
-} from "./chunk-Q2IMPMLI.js";
+} from "./chunk-ZDFYU6HH.js";
 import {
   CheckinStateService
-} from "./chunk-3DO5BBMF.js";
+} from "./chunk-YVBZB334.js";
 import {
   AuthenticatedImageDirective,
   FormField,
@@ -40,13 +40,13 @@ import {
   MatProgressSpinnerModule,
   VirtualKeyboardComponent,
   subDays
-} from "./chunk-DPDU2BCW.js";
+} from "./chunk-FKXGUKLN.js";
 import {
   SanitizePipe
-} from "./chunk-DVETEXZ4.js";
+} from "./chunk-VYZPDHL7.js";
 import {
   TranslatePipe
-} from "./chunk-WDQ3IO55.js";
+} from "./chunk-SU35FHZD.js";
 import {
   ActivatedRoute,
   AsyncHandler,
@@ -225,7 +225,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-HIR34S43.js";
+} from "./chunk-D4E7PIZL.js";
 import {
   __spreadProps,
   __spreadValues
@@ -1552,15 +1552,15 @@ var GlobalLoadingComponent = class _GlobalLoadingComponent extends AsyncHandler 
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Defer_25_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-UITNDZ2F.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-SW234J4R.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_28_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-FWBHGVKW.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-FLAS2RNN.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Defer_31_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-AGCI4GJI.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-VSCK7NQB.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Defer_24_Conditional_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1795,11 +1795,11 @@ var SettingsDebugPanelLauncherComponent = class _SettingsDebugPanelLauncherCompo
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-UITNDZ2F.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-SW234J4R.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-FWBHGVKW.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-FLAS2RNN.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-AGCI4GJI.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-VSCK7NQB.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -10175,7 +10175,7 @@ function mocksInit() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-VMIDGJ2C.js").then((m) => m.ChatComponent)
+  import("./chat.component-P5OICDVE.js").then((m) => m.ChatComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10239,7 +10239,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-VMIDGJ2C.js").then((m) => m.ChatComponent)
+    import("./chat.component-P5OICDVE.js").then((m) => m.ChatComponent)
   ], (ChatComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -12451,17 +12451,17 @@ var routes = [
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-6VJL7X5H.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-Y6G3SVFN.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-JBV5RPKR.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-LMQTNDGX.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-5KK6OA5F.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-2QP3L4ZG.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
