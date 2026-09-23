@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["support-ticket-modal.component.ts"],
+  "sourcesContent": ["\n            mat-form-field {\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACJ;",
+  "names": []
+}
