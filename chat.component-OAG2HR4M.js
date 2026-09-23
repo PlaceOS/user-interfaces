@@ -1,6 +1,9 @@
 import {
   TranslatePipe
-} from "./chunk-QVEWYJ47.js";
+} from "./chunk-VJYCZ7TB.js";
+import {
+  SanitizePipe
+} from "./chunk-5RLWIYUI.js";
 import {
   AsyncHandler,
   Component,
@@ -16,7 +19,6 @@ import {
   NgModel,
   OrganisationService,
   Pipe,
-  SanitizePipe,
   SettingsService,
   User,
   ViewChild,
@@ -71,7 +73,7 @@ import {
   ɵɵtwoWayListener,
   ɵɵtwoWayProperty,
   ɵɵviewQuerySignal
-} from "./chunk-PLRNIPDF.js";
+} from "./chunk-PWZG2X6B.js";
 import {
   __spreadProps,
   __spreadValues
@@ -3121,5 +3123,5 @@ var ChatComponent = class _ChatComponent extends AsyncHandler {
 export {
   ChatComponent
 };
-//# debugId=aa6326ba-7e6b-5fab-9086-ffcd79cb9aa7
-//# sourceMappingURL=chat.component-MPEA4TXW.js.map
+//# debugId=f040e4b6-dfe2-540b-8bc3-26aec31e9dbd
+//# sourceMappingURL=chat.component-OAG2HR4M.js.map
