@@ -315,6 +315,93 @@ describe('EventFormService', () => {
         expect(service.last_success()?.date_end).toBe(date + 60 * 60 * 1000);
     });
 
+    it.each([0, 30])(
+        'should reject a new room booking overlapping a previously edited event by offset %s minutes',
+        async (offset) => {
+            const date = new Date(2028, 5, 15, 10).valueOf();
+            const space = new Space({
+                id: 'space-1',
+                email: 'space-1@test.com',
+                zones: ['bld-1'],
+                bookable: true,
+            });
+            const previous = new CalendarEvent({
+                id: 'event-1',
+                title: 'Existing meeting',
+                date,
+                duration: 60,
+                resources: [space],
+            });
+            vi.spyOn(service, 'book_internal', 'get').mockReturnValue(false);
+            vi.spyOn(
+                (
+                    service as unknown as {
+                        _space_pipe: {
+                            transform: (email: string) => Promise<Space>;
+                        };
+                    }
+                )._space_pipe,
+                'transform',
+            ).mockResolvedValue(space);
+            // The client overload includes text responses; these endpoints return JSON.
+            vi.mocked(ts_client.get).mockImplementation((async (
+                path: string,
+            ) =>
+                path.includes('/free_busy')
+                    ? [
+                          {
+                              id: space.email,
+                              resource: space,
+                              availability: [
+                                  { date, duration: 60, status: 'busy' },
+                              ],
+                          },
+                      ]
+                    : []) as unknown as typeof ts_client.get);
+            const save = vi
+                .spyOn(
+                    service as unknown as {
+                        _performBooking: (
+                            event: CalendarEvent,
+                        ) => Promise<CalendarEvent>;
+                    },
+                    '_performBooking',
+                )
+                .mockResolvedValue(previous);
+
+            service.newForm(previous);
+            service.newForm();
+            service.model.update((model) => ({
+                ...model,
+                title: 'Conflicting meeting',
+                date: date + offset * 60_000,
+                duration: 60,
+                resources: [space],
+            }));
+
+            await expect(service.postForm(true)).rejects.toEqual(
+                i18n('CALENDAR_EVENT.SPACE_UNAVAILABLE', {
+                    spaces: space.email,
+                }),
+            );
+            expect(save).not.toHaveBeenCalled();
+            expect(ts_client.get).not.toHaveBeenCalledWith(
+                expect.stringContaining('/free_busy'),
+            );
+        },
+    );
+
+    it('should clear the previous event when a new form is reloaded', () => {
+        service.newForm(
+            new CalendarEvent({ id: 'event-1', title: 'Old meeting' }),
+        );
+        service.newForm();
+        service.loadForm();
+
+        expect(service.model().id).toBeFalsy();
+        expect(service.model().title).not.toBe('Old meeting');
+    });
+
     it('should keep custom all-day events marked all-day in the form', () => {
         const event = new CalendarEvent({
             id: 'event-1',

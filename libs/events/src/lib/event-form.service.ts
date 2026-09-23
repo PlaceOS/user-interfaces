@@ -725,12 +725,16 @@ export class EventFormService extends AsyncHandler {
         // snapshot after the duration settings are applied, as they clamp the
         // event times to the building's booking rules without any user input
         this._setInitialEvent(this._model());
-        if (!event.id) return;
+        // Only an existing event can be excluded from room availability checks.
+        this._event.set(event.id ? event : new CalendarEvent());
+        if (!event.id) {
+            sessionStorage.removeItem('PLACEOS.event');
+            return;
+        }
         sessionStorage.setItem(
             'PLACEOS.event',
             JSON.stringify(event?.toJSON() || {}),
         );
-        this._event.set(event);
     }
 
     public resetForm() {
