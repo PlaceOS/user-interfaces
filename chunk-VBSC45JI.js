@@ -12,7 +12,7 @@ import {
   saveAssetCategory,
   saveAssetType,
   validateAssetRequestsForResource
-} from "./chunk-3NZB6M7O.js";
+} from "./chunk-7CKC6MWU.js";
 import {
   Booking,
   FormField,
@@ -43,13 +43,13 @@ import {
   updateBooking,
   updateSpaceList,
   validate
-} from "./chunk-4BTL34JT.js";
+} from "./chunk-XM2IJYGS.js";
 import {
   SanitizePipe
-} from "./chunk-UL4W6XSS.js";
+} from "./chunk-Y7O26H5P.js";
 import {
   TranslatePipe
-} from "./chunk-O3R3GUKJ.js";
+} from "./chunk-BR3SM4VB.js";
 import {
   A11yModule,
   ActiveDescendantKeyManager,
@@ -336,7 +336,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-KSTREJEK.js";
+} from "./chunk-IAED2UK4.js";
 import {
   __objRest,
   __spreadProps,
@@ -9714,6 +9714,20 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       all_day_end: period?.end
     });
   }
+  /**
+   * Start and end times (ms) of the booking window for a form value.
+   * All-day values use the configured all-day period.
+   */
+  bookingWindow(value) {
+    if (value.all_day) {
+      const { date, date_end } = this._allDayTimeRange(value.date);
+      return { start: date, end: date_end };
+    }
+    return {
+      start: value.date,
+      end: addMinutes(value.date, value.duration).valueOf()
+    };
+  }
   _allDayTimeRange(date) {
     const period = this.setting("all_day_period");
     return getAllDayTimeRange(date, this.timezone, period?.start, period?.end);
@@ -11639,5 +11653,5 @@ export {
   generateMicrosoftCalendarLink,
   BookingFormService
 };
-//# debugId=ee62cd74-9f85-5e11-aada-5ad664aae14d
-//# sourceMappingURL=chunk-QAS6CIKX.js.map
+//# debugId=1cf1296c-5fab-56db-b8ca-a64b7d510f72
+//# sourceMappingURL=chunk-VBSC45JI.js.map
