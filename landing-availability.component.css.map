@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["landing-availability.component.ts"],
+  "sourcesContent": ["\n            * {\n                shrink: 0;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAA;AACJ;",
+  "names": []
+}
