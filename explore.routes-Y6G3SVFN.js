@@ -1,6 +1,6 @@
 import {
   CustomTooltipComponent
-} from "./chunk-ANHG3VMR.js";
+} from "./chunk-BLPKHYGC.js";
 import {
   generateQRCode
 } from "./chunk-MJCQM3JL.js";
@@ -48,16 +48,16 @@ import {
   setHours,
   setMinutes,
   showStaff
-} from "./chunk-QAS6CIKX.js";
+} from "./chunk-PT4WEO5N.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-KRQZV7YT.js";
+} from "./chunk-MDG73ZY5.js";
 import {
   MatCheckbox,
   MatCheckboxModule,
   validateAssetRequestsForResource
-} from "./chunk-3NZB6M7O.js";
+} from "./chunk-ZDFYU6HH.js";
 import {
   AuthenticatedImageDirective,
   Booking,
@@ -83,13 +83,13 @@ import {
   saveBooking,
   showGuest,
   validate
-} from "./chunk-4BTL34JT.js";
+} from "./chunk-FKXGUKLN.js";
 import {
   SanitizePipe
-} from "./chunk-UL4W6XSS.js";
+} from "./chunk-VYZPDHL7.js";
 import {
   TranslatePipe
-} from "./chunk-O3R3GUKJ.js";
+} from "./chunk-SU35FHZD.js";
 import {
   ActivatedRoute,
   AssetRequest,
@@ -319,7 +319,7 @@ import {
   ɵɵtwoWayProperty,
   ɵɵviewQuery,
   ɵɵviewQuerySignal
-} from "./chunk-KSTREJEK.js";
+} from "./chunk-D4E7PIZL.js";
 import {
   __spreadProps,
   __spreadValues
@@ -4956,10 +4956,12 @@ var EventFormService = class _EventFormService extends AsyncHandler {
     this._form().reset();
     this._applyDurationSettings();
     this._setInitialEvent(this._model());
-    if (!event.id)
+    this._event.set(event.id ? event : new CalendarEvent());
+    if (!event.id) {
+      sessionStorage.removeItem("PLACEOS.event");
       return;
+    }
     sessionStorage.setItem("PLACEOS.event", JSON.stringify(event?.toJSON() || {}));
-    this._event.set(event);
   }
   resetForm() {
     if (!currentUserIsLoaded()) {
@@ -5378,6 +5380,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       event.attendees = event.attendees.filter((_) => _.email !== old_system || _.id !== old_system);
     }
     return this.book_internal ? saveBooking(newBookingFromCalendarEvent(__spreadProps(__spreadValues({}, event.toJSON()), {
+      // Native recurrence needs weekday indices and millisecond dates.
+      recurrence: event.recurrence,
       status: this._settings.get("app.bookings.no_approval") === true ? "approved" : "tentative"
     }))).then((_) => newCalendarEventFromBooking(_)) : saveEvent(event, query);
   }
@@ -12134,5 +12138,5 @@ var ROUTES = [
 export {
   ROUTES
 };
-//# debugId=f0ec0f4f-3fef-51c8-a087-fc08200c9a64
-//# sourceMappingURL=explore.routes-YDBNT6XB.js.map
+//# debugId=04f961da-010c-558f-b11d-d7a366f8ad3b
+//# sourceMappingURL=explore.routes-Y6G3SVFN.js.map
