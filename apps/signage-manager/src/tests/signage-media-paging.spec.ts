@@ -179,6 +179,32 @@ describe('SignageService media paging', () => {
         expect(service.media_total()).toBe(5);
     });
 
+    // Sorts and filters run in the browser, so they need every page
+    it('should load the remaining pages while a sort or filter is active', async () => {
+        const service = await loadFirstPage(
+            pageOf(['a'], 3, pageOf(['b'], 3, pageOf(['c'], 3))),
+        );
+        expect(service.media_has_more()).toBe(true);
+
+        service.media_view.set({ sort: 'name', type: null, expiry: null });
+        for (let i = 0; i < 5; i++) {
+            TestBed.tick();
+            await flush();
+        }
+
+        expect(idsOf(service)).toEqual(['a', 'b', 'c']);
+        expect(service.media_has_more()).toBe(false);
+    });
+
+    it('should stop paging when a page comes back empty', async () => {
+        const service = await loadFirstPage(pageOf(['a'], 5, pageOf([], 5)));
+
+        service.loadMoreMedia();
+        await flush();
+
+        expect(service.media_has_more()).toBe(false);
+    });
+
     it('should discard pages from a superseded query', async () => {
         const service = TestBed.inject(
             SignageService,

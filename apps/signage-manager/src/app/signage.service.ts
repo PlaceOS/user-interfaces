@@ -77,6 +77,7 @@ import {
     shareSignageMedia,
     shareSignagePlaylists,
     shareSignageTemplates,
+    showSignageMedia,
     showSystem,
     showZone,
     SignageMedia,
@@ -107,6 +108,12 @@ import type {
     AiImageModalData,
 } from './ai/ai-image-modal.component';
 import { displayZoneIds } from './displays/display-zones.util';
+import {
+    applyMediaView,
+    DEFAULT_MEDIA_VIEW,
+    isMediaViewActive,
+    type MediaViewOptions,
+} from './media/media-view.util';
 import type {
     BulkMediaUploadItem,
     BulkMediaUploadModalData,
@@ -748,7 +755,15 @@ export class SignageService {
     // Bumped on every reset so in-flight pages from a stale query are discarded.
     private _media_token = 0;
 
-    public readonly media = this._media_items.asReadonly();
+    /** Sort and filters for the media library */
+    public readonly media_view = signal<MediaViewOptions>(DEFAULT_MEDIA_VIEW);
+    public readonly media_view_active = computed(() =>
+        isMediaViewActive(this.media_view()),
+    );
+    /** Loaded media with the library sort and filters applied */
+    public readonly media = computed(() =>
+        applyMediaView(this._media_items(), this.media_view()),
+    );
     public readonly media_loading = this._media_loading.asReadonly();
     public readonly media_has_more = this._media_has_more.asReadonly();
     /** Media count the backend reports for the current group and search. */
@@ -783,6 +798,15 @@ export class SignageService {
         });
     });
 
+    // The API cannot sort or filter by type or expiry, so the browser does it.
+    // That needs the whole library, so load the remaining pages one at a time
+    // while a sort or filter is active. Stops when the last page is loaded.
+    private readonly _load_all_media = effect(() => {
+        if (!this.media_view_active()) return;
+        if (!this._media_has_more() || this._media_loading()) return;
+        untracked(() => this.loadMoreMedia());
+    });
+
     public loadMoreMedia() {
         if (this._media_loading() || !this._media_has_more()) return;
         const next = this._media_next?.();
@@ -813,7 +837,10 @@ export class SignageService {
             });
             this._media_next = page.next;
             this._media_total.set(page.total);
-            this._media_has_more.set(this._media_items().length < page.total);
+            // An empty page ends paging, so page loops cannot run forever
+            this._media_has_more.set(
+                items.length > 0 && this._media_items().length < page.total,
+            );
         } catch {
             if (token === this._media_token) this._media_has_more.set(false);
         } finally {
@@ -1689,6 +1716,76 @@ export class SignageService {
         result.close();
     }
 
+    /**
+     * Copy a playlist with its settings, items and item schedules. The copy
+     * starts unapproved and is not assigned to any display or zone.
+     * @returns The new playlist, or null when no copy was made
+     */
+    public async duplicatePlaylist(playlist: SignagePlaylist) {
+        if (!playlist?.id) return null;
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_PLAYLISTS'),
+            )
+        )
+            return null;
+        try {
+            const list = await listSignagePlaylistMedia(playlist.id);
+            const copy = await this._addSignagePlaylist({
+                name: i18n('SIGNAGE_MANAGER.COPY_NAME', {
+                    name: playlist.name,
+                }),
+                description: playlist.description,
+                enabled: playlist.enabled,
+                distribution: playlist.distribution,
+                random: playlist.random,
+                default_animation: playlist.default_animation,
+                orientation: playlist.orientation,
+                default_duration: playlist.default_duration,
+                schedules: playlist.distribution
+                    ? undefined
+                    : playlist.schedules,
+                valid_from: playlist.valid_from || undefined,
+                valid_until: playlist.valid_until || undefined,
+            });
+            if (playlist.distribution) {
+                // Distribution items are schedule item ids. Schedule the
+                // same media again, in the same order, on the copy.
+                const schedule_map = playlistItemScheduleMap(list);
+                for (const item_id of list.items || []) {
+                    const schedule = schedule_map.get(item_id);
+                    if (!schedule?.item_id) continue;
+                    await scheduleSignagePlaylistMedia(copy.id, {
+                        item_id: schedule.item_id,
+                        schedules: schedule.schedules,
+                    });
+                }
+            } else {
+                await updateSignagePlaylistMedia(copy.id, list.items || []);
+                for (const schedule of list.schedules || []) {
+                    if (!schedule.item_id || !schedule.schedules?.length) {
+                        continue;
+                    }
+                    await updateSignagePlaylistMediaSchedule(
+                        copy.id,
+                        schedule.item_id,
+                        {
+                            item_id: schedule.item_id,
+                            schedules: schedule.schedules,
+                        },
+                    );
+                }
+            }
+            this.changed();
+            notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_DUPLICATED'));
+            return copy;
+        } catch {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_DUPLICATE_ERROR'));
+            return null;
+        }
+    }
+
     public async sharePlaylist(playlist: SignagePlaylist) {
         if (!playlist?.id) return;
         await this._shareSignageItems('playlists', [playlist.id]);
@@ -1947,7 +2044,7 @@ export class SignageService {
         playlist_id: string,
         media_id: string,
     ) {
-        const media = this.media().find((item) => item.id === media_id);
+        const media = this._media_items().find((item) => item.id === media_id);
         const { PlaylistItemScheduleModalComponent } =
             await import('./shared/playlist-item-schedule-modal.component');
         const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
@@ -2207,6 +2304,43 @@ export class SignageService {
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVED'));
         result.close();
+    }
+
+    /**
+     * Copy a template with its settings and saved layouts. The copy starts
+     * unapproved and has no template mappings.
+     * @returns The new template, or null when no copy was made
+     */
+    public async duplicateTemplate(template: SignageTemplate) {
+        if (!template?.id) return null;
+        if (
+            !this._requirePermission(
+                this.can_create(),
+                i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_TEMPLATES'),
+            )
+        )
+            return null;
+        try {
+            const copy = await this._addSignageTemplate({
+                name: i18n('SIGNAGE_MANAGER.COPY_NAME', {
+                    name: template.name,
+                }),
+                description: template.description || undefined,
+                tags: template.tags,
+                background_item_id: template.background_item_id || undefined,
+                full_screen_takeover: template.full_screen_takeover,
+                merge: template.merge,
+                layouts: (template.layouts || []).map(
+                    applyLayoutPositionDefaults,
+                ),
+            });
+            this.changed();
+            notifySuccess(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_DUPLICATED'));
+            return copy;
+        } catch {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_TEMPLATE_DUPLICATE_ERROR'));
+            return null;
+        }
     }
 
     public async shareTemplate(template: SignageTemplate) {
@@ -2945,30 +3079,84 @@ export class SignageService {
         });
     }
 
-    private async _removeMediaFromCachedPlaylists(media_ids: string[]) {
+    /**
+     * Playlists that include any of the media items, read from the media
+     * show route. Returns an empty list when the lookup fails.
+     */
+    private async _playlistsUsingMedia(media_ids: string[]) {
+        const query_params = this._groupQueryParams({});
+        try {
+            const items = await Promise.all(
+                media_ids.map((id) => showSignageMedia(id, query_params)),
+            );
+            const by_id = new Map<string, SignagePlaylist>();
+            for (const playlist of items.flatMap(
+                (item) => item.playlists || [],
+            )) {
+                if (playlist?.id) by_id.set(playlist.id, playlist);
+            }
+            return [...by_id.values()];
+        } catch {
+            return [] as SignagePlaylist[];
+        }
+    }
+
+    /** Add the playlists that use the media to a delete confirmation message */
+    private _withMediaUsage(content: string, playlists: SignagePlaylist[]) {
+        if (!playlists.length) return content;
+        const shown = playlists.slice(0, 3).map(({ name }) => name);
+        const hidden_count = playlists.length - shown.length;
+        const names =
+            shown.join(', ') + (hidden_count > 0 ? ` +${hidden_count}` : '');
+        const usage = i18n(
+            'SIGNAGE_MANAGER.SVC_MEDIA_USED_IN',
+            { count: playlists.length, names },
+            playlists.length,
+        );
+        return `${content} ${usage}`;
+    }
+
+    /**
+     * Remove media from the playlists that hold it, before the media is
+     * deleted. Also checks cached playlists that list the media, in case the
+     * media lookup failed.
+     * @param media_ids Media to remove
+     * @param playlist_ids Playlists that the media lookup found
+     */
+    private async _removeMediaFromPlaylists(
+        media_ids: string[],
+        playlist_ids: string[] = [],
+    ) {
         const removed_ids = new Set(media_ids.filter(Boolean));
         if (!removed_ids.size) return;
-        const cached_state = this._playlist_meta_state();
-        const linked_playlist_ids = Object.entries(cached_state)
+        const cached_ids = Object.entries(this._playlist_meta_state())
             .filter(([, state]) =>
                 (state.item_ids || state.media_ids || []).some((id) =>
                     removed_ids.has(id),
                 ),
             )
             .map(([playlist_id]) => playlist_id);
+        const linked_playlist_ids = [
+            ...new Set([...playlist_ids, ...cached_ids]),
+        ];
         if (!linked_playlist_ids.length) return;
         for (const playlist_id of linked_playlist_ids) {
-            const cached_items = cached_state[playlist_id]?.item_ids;
-            const current_items =
-                cached_items ||
-                (await listSignagePlaylistMedia(playlist_id)).items ||
-                [];
+            const list = await listSignagePlaylistMedia(playlist_id);
+            const current_items = list.items || [];
+            // Distribution playlist items are schedule item ids, so match
+            // them on the media they schedule.
+            const schedule_map = playlistItemScheduleMap(list);
             const updated_items = current_items.filter(
-                (id) => !removed_ids.has(id),
+                (id) => !removed_ids.has(schedule_map.get(id)?.media?.id || id),
             );
             if (updated_items.length === current_items.length) continue;
             await updateSignagePlaylistMedia(playlist_id, updated_items);
-            this._setPlaylistMediaState(playlist_id, updated_items, false);
+            this._setPlaylistMediaState(
+                playlist_id,
+                updated_items,
+                false,
+                list.schedules,
+            );
         }
         const selected_item = this.selected_playlist_item();
         if (selected_item?.id && removed_ids.has(selected_item.id)) {
@@ -3529,18 +3717,25 @@ export class SignageService {
             )
         )
             return;
+        const playlists = await this._playlistsUsingMedia([item.id]);
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_MEDIA_TITLE'),
-                content: i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED_PLAIN', {
-                    name: item.name,
-                }),
+                content: this._withMediaUsage(
+                    i18n('SIGNAGE_MANAGER.SVC_DELETE_NAMED_PLAIN', {
+                        name: item.name,
+                    }),
+                    playlists,
+                ),
                 icon: { content: 'delete' },
             },
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await this._removeMediaFromCachedPlaylists([item.id]);
+        await this._removeMediaFromPlaylists(
+            [item.id],
+            playlists.map(({ id }) => id),
+        );
         await removeSignageMedia(item.id, this._groupQueryParams({}));
         this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
@@ -3557,21 +3752,27 @@ export class SignageService {
             )
         )
             return false;
+        const media_ids = media_items.map((item) => item.id);
+        const playlists = await this._playlistsUsingMedia(media_ids);
         const result = await openConfirmModal(
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_REMOVE_MEDIA_TITLE'),
-                content: i18n(
-                    'SIGNAGE_MANAGER.SVC_DELETE_SELECTED_MEDIA',
-                    { count: media_items.length },
-                    media_items.length,
+                content: this._withMediaUsage(
+                    i18n(
+                        'SIGNAGE_MANAGER.SVC_DELETE_SELECTED_MEDIA',
+                        { count: media_items.length },
+                        media_items.length,
+                    ),
+                    playlists,
                 ),
                 icon: { content: 'delete' },
             },
             this._dialog,
         );
         if (result.reason !== 'done') return false;
-        await this._removeMediaFromCachedPlaylists(
-            media_items.map((item) => item.id),
+        await this._removeMediaFromPlaylists(
+            media_ids,
+            playlists.map(({ id }) => id),
         );
         await Promise.all(
             media_items.map((item) =>

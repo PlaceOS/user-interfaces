@@ -14,6 +14,13 @@ const notify_open = vi.fn(() => ({
 
 describe('MediaListHeaderComponent', () => {
     const media_total = signal(0);
+    const media = signal<any[]>([]);
+    const media_view = signal<any>({
+        sort: 'newest',
+        type: null,
+        expiry: null,
+    });
+    const media_view_active = signal(false);
     const plugins = signal<any[]>([]);
     const widgets = signal<any[]>([]);
     const search_term = signal('');
@@ -25,6 +32,9 @@ describe('MediaListHeaderComponent', () => {
 
     const service_stub = {
         media_total,
+        media,
+        media_view,
+        media_view_active,
         plugins,
         widgets,
         search_term,
@@ -60,6 +70,8 @@ describe('MediaListHeaderComponent', () => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
         media_total.set(0);
+        media.set([]);
+        media_view_active.set(false);
         plugins.set([]);
         widgets.set([]);
     });
@@ -68,6 +80,14 @@ describe('MediaListHeaderComponent', () => {
         media_total.set(42);
         const component = await make();
         expect(component.total_count()).toBe(42);
+    });
+
+    it('counts the filtered media while a sort or filter is active', async () => {
+        media_total.set(42);
+        media.set([{ id: 'a' }, { id: 'b' }]);
+        media_view_active.set(true);
+        const component = await make();
+        expect(component.total_count()).toBe(2);
     });
 
     it('adds media from a valid link and clears the field', async () => {

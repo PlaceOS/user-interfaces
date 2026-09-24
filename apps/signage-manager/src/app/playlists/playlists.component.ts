@@ -135,6 +135,25 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                         <icon>edit</icon>
                                     </button>
                                 }
+                                @if (can_create()) {
+                                    <button
+                                        icon
+                                        default
+                                        type="button"
+                                        matRipple
+                                        [matTooltip]="
+                                            'SIGNAGE_MANAGER.DUPLICATE_PLAYLIST_TOOLTIP'
+                                                | translate
+                                        "
+                                        (click)="duplicatePlaylist()"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.DUPLICATE_SELECTED_PLAYLIST'
+                                                | translate
+                                        "
+                                    >
+                                        <icon>content_copy</icon>
+                                    </button>
+                                }
                                 @if (can_share()) {
                                     <button
                                         icon
@@ -312,6 +331,7 @@ export class PlaylistsSectionComponent {
         this._service.selected_playlist_requires_approval;
     public readonly can_approve = this._service.can_approve;
     public readonly can_update = this._service.can_update;
+    public readonly can_create = this._service.can_create;
     public readonly can_delete = this._service.can_delete;
     public readonly can_share = this._service.can_share;
     public readonly approval_request_loading =
@@ -385,6 +405,17 @@ export class PlaylistsSectionComponent {
     public requestApproval() {
         const playlist = this.selected_playlist();
         if (playlist) this._service.requestPlaylistApproval(playlist);
+    }
+
+    public async duplicatePlaylist() {
+        const playlist = this.selected_playlist();
+        if (!playlist) return;
+        const copy = await this._service.duplicatePlaylist(playlist);
+        if (copy?.id) {
+            void this._router.navigate(['/playlists', copy.id], {
+                queryParamsHandling: 'merge',
+            });
+        }
     }
 
     public sharePlaylist() {

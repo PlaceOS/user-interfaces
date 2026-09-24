@@ -9,6 +9,8 @@ import {
 } from '@placeos/common';
 import {
     addSignageMedia,
+    addSignagePlaylist,
+    addSignageTemplate,
     addSignageTemplateMapping,
     addZone,
     del,
@@ -26,6 +28,7 @@ import {
     scheduleSignagePlaylistMedia,
     shareSignagePlaylists,
     shareSignageTemplates,
+    showSignageMedia,
     showSignagePlaylist,
     showSystem,
     SignageMedia,
@@ -97,6 +100,7 @@ describe('SignageService media uploads', () => {
         (scheduleSignagePlaylistMedia as any).mockResolvedValue({});
         (del as any).mockResolvedValue({});
         (removeSignageMedia as any).mockResolvedValue({});
+        vi.mocked(showSignageMedia).mockResolvedValue(new SignageMedia({}));
         vi.mocked(querySignagePlugins).mockResolvedValue({
             data: [],
         } as Awaited<ReturnType<typeof querySignagePlugins>>);
@@ -833,7 +837,7 @@ describe('SignageService media uploads', () => {
         const service = createService();
         const test_service = service as unknown as SignageServiceTestAccess;
         selectApiGroup(service, 'group-1');
-        test_service['_removeMediaFromCachedPlaylists'] = vi
+        test_service['_removeMediaFromPlaylists'] = vi
             .fn()
             .mockResolvedValue(undefined);
 
@@ -851,7 +855,7 @@ describe('SignageService media uploads', () => {
         const service = createService();
         const test_service = service as unknown as SignageServiceTestAccess;
         selectApiGroup(service, 'group-1');
-        test_service['_removeMediaFromCachedPlaylists'] = vi
+        test_service['_removeMediaFromPlaylists'] = vi
             .fn()
             .mockResolvedValue(undefined);
 
@@ -865,6 +869,138 @@ describe('SignageService media uploads', () => {
         });
         expect(removeSignageMedia).toHaveBeenCalledWith('media-2', {
             group_id: 'group-1',
+        });
+    });
+
+    it('lists the playlists that use media in the delete confirmation', async () => {
+        confirmNextDialog();
+        vi.mocked(showSignageMedia).mockResolvedValue(
+            new SignageMedia({
+                id: 'media-1',
+                playlists: [
+                    new SignagePlaylist({ id: 'pl-1', name: 'Lobby' }),
+                    new SignagePlaylist({ id: 'pl-2', name: 'Cafe' }),
+                ],
+            }),
+        );
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const remove_from_playlists = vi.fn().mockResolvedValue(undefined);
+        test_service['_removeMediaFromPlaylists'] = remove_from_playlists;
+
+        await service.removeMedia(
+            new SignageMedia({ id: 'media-1', name: 'Poster' }),
+        );
+
+        const content = dialog.open.mock.calls.at(-1)[1].data.content;
+        expect(content).toContain('Lobby, Cafe');
+        expect(remove_from_playlists).toHaveBeenCalledWith(
+            ['media-1'],
+            ['pl-1', 'pl-2'],
+        );
+    });
+
+    it('removes deleted media from distribution playlists by schedule item', async () => {
+        (listSignagePlaylistMedia as any).mockResolvedValue({
+            items: ['sched-1', 'sched-2'],
+            schedules: [
+                { id: 'sched-1', item_id: 'media-1', media: { id: 'media-1' } },
+                { id: 'sched-2', item_id: 'media-2', media: { id: 'media-2' } },
+            ],
+        });
+        (updateSignagePlaylistMedia as any).mockResolvedValue({});
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+
+        await test_service['_removeMediaFromPlaylists'](['media-1'], ['pl-1']);
+
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('pl-1', [
+            'sched-2',
+        ]);
+    });
+
+    it('duplicates a playlist with its items and item schedules', async () => {
+        const schedules = [{ play_cron: '0 9 * * *', play_period: 30 }];
+        (listSignagePlaylistMedia as any).mockResolvedValue({
+            items: ['media-1', 'media-2'],
+            schedules: [{ item_id: 'media-2', schedules }],
+        });
+        vi.mocked(addSignagePlaylist).mockResolvedValue(
+            new SignagePlaylist({ id: 'copy-1' }),
+        );
+        (updateSignagePlaylistMedia as any).mockResolvedValue({});
+        (updateSignagePlaylistMediaSchedule as any).mockResolvedValue({});
+        const service = createService();
+
+        const copy = await service.duplicatePlaylist(
+            new SignagePlaylist({ id: 'pl-1', name: 'Lobby', random: true }),
+        );
+
+        expect(copy?.id).toBe('copy-1');
+        expect(vi.mocked(addSignagePlaylist).mock.calls[0][0]).toMatchObject({
+            name: 'Lobby (copy)',
+            random: true,
+        });
+        expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('copy-1', [
+            'media-1',
+            'media-2',
+        ]);
+        expect(updateSignagePlaylistMediaSchedule).toHaveBeenCalledWith(
+            'copy-1',
+            'media-2',
+            { item_id: 'media-2', schedules },
+        );
+    });
+
+    it('duplicates a distribution playlist by scheduling the same media in order', async () => {
+        (listSignagePlaylistMedia as any).mockResolvedValue({
+            items: ['sched-2', 'sched-1'],
+            schedules: [
+                { id: 'sched-1', item_id: 'media-1', schedules: [] },
+                { id: 'sched-2', item_id: 'media-2', schedules: [] },
+            ],
+        });
+        vi.mocked(addSignagePlaylist).mockResolvedValue(
+            new SignagePlaylist({ id: 'copy-1' }),
+        );
+        const service = createService();
+
+        await service.duplicatePlaylist(
+            new SignagePlaylist({
+                id: 'pl-1',
+                name: 'Rota',
+                distribution: true,
+            }),
+        );
+
+        expect(
+            (scheduleSignagePlaylistMedia as any).mock.calls.map(
+                ([id, data]) => [id, data.item_id],
+            ),
+        ).toEqual([
+            ['copy-1', 'media-2'],
+            ['copy-1', 'media-1'],
+        ]);
+        expect(updateSignagePlaylistMedia).not.toHaveBeenCalled();
+    });
+
+    it('duplicates a template with its saved layouts', async () => {
+        vi.mocked(addSignageTemplate).mockResolvedValue(
+            new SignageTemplate({ id: 'copy-1' }),
+        );
+        const service = createService();
+        const template = new SignageTemplate({
+            id: 'tpl-1',
+            name: 'Welcome',
+            layouts: [{ position: 'floating', x_pos: 0.2, y_pos: 0.3 }] as any,
+        });
+
+        const copy = await service.duplicateTemplate(template);
+
+        expect(copy?.id).toBe('copy-1');
+        expect(vi.mocked(addSignageTemplate).mock.calls[0][0]).toMatchObject({
+            name: 'Welcome (copy)',
+            layouts: template.layouts,
         });
     });
 

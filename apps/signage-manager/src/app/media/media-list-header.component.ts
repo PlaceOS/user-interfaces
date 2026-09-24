@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -17,6 +17,16 @@ import { AiImageService } from '../ai/ai-image.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
 import { SignageService } from '../signage.service';
+import {
+    DEFAULT_MEDIA_VIEW,
+    MEDIA_EXPIRY_FILTERS,
+    MEDIA_SORTS,
+    MEDIA_TYPE_FILTERS,
+    type MediaExpiryFilter,
+    type MediaSort,
+    type MediaTypeFilter,
+    type MediaViewOptions,
+} from './media-view.util';
 
 function isValidUrl(url: string): boolean {
     try {
@@ -75,6 +85,89 @@ function isValidUrl(url: string): boolean {
                     </button>
                 }
             </div>
+            <button
+                icon
+                default
+                type="button"
+                matRipple
+                class="relative text-xl"
+                [matMenuTriggerFor]="view_menu"
+                [matTooltip]="'SIGNAGE_MANAGER.MEDIA_SORT_FILTER' | translate"
+                [attr.aria-label]="
+                    'SIGNAGE_MANAGER.MEDIA_SORT_FILTER' | translate
+                "
+            >
+                <icon>filter_list</icon>
+                @if (view_active()) {
+                    <span
+                        class="bg-primary absolute top-1.5 right-1.5 h-2 w-2 rounded-full"
+                    ></span>
+                }
+            </button>
+            <mat-menu #view_menu="matMenu">
+                <div class="px-4 pt-2 text-xs font-medium opacity-60">
+                    {{ 'SIGNAGE_MANAGER.MEDIA_SORT' | translate }}
+                </div>
+                @for (sort of sorts; track sort) {
+                    <button mat-menu-item (click)="setView({ sort })">
+                        <div class="flex items-center gap-2">
+                            <icon class="text-xl">{{
+                                view().sort === sort ? 'check' : ''
+                            }}</icon>
+                            {{ sort_labels[sort] | translate }}
+                        </div>
+                    </button>
+                }
+                <div class="px-4 pt-2 text-xs font-medium opacity-60">
+                    {{ 'SIGNAGE_MANAGER.MEDIA_FILTER_TYPE' | translate }}
+                </div>
+                @for (type of type_filters; track type) {
+                    <button
+                        mat-menu-item
+                        (click)="
+                            setView({
+                                type: view().type === type ? null : type,
+                            })
+                        "
+                    >
+                        <div class="flex items-center gap-2">
+                            <icon class="text-xl">{{
+                                view().type === type ? 'check' : ''
+                            }}</icon>
+                            {{ type_labels[type] | translate }}
+                        </div>
+                    </button>
+                }
+                <div class="px-4 pt-2 text-xs font-medium opacity-60">
+                    {{ 'SIGNAGE_MANAGER.MEDIA_FILTER_EXPIRY' | translate }}
+                </div>
+                @for (expiry of expiry_filters; track expiry) {
+                    <button
+                        mat-menu-item
+                        (click)="
+                            setView({
+                                expiry:
+                                    view().expiry === expiry ? null : expiry,
+                            })
+                        "
+                    >
+                        <div class="flex items-center gap-2">
+                            <icon class="text-xl">{{
+                                view().expiry === expiry ? 'check' : ''
+                            }}</icon>
+                            {{ expiry_labels[expiry] | translate }}
+                        </div>
+                    </button>
+                }
+                @if (view_active()) {
+                    <button mat-menu-item (click)="resetView()">
+                        <div class="flex items-center gap-2">
+                            <icon class="text-xl">restart_alt</icon>
+                            {{ 'SIGNAGE_MANAGER.MEDIA_VIEW_RESET' | translate }}
+                        </div>
+                    </button>
+                }
+            </mat-menu>
             <mat-form-field
                 appearance="outline"
                 class="no-subscript toolbar-field white order-last w-full sm:order-0 sm:w-80"
@@ -340,7 +433,35 @@ export class MediaListHeaderComponent {
     public readonly link = signal('');
     public readonly selected_plugin = signal<any>(null);
     public readonly available_plugins = this._service.plugins;
-    public readonly total_count = this._service.media_total;
+    public readonly view = this._service.media_view;
+    public readonly view_active = this._service.media_view_active;
+    // Filters run in the browser, so count the filtered items instead of the
+    // backend total while one is active.
+    public readonly total_count = computed(() =>
+        this.view_active()
+            ? this._service.media().length
+            : this._service.media_total(),
+    );
+    public readonly sorts = MEDIA_SORTS;
+    public readonly type_filters = MEDIA_TYPE_FILTERS;
+    public readonly expiry_filters = MEDIA_EXPIRY_FILTERS;
+    public readonly sort_labels: Record<MediaSort, string> = {
+        newest: 'SIGNAGE_MANAGER.MEDIA_SORT_NEWEST',
+        oldest: 'SIGNAGE_MANAGER.MEDIA_SORT_OLDEST',
+        name: 'SIGNAGE_MANAGER.MEDIA_SORT_NAME',
+        expiry: 'SIGNAGE_MANAGER.MEDIA_SORT_EXPIRY',
+    };
+    // Same labels as the type badge on media cards
+    public readonly type_labels: Record<MediaTypeFilter, string> = {
+        image: 'COMMON.IMAGE',
+        video: 'COMMON.VIDEO',
+        webpage: 'COMMON.WEBPAGE',
+        plugin: 'SIGNAGE_MANAGER.TYPE_PLUGIN',
+    };
+    public readonly expiry_labels: Record<MediaExpiryFilter, string> = {
+        expiring: 'SIGNAGE_MANAGER.MEDIA_FILTER_EXPIRING',
+        expired: 'SIGNAGE_MANAGER.STATUS_EXPIRED',
+    };
     public readonly search = this._service.search_term;
     public readonly view_mode = this._service.media_view_mode;
     public readonly view_options = [
@@ -363,6 +484,15 @@ export class MediaListHeaderComponent {
         this._service.previewFileFromInput(event);
 
     public readonly ai_enabled = this._ai.can_generate;
+
+    /** Change part of the media sort and filters */
+    public setView(change: Partial<MediaViewOptions>) {
+        this.view.update((view) => ({ ...view, ...change }));
+    }
+
+    public resetView() {
+        this.view.set(DEFAULT_MEDIA_VIEW);
+    }
 
     public generateWithAI() {
         this._service.generateMediaWithAI();

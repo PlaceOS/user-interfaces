@@ -15,6 +15,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
 import { i18n } from '@placeos/common';
 import {
     IconComponent,
@@ -107,6 +108,25 @@ import { SignageService } from '../signage.service';
                         "
                     >
                         <icon>edit</icon>
+                    </button>
+                }
+                @if (can_create()) {
+                    <button
+                        icon
+                        default
+                        type="button"
+                        matRipple
+                        [matTooltip]="
+                            'SIGNAGE_MANAGER.DUPLICATE_PLAYLIST_TOOLTIP'
+                                | translate
+                        "
+                        (click)="duplicatePlaylist()"
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.DUPLICATE_SELECTED_PLAYLIST'
+                                | translate
+                        "
+                    >
+                        <icon>content_copy</icon>
                     </button>
                 }
                 @if (can_share()) {
@@ -696,6 +716,7 @@ import { SignageService } from '../signage.service';
 })
 export class PlaylistItemsComponent {
     private readonly _service = inject(SignageService);
+    private readonly _router = inject(Router);
 
     public readonly selected_playlist = this._service.selected_playlist;
     public readonly selected_item = this._service.selected_playlist_item;
@@ -705,6 +726,7 @@ export class PlaylistItemsComponent {
         this._service.selected_playlist_requires_approval;
     public readonly can_approve = this._service.can_approve;
     public readonly can_update = this._service.can_update;
+    public readonly can_create = this._service.can_create;
     public readonly can_delete = this._service.can_delete;
     public readonly can_share = this._service.can_share;
     public readonly loading = this._service.playlist_media_loading;
@@ -880,6 +902,17 @@ export class PlaylistItemsComponent {
     public requestApproval() {
         const playlist = this.selected_playlist();
         if (playlist) this._service.requestPlaylistApproval(playlist);
+    }
+
+    public async duplicatePlaylist() {
+        const playlist = this.selected_playlist();
+        if (!playlist) return;
+        const copy = await this._service.duplicatePlaylist(playlist);
+        if (copy?.id) {
+            void this._router.navigate(['/playlists', copy.id], {
+                queryParamsHandling: 'merge',
+            });
+        }
     }
 
     public sharePlaylist() {

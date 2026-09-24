@@ -66,7 +66,7 @@ These stories cover the current app workflows:
 
 **Acceptance Criteria:**
 
-- The media page shows the media count for the current group and search.
+- The media page shows the media count for the current group and search. While a sort or filter is active, it shows the filtered count.
 - Users can search all media in the group, including media that has not loaded yet.
 - Users can switch between grid, list, and folder views.
 - Folder view groups media by tag and includes an Untagged folder.
@@ -75,6 +75,9 @@ These stories cover the current app workflows:
 - System administrators and support users can manage tags across all groups from the All Groups view.
 - Media cards show type, thumbnail or fallback icon, duration, tags, and expired state where available.
 - The list loads additional media as the user scrolls.
+- Users can sort media by newest, oldest, name, or soonest expiry.
+- Users can filter media by type (image, video, webpage, plugin) and by expiry (expires within 7 days, expired).
+- While a sort or filter is active, the page loads all media in the group, because the API cannot sort or filter it.
 
 ---
 
@@ -109,6 +112,7 @@ These stories cover the current app workflows:
 - Users with update permission can add media to a playlist.
 - Users with share permission can share media.
 - Users with delete permission can remove media.
+- The delete confirmation lists the playlists that use the media. Deleting the media removes it from those playlists, including distribution playlists.
 - Share and delete actions open confirmation or group-selection dialogs before making changes.
 - Users can select multiple media items and bulk add tags, delete, share, or add them to a playlist when permitted.
 
@@ -129,6 +133,7 @@ These stories cover the current app workflows:
 - Playlist rows show disabled, expired, pending, awaiting review, and approval-required states.
 - Additional playlists load as the user scrolls.
 - Users with create permission can create a new playlist.
+- Users with create permission can duplicate a playlist. The copy has the same settings, items, and item schedules. It is not approved and is not assigned to displays or zones.
 - Selecting a playlist opens its items and details.
 
 ---
@@ -198,6 +203,7 @@ These stories cover the current app workflows:
 
 - The templates page shows a searchable template list and loads more templates as the user scrolls.
 - Users with create or update permission can create templates and edit their layout items.
+- Users with create permission can duplicate a template. The copy has the same settings and saved layouts. It is not approved and has no template mappings.
 - Template rows show approval-required and awaiting-review states.
 - Users with approval permission can review and approve a selected template.
 - Users without approval permission can select an approver and request template approval with a message.
