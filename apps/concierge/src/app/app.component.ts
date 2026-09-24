@@ -51,6 +51,7 @@ export class AppComponent implements OnInit {
     public async ngOnInit() {
         setMocks(mocksInit);
         await this._placeos.init();
+
         this.has_chat.set(this._placeos.has_chat);
         if (this._placeos.has_uploads) this._uploads.init();
     }
