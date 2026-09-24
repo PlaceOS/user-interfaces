@@ -9,7 +9,7 @@ function media(id: string, tags: string[]) {
 }
 
 describe('MediaListComponent folders', () => {
-    const filtered_media = signal<any[]>([]);
+    const media_items = signal<any[]>([]);
     const media_tags = signal<string[]>([]);
     const media_tag_counts = signal<Record<string, number>>({});
     const media_view_mode = signal<'grid' | 'list' | 'folder'>('grid');
@@ -19,7 +19,7 @@ describe('MediaListComponent folders', () => {
     const show_media_group_tabs = signal(true);
     const set_selected_group = vi.fn();
     const service_stub = {
-        filtered_media,
+        media: media_items,
         media_tags,
         media_tag_counts,
         media_view_mode,
@@ -61,7 +61,7 @@ describe('MediaListComponent folders', () => {
             addEventListener: vi.fn(),
             removeEventListener: vi.fn(),
         }) as any;
-        filtered_media.set([
+        media_items.set([
             media('a', ['news', 'lobby']),
             media('b', ['news']),
             media('c', []),
@@ -146,7 +146,7 @@ describe('MediaListComponent folders', () => {
 
     it('always shows the untagged bucket, even when every item is tagged', () => {
         const component = make();
-        filtered_media.set([media('a', ['news']), media('b', ['lobby'])]);
+        media_items.set([media('a', ['news']), media('b', ['lobby'])]);
         const untagged = component.folders().find((f) => f.untagged);
         expect(untagged).toBeTruthy();
         expect(untagged!.count).toBe(0);
@@ -154,7 +154,7 @@ describe('MediaListComponent folders', () => {
 
     it('shows no folders when there is no media and no tags', () => {
         const component = make();
-        filtered_media.set([]);
+        media_items.set([]);
         media_tags.set([]);
         expect(component.folders()).toEqual([]);
     });

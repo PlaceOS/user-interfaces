@@ -28,6 +28,7 @@ import {
 } from '@placeos/ts-client';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import {
+    playlistLoopDuration,
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
@@ -147,6 +148,26 @@ import { SignageService } from '../signage.service';
                     </button>
                 }
             </div>
+            @if (!loading() && items().length > 0 && !is_distribution()) {
+                <div
+                    class="text-base-content/60 flex items-center gap-1 px-4 pt-2 text-xs"
+                    [matTooltip]="
+                        'SIGNAGE_MANAGER.PLAYLIST_LOOP_TOOLTIP' | translate
+                    "
+                >
+                    <icon class="text-sm">timer</icon>
+                    {{
+                        'SIGNAGE_MANAGER.PLAYLIST_LOOP_DURATION'
+                            | translate
+                                : {
+                                      count: items().length,
+                                      duration:
+                                          loop_duration() / 1000
+                                          | mediaDuration,
+                                  }
+                    }}
+                </div>
+            }
             @if (loading()) {
                 <div
                     class="flex flex-1 flex-col items-center justify-center space-y-3 p-8 opacity-70"
@@ -690,6 +711,13 @@ export class PlaylistItemsComponent {
     public readonly approval_request_loading =
         this._service.playlist_approval_request_loading;
     public readonly items = this._service.playlist_media_items;
+    /** Time in milliseconds to play each item once */
+    public readonly loop_duration = computed(() =>
+        playlistLoopDuration(
+            this.items(),
+            this.selected_playlist()?.default_duration,
+        ),
+    );
     public readonly item_schedules = this._service.playlist_item_schedules;
     public readonly item_schedule_list =
         this._service.playlist_item_schedule_list;

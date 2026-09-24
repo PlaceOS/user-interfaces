@@ -2,6 +2,7 @@ import { getUnixTime } from 'date-fns';
 import {
     createScheduleMaskFilter,
     playlistItemScheduleMap,
+    playlistLoopDuration,
     playlistMediaIds,
     playlistMediaItems,
     playlistScheduleExpiryLabel,
@@ -254,5 +255,16 @@ describe('schedule masks', () => {
         expect(allows(new Date('2026-03-07T07:30:00Z'))).toBe(true);
         expect(allows(new Date('2026-03-09T06:30:00Z'))).toBe(false);
         expect(allows(new Date('2026-03-10T06:30:00Z'))).toBe(true);
+    });
+
+    it('sums loop time with the same fallbacks as the player', () => {
+        const items = [
+            { play_time: 10_000, video_length: 99_000 },
+            { play_time: 0, video_length: 42_000 },
+            { play_time: 0, video_length: 0 },
+        ];
+
+        expect(playlistLoopDuration(items, 20_000)).toBe(72_000);
+        expect(playlistLoopDuration(items)).toBe(67_000);
     });
 });

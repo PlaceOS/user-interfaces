@@ -779,7 +779,7 @@ export class MediaListComponent implements OnInit {
         );
     }
 
-    public readonly media = this._service.filtered_media;
+    public readonly media = this._service.media;
     public readonly media_tags = this._service.media_tags;
     public readonly media_tag_counts = this._service.media_tag_counts;
     public readonly loading = this._service.media_loading;

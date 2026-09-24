@@ -242,6 +242,31 @@ function schedulePeriod(schedule: Partial<PlaylistSchedule>) {
         : DEFAULT_PLAY_PERIOD_MINUTES;
 }
 
+/** Play time in milliseconds when no other value is set. Matches the signage player. */
+const DEFAULT_PLAY_TIME_MS = 15 * 1000;
+
+/**
+ * Time in milliseconds to play each item once. Uses the same fallbacks as
+ * the signage player: item play time, video length, playlist default, then
+ * 15 seconds. Item schedules are not applied.
+ * @param items Media items of the playlist
+ * @param default_duration Playlist default play time in milliseconds
+ */
+export function playlistLoopDuration(
+    items: Pick<SignageMedia, 'play_time' | 'video_length'>[],
+    default_duration = 0,
+) {
+    return items.reduce(
+        (total, item) =>
+            total +
+            (item.play_time ||
+                item.video_length ||
+                default_duration ||
+                DEFAULT_PLAY_TIME_MS),
+        0,
+    );
+}
+
 export function playlistScheduleExpiryLabel(
     schedule: Partial<PlaylistSchedule>,
     now = Date.now(),

@@ -261,6 +261,7 @@ type TemplateViewTab = 'preview' | 'layouts' | 'details';
             <nav-footer />
         </div>
     `,
+    host: { '(window:beforeunload)': 'onBeforeUnload($event)' },
     styles: [
         `
             .mobile-hidden {
@@ -413,10 +414,17 @@ export class TemplatesSectionComponent {
         if (template) this._service.requestTemplateApproval(template);
     }
 
-    public deselectTemplate() {
+    public async deselectTemplate() {
+        // Navigate first so the unsaved-changes guard can cancel the deselect
+        const navigated = await this._router.navigate(['/templates'], {});
+        if (!navigated) return;
         this._service.selected_template.set(null);
         this._service.selected_template_layout_index.set(null);
-        this._router.navigate(['/templates'], {});
+    }
+
+    /** Asks the browser to warn before a reload or tab close drops unsaved layout edits */
+    public onBeforeUnload(event: BeforeUnloadEvent) {
+        if (this._service.template_layout_dirty()) event.preventDefault();
     }
 
     public setViewTab(tab: TemplateViewTab) {

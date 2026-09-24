@@ -11,7 +11,7 @@ The Signage Manager app lets authorised users manage signage media, playlists, t
 These stories cover the current app workflows:
 
 - Access and navigation: authorised app load, unknown-route redirect, desktop navigation, mobile navigation, and active signage group selector.
-- Media library: search, filtered counts, grid/list/folder views backed by media tags, group tabs, file upload entry point, add from link, plugin catalogue selection, preview, edit, item share, item delete action, multi-select, bulk delete confirmation, bulk share, and bulk add to playlist.
+- Media library: backend search, result counts, grid/list/folder views backed by media tags, group tabs, file upload entry point, add from link, plugin catalogue selection, preview, edit, item share, item delete action, multi-select, bulk delete confirmation, bulk share, and bulk add to playlist.
 - Playlists: search, create, select, edit details, item preview, item schedules, approval request or approval, share group selection, delete confirmation, and display or zone assignment.
 - Templates: search, create, select, edit layouts, preview, approval request or approval, and delete confirmation.
 - Zones: search, direct selection, create, edit, delete, playlist tab, display tab, add playlist, and add display.
@@ -66,8 +66,8 @@ These stories cover the current app workflows:
 
 **Acceptance Criteria:**
 
-- The media page shows total media count and filtered count when searching.
-- Users can search media.
+- The media page shows the media count for the current group and search.
+- Users can search all media in the group, including media that has not loaded yet.
 - Users can switch between grid, list, and folder views.
 - Folder view groups media by tag and includes an Untagged folder.
 - Users with update permission can rename tags or remove them from all media in the active group.
@@ -142,6 +142,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Users can view media items in the selected playlist.
+- Non-distribution playlists show the item count and the time to play each item once. The time uses the same fallbacks as the player: item play time, video length, playlist default, then 15 seconds.
 - Users can preview a playlist item.
 - Users with update permission can reorder playlist items by drag and drop.
 - Distribution playlists cannot be reordered from the item list.
@@ -202,6 +203,7 @@ These stories cover the current app workflows:
 - Users without approval permission can select an approver and request template approval with a message.
 - The approval preview shows only changed layout items from the pending and approved templates, including the applicable X and Y values. It shows a no-older-version placeholder when no distinct approved version exists.
 - Users with update permission can discard pending changes when an approved version exists.
+- Users must confirm before they leave a template that has unsaved layout changes. Confirming discards the changes. The browser warns before a reload or tab close drops them.
 
 ---
 
@@ -236,6 +238,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The displays page lists signage displays and supports direct routes to a selected display.
+- Each display in the list shows an online or offline status. A display is offline when its player has not checked in for more than 5 minutes. The tooltip shows when the player last checked in.
 - Selecting a display shows schedule, playlist, and zone tabs.
 - The display header includes a debug player link for the selected display.
 - The playlist tab shows playlists assigned directly to the display and their status.

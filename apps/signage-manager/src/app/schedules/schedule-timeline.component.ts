@@ -8,7 +8,8 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { differenceInMinutes, format, startOfDay } from 'date-fns';
+import { format, startOfDay } from 'date-fns';
+import { isDisplayOnline } from '../displays/display-status.util';
 import {
     MINUTES_PER_DAY,
     ScheduleBlock,
@@ -196,7 +197,9 @@ import {
                             >
                                 <div
                                     class="truncate text-[11px] leading-tight font-semibold"
-                                    [class.line-through]="!block.playlist.enabled"
+                                    [class.line-through]="
+                                        !block.playlist.enabled
+                                    "
                                 >
                                     {{ block.playlist.name }}
                                 </div>
@@ -330,10 +333,7 @@ export class ScheduleTimelineComponent {
 
     public displayRowStatus(row: ScheduleTimelineRow) {
         if (this.view_tab() !== 'displays') return '';
-        const diff = Math.abs(
-            differenceInMinutes(row.signage_last_seen * 1000, Date.now()),
-        );
-        return diff > 5 ? 'error' : 'success';
+        return isDisplayOnline(row.signage_last_seen) ? 'success' : 'error';
     }
 
     public clearHoveredRow(index: number) {

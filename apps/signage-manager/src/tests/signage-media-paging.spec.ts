@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
     OrganisationService,
+    setCurrentUser,
     SettingsService,
     UploadsService,
 } from '@placeos/common';
@@ -150,6 +151,32 @@ describe('SignageService media paging', () => {
         await flush();
 
         expect(idsOf(service).sort()).toEqual(['a', 'b', 'c']);
+    });
+
+    // Filtering loaded pages would miss media that has not been fetched yet
+    it('should send the search term to the backend and report its total', async () => {
+        vi.useFakeTimers({ shouldAdvanceTime: true });
+        setCurrentUser({
+            id: 'user-1',
+            email: 'a@b.c',
+            sys_admin: true,
+        } as any);
+        (querySignageMedia as any).mockResolvedValue(pageOf(['a', 'b'], 9));
+        const service = TestBed.inject(SignageService);
+        TestBed.tick();
+        await flush();
+        (querySignageMedia as any).mockResolvedValue(pageOf(['c'], 5));
+
+        service.search_term.set('lobby');
+        await vi.advanceTimersByTimeAsync(500);
+        TestBed.tick();
+        await flush();
+        vi.useRealTimers();
+
+        const params = (querySignageMedia as any).mock.calls.at(-1)[0];
+        expect(params.q).toBe('lobby');
+        expect(idsOf(service)).toEqual(['c']);
+        expect(service.media_total()).toBe(5);
     });
 
     it('should discard pages from a superseded query', async () => {

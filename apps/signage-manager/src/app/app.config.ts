@@ -21,6 +21,7 @@ import {
 import { environment } from '../environments/environment';
 import { signageAccessGuard } from './signage-access.guard';
 import { templatesEnabledGuard } from './templates-enabled.guard';
+import { templateUnsavedGuard } from './templates/template-unsaved.guard';
 
 const APP_ROUTES: Routes = [
     {
@@ -56,6 +57,7 @@ const APP_ROUTES: Routes = [
             {
                 path: 'templates/:id',
                 canActivate: [templatesEnabledGuard],
+                canDeactivate: [templateUnsavedGuard],
                 loadComponent: () =>
                     import('./templates/templates.component').then(
                         (m) => m.TemplatesSectionComponent,
@@ -133,7 +135,11 @@ export const APP_CONFIG: ApplicationConfig = {
         provideAppInitializer(() =>
             registerActiveLocale(inject(LocaleService).locale),
         ),
-        provideRouter(APP_ROUTES, withHashLocation(), withComponentInputBinding()),
+        provideRouter(
+            APP_ROUTES,
+            withHashLocation(),
+            withComponentInputBinding(),
+        ),
         // {
         //     provide: ErrorHandler,
         //     useValue: Sentry.createErrorHandler({

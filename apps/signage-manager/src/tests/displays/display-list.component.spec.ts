@@ -49,6 +49,23 @@ describe('DisplayListComponent', () => {
         expect(component.selected()?.id).toBe('d2');
     });
 
+    it('reports a display offline when its player has not checked in recently', () => {
+        const component = make();
+        const now_s = Date.now() / 1000;
+        expect(component.isOnline({ signage_last_seen: now_s - 60 })).toBe(
+            true,
+        );
+        expect(component.isOnline({ signage_last_seen: now_s - 10 * 60 })).toBe(
+            false,
+        );
+        expect(component.statusLabel({})).toBe(
+            'SIGNAGE_MANAGER.DISPLAY_STATUS_NEVER_SEEN',
+        );
+        expect(
+            component.statusLabel({ signage_last_seen: now_s - 10 * 60 }),
+        ).toBe('SIGNAGE_MANAGER.DISPLAY_STATUS_OFFLINE');
+    });
+
     it('requests the next page when the sentinel triggers a load', () => {
         const component = make();
         component.loadMore();

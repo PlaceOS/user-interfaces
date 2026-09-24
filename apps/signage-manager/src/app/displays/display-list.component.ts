@@ -1,18 +1,26 @@
 import {
     afterRenderEffect,
     Component,
+    DestroyRef,
     ElementRef,
     inject,
+    signal,
     viewChildren,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    DateFromPipe,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { SignageService } from '../signage.service';
+import { isDisplayOnline } from './display-status.util';
 
 @Component({
     selector: 'display-list',
@@ -63,7 +71,25 @@ import { SignageService } from '../signage.service';
                                       }
                         "
                     >
-                        <icon class="shrink-0 text-2xl">tv</icon>
+                        <div
+                            class="relative shrink-0"
+                            role="img"
+                            [matTooltip]="
+                                statusLabel(display)
+                                    | translate: { time: lastSeen(display) }
+                            "
+                            [attr.aria-label]="
+                                statusLabel(display)
+                                    | translate: { time: lastSeen(display) }
+                            "
+                        >
+                            <icon class="text-2xl">tv</icon>
+                            <span
+                                class="border-base-100 absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2"
+                                [class.bg-success]="isOnline(display)"
+                                [class.bg-error]="!isOnline(display)"
+                            ></span>
+                        </div>
                         <div class="min-w-0 flex-1">
                             <div class="truncate font-medium">
                                 {{ display.display_name || display.name }}
@@ -120,6 +146,7 @@ import { SignageService } from '../signage.service';
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
+        MatTooltipModule,
         IconComponent,
         TranslatePipe,
         IntersectDirective,
@@ -137,7 +164,15 @@ export class DisplayListComponent {
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._service.displays_has_more;
 
+    // Ticks each minute so a display that stops checking in turns offline
+    // without a reload.
+    private readonly _now = signal(Date.now());
+    private readonly _date_from = new DateFromPipe();
+
     constructor() {
+        const timer = setInterval(() => this._now.set(Date.now()), 60 * 1000);
+        inject(DestroyRef).onDestroy(() => clearInterval(timer));
+
         afterRenderEffect({
             earlyRead: () => {
                 const selected_id = this.selected()?.id;
@@ -159,5 +194,26 @@ export class DisplayListComponent {
 
     public loadMore() {
         this._service.loadMoreDisplays();
+    }
+
+    public isOnline(display: { signage_last_seen?: number }) {
+        return isDisplayOnline(display.signage_last_seen, this._now());
+    }
+
+    /** Translation key for the status tooltip of a display */
+    public statusLabel(display: { signage_last_seen?: number }) {
+        if (!display.signage_last_seen) {
+            return 'SIGNAGE_MANAGER.DISPLAY_STATUS_NEVER_SEEN';
+        }
+        return this.isOnline(display)
+            ? 'SIGNAGE_MANAGER.DISPLAY_STATUS_ONLINE'
+            : 'SIGNAGE_MANAGER.DISPLAY_STATUS_OFFLINE';
+    }
+
+    /** Relative time since the display's player last checked in */
+    public lastSeen(display: { signage_last_seen?: number }) {
+        this._now();
+        if (!display.signage_last_seen) return '';
+        return this._date_from.transform(display.signage_last_seen * 1000);
     }
 }

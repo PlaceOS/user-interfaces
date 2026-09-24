@@ -13,8 +13,7 @@ const notify_open = vi.fn(() => ({
 }));
 
 describe('MediaListHeaderComponent', () => {
-    const filtered_media = signal<any[]>([]);
-    const media = signal<any[]>([]);
+    const media_total = signal(0);
     const plugins = signal<any[]>([]);
     const widgets = signal<any[]>([]);
     const search_term = signal('');
@@ -25,8 +24,7 @@ describe('MediaListHeaderComponent', () => {
     const dialog_open = vi.fn();
 
     const service_stub = {
-        filtered_media,
-        media,
+        media_total,
         plugins,
         widgets,
         search_term,
@@ -61,18 +59,15 @@ describe('MediaListHeaderComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
-        filtered_media.set([]);
-        media.set([]);
+        media_total.set(0);
         plugins.set([]);
         widgets.set([]);
     });
 
-    it('reports the filtered and total media counts', async () => {
-        media.set([{ id: 'a' }, { id: 'b' }, { id: 'c' }]);
-        filtered_media.set([{ id: 'a' }]);
+    it('reports the media count from the backend', async () => {
+        media_total.set(42);
         const component = await make();
-        expect(component.item_count()).toBe(1);
-        expect(component.total_count()).toBe(3);
+        expect(component.total_count()).toBe(42);
     });
 
     it('adds media from a valid link and clears the field', async () => {

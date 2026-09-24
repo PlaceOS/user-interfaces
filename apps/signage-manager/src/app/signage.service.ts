@@ -735,7 +735,12 @@ export class SignageService {
     private static readonly PAGE_SIZE = 200;
 
     // --- Media (paged incrementally as the user scrolls) ---
+    // Searching is done by the backend so results are paged like the full
+    // library; filtering the loaded pages would only search media that has
+    // already been fetched.
+    private readonly _media_search_debounced = debounced(this.search_term, 400);
     private readonly _media_items = signal<SignageMedia[]>([]);
+    private readonly _media_total = signal(0);
     private readonly _media_loading = signal(false);
     private readonly _media_has_more = signal(false);
     private _media_next: (() => QueryResponse<SignageMedia> | null) | null =
@@ -746,23 +751,30 @@ export class SignageService {
     public readonly media = this._media_items.asReadonly();
     public readonly media_loading = this._media_loading.asReadonly();
     public readonly media_has_more = this._media_has_more.asReadonly();
+    /** Media count the backend reports for the current group and search. */
+    public readonly media_total = this._media_total.asReadonly();
 
-    // Reload the first page whenever the org/group/change inputs change.
+    // Reload the first page whenever the org/group/search/change inputs change.
     private readonly _reload_media = effect(() => {
         const initialised = this._org.initialised();
         const can_query = this._can_query_group_data();
         const group_id = this._api_group_id_debounced.value();
+        const search = this._media_search_debounced.value().trim();
         this._change();
         untracked(() => {
             const token = ++this._media_token;
             this._media_items.set([]);
+            this._media_total.set(0);
             this._media_next = null;
             this._media_has_more.set(false);
             if (!initialised || !can_query) return;
             this._fetchMediaPage(
                 querySignageMedia(
                     this._orgZoneQueryParams(
-                        { limit: SignageService.PAGE_SIZE },
+                        {
+                            limit: SignageService.PAGE_SIZE,
+                            ...this._searchParam(search),
+                        },
                         group_id,
                     ),
                 ),
@@ -800,6 +812,7 @@ export class SignageService {
                 );
             });
             this._media_next = page.next;
+            this._media_total.set(page.total);
             this._media_has_more.set(this._media_items().length < page.total);
         } catch {
             if (token === this._media_token) this._media_has_more.set(false);
@@ -807,19 +820,6 @@ export class SignageService {
             if (token === this._media_token) this._media_loading.set(false);
         }
     }
-
-    public readonly filtered_media = computed(() => {
-        const term = this.search_term().trim().toLowerCase();
-        const media = this.media();
-        if (!term) return media;
-        return media.filter(
-            (item) =>
-                item.name.toLowerCase().includes(term) ||
-                (item.tags || []).some((tag) =>
-                    tag.toLowerCase().includes(term),
-                ),
-        );
-    });
 
     // Distinct tags in use across the active group/zone's signage media, with
     // the number of media items using each. Sourced from the dedicated

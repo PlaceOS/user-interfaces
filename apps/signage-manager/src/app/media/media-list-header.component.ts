@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -39,19 +39,10 @@ function isValidUrl(url: string): boolean {
                 </h3>
                 <div class="flex flex-wrap items-center gap-2">
                     <div class="text-sm opacity-60">
-                        @if (search()) {
-                            {{
-                                item_count() +
-                                    ' of ' +
-                                    ('COMMON.ITEM_COUNT'
-                                        | translate: { count: total_count() })
-                            }}
-                        } @else {
-                            {{
-                                'COMMON.ITEM_COUNT'
-                                    | translate: { count: total_count() }
-                            }}
-                        }
+                        {{
+                            'COMMON.ITEM_COUNT'
+                                | translate: { count: total_count() }
+                        }}
                     </div>
                     <group-breadcrumbs />
                 </div>
@@ -346,13 +337,10 @@ export class MediaListHeaderComponent {
     private readonly _service = inject(SignageService);
     private readonly _dialog = inject(MatDialog);
     private readonly _ai = inject(AiImageService);
-    private readonly _media = this._service.filtered_media;
-    private readonly _all_media = this._service.media;
     public readonly link = signal('');
     public readonly selected_plugin = signal<any>(null);
     public readonly available_plugins = this._service.plugins;
-    public readonly item_count = computed(() => this._media().length);
-    public readonly total_count = computed(() => this._all_media().length);
+    public readonly total_count = this._service.media_total;
     public readonly search = this._service.search_term;
     public readonly view_mode = this._service.media_view_mode;
     public readonly view_options = [
