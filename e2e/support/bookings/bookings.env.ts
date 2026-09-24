@@ -53,6 +53,8 @@ export const SCHEDULE_DAYS = {
     past: -2,
     /** bookings-empty.spec.ts — a day nothing is ever seeded on */
     empty: 13,
+    /** bookings-limit.spec.ts — isolated high-history listing */
+    history: 15,
 } as const;
 
 /**
