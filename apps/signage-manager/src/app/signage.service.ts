@@ -240,6 +240,16 @@ interface PlaylistMetaState {
 }
 
 const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
+/** Command palette search results with no matches */
+const EMPTY_SEARCH_RESULTS = {
+    displays: [] as PlaceSystem[],
+    playlists: [] as SignagePlaylist[],
+    templates: [] as SignageTemplate[],
+    zones: [] as PlaceZone[],
+    media: [] as SignageMedia[],
+};
+export type SignageSearchResults = typeof EMPTY_SEARCH_RESULTS;
+
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
 type MediaViewMode = 'grid' | 'list' | 'folder';
@@ -1217,6 +1227,48 @@ export class SignageService {
                 : {}),
             ...this._searchParam(search),
         } as any);
+    }
+
+    /**
+     * First matches of each signage type for a search, for the command
+     * palette. A type is empty when its query fails or is not available.
+     * @param search Text to search for
+     * @param limit Most results to return for each type
+     */
+    public async searchAll(search: string, limit = 5) {
+        const term = search.trim();
+        if (!term || !this._canQueryLists()) return EMPTY_SEARCH_RESULTS;
+        const params = {
+            ...this._orgZoneQueryParams({ limit }),
+            ...this._searchParam(term),
+        };
+        const group_params = this._groupQueryParams({
+            limit,
+            ...this._searchParam(term),
+        });
+        const settle = async <T>(query: Promise<{ data?: T[] }>) => {
+            try {
+                const data = (await query).data || [];
+                return data.slice(0, limit).map(decodeEntityNames);
+            } catch {
+                return [] as T[];
+            }
+        };
+        const [displays, playlists, templates, zones, media] =
+            await Promise.all([
+                settle<PlaceSystem>(
+                    querySystems({ ...params, signage: true } as any),
+                ),
+                settle(querySignagePlaylists(params)),
+                this.templates_enabled()
+                    ? settle(querySignageTemplates(group_params))
+                    : Promise.resolve([] as SignageTemplate[]),
+                settle<PlaceZone>(
+                    queryZones({ ...group_params, tags: 'signage' } as any),
+                ),
+                settle(querySignageMedia(params)),
+            ]);
+        return { displays, playlists, templates, zones, media };
     }
 
     private _canQueryLists() {

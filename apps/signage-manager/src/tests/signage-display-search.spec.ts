@@ -7,7 +7,13 @@ import {
     SettingsService,
     UploadsService,
 } from '@placeos/common';
-import { PlaceSystem, querySystems } from '@placeos/ts-client';
+import {
+    PlaceSystem,
+    querySignageMedia,
+    querySignagePlaylists,
+    querySystems,
+    queryZones,
+} from '@placeos/ts-client';
 
 import { SignageService } from '../app/signage.service';
 
@@ -31,7 +37,11 @@ describe('SignageService display search', () => {
         vi.clearAllMocks();
         vi.useFakeTimers({ shouldAdvanceTime: true });
         // Displays are only queried for a user allowed to see group data
-        setCurrentUser({ id: 'user-1', email: 'a@b.c', sys_admin: true } as any);
+        setCurrentUser({
+            id: 'user-1',
+            email: 'a@b.c',
+            sys_admin: true,
+        } as any);
         TestBed.configureTestingModule({
             providers: [
                 SignageService,
@@ -129,5 +139,27 @@ describe('SignageService display search', () => {
             'cafe',
             'lobby',
         ]);
+    });
+
+    it('searches every signage type with a small limit for the command palette', async () => {
+        const service = await init();
+        vi.clearAllMocks();
+        (querySystems as any).mockResolvedValue(pageOf(['lobby']));
+        for (const query of [
+            querySignagePlaylists,
+            querySignageMedia,
+            queryZones,
+        ]) {
+            (query as any).mockResolvedValue({ data: [], total: 0 });
+        }
+
+        expect(await service.searchAll('  ')).toMatchObject({ displays: [] });
+        expect(querySystems).not.toHaveBeenCalled();
+
+        const results = await service.searchAll('lobby');
+
+        expect(results.displays.map(({ id }) => id)).toEqual(['lobby']);
+        const params = (querySystems as any).mock.calls[0][0];
+        expect(params).toMatchObject({ q: 'lobby', limit: 5, signage: true });
     });
 });

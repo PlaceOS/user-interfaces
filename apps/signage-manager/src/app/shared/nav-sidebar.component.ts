@@ -9,9 +9,8 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageService } from '../signage.service';
-import { AiImageService } from '../ai/ai-image.service';
-import { filterManageNavItems } from './nav-items';
+import { CommandPaletteService } from './command-palette.service';
+import { injectNavItems } from './nav-items';
 import { SignageGroupSelectorComponent } from './signage-group-selector.component';
 
 @Component({
@@ -39,6 +38,23 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
                     </div>
                 }
             </a>
+            <button
+                type="button"
+                matRipple
+                class="hover:bg-base-100/30 focus-visible:bg-base-100/30 mx-auto mt-2 flex h-10 w-18 shrink-0 items-center justify-center gap-1 rounded-xl"
+                [matTooltip]="
+                    ('SIGNAGE_MANAGER.PALETTE_OPEN' | translate) +
+                    ' (' +
+                    palette_shortcut +
+                    ')'
+                "
+                matTooltipPosition="right"
+                [attr.aria-label]="'SIGNAGE_MANAGER.PALETTE_OPEN' | translate"
+                [attr.aria-keyshortcuts]="palette_aria_shortcut"
+                (click)="openPalette()"
+            >
+                <icon class="text-2xl">search</icon>
+            </button>
             <div
                 class="flex min-h-0 w-[calc(100%+0.5rem)] flex-1 flex-col gap-4 overflow-x-hidden overflow-y-auto p-2"
             >
@@ -155,8 +171,6 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
 export class NavSidebarComponent {
     private readonly _settings = inject(SettingsService);
     private readonly _locale = inject(LocaleService);
-    private readonly _service = inject(SignageService);
-    private readonly _ai = inject(AiImageService);
     public readonly locales = this._settings.signal<
         { id: string; name: string; local?: string }[]
     >('locales', []);
@@ -165,14 +179,13 @@ export class NavSidebarComponent {
         false,
     );
 
-    public readonly nav_items = computed(() =>
-        filterManageNavItems(
-            this._service.can_manage_all_groups() ||
-                !!this._service.manageable_signage_groups().length,
-            this._service.templates_enabled(),
-            this._ai.enabled(),
-        ),
-    );
+    public readonly nav_items = injectNavItems();
+    private readonly _palette = inject(CommandPaletteService);
+    private readonly _is_apple = /Mac|iPhone|iPad/.test(navigator.userAgent);
+    public readonly palette_shortcut = this._is_apple ? '⌘K' : 'Ctrl+K';
+    public readonly palette_aria_shortcut = this._is_apple
+        ? 'Meta+K'
+        : 'Control+K';
     public readonly active_locale = computed(() => this._locale.locale);
     public readonly active_locale_label = computed(() => {
         const active_locale = this.active_locale();
@@ -192,6 +205,10 @@ export class NavSidebarComponent {
         return locale.local && locale.local !== name
             ? `${name} (${locale.local}) · ${locale.id}`
             : `${name} · ${locale.id}`;
+    }
+
+    public openPalette() {
+        void this._palette.toggle();
     }
 
     public setLocale(code: string) {

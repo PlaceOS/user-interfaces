@@ -11,6 +11,7 @@ import { mocksInit } from '@placeos/mocks';
 import { authority } from '@placeos/ts-client';
 
 import { AiImageService } from './ai/ai-image.service';
+import { CommandPaletteService } from './shared/command-palette.service';
 
 @Component({
     selector: 'app-root',
@@ -29,6 +30,7 @@ import { AiImageService } from './ai/ai-image.service';
         <global-loading />
         <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
     `,
+    host: { '(document:keydown)': 'onKeydown($event)' },
     styles: [
         `
             :host {
@@ -54,6 +56,17 @@ export class AppComponent implements OnInit {
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
     private _ai = inject(AiImageService);
+    private _palette = inject(CommandPaletteService);
+
+    /** Open the command palette on Cmd+K or Ctrl+K, even from a text field */
+    public onKeydown(event: KeyboardEvent) {
+        if (!(event.metaKey || event.ctrlKey)) return;
+        if (event.altKey || event.shiftKey || event.key.toLowerCase() !== 'k') {
+            return;
+        }
+        event.preventDefault();
+        void this._palette.toggle();
+    }
 
     public async ngOnInit() {
         setMocks(mocksInit);

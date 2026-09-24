@@ -37,6 +37,9 @@ These stories cover the current app workflows:
 - The app waits for signage group loading before deciding access.
 - The default route opens the media library.
 - The group management route is hidden unless the user can manage signage groups.
+- Users can press Cmd+K (macOS) or Ctrl+K to open a command palette, including from a text field. The search button in the nav sidebar also opens it.
+- The palette lists the pages the user can open. Typing filters the pages and searches displays, playlists, templates, zones, and media, up to 5 of each.
+- Users can use the arrow keys and Enter to open a result. Media opens in the preview.
 
 ---
 
