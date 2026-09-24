@@ -1,3 +1,8 @@
+/** DEFERRED 2026-09-22: native multi-room backend support is unconfirmed.
+ * Removed from active E2E scope at user request following developer feedback.
+ * Historical failure is not a confirmed frontend defect. Restore this file to
+ * apps/workplace/e2e/local and review assertions once support is confirmed.
+ */
 /**
  * ROOM-26 — a meeting in more than one room.
  *
