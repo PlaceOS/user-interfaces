@@ -234,8 +234,14 @@ export class AppComponent extends AsyncHandler implements OnInit {
             return this._authenticateGraphAPI(tries + 1);
         }
         try {
-            const access_token =
-                Office.context.auth.getAccessTokenAsync() as Promise<OfficeAccessTokenResult>;
+            // getAccessTokenAsync takes a callback and returns nothing.
+            const access_token = new Promise<OfficeAccessTokenResult>(
+                (resolve) =>
+                    Office.context.auth.getAccessTokenAsync(
+                        { allowSignInPrompt: true },
+                        resolve,
+                    ),
+            );
             const result = await withTimeout(
                 access_token,
                 10_000,
