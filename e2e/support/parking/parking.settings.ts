@@ -26,30 +26,11 @@ export async function useSettings(
 }
 
 /**
- * Settings every parking spec runs with.
- *
- * ## PARK-B1: without this, a parking space cannot be booked AT ALL here
- *
- * On this stack, with no overrides at all, pressing "Confirm Reservation"
- * produces:
- *
- *   Some fields are invalid. [space_restrictions]
- *
- * and the sheet never opens. The field it names is **not on the booking form** —
- * `parking-form-details.component.ts` never renders a `space_restrictions`
- * control (measured: zero mentions). The validator lives in the SHARED booking
- * form (`booking.utilities.ts`) and fires for any `booking_type === 'parking'`
- * when `parking.require_space_restriction` is set, while the setting's own
- * schema describes it as belonging to the **parking REQUEST flow**
- * ("Whether users must select a parking space restriction in the parking request
- * flow", `settings.schema.json`), which does render a control for it.
- *
- * So a deployment that switches it on for requests silently makes ordinary
- * parking bookings impossible, with an error naming a field nobody can fill in.
- * That is PARK-B1, and `parking-restrictions.spec.ts` carries it as a `fixme`.
- *
- * Turning it off here is what lets every other parking scenario be covered. It
- * also means these specs say nothing about the restriction feature itself.
+ * Ordinary parking-booking scenarios do not exercise request restrictions.
+ * PARK-13 now validates the required selector in the parking REQUEST flow
+ * (parking-restrictions.spec.ts), per developer clarification on 2026-09-22.
+ * This request-flow test does not establish the status of the previous
+ * ordinary-parking observation (PARK-B1).
  */
 export const PARKING_BASE_SETTINGS = {
     'app.parking.require_space_restriction': false,

@@ -1,96 +1,115 @@
-/**
- * PARK-13 — the space-restriction requirement.
- *
- * ## `fixme` — PARK-B1, and it makes parking unbookable
- *
- * `parking.require_space_restriction` is described by its own schema as
- * belonging to the parking REQUEST flow ("Whether users must select a parking
- * space restriction in the parking request flow",
- * `apps/workplace/src/environments/settings.schema.json`), and the request form
- * does render a control for it.
- *
- * But the validator lives in the SHARED booking form
- * (`libs/bookings/src/lib/booking.utilities.ts`) and fires for any
- * `booking_type === 'parking'`:
- *
- *   validate(p.space_restrictions, ... require_space_restriction() && !value()
- *       ? { kind: 'required' } : undefined)
- *
- * while `parking-form-details.component.ts` never renders a `space_restrictions`
- * control at all — measured, zero mentions. So with the setting on, the ordinary
- * parking booking form cannot be submitted: pressing Confirm Reservation gives
- *
- *   Some fields are invalid. [space_restrictions]
- *
- * and there is no field on screen to satisfy. Measured on this stack with NO
- * overrides, which is how the whole parking area was blocked until the setting
- * was turned off in `PARKING_BASE_SETTINGS`.
- *
- * The test below is what SHOULD happen: with the requirement on, a space can
- * still be booked (whether by rendering the control on this form too, or by
- * scoping the validator to the request flow — that is a product decision). Drop
- * the `fixme` once either is done.
+/** PARK-13: required restriction in the parking REQUEST flow.
+ * Developer clarification 2026-09-22: ordinary space booking is not this feature.
+ * Verify missing-choice validation and persistence of a selected restriction.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, releaseAsset, uniqueTitle } from '../../../../e2e/support/api';
-import {
-    PARKING_SLOTS,
-    dayBoundsOn,
-    slotOn,
-} from '../../../../e2e/support/parking/parking.env';
-import { spaceForWorker } from '../../../../e2e/support/parking/parking.seed';
+import { randomUUID } from 'node:crypto';
+import type { Request } from '@playwright/test';
+import { getBooking, listBookings, STAFF_API } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../e2e/support/parking/parking.settings';
-import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
 
-test.describe('parking space restrictions', () => {
-    test.fixme('a space can still be booked when a restriction is required', async ({
-        staffPage,
-        staffApi,
-    }, testInfo) => {
-        const space = await spaceForWorker(testInfo.parallelIndex);
-        const slot = slotOn(PARKING_SLOTS.api.day, 12);
-        const { from, to } = dayBoundsOn(PARKING_SLOTS.api.day);
-        const title = uniqueTitle('E2E Parking Restricted');
-        let booking_id: number | undefined;
-
-        await releaseAsset(staffApi, 'parking', space.id, from, to);
-        // The setting this whole finding is about, switched ON deliberately.
-        await useSettings(staffPage, {
-            'app.parking.require_space_restriction': true,
-        });
-
-        try {
-            const form = new ParkingForm(staffPage);
-            await form.open();
-            await form.pickDate(slot.date_ms);
-            await expect(async () => {
-                await form.setChecked(form.allDay, false);
-                await form.title.fill(title);
-                if ((await form.chosenSpaces.count()) === 0) {
-                    await form.chooseSpace(space.name);
-                }
-                expect(await form.title.inputValue()).toBe(title);
-            }).toPass({ timeout: 60_000 });
-
-            const [response] = await Promise.all([
-                staffPage.waitForResponse(
-                    (r) =>
-                        r.url().includes('/api/staff/v1/bookings') &&
-                        r.request().method() === 'POST',
-                    { timeout: 30_000 },
-                ),
-                form.confirmAndSend(),
-            ]);
-            const body = await response.text();
-            expect(
-                response.status(),
-                `with a restriction required, the booking should still be possible: ` +
-                    `${body}`,
-            ).toBeLessThan(300);
-            booking_id = JSON.parse(body).id;
-        } finally {
-            if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseAsset(staffApi, 'parking', space.id, from, to);
-        }
+test('a parking request requires and stores the selected restriction', async ({
+    staffPage,
+    staffApi,
+}, testInfo) => {
+    let booking_id: number | undefined;
+    const restriction_id = `e2e-covered-${randomUUID()}`;
+    const posts: Request[] = [];
+    staffPage.on('request', (r) => {
+        if (
+            r.method() === 'POST' &&
+            new URL(r.url()).pathname === `${STAFF_API}/bookings`
+        )
+            posts.push(r);
     });
+    await useSettings(staffPage, {
+        'app.parking.require_space_restriction': true,
+        'app.parking.request_space_restrictions': [
+            { id: restriction_id, name: 'E2E covered parking' },
+        ],
+    });
+    try {
+        await staffPage.goto('/#/book/parking-request/form');
+        const form = staffPage.locator('parking-request-form');
+        await expect(form).toBeVisible();
+        const restrictions = form.locator(
+            'mat-radio-group[aria-labelledby="parking-space-restrictions-label"]',
+        );
+        await expect(restrictions).toBeVisible();
+        await expect(restrictions).toHaveAttribute('aria-required', 'true');
+        await form.locator('button[confirm]').click();
+        await expect(restrictions).toHaveAttribute('aria-invalid', 'true');
+        expect(posts).toHaveLength(0);
+        await restrictions
+            .getByRole('radio', { name: 'E2E covered parking' })
+            .check();
+        await expect(restrictions).toHaveAttribute('aria-invalid', 'false');
+        await staffPage.screenshot({
+            path: testInfo.outputPath('parking-request-restriction.png'),
+        });
+        const [response] = await Promise.all([
+            staffPage.waitForResponse(
+                (r) =>
+                    r.request().method() === 'POST' &&
+                    new URL(r.url()).pathname === `${STAFF_API}/bookings`,
+            ),
+            form.locator('button[confirm]').click(),
+        ]);
+        const body = await response.json();
+        booking_id = body.id;
+        expect(response.status()).toBeLessThan(300);
+        const stored = await getBooking(staffApi, booking_id!);
+        await testInfo.attach('parking-request-evidence', {
+            body: JSON.stringify({
+                booking_id,
+                status: response.status(),
+                asset_id: stored.asset_id,
+                booking_type: stored.booking_type,
+                extension_data: stored.extension_data,
+            }),
+            contentType: 'application/json',
+        });
+        expect(stored.booking_type).toBe('parking');
+        expect(stored.asset_id).toContain('unallocated');
+        expect(stored.extension_data).toMatchObject({
+            space_restrictions: restriction_id,
+        });
+    } finally {
+        // Recover writes even when an assertion fails before the response is read.
+        // Match only assets generated by this attempt; never sweep shared users.
+        const ids = new Set<number>(booking_id == null ? [] : [booking_id]);
+        const recovery = await Promise.allSettled(posts.map(async (request) => {
+            const response = await request.response();
+            const body = await response?.json().catch(() => undefined);
+            if (typeof body?.id === 'number') ids.add(body.id);
+            const submitted = request.postDataJSON();
+            if (submitted?.asset_id && submitted.booking_start && submitted.booking_end) {
+                const bookings = await listBookings(
+                    staffApi, 'parking', submitted.booking_start, submitted.booking_end,
+                );
+                for (const booking of bookings) {
+                    if (booking.asset_id === submitted.asset_id && !booking.deleted) {
+                        ids.add(booking.id);
+                    }
+                }
+            }
+        }));
+        const cleanup = await Promise.allSettled([...ids].map(async (id) => {
+            const response = await staffApi.delete(`${STAFF_API}/bookings/${id}`);
+            expect(response.ok() || response.status() === 404).toBeTruthy();
+            await expect.poll(async () => {
+                const remaining = await staffApi.get(`${STAFF_API}/bookings/${id}`);
+                if (remaining.status() === 404) return true;
+                expect(remaining.ok()).toBeTruthy();
+                return (await remaining.json()).deleted === true;
+            }).toBe(true);
+        }));
+        await testInfo.attach('parking-request-cleanup', {
+            body: JSON.stringify({ booking_ids: [...ids], results: cleanup.map((r) => r.status) }),
+            contentType: 'application/json',
+        });
+        for (const result of [...recovery, ...cleanup]) {
+            if (result.status === 'rejected') throw result.reason;
+        }
+    }
 });
