@@ -297,7 +297,13 @@ export async function bookRoomViaUI(
                 `On screen: "${message.replace(/\s+/g, ' ').trim().slice(0, 220)}"`,
         );
     }
-    return JSON.parse(created[created.length - 1].body);
+    // Linked catering/equipment POSTs follow the room POST. Returning the last
+    // response would return a child order instead of the room's parent ID.
+    const rooms = created
+        .map((post) => JSON.parse(post.body) as RoomBooking)
+        .filter((booking) => booking.booking_type === 'room' && booking.asset_id === room.id);
+    expect(rooms, 'Exactly one native room booking should be created').toHaveLength(1);
+    return rooms[0];
 }
 
 /** Drive the form's date picker to a given day. */
