@@ -17,7 +17,8 @@ if (process.env.AFFECTED_FIXTURE_FAIL === 'true') {
     process.stderr.write('Nx failed\n');
     process.exit(1);
 }
-if (!process.argv.includes('--json') || !process.argv.includes('--base=HEAD~1')) {
+const base = '--base=' + (process.env.NX_BASE || 'HEAD~1');
+if (!process.argv.includes('--json') || !process.argv.includes(base)) {
     process.stderr.write('Nx arguments are incomplete\n');
     process.exit(1);
 }
@@ -55,6 +56,16 @@ test('returns affected applications from Nx JSON output', () => {
 
     assert.equal(result.status, 0);
     assert.equal(result.stderr, '');
+    assert.deepEqual(JSON.parse(result.stdout), ['workplace']);
+});
+
+test('uses NX_BASE as the affected base commit', () => {
+    const result = runSelector({
+        NX_BASE: 'abc1234',
+        AFFECTED_FIXTURE_OUTPUT: JSON.stringify(['workplace']),
+    });
+
+    assert.equal(result.status, 0);
     assert.deepEqual(JSON.parse(result.stdout), ['workplace']);
 });
 

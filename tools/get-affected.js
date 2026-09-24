@@ -2,6 +2,8 @@ const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const ref = process.argv[2] || 'origin/develop';
 const cmd = process.argv[3] || 'build';
+// CI sets NX_BASE to the last successfully built commit.
+const base = process.env.NX_BASE || 'HEAD~1';
 
 try {
     console.log(JSON.stringify(commands(cmd)));
@@ -37,7 +39,7 @@ function commands(target) {
             '--affected',
             `--withTarget=${target}`,
             '--json',
-            '--base=HEAD~1',
+            `--base=${base}`,
         ],
         { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'] },
     );

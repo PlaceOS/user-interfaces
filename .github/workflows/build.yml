@@ -15,10 +15,13 @@ on:
 jobs:
     install_deps:
         runs-on: ubuntu-latest
+        permissions:
+            actions: read
+            contents: read
         steps:
             - uses: actions/checkout@v6
               with:
-                  fetch-depth: '2'
+                  fetch-depth: 0
 
             - name: Cache node modules
               id: cache
@@ -66,8 +69,19 @@ jobs:
                       echo "configuration=staging" >> $GITHUB_OUTPUT
                       echo "deploy_branch=dev" >> $GITHUB_OUTPUT
                   fi
+            - name: Find affected base commit
+              id: affected_base
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  PUSH_BEFORE: ${{ github.event.before }}
+              run: |
+                  base="$(.github/scripts/get-affected-base.sh)"
+                  echo "sha=${base}" >> $GITHUB_OUTPUT
+
             - name: List affected applications
               id: affected_apps
+              env:
+                  NX_BASE: ${{ steps.affected_base.outputs.sha }}
               run: |
                   affected_apps="$(node ./tools/get-affected.js ${{ github.ref }})"
                   affected_units="$(node ./tools/get-affected.js ${{ github.ref }} test)"
@@ -76,11 +90,8 @@ jobs:
 
             - name: Print affected applications
               run: |
+                  echo "Base: ${{ steps.affected_base.outputs.sha }}"
                   echo ${{ steps.affected_apps.outputs.affected_apps }}
-
-            - name: Fetch changelog history
-              if: ${{ fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
-              run: git fetch --force --prune --tags --unshallow origin "${GITHUB_REF}"
 
             - name: Validate production version tag
               if: ${{ steps.build_ext.outputs.deploy_branch == 'prod' && fromJSON(steps.affected_apps.outputs.affected_apps)[0] != null }}
