@@ -96,6 +96,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
             );
             return;
         }
+        if (this._isAuthDialog()) return this._completeAuthDialog();
         log('Outlook', `Initialising auth...`);
         if (!(await this._initialiseAuth())) return;
         log('Outlook', `Checking existing auth...`);
@@ -188,13 +189,20 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 path,
                 { height: 60, width: 30 },
                 (result: any) => {
+                    if (result.status !== 'succeeded') {
+                        this.clearTimeout('office_auth_failure');
+                        failInitialisation(
+                            'The Microsoft sign-in window could not open. Allow pop-ups for Outlook, then try again.',
+                        );
+                        return;
+                    }
                     log('Outlook', `Authenticating with dialog...`);
                     const dialog = result.value;
                     dialog.addEventHandler(
                         Office.EventType.DialogMessageReceived,
-                        (token: string) => {
+                        (event: { message?: string }) => {
                             this.clearTimeout('office_auth_failure');
-                            if (token) setToken(token);
+                            if (event.message) setToken(event.message);
                             this._finishInitialise();
                             dialog.close();
                         },
@@ -202,18 +210,29 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 },
             );
         });
-        console.info(`URL: ${window.location.href}`);
-        if (
-            window.location.href.includes('ms-auth=true') ||
-            sessionStorage.getItem('ms-auth')
-        ) {
-            sessionStorage.setItem('ms-auth', 'true');
-            log('Outlook', `Authenticating with dialog...`);
-            this.clearTimeout('office_auth');
-            if (!(await this._initialiseAuth(false))) return;
-            if (!token()) return;
-            Office.context.ui.messageParent(token() || '');
-        }
+    }
+
+    /** True when this window is the sign-in dialog opened by the task pane. */
+    private _isAuthDialog() {
+        return (
+            location.href.includes('ms-auth=true') ||
+            !!sessionStorage.getItem('ms-auth')
+        );
+    }
+
+    /**
+     * Sign in to PlaceOS inside the dialog, then send the token to the task
+     * pane. The task pane cannot share the dialog's storage or cookies.
+     */
+    private async _completeAuthDialog() {
+        // Keep the flag, the login redirect can drop the URL hash.
+        sessionStorage.setItem('ms-auth', 'true');
+        log('Outlook', `Signing in from dialog...`);
+        // Redirects to the PlaceOS login page when there is no session.
+        if (!(await this._initialiseAuth(false))) return;
+        if (!token()) return;
+        sessionStorage.removeItem('ms-auth');
+        Office.context.ui.messageParent(token());
     }
 
     private async _authenticateGraphAPI(tries = 0): Promise<void> {
