@@ -1,3 +1,0 @@
-import{Hr as W,Wt as J4,is as p,wc as x}from"./chunk-DEteFQlc.js";var a=(()=>{class e{constructor(){this._el=p(W),this.intersect=J4()}ngAfterViewInit(){this._observer=new IntersectionObserver(i=>{i.some(t=>t.isIntersecting)&&this.intersect.emit()},{rootMargin:`300px`}),this._observer.observe(this._el.nativeElement)}ngOnDestroy(){this._observer?.disconnect()}static{this.ɵfac=function(t){return new(t||e)}}static{this.ɵdir=x({type:e,selectors:[[``,`intersect`,``]],outputs:{intersect:`intersect`}})}}return e})();export{a as t};
-//# debugId=719bfea0-7318-5f7b-a6bb-7fa83b70830d
-//# sourceMappingURL=chunk--w5TB2cP.js.map
