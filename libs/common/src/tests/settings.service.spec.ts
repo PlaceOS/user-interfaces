@@ -83,3 +83,39 @@ describe('SettingsService', () => {
         expect(favorites()).toEqual(['item-1']);
     });
 });
+
+describe('SettingsService theme', () => {
+    const createService = createServiceFactory(SettingsService);
+
+    // Setting signals are cached per module, so this test must be the first
+    // to create the `allow_dark_mode` signal.
+    it('should use the light theme when dark mode is not set', async () => {
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: { theme: 'dark' },
+        } as any);
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+        service.setDebugOverride('app.allow_dark_mode', null);
+        await vi.waitFor(() => expect(service.get('theme')).toBe('dark'));
+        expect(service.theme).toBe('light');
+        expect(service.theme_signal()).toBe('light');
+        service.setDebugOverride('app.allow_dark_mode', undefined);
+    });
+
+    it('should use the light theme when dark mode is disabled', async () => {
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: { theme: 'dark' },
+        } as any);
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+        service.setOverrides([{ allow_dark_mode: false }]);
+        // Signals created before init completes must read the overrides.
+        expect(service.signal('allow_dark_mode', true)()).toBe(false);
+        await vi.waitFor(() => expect(service.get('theme')).toBe('dark'));
+        expect(service.theme_signal()).toBe('light');
+    });
+});
