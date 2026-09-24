@@ -12,6 +12,7 @@ function block(overrides: Partial<ScheduleBlock> = {}): ScheduleBlock {
         start_minutes: 540,
         duration_minutes: 120,
         all_day: false,
+        takeover: false,
         bg_color: '#dbeafe',
         text_color: '#1e40af',
         label: '9:00am - 11:00am',
@@ -19,7 +20,9 @@ function block(overrides: Partial<ScheduleBlock> = {}): ScheduleBlock {
     };
 }
 
-function row(overrides: Partial<ScheduleTimelineRow> = {}): ScheduleTimelineRow {
+function row(
+    overrides: Partial<ScheduleTimelineRow> = {},
+): ScheduleTimelineRow {
     return {
         id: 'd-1',
         name: 'Foyer',
@@ -119,7 +122,9 @@ describe('ScheduleTimelineComponent', () => {
     it('reports display connectivity from the last-seen timestamp', () => {
         const component = make();
         fixture.componentRef.setInput('view_tab', 'displays');
-        const recent = row({ signage_last_seen: Math.floor(Date.now() / 1000) });
+        const recent = row({
+            signage_last_seen: Math.floor(Date.now() / 1000),
+        });
         const stale = row({
             signage_last_seen: Math.floor(Date.now() / 1000) - 3600,
         });

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Signage Manager app lets authorised users manage signage media, playlists, templates, display and zone playlist assignments, daily schedule visibility, and signage access groups. Navigation is permission-aware: media, playlists, templates, zones, schedules, and displays are available to users with signage access, while group management is shown only to users who can manage signage groups.
+The Signage Manager app lets authorised users manage signage media, playlists, templates, display and zone playlist assignments, daily schedule visibility, and signage access groups. Navigation is permission-aware: media, playlists, templates, zones, schedules, displays, and manage are available to users with signage access, while group management is shown only to users who can manage signage groups. The manage section shows the content report and branding as tabs. The branding tab shows only when image generation is enabled.
 
 ---
 
@@ -16,7 +16,8 @@ These stories cover the current app workflows:
 - Templates: search, create, select, edit layouts, preview, approval request or approval, and delete confirmation.
 - Zones: search, direct selection, create, edit, delete, playlist tab, display tab, add playlist, and add display.
 - Displays: search, direct selection, player link when available, schedule tab, playlist tab, zone tab, and add playlist.
-- Schedules: display and zone timeline tabs, previous day, next day, today, search, clear search, empty states, and row links.
+- Schedules: display and zone timeline tabs, previous day, next day, today, search, clear search, empty states, row links, and takeover conflict warnings.
+- Content report: takeover conflicts, displays with no playlists, unassigned playlists, expired playlists that are still assigned, and expired media in playlists.
 - Signage groups: searchable group tree, create, edit, delete entry point, user assignment, user permission editing, zone assignment, zone permission editing, and deny-state editing.
 - Responsive workflows: compact media add menu and mobile footer navigation.
 
@@ -272,6 +273,24 @@ These stories cover the current app workflows:
 - Users can search schedules by display, zone, playlist, and source labels where applicable.
 - Timeline rows link to the related display or zone detail page.
 - Empty and filtered states explain when no rows are available.
+- Users must confirm a change that makes two takeover playlists play at the same time on a display in the next 14 days. The check runs when users save playlist schedules and when they assign a playlist to a display or zone. The warning names the display, the other playlist, and the start time of the overlap.
+
+---
+
+### US-SGM-018: Review Content That Needs Attention
+
+**As a** signage administrator  
+**I want to** see content problems in one place  
+**So that** I can fix them before they show on screens
+
+**Acceptance Criteria:**
+
+- The report is the first tab of the Manage section. The old `/report` and `/branding` addresses open the matching Manage tab.
+- The report checks all displays, zones, playlists, and media in the selected group, not only the pages loaded in other views.
+- The report lists takeover conflicts in the next 14 days, displays with no playlist from the display or its zones, playlists not assigned to a display or zone, expired playlists that are still assigned, and expired media that is still in a playlist.
+- Display and playlist rows open the related detail page. Media rows open the media preview.
+- Each section shows a count, and shows a message when there is nothing to fix.
+- Users can refresh the report.
 
 ---
 
@@ -337,6 +356,6 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - Mobile layout exposes the primary app navigation from the footer.
-- Overflow navigation shows less common sections, including schedules, when space is limited.
+- Overflow navigation shows less common sections, including schedules and manage, when space is limited.
 - Media creation actions remain available from a compact media actions menu.
 - Compact media actions include upload, add from link, and add plugin options.

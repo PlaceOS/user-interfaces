@@ -6,7 +6,6 @@ import { RouterModule } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { dialogClosed, SignageService } from '../signage.service';
-import { AiImageService } from '../ai/ai-image.service';
 import { GroupSelectModalComponent } from './group-select-modal.component';
 import { filterManageNavItems } from './nav-items';
 
@@ -22,14 +21,11 @@ import { filterManageNavItems } from './nav-items';
             >
                 @for (item of primary_nav_items(); track item.route) {
                     <a
-                        #route_active="routerLinkActive"
                         class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-14 min-w-0 flex-1 flex-col items-center justify-center rounded-lg px-1 text-xs"
                         [routerLink]="item.route"
                         routerLinkActive="active bg-primary/30"
                         [attr.aria-label]="item.label | translate"
-                        [attr.aria-current]="
-                            route_active.isActive ? 'page' : null
-                        "
+                        ariaCurrentWhenActive="page"
                     >
                         <icon class="text-2xl">{{ item.icon }}</icon>
                         <div class="truncate font-medium">
@@ -130,7 +126,6 @@ import { filterManageNavItems } from './nav-items';
 })
 export class NavFooterComponent {
     private readonly _service = inject(SignageService);
-    private readonly _ai = inject(AiImageService);
     private readonly _dialog = inject(MatDialog);
 
     private readonly can_manage_groups = computed(
@@ -142,21 +137,19 @@ export class NavFooterComponent {
     private readonly MORE_MENU_ROUTES = [
         '/templates',
         '/schedules',
-        '/branding',
+        '/manage',
         '/groups',
     ];
     public readonly primary_nav_items = computed(() =>
         filterManageNavItems(
             this.can_manage_groups(),
             this._service.templates_enabled(),
-            this._ai.enabled(),
         ).filter((item) => !this.MORE_MENU_ROUTES.includes(item.route)),
     );
     public readonly more_nav_items = computed(() =>
         filterManageNavItems(
             this.can_manage_groups(),
             this._service.templates_enabled(),
-            this._ai.enabled(),
         ).filter((item) => this.MORE_MENU_ROUTES.includes(item.route)),
     );
     public readonly groups = this._service.signage_groups;

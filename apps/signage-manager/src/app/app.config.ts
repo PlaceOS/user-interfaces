@@ -93,12 +93,32 @@ const APP_ROUTES: Routes = [
                     ),
             },
             {
-                path: 'branding',
+                path: 'manage',
                 loadComponent: () =>
-                    import('./branding/branding.component').then(
-                        (m) => m.BrandingComponent,
+                    import('./manage/manage.component').then(
+                        (m) => m.ManageSectionComponent,
                     ),
+                children: [
+                    { path: '', pathMatch: 'full', redirectTo: 'report' },
+                    {
+                        path: 'report',
+                        loadComponent: () =>
+                            import('./report/content-report.component').then(
+                                (m) => m.ContentReportComponent,
+                            ),
+                    },
+                    {
+                        path: 'branding',
+                        loadComponent: () =>
+                            import('./branding/branding.component').then(
+                                (m) => m.BrandingComponent,
+                            ),
+                    },
+                ],
             },
+            // Old addresses of the pages now under Manage
+            { path: 'report', redirectTo: 'manage/report' },
+            { path: 'branding', redirectTo: 'manage/branding' },
             {
                 path: 'groups',
                 loadComponent: () =>

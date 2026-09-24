@@ -1,5 +1,4 @@
 import { computed, inject } from '@angular/core';
-import { AiImageService } from '../ai/ai-image.service';
 import { SignageService } from '../signage.service';
 
 const NAV_ITEMS = [
@@ -30,9 +29,9 @@ const NAV_ITEMS = [
         label: 'SIGNAGE_MANAGER.NAV_DISPLAYS',
     },
     {
-        route: '/branding',
-        icon: 'palette',
-        label: 'SIGNAGE_MANAGER.NAV_BRANDING',
+        route: '/manage',
+        icon: 'tune',
+        label: 'SIGNAGE_MANAGER.NAV_MANAGE',
     },
     { route: '/groups', icon: 'groups', label: 'COMMON.GROUPS' },
 ];
@@ -42,12 +41,10 @@ export type NavItem = (typeof NAV_ITEMS)[number];
 export function filterManageNavItems(
     can_manage_groups: boolean,
     templates_enabled = false,
-    ai_enabled = false,
 ): NavItem[] {
     return NAV_ITEMS.filter((item) => {
         if (item.route === '/groups') return can_manage_groups;
         if (item.route === '/templates') return templates_enabled;
-        if (item.route === '/branding') return ai_enabled;
         return true;
     });
 }
@@ -58,13 +55,11 @@ export function filterManageNavItems(
  */
 export function injectNavItems() {
     const service = inject(SignageService);
-    const ai = inject(AiImageService);
     return computed(() =>
         filterManageNavItems(
             service.can_manage_all_groups() ||
                 !!service.manageable_signage_groups().length,
             service.templates_enabled(),
-            ai.enabled(),
         ),
     );
 }

@@ -68,13 +68,9 @@ describe('CommandPaletteComponent', () => {
     it('lists the pages the user can open before a search', () => {
         const component = make();
         // Templates, branding and groups are hidden for this user
-        expect(component.results().map(({ kind }) => kind)).toEqual([
-            'page',
-            'page',
-            'page',
-            'page',
-            'page',
-        ]);
+        expect(component.results().map(({ kind }) => kind)).toEqual(
+            Array(6).fill('page'),
+        );
     });
 
     it('filters pages and adds signage matches from the API', async () => {
@@ -100,7 +96,7 @@ describe('CommandPaletteComponent', () => {
             component.onKeydown(new KeyboardEvent('keydown', { key }));
 
         key('ArrowUp');
-        expect(component.active_index()).toBe(4);
+        expect(component.active_index()).toBe(5);
         key('ArrowDown');
         expect(component.active_index()).toBe(0);
     });

@@ -103,6 +103,7 @@ import {
     updateSystem,
     updateZone,
 } from '@placeos/ts-client';
+import { format } from 'date-fns';
 import type {
     AiImageModalComponent,
     AiImageModalData,
@@ -114,6 +115,15 @@ import {
     isMediaViewActive,
     type MediaViewOptions,
 } from './media/media-view.util';
+import {
+    CONFLICT_WINDOW_DAYS,
+    findTakeoverConflicts,
+    type TakeoverConflict,
+} from './schedules/schedule-conflicts.util';
+import {
+    hasTakeoverSchedule,
+    type ScheduleItem,
+} from './schedules/signage-schedule.util';
 import type {
     BulkMediaUploadItem,
     BulkMediaUploadModalData,
@@ -249,6 +259,49 @@ const EMPTY_SEARCH_RESULTS = {
     media: [] as SignageMedia[],
 };
 export type SignageSearchResults = typeof EMPTY_SEARCH_RESULTS;
+
+/** Every display, zone and playlist in the active group */
+export interface SignageInventory {
+    displays: PlaceSystem[];
+    zones: PlaceZone[];
+    playlists: SignagePlaylist[];
+}
+
+/** A change that can give a display a new takeover schedule */
+interface TakeoverChange {
+    playlist_id: string;
+    /** Unsaved version of the playlist */
+    playlist?: SignagePlaylist;
+    /** Display that the playlist is being assigned to */
+    display_id?: string;
+    /** Zone that the playlist is being assigned to */
+    zone_id?: string;
+}
+
+/** Content that needs attention, shown on the report page */
+export interface ContentReport {
+    /** Displays with no playlist from the display or its zones */
+    empty_displays: PlaceSystem[];
+    /** Playlists not assigned to any display or zone */
+    unassigned_playlists: SignagePlaylist[];
+    /** Expired playlists that are still assigned */
+    expired_playlists: SignagePlaylist[];
+    /** Expired media that is still in a playlist */
+    expired_media: { media: SignageMedia; playlists: SignagePlaylist[] }[];
+    /** Takeover playlists that overlap on a display in the coming weeks */
+    conflicts: TakeoverConflict[];
+}
+
+/** Most expired media items the report looks up playlists for */
+const MAX_EXPIRED_MEDIA_CHECKS = 100;
+
+function escapeHtml(text: string) {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
 
 const SIGNAGE_GROUP_STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
@@ -1271,6 +1324,212 @@ export class SignageService {
         return { displays, playlists, templates, zones, media };
     }
 
+    /**
+     * Fetch every display, zone and playlist in the active group. The lists
+     * on screen only hold the pages loaded so far, so checks that need the
+     * full set use this instead.
+     */
+    public async loadSignageInventory(): Promise<SignageInventory> {
+        if (!this._canQueryLists()) {
+            return { displays: [], zones: [], playlists: [] };
+        }
+        const limit = SignageService.PAGE_SIZE;
+        const group_id = this._api_group_id();
+        const [displays, zones, playlists] = await Promise.all([
+            this._queryAll(
+                querySystems({
+                    ...this._orgZoneQueryParams({}),
+                    limit,
+                    signage: true,
+                } as any),
+            ),
+            this._queryAll(
+                queryZones({
+                    limit,
+                    tags: 'signage',
+                    ...(group_id ? { group_id } : {}),
+                } as any),
+            ),
+            this._queryAll(
+                querySignagePlaylists(this._orgZoneQueryParams({ limit })),
+            ),
+        ]);
+        return { displays, zones, playlists };
+    }
+
+    /**
+     * Fetch every page of a query.
+     * @param max_pages Most pages to fetch, so a bad response cannot loop forever
+     */
+    private async _queryAll<T>(query: QueryResponse<T>, max_pages = 50) {
+        const items: T[] = [];
+        let page = await query;
+        for (let count = 1; ; count++) {
+            const data = page.data || [];
+            items.push(...data);
+            const next =
+                data.length && count < max_pages ? page.next?.() : null;
+            if (!next) break;
+            page = await next;
+        }
+        return items.map(decodeEntityNames);
+    }
+
+    /**
+     * Warn when a change would make two takeover playlists play at the same
+     * time on a display, in the next few weeks.
+     * @returns Whether to go ahead with the change
+     */
+    private async _confirmTakeoverChange(change: TakeoverChange) {
+        const known =
+            change.playlist ||
+            this.playlists().find(({ id }) => id === change.playlist_id);
+        if (known && !hasTakeoverSchedule(known)) return true;
+        let inventory: SignageInventory;
+        try {
+            inventory = await this.loadSignageInventory();
+        } catch {
+            // Do not block the change when the check cannot run
+            return true;
+        }
+        const playlist =
+            change.playlist ||
+            inventory.playlists.find(({ id }) => id === change.playlist_id);
+        if (!playlist || !hasTakeoverSchedule(playlist)) return true;
+        const withPlaylist = (item: ScheduleItem, target_id?: string) =>
+            item.id === target_id && !item.playlists?.includes(playlist.id)
+                ? {
+                      ...item,
+                      playlists: [...(item.playlists || []), playlist.id],
+                  }
+                : item;
+        const conflicts = findTakeoverConflicts({
+            displays: inventory.displays.map((item) =>
+                withPlaylist(item, change.display_id),
+            ),
+            zones: inventory.zones.map((item) =>
+                withPlaylist(item, change.zone_id),
+            ),
+            playlists: [
+                ...inventory.playlists.filter(({ id }) => id !== playlist.id),
+                playlist,
+            ],
+            playlist_id: playlist.id,
+        });
+        if (!conflicts.length) return true;
+        const result = await openConfirmModal(
+            {
+                title: i18n('SIGNAGE_MANAGER.SVC_TAKEOVER_CONFLICT_TITLE'),
+                content: this._takeoverConflictContent(conflicts, playlist.id),
+                confirm_text: i18n(
+                    'SIGNAGE_MANAGER.SVC_TAKEOVER_CONFLICT_CONFIRM',
+                ),
+                icon: { content: 'warning' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return false;
+        result.close();
+        return true;
+    }
+
+    /** Find content that needs attention, for the report page */
+    public async loadContentReport(now = Date.now()): Promise<ContentReport> {
+        const [{ displays, zones, playlists }, expired_media] =
+            await Promise.all([
+                this.loadSignageInventory(),
+                this._expiredMediaInPlaylists(now),
+            ]);
+        const zone_playlists = new Map(
+            zones.map((zone) => [zone.id, zone.playlists || []]),
+        );
+        const assigned_ids = new Set(
+            [...displays, ...zones].flatMap((item) => [
+                ...(item.playlists || []),
+            ]),
+        );
+        return {
+            empty_displays: displays.filter(
+                (display) =>
+                    !display.playlists?.length &&
+                    !(display.zones || []).some(
+                        (zone_id) => zone_playlists.get(zone_id)?.length,
+                    ),
+            ),
+            unassigned_playlists: playlists.filter(
+                ({ id }) => !assigned_ids.has(id),
+            ),
+            expired_playlists: playlists.filter(
+                (playlist) =>
+                    assigned_ids.has(playlist.id) &&
+                    !!playlist.valid_until &&
+                    playlist.valid_until * 1000 < now,
+            ),
+            expired_media,
+            conflicts: findTakeoverConflicts({ displays, zones, playlists }),
+        };
+    }
+
+    /** Expired media that is still in a playlist, read from the media show route */
+    private async _expiredMediaInPlaylists(now: number) {
+        if (!this._canQueryLists()) return [];
+        const media = await this._queryAll(
+            querySignageMedia(
+                this._orgZoneQueryParams({ limit: SignageService.PAGE_SIZE }),
+            ),
+        );
+        const expired = media
+            .filter(
+                (item) => !!item.valid_until && item.valid_until * 1000 < now,
+            )
+            .slice(0, MAX_EXPIRED_MEDIA_CHECKS);
+        const query_params = this._groupQueryParams({});
+        const usage = await Promise.all(
+            expired.map(async (item) => {
+                try {
+                    const detail = await showSignageMedia(
+                        item.id,
+                        query_params,
+                    );
+                    return { media: item, playlists: detail.playlists || [] };
+                } catch {
+                    return { media: item, playlists: [] as SignagePlaylist[] };
+                }
+            }),
+        );
+        return usage.filter(({ playlists }) => playlists.length);
+    }
+
+    private _takeoverConflictContent(
+        conflicts: TakeoverConflict[],
+        playlist_id: string,
+    ) {
+        const lines = conflicts.slice(0, 3).map((conflict) => {
+            const other =
+                conflict.playlists.find(({ id }) => id !== playlist_id) ||
+                conflict.playlists[1];
+            return i18n('SIGNAGE_MANAGER.SVC_TAKEOVER_CONFLICT_LINE', {
+                display: escapeHtml(
+                    conflict.display.display_name ||
+                        conflict.display.name ||
+                        '',
+                ),
+                playlist: escapeHtml(other.name),
+                time: format(conflict.starts_at, 'EEE d MMM, HH:mm'),
+            });
+        });
+        const hidden_count = conflicts.length - lines.length;
+        if (hidden_count > 0) lines.push(`+${hidden_count}`);
+        return [
+            i18n(
+                'SIGNAGE_MANAGER.SVC_TAKEOVER_CONFLICT_CONTENT',
+                { count: conflicts.length, days: CONFLICT_WINDOW_DAYS },
+                conflicts.length,
+            ),
+            ...lines,
+        ].join('<br>');
+    }
+
     private _canQueryLists() {
         return this._org.initialised() && this._can_query_group_data();
     }
@@ -1724,6 +1983,11 @@ export class SignageService {
                 group_id: this._api_group_id(),
                 onEdit: (id: string, data: Partial<SignagePlaylist>) =>
                     updateSignagePlaylist(id, data),
+                beforeSave: (data: Partial<SignagePlaylist>) =>
+                    this._confirmTakeoverChange({
+                        playlist_id: playlist.id,
+                        playlist: new SignagePlaylist({ ...playlist, ...data }),
+                    }),
             },
             panelClass: 'mobile-fullscreen',
         });
@@ -4023,6 +4287,13 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));
             return;
         }
+        if (
+            !(await this._confirmTakeoverChange({
+                playlist_id,
+                zone_id: zone.id,
+            }))
+        )
+            return;
         const playlists = [...(zone.playlists || []), playlist_id];
         const updated = await updateZone(
             zone.id,
@@ -4407,6 +4678,13 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
             return;
         }
+        if (
+            !(await this._confirmTakeoverChange({
+                playlist_id,
+                display_id: display.id,
+            }))
+        )
+            return;
         const playlists = [...(display.playlists || []), playlist_id];
         const updated = await updateSystem(
             display.id,
@@ -4454,6 +4732,14 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_DISPLAY'));
             return;
         }
+        if (
+            !(await this._confirmTakeoverChange({
+                playlist_id: playlist.id,
+                playlist,
+                display_id: display.id,
+            }))
+        )
+            return;
         const playlists = [...(display.playlists || []), playlist.id];
         const updated = await updateSystem(
             display.id,
@@ -4497,6 +4783,14 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE'));
             return;
         }
+        if (
+            !(await this._confirmTakeoverChange({
+                playlist_id: playlist.id,
+                playlist,
+                zone_id: zone.id,
+            }))
+        )
+            return;
         const playlists = [...(zone.playlists || []), playlist.id];
         const updated = await updateZone(
             zone.id,

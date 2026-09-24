@@ -85,6 +85,8 @@ describe('NavFooterComponent', () => {
         expect(primary_routes).not.toContain('/groups');
         expect(primary_routes).toContain('/media');
         expect(more_routes).toContain('/schedules');
+        expect(more_routes).toContain('/manage');
+        expect(primary_routes).not.toContain('/manage');
     });
 
     it('places templates in the overflow menu when the flag is enabled', async () => {

@@ -60,14 +60,11 @@ import { SignageGroupSelectorComponent } from './signage-group-selector.componen
             >
                 @for (item of nav_items(); track item.route) {
                     <a
-                        #route_active="routerLinkActive"
                         class="hover:bg-base-100/30 focus-visible:bg-base-100/30 relative flex h-18 w-18 shrink-0 flex-col items-center justify-center rounded-xl"
                         [routerLink]="item.route"
                         routerLinkActive="active bg-primary/30"
                         [attr.aria-label]="item.label | translate"
-                        [attr.aria-current]="
-                            route_active.isActive ? 'page' : null
-                        "
+                        ariaCurrentWhenActive="page"
                     >
                         <icon class="text-3xl">{{ item.icon }}</icon>
                         <div class="text-center text-xs font-medium">

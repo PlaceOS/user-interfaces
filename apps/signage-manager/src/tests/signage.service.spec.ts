@@ -1004,6 +1004,115 @@ describe('SignageService media uploads', () => {
         });
     });
 
+    describe('takeover conflicts and content report', () => {
+        const takeover = (id: string, play_cron: string) =>
+            new SignagePlaylist({
+                id,
+                name: id,
+                schedules: [
+                    { play_cron, play_period: 60, play_takeover: true },
+                ],
+            } as any);
+        const inventory = {
+            displays: [
+                new PlaceSystem({
+                    id: 'd1',
+                    name: 'Lobby',
+                    playlists: ['a'],
+                } as any),
+                new PlaceSystem({ id: 'd2', name: 'Cafe' } as any),
+            ],
+            zones: [],
+            playlists: [
+                takeover('a', '0 9 * * *'),
+                takeover('b', '30 9 * * *'),
+                new SignagePlaylist({ id: 'c', name: 'Old', valid_until: 1 }),
+            ],
+        };
+
+        it('skips the check for a playlist without a takeover', async () => {
+            const service = createService();
+            const test_service = service as unknown as SignageServiceTestAccess;
+            const load = vi.fn();
+            test_service['loadSignageInventory'] = load;
+
+            const ok = await test_service['_confirmTakeoverChange']({
+                playlist_id: 'c',
+                playlist: new SignagePlaylist({ id: 'c', name: 'Plain' }),
+                display_id: 'd1',
+            });
+
+            expect(ok).toBe(true);
+            expect(load).not.toHaveBeenCalled();
+        });
+
+        it('asks before a change that overlaps another takeover', async () => {
+            dialog.open.mockReturnValue({
+                componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+                afterClosed: () => of({ reason: '' }),
+                close: vi.fn(),
+            });
+            const service = createService();
+            const test_service = service as unknown as SignageServiceTestAccess;
+            test_service['loadSignageInventory'] = vi
+                .fn()
+                .mockResolvedValue(inventory);
+
+            const ok = await test_service['_confirmTakeoverChange']({
+                playlist_id: 'b',
+                display_id: 'd1',
+            });
+
+            expect(ok).toBe(false);
+            const content = dialog.open.mock.calls.at(-1)[1].data.content;
+            expect(content).toContain('Lobby');
+            expect(content).toContain('a');
+        });
+
+        it('allows a change that does not overlap', async () => {
+            const service = createService();
+            const test_service = service as unknown as SignageServiceTestAccess;
+            test_service['loadSignageInventory'] = vi
+                .fn()
+                .mockResolvedValue(inventory);
+
+            const ok = await test_service['_confirmTakeoverChange']({
+                playlist_id: 'b',
+                display_id: 'd2',
+            });
+
+            expect(ok).toBe(true);
+            expect(dialog.open).not.toHaveBeenCalled();
+        });
+
+        it('reports empty displays, unassigned and expired content', async () => {
+            const service = createService();
+            const test_service = service as unknown as SignageServiceTestAccess;
+            test_service['loadSignageInventory'] = vi.fn().mockResolvedValue({
+                ...inventory,
+                displays: [
+                    ...inventory.displays,
+                    new PlaceSystem({
+                        id: 'd3',
+                        name: 'Hall',
+                        playlists: ['c'],
+                    } as any),
+                ],
+            });
+            test_service['_expiredMediaInPlaylists'] = vi
+                .fn()
+                .mockResolvedValue([]);
+
+            const report = await service.loadContentReport();
+
+            expect(report.empty_displays.map(({ id }) => id)).toEqual(['d2']);
+            expect(report.unassigned_playlists.map(({ id }) => id)).toEqual([
+                'b',
+            ]);
+            expect(report.expired_playlists.map(({ id }) => id)).toEqual(['c']);
+        });
+    });
+
     it('unshares deleted templates from the selected group', async () => {
         confirmNextDialog();
         const service = createService();

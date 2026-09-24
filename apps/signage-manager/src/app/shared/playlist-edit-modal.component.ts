@@ -52,6 +52,8 @@ export interface PlaylistEditModalData {
         id: string,
         data: Partial<SignagePlaylist>,
     ) => Promise<SignagePlaylist>;
+    /** Runs before an existing playlist is saved. Return false to stop the save. */
+    beforeSave?: (data: Partial<SignagePlaylist>) => Promise<boolean>;
 }
 
 export interface PlaylistEditFormModel {
@@ -436,6 +438,15 @@ export class PlaylistEditModalComponent {
             if (data.valid_until) {
                 data.valid_until = getUnixTime(endOfDay(data.valid_until));
             } else delete data.valid_until;
+            if (
+                this.playlist.id &&
+                this._data.beforeSave &&
+                !(await this._data.beforeSave(data))
+            ) {
+                this._dialog_ref.disableClose = false;
+                this.loading.set(false);
+                return;
+            }
             try {
                 let result: SignagePlaylist;
                 if (this.playlist.id) {

@@ -20,6 +20,7 @@ describe('PlaylistEditModalComponent', () => {
         disableClose: false,
     };
     const onEdit = vi.fn();
+    const before_save = vi.fn();
     const hotkey_listen = vi.fn();
     let hotkey_callback: () => void;
 
@@ -28,6 +29,7 @@ describe('PlaylistEditModalComponent', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         onEdit.mockResolvedValue({ id: 'playlist-1' });
+        before_save.mockResolvedValue(true);
         hotkey_listen.mockImplementation(
             (_combo: string[], callback: () => void) => {
                 hotkey_callback = callback;
@@ -55,6 +57,7 @@ describe('PlaylistEditModalComponent', () => {
                             ],
                         },
                         onEdit,
+                        beforeSave: before_save,
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
@@ -68,6 +71,20 @@ describe('PlaylistEditModalComponent', () => {
                 set: { template: '' },
             })
             .compileComponents();
+    });
+
+    it('keeps the modal open when the pre-save check says stop', async () => {
+        before_save.mockResolvedValue(false);
+        const component = TestBed.createComponent(
+            PlaylistEditModalComponent,
+        ).componentInstance;
+
+        await component.savePlaylist();
+
+        expect(before_save).toHaveBeenCalled();
+        expect(onEdit).not.toHaveBeenCalled();
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.loading()).toBe(false);
     });
 
     it('blocks saving a schedule with reversed validity limits', async () => {

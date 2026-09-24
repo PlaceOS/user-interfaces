@@ -26,6 +26,8 @@ export interface ScheduleBlock {
     start_minutes: number;
     duration_minutes: number;
     all_day: boolean;
+    /** Whether the block comes from a takeover schedule */
+    takeover: boolean;
     bg_color: string;
     text_color: string;
     label: string;
@@ -59,12 +61,12 @@ interface ScheduleBlockBase {
     label: string;
 }
 
-interface ScheduleItem {
+export interface ScheduleItem {
     id: string;
     name?: string;
     display_name?: string;
-    playlists?: string[];
-    zones?: string[];
+    playlists?: readonly string[];
+    zones?: readonly string[];
 }
 
 function parseCronNumber(value: string, min: number, max: number) {
@@ -165,6 +167,13 @@ function playlistSchedules(
             play_takeover: !!legacy_playlist.play_takeover,
         },
     ];
+}
+
+/** Whether any schedule of the playlist is a takeover */
+export function hasTakeoverSchedule(playlist: SignagePlaylist) {
+    return playlistSchedules(playlist).some(
+        (schedule) => !!schedule.play_takeover,
+    );
 }
 
 function playPeriodMinutes(schedule: Partial<PlaylistSchedule>) {
@@ -321,6 +330,7 @@ function generateScheduleBlocks(
                     start_minutes,
                     duration_minutes,
                     all_day: false,
+                    takeover: !!schedule.play_takeover,
                     bg_color: colour.bg,
                     text_color: colour.text,
                     label: formatTimeRange(start_minutes, duration_minutes),
@@ -344,6 +354,7 @@ function generateScheduleBlocks(
                     ...block,
                     playlist,
                     day_index: index,
+                    takeover: !!schedule.play_takeover,
                     bg_color: colour.bg,
                     text_color: colour.text,
                     source_label,
