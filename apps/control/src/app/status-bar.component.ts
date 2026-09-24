@@ -16,7 +16,7 @@ import { DurationPipe } from './ui/duration.pipe';
         @if (capture_mod()) {
             <div
                 recording
-                class="divide-base-200 flex items-center divide-x text-xs text-white"
+                class="divide-base-200 text-base-content flex items-center divide-x text-xs"
             >
                 <div hidden>
                     <i
@@ -42,17 +42,10 @@ import { DurationPipe } from './ui/duration.pipe';
                     ></i>
                     <i
                         binding
-                        [(model)]="rec_current"
-                        [sys]="id"
-                        [mod]="capture_mod()?.mod"
-                        bind="current"
-                    ></i>
-                    <i
-                        binding
                         [(model)]="rec_next"
                         [sys]="id"
                         [mod]="capture_mod()?.mod"
-                        bind="current"
+                        bind="next"
                     ></i>
                 </div>
                 <div
@@ -61,8 +54,19 @@ import { DurationPipe } from './ui/duration.pipe';
                     {{ rec_title || '~Unnamed Recording~' }}
                 </div>
                 <div class="flex h-12 w-12 items-center justify-center">
-                    <button icon matRipple mute class="rounded-none">
-                        <icon>fiber_manual_record</icon>
+                    <button
+                        place-action="stop"
+                        icon
+                        matRipple
+                        class="rounded-none"
+                        [disabled]="!rec_status || rec_status === 'stopped'"
+                        binding
+                        [sys]="id"
+                        mod="Capture"
+                        onEvent="click"
+                        exec="stop"
+                    >
+                        <icon>stop</icon>
                     </button>
                 </div>
                 <div class="flex h-12 w-12 items-center justify-center">
@@ -88,7 +92,9 @@ import { DurationPipe } from './ui/duration.pipe';
                     <div
                         class="rounded-sm p-2 text-center uppercase"
                         [class.bg-error]="rec_status === 'playing'"
+                        [class.text-error-content]="rec_status === 'playing'"
                         [class.bg-warning]="rec_status === 'paused'"
+                        [class.text-warning-content]="rec_status === 'paused'"
                         [class.bg-base-300]="rec_status === 'stopped'"
                     >
                         {{
@@ -109,7 +115,7 @@ import { DurationPipe } from './ui/duration.pipe';
                     <label>{{
                         'APP.CONTROL.NEXT_RECORDING' | translate
                     }}</label>
-                    <div class="">{{ rec_current | duration }}</div>
+                    <div class="">{{ rec_next | duration }}</div>
                 </div>
             </div>
         }
@@ -118,16 +124,18 @@ import { DurationPipe } from './ui/duration.pipe';
             <div
                 class="text-base-content flex w-lg max-w-[50%] items-center space-x-2 px-4 py-2"
             >
-                <button icon matRipple (click)="toggleMute()">
+                <button icon matRipple mute (click)="toggleMute()">
                     <icon>{{ volume_icon() }}</icon>
                 </button>
-                <mat-slider class="flex-1">
+                <mat-slider class="flex-1" [class.opacity-50]="system()?.mute">
                     <input
                         matSliderThumb
                         [ngModel]="system()?.volume || 0"
                         (ngModelChange)="setVolume($event)"
-                        [disabled]="system()?.mute"
                 /></mat-slider>
+                <span volume-level class="w-12 text-right tabular-nums">
+                    {{ system()?.volume || 0 }}%
+                </span>
             </div>
         }
     `,
@@ -169,10 +177,13 @@ export class ControlStatusBarComponent {
     public rec_status: string;
     public rec_title: string;
     public rec_remaining: number;
-    public rec_current: number;
     public rec_next: number;
 
-    public readonly setVolume = (v: number) => this._state.setVolume(v);
+    /** Set the master volume. Moving the slider while muted also unmutes. */
+    public readonly setVolume = (v: number) => {
+        if (this.system()?.mute) this._state.setMute(false);
+        this._state.setVolume(v);
+    };
     public readonly toggleMute = () => {
         const sys = this.system();
         this._state.setMute(!sys?.mute);

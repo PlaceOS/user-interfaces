@@ -40,18 +40,6 @@ test.describe('US-020: Start Video Conference Call', () => {
         await ensurePoweredOn(page);
     });
 
-    test('should display video conference button when available', async ({
-        page,
-    }) => {
-        // Video conference button has type="video_conf"
-        const vcButton = page.locator('button[type="video_conf"]');
-        const isVisible = await vcButton.isVisible().catch(() => false);
-
-        // VC tab may also be available in the tab outlet
-        const vcTab = page.locator('[tab-outlet]');
-        await expect(vcTab).toBeVisible({ timeout: ACTION_TIMEOUT });
-    });
-
     test('should display dial pad in VC tab or tooltip', async ({ page }) => {
         // Look for VC controls tab
         const tabOutlet = page.locator('[tab-outlet]');
@@ -70,41 +58,6 @@ test.describe('US-020: Start Video Conference Call', () => {
         // May be visible depending on tab selection
         if (isVisible) {
             await expect(dialpad).toBeVisible();
-        }
-    });
-});
-
-test.describe('US-021: Join Scheduled Meeting', () => {
-    test.beforeEach(async ({ page }) => {
-        await ensurePoweredOn(page);
-    });
-
-    test('should display meeting join button when meetings available', async ({
-        page,
-    }) => {
-        // Meet button has type="meet"
-        const meetButton = page.locator('button[type="meet"]');
-        const isVisible = await meetButton.isVisible().catch(() => false);
-
-        // Button visibility depends on configuration and meeting URL
-    });
-
-    test('should show meeting selection modal when joining', async ({
-        page,
-    }) => {
-        const meetButton = page.locator('button[type="meet"]');
-
-        if (await meetButton.isVisible().catch(() => false)) {
-            await meetButton.click();
-            await page.waitForTimeout(500);
-
-            // Select meeting modal should appear
-            const modal = page.locator('select-meeting-modal');
-            const isVisible = await modal.isVisible().catch(() => false);
-
-            if (isVisible) {
-                await expect(modal).toBeVisible();
-            }
         }
     });
 });

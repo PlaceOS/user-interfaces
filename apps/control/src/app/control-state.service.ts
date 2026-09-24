@@ -11,7 +11,12 @@ import {
     untracked,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule, PlaceSystem, showSystem } from '@placeos/ts-client';
+import {
+    getModule,
+    isFixedDevice,
+    PlaceSystem,
+    showSystem,
+} from '@placeos/ts-client';
 
 import { Router } from '@angular/router';
 import {
@@ -21,14 +26,19 @@ import {
     currentUser,
     firstValueWhere,
     HashMap,
+    i18n,
     log,
     Space,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import { CalendarService, queryEvents, SpacesService } from '@placeos/events';
 import { endOfDay, getUnixTime } from 'date-fns';
 import { HelpModalComponent } from './ui/help-modal.component';
 import { SelectMeetingModalComponent } from './ui/select-meeting-modal.component';
 import { SourceSelectModalComponent } from './ui/source-select-modal.component';
+
+/** Local storage key for the system ID that this panel controls */
+export const CONTROL_STORE_KEY = 'PLACEOS.CONTROL.system';
 
 export interface EnvironmentSource {
     name: string;
@@ -96,6 +106,8 @@ export interface RoomOutput {
     source: string;
     inputs: string[];
     following: string;
+    /** Power state of the display. Not all drivers expose this. */
+    power?: boolean;
     hidden?: boolean;
     hide_on_join?: boolean;
 }
@@ -402,6 +414,15 @@ export class ControlStateService extends AsyncHandler {
         return this._execute('unroute', [output]);
     }
 
+    /** Clear the route on every visible output that has a source */
+    public unrouteAll() {
+        return Promise.all(
+            this.output_list()
+                .filter((_) => _.source)
+                .map((_) => this.unroute(_.id)),
+        );
+    }
+
     public routeToAll(input = '') {
         if (!input) input = this._system().selected_input;
         return this._execute('route_all', [input]);
@@ -419,7 +440,6 @@ export class ControlStateService extends AsyncHandler {
 
     public setSelectedInput(input: string) {
         if (this._system().selected_input === input) return;
-        console.warn('Select:', input);
         return this.timeout(
             `selected`,
             () => this._execute('selected_input', [input]),
@@ -469,6 +489,9 @@ export class ControlStateService extends AsyncHandler {
                 const outputs = this._output_data();
                 if (!source) {
                     this._volume.set(value);
+                    // Status echoes are ignored briefly below, so set the
+                    // master volume locally to keep the UI in sync.
+                    this._system.update((s) => ({ ...s, volume: value }));
                     source = outputs[0]?.id || '';
                 }
                 if (source) {
@@ -503,6 +526,35 @@ export class ControlStateService extends AsyncHandler {
         const mod = getModule(this._id(), mod_name);
         if (!mod) return;
         return mod.execute(name, params);
+    }
+
+    /**
+     * Whether this device may change its room. Fixed devices (wall panels set
+     * up through bootstrap or an API key) keep their room.
+     */
+    public canChangeRoom() {
+        return !isFixedDevice();
+    }
+
+    /**
+     * Ask for confirmation, then forget the saved system and go back to room
+     * setup. Used from the topbar logo long-press and the connecting screen.
+     */
+    public async changeRoom() {
+        if (!this.canChangeRoom()) return;
+        const result = await openConfirmModal(
+            {
+                title: i18n('APP.CONTROL.CHANGE_ROOM'),
+                content: i18n('APP.CONTROL.CHANGE_ROOM_MSG'),
+                confirm_text: i18n('APP.CONTROL.CHANGE_ROOM_CONFIRM'),
+                icon: { content: 'swap_horiz' },
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        result.close();
+        localStorage.removeItem(CONTROL_STORE_KEY);
+        this._router.navigate(['/bootstrap']);
     }
 
     /** Open switch source modal */

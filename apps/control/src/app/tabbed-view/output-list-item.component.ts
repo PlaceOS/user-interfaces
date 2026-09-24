@@ -29,6 +29,20 @@ const STATUS = {};
                     >
                         {{ item()?.name || 'Display' }}
                     </div>
+                    @if (item()?.power != null) {
+                        <div
+                            power
+                            class="border-base-100 absolute top-2 right-2 size-3 rounded-full border"
+                            [class.bg-success]="item()?.power"
+                            [class.bg-base-300]="!item()?.power"
+                            [attr.title]="
+                                (item()?.power
+                                    ? 'APP.CONTROL.OUTPUT_ON'
+                                    : 'APP.CONTROL.OUTPUT_OFF'
+                                ) | translate
+                            "
+                        ></div>
+                    }
                     <icon
                         class="text-5xl"
                         [class.opacity-30]="!source"
@@ -95,7 +109,6 @@ export class DeviceOutputListItemComponent extends AsyncHandler {
         const { selected_input } = this._system() || {};
         const input = this.input();
         const item = this.item();
-        console.log('Input:', selected_input, item, input);
         input?.id === selected_input
             ? this._state.unroute(item.id)
             : this._state.setOutput(item?.id);

@@ -193,18 +193,38 @@ import { TVControlsComponent } from './tv-controls.component';
                     }
                 </div>
             </div>
-            <div class="relative w-full">
-                <device-output-list></device-output-list>
-                @if (hide_present_all() !== true && outputs().length > 1) {
-                    <button
-                        btn
-                        matRipple
-                        class="absolute -bottom-14 left-4 z-20 space-x-2"
-                        (click)="presentToAll()"
-                    >
-                        <icon class="text-2xl">output</icon>
-                        <div class="pr-4">Present to all</div>
-                    </button>
+            <div class="flex w-full items-center">
+                <device-output-list class="min-w-0 flex-1"></device-output-list>
+                @if (outputs().length > 1) {
+                    <div output-actions class="flex flex-col space-y-2 px-4">
+                        @if (hide_present_all() !== true) {
+                            <button
+                                btn
+                                matRipple
+                                present-all
+                                class="space-x-2"
+                                (click)="presentToAll()"
+                            >
+                                <icon class="text-2xl">output</icon>
+                                <div class="pr-4">
+                                    {{ 'APP.CONTROL.PRESENT_ALL' | translate }}
+                                </div>
+                            </button>
+                        }
+                        <button
+                            btn
+                            matRipple
+                            clear-all
+                            class="inverse space-x-2"
+                            [disabled]="!has_routes()"
+                            (click)="clearAll()"
+                        >
+                            <icon class="text-2xl">cancel_presentation</icon>
+                            <div class="pr-4">
+                                {{ 'APP.CONTROL.CLEAR_ALL' | translate }}
+                            </div>
+                        </button>
+                    </div>
                 }
             </div>
         </div>
@@ -243,6 +263,10 @@ export class TabOutletComponent extends AsyncHandler {
     public readonly active_tab = signal('');
     public readonly hide_present_all = this._service.hide_present_all;
     public readonly outputs = this._service.output_list;
+    /** Whether any visible output has a source routed to it */
+    public readonly has_routes = computed(() =>
+        this.outputs().some((_) => !!_.source),
+    );
     public readonly system = this._service.system;
     public readonly tabs = this._service.tabs;
     public readonly call = this._vc_state.call;
@@ -347,6 +371,10 @@ export class TabOutletComponent extends AsyncHandler {
         const tab = this.tab();
         if (!tab) return;
         this._service.routeToAll();
+    }
+
+    public clearAll() {
+        this._service.unrouteAll();
     }
 
     public onAction() {

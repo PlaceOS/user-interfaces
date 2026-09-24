@@ -28,8 +28,7 @@ import {
     VERSION,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-
-const STORE_KEY = 'PLACEOS.CONTROL.system';
+import { CONTROL_STORE_KEY } from './control-state.service';
 
 @Component({
     selector: '[app-bootstrap]',
@@ -243,7 +242,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         await syncNativeManagedConfig();
         if (this.system_id()) return;
         if (localStorage) {
-            const system_id = localStorage.getItem(STORE_KEY);
+            const system_id = localStorage.getItem(CONTROL_STORE_KEY);
             // A system pushed via MDM managed config overrides the stored one
             const mdm_system_id = getNativeSystemId();
             if (mdm_system_id && mdm_system_id !== system_id) {
@@ -267,7 +266,7 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private configure(system_id: string): void {
         this.loading.set('Setup');
         if (localStorage) {
-            localStorage.setItem(STORE_KEY, system_id);
+            localStorage.setItem(CONTROL_STORE_KEY, system_id);
             localStorage.setItem('trust', 'true');
             localStorage.setItem('fixed_device', 'true');
         }
@@ -280,5 +279,6 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /**
      * Remove any previously set bootstrapping details
      */
-    private readonly clearBootstrap = () => localStorage.removeItem(STORE_KEY);
+    private readonly clearBootstrap = () =>
+        localStorage.removeItem(CONTROL_STORE_KEY);
 }

@@ -12,6 +12,8 @@ import { ControlMainViewComponent } from '../app/main-view.component';
 import { ControlPageViewComponent } from '../app/page-view.component';
 import { ControlStatusBarComponent } from '../app/status-bar.component';
 import { TopbarHeaderComponent } from '../app/topbar-header.component';
+import { ControlConnectingComponent } from '../app/ui/connecting.component';
+import { NextMeetingComponent } from '../app/ui/next-meeting.component';
 
 describe('ControlMainViewComponent', () => {
     let spectator: SpectatorRouting<ControlMainViewComponent>;
@@ -27,6 +29,8 @@ describe('ControlMainViewComponent', () => {
             MockComponent(TopbarHeaderComponent),
             MockComponent(ControlPageViewComponent),
             MockComponent(ControlStatusBarComponent),
+            MockComponent(ControlConnectingComponent),
+            MockComponent(NextMeetingComponent),
         ],
         imports: [MatProgressSpinnerModule],
         providers: [
@@ -46,9 +50,9 @@ describe('ControlMainViewComponent', () => {
 
     it('should shown loading when connecting to system', async () => {
         system.set({ connected: true });
-        expect('[name="loader"]').toExist();
+        expect('control-connecting').toExist();
         spectator.detectChanges();
-        expect('[name="loader"]').not.toExist();
+        expect('control-connecting').not.toExist();
     });
 
     it('should show splash page for space', async () => {

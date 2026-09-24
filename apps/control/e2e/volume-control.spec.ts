@@ -137,7 +137,7 @@ test.describe('US-011: Mute/Unmute Audio', () => {
         }
     });
 
-    test('should disable slider when muted', async ({ page }) => {
+    test('should keep slider enabled when muted', async ({ page }) => {
         const statusBar = page.locator('control-status-bar');
         const muteButton = statusBar.locator('button').first();
         const volumeIcon = muteButton.locator('icon');
@@ -154,11 +154,11 @@ test.describe('US-011: Mute/Unmute Audio', () => {
         }
 
         if (isMuted) {
-            // Slider input should be disabled
+            // Moving the slider while muted unmutes, so it stays enabled
             const sliderInput = statusBar.locator(
                 'mat-slider input[matSliderThumb]',
             );
-            await expect(sliderInput).toBeDisabled();
+            await expect(sliderInput).toBeEnabled();
         }
     });
 });

@@ -19,6 +19,8 @@ import { ControlStatusBarComponent } from '../../app/status-bar.component';
 import { TabOutletComponent } from '../../app/tabbed-view/tab-outlet.component';
 import { ControlTabbedViewComponent } from '../../app/tabbed-view/tabbed-view.component';
 import { TopbarHeaderComponent } from '../../app/topbar-header.component';
+import { ControlConnectingComponent } from '../../app/ui/connecting.component';
+import { NextMeetingComponent } from '../../app/ui/next-meeting.component';
 import { VoiceAssistantComponent } from '../../app/ui/voice-assistant.component';
 
 describe('ControlTabbedViewComponent', () => {
@@ -35,6 +37,8 @@ describe('ControlTabbedViewComponent', () => {
             mockComponent(TabOutletComponent),
             mockComponent(ControlStatusBarComponent),
             mockComponent(VoiceAssistantComponent),
+            mockComponent(ControlConnectingComponent),
+            mockComponent(NextMeetingComponent),
             mockComponent(IconComponent),
             mockDirective(AuthenticatedImageDirective),
             MockPipe(TranslatePipe, (v) => v),
@@ -65,15 +69,14 @@ describe('ControlTabbedViewComponent', () => {
     });
 
     it('should show a loader while not connected to the system', () => {
-        expect('[name="loader"]').toExist();
-        expect('mat-spinner').toExist();
+        expect('control-connecting').toExist();
     });
 
     it('should show the splash screen when connected but not active', () => {
         const service: any = spectator.inject(ControlStateService);
         service.system.set({ connected: true, name: 'Room A' });
         spectator.detectChanges();
-        expect('[name="loader"]').not.toExist();
+        expect('control-connecting').not.toExist();
         expect('[name="splash"]').toExist();
         expect('topbar-header').not.toExist();
     });

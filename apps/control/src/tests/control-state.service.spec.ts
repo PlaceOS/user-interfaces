@@ -20,4 +20,12 @@ describe('ControlStateService', () => {
     it('should create service', () => {
         expect(spectator.service).toBeTruthy();
     });
+
+    it('should update the master volume locally when it is set', () => {
+        vi.useFakeTimers();
+        spectator.service.setVolume(55);
+        vi.advanceTimersByTime(200);
+        expect(spectator.service.system().volume).toBe(55);
+        vi.useRealTimers();
+    });
 });

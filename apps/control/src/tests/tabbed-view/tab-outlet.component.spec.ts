@@ -53,6 +53,7 @@ describe('TabOutletComponent', () => {
                 setOutputSource: vi.fn(),
                 setSelectedInput: vi.fn(),
                 routeToAll: vi.fn(),
+                unrouteAll: vi.fn(),
                 viewHelp: vi.fn(),
             } as any),
             MockProvider(VideoCallStateService, {
@@ -169,6 +170,17 @@ describe('TabOutletComponent', () => {
         expect(service.routeToAll).toHaveBeenCalled();
     });
 
+    it('should clear all outputs, enabled only when something is routed', () => {
+        const service: any = spectator.inject(ControlStateService);
+        service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
+        spectator.detectChanges();
+        expect('button[clear-all]').toBeDisabled();
+        service.output_list.set([{ id: 'o1', source: 'i1' }, { id: 'o2' }]);
+        spectator.detectChanges();
+        spectator.click('button[clear-all]');
+        expect(service.unrouteAll).toHaveBeenCalled();
+    });
+
     it('should not present to all when there is no active tab', () => {
         const service: any = spectator.inject(ControlStateService);
         service.tabs.set([]);
@@ -194,6 +206,6 @@ describe('TabOutletComponent', () => {
         expect(spectator.query('button:not([btn])')).toBeNull();
         service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
         spectator.detectChanges();
-        expect(spectator.query('.-bottom-14')).toExist();
+        expect(spectator.query('[output-actions]')).toExist();
     });
 });

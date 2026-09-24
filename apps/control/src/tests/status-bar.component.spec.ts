@@ -63,4 +63,19 @@ describe('ControlStatusBarComponent', () => {
         expect('mat-slider').toExist();
         expect('button[mute]').toExist();
     });
+
+    it('should show the volume level', () => {
+        const service = spectator.inject(ControlStateService);
+        (service as any).system.set({ volume: 45 });
+        spectator.detectChanges();
+        expect('[volume-level]').toHaveText('45%');
+    });
+
+    it('should unmute when the volume changes while muted', () => {
+        const service = spectator.inject(ControlStateService);
+        (service as any).system.set({ mute: true, volume: 20 });
+        spectator.component.setVolume(30);
+        expect(service.setMute).toHaveBeenCalledWith(false);
+        expect(service.setVolume).toHaveBeenCalledWith(30);
+    });
 });

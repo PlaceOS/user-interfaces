@@ -1,12 +1,16 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatMenuModule } from '@angular/material/menu';
-import { i18n, OrganisationService, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    i18n,
+    OrganisationService,
+    SettingsService,
+} from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     CustomTooltipComponent,
     IconComponent,
 } from '@placeos/components';
-import { isTrusted } from '@placeos/ts-client';
 import { ControlStateService } from './control-state.service';
 import { CameraTooltipComponent } from './ui/camera-tooltip.component';
 import { JoinRoomTooltipComponent } from './ui/join-room-tooltip.component';
@@ -17,13 +21,13 @@ import { MicrophoneTooltipComponent } from './ui/microphone-tooltip.component';
 import { PhoneDiallingTooltipComponent } from './ui/phone-dialling-tooltip.component';
 import { PowerTooltipComponent } from './ui/power-tooltip.component';
 import { RoomAccessoryTooltipComponent } from './ui/room-accessory-tooltip.component';
-import { VideoConferenceTooltipComponent } from './ui/video-conf-tooltip.component';
 import { VideoCallStateService } from './video-call/video-call-state.service';
+
+/** Time the logo must be held to open the change room prompt */
+const CHANGE_ROOM_HOLD_MS = 3000;
 
 enum TOOLTIP {
     PHONE,
-    VC,
-    MEET,
     LIGHT_SCENES,
     LIGHTS,
     LIGHT_LEVELS,
@@ -41,9 +45,15 @@ enum TOOLTIP {
         <div class="flex-1 px-4">
             <img
                 auth
-                class="h-12"
+                class="h-12 select-none"
                 alt="Logo"
+                draggable="false"
                 [source]="logo()?.src || logo()"
+                (pointerdown)="startHold()"
+                (pointerup)="cancelHold()"
+                (pointerleave)="cancelHold()"
+                (pointercancel)="cancelHold()"
+                (contextmenu)="$event.preventDefault()"
             />
         </div>
         <div class="text-base-content p-4 text-lg">
@@ -133,7 +143,7 @@ enum TOOLTIP {
         AuthenticatedImageDirective,
     ],
 })
-export class TopbarHeaderComponent {
+export class TopbarHeaderComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _state = inject(ControlStateService);
     private _call = inject(VideoCallStateService);
@@ -145,8 +155,6 @@ export class TopbarHeaderComponent {
     private readonly _camera_list = this._state.camera_list;
     private readonly _lights_list = this._state.lights;
     private readonly _room_accessories = this._state.room_accessories;
-    private readonly _has_vc = this._call.connected;
-    private readonly _call_state = this._call.call;
     private readonly _microphones = this._state.microphones;
     private readonly _join_modes = this._state.join_modes;
     private readonly _joined = this._state.joined;
@@ -158,7 +166,6 @@ export class TopbarHeaderComponent {
 
     public readonly cmp = {
         phone: PhoneDiallingTooltipComponent,
-        video_conf: VideoConferenceTooltipComponent,
         lighting: LightingTooltipComponent,
         lighting_levels: LightingLevelsTooltipComponent,
         lighting_scenes: LightingSceneTooltipComponent,
@@ -176,21 +183,6 @@ export class TopbarHeaderComponent {
             icon: 'call',
             show: true,
             enabled: false,
-        },
-        {
-            id: 'video_conf',
-            name: i18n('APP.CONTROL.ACTION_CONFERENCE'),
-            icon: 'call',
-            show: true,
-            enabled: false,
-        },
-        {
-            id: 'meet',
-            name: i18n('APP.CONTROL.ACTION_JOIN_MEETING'),
-            icon: 'video_call',
-            show: true,
-            enabled: false,
-            action: () => this.selectMeeting(),
         },
         {
             id: 'lighting_scenes',
@@ -264,8 +256,6 @@ export class TopbarHeaderComponent {
         const cams = this._camera_list();
         const lights = this._lights_list();
         const accessories = this._room_accessories();
-        const has_vc = this._has_vc();
-        const call = this._call_state();
         const microphones = this._microphones();
         const join_modes = this._join_modes();
         const joined = this._joined();
@@ -279,10 +269,6 @@ export class TopbarHeaderComponent {
 
         actions[TOOLTIP.PHONE].show = !!system?.dial_bindings;
         actions[TOOLTIP.PHONE].enabled = system?.offhook || system?.ringing;
-        actions[TOOLTIP.VC].show = has_vc && false;
-        actions[TOOLTIP.VC].enabled = !!call;
-        actions[TOOLTIP.MEET].show =
-            !this.is_trusted && system?.meeting_url && false;
         actions[TOOLTIP.LIGHTS].show = lights?.length > 0;
         actions[TOOLTIP.ACCESSORIES].show = accessories?.length > 0;
         actions[TOOLTIP.MICS].show =
@@ -298,7 +284,6 @@ export class TopbarHeaderComponent {
         return actions;
     });
 
-    public readonly selectMeeting = () => this._state.selectMeeting();
     public readonly viewHelp = () => this._state.viewHelp();
     public readonly powerOff = () => this._state.powerOff();
 
@@ -311,5 +296,19 @@ export class TopbarHeaderComponent {
         );
     });
 
-    public readonly is_trusted = isTrusted();
+    private readonly _can_change_room = this._state.canChangeRoom();
+
+    /** Start the logo hold that opens the change room prompt */
+    public startHold() {
+        if (!this._can_change_room) return;
+        this.timeout(
+            'change_room',
+            () => this._state.changeRoom(),
+            CHANGE_ROOM_HOLD_MS,
+        );
+    }
+
+    public cancelHold() {
+        this.clearTimeout('change_room');
+    }
 }
