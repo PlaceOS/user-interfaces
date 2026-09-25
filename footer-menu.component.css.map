@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["footer-menu.component.ts"],
+  "sourcesContent": ["\n            a.active {\n                font-weight: 500;\n            }\n\n            [icon][default].active {\n                background: var(--info-light);\n                color: var(--info);\n                border-color: var(--info);\n            }\n\n            a:not(.active) [filled],\n            a.active [outline],\n            a:not(.active) [bar] {\n                display: none;\n            }\n        "],
+  "mappings": ";AACY,CAAA,CAAA;AACI,eAAA;AACJ;AAEA,CAAA,KAAA,CAAA,QAAA,CAJA;AAKI,cAAA,IAAA;AACA,SAAA,IAAA;AACA,gBAAA,IAAA;AACJ;AAEA,CAAA,KAAA,CAVA,QAUA,CAAA;EAVA;OAAA;AAaI,WAAA;AACJ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["landing-favourites.component.ts"],
+  "sourcesContent": ["\n            [user]:hover button {\n                opacity: 1;\n            }\n\n            :host {\n                height: 100%;\n                width: 100%;\n                display: flex;\n                flex-direction: column;\n            }\n        "],
+  "mappings": ";AACY,CAAA,KAAA,OAAA;AACI,WAAA;AACJ;AAEA;AACI,UAAA;AACA,SAAA;AACA,WAAA;AACA,kBAAA;AACJ;",
+  "names": []
+}
