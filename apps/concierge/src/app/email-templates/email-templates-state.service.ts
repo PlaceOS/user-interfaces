@@ -23,6 +23,9 @@ export interface EmailTemplate {
     category: 'internal' | 'external';
     reply_to?: string;
     from?: string;
+    to?: string;
+    cc?: string;
+    bcc?: string;
     trigger: string;
     html: string;
     text: string;
