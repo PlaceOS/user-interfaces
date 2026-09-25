@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["room-approvals.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                position: relative;\n                height: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,YAAA;AACA,UAAA;AACJ;",
+  "names": []
+}
