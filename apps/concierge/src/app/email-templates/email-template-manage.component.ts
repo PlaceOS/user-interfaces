@@ -253,9 +253,6 @@ import {
                                 "
                                 [formField]="form.to"
                             />
-                            <mat-hint>{{
-                                'APP.CONCIERGE.EMAIL_TEMPLATES_TO_HINT' | translate
-                            }}</mat-hint>
                         </mat-form-field>
                         <mat-form-field appearance="outline" class="flex-1">
                             <input
@@ -265,9 +262,6 @@ import {
                                 "
                                 [formField]="form.cc"
                             />
-                            <mat-hint>{{
-                                'APP.CONCIERGE.EMAIL_TEMPLATES_CC_HINT' | translate
-                            }}</mat-hint>
                         </mat-form-field>
                         <mat-form-field appearance="outline" class="flex-1">
                             <input
@@ -277,11 +271,11 @@ import {
                                 "
                                 [formField]="form.bcc"
                             />
-                            <mat-hint>{{
-                                'APP.CONCIERGE.EMAIL_TEMPLATES_BCC_HINT' | translate
-                            }}</mat-hint>
                         </mat-form-field>
                     </div>
+                    <p class="mb-2 -mt-2 text-xs opacity-60">
+                        {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_RECIPIENTS_HINT' | translate }}
+                    </p>
                     <mat-form-field appearance="outline" class="w-full">
                         <icon matPrefix class="relative -left-1 text-2xl">
                             description
