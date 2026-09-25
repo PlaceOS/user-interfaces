@@ -253,6 +253,147 @@ describe('[Booking API]', () => {
             );
         });
 
+        const linked_visitor = (overrides: Record<string, any> = {}) => ({
+            id: 'visitor-booking-1',
+            parent_id: 'event-1',
+            booking_type: 'visitor',
+            booking_start: 1_800_000_000,
+            booking_end: 1_800_003_600,
+            title: 'Visitor meeting',
+            description: 'Visitor meeting',
+            user_email,
+            asset_id: 'visitor.one@external.com',
+            asset_name: 'Visitor One',
+            zones: ['zone-1'],
+            attendees: [visitors[0]],
+            approved: true,
+            checked_in: true,
+            extension_data: {
+                parent_id: 'event-1',
+                name: 'Visitor One',
+                details: visitors[0],
+            },
+            ...overrides,
+        });
+
+        it('should update the linked booking of an attendee still on the event', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                linked_visitor({
+                    booking_start: 1_799_990_000,
+                    booking_end: 1_799_993_600,
+                }),
+            ] as never);
+            const patch_spy = vi
+                .spyOn(ts_client, 'patch')
+                .mockResolvedValue({ id: 'visitor-booking-1' } as never);
+            const post_spy = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({ id: 'visitor-booking-2' } as never);
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await createBookingsForEvent(event, 'visitor', visitors);
+
+            expect(patch_spy).toHaveBeenCalledTimes(1);
+            expect(patch_spy).toHaveBeenCalledWith(
+                '/api/staff/v1/bookings/visitor-booking-1',
+                expect.objectContaining({
+                    date: event.date,
+                    duration: event.duration,
+                    extension_data: expect.objectContaining({
+                        parent_id: 'event-1',
+                        details: expect.objectContaining({ id: 'visitor-1' }),
+                    }),
+                }),
+            );
+            expect(patch_spy.mock.calls[0][1]).not.toHaveProperty('approved');
+            expect(patch_spy.mock.calls[0][1]).not.toHaveProperty('checked_in');
+            expect(post_spy).toHaveBeenCalledTimes(1);
+            expect(post_spy.mock.calls[0][1]).toMatchObject({
+                asset_id: 'visitor.two@external.com',
+            });
+            expect(delete_spy).not.toHaveBeenCalled();
+        });
+
+        it('should leave an unchanged linked booking alone', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                linked_visitor(),
+            ] as never);
+            const patch_spy = vi.spyOn(ts_client, 'patch');
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await createBookingsForEvent(event, 'visitor', [visitors[0]]);
+
+            expect(patch_spy).not.toHaveBeenCalled();
+            expect(post_spy).not.toHaveBeenCalled();
+            expect(delete_spy).not.toHaveBeenCalled();
+        });
+
+        it('should remove the linked booking of an attendee taken off the event', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                linked_visitor(),
+                linked_visitor({
+                    id: 'visitor-booking-3',
+                    asset_id: 'visitor.three@external.com',
+                    asset_name: 'Visitor Three',
+                    attendees: [
+                        {
+                            id: 'visitor-3',
+                            email: 'visitor.three@external.com',
+                            name: 'Visitor Three',
+                        },
+                    ],
+                    extension_data: {
+                        parent_id: 'event-1',
+                        details: { id: 'visitor-3' },
+                    },
+                }),
+            ] as never);
+            const patch_spy = vi.spyOn(ts_client, 'patch');
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const delete_spy = vi
+                .spyOn(ts_client, 'del')
+                .mockResolvedValue(undefined);
+
+            await createBookingsForEvent(event, 'visitor', [visitors[0]]);
+
+            expect(patch_spy).not.toHaveBeenCalled();
+            expect(post_spy).not.toHaveBeenCalled();
+            expect(delete_spy).toHaveBeenCalledTimes(1);
+            expect(delete_spy).toHaveBeenCalledWith(
+                `/api/staff/v1/bookings/visitor-booking-3?utm_source=${encoded_utm_source}`,
+                { response_type: 'void' },
+            );
+        });
+
+        it('should fetch linked bookings outside the event period before syncing', async () => {
+            const moved_event = new CalendarEvent({
+                ...event,
+                linked_bookings: [
+                    { id: 'visitor-booking-1', booking_type: 'visitor' },
+                ] as any,
+            });
+            vi.spyOn(ts_client, 'get').mockImplementation(async (url) =>
+                (url as string).includes('/bookings/visitor-booking-1')
+                    ? (linked_visitor({
+                          booking_start: 1_799_900_000,
+                          booking_end: 1_799_903_600,
+                      }) as never)
+                    : ([] as never),
+            );
+            const patch_spy = vi
+                .spyOn(ts_client, 'patch')
+                .mockResolvedValue({ id: 'visitor-booking-1' } as never);
+            const post_spy = vi.spyOn(ts_client, 'post');
+            const delete_spy = vi.spyOn(ts_client, 'del');
+
+            await createBookingsForEvent(moved_event, 'visitor', [visitors[0]]);
+
+            expect(patch_spy).toHaveBeenCalledTimes(1);
+            expect(post_spy).not.toHaveBeenCalled();
+            expect(delete_spy).not.toHaveBeenCalled();
+        });
+
         it('should create catering bookings against the assigned room', async () => {
             const catering_event = new CalendarEvent({
                 id: 'event-1',
