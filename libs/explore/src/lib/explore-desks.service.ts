@@ -32,6 +32,7 @@ import {
     rulesForResource,
     SettingsService,
     StaffUser,
+    user_group_names,
 } from '@placeos/common';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 
@@ -172,6 +173,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             const signs = this._signs_of_life();
             const restrictions = this.booking_rules();
             this._options();
+            user_group_names();
             this.timeout(
                 'state_change',
                 () =>
