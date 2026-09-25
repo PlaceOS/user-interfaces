@@ -244,6 +244,38 @@ import {
                             }}</mat-error>
                         </mat-form-field>
                     </div>
+                    <div class="flex items-center space-x-2">
+                        <mat-form-field appearance="outline" class="flex-1">
+                            <input
+                                matInput
+                                [placeholder]="
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_TO' | translate
+                                "
+                                [formField]="form.to"
+                            />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="flex-1">
+                            <input
+                                matInput
+                                [placeholder]="
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_CC' | translate
+                                "
+                                [formField]="form.cc"
+                            />
+                        </mat-form-field>
+                        <mat-form-field appearance="outline" class="flex-1">
+                            <input
+                                matInput
+                                [placeholder]="
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_BCC' | translate
+                                "
+                                [formField]="form.bcc"
+                            />
+                        </mat-form-field>
+                    </div>
+                    <p class="mb-2 -mt-2 text-xs opacity-60">
+                        {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_RECIPIENTS_HINT' | translate }}
+                    </p>
                     <mat-form-field appearance="outline" class="w-full">
                         <icon matPrefix class="relative -left-1 text-2xl">
                             description
@@ -326,6 +358,9 @@ export class EmailTemplateManageComponent extends AsyncHandler {
         id: '',
         reply_to: '',
         from: '',
+        to: '',
+        cc: '',
+        bcc: '',
         subject: '',
         category: 'internal',
         trigger: '',
@@ -398,6 +433,9 @@ export class EmailTemplateManageComponent extends AsyncHandler {
             id: tmpl.id ?? m.id,
             reply_to: tmpl.reply_to ?? m.reply_to,
             from: tmpl.from ?? m.from,
+            to: tmpl.to ?? m.to,
+            cc: tmpl.cc ?? m.cc,
+            bcc: tmpl.bcc ?? m.bcc,
             subject: tmpl.subject ?? m.subject,
             category: tmpl.category ?? m.category,
             trigger: tmpl.trigger ?? m.trigger,
