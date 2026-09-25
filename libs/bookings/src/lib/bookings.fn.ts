@@ -713,7 +713,9 @@ export async function queryResourceAvailability(
     return id_list.map(
         (id) =>
             !bookings.find(
-                (b) => b.asset_id === id && (!ignore || ignore !== b.id),
+                (b) =>
+                    (b.asset_id === id || b.asset_ids.includes(id)) &&
+                    (!ignore || ignore !== b.id),
             ),
     );
 }
@@ -731,8 +733,11 @@ export async function isResourceAvailable(
         period_end: getUnixTime(addMinutes(start, duration)),
     });
     return (
-        bookings.filter((_) => _.asset_id === id && _.id !== ignore).length ===
-        0
+        bookings.filter(
+            (_) =>
+                (_.asset_id === id || _.asset_ids.includes(id)) &&
+                _.id !== ignore,
+        ).length === 0
     );
 }
 

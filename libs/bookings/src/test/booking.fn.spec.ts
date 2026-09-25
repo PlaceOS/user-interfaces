@@ -18,6 +18,7 @@ import {
     createBooking,
     createBookingsForEvent,
     queryBookings,
+    queryResourceAvailability,
     rejectBooking,
     removeBooking,
     removeBookingInstance,
@@ -64,6 +65,30 @@ describe('[Booking API]', () => {
             expect(ts_client.get).toHaveBeenCalledWith(
                 `/api/staff/v1/bookings?period_start=1&period_end=2&type=desk`,
             );
+            spy.mockReset();
+        });
+    });
+
+    describe('queryResourceAvailability', () => {
+        it('should mark every room held by a multi-room booking as unavailable', async () => {
+            const spy = vi.spyOn(ts_client, 'get');
+            spy.mockResolvedValue([
+                {
+                    id: 'held',
+                    asset_id: 'room-1',
+                    asset_ids: ['room-1', 'room-2'],
+                },
+            ] as any);
+            expect(
+                await queryResourceAvailability(
+                    ['room-1', 'room-2', 'room-3'],
+                    0,
+                    30,
+                ),
+            ).toEqual([false, false, true]);
+            expect(
+                await queryResourceAvailability(['room-2'], 0, 30, 'held'),
+            ).toEqual([true]);
             spy.mockReset();
         });
     });

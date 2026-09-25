@@ -292,6 +292,34 @@ describe('Booking Utilities', () => {
             },
         );
 
+        it.each([false, true])(
+            'should hold every selected room in the booking payload, serialized event: %s',
+            (serialized) => {
+                const rooms = [
+                    new Space({
+                        id: 'room-1',
+                        email: 'room-1@example.com',
+                        zones: ['zone-building', 'zone-level-1'],
+                    }),
+                    new Space({
+                        id: 'room-2',
+                        email: 'room-2@example.com',
+                        zones: ['zone-building', 'zone-level-2'],
+                    }),
+                ];
+                const event = new CalendarEvent({ resources: rooms });
+                const booking = newBookingFromCalendarEvent(
+                    serialized ? (event.toJSON() as CalendarEvent) : event,
+                );
+
+                expect(booking.toJSON()).toMatchObject({
+                    asset_id: 'room-1',
+                    asset_ids: ['room-1', 'room-2'],
+                    zones: ['zone-building', 'zone-level-1', 'zone-level-2'],
+                });
+            },
+        );
+
         it('should allow an event without a room', () => {
             const booking = newBookingFromCalendarEvent(new CalendarEvent());
 
