@@ -42,6 +42,7 @@ import {
     updateSignageTemplate,
     updateSignageTemplateMapping,
     updateSystem,
+    updateGroup,
     updateZone,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
@@ -53,6 +54,7 @@ import { SignageSharedWithComponent } from '../app/shared/signage-shared-with.co
 import { TemplateApproveModalComponent } from '../app/shared/template-approve-modal.component';
 import { TemplateMappingModalComponent } from '../app/shared/template-mapping-modal.component';
 import { TemplateRequestApprovalModalComponent } from '../app/shared/template-request-approval-modal.component';
+import { SignageGroupFeatures } from '../app/signage-features';
 import { HydratedSignageTemplateMapping } from '../app/signage-template-mapping';
 import { SignageService } from '../app/signage.service';
 
@@ -1624,5 +1626,180 @@ describe('SignageService media uploads', () => {
         );
         expect(untagged_removed).toBe(false);
         expect(removeZone).not.toHaveBeenCalled();
+    });
+
+    describe('group feature flags', () => {
+        const MANAGE = 1 << 6;
+
+        function withGroups(
+            service: SignageService,
+            groups: { id: string; parent_id?: string; permissions: number }[],
+        ) {
+            Object.defineProperty(service, 'is_sys_admin', {
+                value: () => false,
+            });
+            Object.defineProperty(service, 'signage_groups', {
+                value: () =>
+                    groups.map(({ permissions, ...group }) => ({
+                        group,
+                        permissions,
+                    })),
+            });
+        }
+
+        it('lets managers of a parent group edit the features', () => {
+            const service = createService();
+            withGroups(service, [
+                { id: 'root', permissions: MANAGE },
+                { id: 'child', parent_id: 'root', permissions: MANAGE },
+            ]);
+
+            expect(
+                service.canEditGroupFeatures({
+                    id: 'child',
+                    parent_id: 'root',
+                } as any),
+            ).toBe(true);
+        });
+
+        it('stops members of a group from editing its own features', () => {
+            const service = createService();
+            withGroups(service, [
+                { id: 'root', permissions: 0 },
+                { id: 'child', parent_id: 'root', permissions: MANAGE },
+            ]);
+
+            expect(
+                service.canEditGroupFeatures({
+                    id: 'child',
+                    parent_id: 'root',
+                } as any),
+            ).toBe(false);
+            expect(
+                service.canEditGroupFeatures({ id: 'root' } as any),
+            ).toBe(false);
+        });
+
+        it('lets system admins edit the features of a root group', () => {
+            const service = createService();
+            Object.defineProperty(service, 'is_sys_admin', {
+                value: () => true,
+            });
+
+            expect(
+                service.canEditGroupFeatures({ id: 'root' } as any),
+            ).toBe(true);
+        });
+
+        it('saves the signage lists and keeps other subsystems', async () => {
+            const service = createService();
+            Object.defineProperty(service, 'is_sys_admin', {
+                value: () => true,
+            });
+            vi.mocked(updateGroup).mockResolvedValue({} as any);
+
+            await service.saveGroupFeatures(
+                {
+                    id: 'group-1',
+                    features: {
+                        events: { enabled: true },
+                        signage: { features: ['templates'] },
+                    },
+                } as any,
+                { features: ['ai-generation'] },
+            );
+
+            expect(updateGroup).toHaveBeenCalledWith('group-1', {
+                features: {
+                    events: { enabled: true },
+                    signage: { features: ['ai-generation'] },
+                },
+            });
+        });
+
+        it('lets a group narrow the global features', () => {
+            const service = createService();
+            const global = signal<string[]>(['templates', 'ai-generation']);
+            const group = signal<SignageGroupFeatures>({});
+            Object.defineProperty(service, 'global_features', {
+                value: global,
+            });
+            Object.defineProperty(service, 'group_features', { value: group });
+
+            expect(service.features()).toEqual(['templates', 'ai-generation']);
+
+            group.set({ features: ['ai-generation', 'ai-editing'] });
+            expect(service.features()).toEqual(['ai-generation']);
+            expect(service.templates_enabled()).toBe(false);
+            expect(service.hasFeature('ai-editing')).toBe(false);
+        });
+
+        it('limits plugins to the ones the group makes available', async () => {
+            vi.mocked(querySignagePlugins).mockResolvedValue({
+                data: ['plugin-1', 'plugin-2'].map(
+                    (id) =>
+                        new SignagePlugin({
+                            id,
+                            name: id,
+                            plugin_type: 'plugin',
+                            enabled: true,
+                        }),
+                ),
+            } as Awaited<ReturnType<typeof querySignagePlugins>>);
+            const service = createService();
+            const group = signal<SignageGroupFeatures>({});
+            Object.defineProperty(service, 'group_features', { value: group });
+            TestBed.flushEffects();
+
+            await vi.waitFor(() =>
+                expect(service.plugins().map(({ id }) => id)).toEqual([
+                    'plugin-1',
+                    'plugin-2',
+                ]),
+            );
+            group.set({ available_plugins: ['plugin-2'] });
+            expect(service.plugins().map(({ id }) => id)).toEqual([
+                'plugin-2',
+            ]);
+            expect(service.all_plugins()).toHaveLength(2);
+        });
+
+        it('blocks template changes when template editing is off', () => {
+            const service = createService();
+            Object.defineProperty(service, 'can_create', {
+                value: () => true,
+            });
+            Object.defineProperty(service, 'features', {
+                value: () => ['templates'],
+            });
+
+            expect(service.can_create()).toBe(true);
+            expect(service.can_create_templates()).toBe(false);
+        });
+
+        it.each([
+            ['generation', {}, ['ai-editing']],
+            ['editing', { source_upload_id: 'upload-1' }, ['ai-generation']],
+        ])(
+            'does not open the AI modal when AI %s is off',
+            async (_name, options, features) => {
+                const service = createService();
+                const test_service =
+                    service as unknown as SignageServiceTestAccess;
+                test_service['_requirePermission'] = vi.fn(
+                    (allowed: boolean) => allowed,
+                );
+                Object.defineProperty(service, 'can_create', {
+                    value: () => true,
+                });
+                Object.defineProperty(service, 'features', {
+                    value: () => features,
+                });
+
+                await service.generateMediaWithAI(options);
+
+                expect(dialog.open).not.toHaveBeenCalled();
+            },
+        );
     });
 });

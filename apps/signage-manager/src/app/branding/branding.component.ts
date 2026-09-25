@@ -44,7 +44,12 @@ const COLOUR_NAMES = ['primary', 'secondary', 'accent'];
                     class="border-base-300 bg-base-200 mb-6 flex items-center gap-2 rounded border p-3 text-sm"
                 >
                     <icon class="text-base-content/60">lock</icon>
-                    {{ 'SIGNAGE_MANAGER.BRAND_READ_ONLY' | translate }}
+                    {{
+                        (branding_disabled()
+                            ? 'SIGNAGE_MANAGER.BRAND_DISABLED'
+                            : 'SIGNAGE_MANAGER.BRAND_READ_ONLY'
+                        ) | translate
+                    }}
                 </p>
             }
 
@@ -298,7 +303,13 @@ export class BrandingComponent implements OnInit {
     public readonly fonts = BRAND_FONTS;
     public readonly enabled = this._ai.enabled;
 
-    public readonly can_edit = this._service.is_sys_admin;
+    /** Whether the selected group's feature flags turn branding edits off */
+    public readonly branding_disabled = computed(
+        () => !this._service.hasFeature('branding-editing'),
+    );
+    public readonly can_edit = computed(
+        () => this._service.is_sys_admin() && !this.branding_disabled(),
+    );
 
     public readonly organisation = signal('');
     public readonly colours = signal<string[]>(['#0E6E52']);

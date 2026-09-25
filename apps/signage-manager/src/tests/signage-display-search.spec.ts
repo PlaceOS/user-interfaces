@@ -10,6 +10,7 @@ import {
 import {
     PlaceSystem,
     querySignageMedia,
+    querySignageTemplates,
     querySignagePlaylists,
     querySystems,
     queryZones,
@@ -148,6 +149,7 @@ describe('SignageService display search', () => {
         for (const query of [
             querySignagePlaylists,
             querySignageMedia,
+            querySignageTemplates,
             queryZones,
         ]) {
             (query as any).mockResolvedValue({ data: [], total: 0 });

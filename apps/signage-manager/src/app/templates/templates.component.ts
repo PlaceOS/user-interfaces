@@ -339,9 +339,9 @@ export class TemplatesSectionComponent {
     public readonly requires_approval =
         this._service.selected_template_requires_approval;
     public readonly can_approve = this._service.can_approve;
-    public readonly can_update = this._service.can_update;
-    public readonly can_create = this._service.can_create;
-    public readonly can_delete = this._service.can_delete;
+    public readonly can_update = this._service.can_update_templates;
+    public readonly can_create = this._service.can_create_templates;
+    public readonly can_delete = this._service.can_delete_templates;
     public readonly can_share = this._service.can_share;
     public readonly approval_request_loading =
         this._service.template_approval_request_loading;

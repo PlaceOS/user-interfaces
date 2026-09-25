@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -6,6 +6,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
 import { SignageGroupEditModalComponent } from './signage-group-edit-modal.component';
+import { SignageGroupFeaturesModalComponent } from './signage-group-features-modal.component';
 
 @Component({
     selector: 'signage-group-detail-header',
@@ -34,6 +35,23 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
                         }}
                     </h4>
                 </div>
+                @if (can_edit_features()) {
+                    <button
+                        icon
+                        default
+                        type="button"
+                        matRipple
+                        [matTooltip]="
+                            'SIGNAGE_MANAGER.GROUP_FEATURES_TOOLTIP' | translate
+                        "
+                        [attr.aria-label]="
+                            'SIGNAGE_MANAGER.GROUP_FEATURES_TOOLTIP' | translate
+                        "
+                        (click)="editFeatures(group)"
+                    >
+                        <icon>tune</icon>
+                    </button>
+                }
                 <button
                     icon
                     default
@@ -69,6 +87,9 @@ export class SignageGroupDetailHeaderComponent {
     private readonly _dialog = inject(MatDialog);
 
     public readonly selected_group = this._service.managed_group;
+    public readonly can_edit_features = computed(() =>
+        this._service.canEditGroupFeatures(this.selected_group()),
+    );
 
     public clearSelection() {
         this._service.managed_group_id.set('');
@@ -76,6 +97,13 @@ export class SignageGroupDetailHeaderComponent {
 
     public editGroup(group: Partial<PlaceGroup> = {}) {
         this._dialog.open(SignageGroupEditModalComponent, {
+            data: { group },
+            panelClass: 'mobile-fullscreen',
+        });
+    }
+
+    public editFeatures(group: PlaceGroup) {
+        this._dialog.open(SignageGroupFeaturesModalComponent, {
             data: { group },
             panelClass: 'mobile-fullscreen',
         });

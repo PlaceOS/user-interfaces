@@ -21,7 +21,7 @@ describe('TemplateLayoutListComponent', () => {
         selected_template_layout_index: selected_index,
         template_layout_dirty: signal(false),
         selected_template,
-        can_update,
+        can_update_templates: can_update,
         widgets,
         displays,
         all_zones: zones,

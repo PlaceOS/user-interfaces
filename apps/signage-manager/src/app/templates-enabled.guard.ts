@@ -1,10 +1,11 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { SIGNAGE_FEATURE_IDS } from './signage-features';
 
 /**
- * Guards the templates section behind the `app.templates_enabled` feature
- * flag. Waits for the org to initialise so settings overrides from zone
+ * Guards the templates section behind the `templates` entry of the
+ * `app.features` setting. Waits for the org to initialise so settings overrides from zone
  * metadata have been applied before the flag is read.
  */
 export const templatesEnabledGuard: CanActivateFn = async () => {
@@ -13,7 +14,7 @@ export const templatesEnabledGuard: CanActivateFn = async () => {
     const org = inject(OrganisationService);
 
     await org.waitUntilInitialised();
-    return settings.get('app.templates_enabled')
-        ? true
-        : router.parseUrl('/media');
+    const features: string[] =
+        settings.get('app.features') ?? SIGNAGE_FEATURE_IDS;
+    return features.includes('templates') ? true : router.parseUrl('/media');
 };

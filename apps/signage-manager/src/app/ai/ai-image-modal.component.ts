@@ -343,43 +343,47 @@ interface Candidate {
                                     &ldquo;{{ brief() }}&rdquo;
                                 </p>
                             }
-                            <div class="flex flex-col">
-                                <label for="ai-refine" class="mb-1 text-sm">{{
-                                    'SIGNAGE_MANAGER.AI_REFINE' | translate
-                                }}</label>
-                                <mat-form-field
-                                    appearance="outline"
-                                    class="w-full"
-                                >
-                                    <textarea
-                                        matInput
-                                        id="ai-refine"
-                                        rows="2"
-                                        [placeholder]="
-                                            'SIGNAGE_MANAGER.AI_REFINE_HINT'
-                                                | translate
+                            <!-- refining sends the pick back through the edit
+                                 model, so it follows the AI editing flag -->
+                            @if (can_refine()) {
+                                <div class="flex flex-col">
+                                    <label for="ai-refine" class="mb-1 text-sm">{{
+                                        'SIGNAGE_MANAGER.AI_REFINE' | translate
+                                    }}</label>
+                                    <mat-form-field
+                                        appearance="outline"
+                                        class="w-full"
+                                    >
+                                        <textarea
+                                            matInput
+                                            id="ai-refine"
+                                            rows="2"
+                                            [placeholder]="
+                                                'SIGNAGE_MANAGER.AI_REFINE_HINT'
+                                                    | translate
+                                            "
+                                            [(ngModel)]="refinement"
+                                        ></textarea>
+                                    </mat-form-field>
+                                    <button
+                                        mat-stroked-button
+                                        type="button"
+                                        class="self-start"
+                                        [disabled]="
+                                            !refinement().trim() ||
+                                            !selected() ||
+                                            state() === 'generating' ||
+                                            claim_pending()
                                         "
-                                        [(ngModel)]="refinement"
-                                    ></textarea>
-                                </mat-form-field>
-                                <button
-                                    mat-stroked-button
-                                    type="button"
-                                    class="self-start"
-                                    [disabled]="
-                                        !refinement().trim() ||
-                                        !selected() ||
-                                        state() === 'generating' ||
-                                        claim_pending()
-                                    "
-                                    (click)="refine()"
-                                >
-                                    {{
-                                        'SIGNAGE_MANAGER.AI_REFINE_ACTION'
-                                            | translate
-                                    }}
-                                </button>
-                            </div>
+                                        (click)="refine()"
+                                    >
+                                        {{
+                                            'SIGNAGE_MANAGER.AI_REFINE_ACTION'
+                                                | translate
+                                        }}
+                                    </button>
+                                </div>
+                            }
 
                             <ai-references
                                 [items]="include_references()"
@@ -607,6 +611,9 @@ export class AiImageModalComponent implements OnDestroy {
     );
 
     public readonly is_edit = computed(() => !!this._data.source_upload_id);
+    public readonly can_refine = computed(
+        () => this._service.hasFeature('ai-editing'),
+    );
 
     /** the image being changed, so the brief is not written blind */
     public readonly source_url = computed(() => {

@@ -231,7 +231,7 @@ export class TemplateRequestApprovalModalComponent {
     public readonly template_versions = signal<SignageTemplate[]>([]);
     public readonly has_previous_version = () =>
         this.template_versions().length > 1;
-    public readonly can_update = this._service.can_update;
+    public readonly can_update = this._service.can_update_templates;
 
     public togglePreview() {
         const show_preview = !this.show_preview();

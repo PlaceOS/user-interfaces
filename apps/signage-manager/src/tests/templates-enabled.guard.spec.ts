@@ -33,15 +33,15 @@ describe('templatesEnabledGuard', () => {
         });
     });
 
-    it('allows access when the templates flag is enabled', async () => {
-        get.mockReturnValue(true);
+    it('allows access when the templates feature is enabled', async () => {
+        get.mockReturnValue(['templates']);
 
         await expect(runGuard()).resolves.toBe(true);
-        expect(get).toHaveBeenCalledWith('app.templates_enabled');
+        expect(get).toHaveBeenCalledWith('app.features');
     });
 
-    it('redirects to media when the templates flag is disabled', async () => {
-        get.mockReturnValue(false);
+    it('redirects to media when the templates feature is disabled', async () => {
+        get.mockReturnValue(['ai-generation']);
 
         const router = TestBed.inject(Router);
         const result = await runGuard();
@@ -57,7 +57,7 @@ describe('templatesEnabledGuard', () => {
                     resolve_init = resolve;
                 }),
         );
-        get.mockReturnValue(true);
+        get.mockReturnValue(['templates']);
 
         const guard_result = runGuard();
         let resolved = false;

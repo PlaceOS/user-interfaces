@@ -103,7 +103,7 @@ export class TemplateApproveModalComponent {
     private readonly _service = inject(SignageService);
 
     public readonly loading = signal('');
-    public readonly can_update = this._service.can_update;
+    public readonly can_update = this._service.can_update_templates;
 
     private readonly _template_versions = resource({
         params: () => this._data?.template?.id || '',

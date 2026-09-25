@@ -57,7 +57,7 @@ export class TemplateHeaderComponent {
     public readonly total_count = computed(
         () => this._service.templates().length,
     );
-    public readonly can_create = this._service.can_create;
+    public readonly can_create = this._service.can_create_templates;
 
     public addTemplate() {
         this._service.addTemplate();

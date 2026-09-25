@@ -54,7 +54,7 @@ Example locale list:
 | `media_allow_extended_video_codecs` | boolean | `false` | Whether media upload validation accepts extended video codecs — AV1 (`av01`/`V_AV1`) and HEVC (`hev1`/`hvc1`) — in MP4 and WebM files, in addition to the default allowed codec set. Only enable this if your signage display hardware can decode these codecs. |
 | `signage_path` | string | – | Base URL path of the signage viewer application, used to build display preview links. When not set, `/signage` is used. |
 | `schedule_timezone_once_only` | boolean | `true` | Show the timezone selector above the timing fields for schedules that play once and inside the validity block for recurring schedules. Set to `false` to show it above the timing fields for both schedule types. |
-| `templates_enabled` | boolean | `true` | Make the template management section available. |
+| `features` | string[] | all features | Signage features available to every group: `templates` (template management section), `template-editing`, `ai-generation`, `ai-editing` and `branding-editing`. A signage group can narrow this list for its users under `features.signage.features`. It cannot add features that are not in this list. Replaces `templates_enabled`. |
 
 ## Other
 

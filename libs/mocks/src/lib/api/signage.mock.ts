@@ -1044,6 +1044,49 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/groups/:id',
         metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const item = SIGNAGE_GROUPS.find(
+                ({ group }) => group.id === request.route_params.id,
+            );
+            if (!item) throw { status: 404, message: 'Group not found' };
+            return item.group;
+        },
+    });
+
+    // Effective features: each group's own flags merged over its ancestors'
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups/:id/features',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const groups = SIGNAGE_GROUPS.map(({ group }) => group);
+            const chain: any[] = [];
+            let group = groups.find(({ id }) => id === request.route_params.id);
+            while (group && !chain.includes(group)) {
+                chain.unshift(group);
+                group = groups.find(({ id }) => id === group.parent_id);
+            }
+            if (!chain.length) throw { status: 404, message: 'Not found' };
+            const features: Record<string, Record<string, unknown>> = {};
+            for (const { features: own = {} } of chain) {
+                for (const [subsystem, flags] of Object.entries(own)) {
+                    features[subsystem] = {
+                        ...features[subsystem],
+                        ...(flags as Record<string, unknown>),
+                    };
+                }
+            }
+            const subsystem = request.query_params?.subsystem;
+            return subsystem
+                ? { [subsystem]: features[subsystem] || {} }
+                : features;
+        },
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/groups/:id',
+        metadata: {},
         method: 'DELETE',
         callback: (request) => {
             const index = SIGNAGE_GROUPS.findIndex(

@@ -62,6 +62,8 @@ import {
     queryUsers,
     queryZones,
     removeGroup,
+    showGroup,
+    showGroupFeatures,
     removeGroupUser,
     removeGroupZone,
     removeSignageMedia,
@@ -150,6 +152,13 @@ import {
     playlistMediaIds,
     playlistMediaItems,
 } from './signage-playlist.util';
+import {
+    effectiveFeatures,
+    SIGNAGE_FEATURE_IDS,
+    SignageFeature,
+    SignageGroupFeatures,
+    signageGroupFeatures,
+} from './signage-features';
 import { markSignageSharedGroupsChanged } from './signage-shared-groups.util';
 import {
     HydratedSignageTemplateMapping,
@@ -322,6 +331,7 @@ const SIGNAGE_GROUP_FIELDS = [
     'subsystems',
     'authority_id',
     'parent_id',
+    'features',
     'children_count',
 ].join(',');
 
@@ -470,10 +480,10 @@ export class SignageService {
         'show_media_group_tabs',
         true,
     );
-    /** Feature flag for the template management section. */
-    public readonly templates_enabled = this._settings.signal(
-        'templates_enabled',
-        false,
+    /** Features available to every group, from `app.features` */
+    public readonly global_features = this._settings.signal<string[]>(
+        'features',
+        SIGNAGE_FEATURE_IDS,
     );
 
     public readonly search_term = signal('');
@@ -796,6 +806,54 @@ export class SignageService {
         this._hasGroupPermission(SignageGroupPermission.Manage),
     );
     public readonly can_manage_zones = this.is_admin;
+
+    // Effective signage flags of the selected group, ancestors included.
+    // "All groups" has no flags. A failed read keeps every feature available.
+    private readonly _group_features = resource({
+        params: () => ({
+            group_id: this._api_group_id_debounced.value(),
+            groups_change: this._groups_change(),
+        }),
+        loader: async ({ params }) => {
+            return this.loadGroupFeatures(params.group_id).catch(
+                () => ({}) as SignageGroupFeatures,
+            );
+        },
+    });
+    // A resource clears its value while it loads. Keep the last flags until
+    // the new ones arrive, so hidden features do not flash on.
+    private readonly _selected_group_features = linkedSignal<
+        SignageGroupFeatures | undefined,
+        SignageGroupFeatures
+    >({
+        source: () => this._group_features.value(),
+        computation: (value, previous) => value ?? previous?.value ?? {},
+    });
+    /** Signage settings of the selected group, ancestors included */
+    public readonly group_features =
+        this._selected_group_features.asReadonly();
+    /** Features the user can use in the selected group */
+    public readonly features = computed(() =>
+        effectiveFeatures(this.global_features() || [], this.group_features()),
+    );
+    public hasFeature(feature: SignageFeature) {
+        return this.features().includes(feature);
+    }
+    public readonly templates_enabled = computed(() =>
+        this.hasFeature('templates'),
+    );
+    public readonly can_edit_templates = computed(() =>
+        this.hasFeature('template-editing'),
+    );
+    public readonly can_create_templates = computed(
+        () => this.can_create() && this.can_edit_templates(),
+    );
+    public readonly can_update_templates = computed(
+        () => this.can_update() && this.can_edit_templates(),
+    );
+    public readonly can_delete_templates = computed(
+        () => this.can_delete() && this.can_edit_templates(),
+    );
 
     private readonly _can_query_group_data = computed(() => {
         const group_id = this._api_group_id();
@@ -1705,7 +1763,16 @@ export class SignageService {
 
     private readonly _plugins = this._pluginResource('plugin');
     private readonly _widgets = this._pluginResource('widget');
-    public readonly plugins = computed(() => this._plugins.value() || []);
+    /** Every enabled plugin, before group feature flags apply */
+    public readonly all_plugins = computed(() => this._plugins.value() || []);
+    /** Plugins the selected group can add to its media library */
+    public readonly plugins = computed(() => {
+        const allowed = this.group_features().available_plugins;
+        const plugins = this.all_plugins();
+        return allowed
+            ? plugins.filter((plugin) => allowed.includes(plugin.id))
+            : plugins;
+    });
     public readonly widgets = computed(() => this._widgets.value() || []);
 
     public readonly selected_template = signal<SignageTemplate | null>(null);
@@ -2397,7 +2464,7 @@ export class SignageService {
     public async addTemplate() {
         if (
             !this._requirePermission(
-                this.can_create(),
+                this.can_create_templates(),
                 i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_TEMPLATES'),
             )
         )
@@ -2421,7 +2488,7 @@ export class SignageService {
     public async editTemplate(template: SignageTemplate) {
         if (
             !this._requirePermission(
-                this.can_update(),
+                this.can_update_templates(),
                 i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'),
             )
         )
@@ -2591,7 +2658,7 @@ export class SignageService {
         if (!template?.id) return;
         if (
             !this._requirePermission(
-                this.can_delete(),
+                this.can_delete_templates(),
                 i18n('SIGNAGE_MANAGER.SVC_NO_DELETE_TEMPLATES'),
             )
         )
@@ -2631,7 +2698,7 @@ export class SignageService {
         if (!template?.id) return null;
         if (
             !this._requirePermission(
-                this.can_create(),
+                this.can_create_templates(),
                 i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_TEMPLATES'),
             )
         )
@@ -2670,7 +2737,7 @@ export class SignageService {
         if (!template?.id || !this.template_layout_dirty()) return;
         if (
             !this._requirePermission(
-                this.can_update(),
+                this.can_update_templates(),
                 i18n('SIGNAGE_MANAGER.SVC_NO_UPDATE_TEMPLATES'),
             )
         )
@@ -2749,6 +2816,60 @@ export class SignageService {
             (item) => item.group.id === group_id,
         );
         return !!(group?.permissions & SignageGroupPermission.Manage);
+    }
+
+    /**
+     * Whether the user can change a group's feature flags. Only system admins
+     * and managers of an ancestor group can, so members of a group cannot
+     * lift the limits set on it.
+     */
+    public canEditGroupFeatures(group: PlaceGroup | undefined) {
+        if (!group?.id) return false;
+        if (this.is_sys_admin()) return true;
+        const groups = this.signage_groups().map((item) => item.group);
+        const parent = groups.find((item) => item.id === group.parent_id);
+        const ancestor_ids = new Set(
+            groupHierarchy(parent, groups).map((item) => item.id),
+        );
+        return this.signage_groups().some(
+            (item) =>
+                ancestor_ids.has(item.group.id) &&
+                !!(item.permissions & SignageGroupPermission.Manage),
+        );
+    }
+
+    /** Read a group with its current feature flags */
+    public async loadGroup(group_id: string) {
+        return decodeEntityNames(await showGroup(group_id));
+    }
+
+    /** Effective signage flags of a group, including inherited values */
+    public async loadGroupFeatures(group_id: string) {
+        if (!group_id) return {} as SignageGroupFeatures;
+        const raw = await showGroupFeatures(group_id, { subsystem: 'signage' });
+        return signageGroupFeatures(raw);
+    }
+
+    /** Replace the signage flags a group sets itself. Other subsystems keep
+     * their flags. */
+    public async saveGroupFeatures(
+        group: PlaceGroup,
+        signage: SignageGroupFeatures,
+    ) {
+        if (!this.canEditGroupFeatures(group)) {
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_EDIT_GROUP_FEATURES'));
+            return null;
+        }
+        const features = { ...(group.features || {}), signage: { ...signage } };
+        const result = await updateGroup(group.id, { features }).catch(
+            (error) => {
+                notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP'));
+                throw error;
+            },
+        );
+        this._groups_change.set(Date.now());
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_GROUP_FEATURES_SAVED'));
+        return result;
     }
 
     public async saveSignageGroup(
@@ -3683,6 +3804,15 @@ export class SignageService {
             !this._requirePermission(
                 this.can_create(),
                 i18n('SIGNAGE_MANAGER.SVC_NO_CREATE_MEDIA'),
+            )
+        )
+            return;
+        if (
+            !this._requirePermission(
+                this.hasFeature(
+                    options.source_upload_id ? 'ai-editing' : 'ai-generation',
+                ),
+                i18n('SIGNAGE_MANAGER.SVC_AI_DISABLED'),
             )
         )
             return;

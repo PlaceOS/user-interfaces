@@ -750,7 +750,7 @@ export class TemplateLayoutListComponent {
     public readonly selected_index =
         this._service.selected_template_layout_index;
     public readonly dirty = this._service.template_layout_dirty;
-    public readonly can_update = this._service.can_update;
+    public readonly can_update = this._service.can_update_templates;
     public readonly widgets = this._service.widgets;
     public readonly displays = this._service.displays;
     public readonly zones = this._service.all_zones;

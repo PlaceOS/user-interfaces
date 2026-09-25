@@ -33,6 +33,8 @@ describe('MediaListComponent folders', () => {
         can_create: signal(true),
         can_delete: signal(true),
         can_share: signal(true),
+        features: signal<string[]>(['ai-editing']),
+        hasFeature: (id: string) => service_stub.features().includes(id),
         addMediaTags: vi.fn(),
         renameMediaTag: vi.fn(),
         removeMediaTag: vi.fn(),
@@ -54,6 +56,7 @@ describe('MediaListComponent folders', () => {
     }
 
     beforeEach(() => {
+        service_stub.features.set(['ai-editing']);
         window.matchMedia = vi.fn().mockReturnValue({
             matches: false,
             addListener: vi.fn(),
@@ -96,6 +99,14 @@ describe('MediaListComponent folders', () => {
         expect(component.can_edit_with_ai()).toBe(true);
 
         service_stub.can_create.set(false);
+
+        expect(component.can_edit_with_ai()).toBe(false);
+    });
+
+    it('hides AI edits when the group turns AI editing off', () => {
+        const component = make();
+
+        service_stub.features.set([]);
 
         expect(component.can_edit_with_ai()).toBe(false);
     });

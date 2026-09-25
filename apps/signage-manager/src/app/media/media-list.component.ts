@@ -940,7 +940,10 @@ export class MediaListComponent implements OnInit {
         this._service.editMedia(item);
 
     public readonly can_edit_with_ai = computed(
-        () => this._service.can_create() && this._ai.can_edit(),
+        () =>
+            this._service.can_create() &&
+            this._ai.can_edit() &&
+            this._service.hasFeature('ai-editing'),
     );
 
     /** only an uploaded still can be sent back through the model */

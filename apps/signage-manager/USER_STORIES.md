@@ -18,7 +18,7 @@ These stories cover the current app workflows:
 - Displays: search, direct selection, player link when available, schedule tab, playlist tab, zone tab, and add playlist.
 - Schedules: display and zone timeline tabs, previous day, next day, today, search, clear search, empty states, row links, and takeover conflict warnings.
 - Content report: takeover conflicts, displays with no playlists, unassigned playlists, expired playlists that are still assigned, and expired media in playlists.
-- Signage groups: searchable group tree, create, edit, delete entry point, user assignment, user permission editing, zone assignment, zone permission editing, and deny-state editing.
+- Signage groups: searchable group tree, create, edit, delete entry point, user assignment, user permission editing, zone assignment, zone permission editing, deny-state editing, and group feature flags.
 - Responsive workflows: compact media add menu and mobile footer navigation.
 
 ---
@@ -342,6 +342,29 @@ These stories cover the current app workflows:
 - Users can edit zone permissions and deny state.
 - Users can remove an assigned zone from the group.
 - Empty state appears when no zones are assigned.
+
+---
+
+### US-SGM-019: Limit Group Features
+
+**As a** system administrator or manager of a parent group  
+**I want to** limit the signage features of a group  
+**So that** users of that group see only the tools they are allowed to use
+
+**Acceptance Criteria:**
+
+- The `app.features` setting sets the features for every group: `templates`, `template-editing`, `ai-generation`, `ai-editing` and `branding-editing`.
+- The group header shows a features button to system administrators and to managers of a parent group. Members and managers of only the group itself do not see it.
+- The editor shows only the features that `app.features` turns on, and the plugins by name. A group can turn a feature off, but it cannot add a feature that the settings do not have.
+- The group gets each list from its parent groups until it sets its own. A child group can turn a feature on again if the settings allow it. "Use parent value" removes the group's own list.
+- Saving removes plugin IDs that no longer match a plugin.
+- When a group is selected, the features that both the settings and the group allow apply:
+  - Without `templates`, the templates section is hidden.
+  - Without `template-editing`, template create, edit, duplicate, delete and layout changes are hidden. Template mappings stay available.
+  - Without `ai-generation`, the AI create actions are hidden.
+  - Without `ai-editing`, "Edit with AI" and refinement in the AI editor are hidden.
+  - Without `branding-editing`, the branding tab is read-only.
+- The All Groups view uses only `app.features`.
 
 ---
 

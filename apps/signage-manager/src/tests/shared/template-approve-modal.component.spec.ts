@@ -23,7 +23,7 @@ describe('TemplateApproveModalComponent', () => {
         disableClose: false,
     };
     const service = {
-        can_update: signal(true),
+        can_update_templates: signal(true),
         widgets: signal([]),
         changed: vi.fn(),
         updateCachedTemplate: vi.fn(),

@@ -483,7 +483,11 @@ export class MediaListHeaderComponent {
     public readonly previewFile = (event) =>
         this._service.previewFileFromInput(event);
 
-    public readonly ai_enabled = this._ai.can_generate;
+    public readonly ai_enabled = computed(
+        () =>
+            this._ai.can_generate() &&
+            this._service.hasFeature('ai-generation'),
+    );
 
     /** Change part of the media sort and filters */
     public setView(change: Partial<MediaViewOptions>) {
