@@ -6,6 +6,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     CateringMenuComponent,
     CateringOrderListComponent,
+    CateringPrepSummaryComponent,
 } from '@placeos/catering';
 import { TranslatePipe } from '@placeos/components';
 import { CateringTopbarComponent } from './catering-topbar.component';
@@ -27,9 +28,16 @@ import { CateringTopbarComponent } from './catering-topbar.component';
             <div class="flex h-1/2 flex-1 flex-col overflow-auto px-8">
                 @switch (page()) {
                     @case ('orders') {
-                        <catering-order-list
-                            class="flex-1"
-                        ></catering-order-list>
+                        <div class="flex min-h-0 flex-1 gap-4">
+                            <catering-order-list
+                                class="min-w-0 flex-1"
+                            ></catering-order-list>
+                            @if (show_summary()) {
+                                <catering-prep-summary
+                                    class="border-base-300 mb-4 w-80 shrink-0 rounded-sm border"
+                                />
+                            }
+                        </div>
                     }
                     @case ('menu') {
                         <catering-menu class="flex-1"></catering-menu>
@@ -111,6 +119,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
         CateringMenuComponent,
         CateringOrderListComponent,
         CateringTopbarComponent,
+        CateringPrepSummaryComponent,
     ],
 })
 export class CateringComponent {
@@ -121,4 +130,11 @@ export class CateringComponent {
         initialValue: this._route.snapshot.paramMap,
     });
     public page = computed(() => this._param_map().get('view') || '');
+    private _query_map = toSignal(this._route.queryParamMap, {
+        initialValue: this._route.snapshot.queryParamMap,
+    });
+    /** Whether to show the prep summary panel next to the orders */
+    public show_summary = computed(
+        () => this._query_map().get('summary') === 'true',
+    );
 }

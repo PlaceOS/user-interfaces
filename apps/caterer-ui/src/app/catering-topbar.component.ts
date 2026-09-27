@@ -179,6 +179,20 @@ import { DateOptionsComponent } from '@placeos/form-fields';
             @if (page() !== 'menu') {
                 <date-options (dateChange)="setDate($event)"></date-options>
             }
+            @if (page() === 'orders') {
+                <button
+                    icon
+                    matRipple
+                    summary-toggle
+                    class="h-12 w-12 rounded-sm"
+                    [class.bg-secondary]="show_summary()"
+                    [class.text-secondary-content]="show_summary()"
+                    [matTooltip]="'CATERING.PREP_SUMMARY' | translate"
+                    (click)="toggleSummary()"
+                >
+                    <icon class="text-2xl">summarize</icon>
+                </button>
+            }
         </div>
     `,
     styles: [
@@ -230,6 +244,10 @@ export class CateringTopbarComponent extends AsyncHandler {
                 : '') || '',
     );
     public readonly filters = this._orders.order_filters;
+    /** Whether the prep summary panel is open */
+    public readonly show_summary = computed(
+        () => this._query_param_map().get('summary') === 'true',
+    );
     public readonly caterers = this._catering.caterers;
     public readonly building = this._org.active_building;
     public readonly use_region = settingSignal('use_region', false);
@@ -328,6 +346,10 @@ export class CateringTopbarComponent extends AsyncHandler {
 
     public setChargeCodes() {
         this._dialog.open(ChargeCodeListModalComponent);
+    }
+
+    public toggleSummary() {
+        this._setQueryParams({ summary: this.show_summary() ? null : 'true' });
     }
 
     /**

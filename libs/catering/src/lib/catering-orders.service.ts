@@ -32,6 +32,7 @@ import {
 } from 'libs/events/src/lib/events.fn';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { newCalendarEventFromBooking } from 'libs/events/src/lib/utilities';
+import { orderHost, orderLocation } from './catering-order-tools';
 import { CateringOrderStatus } from './catering.interfaces';
 import {
     CateringStatusFilter,
@@ -55,26 +56,15 @@ export interface CateringOrderFilters {
 /** Filters that change which orders the server returns */
 type CateringOrderQuery = Pick<CateringOrderFilters, 'date' | 'zones'>;
 
-const SPACE_PIPE = new SpacePipe();
-
 function checkOrder(
     order: CateringOrder,
     filters: CateringOrderFilters,
 ): boolean {
     const s = (filters.search || '').toLowerCase();
-    const space =
-        (order as CateringOrder & { space?: ReturnType<SpacePipe['get']> })
-            .space ||
-        order.event?.system ||
-        SPACE_PIPE.get(
-            order.system_id || order.event?.extension_data.system_id,
-        );
-    const location =
-        order.event?.location || space?.display_name || space?.name || '';
-    const host = order.event?.host || order.event?.organiser?.email || '';
     const order_text = [
-        location,
-        host,
+        orderLocation(order),
+        orderHost(order),
+        order.event?.organiser?.email,
         order.charge_code,
         order.invoice_number,
         order.notes,
@@ -189,7 +179,7 @@ export class CateringOrdersService extends AsyncHandler {
         return this._settings.get('app.catering.use_bookings') == true;
     }
     /** Orders that match the search and caterer filters, in delivery order */
-    private readonly _matching = computed(() =>
+    public readonly matching = computed(() =>
         this._orders()
             .filter((order) => checkOrder(order, this._filters()))
             .sort((a, b) => a.deliver_at - b.deliver_at),
@@ -197,7 +187,7 @@ export class CateringOrdersService extends AsyncHandler {
     /** Filtered list of catering orders */
     public readonly filtered = computed(() => {
         const status = this._filters().status;
-        return this._matching().filter((order) =>
+        return this.matching().filter((order) =>
             matchesStatusFilter(order.status, status),
         );
     });
@@ -206,7 +196,7 @@ export class CateringOrdersService extends AsyncHandler {
         const counts: Partial<Record<CateringStatusFilter, number>> = {};
         const add = (key: CateringStatusFilter) =>
             (counts[key] = (counts[key] || 0) + 1);
-        for (const order of this._matching()) {
+        for (const order of this.matching()) {
             add('all');
             add(order.status);
             if (!isOrderDone(order.status)) add('active');
@@ -324,14 +314,13 @@ export class CateringOrdersService extends AsyncHandler {
                 ? await this._loadBookingOrders(query)
                 : await this._loadEmbeddedOrders(query);
             if (load_id !== this._load_id) return;
-            this._orders.set(
-                unique(
-                    orders.filter(
-                        (o) => format(o.deliver_at, 'yyyy-MM-dd') === day,
-                    ),
-                    'id',
+            const next = unique(
+                orders.filter(
+                    (o) => format(o.deliver_at, 'yyyy-MM-dd') === day,
                 ),
+                'id',
             );
+            this._orders.set(next);
             this._loaded_key = key;
             this._load_error.set(false);
             this._last_updated.set(Date.now());
