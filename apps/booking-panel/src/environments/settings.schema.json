@@ -57,6 +57,29 @@
         "user_as_default_host": {
             "type": "boolean",
             "description": "Whether the signed-in user's email should be used as the host for `book_now` bookings when no host is set"
+        },
+        "features": {
+            "type": "array",
+            "description": "List of opt-in panel features. All features are off by default.",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "checkin_countdown",
+                    "connection_badge",
+                    "quick_book",
+                    "extend_meeting",
+                    "ending_warning",
+                    "presence_status",
+                    "presence_release",
+                    "timeline_booking",
+                    "room_services",
+                    "hide_version"
+                ]
+            }
+        },
+        "presence_release_after": {
+            "type": "number",
+            "description": "Minutes after the start of a pending booking with no presence detected before the `presence_release` feature releases it. Defaults to `5`."
         }
     },
     "$defs": {

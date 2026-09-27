@@ -6,6 +6,7 @@ import {
 } from '@ngneat/spectator/vitest';
 import { mockComponent } from '@placeos/common/tests';
 
+import { PanelViewActionsComponent } from '../../app/new-panel/panel-view-actions.component';
 import { PanelViewDetailsComponent } from '../../app/new-panel/panel-view-details.component';
 import { PanelViewStatusComponent } from '../../app/new-panel/panel-view-status.component';
 import { PanelViewTimelineComponent } from '../../app/new-panel/panel-view-timeline.component';
@@ -16,6 +17,9 @@ describe('PanelViewComponent', () => {
     let spectator: SpectatorRouting<PanelViewComponent>;
     const settings = signal<Record<string, any>>({});
     const setting = vi.fn<(name: string) => any>((name) => settings()[name]);
+    const clock = signal(Date.now());
+    const offline_since = signal(0);
+    let features: string[] = [];
     const createComponent = createRoutingFactory({
         component: PanelViewComponent,
         params: { system_id: 'a-system' },
@@ -23,6 +27,7 @@ describe('PanelViewComponent', () => {
             mockComponent(PanelViewDetailsComponent),
             mockComponent(PanelViewStatusComponent),
             mockComponent(PanelViewTimelineComponent),
+            mockComponent(PanelViewActionsComponent),
         ],
         componentProviders: [
             {
@@ -30,6 +35,9 @@ describe('PanelViewComponent', () => {
                 useValue: {
                     space: signal(null),
                     setting,
+                    clock,
+                    offline_since,
+                    hasFeature: (name: string) => features.includes(name),
                     system: '',
                 },
             },
@@ -38,6 +46,9 @@ describe('PanelViewComponent', () => {
 
     beforeEach(() => {
         settings.set({});
+        clock.set(Date.now());
+        offline_since.set(0);
+        features = [];
         setting.mockClear();
         localStorage.setItem('PLACEOS.BOOKINGS.system', 'a-system');
         spectator = createComponent();
@@ -111,4 +122,34 @@ describe('PanelViewComponent', () => {
             expect(timeline.horizontal).toBe(true);
         },
     );
+
+    it('should show the version details by default', () => {
+        spectator.detectChanges();
+        expect(spectator.query('[version]').children.length).toBe(2);
+    });
+
+    it('should show hidden version details after a long press', () => {
+        vi.useFakeTimers();
+        features = ['hide_version'];
+        spectator.detectChanges();
+        expect(spectator.query('[version]').children.length).toBe(0);
+        spectator.dispatchFakeEvent('[version]', 'pointerdown');
+        vi.advanceTimersByTime(2000);
+        spectator.detectChanges();
+        expect(spectator.query('[version]').children.length).toBe(2);
+        vi.useRealTimers();
+    });
+
+    it('should show the connection badge after 10 seconds offline', () => {
+        features = ['connection_badge'];
+        offline_since.set(clock() - 11 * 1000);
+        spectator.detectChanges();
+        expect('[connection-badge]').toExist();
+    });
+
+    it('should not show the connection badge when the feature is off', () => {
+        offline_since.set(clock() - 11 * 1000);
+        spectator.detectChanges();
+        expect('[connection-badge]').not.toExist();
+    });
 });

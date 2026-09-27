@@ -1,13 +1,24 @@
+import { CalendarEvent } from '@placeos/common';
 import { addMinutes, format } from 'date-fns';
 
 import {
+    canExtend,
     currentPeriod,
+    endingSoon,
+    formatCountdown,
+    freeMinutes,
     nextPeriod,
+    quickBookDurations,
+    releaseCountdown,
     timelineData,
+    timelineSlot,
     timelineStart,
 } from '../../app/new-panel/helpers';
 
 const FIXED_NOW = new Date('2026-07-04T09:00:00.000Z').valueOf();
+
+const event = (date: number, duration = 30) =>
+    new CalendarEvent({ date, duration });
 
 // NOTE: `currentPeriod` depends on `getNextFreeTimeSlot` from `@placeos/events`.
 // The native unit-test builder inlines workspace code, so module mocks do not
@@ -116,14 +127,112 @@ describe('new-panel helpers', () => {
         it('should move the current-time marker between grid intervals', () => {
             const start = timelineStart(FIXED_NOW);
             const first = timelineData([], FIXED_NOW, start);
-            const second = timelineData(
-                [],
-                FIXED_NOW + 30 * 1000,
-                start,
-            );
+            const second = timelineData([], FIXED_NOW + 30 * 1000, start);
 
             expect(second.now).toBeGreaterThan(first.now);
             expect(second.now - first.now).toBeCloseTo((0.5 / 720) * 100);
+        });
+    });
+
+    describe('releaseCountdown', () => {
+        it('should return the time left in the pending period', () => {
+            const booking = event(addMinutes(FIXED_NOW, -2).valueOf());
+            expect(releaseCountdown(booking, 10, FIXED_NOW)).toBe(
+                8 * 60 * 1000,
+            );
+        });
+
+        it('should not go below zero', () => {
+            const booking = event(addMinutes(FIXED_NOW, -20).valueOf());
+            expect(releaseCountdown(booking, 10, FIXED_NOW)).toBe(0);
+        });
+
+        it('should return null without a pending period', () => {
+            expect(releaseCountdown(event(FIXED_NOW), 0)).toBeNull();
+        });
+    });
+
+    it('formatCountdown should format as m:ss', () => {
+        expect(formatCountdown(272 * 1000)).toBe('4:32');
+        expect(formatCountdown(5 * 1000)).toBe('0:05');
+    });
+
+    describe('freeMinutes', () => {
+        it('should return minutes until the next booking', () => {
+            const bookings = [
+                event(addMinutes(FIXED_NOW, 90).valueOf()),
+                event(addMinutes(FIXED_NOW, 40).valueOf()),
+            ];
+            expect(freeMinutes(bookings, FIXED_NOW)).toBe(40);
+        });
+
+        it('should return the max without later bookings', () => {
+            expect(freeMinutes([], FIXED_NOW, 120)).toBe(120);
+        });
+    });
+
+    it('quickBookDurations should only offer durations that fit', () => {
+        expect(quickBookDurations(45)).toEqual([15, 30]);
+        expect(quickBookDurations(120, 30)).toEqual([30, 60]);
+        expect(quickBookDurations(10)).toEqual([]);
+    });
+
+    describe('canExtend', () => {
+        const current = event(FIXED_NOW);
+
+        it('should allow extending into free time', () => {
+            expect(canExtend(current, [current])).toBe(true);
+        });
+
+        it('should block extending into the next booking', () => {
+            const next = event(addMinutes(FIXED_NOW, 40).valueOf());
+            expect(canExtend(current, [current, next])).toBe(false);
+        });
+    });
+
+    describe('endingSoon', () => {
+        const current = event(FIXED_NOW);
+        const next = event(addMinutes(FIXED_NOW, 30).valueOf());
+
+        it('should return the next booking near the end of the current one', () => {
+            const now = addMinutes(FIXED_NOW, 26).valueOf();
+            expect(endingSoon(current, next, now)).toBe(next);
+        });
+
+        it('should return null earlier in the meeting', () => {
+            const now = addMinutes(FIXED_NOW, 10).valueOf();
+            expect(endingSoon(current, next, now)).toBeNull();
+        });
+
+        it('should return null when the next booking is much later', () => {
+            const now = addMinutes(FIXED_NOW, 26).valueOf();
+            const later = event(addMinutes(FIXED_NOW, 90).valueOf());
+            expect(endingSoon(current, later, now)).toBeNull();
+        });
+    });
+
+    describe('timelineSlot', () => {
+        const start = timelineStart(FIXED_NOW);
+
+        it('should snap a future tap to the start of its slot', () => {
+            // The timeline starts an hour before now, so 2.1 hours in is
+            // 66 minutes from now. That snaps down to 60 minutes from now.
+            const slot = timelineSlot(2.1 / 12, start, [], FIXED_NOW);
+            expect(slot).toBe(addMinutes(FIXED_NOW, 60).valueOf());
+        });
+
+        it('should use now for the slot in progress', () => {
+            const now = addMinutes(FIXED_NOW, 5).valueOf();
+            const slot = timelineSlot(1.1 / 12, start, [], now);
+            expect(slot).toBe(now);
+        });
+
+        it('should return null for past or booked slots', () => {
+            expect(timelineSlot(0, start, [], FIXED_NOW)).toBeNull();
+            const booking = event(addMinutes(FIXED_NOW, 60).valueOf());
+            expect(
+                timelineSlot(2.1 / 12, start, [booking], FIXED_NOW),
+            ).toBeNull();
         });
     });
 });
