@@ -232,3 +232,48 @@ export function timelineSlot(
     if (overlapsBooking(bookings, date, slot_end)) return null;
     return date;
 }
+
+/**
+ * Whether `now` is inside the night window from `start` to `end`.
+ * Times use `HH:mm` in local time. The window can cross midnight.
+ * Unset times default to `19:00` and `07:00`.
+ * Returns `false` for invalid or equal times.
+ */
+export function isNightTime(
+    now: number,
+    start?: string | null,
+    end?: string | null,
+) {
+    const toMinutes = (time: string) => {
+        const match = /^(\d{1,2}):(\d{2})$/.exec(time || '');
+        if (!match || +match[1] > 23 || +match[2] > 59) return null;
+        return +match[1] * 60 + +match[2];
+    };
+    const from = toMinutes(start ?? '19:00');
+    const to = toMinutes(end ?? '07:00');
+    if (from === null || to === null || from === to) return false;
+    const date = new Date(now);
+    const minutes = date.getHours() * 60 + date.getMinutes();
+    return from < to
+        ? minutes >= from && minutes < to
+        : minutes >= from || minutes < to;
+}
+
+/** Pixel offsets the panel moves through to prevent screen burn-in */
+export const BURN_IN_OFFSETS: [number, number][] = [
+    [0, 0],
+    [2, 0],
+    [2, 2],
+    [0, 2],
+    [-2, 2],
+    [-2, 0],
+    [-2, -2],
+    [0, -2],
+    [2, -2],
+];
+
+/** Burn-in offset for `now`. Moves to the next offset every minute. */
+export function burnInOffset(now: number): [number, number] {
+    const step = Math.floor(now / (60 * 1000)) % BURN_IN_OFFSETS.length;
+    return BURN_IN_OFFSETS[step];
+}

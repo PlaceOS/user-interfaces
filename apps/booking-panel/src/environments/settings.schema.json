@@ -73,9 +73,19 @@
                     "presence_release",
                     "timeline_booking",
                     "room_services",
-                    "hide_version"
+                    "hide_version",
+                    "night_mode",
+                    "burn_in_protection"
                 ]
             }
+        },
+        "night_start": {
+            "type": "string",
+            "description": "Local time in `HH:mm` format when the `night_mode` feature starts to dim the panel. Defaults to `19:00`."
+        },
+        "night_end": {
+            "type": "string",
+            "description": "Local time in `HH:mm` format when the `night_mode` feature stops dimming the panel. Defaults to `07:00`."
         },
         "presence_release_after": {
             "type": "number",

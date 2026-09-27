@@ -20,6 +20,8 @@ describe('PanelViewComponent', () => {
     const clock = signal(Date.now());
     const offline_since = signal(0);
     let features: string[] = [];
+    const status = signal('free');
+    const app_settings: Record<string, string> = {};
     const createComponent = createRoutingFactory({
         component: PanelViewComponent,
         params: { system_id: 'a-system' },
@@ -38,6 +40,8 @@ describe('PanelViewComponent', () => {
                     clock,
                     offline_since,
                     hasFeature: (name: string) => features.includes(name),
+                    appSetting: (key: string) => app_settings[key],
+                    status,
                     system: '',
                 },
             },
@@ -49,6 +53,8 @@ describe('PanelViewComponent', () => {
         clock.set(Date.now());
         offline_since.set(0);
         features = [];
+        status.set('free');
+        for (const key of Object.keys(app_settings)) delete app_settings[key];
         setting.mockClear();
         localStorage.setItem('PLACEOS.BOOKINGS.system', 'a-system');
         spectator = createComponent();
@@ -151,5 +157,66 @@ describe('PanelViewComponent', () => {
         offline_since.set(clock() - 11 * 1000);
         spectator.detectChanges();
         expect('[connection-badge]').not.toExist();
+    });
+
+    describe('night mode', () => {
+        const night = new Date(2026, 6, 4, 22, 0).valueOf();
+        const day = new Date(2026, 6, 4, 12, 0).valueOf();
+
+        it('should dim the panel at night when enabled', () => {
+            features = ['night_mode'];
+            clock.set(night);
+            spectator.detectChanges();
+            expect('[night-overlay]').toExist();
+        });
+
+        it('should not dim during the day, when disabled or in a meeting', () => {
+            clock.set(day);
+            features = ['night_mode'];
+            spectator.detectChanges();
+            expect('[night-overlay]').not.toExist();
+
+            clock.set(night);
+            status.set('busy');
+            spectator.detectChanges();
+            expect('[night-overlay]').not.toExist();
+
+            status.set('free');
+            features = [];
+            spectator.detectChanges();
+            expect('[night-overlay]').not.toExist();
+        });
+
+        it('should use the configured night hours', () => {
+            features = ['night_mode'];
+            app_settings.night_start = '23:00';
+            clock.set(night);
+            spectator.detectChanges();
+            expect('[night-overlay]').not.toExist();
+        });
+
+        it('should wake on tap without starting a booking', () => {
+            features = ['night_mode'];
+            clock.set(night);
+            spectator.detectChanges();
+            const action = vi.spyOn(spectator.component, 'action');
+            spectator.click('[night-overlay]');
+            clock.set(night + 5000);
+            spectator.detectChanges();
+            expect('[night-overlay]').not.toExist();
+            expect(action).not.toHaveBeenCalled();
+        });
+    });
+
+    it('should move the panel when burn-in protection is enabled', () => {
+        features = ['burn_in_protection'];
+        clock.set(2 * 60 * 1000);
+        spectator.detectChanges();
+        expect(spectator.element.style.getPropertyValue('--burn-in-x')).toBe(
+            '2px',
+        );
+        expect(spectator.element.style.getPropertyValue('--burn-in-y')).toBe(
+            '2px',
+        );
     });
 });

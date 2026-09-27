@@ -2,11 +2,13 @@ import { CalendarEvent } from '@placeos/common';
 import { addMinutes, format } from 'date-fns';
 
 import {
+    burnInOffset,
     canExtend,
     currentPeriod,
     endingSoon,
     formatCountdown,
     freeMinutes,
+    isNightTime,
     nextPeriod,
     quickBookDurations,
     releaseCountdown,
@@ -234,5 +236,39 @@ describe('new-panel helpers', () => {
                 timelineSlot(2.1 / 12, start, [booking], FIXED_NOW),
             ).toBeNull();
         });
+    });
+
+    describe('isNightTime', () => {
+        const at = (hour: number, minute = 0) =>
+            new Date(2026, 6, 4, hour, minute).valueOf();
+
+        it('should handle a window that crosses midnight', () => {
+            expect(isNightTime(at(19))).toBe(true);
+            expect(isNightTime(at(2))).toBe(true);
+            expect(isNightTime(at(6, 59))).toBe(true);
+            expect(isNightTime(at(7))).toBe(false);
+            expect(isNightTime(at(18, 59))).toBe(false);
+        });
+
+        it('should use the default hours for unset settings', () => {
+            expect(isNightTime(at(22), null, null)).toBe(true);
+        });
+
+        it('should handle a window inside one day', () => {
+            expect(isNightTime(at(13), '12:00', '14:00')).toBe(true);
+            expect(isNightTime(at(14), '12:00', '14:00')).toBe(false);
+        });
+
+        it('should return false for invalid or equal times', () => {
+            expect(isNightTime(at(22), 'late', '07:00')).toBe(false);
+            expect(isNightTime(at(22), '25:00', '07:00')).toBe(false);
+            expect(isNightTime(at(22), '07:00', '07:00')).toBe(false);
+        });
+    });
+
+    it('burnInOffset should move to the next offset each minute', () => {
+        expect(burnInOffset(0)).toEqual([0, 0]);
+        expect(burnInOffset(60 * 1000)).toEqual([2, 0]);
+        expect(burnInOffset(9 * 60 * 1000)).toEqual([0, 0]);
     });
 });

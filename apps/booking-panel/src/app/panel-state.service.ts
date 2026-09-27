@@ -67,7 +67,9 @@ export type PanelFeature =
     | 'presence_release'
     | 'timeline_booking'
     | 'room_services'
-    | 'hide_version';
+    | 'hide_version'
+    | 'night_mode'
+    | 'burn_in_protection';
 
 export interface PanelSettings {
     /** Name of the room */
@@ -191,6 +193,11 @@ export class PanelStateService extends AsyncHandler {
 
     public setting<K extends keyof PanelSettings>(name: K): PanelSettings[K] {
         return this._settings()[name];
+    }
+
+    /** Value of the app setting `app.<key>` */
+    public appSetting<T>(key: string): T | undefined {
+        return this._app_settings.get(`app.${key}`);
     }
 
     /** Whether the given opt-in feature is enabled in the app settings */

@@ -13,6 +13,7 @@ import {
     PanelStateService,
     PanelTimelinePosition,
 } from '../panel-state.service';
+import { burnInOffset, isNightTime } from './helpers';
 import { PanelViewActionsComponent } from './panel-view-actions.component';
 import { PanelViewDetailsComponent } from './panel-view-details.component';
 import { PanelViewStatusComponent } from './panel-view-status.component';
@@ -131,6 +132,13 @@ import { PanelViewTimelineComponent } from './panel-view-timeline.component';
                 [style]="actions_style()"
             ></panel-view-actions>
         }
+        @if (dimmed()) {
+            <div
+                night-overlay
+                class="absolute -inset-2 z-[60] bg-black/80"
+                (click)="wake($event)"
+            ></div>
+        }
         @if (offline_since(); as since) {
             <div
                 connection-badge
@@ -154,10 +162,24 @@ import { PanelViewTimelineComponent } from './panel-view-timeline.component';
                 display: block;
                 width: 100%;
                 height: 100%;
+                overflow: hidden;
+            }
+
+            :host > * {
+                transform: translate(
+                    var(--burn-in-x, 0px),
+                    var(--burn-in-y, 0px)
+                );
+                transition: transform 1s ease-in-out;
             }
         `,
     ],
     providers: [PanelStateService],
+    host: {
+        '[style.--burn-in-x]': 'burn_in()[0] + "px"',
+        '[style.--burn-in-y]': 'burn_in()[1] + "px"',
+        '(pointerdown)': 'stayAwake()',
+    },
     changeDetection: ChangeDetectionStrategy.Eager,
     imports: [
         PanelViewStatusComponent,
@@ -190,6 +212,45 @@ export class PanelViewComponent extends AsyncHandler {
         if (!since || now - since < 10 * 1000) return 0;
         return this._state.hasFeature('connection_badge') ? since : 0;
     });
+
+    /** Time the panel stays bright after a tap during night mode */
+    private _awake_until = signal(0);
+
+    /**
+     * Whether the `night_mode` feature dims the panel. Dims between
+     * `night_start` and `night_end` while no meeting is busy or pending.
+     */
+    public readonly dimmed = computed(() => {
+        const now = this._state.clock();
+        if (!this._state.hasFeature('night_mode')) return false;
+        if (now < this._awake_until()) return false;
+        if (['busy', 'pending'].includes(this._state.status())) return false;
+        return isNightTime(
+            now,
+            this._state.appSetting<string>('night_start'),
+            this._state.appSetting<string>('night_end'),
+        );
+    });
+
+    /** Pixel offset of the panel when the `burn_in_protection` feature is on */
+    public readonly burn_in = computed<[number, number]>(() => {
+        const now = this._state.clock();
+        if (!this._state.hasFeature('burn_in_protection')) return [0, 0];
+        return burnInOffset(now);
+    });
+
+    /** Keep the panel bright for 2 minutes. The waking tap does nothing else. */
+    public wake(event: Event) {
+        event.stopPropagation();
+        this._awake_until.set(Date.now() + 2 * 60 * 1000);
+    }
+
+    /** Restart the 2 minute wake time on each tap while awake */
+    public stayAwake() {
+        if (this._awake_until() > Date.now()) {
+            this._awake_until.set(Date.now() + 2 * 60 * 1000);
+        }
+    }
 
     public get hide_version() {
         return this._state.hasFeature('hide_version');
