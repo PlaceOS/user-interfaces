@@ -13,8 +13,8 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { startOfDay } from 'date-fns';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 import { AssetRequestDetailsComponent } from './asset-request-details.component';
 import { SplitJoinPipe } from './split-join.pipe';

@@ -4,7 +4,7 @@ import { MockProvider } from 'ng-mocks';
 import { defer, of } from 'rxjs';
 
 import { ActivatedRoute, Router } from '@angular/router';
-import { DateOptionsComponent } from '../../app/ui/date-options.component';
+import { DateOptionsComponent } from '../lib/date-options.component';
 
 describe('DateOptionsComponent', () => {
     let spectator: Spectator<DateOptionsComponent>;

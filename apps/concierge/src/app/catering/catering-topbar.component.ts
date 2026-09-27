@@ -24,7 +24,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { DateOptionsComponent } from '../ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 

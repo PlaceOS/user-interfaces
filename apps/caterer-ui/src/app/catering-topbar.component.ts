@@ -28,7 +28,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
 
 @Component({
     selector: 'catering-topbar',

@@ -15,12 +15,10 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import {
-    CustomTooltipComponent,
-    IconComponent,
-    TranslatePipe,
-} from '@placeos/components';
-import { DateCalendarComponent } from '@placeos/form-fields';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateCalendarComponent } from './date-calendar.component';
 import {
     addDays,
     endOfWeek,

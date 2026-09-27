@@ -20,8 +20,8 @@ import {
     EventDetailsModalComponent,
     SetupBreakdownModalComponent,
 } from '@placeos/events';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { UserPipe } from '@placeos/users';
-import { DateOptionsComponent } from '../ui/date-options.component';
 import { EventsStateService } from './events-state.service';
 
 @Component({

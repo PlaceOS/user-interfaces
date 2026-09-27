@@ -18,7 +18,7 @@ import { AvailableRoomsStateModalComponent } from '@placeos/components';
 import { MockComponent } from 'ng-mocks';
 import { Subject } from 'rxjs';
 
-import { DateOptionsComponent } from 'apps/concierge/src/app/ui/date-options.component';
+import { DateOptionsComponent } from '@placeos/form-fields';
 import { CateringTopbarComponent } from '../app/catering-topbar.component';
 
 class OrdersServiceStub {
