@@ -1,6 +1,8 @@
 {
     "COMMON": {
         "BACK": "Back",
+        "BACK_HOME": "Back to Home",
+        "UNDO": "Undo",
         "BACK_TO_FORM": "Back to form",
         "CONFIRM": "Confirm",
         "SUBMIT": "Submit",
@@ -739,6 +741,11 @@
         "ORDERS_EMPTY": "No catering orders for the selected date.",
         "ORDERS_DELIVER_TIME": "Deliver at {{ time }}",
         "ORDERS_LOCATION_EMPTY": "No Location",
+        "ORDERS_HOST_EMPTY": "Unknown Host",
+        "ORDERS_INVOICE_EMPTY": "No Invoice",
+        "ORDERS_LOAD_ERROR": "Unable to load catering orders. Trying again automatically.",
+        "ORDERS_STATUS_UPDATED": "Order marked as {{ status }}",
+        "ORDERS_STATUS_ERROR": "Unable to update the order status",
         "ORDERS_DELIVER_EXACT": "Exact Time",
         "ORDERS_DELIVER_EXACT_INFO": "Deliver at exactly specified time. \nNote that changes to the booking will not be \nreflected in the order if this is set.",
         "ORDERS_DELIVER_DATE": "Delivery Date",

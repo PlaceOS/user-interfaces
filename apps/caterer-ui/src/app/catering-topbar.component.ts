@@ -1,9 +1,10 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 
 import { MatDialog } from '@angular/material/dialog';
 import {
+    CateringOrderFilters,
     CateringOrdersService,
     CateringStateService,
     ChargeCodeListModalComponent,
@@ -38,7 +39,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                 icon
                 matRipple
                 class="h-12 w-12"
-                matTooltip="Back to Home"
+                [matTooltip]="'COMMON.BACK_HOME' | translate"
                 [routerLink]="['/']"
             >
                 <icon class="text-2xl">arrow_back</icon>
@@ -101,7 +102,10 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                         }}</mat-option>
                         @for (caterer of caterers(); track caterer) {
                             <mat-option [value]="caterer || '<empty>'">
-                                {{ caterer || '[No Caterer]' }}
+                                {{
+                                    caterer ||
+                                        ('CATERING.CATERER_EMPTY' | translate)
+                                }}
                             </mat-option>
                         }
                     </mat-select>
@@ -242,8 +246,10 @@ export class CateringTopbarComponent extends AsyncHandler {
         if (!Number.isFinite(date_value)) return;
         this._orders.filters = { ...this._orders.filters, date: date_value };
     };
-    public readonly setSearch = (str: string) =>
-        (this._orders.filters = { ...this._orders.filters, search: str });
+    public readonly setSearch = (search: string) => {
+        this._orders.filters = { ...this._orders.filters, search };
+        this._setQueryParams({ search: search || null });
+    };
     /** List of levels for the active building */
     public readonly updateZones = (z: string[]) => {
         this._router.navigate([], {
@@ -258,11 +264,14 @@ export class CateringTopbarComponent extends AsyncHandler {
     public readonly addItem = () => this._catering.addItem();
     public readonly editConfig = () => this._catering.editConfig();
     public readonly importMenu = () => this._catering.importMenu();
-    public readonly setCaterer = (caterer: string) =>
-        (this._orders.filters = { ...this._orders.filters, caterer });
+    public readonly setCaterer = (caterer: string) => {
+        this._orders.filters = { ...this._orders.filters, caterer };
+        this._setQueryParams({ caterer: caterer || null });
+    };
 
     constructor() {
         super();
+        this._restoreFilters();
 
         effect(() => {
             if (!this._org_initialised()) return;
@@ -319,5 +328,28 @@ export class CateringTopbarComponent extends AsyncHandler {
 
     public setChargeCodes() {
         this._dialog.open(ChargeCodeListModalComponent);
+    }
+
+    /**
+     * Apply the search and caterer filters from the URL.
+     * Only read on load, so slow navigation cannot overwrite what the user types.
+     */
+    private _restoreFilters() {
+        const params = this._route.snapshot.queryParamMap;
+        const restored: CateringOrderFilters = {};
+        if (params.get('search')) restored.search = params.get('search');
+        if (params.get('caterer')) restored.caterer = params.get('caterer');
+        if (!Object.keys(restored).length) return;
+        this._orders.filters = { ...this._orders.filters, ...restored };
+    }
+
+    /** Save filters to the URL without adding browser history entries */
+    private _setQueryParams(queryParams: Params) {
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams,
+            queryParamsHandling: 'merge',
+            replaceUrl: true,
+        });
     }
 }

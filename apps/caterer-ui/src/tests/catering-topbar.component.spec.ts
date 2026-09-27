@@ -132,6 +132,24 @@ describe('CateringTopbarComponent', () => {
         expect(orders.filters).toEqual({ search: 'coffee' });
     });
 
+    it('should save search and caterer filters to the URL', () => {
+        const navigate = vi.spyOn(spectator.inject(Router), 'navigate');
+        spectator.component.setSearch('tea');
+        spectator.component.setCaterer('');
+
+        expect(navigate).toHaveBeenCalledWith(
+            [],
+            expect.objectContaining({
+                queryParams: { search: 'tea' },
+                replaceUrl: true,
+            }),
+        );
+        expect(navigate).toHaveBeenCalledWith(
+            [],
+            expect.objectContaining({ queryParams: { caterer: null } }),
+        );
+    });
+
     it('should update date filters via setDate', () => {
         spectator.component.setDate(1234);
         expect(orders.filters).toEqual({ date: 1234 });
@@ -263,5 +281,27 @@ describe('CateringTopbarComponent', () => {
         spectator.setRouteParam('view', 'menu');
         spectator.detectChanges();
         expect(spectator.query('date-options')).toBeFalsy();
+    });
+});
+
+describe('CateringTopbarComponent with filters in the URL', () => {
+    const create_component = createRoutingFactory({
+        component: CateringTopbarComponent,
+        declarations: [MockComponent(DateOptionsComponent)],
+        imports: [MatFormFieldModule, MatSelectModule, FormsModule],
+        queryParams: { search: 'tea', caterer: 'Cafe' },
+        providers: [
+            { provide: CateringOrdersService, useClass: OrdersServiceStub },
+            { provide: CateringStateService, useClass: StateServiceStub },
+            { provide: OrganisationService, useClass: OrgServiceStub },
+            { provide: MatDialog, useValue: {} },
+        ],
+    });
+
+    it('should restore search and caterer filters from the URL', () => {
+        const spectator = create_component();
+        const orders = spectator.inject(CateringOrdersService);
+
+        expect(orders.filters).toEqual({ search: 'tea', caterer: 'Cafe' });
     });
 });

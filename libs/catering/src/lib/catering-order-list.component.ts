@@ -1,10 +1,18 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    CateringOrder,
+    CateringOrderStatus,
+    i18n,
+    notifyError,
+    notifySuccess,
+    SettingsService,
+} from '@placeos/common';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
@@ -22,6 +30,30 @@ import { statusList } from './catering.vars';
                 class="sticky top-0 left-0 w-full"
                 mode="indeterminate"
             ></mat-progress-bar>
+            @if (load_error()) {
+                <div
+                    load-error
+                    class="bg-error text-error-content mb-2 flex items-center space-x-2 rounded-sm px-4 py-2 text-sm"
+                >
+                    <icon class="text-xl">cloud_off</icon>
+                    <div class="flex-1">
+                        {{ 'CATERING.ORDERS_LOAD_ERROR' | translate }}
+                    </div>
+                    @if (last_updated()) {
+                        <div class="opacity-80">
+                            {{
+                                'COMMON.LAST_UPDATED'
+                                    | translate
+                                        : {
+                                              time:
+                                                  last_updated()
+                                                  | date: time_format(),
+                                          }
+                            }}
+                        </div>
+                    }
+                </div>
+            }
             <simple-table
                 class="block w-full min-w-6xl text-sm"
                 [data]="order_list()"
@@ -62,7 +94,7 @@ import { statusList } from './catering.vars';
                     {
                         key: 'invoice_number',
                         name: 'CATERING.INVOICE_NUMBER' | translate,
-                        empty: 'No Invoice',
+                        empty: 'CATERING.ORDERS_INVOICE_EMPTY' | translate,
                     },
                     {
                         key: 'status',
@@ -133,7 +165,9 @@ import { statusList } from './catering.vars';
                     <div>
                         {{ data?.organiser?.name || data?.host || '' }}
                         @if (!(data?.organiser?.name || data?.host)) {
-                            <span class="opacity-30"> Unknown Host </span>
+                            <span class="opacity-30">
+                                {{ 'CATERING.ORDERS_HOST_EMPTY' | translate }}
+                            </span>
                         }
                     </div>
                     <div class="text-xs opacity-30">
@@ -176,8 +210,10 @@ import { statusList } from './catering.vars';
             </ng-template>
             <ng-template #actions_template let-row="row">
                 <div class="mx-auto flex items-center space-x-2 p-2">
+                    <!-- Hover shows a preview. Click opens the row, which also works on touch screens. -->
                     <button
                         icon
+                        notes
                         matRipple
                         customTooltip
                         [hover]="true"
@@ -185,6 +221,8 @@ import { statusList } from './catering.vars';
                         yPosition="top"
                         [content]="notes_template"
                         [disabled]="!row.notes"
+                        [class.text-warning]="row.notes"
+                        (click)="toggleExpanded(row.id)"
                     >
                         <icon>description</icon>
                     </button>
@@ -212,6 +250,17 @@ import { statusList } from './catering.vars';
                 </div>
             </ng-template>
             <ng-template #child_template let-row="row">
+                @if (row?.notes) {
+                    <div
+                        order-notes
+                        class="bg-warning/20 mx-4 my-2 rounded-sm px-4 py-2 text-sm whitespace-pre-line"
+                    >
+                        <span class="font-medium">
+                            {{ 'FORM.NOTES' | translate }}:
+                        </span>
+                        {{ row.notes }}
+                    </div>
+                }
                 @if (row?.items.length) {
                     <ul class="relative z-0 m-0 w-full list-none p-0">
                         @for (item of row.items; track item; let i = $index) {
@@ -257,6 +306,10 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     public readonly order_list = this._orders.filtered;
     /** Whether order list is loading */
     public readonly loading = this._orders.loading;
+    /** Whether the latest load of orders failed */
+    public readonly load_error = this._orders.load_error;
+    /** Time of the latest successful load of orders */
+    public readonly last_updated = this._orders.last_updated;
 
     public readonly filters = this._orders.order_filters;
 
@@ -265,9 +318,27 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     public readonly statuses = signal(statusList());
     public readonly show_children = signal<Record<string, boolean>>({});
 
-    public readonly updateStatus = async (order, s) => {
-        await this._orders.updateStatus(order, s);
-        this.timeout('status-change', () => ((order as any).status = s));
+    /** Change the status of an order. Offer to undo when the save succeeds. */
+    public readonly updateStatus = async (
+        order: CateringOrder,
+        status: CateringOrderStatus,
+        can_undo = true,
+    ) => {
+        const previous = order.status;
+        if (previous === status) return;
+        try {
+            await this._orders.updateStatus(order, status);
+        } catch {
+            return notifyError(i18n('CATERING.ORDERS_STATUS_ERROR'));
+        }
+        if (!can_undo) return;
+        notifySuccess(
+            i18n('CATERING.ORDERS_STATUS_UPDATED', {
+                status: this.status(status)?.name || status,
+            }),
+            i18n('COMMON.UNDO'),
+            () => this.updateStatus(order, previous, false),
+        );
     };
 
     public readonly time_format = computed(() =>

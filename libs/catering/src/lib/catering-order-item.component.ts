@@ -4,7 +4,36 @@ import { OrderCateringItem } from '@placeos/common';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
-const ACTIVE_ITEMS = new Set<string>();
+const CHECKED_ITEMS_KEY = 'PLACEOS.catering.checked_items';
+/** Time to keep a checked item in storage. Orders are only shown for one day. */
+const CHECKED_ITEM_MAX_AGE = 2 * 24 * 60 * 60 * 1000;
+
+/** Read checked items from storage, without entries older than the max age */
+function readCheckedItems(): Record<string, number> {
+    const now = Date.now();
+    try {
+        const saved: Record<string, unknown> = JSON.parse(
+            localStorage.getItem(CHECKED_ITEMS_KEY) || '{}',
+        );
+        return Object.fromEntries(
+            Object.entries(saved).filter(
+                (entry): entry is [string, number] =>
+                    typeof entry[1] === 'number' &&
+                    now - entry[1] < CHECKED_ITEM_MAX_AGE,
+            ),
+        );
+    } catch {
+        return {};
+    }
+}
+
+/** Save the checked state of an order item on this device */
+function saveCheckedItem(key: string, checked: boolean) {
+    const items = readCheckedItems();
+    if (checked) items[key] = Date.now();
+    else delete items[key];
+    localStorage.setItem(CHECKED_ITEMS_KEY, JSON.stringify(items));
+}
 
 @Component({
     selector: '[catering-order-item]',
@@ -75,16 +104,12 @@ export class CateringOrderItemComponent implements OnInit {
     });
 
     public ngOnInit() {
-        this.active.set(ACTIVE_ITEMS.has(this.item_key()));
+        this.active.set(this.item_key() in readCheckedItems());
     }
 
     public toggle() {
-        if (ACTIVE_ITEMS.has(this.item_key())) {
-            ACTIVE_ITEMS.delete(this.item_key());
-            this.active.set(false);
-        } else {
-            ACTIVE_ITEMS.add(this.item_key());
-            this.active.set(true);
-        }
+        const checked = !this.active();
+        saveCheckedItem(this.item_key(), checked);
+        this.active.set(checked);
     }
 }

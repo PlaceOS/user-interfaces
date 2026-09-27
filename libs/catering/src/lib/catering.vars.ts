@@ -1,6 +1,15 @@
 import { i18n } from 'libs/common/src/lib/locale.service';
+import type { CateringOrderStatus } from './catering.interfaces';
 
-export function statusList() {
+/** Display details for a catering order status */
+export interface CateringStatusOption {
+    id: CateringOrderStatus;
+    name: string;
+    icon: { class: string };
+    colour: string;
+}
+
+export function statusList(): CateringStatusOption[] {
     return [
         {
             id: 'pending',
@@ -41,4 +50,4 @@ export function statusList() {
     ];
 }
 
-export const CATERING_STATUSES: any[] = statusList();
+export const CATERING_STATUSES = statusList();

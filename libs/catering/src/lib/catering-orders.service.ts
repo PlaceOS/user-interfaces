@@ -1,4 +1,11 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import {
+    computed,
+    effect,
+    inject,
+    Injectable,
+    signal,
+    untracked,
+} from '@angular/core';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 
 import {
@@ -8,17 +15,18 @@ import {
     CateringOrder,
     currentUser,
     flatten,
+    log,
     SettingsService,
     unique,
 } from '@placeos/common';
 
 import { OrganisationService } from '@placeos/common';
 import {
-    queryBookings,
+    queryBookingsOrThrow,
     updateBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
 import {
-    queryEvents,
+    queryEventsOrThrow,
     showEventMetadata,
     updateEventMetadata,
 } from 'libs/events/src/lib/events.fn';
@@ -36,6 +44,9 @@ export interface CateringOrderFilters {
     /** Caterer to filter orders on */
     caterer?: string;
 }
+
+/** Filters that change which orders the server returns */
+type CateringOrderQuery = Pick<CateringOrderFilters, 'date' | 'zones'>;
 
 const SPACE_PIPE = new SpacePipe();
 
@@ -95,11 +106,33 @@ export class CateringOrdersService extends AsyncHandler {
         caterer: '',
     });
     private _orders = signal<CateringOrder[]>([]);
+    private _load_error = signal<boolean>(false);
+    private _last_updated = signal<number>(0);
+    /** ID of the latest load request. Older responses are discarded. */
+    private _load_id = 0;
+    /** Query and building of the orders currently in the list */
+    private _loaded_key = '';
+    /** Only the filters that need new data from the server */
+    private readonly _query = computed<CateringOrderQuery>(
+        () => {
+            const { date, zones } = this._filters();
+            return { date, zones };
+        },
+        {
+            equal: (a, b) =>
+                a.date === b.date &&
+                (a.zones || []).join() === (b.zones || []).join(),
+        },
+    );
 
     /** Signal for list of orders */
     public readonly orders = this._orders.asReadonly();
     /** Signal for loading status of orders */
     public readonly loading = this._loading.asReadonly();
+    /** Whether the latest load of orders failed */
+    public readonly load_error = this._load_error.asReadonly();
+    /** Time of the latest successful load of orders */
+    public readonly last_updated = this._last_updated.asReadonly();
 
     public readonly order_filters = this._filters.asReadonly();
 
@@ -152,10 +185,10 @@ export class CateringOrdersService extends AsyncHandler {
         this._space_pipe.org = this._org;
         effect(() => {
             const building = this._org.active_building();
-            const filters = this._filters();
+            const query = this._query();
             this._poll();
             if (!building?.id) return;
-            this._loadOrders(filters);
+            untracked(() => this._loadOrders(query, building.id));
         });
     }
 
@@ -175,7 +208,8 @@ export class CateringOrdersService extends AsyncHandler {
     }
 
     /**
-     * Update the status of the order
+     * Update the status of the order.
+     * The order shows the new status at once and reverts if the save fails.
      * @param order Order to update
      * @param status New order status
      */
@@ -183,7 +217,20 @@ export class CateringOrdersService extends AsyncHandler {
         order: CateringOrder,
         status: CateringOrderStatus,
     ) {
+        const previous = order.status;
         order.status = status;
+        try {
+            return await this._saveStatus(order, status);
+        } catch (error) {
+            order.status = previous;
+            throw error;
+        }
+    }
+
+    private async _saveStatus(
+        order: CateringOrder,
+        status: CateringOrderStatus,
+    ) {
         const updated_order = new CateringOrder({
             ...order,
             status,
@@ -224,30 +271,42 @@ export class CateringOrdersService extends AsyncHandler {
             });
         }
         this.timeout('refresh-list', () => this._poll.set(Date.now()), 1000);
-        order.status = status;
         return booking;
     }
 
-    private async _loadOrders(filters: CateringOrderFilters) {
+    private async _loadOrders(query: CateringOrderQuery, building_id: string) {
+        const load_id = ++this._load_id;
+        const day = format(query.date || Date.now(), 'yyyy-MM-dd');
+        const key = `${building_id}|${day}|${(query.zones || []).join()}`;
         this._loading.set(true);
-        const orders = this.using_bookings
-            ? await this._loadBookingOrders(filters)
-            : await this._loadEmbeddedOrders(filters);
-        const start = startOfDay(filters.date || Date.now());
-        this._orders.set(
-            unique(
-                orders.filter(
-                    (o) =>
-                        format(o.deliver_at, 'yyyy-MM-dd') ===
-                        format(start, 'yyyy-MM-dd'),
+        try {
+            const orders = this.using_bookings
+                ? await this._loadBookingOrders(query)
+                : await this._loadEmbeddedOrders(query);
+            if (load_id !== this._load_id) return;
+            this._orders.set(
+                unique(
+                    orders.filter(
+                        (o) => format(o.deliver_at, 'yyyy-MM-dd') === day,
+                    ),
+                    'id',
                 ),
-                'id',
-            ),
-        );
-        this._loading.set(false);
+            );
+            this._loaded_key = key;
+            this._load_error.set(false);
+            this._last_updated.set(Date.now());
+        } catch (error) {
+            if (load_id !== this._load_id) return;
+            log('Catering', 'Failed to load catering orders', error, 'error');
+            // Keep the old list only when it is for the same day and zones
+            if (this._loaded_key !== key) this._orders.set([]);
+            this._load_error.set(true);
+        } finally {
+            if (load_id === this._load_id) this._loading.set(false);
+        }
     }
 
-    private async _loadEmbeddedOrders({ date, zones }: CateringOrderFilters) {
+    private async _loadEmbeddedOrders({ date, zones }: CateringOrderQuery) {
         const start = getUnixTime(startOfDay(date || Date.now()));
         const end = getUnixTime(endOfDay(date || Date.now()));
         if (!zones?.length) {
@@ -255,11 +314,11 @@ export class CateringOrdersService extends AsyncHandler {
                 ? [this._org.region?.id]
                 : [this._org.building?.id];
         }
-        const events = await queryEvents({
+        const events = await queryEventsOrThrow({
             zone_ids: (zones || []).join(','),
             period_start: start,
             period_end: end,
-        }).catch(() => []);
+        });
         const orders = flatten(
             events.map((event) =>
                 event.valid_catering.map(
@@ -271,7 +330,7 @@ export class CateringOrdersService extends AsyncHandler {
         return orders;
     }
 
-    private async _loadBookingOrders({ date, zones }: CateringOrderFilters) {
+    private async _loadBookingOrders({ date, zones }: CateringOrderQuery) {
         const start = getUnixTime(startOfDay(date || Date.now()));
         const end = getUnixTime(endOfDay(date || Date.now()));
         if (!zones?.length) {
@@ -279,12 +338,12 @@ export class CateringOrdersService extends AsyncHandler {
                 ? [this._org.region.id]
                 : [this._org.building.id];
         }
-        const bookings = await queryBookings({
+        const bookings = await queryBookingsOrThrow({
             type: 'catering-order',
             zones: (zones || []).join(','),
             period_start: start,
             period_end: end,
-        }).catch(() => [] as Booking[]);
+        });
         const orders = flatten(
             bookings.map((bkn) => {
                 const order = new CateringOrder({
