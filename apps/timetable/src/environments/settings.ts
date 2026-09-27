@@ -12,6 +12,9 @@ const app: any = {
     block_end: 24,
     use_24_hour_time: false,
     eink_mode: false,
+    page_interval: 20,
+    night_mode: false,
+    burn_in_protection: false,
     analytics: {
         enabled: true,
         tracking_id: '',

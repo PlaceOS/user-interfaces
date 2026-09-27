@@ -42,6 +42,18 @@
             "type": "boolean",
             "description": "Whether to limit screen updates for e-ink panels. The clock and current-time line update once per minute and animations are off. The `eink` URL query parameter overrides this setting. Defaults to `false`"
         },
+        "page_interval": {
+            "type": "number",
+            "description": "Seconds between pages when more spaces are selected than fit on the screen. Set to `0` to scroll instead. E-ink mode uses a minimum of 60 seconds. Defaults to `20`"
+        },
+        "night_mode": {
+            "type": "boolean",
+            "description": "Whether to cover the grid with a dark screen and a small clock outside the displayed hours. Defaults to `false`"
+        },
+        "burn_in_protection": {
+            "type": "boolean",
+            "description": "Whether to move the UI by a few pixels every 10 minutes to prevent screen burn-in. Not used in e-ink mode. Defaults to `false`"
+        },
         "analytics": {
             "type": "object",
             "description": "Google Analytics settings",

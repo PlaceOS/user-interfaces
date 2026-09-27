@@ -30,6 +30,21 @@ In these conditions, the app shows "Booked".
 - The grid scrolls the current time into view when the app starts. It does this again every 5 minutes. After user input, the app waits for 2 minutes before it scrolls.
 - The top bar shows an "Offline since" badge when the connection to PlaceOS is lost.
 
+## Pages
+
+Each space column is a minimum of 20rem wide. When more spaces are selected than fit on the screen, the app divides the spaces into pages. The app shows the next page after `page_interval` seconds. Dots in the top bar show the current page. Tap a dot to show that page. After user input on the grid, the app waits for `page_interval` seconds before it shows the next page.
+
+Set `page_interval` to `0` to show all spaces on one page. The grid then scrolls horizontally.
+
+## Screen protection
+
+Displays that show the same image for a long time can get burn-in.
+
+- When `night_mode` is `true`, the app covers the grid with a black screen outside the hours from `block_start` to `block_end`. The screen shows a small clock that moves every 10 minutes. With the default hours (0 to 24), night mode has no effect.
+- When `burn_in_protection` is `true`, the app moves the full UI by up to 2 pixels every 10 minutes.
+
+E-ink panels do not get burn-in. In e-ink mode, the app does not move the UI, and the night clock stays in the center.
+
 ## E-ink panels
 
 E-ink panels can take many seconds to redraw. Use e-ink mode on these panels. In e-ink mode, the app does these things:
@@ -37,6 +52,7 @@ E-ink panels can take many seconds to redraw. Use e-ink mode on these panels. In
 - It updates the clock, the current-time line and the space status one time each minute.
 - It scrolls the grid without animation.
 - It stops all CSS animations and transitions.
+- It shows the next page of spaces a minimum of 60 seconds after the last page change, at the same time as the clock update.
 
 To use e-ink mode on all displays in a zone, set `eink_mode` to `true`. To use e-ink mode on one display, add `eink=true` to the URL. The URL parameter overrides the setting, so `eink=false` turns off e-ink mode on one display.
 
@@ -56,6 +72,9 @@ Set settings in Backoffice zone metadata under `timetable_app` for the standard 
 | `short_name` | string | `"TIMETABLE"` | Short name for the application. Used in page titles and API request headers. |
 | `use_24_hour_time` | boolean | `false` | Whether to show times in 24-hour format. |
 | `eink_mode` | boolean | `false` | Whether to limit screen updates for e-ink panels. See [E-ink panels](#e-ink-panels). |
+| `page_interval` | number | `20` | Seconds between pages when more spaces are selected than fit on the screen. Set to `0` to scroll instead. See [Pages](#pages). |
+| `night_mode` | boolean | `false` | Whether to cover the grid with a dark screen and a small clock outside the displayed hours. See [Screen protection](#screen-protection). |
+| `burn_in_protection` | boolean | `false` | Whether to move the UI by a few pixels every 10 minutes. See [Screen protection](#screen-protection). |
 
 ## Branding
 
