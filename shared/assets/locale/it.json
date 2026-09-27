@@ -1793,6 +1793,8 @@
             "UPCOMING": "Imminente",
             "NO_CURRENT": "Nessun evento in corso",
             "NO_UPCOMING": "Nessun evento imminente",
+            "ENDING_AT": "termina alle {{ time }}",
+            "STARTING_AT": "inizia alle {{ time }}",
             "BOOTSTRAP_TITLE": "PlaceOS Booking Panel",
             "FREE_IN_HOURS_AND_MINUTES": "Libera tra {{ hour }} ore e {{ minute }} minuti",
             "FREE_IN_MINUTES": "Libera tra {{ minute }} minuti",

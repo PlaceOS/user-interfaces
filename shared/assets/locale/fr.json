@@ -1793,6 +1793,8 @@
             "UPCOMING": "À venir",
             "NO_CURRENT": "Aucun événement en cours",
             "NO_UPCOMING": "Aucun événement à venir",
+            "ENDING_AT": "se termine à {{ time }}",
+            "STARTING_AT": "commence à {{ time }}",
             "BOOTSTRAP_TITLE": "Panneau de réservation PlaceOS",
             "FREE_IN_HOURS_AND_MINUTES": "Libre dans {{ hour }} heures et {{ minute }} minutes",
             "FREE_IN_MINUTES": "Libre dans {{ minute }} minutes",

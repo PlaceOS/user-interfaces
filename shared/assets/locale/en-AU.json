@@ -2817,6 +2817,8 @@
             "UPCOMING": "Upcoming",
             "NO_CURRENT": "No current events",
             "NO_UPCOMING": "No upcoming events",
+            "ENDING_AT": "ending @ {{ time }}",
+            "STARTING_AT": "starting @ {{ time }}",
             "BOOTSTRAP_TITLE": "Booking Panel",
             "FREE_IN_HOURS_AND_MINUTES": "Free in {{ hour }} hours and {{ minute }} minutes",
             "FREE_IN_MINUTES": "Free in {{ minute }} minutes",

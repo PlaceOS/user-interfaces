@@ -1793,6 +1793,8 @@
             "UPCOMING": "Próximos",
             "NO_CURRENT": "No hay eventos actuales",
             "NO_UPCOMING": "No hay eventos próximos",
+            "ENDING_AT": "termina a las {{ time }}",
+            "STARTING_AT": "empieza a las {{ time }}",
             "BOOTSTRAP_TITLE": "Panel de Reservas de PlaceOS",
             "FREE_IN_HOURS_AND_MINUTES": "Libre en {{ hour }} horas y {{ minute }} minutos",
             "FREE_IN_MINUTES": "Libre en {{ minute }} minutos",

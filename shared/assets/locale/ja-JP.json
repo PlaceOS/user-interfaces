@@ -1793,6 +1793,8 @@
             "UPCOMING": "今後の予定",
             "NO_CURRENT": "現在のイベントはありません",
             "NO_UPCOMING": "今後のイベントはありません",
+            "ENDING_AT": "{{ time }} に終了",
+            "STARTING_AT": "{{ time }} に開始",
             "BOOTSTRAP_TITLE": "PlaceOS予約パネル",
             "FREE_IN_HOURS_AND_MINUTES": "{{ hour }}時間{{ minute }}分後に空きます",
             "FREE_IN_MINUTES": "{{ minute }}分後に空きます",

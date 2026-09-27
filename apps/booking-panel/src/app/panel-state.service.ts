@@ -72,7 +72,7 @@ export interface PanelSettings {
     min_duration?: number;
     /** Maximum duration for a booking */
     max_duration?: number;
-    /** Duration in seconds after the start with which to cancel pending bookings */
+    /** Duration in minutes after the start with which to cancel pending bookings */
     pending_period?: number;
     /** Whether user is allowed to interact with the interface */
     disable_book_now?: boolean;
@@ -280,7 +280,9 @@ export class PanelStateService extends AsyncHandler {
         if (!pending_period || pending_period < 1) return;
         const diff = differenceInMinutes(Date.now(), current.date);
         if (diff <= pending_period) return;
-        this.endCurrent('Pending period expired.');
+        this.endCurrent('Pending period expired.').catch((e) =>
+            log('Panel', 'Error auto-ending pending meeting:', e, 'error'),
+        );
     }
 
     private async _init() {
@@ -506,7 +508,7 @@ export class PanelStateService extends AsyncHandler {
             {
                 title: 'Do you wish to start your meeting?',
                 content: `If you don't start your meeting it will be cancelled ${
-                    this._settings().pending_period / 60
+                    this._settings().pending_period
                 } minutes after the start time.`,
                 icon: {
                     class: 'material-symbols-rounded',
@@ -532,9 +534,11 @@ export class PanelStateService extends AsyncHandler {
         const meeting = this._current() || this._next();
         const mod = getModule(this.system, 'Bookings');
         if (!meeting || !mod) return;
-        await mod
-            .execute('start_meeting', [getUnixTime(meeting.date)])
-            .catch((e) => notifyError(`Error starting meeting. ${e}`));
+        try {
+            await mod.execute('start_meeting', [getUnixTime(meeting.date)]);
+        } catch (e) {
+            return notifyError(`Error starting meeting. ${e}`);
+        }
         this.updateProperty('status', 'busy');
     }
 
@@ -561,31 +565,26 @@ export class PanelStateService extends AsyncHandler {
         );
         if (details.reason !== 'done') return;
         details.loading('Ending Meeting...');
-        await this.endCurrent().catch();
+        await this.endCurrent().catch((e) =>
+            notifyError(`Error ending meeting. ${e?.message || e}`),
+        );
         details.close();
         this.clearTimeout('reset_view');
     }
 
     /**
-     * End the current meeting
+     * End the current meeting. Rejects when the driver call fails.
      * @param reason Reason for ending the meeting early
      */
     public async endCurrent(reason = 'user_input') {
         const current = this._current();
         const module = getModule(this.system, 'Bookings');
-        if (current && module) {
-            await module
-                .execute('end_meeting', [
-                    getUnixTime(current.date),
-                    true,
-                    reason,
-                ])
-                .catch((e) => {
-                    // notifyError(
-                    //     `Error ending meeting. ${e.message || e.error || e}`
-                    // )
-                });
-        }
+        if (!current || !module) return;
+        await module.execute('end_meeting', [
+            getUnixTime(current.date),
+            true,
+            reason,
+        ]);
     }
     /**
      * Open confirmation modal for calling waiter

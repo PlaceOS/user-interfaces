@@ -57,66 +57,45 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ 'APP.BOOKING_PANEL.NOW' | translate }}
                     </div>
                     <div class="">
-                        @if (event_state()?.current?.length) {
-                            @if (event_state()?.current[0]) {
-                                @if (event_state()?.current[1] > 0) {
+                        @let cur = event_state()?.current;
+                        @if (cur?.length) {
+                            @if (cur[0]) {
+                                @if (cur[1] > 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
-                                                      hour: event_state()
-                                                          ?.current[1],
-                                                      minute: event_state()
-                                                          ?.current[2],
+                                                      hour: cur[1],
+                                                      minute: cur[2],
                                                   }
                                     }}
-                                }
-                                @if (event_state()?.current[1] <= 0) {
+                                } @else if (cur[2] > 1) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_MINUTES'
-                                            | translate
-                                                : {
-                                                      minute: event_state()
-                                                          ?.current[2],
-                                                  }
+                                            | translate: { minute: cur[2] }
                                     }}
-                                }
-                                @if (
-                                    event_state()?.current[1] <= 0 &&
-                                    event_state()?.current[2] <= 1
-                                ) {
+                                } @else {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_IN_LESS_THAN_MINUTE'
                                             | translate
                                     }}
                                 }
                             } @else {
-                                @if (event_state()?.current[1]) {
+                                @if (cur[1] > 0) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_HOURS_AND_MINUTES'
                                             | translate
                                                 : {
-                                                      hour: event_state()
-                                                          ?.current[1],
-                                                      minute: event_state()
-                                                          ?.current[2],
+                                                      hour: cur[1],
+                                                      minute: cur[2],
                                                   }
                                     }}
-                                }
-                                @if (!event_state()?.current[1]) {
+                                } @else if (cur[2] > 1) {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_MINUTES'
-                                            | translate
-                                                : {
-                                                      minute: event_state()
-                                                          ?.current[2],
-                                                  }
+                                            | translate: { minute: cur[2] }
                                     }}
-                                }
-                                @if (
-                                    !event_state()?.current[1] &&
-                                    event_state()?.current[2] < 1
-                                ) {
+                                } @else {
                                     {{
                                         'APP.BOOKING_PANEL.FREE_FOR_LESS_THAN_MINUTE'
                                             | translate
@@ -157,7 +136,10 @@ import { CheckinTimetableComponent } from './checkin-timetable.component';
                         {{ 'COMMON.NEXT' | translate }}
                     </div>
                     <div class="">
-                        {{ event_state()?.next || 'No upcoming event' }}
+                        {{
+                            event_state()?.next ||
+                                ('APP.BOOKING_PANEL.NO_UPCOMING' | translate)
+                        }}
                     </div>
                 </div>
                 @if (!event_state()?.next && can_book()) {

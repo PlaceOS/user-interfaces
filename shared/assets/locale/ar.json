@@ -1793,6 +1793,8 @@
             "UPCOMING": "القادم",
             "NO_CURRENT": "لا توجد أحداث حالية",
             "NO_UPCOMING": "لا توجد أحداث قادمة",
+            "ENDING_AT": "ينتهي عند {{ time }}",
+            "STARTING_AT": "يبدأ عند {{ time }}",
             "BOOTSTRAP_TITLE": "لوحة حجز PlaceOS",
             "FREE_IN_HOURS_AND_MINUTES": "متاح خلال {{ hour }} ساعة و {{ minute }} دقيقة",
             "FREE_IN_MINUTES": "متاح خلال {{ minute }} دقيقة",
