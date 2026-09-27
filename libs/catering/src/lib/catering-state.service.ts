@@ -178,6 +178,76 @@ export class CateringStateService extends AsyncHandler {
         );
     }
 
+    /**
+     * Open a copy of an item in the item form.
+     * The copy is only saved when the user saves the form.
+     */
+    public duplicateItem(item: CateringItem) {
+        return this.addItem(
+            new CateringItem({
+                ...item,
+                id: '',
+                name: i18n('CATERING.ITEM_COPY_NAME', { name: item.name }),
+            }),
+        );
+    }
+
+    /**
+     * Allow or stop ordering of items from a zone, after the user confirms.
+     * Saves one item at a time and skips items that do not need a change.
+     */
+    public async setItemsEnabled(
+        items: readonly CateringItem[],
+        zone: string,
+        enabled: boolean,
+    ) {
+        const changed = items.filter(
+            (item) => item.hide_for_zones.includes(zone) === enabled,
+        );
+        if (!changed.length) return;
+        const details = await openConfirmModal(
+            {
+                title: i18n(
+                    enabled
+                        ? 'CATERING.MENU_ALLOW_ALL'
+                        : 'CATERING.MENU_STOP_ALL',
+                ),
+                content: i18n('CATERING.MENU_BULK_CONFIRM', {
+                    count: changed.length,
+                }),
+                icon: {
+                    type: 'icon',
+                    class: 'material-symbols-outlined',
+                    content: enabled ? 'check_box' : 'disabled_by_default',
+                },
+            },
+            this._dialog,
+        );
+        if (details.reason !== 'done') return;
+        details.loading(i18n('CATERING.ITEM_SAVING'));
+        let failed = 0;
+        for (const item of changed) {
+            const hide_for_zones = enabled
+                ? item.hide_for_zones.filter((id) => id !== zone)
+                : [...item.hide_for_zones, zone];
+            try {
+                const saved = await saveCateringItem(
+                    new CateringItem({ ...item, hide_for_zones }),
+                    this._org.building.id,
+                );
+                this._menu.set(
+                    this._menu().map((itm) =>
+                        itm.id === item.id ? saved : itm,
+                    ),
+                );
+            } catch {
+                failed++;
+            }
+        }
+        details.close();
+        if (failed) notifyError(i18n('CATERING.ITEM_SAVE_ERROR'));
+    }
+
     public async addOption(
         item: CateringItem,
         option: CateringOption = {} as any,
