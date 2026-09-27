@@ -236,4 +236,37 @@ describe('CateringOrdersService', () => {
         spectator.service.filters = { search: 'tea' };
         expect(spectator.service.filtered()).toEqual([]);
     });
+
+    it('should report orders added since the previous poll', async () => {
+        const changes = vi.fn();
+        spectator.service.order_changes.subscribe(changes);
+        const event = (id: string, order_id: string) => ({
+            id,
+            event_start: Math.floor(Date.now() / 1000),
+            extension_data: {
+                catering: [
+                    {
+                        id: order_id,
+                        items: [{ id: 'coffee', name: 'Coffee', quantity: 1 }],
+                    },
+                ],
+            },
+        });
+        vi.mocked(ts_client.get).mockResolvedValue([event('e1', 'o1')] as any);
+        await loadOrders();
+        expect(changes).not.toHaveBeenCalled();
+
+        vi.mocked(ts_client.get).mockResolvedValue([
+            event('e1', 'o1'),
+            event('e2', 'o2'),
+        ] as any);
+        spectator.service.startPolling(10);
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        TestBed.tick();
+        await flush();
+        spectator.service.stopPolling();
+
+        expect(changes).toHaveBeenCalledTimes(1);
+        expect(changes.mock.calls[0][0].added.map((o) => o.id)).toEqual(['o2']);
+    });
 });

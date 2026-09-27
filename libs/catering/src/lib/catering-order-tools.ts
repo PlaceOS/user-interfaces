@@ -24,6 +24,12 @@ export interface DeliveryRun {
     orders: CateringOrder[];
 }
 
+/** Orders that changed between two loads of the same day */
+export interface OrderChanges {
+    added: CateringOrder[];
+    cancelled: CateringOrder[];
+}
+
 /** Room name or location text of an order */
 export function orderLocation(order: CateringOrder) {
     const space =
@@ -114,6 +120,25 @@ export function deliveryRuns(
         runs.set(level.id, run);
     }
     return [...runs.values()];
+}
+
+/** Find orders that are new or cancelled since the previous load */
+export function diffOrders(
+    previous: readonly CateringOrder[],
+    next: readonly CateringOrder[],
+): OrderChanges {
+    const before = new Map(previous.map((order) => [order.id, order.status]));
+    return {
+        added: next.filter(
+            (order) => !before.has(order.id) && order.status !== 'cancelled',
+        ),
+        cancelled: next.filter(
+            (order) =>
+                order.status === 'cancelled' &&
+                before.has(order.id) &&
+                before.get(order.id) !== 'cancelled',
+        ),
+    };
 }
 
 /**

@@ -1,6 +1,10 @@
 import { CateringItem, CateringOrder } from '@placeos/common';
 
-import { deliveryRuns, prepSummary } from '../lib/catering-order-tools';
+import {
+    deliveryRuns,
+    diffOrders,
+    prepSummary,
+} from '../lib/catering-order-tools';
 
 const item = (name: string, quantity: number, options: string[] = []) =>
     new CateringItem({
@@ -66,5 +70,19 @@ describe('catering order tools', () => {
             '1',
             '3',
         ]);
+    });
+
+    it('should find new and cancelled orders', () => {
+        const previous = [order('1', 'accepted', []), order('2', 'ready', [])];
+        const next = [
+            order('1', 'cancelled', []),
+            order('2', 'ready', []),
+            order('3', 'pending', []),
+        ];
+
+        const changes = diffOrders(previous, next);
+
+        expect(changes.added.map((o) => o.id)).toEqual(['3']);
+        expect(changes.cancelled.map((o) => o.id)).toEqual(['1']);
     });
 });

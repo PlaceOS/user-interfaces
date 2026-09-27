@@ -9,6 +9,7 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import {
+    CateringOrderAlertsService,
     CateringOrdersService,
     CateringStateService,
     ChargeCodeListModalComponent,
@@ -69,6 +70,10 @@ describe('CateringTopbarComponent', () => {
             { provide: CateringOrdersService, useClass: OrdersServiceStub },
             { provide: CateringStateService, useClass: StateServiceStub },
             { provide: OrganisationService, useClass: OrgServiceStub },
+            {
+                provide: CateringOrderAlertsService,
+                useValue: { enabled: signal(false), setEnabled: vi.fn() },
+            },
             { provide: MatDialog, useFactory: () => dialog },
         ],
     });
@@ -294,6 +299,10 @@ describe('CateringTopbarComponent with filters in the URL', () => {
             { provide: CateringOrdersService, useClass: OrdersServiceStub },
             { provide: CateringStateService, useClass: StateServiceStub },
             { provide: OrganisationService, useClass: OrgServiceStub },
+            {
+                provide: CateringOrderAlertsService,
+                useValue: { enabled: signal(false), setEnabled: vi.fn() },
+            },
             { provide: MatDialog, useValue: {} },
         ],
     });

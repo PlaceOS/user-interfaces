@@ -1,5 +1,6 @@
 export * from './lib/catering-list-field.component';
 export * from './lib/catering-menu.component';
+export * from './lib/catering-order-alerts.service';
 export * from './lib/catering-order-list.component';
 export * from './lib/catering-order-modal/catering-order-state.service';
 export * from './lib/catering-order-tools';

@@ -4,6 +4,7 @@ import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 
 import { MatDialog } from '@angular/material/dialog';
 import {
+    CateringOrderAlertsService,
     CateringOrderFilters,
     CateringOrdersService,
     CateringStateService,
@@ -192,6 +193,26 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                 >
                     <icon class="text-2xl">summarize</icon>
                 </button>
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12"
+                    [matTooltip]="
+                        (alerts_on()
+                            ? 'CATERING.ALERTS_OFF'
+                            : 'CATERING.ALERTS_ON'
+                        ) | translate
+                    "
+                    (click)="toggleAlerts()"
+                >
+                    <icon class="text-2xl">
+                        {{
+                            alerts_on()
+                                ? 'notifications_active'
+                                : 'notifications_off'
+                        }}
+                    </icon>
+                </button>
             }
         </div>
     `,
@@ -224,6 +245,7 @@ export class CateringTopbarComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
+    private _alerts = inject(CateringOrderAlertsService);
 
     private readonly _org_initialised = this._org.initialised;
     private readonly _param_map = toSignal(this._route.paramMap, {
@@ -248,6 +270,7 @@ export class CateringTopbarComponent extends AsyncHandler {
     public readonly show_summary = computed(
         () => this._query_param_map().get('summary') === 'true',
     );
+    public readonly alerts_on = this._alerts.enabled;
     public readonly caterers = this._catering.caterers;
     public readonly building = this._org.active_building;
     public readonly use_region = settingSignal('use_region', false);
@@ -350,6 +373,10 @@ export class CateringTopbarComponent extends AsyncHandler {
 
     public toggleSummary() {
         this._setQueryParams({ summary: this.show_summary() ? null : 'true' });
+    }
+
+    public toggleAlerts() {
+        return this._alerts.setEnabled(!this.alerts_on());
     }
 
     /**

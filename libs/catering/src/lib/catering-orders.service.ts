@@ -32,7 +32,13 @@ import {
 } from 'libs/events/src/lib/events.fn';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { newCalendarEventFromBooking } from 'libs/events/src/lib/utilities';
-import { orderHost, orderLocation } from './catering-order-tools';
+import { Subject } from 'rxjs';
+import {
+    diffOrders,
+    OrderChanges,
+    orderHost,
+    orderLocation,
+} from './catering-order-tools';
 import { CateringOrderStatus } from './catering.interfaces';
 import {
     CateringStatusFilter,
@@ -138,6 +144,8 @@ export class CateringOrdersService extends AsyncHandler {
     public readonly load_error = this._load_error.asReadonly();
     /** Time of the latest successful load of orders */
     public readonly last_updated = this._last_updated.asReadonly();
+    /** Orders that are new or cancelled since the previous poll of the same day */
+    public readonly order_changes = new Subject<OrderChanges>();
 
     public readonly order_filters = this._filters.asReadonly();
 
@@ -320,6 +328,12 @@ export class CateringOrdersService extends AsyncHandler {
                 ),
                 'id',
             );
+            if (this._loaded_key === key) {
+                const changes = diffOrders(this._orders(), next);
+                if (changes.added.length || changes.cancelled.length) {
+                    this.order_changes.next(changes);
+                }
+            }
             this._orders.set(next);
             this._loaded_key = key;
             this._load_error.set(false);
