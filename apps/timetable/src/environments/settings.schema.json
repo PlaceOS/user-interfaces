@@ -26,11 +26,6 @@
             "description": "Logo displayed in the top bar when the dark theme is active. Either an image URL string or an icon object with a `src`",
             "anyOf": [{ "type": "string" }, { "$ref": "#/$defs/icon" }]
         },
-        "features": {
-            "type": "array",
-            "description": "List of feature flags enabled for the application",
-            "items": { "type": "string" }
-        },
         "block_start": {
             "type": "number",
             "description": "First hour of the day (0-24) displayed on the timetable grid. Defaults to `0`"
@@ -39,27 +34,9 @@
             "type": "number",
             "description": "Last hour of the day (0-24) displayed on the timetable grid. Defaults to `24`"
         },
-        "can_deliver": {
+        "use_24_hour_time": {
             "type": "boolean",
-            "description": "Whether delivery options are available"
-        },
-        "hide_contacts": {
-            "type": "boolean",
-            "description": "Whether to hide contact details in the app"
-        },
-        "desks": {
-            "type": "object",
-            "description": "Data associated with desk booking flow",
-            "properties": {
-                "can_book_for_others": {
-                    "type": "boolean",
-                    "description": "Whether user is allowed to make desk bookings on behalf of other users"
-                },
-                "allow_groups": {
-                    "type": "boolean",
-                    "description": "Whether users are allowed to make group desk bookings"
-                }
-            }
+            "description": "Whether to show times in 24-hour format. Defaults to `false`"
         },
         "analytics": {
             "type": "object",

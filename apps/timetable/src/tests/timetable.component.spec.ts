@@ -17,6 +17,7 @@ describe('AppTimetableComponent', () => {
         providers: [
             MockProvider(SettingsService, {
                 get: vi.fn(),
+                time_format_signal: signal('h:mm a'),
             }),
             MockProvider(OrganisationService, {
                 active_building: signal(null),

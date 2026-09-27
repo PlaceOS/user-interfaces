@@ -51,4 +51,23 @@ describe('SpaceTimetableComponent', () => {
             ['b', 30, 20, 50, 50],
         ]);
     });
+
+    it('should report when the room status changes today', () => {
+        const day = new Date(2026, 0, 1).valueOf();
+        const time = (hour: number) => new Date(2026, 0, 1, hour).valueOf();
+        const at = (hour: number) => Math.floor(time(hour) / 1000);
+        spectator.component.updateBookings([
+            { id: 'a', event_start: at(10), event_end: at(11) },
+            { id: 'b', event_start: at(11), event_end: at(12) },
+            { id: 'tomorrow', event_start: at(33), event_end: at(34) },
+        ]);
+        const statusAt = (hour: number) => {
+            spectator.setInput({ day, now: time(hour) });
+            return spectator.component.status();
+        };
+
+        expect(statusAt(9)).toEqual({ busy: false, until: time(10) });
+        expect(statusAt(10.5)).toEqual({ busy: true, until: time(12) });
+        expect(statusAt(13)).toEqual({ busy: false, until: 0 });
+    });
 });

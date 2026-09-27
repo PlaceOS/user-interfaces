@@ -8,17 +8,13 @@ const app: any = {
     short_name: 'TIMETABLE',
     logo_light: 'assets/logo-light.svg',
     logo_dark: 'assets/logo-dark.svg',
-    features: ['spaces', 'desks', 'explore', 'help', 'schedule'],
-    can_deliver: true,
-    desks: {
-        can_book_for_others: true,
-        allow_groups: true,
-    },
+    block_start: 0,
+    block_end: 24,
+    use_24_hour_time: false,
     analytics: {
         enabled: true,
         tracking_id: '',
     },
-    hide_contacts: false,
 };
 
 /**

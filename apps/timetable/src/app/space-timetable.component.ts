@@ -1,7 +1,8 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, input, signal } from '@angular/core';
 import { AsyncHandler, CalendarEvent, Space } from '@placeos/common';
 import { BindingDirective } from '@placeos/components';
-import { setHours } from 'date-fns';
+import { endOfDay, setHours } from 'date-fns';
 import { SpaceEventDetailsComponent } from './space-event-details.component';
 
 /** Booking positioned on the grid. Values are percentages of the column */
@@ -25,10 +26,32 @@ export interface TimetableBlock {
                 bind="bookings"
                 (modelChange)="updateBookings($event)"
             ></i>
+            <i
+                binding
+                class="hidden"
+                [sys]="space().id"
+                mod="Bookings"
+                bind="hide_meeting_title"
+                (modelChange)="hide_titles.set(!!$event)"
+            ></i>
             <div
-                class="border-base-300 bg-base-100 flex min-h-12 w-full items-center justify-center border-b text-xl font-medium"
+                class="border-base-300 bg-base-100 sticky top-0 z-10 flex min-h-12 w-full flex-col items-center justify-center border-b"
             >
-                {{ space().display_name || space().name }}
+                <div class="text-xl font-medium">
+                    {{ space().display_name || space().name }}
+                </div>
+                @let room = status();
+                <div status class="flex items-center gap-1.5 text-sm">
+                    <div
+                        class="h-2 w-2 rounded-full"
+                        [class.bg-error]="room.busy"
+                        [class.bg-success]="!room.busy"
+                    ></div>
+                    {{ room.busy ? 'Busy' : 'Free' }}
+                    @if (room.until) {
+                        until {{ room.until | date: time_format() }}
+                    }
+                </div>
             </div>
             <div space class="relative h-1/2 w-full flex-1">
                 @for (block of blocks(); track block.event.id) {
@@ -40,6 +63,8 @@ export interface TimetableBlock {
                         [style.width.%]="block.width"
                         [event]="block.event"
                         [now]="now()"
+                        [time_format]="time_format()"
+                        [hide_title]="hide_titles()"
                     ></space-event-details>
                 }
             </div>
@@ -50,12 +75,11 @@ export interface TimetableBlock {
             :host {
                 display: flex;
                 flex-direction: column;
-                height: 100%;
                 min-height: 51rem;
             }
         `,
     ],
-    imports: [BindingDirective, SpaceEventDetailsComponent],
+    imports: [BindingDirective, DatePipe, SpaceEventDetailsComponent],
 })
 export class SpaceTimetableComponent extends AsyncHandler {
     public readonly space = input<Space>(null);
@@ -65,8 +89,34 @@ export class SpaceTimetableComponent extends AsyncHandler {
     public readonly now = input<number>(0);
     public readonly time_offset = input<number>(0);
     public readonly time_period = input<number>(24);
+    /** Date pipe format for times */
+    public readonly time_format = input<string>('h:mm a');
 
     public readonly bookings = signal<CalendarEvent[]>([]);
+    /** Whether the room hides booking titles on public displays */
+    public readonly hide_titles = signal(false);
+
+    /**
+     * Whether the room is busy now, and when that changes today.
+     * `until` is `0` when the room stays free for the rest of the day.
+     * Back-to-back bookings count as one busy period.
+     */
+    public readonly status = computed(() => {
+        const now = this.now();
+        const day_end = endOfDay(this.day()).valueOf();
+        const upcoming = this.bookings()
+            .filter((_) => _.date_end > now && _.date <= day_end)
+            .sort((a, b) => a.date - b.date);
+        let busy = false;
+        let until = 0;
+        for (const booking of upcoming) {
+            if (booking.date > (busy ? until : now)) break;
+            busy = true;
+            until = Math.max(until, booking.date_end);
+        }
+        if (busy) return { busy, until };
+        return { busy, until: upcoming[0]?.date ?? 0 };
+    });
 
     /**
      * Bookings clipped to the displayed hours of the day.

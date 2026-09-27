@@ -1,6 +1,34 @@
 # Timetable App Settings
 
-The Timetable app is a PlaceOS interface for viewing and booking spaces and desks against a daily timetable grid.
+The Timetable app is a PlaceOS display that shows the bookings for a set of spaces on a daily timetable grid.
+
+## Space selection
+
+Select the spaces with query parameters in the URL hash. You can use one or both parameters.
+
+| Parameter | Description |
+|-----------|-------------|
+| `sys_ids` | Comma-separated list of system IDs or space email addresses. The app shows the spaces in this order. The app shows a "Space not found" column for each ID that does not match a space. |
+| `zone_ids` | Comma-separated list of zone IDs, such as level IDs. The app shows all bookable spaces in these zones, sorted by name, after the `sys_ids` spaces. |
+
+Example:
+
+```text
+https://example.com/timetable/#/?zone_ids=zone-level-2&sys_ids=sys-boardroom
+```
+
+The app shows booking titles, except when one of these conditions is true:
+
+- The booking is private.
+- The `hide_meeting_title` setting of the space's `Bookings` module is `true`.
+
+In these conditions, the app shows "Booked".
+
+## Display behaviour
+
+- Each space header shows if the space is free or busy now, and the time that this status changes today.
+- The grid scrolls the current time into view when the app starts. It does this again every 5 minutes. After user input, the app waits for 2 minutes before it scrolls.
+- The top bar shows an "Offline since" badge when the connection to PlaceOS is lost.
 
 Set settings in Backoffice zone metadata under `timetable_app` for the standard `/timetable/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
@@ -12,9 +40,7 @@ Set settings in Backoffice zone metadata under `timetable_app` for the standard 
 | `title` | string | `"Timetable Application"` | Display title for the application. |
 | `description` | string | `"PlaceOS Timetable UI written with Angular Framework"` | Description of the application. |
 | `short_name` | string | `"TIMETABLE"` | Short name for the application. Used in page titles and API request headers. |
-| `features` | string[] | `["spaces", "desks", "explore", "help", "schedule"]` | List of feature flags enabled for the application. Remove an entry to hide that feature. |
-| `can_deliver` | boolean | `true` | Whether delivery options are available. |
-| `hide_contacts` | boolean | `false` | Whether to hide contact details in the app. |
+| `use_24_hour_time` | boolean | `false` | Whether to show times in 24-hour format. |
 
 ## Branding
 
@@ -57,8 +83,8 @@ Icon object fields:
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
-| `block_start` | number | – | First hour of the day (0–24) displayed on the timetable grid. Defaults to `0` (midnight) when not set. |
-| `block_end` | number | – | Last hour of the day (0–24) displayed on the timetable grid. Defaults to `24` when not set. |
+| `block_start` | number | `0` | First hour of the day (0–23) displayed on the timetable grid. |
+| `block_end` | number | `24` | Last hour of the day (1–24) displayed on the timetable grid. The app always shows at least one hour. |
 
 Example — show the grid from 8 AM to 6 PM:
 
@@ -66,24 +92,6 @@ Example — show the grid from 8 AM to 6 PM:
 {
     "block_start": 8,
     "block_end": 18
-}
-```
-
-## Desk Booking
-
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| `desks.can_book_for_others` | boolean | `true` | Whether users are allowed to make desk bookings on behalf of other users. |
-| `desks.allow_groups` | boolean | `true` | Whether users are allowed to make group desk bookings. |
-
-Example:
-
-```json
-{
-    "desks": {
-        "can_book_for_others": false,
-        "allow_groups": true
-    }
 }
 ```
 
