@@ -11,6 +11,7 @@ const app: any = {
     block_start: 0,
     block_end: 24,
     use_24_hour_time: false,
+    eink_mode: false,
     analytics: {
         enabled: true,
         tracking_id: '',

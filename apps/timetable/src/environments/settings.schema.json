@@ -38,6 +38,10 @@
             "type": "boolean",
             "description": "Whether to show times in 24-hour format. Defaults to `false`"
         },
+        "eink_mode": {
+            "type": "boolean",
+            "description": "Whether to limit screen updates for e-ink panels. The clock and current-time line update once per minute and animations are off. The `eink` URL query parameter overrides this setting. Defaults to `false`"
+        },
         "analytics": {
             "type": "object",
             "description": "Google Analytics settings",

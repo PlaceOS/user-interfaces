@@ -30,6 +30,20 @@ In these conditions, the app shows "Booked".
 - The grid scrolls the current time into view when the app starts. It does this again every 5 minutes. After user input, the app waits for 2 minutes before it scrolls.
 - The top bar shows an "Offline since" badge when the connection to PlaceOS is lost.
 
+## E-ink panels
+
+E-ink panels can take many seconds to redraw. Use e-ink mode on these panels. In e-ink mode, the app does these things:
+
+- It updates the clock, the current-time line and the space status one time each minute.
+- It scrolls the grid without animation.
+- It stops all CSS animations and transitions.
+
+To use e-ink mode on all displays in a zone, set `eink_mode` to `true`. To use e-ink mode on one display, add `eink=true` to the URL. The URL parameter overrides the setting, so `eink=false` turns off e-ink mode on one display.
+
+```text
+https://example.com/timetable/#/?sys_ids=sys-boardroom&eink=true
+```
+
 Set settings in Backoffice zone metadata under `timetable_app` for the standard `/timetable/` URL. Use the organisation, region or building zone. See [settings storage and priority](README.md#settings-storage-and-priority). The examples below show the metadata details object, without an `app` wrapper.
 
 ## General
@@ -41,6 +55,7 @@ Set settings in Backoffice zone metadata under `timetable_app` for the standard 
 | `description` | string | `"PlaceOS Timetable UI written with Angular Framework"` | Description of the application. |
 | `short_name` | string | `"TIMETABLE"` | Short name for the application. Used in page titles and API request headers. |
 | `use_24_hour_time` | boolean | `false` | Whether to show times in 24-hour format. |
+| `eink_mode` | boolean | `false` | Whether to limit screen updates for e-ink panels. See [E-ink panels](#e-ink-panels). |
 
 ## Branding
 

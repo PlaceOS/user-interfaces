@@ -1,7 +1,8 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DOCUMENT } from '@angular/common';
 import {
     Component,
     computed,
+    effect,
     ElementRef,
     inject,
     OnInit,
@@ -23,7 +24,13 @@ import {
 } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import { isOnline } from '@placeos/ts-client';
-import { getHours, getMinutes, startOfDay, startOfSecond } from 'date-fns';
+import {
+    getHours,
+    getMinutes,
+    startOfDay,
+    startOfMinute,
+    startOfSecond,
+} from 'date-fns';
 import { SpaceTimetableComponent } from './space-timetable.component';
 
 /** Delay after user input before the grid scrolls back to the current time */
@@ -194,6 +201,7 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
     private _spaces_initialised = toObservable(this._spaces.initialised);
     private _org = inject(OrganisationService);
     private _grid = viewChild<ElementRef<HTMLElement>>('grid');
+    private _document = inject(DOCUMENT);
 
     public readonly spaces = signal<Space[]>([]);
     /** IDs from the `sys_ids` query parameter with no matching space */
@@ -201,6 +209,11 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
     public readonly date = signal(Date.now());
     /** Time the connection to PlaceOS was lost. `0` when online */
     public readonly offline_since = signal(0);
+    /**
+     * Whether to limit screen updates for e-ink panels.
+     * The clock and current-time line then change once per minute.
+     */
+    public readonly eink = signal(false);
     public readonly time_format = this._settings.time_format_signal;
     public readonly use_24_hour = computed(
         () => this.time_format() === 'HH:mm',
@@ -229,6 +242,12 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
         );
     });
 
+    constructor() {
+        super();
+        // Global styles turn off motion for the `eink` class
+        effect(() => this._document.body.classList.toggle('eink', this.eink()));
+    }
+
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         await firstTruthyValueFrom(this._settings.initialised);
@@ -237,6 +256,11 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
+                this.eink.set(
+                    params.has('eink')
+                        ? params.get('eink') === 'true'
+                        : !!this._settings.get('app.eink_mode'),
+                );
                 const id_list = listParam(params.get('sys_ids'));
                 const zone_ids = listParam(params.get('zone_ids'));
                 const spaces = id_list.map((_) => this._spaces.find(_));
@@ -267,7 +291,10 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
     }
 
     private _tick() {
-        this.date.set(Date.now());
+        // Signals ignore equal values, so e-ink panels redraw once per minute
+        this.date.set(
+            this.eink() ? startOfMinute(Date.now()).valueOf() : Date.now(),
+        );
         if (isOnline()) this.offline_since.set(0);
         else if (!this.offline_since()) this.offline_since.set(Date.now());
     }
@@ -284,16 +311,22 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
         );
     }
 
-    /** Place the current-time line one third from the top of the grid */
+    /**
+     * Place the current-time line one third from the top of the grid.
+     * Skip the scroll while the line is near the middle, as each scroll
+     * redraws the full grid.
+     */
     private _scrollToNow() {
         const grid = this._grid()?.nativeElement;
         const now = grid?.querySelector('[now]');
         if (!now) return;
         const offset =
             now.getBoundingClientRect().top - grid.getBoundingClientRect().top;
+        const position = offset / grid.clientHeight;
+        if (position >= 0.15 && position <= 0.6) return;
         grid.scrollBy({
             top: offset - grid.clientHeight / 3,
-            behavior: 'smooth',
+            behavior: this.eink() ? 'instant' : 'smooth',
         });
     }
 
