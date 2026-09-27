@@ -33,6 +33,11 @@ import {
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { newCalendarEventFromBooking } from 'libs/events/src/lib/utilities';
 import { CateringOrderStatus } from './catering.interfaces';
+import {
+    CateringStatusFilter,
+    isOrderDone,
+    matchesStatusFilter,
+} from './catering.vars';
 
 export interface CateringOrderFilters {
     /** UTC epoch of the date to get catering orders for */
@@ -43,6 +48,8 @@ export interface CateringOrderFilters {
     search?: string;
     /** Caterer to filter orders on */
     caterer?: string;
+    /** Status to filter orders on. Defaults to all statuses. */
+    status?: CateringStatusFilter;
 }
 
 /** Filters that change which orders the server returns */
@@ -65,6 +72,15 @@ function checkOrder(
     const location =
         order.event?.location || space?.display_name || space?.name || '';
     const host = order.event?.host || order.event?.organiser?.email || '';
+    const order_text = [
+        location,
+        host,
+        order.charge_code,
+        order.invoice_number,
+        order.notes,
+    ]
+        .join('\n')
+        .toLowerCase();
     return !!order.items.find((item) => {
         return (
             (!filters?.caterer ||
@@ -74,8 +90,7 @@ function checkOrder(
                 !!item.options.find((option) =>
                     option.name.toLowerCase().includes(s),
                 ) ||
-                location.toLowerCase().includes(s) ||
-                host.toLowerCase().includes(s))
+                order_text.includes(s))
         );
     });
 }
@@ -173,12 +188,31 @@ export class CateringOrdersService extends AsyncHandler {
     public get using_bookings() {
         return this._settings.get('app.catering.use_bookings') == true;
     }
-    /** Filtered list of catering orders */
-    public readonly filtered = computed(() =>
+    /** Orders that match the search and caterer filters, in delivery order */
+    private readonly _matching = computed(() =>
         this._orders()
             .filter((order) => checkOrder(order, this._filters()))
             .sort((a, b) => a.deliver_at - b.deliver_at),
     );
+    /** Filtered list of catering orders */
+    public readonly filtered = computed(() => {
+        const status = this._filters().status;
+        return this._matching().filter((order) =>
+            matchesStatusFilter(order.status, status),
+        );
+    });
+    /** Number of orders for each status filter. Ignores the status filter. */
+    public readonly status_counts = computed(() => {
+        const counts: Partial<Record<CateringStatusFilter, number>> = {};
+        const add = (key: CateringStatusFilter) =>
+            (counts[key] = (counts[key] || 0) + 1);
+        for (const order of this._matching()) {
+            add('all');
+            add(order.status);
+            if (!isOrderDone(order.status)) add('active');
+        }
+        return counts;
+    });
 
     constructor() {
         super();
@@ -218,13 +252,19 @@ export class CateringOrdersService extends AsyncHandler {
         status: CateringOrderStatus,
     ) {
         const previous = order.status;
-        order.status = status;
+        this._setOrderStatus(order, status);
         try {
             return await this._saveStatus(order, status);
         } catch (error) {
-            order.status = previous;
+            this._setOrderStatus(order, previous);
             throw error;
         }
+    }
+
+    /** Change the status of a listed order and update the list signals */
+    private _setOrderStatus(order: CateringOrder, status: CateringOrderStatus) {
+        order.status = status;
+        this._orders.update((list) => [...list]);
     }
 
     private async _saveStatus(

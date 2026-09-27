@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     CateringOrder,
@@ -19,7 +20,12 @@ import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.compo
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { CateringOrderItemComponent } from './catering-order-item.component';
 import { CateringOrdersService } from './catering-orders.service';
-import { statusList } from './catering.vars';
+import {
+    CateringStatusFilter,
+    nextOrderStatus,
+    orderUrgency,
+    statusList,
+} from './catering.vars';
 
 @Component({
     selector: 'catering-order-list',
@@ -54,6 +60,53 @@ import { statusList } from './catering.vars';
                     }
                 </div>
             }
+            <div class="mb-2 flex items-center gap-2 py-1">
+                @for (option of status_filters; track option.id) {
+                    <button
+                        matRipple
+                        status-filter
+                        class="border-base-300 flex items-center gap-2 rounded-full border px-3 py-1 text-sm whitespace-nowrap"
+                        [class.bg-secondary]="status_filter() === option.id"
+                        [class.text-secondary-content]="
+                            status_filter() === option.id
+                        "
+                        [class.border-transparent]="
+                            status_filter() === option.id
+                        "
+                        (click)="setStatusFilter(option.id)"
+                    >
+                        @if (option.colour) {
+                            <span
+                                class="h-3 w-3 rounded-full"
+                                [style.background-color]="option.colour"
+                            ></span>
+                        }
+                        {{ option.name }}
+                        <span class="font-mono text-xs opacity-60">
+                            {{ status_counts()[option.id] || 0 }}
+                        </span>
+                    </button>
+                }
+                <div class="flex-1"></div>
+                <button
+                    btn
+                    matRipple
+                    expand-all
+                    class="clear flex items-center gap-2 whitespace-nowrap"
+                    [disabled]="!order_list().length"
+                    (click)="toggleAllExpanded()"
+                >
+                    <icon class="text-xl">
+                        {{ all_expanded() ? 'unfold_less' : 'unfold_more' }}
+                    </icon>
+                    {{
+                        (all_expanded()
+                            ? 'COMMON.COLLAPSE_ALL'
+                            : 'COMMON.EXPAND_ALL'
+                        ) | translate
+                    }}
+                </button>
+            </div>
             <simple-table
                 class="block w-full min-w-6xl text-sm"
                 [data]="order_list()"
@@ -100,7 +153,7 @@ import { statusList } from './catering.vars';
                         key: 'status',
                         name: 'COMMON.STATUS' | translate,
                         content: status_template,
-                        size: '11rem',
+                        size: '15rem',
                     },
                     {
                         key: 'actions',
@@ -116,10 +169,16 @@ import { statusList } from './catering.vars';
                 [empty_message]="'CATERING.ORDERS_EMPTY' | translate"
             >
             </simple-table>
-            <ng-template #state_template let-data="data">
+            <ng-template #state_template let-row="row">
+                @let urgency = urgencyOf(row);
                 <div class="p-2">
                     <div
-                        class="bg-base-200 flex items-center justify-center rounded-full p-2 text-2xl"
+                        class="flex items-center justify-center rounded-full p-2 text-2xl"
+                        [class.bg-base-200]="!urgency"
+                        [class.bg-error]="urgency === 'overdue'"
+                        [class.text-error-content]="urgency === 'overdue'"
+                        [class.bg-warning]="urgency === 'soon'"
+                        [class.text-warning-content]="urgency === 'soon'"
                     >
                         <icon>room_service</icon>
                     </div>
@@ -141,6 +200,27 @@ import { statusList } from './catering.vars';
                         {{ row?.event?.date_end | date: 'MMM d' }},
                         {{ row?.event?.date_end | date: time_format() }}
                     </div>
+                    @let urgency = urgencyOf(row);
+                    @if (urgency) {
+                        <div
+                            urgency
+                            class="mt-1 w-fit rounded-sm px-2 py-0.5 text-xs font-medium"
+                            [class.bg-error]="urgency === 'overdue'"
+                            [class.text-error-content]="urgency === 'overdue'"
+                            [class.bg-warning]="urgency === 'soon'"
+                            [class.text-warning-content]="urgency === 'soon'"
+                        >
+                            @if (urgency === 'overdue') {
+                                {{ 'CATERING.ORDERS_OVERDUE' | translate }}
+                            } @else {
+                                {{
+                                    'CATERING.ORDERS_DUE_SOON'
+                                        | translate
+                                            : { minutes: minutesUntil(row) }
+                                }}
+                            }
+                        </div>
+                    }
                 </div>
             </ng-template>
             <ng-template #location_template let-data="data" let-row="row">
@@ -176,7 +256,7 @@ import { statusList } from './catering.vars';
                 </div>
             </ng-template>
             <ng-template #status_template let-row="row" let-data="data">
-                <div class="px-4 py-2">
+                <div class="flex items-center gap-2 px-4 py-2">
                     <button
                         status
                         matRipple
@@ -189,6 +269,29 @@ import { statusList } from './catering.vars';
                         </div>
                         <icon class="pl-2">arrow_drop_down</icon>
                     </button>
+                    @let next = nextStatus(data);
+                    @if (next) {
+                        <button
+                            icon
+                            matRipple
+                            next-status
+                            class="h-10 w-10 border-2"
+                            [style.border-color]="status(next)?.colour"
+                            [matTooltip]="
+                                'CATERING.ORDERS_NEXT_STATUS'
+                                    | translate: { status: status(next)?.name }
+                            "
+                            (click)="updateStatus(row, next)"
+                        >
+                            <icon>
+                                {{
+                                    next === 'delivered'
+                                        ? 'done_all'
+                                        : 'arrow_forward'
+                                }}
+                            </icon>
+                        </button>
+                    }
                 </div>
                 <mat-menu #menu="matMenu">
                     @for (status of statuses(); track status) {
@@ -295,6 +398,7 @@ import { statusList } from './catering.vars';
         MatMenuModule,
         SimpleTableComponent,
         MatProgressBarModule,
+        MatTooltipModule,
         IconComponent,
     ],
 })
@@ -317,6 +421,34 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
 
     public readonly statuses = signal(statusList());
     public readonly show_children = signal<Record<string, boolean>>({});
+    /** Current time. Updates so that urgency markers stay correct. */
+    public readonly now = signal(Date.now());
+    /** Number of orders for each status filter */
+    public readonly status_counts = this._orders.status_counts;
+    /** Options for the status filter chips */
+    public readonly status_filters: {
+        id: CateringStatusFilter;
+        name: string;
+        colour?: string;
+    }[] = [
+        { id: 'all', name: i18n('COMMON.ALL') },
+        { id: 'active', name: i18n('COMMON.STATE_ACTIVE') },
+        ...this.statuses().map(({ id, name, colour }) => ({
+            id,
+            name,
+            colour,
+        })),
+    ];
+    public readonly status_filter = computed(
+        () => this.filters()?.status || 'all',
+    );
+    /** Whether every listed order shows its items */
+    public readonly all_expanded = computed(() => {
+        const shown = this.show_children();
+        const list = this.order_list();
+        return list.length > 0 && list.every((order) => shown[order.id]);
+    });
+    public readonly nextStatus = nextOrderStatus;
 
     /** Change the status of an order. Offer to undo when the save succeeds. */
     public readonly updateStatus = async (
@@ -355,6 +487,32 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this.subscription('polling', this._orders.startPolling());
+        this.interval('clock', () => this.now.set(Date.now()), 30 * 1000);
+    }
+
+    public setStatusFilter(status: CateringStatusFilter) {
+        this._orders.filters = { ...this._orders.filters, status };
+    }
+
+    /** Show the items of every listed order, or hide them all */
+    public toggleAllExpanded() {
+        const expand = !this.all_expanded();
+        this.show_children.set(
+            expand
+                ? Object.fromEntries(
+                      this.order_list().map((order) => [order.id, true]),
+                  )
+                : {},
+        );
+    }
+
+    public urgencyOf(order: CateringOrder) {
+        return orderUrgency(order.status, order.deliver_at, this.now());
+    }
+
+    /** Whole minutes until the order is due */
+    public minutesUntil(order: CateringOrder) {
+        return Math.ceil((order.deliver_at - this.now()) / (60 * 1000));
     }
 
     public isExpanded(id: string) {

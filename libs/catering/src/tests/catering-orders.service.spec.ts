@@ -191,4 +191,49 @@ describe('CateringOrdersService', () => {
         ).rejects.toThrow('offline');
         expect(order.status).toBe('accepted');
     });
+
+    it('should filter by status and count orders for each status', () => {
+        const order = (id: string, status: 'ready' | 'delivered') =>
+            new CateringOrder({
+                id,
+                status,
+                items: [new CateringItem({ name: 'Coffee', quantity: 1 })],
+            });
+        (
+            spectator.service as unknown as {
+                _orders: WritableSignal<CateringOrder[]>;
+            }
+        )._orders.set([order('1', 'ready'), order('2', 'delivered')]);
+
+        spectator.service.filters = { status: 'active' };
+
+        expect(spectator.service.filtered().map((o) => o.id)).toEqual(['1']);
+        expect(spectator.service.status_counts()).toEqual({
+            all: 2,
+            active: 1,
+            ready: 1,
+            delivered: 1,
+        });
+    });
+
+    it('should search order charge codes and notes', () => {
+        const order = new CateringOrder({
+            id: 'order-1',
+            charge_code: 'CC-42',
+            notes: 'Nut allergy',
+            items: [new CateringItem({ name: 'Coffee', quantity: 1 })],
+        });
+        (
+            spectator.service as unknown as {
+                _orders: WritableSignal<CateringOrder[]>;
+            }
+        )._orders.set([order]);
+
+        spectator.service.filters = { search: 'cc-42' };
+        expect(spectator.service.filtered()).toEqual([order]);
+        spectator.service.filters = { search: 'allergy' };
+        expect(spectator.service.filtered()).toEqual([order]);
+        spectator.service.filters = { search: 'tea' };
+        expect(spectator.service.filtered()).toEqual([]);
+    });
 });

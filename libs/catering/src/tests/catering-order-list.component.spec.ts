@@ -13,6 +13,7 @@ import { CateringOrdersService } from '../lib/catering-orders.service';
 describe('CateringOrderListComponent', () => {
     let spectator: Spectator<CateringOrderListComponent>;
     const load_error = signal(false);
+    const filtered = signal<CateringOrder[]>([]);
     const updateStatus = vi.fn();
     // Fake notification outlet so the notifications can be checked
     const notify_open = vi.fn(() => ({
@@ -24,7 +25,8 @@ describe('CateringOrderListComponent', () => {
         declarations: [MockComponent(SimpleTableComponent)],
         providers: [
             MockProvider(CateringOrdersService, {
-                filtered: signal([]),
+                filtered,
+                status_counts: signal({}),
                 loading: signal(false),
                 load_error,
                 last_updated: signal(0),
@@ -41,6 +43,7 @@ describe('CateringOrderListComponent', () => {
 
     beforeEach(() => {
         load_error.set(false);
+        filtered.set([]);
         updateStatus.mockReset();
         notify_open.mockClear();
         setNotifyOutlet({ open: notify_open } as any, true);
@@ -88,5 +91,20 @@ describe('CateringOrderListComponent', () => {
             'COMMON.UNDO',
             expect.anything(),
         );
+    });
+
+    it('should expand and collapse every listed order', () => {
+        filtered.set([
+            new CateringOrder({ id: 'a' }),
+            new CateringOrder({ id: 'b' }),
+        ]);
+        spectator.component.toggleExpanded('a');
+        expect(spectator.component.all_expanded()).toBe(false);
+
+        spectator.component.toggleAllExpanded();
+        expect(spectator.component.all_expanded()).toBe(true);
+
+        spectator.component.toggleAllExpanded();
+        expect(spectator.component.show_children()).toEqual({});
     });
 });
