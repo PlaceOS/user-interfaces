@@ -3,6 +3,7 @@ import { CateringItem, CateringOrder } from '@placeos/common';
 import {
     deliveryRuns,
     diffOrders,
+    ordersToCsvRows,
     prepSummary,
 } from '../lib/catering-order-tools';
 
@@ -84,5 +85,16 @@ describe('catering order tools', () => {
 
         expect(changes.added.map((o) => o.id)).toEqual(['3']);
         expect(changes.cancelled.map((o) => o.id)).toEqual(['1']);
+    });
+
+    it('should list order items in CSV rows', () => {
+        const [row] = ordersToCsvRows([
+            order('1', 'accepted', [item('Coffee', 2, ['Oat milk'])]),
+        ]);
+
+        expect(row['CATERING.ORDER_SELECTED_HEADER']).toBe(
+            '2× Coffee (Oat milk)',
+        );
+        expect(row['COMMON.STATUS']).toBe('CATERING.STATUS_ACCEPTED');
     });
 });

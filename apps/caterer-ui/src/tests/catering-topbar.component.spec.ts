@@ -9,6 +9,7 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import {
+    CateringDocketsService,
     CateringOrderAlertsService,
     CateringOrdersService,
     CateringStateService,
@@ -24,6 +25,7 @@ import { CateringTopbarComponent } from '../app/catering-topbar.component';
 
 class OrdersServiceStub {
     private readonly _filters = signal<any>({});
+    public readonly filtered = signal<any[]>([]);
     public readonly order_filters = this._filters.asReadonly();
     public get filters() {
         return this._filters();
@@ -74,6 +76,7 @@ describe('CateringTopbarComponent', () => {
                 provide: CateringOrderAlertsService,
                 useValue: { enabled: signal(false), setEnabled: vi.fn() },
             },
+            { provide: CateringDocketsService, useValue: { print: vi.fn() } },
             { provide: MatDialog, useFactory: () => dialog },
         ],
     });
@@ -303,6 +306,7 @@ describe('CateringTopbarComponent with filters in the URL', () => {
                 provide: CateringOrderAlertsService,
                 useValue: { enabled: signal(false), setEnabled: vi.fn() },
             },
+            { provide: CateringDocketsService, useValue: { print: vi.fn() } },
             { provide: MatDialog, useValue: {} },
         ],
     });

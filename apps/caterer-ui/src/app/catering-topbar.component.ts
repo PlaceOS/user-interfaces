@@ -4,18 +4,23 @@ import { ActivatedRoute, Params, Router, RouterModule } from '@angular/router';
 
 import { MatDialog } from '@angular/material/dialog';
 import {
+    CateringDocketsService,
     CateringOrderAlertsService,
     CateringOrderFilters,
     CateringOrdersService,
     CateringStateService,
     ChargeCodeListModalComponent,
+    ordersToCsvRows,
 } from '@placeos/catering';
 import {
     AsyncHandler,
+    downloadFile,
+    jsonToCsv,
     notifyError,
     notifySuccess,
     settingSignal,
 } from '@placeos/common';
+import { format } from 'date-fns';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -197,6 +202,26 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                     icon
                     matRipple
                     class="h-12 w-12"
+                    [disabled]="!order_count()"
+                    [matTooltip]="'CATERING.DOCKETS_PRINT' | translate"
+                    (click)="printDockets()"
+                >
+                    <icon class="text-2xl">print</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12"
+                    [disabled]="!order_count()"
+                    [matTooltip]="'CATERING.ORDERS_EXPORT' | translate"
+                    (click)="exportCsv()"
+                >
+                    <icon class="text-2xl">download</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    class="h-12 w-12"
                     [matTooltip]="
                         (alerts_on()
                             ? 'CATERING.ALERTS_OFF'
@@ -254,6 +279,7 @@ export class CateringTopbarComponent extends AsyncHandler {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     private _dialog = inject(MatDialog);
+    private _dockets = inject(CateringDocketsService);
     private _alerts = inject(CateringOrderAlertsService);
 
     private readonly _org_initialised = this._org.initialised;
@@ -275,6 +301,10 @@ export class CateringTopbarComponent extends AsyncHandler {
                 : '') || '',
     );
     public readonly filters = this._orders.order_filters;
+    /** Number of orders in the list */
+    public readonly order_count = computed(
+        () => this._orders.filtered().length,
+    );
     /** Whether the prep summary panel is open */
     public readonly show_summary = computed(
         () => this._query_param_map().get('summary') === 'true',
@@ -382,6 +412,23 @@ export class CateringTopbarComponent extends AsyncHandler {
 
     public toggleSummary() {
         this._setQueryParams({ summary: this.show_summary() ? null : 'true' });
+    }
+
+    /** Print a docket for each order in the list */
+    public printDockets() {
+        this._dockets.print(this._orders.filtered());
+    }
+
+    /** Download the orders in the list as a CSV file */
+    public exportCsv() {
+        const date = format(
+            this._orders.filters.date || Date.now(),
+            'yyyy-MM-dd',
+        );
+        downloadFile(
+            `catering-orders-${date}.csv`,
+            jsonToCsv(ordersToCsvRows(this._orders.filtered())),
+        );
     }
 
     public toggleAlerts() {

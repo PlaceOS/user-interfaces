@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    input,
+    OnInit,
+    signal,
+} from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -16,6 +23,7 @@ import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.c
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { CateringDocketsService } from './catering-order-dockets.component';
 import { CateringOrderItemComponent } from './catering-order-item.component';
 import { CateringOrdersService } from './catering-orders.service';
 import {
@@ -156,7 +164,7 @@ import {
                     {
                         key: 'actions',
                         name: ' ',
-                        size: '6.5rem',
+                        size: can_print() ? '9rem' : '6.5rem',
                         content: actions_template,
                         sortable: false,
                     },
@@ -339,6 +347,17 @@ import {
                             </p>
                         </div>
                     </ng-template>
+                    @if (can_print()) {
+                        <button
+                            icon
+                            matRipple
+                            print-docket
+                            [matTooltip]="'CATERING.DOCKET_PRINT' | translate"
+                            (click)="printDocket(row)"
+                        >
+                            <icon>print</icon>
+                        </button>
+                    }
                     <button icon matRipple (click)="toggleExpanded(row.id)">
                         <icon>
                             {{
@@ -403,6 +422,10 @@ import {
 export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     private _orders = inject(CateringOrdersService);
     private _settings = inject(SettingsService);
+    private _dockets = inject(CateringDocketsService);
+
+    /** Whether to show a print button for each order. The app must host `catering-order-dockets`. */
+    public readonly can_print = input(false);
 
     /** List of filtered orders */
     public readonly order_list = this._orders.filtered;
@@ -485,6 +508,10 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
                   )
                 : {},
         );
+    }
+
+    public printDocket(order: CateringOrder) {
+        this._dockets.print([order]);
     }
 
     public urgencyOf(order: CateringOrder) {

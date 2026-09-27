@@ -1,5 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { CateringOrderDocketsComponent } from '@placeos/catering';
 import { PlaceOS_Service, setMocks, settingSignal } from '@placeos/common';
 import {
     GlobalBannerComponent,
@@ -17,12 +18,14 @@ import { mocksInit } from '@placeos/mocks';
         GlobalBannerComponent,
         GlobalLoadingComponent,
         SettingsDebugPanelLauncherComponent,
+        CateringOrderDocketsComponent,
     ],
     template: `
-        <global-banner />
-        <div class="relative h-1/2 w-full flex-1">
+        <global-banner class="print:hidden" />
+        <div class="relative h-1/2 w-full flex-1 print:hidden">
             <router-outlet></router-outlet>
         </div>
+        <catering-order-dockets />
         @defer (when has_chat()) {
             <global-chat />
         }

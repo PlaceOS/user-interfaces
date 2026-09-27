@@ -1,6 +1,10 @@
 import type { OrganisationService, Space } from '@placeos/common';
 import { CateringOrder } from '@placeos/common';
+import { format } from 'date-fns';
+import { i18n } from 'libs/common/src/lib/locale.service';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+
+import { statusList } from './catering.vars';
 
 const SPACE_PIPE = new SpacePipe();
 
@@ -50,6 +54,16 @@ export function orderHost(order: CateringOrder) {
         order.event?.organiser?.email ||
         ''
     );
+}
+
+/** Items of an order as text, e.g. "2× Coffee (Oat milk); 1× Muffin" */
+export function orderItemsText(order: CateringOrder) {
+    return order.items
+        .map((item) => {
+            const options = item.option_list.map((o) => o.name).join(', ');
+            return `${item.quantity}× ${item.name}${options ? ` (${options})` : ''}`;
+        })
+        .join('; ');
 }
 
 /**
@@ -139,6 +153,25 @@ export function diffOrders(
                 before.get(order.id) !== 'cancelled',
         ),
     };
+}
+
+/** Rows for a CSV export of the orders, with translated column names */
+export function ordersToCsvRows(orders: readonly CateringOrder[]) {
+    return orders.map((order) => ({
+        [i18n('FORM.DATE')]: format(order.deliver_at, 'yyyy-MM-dd'),
+        [i18n('COMMON.TIME')]: format(order.deliver_at, 'HH:mm'),
+        [i18n('CATERING.CATERER')]: order.caterer,
+        [i18n('COMMON.LOCATION')]: orderLocation(order),
+        [i18n('FORM.HOST')]: orderHost(order),
+        [i18n('CATERING.CHARGE_CODE')]: order.charge_code,
+        [i18n('CATERING.INVOICE_NUMBER')]: order.invoice_number,
+        [i18n('COMMON.STATUS')]:
+            statusList().find((s) => s.id === order.status)?.name ||
+            order.status,
+        [i18n('CATERING.ORDER_SELECTED_HEADER')]: orderItemsText(order),
+        [i18n('CATERING.TOTAL_COST')]: (order.total_cost / 100).toFixed(2),
+        [i18n('FORM.NOTES')]: order.notes,
+    }));
 }
 
 /**

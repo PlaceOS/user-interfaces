@@ -46,6 +46,7 @@ import { CateringTopbarComponent } from './catering-topbar.component';
                             <div class="flex min-h-0 flex-1 gap-4">
                                 <catering-order-list
                                     class="min-w-0 flex-1"
+                                    [can_print]="true"
                                 ></catering-order-list>
                                 @if (show_summary()) {
                                     <catering-prep-summary
