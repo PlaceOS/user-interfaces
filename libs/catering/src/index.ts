@@ -1,3 +1,4 @@
+export * from './lib/catering-kitchen-board.component';
 export * from './lib/catering-list-field.component';
 export * from './lib/catering-menu.component';
 export * from './lib/catering-order-alerts.service';

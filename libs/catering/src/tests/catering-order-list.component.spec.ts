@@ -2,10 +2,8 @@ import { signal } from '@angular/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { CateringOrder, SettingsService } from '@placeos/common';
-import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
 import { CateringOrderListComponent } from '../lib/catering-order-list.component';
 import { CateringOrdersService } from '../lib/catering-orders.service';
@@ -14,12 +12,7 @@ describe('CateringOrderListComponent', () => {
     let spectator: Spectator<CateringOrderListComponent>;
     const load_error = signal(false);
     const filtered = signal<CateringOrder[]>([]);
-    const updateStatus = vi.fn();
-    // Fake notification outlet so the notifications can be checked
-    const notify_open = vi.fn(() => ({
-        onAction: () => of(),
-        dismiss: vi.fn(),
-    }));
+    const changeStatus = vi.fn();
     const createComponent = createComponentFactory({
         component: CateringOrderListComponent,
         declarations: [MockComponent(SimpleTableComponent)],
@@ -34,7 +27,7 @@ describe('CateringOrderListComponent', () => {
                 caterers: signal([]),
                 startPolling: vi.fn(),
                 stopPolling: vi.fn(),
-                updateStatus,
+                changeStatus,
             }),
             MockProvider(SettingsService, { get: vi.fn() }),
         ],
@@ -44,13 +37,9 @@ describe('CateringOrderListComponent', () => {
     beforeEach(() => {
         load_error.set(false);
         filtered.set([]);
-        updateStatus.mockReset();
-        notify_open.mockClear();
-        setNotifyOutlet({ open: notify_open } as any, true);
+        changeStatus.mockReset();
         spectator = createComponent();
     });
-
-    afterEach(() => setNotifyOutlet(null, true));
 
     it('should show loading bar', () => {
         expect('mat-progress-bar').toExist();
@@ -67,30 +56,10 @@ describe('CateringOrderListComponent', () => {
         expect('[load-error]').toExist();
     });
 
-    it('should offer undo after a status change', async () => {
-        updateStatus.mockResolvedValue(undefined);
+    it('should change status through the orders service', async () => {
         const order = new CateringOrder({ status: 'accepted' });
         await spectator.component.updateStatus(order, 'ready');
-
-        expect(updateStatus).toHaveBeenCalledWith(order, 'ready');
-        expect(notify_open).toHaveBeenCalledWith(
-            expect.anything(),
-            'COMMON.UNDO',
-            expect.anything(),
-        );
-    });
-
-    it('should notify without undo when a status change fails', async () => {
-        updateStatus.mockRejectedValue(new Error('offline'));
-        const order = new CateringOrder({ status: 'accepted' });
-        await spectator.component.updateStatus(order, 'ready');
-
-        expect(notify_open).toHaveBeenCalledTimes(1);
-        expect(notify_open).not.toHaveBeenCalledWith(
-            expect.anything(),
-            'COMMON.UNDO',
-            expect.anything(),
-        );
+        expect(changeStatus).toHaveBeenCalledWith(order, 'ready');
     });
 
     it('should expand and collapse every listed order', () => {

@@ -10,8 +10,6 @@ import {
     CateringOrder,
     CateringOrderStatus,
     i18n,
-    notifyError,
-    notifySuccess,
     SettingsService,
 } from '@placeos/common';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
@@ -450,28 +448,11 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     });
     public readonly nextStatus = nextOrderStatus;
 
-    /** Change the status of an order. Offer to undo when the save succeeds. */
-    public readonly updateStatus = async (
+    /** Change the status of an order. Offers undo when the save succeeds. */
+    public readonly updateStatus = (
         order: CateringOrder,
         status: CateringOrderStatus,
-        can_undo = true,
-    ) => {
-        const previous = order.status;
-        if (previous === status) return;
-        try {
-            await this._orders.updateStatus(order, status);
-        } catch {
-            return notifyError(i18n('CATERING.ORDERS_STATUS_ERROR'));
-        }
-        if (!can_undo) return;
-        notifySuccess(
-            i18n('CATERING.ORDERS_STATUS_UPDATED', {
-                status: this.status(status)?.name || status,
-            }),
-            i18n('COMMON.UNDO'),
-            () => this.updateStatus(order, previous, false),
-        );
-    };
+    ) => this._orders.changeStatus(order, status);
 
     public readonly time_format = computed(() =>
         this._settings.time_format_signal(),

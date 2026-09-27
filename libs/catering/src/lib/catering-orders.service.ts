@@ -15,7 +15,10 @@ import {
     CateringOrder,
     currentUser,
     flatten,
+    i18n,
     log,
+    notifyError,
+    notifySuccess,
     SettingsService,
     unique,
 } from '@placeos/common';
@@ -44,6 +47,7 @@ import {
     CateringStatusFilter,
     isOrderDone,
     matchesStatusFilter,
+    statusList,
 } from './catering.vars';
 
 export interface CateringOrderFilters {
@@ -237,6 +241,31 @@ export class CateringOrdersService extends AsyncHandler {
     /** Stop polling for new catering orders */
     public stopPolling() {
         this.clearInterval('polling');
+    }
+
+    /**
+     * Change the status of an order and tell the user the result.
+     * Offers undo after a successful change.
+     */
+    public async changeStatus(
+        order: CateringOrder,
+        status: CateringOrderStatus,
+        can_undo = true,
+    ) {
+        const previous = order.status;
+        if (previous === status) return;
+        try {
+            await this.updateStatus(order, status);
+        } catch {
+            return notifyError(i18n('CATERING.ORDERS_STATUS_ERROR'));
+        }
+        if (!can_undo) return;
+        const name = statusList().find((s) => s.id === status)?.name;
+        notifySuccess(
+            i18n('CATERING.ORDERS_STATUS_UPDATED', { status: name || status }),
+            i18n('COMMON.UNDO'),
+            () => this.changeStatus(order, previous, false),
+        );
     }
 
     /**

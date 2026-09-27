@@ -18,6 +18,9 @@ import {
     Space,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
+
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
 // Workspace fns are bundled and cannot be mocked, so stub the API layer below them.
 vi.mock('@placeos/ts-client', { spy: true });
@@ -235,6 +238,50 @@ describe('CateringOrdersService', () => {
         expect(spectator.service.filtered()).toEqual([order]);
         spectator.service.filters = { search: 'tea' };
         expect(spectator.service.filtered()).toEqual([]);
+    });
+
+    describe('changeStatus', () => {
+        const notify_open = vi.fn(() => ({
+            onAction: () => of(),
+            dismiss: vi.fn(),
+        }));
+
+        beforeEach(() => {
+            notify_open.mockClear();
+            setNotifyOutlet({ open: notify_open } as any, true);
+        });
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        it('should offer undo after a status change', async () => {
+            const update = vi
+                .spyOn(spectator.service, 'updateStatus')
+                .mockResolvedValue(undefined);
+            const order = new CateringOrder({ status: 'accepted' });
+            await spectator.service.changeStatus(order, 'ready');
+
+            expect(update).toHaveBeenCalledWith(order, 'ready');
+            expect(notify_open).toHaveBeenCalledWith(
+                expect.anything(),
+                'COMMON.UNDO',
+                expect.anything(),
+            );
+        });
+
+        it('should notify without undo when a status change fails', async () => {
+            vi.spyOn(spectator.service, 'updateStatus').mockRejectedValue(
+                new Error('offline'),
+            );
+            const order = new CateringOrder({ status: 'accepted' });
+            await spectator.service.changeStatus(order, 'ready');
+
+            expect(notify_open).toHaveBeenCalledTimes(1);
+            expect(notify_open).not.toHaveBeenCalledWith(
+                expect.anything(),
+                'COMMON.UNDO',
+                expect.anything(),
+            );
+        });
     });
 
     it('should report orders added since the previous poll', async () => {

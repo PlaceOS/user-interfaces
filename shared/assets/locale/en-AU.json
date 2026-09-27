@@ -1664,6 +1664,8 @@
         "DELIVERY_RUNS_EMPTY": "No orders are ready for delivery",
         "DELIVERY_RUN_DONE": "Mark Delivered",
         "DELIVERY_RUN_DELIVERED": "Orders marked as delivered",
+        "KITCHEN": "Kitchen Display",
+        "FULLSCREEN": "Full Screen",
         "ALERTS_ON": "Turn on order alerts",
         "ALERTS_OFF": "Turn off order alerts",
         "ALERT_NEW": "{{ count }} new order(s).",

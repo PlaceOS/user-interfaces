@@ -213,6 +213,15 @@ import { DateOptionsComponent } from '@placeos/form-fields';
                         }}
                     </icon>
                 </button>
+                <a
+                    icon
+                    matRipple
+                    class="h-12 w-12"
+                    [matTooltip]="'CATERING.KITCHEN' | translate"
+                    [routerLink]="['/kitchen']"
+                >
+                    <icon class="text-2xl">view_kanban</icon>
+                </a>
             }
         </div>
     `,
