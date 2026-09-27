@@ -14,7 +14,7 @@ import {
     IconComponent,
 } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
-import { getHours, getMinutes, startOfSecond } from 'date-fns';
+import { getHours, getMinutes, startOfDay, startOfSecond } from 'date-fns';
 import { SpaceTimetableComponent } from './space-timetable.component';
 
 @Component({
@@ -48,15 +48,17 @@ import { SpaceTimetableComponent } from './space-timetable.component';
                         class="border-base-300 z-50 min-h-12 w-full border-b"
                     ></div>
                     <div class="relative flex h-1/2 w-full flex-1 flex-col">
-                        <div
-                            now
-                            class="bg-secondary absolute left-0 z-20 h-[2px] w-screen -translate-y-1/2"
-                            [style.top]="current_offset() + '%'"
-                        >
+                        @if (current_offset() >= 0 && current_offset() <= 100) {
                             <div
-                                class="arrow absolute top-0 left-0 -translate-y-1/2"
-                            ></div>
-                        </div>
+                                now
+                                class="bg-secondary absolute left-0 z-20 h-[2px] w-screen -translate-y-1/2"
+                                [style.top]="current_offset() + '%'"
+                            >
+                                <div
+                                    class="arrow absolute top-0 left-0 -translate-y-1/2"
+                                ></div>
+                            </div>
+                        }
                         @for (hr of hours(); track hr; let i = $index) {
                             <div
                                 hour
@@ -80,16 +82,29 @@ import { SpaceTimetableComponent } from './space-timetable.component';
                         }
                     </div>
                 </div>
-                @if (spaces().length) {
-                    @for (space of spaces(); track space) {
-                        <space-timetable
-                            class="border-base-300 relative z-10 min-w-[24vw] flex-1 border-r"
-                            [space]="space"
-                            [time_offset]="offset()"
-                            [time_period]="length()"
-                        ></space-timetable>
-                    }
-                } @else {
+                @for (space of spaces(); track space.id) {
+                    <space-timetable
+                        class="border-base-300 relative z-10 min-w-[24vw] flex-1 border-r"
+                        [space]="space"
+                        [day]="day()"
+                        [now]="date()"
+                        [time_offset]="offset()"
+                        [time_period]="length()"
+                    ></space-timetable>
+                }
+                @for (id of missing_ids(); track id) {
+                    <div
+                        missing
+                        class="border-base-300 flex min-h-full min-w-[24vw] flex-1 flex-col items-center justify-center border-r p-4 text-center opacity-60"
+                    >
+                        <icon className="material-symbols-sharp" class="text-6xl"
+                            >error</icon
+                        >
+                        <p>Space not found</p>
+                        <p class="font-mono text-sm break-all">{{ id }}</p>
+                    </div>
+                }
+                @if (!spaces().length && !missing_ids().length) {
                     <div
                         class="flex min-w-[30vw] flex-1 flex-col items-center justify-center opacity-30"
                     >
@@ -134,12 +149,16 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
 
     public readonly spaces = signal<Space[]>([]);
+    /** IDs from the `sys_ids` query parameter with no matching space */
+    public readonly missing_ids = signal<string[]>([]);
     public readonly date = signal(Date.now());
     public readonly hours = signal([]);
     public readonly offset = signal(0);
     public readonly length = signal(24);
 
     public readonly time = computed(() => startOfSecond(this.date()));
+    /** Start of the current day. Only changes at midnight */
+    public readonly day = computed(() => startOfDay(this.date()).valueOf());
 
     public readonly current_offset = computed(() => {
         const current_hour =
@@ -166,8 +185,14 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 if (params.has('sys_ids')) {
-                    const id_list = params.get('sys_ids').split(',');
-                    this.spaces.set(id_list.map((_) => this._spaces.find(_)));
+                    const id_list = params
+                        .get('sys_ids')
+                        .split(',')
+                        .map((_) => _.trim())
+                        .filter((_) => _);
+                    const spaces = id_list.map((_) => this._spaces.find(_));
+                    this.spaces.set(spaces.filter((_) => _));
+                    this.missing_ids.set(id_list.filter((_, i) => !spaces[i]));
                     this._initTimeBlocks();
                 }
             }),
@@ -176,10 +201,18 @@ export class AppTimetableComponent extends AsyncHandler implements OnInit {
     }
 
     private _initTimeBlocks() {
-        const block_start = Math.floor(
-            this._settings.get('app.block_start') || 0,
+        // Keep at least one hour visible within the day
+        const block_start = Math.min(
+            23,
+            Math.max(0, Math.floor(this._settings.get('app.block_start') || 0)),
         );
-        const block_end = Math.floor(this._settings.get('app.block_end') || 24);
+        const block_end = Math.min(
+            24,
+            Math.max(
+                block_start + 1,
+                Math.floor(this._settings.get('app.block_end') || 24),
+            ),
+        );
         this.offset.set(block_start);
         this.length.set(block_end - block_start);
         this.hours.set(

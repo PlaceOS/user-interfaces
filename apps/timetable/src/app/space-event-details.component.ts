@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { CalendarEvent } from '@placeos/common';
-import { getHours, getMinutes } from 'date-fns';
 
 @Component({
     selector: 'space-event-details',
@@ -9,20 +8,15 @@ import { getHours, getMinutes } from 'date-fns';
         @if (event()) {
             <div
                 event
-                class="bg-base-100 absolute inset-x-1 overflow-hidden rounded-sm border px-2 py-1"
-                [style.top]="top() + '%'"
-                [style.height]="height() + '%'"
-                [class.border-base-300]="event().state !== 'in_progress'"
-                [class.border-info]="event().state === 'in_progress'"
-                [class.opacity-30!]="event().state === 'done'"
+                class="bg-base-100 h-full w-full overflow-hidden rounded-sm border px-2 py-1"
+                [class.border-base-300]="state() !== 'in_progress'"
+                [class.border-info]="state() === 'in_progress'"
+                [class.opacity-30!]="state() === 'done'"
             >
                 <h2>{{ event().title }}</h2>
                 <p>
                     {{ event().date | date: 'shortTime' }} &ndash;
-                    {{
-                        event().date + event().duration * 60 * 1000
-                            | date: 'shortTime'
-                    }}
+                    {{ event().date_end | date: 'shortTime' }}
                 </p>
             </div>
         }
@@ -32,24 +26,13 @@ import { getHours, getMinutes } from 'date-fns';
 })
 export class SpaceEventDetailsComponent {
     public readonly event = input<CalendarEvent>(null);
-    public readonly time_offset = input<number>(0);
-    public readonly time_period = input<number>(24);
+    /** Current time in ms */
+    public readonly now = input<number>(0);
 
-    public readonly top = computed(() => {
-        const date = this.event().date || this.event().event_start * 1000;
-        const start_hour = getHours(date) + getMinutes(date) / 60;
-        const start_offset = start_hour - this.time_offset();
-        return (start_offset / this.time_period()) * 100;
-    });
-
-    public readonly height = computed(() => {
-        let duration = this.event().duration;
-        if (!duration) {
-            const duration_s =
-                this.event().event_end - this.event().event_start;
-            duration = Math.floor(duration_s / 60);
-        }
-        const duration_hours = duration / 60;
-        return (duration_hours / this.time_period()) * 100;
+    public readonly state = computed(() => {
+        const { date, date_end } = this.event();
+        if (this.now() >= date_end) return 'done';
+        if (this.now() >= date) return 'in_progress';
+        return 'future';
     });
 }
