@@ -8,7 +8,9 @@ import { VoiceAssistantService } from '../../app/ui/voice-assistant.service';
 
 describe('VoiceAssistantComponent', () => {
     let spectator: Spectator<VoiceAssistantComponent>;
-    let active: ReturnType<typeof signal<boolean>>;
+    let state: ReturnType<typeof signal<string>>;
+    let current_text: ReturnType<typeof signal<string>>;
+    let levels_ready: ReturnType<typeof signal<boolean>>;
     let progress: ReturnType<typeof signal<any>>;
     let error: ReturnType<typeof signal<any>>;
     let enabled: ReturnType<typeof signal<boolean>>;
@@ -20,13 +22,18 @@ describe('VoiceAssistantComponent', () => {
     });
 
     beforeEach(() => {
-        active = signal(false);
+        state = signal('idle');
+        current_text = signal('');
+        levels_ready = signal(false);
         progress = signal<any>(null);
         error = signal<any>({});
         enabled = signal(true);
         service = {
             activate: vi.fn(),
-            active,
+            state,
+            current_text,
+            levels_ready,
+            readLevels: () => new Float32Array(5).fill(0.5),
             progress,
             error,
             enabled,
@@ -52,12 +59,31 @@ describe('VoiceAssistantComponent', () => {
         expect(spectator.query('icon')).not.toExist();
     });
 
-    it('should show the active state with a pinging indicator', () => {
+    it('should show a pinging indicator and the transcript while listening', () => {
         expect(spectator.query('.animate-ping')).not.toExist();
-        active.set(true);
+        expect(spectator.query('[role="status"]')).not.toExist();
+        state.set('listening');
         spectator.detectChanges();
-        expect(spectator.query('.bg-success')).toExist();
         expect(spectator.query('.animate-ping')).toExist();
+        expect(spectator.query('[role="status"]')).toContainText(
+            'Listening...',
+        );
+        current_text.set('turn on the lights');
+        spectator.detectChanges();
+        expect(spectator.query('[role="status"]')).toContainText(
+            'turn on the lights',
+        );
+    });
+
+    it('should show level bars instead of the pulse when levels are ready', () => {
+        state.set('listening');
+        levels_ready.set(true);
+        spectator.detectChanges();
+        expect(spectator.queryAll('[aria-hidden] span')).toHaveLength(5);
+        expect(spectator.query('.animate-ping')).not.toExist();
+        state.set('processing');
+        spectator.detectChanges();
+        expect(spectator.query('[aria-hidden] span')).not.toExist();
     });
 
     it('should activate the service when the button is clicked', () => {
@@ -65,11 +91,13 @@ describe('VoiceAssistantComponent', () => {
         expect(service.activate).toHaveBeenCalled();
     });
 
-    it('should show progress details when active and a progress exists', () => {
-        active.set(true);
+    it('should show progress details while processing', () => {
+        state.set('processing');
         progress.set({ function: 'call_function', message: 'Doing a thing' });
         spectator.detectChanges();
-        expect(spectator.query('.bg-info')).toContainText('Doing a thing');
+        expect(spectator.query('[role="status"]')).toContainText(
+            'Doing a thing',
+        );
     });
 
     it('should bind to the system id supplied via input', () => {
