@@ -58,6 +58,8 @@ interface PlaylistSchedule {
     readonly play_cron?: string;
     readonly play_period?: number;
     readonly play_at?: number;
+    /** Wall-clock play once time with no offset, e.g. "2027-01-01T00:00:00" */
+    readonly play_at_local?: string;
     readonly play_takeover?: boolean;
     readonly valid_until?: number;
     readonly valid_from?: number;
@@ -188,6 +190,40 @@ function parsePlayAtTimestamp(value: number) {
     return value * 1000;
 }
 
+const PLAY_AT_LOCAL_PATTERN =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/;
+
+/**
+ * Parse a `play_at_local` value in the display's timezone. Returns 0 when
+ * the value is not an ISO 8601 date time with no offset.
+ */
+function parsePlayAtLocalTimestamp(value = '') {
+    const match = PLAY_AT_LOCAL_PATTERN.exec(value);
+    if (!match) return 0;
+    const [year, month, day, hours, minutes, seconds] = match
+        .slice(1)
+        .map(Number);
+    const date = new Date(year, month - 1, day, hours, minutes, seconds);
+    // Reject values such as February 30 or 00:60 that roll over.
+    return date.getDate() === day &&
+        date.getMonth() === month - 1 &&
+        minutes < 60 &&
+        seconds < 60
+        ? date.getTime()
+        : 0;
+}
+
+function isPlayOnceSchedule(schedule: PlaylistSchedule) {
+    return !!schedule.play_at || !!schedule.play_at_local;
+}
+
+/** Start of a play once schedule in milliseconds; 0 when not valid */
+function playOnceTimestamp(schedule: PlaylistSchedule) {
+    return schedule.play_at
+        ? parsePlayAtTimestamp(schedule.play_at)
+        : parsePlayAtLocalTimestamp(schedule.play_at_local);
+}
+
 function parseValidUntilTimestamp(value: number | undefined) {
     if (!Number.isFinite(value) || !value || value <= 0) return 0;
     return value * 1000;
@@ -224,8 +260,8 @@ function scheduledPlaylistWindow(
     const valid_until = parseValidUntilTimestamp(schedule.valid_until);
     if (!hasPlayableScheduleMask(schedule)) return null;
     if (valid_until && now > valid_until) return null;
-    if (schedule.play_at) {
-        const starts_at = parsePlayAtTimestamp(schedule.play_at);
+    if (isPlayOnceSchedule(schedule)) {
+        const starts_at = playOnceTimestamp(schedule);
         if (
             !starts_at ||
             starts_at < (schedule.valid_from || 0) * 1000 ||
@@ -317,8 +353,8 @@ function nextScheduledPlaylistStart(
     const valid_until = parseValidUntilTimestamp(schedule.valid_until);
     if (!hasPlayableScheduleMask(schedule)) return 0;
     if (valid_until && now > valid_until) return 0;
-    if (schedule.play_at) {
-        const starts_at = parsePlayAtTimestamp(schedule.play_at);
+    if (isPlayOnceSchedule(schedule)) {
+        const starts_at = playOnceTimestamp(schedule);
         if (
             !starts_at ||
             starts_at <= now ||
@@ -824,6 +860,7 @@ export class SignageService extends AsyncHandler {
                     play_at: asTime(
                         parsePlayAtTimestamp(schedule.play_at || 0),
                     ),
+                    play_at_local: schedule.play_at_local || '',
                     period_minutes: period,
                     starts_at: asTime(starts_at),
                     ends_at: period

@@ -256,6 +256,7 @@ describe('PlaylistItemScheduleModalComponent', () => {
                     ...model.schedules[0],
                     schedule_type: 'play_at',
                     play_at,
+                    play_at_exact: true,
                     play_period: 45,
                 },
             ],

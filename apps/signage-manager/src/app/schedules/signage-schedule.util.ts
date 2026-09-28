@@ -3,7 +3,9 @@ import { SignagePlaylist } from '@placeos/ts-client';
 import { fromUnixTime, isSameDay, startOfDay } from 'date-fns';
 import {
     createScheduleMaskFilter,
+    isPlayOnceSchedule,
     type PlaylistSchedule,
+    playOnceStart,
 } from '../signage-playlist.util';
 
 const BLOCK_PALETTE = [
@@ -195,11 +197,6 @@ function formatTimeRange(
     return `${formatTime(start_minutes)} – ${formatTime(start_minutes + duration_minutes)}`;
 }
 
-function parsePlayAt(play_at: number): Date | null {
-    if (!play_at) return null;
-    return fromUnixTime(play_at);
-}
-
 function isScheduleValidAt(schedule: Partial<PlaylistSchedule>, date: Date) {
     const time = date.getTime();
     return (
@@ -307,12 +304,11 @@ function generateScheduleBlocks(
         if (!isDayInRange(day, valid_from, valid_until)) continue;
 
         for (const { schedule, allows } of schedules) {
-            const { play_at } = schedule;
             const play_cron = schedule.play_cron?.trim() || '0 0 * * *';
             const play_period = playPeriodMinutes(schedule);
 
-            if (play_at) {
-                const at_date = parsePlayAt(play_at);
+            if (isPlayOnceSchedule(schedule)) {
+                const at_date = playOnceStart(schedule);
                 if (
                     !at_date ||
                     !isSameDay(day, at_date) ||
