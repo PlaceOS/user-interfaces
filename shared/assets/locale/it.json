@@ -258,7 +258,11 @@
         "LOAD_ERROR": "Impossibile caricare i dati. Controlla la connessione, poi riprova.",
         "RETRY": "Riprova",
         "SELECT_ALL": "Seleziona tutto",
-        "SELECT_ROW": "Seleziona riga"
+        "SELECT_ROW": "Seleziona riga",
+        "CLEAR_SELECTION": "Cancella selezione",
+        "BULK_LOADING": "Aggiornamento elementi ({{ count }})...",
+        "BULK_SUCCESS": "Elementi aggiornati: {{ count }}",
+        "BULK_PARTIAL": "{{ failed }} elementi su {{ total }} non sono stati aggiornati."
     },
     "LANGUAGE": {
         "ENGLISH": "Inglese",

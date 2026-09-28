@@ -3,6 +3,8 @@ export * from './lib/attached-resource-config-modal.component';
 export * from './lib/authenticated-image.directive';
 export * from './lib/authenticated-image.pipe';
 export * from './lib/available-rooms-state-modal.component';
+export * from './lib/bulk-actions';
+export * from './lib/bulk-actions-bar.component';
 export * from './lib/changelog-modal.component';
 export * from './lib/changelog.service';
 export * from './lib/chat/chat.component';

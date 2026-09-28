@@ -258,7 +258,11 @@
         "LOAD_ERROR": "No se pudieron cargar los datos. Compruebe su conexión e inténtelo de nuevo.",
         "RETRY": "Reintentar",
         "SELECT_ALL": "Seleccionar todo",
-        "SELECT_ROW": "Seleccionar fila"
+        "SELECT_ROW": "Seleccionar fila",
+        "CLEAR_SELECTION": "Borrar selección",
+        "BULK_LOADING": "Actualizando elementos ({{ count }})...",
+        "BULK_SUCCESS": "Elementos actualizados: {{ count }}",
+        "BULK_PARTIAL": "{{ failed }} de {{ total }} elementos no se actualizaron."
     },
     "LANGUAGE": {
         "ENGLISH": "Inglés",

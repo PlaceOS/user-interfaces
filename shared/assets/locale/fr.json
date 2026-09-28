@@ -258,7 +258,11 @@
         "LOAD_ERROR": "Impossible de charger les données. Vérifiez votre connexion, puis réessayez.",
         "RETRY": "Réessayer",
         "SELECT_ALL": "Tout sélectionner",
-        "SELECT_ROW": "Sélectionner la ligne"
+        "SELECT_ROW": "Sélectionner la ligne",
+        "CLEAR_SELECTION": "Effacer la sélection",
+        "BULK_LOADING": "Mise à jour des éléments ({{ count }})...",
+        "BULK_SUCCESS": "Éléments mis à jour : {{ count }}",
+        "BULK_PARTIAL": "{{ failed }} éléments sur {{ total }} n’ont pas été mis à jour."
     },
     "LANGUAGE": {
         "ENGLISH": "Anglais",

@@ -258,7 +258,11 @@
         "LOAD_ERROR": "无法加载数据。请检查网络连接，然后重试。",
         "RETRY": "重试",
         "SELECT_ALL": "全选",
-        "SELECT_ROW": "选择行"
+        "SELECT_ROW": "选择行",
+        "CLEAR_SELECTION": "清除选择",
+        "BULK_LOADING": "正在更新项目 ({{ count }})...",
+        "BULK_SUCCESS": "已更新的项目：{{ count }}",
+        "BULK_PARTIAL": "{{ total }} 个项目中有 {{ failed }} 个未更新。"
     },
     "LANGUAGE": {
         "ENGLISH": "英语",

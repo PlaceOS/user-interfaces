@@ -1092,7 +1092,11 @@
         "LOAD_ERROR": "Could not load the data. Check your connection, then try again.",
         "RETRY": "Retry",
         "SELECT_ALL": "Select all",
-        "SELECT_ROW": "Select row"
+        "SELECT_ROW": "Select row",
+        "CLEAR_SELECTION": "Clear selection",
+        "BULK_LOADING": "Updating items ({{ count }})...",
+        "BULK_SUCCESS": "Items updated: {{ count }}",
+        "BULK_PARTIAL": "{{ failed }} of {{ total }} items did not update."
     },
     "LANGUAGE": {
         "ENGLISH": "English",

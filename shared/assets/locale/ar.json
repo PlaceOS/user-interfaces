@@ -258,7 +258,11 @@
         "LOAD_ERROR": "تعذر تحميل البيانات. تحقق من الاتصال، ثم حاول مرة أخرى.",
         "RETRY": "إعادة المحاولة",
         "SELECT_ALL": "تحديد الكل",
-        "SELECT_ROW": "تحديد الصف"
+        "SELECT_ROW": "تحديد الصف",
+        "CLEAR_SELECTION": "مسح التحديد",
+        "BULK_LOADING": "جاري تحديث العناصر ({{ count }})...",
+        "BULK_SUCCESS": "العناصر المحدثة: {{ count }}",
+        "BULK_PARTIAL": "لم يتم تحديث {{ failed }} من {{ total }} عناصر."
     },
     "LANGUAGE": {
         "ENGLISH": "الإنجليزية",
