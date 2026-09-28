@@ -254,7 +254,11 @@
         "PARKING_SETTINGS_SAVE": "تم حفظ إعدادات مواقف السيارات بنجاح",
         "YES": "نعم",
         "NO": "لا",
-        "PEOPLE_COUNT": "{{ count }} أشخاص"
+        "PEOPLE_COUNT": "{{ count }} أشخاص",
+        "LOAD_ERROR": "تعذر تحميل البيانات. تحقق من الاتصال، ثم حاول مرة أخرى.",
+        "RETRY": "إعادة المحاولة",
+        "SELECT_ALL": "تحديد الكل",
+        "SELECT_ROW": "تحديد الصف"
     },
     "LANGUAGE": {
         "ENGLISH": "الإنجليزية",

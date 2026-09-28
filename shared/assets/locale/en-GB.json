@@ -258,7 +258,11 @@
         "PARKING_SETTINGS_SAVE": "Successfully saved parking settings",
         "YES": "Yes",
         "NO": "No",
-        "PEOPLE_COUNT": "{{ count }} people"
+        "PEOPLE_COUNT": "{{ count }} people",
+        "LOAD_ERROR": "Could not load the data. Check your connection, then try again.",
+        "RETRY": "Retry",
+        "SELECT_ALL": "Select all",
+        "SELECT_ROW": "Select row"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

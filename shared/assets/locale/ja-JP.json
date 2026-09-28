@@ -254,7 +254,11 @@
         "PARKING_SETTINGS_SAVE": "駐車場設定を正常に保存しました",
         "YES": "はい",
         "NO": "いいえ",
-        "PEOPLE_COUNT": "{{ count }} 人"
+        "PEOPLE_COUNT": "{{ count }} 人",
+        "LOAD_ERROR": "データを読み込めませんでした。接続を確認してから、もう一度お試しください。",
+        "RETRY": "再試行",
+        "SELECT_ALL": "すべて選択",
+        "SELECT_ROW": "行を選択"
     },
     "LANGUAGE": {
         "ENGLISH": "英語",

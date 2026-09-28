@@ -1088,7 +1088,11 @@
         "UPDATE": "Update",
         "SAVING": "Saving...",
         "ITEM_REMOVE": "Remove item",
-        "BUILDINGS_ALL": "All Buildings"
+        "BUILDINGS_ALL": "All Buildings",
+        "LOAD_ERROR": "Could not load the data. Check your connection, then try again.",
+        "RETRY": "Retry",
+        "SELECT_ALL": "Select all",
+        "SELECT_ROW": "Select row"
     },
     "LANGUAGE": {
         "ENGLISH": "English",

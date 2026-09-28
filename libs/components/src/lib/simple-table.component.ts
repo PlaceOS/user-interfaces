@@ -5,14 +5,16 @@ import {
     computed,
     effect,
     input,
-    linkedSignal,
+    model,
     output,
     signal,
+    untracked,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { Observable, Subscription } from 'rxjs';
 import { IconComponent } from './icon.component';
+import { LoadErrorComponent } from './load-error.component';
 import { TranslatePipe } from './translate.pipe';
 
 export interface TableColumn {
@@ -46,11 +48,12 @@ export interface TableColumn {
                         [style.gridColumn]="'1 / 2'"
                     >
                         <mat-checkbox
-                            [checked]="selected().length === data_view().length"
+                            [checked]="all_selected()"
                             [indeterminate]="
-                                selected().length > 0 &&
-                                selected().length < data_view().length
+                                selected().length > 0 && !all_selected()
                             "
+                            [disabled]="!selectable_keys().length"
+                            [aria-label]="'COMMON.SELECT_ALL' | translate"
                             (change)="selectAll($event.checked)"
                         ></mat-checkbox>
                     </div>
@@ -98,10 +101,11 @@ export interface TableColumn {
             }
             @for (
                 row of paginated_data();
-                track row['id'] || row;
+                track rowKey(row) || row;
                 let i = $index
             ) {
                 @if (selectable()) {
+                    @let key = rowKey(row);
                     <div
                         id="column-selector"
                         class="border-base-200 z-10 flex min-h-full items-center justify-between border-r px-2"
@@ -109,10 +113,13 @@ export interface TableColumn {
                         [class.border-b]="i !== paginated_data().length - 1"
                         (mouseenter)="active_row.set(i)"
                         (touchstart)="active_row.set(i)"
+                        (click)="$event.stopPropagation()"
                     >
                         <mat-checkbox
-                            [checked]="selected().includes(i)"
-                            (change)="select(i, $event.checked)"
+                            [checked]="selected().includes(key)"
+                            [disabled]="!can_select()(row)"
+                            [aria-label]="'COMMON.SELECT_ROW' | translate"
+                            (change)="select(key, $event.checked)"
                         ></mat-checkbox>
                     </div>
                 }
@@ -187,7 +194,7 @@ export interface TableColumn {
                 @if (show_children()[row['id']] && child_template()) {
                     <div
                         child-node
-                        [style.gridColumn]="'span ' + active_columns().length"
+                        [style.gridColumn]="'span ' + column_count()"
                         class="border-base-200 relative border-b last:border-t last:border-b-0"
                     >
                         <ng-container
@@ -204,9 +211,14 @@ export interface TableColumn {
                     </div>
                 }
             }
-            @if (!data_view().length) {
+            @if (error()) {
+                <load-error
+                    [style.gridColumnStart]="'span ' + column_count()"
+                    (retry)="retry.emit()"
+                />
+            } @else if (!data_view().length) {
                 <div
-                    [style.gridColumnStart]="'span ' + active_columns().length"
+                    [style.gridColumnStart]="'span ' + column_count()"
                     class="flex items-center justify-center p-8 opacity-30"
                 >
                     {{ empty_message() }}
@@ -288,6 +300,7 @@ export interface TableColumn {
         TranslatePipe,
         IconComponent,
         MatCheckboxModule,
+        LoadErrorComponent,
     ],
 })
 export class SimpleTableComponent<T extends object = any> {
@@ -295,20 +308,26 @@ export class SimpleTableComponent<T extends object = any> {
     public readonly data = input<T[] | Observable<T[]>>(undefined);
     public readonly columns = input<TableColumn[]>([]);
     public readonly selectable = input(false);
+    /** Unique key for a row. Selection and row tracking use it. */
+    public readonly row_key = input<(row: T) => string>((row) => row?.['id']);
+    /** Whether the user can select a row */
+    public readonly can_select = input<(row: T) => boolean>(() => true);
     public readonly filter = input('');
     public readonly sortable = input(false);
     public readonly show_header = input(true);
-    public readonly selectedInput = input<number[]>([], { alias: 'selected' });
-    public readonly selected = linkedSignal(this.selectedInput);
+    /** Keys of the selected rows. Supports two-way binding. */
+    public readonly selected = model<string[]>([]);
     public readonly page_size = input(0);
     public readonly empty_message = input('No data to list');
     public readonly child_template = input<TemplateRef<any>>(null);
     public readonly show_children = input<Record<string, boolean>>({});
     public readonly filter_on = input<string[]>([]);
+    /** Show a load error with a retry button instead of the empty message */
+    public readonly error = input(false);
 
     // Outputs
-    public readonly selectedChange = output<number[]>();
     public readonly rowClicked = output<number>();
+    public readonly retry = output<void>();
 
     // Internal signals
     public readonly page = signal(0);
@@ -379,6 +398,20 @@ export class SimpleTableComponent<T extends object = any> {
         return data.slice(start, end);
     });
 
+    /** Keys of the rows in view that the user can select */
+    public readonly selectable_keys = computed(() => {
+        const can_select = this.can_select();
+        return this.data_view()
+            .filter((row) => can_select(row))
+            .map((row) => this.rowKey(row));
+    });
+
+    public readonly all_selected = computed(() => {
+        const keys = this.selectable_keys();
+        const selected = this.selected();
+        return keys.length > 0 && keys.every((_) => selected.includes(_));
+    });
+
     // Computed column template
     public readonly column_template = computed(() => {
         const template = this.active_columns()
@@ -416,6 +449,16 @@ export class SimpleTableComponent<T extends object = any> {
             }
         });
 
+        // Drop selected keys for rows that are no longer in the data
+        effect(() => {
+            const keys = new Set(
+                this._data_signal().map((row) => this.rowKey(row)),
+            );
+            const selected = untracked(this.selected);
+            const kept = selected.filter((_) => keys.has(_));
+            if (kept.length !== selected.length) this.selected.set(kept);
+        });
+
         // Update active columns when columns input changes
         effect(() => {
             this.active_columns.set(
@@ -428,7 +471,6 @@ export class SimpleTableComponent<T extends object = any> {
             const data = this.data_view();
             const page_size_value = this.page_size();
 
-            this.selected.set([]);
             this.page.set(0);
 
             if (page_size_value) {
@@ -458,18 +500,22 @@ export class SimpleTableComponent<T extends object = any> {
         return `${row} / ${column} / ${row + 1} / ${column + 1}`;
     }
 
-    public select(index: number, state: boolean) {
-        const current_selected = this.selected();
-        if (state) {
-            this.selected.set([...current_selected, index]);
-        } else {
-            this.selected.set(current_selected.filter((i) => i !== index));
-        }
+    public rowKey(row: T) {
+        return this.row_key()(row);
+    }
+
+    public select(key: string, state: boolean) {
+        const current = this.selected().filter((_) => _ !== key);
+        this.selected.set(state ? [...current, key] : current);
     }
 
     public selectAll(state: boolean) {
-        const list = this.data_view();
-        this.selected.set(state ? list.map((_, i) => i) : []);
+        if (!state) return this.selected.set([]);
+        const current = this.selected();
+        const added = this.selectable_keys().filter(
+            (_) => !current.includes(_),
+        );
+        this.selected.set([...current, ...added]);
     }
 
     public setSort(key: string) {

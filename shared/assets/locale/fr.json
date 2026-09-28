@@ -254,7 +254,11 @@
         "PARKING_SETTINGS_SAVE": "Paramètres de stationnement enregistrés avec succès",
         "YES": "Oui",
         "NO": "Non",
-        "PEOPLE_COUNT": "{{ count }} personne(s)"
+        "PEOPLE_COUNT": "{{ count }} personne(s)",
+        "LOAD_ERROR": "Impossible de charger les données. Vérifiez votre connexion, puis réessayez.",
+        "RETRY": "Réessayer",
+        "SELECT_ALL": "Tout sélectionner",
+        "SELECT_ROW": "Sélectionner la ligne"
     },
     "LANGUAGE": {
         "ENGLISH": "Anglais",

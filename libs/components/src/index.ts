@@ -16,6 +16,7 @@ export * from './lib/global-loading.component';
 export * from './lib/icon.component';
 export * from './lib/image-carousel.component';
 export * from './lib/interactive-map.component';
+export * from './lib/load-error.component';
 export * from './lib/login.component';
 export * from './lib/map-locate-modal.component';
 export * from './lib/map-pin.component';

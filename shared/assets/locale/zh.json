@@ -254,7 +254,11 @@
         "PARKING_SETTINGS_SAVE": "停车设置保存成功",
         "YES": "是",
         "NO": "否",
-        "PEOPLE_COUNT": "{{ count }} 人"
+        "PEOPLE_COUNT": "{{ count }} 人",
+        "LOAD_ERROR": "无法加载数据。请检查网络连接，然后重试。",
+        "RETRY": "重试",
+        "SELECT_ALL": "全选",
+        "SELECT_ROW": "选择行"
     },
     "LANGUAGE": {
         "ENGLISH": "英语",

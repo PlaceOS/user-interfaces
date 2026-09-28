@@ -254,7 +254,11 @@
         "PARKING_SETTINGS_SAVE": "Impostazioni di parcheggio salvate con successo",
         "YES": "Sì",
         "NO": "No",
-        "PEOPLE_COUNT": "{{ count }} persone"
+        "PEOPLE_COUNT": "{{ count }} persone",
+        "LOAD_ERROR": "Impossibile caricare i dati. Controlla la connessione, poi riprova.",
+        "RETRY": "Riprova",
+        "SELECT_ALL": "Seleziona tutto",
+        "SELECT_ROW": "Seleziona riga"
     },
     "LANGUAGE": {
         "ENGLISH": "Inglese",
