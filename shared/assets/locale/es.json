@@ -767,7 +767,8 @@
         "ITEM_OPTION_HIDE": "Ocultar opciones del artículo",
         "ITEM_OPTION_REMOVE_LOADING": "Eliminando opción de artículo de catering...",
         "ITEM_OPTION_REMOVE_SUCCESS": "Opción de artículo de catering eliminada de {{ item }} con éxito.",
-        "ITEM_OPTION_REMOVE_ERROR": "No se pudo eliminar la opción de artículo de catering de {{ item }}. Error: {{ error }}"
+        "ITEM_OPTION_REMOVE_ERROR": "No se pudo eliminar la opción de artículo de catering de {{ item }}. Error: {{ error }}",
+        "ORDERS_SET_STATUS": "Establecer estado"
     },
     "APP": {
         "WORKPLACE": {

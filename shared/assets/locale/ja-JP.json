@@ -767,7 +767,8 @@
         "ITEM_OPTION_HIDE": "アイテムのオプションを非表示",
         "ITEM_OPTION_REMOVE_LOADING": "ケータリングアイテムオプションを削除中...",
         "ITEM_OPTION_REMOVE_SUCCESS": "{{ item }}からケータリングアイテムオプションを正常に削除しました。",
-        "ITEM_OPTION_REMOVE_ERROR": "{{ item }}からケータリングアイテムオプションの削除に失敗しました。エラー: {{ error }}"
+        "ITEM_OPTION_REMOVE_ERROR": "{{ item }}からケータリングアイテムオプションの削除に失敗しました。エラー: {{ error }}",
+        "ORDERS_SET_STATUS": "ステータスを設定"
     },
     "APP": {
         "WORKPLACE": {

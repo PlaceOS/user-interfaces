@@ -1714,7 +1714,8 @@
         "ITEM_OPTION_REMOVE_LOADING": "Removing catering item option...",
         "ITEM_OPTION_REMOVE_SUCCESS": "Successfully removed catering item option from {{ item }}.",
         "ITEM_OPTION_REMOVE_ERROR": "Failed to remove catering item option from {{ item }}. Error: {{ error }}",
-        "ITEM_SAVE_ERROR": "Failed to save catering item."
+        "ITEM_SAVE_ERROR": "Failed to save catering item.",
+        "ORDERS_SET_STATUS": "Set status"
     },
     "APP": {
         "WORKPLACE": {

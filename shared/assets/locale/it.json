@@ -767,7 +767,8 @@
         "ITEM_OPTION_HIDE": "Nascondi opzioni dell'elemento",
         "ITEM_OPTION_REMOVE_LOADING": "Rimozione opzione dell'elemento di catering in corso...",
         "ITEM_OPTION_REMOVE_SUCCESS": "Opzione di elemento di catering rimossa con successo da {{ item }}.",
-        "ITEM_OPTION_REMOVE_ERROR": "Impossibile rimuovere l'opzione di elemento di catering da {{ item }}. Errore: {{ error }}"
+        "ITEM_OPTION_REMOVE_ERROR": "Impossibile rimuovere l'opzione di elemento di catering da {{ item }}. Errore: {{ error }}",
+        "ORDERS_SET_STATUS": "Imposta stato"
     },
     "APP": {
         "WORKPLACE": {

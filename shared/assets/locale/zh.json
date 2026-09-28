@@ -767,7 +767,8 @@
         "ITEM_OPTION_HIDE": "隐藏项目选项",
         "ITEM_OPTION_REMOVE_LOADING": "正在移除餐饮项目选项...",
         "ITEM_OPTION_REMOVE_SUCCESS": "成功从 {{ item }} 中移除餐饮项目选项。",
-        "ITEM_OPTION_REMOVE_ERROR": "从 {{ item }} 中移除餐饮项目选项失败。错误：{{ error }}"
+        "ITEM_OPTION_REMOVE_ERROR": "从 {{ item }} 中移除餐饮项目选项失败。错误：{{ error }}",
+        "ORDERS_SET_STATUS": "设置状态"
     },
     "APP": {
         "WORKPLACE": {

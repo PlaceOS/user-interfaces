@@ -19,6 +19,8 @@ import {
     i18n,
     SettingsService,
 } from '@placeos/common';
+import { runBulkAction } from 'libs/components/src/lib/bulk-actions';
+import { BulkActionsBarComponent } from 'libs/components/src/lib/bulk-actions-bar.component';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SimpleTableComponent } from 'libs/components/src/lib/simple-table.component';
@@ -170,6 +172,8 @@ import {
                     },
                 ]"
                 [sortable]="true"
+                [selectable]="true"
+                [(selected)]="selected"
                 [show_children]="show_children()"
                 [child_template]="child_template"
                 [empty_message]="'CATERING.ORDERS_EMPTY' | translate"
@@ -395,6 +399,34 @@ import {
                 }
             </ng-template>
         </div>
+        <bulk-actions-bar
+            [count]="selected().length"
+            (clear)="selected.set([])"
+        >
+            <button
+                btn
+                matRipple
+                class="inverse flex items-center gap-2"
+                [disabled]="bulk_busy()"
+                [matMenuTriggerFor]="bulk_status_menu"
+            >
+                {{ 'CATERING.ORDERS_SET_STATUS' | translate }}
+                <icon>arrow_drop_down</icon>
+            </button>
+        </bulk-actions-bar>
+        <mat-menu #bulk_status_menu="matMenu">
+            @for (status of statuses(); track status.id) {
+                <button mat-menu-item (click)="setSelectedStatus(status.id)">
+                    <div class="flex items-center space-x-2">
+                        <div
+                            class="mr-2 h-4 w-4 rounded-full"
+                            [style.background-color]="status.colour"
+                        ></div>
+                        <span class="mr-2">{{ status.name }}</span>
+                    </div>
+                </button>
+            }
+        </mat-menu>
     `,
     styles: [
         `
@@ -417,6 +449,7 @@ import {
         MatProgressBarModule,
         MatTooltipModule,
         IconComponent,
+        BulkActionsBarComponent,
     ],
 })
 export class CateringOrderListComponent extends AsyncHandler implements OnInit {
@@ -442,6 +475,9 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
 
     public readonly statuses = signal(statusList());
     public readonly show_children = signal<Record<string, boolean>>({});
+    /** IDs of the selected orders */
+    public readonly selected = signal<string[]>([]);
+    public readonly bulk_busy = signal(false);
     /** Current time. Updates so that urgency markers stay correct. */
     public readonly now = signal(Date.now());
     /** Number of orders for each status filter */
@@ -492,6 +528,17 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
     public ngOnInit() {
         this.subscription('polling', this._orders.startPolling());
         this.interval('clock', () => this.now.set(Date.now()), 30 * 1000);
+    }
+
+    /** Change the status of every selected order */
+    public async setSelectedStatus(status: CateringOrderStatus) {
+        const ids = new Set(this.selected());
+        const orders = this.order_list().filter((order) => ids.has(order.id));
+        this.bulk_busy.set(true);
+        await runBulkAction(orders, (order) =>
+            this._orders.updateStatus(order, status),
+        ).finally(() => this.bulk_busy.set(false));
+        this.selected.set([]);
     }
 
     public setStatusFilter(status: CateringStatusFilter) {

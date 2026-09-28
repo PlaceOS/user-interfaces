@@ -767,7 +767,8 @@
         "ITEM_OPTION_HIDE": "Masquer les options de l'article",
         "ITEM_OPTION_REMOVE_LOADING": "Suppression de l'option de l'article de traiteur...",
         "ITEM_OPTION_REMOVE_SUCCESS": "Option d'article de traiteur supprimée de {{ item }} avec succès.",
-        "ITEM_OPTION_REMOVE_ERROR": "Échec de la suppression de l'option de l'article de traiteur de {{ item }}. Erreur : {{ error }}"
+        "ITEM_OPTION_REMOVE_ERROR": "Échec de la suppression de l'option de l'article de traiteur de {{ item }}. Erreur : {{ error }}",
+        "ORDERS_SET_STATUS": "Définir le statut"
     },
     "APP": {
         "WORKPLACE": {

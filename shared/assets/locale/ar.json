@@ -767,7 +767,8 @@
         "ITEM_OPTION_HIDE": "إخفاء خيارات العنصر",
         "ITEM_OPTION_REMOVE_LOADING": "جاري إزالة خيار عنصر خدمات الطعام...",
         "ITEM_OPTION_REMOVE_SUCCESS": "تمت إزالة خيار عنصر خدمات الطعام من {{ item }} بنجاح.",
-        "ITEM_OPTION_REMOVE_ERROR": "فشل إزالة خيار عنصر خدمات الطعام من {{ item }}. خطأ: {{ error }}"
+        "ITEM_OPTION_REMOVE_ERROR": "فشل إزالة خيار عنصر خدمات الطعام من {{ item }}. خطأ: {{ error }}",
+        "ORDERS_SET_STATUS": "تعيين الحالة"
     },
     "APP": {
         "WORKPLACE": {

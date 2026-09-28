@@ -767,7 +767,8 @@
         "ITEM_OPTION_HIDE": "Ocultar opções do item",
         "ITEM_OPTION_REMOVE_LOADING": "Removendo opção de item de serviço de alimentação...",
         "ITEM_OPTION_REMOVE_SUCCESS": "Opção de item de serviço de alimentação removida com sucesso de {{ item }}.",
-        "ITEM_OPTION_REMOVE_ERROR": "Falha ao remover opção de item de serviço de alimentação de {{ item }}. Erro: {{ error }}"
+        "ITEM_OPTION_REMOVE_ERROR": "Falha ao remover opção de item de serviço de alimentação de {{ item }}. Erro: {{ error }}",
+        "ORDERS_SET_STATUS": "Definir status"
     },
     "APP": {
         "WORKPLACE": {
