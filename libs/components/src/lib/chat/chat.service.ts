@@ -110,7 +110,13 @@ export class ChatService extends AsyncHandler {
         if (!message) return;
 
         this._onMessage({ chat_id: '', message, user_id: currentUser().id });
-        this._socket?.send(message);
+        const socket = this._socket;
+        // Sending before the socket opens throws, so wait for it to open
+        if (socket?.readyState === WebSocket.CONNECTING) {
+            socket.addEventListener('open', () => socket.send(message), {
+                once: true,
+            });
+        } else socket?.send(message);
     }
 
     private _timeoutSocket(delay = 55 * 1000) {
