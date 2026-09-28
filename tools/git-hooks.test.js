@@ -1,6 +1,12 @@
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
-const { cpSync, mkdirSync, mkdtempSync, rmSync } = require('node:fs');
+const {
+    cpSync,
+    mkdirSync,
+    mkdtempSync,
+    rmSync,
+    symlinkSync,
+} = require('node:fs');
 const { tmpdir } = require('node:os');
 const path = require('node:path');
 const { test } = require('node:test');
@@ -8,7 +14,7 @@ const { cleanMessage } = require('./git-hooks');
 
 const ATTRIBUTION = 'Co-Authored-By: Claude Sonnet <noreply@anthropic.com>';
 
-function fixture(context) {
+function fixture(context, environment = {}) {
     const directory = mkdtempSync(path.join(tmpdir(), 'git-hooks-'));
     context.after(() => rmSync(directory, { recursive: true, force: true }));
     const repo = path.join(directory, 'repo');
@@ -24,6 +30,7 @@ function fixture(context) {
                 GIT_CONFIG_GLOBAL: '/dev/null',
                 GIT_CONFIG_NOSYSTEM: '1',
                 GIT_TERMINAL_PROMPT: '0',
+                ...environment,
             },
         });
     }
@@ -48,6 +55,10 @@ function fixture(context) {
         __filename.replace('.test.js', '.js'),
         path.join(repo, 'tools/git-hooks.js'),
     );
+    cpSync(
+        path.join(__dirname, 'run-git-hook.sh'),
+        path.join(repo, 'tools/run-git-hook.sh'),
+    );
     git('config', 'core.hooksPath', '.githooks');
 
     function commit(message, bypass = false) {
@@ -61,8 +72,50 @@ function fixture(context) {
         return git('rev-parse', 'HEAD');
     }
 
-    return { run, git, commit };
+    return { run, git, commit, directory };
 }
+
+test('both hooks find Bun outside PATH in a GUI environment', (context) => {
+    const environment = {};
+    const { git, commit, directory } = fixture(context, environment);
+    const bun_install = path.join(directory, 'Bun Install');
+    mkdirSync(path.join(bun_install, 'bin'), { recursive: true });
+    symlinkSync(process.execPath, path.join(bun_install, 'bin/bun'));
+    environment.PATH = '/usr/bin:/bin';
+    environment.BUN_INSTALL = bun_install;
+
+    commit(`fix: GUI commit\n\n${ATTRIBUTION}`);
+    assert.equal(git('log', '-1', '--format=%B'), 'fix: GUI commit');
+    git('push', 'origin', 'main');
+});
+
+test('hooks use Node.js when Bun is unavailable', (context) => {
+    const node = spawnSync('node', ['-p', 'process.execPath'], {
+        encoding: 'utf8',
+    });
+    assert.equal(node.status, 0, node.stderr);
+    const environment = {};
+    const { git, commit, directory } = fixture(context, environment);
+    const bin = path.join(directory, 'bin');
+    mkdirSync(bin);
+    symlinkSync(node.stdout.trim(), path.join(bin, 'node'));
+    environment.PATH = `${bin}:/usr/bin:/bin`;
+    environment.BUN_INSTALL = path.join(directory, 'missing-bun');
+
+    commit(`fix: Node commit\n\n${ATTRIBUTION}`);
+    assert.equal(git('log', '-1', '--format=%B'), 'fix: Node commit');
+    git('push', 'origin', 'main');
+});
+
+test('a missing runtime stops the hook with setup instructions', (context) => {
+    const environment = {};
+    const { run, directory } = fixture(context, environment);
+    environment.PATH = '/usr/bin:/bin';
+    environment.BUN_INSTALL = path.join(directory, 'missing-bun');
+    const result = run('commit', '--allow-empty', '-m', 'fix: missing runtime');
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /Git hooks need Bun or Node.js/);
+});
 
 test('removes attribution variants and preserves human co-authors and message text', () => {
     const message =

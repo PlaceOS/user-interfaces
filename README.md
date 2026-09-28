@@ -23,7 +23,12 @@ history from locally available remote tips and the destination's remote-tracking
 refs. If no remote history is available locally, it checks the full history being
 pushed. Fetch the destination first to avoid checking history it already has.
 
-Hooks require Bun on `PATH`. Enable them once per clone with
+Hooks use Bun from `PATH`, `$BUN_INSTALL/bin/bun`, or the default
+`$HOME/.bun/bin/bun` when `BUN_INSTALL` is unset. They can also use Node.js from
+`PATH`. This lets GUI Git clients run the hooks without loading a shell profile.
+If neither runtime is available, the hook stops with setup instructions.
+
+Enable them once per clone with
 `bun run hooks:install`. This command sets the local `core.hooksPath` to
 `.githooks`, replacing any previous hooks path for that clone. Dependency
 installation does not change the hooks path.

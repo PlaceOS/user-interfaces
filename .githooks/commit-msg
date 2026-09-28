@@ -1,2 +1,2 @@
 #!/bin/sh
-exec bun ./tools/git-hooks.js commit-msg "$@"
+exec /bin/sh ./tools/run-git-hook.sh commit-msg "$@"
