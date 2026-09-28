@@ -5,6 +5,7 @@ import {
     DestroyRef,
     ElementRef,
     inject,
+    Injectable,
     signal,
     viewChild,
 } from '@angular/core';
@@ -21,6 +22,18 @@ import {
 import { CommandPaletteService } from './command-palette.service';
 import { injectNavItems } from './nav-items';
 import { SignageGroupSelectorComponent } from './signage-group-selector.component';
+
+/**
+ * Nav list scroll state, shared across sidebar instances. Each page mounts
+ * its own sidebar, so without this the list jumps to the top and the arrows
+ * appear one frame late on every navigation.
+ */
+@Injectable({ providedIn: 'root' })
+class NavScrollState {
+    public top = 0;
+    public readonly can_scroll_up = signal(false);
+    public readonly can_scroll_down = signal(false);
+}
 
 @Component({
     selector: 'nav-sidebar',
@@ -231,8 +244,9 @@ export class NavSidebarComponent {
     private readonly _scroll_content =
         viewChild<ElementRef<HTMLElement>>('scroll_content');
     private _active_link?: HTMLElement;
-    public readonly can_scroll_up = signal(false);
-    public readonly can_scroll_down = signal(false);
+    private readonly _scroll_state = inject(NavScrollState);
+    public readonly can_scroll_up = this._scroll_state.can_scroll_up;
+    public readonly can_scroll_down = this._scroll_state.can_scroll_down;
     /** Show the scroll arrows when the nav items do not fit. */
     public readonly overflowing = computed(
         () => this.can_scroll_up() || this.can_scroll_down(),
@@ -263,6 +277,10 @@ export class NavSidebarComponent {
             const scroller = this._scroller()?.nativeElement;
             const content = this._scroll_content()?.nativeElement;
             if (!scroller || !content) return;
+            // Continue from where the previous page left the list.
+            scroller.scrollTop = this._scroll_state.top;
+            this.updateScrollState();
+            this.revealActiveLink();
             // Arrows and item changes resize the list, which can hide the
             // active link or change overflow.
             const observer = new ResizeObserver(() => {
@@ -279,6 +297,7 @@ export class NavSidebarComponent {
     public updateScrollState() {
         const el = this._scroller()?.nativeElement;
         if (!el) return;
+        this._scroll_state.top = el.scrollTop;
         // 1px tolerance for fractional scroll positions.
         this.can_scroll_up.set(el.scrollTop > 1);
         this.can_scroll_down.set(

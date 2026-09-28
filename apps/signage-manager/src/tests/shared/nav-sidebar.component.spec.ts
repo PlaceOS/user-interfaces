@@ -236,6 +236,27 @@ describe('NavSidebarComponent', () => {
             });
         });
 
+        it('keeps the list position and arrows for the next page', async () => {
+            const { component, scroller } = await createScrollFixture({
+                scrollTop: 120,
+                clientHeight: 200,
+                scrollHeight: 500,
+            });
+            component.updateScrollState();
+
+            const next = TestBed.createComponent(NavSidebarComponent);
+            expect(next.componentInstance.can_scroll_up()).toBe(true);
+            expect(next.componentInstance.can_scroll_down()).toBe(true);
+            next.detectChanges();
+            await next.whenStable();
+
+            const next_scroller = next.nativeElement.querySelector(
+                'div',
+            ) as HTMLElement;
+            expect(next_scroller).not.toBe(scroller);
+            expect(next_scroller.scrollTop).toBe(120);
+        });
+
         it('scrolls an active link below the list into view', async () => {
             const { component, scroller } = await createScrollFixture({
                 scrollTop: 0,
