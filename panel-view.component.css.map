@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["panel-view.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n                display: block;\n                width: 100%;\n                height: 100%;\n                overflow: hidden;\n            }\n\n            :host > * {\n                transform: translate(\n                    var(--burn-in-x, 0px),\n                    var(--burn-in-y, 0px)\n                );\n                transition: transform 1s ease-in-out;\n            }\n        "],
+  "mappings": "AACY,MACI,SAAA,SACA,QAAA,MACA,MAAA,KACA,OAAA,KACA,SAAA,MACJ,CAEA,KAAA,CAAA,EACI,UAAA,uDAIA,WAAA,UAAA,GAAA,WACJ",
+  "names": []
+}
