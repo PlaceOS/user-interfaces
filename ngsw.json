@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1790565502873,
+  "timestamp": 1790579016372,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -223,7 +223,7 @@
     "./chunk-tvO6s_CG.js": "49cfc54c0f61a86b04789e9d4d8c50b25836df94",
     "./favicon.ico": "bac75d7f037be9da4c9e2b32506e7f0beaf970a2",
     "./index.html": "0bcb8e738f38a0e5c7da91a45b7e1246629da392",
-    "./main.js": "d84e61a98beeeaa44412dcc666df55a4af7f9f92",
+    "./main.js": "b7989e02f484e8d59fd44ea0b9312d36d51a7c75",
     "./manifest.webmanifest": "52303dac8925303543586afc1ce6fc2a5af2c4b2",
     "./styles.css": "e9571d937ed241656df5d6982a99c45bf9221ed5"
   },
