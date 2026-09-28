@@ -42,6 +42,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </icon>
                 <input
                     matInput
+                    data-shortcut="search"
                     [ngModel]="options().search"
                     (ngModelChange)="setOptions({ search: $event })"
                     [placeholder]="
@@ -59,6 +60,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     btn
                     matRipple
                     class="w-40"
+                    data-shortcut="new"
                     [routerLink]="[base_route, 'manage', 'group']"
                 >
                     {{ 'APP.CONCIERGE.ASSETS_ITEM_ADD' | translate }}
@@ -69,6 +71,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     btn
                     matRipple
                     class="w-48"
+                    data-shortcut="new"
                     [routerLink]="[base_route, 'manage', 'purchase-order']"
                 >
                     {{ 'APP.CONCIERGE.ASSETS_PURCHASE_ADD' | translate }}

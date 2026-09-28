@@ -10,6 +10,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
         <mat-form-field appearance="outline" class="no-subscript">
             <input
                 matInput
+                data-shortcut="search"
                 [placeholder]="'COMMON.SEARCH' | translate"
                 [ngModel]="value()"
                 (ngModelChange)="setValue($event)"

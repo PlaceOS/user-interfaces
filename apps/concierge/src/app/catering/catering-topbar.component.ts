@@ -111,6 +111,7 @@ import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
                     default
                     matRipple
                     [matTooltip]="'CATERING.MENU_ADD' | translate"
+                    data-shortcut="new"
                     (click)="addItem()"
                 >
                     <icon class="text-2xl">add</icon>

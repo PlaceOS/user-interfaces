@@ -56,6 +56,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
             icon
             matRipple
             class="hover:bg-base-200 rounded-sm"
+            data-shortcut="previous"
             (click)="previousDay()"
         >
             <icon>keyboard_arrow_left</icon>
@@ -65,6 +66,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                 icon
                 matRipple
                 class="hover:bg-base-200 rounded-sm"
+                data-shortcut="next"
                 (click)="nextDay()"
             >
                 <icon>keyboard_arrow_right</icon>
@@ -72,6 +74,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
         }
         <button
             matRipple
+            data-shortcut="today"
             (dblclick)="setDate()"
             class="display hover:bg-base-200 relative mx-4 flex h-12 items-center justify-center rounded-sm leading-none"
             [class.w-30]="display_mode() === 'day'"
@@ -107,6 +110,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                 icon
                 matRipple
                 class="hover:bg-base-200 rounded-sm"
+                data-shortcut="next"
                 (click)="nextDay()"
             >
                 <icon>keyboard_arrow_right</icon>

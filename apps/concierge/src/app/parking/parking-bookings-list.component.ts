@@ -88,6 +88,7 @@ interface ParkingBookingColumnTemplates {
                     class="absolute top-1/2 -right-2 -translate-y-1/2"
                     [disabled]="loading().includes('[BOOKINGS]')"
                     [matTooltip]="'COMMON.REFRESH' | translate"
+                    data-shortcut="refresh"
                     (click)="refresh()"
                 >
                     <icon>refresh</icon>

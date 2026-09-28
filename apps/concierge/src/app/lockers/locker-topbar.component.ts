@@ -64,6 +64,7 @@ import { LockerStateService } from './locker-state.service';
                         btn
                         matRipple
                         class="w-40 space-x-2"
+                        data-shortcut="new"
                         (click)="newLockerBank()"
                         [disabled]="!levels().length"
                     >
@@ -79,6 +80,7 @@ import { LockerStateService } from './locker-state.service';
                     btn
                     matRipple
                     class="w-48 space-x-2"
+                    data-shortcut="new"
                     (click)="newBooking()"
                 >
                     <div class="pl-2">

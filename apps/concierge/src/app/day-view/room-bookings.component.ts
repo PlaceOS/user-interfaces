@@ -82,7 +82,13 @@ const EMPTY = [];
                         <icon class="text-2xl">download</icon>
                     }
                 </button>
-                <button btn matRipple class="space-x-2" (click)="newBooking()">
+                <button
+                    btn
+                    matRipple
+                    class="space-x-2"
+                    data-shortcut="new"
+                    (click)="newBooking()"
+                >
                     <div class="pl-2">
                         {{ 'APP.CONCIERGE.ROOMS_BOOK_ADD' | translate }}
                     </div>

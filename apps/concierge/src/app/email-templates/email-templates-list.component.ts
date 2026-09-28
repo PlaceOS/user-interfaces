@@ -49,7 +49,12 @@ import {
                     <icon class="text-2xl">campaign</icon>
                 </button>
             }
-            <a btn matRipple [routerLink]="['/email-templates', 'manage']">
+            <a
+                btn
+                matRipple
+                data-shortcut="new"
+                [routerLink]="['/email-templates', 'manage']"
+            >
                 <div class="ml-2">
                     {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_ADD' | translate }}
                 </div>

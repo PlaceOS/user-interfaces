@@ -45,6 +45,7 @@ import {
                     matRipple
                     [disabled]="loading().includes('[BOOKINGS]')"
                     [matTooltip]="'COMMON.REFRESH' | translate"
+                    data-shortcut="refresh"
                     (click)="refresh()"
                 >
                     <icon>refresh</icon>

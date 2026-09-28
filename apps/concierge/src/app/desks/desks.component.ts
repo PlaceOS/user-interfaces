@@ -85,6 +85,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             matRipple
                             class="w-44 space-x-2"
+                            data-shortcut="new"
                             (click)="newDeskBooking()"
                         >
                             <div class="pl-2">
@@ -98,6 +99,7 @@ import { DesksStateService } from './desks-state.service';
                             btn
                             matRipple
                             class="w-44 space-x-2"
+                            data-shortcut="new"
                             (click)="editDesk()"
                         >
                             <div class="pl-2">

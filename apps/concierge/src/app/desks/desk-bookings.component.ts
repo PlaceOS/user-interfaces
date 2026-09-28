@@ -392,6 +392,7 @@ import { DesksStateService } from './desks-state.service';
                 class="absolute top-1/2 -right-2 -translate-y-1/2"
                 [disabled]="state_loading()"
                 [matTooltip]="'COMMON.REFRESH' | translate"
+                data-shortcut="refresh"
                 (click)="refresh()"
             >
                 <icon>refresh</icon>

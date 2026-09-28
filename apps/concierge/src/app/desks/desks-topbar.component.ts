@@ -65,6 +65,7 @@ import { DesksStateService } from './desks-state.service';
                     matRipple
                     class="mx-2 w-40"
                     matTooltip="New Desk Booking"
+                    data-shortcut="new"
                     (click)="newDeskBooking()"
                 >
                     {{ 'APP.CONCIERGE.NEW_BOOKING' | translate }}
@@ -75,6 +76,7 @@ import { DesksStateService } from './desks-state.service';
                     icon
                     default
                     matRipple
+                    data-shortcut="new"
                     (click)="newDesk()"
                     [matTooltip]="'APP.CONCIERGE.DESKS_NEW' | translate"
                 >

@@ -74,6 +74,7 @@ import {
                     btn
                     matRipple
                     class="w-40 space-x-2"
+                    data-shortcut="new"
                     (click)="newParkingSpace()"
                 >
                     <div class="pl-2">
@@ -87,6 +88,7 @@ import {
                     btn
                     matRipple
                     class="w-40 space-x-2"
+                    data-shortcut="new"
                     (click)="newParkingUser()"
                 >
                     <div class="pl-2">
@@ -100,6 +102,7 @@ import {
                     btn
                     matRipple
                     class="w-52 space-x-2"
+                    data-shortcut="new"
                     (click)="newFleetVehicle()"
                 >
                     <div class="pl-2">
@@ -114,6 +117,7 @@ import {
                         btn
                         matRipple
                         class="w-44 space-x-2"
+                        data-shortcut="new"
                         (click)="newRequest()"
                     >
                         <div class="pl-2">
@@ -128,6 +132,7 @@ import {
                         btn
                         matRipple
                         class="w-48 space-x-2"
+                        data-shortcut="new"
                         (click)="newReservation()"
                     >
                         <div class="pl-2">

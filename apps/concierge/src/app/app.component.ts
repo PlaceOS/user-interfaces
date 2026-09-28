@@ -9,6 +9,8 @@ import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
 
+import { KeyboardShortcutsService } from './ui/keyboard-shortcuts.service';
+
 @Component({
     selector: 'app-root',
     imports: [
@@ -29,6 +31,9 @@ import { mocksInit } from '@placeos/mocks';
         <global-loading />
         <settings-debug-panel-launcher [loadSchema]="load_settings_schema" />
     `,
+    host: {
+        '(window:keydown)': 'shortcuts.handleKeydown($event)',
+    },
     styles: [
         `
             :host {
@@ -46,6 +51,7 @@ export class AppComponent implements OnInit {
 
     private _placeos = inject(PlaceOS_Service);
     private _uploads = inject(UploadsService);
+    protected readonly shortcuts = inject(KeyboardShortcutsService);
     public readonly has_chat = signal(this._placeos.has_chat);
 
     public async ngOnInit() {

@@ -37,6 +37,7 @@ import { VisitorsStateService } from './visitors-state.service';
                         btn
                         matRipple
                         class="w-40"
+                        data-shortcut="new"
                         (click)="inviteVisitor()"
                     >
                         {{ 'BOOKINGS.VISITOR_INVITE_TITLE' | translate }}
