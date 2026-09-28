@@ -1,4 +1,5 @@
 import { computed, inject, Injectable, resource, signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
     i18n,
@@ -9,6 +10,7 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
+import { openConfirmModal } from '@placeos/components';
 import {
     PlaceMetadata,
     showMetadata,
@@ -52,6 +54,7 @@ export interface EmailTemplatesFilters {
 export class EmailTemplatesStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
+    private _dialog = inject(MatDialog);
 
     private _filters = signal<EmailTemplatesFilters>({});
     private _change = signal(0);
@@ -215,28 +218,45 @@ export class EmailTemplatesStateService extends AsyncHandler {
     }
 
     public async removeTemplate(template: EmailTemplate) {
-        const template_list = await this._queryTemplates(
-            this._org.active_building()?.id,
-            this._org.active_region()?.id,
+        const ref = await openConfirmModal(
+            {
+                title: i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_TITLE'),
+                content: i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_MSG', {
+                    name: template.subject,
+                }),
+                icon: { content: 'delete_forever' },
+                confirm_text: i18n('COMMON.REMOVE'),
+            },
+            this._dialog,
         );
-        const zone_templates = template_list.filter(
-            (_) => _.zone_id === template.zone_id,
-        );
-        const new_template_list = zone_templates.filter(
-            (_) => _.id !== template.id,
-        );
-        await updateMetadata(template.zone_id, {
-            name: `email_templates`,
-            details: new_template_list,
-            description: 'Email Templates for Zone',
-        }).catch((e) => {
+        if (ref.reason !== 'done') return ref.close();
+        ref.loading(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_LOADING'));
+        try {
+            const template_list = await this._queryTemplates(
+                this._org.active_building()?.id,
+                this._org.active_region()?.id,
+            );
+            const zone_templates = template_list.filter(
+                (_) => _.zone_id === template.zone_id,
+            );
+            const new_template_list = zone_templates.filter(
+                (_) => _.id !== template.id,
+            );
+            await updateMetadata(template.zone_id, {
+                name: `email_templates`,
+                details: new_template_list,
+                description: 'Email Templates for Zone',
+            });
+        } catch (e) {
             notifyError(
                 i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_ERROR', {
                     error: e,
                 }),
             );
             throw e;
-        });
+        } finally {
+            ref.close();
+        }
         notifySuccess(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_SUCCESS'));
         this.timeout('changed', () => this._change.set(Date.now()));
     }
