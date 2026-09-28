@@ -1795,7 +1795,11 @@
             "BOOKING_RULESET_SAVE": "Enregistrer le jeu de règles",
             "BOOKING_RULESET_SAVING": "Enregistrement des règles de réservation...",
             "BOOKING_RULESET_ERROR": "Impossible d’enregistrer les règles de réservation. Erreur : {{ error }}",
-            "BOOKING_RULESET_SUCCESS": "Règles de réservation enregistrées avec succès."
+            "BOOKING_RULESET_SUCCESS": "Règles de réservation enregistrées avec succès.",
+            "BULK_APPROVE": "Approuver",
+            "BULK_REJECT": "Refuser",
+            "BULK_REJECT_TITLE": "Refuser les réservations",
+            "BULK_REJECT_MSG": "Refuser les réservations sélectionnées ({{ count }}) ? Cette action est irréversible."
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacité de la salle",

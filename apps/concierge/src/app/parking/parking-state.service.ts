@@ -58,7 +58,7 @@ import {
     unique,
     User,
 } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import { openConfirmModal, runBulkAction } from '@placeos/components';
 import { PlaceAsset, QueryResponse } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import {
@@ -72,6 +72,7 @@ import {
     subDays,
 } from 'date-fns';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
+import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
@@ -1089,59 +1090,84 @@ export class ParkingStateService extends AsyncHandler {
     }
 
     public async approveBooking(booking: Booking, series = false) {
+        try {
+            await this._approveBooking(booking, series);
+        } catch (error) {
+            notifyError(
+                i18n('APP.CONCIERGE.PARKING_APPROVE_ERROR', {
+                    error: error?.message || error?.error || error,
+                }),
+            );
+            return;
+        }
+        notifySuccess(i18n('APP.CONCIERGE.PARKING_APPROVE_SUCCESS'));
+        this._reloadResources();
+    }
+
+    public async rejectBooking(booking: Booking, series = false) {
+        try {
+            await this._rejectBooking(booking, series);
+        } catch (error) {
+            notifyError(i18n('APP.CONCIERGE.PARKING_DECLINE_ERROR', { error }));
+            return;
+        }
+        notifySuccess(i18n('APP.CONCIERGE.PARKING_DECLINE_SUCCESS'));
+        this._reloadResources();
+    }
+
+    /**
+     * Approve or reject several bookings. Asks before it rejects.
+     * @returns `false` if the user cancelled
+     */
+    public async setBookingsApproval(bookings: Booking[], approve: boolean) {
+        const options = approve
+            ? {}
+            : bulkRejectOptions(bookings.length, this._dialog);
+        // Space assignment picks the first free space, so approve one at a
+        // time to stop two requests getting the same space
+        const assigns_space = this._settings.get(
+            'app.parking.assign_space_on_approve',
+        );
+        const failed = await runBulkAction(
+            bookings,
+            (booking) =>
+                approve
+                    ? this._approveBooking(booking)
+                    : this._rejectBooking(booking),
+            {
+                ...options,
+                concurrency: approve && assigns_space ? 1 : undefined,
+            },
+        );
+        if (failed === null) return false;
+        this._reloadResources();
+        return true;
+    }
+
+    /** Approve a booking. Assigns a space first when the settings ask for it. */
+    private async _approveBooking(booking: Booking, series = false) {
         if (
             !series &&
             this._settings.get('app.parking.assign_space_on_approve') &&
             this.isRequest(booking)
         ) {
-            try {
-                await this._assignSpaceForApproval(booking);
-            } catch (error) {
-                notifyError(
-                    i18n('APP.CONCIERGE.PARKING_APPROVE_ERROR', {
-                        error: error?.message || error?.error || error,
-                    }),
-                );
-                return;
-            }
+            await this._assignSpaceForApproval(booking);
         }
         const booking_id = series
             ? booking.parent_id || booking.id
             : booking.id;
-        const promise = (
-            !series && booking.instance
-                ? approveBookingInstance(booking_id, booking.instance)
-                : approveBooking(booking_id)
-        ).catch((_) => ({ state: 'failed', error: _ }));
-        const success = await promise;
-        success.state === 'failed'
-            ? notifyError(
-                  i18n('APP.CONCIERGE.PARKING_APPROVE_ERROR', {
-                      error: success.error,
-                  }),
-              )
-            : notifySuccess(i18n('APP.CONCIERGE.PARKING_APPROVE_SUCCESS'));
-        if (success.state !== 'failed') this._reloadResources();
+        await (!series && booking.instance
+            ? approveBookingInstance(booking_id, booking.instance)
+            : approveBooking(booking_id));
     }
 
-    public async rejectBooking(booking: Booking, series = false) {
+    private async _rejectBooking(booking: Booking, series = false) {
         const booking_id = series
             ? booking.parent_id || booking.id
             : booking.id;
-        const promise = (
-            !series && booking.instance
-                ? rejectBookingInstance(booking_id, booking.instance)
-                : rejectBooking(booking_id)
-        ).catch((_) => ({ state: 'failed', error: _ }));
-        const success = await promise;
-        success.state === 'failed'
-            ? notifyError(
-                  i18n('APP.CONCIERGE.PARKING_DECLINE_ERROR', {
-                      error: success.error,
-                  }),
-              )
-            : notifySuccess(i18n('APP.CONCIERGE.PARKING_DECLINE_SUCCESS'));
-        if (success.state !== 'failed') this._reloadResources();
+        await (!series && booking.instance
+            ? rejectBookingInstance(booking_id, booking.instance)
+            : rejectBooking(booking_id));
     }
 
     public async assignSpace(booking: Booking) {

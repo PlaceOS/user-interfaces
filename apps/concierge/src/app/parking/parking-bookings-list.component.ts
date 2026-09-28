@@ -4,6 +4,7 @@ import {
     computed,
     inject,
     OnInit,
+    signal,
     TemplateRef,
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
@@ -26,6 +27,12 @@ import {
 } from '@placeos/components';
 import { isSameDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
+import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
+import {
+    bookingRowKey,
+    BookingRowKeyFields,
+    selectedBookings,
+} from '../ui/bulk-booking-actions';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingStateService } from './parking-state.service';
 import {
@@ -105,6 +112,10 @@ interface ParkingBookingColumnTemplates {
                 <simple-table
                     [error]="load_error()"
                     (retry)="retryLoad()"
+                    [selectable]="true"
+                    [row_key]="rowKey"
+                    [can_select]="canSelect"
+                    [(selected)]="selected"
                     class="block min-w-304 text-sm"
                     [data]="filtered_events()"
                     [columns]="
@@ -578,12 +589,19 @@ interface ParkingBookingColumnTemplates {
                 </button>
             }
         </div>
+        <booking-approval-bar
+            [count]="selected().length"
+            [busy]="bulk_busy()"
+            (setApproval)="setApproval($event)"
+            (clear)="selected.set([])"
+        />
     `,
     styles: [``],
     imports: [
         CommonModule,
         MatProgressBarModule,
         SimpleTableComponent,
+        BookingApprovalBarComponent,
         TranslatePipe,
         MatRippleModule,
         IconComponent,
@@ -616,6 +634,31 @@ export class ParkingBookingsListComponent
     public readonly refresh = () => this._state.refresh();
     public readonly load_error = this._state.load_error;
     public readonly retryLoad = this.refresh;
+    public readonly rowKey = bookingRowKey;
+    /** Row keys of the bookings that can change status */
+    private readonly _selectable_keys = computed(
+        () =>
+            new Set(
+                this.bookings()
+                    .filter((booking) => !this.isStatusActionDisabled(booking))
+                    .map(bookingRowKey),
+            ),
+    );
+    public readonly canSelect = (row: BookingRowKeyFields) =>
+        this._selectable_keys().has(bookingRowKey(row));
+    /** Row keys of the selected bookings */
+    public readonly selected = signal<string[]>([]);
+    public readonly bulk_busy = signal(false);
+
+    /** Approve or reject the selected bookings */
+    public async setApproval(approve: boolean) {
+        const list = selectedBookings(this.bookings(), this.selected());
+        this.bulk_busy.set(true);
+        const done = await this._state
+            .setBookingsApproval(list, approve)
+            .finally(() => this.bulk_busy.set(false));
+        if (done) this.selected.set([]);
+    }
 
     public readonly filtered_events = computed(() => {
         const { search, request_filter } = this.options();

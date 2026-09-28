@@ -2819,7 +2819,11 @@
             "CONTACTS_DELETE_SUCCESS": "Successfully removed emergency contact.",
             "CONTACTS_DELETE_ERROR": "Failed to remove emergency contact. Error: {{ error }}",
             "CONTACTS_MIGRATION_SUCCESS": "Successfully migrated emergency contacts.",
-            "CONTACTS_MIGRATION_ERROR": "Failed to migrate emergency contacts. Error: {{ error }}"
+            "CONTACTS_MIGRATION_ERROR": "Failed to migrate emergency contacts. Error: {{ error }}",
+            "BULK_APPROVE": "Approve",
+            "BULK_REJECT": "Reject",
+            "BULK_REJECT_TITLE": "Reject Bookings",
+            "BULK_REJECT_MSG": "Reject the selected bookings ({{ count }})? You cannot undo this."
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Room capacity",

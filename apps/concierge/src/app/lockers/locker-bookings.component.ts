@@ -4,12 +4,18 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SettingsService } from '@placeos/common';
+import { Booking, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
+import {
+    bookingRowKey,
+    BookingRowKeyFields,
+    selectedBookings,
+} from '../ui/bulk-booking-actions';
 import { LockerStateService } from './locker-state.service';
 
 @Component({
@@ -25,6 +31,10 @@ import { LockerStateService } from './locker-state.service';
             <simple-table
                 [error]="load_error()"
                 (retry)="retryLoad()"
+                [selectable]="true"
+                [row_key]="rowKey"
+                [can_select]="canSelect"
+                [(selected)]="selected"
                 class="mr-4 block w-full min-w-6xl flex-1 overflow-auto text-sm"
                 [data]="bookings()"
                 [columns]="[
@@ -262,6 +272,12 @@ import { LockerStateService } from './locker-state.service';
                 {{ 'COMMON.LOAD_MORE' | translate }}
             </button>
         }
+        <booking-approval-bar
+            [count]="selected().length"
+            [busy]="bulk_busy()"
+            (setApproval)="setApproval($event)"
+            (clear)="selected.set([])"
+        />
     `,
     styles: [
         `
@@ -282,12 +298,33 @@ import { LockerStateService } from './locker-state.service';
         IconComponent,
         TranslatePipe,
         SimpleTableComponent,
+        BookingApprovalBarComponent,
     ],
 })
 export class LockerBookingsComponent {
     private _state = inject(LockerStateService);
     public readonly load_error = this._state.load_error;
     public readonly retryLoad = () => this._state.refresh();
+    public readonly rowKey = bookingRowKey;
+    public readonly canSelect = (
+        row: BookingRowKeyFields & Pick<Booking, 'status' | 'deleted'>,
+    ) => row.status !== 'ended' && !row.deleted;
+    /** Row keys of the selected bookings */
+    public readonly selected = signal<string[]>([]);
+    public readonly bulk_busy = signal(false);
+
+    /** Approve or reject the selected bookings */
+    public async setApproval(approve: boolean) {
+        const list = selectedBookings(
+            this._state.filtered_bookings(),
+            this.selected(),
+        );
+        this.bulk_busy.set(true);
+        const done = await this._state
+            .setBookingsApproval(list, approve)
+            .finally(() => this.bulk_busy.set(false));
+        if (done) this.selected.set([]);
+    }
     private _settings = inject(SettingsService);
 
     public readonly loading = signal('');

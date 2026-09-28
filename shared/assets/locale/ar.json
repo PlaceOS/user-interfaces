@@ -1795,7 +1795,11 @@
             "BOOKING_RULESET_SAVE": "حفظ مجموعة القواعد",
             "BOOKING_RULESET_SAVING": "جاري حفظ قواعد الحجز...",
             "BOOKING_RULESET_ERROR": "فشل حفظ قواعد الحجز. خطأ: {{ error }}",
-            "BOOKING_RULESET_SUCCESS": "تم حفظ قواعد الحجز بنجاح."
+            "BOOKING_RULESET_SUCCESS": "تم حفظ قواعد الحجز بنجاح.",
+            "BULK_APPROVE": "موافقة",
+            "BULK_REJECT": "رفض",
+            "BULK_REJECT_TITLE": "رفض الحجوزات",
+            "BULK_REJECT_MSG": "هل تريد رفض الحجوزات المحددة ({{ count }})؟ لا يمكنك التراجع عن ذلك."
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "سعة الغرفة",

@@ -1795,7 +1795,11 @@
             "BOOKING_RULESET_SAVE": "Guardar Conjunto de Reglas",
             "BOOKING_RULESET_SAVING": "Guardando reglas de reserva...",
             "BOOKING_RULESET_ERROR": "No se pudieron guardar las reglas de reserva. Error: {{ error }}",
-            "BOOKING_RULESET_SUCCESS": "Reglas de reserva guardadas con éxito."
+            "BOOKING_RULESET_SUCCESS": "Reglas de reserva guardadas con éxito.",
+            "BULK_APPROVE": "Aprobar",
+            "BULK_REJECT": "Rechazar",
+            "BULK_REJECT_TITLE": "Rechazar Reservas",
+            "BULK_REJECT_MSG": "¿Rechazar las reservas seleccionadas ({{ count }})? No puede deshacer esta acción."
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacidad de la sala",

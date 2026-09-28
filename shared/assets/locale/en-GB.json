@@ -1879,7 +1879,11 @@
             "BOOKING_RULESET_SAVING": "Saving booking rules...",
             "BOOKING_RULESET_ERROR": "Failed to save booking rules. Error: {{ error }}",
             "BOOKING_RULESET_SUCCESS": "Successfully saved booking rules.",
-            "BOOKING_RULESET_REORDER": "Reorder Ruleset"
+            "BOOKING_RULESET_REORDER": "Reorder Ruleset",
+            "BULK_APPROVE": "Approve",
+            "BULK_REJECT": "Reject",
+            "BULK_REJECT_TITLE": "Reject Bookings",
+            "BULK_REJECT_MSG": "Reject the selected bookings ({{ count }})? You cannot undo this."
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Room capacity",

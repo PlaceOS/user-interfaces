@@ -1795,7 +1795,11 @@
             "BOOKING_RULESET_SAVE": "ルールセットを保存",
             "BOOKING_RULESET_SAVING": "予約ルールを保存中...",
             "BOOKING_RULESET_ERROR": "予約ルールの保存に失敗しました。エラー: {{ error }}",
-            "BOOKING_RULESET_SUCCESS": "予約ルールの保存に成功しました。"
+            "BOOKING_RULESET_SUCCESS": "予約ルールの保存に成功しました。",
+            "BULK_APPROVE": "承認",
+            "BULK_REJECT": "却下",
+            "BULK_REJECT_TITLE": "予約を却下",
+            "BULK_REJECT_MSG": "選択した予約 ({{ count }}) を却下しますか？この操作は元に戻せません。"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "会議室の定員",

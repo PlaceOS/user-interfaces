@@ -43,6 +43,7 @@ import {
     AttachedResourceConfigModalComponent,
     AttachedResourceConfigModalData,
     AttachedResourceRuleset,
+    runBulkAction,
 } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import {
@@ -53,6 +54,7 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
 import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
 
@@ -422,6 +424,22 @@ export class AssetManagerStateService extends AsyncHandler {
         }
         this._change.set(Date.now());
         return result;
+    }
+
+    /**
+     * Approve or decline several requests. Asks before it declines.
+     * @returns `false` if the user cancelled
+     */
+    public async setRequestsApproval(items: Booking[], approve: boolean) {
+        const failed = await runBulkAction(
+            items,
+            (item) =>
+                approve ? approveBooking(item.id) : rejectBooking(item.id),
+            approve ? {} : bulkRejectOptions(items.length, this._dialog),
+        );
+        if (failed === null) return false;
+        this._change.set(Date.now());
+        return true;
     }
 
     public async setTracking(item: Booking, tracking: string) {

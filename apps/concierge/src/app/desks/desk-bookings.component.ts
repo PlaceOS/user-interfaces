@@ -11,6 +11,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { UserPipe } from '@placeos/users';
+import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
+import { bookingRowKey, selectedBookings } from '../ui/bulk-booking-actions';
 import {
     canChangeDeskBooking,
     isDeskBookingRejected,
@@ -98,6 +100,10 @@ import { DesksStateService } from './desks-state.service';
                     ) | translate
                 "
                 [sortable]="true"
+                [selectable]="true"
+                [row_key]="rowKey"
+                [can_select]="canChangeBooking"
+                [(selected)]="selected"
             ></simple-table>
             <ng-template #date_template let-date="data">
                 <div
@@ -400,6 +406,12 @@ import { DesksStateService } from './desks-state.service';
                 <icon>refresh</icon>
             </button>
         </div>
+        <booking-approval-bar
+            [count]="selected().length"
+            [busy]="!!loading()"
+            (setApproval)="setApproval($event)"
+            (clear)="selected.set([])"
+        />
     `,
     styles: [
         `
@@ -421,6 +433,7 @@ import { DesksStateService } from './desks-state.service';
         MatTooltipModule,
         SimpleTableComponent,
         UserPipe,
+        BookingApprovalBarComponent,
     ],
 })
 export class DeskBookingsComponent implements OnInit {
@@ -476,6 +489,18 @@ export class DeskBookingsComponent implements OnInit {
 
     public readonly isRejected = isDeskBookingRejected;
     public readonly canChangeBooking = canChangeDeskBooking;
+    public readonly rowKey = bookingRowKey;
+    /** Row keys of the selected bookings */
+    public readonly selected = signal<string[]>([]);
+
+    /** Approve or reject the selected bookings */
+    public setApproval(approve: boolean) {
+        const list = selectedBookings(this.bookings(), this.selected());
+        return this.runMethod('bulk', async () => {
+            const done = await this._state.setBookingsApproval(list, approve);
+            if (done) this.selected.set([]);
+        });
+    }
     public readonly checkin = (d: Booking, s = true) =>
         this.runMethod('checkin', async () => this._state.checkinDesk(d, s));
     public readonly approve = (d) =>

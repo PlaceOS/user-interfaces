@@ -59,8 +59,9 @@ import {
     subDays,
 } from 'date-fns';
 
-import { openConfirmModal } from '@placeos/components';
+import { openConfirmModal, runBulkAction } from '@placeos/components';
 import { SelectUserModalComponent } from '@placeos/users';
+import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
 import { LockerModalComponent } from './locker-modal.component';
@@ -854,6 +855,22 @@ export class LockerStateService extends AsyncHandler {
             `Successfully gave building access to ${locker.user_name} for locker booking.`,
         );
         this._locker_bookings = [...this._locker_bookings, success] as any;
+    }
+
+    /**
+     * Approve or reject several bookings. Asks before it rejects.
+     * @returns `false` if the user cancelled
+     */
+    public async setBookingsApproval(bookings: Booking[], approve: boolean) {
+        const failed = await runBulkAction(
+            bookings,
+            (locker) =>
+                approve ? approveBooking(locker.id) : rejectBooking(locker.id),
+            approve ? {} : bulkRejectOptions(bookings.length, this._dialog),
+        );
+        if (failed === null) return false;
+        this.refresh();
+        return true;
     }
 
     public async rejectAllLockers() {

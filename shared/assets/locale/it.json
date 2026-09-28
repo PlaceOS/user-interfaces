@@ -1795,7 +1795,11 @@
             "BOOKING_RULESET_SAVE": "Salva set di regole",
             "BOOKING_RULESET_SAVING": "Salvataggio regole di prenotazione in corso...",
             "BOOKING_RULESET_ERROR": "Impossibile salvare le regole di prenotazione. Errore: {{ error }}",
-            "BOOKING_RULESET_SUCCESS": "Regole di prenotazione salvate con successo."
+            "BOOKING_RULESET_SUCCESS": "Regole di prenotazione salvate con successo.",
+            "BULK_APPROVE": "Approva",
+            "BULK_REJECT": "Rifiuta",
+            "BULK_REJECT_TITLE": "Rifiuta prenotazioni",
+            "BULK_REJECT_MSG": "Rifiutare le prenotazioni selezionate ({{ count }})? Non è possibile annullare questa azione."
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacità della stanza",

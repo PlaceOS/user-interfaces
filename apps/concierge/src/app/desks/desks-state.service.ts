@@ -64,8 +64,9 @@ import {
     subDays,
 } from 'date-fns';
 
-import { openConfirmModal } from '@placeos/components';
+import { openConfirmModal, runBulkAction } from '@placeos/components';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
+import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import {
     canChangeDeskBooking,
     isDeskBookingRejected,
@@ -877,6 +878,29 @@ export class DesksStateService extends AsyncHandler {
         }
         notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
         this.refresh();
+    }
+
+    /**
+     * Approve or reject several bookings. Asks before it rejects.
+     * @returns `false` if the user cancelled
+     */
+    public async setBookingsApproval(bookings: Booking[], approve: boolean) {
+        const list = bookings.filter((desk) =>
+            canChangeDeskBooking(this._normaliseBooking(desk)),
+        );
+        const failed = await runBulkAction(
+            list,
+            async (desk) => {
+                await (approve
+                    ? approveBooking(desk.id)
+                    : this._rejectDeskBooking(desk));
+                this._setBookingStatus(desk, approve ? 'approved' : 'declined');
+            },
+            approve ? {} : bulkRejectOptions(list.length, this._dialog),
+        );
+        if (failed === null) return false;
+        this.refresh();
+        return true;
     }
 
     private _rejectDeskBooking(desk: Booking) {
