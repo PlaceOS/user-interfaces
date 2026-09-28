@@ -1,3 +1,0 @@
-import{us as p,yc as x,zr as W,zt as J4}from"./chunk-C2sAIUb3.js";var a=(()=>{class e{constructor(){this._el=p(W),this.intersect=J4()}ngAfterViewInit(){this._observer=new IntersectionObserver(i=>{i.some(t=>t.isIntersecting)&&this.intersect.emit()},{rootMargin:`300px`}),this._observer.observe(this._el.nativeElement)}ngOnDestroy(){this._observer?.disconnect()}static{this.ɵfac=function(t){return new(t||e)}}static{this.ɵdir=x({type:e,selectors:[[``,`intersect`,``]],outputs:{intersect:`intersect`}})}}return e})();export{a as t};
-//# debugId=d4b21cb1-dc01-555d-93a0-76c29882aea7
-//# sourceMappingURL=chunk-Ba4R00P6.js.map
