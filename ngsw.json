@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1790565533141,
+  "timestamp": 1790579022088,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -13,7 +13,7 @@
       "urls": [
         "./ar-DoPFYniv.js",
         "./binding-debug-panel.component-2kOxqR0n.js",
-        "./chat.component-BKvDz5la.js",
+        "./chat.component-N1g6lxg2.js",
         "./checkin-view.component-DuJPjzZq.js",
         "./chunk-D3unGADi.js",
         "./chunk-DTXfM2dP.js",
@@ -230,7 +230,7 @@
     "./assets/support/opera-logo.svg": "23f8e25409598ac843eefe81ea3c09b4f460844d",
     "./assets/support/safari-logo.svg": "1c510b0c330f84f6662351e4a0abd7fb8af2f678",
     "./binding-debug-panel.component-2kOxqR0n.js": "ac81760416509dacd7ff97aa41da32d876031ace",
-    "./chat.component-BKvDz5la.js": "9b6e24d4676ad963bf3d6461ec5672a90a711b53",
+    "./chat.component-N1g6lxg2.js": "0c38735a2582935af83131b65f79902aaf518049",
     "./checkin-view.component-DuJPjzZq.js": "a71e73cf003140b3b7f555a5befb9e006c119be0",
     "./chunk-D3unGADi.js": "15562dd5a3443ce08c0971e556770c5b19171d04",
     "./chunk-DTXfM2dP.js": "d5cde9b3711f5440dad2b7307418e513b788a8bb",
@@ -246,7 +246,7 @@
     "./index.html": "926845fc3f1b5e493d3adcd6b5c1cc9a82bfb7b8",
     "./it-CKncUqxZ.js": "b6b3105a4193fa883d8713fdecce08a8a4b7f301",
     "./ja-DngrQVLH.js": "38c64a0491a1e79c09fdc76f03eb35ef1f1a7d45",
-    "./main.js": "8f593a12a3d356c174fec4536973b03909137876",
+    "./main.js": "401cab00b3ae1bf0cfb299982f8b0b92d9574f08",
     "./manifest.webmanifest": "e94aab45fbf4b3cebb81c34c8c86cf7a4108bf69",
     "./panel-view.component-B3uIOEDK.js": "36f8c4f48108a463bf24a4167eae327c3e08d67d",
     "./settings-debug-panel.component-CvZIFMoP.js": "a1d53a0232c85f2bb0da9420b5534b0607874304",
