@@ -46,12 +46,17 @@ import {
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { differenceInMinutes, format, startOfDay } from 'date-fns';
+import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import { EventStateService } from './event-state.service';
 
 const EMPTY = [];
 
 @Component({
     selector: 'app-event-manage',
+    host: {
+        '(window:beforeunload)':
+            'hasUnsavedChanges() && $event.preventDefault()',
+    },
     template: `
         @if (!loading()) {
             <div class="bg-base-100 absolute inset-0 overflow-auto">
@@ -502,7 +507,10 @@ const EMPTY = [];
         RouterModule,
     ],
 })
-export class EventManageComponent extends AsyncHandler implements OnInit {
+export class EventManageComponent
+    extends AsyncHandler
+    implements OnInit, HasUnsavedChanges
+{
     private _form_state = inject(EventFormService);
     private _state = inject(EventStateService);
     private _route = inject(ActivatedRoute);
@@ -574,7 +582,13 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         })})`;
     };
 
+    public hasUnsavedChanges() {
+        return this.form().dirty();
+    }
+
     public async ngOnInit() {
+        // The form service outlives this page, so clear edits from a past visit
+        this.form().reset();
         await this._org.waitUntilInitialised();
         const space_pipe = new SpacePipe();
         this.model.update((m) => ({
@@ -669,6 +683,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         if ((value || '').trim()) {
             feature_list.push(value);
             this.model.update((m) => ({ ...m, tags: feature_list }));
+            this.form().markAsDirty();
         }
         if (input) input.value = '';
     }
@@ -685,6 +700,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         if (index >= 0) {
             tag_list.splice(index, 1);
             this.model.update((m) => ({ ...m, tags: tag_list }));
+            this.form().markAsDirty();
         }
     }
 
@@ -727,6 +743,7 @@ export class EventManageComponent extends AsyncHandler implements OnInit {
         this._state.changed();
         this.loading.set(false);
         if (res) {
+            this.form().reset();
             this._router.navigate(['/entertainment', 'events'], {
                 queryParams: { range: startOfDay(date).valueOf() },
             });

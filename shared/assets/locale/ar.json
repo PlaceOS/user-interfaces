@@ -1800,7 +1800,10 @@
             "BULK_APPROVE": "موافقة",
             "BULK_REJECT": "رفض",
             "BULK_REJECT_TITLE": "رفض الحجوزات",
-            "BULK_REJECT_MSG": "هل تريد رفض الحجوزات المحددة ({{ count }})؟ لا يمكنك التراجع عن ذلك."
+            "BULK_REJECT_MSG": "هل تريد رفض الحجوزات المحددة ({{ count }})؟ لا يمكنك التراجع عن ذلك.",
+            "UNSAVED_CHANGES_TITLE": "تجاهل التغييرات",
+            "UNSAVED_CHANGES_MSG": "لديك تغييرات غير محفوظة. إذا غادرت هذه الصفحة، فستفقدها.",
+            "UNSAVED_CHANGES_DISCARD": "تجاهل"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "سعة الغرفة",

@@ -1800,7 +1800,10 @@
             "BULK_APPROVE": "Approuver",
             "BULK_REJECT": "Refuser",
             "BULK_REJECT_TITLE": "Refuser les réservations",
-            "BULK_REJECT_MSG": "Refuser les réservations sélectionnées ({{ count }}) ? Cette action est irréversible."
+            "BULK_REJECT_MSG": "Refuser les réservations sélectionnées ({{ count }}) ? Cette action est irréversible.",
+            "UNSAVED_CHANGES_TITLE": "Abandonner les modifications",
+            "UNSAVED_CHANGES_MSG": "Vous avez des modifications non enregistrées. Si vous quittez cette page, vous les perdrez.",
+            "UNSAVED_CHANGES_DISCARD": "Abandonner"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacité de la salle",

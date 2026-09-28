@@ -1800,7 +1800,10 @@
             "BULK_APPROVE": "Approva",
             "BULK_REJECT": "Rifiuta",
             "BULK_REJECT_TITLE": "Rifiuta prenotazioni",
-            "BULK_REJECT_MSG": "Rifiutare le prenotazioni selezionate ({{ count }})? Non è possibile annullare questa azione."
+            "BULK_REJECT_MSG": "Rifiutare le prenotazioni selezionate ({{ count }})? Non è possibile annullare questa azione.",
+            "UNSAVED_CHANGES_TITLE": "Scarta modifiche",
+            "UNSAVED_CHANGES_MSG": "Hai modifiche non salvate. Se lasci questa pagina, andranno perse.",
+            "UNSAVED_CHANGES_DISCARD": "Scarta"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacità della stanza",

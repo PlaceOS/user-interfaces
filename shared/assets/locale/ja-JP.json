@@ -1800,7 +1800,10 @@
             "BULK_APPROVE": "承認",
             "BULK_REJECT": "却下",
             "BULK_REJECT_TITLE": "予約を却下",
-            "BULK_REJECT_MSG": "選択した予約 ({{ count }}) を却下しますか？この操作は元に戻せません。"
+            "BULK_REJECT_MSG": "選択した予約 ({{ count }}) を却下しますか？この操作は元に戻せません。",
+            "UNSAVED_CHANGES_TITLE": "変更を破棄",
+            "UNSAVED_CHANGES_MSG": "保存されていない変更があります。このページを離れると、変更は失われます。",
+            "UNSAVED_CHANGES_DISCARD": "破棄"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "会議室の定員",

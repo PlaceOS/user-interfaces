@@ -20,6 +20,7 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { RichTextInputComponent } from '@placeos/form-fields';
+import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import {
     EmailTemplate,
     EmailTemplatesStateService,
@@ -27,6 +28,10 @@ import {
 
 @Component({
     selector: 'email-template-manage',
+    host: {
+        '(window:beforeunload)':
+            'hasUnsavedChanges() && $event.preventDefault()',
+    },
     template: `
         <div class="bg-base-200 absolute inset-0 overflow-auto">
             <div
@@ -339,7 +344,10 @@ import {
         IconComponent,
     ],
 })
-export class EmailTemplateManageComponent extends AsyncHandler {
+export class EmailTemplateManageComponent
+    extends AsyncHandler
+    implements HasUnsavedChanges
+{
     private _org = inject(OrganisationService);
     private _state = inject(EmailTemplatesStateService);
     private _route = inject(ActivatedRoute);
@@ -386,6 +394,10 @@ export class EmailTemplateManageComponent extends AsyncHandler {
         });
     }
 
+    public hasUnsavedChanges() {
+        return this.form().dirty();
+    }
+
     public copyField(field: string) {
         this._clipboard.copy(`%{${field}}`);
         notifySuccess(
@@ -415,6 +427,7 @@ export class EmailTemplateManageComponent extends AsyncHandler {
                 throw e;
             });
         this.loading.set('');
+        this.form().reset();
         this._router.navigate(['/email-templates']);
     }
 

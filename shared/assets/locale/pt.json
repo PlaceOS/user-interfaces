@@ -1800,7 +1800,10 @@
             "BULK_APPROVE": "Aprovar",
             "BULK_REJECT": "Rejeitar",
             "BULK_REJECT_TITLE": "Rejeitar Reservas",
-            "BULK_REJECT_MSG": "Rejeitar as reservas selecionadas ({{ count }})? Você não pode desfazer esta ação."
+            "BULK_REJECT_MSG": "Rejeitar as reservas selecionadas ({{ count }})? Você não pode desfazer esta ação.",
+            "UNSAVED_CHANGES_TITLE": "Descartar Alterações",
+            "UNSAVED_CHANGES_MSG": "Você tem alterações não salvas. Se sair desta página, você as perderá.",
+            "UNSAVED_CHANGES_DISCARD": "Descartar"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Capacidade da sala",

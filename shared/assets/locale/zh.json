@@ -1801,7 +1801,10 @@
             "BULK_APPROVE": "批准",
             "BULK_REJECT": "拒绝",
             "BULK_REJECT_TITLE": "拒绝预订",
-            "BULK_REJECT_MSG": "拒绝所选预订 ({{ count }})？此操作无法撤消。"
+            "BULK_REJECT_MSG": "拒绝所选预订 ({{ count }})？此操作无法撤消。",
+            "UNSAVED_CHANGES_TITLE": "放弃更改",
+            "UNSAVED_CHANGES_MSG": "您有未保存的更改。如果离开此页面，这些更改将丢失。",
+            "UNSAVED_CHANGES_DISCARD": "放弃"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "房间容量",

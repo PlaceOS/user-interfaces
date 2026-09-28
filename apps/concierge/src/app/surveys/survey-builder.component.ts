@@ -6,6 +6,7 @@ import {
     inject,
     OnInit,
     signal,
+    untracked,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
@@ -44,6 +45,7 @@ import {
     SurveyOutletComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import { NewSurveyService } from './new-survey.service';
 import { QuestionComponent } from './question.component';
 import { QuestionPipe } from './question.pipe';
@@ -51,6 +53,10 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
 
 @Component({
     selector: 'survey-builder',
+    host: {
+        '(window:beforeunload)':
+            'hasUnsavedChanges() && $event.preventDefault()',
+    },
     template: `
         <div class="sticky top-0 mb-2 px-8">
             <div header class="flex items-center py-4">
@@ -530,7 +536,10 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
         QuestionComponent,
     ],
 })
-export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
+export class SurveyBuilderComponent
+    extends AsyncHandler
+    implements OnInit, HasUnsavedChanges
+{
     private _org = inject(OrganisationService);
     private _service = inject(NewSurveyService);
     private _route = inject(ActivatedRoute);
@@ -561,6 +570,8 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
     public readonly form = form(this.model, (p) => {
         required(p.title);
     });
+    /** Model as it was when last loaded or saved */
+    private _saved_model = JSON.stringify(this.model());
 
     /** The page currently being edited. */
     public readonly active_page_value = computed(
@@ -586,7 +597,12 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
             zone_id: survey.zone_id ?? m.zone_id,
             pages: survey.pages?.length ? survey.pages : m.pages,
         }));
+        this._saved_model = JSON.stringify(untracked(this.model));
     });
+
+    public hasUnsavedChanges() {
+        return JSON.stringify(this.model()) !== this._saved_model;
+    }
 
     public ngOnInit(): void {
         this.subscription(
@@ -692,11 +708,13 @@ export class SurveyBuilderComponent extends AsyncHandler implements OnInit {
         const call = survey.id
             ? updateSurvey(`${survey.id}`, survey as any)
             : addSurvey(survey as any);
-        await call.catch((error) => {
-            notifyError('Failed to save survey details. Error: ', error);
-            throw error;
-        });
+        await call
+            .catch((error) => {
+                notifyError('Failed to save survey details. Error: ', error);
+                throw error;
+            })
+            .finally(() => this.loading.set(false));
+        this._saved_model = JSON.stringify(survey);
         notifySuccess('Successfully saved survey details.');
-        this.loading.set(false);
     }
 }

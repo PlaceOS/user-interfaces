@@ -1884,7 +1884,10 @@
             "BULK_APPROVE": "Approve",
             "BULK_REJECT": "Reject",
             "BULK_REJECT_TITLE": "Reject Bookings",
-            "BULK_REJECT_MSG": "Reject the selected bookings ({{ count }})? You cannot undo this."
+            "BULK_REJECT_MSG": "Reject the selected bookings ({{ count }})? You cannot undo this.",
+            "UNSAVED_CHANGES_TITLE": "Discard Changes",
+            "UNSAVED_CHANGES_MSG": "You have unsaved changes. If you leave this page, you lose them.",
+            "UNSAVED_CHANGES_DISCARD": "Discard"
         },
         "BOOKING_PANEL": {
             "ROOM_CAPACITY": "Room capacity",
