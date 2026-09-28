@@ -2272,6 +2272,7 @@
             "PARKING_REQUEST_NEW": "New Parking Request",
             "PARKING_REQUEST_EDIT": "Edit Request",
             "PARKING_REQUEST_SAVE": "Successfully submitted parking request.",
+            "PARKING_REQUEST_APPROVE_ERROR": "Parking request saved, but it could not be approved. It is pending approval.",
             "PARKING_EDIT": "Edit Reservation",
             "PARKING_SPACE": "Parking Space",
             "PARKING_SPACE_ADD": "New Space",
