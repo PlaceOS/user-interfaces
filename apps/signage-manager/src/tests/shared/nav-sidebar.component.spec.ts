@@ -27,7 +27,7 @@ describe('NavSidebarComponent', () => {
         templates_enabled,
     };
 
-    async function createComponent() {
+    async function createFixture(template = '') {
         await TestBed.configureTestingModule({
             imports: [NavSidebarComponent],
             providers: [
@@ -37,10 +37,37 @@ describe('NavSidebarComponent', () => {
             ],
         })
             .overrideComponent(NavSidebarComponent, {
-                set: { template: '', imports: [] },
+                set: { template, imports: [] },
             })
             .compileComponents();
-        return TestBed.createComponent(NavSidebarComponent).componentInstance;
+        return TestBed.createComponent(NavSidebarComponent);
+    }
+
+    async function createComponent() {
+        return (await createFixture()).componentInstance;
+    }
+
+    /** Render only the scroll list, with fixed metrics since jsdom has no layout. */
+    async function createScrollFixture(metrics: {
+        scrollTop: number;
+        clientHeight: number;
+        scrollHeight: number;
+    }) {
+        const fixture = await createFixture(
+            '<div #scroller><div #scroll_content></div></div>',
+        );
+        fixture.detectChanges();
+        const scroller = fixture.nativeElement.querySelector(
+            'div',
+        ) as HTMLElement;
+        scroller.scrollTop = metrics.scrollTop;
+        Object.defineProperty(scroller, 'clientHeight', {
+            value: metrics.clientHeight,
+        });
+        Object.defineProperty(scroller, 'scrollHeight', {
+            value: metrics.scrollHeight,
+        });
+        return { component: fixture.componentInstance, scroller };
     }
 
     beforeEach(() => {
@@ -154,5 +181,76 @@ describe('NavSidebarComponent', () => {
         const component = await createComponent();
 
         expect(component.logo_src).toBe('dark.png');
+    });
+
+    describe('nav list overflow', () => {
+        beforeEach(() => {
+            vi.stubGlobal(
+                'ResizeObserver',
+                class {
+                    observe() {}
+                    disconnect() {}
+                },
+            );
+        });
+
+        afterEach(() => vi.unstubAllGlobals());
+
+        it('hides the scroll arrows when the items fit', async () => {
+            const { component } = await createScrollFixture({
+                scrollTop: 0,
+                clientHeight: 400,
+                scrollHeight: 400,
+            });
+
+            component.updateScrollState();
+
+            expect(component.overflowing()).toBe(false);
+        });
+
+        it('enables only the arrows that can move the list', async () => {
+            const { component } = await createScrollFixture({
+                scrollTop: 0,
+                clientHeight: 200,
+                scrollHeight: 500,
+            });
+
+            component.updateScrollState();
+            expect(component.can_scroll_up()).toBe(false);
+            expect(component.can_scroll_down()).toBe(true);
+        });
+
+        it('scrolls the list by a third of its height', async () => {
+            const { component, scroller } = await createScrollFixture({
+                scrollTop: 0,
+                clientHeight: 300,
+                scrollHeight: 900,
+            });
+            scroller.scrollBy = vi.fn();
+
+            component.scrollNav(1);
+
+            expect(scroller.scrollBy).toHaveBeenCalledWith({
+                top: 100,
+                behavior: 'smooth',
+            });
+        });
+
+        it('scrolls an active link below the list into view', async () => {
+            const { component, scroller } = await createScrollFixture({
+                scrollTop: 0,
+                clientHeight: 200,
+                scrollHeight: 800,
+            });
+            scroller.getBoundingClientRect = () =>
+                ({ top: 100, bottom: 300 }) as DOMRect;
+            const link = document.createElement('a');
+            link.getBoundingClientRect = () =>
+                ({ top: 500, bottom: 572 }) as DOMRect;
+
+            component.onActiveChange(true, link);
+
+            expect(scroller.scrollTop).toBe(280);
+        });
     });
 });
