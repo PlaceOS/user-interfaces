@@ -61,7 +61,9 @@ import {
                 <simple-table
                     class="block w-full min-w-4xl text-sm"
                     [data]="templates()"
-                    empty_message="No group events for selected period"
+                    [empty_message]="
+                        'APP.CONCIERGE.EMAIL_TEMPLATES_EMPTY' | translate
+                    "
                     [columns]="[
                         { key: 'subject', name: 'FORM.TITLE' | translate },
                         {

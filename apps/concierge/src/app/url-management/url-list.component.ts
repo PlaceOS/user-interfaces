@@ -19,7 +19,7 @@ import { UrlManagementService } from './url-management.service';
             <simple-table
                 class="block min-w-5xl text-sm"
                 [data]="features()"
-                empty_message="No Points of Interest found."
+                [empty_message]="'APP.CONCIERGE.URLS_EMPTY' | translate"
                 [columns]="[
                     { key: 'name', name: 'FORM.NAME' | translate },
                     {
