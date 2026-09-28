@@ -159,7 +159,7 @@ import { DesksStateService } from './desks-state.service';
                         >
                             <icon>event_busy</icon>
                         </button>
-                        @if (hide_user_list_download()) {
+                        @if (!hide_user_list_download()) {
                             <button
                                 icon
                                 default

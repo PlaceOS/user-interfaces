@@ -39,7 +39,7 @@ const app = {
         use_assets: false,
         can_book_for_others: true,
         max_assigned_count: 0,
-        hide_user_list_download: true,
+        hide_user_list_download: false,
     },
     bookings: { can_book_for_others: true, use_building_timezone: false },
     visitors: { all_visitors_action_window: 15 },
