@@ -378,6 +378,9 @@ export class ParkingStateService extends AsyncHandler {
     /** Token used to discard responses from superseded page loads */
     private _load_token = 0;
     private readonly _bookings_loading = signal(false);
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of bookings failed */
+    public readonly load_error = this._load_error.asReadonly();
     /** Time the booking list last finished loading from the server */
     private readonly _last_updated = signal(0);
     public readonly last_updated = this._last_updated.asReadonly();
@@ -448,12 +451,13 @@ export class ParkingStateService extends AsyncHandler {
         }
         const token = ++this._load_token;
         this._bookings_loading.set(true);
-        const resp: any = await Promise.resolve(fetch()).catch(() => ({
-            data: [],
-            total: 0,
-            next: null,
-        }));
+        let failed = false;
+        const resp: any = await Promise.resolve(fetch()).catch(() => {
+            failed = true;
+            return { data: [], total: 0, next: null };
+        });
         if (token !== this._load_token) return;
+        this._load_error.set(failed);
         const { data = [], total = 0, next = null } = resp || {};
         const users = this._users_resource.value() || [];
         for (const booking of data) {

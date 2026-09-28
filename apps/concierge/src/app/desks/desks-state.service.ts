@@ -119,6 +119,9 @@ export class DesksStateService extends AsyncHandler {
     );
 
     public readonly loading = this._loading.asReadonly();
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of bookings failed */
+    public readonly load_error = this._load_error.asReadonly();
     public readonly filters = this._filters.asReadonly();
     public readonly print_desk = signal<DeskQrItem | null>(null);
 
@@ -386,12 +389,13 @@ export class DesksStateService extends AsyncHandler {
         }
         const token = ++this._load_token;
         this._loading.set(true);
-        const resp: any = await Promise.resolve(fetch()).catch(() => ({
-            data: [],
-            total: 0,
-            next: null,
-        }));
+        let failed = false;
+        const resp: any = await Promise.resolve(fetch()).catch(() => {
+            failed = true;
+            return { data: [], total: 0, next: null };
+        });
         if (token !== this._load_token) return;
+        this._load_error.set(failed);
         const { data = [], total = 0, next = null } = resp || {};
         const list = data.map((booking) => this._normaliseBooking(booking));
         const has_next = list.length > 0 && !!next;

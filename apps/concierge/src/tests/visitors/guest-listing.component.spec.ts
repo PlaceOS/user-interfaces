@@ -23,6 +23,7 @@ describe('GuestListingComponent', () => {
         detectChanges: false,
         providers: [
             MockProvider(VisitorsStateService, {
+                load_error: signal(false),
                 filtered_bookings,
                 filters,
                 search: '',

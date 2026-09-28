@@ -59,6 +59,8 @@ import {
                     class="sticky left-0 w-full"
                 />
                 <simple-table
+                    [error]="load_error()"
+                    (retry)="retryLoad()"
                     class="block min-w-304 text-sm"
                     [data]="filtered_events()"
                     [columns]="[
@@ -373,6 +375,8 @@ export class ParkingRequestsListComponent
     public readonly last_updated = this._state.last_updated;
     public readonly loadMore = () => this._state.nextPage();
     public readonly refresh = () => this._state.refresh();
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = this.refresh;
 
     public readonly filtered_events = computed(() => {
         const { search, request_filter } = this.options();

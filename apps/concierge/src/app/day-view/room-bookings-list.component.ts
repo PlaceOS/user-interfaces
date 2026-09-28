@@ -43,6 +43,8 @@ import { EventsStateService } from './events-state.service';
             </div>
             <div class="min-h-0 flex-1 overflow-auto px-8 pb-16">
                 <simple-table
+                    [error]="load_error()"
+                    (retry)="retryLoad()"
                     class="block min-w-368 text-sm"
                     [data]="bookings()"
                     [columns]="[
@@ -315,6 +317,8 @@ import { EventsStateService } from './events-state.service';
 })
 export class RoomBookingsListComponent {
     private _state = inject(EventsStateService);
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = () => this._state.reload();
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 

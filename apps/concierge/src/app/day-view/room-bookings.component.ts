@@ -29,6 +29,7 @@ import {
 import {
     BuildingPipe,
     IconComponent,
+    LoadErrorComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -225,6 +226,12 @@ const EMPTY = [];
                     </mat-menu>
                 </div>
             </div>
+            @if (load_error() && view() === 'timeline') {
+                <load-error
+                    class="border-error/30 mx-8 mt-4 block rounded-lg border"
+                    (retry)="retryLoad()"
+                />
+            }
             <div class="border-base-200 mt-4 flex h-px w-full flex-1 border-t">
                 @if (view() === 'timeline') {
                     @if (period() === 'day') {
@@ -271,6 +278,7 @@ const EMPTY = [];
         RoomBookingsApprovalsComponent,
         SettingsToggleComponent,
         BuildingPipe,
+        LoadErrorComponent,
     ],
 })
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {
@@ -287,6 +295,8 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
 
     public readonly zones = this._state.zones;
     public readonly period = this._state.period;
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = () => this._state.reload();
     public readonly downloading = signal(false);
     public readonly view = signal<'timeline' | 'list'>('timeline');
     public readonly ui_options = this._state.options;

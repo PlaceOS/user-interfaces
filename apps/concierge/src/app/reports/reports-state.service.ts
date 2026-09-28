@@ -446,6 +446,7 @@ export class ReportsStateService extends AsyncHandler {
         };
         const token = ++this._load_token;
         let list: (CalendarEvent | Booking)[] = [];
+        let failed = false;
         try {
             switch (options.type) {
                 case 'desks':
@@ -494,18 +495,23 @@ export class ReportsStateService extends AsyncHandler {
                         zone_ids: zones,
                         include_cancelled: true,
                         limit: 200,
-                    }).catch(() => []);
+                    });
                     break;
                 default:
                     list = [];
             }
         } catch (_) {
             list = [];
+            failed = true;
         }
         // Discard the response if the options changed before it completed
         if (token !== this._load_token) return;
         this._loading.set('');
-        if (!list?.length) {
+        if (failed) {
+            notifyError(i18n('COMMON.LOAD_ERROR'), i18n('COMMON.RETRY'), () =>
+                this.generateReport(),
+            );
+        } else if (!list?.length) {
             notifyError('No bookings for the selected levels and period');
         }
         list = list.filter((bkn) => {

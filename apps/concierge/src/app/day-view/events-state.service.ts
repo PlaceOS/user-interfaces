@@ -252,6 +252,10 @@ export class EventsStateService extends AsyncHandler {
         },
     );
 
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of bookings from the API failed */
+    public readonly load_error = this._load_error.asReadonly();
+
     /** Bookings fetched from the API for spaces without a booking driver */
     private readonly _api_events = resource({
         params: () => this._api_events_params_debounced.value(),
@@ -271,12 +275,17 @@ export class EventsStateService extends AsyncHandler {
                 this.tz_offset,
                 this._week_start,
             );
+            let failed = false;
             const events = await queryEvents({
                 strict: 'limit',
                 zone_ids: zones.join(','),
                 period_start: getUnixTime(start),
                 period_end: getUnixTime(end),
-            }).catch(() => [] as CalendarEvent[]);
+            }).catch(() => {
+                failed = true;
+                return [] as CalendarEvent[];
+            });
+            this._load_error.set(failed);
             return (events || []).filter((event) =>
                 event.resources?.some((resource) =>
                     spaces_without_driver.some(
@@ -446,6 +455,11 @@ export class EventsStateService extends AsyncHandler {
         this._poll.set(Date.now());
         this.interval('polling', () => this._poll.set(Date.now()), poll_delay);
         return () => this.stopPolling();
+    }
+
+    /** Load the bookings from the API again */
+    public reload() {
+        this._api_events.reload();
     }
 
     public stopPolling() {

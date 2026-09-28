@@ -22,6 +22,8 @@ import { DesksStateService } from './desks-state.service';
     template: `
         <div class="h-full w-full overflow-auto pb-16">
             <simple-table
+                [error]="load_error()"
+                (retry)="retryLoad()"
                 class="block min-w-368 text-sm"
                 [data]="bookings()"
                 [filter]="filters().search"
@@ -452,6 +454,8 @@ export class DeskBookingsComponent implements OnInit {
     public readonly last_updated = this._state.last_updated;
     public readonly state_loading = this._state.loading;
     public readonly refresh = () => this._state.refresh();
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = this.refresh;
 
     public ngOnInit() {
         this._state.refresh();

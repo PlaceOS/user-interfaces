@@ -11,7 +11,11 @@ import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AsyncHandler, SettingsService } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { queryAnswers, SurveyAnswer } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
@@ -135,6 +139,8 @@ import { NewSurveyService } from './new-survey.service';
                     </div>
                 }
             </div>
+        } @else if (load_error()) {
+            <load-error (retry)="reload()" />
         } @else {
             <div
                 class="flex min-h-40 w-full flex-col items-center justify-center"
@@ -165,6 +171,7 @@ import { NewSurveyService } from './new-survey.service';
         FormsModule,
         IconComponent,
         TranslatePipe,
+        LoadErrorComponent,
     ],
 })
 export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
@@ -176,6 +183,10 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
 
     public readonly survey = this._service.survey;
     public readonly questions = this._service.survey_questions;
+
+    /** Whether the latest load of answers failed */
+    public readonly load_error = signal(false);
+    public readonly reload = () => this._answers.reload();
 
     private readonly _answers = resource({
         params: () => ({ survey: this.survey(), options: this.options() }),
@@ -191,7 +202,13 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
                     endOfDay(options.end || Date.now()),
                 );
             }
-            return queryAnswers(q).catch(() => [] as SurveyAnswer[]);
+            let failed = false;
+            const answers = await queryAnswers(q).catch(() => {
+                failed = true;
+                return [] as SurveyAnswer[];
+            });
+            this.load_error.set(failed);
+            return answers;
         },
     });
     public readonly answers = this._answers.value;

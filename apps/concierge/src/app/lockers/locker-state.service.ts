@@ -151,6 +151,9 @@ export class LockerStateService extends AsyncHandler {
         );
     });
     public readonly loading = this._loading.asReadonly();
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of bookings failed */
+    public readonly load_error = this._load_error.asReadonly();
 
     public get tz_offset() {
         const tz = this._settings.get('app.bookings.use_building_timezone')
@@ -395,12 +398,13 @@ export class LockerStateService extends AsyncHandler {
         }
         const token = ++this._load_token;
         this._loading.set(addToken(this._loading(), '[BOOKINGS]'));
-        const resp: any = await Promise.resolve(fetch()).catch(() => ({
-            data: [],
-            total: 0,
-            next: null,
-        }));
+        let failed = false;
+        const resp: any = await Promise.resolve(fetch()).catch(() => {
+            failed = true;
+            return { data: [], total: 0, next: null };
+        });
         if (token !== this._load_token) return;
+        this._load_error.set(failed);
         const { data = [], total = 0, next = null } = resp || {};
         const has_next = data.length > 0 && !!next;
         this._next_page_fn = has_next ? next : null;

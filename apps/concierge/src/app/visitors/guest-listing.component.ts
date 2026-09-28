@@ -36,6 +36,8 @@ import { VisitorsStateService } from './visitors-state.service';
     selector: 'guest-listings',
     template: `
         <simple-table
+            [error]="load_error()"
+            (retry)="retryLoad()"
             class="z-0 block text-sm print:hidden"
             [style.min-width]="72 + extra_width + 'rem'"
             [data]="guests()"
@@ -755,6 +757,8 @@ export class GuestListingComponent extends AsyncHandler {
 
     public readonly printing = signal('');
     public readonly guests = this._state.filtered_bookings;
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = () => this._state.poll();
     public readonly search = this._state.search;
     public readonly filters = this._state.filters;
     public readonly inductions_enabled = signal(false);

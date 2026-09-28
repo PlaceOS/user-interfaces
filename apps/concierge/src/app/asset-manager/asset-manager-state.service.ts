@@ -82,6 +82,9 @@ export class AssetManagerStateService extends AsyncHandler {
     private _loading = signal(false);
     /** Whether asset list is loading */
     public readonly loading = this._loading.asReadonly();
+    private readonly _load_error = signal(false);
+    /** Whether the latest load of assets failed */
+    public readonly load_error = this._load_error.asReadonly();
     /** List of options set for the view */
     public readonly options = this._options.asReadonly();
     /** List of extra assets to display */
@@ -97,9 +100,14 @@ export class AssetManagerStateService extends AsyncHandler {
         loader: async () => {
             this._loading.set(true);
             try {
+                let failed = false;
                 const resp = await getGroupsWithAssets({
                     zone_id: this._org.building?.id,
-                }).catch(() => ({ data: [] }) as any);
+                }).catch(() => {
+                    failed = true;
+                    return { data: [] } as any;
+                });
+                this._load_error.set(failed);
                 return resp.data;
             } finally {
                 this._loading.set(false);
@@ -394,6 +402,11 @@ export class AssetManagerStateService extends AsyncHandler {
     /** Update the set view options */
     public setOptions(options: Partial<AssetOptions>) {
         this._options.update((current) => ({ ...current, ...options }));
+    }
+
+    /** Load the list of assets again */
+    public reload() {
+        this._products.reload();
     }
 
     public postChange() {

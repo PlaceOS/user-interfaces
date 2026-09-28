@@ -23,6 +23,8 @@ import { LockerStateService } from './locker-state.service';
             [class.pb-4]="!(!loading() && more_pages)"
         >
             <simple-table
+                [error]="load_error()"
+                (retry)="retryLoad()"
                 class="mr-4 block w-full min-w-6xl flex-1 overflow-auto text-sm"
                 [data]="bookings()"
                 [columns]="[
@@ -284,6 +286,8 @@ import { LockerStateService } from './locker-state.service';
 })
 export class LockerBookingsComponent {
     private _state = inject(LockerStateService);
+    public readonly load_error = this._state.load_error;
+    public readonly retryLoad = () => this._state.refresh();
     private _settings = inject(SettingsService);
 
     public readonly loading = signal('');
