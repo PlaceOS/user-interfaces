@@ -28,6 +28,8 @@
     "scripts": {
         "ng": "nx",
         "postinstall": "node ./config/version.js && node ./tools/sync-material-symbols.js",
+        "hooks:install": "git config --local core.hooksPath .githooks",
+        "hooks:test": "bun test ./tools/git-hooks.test.js",
         "nx": "nx",
         "start": "nx serve",
         "build": "nx build",
