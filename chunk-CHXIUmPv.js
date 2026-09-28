@@ -1,3 +1,0 @@
-import{es as tu}from"./chunk-CrK798zM.js";import{a as Ah,jt as h6}from"./chunk-3j8AlFeO.js";var r=`/api/staff/v1/guests`;async function C(t){let s=h6({q:t});return(await tu(`${r}${t?`?`+s:``}`)).map(c=>new Ah(c))}async function I(t){return new Ah(await tu(`${r}/${encodeURIComponent(t)}`))}export{I as n,C as t};
-//# debugId=abcf5c25-4910-57e4-928d-c1240f95e655
-//# sourceMappingURL=chunk-CHXIUmPv.js.map
