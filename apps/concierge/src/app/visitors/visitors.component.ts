@@ -159,11 +159,13 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     }
 
     public async inviteVisitor() {
-        this._dialog.open(InviteVisitorModalComponent, {
+        const ref = this._dialog.open(InviteVisitorModalComponent, {
             data: {
                 date: this.filters()?.date || Date.now(),
             },
         });
+        // The modal can invite several visitors, so reload once it closes
+        ref.afterClosed().subscribe(() => this._state.poll());
     }
 
     public ngOnInit() {
