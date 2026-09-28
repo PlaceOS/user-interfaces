@@ -359,6 +359,73 @@ describe('SignageService', () => {
         },
     );
 
+    it('plays a local one-off run at the wall-clock time of the display', async () => {
+        vi.setSystemTime(new Date(2026, 11, 31, 23, 59, 30));
+        const display = create_display({
+            playlist_mappings: { 'display-1': ['scheduled-playlist'] },
+            playlist_config: {
+                'scheduled-playlist': [
+                    {
+                        id: 'scheduled-playlist',
+                        enabled: true,
+                        schedules: [
+                            {
+                                play_at_local: '2027-01-01T00:00:00',
+                                // The fallback cron would be active now.
+                                play_cron: '0 0 * * *',
+                                play_period: 24 * 60,
+                            },
+                        ],
+                    },
+                    ['media-3'],
+                ],
+            },
+        });
+        vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(spectator.service.playlist()).toHaveLength(0);
+        expect(spectator.service.diagnostics().upcoming_schedules).toEqual([
+            expect.objectContaining({
+                play_at_local: '2027-01-01T00:00:00',
+                starts_at: new Date(2027, 0, 1).toISOString(),
+            }),
+        ]);
+
+        vi.advanceTimersByTime(60_000);
+        await flush();
+        expect(spectator.service.playlist().map((item) => item.id)).toEqual([
+            'media-3',
+        ]);
+    });
+
+    it('ignores an invalid local one-off run and does not use the fallback cron', async () => {
+        vi.setSystemTime(new Date(2027, 0, 1, 0, 0, 30));
+        const display = create_display({
+            playlist_mappings: { 'display-1': ['scheduled-playlist'] },
+            playlist_config: {
+                'scheduled-playlist': [
+                    {
+                        id: 'scheduled-playlist',
+                        enabled: true,
+                        schedules: [
+                            {
+                                play_at_local: '2027-01-01T00:00:00Z',
+                                play_cron: '0 0 * * *',
+                                play_period: 24 * 60,
+                            },
+                        ],
+                    },
+                    ['media-3'],
+                ],
+            },
+        });
+        vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+        spectator.service.setDisplay('display-1');
+        await flush();
+        expect(spectator.service.playlist()).toHaveLength(0);
+    });
+
     it('should stop normal playlist playback when its schedule expires', async () => {
         const now = new Date('2026-01-01T10:00:00Z');
         vi.setSystemTime(now);

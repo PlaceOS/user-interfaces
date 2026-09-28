@@ -3,7 +3,7 @@ import {
     type SignagePlaylistItemSchedule,
     type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
-import { formatDistance, fromUnixTime } from 'date-fns';
+import { format, formatDistance, fromUnixTime, getUnixTime } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 
 /**
@@ -14,7 +14,61 @@ export type PlaylistSchedule = SignagePlaylistSchedule & {
     readonly valid_from?: number;
     /** Up to 128 binary characters, first occurrence first. Empty disables the mask. */
     readonly mask?: string;
+    /**
+     * One-off play time as a wall-clock time with no offset, e.g.
+     * "2027-01-01T00:00:00". Each display plays it in its own timezone.
+     * Do not set it with `play_at`.
+     */
+    readonly play_at_local?: string;
 };
+
+const PLAY_AT_LOCAL_PATTERN =
+    /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})$/;
+
+/** Whether the schedule plays once at `play_at` or `play_at_local`. */
+export function isPlayOnceSchedule(schedule: Partial<PlaylistSchedule>) {
+    return !!schedule.play_at || !!schedule.play_at_local;
+}
+
+/**
+ * Parse a `play_at_local` value as a wall-clock time in the viewer's timezone.
+ * Returns null when the value is not an ISO 8601 date time with no offset.
+ */
+export function parsePlayAtLocal(value: string | null | undefined) {
+    const match = PLAY_AT_LOCAL_PATTERN.exec(value || '');
+    if (!match) return null;
+    const [year, month, day, hours, minutes, seconds] = match
+        .slice(1)
+        .map(Number);
+    const date = new Date(year, month - 1, day, hours, minutes, seconds);
+    // Reject values such as February 30 or 00:60 that roll over.
+    return date.getDate() === day &&
+        date.getMonth() === month - 1 &&
+        minutes < 60 &&
+        seconds < 60
+        ? date
+        : null;
+}
+
+/** Format a date as a `play_at_local` value in the viewer's timezone. */
+export function formatPlayAtLocal(date: Date | number) {
+    return format(date, "yyyy-MM-dd'T'HH:mm:ss");
+}
+
+/** Play once start time for labels. Local times note the display timezone. */
+export function playOnceLabel(schedule: Partial<PlaylistSchedule>) {
+    const start = playOnceStart(schedule)?.toLocaleString() ?? '';
+    return schedule.play_at ? start : `${start} display local time`;
+}
+
+/**
+ * Start of a play once schedule, or null for a recurring schedule.
+ * The viewer's timezone resolves `play_at_local` values.
+ */
+export function playOnceStart(schedule: Partial<PlaylistSchedule>) {
+    if (schedule.play_at) return fromUnixTime(schedule.play_at);
+    return parsePlayAtLocal(schedule.play_at_local);
+}
 
 const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 const WEEKDAY_NAMES = [
@@ -299,9 +353,8 @@ export function playlistScheduleLabel(schedule: Partial<PlaylistSchedule>) {
     ]
         .filter((_) => _)
         .join(' · ');
-    if (schedule.play_at) {
-        const date = fromUnixTime(schedule.play_at);
-        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}${
+    if (isPlayOnceSchedule(schedule)) {
+        return `Plays once on ${playOnceLabel(schedule)} for ${durationLabel(period)}${
             suffix ? ` · ${suffix}` : ''
         }`;
     }
@@ -377,7 +430,7 @@ export function createScheduleMaskFilter(
     if (!hasPlayableScheduleMask(schedule)) return () => false;
     const anchor = schedule.valid_from * 1000;
     if (!Number.isFinite(new Date(anchor).getTime())) return () => false;
-    if (schedule.play_at)
+    if (isPlayOnceSchedule(schedule))
         return (date) => date.getTime() >= anchor && mask[0] === '1';
     const cron = schedule.play_cron || '0 0 * * *';
     const parts = cron.trim().split(/\s+/);
@@ -522,15 +575,16 @@ export function playlistScheduleNextPlayLabels(
     count = 5,
 ) {
     const period = schedulePeriod(schedule);
-    if (schedule.play_at) {
-        const start = fromUnixTime(schedule.play_at);
+    if (isPlayOnceSchedule(schedule)) {
+        const start = playOnceStart(schedule);
+        if (!start) return [];
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);
+        const play_at = getUnixTime(start);
         const outside_valid_window =
-            (!!schedule.valid_until &&
-                schedule.play_at > schedule.valid_until) ||
-            (!!schedule.valid_from && schedule.play_at < schedule.valid_from);
+            (!!schedule.valid_until && play_at > schedule.valid_until) ||
+            (!!schedule.valid_from && play_at < schedule.valid_from);
         return end >= new Date() &&
             !outside_valid_window &&
             createScheduleMaskFilter(schedule)(start)

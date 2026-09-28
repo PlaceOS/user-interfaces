@@ -10,12 +10,15 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
-import { fromUnixTime } from 'date-fns';
+import { fromUnixTime, getUnixTime } from 'date-fns';
 import { SignageSharedWithComponent } from '../shared/signage-shared-with.component';
 import {
+    isPlayOnceSchedule,
     type PlaylistSchedule,
     playlistScheduleExpiryLabel,
     playlistScheduleExpiryTooltip,
+    playOnceLabel,
+    playOnceStart,
 } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 
@@ -290,9 +293,8 @@ function scheduleLabel(schedule: Partial<PlaylistSchedule>) {
     const suffix = [schedule.play_takeover ? 'takeover' : '', expiry]
         .filter((_) => _)
         .join(' · ');
-    if (schedule.play_at) {
-        const date = fromUnixTime(schedule.play_at);
-        return `Plays once on ${date.toLocaleString()} for ${durationLabel(period)}${
+    if (isPlayOnceSchedule(schedule)) {
+        return `Plays once on ${playOnceLabel(schedule)} for ${durationLabel(period)}${
             suffix ? ` · ${suffix}` : ''
         }`;
     }
@@ -311,15 +313,16 @@ function nextSchedulePlaySessions(
     count: number,
 ): PlaySession[] {
     const period = schedulePeriod(schedule);
-    if (schedule.play_at) {
-        const start = fromUnixTime(schedule.play_at);
+    if (isPlayOnceSchedule(schedule)) {
+        const start = playOnceStart(schedule);
+        if (!start) return [];
         const end = new Date(start);
         end.setMinutes(end.getMinutes() + Math.max(0, period || 0));
         if (period > 0) end.setSeconds(end.getSeconds() - 1);
+        const play_at = getUnixTime(start);
         const outside_valid_window =
-            (!!schedule.valid_until &&
-                schedule.play_at > schedule.valid_until) ||
-            (!!schedule.valid_from && schedule.play_at < schedule.valid_from);
+            (!!schedule.valid_until && play_at > schedule.valid_until) ||
+            (!!schedule.valid_from && play_at < schedule.valid_from);
         return end >= new Date() && !outside_valid_window
             ? [{ start, period }]
             : [];

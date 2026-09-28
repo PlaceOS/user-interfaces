@@ -317,6 +317,7 @@ The Signage app is a kiosk-style digital signage player. It bootstraps a device 
 
 - A scheduled playlist with `play_takeover` disabled is included in normal playback only while its schedule is active.
 - `play_at` schedules support Unix timestamps in seconds or milliseconds.
+- `play_at_local` schedules play once at a wall-clock time (for example `2027-01-01T00:00:00`) in the display's timezone.
 - `play_cron` schedules support recurring cron-based activation.
 - `play_period` controls the active window in minutes.
 - When `play_period` is missing, the default active window is 24 hours.

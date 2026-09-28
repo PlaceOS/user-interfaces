@@ -9,6 +9,7 @@ import {
     playlistScheduleExpiryTooltip,
     playlistScheduleLabel,
     playlistScheduleNextPlayLabels,
+    playOnceStart,
 } from '../app/signage-playlist.util';
 
 describe('signage playlist util', () => {
@@ -82,6 +83,33 @@ describe('signage playlist util', () => {
         expect(label).toContain('Plays once on');
         expect(label).toContain(play_at.toLocaleString());
         expect(label).toContain('for 30 minutes');
+    });
+
+    it('labels a local one-off schedule in the viewer timezone', () => {
+        const label = playlistScheduleLabel({
+            play_at_local: '2026-03-02T09:30:00',
+            // The API always sends a fallback cron with one-off schedules.
+            play_cron: '0 0 * * *',
+            play_period: 30,
+        });
+
+        expect(label).toContain(
+            `Plays once on ${new Date(2026, 2, 2, 9, 30).toLocaleString()} display local time`,
+        );
+    });
+
+    it('reads play_at_local only as a date time with no offset', () => {
+        expect(playOnceStart({ play_at_local: '2027-01-01T00:00:00' })).toEqual(
+            new Date(2027, 0, 1),
+        );
+        for (const value of [
+            '2027-01-01T00:00:00Z',
+            '2027-01-01T00:00',
+            '2027-02-30T00:00:00',
+            '2027-01-01T00:60:00',
+        ]) {
+            expect(playOnceStart({ play_at_local: value })).toBeNull();
+        }
     });
 
     it('labels cron schedules like playlist details', () => {

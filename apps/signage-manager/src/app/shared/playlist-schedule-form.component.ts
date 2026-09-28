@@ -42,8 +42,11 @@ import { endOfDay, fromUnixTime, getUnixTime, startOfDay } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import {
     createScheduleMaskFilter,
+    formatPlayAtLocal,
     hasPlayableScheduleMask,
+    isPlayOnceSchedule,
     isValidScheduleMask,
+    parsePlayAtLocal,
     type PlaylistSchedule,
     playlistScheduleExpiryLabel,
 } from '../signage-playlist.util';
@@ -63,6 +66,11 @@ export interface PlaylistScheduleFormModel {
     schedule_type: PlaylistScheduleType;
     play_start: number;
     play_at: number;
+    /**
+     * Play once at the same moment on all displays (`play_at`). Otherwise play
+     * at a wall-clock time in each display's timezone (`play_at_local`).
+     */
+    play_at_exact: boolean;
     play_takeover: boolean;
     play_cron: string;
     recurrence_type: RecurringScheduleType;
@@ -386,7 +394,7 @@ function playlistPlayPeriod(schedule: Partial<PlaylistSchedule>) {
 function scheduleTypeFor(
     schedule: Partial<PlaylistSchedule>,
 ): PlaylistScheduleType {
-    return schedule.play_at ? 'play_at' : 'play_cron';
+    return isPlayOnceSchedule(schedule) ? 'play_at' : 'play_cron';
 }
 
 function currentPlaylistSchedule(playlist: SignagePlaylist) {
@@ -639,9 +647,11 @@ export function createPlaylistScheduleModel(
         play_start: timeToMinutes(recurring_schedule.recurrence_time),
         // The API carries a unix timestamp in seconds; the form model works in
         // milliseconds, as playlistSchedulePayload's getUnixTime assumes.
+        // Local play times use the browser timezone for the wall-clock value.
         play_at: source.play_at
             ? fromUnixTime(source.play_at).getTime()
-            : Date.now(),
+            : (parsePlayAtLocal(source.play_at_local)?.getTime() ?? Date.now()),
+        play_at_exact: !!source.play_at,
         play_takeover: !!source.play_takeover,
         play_cron: source.play_cron || DEFAULT_RECURRING_CRON,
         recurrence_type: recurring_schedule.recurrence_type,
@@ -710,9 +720,14 @@ export function playlistSchedulePayload(
 ): PlaylistSchedule {
     return value.schedule_type === 'play_at'
         ? {
-              play_at: value.play_at
-                  ? getUnixTime(new Date(value.play_at))
-                  : undefined,
+              play_at:
+                  value.play_at_exact && value.play_at
+                      ? getUnixTime(new Date(value.play_at))
+                      : undefined,
+              play_at_local:
+                  !value.play_at_exact && value.play_at
+                      ? formatPlayAtLocal(value.play_at)
+                      : undefined,
               play_cron: DEFAULT_RECURRING_CRON,
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
@@ -726,6 +741,7 @@ export function playlistSchedulePayload(
           }
         : {
               play_at: undefined,
+              play_at_local: undefined,
               play_cron: buildRecurringCron(value),
               play_period: Math.max(0, value.play_period || 0),
               play_takeover: !!value.play_takeover,
@@ -811,9 +827,25 @@ export function playlistSchedulePayload(
                             }}</mat-option>
                         </mat-select>
                     </mat-form-field>
+                    @if (value().schedule_type === 'play_at') {
+                        <settings-toggle
+                            play-at-exact
+                            [label]="
+                                'SIGNAGE_MANAGER.PLAY_AT_EXACT_TIME' | translate
+                            "
+                            [info]="
+                                (value().play_at_exact
+                                    ? 'SIGNAGE_MANAGER.PLAY_AT_EXACT_TIME_HINT'
+                                    : 'SIGNAGE_MANAGER.PLAY_AT_LOCAL_TIME_HINT'
+                                ) | translate
+                            "
+                            [ngModel]="value().play_at_exact"
+                            (ngModelChange)="setPlayAtExact($event)"
+                            [ngModelOptions]="{ standalone: true }"
+                        />
+                    }
                     @if (
-                        !schedule_timezone_once_only() ||
-                        value().schedule_type === 'play_at'
+                        !schedule_timezone_once_only() || playAtUsesTimezone()
                     ) {
                         <ng-container [ngTemplateOutlet]="timezone_field" />
                     }
@@ -835,7 +867,7 @@ export function playlistSchedulePayload(
                                     'SIGNAGE_MANAGER.PLAY_AT' | translate
                                 }}</label>
                                 <a-date-field
-                                    [timezone]="timezone()"
+                                    [timezone]="playTimezone()"
                                     class="w-full"
                                     [formField]="schedule().play_at"
                                 ></a-date-field>
@@ -843,9 +875,9 @@ export function playlistSchedulePayload(
                             <div class="flex-1">
                                 <label>&nbsp;</label>
                                 <!-- Recreate the time input to refresh its cached display when the timezone changes. -->
-                                @for (zone of [timezone()]; track zone) {
+                                @for (zone of [playTimezone()]; track zone) {
                                     <a-time-field
-                                        [timezone]="timezone()"
+                                        [timezone]="playTimezone()"
                                         class="w-full"
                                         [ngModel]="value().play_at"
                                         (ngModelChange)="
@@ -862,7 +894,7 @@ export function playlistSchedulePayload(
                             'SIGNAGE_MANAGER.PLAY_PERIOD' | translate
                         }}</label>
                         <a-duration-field
-                            [timezone]="timezone()"
+                            [timezone]="playTimezone()"
                             class="w-full"
                             [formField]="schedule().play_period"
                             [min]="15"
@@ -1474,15 +1506,15 @@ export function playlistSchedulePayload(
                         class="bg-base-200/40 border-base-300 mt-4 rounded-lg border p-2"
                     >
                         @if (
-                            value().schedule_type === 'play_cron' &&
-                            schedule_timezone_once_only()
+                            schedule_timezone_once_only() &&
+                            !playAtUsesTimezone()
                         ) {
                             <ng-container [ngTemplateOutlet]="timezone_field" />
                         }
                         <settings-toggle
                             [class.mt-2]="
-                                value().schedule_type === 'play_cron' &&
-                                schedule_timezone_once_only()
+                                schedule_timezone_once_only() &&
+                                !playAtUsesTimezone()
                             "
                             [label]="'SIGNAGE_MANAGER.VALID_FROM' | translate"
                             [formField]="schedule().has_valid_from"
@@ -1655,7 +1687,7 @@ export class PlaylistScheduleFormComponent {
     );
     public readonly mask_occurrence_labels = computed(() => {
         const formatter = new Intl.DateTimeFormat(this._locale.locale, {
-            timeZone: this.timezone(),
+            timeZone: this.playTimezone() || undefined,
             weekday: 'short',
             year: 'numeric',
             month: 'short',
@@ -1732,6 +1764,34 @@ export class PlaylistScheduleFormComponent {
 
     public readonly formatPlayHour = (value: number | null | undefined) =>
         minutesToTime(value || 0);
+
+    /** Whether the selected timezone sets the play once time. */
+    public readonly playAtUsesTimezone = computed(
+        () =>
+            this.value().schedule_type === 'play_at' &&
+            this.value().play_at_exact,
+    );
+
+    /**
+     * Timezone of the play time fields. Local play once times have no
+     * timezone, so their fields use the browser timezone ('').
+     */
+    public readonly playTimezone = computed(() =>
+        this.value().schedule_type === 'play_at' && !this.value().play_at_exact
+            ? ''
+            : this.timezone(),
+    );
+
+    /** Switch the play once mode and keep the displayed wall-clock time. */
+    public setPlayAtExact(exact: boolean) {
+        const { play_at, play_at_exact } = this.value();
+        if (exact === play_at_exact) return;
+        const play_at_value = exact
+            ? fromZonedTime(new Date(play_at), this.timezone()).getTime()
+            : toZonedTime(play_at, this.timezone()).getTime();
+        this.schedule().play_at().value.set(play_at_value);
+        this.schedule().play_at_exact().value.set(exact);
+    }
 
     public focusTimezoneSearch(select: MatSelect, input: HTMLInputElement) {
         afterNextRender(
@@ -1861,8 +1921,11 @@ export class PlaylistScheduleFormComponent {
                 : '');
         if (value.schedule_type === 'play_at') {
             const date = new Date(value.play_at || Date.now());
+            const datetime = value.play_at_exact
+                ? `${formatPlayDateTime(date, this.timezone())} ${this.timezone()}`
+                : `${formatPlayDateTime(date)} ${i18n('SIGNAGE_MANAGER.DISPLAY_LOCAL_TIME')}`;
             return `${i18n('SIGNAGE_MANAGER.SUMMARY_PLAY_ONCE', {
-                datetime: `${formatPlayDateTime(date, this.timezone())} ${this.timezone()}`,
+                datetime,
                 duration,
             })}${takeover}${expiry_suffix}`;
         }
