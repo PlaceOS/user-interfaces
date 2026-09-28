@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Booking, SettingsService } from '@placeos/common';
+import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -31,7 +31,7 @@ import { LockerStateService } from './locker-state.service';
             <simple-table
                 [error]="load_error()"
                 (retry)="retryLoad()"
-                [selectable]="true"
+                [selectable]="bulk_actions()"
                 [row_key]="rowKey"
                 [can_select]="canSelect"
                 [(selected)]="selected"
@@ -309,6 +309,8 @@ export class LockerBookingsComponent {
     public readonly canSelect = (
         row: BookingRowKeyFields & Pick<Booking, 'status' | 'deleted'>,
     ) => row.status !== 'ended' && !row.deleted;
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
     /** Row keys of the selected bookings */
     public readonly selected = signal<string[]>([]);
     public readonly bulk_busy = signal(false);

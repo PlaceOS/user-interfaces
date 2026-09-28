@@ -172,7 +172,7 @@ import {
                     },
                 ]"
                 [sortable]="true"
-                [selectable]="true"
+                [selectable]="bulk_actions()"
                 [(selected)]="selected"
                 [show_children]="show_children()"
                 [child_template]="child_template"
@@ -459,6 +459,8 @@ export class CateringOrderListComponent extends AsyncHandler implements OnInit {
 
     /** Whether to show a print button for each order. The app must host `catering-order-dockets`. */
     public readonly can_print = input(false);
+    /** Whether orders can be selected to change their status in bulk */
+    public readonly bulk_actions = input(true);
 
     /** List of filtered orders */
     public readonly order_list = this._orders.filtered;

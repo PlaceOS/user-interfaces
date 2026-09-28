@@ -34,6 +34,7 @@ const app = {
     guests: { vaccine_check: true },
     delegated: false,
     has_uploads: true,
+    bulk_actions: false,
     custom_reports,
     desks: {
         use_assets: false,

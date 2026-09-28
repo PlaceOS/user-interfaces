@@ -4,7 +4,12 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AsyncHandler, Booking, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    Booking,
+    SettingsService,
+    settingSignal,
+} from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
@@ -63,7 +68,7 @@ import {
                 <simple-table
                     [error]="load_error()"
                     (retry)="retryLoad()"
-                    [selectable]="true"
+                    [selectable]="bulk_actions()"
                     [row_key]="rowKey"
                     [can_select]="canSelect"
                     [(selected)]="selected"
@@ -392,6 +397,8 @@ export class ParkingRequestsListComponent
     public readonly retryLoad = this.refresh;
     public readonly rowKey = bookingRowKey;
     public readonly canSelect = (e: Booking) => this.canApproveBooking(e);
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
     /** Row keys of the selected bookings */
     public readonly selected = signal<string[]>([]);
     public readonly bulk_busy = signal(false);

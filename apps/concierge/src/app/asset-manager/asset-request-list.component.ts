@@ -6,6 +6,7 @@ import {
     AsyncHandler,
     Booking,
     OrganisationService,
+    settingSignal,
     SettingsService,
 } from '@placeos/common';
 import {
@@ -41,7 +42,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                     class="block min-w-328 text-sm"
                     asset-requests
                     [data]="requests()"
-                    [selectable]="true"
+                    [selectable]="bulk_actions()"
                     [(selected)]="selected"
                     [filter]="filters().search"
                     [columns]="[
@@ -310,6 +311,8 @@ export class AssetRequestListComponent extends AsyncHandler implements OnInit {
     public readonly request = signal<any>(null);
 
     public readonly loading = signal<Record<string, boolean>>({});
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
     /** IDs of the selected requests */
     public readonly selected = signal<string[]>([]);
     public readonly bulk_busy = signal(false);

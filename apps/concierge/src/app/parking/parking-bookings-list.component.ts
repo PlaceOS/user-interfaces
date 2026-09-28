@@ -112,7 +112,7 @@ interface ParkingBookingColumnTemplates {
                 <simple-table
                     [error]="load_error()"
                     (retry)="retryLoad()"
-                    [selectable]="true"
+                    [selectable]="bulk_actions()"
                     [row_key]="rowKey"
                     [can_select]="canSelect"
                     [(selected)]="selected"
@@ -646,6 +646,8 @@ export class ParkingBookingsListComponent
     );
     public readonly canSelect = (row: BookingRowKeyFields) =>
         this._selectable_keys().has(bookingRowKey(row));
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
     /** Row keys of the selected bookings */
     public readonly selected = signal<string[]>([]);
     public readonly bulk_busy = signal(false);

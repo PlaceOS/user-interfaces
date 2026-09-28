@@ -59,6 +59,7 @@ Each locale entry requires an `id` and `name`:
 | `admin_group` | string | `"concierge_admins"` | Name of the user group that grants access to admin sections of the app. Members of `placeos_admin` and `placeos_support` are always allowed. |
 | `delegated` | boolean | `false` | Set when your PlaceOS instance uses delegated calendar access. Hides event actions from the event details view. |
 | `has_uploads` | boolean | `true` | Whether file upload support (S3/cloud storage) is available in the app. |
+| `bulk_actions` | boolean | `false` | Let staff select several rows and apply one action to all of them. Desk, parking and locker bookings, parking requests and asset requests get approve and reject actions. Catering orders get a status action. |
 
 ```json
 {

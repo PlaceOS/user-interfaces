@@ -100,7 +100,7 @@ import { DesksStateService } from './desks-state.service';
                     ) | translate
                 "
                 [sortable]="true"
-                [selectable]="true"
+                [selectable]="bulk_actions()"
                 [row_key]="rowKey"
                 [can_select]="canChangeBooking"
                 [(selected)]="selected"
@@ -490,6 +490,8 @@ export class DeskBookingsComponent implements OnInit {
     public readonly isRejected = isDeskBookingRejected;
     public readonly canChangeBooking = canChangeDeskBooking;
     public readonly rowKey = bookingRowKey;
+    /** Whether rows can be selected for bulk approval */
+    public readonly bulk_actions = settingSignal('bulk_actions', false);
     /** Row keys of the selected bookings */
     public readonly selected = signal<string[]>([]);
 
