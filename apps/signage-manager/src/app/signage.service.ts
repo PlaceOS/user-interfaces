@@ -42,7 +42,6 @@ import {
     listSignagePlaylistMedia,
     listSignageTemplateApprovers,
     mediaThumbnail,
-    patch,
     PlaceCurrentGroup,
     PlaceGroup,
     PlaceGroupUser,
@@ -2881,10 +2880,7 @@ export class SignageService {
 
     /** Default permissions and AD group mappings of a group */
     public async loadGroupAccess(group_id: string) {
-        const raw = await get(
-            `${apiEndpoint()}/groups/${encodeURIComponent(group_id)}`,
-        );
-        return signageGroupAccess(raw);
+        return signageGroupAccess(await showGroup(group_id));
     }
 
     /** Replace the default permissions and AD group mappings of a group.
@@ -2897,10 +2893,7 @@ export class SignageService {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
             return null;
         }
-        const result = await patch(
-            `${apiEndpoint()}/groups/${encodeURIComponent(group.id)}`,
-            access,
-        ).catch((error) => {
+        const result = await updateGroup(group.id, access).catch((error) => {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP'));
             throw error;
         });
@@ -2930,8 +2923,9 @@ export class SignageService {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
             return null;
         }
+        // Only the edited fields. A group from a list read has defaults for
+        // the fields the read left out, which would replace stored values.
         const payload = {
-            ...group,
             ...data,
             subsystems: Array.from(
                 new Set([...(group.subsystems || []), 'signage']),

@@ -18,7 +18,7 @@ import {
     get,
     listSignagePlaylistMedia,
     listSignageTemplateApprovers,
-    patch,
+    PlaceGroup,
     PlaceSystem,
     PlaceZone,
     query,
@@ -31,6 +31,7 @@ import {
     scheduleSignagePlaylistMedia,
     shareSignagePlaylists,
     shareSignageTemplates,
+    showGroup,
     showSignageMedia,
     showSignagePlaylist,
     showSystem,
@@ -1827,24 +1828,21 @@ describe('SignageService media uploads', () => {
             });
         });
 
-        it('reads the access fields from the raw group', async () => {
+        it('reads the access fields of a group with decoded names', async () => {
             const service = createService();
-            vi.mocked(get).mockResolvedValue({
-                id: 'group-1',
-                default_permissions: 5,
-                ad_group_mappings: {
-                    'ad-1': ['Sales &amp; Marketing', 1],
-                    bad: 'value',
-                },
-            } as any);
+            vi.mocked(showGroup).mockResolvedValue(
+                new PlaceGroup({
+                    id: 'group-1',
+                    default_permissions: 5,
+                    ad_group_mappings: { 'ad-1': ['Sales &amp; Marketing', 1] },
+                }),
+            );
 
             await expect(service.loadGroupAccess('group-1')).resolves.toEqual({
                 default_permissions: 5,
                 ad_group_mappings: { 'ad-1': ['Sales & Marketing', 1] },
             });
-            expect(get).toHaveBeenCalledWith(
-                expect.stringMatching(/\/groups\/group-1$/),
-            );
+            expect(showGroup).toHaveBeenCalledWith('group-1');
         });
 
         it('saves the defaults and mappings of a managed group', async () => {
@@ -1854,17 +1852,16 @@ describe('SignageService media uploads', () => {
                 default_permissions: 1,
                 ad_group_mappings: { 'ad-1': ['Staff', 3] as [string, number] },
             };
-            vi.mocked(patch).mockResolvedValue(access as any);
+            vi.mocked(updateGroup).mockResolvedValue(
+                new PlaceGroup({ id: 'group-1', ...access }),
+            );
 
             const result = await service.saveGroupAccess(
                 { id: 'group-1' } as any,
                 access,
             );
 
-            expect(patch).toHaveBeenCalledWith(
-                expect.stringMatching(/\/groups\/group-1$/),
-                access,
-            );
+            expect(updateGroup).toHaveBeenCalledWith('group-1', access);
             expect(result).toEqual(access);
         });
 
@@ -1878,7 +1875,23 @@ describe('SignageService media uploads', () => {
             );
 
             expect(result).toBeNull();
-            expect(patch).not.toHaveBeenCalled();
+            expect(updateGroup).not.toHaveBeenCalled();
+        });
+
+        it('saves only the edited group fields, so access settings stay', async () => {
+            const service = createService();
+            withManage(service, true);
+            vi.mocked(updateGroup).mockResolvedValue(new PlaceGroup());
+
+            await service.saveSignageGroup(
+                new PlaceGroup({ id: 'group-1', subsystems: ['events'] }),
+                { name: 'Renamed' },
+            );
+
+            expect(updateGroup).toHaveBeenCalledWith('group-1', {
+                name: 'Renamed',
+                subsystems: ['events', 'signage'],
+            });
         });
 
         it('searches directory groups through the staff API', async () => {
