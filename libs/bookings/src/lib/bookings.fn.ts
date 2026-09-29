@@ -742,8 +742,9 @@ export async function isResourceAvailable(
 }
 
 /**
- * Bookings of the given type already linked to the event, whether they sit
- * in the event's current period or were linked before the event moved
+ * Bookings of the given type that this app linked to the event. The API
+ * ignores the period when given an event id, so bookings are found wherever
+ * they sit in time; the period is only used by the mock API
  * @param event Event the bookings are linked to
  * @param type Type of the linked bookings
  */
@@ -751,20 +752,14 @@ async function linkedBookingsForEvent(
     event: CalendarEvent,
     type: BookingType,
 ): Promise<Booking[]> {
-    const bookings = (
-        await queryBookings({
-            type,
-            period_start: getUnixTime(event.date),
-            period_end: getUnixTime(addMinutes(event.date, event.duration)),
-        })
-    ).filter((_) => _.parent_id === event.id);
-    const missing = (event.linked_bookings || []).filter(
-        (_) => _.booking_type === type && !bookings.find((b) => b.id === _.id),
-    );
-    const fetched = await Promise.all(
-        missing.map((_) => showBooking(_.id).catch(() => null)),
-    );
-    return [...bookings, ...fetched.filter((_) => !!_)];
+    const bookings = await queryBookings({
+        type,
+        event_id: event.id,
+        period_start: getUnixTime(event.date),
+        period_end: getUnixTime(addMinutes(event.date, event.duration)),
+        limit: 500,
+    });
+    return bookings.filter((_) => _.extension_data?.parent_id === event.id);
 }
 
 /**
@@ -788,31 +783,76 @@ function bookingMatchesResource(
 }
 
 /**
- * Whether the fields sent for a linked booking differ from the stored booking
- * @param booking Existing linked booking
- * @param data Fields the event now requires
+ * JSON of a resource's details with object keys sorted, so the stored copy
+ * compares equal to the live one whatever key order the API returns.
+ * `deliver_at_time` is left out as it comes from the event time, which is
+ * compared on its own, and falls back to the current time without an event
+ * @param details Resource details
  */
-function bookingNeedsUpdate(booking: Booking, data: Partial<Booking>): boolean {
-    const attendee_emails = (list: readonly User[] = []) =>
-        list
-            .map((_) => _.email)
-            .sort()
-            .join(',');
-    return (
-        booking.date !== data.date ||
-        booking.duration !== data.duration ||
-        booking.title !== data.title ||
-        booking.description !== data.description ||
-        booking.user_email !== data.user_email ||
-        booking.asset_id !== data.asset_id ||
-        booking.asset_name !== data.asset_name ||
-        [...(booking.zones || [])].sort().join(',') !==
-            [...(data.zones || [])].sort().join(',') ||
-        attendee_emails(booking.attendees) !==
-            attendee_emails(data.attendees) ||
-        JSON.stringify(booking.extension_data?.details ?? null) !==
-            JSON.stringify(data.extension_data?.details ?? null)
+function detailsKey(details: unknown): string {
+    const data = JSON.parse(JSON.stringify(details ?? null));
+    if (data && typeof data === 'object') delete data.deliver_at_time;
+    return JSON.stringify(data, (_, value) =>
+        value && typeof value === 'object' && !Array.isArray(value)
+            ? Object.fromEntries(
+                  Object.entries(value).sort(([a], [b]) => (a < b ? -1 : 1)),
+              )
+            : value,
     );
+}
+
+/** Sorted, comma separated emails of a list of attendees */
+function attendeeEmails(list: readonly Partial<User>[] = []): string {
+    return list
+        .map((_) => _.email?.toLowerCase())
+        .sort()
+        .join(',');
+}
+
+/**
+ * Fields to PATCH on a linked booking so it matches the event, or `null` when
+ * nothing differs. Only changed fields are sent, so the API does not treat an
+ * unchanged time or attendee list as a change. Times are sent as
+ * `booking_start`/`booking_end`, as the API ignores `date` and `duration`
+ * @param booking Existing linked booking
+ * @param desired Booking the event now requires
+ */
+function linkedBookingChanges(
+    booking: Booking,
+    desired: Booking,
+): Partial<Booking> | null {
+    const changes: { -readonly [K in keyof Booking]?: Booking[K] } = {};
+    if (
+        booking.booking_start !== desired.booking_start ||
+        booking.booking_end !== desired.booking_end
+    ) {
+        changes.booking_start = desired.booking_start;
+        changes.booking_end = desired.booking_end;
+        changes.all_day = desired.all_day;
+    }
+    for (const key of ['title', 'description', 'asset_name'] as const) {
+        if (booking[key] !== desired[key]) changes[key] = desired[key];
+    }
+    if (booking.user_email.toLowerCase() !== desired.user_email.toLowerCase()) {
+        changes.user_email = desired.user_email;
+    }
+    if (booking.asset_id !== desired.asset_id) {
+        changes.asset_id = desired.asset_id;
+        changes.asset_ids = desired.asset_ids;
+    }
+    if ([...booking.zones].sort().join() !== [...desired.zones].sort().join()) {
+        changes.zones = desired.zones;
+    }
+    if (
+        attendeeEmails(booking.attendees) !== attendeeEmails(desired.attendees)
+    ) {
+        changes.attendees = desired.attendees;
+    }
+    const details_changed =
+        detailsKey(booking.extension_data?.details) !==
+        detailsKey(desired.extension_data?.details);
+    if (!details_changed && !Object.keys(changes).length) return null;
+    return { ...changes, extension_data: desired.extension_data };
 }
 
 /**
@@ -820,7 +860,7 @@ function bookingNeedsUpdate(booking: Booking, data: Partial<Booking>): boolean {
  * the given type. Bookings for resources still on the event are updated in
  * place so their ids, approval state and check-in survive an edit; bookings are
  * created for new resources and removed for resources no longer on the event.
- * A resource flagged `_changed` is recreated so its approval starts again.
+ * Call with an empty list to remove every linked booking of the type
  * @param event Parent event
  * @param type Type of linked booking to sync
  * @param resources Resources of that type currently on the event
@@ -858,7 +898,9 @@ export async function createBookingsForEvent(
                 assigned_space?.display_name ||
                 assigned_space?.name ||
                 (item as any).name;
-            const data: Partial<Booking> = {
+            const desired = new Booking({
+                type,
+                booking_type: type,
                 date: event.date,
                 duration: event.duration,
                 description: event.title || (item as any).name,
@@ -874,40 +916,23 @@ export async function createBookingsForEvent(
                     details: item,
                 },
                 zones: assigned_space?.zones || zones,
-            };
-            if (booking && !item._changed) {
-                kept.add(booking.id);
-                if (bookingNeedsUpdate(booking, data)) {
-                    await updateBooking(booking.id, {
-                        ...data,
-                        extension_data: {
-                            ...booking.extension_data,
-                            ...data.extension_data,
-                        },
-                    });
-                }
-                continue;
-            }
+            });
             if (booking) {
                 kept.add(booking.id);
-                await removeBooking(booking.id);
+                const changes = linkedBookingChanges(booking, desired);
+                if (changes) await updateBooking(booking.id, changes);
+                continue;
             }
             created_bookings.push(
-                await createBooking(
-                    new Booking({
-                        ...data,
-                        type,
-                        booking_type: type,
-                    }).toJSON(),
-                    { ical_uid: event.ical_uid, event_id: event.id },
-                ),
+                await createBooking(desired.toJSON(), {
+                    ical_uid: event.ical_uid,
+                    event_id: event.id,
+                }),
             );
         }
-        await Promise.all(
-            existing
-                .filter((_) => !kept.has(_.id))
-                .map((_) => removeBooking(_.id)),
-        );
+        for (const booking of existing) {
+            if (!kept.has(booking.id)) await removeBooking(booking.id);
+        }
     } catch (error) {
         await Promise.all(
             created_bookings
