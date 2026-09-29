@@ -8,14 +8,17 @@ import {
     UploadsService,
 } from '@placeos/common';
 import {
+    addGroupUser,
     addSignageMedia,
     addSignagePlaylist,
     addSignageTemplate,
     addSignageTemplateMapping,
     addZone,
     del,
+    get,
     listSignagePlaylistMedia,
     listSignageTemplateApprovers,
+    patch,
     PlaceSystem,
     PlaceZone,
     query,
@@ -1801,5 +1804,96 @@ describe('SignageService media uploads', () => {
                 expect(dialog.open).not.toHaveBeenCalled();
             },
         );
+    });
+
+    describe('group access', () => {
+        function withManage(service: SignageService, allowed: boolean) {
+            Object.defineProperty(service, 'canManageSignageGroup', {
+                value: () => allowed,
+            });
+        }
+
+        it('adds a user without permissions so the group defaults apply', async () => {
+            const service = createService();
+            withManage(service, true);
+            service.managed_group_id.set('group-1');
+            vi.mocked(addGroupUser).mockResolvedValue({} as any);
+
+            await service.addManagedGroupUser({ id: 'user-1' } as any);
+
+            expect(addGroupUser).toHaveBeenCalledWith({
+                group_id: 'group-1',
+                user_id: 'user-1',
+            });
+        });
+
+        it('reads the access fields from the raw group', async () => {
+            const service = createService();
+            vi.mocked(get).mockResolvedValue({
+                id: 'group-1',
+                default_permissions: 5,
+                ad_group_mappings: {
+                    'ad-1': ['Sales &amp; Marketing', 1],
+                    bad: 'value',
+                },
+            } as any);
+
+            await expect(service.loadGroupAccess('group-1')).resolves.toEqual({
+                default_permissions: 5,
+                ad_group_mappings: { 'ad-1': ['Sales & Marketing', 1] },
+            });
+            expect(get).toHaveBeenCalledWith(
+                expect.stringMatching(/\/groups\/group-1$/),
+            );
+        });
+
+        it('saves the defaults and mappings of a managed group', async () => {
+            const service = createService();
+            withManage(service, true);
+            const access = {
+                default_permissions: 1,
+                ad_group_mappings: { 'ad-1': ['Staff', 3] as [string, number] },
+            };
+            vi.mocked(patch).mockResolvedValue(access as any);
+
+            const result = await service.saveGroupAccess(
+                { id: 'group-1' } as any,
+                access,
+            );
+
+            expect(patch).toHaveBeenCalledWith(
+                expect.stringMatching(/\/groups\/group-1$/),
+                access,
+            );
+            expect(result).toEqual(access);
+        });
+
+        it('does not save access for a group the user cannot manage', async () => {
+            const service = createService();
+            withManage(service, false);
+
+            const result = await service.saveGroupAccess(
+                { id: 'group-1' } as any,
+                { default_permissions: 1, ad_group_mappings: {} },
+            );
+
+            expect(result).toBeNull();
+            expect(patch).not.toHaveBeenCalled();
+        });
+
+        it('searches directory groups through the staff API', async () => {
+            const service = createService();
+            vi.mocked(get).mockResolvedValue([
+                { id: 'ad-1', name: 'Staff' },
+                { name: 'No ID' },
+            ] as any);
+
+            const groups = await service.searchDirectoryGroups(' staff team ');
+
+            expect(get).toHaveBeenCalledWith(
+                '/api/staff/v1/groups?q=staff%20team',
+            );
+            expect(groups).toEqual([{ id: 'ad-1', name: 'Staff' }]);
+        });
     });
 });

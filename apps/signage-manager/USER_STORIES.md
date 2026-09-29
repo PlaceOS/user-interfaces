@@ -18,7 +18,7 @@ These stories cover the current app workflows:
 - Displays: search, direct selection, player link when available, schedule tab, playlist tab, zone tab, and add playlist.
 - Schedules: display and zone timeline tabs, previous day, next day, today, search, clear search, empty states, row links, and takeover conflict warnings.
 - Content report: takeover conflicts, displays with no playlists, unassigned playlists, expired playlists that are still assigned, and expired media in playlists.
-- Signage groups: searchable group tree, create, edit, delete entry point, user assignment, user permission editing, zone assignment, zone permission editing, deny-state editing, and group feature flags.
+- Signage groups: searchable group tree, create, edit, delete entry point, user assignment, user permission editing, zone assignment, zone permission editing, deny-state editing, group feature flags, default permissions, and AD group sync.
 - Responsive workflows: compact media add menu and mobile footer navigation.
 
 ---
@@ -322,7 +322,7 @@ These stories cover the current app workflows:
 **Acceptance Criteria:**
 
 - The users panel lists assigned users with name, email, and permission labels.
-- Users can add a user not already assigned to the group.
+- Users can add a user not already assigned to the group. The user gets the default permissions of the group.
 - Users can edit an assigned user's signage permissions.
 - Users can remove an assigned user from the group.
 - Empty state appears when no users are assigned.
@@ -365,6 +365,24 @@ These stories cover the current app workflows:
   - Without `ai-editing`, "Edit with AI" and refinement in the AI editor are hidden.
   - Without `branding-editing`, the branding tab is read-only.
 - The All Groups view uses only `app.features`.
+
+---
+
+### US-SGM-020: Set Group Access Defaults and AD Group Sync
+
+**As a** system administrator or manager of a signage group  
+**I want to** set the default permissions of a group and map AD groups to it  
+**So that** new members and members of an AD group get the correct permissions automatically
+
+**Acceptance Criteria:**
+
+- The group header shows a group access button. Only system administrators and managers of the group can save changes.
+- The editor shows the default permissions of the group. A user that is added to the group without explicit permissions gets these permissions.
+- The editor lists the mapped AD groups with the name, ID, and permissions of each mapping. Users can change the permissions of a mapping or remove it.
+- When the domain has a staff API tenant that can list directory groups, users search `/api/staff/v1/groups` and select a group to map it.
+- When the directory search is not available, users type the AD group ID and an optional name.
+- A new mapping starts with the default permissions of the group.
+- Saving writes `default_permissions` and `ad_group_mappings` on the group. The backend adds and removes the members of mapped AD groups when it syncs AD groups.
 
 ---
 

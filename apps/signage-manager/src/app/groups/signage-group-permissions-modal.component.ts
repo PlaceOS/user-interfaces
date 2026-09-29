@@ -7,7 +7,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 
-const GROUP_PERMISSION_FLAGS = [
+export const GROUP_PERMISSION_FLAGS = [
     { key: 'read', label: 'SIGNAGE_MANAGER.PERM_READ', value: 1 },
     { key: 'create', label: 'SIGNAGE_MANAGER.PERM_CREATE', value: 2 },
     { key: 'update', label: 'SIGNAGE_MANAGER.PERM_UPDATE', value: 4 },

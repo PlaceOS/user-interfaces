@@ -809,6 +809,30 @@ const SIGNAGE_GROUP_USERS: any[] = [
     },
 ];
 
+/** Organisation directory groups returned by the staff API */
+const MOCK_DIRECTORY_GROUPS = [
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000001',
+        name: 'All Staff',
+        email: 'all-staff@place.tech',
+    },
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000002',
+        name: 'Facilities Team',
+        email: 'facilities@place.tech',
+    },
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000003',
+        name: 'Marketing Team',
+        email: 'marketing@place.tech',
+    },
+    {
+        id: '6a1c9a4e-0000-4000-8000-000000000004',
+        name: 'Reception',
+        email: 'reception@place.tech',
+    },
+];
+
 const SIGNAGE_GROUP_ZONES: any[] = [
     {
         group_id: 'signage-group-facilities',
@@ -1098,6 +1122,21 @@ export function registerMockSignage() {
     });
 
     registerMockEndpoint({
+        path: '/api/staff/v1/groups',
+        metadata: {},
+        method: 'GET',
+        callback: (request) => {
+            const q = (request.query_params?.q || '').toLowerCase();
+            return MOCK_DIRECTORY_GROUPS.filter(
+                (group) =>
+                    !q ||
+                    group.name.toLowerCase().includes(q) ||
+                    group.email.toLowerCase().includes(q),
+            );
+        },
+    });
+
+    registerMockEndpoint({
         path: '/api/engine/v2/group_users',
         metadata: {},
         method: 'GET',
@@ -1117,10 +1156,15 @@ export function registerMockSignage() {
                     item.email === request.body.user_id ||
                     item.id === request.body.user_id,
             );
+            const group = SIGNAGE_GROUPS.find(
+                (item) => item.group.id === request.body.group_id,
+            )?.group;
+            // Like the backend, omitted permissions use the group defaults
             const item = {
                 ...request.body,
                 user_id: request.body.user_id,
-                permissions: request.body.permissions || 0,
+                permissions:
+                    request.body.permissions ?? group?.default_permissions ?? 0,
                 user,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),

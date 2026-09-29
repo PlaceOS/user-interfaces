@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { SignageGroupAccessModalComponent } from '../../app/groups/signage-group-access-modal.component';
 import { SignageGroupDetailHeaderComponent } from '../../app/groups/signage-group-detail-header.component';
 import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-edit-modal.component';
 import { SignageService } from '../../app/signage.service';
@@ -48,6 +49,17 @@ describe('SignageGroupDetailHeaderComponent', () => {
 
         expect(dialog.open).toHaveBeenCalledWith(
             SignageGroupEditModalComponent,
+            expect.objectContaining({ data: { group } }),
+        );
+    });
+
+    it('opens the access modal for the given group', () => {
+        const component = make();
+        const group = { id: 'group-1', name: 'Group 1' } as any;
+        component.editAccess(group);
+
+        expect(dialog.open).toHaveBeenCalledWith(
+            SignageGroupAccessModalComponent,
             expect.objectContaining({ data: { group } }),
         );
     });

@@ -5,6 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
 import { SignageService } from '../signage.service';
+import { SignageGroupAccessModalComponent } from './signage-group-access-modal.component';
 import { SignageGroupEditModalComponent } from './signage-group-edit-modal.component';
 import { SignageGroupFeaturesModalComponent } from './signage-group-features-modal.component';
 
@@ -58,6 +59,21 @@ import { SignageGroupFeaturesModalComponent } from './signage-group-features-mod
                     type="button"
                     matRipple
                     [matTooltip]="
+                        'SIGNAGE_MANAGER.GROUP_ACCESS_TOOLTIP' | translate
+                    "
+                    [attr.aria-label]="
+                        'SIGNAGE_MANAGER.GROUP_ACCESS_TOOLTIP' | translate
+                    "
+                    (click)="editAccess(group)"
+                >
+                    <icon>admin_panel_settings</icon>
+                </button>
+                <button
+                    icon
+                    default
+                    type="button"
+                    matRipple
+                    [matTooltip]="
                         'SIGNAGE_MANAGER.EDIT_GROUP_TOOLTIP' | translate
                     "
                     (click)="editGroup(group)"
@@ -104,6 +120,13 @@ export class SignageGroupDetailHeaderComponent {
 
     public editFeatures(group: PlaceGroup) {
         this._dialog.open(SignageGroupFeaturesModalComponent, {
+            data: { group },
+            panelClass: 'mobile-fullscreen',
+        });
+    }
+
+    public editAccess(group: PlaceGroup) {
+        this._dialog.open(SignageGroupAccessModalComponent, {
             data: { group },
             panelClass: 'mobile-fullscreen',
         });

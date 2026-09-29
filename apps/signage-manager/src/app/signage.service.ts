@@ -37,10 +37,12 @@ import {
     currentGroups,
     del,
     removeZone as deleteZone,
+    get,
     listSignagePlaylistApprovers,
     listSignagePlaylistMedia,
     listSignageTemplateApprovers,
     mediaThumbnail,
+    patch,
     PlaceCurrentGroup,
     PlaceGroup,
     PlaceGroupUser,
@@ -134,6 +136,11 @@ import { decodeEntityNames } from './shared/decode-entity-names.util';
 import type { MediaTagModalResult } from './shared/media-tag-modal.component';
 import type { PlaylistRequestApprovalModalResult } from './shared/playlist-request-approval-modal.component';
 import type { TemplateRequestApprovalModalResult } from './shared/template-request-approval-modal.component';
+import {
+    DirectoryGroup,
+    SignageGroupAccess,
+    signageGroupAccess,
+} from './signage-group-access';
 import {
     listSignageMediaTagCounts,
     type SignageMediaTagCounts,
@@ -2872,6 +2879,48 @@ export class SignageService {
         return result;
     }
 
+    /** Default permissions and AD group mappings of a group */
+    public async loadGroupAccess(group_id: string) {
+        const raw = await get(
+            `${apiEndpoint()}/groups/${encodeURIComponent(group_id)}`,
+        );
+        return signageGroupAccess(raw);
+    }
+
+    /** Replace the default permissions and AD group mappings of a group.
+     * System admins and managers of the group can change them. */
+    public async saveGroupAccess(
+        group: PlaceGroup,
+        access: SignageGroupAccess,
+    ) {
+        if (!this.canManageSignageGroup(group.id)) {
+            notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
+            return null;
+        }
+        const result = await patch(
+            `${apiEndpoint()}/groups/${encodeURIComponent(group.id)}`,
+            access,
+        ).catch((error) => {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP'));
+            throw error;
+        });
+        this._groups_change.set(Date.now());
+        notifySuccess(i18n('SIGNAGE_MANAGER.SVC_GROUP_ACCESS_SAVED'));
+        return signageGroupAccess(result);
+    }
+
+    /** Search the organisation directory for AD groups. Fails when the
+     * domain has no staff API tenant or the directory cannot list groups. */
+    public async searchDirectoryGroups(search = '') {
+        const q = search.trim();
+        const url = `/api/staff/v1/groups${q ? `?q=${encodeURIComponent(q)}` : ''}`;
+        const list: unknown = await get(url);
+        if (!Array.isArray(list)) return [];
+        return list.filter(
+            (item): item is DirectoryGroup => typeof item?.id === 'string',
+        );
+    }
+
     public async saveSignageGroup(
         group: Partial<PlaceGroup>,
         data: Partial<PlaceGroup>,
@@ -2944,11 +2993,8 @@ export class SignageService {
     public async addManagedGroupUser(user: PlaceUser) {
         const group_id = this.managed_group_id();
         if (!user?.id || !this.canManageSignageGroup(group_id)) return;
-        await addGroupUser({
-            group_id,
-            user_id: user.id,
-            permissions: 0,
-        }).catch((error) => {
+        // No permissions, so the backend applies the group's defaults
+        await addGroupUser({ group_id, user_id: user.id }).catch((error) => {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_ADD_USER'));
             throw error;
         });
