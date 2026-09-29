@@ -28,6 +28,12 @@ import {
     setUserSetting,
 } from '../../../../e2e/support/home/home.api';
 import { LandingPage } from '../../../../e2e/support/home/landing.page';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import {
+    readUserSettings as readRoomUserSettings,
+    setFavouriteSpaces,
+} from '../../../../e2e/support/room/room.api';
+import { MeetingForm } from '../../../../e2e/support/room/meeting-form.page';
 
 test.describe('home page — favourites', () => {
     test('a favourite desk is listed on the Favourites tab', async ({
@@ -99,6 +105,71 @@ test.describe('home page — favourites', () => {
             }).toPass({ timeout: 30_000 });
         } finally {
             await setUserSetting(staffApi, FAVOURITE_DESKS_KEY, []);
+        }
+    });
+
+    test('a favourite room opens its meeting form from Home', async ({
+        staffPage,
+        staffApi,
+    }, testInfo) => {
+        const room = await roomForWorker(testInfo.parallelIndex);
+        const previous_settings = await readRoomUserSettings(staffApi);
+        const previous_favourites = Array.isArray(previous_settings.favourite_spaces)
+            ? previous_settings.favourite_spaces
+            : [];
+
+        try {
+            await setFavouriteSpaces(staffApi, [
+                ...new Set([...previous_favourites, room.id]),
+            ]);
+
+            await expect(async () => {
+                const settings = await readRoomUserSettings(staffApi);
+                expect(
+                    settings.favourite_spaces ?? [],
+                    `${room.id} should be saved in favourite_spaces before Home loads`,
+                ).toContain(room.id);
+            }).toPass({ timeout: 15_000 });
+
+            const home = new LandingPage(staffPage);
+            await home.open();
+            await home.showTab('fav');
+
+            await expect(
+                home.favourites,
+                'the Favourites panel should be on the page',
+            ).toBeVisible({ timeout: 30_000 });
+            const room_row = home.favourites.locator('[item]').filter({
+                hasText: room.name,
+            });
+            await expect(
+                room_row,
+                `${room.name} was saved as a favourite room, so Home should list it`,
+            ).toHaveCount(1, { timeout: 30_000 });
+
+            await room_row.locator('button[name="book-favourite"]').click();
+
+            await expect(
+                staffPage,
+                'booking a favourite room should open the room meeting flow',
+            ).toHaveURL(/#\/book\/(meeting|spaces)(\/form)?/, { timeout: 30_000 });
+            const form = new MeetingForm(staffPage);
+            await expect(
+                form.root,
+                'the room meeting form should render after selecting a favourite',
+            ).toBeVisible({ timeout: 30_000 });
+            await expect(
+                form.chosenSpaces,
+                'the meeting form should already contain the selected favourite room',
+            ).toHaveCount(1, { timeout: 30_000 });
+            await expect(async () => {
+                expect(
+                    await form.chosenRoomNames(),
+                    'the form should contain the room that was clicked on Home',
+                ).toContain(room.name);
+            }).toPass({ timeout: 30_000 });
+        } finally {
+            await setFavouriteSpaces(staffApi, previous_favourites);
         }
     });
 });
