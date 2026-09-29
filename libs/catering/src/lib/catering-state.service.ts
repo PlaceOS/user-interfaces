@@ -17,12 +17,12 @@ import {
     CateringOrder,
     OrganisationService,
     SettingsService,
-    currentUser,
     flatten,
     i18n,
     notifyError,
     notifySuccess,
     unique,
+    user_group_names,
 } from '@placeos/common';
 import { CateringImportMenuModalComponent } from './catering-import-menu-modal.component';
 import {
@@ -88,6 +88,7 @@ export class CateringStateService extends AsyncHandler {
     public readonly caterers = computed(() => {
         const provider_groups =
             this._settings.get('app.catering_provider_groups') || {};
+        const user_groups = user_group_names();
         let provider_list = Object.keys(provider_groups);
         if (!provider_list.length) {
             return unique(this._menu().map((i) => i.caterer)).sort((a, b) =>
@@ -96,7 +97,7 @@ export class CateringStateService extends AsyncHandler {
         }
         provider_list = provider_list.filter((caterer) =>
             provider_groups[caterer].find((group) =>
-                currentUser().groups.includes(group),
+                user_groups.includes(group),
             ),
         );
         provider_list = unique(provider_list);

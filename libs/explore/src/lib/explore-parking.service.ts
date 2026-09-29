@@ -21,6 +21,7 @@ import {
     rulesForResource,
     SettingsService,
     StaffUser,
+    user_group_names,
 } from '@placeos/common';
 import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import {
@@ -202,6 +203,7 @@ export class ExploreParkingService extends AsyncHandler {
             const users = this._parking_users();
             const rules = this.booking_rules();
             const { date } = this._options();
+            user_group_names();
             untracked(() => {
                 const available = spaces.filter((space) => {
                     const event = events.find(
