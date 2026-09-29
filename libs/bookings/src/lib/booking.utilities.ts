@@ -532,6 +532,8 @@ export function newBookingFromCalendarEvent(event: CalendarEvent) {
         user_name: event.organiser?.name || event.host,
         date,
         duration,
+        all_day: event.all_day,
+        timezone: event.timezone,
         asset_id: asset_ids[0],
         asset_ids,
         asset_name: event.system?.display_name || event.system?.name,
