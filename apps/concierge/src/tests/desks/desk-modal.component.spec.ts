@@ -7,6 +7,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
+import { NEVER } from 'rxjs';
 
 import {
     DeskModalComponent,
@@ -120,6 +121,26 @@ describe('DeskModalComponent', () => {
 
         const metadata = emit.mock.calls[0][0].metadata as any;
         expect(metadata.assigned_to).toBe('jane@example.com');
+    });
+
+    it('should open the map picker on the desk level', () => {
+        dialog_data = {
+            desk: { id: 'desk-5', name: 'D', map_id: 'm' },
+            zone_id: 'level-1',
+        };
+        spectator = build();
+        // The component imports its own MatDialog, so spy on that instance.
+        const open = vi
+            .spyOn((spectator.component as any)._dialog as MatDialog, 'open')
+            .mockReturnValue({ afterClosed: () => NEVER } as any);
+
+        spectator.component.selectItemfromMap();
+
+        expect(open.mock.calls[0][1]).toEqual(
+            expect.objectContaining({
+                data: expect.objectContaining({ level_id: 'level-1' }),
+            }),
+        );
     });
 
     it('should close without emitting when nothing changed', () => {
