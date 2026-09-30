@@ -1,5 +1,5 @@
-import { installTestStorage } from 'libs/common/src/test-storage';
 import { defineGlobalsInjections, Spectator } from '@ngneat/spectator';
+import { installTestStorage } from 'libs/common/src/test-storage';
 // Deep imports, not the @placeos/* barrels: importing a barrel here preloads
 // every module it re-exports (e.g. shorten.fn) and binds their ts-client
 // references before a spec file's `vi.mock('@placeos/ts-client')` can apply,
@@ -32,6 +32,46 @@ _dom_spectator_proto.detectChanges = function () {
 };
 
 setNotifyOutlet(null, true);
+
+// Timers that a spec leaves running (for example Material's label resize
+// timer or ts-client's re-authorise timer) can fire after the test
+// environment is torn down, when `window` and `document` no longer exist.
+// That fails the whole run with an unhandled error. Track the timers each
+// file starts and clear any that are still pending when the file ends.
+const pending_timers = new Set<ReturnType<typeof setTimeout>>();
+const _setTimeout = globalThis.setTimeout;
+const _setInterval = globalThis.setInterval;
+const _clearTimeout = globalThis.clearTimeout;
+const _clearInterval = globalThis.clearInterval;
+globalThis.setTimeout = ((handler: (...args: any[]) => void, ms, ...args) => {
+    const id = _setTimeout(
+        (...run_args: any[]) => {
+            pending_timers.delete(id);
+            handler(...run_args);
+        },
+        ms,
+        ...args,
+    );
+    pending_timers.add(id);
+    return id;
+}) as typeof setTimeout;
+globalThis.setInterval = ((handler, ms, ...args) => {
+    const id = _setInterval(handler, ms, ...args);
+    pending_timers.add(id);
+    return id;
+}) as typeof setInterval;
+globalThis.clearTimeout = ((id) => {
+    pending_timers.delete(id);
+    _clearTimeout(id);
+}) as typeof clearTimeout;
+globalThis.clearInterval = ((id) => {
+    pending_timers.delete(id);
+    _clearInterval(id);
+}) as typeof clearInterval;
+afterAll(() => {
+    for (const id of pending_timers) _clearTimeout(id);
+    pending_timers.clear();
+});
 
 defineGlobalsInjections({
     declarations: [MockPipe(TranslatePipe)],
