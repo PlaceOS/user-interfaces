@@ -548,7 +548,10 @@ import { SignageService } from '../signage.service';
                                         schedulesOpen(item, $index)
                                     "
                                 >
-                                    <span>Schedules</span>
+                                    <span>{{
+                                        'SIGNAGE_MANAGER.NAV_SCHEDULES'
+                                            | translate
+                                    }}</span>
                                     <icon class="text-base">{{
                                         schedulesOpen(item, $index)
                                             ? 'expand_less'
