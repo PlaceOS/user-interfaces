@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["playlist-sidebar.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: contents;\n            }\n\n            .cdk-drop-list-dragging,\n            .cdk-drop-list-receiving {\n                border-color: var(--color-primary) !important;\n                background-color: color-mix(\n                    in srgb,\n                    var(--color-primary) 10%,\n                    transparent\n                ) !important;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACJ;AAEA,CAAA;;AAEI,gBAAA,IAAA;AACA,oBAAA;AAKJ;",
+  "names": []
+}

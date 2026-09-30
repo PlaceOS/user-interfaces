@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["groups.component.ts"],
+  "sourcesContent": ["\n            .mobile-hidden {\n                @media (max-width: 639px) {\n                    display: none !important;\n                }\n            }\n        "],
+  "mappings": ";AAEgB,QAAA,WAAA;AADJ,GAAA;AAEQ,aAAA;AAER;AADI;",
+  "names": []
+}

@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage-manager/src/app/shared/command-palette.service.ts"
+  ],
+  "sourcesContent": [
+    "import { inject, Injectable } from '@angular/core';\nimport { MatDialog, MatDialogRef } from '@angular/material/dialog';\n\n/**\n * Opens the command palette. The app root calls it for Cmd+K or Ctrl+K and\n * the nav sidebar calls it from its search button.\n */\n@Injectable({ providedIn: 'root' })\nexport class CommandPaletteService {\n    private readonly _dialog = inject(MatDialog);\n    private _ref: MatDialogRef<unknown> | null = null;\n    private _opening = false;\n\n    /** Open the palette, or close it when it is already open */\n    public async toggle() {\n        if (this._ref) {\n            this._ref.close();\n            return;\n        }\n        // Do not stack the palette on top of another dialog\n        if (this._opening || this._dialog.openDialogs.length) return;\n        this._opening = true;\n        try {\n            const { CommandPaletteComponent } =\n                await import('./command-palette.component');\n            this._ref = this._dialog.open(CommandPaletteComponent, {\n                position: { top: '12vh' },\n                width: '36rem',\n                maxWidth: '95vw',\n            });\n            this._ref.afterClosed().subscribe(() => (this._ref = null));\n        } finally {\n            this._opening = false;\n        }\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;;AAQM,IAAO,wBAAP,MAAO,uBAAqB;EADlC,cAAA;AAEqB,SAAA,UAAU,OAAO,SAAS;AACnC,SAAA,OAAqC;AACrC,SAAA,WAAW;;;EAGZ,MAAM,SAAM;AACf,QAAI,KAAK,MAAM;AACX,WAAK,KAAK,MAAK;AACf;IACJ;AAEA,QAAI,KAAK,YAAY,KAAK,QAAQ,YAAY;AAAQ;AACtD,SAAK,WAAW;AAChB,QAAI;AACA,YAAM,EAAE,wBAAuB,IAC3B,MAAM,OAAO,yCAA6B;AAC9C,WAAK,OAAO,KAAK,QAAQ,KAAK,yBAAyB;QACnD,UAAU,EAAE,KAAK,OAAM;QACvB,OAAO;QACP,UAAU;OACb;AACD,WAAK,KAAK,YAAW,EAAG,UAAU,MAAO,KAAK,OAAO,IAAK;IAC9D;AACI,WAAK,WAAW;IACpB;EACJ;;;uCA1BS,wBAAqB;IAAA;EAAA;;4EAArB,wBAAqB,SAArB,uBAAqB,WAAA,YADR,OAAM,CAAA;EAAA;;;sEACnB,uBAAqB,CAAA;UADjC;WAAW,EAAE,YAAY,OAAM,CAAE;;;",
+  "names": [],
+  "debugId": "540e3aec-f7d5-5037-84ba-49d83d2b032c"
+}
