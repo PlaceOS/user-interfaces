@@ -3,8 +3,11 @@ import {
     Component,
     computed,
     contentChild,
+    effect,
     input,
+    signal,
     viewChild,
+    WritableSignal,
 } from '@angular/core';
 import { NgControl } from '@angular/forms';
 import { AsyncHandler } from '@placeos/common';
@@ -29,11 +32,11 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
             [class.opacity-30]="disabled()"
         >
             <div class="flex-1 whitespace-nowrap">
-                {{ start_date()?.value || now | date: 'MMM d, yyyy' }}
+                {{ start_value() || now | date: 'MMM d, yyyy' }}
             </div>
             <div>&ndash;</div>
             <div class="flex-1 whitespace-nowrap">
-                {{ end_date()?.value || now | date: 'MMM d, yyyy' }}
+                {{ end_value() || now | date: 'MMM d, yyyy' }}
             </div>
             <icon class="text-2xl">today</icon>
         </button>
@@ -44,7 +47,9 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
         <ng-template #calendar_picker>
             <div class="bg-base-100 relative w-73 rounded-sm px-2 py-4">
                 <date-range-calendar
-                    [month]="start_date()?.control?.value || now"
+                    [month]="start_value() || now"
+                    [start]="start_value()"
+                    [end]="end_value()"
                     [from]="from()"
                     [to]="until()"
                     [offset_weekday]="week_start()"
@@ -91,7 +96,36 @@ export class DateRangeFieldComponent extends AsyncHandler {
         return this.to_date();
     });
 
+    /**
+     * Current values of the inputs. Control values are not signals, so
+     * mirror them here, or the field would not show values set in code.
+     */
+    public readonly start_value = signal<number | undefined>(undefined);
+    public readonly end_value = signal<number | undefined>(undefined);
+
     private readonly _tooltip = viewChild(CustomTooltipComponent);
+
+    constructor() {
+        super();
+        this._mirrorValue(this.start_date, this.start_value);
+        this._mirrorValue(this.end_date, this.end_value);
+    }
+
+    /** Keep `target` in sync with the value of the projected control. */
+    private _mirrorValue(
+        control: () => NgControl | undefined,
+        target: WritableSignal<number | undefined>,
+    ) {
+        effect((on_cleanup) => {
+            const ctrl = control();
+            if (!ctrl) return;
+            target.set(ctrl.value);
+            const sub = ctrl.valueChanges?.subscribe((value) =>
+                target.set(value),
+            );
+            on_cleanup(() => sub?.unsubscribe());
+        });
+    }
 
     public setStartDate(date: number) {
         const start_date = this.start_date();

@@ -151,12 +151,13 @@ describe('SurveyBuilderComponent', () => {
             id: 7,
             title: 'Loaded Survey',
             building_id: 'bld-1',
-            trigger: 'RESERVED',
+            trigger: 'reserved',
             pages: [{ title: 'P', question_order: [1] }],
         });
         TestBed.flushEffects();
 
         expect(spectator.component.model().id).toBe(7);
+        expect(spectator.component.model().trigger).toBe('RESERVED');
         expect(spectator.component.model().title).toBe('Loaded Survey');
         expect(spectator.component.model().pages[0].title).toBe('P');
     });

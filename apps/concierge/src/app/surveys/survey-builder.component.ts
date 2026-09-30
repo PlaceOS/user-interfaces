@@ -598,7 +598,8 @@ export class SurveyBuilderComponent
             id: survey.id ?? m.id,
             title: survey.title ?? m.title,
             description: survey.description ?? m.description,
-            trigger: survey.trigger ?? m.trigger,
+            // The API stores the trigger in lower case, but options are upper.
+            trigger: survey.trigger?.toUpperCase() ?? m.trigger,
             building_id: survey.building_id ?? m.building_id,
             zone_id: survey.zone_id ?? m.zone_id,
             pages: survey.pages?.length ? survey.pages : m.pages,

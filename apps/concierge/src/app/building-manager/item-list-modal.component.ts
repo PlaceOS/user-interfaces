@@ -100,10 +100,9 @@ export class ItemListModalComponent implements OnInit {
             showMetadata(this._bld_id, metadata_key),
             showMetadata(this._bld_id, concierge_key),
         ]);
-        const items =
-            workplace?.details?.support_issue_types ||
-            concierge?.details?.support_issue_types ||
-            [];
+        const [items = []] = [workplace, concierge]
+            .map((metadata) => metadata?.details?.support_issue_types)
+            .filter((list) => list?.length);
         this.item_list.set(items);
     }
 

@@ -619,13 +619,15 @@ export class LockerStateService extends AsyncHandler {
         await saveFromModal(ref, async (state) => {
             const zone_id = state.metadata.level_id || this._org.building.id;
             const new_bank = { ...state.metadata, id: bank.id };
-            await saveLockerBankAsset(
+            const saved = await saveLockerBankAsset(
                 lockerBankToAsset(new_bank, zone_id),
             ).catch((e) => {
                 notifyError(`Failed to save locker bank. ${errorText(e)}`);
                 throw e;
             });
-            this._change.set(Date.now());
+            // The asset list query lags new records, so add new banks directly.
+            if (bank.id) this._change.set(Date.now());
+            else this._upsertBank(lockerBankFromAsset(saved));
         });
     }
 
@@ -635,6 +637,7 @@ export class LockerStateService extends AsyncHandler {
             data: { locker, bank },
         });
         await saveFromModal(ref, async (state) => {
+            let saved: PlaceAsset;
             try {
                 const zone_id = bank.zones?.[0] || this._org.building.id;
                 const new_locker = {
@@ -645,7 +648,7 @@ export class LockerStateService extends AsyncHandler {
                 };
                 // Save the locker before clearing the old assignee's booking, so a
                 // failed save does not remove the booking.
-                const saved = await saveLockerAsset(
+                saved = await saveLockerAsset(
                     lockerToAsset(new_locker, zone_id),
                 );
                 if (
@@ -702,8 +705,26 @@ export class LockerStateService extends AsyncHandler {
                 notifyError(`Failed to save locker. ${errorText(e)}`);
                 throw e;
             }
-            this._change.set(Date.now());
+            // The asset list query lags new records, so add new lockers directly.
+            if (locker.id) this._change.set(Date.now());
+            else this._addLocker(lockerFromAsset(saved, this.lockers_banks()));
         });
+    }
+
+    /** Add a new locker bank to the displayed list. */
+    private _upsertBank(bank: LockerBank) {
+        const banks = this._lockers_banks.value() ?? [];
+        this._lockers_banks.value.set([
+            ...banks.filter((_) => _.id !== bank.id),
+            bank,
+        ]);
+    }
+
+    /** Add a new locker to the displayed list and to its bank. */
+    private _addLocker(locker: Locker) {
+        if (!locker.bank) return;
+        locker.bank.lockers = [...(locker.bank.lockers || []), { ...locker }];
+        this._lockers.value.set([...this.lockers(), locker]);
     }
 
     public async removeLockerBank(bank: LockerBank) {

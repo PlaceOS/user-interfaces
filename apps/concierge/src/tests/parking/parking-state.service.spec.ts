@@ -1339,6 +1339,28 @@ describe('ParkingStateService', () => {
         );
     });
 
+    it('should skip blank CSV lines and give new spaces their zones', async () => {
+        organisation_service.levels = [
+            { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+        ];
+        spectator.service.setOptions({ zones: ['lvl-1'] });
+        const csv = 'identifier,map_id,bookable\n' + 'A1,A1,true\n' + ',,\n';
+        const file = new File([csv], 'spaces.csv', { type: 'text/csv' });
+        const event = {
+            target: { files: [file], value: '' },
+        } as unknown as InputEvent;
+
+        await spectator.service.uploadSpacesCSV(event);
+
+        expect(ts_client.addAsset).toHaveBeenCalledTimes(1);
+        expect(ts_client.addAsset).toHaveBeenCalledWith(
+            expect.objectContaining({
+                identifier: 'A1',
+                zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
+            }),
+        );
+    });
+
     it('should upload numeric parking space identifiers as strings', async () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },

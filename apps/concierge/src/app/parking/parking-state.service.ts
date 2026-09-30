@@ -683,7 +683,10 @@ export class ParkingStateService extends AsyncHandler {
             throw e;
         });
         try {
-            const rows = csvToJson(data) || [];
+            // Skip blank lines, such as a trailing newline.
+            const rows = (csvToJson(data) || []).filter((row) =>
+                Object.values(row).some((value) => csvString(value)),
+            );
             if (!rows.length) {
                 notifyError(i18n('APP.CONCIERGE.PARKING_CSV_EMPTY'));
                 return;
@@ -696,6 +699,13 @@ export class ParkingStateService extends AsyncHandler {
                 notifyError(i18n('APP.CONCIERGE.PARKING_CSV_NO_ZONE'));
                 return;
             }
+            // New spaces get the same zones as spaces created in the modal.
+            const zones = unique([
+                this._org.organisation.id,
+                this._org.region?.id,
+                this._org.building?.id,
+                zone_id,
+            ]).filter((_) => !!_);
             let success_count = 0;
             let error_count = 0;
             const saved_spaces: PlaceAsset[] = [];
@@ -711,7 +721,7 @@ export class ParkingStateService extends AsyncHandler {
                         place_groups: csvList(row.place_groups),
                         features: csvList(row.features),
                         notes: csvString(row.notes),
-                        ...(!csvString(row.id) ? { zone_id } : {}),
+                        ...(!csvString(row.id) ? { zone_id, zones } : {}),
                     };
                     if (space_data.assigned_to) {
                         await this._checkAssignedParkingLimit(
