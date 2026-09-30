@@ -108,15 +108,29 @@ export class SignageGroupEditModalComponent {
     public readonly loading = signal(false);
     public readonly group = this._data.group || {};
     /** Groups the user can pick as the parent. Leaves out the group, its
-     * children and groups the user cannot move it to. */
-    public readonly parent_groups = () =>
-        this._service
+     * children and groups the user cannot move it to. The current parent
+     * always comes first, so keeping it is a choice even for users who do
+     * not manage it. */
+    public readonly parent_groups = (): Pick<PlaceGroup, 'id' | 'name'>[] => {
+        const parent_id = this.group.parent_id || '';
+        const options = this._service
             .manageable_signage_groups()
             .filter(
                 ({ id }) =>
                     id !== this.group.id &&
+                    id !== parent_id &&
                     this._service.canChangeGroupParent(this.group, id),
             );
+        if (!parent_id) return options;
+        const parent =
+            this._service
+                .signage_groups()
+                .find(({ group }) => group.id === parent_id)?.group ||
+            this._service
+                .manageable_signage_groups()
+                .find(({ id }) => id === parent_id);
+        return [parent || { id: parent_id, name: '' }, ...options];
+    };
     /** Only system admins can move a group to the top level */
     public readonly can_remove_parent = () =>
         this._service.canChangeGroupParent(this.group, '');

@@ -9,11 +9,13 @@ describe('SignageGroupEditModalComponent', () => {
     const dialog_ref = { close: vi.fn(), disableClose: false };
     const save_signage_group = vi.fn();
     const manageable_signage_groups = signal<any[]>([]);
+    const signage_groups = signal<any[]>([]);
     const hotkey_listen = vi.fn();
     let hotkey_callback: () => void;
     const can_change_parent = vi.fn();
     const service_stub = {
         manageable_signage_groups,
+        signage_groups,
         saveSignageGroup: save_signage_group,
         canChangeGroupParent: can_change_parent,
     };
@@ -47,6 +49,7 @@ describe('SignageGroupEditModalComponent', () => {
         );
         dialog_ref.disableClose = false;
         can_change_parent.mockReturnValue(true);
+        signage_groups.set([]);
         save_signage_group.mockResolvedValue({ id: 'group-1' });
         manageable_signage_groups.set([
             { id: 'group-1', name: 'Group 1' },
@@ -96,6 +99,31 @@ describe('SignageGroupEditModalComponent', () => {
             'group-3',
         ]);
         expect(component.can_remove_parent()).toBe(false);
+    });
+
+    it('keeps the current parent as an option when the user does not manage it', () => {
+        manageable_signage_groups.set([{ id: 'group-b', name: 'B' }]);
+        signage_groups.set([
+            { group: { id: 'group-a', name: 'A' }, permissions: 0 },
+        ]);
+        can_change_parent.mockImplementation(
+            (_group: unknown, parent_id: string) => parent_id === 'group-a',
+        );
+        modal_data = { group: { id: 'group-b', parent_id: 'group-a' } };
+        const component = make();
+
+        expect(component.parent_groups()).toEqual([
+            { id: 'group-a', name: 'A' },
+        ]);
+        expect(component.model().parent_id).toBe('group-a');
+    });
+
+    it('shows the current parent by ID when its details are not loaded', () => {
+        can_change_parent.mockReturnValue(false);
+        modal_data = { group: { id: 'group-1', parent_id: 'hidden' } };
+        const component = make();
+
+        expect(component.parent_groups()).toEqual([{ id: 'hidden', name: '' }]);
     });
 
     it('saves a valid group and closes with the result', async () => {
