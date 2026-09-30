@@ -54,6 +54,7 @@ import {
     DurationFieldComponent,
     ImageListFieldComponent,
 } from '@placeos/form-fields';
+import { errorText } from '../ui/modal-actions';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 
 @Component({
@@ -609,7 +610,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
             );
             this._dialog_ref.close(true);
         } catch (e) {
-            notifyError(`Failed to save room. ${e}`);
+            notifyError(`Failed to save room. ${errorText(e)}`);
         } finally {
             this._dialog_ref.disableClose = false;
             this.loading.set(false);

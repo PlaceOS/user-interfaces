@@ -51,6 +51,7 @@ import {
     WEEK_START_OPTIONS,
 } from './settings-option.constants';
 import { UploadButtonComponent } from './upload-button.component';
+import { errorText } from '../modal-actions';
 
 @Component({
     selector: 'workplace-settings-form-modal',
@@ -2171,7 +2172,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
         } catch (e) {
             // Saving defaults over settings that failed to load would lose
             // them, so close instead.
-            notifyError(`Failed to load existing settings. ${e}`);
+            notifyError(`Failed to load existing settings. ${errorText(e)}`);
             this._dialog_ref.close();
         } finally {
             this.loading.set('');

@@ -56,6 +56,7 @@ import {
 } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
+import { errorText } from '../ui/modal-actions';
 import { AssetCategoryFormComponent } from './asset-category-form.component';
 import { AssetCategoryManagementModalComponent } from './asset-category-management-modal.component';
 
@@ -426,7 +427,7 @@ export class AssetManagerStateService extends AsyncHandler {
                 result = await approveBooking(item.id);
             }
         } catch (e) {
-            notifyError(`Failed to update request. ${e}`);
+            notifyError(`Failed to update request. ${errorText(e)}`);
             throw e;
         }
         this._change.set(Date.now());
@@ -455,7 +456,7 @@ export class AssetManagerStateService extends AsyncHandler {
             ...item.toJSON(),
             extension_data: { ...item.extension_data, tracking },
         }).catch((e) => {
-            notifyError(`Failed to update request tracking. ${e}`);
+            notifyError(`Failed to update request tracking. ${errorText(e)}`);
             throw e;
         });
         this._change.set(Date.now());

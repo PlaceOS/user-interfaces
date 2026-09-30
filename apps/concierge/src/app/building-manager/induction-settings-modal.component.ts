@@ -22,6 +22,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { errorText } from '../ui/modal-actions';
 
 @Component({
     selector: 'induction-settings-modal',
@@ -126,7 +127,10 @@ export class InductionSettingsModalComponent implements OnInit {
             this.induction_details.set(settings.induction_details || '');
             this.is_enabled.set(settings.induction_enabled ?? false);
         } catch (e) {
-            notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: e }));
+            // Saving defaults over settings that failed to load would lose
+            // them, so close instead.
+            notifyError(`Failed to load induction settings. ${errorText(e)}`);
+            this._dialog_ref.close();
         } finally {
             this.loading.set('');
         }

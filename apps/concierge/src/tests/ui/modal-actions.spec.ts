@@ -2,7 +2,11 @@ import { EventEmitter } from '@angular/core';
 import { setNotifyOutlet } from '@placeos/common';
 import { NEVER, of, Subject } from 'rxjs';
 
-import { confirmAction, saveFromModal } from '../../app/ui/modal-actions';
+import {
+    confirmAction,
+    errorText,
+    saveFromModal,
+} from '../../app/ui/modal-actions';
 
 const CONFIRM = { title: 'Remove', content: '', icon: { content: 'delete' } };
 
@@ -62,6 +66,15 @@ describe('modal actions', () => {
 
         expect(result).toBe(false);
         expect(action).not.toHaveBeenCalled();
+    });
+
+    it('should describe errors, falling back to the response status', () => {
+        expect(errorText('offline')).toBe('offline');
+        expect(errorText(new Error('boom'))).toBe('boom');
+        expect(
+            errorText({ status: 500, statusText: 'Internal Server Error' }),
+        ).toBe('500 Internal Server Error');
+        expect(errorText(undefined)).toBe('Unknown error');
     });
 
     it('should resolve false when the form modal closes without saving', async () => {

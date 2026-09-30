@@ -206,9 +206,7 @@ export class EmailTemplatesStateService extends AsyncHandler {
             }
         } catch (e) {
             notifyError(
-                i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_ERROR', {
-                    error: e,
-                }),
+                i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_ERROR', { error: e }),
             );
             throw e;
         }

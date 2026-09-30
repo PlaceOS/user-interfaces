@@ -18,6 +18,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { errorText } from '../ui/modal-actions';
 
 @Component({
     selector: 'region-modal',
@@ -136,7 +137,7 @@ export class RegionModalComponent extends AsyncHandler {
                 : addZone(body));
             this._dialog_ref.close(resp);
         } catch (e) {
-            notifyError(`Failed to save region. ${e}`);
+            notifyError(`Failed to save region. ${errorText(e)}`);
         } finally {
             this.loading.set(false);
         }

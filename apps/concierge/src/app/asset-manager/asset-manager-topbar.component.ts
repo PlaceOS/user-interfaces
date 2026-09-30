@@ -20,6 +20,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { errorText } from '../ui/modal-actions';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -221,7 +222,9 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
                     await this._state.saveSettings({ disabled_rooms: list });
                     notifySuccess('Room availability settings saved');
                 } catch (e) {
-                    notifyError(`Failed to save room availability. ${e}`);
+                    notifyError(
+                        `Failed to save room availability. ${errorText(e)}`,
+                    );
                 } finally {
                     ref.componentInstance.loading.set(false);
                 }

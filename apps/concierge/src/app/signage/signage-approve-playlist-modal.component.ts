@@ -18,6 +18,7 @@ import {
     listSignagePlaylistMediaRevisions,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
+import { errorText } from '../ui/modal-actions';
 import { SignageStateService } from './signage-state.service';
 
 @Component({
@@ -292,7 +293,7 @@ export class SignageApprovePlaylistModalComponent {
             this._dialog_ref.close();
             this._service.changed();
         } catch (e) {
-            notifyError(`Failed to update playlist. ${e}`);
+            notifyError(`Failed to update playlist. ${errorText(e)}`);
         } finally {
             this.loading.set('');
             this._dialog_ref.disableClose = false;

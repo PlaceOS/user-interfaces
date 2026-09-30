@@ -71,7 +71,7 @@ function cleanPlaylistPayload(playlist: Partial<SignagePlaylist>) {
     ) as Partial<SignagePlaylist>;
 }
 
-import { confirmAction } from '../ui/modal-actions';
+import { confirmAction, errorText } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -246,7 +246,7 @@ export class SignageStateService extends AsyncHandler {
                     display.module_list.length > 0
                         ? updateSystem(display.id, { signage: false } as any)
                         : removeSystem(display.id),
-                error: (e) => `Failed to remove display. ${e}`,
+                error: (e) => `Failed to remove display. ${errorText(e)}`,
             },
         );
         if (!removed) return;
@@ -472,7 +472,7 @@ export class SignageStateService extends AsyncHandler {
             {
                 loading: i18n('APP.CONCIERGE.SIGNAGE_MEDIA_REMOVE_LOADING'),
                 action: () => removeSignageMedia(item.id),
-                error: (e) => `Failed to remove media. ${e}`,
+                error: (e) => `Failed to remove media. ${errorText(e)}`,
             },
         );
         if (!removed) return;

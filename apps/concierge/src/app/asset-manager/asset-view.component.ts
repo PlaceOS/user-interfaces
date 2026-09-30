@@ -36,7 +36,7 @@ import { addMinutes } from 'date-fns';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
-import { confirmAction } from '../ui/modal-actions';
+import { confirmAction, errorText } from '../ui/modal-actions';
 @Component({
     selector: 'asset-view',
     template: `
@@ -554,7 +554,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
             await this._state.deleteActiveProduct();
             this._router.navigate([this._state.base_route, 'list', 'items']);
         } catch (e) {
-            notifyError(`Failed to delete asset. ${e}`);
+            notifyError(`Failed to delete asset. ${errorText(e)}`);
         } finally {
             this.deleting.set(false);
             this.closeTooltip();
@@ -620,7 +620,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
                     await removeAsset(asset.id);
                     await removeAssetRequests(asset.id);
                 },
-                error: (e) => `Failed to delete asset. ${e}`,
+                error: (e) => `Failed to delete asset. ${errorText(e)}`,
             },
         );
         if (!removed) return;
@@ -645,7 +645,8 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
             {
                 loading: 'Deleting purchase order...',
                 action: () => removeAssetPurchaseOrder(asset.id),
-                error: (e) => `Failed to delete purchase order. ${e}`,
+                error: (e) =>
+                    `Failed to delete purchase order. ${errorText(e)}`,
             },
         );
         if (!removed) return;

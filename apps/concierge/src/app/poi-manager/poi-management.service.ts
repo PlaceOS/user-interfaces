@@ -24,7 +24,7 @@ export interface PointOfInterest {
     extra_details?: [string, string][];
 }
 
-import { confirmAction } from '../ui/modal-actions';
+import { confirmAction, errorText } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -120,7 +120,8 @@ export class POIManagementService {
                         description: '',
                     });
                 },
-                error: (e) => `Failed to remove point of interest. ${e}`,
+                error: (e) =>
+                    `Failed to remove point of interest. ${errorText(e)}`,
             },
         );
         if (!removed) return;

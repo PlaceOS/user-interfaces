@@ -31,6 +31,7 @@ import {
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { ImageFieldComponent } from 'libs/form-fields/src/lib/image-field.component';
 import { UploadButtonComponent } from '../ui/app-settings/upload-button.component';
+import { errorText } from '../ui/modal-actions';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 import { PointOfInterest } from './poi-management.service';
 
@@ -284,6 +285,10 @@ import { PointOfInterest } from './poi-management.service';
 export class POIModalComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _data = inject<PointOfInterest | undefined>(MAT_DIALOG_DATA);
+    /** ID for a new point of interest, kept across save retries. */
+    private readonly _new_id = `POI-${randomString(8)}`;
+    /** Short URL for this point of interest, kept across save retries. */
+    private _short_link_id = this._data?.short_link_id;
     private _dialog_ref = inject<MatDialogRef<POIModalComponent>>(MatDialogRef);
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
@@ -364,9 +369,13 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
                 ([key, value]) => key && value,
             ),
         }));
-        const data: any = this.model();
-        if (!data.id) data.id = `POI-${randomString(8)}`;
-        data.short_link_id = this._data?.short_link_id;
+        // Copy the model so a failed save does not change the form, and
+        // reuse the ID and short URL from earlier attempts on retry.
+        const data: any = {
+            ...this.model(),
+            id: this.model().id || this._new_id,
+            short_link_id: this._short_link_id,
+        };
         const path = this._settings.get('app.kiosk_url_path') || '/map-kiosk';
         const public_key = this._settings.get('app.short_url_public_key');
         const location =
@@ -385,7 +394,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
                         window.location.origin
                     }/auth/login?continue=${encodeURIComponent(uri)}`,
                 } as any);
-                data.short_link_id = id;
+                data.short_link_id = this._short_link_id = id;
             } else {
                 await updateShortURL(data.short_link_id, {
                     id: data.short_link_id,
@@ -421,7 +430,7 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
             });
             this._dialog_ref.close(resp);
         } catch (e) {
-            notifyError(`Failed to save point of interest. ${e}`);
+            notifyError(`Failed to save point of interest. ${errorText(e)}`);
         } finally {
             this.loading.set(false);
         }

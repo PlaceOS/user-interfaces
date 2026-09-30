@@ -126,7 +126,7 @@ function lockerToAsset(
     } as unknown as Partial<PlaceAsset>;
 }
 
-import { confirmAction, saveFromModal } from '../ui/modal-actions';
+import { confirmAction, errorText, saveFromModal } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -604,7 +604,7 @@ export class LockerStateService extends AsyncHandler {
             await saveLockerBankAsset(
                 lockerBankToAsset(new_bank, zone_id),
             ).catch((e) => {
-                notifyError(`Failed to save locker bank. ${e}`);
+                notifyError(`Failed to save locker bank. ${errorText(e)}`);
                 throw e;
             });
             this._change.set(Date.now());
@@ -681,7 +681,7 @@ export class LockerStateService extends AsyncHandler {
                     );
                 }
             } catch (e) {
-                notifyError(`Failed to save locker. ${e}`);
+                notifyError(`Failed to save locker. ${errorText(e)}`);
                 throw e;
             }
             this._change.set(Date.now());

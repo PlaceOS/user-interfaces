@@ -86,6 +86,24 @@ describe('EmailTemplatesStateService', () => {
         expect(ts_client.updateMetadata).not.toHaveBeenCalled();
     });
 
+    it('should show an error when reading templates fails on save', async () => {
+        (ts_client.showMetadata as any).mockRejectedValue('offline');
+
+        await expect(
+            spectator.service.saveTemplate({
+                zone_id: 'bld-1',
+                subject: 'New',
+            } as EmailTemplate),
+        ).rejects.toBe('offline');
+
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+    });
+
     it('should generate an id and timestamps for new templates', async () => {
         const template = {
             zone_id: 'bld-1',

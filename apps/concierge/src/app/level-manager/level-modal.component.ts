@@ -17,6 +17,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { errorText } from '../ui/modal-actions';
 
 @Component({
     selector: 'level-modal',
@@ -161,7 +162,7 @@ export class LevelModalComponent {
                 : addZone(body));
             this._dialog_ref.close(resp);
         } catch (e) {
-            notifyError(`Failed to save level. ${e}`);
+            notifyError(`Failed to save level. ${errorText(e)}`);
         } finally {
             this.loading.set(false);
         }

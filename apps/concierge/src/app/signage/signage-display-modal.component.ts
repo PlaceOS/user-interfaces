@@ -10,6 +10,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
+import { errorText } from '../ui/modal-actions';
 
 @Component({
     selector: 'signage-display-modal',
@@ -150,7 +151,7 @@ export class SignageDisplayModalComponent {
                 : addSystem(new_display));
             this._dialog_ref.close(result);
         } catch (e) {
-            notifyError(`Failed to save display. ${e}`);
+            notifyError(`Failed to save display. ${errorText(e)}`);
         } finally {
             this.loading.set(false);
         }

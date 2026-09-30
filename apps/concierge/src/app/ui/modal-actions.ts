@@ -1,7 +1,20 @@
 import { WritableSignal } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { DialogEvent, notifyError } from '@placeos/common';
+import { DialogEvent, errorMessage, notifyError } from '@placeos/common';
 import { ConfirmModalData, openConfirmModal } from '@placeos/components';
+
+/**
+ * Readable text for a failed request. The API client rejects with a
+ * `Response`, which has no message, so fall back to its status.
+ */
+export function errorText(error: unknown): string {
+    const response = error as { status?: number; statusText?: string };
+    return (
+        errorMessage(error) ||
+        [response?.status, response?.statusText].filter(Boolean).join(' ') ||
+        'Unknown error'
+    );
+}
 
 /** Form modal that emits `done` events and shows a loading state. */
 interface SaveModal {

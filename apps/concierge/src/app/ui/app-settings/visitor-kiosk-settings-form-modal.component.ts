@@ -27,6 +27,7 @@ import {
     SettingsToggleComponent,
 } from '@placeos/components';
 import { DEFAULT_SETTINGS } from 'apps/visitor-kiosk/src/environments/settings';
+import { errorText } from '../modal-actions';
 import {
     applyAppSettings,
     appSettingOverrides,
@@ -617,7 +618,7 @@ export class VisitorKioskSettingsFormModalComponent implements OnInit {
         } catch (e) {
             // Saving defaults over settings that failed to load would lose
             // them, so close instead.
-            notifyError(`Failed to load existing settings. ${e}`);
+            notifyError(`Failed to load existing settings. ${errorText(e)}`);
             this._dialog_ref.close();
         } finally {
             this.loading.set('');

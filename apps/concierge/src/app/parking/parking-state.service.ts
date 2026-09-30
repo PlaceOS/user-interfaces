@@ -73,7 +73,7 @@ import {
 } from 'date-fns';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
-import { confirmAction, saveFromModal } from '../ui/modal-actions';
+import { confirmAction, errorText, saveFromModal } from '../ui/modal-actions';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
@@ -866,7 +866,7 @@ export class ParkingStateService extends AsyncHandler {
                     await this._clearAssignedBooking(space);
                     await deleteParkingSpace(space.id);
                 },
-                error: (e) => `Failed to remove parking space. ${e}`,
+                error: (e) => `Failed to remove parking space. ${errorText(e)}`,
             },
         );
         if (removed) this._reloadResources();
@@ -885,7 +885,7 @@ export class ParkingStateService extends AsyncHandler {
             if ('user' in new_user) delete new_user.user;
             await saveParkingUser(new_user, this._org.building.id).catch(
                 (e) => {
-                    notifyError(`Failed to save parking user. ${e}`);
+                    notifyError(`Failed to save parking user. ${errorText(e)}`);
                     throw e;
                 },
             );
@@ -930,7 +930,7 @@ export class ParkingStateService extends AsyncHandler {
                 new_vehicle,
                 this._org.building.id,
             ).catch((e) => {
-                notifyError(`Failed to save fleet vehicle. ${e}`);
+                notifyError(`Failed to save fleet vehicle. ${errorText(e)}`);
                 throw e;
             });
             this._upsertFleetVehicle(toParkingFleetVehicle(saved));

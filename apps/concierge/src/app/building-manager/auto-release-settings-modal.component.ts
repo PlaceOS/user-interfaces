@@ -50,6 +50,7 @@ import {
 } from '@placeos/form-fields';
 
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import { errorText } from '../ui/modal-actions';
 
 @Component({
     selector: 'auto-release-modal',
@@ -415,7 +416,12 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
                 }
             }
         } catch (e) {
-            notifyError(i18n('APP.CONCIERGE.AUTO_RELEASE_ERROR', { error: e }));
+            // Saving defaults over settings that failed to load would lose
+            // them, so close instead.
+            notifyError(
+                `Failed to load auto release settings. ${errorText(e)}`,
+            );
+            this._dialog_ref.close();
         } finally {
             this.loading.set('');
         }
