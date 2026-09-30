@@ -286,9 +286,10 @@ export interface PlaylistEditFormModel {
                             'SIGNAGE_MANAGER.PLAYLIST_SCHEDULES' | translate
                         }}</label>
                         <div class="mt-2 flex flex-col gap-4">
+                            <!-- Track the field, so each form keeps its state when one before it is removed -->
                             @for (
                                 schedule of form.schedules;
-                                track index;
+                                track schedule;
                                 let index = $index
                             ) {
                                 <playlist-schedule-form

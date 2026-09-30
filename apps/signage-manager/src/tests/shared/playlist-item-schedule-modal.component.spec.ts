@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, Pipe, PipeTransform, input, output } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { By } from '@angular/platform-browser';
 import { setNotifyOutlet } from '@placeos/common';
 import {
     PlaylistItemScheduleModalComponent,
@@ -183,6 +184,31 @@ describe('PlaylistItemScheduleModalComponent', () => {
         component.removeSchedule(event as any, 0);
         expect(component.model().schedules.length).toBe(1);
         expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it('keeps each schedule form and the open schedule after a removal', async () => {
+        modal_data.item = {
+            item_id: 'item-1',
+            schedules: [{}, {}, {}],
+        } as any;
+        const fixture = await renderComponent();
+        const component = fixture.componentInstance;
+        const forms = () =>
+            fixture.debugElement
+                .queryAll(By.directive(ScheduleFormStubComponent))
+                .map(({ componentInstance }) => componentInstance);
+        const [, second, third] = forms();
+        component.openSchedule(2);
+
+        component.removeSchedule(
+            { preventDefault() {}, stopPropagation() {} } as Event,
+            0,
+        );
+        await fixture.whenStable();
+
+        expect(forms()[0]).toBe(second);
+        expect(forms()[1]).toBe(third);
+        expect(component.isScheduleOpen(1)).toBe(true);
     });
 
     it('collapses an open schedule when toggled again', async () => {
