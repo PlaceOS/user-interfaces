@@ -221,7 +221,7 @@ const UNTAGGED = '\0untagged';
                                 </div>
                                 <mat-checkbox
                                     [checked]="isSelected(media_item.id)"
-                                    [attr.aria-label]="
+                                    [aria-label]="
                                         'SIGNAGE_MANAGER.SELECT_MEDIA'
                                             | translate
                                                 : { name: media_item.name }
@@ -360,7 +360,7 @@ const UNTAGGED = '\0untagged';
                                 <mat-checkbox
                                     class="absolute top-4 right-4 z-20 rounded"
                                     [checked]="isSelected(media_item.id)"
-                                    [attr.aria-label]="
+                                    [aria-label]="
                                         'SIGNAGE_MANAGER.SELECT_MEDIA'
                                             | translate
                                                 : { name: media_item.name }
@@ -704,6 +704,7 @@ const UNTAGGED = '\0untagged';
                             error
                             (click)="deleteSelected()"
                             [matTooltip]="'COMMON.DELETE' | translate"
+                            [attr.aria-label]="'COMMON.DELETE' | translate"
                         >
                             <icon>delete</icon>
                         </button>
@@ -717,6 +718,9 @@ const UNTAGGED = '\0untagged';
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate
                             "
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.ADD_TO_PLAYLIST' | translate
+                            "
                         >
                             <icon>playlist_add</icon>
                         </button>
@@ -728,6 +732,7 @@ const UNTAGGED = '\0untagged';
                             matRipple
                             (click)="shareSelected()"
                             [matTooltip]="'SIGNAGE_MANAGER.SHARE' | translate"
+                            [attr.aria-label]="'SIGNAGE_MANAGER.SHARE' | translate"
                         >
                             <icon>ios_share</icon>
                         </button>

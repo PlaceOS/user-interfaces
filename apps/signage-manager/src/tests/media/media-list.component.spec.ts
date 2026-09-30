@@ -191,6 +191,28 @@ describe('MediaListComponent folders', () => {
         expect(component.display_media().length).toBe(3);
     });
 
+    it('gives the selection checkboxes and bulk actions accessible names', () => {
+        media_view_mode.set('grid');
+        make();
+        const fixture = TestBed.createComponent(MediaListComponent);
+        fixture.componentInstance.toggleSelection('a');
+        fixture.detectChanges();
+        const element: HTMLElement = fixture.nativeElement;
+
+        const checkbox = element.querySelector('input[type="checkbox"]');
+        expect(checkbox.getAttribute('aria-label')).toBe('Select a');
+        const footer_names = [
+            ...element.querySelectorAll('footer button'),
+        ].map((button) => button.getAttribute('aria-label'));
+        expect(footer_names).toEqual([
+            'Clear selected media',
+            'Tags',
+            'Delete',
+            'Add to Playlist',
+            'Share',
+        ]);
+    });
+
     // Folders come from the tag counts, so they can show after media fails
     it('shows the load error and retry with the folders', () => {
         service_stub.media_error.set(true);
