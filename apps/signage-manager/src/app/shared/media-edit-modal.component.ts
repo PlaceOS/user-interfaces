@@ -253,8 +253,10 @@ function mediaSaveErrorMessage(error: unknown) {
                                         class="text-base-content/50 flex h-full w-full items-center justify-center px-2 text-center text-xs"
                                     >
                                         {{
-                                            'SIGNAGE_MANAGER.THUMBNAIL_NONE'
-                                                | translate
+                                            (item.id
+                                                ? 'SIGNAGE_MANAGER.THUMBNAIL_NONE'
+                                                : 'SIGNAGE_MANAGER.THUMBNAIL_AUTO'
+                                            ) | translate
                                         }}
                                     </div>
                                 }
@@ -585,9 +587,9 @@ export class MediaEditModalComponent implements OnDestroy {
     }
 
     /**
-     * Webpages and plugins have no file to capture a frame from, and a cross
-     * origin page cannot be rendered to a canvas, so their thumbnail has to be
-     * supplied by hand.
+     * Webpages and plugins have no file to capture a frame from. A new item
+     * without a picked image gets a server screenshot of its URL on save, so
+     * the user only has to pick one to override it.
      */
     public get can_set_thumbnail() {
         return (

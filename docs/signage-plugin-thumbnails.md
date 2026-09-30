@@ -7,8 +7,12 @@ canvas, WebGL, video and web font content, which is most of what plugins are
 made of.
 
 This extends the existing `signage-plugin/v1` channel. It is entirely opt-in:
-a plugin that does not declare the capability is never sent a request and
-behaves exactly as it did before.
+a plugin that does not declare the capability is never sent a request.
+
+When a new plugin item has no thumbnail from the plugin, Signage Manager asks
+the server for a screenshot of the plugin URI instead. The server loads the
+page without the host, so the screenshot shows the plugin with its default
+configuration. See [Fallback screenshot](#fallback-screenshot).
 
 ## Declaring the capability
 
@@ -87,8 +91,10 @@ all of these:
 | Correlation | `request_id` must match the request     |
 
 A plugin that fails to reply within 5 seconds is treated as having no
-thumbnail. In every rejection case the media is saved without a thumbnail and
-falls back to the plugin icon, so a broken or slow plugin never blocks a save.
+thumbnail. In every rejection case the host uses the
+[fallback screenshot](#fallback-screenshot). If that also fails, the media is
+saved without a thumbnail and shows the plugin icon. A broken or slow plugin
+never blocks a save.
 
 Because a plugin is a separate document, its reply is treated as untrusted
 input — hence the validation above. Do not assume anything outside these rules
@@ -122,3 +128,28 @@ async function renderPreview() {
     });
 }
 ```
+
+## Fallback screenshot
+
+When a user adds a webpage or plugin item and supplies no thumbnail, Signage
+Manager makes one on save:
+
+1. `POST /api/engine/v2/uploads/screenshot` captures the page URL at
+   1920x1080. For a plugin, the URL is the plugin URI.
+2. The host downloads the screenshot and scales it to the usual thumbnail
+   size.
+3. The host saves the scaled image as the item `thumbnail_id`.
+4. The host deletes the full size screenshot upload.
+
+The item does not keep the screenshot as `media_id`. The player loads
+`media_url`, which points at `media_id` when it is set, so the player would
+show the screenshot instead of the page.
+
+The server only renders `https` pages. For other URLs, or if the screenshot
+fails, the item is saved without a thumbnail.
+
+The order of thumbnail sources for a new item is:
+
+1. An image the user picks in the media dialog.
+2. For plugins that declare `can_thumbnail`, the image from the plugin.
+3. The fallback screenshot.

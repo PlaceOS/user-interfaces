@@ -1364,6 +1364,26 @@ export function registerMockSignage() {
         callback: () => ({}),
     });
 
+    // Webpage and plugin thumbnails start from a server side screenshot
+    registerMockEndpoint({
+        path: '/api/engine/v2/uploads/screenshot',
+        metadata: {},
+        method: 'POST',
+        callback: (request) => ({
+            id: `upload-screenshot-${Date.now()}`,
+            file_name: `screenshot-${new URL(request.body.url).host}.jpg`,
+            file_mime: 'image/jpeg',
+            tags: ['screenshot'],
+        }),
+    });
+
+    registerMockEndpoint({
+        path: '/api/engine/v2/uploads/:id',
+        metadata: {},
+        method: 'DELETE',
+        callback: () => ({}),
+    });
+
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media/share',
         metadata: {},

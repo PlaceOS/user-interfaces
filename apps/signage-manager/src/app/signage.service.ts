@@ -194,6 +194,21 @@ const VIDEO_THUMBNAIL_OFFSET = 0.1;
 /** How long to wait for a paintable video frame, in milliseconds */
 const VIDEO_THUMBNAIL_TIMEOUT = 15 * 1000;
 
+/**
+ * Absolute URL of a page the server can screenshot. Plugin URIs can be
+ * relative, so resolve them the same way the preview iframe does. The server
+ * only renders https pages, so anything else gives an empty string.
+ */
+function screenshotPageURL(url: string) {
+    if (!url) return '';
+    try {
+        const page = new URL(url, document.baseURI);
+        return page.protocol === 'https:' ? page.href : '';
+    } catch {
+        return '';
+    }
+}
+
 const SIGNAGE_SHARE_CONFIG = {
     media: {
         title: 'SIGNAGE_MANAGER.SVC_SHARE_MEDIA_TITLE',
@@ -4050,6 +4065,14 @@ export class SignageService {
                     url_thumbnail,
                     media_item.name,
                 );
+            } else if (
+                media_item.media_type === 'webpage' ||
+                media_item.media_type === 'plugin'
+            ) {
+                thumbnail_id = await this._screenshotThumbnail(
+                    media_item.media_uri,
+                    media_item.name,
+                );
             }
             const data = {
                 ...new SignageMedia({
@@ -5091,9 +5114,54 @@ export class SignageService {
     }
 
     /**
+     * Make a thumbnail for a webpage or plugin from a server side screenshot
+     * of its URL. The full size screenshot is only the source of the
+     * thumbnail, so it is deleted again after use. Returns the thumbnail
+     * upload ID, or an empty string when the page cannot be captured. The
+     * server only renders https pages.
+     */
+    private async _screenshotThumbnail(url: string, name: string) {
+        const page = screenshotPageURL(url);
+        if (!page) return '';
+        let screenshot_id = '';
+        try {
+            const upload = await post(`${apiEndpoint()}/uploads/screenshot`, {
+                url: page,
+                width: 1920,
+                height: 1080,
+                format: 'jpeg',
+            });
+            screenshot_id = `${upload?.id || ''}`;
+            if (!screenshot_id) return '';
+            const source = await loadAuthenticatedImage(
+                `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(screenshot_id)}/url`,
+                '/api/engine/v2/uploads',
+            );
+            const blob = await (await fetch(source)).blob();
+            const thumbnail = await this._generateThumbnail(
+                new File([blob], 'screenshot.jpg', {
+                    type: blob.type || 'image/jpeg',
+                }),
+                1280,
+                720,
+            );
+            if (!thumbnail) return '';
+            return await this._uploadThumbnailImage(thumbnail, name);
+        } catch {
+            return '';
+        } finally {
+            if (screenshot_id) {
+                del(
+                    `${apiEndpoint()}/uploads/${encodeURIComponent(screenshot_id)}`,
+                ).catch(() => undefined);
+            }
+        }
+    }
+
+    /**
      * Scale an image the user picked down to a thumbnail data URL. Webpages
-     * and plugins have no file to capture a frame from, and a cross origin
-     * page cannot be rendered to a canvas, so the image is supplied by hand.
+     * and plugins have no file to capture a frame from, so the user can
+     * supply an image instead of the automatic screenshot.
      */
     public async generateThumbnailImage(file: File) {
         if (!file || !isImageSourceFile(file)) {

@@ -21,6 +21,7 @@ import {
     PlaceGroup,
     PlaceSystem,
     PlaceZone,
+    post,
     query,
     querySignagePlugins,
     removeSignageMedia,
@@ -794,6 +795,178 @@ describe('SignageService media uploads', () => {
                 status: 401,
             });
             expect(addSignageMedia).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    describe('screenshot thumbnails', () => {
+        // `post` is overloaded; mock the JSON form the service uses
+        const screenshot_post = vi.mocked(
+            post as (
+                url: string,
+                body: unknown,
+            ) => Promise<Record<string, unknown>>,
+        );
+        const createObjectURL = URL.createObjectURL;
+        let screenshot_count = 0;
+
+        beforeEach(() => {
+            screenshot_count += 1;
+            screenshot_post.mockResolvedValue({
+                id: `screenshot-${screenshot_count}`,
+            });
+            vi.stubGlobal(
+                'fetch',
+                vi.fn().mockResolvedValue({
+                    ok: true,
+                    blob: () =>
+                        Promise.resolve(
+                            new Blob(['jpeg'], { type: 'image/jpeg' }),
+                        ),
+                }),
+            );
+            URL.createObjectURL = vi.fn(() => 'blob:screenshot');
+        });
+
+        afterEach(() => {
+            vi.unstubAllGlobals();
+            URL.createObjectURL = createObjectURL;
+        });
+
+        const addLinkMedia = (
+            service: SignageService,
+            media_uri: string,
+            thumbnail?: string,
+            media_type: 'webpage' | 'plugin' = 'webpage',
+        ) => {
+            const test_service = service as unknown as SignageServiceTestAccess;
+            test_service['_generateThumbnail'] = vi
+                .fn()
+                .mockResolvedValue('data:image/jpeg;base64,dGh1bWI=');
+            return test_service['_addMedia'](
+                undefined,
+                new SignageMedia({
+                    name: 'Dashboard',
+                    media_type,
+                    media_uri,
+                }),
+                '',
+                undefined,
+                thumbnail,
+            );
+        };
+
+        it('stores a scaled screenshot as the thumbnail and deletes the original', async () => {
+            const service = createService();
+
+            await addLinkMedia(service, 'https://example.com/dashboard');
+
+            expect(post).toHaveBeenCalledWith(
+                expect.stringMatching(/\/uploads\/screenshot$/),
+                expect.objectContaining({
+                    url: 'https://example.com/dashboard',
+                    width: 1920,
+                    height: 1080,
+                }),
+            );
+            expect(uploads.uploadFileToCompletion).toHaveBeenCalledTimes(1);
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    thumbnail_id: 'thumbnail-upload-1',
+                    media_uri: 'https://example.com/dashboard',
+                }),
+            );
+            expect(
+                vi.mocked(addSignageMedia).mock.calls[0][0],
+            ).not.toHaveProperty('media_id');
+            expect(del).toHaveBeenCalledWith(
+                expect.stringMatching(
+                    new RegExp(`/uploads/screenshot-${screenshot_count}$`),
+                ),
+            );
+        });
+
+        it('captures the plugin URI for a plugin item', async () => {
+            const service = createService();
+
+            await addLinkMedia(
+                service,
+                'https://plugins.example.com/clock/',
+                undefined,
+                'plugin',
+            );
+
+            expect(screenshot_post).toHaveBeenCalledWith(
+                expect.any(String),
+                expect.objectContaining({
+                    url: 'https://plugins.example.com/clock/',
+                }),
+            );
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({ thumbnail_id: 'thumbnail-upload-1' }),
+            );
+        });
+
+        it('deletes the screenshot when the thumbnail cannot be made', async () => {
+            const service = createService();
+            vi.mocked(fetch).mockRejectedValue(
+                new TypeError('Failed to fetch'),
+            );
+
+            await addLinkMedia(service, 'https://example.com/dashboard');
+
+            expect(uploads.uploadFileToCompletion).not.toHaveBeenCalled();
+            expect(del).toHaveBeenCalledWith(
+                expect.stringMatching(
+                    new RegExp(`/uploads/screenshot-${screenshot_count}$`),
+                ),
+            );
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.not.objectContaining({
+                    thumbnail_id: expect.anything(),
+                }),
+            );
+        });
+
+        it('uses a supplied thumbnail instead of a screenshot', async () => {
+            const service = createService();
+
+            await addLinkMedia(
+                service,
+                'https://example.com/dashboard',
+                'data:image/jpeg;base64,cGlja2Vk',
+            );
+
+            expect(post).not.toHaveBeenCalled();
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({ thumbnail_id: 'thumbnail-upload-1' }),
+            );
+        });
+
+        it('does not ask for a screenshot of a page that is not https', async () => {
+            const service = createService();
+
+            await addLinkMedia(service, 'http://example.com/dashboard');
+
+            expect(post).not.toHaveBeenCalled();
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.not.objectContaining({
+                    thumbnail_id: expect.anything(),
+                }),
+            );
+        });
+
+        it('still saves the media when the screenshot fails', async () => {
+            const service = createService();
+            screenshot_post.mockRejectedValue({ status: 504 });
+
+            const result = await addLinkMedia(
+                service,
+                'https://example.com/slow',
+            );
+
+            expect(result.id).toBe('media-1');
+            expect(uploads.uploadFileToCompletion).not.toHaveBeenCalled();
+            expect(del).not.toHaveBeenCalled();
         });
     });
 
