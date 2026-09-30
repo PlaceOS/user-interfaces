@@ -15,6 +15,8 @@ import {
     queryZones,
     removeSystem,
     removeZone,
+    showSignagePlaylist,
+    SignagePlaylist,
     update,
     updateZone,
 } from '@placeos/ts-client';
@@ -199,6 +201,76 @@ describe('SignageService displays and zones', () => {
             service.filtered_displays().map(({ id, name }) => [id, name]),
         ).toEqual([['d1', 'Edited']]);
         expect(service.all_zones().map(({ id }) => id)).toEqual(['z1']);
+    });
+
+    /** Select a signage group, as a staff user sees one */
+    function selectGroup(service: SignageServiceTestAccess, group_id: string) {
+        service['_signage_groups'].set([
+            {
+                group: new PlaceGroup({ id: group_id, name: group_id }),
+                permissions: 0,
+            },
+        ]);
+        service.selected_group_id.set(group_id);
+    }
+
+    // Staff users get a 403 from these routes without the group
+    it('scopes the zone and playlist lookups of a display to the group', async () => {
+        const service = createService();
+        service['_canQueryLists'] = () => true;
+        selectGroup(service, 'g1');
+        vi.mocked(queryZones).mockResolvedValue({
+            data: [new PlaceZone({ id: 'z1', playlists: ['p9'] })],
+            total: 1,
+            next: null,
+        });
+        vi.mocked(showSignagePlaylist).mockResolvedValue(
+            new SignagePlaylist({ id: 'p9', name: 'Zone playlist' }),
+        );
+
+        service.selected_display.set(
+            new PlaceSystem({ id: 'd1', zones: ['z1'] }),
+        );
+        await vi.waitFor(() =>
+            expect(service.playlistsById(['p9']).map(({ id }) => id)).toEqual([
+                'p9',
+            ]),
+        );
+
+        expect(queryZones).toHaveBeenCalledWith({
+            control_system_id: 'd1',
+            limit: 500,
+            group_id: 'g1',
+        });
+        expect(service.selected_display_zones().map(({ id }) => id)).toEqual([
+            'z1',
+        ]);
+        expect(showSignagePlaylist).toHaveBeenCalledWith('p9', {
+            group_id: 'g1',
+        });
+    });
+
+    it('counts added and removed displays in the total', async () => {
+        const service = createService();
+        service['_displays_total'].set(5);
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (result: PlaceSystem) => void) => {
+                    void Promise.resolve().then(() =>
+                        handler(new PlaceSystem({ id: 'd-new' })),
+                    );
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+
+        await service.addDisplay();
+        expect(service.displays_total()).toBe(6);
+
+        vi.mocked(removeSystem).mockResolvedValue({});
+        confirmNextDialog();
+        await service.removeDisplay(new PlaceSystem({ id: 'd-new' }));
+        expect(service.displays_total()).toBe(5);
     });
 
     it('drops local edits when the group changes', async () => {

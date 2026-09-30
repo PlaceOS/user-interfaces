@@ -2192,14 +2192,18 @@ export class SignageService {
             return {
                 id: display.id,
                 zone_ids: display.zones,
+                group_id: this._api_group_id(),
                 change: this._change(),
             };
         },
         loader: async ({ params }) => {
-            const { data } = await queryZones({
-                control_system_id: params.id,
-                limit: 500,
-            });
+            // Users without admin rights may only query zones in a group
+            const { data } = await queryZones(
+                this._groupQueryParams(
+                    { control_system_id: params.id, limit: 500 },
+                    params.group_id,
+                ),
+            );
             return (data || [])
                 .filter(({ id }) => params.zone_ids.includes(id))
                 .map(decodeEntityNames);
@@ -2272,12 +2276,13 @@ export class SignageService {
                 (id) => !cache[id] && !(id in known),
             );
             if (!missing.length) return;
+            const query_params = this._groupQueryParams({});
             this._playlists_by_id.update((state) => ({
                 ...state,
                 ...Object.fromEntries(missing.map((id) => [id, null])),
             }));
             for (const id of missing) {
-                showSignagePlaylist(id)
+                showSignagePlaylist(id, query_params)
                     .then((playlist) => {
                         if (key !== this._playlists_by_id_key) return;
                         this._playlists_by_id.update((state) => ({
@@ -3863,6 +3868,7 @@ export class SignageService {
     }
 
     private _removeDisplayFromList(display_id: string) {
+        this._displays_total.update((total) => Math.max(0, total - 1));
         this._display_items.update((items) =>
             items.filter((item) => item.id !== display_id),
         );
@@ -5330,6 +5336,7 @@ export class SignageService {
         const result = (await dialogClosed(ref)) as PlaceSystem | null;
         if (!result) return null;
         const display = this._addDisplayToList(result);
+        this._displays_total.update((total) => total + 1);
         this.selected_display.set(display);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVED'));
         return display;
