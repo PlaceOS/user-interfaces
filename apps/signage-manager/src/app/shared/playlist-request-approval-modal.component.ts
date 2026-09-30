@@ -145,11 +145,26 @@ export interface PlaylistRequestApprovalModalResult {
                     }}</icon>
                 </button>
                 @if (show_preview()) {
-                    <playlist-approval-preview
-                        [versions]="playlist_versions()"
-                        [media]="playlist_media()"
-                        (preview)="previewItem($event)"
-                    />
+                    @if (versions_error()) {
+                        <div
+                            class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
+                            role="alert"
+                        >
+                            <icon class="text-error text-4xl">error</icon>
+                            <p class="text-sm">
+                                {{
+                                    'SIGNAGE_MANAGER.PLAYLIST_VERSIONS_LOAD_ERROR'
+                                        | translate
+                                }}
+                            </p>
+                        </div>
+                    } @else {
+                        <playlist-approval-preview
+                            [versions]="playlist_versions()"
+                            [media]="playlist_media()"
+                            (preview)="previewItem($event)"
+                        />
+                    }
                 }
             </main>
             <footer
@@ -166,7 +181,7 @@ export interface PlaylistRequestApprovalModalResult {
                         {{ 'COMMON.CANCEL' | translate }}
                     </button>
                 }
-                @if (show_preview() && can_update()) {
+                @if (show_preview() && can_update() && !versions_error()) {
                     <button
                         btn
                         type="button"
@@ -234,6 +249,8 @@ export class PlaylistRequestApprovalModalComponent {
     public readonly show_preview = signal(false);
     public readonly loading = signal('');
     public readonly has_previous_version = signal(false);
+    /** Whether the versions failed to load. Opening the preview again retries. */
+    public readonly versions_error = signal(false);
     public readonly can_update = this._service.can_update;
 
     /** The latest version and the last approved version, newest first */
@@ -254,12 +271,14 @@ export class PlaylistRequestApprovalModalComponent {
         const playlist_id = this.data?.playlist?.id || '';
         if (!playlist_id) return [];
         this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'));
+        this.versions_error.set(false);
         try {
             const versions = await loadPlaylistApprovalVersions(playlist_id);
             this.playlist_versions.set(versions);
             this.has_previous_version.set(versions.length > 1);
             return versions;
         } catch {
+            this.versions_error.set(true);
             notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_VERSIONS_LOAD_ERROR'));
             return [];
         } finally {

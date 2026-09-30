@@ -14,6 +14,7 @@ describe('PlaylistListComponent', () => {
     const playlists_loading = signal(false);
     const playlists_error = signal(false);
     const load_more = vi.fn();
+    const reload = vi.fn();
 
     const service_stub = {
         playlist_search_term: signal(''),
@@ -26,6 +27,7 @@ describe('PlaylistListComponent', () => {
         playlists_loading,
         playlists_error,
         loadMorePlaylists: load_more,
+        reloadPlaylists: reload,
         queuePlaylistMeta: vi.fn(),
     };
 
@@ -137,14 +139,17 @@ describe('PlaylistListComponent', () => {
         expect(text).not.toContain('No playlists found.');
     });
 
-    it('shows an error, not an empty list, when the playlists fail to load', async () => {
+    it('shows an error with retry, not an empty list, when the playlists fail to load', async () => {
         playlists_error.set(true);
         const fixture = await makeFixture(true);
         await fixture.whenStable();
 
-        const text = fixture.nativeElement.textContent;
-        expect(text).toContain('Could not load the playlists.');
-        expect(text).not.toContain('No playlists found.');
+        const element = fixture.nativeElement as HTMLElement;
+        expect(element.textContent).toContain('Could not load the data.');
+        expect(element.textContent).not.toContain('No playlists found.');
+
+        element.querySelector<HTMLButtonElement>('load-error button')?.click();
+        expect(reload).toHaveBeenCalledOnce();
     });
 
     it('requests the next page when scrolled', async () => {

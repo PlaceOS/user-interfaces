@@ -1101,6 +1101,7 @@ export class SignageService {
     /** Number of playlists that match the query, loaded or not */
     public readonly playlists_total = this._playlists_total.asReadonly();
     public readonly playlists_has_more = this._playlists_has_more.asReadonly();
+    private readonly _playlists_retry = signal(0);
 
     private readonly _reload_playlists = effect(() => {
         const initialised = this._org.initialised();
@@ -1108,6 +1109,7 @@ export class SignageService {
         const group_id = this._api_group_id_debounced.value();
         const search = this._playlist_search_debounced.value().trim();
         const change = this._change();
+        this._playlists_retry();
         untracked(() => {
             const token = ++this._playlists_token;
             this._playlist_items.set([]);
@@ -1138,6 +1140,11 @@ export class SignageService {
             );
         });
     });
+
+    /** Load the playlist list again from the first page, e.g. after an error */
+    public reloadPlaylists() {
+        this._playlists_retry.update((count) => count + 1);
+    }
 
     public loadMorePlaylists() {
         if (this._playlists_loading() || !this._playlists_has_more()) return;

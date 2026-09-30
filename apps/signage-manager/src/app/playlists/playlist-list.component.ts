@@ -11,7 +11,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    IconComponent,
+    LoadErrorComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
@@ -171,12 +175,7 @@ type PlaylistStatus =
                         (intersect)="loadMore()"
                     ></div>
                 } @else if (error()) {
-                    <div
-                        class="text-error my-2 p-2 text-center text-xs"
-                        role="alert"
-                    >
-                        {{ 'SIGNAGE_MANAGER.PLAYLISTS_LOAD_ERROR' | translate }}
-                    </div>
+                    <load-error (retry)="reload()" />
                 } @else {
                     <div
                         class="text-base-content/50 bg-base-content/10 col-span-full my-2 p-2 text-center text-xs"
@@ -192,15 +191,7 @@ type PlaylistStatus =
                     <p>{{ 'COMMON.LOADING' | translate }}</p>
                 </div>
             } @else if (error()) {
-                <div
-                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
-                    role="alert"
-                >
-                    <icon class="text-error text-6xl">error</icon>
-                    <p>
-                        {{ 'SIGNAGE_MANAGER.PLAYLISTS_LOAD_ERROR' | translate }}
-                    </p>
-                </div>
+                <load-error class="flex-1" (retry)="reload()" />
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -228,6 +219,7 @@ type PlaylistStatus =
         MatInputModule,
         MatProgressSpinnerModule,
         IconComponent,
+        LoadErrorComponent,
         TranslatePipe,
         IntersectDirective,
         PlaylistThumbnailComponent,
@@ -273,6 +265,10 @@ export class PlaylistListComponent {
 
     public loadMore() {
         this._service.loadMorePlaylists();
+    }
+
+    public reload() {
+        this._service.reloadPlaylists();
     }
 
     public getStatus(playlist: SignagePlaylist): PlaylistStatus {
