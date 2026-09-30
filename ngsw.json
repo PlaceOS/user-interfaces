@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1790666569236,
+  "timestamp": 1790750044515,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -243,7 +243,7 @@
     "./index.html": "076ee2fd4af9982c8310ad3e95adc90fb1b866fd",
     "./it-DP3AYVRR.js": "ee62a3cf464843d157a1df98ecc7ab58712ba2a6",
     "./ja-KPFTZVOP.js": "b1b88a5e25fc6aad4bb41cdb86a03766fb9598a9",
-    "./main.js": "4ed01fb56053927e843e1d39f84ffeac75758129",
+    "./main.js": "4941346f192809f5f8270cb2f135fc0c019ce628",
     "./manifest.webmanifest": "047e55066e03de6e21fc077592da3b119c5ff5c8",
     "./settings-debug-panel.component-CpsVF-rs.js": "f88bf5a080b8bcd4616f911bfe4829d76c7d3ed0",
     "./settings.schema-CHj1UMKU.js": "ea1673da700cd05100aa8151eca4f08ca3835619",
