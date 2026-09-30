@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["assets-report.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACJ;",
+  "names": []
+}
