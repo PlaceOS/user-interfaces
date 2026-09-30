@@ -454,6 +454,8 @@ export class SurveyOutletComponent
         if (!requests.length) return;
         const questions = await Promise.all(requests);
         for (const q of questions) {
+            // The API can return `{}` for questions created without choices.
+            if (!Array.isArray(q.choices)) q.choices = [];
             this.questions[q.id] = q;
             if (q.type === 'rating') {
                 q.options = new Array(q.max_rating)

@@ -383,6 +383,31 @@ describe('DesksStateService', () => {
         expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
     });
 
+    it('should not add a desk with an ID already used on the level', async () => {
+        // Saves read the level's stored desk list.
+        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
+            details: [{ id: 'desk-dup', name: 'Old' }],
+        } as never);
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () =>
+                of({
+                    reason: 'done',
+                    metadata: { id: 'desk-dup', name: 'New', zone_id: 'lvl-1' },
+                }),
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            close: vi.fn(),
+        });
+
+        await spectator.service.editDesk();
+
+        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            'A desk with the ID "desk-dup" already exists.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
     it('should default a new desk to the first level when none is selected', async () => {
         const dialog_ref = {
             afterClosed: () => of(undefined),

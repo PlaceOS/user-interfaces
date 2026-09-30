@@ -144,11 +144,19 @@ describe('ReportsStateService', () => {
         expect((spectator.service as any)._load_token).toBeGreaterThan(before);
     });
 
-    it('should ignore updates that do not change the start or end', () => {
+    it('should apply an update when any given option changes', () => {
         spectator.service.setOptions({ start: 1000, end: 2000 });
         spectator.service.setOptions({ start: 1000, end: 9999 });
-        // start unchanged => whole update rejected, end stays at 2000
-        expect(spectator.service.options().end).toBe(2000);
+        expect(spectator.service.options().end).toBe(9999);
+    });
+
+    it('should ignore updates where no given option changes', () => {
+        spectator.service.setOptions({ start: 1000, end: 2000 });
+        const token = (spectator.service as any)._load_token;
+
+        spectator.service.setOptions({ start: new Date(1000), end: 2000 });
+
+        expect((spectator.service as any)._load_token).toBe(token);
     });
 
     it('should count business days, excluding configured ignore days', () => {

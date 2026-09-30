@@ -151,12 +151,13 @@ describe('SurveyBuilderComponent', () => {
             id: 7,
             title: 'Loaded Survey',
             building_id: 'bld-1',
-            trigger: 'RESERVED',
+            trigger: 'reserved',
             pages: [{ title: 'P', question_order: [1] }],
         });
         TestBed.flushEffects();
 
         expect(spectator.component.model().id).toBe(7);
+        expect(spectator.component.model().trigger).toBe('RESERVED');
         expect(spectator.component.model().title).toBe('Loaded Survey');
         expect(spectator.component.model().pages[0].title).toBe('P');
     });
@@ -222,6 +223,20 @@ describe('SurveyBuilderComponent', () => {
             's-1',
             expect.objectContaining({ id: 's-1' }),
         );
+    });
+
+    it('should send new surveys without an ID and with a trigger', async () => {
+        spectator.component.model.update((m) => ({
+            ...m,
+            title: 'My Survey',
+            trigger: '',
+        }));
+
+        await spectator.component.saveSurvey();
+
+        const body = vi.mocked(ts_client.addSurvey).mock.calls[0][0] as any;
+        expect('id' in body).toBe(false);
+        expect(body.trigger).toBe('NONE');
     });
 
     it('should update the survey when the model already has an id', async () => {

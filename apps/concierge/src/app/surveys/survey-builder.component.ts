@@ -566,7 +566,7 @@ export class SurveyBuilderComponent
         id: '' as string | number,
         title: '',
         description: '',
-        trigger: '',
+        trigger: 'NONE',
         building_id: '',
         zone_id: '',
         pages: [
@@ -598,7 +598,8 @@ export class SurveyBuilderComponent
             id: survey.id ?? m.id,
             title: survey.title ?? m.title,
             description: survey.description ?? m.description,
-            trigger: survey.trigger ?? m.trigger,
+            // The API stores the trigger in lower case, but options are upper.
+            trigger: survey.trigger?.toUpperCase() ?? m.trigger,
             building_id: survey.building_id ?? m.building_id,
             zone_id: survey.zone_id ?? m.zone_id,
             pages: survey.pages?.length ? survey.pages : m.pages,
@@ -619,6 +620,13 @@ export class SurveyBuilderComponent
                 this._service.setSurvey(params.get('id') || '');
             }),
         );
+        // The survey list links here with the building to create it in.
+        const building_id =
+            this._route.snapshot?.queryParamMap?.get('building_id');
+        if (building_id && !this.model().building_id) {
+            this.model.update((m) => ({ ...m, building_id }));
+            this._saved_model = JSON.stringify(this.model());
+        }
     }
 
     /** Apply a patch to the page currently being edited. */
@@ -711,9 +719,13 @@ export class SurveyBuilderComponent
         if (!this.form().valid()) return;
         this.loading.set(true);
         const survey = this.model();
-        const call = survey.id
-            ? updateSurvey(`${survey.id}`, survey as any)
-            : addSurvey(survey as any);
+        // The API rejects an empty ID or trigger, so leave out the ID for
+        // new surveys and default the trigger.
+        const { id: survey_id, ...details } = survey;
+        const body = { ...details, trigger: details.trigger || 'NONE' };
+        const call = survey_id
+            ? updateSurvey(`${survey_id}`, { ...body, id: survey_id } as any)
+            : addSurvey(body as any);
         const saved = await call
             .catch((error) => {
                 notifyError('Failed to save survey details. Error: ', error);

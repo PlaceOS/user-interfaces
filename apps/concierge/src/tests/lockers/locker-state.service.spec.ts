@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { EventEmitter, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -49,6 +49,7 @@ describe('LockerStateService', () => {
         level_list: signal([]),
         buildingsForRegion: vi.fn(() => []),
         levelsForBuilding: vi.fn(() => []),
+        levelsForRegion: vi.fn(() => []),
         get building() {
             return current_building;
         },
@@ -257,6 +258,65 @@ describe('LockerStateService', () => {
         await settle();
 
         expect(assetQueryCalls('type-lockers')).toHaveLength(1);
+    });
+
+    it('should find locker banks saved on the building levels', async () => {
+        organisation_service.levelsForBuilding.mockReturnValue([
+            { id: 'lvl-1' },
+        ]);
+        (ts_client.queryAssets as any).mockImplementation((q: any) =>
+            Promise.resolve({
+                data:
+                    q?.type_id === 'type-locker-banks' && q.zone_id === 'lvl-1'
+                        ? [{ id: 'bank-on-level', zone_id: 'lvl-1' }]
+                        : [],
+                total: 0,
+                next: null,
+            }),
+        );
+
+        spectator = createService();
+        await settle();
+
+        expect(
+            assetQueryCalls('type-locker-banks').map((c) => c[0].zone_id),
+        ).toEqual(['bld-1', 'lvl-1']);
+        expect(spectator.service.lockers_banks().map((_) => _.id)).toEqual([
+            'bank-on-level',
+        ]);
+        organisation_service.levelsForBuilding.mockReturnValue([]);
+    });
+
+    it('should show a new locker bank before the list query includes it', async () => {
+        (ts_client.addAsset as any).mockResolvedValue({
+            id: 'bank-new',
+            identifier: 'Bank New',
+            zone_id: 'lvl-1',
+            zones: ['lvl-1'],
+        });
+        spectator = createService();
+        await settle();
+        const events = new EventEmitter<any>();
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () => NEVER,
+            componentInstance: { event: events },
+            close: vi.fn(),
+        });
+
+        // This spec uses fake timers, so advance them while saving.
+        const saving = spectator.service.editLockerBank();
+        setTimeout(() =>
+            events.emit({
+                reason: 'done',
+                metadata: { name: 'Bank New', level_id: 'lvl-1' },
+            }),
+        );
+        await settle();
+        await saving;
+
+        expect(spectator.service.lockers_banks().map((_) => _.id)).toContain(
+            'bank-new',
+        );
     });
 
     it('should tolerate malformed locker metadata', async () => {
