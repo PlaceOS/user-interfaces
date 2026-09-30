@@ -16,6 +16,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { RichTextInputComponent } from '@placeos/form-fields';
+import { errorText } from '../ui/modal-actions';
 
 @Component({
     selector: 'short-url-modal',
@@ -134,10 +135,12 @@ export class ShortUrlModalComponent extends AsyncHandler {
         }
         const data: any = this.model();
         this.loading.set(true);
-        const resp = await saveShortURL(data).catch((e) =>
-            notifyError(`Error saving Short URL: ${e.message}`),
-        );
-        if ((resp as any).id) this._dialog_ref.close(resp);
-        this.loading.set(false);
+        try {
+            this._dialog_ref.close(await saveShortURL(data));
+        } catch (e) {
+            notifyError(`Error saving Short URL: ${errorText(e)}`);
+        } finally {
+            this.loading.set(false);
+        }
     }
 }

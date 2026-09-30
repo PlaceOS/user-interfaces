@@ -17,6 +17,7 @@ import {
     updateMetadata,
 } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
+import { errorText } from '../ui/modal-actions';
 
 export interface EmailTemplate {
     id: string;
@@ -207,7 +208,7 @@ export class EmailTemplatesStateService extends AsyncHandler {
         } catch (e) {
             notifyError(
                 i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVE_ERROR', {
-                    error: e,
+                    error: errorText(e),
                 }),
             );
             throw e;
@@ -237,7 +238,7 @@ export class EmailTemplatesStateService extends AsyncHandler {
         } catch (e) {
             notifyError(
                 i18n('APP.CONCIERGE.EMAIL_TEMPLATES_REMOVE_ERROR', {
-                    error: e,
+                    error: errorText(e),
                 }),
             );
             throw e;

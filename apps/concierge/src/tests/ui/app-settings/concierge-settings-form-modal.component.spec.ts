@@ -220,6 +220,20 @@ describe('ConciergeSettingsFormModalComponent', () => {
         expect(spectator.component.loading()).toBe('');
     });
 
+    it('should close with an error when existing settings fail to load', async () => {
+        vi.mocked(ts_client.showMetadata).mockRejectedValue('offline');
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe('');
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.stringContaining('offline'),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
     it('should load metadata from org, parent, and zone', async () => {
         await spectator.component.ngOnInit();
         expect(ts_client.showMetadata).toHaveBeenCalledWith(

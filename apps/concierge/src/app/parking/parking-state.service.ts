@@ -73,6 +73,7 @@ import {
 } from 'date-fns';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
+import { confirmAction, errorText, saveFromModal } from '../ui/modal-actions';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
 import { ParkingBookingModalComponent } from './parking-booking-modal.component';
 import { ParkingFleetModalComponent } from './parking-fleet-modal.component';
@@ -535,29 +536,6 @@ export class ParkingStateService extends AsyncHandler {
         this.refresh();
     }
 
-    /**
-     * Resolve once a modal emits a `done` event or the dialog is closed,
-     * whichever happens first.
-     */
-    private _waitForModalResult<T = any>(ref: any): Promise<T> {
-        return new Promise<T>((resolve) => {
-            let resolved = false;
-            let event_sub: { unsubscribe: () => void } | undefined;
-            let close_sub: { unsubscribe: () => void } | undefined;
-            const done = (value: T) => {
-                if (resolved) return;
-                resolved = true;
-                event_sub?.unsubscribe();
-                close_sub?.unsubscribe();
-                resolve(value);
-            };
-            close_sub = ref.afterClosed().subscribe((value: T) => done(value));
-            event_sub = ref.componentInstance?.event?.subscribe((e: any) => {
-                if (e?.reason === 'done') done(e);
-            });
-        });
-    }
-
     private _bookingQueryZone(options: ParkingOptions, bld?: { id?: string }) {
         const allow_level_filter =
             options.request_filter === 'all' ||
@@ -773,127 +751,125 @@ export class ParkingStateService extends AsyncHandler {
         const ref = this._dialog.open(ParkingSpaceModalComponent, {
             data: { space, levels, zone_id },
         });
-        const state = await this._waitForModalResult(ref);
-        if (state?.reason !== 'done') return;
-        // Existing spaces stay on their current level. New spaces use the
-        // level selected in the modal.
-        const selected_zone_id =
-            space.zone_id || state.metadata.zone_id || zone_id;
-        const asset_data: Partial<ParkingSpace> = {
-            ...stripParkingZones(state.metadata),
-            id: state.metadata.id || undefined,
-        };
-        if (
-            asset_data.assigned_to &&
-            (space.assigned_to !== asset_data.assigned_to ||
-                space.id !== asset_data.id)
-        ) {
-            try {
-                await this._checkAssignedParkingLimit(
-                    asset_data.assigned_to,
-                    space.id,
-                );
-            } catch (error) {
-                notifyError(
-                    error instanceof Error ? error.message : `${error}`,
-                );
-                ref.componentInstance.loading.set(false);
-                throw error;
-            }
-        }
-        const original_space_data = stripParkingZones(space);
-        let recreate = false;
-        if (
-            space.assigned_to &&
-            (space.assigned_to !== asset_data.assigned_to ||
-                space.id !== asset_data.id)
-        ) {
-            try {
-                await this._clearAssignedBooking(space);
-            } catch (e) {
-                notifyError(
-                    i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                        error: e,
-                    }),
-                );
-                ref.componentInstance.loading.set(false);
-                throw e;
-            }
-            recreate = true;
-        }
-        const zones = unique([
-            this._org.organisation.id,
-            this._org.region?.id,
-            this._org.building?.id,
-            selected_zone_id,
-        ]);
-        const saved = await saveParkingSpace(
-            space.id
-                ? asset_data
-                : { ...asset_data, zone_id: selected_zone_id, zones },
-        ).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                    error: e,
-                }),
-            );
-            ref.componentInstance.loading.set(false);
-            throw e;
-        });
-        if (
-            (space.assigned_to !== asset_data.assigned_to || recreate) &&
-            asset_data.assigned_to
-        ) {
-            await saveBooking(
-                await this._createAssignedParkingBooking(
-                    saved,
-                    asset_data.assigned_to,
-                    zones,
-                ),
-            ).catch(async (e) => {
-                if (space.id) {
-                    await saveParkingSpace(original_space_data);
-                } else if (saved.id) {
-                    await deleteParkingSpace(saved.id);
-                }
-                if (recreate) {
-                    await this._restoreAssignedBooking(space).catch(
-                        (restore_err) =>
-                            console.error(
-                                'Failed to restore assigned parking booking during rollback',
-                                restore_err,
-                            ),
+        await saveFromModal(ref, async (state) => {
+            // Existing spaces stay on their current level. New spaces use the
+            // level selected in the modal.
+            const selected_zone_id =
+                space.zone_id || state.metadata.zone_id || zone_id;
+            const asset_data: Partial<ParkingSpace> = {
+                ...stripParkingZones(state.metadata),
+                id: state.metadata.id || undefined,
+            };
+            if (
+                asset_data.assigned_to &&
+                (space.assigned_to !== asset_data.assigned_to ||
+                    space.id !== asset_data.id)
+            ) {
+                try {
+                    await this._checkAssignedParkingLimit(
+                        asset_data.assigned_to,
+                        space.id,
                     );
+                } catch (error) {
+                    notifyError(
+                        error instanceof Error ? error.message : `${error}`,
+                    );
+                    throw error;
                 }
+            }
+            const original_space_data = stripParkingZones(space);
+            let recreate = false;
+            if (
+                space.assigned_to &&
+                (space.assigned_to !== asset_data.assigned_to ||
+                    space.id !== asset_data.id)
+            ) {
+                try {
+                    await this._clearAssignedBooking(space);
+                } catch (e) {
+                    notifyError(
+                        i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
+                            error: errorText(e),
+                        }),
+                    );
+                    throw e;
+                }
+                recreate = true;
+            }
+            const zones = unique([
+                this._org.organisation.id,
+                this._org.region?.id,
+                this._org.building?.id,
+                selected_zone_id,
+            ]);
+            const saved = await saveParkingSpace(
+                space.id
+                    ? asset_data
+                    : { ...asset_data, zone_id: selected_zone_id, zones },
+            ).catch((e) => {
                 notifyError(
                     i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                        error: e,
+                        error: errorText(e),
                     }),
                 );
-                ref.componentInstance.loading.set(false);
                 throw e;
             });
-        }
-        this._reloadResources();
-        ref.close();
+            if (
+                (space.assigned_to !== asset_data.assigned_to || recreate) &&
+                asset_data.assigned_to
+            ) {
+                await saveBooking(
+                    await this._createAssignedParkingBooking(
+                        saved,
+                        asset_data.assigned_to,
+                        zones,
+                    ),
+                ).catch(async (e) => {
+                    if (space.id) {
+                        await saveParkingSpace(original_space_data);
+                    } else if (saved.id) {
+                        await deleteParkingSpace(saved.id);
+                    }
+                    if (recreate) {
+                        await this._restoreAssignedBooking(space).catch(
+                            (restore_err) =>
+                                console.error(
+                                    'Failed to restore assigned parking booking during rollback',
+                                    restore_err,
+                                ),
+                        );
+                    }
+                    notifyError(
+                        i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
+                            error: errorText(e),
+                        }),
+                    );
+                    throw e;
+                });
+            }
+            this._reloadResources();
+        });
     }
 
     /** Remove the given space from the available list */
     public async removeSpace(space: ParkingSpace) {
-        const state = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: 'Remove Parking Space',
                 content: `Are you sure you wish to remove the parking space "${space.name}"?`,
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: 'Removing parking space...',
+                action: async () => {
+                    await this._clearAssignedBooking(space);
+                    await deleteParkingSpace(space.id);
+                },
+                error: (e) => `Failed to remove parking space. ${errorText(e)}`,
+            },
         );
-        if (state?.reason !== 'done') return;
-        state.loading('Removing parking space...');
-        await this._clearAssignedBooking(space);
-        await deleteParkingSpace(space.id);
-        this._reloadResources();
-        state.close();
+        if (removed) this._reloadResources();
     }
 
     /** Add or update a user in the available list */
@@ -901,22 +877,26 @@ export class ParkingStateService extends AsyncHandler {
         const ref = this._dialog.open(ParkingUserModalComponent, {
             data: user,
         });
-        const state = await this._waitForModalResult(ref);
-        if (state?.reason !== 'done') return;
-        const zone = this._org.building.id;
-        const new_user = {
-            ...state.metadata,
-            id: state.metadata.id || undefined,
-        };
-        if ('user' in new_user) delete new_user.user;
-        await saveParkingUser(new_user, zone);
-        this._reloadResources();
-        ref.close();
+        await saveFromModal(ref, async (state) => {
+            const new_user = {
+                ...state.metadata,
+                id: state.metadata.id || undefined,
+            };
+            if ('user' in new_user) delete new_user.user;
+            await saveParkingUser(new_user, this._org.building.id).catch(
+                (e) => {
+                    notifyError(`Failed to save parking user. ${errorText(e)}`);
+                    throw e;
+                },
+            );
+            this._reloadResources();
+        });
     }
 
     /** Remove the given user from the available list */
     public async removeUser(user: ParkingUser) {
-        const state = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.PARKING_USER_REMOVE'),
                 content: i18n('APP.CONCIERGE.PARKING_USER_REMOVE_MSG', {
@@ -924,19 +904,16 @@ export class ParkingStateService extends AsyncHandler {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'),
+                action: () => deleteParkingUser(user.id),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
+            },
         );
-        if (state?.reason !== 'done') return;
-        state.loading(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'));
-        await deleteParkingUser(user.id).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
-                    error: e,
-                }),
-            );
-            throw e;
-        });
-        state.close();
+        if (!removed) return;
         notifySuccess(i18n('APP.CONCIERGE.PARKING_USER_REMOVE_SUCCESS'));
         this._reloadResources();
     }
@@ -946,21 +923,26 @@ export class ParkingStateService extends AsyncHandler {
         const ref = this._dialog.open(ParkingFleetModalComponent, {
             data: vehicle,
         });
-        const state = await this._waitForModalResult(ref);
-        if (state?.reason !== 'done') return;
-        const zone = this._org.building.id;
-        const new_vehicle = {
-            ...state.metadata,
-            id: state.metadata.id || undefined,
-        };
-        const saved = await saveParkingFleetVehicle(new_vehicle, zone);
-        this._upsertFleetVehicle(toParkingFleetVehicle(saved));
-        ref.close();
+        await saveFromModal(ref, async (state) => {
+            const new_vehicle = {
+                ...state.metadata,
+                id: state.metadata.id || undefined,
+            };
+            const saved = await saveParkingFleetVehicle(
+                new_vehicle,
+                this._org.building.id,
+            ).catch((e) => {
+                notifyError(`Failed to save fleet vehicle. ${errorText(e)}`);
+                throw e;
+            });
+            this._upsertFleetVehicle(toParkingFleetVehicle(saved));
+        });
     }
 
     /** Remove the given fleet vehicle from the available list */
     public async removeFleetVehicle(vehicle: ParkingFleetVehicle) {
-        const state = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE'),
                 content: i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_MSG', {
@@ -968,19 +950,16 @@ export class ParkingStateService extends AsyncHandler {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_LOADING'),
+                action: () => deleteParkingFleetVehicle(vehicle.id),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
+            },
         );
-        if (state?.reason !== 'done') return;
-        state.loading(i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_LOADING'));
-        await deleteParkingFleetVehicle(vehicle.id).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_ERROR', {
-                    error: e,
-                }),
-            );
-            throw e;
-        });
-        state.close();
+        if (!removed) return;
         notifySuccess(i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_SUCCESS'));
         this._removeFleetVehicleFromList(vehicle.id);
     }
@@ -1259,7 +1238,9 @@ export class ParkingStateService extends AsyncHandler {
             : {};
         await removeBookingApi(booking.id, query).catch((e) => {
             notifyError(
-                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
+                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', {
+                    error: errorText(e),
+                }),
             );
             details.close();
             throw e;

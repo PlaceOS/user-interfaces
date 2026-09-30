@@ -9,6 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import {
     AsyncHandler,
+    notifyError,
     notifySuccess,
     OrganisationService,
     settingSignal,
@@ -19,6 +20,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { errorText } from '../ui/modal-actions';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -216,11 +218,16 @@ export class AssetManagerTopbarComponent extends AsyncHandler {
         this.subscription(
             'room-availability',
             ref.componentInstance.change.subscribe(async (list) => {
-                await this._state
-                    .saveSettings({ disabled_rooms: list })
-                    .catch();
-                ref.componentInstance.loading.set(false);
-                notifySuccess('Room availability settings saved');
+                try {
+                    await this._state.saveSettings({ disabled_rooms: list });
+                    notifySuccess('Room availability settings saved');
+                } catch (e) {
+                    notifyError(
+                        `Failed to save room availability. ${errorText(e)}`,
+                    );
+                } finally {
+                    ref.componentInstance.loading.set(false);
+                }
             }),
         );
     }

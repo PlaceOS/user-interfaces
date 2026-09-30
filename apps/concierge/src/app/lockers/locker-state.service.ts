@@ -126,6 +126,7 @@ function lockerToAsset(
     } as unknown as Partial<PlaceAsset>;
 }
 
+import { confirmAction, errorText, saveFromModal } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -518,7 +519,7 @@ export class LockerStateService extends AsyncHandler {
         await mod.execute('release_all_lockers', []).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_ERROR', {
-                    error: e,
+                    error: errorText(e),
                 }),
             );
             if (close) close();
@@ -549,7 +550,9 @@ export class LockerStateService extends AsyncHandler {
             .execute('locker_release', [locker.bank_id, locker.id])
             .catch((e) => {
                 notifyError(
-                    i18n('APP.CONCIERGE.LOCKERS_RELEASE_ERROR', { error: e }),
+                    i18n('APP.CONCIERGE.LOCKERS_RELEASE_ERROR', {
+                        error: errorText(e),
+                    }),
                 );
                 if (close) close();
                 throw e;
@@ -579,16 +582,17 @@ export class LockerStateService extends AsyncHandler {
             result.loading(i18n('APP.CONCIERGE.LOCKERS_OPEN_LOADING'));
             close = result.close;
         }
-        await mod
-            .execute('locker_unlock_mine', [locker.bank_id, locker.id])
-            .catch((e) => {
-                notifyError(
-                    i18n(`APP.CONCIERGE.LOCKERS_OPEN_ERROR`, { error: e }),
-                );
-                throw e;
-            });
-        notifySuccess(i18n(`APP.CONCIERGE.LOCKERS_OPEN_SUCCESS`));
-        if (close) close();
+        try {
+            await mod.execute('locker_unlock_mine', [
+                locker.bank_id,
+                locker.id,
+            ]);
+            notifySuccess(i18n(`APP.CONCIERGE.LOCKERS_OPEN_SUCCESS`));
+        } catch (e) {
+            notifyError(i18n(`APP.CONCIERGE.LOCKERS_OPEN_ERROR`, { error: e }));
+        } finally {
+            close?.();
+        }
     }
 
     /** Add or update a space in the available list */
@@ -596,25 +600,17 @@ export class LockerStateService extends AsyncHandler {
         const ref = this._dialog.open(LockerBankModalComponent, {
             data: bank,
         });
-        const state = await Promise.race([
-            nextValueFrom(ref.afterClosed()),
-            new Promise<any>((resolve) => {
-                const sub = ref.componentInstance.event.subscribe((event) => {
-                    if (event?.reason !== 'done') return;
-                    sub.unsubscribe();
-                    resolve(event);
-                });
-            }),
-        ]);
-        if (state?.reason !== 'done') return;
-        const zone_id = state.metadata.level_id || this._org.building.id;
-        const new_bank = {
-            ...state.metadata,
-            id: bank.id,
-        };
-        await saveLockerBankAsset(lockerBankToAsset(new_bank, zone_id));
-        this._change.set(Date.now());
-        ref.close();
+        await saveFromModal(ref, async (state) => {
+            const zone_id = state.metadata.level_id || this._org.building.id;
+            const new_bank = { ...state.metadata, id: bank.id };
+            await saveLockerBankAsset(
+                lockerBankToAsset(new_bank, zone_id),
+            ).catch((e) => {
+                notifyError(`Failed to save locker bank. ${errorText(e)}`);
+                throw e;
+            });
+            this._change.set(Date.now());
+        });
     }
 
     /** Add or update a space in the available list */
@@ -622,81 +618,81 @@ export class LockerStateService extends AsyncHandler {
         const ref = this._dialog.open(LockerModalComponent, {
             data: { locker, bank },
         });
-        const state = await Promise.race([
-            nextValueFrom(ref.afterClosed()),
-            new Promise<any>((resolve) => {
-                const sub = ref.componentInstance.event.subscribe((event) => {
-                    if (event?.reason !== 'done') return;
-                    sub.unsubscribe();
-                    resolve(event);
-                });
-            }),
-        ]);
-        if (state?.reason !== 'done') return;
-        const zone_id = bank.zones?.[0] || this._org.building.id;
-        const new_locker = {
-            ...state.metadata,
-            bank_id: bank.id,
-            bank,
-            id: locker.id,
-        };
-        if (
-            locker.assigned_to &&
-            locker.assigned_to !== new_locker.assigned_to
-        ) {
-            await this._clearAssignedBooking(locker);
-        }
-        const saved = await saveLockerAsset(lockerToAsset(new_locker, zone_id));
-        if (
-            locker.assigned_to !== new_locker.assigned_to &&
-            new_locker.assigned_to
-        ) {
-            const timezone = this._settings.get(
-                'app.bookings.use_building_timezone',
-            )
-                ? this._org.building?.timezone
-                : '';
-            const date = setTimeInTimezone(Date.now(), 2, 0, timezone);
-            await saveBooking(
-                new Booking({
-                    user_id: new_locker.assigned_to,
-                    user_email: new_locker.assigned_to,
-                    user_name: new_locker?.assigned_name,
-                    booking_start: getUnixTime(date),
-                    booking_end: getUnixTime(addHours(date, 20)),
-                    type: 'locker',
-                    booking_type: 'locker',
-                    asset_id: saved.id,
-                    asset_name: new_locker.name,
-                    recurrence_type: 'daily',
-                    recurrence_days:
-                        RecurrenceDays.MONDAY |
-                        RecurrenceDays.TUESDAY |
-                        RecurrenceDays.WEDNESDAY |
-                        RecurrenceDays.THURSDAY |
-                        RecurrenceDays.FRIDAY,
-                    zones: unique([
-                        this._org.organisation.id,
-                        this._org.region?.id,
-                        this._org.building?.id,
-                        zone_id,
-                        ...(bank?.zones || []),
-                    ]).filter((_) => !!_),
-                    tags: bank?.tags || [],
-                    extension_data: {
-                        asset_name: new_locker.name,
-                        tags: bank.tags || [],
-                        is_assigned: true,
-                    },
-                }),
-            );
-        }
-        this._change.set(Date.now());
-        ref.close();
+        await saveFromModal(ref, async (state) => {
+            try {
+                const zone_id = bank.zones?.[0] || this._org.building.id;
+                const new_locker = {
+                    ...state.metadata,
+                    bank_id: bank.id,
+                    bank,
+                    id: locker.id,
+                };
+                // Save the locker before clearing the old assignee's booking, so a
+                // failed save does not remove the booking.
+                const saved = await saveLockerAsset(
+                    lockerToAsset(new_locker, zone_id),
+                );
+                if (
+                    locker.assigned_to &&
+                    locker.assigned_to !== new_locker.assigned_to
+                ) {
+                    await this._clearAssignedBooking(locker);
+                }
+                if (
+                    locker.assigned_to !== new_locker.assigned_to &&
+                    new_locker.assigned_to
+                ) {
+                    const timezone = this._settings.get(
+                        'app.bookings.use_building_timezone',
+                    )
+                        ? this._org.building?.timezone
+                        : '';
+                    const date = setTimeInTimezone(Date.now(), 2, 0, timezone);
+                    await saveBooking(
+                        new Booking({
+                            user_id: new_locker.assigned_to,
+                            user_email: new_locker.assigned_to,
+                            user_name: new_locker?.assigned_name,
+                            booking_start: getUnixTime(date),
+                            booking_end: getUnixTime(addHours(date, 20)),
+                            type: 'locker',
+                            booking_type: 'locker',
+                            asset_id: saved.id,
+                            asset_name: new_locker.name,
+                            recurrence_type: 'daily',
+                            recurrence_days:
+                                RecurrenceDays.MONDAY |
+                                RecurrenceDays.TUESDAY |
+                                RecurrenceDays.WEDNESDAY |
+                                RecurrenceDays.THURSDAY |
+                                RecurrenceDays.FRIDAY,
+                            zones: unique([
+                                this._org.organisation.id,
+                                this._org.region?.id,
+                                this._org.building?.id,
+                                zone_id,
+                                ...(bank?.zones || []),
+                            ]).filter((_) => !!_),
+                            tags: bank?.tags || [],
+                            extension_data: {
+                                asset_name: new_locker.name,
+                                tags: bank.tags || [],
+                                is_assigned: true,
+                            },
+                        }),
+                    );
+                }
+            } catch (e) {
+                notifyError(`Failed to save locker. ${errorText(e)}`);
+                throw e;
+            }
+            this._change.set(Date.now());
+        });
     }
 
     public async removeLockerBank(bank: LockerBank) {
-        const state = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_TITLE'),
                 content: i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_TITLE', {
@@ -704,25 +700,23 @@ export class LockerStateService extends AsyncHandler {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_LOADING'),
+                action: () => deleteLockerBankAsset(bank.id),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
+            },
         );
-        if (state?.reason !== 'done') return;
-        state.loading(i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_LOADING'));
-        await deleteLockerBankAsset(bank.id).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_ERROR', {
-                    error: e,
-                }),
-            );
-            throw e;
-        });
-        state.close();
+        if (!removed) return;
         notifySuccess(i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_SUCCESS'));
         this._change.set(Date.now());
     }
 
     public async removeLocker(locker: Locker) {
-        const state = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: i18n('APP.CONCIERGE.LOCKERS_REMOVE_TITLE'),
                 content: i18n('APP.CONCIERGE.LOCKERS_REMOVE_TITLE', {
@@ -730,18 +724,19 @@ export class LockerStateService extends AsyncHandler {
                 }),
                 icon: { content: 'delete' },
             },
-            this._dialog,
+            {
+                loading: i18n('APP.CONCIERGE.LOCKERS_REMOVE_LOADING'),
+                action: async () => {
+                    await this._clearAssignedBooking(locker);
+                    await deleteLockerAsset(locker.id);
+                },
+                error: (e) =>
+                    i18n('APP.CONCIERGE.LOCKERS_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
+            },
         );
-        if (state?.reason !== 'done') return;
-        state.loading(i18n('APP.CONCIERGE.LOCKERS_REMOVE_LOADING'));
-        await this._clearAssignedBooking(locker);
-        await deleteLockerAsset(locker.id).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.LOCKERS_REMOVE_ERROR', { error: e }),
-            );
-            throw e;
-        });
-        state.close();
+        if (!removed) return;
         notifySuccess(i18n('APP.CONCIERGE.LOCKERS_REMOVE_SUCCESS'));
         this._change.set(Date.now());
     }

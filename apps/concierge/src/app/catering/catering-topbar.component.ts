@@ -14,6 +14,7 @@ import {
 } from '@placeos/catering';
 import {
     AsyncHandler,
+    notifyError,
     notifySuccess,
     OrganisationService,
     SettingsService,
@@ -25,6 +26,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
+import { errorText } from '../ui/modal-actions';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { loadPersistedZones, persistZones } from '../ui/zone-persistence';
 
@@ -321,12 +323,16 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
         this.subscription(
             'room-availability',
             ref.componentInstance.change.subscribe(async (list) => {
-                console.log('List:', list);
-                await this._catering
-                    .saveSettings({ disabled_rooms: list })
-                    .catch();
-                ref.componentInstance.loading.set(false);
-                notifySuccess('Room availability settings saved');
+                try {
+                    await this._catering.saveSettings({ disabled_rooms: list });
+                    notifySuccess('Room availability settings saved');
+                } catch (e) {
+                    notifyError(
+                        `Failed to save room availability. ${errorText(e)}`,
+                    );
+                } finally {
+                    ref.componentInstance.loading.set(false);
+                }
             }),
         );
     }

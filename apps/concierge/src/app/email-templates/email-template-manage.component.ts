@@ -254,7 +254,8 @@ import {
                             <input
                                 matInput
                                 [placeholder]="
-                                    'APP.CONCIERGE.EMAIL_TEMPLATES_TO' | translate
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_TO'
+                                        | translate
                                 "
                                 [formField]="form.to"
                             />
@@ -263,7 +264,8 @@ import {
                             <input
                                 matInput
                                 [placeholder]="
-                                    'APP.CONCIERGE.EMAIL_TEMPLATES_CC' | translate
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_CC'
+                                        | translate
                                 "
                                 [formField]="form.cc"
                             />
@@ -272,14 +274,18 @@ import {
                             <input
                                 matInput
                                 [placeholder]="
-                                    'APP.CONCIERGE.EMAIL_TEMPLATES_BCC' | translate
+                                    'APP.CONCIERGE.EMAIL_TEMPLATES_BCC'
+                                        | translate
                                 "
                                 [formField]="form.bcc"
                             />
                         </mat-form-field>
                     </div>
-                    <p class="mb-2 -mt-2 text-xs opacity-60">
-                        {{ 'APP.CONCIERGE.EMAIL_TEMPLATES_RECIPIENTS_HINT' | translate }}
+                    <p class="-mt-2 mb-2 text-xs opacity-60">
+                        {{
+                            'APP.CONCIERGE.EMAIL_TEMPLATES_RECIPIENTS_HINT'
+                                | translate
+                        }}
                     </p>
                     <mat-form-field appearance="outline" class="w-full">
                         <icon matPrefix class="relative -left-1 text-2xl">
@@ -308,8 +314,13 @@ import {
                     <footer
                         class="bg-base-200 sticky bottom-2 z-20 mx-auto mt-2 flex w-full max-w-160 items-center justify-end rounded-sm border-none px-4 py-2"
                     >
-                        <button btn
-                            type="button" matRipple class="w-40" (click)="save()">
+                        <button
+                            btn
+                            type="button"
+                            matRipple
+                            class="w-40"
+                            (click)="save()"
+                        >
                             {{
                                 'APP.CONCIERGE.EMAIL_TEMPLATES_SAVE' | translate
                             }}
@@ -406,27 +417,28 @@ export class EmailTemplateManageComponent
     }
 
     public async save() {
-        this.loading.set(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVING'));
         const value = this.model();
+        if (!value.zone_id) return notifyError('A building is required');
+        this.loading.set(i18n('APP.CONCIERGE.EMAIL_TEMPLATES_SAVING'));
         const zone =
             this.template()?.zone_id !== value.zone_id
                 ? this.template()?.zone_id
                 : '';
-        await this._state
-            .saveTemplate(
+        try {
+            await this._state.saveTemplate(
                 {
                     ...(this.template() || {}),
                     ...value,
                     text: extractTextFromHTML(value.html || ''),
                 } as any,
                 zone,
-            )
-            .catch((e) => {
-                this.loading.set('');
-                notifyError(i18n(e));
-                throw e;
-            });
-        this.loading.set('');
+            );
+        } catch {
+            // The state service shows the error.
+            return;
+        } finally {
+            this.loading.set('');
+        }
         this.form().reset();
         this._router.navigate(['/email-templates']);
     }

@@ -190,6 +190,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                     if (!asset) {
                         notifyError('Unable to load asset details.');
                         this._router.navigate([this.base_route]);
+                        return this.loading.set('');
                     }
                     patchSignalModel(this.model, asset);
                     this.loading.set('');
@@ -204,6 +205,7 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                             'Unable to load associated product details.',
                         );
                         this._router.navigate([this.base_route]);
+                        return this.loading.set('');
                     }
                     this.product.set(product);
                     patchSignalModel(this.model, { asset_type_id: product.id });

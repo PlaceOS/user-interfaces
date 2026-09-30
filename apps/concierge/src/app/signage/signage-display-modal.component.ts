@@ -4,12 +4,13 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { OrganisationService, unique } from '@placeos/common';
+import { notifyError, OrganisationService, unique } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { addSystem, PlaceSystem, updateSystem } from '@placeos/ts-client';
+import { errorText } from '../ui/modal-actions';
 
 @Component({
     selector: 'signage-display-modal',
@@ -144,10 +145,15 @@ export class SignageDisplayModalComponent {
                 ].filter((_) => !!_),
             ),
         });
-        const method = this.display.id
-            ? updateSystem(this.display.id, new_display)
-            : addSystem(new_display);
-        const result = await method;
-        this._dialog_ref.close(result);
+        try {
+            const result = await (this.display.id
+                ? updateSystem(this.display.id, new_display)
+                : addSystem(new_display));
+            this._dialog_ref.close(result);
+        } catch (e) {
+            notifyError(`Failed to save display. ${errorText(e)}`);
+        } finally {
+            this.loading.set(false);
+        }
     }
 }

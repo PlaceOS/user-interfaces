@@ -1,12 +1,6 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import {
-    OrganisationService,
-    flatten,
-    notifyError,
-    notifySuccess,
-} from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
+import { OrganisationService, flatten, notifySuccess } from '@placeos/common';
 import { ExplorePointOfInterestModalComponent } from '@placeos/explore';
 import { showMetadata, updateMetadata } from '@placeos/ts-client';
 import { POIModalComponent } from './poi-modal.component';
@@ -30,6 +24,7 @@ export interface PointOfInterest {
     extra_details?: [string, string][];
 }
 
+import { confirmAction, errorText } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -97,37 +92,40 @@ export class POIManagementService {
     }
 
     public async removePointOfInterest(poi: PointOfInterest) {
-        const ref = await openConfirmModal(
+        const removed = await confirmAction(
+            this._dialog,
             {
                 title: 'Remove Point of Interest',
                 content: `Are you sure you want to remove the point of interest "${poi.name}"?`,
                 icon: { content: 'delete_forever' },
                 confirm_text: 'Remove',
             },
-            this._dialog,
+            {
+                loading: 'Removing point of interest...',
+                action: async () => {
+                    const old_metadata = await showMetadata(
+                        this._org.organisation.id,
+                        'points-of-interest',
+                    );
+                    const metadata = old_metadata.details || {};
+                    for (const lvl in metadata) {
+                        if (metadata[lvl])
+                            metadata[lvl] = metadata[lvl].filter(
+                                (_) => _.id !== poi.id,
+                            );
+                    }
+                    await updateMetadata(this._org.organisation.id, {
+                        name: 'points-of-interest',
+                        details: metadata,
+                        description: '',
+                    });
+                },
+                error: (e) =>
+                    `Failed to remove point of interest. ${errorText(e)}`,
+            },
         );
-        if (ref.reason !== 'done') return ref.close();
-        ref.loading('Removing point of interest...');
-        const old_metadata = await showMetadata(
-            this._org.organisation.id,
-            'points-of-interest',
-        );
-        const metadata = old_metadata.details || {};
-        for (const lvl in metadata) {
-            if (metadata[lvl])
-                metadata[lvl] = metadata[lvl].filter((_) => _.id !== poi.id);
-        }
-        await updateMetadata(this._org.organisation.id, {
-            name: 'points-of-interest',
-            details: metadata,
-            description: '',
-        }).catch((e) => {
-            notifyError(e);
-            ref.close();
-            throw e;
-        });
+        if (!removed) return;
         notifySuccess('Successfully removed point of interest.');
-        ref.close();
         this._change.update((value) => value + 1);
     }
 }

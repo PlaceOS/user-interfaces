@@ -181,6 +181,7 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
                     if (!product) {
                         notifyError('Unable to load product details.');
                         this._router.navigate([this.base_route]);
+                        return this.loading.set('');
                     }
                     patchSignalModel(this.model, product);
                     this.loading.set('');

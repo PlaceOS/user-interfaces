@@ -1,4 +1,4 @@
-import { EventEmitter, signal } from '@angular/core';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -11,7 +11,7 @@ import {
     setTimeInTimezone,
 } from '@placeos/common';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
@@ -308,8 +308,10 @@ describe('LockerStateService', () => {
         );
         spectator = createService();
         const dialog_ref = {
-            afterClosed: () =>
-                of({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                loading: { set: vi.fn() },
+                event: of({
                     reason: 'done',
                     metadata: {
                         id: 'locker-1',
@@ -318,8 +320,6 @@ describe('LockerStateService', () => {
                         assigned_name: 'Staff Name',
                     },
                 }),
-            componentInstance: {
-                event: new EventEmitter<any>(),
             },
             close: vi.fn(),
         };
