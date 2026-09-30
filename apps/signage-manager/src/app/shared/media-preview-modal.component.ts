@@ -78,7 +78,10 @@ interface MediaPreviewModalData {
                         >
                             <icon class="text-error text-6xl">error</icon>
                             <p class="text-base font-medium">
-                                Failed to load media preview.
+                                {{
+                                    'SIGNAGE_MANAGER.MEDIA_PREVIEW_LOAD_ERROR'
+                                        | translate
+                                }}
                             </p>
                             <p class="text-base-content/70 max-w-sm text-sm">
                                 {{
@@ -153,18 +156,20 @@ interface MediaPreviewModalData {
                     class="border-base-300 bg-base-100 w-72 shrink-0 overflow-y-auto rounded-lg border max-md:w-full"
                 >
                     <div class="relative space-y-5 p-5">
-                        <button
-                            icon
-                            default
-                            class="absolute top-2 right-2"
-                            [matTooltip]="
-                                'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
-                            "
-                            matTooltipPosition="left"
-                            (click)="edit()"
-                        >
-                            <icon>edit</icon>
-                        </button>
+                        @if (item.id) {
+                            <button
+                                icon
+                                default
+                                class="absolute top-2 right-2"
+                                [matTooltip]="
+                                    'SIGNAGE_MANAGER.MEDIA_EDIT' | translate
+                                "
+                                matTooltipPosition="left"
+                                (click)="edit()"
+                            >
+                                <icon>edit</icon>
+                            </button>
+                        }
                         @if (item.description) {
                             <div>
                                 <div
@@ -467,12 +472,18 @@ export class MediaPreviewModalComponent implements OnInit {
     });
 
     public async ngOnInit() {
+        // Unsaved media, such as a preview from the edit modal, is in no
+        // playlist yet.
+        if (!this.item.id) {
+            this.loading_playlists.set(false);
+            return;
+        }
         try {
             const media = await showSignageMedia(
                 this.item.id,
                 this.group_id ? { group_id: this.group_id } : {},
             );
-            this.containing_playlists.set(media.playlists);
+            this.containing_playlists.set(media.playlists || []);
         } catch {
             this.containing_playlists.set([]);
         } finally {

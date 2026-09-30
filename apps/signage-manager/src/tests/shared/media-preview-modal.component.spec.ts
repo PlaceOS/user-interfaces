@@ -233,6 +233,18 @@ describe('MediaPreviewModalComponent', () => {
         expect(showSignageMedia).toHaveBeenCalledWith('m1', {});
     });
 
+    // A preview from the edit modal is of media that is not saved yet
+    it('does not look up playlists for media without an id', async () => {
+        const component = await createComponent(
+            new SignageMedia({ media_type: 'image' }),
+        );
+
+        await component.ngOnInit();
+
+        expect(showSignageMedia).not.toHaveBeenCalled();
+        expect(component.loading_playlists()).toBe(false);
+    });
+
     it('clears playlist loading when the media request fails', async () => {
         vi.mocked(showSignageMedia).mockRejectedValue(new Error('boom'));
         const component = await createComponent(

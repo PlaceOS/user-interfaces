@@ -100,6 +100,23 @@ describe('BulkMediaUploadModalComponent', () => {
         expect(dialog_ref.close).toHaveBeenCalledWith(2);
     });
 
+    it('stops after the current file when cancelled', async () => {
+        const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
+        const component = fixture.componentInstance;
+        onUpload.mockImplementationOnce(async () => {
+            component.stop();
+            return new SignageMedia({ id: 'media-1' });
+        });
+
+        await component.uploadAll();
+
+        expect(onUpload).toHaveBeenCalledOnce();
+        expect(component.done_count()).toBe(1);
+        expect(component.remaining_count()).toBe(1);
+        expect(component.stopping()).toBe(false);
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+    });
+
     it('tracks upload progress for the active row', async () => {
         onUpload.mockImplementation(
             async (_item, _permissions, on_progress) => {

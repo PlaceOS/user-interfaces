@@ -205,6 +205,51 @@ describe('SignageService media paging', () => {
         expect(service.media_has_more()).toBe(false);
     });
 
+    // An empty list after a failure would read as "No media"
+    it('should flag a failed page and load it on retry', async () => {
+        const service = await loadFirstPage(pageOf(['a'], 2));
+        const next = vi
+            .fn()
+            .mockImplementationOnce(() => Promise.reject(new Error('offline')))
+            .mockImplementationOnce(() => Promise.resolve(pageOf(['b'], 2)));
+        service['_media_next'] = next;
+
+        service.loadMoreMedia();
+        await flush();
+
+        expect(service.media_error()).toBe(true);
+        expect(service.media_has_more()).toBe(false);
+
+        service.retryMedia();
+        await flush();
+
+        expect(service.media_error()).toBe(false);
+        expect(idsOf(service)).toEqual(['a', 'b']);
+    });
+
+    it('should fetch the first page again when it failed', async () => {
+        setCurrentUser({
+            id: 'user-1',
+            email: 'a@b.c',
+            sys_admin: true,
+        } as any);
+        (querySignageMedia as any)
+            .mockRejectedValueOnce(new Error('offline'))
+            .mockResolvedValue(pageOf(['a'], 1));
+        const service = TestBed.inject(SignageService);
+        TestBed.tick();
+        await flush();
+
+        expect(service.media_error()).toBe(true);
+
+        service.retryMedia();
+        TestBed.tick();
+        await flush();
+
+        expect(service.media_error()).toBe(false);
+        expect(idsOf(service)).toEqual(['a']);
+    });
+
     it('should discard pages from a superseded query', async () => {
         const service = TestBed.inject(
             SignageService,

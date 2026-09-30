@@ -51,6 +51,7 @@ import {
     updateZone,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
+import type { BulkMediaUploadModalData } from '../app/shared/bulk-media-upload-modal.component';
 import { MediaPreviewModalComponent } from '../app/shared/media-preview-modal.component';
 import { MediaTagModalComponent } from '../app/shared/media-tag-modal.component';
 import { MediaTagsModalComponent } from '../app/shared/media-tags-modal.component';
@@ -728,11 +729,11 @@ describe('SignageService media uploads', () => {
                 { is_landscape: true, duration: 0, width: 1920, height: 1080 },
             );
 
-        it('retries a server error and then succeeds', async () => {
+        it('retries a status that means the server did not process it', async () => {
             vi.useFakeTimers();
             const service = createService();
             (addSignageMedia as any)
-                .mockRejectedValueOnce({ status: 500 })
+                .mockRejectedValueOnce({ status: 429 })
                 .mockRejectedValueOnce({ status: 503 })
                 .mockResolvedValueOnce(
                     new SignageMedia({ id: 'media-retried' }),
@@ -747,31 +748,30 @@ describe('SignageService media uploads', () => {
             vi.useRealTimers();
         });
 
-        it('retries a transport failure with no status', async () => {
-            vi.useFakeTimers();
+        // The record can be committed before these fail, so a retry could
+        // create a duplicate
+        it.each([
+            ['a gateway timeout', { status: 504 }],
+            ['a server error', { status: 500 }],
+            ['a dropped connection', new TypeError('Failed to fetch')],
+        ])('does not retry %s', async (_name, error) => {
             const service = createService();
-            (addSignageMedia as any)
-                .mockRejectedValueOnce(new TypeError('Failed to fetch'))
-                .mockResolvedValueOnce(new SignageMedia({ id: 'media-net' }));
+            (addSignageMedia as any).mockRejectedValue(error);
 
-            const pending = addMediaFor(service);
-            await vi.runAllTimersAsync();
-            await pending;
-
-            expect(addSignageMedia).toHaveBeenCalledTimes(2);
-            vi.useRealTimers();
+            await expect(addMediaFor(service)).rejects.toBe(error);
+            expect(addSignageMedia).toHaveBeenCalledTimes(1);
         });
 
         it('gives up after exhausting the retries', async () => {
             vi.useFakeTimers();
             const service = createService();
-            (addSignageMedia as any).mockRejectedValue({ status: 500 });
+            (addSignageMedia as any).mockRejectedValue({ status: 503 });
 
             const pending = addMediaFor(service);
             pending.catch(() => null);
             await vi.runAllTimersAsync();
 
-            await expect(pending).rejects.toMatchObject({ status: 500 });
+            await expect(pending).rejects.toMatchObject({ status: 503 });
             // Initial attempt plus one per backoff delay
             expect(addSignageMedia).toHaveBeenCalledTimes(4);
             vi.useRealTimers();
@@ -849,7 +849,6 @@ describe('SignageService media uploads', () => {
                     media_type,
                     media_uri,
                 }),
-                '',
                 undefined,
                 thumbnail,
             );
@@ -1077,6 +1076,172 @@ describe('SignageService media uploads', () => {
             ['media-1'],
             ['pl-1', 'pl-2'],
         );
+    });
+
+    it('deletes the media before it edits the playlists', async () => {
+        confirmNextDialog();
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const steps: string[] = [];
+        vi.mocked(removeSignageMedia).mockImplementation(async () => {
+            steps.push('delete');
+            return {};
+        });
+        test_service['_removeMediaFromPlaylists'] = vi.fn(async () => {
+            steps.push('playlists');
+        });
+
+        await service.removeMedia(
+            new SignageMedia({ id: 'media-1', name: 'Poster' }),
+        );
+
+        expect(steps).toEqual(['delete', 'playlists']);
+    });
+
+    it('closes the confirmation with an error when the delete fails', async () => {
+        confirmNextDialog();
+        vi.mocked(removeSignageMedia).mockRejectedValue({ status: 500 });
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        const remove_from_playlists = vi.fn();
+        test_service['_removeMediaFromPlaylists'] = remove_from_playlists;
+        const changed = vi.spyOn(service, 'changed');
+
+        await service.removeMedia(
+            new SignageMedia({ id: 'media-1', name: 'Poster' }),
+        );
+
+        const confirm_ref = dialog.open.mock.results.at(-1).value;
+        expect(confirm_ref.componentInstance.loading.set).toHaveBeenCalledWith(
+            'Removing media...',
+        );
+        expect(confirm_ref.close).toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            'Error removing media',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+        expect(remove_from_playlists).not.toHaveBeenCalled();
+        expect(changed).not.toHaveBeenCalled();
+    });
+
+    it('keeps the tags that saved and reports the items that failed', async () => {
+        closeNextDialogWith(['lobby']);
+        vi.mocked(updateSignageMedia).mockImplementation(async (id) => {
+            if (id === 'media-2') throw { status: 500 };
+            return new SignageMedia({ id });
+        });
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        TestBed.flushEffects();
+        test_service['_media_items'].set([
+            new SignageMedia({ id: 'media-1', tags: [] }),
+            new SignageMedia({ id: 'media-2', tags: [] }),
+        ]);
+        const tagsOf = (id: string) =>
+            service.media().find((item) => item.id === id)?.tags;
+
+        const saved = await service.addMediaTags(service.media());
+
+        expect(saved).toBe(false);
+        expect(tagsOf('media-1')).toEqual(['lobby']);
+        expect(tagsOf('media-2')).toEqual([]);
+        expect(notify_open).toHaveBeenCalledWith(
+            'Could not add tags to 1 media item.',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
+    describe('bulk upload', () => {
+        const pickedFiles = () => [
+            new File(['one'], 'one.png', { type: 'image/png' }),
+            new File(['two'], 'two.png', { type: 'image/png' }),
+        ];
+
+        function createBulkService() {
+            const service = createService();
+            const test_service = service as unknown as SignageServiceTestAccess;
+            test_service['_getMediaMetadata'] = vi.fn().mockResolvedValue({
+                is_landscape: true,
+                duration: 0,
+                width: 1920,
+                height: 1080,
+            });
+            return service;
+        }
+
+        beforeEach(() => {
+            let created = 0;
+            vi.mocked(addSignageMedia).mockImplementation(async (data) => {
+                created += 1;
+                return new SignageMedia({
+                    ...data,
+                    id: `media-new-${created}`,
+                    created_at: 200 + created,
+                });
+            });
+        });
+
+        // The search index lags new records, so a refetch would drop them
+        it('keeps the uploaded items in the list after the modal closes', async () => {
+            dialog.open.mockImplementation((_component, config) => ({
+                afterClosed: () => ({
+                    subscribe: (handler: (value?: unknown) => void) => {
+                        const data: BulkMediaUploadModalData = config.data;
+                        (async () => {
+                            for (const item of data.items) {
+                                await data.onUpload(item, 'none', () => {});
+                            }
+                            handler(data.items.length);
+                        })();
+                        return { unsubscribe: vi.fn() };
+                    },
+                }),
+            }));
+            const service = createBulkService();
+            const test_service = service as unknown as SignageServiceTestAccess;
+            TestBed.flushEffects();
+            test_service['_media_items'].set([
+                new SignageMedia({ id: 'media-old', created_at: 100 }),
+            ]);
+            const changed = vi.spyOn(service, 'changed');
+
+            await service.bulkUploadMedia(pickedFiles());
+            TestBed.flushEffects();
+
+            expect(changed).not.toHaveBeenCalled();
+            expect(service.media().map((item) => item.id)).toEqual([
+                'media-new-2',
+                'media-new-1',
+                'media-old',
+            ]);
+        });
+
+        it('retries only the record create when that step failed', async () => {
+            uploads.uploadFileToCompletion.mockResolvedValue('upload-1');
+            vi.mocked(addSignageMedia).mockRejectedValueOnce({ status: 422 });
+            let data: BulkMediaUploadModalData | undefined;
+            dialog.open.mockImplementation((_component, config) => {
+                data = config.data;
+                return { afterClosed: () => NEVER };
+            });
+            const service = createBulkService();
+
+            void service.bulkUploadMedia(pickedFiles());
+            await vi.waitFor(() => expect(data).toBeDefined());
+            const [item] = data.items;
+            await expect(
+                data.onUpload(item, 'none', () => {}),
+            ).rejects.toMatchObject({ status: 422 });
+            await data.onUpload(item, 'none', () => {});
+
+            expect(uploads.uploadFileToCompletion).toHaveBeenCalledOnce();
+            expect(addSignageMedia).toHaveBeenCalledTimes(2);
+            expect(addSignageMedia).toHaveBeenLastCalledWith(
+                expect.objectContaining({ media_id: 'upload-1' }),
+            );
+        });
     });
 
     it('removes deleted media from distribution playlists by schedule item', async () => {

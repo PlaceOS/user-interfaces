@@ -9,6 +9,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { SignagePlugin } from '@placeos/ts-client';
 import { normaliseWebPageUrl } from '../signage-url.util';
 import { SignageService } from '../signage.service';
 
@@ -89,7 +90,7 @@ export class MediaAddModalComponent {
 
     public readonly mode = this._data.mode;
     public readonly link = signal('');
-    public readonly selected_plugin = signal<any>(null);
+    public readonly selected_plugin = signal<SignagePlugin | null>(null);
     public readonly available_plugins = this._service.plugins;
     public readonly can_add = computed(() =>
         this.mode === 'link'

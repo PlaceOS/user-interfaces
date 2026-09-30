@@ -12,6 +12,16 @@ class HostComponent {
     public hits = 0;
 }
 
+@Component({
+    imports: [IntersectDirective],
+    template: `
+        <main style="overflow-y: auto">
+            <div><div intersect></div></div>
+        </main>
+    `,
+})
+class ScrollingHostComponent {}
+
 describe('IntersectDirective', () => {
     let observer_callback: ObserverCallback;
     let observer_options: IntersectionObserverInit | undefined;
@@ -33,7 +43,7 @@ describe('IntersectDirective', () => {
             disconnect = disconnect;
         };
         await TestBed.configureTestingModule({
-            imports: [HostComponent],
+            imports: [HostComponent, ScrollingHostComponent],
         }).compileComponents();
     });
 
@@ -51,7 +61,18 @@ describe('IntersectDirective', () => {
         setup();
 
         expect(observe).toHaveBeenCalledTimes(1);
-        expect(observer_options).toEqual({ rootMargin: '300px' });
+        expect(observer_options).toEqual({ root: null, rootMargin: '300px' });
+    });
+
+    // A root margin only grows the root, and a scroll container clips the
+    // sentinel, so the container must be the root for the margin to apply
+    it('uses the nearest scroll container as the root', () => {
+        const fixture = TestBed.createComponent(ScrollingHostComponent);
+        fixture.detectChanges();
+
+        expect(observer_options.root).toBe(
+            fixture.nativeElement.querySelector('main'),
+        );
     });
 
     it('emits when at least one entry is intersecting', () => {

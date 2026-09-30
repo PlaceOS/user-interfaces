@@ -24,6 +24,8 @@ describe('MediaListComponent folders', () => {
         media_tag_counts,
         media_view_mode,
         media_has_more: signal(false),
+        media_loading: signal(false),
+        media_error: signal(false),
         signage_groups,
         selected_group_id: signal(''),
         can_manage_all_groups,
@@ -40,6 +42,7 @@ describe('MediaListComponent folders', () => {
         removeMediaTag: vi.fn(),
         setSelectedGroup: set_selected_group,
         loadMoreMedia: vi.fn(),
+        retryMedia: vi.fn(),
     };
 
     function make() {
@@ -78,6 +81,8 @@ describe('MediaListComponent folders', () => {
         can_update_media_tags.set(true);
         show_media_group_tabs.set(true);
         set_selected_group.mockReset();
+        service_stub.media_has_more.set(false);
+        service_stub.loadMoreMedia.mockReset();
     });
 
     it('offers the group tabs only while the media group tabs are enabled', () => {
@@ -183,6 +188,28 @@ describe('MediaListComponent folders', () => {
 
         component.closeFolder();
         expect(component.display_media().length).toBe(3);
+    });
+
+    // A folder filters the loaded pages, and its items can be on any page
+    it('loads every page while a folder is open', () => {
+        const component = make();
+        service_stub.loadMoreMedia.mockImplementation(() => {
+            media_items.update((items) => [...items, media('d', ['news'])]);
+            service_stub.media_has_more.set(false);
+        });
+        service_stub.media_has_more.set(true);
+        TestBed.flushEffects();
+        expect(service_stub.loadMoreMedia).not.toHaveBeenCalled();
+
+        component.openFolder('news');
+        TestBed.flushEffects();
+
+        expect(service_stub.loadMoreMedia).toHaveBeenCalledOnce();
+        expect(component.display_media().map((m: any) => m.id)).toEqual([
+            'a',
+            'b',
+            'd',
+        ]);
     });
 
     it('clears the open folder when leaving folder view', () => {
