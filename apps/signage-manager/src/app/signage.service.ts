@@ -20,6 +20,7 @@ import {
     SettingsService,
     UploadPermissions,
     UploadsService,
+    user_groups_loaded,
     userSignal,
 } from '@placeos/common';
 import { loadAuthenticatedImage, openConfirmModal } from '@placeos/components';
@@ -114,6 +115,7 @@ import type {
     AiImageModalComponent,
     AiImageModalData,
 } from './ai/ai-image-modal.component';
+import { errorStatus } from './ai/ai-image.util';
 import { displayZoneIds } from './displays/display-zones.util';
 import {
     applyMediaView,
@@ -565,12 +567,24 @@ export class SignageService {
     public readonly signage_group_tree_expanded = signal<
         Record<string, boolean>
     >({});
+    // Set once the live user has loaded. The cached user shown before it can
+    // hold the wrong role, and loading groups for that role would reset the
+    // saved group. Stays set through later reloads of the user.
+    private readonly _user_loaded = linkedSignal<boolean, boolean>({
+        source: user_groups_loaded,
+        computation: (loaded, previous) => loaded || !!previous?.value,
+    });
+    // Idle until the live user has loaded, so the group list always matches
+    // the role of the user.
     private readonly _signage_groups = resource({
-        params: () => ({
-            user_email: this._active_user()?.email || '',
-            groups_change: this._groups_change(),
-            sys_admin: this.is_sys_admin(),
-        }),
+        params: () =>
+            this._user_loaded()
+                ? {
+                      user_email: this._active_user()?.email || '',
+                      groups_change: this._groups_change(),
+                      sys_admin: this.is_sys_admin(),
+                  }
+                : undefined,
         loader: async ({ params }) => {
             if (!params.user_email) return [] as PlaceCurrentGroup[];
             try {
@@ -873,8 +887,9 @@ export class SignageService {
         available_plugins: [],
     };
     // Effective signage flags of the selected group, ancestors included,
-    // tagged with the group they belong to. "All groups" has no flags. A
-    // failed read allows nothing.
+    // tagged with the group they belong to. "All groups" has no flags. A 404
+    // means the backend has no group features route, so the group sets no
+    // limits. Any other failed read allows nothing.
     private readonly _group_features = resource({
         params: () => ({
             group_id: this._api_group_id_debounced.value(),
@@ -883,7 +898,10 @@ export class SignageService {
         loader: async ({ params }) => ({
             group_id: params.group_id,
             features: await this.loadGroupFeatures(params.group_id).catch(
-                () => SignageService.NO_GROUP_FEATURES,
+                (error: unknown) =>
+                    errorStatus(error) === 404
+                        ? {}
+                        : SignageService.NO_GROUP_FEATURES,
             ),
         }),
     });
@@ -1901,21 +1919,25 @@ export class SignageService {
         return (data || []).map(decodeEntityNames);
     }
 
-    // Signage edits never change plugins, so these org-wide lists load once
-    // and do not follow `changed()`.
+    // Plugins available to the selected group. Signage edits never change
+    // plugins, so these lists follow the group but not `changed()`.
     private _pluginResource(plugin_type: SignagePluginType) {
         return resource({
             params: () => ({
                 initialised: this._org.initialised(),
+                can_query: this._can_query_group_data(),
+                group_id: this._api_group_id_debounced.value(),
             }),
             loader: async ({ params }) => {
-                if (!params.initialised) return [] as SignagePlugin[];
+                if (!params.initialised || !params.can_query) {
+                    return [] as SignagePlugin[];
+                }
                 try {
                     const result = await querySignagePlugins(
-                        this._orgZoneQueryParams({
-                            limit: 500,
-                            plugin_type,
-                        }),
+                        this._orgZoneQueryParams(
+                            { limit: 500, plugin_type },
+                            params.group_id,
+                        ),
                     );
                     return (result.data || [])
                         .filter((plugin: SignagePlugin) => plugin.enabled)

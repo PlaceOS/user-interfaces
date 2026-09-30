@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { PlaceOS_Service, UploadsService } from '@placeos/common';
 import { AiImageService } from '../app/ai/ai-image.service';
 import { AppComponent } from '../app/app.component';
@@ -17,11 +18,17 @@ describe('AppComponent', () => {
     const palette = { toggle: vi.fn() };
     const signage = {
         signage_groups_failed: signal(false),
+        features_ready: signal(true),
+        templates_enabled: signal(true),
         reloadSignageGroups: vi.fn(),
     };
+    const router = { url: '/media', navigate: vi.fn() };
 
     beforeEach(async () => {
         vi.clearAllMocks();
+        signage.features_ready.set(true);
+        signage.templates_enabled.set(true);
+        router.url = '/media';
         placeos.init.mockResolvedValue(undefined);
         ai.load.mockResolvedValue(undefined);
         ai.loadRecent.mockResolvedValue([]);
@@ -33,6 +40,7 @@ describe('AppComponent', () => {
                 { provide: AiImageService, useValue: ai },
                 { provide: CommandPaletteService, useValue: palette },
                 { provide: SignageService, useValue: signage },
+                { provide: Router, useValue: router },
             ],
         })
             .overrideComponent(AppComponent, { set: { template: '' } })
@@ -86,5 +94,25 @@ describe('AppComponent', () => {
         press({ key: 'j', metaKey: true });
 
         expect(palette.toggle).toHaveBeenCalledTimes(2);
+    });
+
+    it('leaves the templates section when the group turns templates off', () => {
+        router.url = '/templates/template-1';
+        TestBed.createComponent(AppComponent);
+        TestBed.tick();
+        expect(router.navigate).not.toHaveBeenCalled();
+
+        signage.templates_enabled.set(false);
+        TestBed.tick();
+
+        expect(router.navigate).toHaveBeenCalledWith(['/media']);
+    });
+
+    it('stays on other pages when templates turn off', () => {
+        TestBed.createComponent(AppComponent);
+        signage.templates_enabled.set(false);
+        TestBed.tick();
+
+        expect(router.navigate).not.toHaveBeenCalled();
     });
 });

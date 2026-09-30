@@ -7,6 +7,7 @@ import {
     SettingsService,
     StaffUser,
     UploadsService,
+    user_groups_loaded,
 } from '@placeos/common';
 import {
     currentGroups,
@@ -69,6 +70,7 @@ describe('SignageService group context', () => {
         vi.useFakeTimers({ shouldAdvanceTime: true });
         localStorage.clear();
         signIn();
+        user_groups_loaded.set(true);
         vi.mocked(currentGroups).mockResolvedValue([
             membership('g1'),
             membership('g2'),
@@ -139,6 +141,31 @@ describe('SignageService group context', () => {
         });
     });
 
+    describe('startup', () => {
+        it('keeps the saved group until the live user has loaded', async () => {
+            localStorage.setItem(STORAGE_KEY, 'a');
+            // The cached user is shown first and misses the admin role
+            user_groups_loaded.set(false);
+            vi.mocked(currentGroups).mockResolvedValue([]);
+            vi.mocked(queryGroups).mockResolvedValue({
+                data: [signageGroup('a')],
+                total: 1,
+                next: () => null,
+            });
+            const service = TestBed.inject(SignageService);
+            await settle();
+
+            expect(service.selected_group_id()).toBe('a');
+            expect(localStorage.getItem(STORAGE_KEY)).toBe('a');
+
+            signIn(['placeos_admin']);
+            user_groups_loaded.set(true);
+            await settle();
+
+            expect(service.selected_group()?.group.id).toBe('a');
+        });
+    });
+
     describe('group list failure', () => {
         it('keeps the saved group and restores it on retry', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
@@ -170,6 +197,25 @@ describe('SignageService group context', () => {
             expect(service.group_features().available_plugins).toEqual([]);
         });
 
+        it('keeps the global features when the backend has no flags route', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            vi.mocked(showGroupFeatures).mockRejectedValue({ status: 404 });
+            const service = TestBed.inject(SignageService);
+            await settle();
+
+            expect(service.templates_enabled()).toBe(true);
+            expect(service.group_features()).toEqual({});
+        });
+
+        it('allows nothing when the flags read is refused', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            vi.mocked(showGroupFeatures).mockRejectedValue({ status: 403 });
+            const service = TestBed.inject(SignageService);
+            await settle();
+
+            expect(service.features()).toEqual([]);
+        });
+
         it('does not carry the flags of the previous group', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
             const service = TestBed.inject(SignageService);
@@ -183,6 +229,37 @@ describe('SignageService group context', () => {
 
             expect(service.templates_enabled()).toBe(false);
             expect(service.features_ready()).toBe(false);
+        });
+    });
+
+    describe('plugins', () => {
+        const pluginQueryGroups = () =>
+            vi
+                .mocked(querySignagePlugins)
+                .mock.calls.map(
+                    ([options]) =>
+                        (options as { group_id?: string })?.group_id || '',
+                );
+
+        it('does not query plugins before a member has a group', async () => {
+            vi.mocked(currentGroups).mockRejectedValue(new Error('down'));
+            TestBed.inject(SignageService);
+            await settle();
+
+            expect(querySignagePlugins).not.toHaveBeenCalled();
+        });
+
+        it('queries the plugins of the new group after a switch', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            const service = TestBed.inject(SignageService);
+            await settle();
+            expect(pluginQueryGroups()).toEqual(['g1', 'g1']);
+
+            service.changed();
+            service.setSelectedGroup('g2');
+            await settle();
+
+            expect(pluginQueryGroups()).toEqual(['g1', 'g1', 'g2', 'g2']);
         });
     });
 

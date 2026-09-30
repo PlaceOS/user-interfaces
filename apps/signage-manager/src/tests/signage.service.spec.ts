@@ -263,6 +263,10 @@ describe('SignageService media uploads', () => {
             } as Awaited<ReturnType<typeof querySignagePlugins>>;
         });
         const service = createService();
+        // Plugins load once the user can query the "All groups" view
+        Object.defineProperty(service, 'can_manage_all_groups', {
+            value: () => true,
+        });
         TestBed.flushEffects();
 
         await vi.waitFor(() => {
@@ -2402,6 +2406,9 @@ describe('SignageService media uploads', () => {
             const service = createService();
             const group = signal<SignageGroupFeatures>({});
             Object.defineProperty(service, 'group_features', { value: group });
+            Object.defineProperty(service, 'can_manage_all_groups', {
+                value: () => true,
+            });
             TestBed.flushEffects();
 
             await vi.waitFor(() =>

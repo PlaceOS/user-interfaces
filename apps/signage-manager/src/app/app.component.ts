@@ -1,6 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit, untracked } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
 import {
     GlobalBannerComponent,
@@ -83,9 +83,29 @@ export class AppComponent implements OnInit {
     private _ai = inject(AiImageService);
     private _palette = inject(CommandPaletteService);
     private _signage = inject(SignageService);
+    private _router = inject(Router);
 
     /** Whether the signage groups failed to load. Shows a banner with retry. */
     public readonly groups_failed = this._signage.signage_groups_failed;
+
+    constructor() {
+        // The templates guard only runs on navigation. Leave the section when
+        // the selected group turns templates off while it is open.
+        effect(() => {
+            if (!this._signage.features_ready()) return;
+            if (
+                this._signage.templates_enabled() &&
+                !this._signage.signage_groups_failed()
+            ) {
+                return;
+            }
+            untracked(() => {
+                if (/^\/templates(\/|\?|#|$)/.test(this._router.url)) {
+                    void this._router.navigate(['/media']);
+                }
+            });
+        });
+    }
 
     public retryGroups() {
         this._signage.reloadSignageGroups();
