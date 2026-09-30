@@ -396,6 +396,26 @@ describe('TemplateLayoutListComponent', () => {
         expect(save).toHaveBeenCalledTimes(1);
     });
 
+    it('opens a layout with an emptied panel size instead of saving', async () => {
+        draft.set([
+            { position: 'top', plugin_params: {} },
+            { position: 'left', plugin_params: {} },
+        ]);
+        const component = await make();
+
+        // An emptied counter emits 0, which the API rejects for edge panels
+        component.setAxis(1, 'x_pos', 0);
+        await component.save();
+
+        expect(save).not.toHaveBeenCalled();
+        expect(selected_index()).toBe(1);
+
+        component.setAxis(1, 'x_pos', 25);
+        await component.save();
+
+        expect(save).toHaveBeenCalledTimes(1);
+    });
+
     it('shows no mappings when they fail to load', async () => {
         selected_template.set({ id: 'template-1' });
         list_mappings.mockRejectedValue(new Error('Forbidden'));

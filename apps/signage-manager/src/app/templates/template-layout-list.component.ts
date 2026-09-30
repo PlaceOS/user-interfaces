@@ -51,6 +51,7 @@ import {
     layoutPositionAxes,
     layoutPositionIcon,
     layoutPositionLabel,
+    layoutPositionValid,
     tabKeyIndex,
 } from './template-layout.util';
 
@@ -990,18 +991,18 @@ export class TemplateLayoutListComponent {
     }
 
     /**
-     * Save the layout draft. Every layout's params are checked against its
-     * plugin schema first; the first invalid layout is opened instead.
+     * Save the layout draft. Every layout's position and params are checked
+     * first; the first invalid layout is opened instead.
      */
     public async save() {
         if (this.saving()) return;
-        const invalid_index = this._invalidLayoutIndex();
-        if (invalid_index >= 0) {
-            if (this.selected_index() === invalid_index) {
+        const invalid = this._invalidLayout();
+        if (invalid) {
+            if (this.selected_index() === invalid.index) {
                 this._schema_form()?.isValid(); // Shows the field errors
             }
-            this.selected_index.set(invalid_index);
-            notifyWarn(i18n('SIGNAGE_MANAGER.TEMPLATE_LAYOUT_PARAMS_REQUIRED'));
+            this.selected_index.set(invalid.index);
+            notifyWarn(i18n(invalid.message));
             return;
         }
         this.saving.set(true);
@@ -1016,17 +1017,36 @@ export class TemplateLayoutListComponent {
         this._service.discardTemplateLayoutDraft();
     }
 
-    /** Index of the first layout missing a required plugin param, or -1 */
-    private _invalidLayoutIndex() {
+    /**
+     * First layout with a position the API rejects or a missing required
+     * plugin param, with the warning to show. Null when all are valid.
+     */
+    private _invalidLayout() {
         const widgets = this.widgets();
-        return this.layouts().findIndex((layout) => {
+        const layouts = this.layouts();
+        for (let index = 0; index < layouts.length; index++) {
+            const layout = layouts[index];
+            if (!layoutPositionValid(layout)) {
+                return {
+                    index,
+                    message: 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_POSITION_INVALID',
+                };
+            }
             const plugin = widgets.find(({ id }) => id === layout.plugin_id);
             const schema = pluginSchema(plugin?.params);
-            if (!schema) return false;
-            return !buildFormFromFields(
-                parseSchemaFields(schema),
-                layout.plugin_params ?? {},
-            ).valid;
-        });
+            const params_valid =
+                !schema ||
+                buildFormFromFields(
+                    parseSchemaFields(schema),
+                    layout.plugin_params ?? {},
+                ).valid;
+            if (!params_valid) {
+                return {
+                    index,
+                    message: 'SIGNAGE_MANAGER.TEMPLATE_LAYOUT_PARAMS_REQUIRED',
+                };
+            }
+        }
+        return null;
     }
 }

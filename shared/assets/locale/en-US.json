@@ -2731,6 +2731,7 @@
         "TEMPLATE_LAYOUT_COUNT": "{{ count }} layouts",
         "TEMPLATE_LAYOUT_ITEMS": "Layout Items",
         "TEMPLATE_LAYOUT_PARAMS_REQUIRED": "Fill in the required plugin parameters for each layout.",
+        "TEMPLATE_LAYOUT_POSITION_INVALID": "Panel size must be more than 0% and less than 100%.",
         "TEMPLATE_LIVE_MODE": "Live",
         "TEMPLATE_LIVE_MODE_HINT": "Show the template plugins and live display",
         "TEMPLATE_LIVE_PREVIEW": "Live template preview",

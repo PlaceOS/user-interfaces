@@ -137,6 +137,20 @@ export function applyLayoutPositionDefaults(
 }
 
 /**
+ * Whether the API accepts the position of a layout once defaults are added.
+ * Edge panel sizes must be more than 0 and less than 1.
+ */
+export function layoutPositionValid(layout: SignageTemplateLayout) {
+    const { position, x_pos, y_pos } = applyLayoutPositionDefaults(layout);
+    if (position === 'floating') {
+        return x_pos !== undefined && y_pos !== undefined;
+    }
+    return [x_pos, y_pos].every(
+        (value) => value === undefined || (value > 0 && value < 1),
+    );
+}
+
+/**
  * Resolve each layout item to a rectangle in the preview frame. Items are
  * placed in array order, each edge panel consuming space from the remaining
  * unclaimed area — e.g. a bottom panel inserted first spans the full frame

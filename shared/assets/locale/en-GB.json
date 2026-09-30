@@ -2687,6 +2687,7 @@
         "TEMPLATE_LAYOUT_COUNT": "{{ count }} layouts",
         "TEMPLATE_LAYOUT_ITEMS": "Layout Items",
         "TEMPLATE_LAYOUT_PARAMS_REQUIRED": "Fill in the required plugin parameters for each layout.",
+        "TEMPLATE_LAYOUT_POSITION_INVALID": "Panel size must be more than 0% and less than 100%.",
         "TEMPLATE_NAME_ARIA": "Template name",
         "TEMPLATE_NO_LAYOUTS": "No layout items yet. Add one to get started.",
         "TEMPLATE_NO_LAYOUTS_HINT": "Add layout items to build this template.",
