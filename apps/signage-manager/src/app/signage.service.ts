@@ -111,6 +111,7 @@ import type {
     AiImageModalComponent,
     AiImageModalData,
 } from './ai/ai-image-modal.component';
+import { errorStatus } from './ai/ai-image.util';
 import { displayZoneIds } from './displays/display-zones.util';
 import {
     applyMediaView,
@@ -2935,7 +2936,13 @@ export class SignageService {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_EDIT_GROUP_FEATURES'));
             return null;
         }
+        // A 404 means the backend has no group features route, so the
+        // parent sets no limits
         const result = await this.loadGroupFeatures(group.parent_id)
+            .catch((error: unknown): SignageGroupFeatures => {
+                if (errorStatus(error) === 404) return {};
+                throw error;
+            })
             .then((parent) =>
                 updateGroup(group.id, {
                     features: {

@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { HotkeysService } from '@placeos/common';
+import { HotkeysService, i18n } from '@placeos/common';
 import {
     FullscreenModalShellComponent,
     TranslatePipe,
@@ -126,7 +126,10 @@ export class SignageGroupEditModalComponent {
             );
         if (!parent_id) return options;
         const parent = this._knownGroup(parent_id) ||
-            this._loaded_parent() || { id: parent_id, name: '' };
+            this._loaded_parent() || {
+                id: parent_id,
+                name: i18n('SIGNAGE_MANAGER.CURRENT_PARENT_GROUP'),
+            };
         return [parent, ...options];
     };
     /** Only system admins can move a group to the top level */
@@ -161,8 +164,8 @@ export class SignageGroupEditModalComponent {
         );
     }
 
-    // A failed read, such as for a parent the user cannot see, keeps the ID
-    // as the option label.
+    // A failed read, such as for a parent the user cannot see, labels the
+    // option as the current parent.
     private async _loadParent() {
         const parent_id = this.group.parent_id;
         if (!parent_id || this._knownGroup(parent_id)) return;

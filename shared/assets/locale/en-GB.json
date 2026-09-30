@@ -2188,6 +2188,7 @@
         "COLLAPSE_ZONE": "Collapse zone {{ name }}",
         "CREATE_NEW_PLAYLIST": "Create new playlist",
         "CREATE_NEW_TEMPLATE": "Create new template",
+        "CURRENT_PARENT_GROUP": "Current parent group",
         "CUSTOM_SCHEDULE": "Custom schedule",
         "DAYS_OF_MONTH_ARIA": "Recurring schedule days of month",
         "DAYS_OF_WEEK_ARIA": "Recurring schedule days of week",

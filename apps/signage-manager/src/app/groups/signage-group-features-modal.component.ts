@@ -12,6 +12,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
+import { errorStatus } from '../ai/ai-image.util';
 import {
     ORGANISATION_FEATURES,
     SIGNAGE_FEATURE_IDS,
@@ -229,13 +230,17 @@ export class SignageGroupFeaturesModalComponent {
     }
 
     // Without current values the rows would show wrong defaults, so a failed
-    // read closes the editor.
+    // read closes the editor. A 404 from the features route means the backend
+    // has no group limits, so the parent allows everything.
     private async _load() {
         try {
             const group = await this._service.loadGroup(this.group.id);
-            const inherited = await this._service.loadGroupFeatures(
-                group.parent_id,
-            );
+            const inherited = await this._service
+                .loadGroupFeatures(group.parent_id)
+                .catch((error: unknown): SignageGroupFeatures => {
+                    if (errorStatus(error) === 404) return {};
+                    throw error;
+                });
             this.group = group;
             this.own.set(signageGroupFeatures(group.features));
             this._inherited.set(inherited);

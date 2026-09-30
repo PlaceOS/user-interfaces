@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { HotkeysService } from '@placeos/common';
+import { HotkeysService, i18n } from '@placeos/common';
 import { SignageGroupEditModalComponent } from '../../app/groups/signage-group-edit-modal.component';
 import { SignageService } from '../../app/signage.service';
 
@@ -135,13 +135,18 @@ describe('SignageGroupEditModalComponent', () => {
         );
     });
 
-    it('shows the current parent by ID when it cannot be read', async () => {
+    it('labels the current parent when it cannot be read', async () => {
         can_change_parent.mockReturnValue(false);
         modal_data = { group: { id: 'group-1', parent_id: 'hidden' } };
         const component = make();
         await new Promise((resolve) => setTimeout(resolve));
 
-        expect(component.parent_groups()).toEqual([{ id: 'hidden', name: '' }]);
+        expect(component.parent_groups()).toEqual([
+            {
+                id: 'hidden',
+                name: i18n('SIGNAGE_MANAGER.CURRENT_PARENT_GROUP'),
+            },
+        ]);
     });
 
     it('saves a valid group and closes with the result', async () => {

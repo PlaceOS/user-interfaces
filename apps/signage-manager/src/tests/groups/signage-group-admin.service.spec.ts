@@ -130,6 +130,20 @@ describe('SignageService group admin', () => {
         });
     });
 
+    it('saves the features as they are when the backend has no features route', async () => {
+        const service = make([{ id: 'parent', permissions: MANAGE }]);
+        vi.mocked(showGroupFeatures).mockRejectedValue({ status: 404 });
+
+        await service.saveGroupFeatures(
+            new PlaceGroup({ id: 'child', parent_id: 'parent' }),
+            { features: ['templates'] },
+        );
+
+        expect(updateGroup).toHaveBeenCalledWith('child', {
+            features: { signage: { features: ['templates'] } },
+        });
+    });
+
     it('shows no users or zones read for another group', () => {
         const service = make([]);
         const users = service['_managed_group_users'];

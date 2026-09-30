@@ -157,6 +157,26 @@ describe('SignageGroupFeaturesModalComponent', () => {
         });
     });
 
+    it('allows every option when the backend has no features route', async () => {
+        service_stub.loadGroupFeatures.mockRejectedValue({ status: 404 });
+        const component = await make();
+
+        expect(dialog_ref.close).not.toHaveBeenCalled();
+        expect(component.available_features().map(({ id }) => id)).toEqual([
+            'templates',
+            'ai-generation',
+            'ai-editing',
+        ]);
+        expect(component.isAllowed('features', 'ai-editing')).toBe(true);
+    });
+
+    it('closes when the parent features fail to load', async () => {
+        service_stub.loadGroupFeatures.mockRejectedValue({ status: 500 });
+        create();
+
+        await vi.waitFor(() => expect(dialog_ref.close).toHaveBeenCalled());
+    });
+
     it('closes when the group cannot be read', async () => {
         service_stub.loadGroup.mockRejectedValue(new Error('fail'));
         create();
