@@ -1,7 +1,6 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { showMetadata } from '@placeos/ts-client';
 
-import { saveBooking } from '@placeos/bookings';
 import {
     AsyncHandler,
     Booking,
@@ -954,10 +953,8 @@ export class GuestListingComponent extends AsyncHandler {
             external_user: true,
         });
         if (!id) return;
-        await saveBooking(
-            new Booking({ ...item, parking_booking_id: id } as any),
-        );
-        this._state.poll();
+        // The template reads the link from extension data.
+        await this._state.setExt(item, 'parking_booking_id', id);
     }
 
     public async setPass(row: Booking, pass = '') {

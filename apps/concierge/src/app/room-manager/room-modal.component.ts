@@ -625,7 +625,7 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         const ref = this._dialog.open(SelectMapItemModalComponent, {
             data: {
                 location: this.model().map_id,
-                level_id: this.form,
+                level_id: level?.id,
             },
         });
         ref.afterClosed().subscribe((d) => {

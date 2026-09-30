@@ -160,9 +160,30 @@ describe('ReportsStateService', () => {
             end: wednesday,
         });
 
-        expect(spectator.service.duration).toBe(4);
-        settings_map['app.reports.ignore_days'] = ['wednesday'];
         expect(spectator.service.duration).toBe(3);
+        settings_map['app.reports.ignore_days'] = ['wednesday'];
+        expect(spectator.service.duration).toBe(2);
+    });
+
+    it('should clear loading when the options change during a load', async () => {
+        vi.mocked(ts_client_mod.query).mockReturnValue(
+            new Promise(() => undefined) as any,
+        );
+        spectator.service.setOptions({
+            type: 'desks',
+            zones: ['z1'],
+            start: new Date('2026-04-06T00:00:00').valueOf(),
+            end: new Date('2026-04-06T23:59:59').valueOf(),
+        });
+        void (spectator.service as any)._loadBookings();
+        expect(spectator.service.loading()).not.toBe('');
+
+        spectator.service.setOptions({
+            start: new Date('2026-04-07T00:00:00').valueOf(),
+            end: new Date('2026-04-07T23:59:59').valueOf(),
+        });
+
+        expect(spectator.service.loading()).toBe('');
     });
 
     it('should query desk bookings and store the filtered results', async () => {

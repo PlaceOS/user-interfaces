@@ -50,12 +50,12 @@ export class ContactTracingStateService {
         end: endOfDay(Date.now()),
     });
 
+    /** Loads contact events whenever a user is selected or the dates change. */
     private readonly _events = resource({
-        params: () => this._generate(),
+        params: () => ({ options: this._options(), refresh: this._generate() }),
         defaultValue: [] as ContactEvent[],
-        loader: async ({ params: gen }) => {
-            if (!gen) return [];
-            const { start, end, user } = this._options();
+        loader: async ({ params: { options } }) => {
+            const { start, end, user } = options;
             if (!user) return [];
             this._loading.set('Loading contact events...');
             const mod = getModule(this.system_id, 'ContactTracing');
@@ -70,9 +70,9 @@ export class ContactTracingStateService {
                     current_user.email,
                     current_user.username,
                     getUnixTime(start),
-                    getUnixTime(end),
+                    getUnixTime(endOfDay(end)),
                 ]);
-                const person = this._options().user || currentUser();
+                const person = user;
                 return list.map(
                     (_) =>
                         ({

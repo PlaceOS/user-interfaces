@@ -226,7 +226,8 @@ export class RoomWeekBookingsTimelineComponent
     public readonly ui_options = this._state.options;
     public readonly date = this._state.date;
 
-    public readonly remove = this._state.removeBooking;
+    public readonly remove = (event: CalendarEvent) =>
+        this._state.removeBooking(event);
 
     public readonly types = signal([
         { id: 'internal', name: 'Internal', color: '#D81B60' },

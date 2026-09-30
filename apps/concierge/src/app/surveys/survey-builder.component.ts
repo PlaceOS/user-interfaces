@@ -46,9 +46,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
-import { NewSurveyService } from './new-survey.service';
+import { NewSurveyService, QuestionFilters } from './new-survey.service';
 import { QuestionComponent } from './question.component';
-import { QuestionPipe } from './question.pipe';
 import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
 
 @Component({
@@ -259,7 +258,7 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
                                 track q_id;
                                 let idx = $index
                             ) {
-                                @let quest = $any(q_id) | question;
+                                @let quest = questionFor(q_id);
                                 @if (quest) {
                                     <div cdkDrag class="relative -ml-px flex">
                                         <div
@@ -532,7 +531,6 @@ import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
         DragDropModule,
         MatMenuModule,
         MatTabsModule,
-        QuestionPipe,
         QuestionComponent,
     ],
 })
@@ -547,12 +545,20 @@ export class SurveyBuilderComponent
     public readonly view = signal<'builder' | 'preview'>('builder');
     public readonly active_page = signal(0);
     public readonly loading = signal(false);
-    public readonly selected_type = signal('');
+    public readonly selected_type = signal<QuestionFilters['type'] | ''>('');
     public readonly search_text = signal('');
 
     public readonly buildings = this._org.building_list;
     public readonly levels = this._org.active_levels;
     public readonly questions = this._service.filtered_questions;
+    /** All loaded questions by ID, for rendering a page's question order. */
+    private readonly _question_map = computed(
+        () => new Map(this._service.questions().map((q) => [`${q.id}`, q])),
+    );
+
+    public questionFor(id: string | number) {
+        return this._question_map().get(`${id}`);
+    }
     public readonly trigger_types = TriggerOptions;
     public readonly question_types = QuestionTypeMap;
     public readonly question_options = QuestionTypeOptions;
@@ -688,7 +694,7 @@ export class SurveyBuilderComponent
         this.search_text.set(search_text);
         this._service.setQuestionFilters({
             search_text,
-            type: this.selected_type as any,
+            type: this.selected_type() || undefined,
         });
     }
 

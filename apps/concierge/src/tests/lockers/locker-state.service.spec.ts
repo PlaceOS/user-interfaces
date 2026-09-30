@@ -206,6 +206,16 @@ describe('LockerStateService', () => {
         expect(pagedBookingCalls()).toHaveLength(1);
     });
 
+    it('should reload locker bookings on refresh', async () => {
+        spectator = createService();
+        await settle();
+
+        spectator.service.refresh();
+        await settle();
+
+        expect(pagedBookingCalls()).toHaveLength(2);
+    });
+
     it('should stop locker booking pagination when a page is empty', async () => {
         spectator = createService();
         const next_page = vi.fn();

@@ -457,7 +457,7 @@ export class DeskModalComponent implements OnInit {
         const ref = this._dialog.open(SelectMapItemModalComponent, {
             data: {
                 location: this.model().map_id,
-                level_id: this.form,
+                level_id: this.model().zone_id || this.desk?.zone?.id,
             },
         });
         ref.afterClosed().subscribe((d) => {
