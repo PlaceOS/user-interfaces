@@ -519,7 +519,7 @@ export class LockerStateService extends AsyncHandler {
         await mod.execute('release_all_lockers', []).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_ERROR', {
-                    error: e,
+                    error: errorText(e),
                 }),
             );
             if (close) close();
@@ -550,7 +550,9 @@ export class LockerStateService extends AsyncHandler {
             .execute('locker_release', [locker.bank_id, locker.id])
             .catch((e) => {
                 notifyError(
-                    i18n('APP.CONCIERGE.LOCKERS_RELEASE_ERROR', { error: e }),
+                    i18n('APP.CONCIERGE.LOCKERS_RELEASE_ERROR', {
+                        error: errorText(e),
+                    }),
                 );
                 if (close) close();
                 throw e;
@@ -701,8 +703,10 @@ export class LockerStateService extends AsyncHandler {
             {
                 loading: i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_LOADING'),
                 action: () => deleteLockerBankAsset(bank.id),
-                error: (error) =>
-                    i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_ERROR', { error }),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.LOCKERS_BANK_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
             },
         );
         if (!removed) return;
@@ -726,8 +730,10 @@ export class LockerStateService extends AsyncHandler {
                     await this._clearAssignedBooking(locker);
                     await deleteLockerAsset(locker.id);
                 },
-                error: (error) =>
-                    i18n('APP.CONCIERGE.LOCKERS_REMOVE_ERROR', { error }),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.LOCKERS_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
             },
         );
         if (!removed) return;

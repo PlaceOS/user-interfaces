@@ -789,7 +789,7 @@ export class ParkingStateService extends AsyncHandler {
                 } catch (e) {
                     notifyError(
                         i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                            error: e,
+                            error: errorText(e),
                         }),
                     );
                     throw e;
@@ -809,7 +809,7 @@ export class ParkingStateService extends AsyncHandler {
             ).catch((e) => {
                 notifyError(
                     i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                        error: e,
+                        error: errorText(e),
                     }),
                 );
                 throw e;
@@ -841,7 +841,7 @@ export class ParkingStateService extends AsyncHandler {
                     }
                     notifyError(
                         i18n('APP.CONCIERGE.PARKING_ASSIGN_SPACE_ERROR', {
-                            error: e,
+                            error: errorText(e),
                         }),
                     );
                     throw e;
@@ -907,8 +907,10 @@ export class ParkingStateService extends AsyncHandler {
             {
                 loading: i18n('APP.CONCIERGE.PARKING_USER_REMOVE_LOADING'),
                 action: () => deleteParkingUser(user.id),
-                error: (error) =>
-                    i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', { error }),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.PARKING_USER_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
             },
         );
         if (!removed) return;
@@ -951,8 +953,10 @@ export class ParkingStateService extends AsyncHandler {
             {
                 loading: i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_LOADING'),
                 action: () => deleteParkingFleetVehicle(vehicle.id),
-                error: (error) =>
-                    i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_ERROR', { error }),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.PARKING_FLEET_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
             },
         );
         if (!removed) return;
@@ -1234,7 +1238,9 @@ export class ParkingStateService extends AsyncHandler {
             : {};
         await removeBookingApi(booking.id, query).catch((e) => {
             notifyError(
-                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
+                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', {
+                    error: errorText(e),
+                }),
             );
             details.close();
             throw e;

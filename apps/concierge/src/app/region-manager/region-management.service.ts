@@ -14,7 +14,7 @@ export interface RegionListOptions {
     search?: string;
 }
 
-import { confirmAction } from '../ui/modal-actions';
+import { confirmAction, errorText } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -83,8 +83,10 @@ export class RegionManagementService {
             {
                 loading: i18n('APP.CONCIERGE.REGIONS_REMOVE_LOADING'),
                 action: () => removeZone(region.id),
-                error: (error) =>
-                    i18n('APP.CONCIERGE.REGIONS_REMOVE_ERROR', { error }),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.REGIONS_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
             },
         );
         if (!removed) return;

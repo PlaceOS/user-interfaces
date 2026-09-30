@@ -18,7 +18,7 @@ export interface BuildingListOptions {
     search?: string;
 }
 
-import { confirmAction } from '../ui/modal-actions';
+import { confirmAction, errorText } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -115,8 +115,10 @@ export class BuildingManagementService {
             {
                 loading: i18n('APP.CONCIERGE.BUILDINGS_REMOVE_LOADING'),
                 action: () => removeZone(building.id),
-                error: (error) =>
-                    i18n('APP.CONCIERGE.BUILDINGS_REMOVE_ERROR', { error }),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.BUILDINGS_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
             },
         );
         if (!removed) return;

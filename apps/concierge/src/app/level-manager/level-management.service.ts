@@ -25,7 +25,7 @@ export interface LevelListOptions {
     search?: string;
 }
 
-import { confirmAction } from '../ui/modal-actions';
+import { confirmAction, errorText } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
 })
@@ -122,8 +122,10 @@ export class LevelManagementService {
             {
                 loading: i18n('APP.CONCIERGE.LEVELS_REMOVE_LOADING'),
                 action: () => removeZone(level.id),
-                error: (error) =>
-                    i18n('APP.CONCIERGE.LEVELS_REMOVE_ERROR', { error }),
+                error: (e) =>
+                    i18n('APP.CONCIERGE.LEVELS_REMOVE_ERROR', {
+                        error: errorText(e),
+                    }),
             },
         );
         if (!removed) return;

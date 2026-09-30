@@ -469,7 +469,11 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
             notifySuccess(i18n('APP.CONCIERGE.AUTO_RELEASE_SUCCESS'));
             this._dialog_ref.close();
         } catch (e) {
-            notifyError(i18n('APP.CONCIERGE.AUTO_RELEASE_ERROR', { error: e }));
+            notifyError(
+                i18n('APP.CONCIERGE.AUTO_RELEASE_ERROR', {
+                    error: errorText(e),
+                }),
+            );
         } finally {
             this.loading.set('');
         }

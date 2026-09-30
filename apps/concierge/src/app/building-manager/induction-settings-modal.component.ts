@@ -160,7 +160,9 @@ export class InductionSettingsModalComponent implements OnInit {
             notifySuccess(i18n('APP.CONCIERGE.INDUCTION_SUCCESS'));
             this._dialog_ref.close();
         } catch (e) {
-            notifyError(i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: e }));
+            notifyError(
+                i18n('APP.CONCIERGE.INDUCTION_ERROR', { error: errorText(e) }),
+            );
         } finally {
             this._dialog_ref.disableClose = false;
             this.loading.set('');
