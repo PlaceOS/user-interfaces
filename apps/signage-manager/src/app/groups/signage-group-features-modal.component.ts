@@ -12,8 +12,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { PlaceGroup } from '@placeos/ts-client';
-import { errorStatus } from '../ai/ai-image.util';
 import {
+    noGroupFeaturesOn404,
     ORGANISATION_FEATURES,
     SIGNAGE_FEATURE_IDS,
     SIGNAGE_FEATURES,
@@ -237,10 +237,7 @@ export class SignageGroupFeaturesModalComponent {
             const group = await this._service.loadGroup(this.group.id);
             const inherited = await this._service
                 .loadGroupFeatures(group.parent_id)
-                .catch((error: unknown): SignageGroupFeatures => {
-                    if (errorStatus(error) === 404) return {};
-                    throw error;
-                });
+                .catch(noGroupFeaturesOn404);
             this.group = group;
             this.own.set(signageGroupFeatures(group.features));
             this._inherited.set(inherited);

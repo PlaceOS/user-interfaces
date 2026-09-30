@@ -111,7 +111,6 @@ import type {
     AiImageModalComponent,
     AiImageModalData,
 } from './ai/ai-image-modal.component';
-import { errorStatus } from './ai/ai-image.util';
 import { displayZoneIds } from './displays/display-zones.util';
 import {
     applyMediaView,
@@ -162,6 +161,7 @@ import {
 import {
     effectiveFeatures,
     narrowGroupFeatures,
+    noGroupFeaturesOn404,
     SIGNAGE_FEATURE_IDS,
     SignageFeature,
     SignageGroupFeatures,
@@ -2939,10 +2939,7 @@ export class SignageService {
         // A 404 means the backend has no group features route, so the
         // parent sets no limits
         const result = await this.loadGroupFeatures(group.parent_id)
-            .catch((error: unknown): SignageGroupFeatures => {
-                if (errorStatus(error) === 404) return {};
-                throw error;
-            })
+            .catch(noGroupFeaturesOn404)
             .then((parent) =>
                 updateGroup(group.id, {
                     features: {

@@ -1,4 +1,5 @@
 import { i18n } from '@placeos/common';
+import { errorStatus } from './ai/ai-image.util';
 
 /**
  * Features the `app.features` setting can turn on. Groups can only narrow
@@ -100,4 +101,13 @@ export function narrowGroupFeatures(
         }
     }
     return result;
+}
+
+/**
+ * Error handler for a group features read. A 404 means the backend has no
+ * group features route, so the group sets no limits. Other errors rethrow.
+ */
+export function noGroupFeaturesOn404(error: unknown): SignageGroupFeatures {
+    if (errorStatus(error) === 404) return {};
+    throw error;
 }
