@@ -27,6 +27,8 @@ describe('DisplayListComponent', () => {
         return TestBed.createComponent(DisplayListComponent).componentInstance;
     }
 
+    afterEach(() => vi.useRealTimers());
+
     beforeEach(() => {
         load_more.mockReset();
         display_search_term.set('');
@@ -84,6 +86,21 @@ describe('DisplayListComponent', () => {
         expect(
             signageDisplay({ signage_last_seen: 1234 }).signage_last_seen,
         ).toBe(1234);
+    });
+
+    it('shows the date of a last check-in before today', () => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date(2026, 8, 30, 10, 0));
+        const component = make();
+        const at = (hours: number, day = 30) =>
+            new Date(2026, 8, day, hours, 36).getTime() / 1000;
+
+        expect(component.lastSeen({ signage_last_seen: at(21, 29) })).toBe(
+            '9/29/26, 9:36\u202fPM',
+        );
+        expect(component.lastSeen({ signage_last_seen: at(7) })).toBe(
+            '7:36\u202fAM',
+        );
     });
 
     it('requests the next page when the sentinel triggers a load', () => {

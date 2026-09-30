@@ -1,9 +1,11 @@
+import { DatePipe } from '@angular/common';
 import {
     afterRenderEffect,
     Component,
     DestroyRef,
     ElementRef,
     inject,
+    LOCALE_ID,
     signal,
     viewChildren,
 } from '@angular/core';
@@ -18,6 +20,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { isSameDay } from 'date-fns';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { SignageService } from '../signage.service';
 import { isDisplayOnline } from './display-status.util';
@@ -176,6 +179,7 @@ export class DisplayListComponent {
     // without a reload.
     private readonly _now = signal(Date.now());
     private readonly _date_from = new DateFromPipe();
+    private readonly _date = new DatePipe(inject(LOCALE_ID));
 
     constructor() {
         const timer = setInterval(() => this._now.set(Date.now()), 60 * 1000);
@@ -218,10 +222,18 @@ export class DisplayListComponent {
             : 'SIGNAGE_MANAGER.DISPLAY_STATUS_OFFLINE';
     }
 
-    /** Relative time since the display's player last checked in */
+    /**
+     * When the display's player last checked in: minutes ago within the last
+     * hour, the time earlier today, and the date and time before today.
+     */
     public lastSeen(display: { signage_last_seen?: number }) {
-        this._now();
+        const now = this._now();
         if (!display.signage_last_seen) return '';
-        return this._date_from.transform(display.signage_last_seen * 1000);
+        const last_seen = display.signage_last_seen * 1000;
+        if (now - last_seen < 60 * 60 * 1000) {
+            return this._date_from.transform(last_seen);
+        }
+        const date_format = isSameDay(last_seen, now) ? 'shortTime' : 'short';
+        return this._date.transform(last_seen, date_format) || '';
     }
 }
