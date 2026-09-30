@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
@@ -54,9 +54,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class PlaylistHeaderComponent {
     private readonly _service = inject(SignageService);
 
-    public readonly total_count = computed(
-        () => this._service.filtered_playlists().length,
-    );
+    public readonly total_count = this._service.playlists_total;
     public readonly can_create = this._service.can_create;
 
     public addPlaylist() {

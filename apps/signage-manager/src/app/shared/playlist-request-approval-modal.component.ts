@@ -14,15 +14,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
-    listSignagePlaylistMediaRevisions,
     SignageMedia,
     SignagePlaylist,
     type SignagePlaylistApprover,
+    SignagePlaylistMedia,
     updateSignagePlaylistMedia,
 } from '@placeos/ts-client';
 import { playlistMediaItems } from '../signage-playlist.util';
 import { SignageService } from '../signage.service';
 import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.component';
+import { loadPlaylistApprovalVersions } from './playlist-approval.util';
 
 export interface PlaylistRequestApprovalModalData {
     playlist: SignagePlaylist;
@@ -235,7 +236,8 @@ export class PlaylistRequestApprovalModalComponent {
     public readonly has_previous_version = signal(false);
     public readonly can_update = this._service.can_update;
 
-    public readonly playlist_versions = signal<any[]>([]);
+    /** The latest version and the last approved version, newest first */
+    public readonly playlist_versions = signal<SignagePlaylistMedia[]>([]);
     public readonly playlist_media = () =>
         this.playlist_versions().map((playlist) =>
             playlistMediaItems(playlist),
@@ -253,13 +255,13 @@ export class PlaylistRequestApprovalModalComponent {
         if (!playlist_id) return [];
         this.loading.set(i18n('SIGNAGE_MANAGER.LOADING_VERSIONS'));
         try {
-            const versions = await listSignagePlaylistMediaRevisions(
-                playlist_id,
-                { limit: 2 },
-            );
+            const versions = await loadPlaylistApprovalVersions(playlist_id);
             this.playlist_versions.set(versions);
             this.has_previous_version.set(versions.length > 1);
             return versions;
+        } catch {
+            notifyError(i18n('SIGNAGE_MANAGER.PLAYLIST_VERSIONS_LOAD_ERROR'));
+            return [];
         } finally {
             this.loading.set('');
         }

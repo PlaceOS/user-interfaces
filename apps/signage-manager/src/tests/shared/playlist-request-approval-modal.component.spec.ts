@@ -16,6 +16,12 @@ const notify_open = vi.fn(() => ({
     dismiss: vi.fn(),
 }));
 
+/** Let the versions request, which Angular does not track, settle */
+async function flushVersions(fixture: { whenStable: () => Promise<unknown> }) {
+    await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve));
+}
+
 describe('PlaylistRequestApprovalModalComponent', () => {
     const dialog_ref = {
         close: vi.fn(),
@@ -55,6 +61,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
                 items: ['media-2'],
                 media: [{ id: 'media-2', name: 'Media 2' }],
                 updated_at: 2,
+                approved: true,
             },
         ]);
         (updateSignagePlaylistMedia as any).mockResolvedValue({});
@@ -118,7 +125,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
 
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).toContain('New Version');
@@ -139,7 +146,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
 
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).not.toContain('Approver');
@@ -160,7 +167,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         const component = fixture.componentInstance;
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).toContain('extension');
@@ -173,7 +180,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         const component = fixture.componentInstance;
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).toContain('Undo Changes');
@@ -187,7 +194,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         const component = fixture.componentInstance;
         component.togglePreview();
         fixture.detectChanges();
-        await fixture.whenStable();
+        await flushVersions(fixture);
         fixture.detectChanges();
 
         expect(fixture.nativeElement.textContent).not.toContain('Undo Changes');

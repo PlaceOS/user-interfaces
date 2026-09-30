@@ -81,6 +81,7 @@ import {
     shareSignagePlaylists,
     shareSignageTemplates,
     showSignageMedia,
+    showSignagePlaylist,
     showSystem,
     showZone,
     SignageMedia,
@@ -158,6 +159,7 @@ import {
     playlistItemScheduleMap,
     playlistMediaIds,
     playlistMediaItems,
+    reorderPlaylistItemIds,
 } from './signage-playlist.util';
 import {
     effectiveFeatures,
@@ -1080,6 +1082,8 @@ export class SignageService {
     private _playlist_cache_group: string | null = null;
     private _playlist_cache_change: number | null = null;
     private readonly _playlists_loading = signal(false);
+    private readonly _playlists_error = signal(false);
+    private readonly _playlists_total = signal(0);
     private readonly _playlists_has_more = signal(false);
     private _playlists_next:
         | (() => QueryResponse<SignagePlaylist> | null)
@@ -1092,6 +1096,10 @@ export class SignageService {
         ),
     );
     public readonly playlists_loading = this._playlists_loading.asReadonly();
+    /** Whether the last page of playlists failed to load */
+    public readonly playlists_error = this._playlists_error.asReadonly();
+    /** Number of playlists that match the query, loaded or not */
+    public readonly playlists_total = this._playlists_total.asReadonly();
     public readonly playlists_has_more = this._playlists_has_more.asReadonly();
 
     private readonly _reload_playlists = effect(() => {
@@ -1105,6 +1113,8 @@ export class SignageService {
             this._playlist_items.set([]);
             this._playlists_next = null;
             this._playlists_has_more.set(false);
+            this._playlists_error.set(false);
+            this._playlists_total.set(0);
             if (
                 group_id !== this._playlist_cache_group ||
                 change !== this._playlist_cache_change
@@ -1139,11 +1149,39 @@ export class SignageService {
         this._fetchPlaylistPage(next, this._playlists_token);
     }
 
+    /**
+     * Fetch a playlist that is not in the loaded pages, e.g. for a link to
+     * it, and keep it with the loaded playlists.
+     * @returns The playlist, or null when it cannot be loaded
+     */
+    public async loadPlaylist(playlist_id: string) {
+        if (!playlist_id) return null;
+        try {
+            const playlist = decodeEntityNames(
+                await showSignagePlaylist(
+                    playlist_id,
+                    this._groupQueryParams({}),
+                ),
+            );
+            this._playlist_cache.update((cache) => ({
+                ...cache,
+                [playlist.id]: playlist,
+            }));
+            return playlist;
+        } catch {
+            return null;
+        }
+    }
+
+    /** Changes when signage data is saved, for views that load their own data */
+    public readonly data_change = this._change.asReadonly();
+
     private async _fetchPlaylistPage(
         query: QueryResponse<SignagePlaylist>,
         token: number,
     ) {
         this._playlists_loading.set(true);
+        this._playlists_error.set(false);
         try {
             const page = await query;
             if (token !== this._playlists_token) return;
@@ -1161,12 +1199,15 @@ export class SignageService {
                 return next;
             });
             this._playlists_next = page.next;
+            this._playlists_total.set(page.total);
             this._playlists_has_more.set(
                 this._playlist_items().length < page.total,
             );
         } catch {
-            if (token === this._playlists_token)
+            if (token === this._playlists_token) {
                 this._playlists_has_more.set(false);
+                this._playlists_error.set(true);
+            }
         } finally {
             if (token === this._playlists_token)
                 this._playlists_loading.set(false);
@@ -1917,9 +1958,7 @@ export class SignageService {
     private readonly _playlist_meta_queue: Record<string, SignagePlaylist> = {};
     private _playlist_meta_processing = false;
 
-    public readonly filtered_playlists = computed(() => {
-        return this._playlist_items();
-    });
+    public readonly filtered_playlists = this._playlist_items.asReadonly();
 
     public readonly selected_playlist_requires_approval = computed(() => {
         const playlist = this.selected_playlist();
@@ -1989,22 +2028,27 @@ export class SignageService {
     private readonly _playlist_change = signal(Date.now());
     public readonly playlist_media_loading = signal(false);
 
+    // Keyed by id, so a new copy of the selected playlist from a list reload
+    // does not load the media again.
+    private readonly _selected_playlist_id = computed(
+        () => this._selected_playlist_debounced.value()?.id || '',
+    );
     private readonly _playlist_media_items = resource({
         params: () => ({
-            playlist: this._selected_playlist_debounced.value(),
+            playlist_id: this._selected_playlist_id(),
             playlist_change: this._playlist_change(),
         }),
         loader: async ({ params }) => {
-            const playlist = params.playlist;
-            if (!playlist?.id) {
+            const { playlist_id } = params;
+            if (!playlist_id) {
                 this.playlist_media_loading.set(false);
                 return null as SignagePlaylistMedia | null;
             }
             this.playlist_media_loading.set(true);
             try {
-                const result = await listSignagePlaylistMedia(playlist.id);
+                const result = await listSignagePlaylistMedia(playlist_id);
                 this._setPlaylistMediaState(
-                    playlist.id,
+                    playlist_id,
                     result.items || [],
                     result.approved,
                     result.schedules,
@@ -2149,7 +2193,13 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return;
-        await removeSignagePlaylist(playlist.id);
+        try {
+            await removeSignagePlaylist(playlist.id);
+        } catch {
+            result.close();
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_PLAYLIST'));
+            return;
+        }
         if (this.selected_playlist()?.id === playlist.id) {
             this.selected_playlist.set(null);
             this.selected_playlist_item.set(null);
@@ -2161,13 +2211,17 @@ export class SignageService {
         result.close();
     }
 
+    /** Whether a playlist is being duplicated */
+    public readonly playlist_duplicating = signal(false);
+
     /**
      * Copy a playlist with its settings, items and item schedules. The copy
-     * starts unapproved and is not assigned to any display or zone.
+     * starts unapproved and is not assigned to any display or zone. When a
+     * step fails, the partial copy is removed.
      * @returns The new playlist, or null when no copy was made
      */
     public async duplicatePlaylist(playlist: SignagePlaylist) {
-        if (!playlist?.id) return null;
+        if (!playlist?.id || this.playlist_duplicating()) return null;
         if (
             !this._requirePermission(
                 this.can_create(),
@@ -2175,9 +2229,11 @@ export class SignageService {
             )
         )
             return null;
+        this.playlist_duplicating.set(true);
+        let copy: SignagePlaylist | null = null;
         try {
             const list = await listSignagePlaylistMedia(playlist.id);
-            const copy = await this._addSignagePlaylist({
+            copy = await this._addSignagePlaylist({
                 name: i18n('SIGNAGE_MANAGER.COPY_NAME', {
                     name: playlist.name,
                 }),
@@ -2226,8 +2282,16 @@ export class SignageService {
             notifySuccess(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_DUPLICATED'));
             return copy;
         } catch {
+            // Show the partial copy when it cannot be removed
+            if (copy?.id) {
+                await removeSignagePlaylist(copy.id).catch(() =>
+                    this.changed(),
+                );
+            }
             notifyError(i18n('SIGNAGE_MANAGER.SVC_PLAYLIST_DUPLICATE_ERROR'));
             return null;
+        } finally {
+            this.playlist_duplicating.set(false);
         }
     }
 
@@ -2295,12 +2359,17 @@ export class SignageService {
         const result: PlaylistRequestApprovalModalResult | undefined =
             await dialogClosed(ref);
         if (!result) return;
-        await requestApprovalSignagePlaylist(
-            playlist.id,
-            group.group.id,
-            result.message || '',
-            result.approver_id || '',
-        );
+        try {
+            await requestApprovalSignagePlaylist(
+                playlist.id,
+                group.group.id,
+                result.message || '',
+                result.approver_id || '',
+            );
+        } catch {
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REQUEST_APPROVAL'));
+            return;
+        }
         this.setPlaylistApprovalStatus(playlist.id, false, true);
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_APPROVAL_REQUESTED'));
     }
@@ -2317,19 +2386,29 @@ export class SignageService {
             )
         )
             return;
-        const media_list = await listSignagePlaylistMedia(playlist_id);
-        const new_items = [...(media_list.items || [])];
-        if (
-            typeof item_index === 'number' &&
-            new_items[item_index] === playlist_item_id
-        ) {
-            new_items.splice(item_index, 1);
-        } else {
-            const index = new_items.indexOf(playlist_item_id);
-            if (index < 0) return;
-            new_items.splice(index, 1);
+        const previous = this._playlist_media_items.value();
+        let media_list: SignagePlaylistMedia;
+        let new_items: string[];
+        try {
+            media_list = await listSignagePlaylistMedia(playlist_id);
+            new_items = [...(media_list.items || [])];
+            if (
+                typeof item_index === 'number' &&
+                new_items[item_index] === playlist_item_id
+            ) {
+                new_items.splice(item_index, 1);
+            } else {
+                const index = new_items.indexOf(playlist_item_id);
+                if (index < 0) return;
+                new_items.splice(index, 1);
+            }
+            this._showPlaylistMedia(playlist_id, media_list, new_items);
+            await updateSignagePlaylistMedia(playlist_id, new_items);
+        } catch {
+            this._showPlaylistMedia(playlist_id, previous);
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_PLAYLIST_ITEMS'));
+            return;
         }
-        await updateSignagePlaylistMedia(playlist_id, new_items);
         this._setPlaylistMediaState(
             playlist_id,
             new_items,
@@ -2337,7 +2416,6 @@ export class SignageService {
             media_list.schedules,
         );
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_ITEM_REMOVED'));
-        this._playlist_change.set(Date.now());
         this.changed();
     }
 
@@ -2369,25 +2447,36 @@ export class SignageService {
             this._dialog,
         );
         if (result.reason !== 'done') return false;
-        const media_list = await listSignagePlaylistMedia(playlist_id);
-        const new_items = [...(media_list.items || [])];
+        const previous = this._playlist_media_items.value();
+        let media_list: SignagePlaylistMedia;
+        const new_items: string[] = [];
         let removed_count = 0;
-        for (const item of [...playlist_items].sort(
-            (first, second) => second.index - first.index,
-        )) {
-            const index =
-                new_items[item.index] === item.id
-                    ? item.index
-                    : new_items.indexOf(item.id);
-            if (index < 0) continue;
-            new_items.splice(index, 1);
-            removed_count++;
-        }
-        if (!removed_count) {
+        try {
+            media_list = await listSignagePlaylistMedia(playlist_id);
+            new_items.push(...(media_list.items || []));
+            for (const item of [...playlist_items].sort(
+                (first, second) => second.index - first.index,
+            )) {
+                const index =
+                    new_items[item.index] === item.id
+                        ? item.index
+                        : new_items.indexOf(item.id);
+                if (index < 0) continue;
+                new_items.splice(index, 1);
+                removed_count++;
+            }
+            if (!removed_count) {
+                result.close();
+                return false;
+            }
+            this._showPlaylistMedia(playlist_id, media_list, new_items);
+            await updateSignagePlaylistMedia(playlist_id, new_items);
+        } catch {
+            this._showPlaylistMedia(playlist_id, previous);
             result.close();
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_PLAYLIST_ITEMS'));
             return false;
         }
-        await updateSignagePlaylistMedia(playlist_id, new_items);
         this._setPlaylistMediaState(
             playlist_id,
             new_items,
@@ -2409,13 +2498,20 @@ export class SignageService {
                 removed_count,
             ),
         );
-        this._playlist_change.set(Date.now());
         this.changed();
         result.close();
         return true;
     }
 
-    public async reorderPlaylistMedia(playlist_id: string, items: string[]) {
+    /**
+     * Save a new order of the shown playlist items. The list shows the new
+     * order at once and goes back to the old order when the save fails.
+     * @param media_ids Ids of the shown items, in the new order
+     */
+    public async reorderPlaylistMedia(
+        playlist_id: string,
+        media_ids: string[],
+    ) {
         if (
             !this._requirePermission(
                 this.can_update(),
@@ -2423,9 +2519,37 @@ export class SignageService {
             )
         )
             return;
-        await updateSignagePlaylistMedia(playlist_id, items);
+        const previous = this._playlist_media_items.value();
+        const loaded = this._selected_playlist_id() === playlist_id;
+        const items = reorderPlaylistItemIds(
+            (loaded && previous?.items) || [],
+            media_ids,
+        );
+        this._showPlaylistMedia(playlist_id, previous, items);
+        try {
+            await updateSignagePlaylistMedia(playlist_id, items);
+        } catch {
+            this._showPlaylistMedia(playlist_id, previous);
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REORDER_PLAYLIST'));
+            return;
+        }
         this._setPlaylistMediaState(playlist_id, items, false);
-        this._playlist_change.set(Date.now());
+    }
+
+    /**
+     * Show a media list for the selected playlist before the server confirms
+     * it, so the items do not reload. Does nothing for other playlists.
+     * @param items Item ids to show in place of the ones in the list
+     */
+    private _showPlaylistMedia(
+        playlist_id: string,
+        list: SignagePlaylistMedia | null | undefined,
+        items?: string[],
+    ) {
+        if (!list || this._selected_playlist_id() !== playlist_id) return;
+        this._playlist_media_items.set(
+            items ? new SignagePlaylistMedia({ ...list, items }) : list,
+        );
     }
 
     public async editPlaylistItemSchedule(item: SignagePlaylistItemSchedule) {
@@ -3301,31 +3425,34 @@ export class SignageService {
         return true;
     }
 
+    /**
+     * Signage groups that hold the playlist. The caller prefers the selected
+     * group, so only that group is returned when it is set.
+     */
     private async _playlistApprovalGroups(playlist: SignagePlaylist) {
-        const groups = this.signage_groups();
+        const groups = this.signage_groups().filter(({ group }) => group.id);
         const selected_group_id = this._api_group_id();
-        const matching_groups: PlaceCurrentGroup[] = [];
-        for (const group of groups) {
-            if (!group.group.id) continue;
-            if (group.group.id === selected_group_id) {
-                matching_groups.push(group);
-                continue;
-            }
-            try {
-                const result = await querySignagePlaylists({
-                    group_id: group.group.id,
-                    limit: 500,
-                } as any);
-                if (
-                    (result.data || []).some((item) => item.id === playlist.id)
-                ) {
-                    matching_groups.push(group);
+        const selected_group = groups.find(
+            ({ group }) => group.id === selected_group_id,
+        );
+        if (selected_group) return [selected_group];
+        const matches = await Promise.all(
+            groups.map(async (group) => {
+                try {
+                    const result = await querySignagePlaylists({
+                        group_id: group.group.id,
+                        limit: 500,
+                    });
+                    return (result.data || []).some(
+                        (item) => item.id === playlist.id,
+                    );
+                } catch {
+                    // Ignore groups the user cannot query.
+                    return false;
                 }
-            } catch {
-                // Ignore groups the user cannot query.
-            }
-        }
-        return matching_groups;
+            }),
+        );
+        return groups.filter((_, index) => matches[index]);
     }
 
     private async _templateApprovalGroups(template: SignageTemplate) {

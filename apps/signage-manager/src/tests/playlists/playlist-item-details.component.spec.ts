@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MediaAnimation } from '@placeos/ts-client';
 import { PlaylistItemDetailsComponent } from '../../app/playlists/playlist-item-details.component';
@@ -15,6 +15,8 @@ describe('PlaylistItemDetailsComponent', () => {
     const add_zone = vi.fn();
     const remove_display = vi.fn();
     const remove_zone = vi.fn();
+    // Pending unless a test resolves it, so the loaded pages are used
+    const load_inventory = vi.fn(() => new Promise(() => {}));
 
     const service_stub = {
         selected_playlist,
@@ -27,6 +29,8 @@ describe('PlaylistItemDetailsComponent', () => {
         addZoneToPlaylist: add_zone,
         removeDisplayFromPlaylist: remove_display,
         removeZoneFromPlaylist: remove_zone,
+        data_change: signal(0),
+        loadSignageInventory: load_inventory,
     };
 
     async function make() {
@@ -50,6 +54,30 @@ describe('PlaylistItemDetailsComponent', () => {
         zones.set([]);
         can_update.set(true);
         selected_group.set(null);
+    });
+
+    it('lists displays and zones outside the loaded pages', async () => {
+        selected_playlist.set({ id: 'pl-1', name: 'Lobby' });
+        displays.set([{ id: 'd-1', playlists: ['pl-1'] }]);
+        load_inventory.mockResolvedValueOnce({
+            displays: [
+                { id: 'd-1', playlists: ['pl-1'] },
+                { id: 'd-500', playlists: ['pl-1'] },
+            ],
+            zones: [{ id: 'z-300', playlists: ['pl-1'] }],
+            playlists: [],
+        });
+        const component = await make();
+        TestBed.tick();
+        await TestBed.inject(ApplicationRef).whenStable();
+
+        expect(component.playlist_displays().map(({ id }) => id)).toEqual([
+            'd-1',
+            'd-500',
+        ]);
+        expect(component.playlist_zones().map(({ id }) => id)).toEqual([
+            'z-300',
+        ]);
     });
 
     it('counts the loaded playlist media items', async () => {

@@ -1,12 +1,11 @@
 import { Component, effect, inject, input, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageService } from '../signage.service';
+import { PlaylistActionsComponent } from './playlist-actions.component';
 import { PlaylistHeaderComponent } from './playlist-header.component';
 import { PlaylistItemDetailsComponent } from './playlist-item-details.component';
 import { PlaylistItemsComponent } from './playlist-items.component';
@@ -66,133 +65,7 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
                                     }
                                 </div>
                                 <div></div>
-                                @if (requires_approval()) {
-                                    @if (can_approve()) {
-                                        <button
-                                            icon
-                                            default
-                                            type="button"
-                                            matRipple
-                                            [matTooltip]="
-                                                'SIGNAGE_MANAGER.APPROVE_PLAYLIST_TOOLTIP'
-                                                    | translate
-                                            "
-                                            (click)="approvePlaylist()"
-                                            [attr.aria-label]="
-                                                'SIGNAGE_MANAGER.APPROVE_SELECTED_PLAYLIST'
-                                                    | translate
-                                            "
-                                        >
-                                            <icon class="text-warning"
-                                                >order_approve</icon
-                                            >
-                                        </button>
-                                    } @else {
-                                        <button
-                                            icon
-                                            default
-                                            type="button"
-                                            matRipple
-                                            [matTooltip]="
-                                                'SIGNAGE_MANAGER.REQUEST_PLAYLIST_APPROVAL_TOOLTIP'
-                                                    | translate
-                                            "
-                                            (click)="requestApproval()"
-                                            [disabled]="
-                                                approval_request_loading()
-                                            "
-                                            [attr.aria-label]="
-                                                'SIGNAGE_MANAGER.REQUEST_APPROVAL_SELECTED'
-                                                    | translate
-                                            "
-                                        >
-                                            @if (approval_request_loading()) {
-                                                <mat-spinner diameter="20" />
-                                            } @else {
-                                                <icon class="text-warning"
-                                                    >approval</icon
-                                                >
-                                            }
-                                        </button>
-                                    }
-                                }
-                                @if (can_update()) {
-                                    <button
-                                        icon
-                                        default
-                                        type="button"
-                                        matRipple
-                                        [matTooltip]="
-                                            'SIGNAGE_MANAGER.EDIT_PLAYLIST_TOOLTIP'
-                                                | translate
-                                        "
-                                        (click)="editPlaylist()"
-                                        [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.EDIT_SELECTED_PLAYLIST'
-                                                | translate
-                                        "
-                                    >
-                                        <icon>edit</icon>
-                                    </button>
-                                }
-                                @if (can_create()) {
-                                    <button
-                                        icon
-                                        default
-                                        type="button"
-                                        matRipple
-                                        [matTooltip]="
-                                            'SIGNAGE_MANAGER.DUPLICATE_PLAYLIST_TOOLTIP'
-                                                | translate
-                                        "
-                                        (click)="duplicatePlaylist()"
-                                        [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.DUPLICATE_SELECTED_PLAYLIST'
-                                                | translate
-                                        "
-                                    >
-                                        <icon>content_copy</icon>
-                                    </button>
-                                }
-                                @if (can_share()) {
-                                    <button
-                                        icon
-                                        default
-                                        type="button"
-                                        matRipple
-                                        [matTooltip]="
-                                            'SIGNAGE_MANAGER.SHARE_PLAYLIST_TOOLTIP'
-                                                | translate
-                                        "
-                                        (click)="sharePlaylist()"
-                                        [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.SHARE_SELECTED_PLAYLIST'
-                                                | translate
-                                        "
-                                    >
-                                        <icon>ios_share</icon>
-                                    </button>
-                                }
-                                @if (can_delete()) {
-                                    <button
-                                        icon
-                                        default
-                                        error
-                                        type="button"
-                                        matRipple
-                                        [matTooltip]="
-                                            'SIGNAGE_MANAGER.DELETE_PLAYLIST_TOOLTIP'
-                                                | translate
-                                        "
-                                        (click)="removePlaylist()"
-                                        [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.DELETE_SELECTED_PLAYLIST'
-                                                | translate
-                                        "
-                                    >
-                                        <icon>delete</icon>
-                                    </button>
-                                }
+                                <playlist-actions />
                             </div>
                             <div
                                 class="bg-base-100 border-base-300 mx-2 my-2 flex rounded-lg border lg:hidden"
@@ -310,9 +183,8 @@ function parsePlaylistTab(value: string | null): 'items' | 'details' {
         PlaylistListComponent,
         PlaylistItemsComponent,
         PlaylistItemDetailsComponent,
+        PlaylistActionsComponent,
         MatRippleModule,
-        MatProgressSpinnerModule,
-        MatTooltipModule,
         IconComponent,
         TranslatePipe,
     ],
@@ -327,20 +199,13 @@ export class PlaylistsSectionComponent {
     public readonly item = input<string | null>(null);
     public readonly view_tab = signal<'items' | 'details'>('items');
     public readonly selected_playlist = this._service.selected_playlist;
-    public readonly requires_approval =
-        this._service.selected_playlist_requires_approval;
-    public readonly can_approve = this._service.can_approve;
-    public readonly can_update = this._service.can_update;
-    public readonly can_create = this._service.can_create;
-    public readonly can_delete = this._service.can_delete;
-    public readonly can_share = this._service.can_share;
-    public readonly approval_request_loading =
-        this._service.playlist_approval_request_loading;
 
     private readonly _playlists = this._service.playlists;
     private readonly _playlist_items = this._service.playlist_media_items;
 
     private _route_resolved = false;
+    // Route id fetched on its own because the loaded pages do not include it
+    private _fetched_id = '';
 
     constructor() {
         effect(() => {
@@ -357,6 +222,10 @@ export class PlaylistsSectionComponent {
             if (!list.length) return;
             if (id) {
                 const match = list.find((p) => p.id === id);
+                if (!match && this._fetched_id !== id) {
+                    this._fetched_id = id;
+                    void this._service.loadPlaylist(id);
+                }
                 if (match && this._service.selected_playlist() !== match) {
                     this._service.selected_playlist.set(match);
                     this._service.selected_playlist_item.set(null);
@@ -385,42 +254,6 @@ export class PlaylistsSectionComponent {
                 matched_item ? matched_index : null,
             );
         });
-    }
-
-    public editPlaylist() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.editPlaylist(playlist);
-    }
-
-    public removePlaylist() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.removePlaylist(playlist);
-    }
-
-    public approvePlaylist() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.approvePlaylist(playlist);
-    }
-
-    public requestApproval() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.requestPlaylistApproval(playlist);
-    }
-
-    public async duplicatePlaylist() {
-        const playlist = this.selected_playlist();
-        if (!playlist) return;
-        const copy = await this._service.duplicatePlaylist(playlist);
-        if (copy?.id) {
-            void this._router.navigate(['/playlists', copy.id], {
-                queryParamsHandling: 'merge',
-            });
-        }
-    }
-
-    public sharePlaylist() {
-        const playlist = this.selected_playlist();
-        if (playlist) this._service.sharePlaylist(playlist);
     }
 
     public deselectPlaylist() {

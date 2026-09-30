@@ -11,6 +11,8 @@ describe('PlaylistListComponent', () => {
         {},
     );
     const playlists_has_more = signal(false);
+    const playlists_loading = signal(false);
+    const playlists_error = signal(false);
     const load_more = vi.fn();
 
     const service_stub = {
@@ -21,10 +23,10 @@ describe('PlaylistListComponent', () => {
         playlist_approval_status,
         playlist_approval_requested_status,
         playlists_has_more,
+        playlists_loading,
+        playlists_error,
         loadMorePlaylists: load_more,
         queuePlaylistMeta: vi.fn(),
-        editPlaylist: vi.fn(),
-        removePlaylist: vi.fn(),
     };
 
     async function makeFixture(render_template = false) {
@@ -53,6 +55,8 @@ describe('PlaylistListComponent', () => {
         filtered_playlists.set([]);
         playlist_approval_status.set({});
         playlist_approval_requested_status.set({});
+        playlists_loading.set(false);
+        playlists_error.set(false);
     });
 
     const now_s = Math.floor(Date.now() / 1000);
@@ -119,6 +123,28 @@ describe('PlaylistListComponent', () => {
             'Disabled',
         );
         expect(enabled_playlist?.classList).not.toContain('bg-warning/10');
+    });
+
+    it('shows loading, not an empty list, while the first page loads', async () => {
+        playlists_loading.set(true);
+        const fixture = await makeFixture(true);
+        await fixture.whenStable();
+
+        const text = fixture.nativeElement.textContent;
+        expect(
+            fixture.nativeElement.querySelector('mat-spinner'),
+        ).not.toBeNull();
+        expect(text).not.toContain('No playlists found.');
+    });
+
+    it('shows an error, not an empty list, when the playlists fail to load', async () => {
+        playlists_error.set(true);
+        const fixture = await makeFixture(true);
+        await fixture.whenStable();
+
+        const text = fixture.nativeElement.textContent;
+        expect(text).toContain('Could not load the playlists.');
+        expect(text).not.toContain('No playlists found.');
     });
 
     it('requests the next page when scrolled', async () => {

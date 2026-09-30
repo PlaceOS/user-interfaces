@@ -1,5 +1,11 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, linkedSignal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    linkedSignal,
+    resource,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -934,6 +940,16 @@ export class PlaylistItemDetailsComponent {
     private readonly _items = this._service.playlist_media_items;
     private readonly _displays = this._service.displays;
     private readonly _zones = this._service.zones;
+    // The loaded pages may not hold every display and zone that uses the
+    // playlist, so read them all. Loaded once for each data change, not for
+    // each playlist. The loaded pages are shown until this loads.
+    private readonly _inventory = resource({
+        params: () =>
+            this.playlist()?.id
+                ? { change: this._service.data_change() }
+                : undefined,
+        loader: () => this._service.loadSignageInventory(),
+    });
 
     public readonly item_count = computed(() => this._items().length);
     public readonly can_update = this._service.can_update;
@@ -944,13 +960,19 @@ export class PlaylistItemDetailsComponent {
     public readonly playlist_displays = computed(() => {
         const pl = this.playlist();
         if (!pl) return [];
-        return this._displays().filter((d) => d.playlists?.includes(pl.id));
+        const displays = this._inventory.hasValue()
+            ? this._inventory.value().displays
+            : this._displays();
+        return displays.filter((d) => d.playlists?.includes(pl.id));
     });
 
     public readonly playlist_zones = computed(() => {
         const pl = this.playlist();
         if (!pl) return [];
-        return this._zones().filter((z) => z.playlists?.includes(pl.id));
+        const zones = this._inventory.hasValue()
+            ? this._inventory.value().zones
+            : this._zones();
+        return zones.filter((z) => z.playlists?.includes(pl.id));
     });
 
     public readonly animation_label = computed(() => {

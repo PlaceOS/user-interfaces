@@ -20,6 +20,7 @@ describe('PlaylistItemsComponent', () => {
         [],
     );
     const can_update = signal(true);
+    const playlist_media_loading = signal(false);
     const reorder = vi.fn();
     const remove_media = vi.fn().mockResolvedValue(undefined);
     const remove_media_items = vi.fn().mockResolvedValue(true);
@@ -30,13 +31,8 @@ describe('PlaylistItemsComponent', () => {
         selected_playlist,
         selected_playlist_item,
         selected_playlist_item_index,
-        selected_playlist_requires_approval: signal(false),
-        can_approve: signal(false),
         can_update,
-        can_delete: signal(true),
-        can_share: signal(true),
-        playlist_media_loading: signal(false),
-        playlist_approval_request_loading: signal(false),
+        playlist_media_loading,
         playlist_media_items,
         playlist_item_schedules,
         playlist_item_schedule_list,
@@ -46,11 +42,6 @@ describe('PlaylistItemsComponent', () => {
         previewMedia: preview_media,
         editPlaylistItemSchedule: vi.fn(),
         editPlaylistItemSchedules: edit_item_schedules,
-        editPlaylist: vi.fn(),
-        removePlaylist: vi.fn(),
-        approvePlaylist: vi.fn(),
-        requestPlaylistApproval: vi.fn(),
-        sharePlaylist: vi.fn(),
     };
 
     async function make() {
@@ -75,6 +66,16 @@ describe('PlaylistItemsComponent', () => {
         playlist_item_schedules.set(new Map());
         playlist_item_schedule_list.set([]);
         can_update.set(true);
+        playlist_media_loading.set(false);
+    });
+
+    it('keeps the items on screen while they reload', async () => {
+        const component = await make();
+        playlist_media_loading.set(true);
+        expect(component.loading()).toBe(true);
+
+        playlist_media_items.set([media('a')]);
+        expect(component.loading()).toBe(false);
     });
 
     it('selects an item through the shared service signal', async () => {

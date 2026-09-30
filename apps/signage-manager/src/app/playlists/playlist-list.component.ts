@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
@@ -170,6 +170,13 @@ type PlaylistStatus =
                         intersect
                         (intersect)="loadMore()"
                     ></div>
+                } @else if (error()) {
+                    <div
+                        class="text-error my-2 p-2 text-center text-xs"
+                        role="alert"
+                    >
+                        {{ 'SIGNAGE_MANAGER.PLAYLISTS_LOAD_ERROR' | translate }}
+                    </div>
                 } @else {
                     <div
                         class="text-base-content/50 bg-base-content/10 col-span-full my-2 p-2 text-center text-xs"
@@ -177,6 +184,23 @@ type PlaylistStatus =
                         {{ 'COMMON.END_OF_LIST' | translate }}
                     </div>
                 }
+            } @else if (loading()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+                >
+                    <mat-spinner diameter="32" />
+                    <p>{{ 'COMMON.LOADING' | translate }}</p>
+                </div>
+            } @else if (error()) {
+                <div
+                    class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
+                    role="alert"
+                >
+                    <icon class="text-error text-6xl">error</icon>
+                    <p>
+                        {{ 'SIGNAGE_MANAGER.PLAYLISTS_LOAD_ERROR' | translate }}
+                    </p>
+                </div>
             } @else {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-2 p-8"
@@ -202,7 +226,7 @@ type PlaylistStatus =
         MatRippleModule,
         MatFormFieldModule,
         MatInputModule,
-        MatMenuModule,
+        MatProgressSpinnerModule,
         IconComponent,
         TranslatePipe,
         IntersectDirective,
@@ -224,6 +248,8 @@ export class PlaylistListComponent {
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._service.playlists_has_more;
+    public readonly loading = this._service.playlists_loading;
+    public readonly error = this._service.playlists_error;
 
     constructor() {
         afterRenderEffect({
@@ -266,13 +292,5 @@ export class PlaylistListComponent {
         if (playlist.id in approvals && !approvals[playlist.id])
             return 'awaiting_approval';
         return null;
-    }
-
-    public editPlaylist(playlist: SignagePlaylist) {
-        this._service.editPlaylist(playlist);
-    }
-
-    public removePlaylist(playlist: SignagePlaylist) {
-        this._service.removePlaylist(playlist);
     }
 }

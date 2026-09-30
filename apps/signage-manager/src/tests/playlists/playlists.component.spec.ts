@@ -11,24 +11,15 @@ describe('PlaylistsSectionComponent', () => {
     const playlists = signal<any[]>([]);
     const playlist_media_items = signal<any[]>([]);
     const navigate = vi.fn();
+    const load_playlist = vi.fn();
 
     const service_stub = {
         selected_playlist,
         selected_playlist_item,
         selected_playlist_item_index,
-        selected_playlist_requires_approval: signal(false),
-        can_approve: signal(false),
-        can_update: signal(true),
-        can_delete: signal(true),
-        can_share: signal(true),
-        playlist_approval_request_loading: signal(false),
         playlists,
         playlist_media_items,
-        editPlaylist: vi.fn(),
-        removePlaylist: vi.fn(),
-        approvePlaylist: vi.fn(),
-        requestPlaylistApproval: vi.fn(),
-        sharePlaylist: vi.fn(),
+        loadPlaylist: load_playlist,
     };
 
     let fixture: ComponentFixture<PlaylistsSectionComponent>;
@@ -74,6 +65,24 @@ describe('PlaylistsSectionComponent', () => {
         fixture.detectChanges();
         expect(selected_playlist()).toBe(match);
         expect(selected_playlist_item()).toBeNull();
+    });
+
+    it('fetches and selects a linked playlist that is not in the loaded pages', async () => {
+        const linked = { id: 'pl-9', name: 'Linked' };
+        playlists.set([{ id: 'pl-1' }]);
+        load_playlist.mockImplementationOnce(async () => {
+            playlists.update((list) => [...list, linked]);
+            return linked;
+        });
+        await make();
+        fixture.componentRef.setInput('id', 'pl-9');
+        fixture.detectChanges();
+        await fixture.whenStable();
+        fixture.detectChanges();
+
+        expect(load_playlist).toHaveBeenCalledOnce();
+        expect(load_playlist).toHaveBeenCalledWith('pl-9');
+        expect(selected_playlist()).toBe(linked);
     });
 
     it('clears the selection once the route id is removed', async () => {
