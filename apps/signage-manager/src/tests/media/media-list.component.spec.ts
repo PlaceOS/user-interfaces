@@ -82,6 +82,7 @@ describe('MediaListComponent folders', () => {
         show_media_group_tabs.set(true);
         set_selected_group.mockReset();
         service_stub.media_has_more.set(false);
+        service_stub.media_error.set(false);
         service_stub.loadMoreMedia.mockReset();
     });
 
@@ -188,6 +189,26 @@ describe('MediaListComponent folders', () => {
 
         component.closeFolder();
         expect(component.display_media().length).toBe(3);
+    });
+
+    // Folders come from the tag counts, so they can show after media fails
+    it('shows the load error and retry with the folders', () => {
+        service_stub.media_error.set(true);
+        make();
+        const fixture = TestBed.createComponent(MediaListComponent);
+        fixture.detectChanges();
+
+        const retry = [
+            ...fixture.nativeElement.querySelectorAll('button'),
+        ].find((button: HTMLButtonElement) =>
+            button.textContent.includes('Retry'),
+        );
+        expect(fixture.nativeElement.textContent).toContain('lobby');
+        expect(retry).toBeTruthy();
+
+        retry.click();
+
+        expect(service_stub.retryMedia).toHaveBeenCalled();
     });
 
     // A folder filters the loaded pages, and its items can be on any page

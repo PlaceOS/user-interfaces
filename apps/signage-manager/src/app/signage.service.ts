@@ -3232,11 +3232,25 @@ export class SignageService {
     private _addMediaToList(media: SignageMedia) {
         if (!media?.id) return;
         const item = decodeEntityNames(media);
+        if (!this._media_items().some(({ id }) => id === item.id)) {
+            this._media_total.update((total) => total + 1);
+        }
         this._media_items.update((items) =>
             [item, ...items.filter((existing) => existing.id !== item.id)].sort(
                 (a, b) => b.created_at - a.created_at,
             ),
         );
+        this._media_tags.reload();
+    }
+
+    /** Take deleted media out of the loaded list and its total, in place, as
+     * the search index can still return it for a short time. */
+    private _removeMediaFromList(media_ids: string[]) {
+        const removed = new Set(media_ids);
+        this._media_items.update((items) =>
+            items.filter((item) => !removed.has(item.id)),
+        );
+        this._media_total.update((total) => Math.max(0, total - removed.size));
         this._media_tags.reload();
     }
 
@@ -3893,10 +3907,7 @@ export class SignageService {
     /** Remove a media row when the generated upload could not be claimed. */
     public async discardCreatedMedia(id: string) {
         await removeSignageMedia(id);
-        this._media_items.update((items) =>
-            items.filter((item) => item.id !== id),
-        );
-        this._media_tags.reload();
+        this._removeMediaFromList([id]);
     }
 
     /** guards against a second modal while one is open */
@@ -4309,11 +4320,11 @@ export class SignageService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REMOVE_MEDIA'));
             return;
         }
+        this._removeMediaFromList([item.id]);
         await this._removeDeletedMediaFromPlaylists(
             [item.id],
             playlists.map(({ id }) => id),
         );
-        this.changed();
         notifySuccess(i18n('SIGNAGE_MANAGER.SVC_MEDIA_REMOVED'));
         result.close();
     }
@@ -4371,11 +4382,11 @@ export class SignageService {
             (_, index) => results[index].status === 'fulfilled',
         );
         if (removed_ids.length) {
+            this._removeMediaFromList(removed_ids);
             await this._removeDeletedMediaFromPlaylists(
                 removed_ids,
                 playlists.map(({ id }) => id),
             );
-            this.changed();
         }
         result.close();
         if (removed_ids.length < media_ids.length) {

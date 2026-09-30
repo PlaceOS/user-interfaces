@@ -708,6 +708,7 @@ describe('SignageService media uploads', () => {
         test_service['_media_items'].set([
             new SignageMedia({ id: 'media-old', name: 'Old', created_at: 100 }),
         ]);
+        test_service['_media_total'].set(223);
 
         await service.addMedia(
             new File(['image'], 'poster.png', { type: 'image/png' }),
@@ -719,6 +720,7 @@ describe('SignageService media uploads', () => {
             'media-new',
             'media-old',
         ]);
+        expect(service.media_total()).toBe(224);
     });
 
     describe('creating the media record', () => {
@@ -1096,6 +1098,28 @@ describe('SignageService media uploads', () => {
         );
 
         expect(steps).toEqual(['delete', 'playlists']);
+    });
+
+    // The search index can still return deleted media, so no refetch
+    it('removes deleted media from the list and its total in place', async () => {
+        confirmNextDialog();
+        const service = createService();
+        const test_service = service as unknown as SignageServiceTestAccess;
+        test_service['_removeMediaFromPlaylists'] = vi.fn();
+        TestBed.flushEffects();
+        test_service['_media_items'].set([
+            new SignageMedia({ id: 'media-1' }),
+            new SignageMedia({ id: 'media-2' }),
+        ]);
+        test_service['_media_total'].set(10);
+        const changed = vi.spyOn(service, 'changed');
+
+        await service.removeMediaItems(service.media());
+        TestBed.flushEffects();
+
+        expect(service.media()).toEqual([]);
+        expect(service.media_total()).toBe(8);
+        expect(changed).not.toHaveBeenCalled();
     });
 
     it('closes the confirmation with an error when the delete fails', async () => {

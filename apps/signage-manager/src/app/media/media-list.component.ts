@@ -71,6 +71,10 @@ const UNTAGGED = '\0untagged';
 
         <!-- Folder view: show tag folders until one is opened -->
         @if (view_mode() === 'folder' && selected_folder() === null) {
+            <!-- Folders can still come from the tag counts after media fails -->
+            @if (error()) {
+                <ng-container [ngTemplateOutlet]="load_error" />
+            }
             @if (folders().length > 0) {
                 <div
                     class="grid w-full grid-cols-2 gap-4 p-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6"
@@ -141,9 +145,7 @@ const UNTAGGED = '\0untagged';
                 >
                     <mat-spinner diameter="32" />
                 </div>
-            } @else if (error()) {
-                <ng-container [ngTemplateOutlet]="load_error" />
-            } @else {
+            } @else if (!error()) {
                 <div
                     class="text-base-content/70 mx-auto flex flex-1 flex-col items-center justify-center space-y-2 p-8"
                 >
