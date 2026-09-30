@@ -68,22 +68,12 @@ export interface ReportOptions {
     zones?: string[];
 }
 
-const DAYS_OF_WEEK = {
-    sunday: 0,
-    monday: 1,
-    tuesday: 2,
-    wednesday: 3,
-    thurday: 4,
-    friday: 5,
-    saturday: 6,
-};
-
 const DAYS_OF_WEEK_INDEX = {
     0: 'sunday',
     1: 'monday',
     2: 'tuesday',
     3: 'wednesday',
-    4: 'thurday',
+    4: 'thursday',
     5: 'friday',
     6: 'saturday',
 };
@@ -382,7 +372,7 @@ export class ReportsStateService extends AsyncHandler {
         const opts = this._options();
         let start = startOfDay(opts.start);
         const end = endOfDay(opts.end).valueOf();
-        let count = 1;
+        let count = 0;
         while (start.valueOf() < end) {
             if (
                 !this._ignore_days.includes(DAYS_OF_WEEK_INDEX[start.getDay()])
@@ -542,9 +532,11 @@ export class ReportsStateService extends AsyncHandler {
             options.end?.valueOf() === current.end?.valueOf()
         )
             return;
-        // Clear stale bookings and cancel any in-flight load
+        // Clear stale bookings and cancel any in-flight load. The cancelled
+        // load exits early, so clear its loading state here.
         this._active_bookings.set([]);
         this._load_token++;
+        this._loading.set('');
         this._options.set({ ...current, ...options });
     }
 

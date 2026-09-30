@@ -93,6 +93,17 @@ describe('RoomWeekBookingsTimelineComponent', () => {
         spectator.detectChanges();
     });
 
+    it('should remove bookings through the events state service', () => {
+        const state = spectator.inject(EventsStateService);
+        const event = new CalendarEvent({ id: 'evt-1' });
+
+        spectator.component.remove(event);
+
+        // Called on the service, so `this` inside removeBooking is the service.
+        expect(state.removeBooking).toHaveBeenCalledWith(event);
+        expect(vi.mocked(state.removeBooking).mock.contexts[0]).toBe(state);
+    });
+
     it('should generate a full week of day columns', () => {
         expect(spectator.component.days()).toHaveLength(7);
     });

@@ -20,6 +20,7 @@ describe('SurveyBuilderComponent', () => {
     const removeQuestion = vi.fn();
     const service_survey = signal<any>(null);
     const filtered_questions = signal<any[]>([]);
+    const questions = signal<any[]>([]);
     let param_map: any;
 
     const createComponent = createComponentFactory({
@@ -30,6 +31,7 @@ describe('SurveyBuilderComponent', () => {
             MockProvider(NewSurveyService, {
                 survey: service_survey,
                 filtered_questions,
+                questions,
                 setSurvey: vi.fn(),
                 setQuestionFilters,
                 editQuestion,
@@ -58,6 +60,7 @@ describe('SurveyBuilderComponent', () => {
         vi.mocked(ts_client.updateSurvey).mockResolvedValue({} as never);
         service_survey.set(null);
         filtered_questions.set([]);
+        questions.set([]);
         param_map = of(convertToParamMap({}));
         spectator = createComponent();
     });
@@ -121,6 +124,25 @@ describe('SurveyBuilderComponent', () => {
         expect(setQuestionFilters).toHaveBeenLastCalledWith({
             type: 'rating',
             search_text: 'coffee',
+        });
+    });
+
+    it('should look up page questions from the loaded question list', () => {
+        questions.set([{ id: 3, title: 'How was it?' }]);
+
+        expect(spectator.component.questionFor(3)?.title).toBe('How was it?');
+        expect(spectator.component.questionFor('3')?.title).toBe('How was it?');
+    });
+
+    it('should pass the selected question type when searching', () => {
+        spectator.component.onTypeChange('rating');
+        setQuestionFilters.mockClear();
+
+        spectator.component.onSearchChange('food');
+
+        expect(setQuestionFilters).toHaveBeenCalledWith({
+            search_text: 'food',
+            type: 'rating',
         });
     });
 

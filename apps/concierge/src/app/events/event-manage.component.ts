@@ -715,18 +715,19 @@ export class EventManageComponent
             );
         }
         this.loading.set(true);
-        let resources = this.model().resources;
+        // Build the list from the event calendar and the selected room only,
+        // so a room that was changed or removed is not kept.
         const space = await new SpacePipe().transform(this._state.calendar);
-        resources.push(
+        let resources: Space[] = [
             space ||
                 new Space({
                     id: this._state.calendar,
                     email: this._state.calendar,
                 }),
-        );
+        ];
         if (this.resource()) {
             const resource = await new SpacePipe().transform(this.resource());
-            resources.push(resource);
+            if (resource) resources.push(resource);
         }
         resources = unique(resources, 'email');
         this.model.update((m) => ({

@@ -146,10 +146,11 @@ export class AssetsReportService {
             this._loading.set(true);
             try {
                 const purchase_orders = await queryAssetPurchaseOrders({});
-                return purchase_orders.data.filter((order) => {
-                    order.expected_service_end_date <
-                        getUnixTime(options.start || Date.now());
-                });
+                return purchase_orders.data.filter(
+                    (order) =>
+                        order.expected_service_end_date <
+                        getUnixTime(options.start || Date.now()),
+                );
             } finally {
                 this._loading.set(false);
             }
@@ -163,7 +164,7 @@ export class AssetsReportService {
     ) {
         const active_bookings = activeReportBookings(booking_list);
         const booked_assets = active_bookings
-            .map((_) => _.asset_ids?.length || [_.asset_id])
+            .map((_) => (_.asset_ids?.length ? _.asset_ids : [_.asset_id]))
             .flat();
         const unique_events = unique(
             active_bookings

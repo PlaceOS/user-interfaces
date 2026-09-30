@@ -406,7 +406,7 @@ export class SelectMapItemModalComponent
             if (!use_maps_indoors) {
                 const pos: { x: number; y: number } = e;
                 const short_list: [string, number][] = [];
-                for (const [id, bbox] of Object.entries(this.map_info)) {
+                for (const [id, bbox] of Object.entries(this.map_info())) {
                     if (
                         bbox.x <= pos.x &&
                         pos.x <= bbox.x + bbox.w &&
@@ -416,11 +416,12 @@ export class SelectMapItemModalComponent
                         short_list.push([id, bbox.h * bbox.w]);
                     }
                 }
-                short_list.sort((a, b) => a[1] - b[1]);
-                short_list.filter(([_, a]) => a <= 0.5);
-                if (short_list.length) {
-                    this.selected.set(short_list[0][0]);
-                }
+                // Pick the smallest item under the pointer, ignoring items
+                // that cover more than half of the map.
+                const [smallest] = short_list
+                    .filter(([, area]) => area <= 0.5)
+                    .sort((a, b) => a[1] - b[1]);
+                if (smallest) this.selected.set(smallest[0]);
             } else {
                 const id =
                     e.properties?.externalId || e.properties?.roomId || e.id;

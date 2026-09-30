@@ -52,7 +52,10 @@ import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
             [loading]="loading()"
             (confirm)="save()"
         >
-            <form class="flex flex-col space-y-4">
+            <form
+                class="flex flex-col space-y-4"
+                (submit)="$event.preventDefault()"
+            >
                 <div
                     class="border-base-300 relative mb-4 flex flex-col rounded-sm border p-2"
                 >
@@ -227,6 +230,7 @@ don't detect presence in room after a period of time"
                                 </mat-error>
                             </mat-form-field>
                             <button
+                                type="button"
                                 icon
                                 matRipple
                                 [disabled]="uploading()"
@@ -258,6 +262,7 @@ don't detect presence in room after a period of time"
                                 </mat-error>
                             </mat-form-field>
                             <button
+                                type="button"
                                 icon
                                 matRipple
                                 [disabled]="uploading()"

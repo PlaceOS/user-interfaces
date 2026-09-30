@@ -439,9 +439,9 @@ export class LockerStateService extends AsyncHandler {
         this._filters.set({ ...this._filters(), ...filters });
     }
 
+    /** Reload the first page of bookings with the current filters. */
     public refresh() {
-        this._loading.set(addToken(this._loading(), '[BOOKINGS]'));
-        this.timeout('poll', () => this.setFilters(this._filters()));
+        this._loadPage(true);
     }
 
     public viewLockerBank(bank: LockerBank) {
