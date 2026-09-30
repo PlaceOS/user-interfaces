@@ -1,8 +1,10 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PlaceOS_Service, UploadsService } from '@placeos/common';
 import { AiImageService } from '../app/ai/ai-image.service';
 import { AppComponent } from '../app/app.component';
 import { CommandPaletteService } from '../app/shared/command-palette.service';
+import { SignageService } from '../app/signage.service';
 
 describe('AppComponent', () => {
     const placeos = { init: vi.fn() };
@@ -13,6 +15,10 @@ describe('AppComponent', () => {
         loadRecent: vi.fn(),
     };
     const palette = { toggle: vi.fn() };
+    const signage = {
+        signage_groups_failed: signal(false),
+        reloadSignageGroups: vi.fn(),
+    };
 
     beforeEach(async () => {
         vi.clearAllMocks();
@@ -26,6 +32,7 @@ describe('AppComponent', () => {
                 { provide: UploadsService, useValue: uploads },
                 { provide: AiImageService, useValue: ai },
                 { provide: CommandPaletteService, useValue: palette },
+                { provide: SignageService, useValue: signage },
             ],
         })
             .overrideComponent(AppComponent, { set: { template: '' } })

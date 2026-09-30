@@ -1,9 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
+import { MatRippleModule } from '@angular/material/core';
 import { RouterOutlet } from '@angular/router';
 import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
+    IconComponent,
     TranslatePipe,
 } from '@placeos/components';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
@@ -12,6 +14,7 @@ import { authority } from '@placeos/ts-client';
 
 import { AiImageService } from './ai/ai-image.service';
 import { CommandPaletteService } from './shared/command-palette.service';
+import { SignageService } from './signage.service';
 
 @Component({
     selector: 'app-root',
@@ -20,6 +23,26 @@ import { CommandPaletteService } from './shared/command-palette.service';
             'SIGNAGE_MANAGER.SKIP_TO_CONTENT' | translate
         }}</a>
         <global-banner />
+        @if (groups_failed()) {
+            <div
+                role="alert"
+                class="bg-error/10 border-error/30 flex items-center gap-3 border-b px-4 py-2 text-sm"
+            >
+                <icon class="text-error text-xl">error</icon>
+                <p class="min-w-0 flex-1">
+                    {{ 'SIGNAGE_MANAGER.GROUPS_LOAD_ERROR' | translate }}
+                </p>
+                <button
+                    btn
+                    matRipple
+                    type="button"
+                    class="inverse"
+                    (click)="retryGroups()"
+                >
+                    {{ 'COMMON.RETRY' | translate }}
+                </button>
+            </div>
+        }
         <main
             id="main-content"
             tabindex="-1"
@@ -43,6 +66,8 @@ import { CommandPaletteService } from './shared/command-palette.service';
     ],
     imports: [
         GlobalBannerComponent,
+        MatRippleModule,
+        IconComponent,
         RouterOutlet,
         GlobalLoadingComponent,
         SettingsDebugPanelLauncherComponent,
@@ -57,6 +82,14 @@ export class AppComponent implements OnInit {
     private _uploads = inject(UploadsService);
     private _ai = inject(AiImageService);
     private _palette = inject(CommandPaletteService);
+    private _signage = inject(SignageService);
+
+    /** Whether the signage groups failed to load. Shows a banner with retry. */
+    public readonly groups_failed = this._signage.signage_groups_failed;
+
+    public retryGroups() {
+        this._signage.reloadSignageGroups();
+    }
 
     /** Open the command palette on Cmd+K or Ctrl+K, even from a text field */
     public onKeydown(event: KeyboardEvent) {

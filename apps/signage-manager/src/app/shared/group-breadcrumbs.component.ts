@@ -1,10 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { MatDialog } from '@angular/material/dialog';
-import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { dialogClosed, SignageService } from '../signage.service';
-import { GroupSelectModalComponent } from './group-select-modal.component';
+import { SignageService } from '../signage.service';
 
 @Component({
     // Existing signage-manager components use feature selectors without the app prefix.
@@ -60,14 +57,14 @@ import { GroupSelectModalComponent } from './group-select-modal.component';
 })
 export class GroupBreadcrumbsComponent {
     private readonly _service = inject(SignageService);
-    private readonly _dialog = inject(MatDialog);
 
     /** The active signage group and its ancestors, root first. */
     public readonly hierarchy = this._service.selected_group_hierarchy;
-    /** Sys admins can view every group at once; that state has no hierarchy. */
+    /** Admins and support can view every group at once; that state has no
+     * hierarchy. */
     public readonly show_all_groups = computed(
         () =>
-            this._service.is_sys_admin() &&
+            this._service.can_manage_all_groups() &&
             !this._service.selected_group_id() &&
             !this.hierarchy().length,
     );
@@ -76,18 +73,7 @@ export class GroupBreadcrumbsComponent {
         this._service.setSelectedGroup(group_id);
     }
 
-    public async selectGroup() {
-        const ref = this._dialog.open(GroupSelectModalComponent, {
-            data: {
-                title: i18n('SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP'),
-                groups: this._service.signage_groups(),
-                selected_group_id: this._service.selected_group_id(),
-                show_all_groups: this._service.is_sys_admin(),
-            },
-            panelClass: 'mobile-fullscreen',
-        });
-        const group_id = await dialogClosed<string>(ref);
-        if (group_id === undefined) return;
-        this.applyGroup(group_id);
+    public selectGroup() {
+        return this._service.selectGroup();
     }
 }

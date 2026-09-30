@@ -2248,6 +2248,7 @@
         "EXPAND_GROUP": "Expand group {{ name }}",
         "EXPAND_ZONE": "Expand zone {{ name }}",
         "EXPIRED": "EXPIRED",
+        "GROUPS_LOAD_ERROR": "Could not load your signage groups. Check your connection, then try again.",
         "GROUPS_NEW_TOOLTIP": "New group",
         "GROUPS_SEARCH_ARIA": "Search signage groups",
         "GROUPS_SELECT_PROMPT": "Select a signage group to manage it.",

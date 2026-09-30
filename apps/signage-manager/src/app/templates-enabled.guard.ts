@@ -1,20 +1,25 @@
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { OrganisationService, SettingsService } from '@placeos/common';
-import { SIGNAGE_FEATURE_IDS } from './signage-features';
+import { firstValueWhere, OrganisationService } from '@placeos/common';
+import { SignageService } from './signage.service';
 
 /**
- * Guards the templates section behind the `templates` entry of the
- * `app.features` setting. Waits for the org to initialise so settings overrides from zone
- * metadata have been applied before the flag is read.
+ * Guards the templates section behind the `templates` feature of the selected
+ * group, which the `app.features` setting limits. Waits for the org to
+ * initialise, so settings overrides from zone metadata apply, and for the
+ * flags of the selected group to load. Redirects when the group list failed.
  */
 export const templatesEnabledGuard: CanActivateFn = async () => {
-    const settings = inject(SettingsService);
+    const service = inject(SignageService);
     const router = inject(Router);
     const org = inject(OrganisationService);
+    const injector = inject(Injector);
 
-    await org.waitUntilInitialised();
-    const features: string[] =
-        settings.get('app.features') ?? SIGNAGE_FEATURE_IDS;
-    return features.includes('templates') ? true : router.parseUrl('/media');
+    await Promise.all([
+        org.waitUntilInitialised(),
+        firstValueWhere(service.features_ready, Boolean, injector),
+    ]);
+    return service.templates_enabled() && !service.signage_groups_failed()
+        ? true
+        : router.parseUrl('/media');
 };

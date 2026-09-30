@@ -1805,6 +1805,8 @@ describe('SignageService media uploads', () => {
             id: 'template-1',
             approved: false,
         });
+        // The template list reloads once the group flags turn templates on
+        await vi.waitFor(() => expect(service.templates_enabled()).toBe(true));
         TestBed.flushEffects();
         test_service['_template_items'].set([template]);
         Object.defineProperty(service, 'can_approve', {
