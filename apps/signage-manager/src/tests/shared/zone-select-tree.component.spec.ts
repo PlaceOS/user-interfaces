@@ -42,6 +42,78 @@ describe('ZoneSelectTreeComponent', () => {
         return fixture.componentInstance;
     }
 
+    it('keeps a node unloaded with a retry when its children fail to load', async () => {
+        const load_children = vi
+            .fn()
+            .mockRejectedValueOnce(new Error('Network'))
+            .mockResolvedValueOnce([
+                { id: 'child', name: 'Child', parent_id: 'root' } as PlaceZone,
+            ]);
+        const component = await make(
+            [],
+            [],
+            [{ id: 'root', name: 'Root', children_count: 1 } as PlaceZone],
+            load_children,
+        );
+        await vi.waitFor(() =>
+            expect(component.tree_nodes()[0].children_error).toBe(true),
+        );
+        const root = component.tree_nodes()[0];
+        expect(root.children_loaded).toBe(false);
+        expect(component.canExpand(root)).toBe(true);
+        TestBed.tick();
+        expect(load_children).toHaveBeenCalledOnce();
+
+        await component.loadChildren('root');
+
+        expect(component.tree_nodes()[0].children_error).toBe(false);
+        expect(component.flat_tree_nodes().map(({ zone }) => zone.id)).toEqual([
+            'root',
+            'child',
+        ]);
+    });
+
+    it('exposes expansion to assistive tech and the arrow keys', async () => {
+        await TestBed.configureTestingModule({
+            imports: [ZoneSelectTreeComponent],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(ZoneSelectTreeComponent);
+        fixture.componentRef.setInput('list', {
+            search: signal(''),
+            items: signal([
+                { id: 'root', name: 'Root' },
+                { id: 'child', name: 'Child', parent_id: 'root' },
+            ]),
+            loading: signal(false),
+            has_more: signal(false),
+            loadMore: vi.fn(),
+        } as unknown as PagedSearch<PlaceZone>);
+        const selected = vi.fn();
+        fixture.componentInstance.zoneSelected.subscribe(selected);
+        await fixture.whenStable();
+        const element: HTMLElement = fixture.nativeElement;
+        const items = () =>
+            Array.from(element.querySelectorAll('[role="treeitem"]'));
+        const root = items()[0] as HTMLElement;
+        expect(root.getAttribute('aria-expanded')).toBe('false');
+
+        root.focus();
+        root.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
+        );
+        await fixture.whenStable();
+
+        expect(root.getAttribute('aria-expanded')).toBe('true');
+        expect(items().length).toBe(2);
+
+        root.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }),
+        );
+        expect(selected).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'root' }),
+        );
+    });
+
     it('displays loaded zones as an expandable hierarchy', async () => {
         const component = await make([
             { id: 'root', name: 'Root' } as PlaceZone,

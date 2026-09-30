@@ -2798,6 +2798,7 @@
         "ZONE_DETAILS_TABS": "Zone details tabs",
         "ZONE_EDIT": "Edit Zone",
         "ZONE_PARENT": "Parent zone",
+        "ZONE_CHILDREN_RETRY": "Could not load the zones in {{ name }}. Select to try again.",
         "ZONE_PARENT_HINT": "Select a parent from the zones available to the active signage group.",
         "ZONE_PARENT_REQUIRED": "Parent zone is required",
         "ZONE_PERMISSIONS": "Zone permissions",
