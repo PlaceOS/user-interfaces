@@ -48,6 +48,12 @@ const POLL_RETRIES = 10;
 /** Fast retries keep a saved candidate from being left unclaimed on a blip. */
 const CLAIM_RETRY_DELAYS = [0, 500, 1500];
 
+/** A provider that cannot finish an image in this time has stopped responding. */
+export const MAX_JOB_WAIT_MS = 30 * 60 * 1000;
+
+/** background retries when the capabilities request fails at start up */
+const LOAD_RETRY_DELAYS = [5_000, 30_000, 120_000];
+
 export function isFinal(job?: AiJob | null) {
     return !!job && FINAL_STATES.includes(job.state);
 }
@@ -93,28 +99,29 @@ export class AiImageService extends AsyncHandler {
         () => !!this.default_model()?.generate,
     );
     public readonly can_edit = computed(() => !!this.default_model()?.edit);
-    public readonly running_count = computed(
-        () => Object.values(this.jobs()).filter((job) => !isFinal(job)).length,
-    );
-    public readonly recent = computed(() =>
-        Object.values(this.jobs()).sort(
-            (a, b) => (b.created_at || 0) - (a.created_at || 0),
-        ),
-    );
 
     private readonly _uploads = inject(UploadsService);
 
     private _loaded = false;
+    private _load_attempts = 0;
     private _org_zone = '';
 
     /**
-     * Read what this domain can do.
+     * Read what this domain can do. A failed read leaves AI off and tries
+     * again in the background a few times.
      */
     public async load(org_zone_id?: string) {
         if (this._loaded) return this.capabilities();
-        this._loaded = true;
         this._org_zone = org_zone_id || '';
         const capabilities = await signageAICapabilities().catch(() => null);
+        if (this._loaded) return this.capabilities();
+        this._loaded = !!capabilities;
+        if (!capabilities) {
+            const delay = LOAD_RETRY_DELAYS[this._load_attempts++];
+            if (delay) {
+                this.timeout('load', () => this.load(org_zone_id), delay);
+            }
+        }
         this.capabilities.set(
             capabilities || {
                 enabled: false,
@@ -277,6 +284,8 @@ export class AiImageService extends AsyncHandler {
 
     /**
      * One key per thing a person asked for, held here rather than on the modal.
+     * A key is only reused to retry a submit that did not get a job back; once
+     * a job exists, the same request again is a new request.
      */
     private readonly _intents = new Map<string, string>();
 
@@ -290,7 +299,16 @@ export class AiImageService extends AsyncHandler {
         return key;
     }
 
-    /** the jobs the user started recently, so the list survives a reload */
+    /** a job came back for this key, so the next identical request gets a new one */
+    private _forgetIntent(key?: string) {
+        for (const [id, value] of this._intents) {
+            if (value !== key) continue;
+            this._intents.delete(id);
+            return;
+        }
+    }
+
+    /** jobs started before a reload, so they still announce when they finish */
     public async loadRecent() {
         const jobs = await querySignageAIJobs({ mine: true, limit: 20 }).catch(
             () => [] as AiJob[],
@@ -307,6 +325,7 @@ export class AiImageService extends AsyncHandler {
             ...request,
             idempotency_key: request.idempotency_key || crypto.randomUUID(),
         });
+        this._forgetIntent(request.idempotency_key);
         this._merge([job]);
         this.watch(job.id);
         return job;
@@ -317,6 +336,7 @@ export class AiImageService extends AsyncHandler {
             ...request,
             idempotency_key: request.idempotency_key || crypto.randomUUID(),
         });
+        this._forgetIntent(request.idempotency_key);
         this._merge([job]);
         this.watch(job.id);
         return job;
@@ -345,16 +365,13 @@ export class AiImageService extends AsyncHandler {
         throw last_error;
     }
 
-    public job(id: string) {
-        return this.jobs()[id];
-    }
-
     /**
-     * Watch a job until it finishes.
+     * Watch a job until it finishes, or mark it failed once it has run for
+     * longer than any provider should take.
      */
     public watch(id: string) {
         if (this._watching.has(id)) return;
-        this._watching.add(id);
+        this._watching.set(id, Date.now() + MAX_JOB_WAIT_MS);
         this._attempts.delete(id);
         this.timeout(`watch-${id}`, () => this._poll(id), 1);
     }
@@ -365,11 +382,18 @@ export class AiImageService extends AsyncHandler {
         this.clearTimeout(`watch-${id}`);
     }
 
-    private readonly _watching = new Set<string>();
+    /** job id to the time it is given up on */
+    private readonly _watching = new Map<string, number>();
     private readonly _attempts = new Map<string, number>();
 
     private async _poll(id: string) {
-        if (!this._watching.has(id)) return;
+        const deadline = this._watching.get(id);
+        if (deadline === undefined) return;
+        if (Date.now() >= deadline) {
+            this._failJob(id);
+            this.unwatch(id);
+            return;
+        }
 
         const known = this.jobs()[id]?.version ?? 0;
         const result: AiJob | { error: unknown } = await showSignageAIJob(id, {

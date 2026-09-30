@@ -39,3 +39,18 @@ export function perceivedLightness(
 ): number {
     return (red * 299 + green * 587 + blue * 114) / 1000;
 }
+
+/**
+ * How a media item is labelled for an image of this size. The aspect ratio,
+ * as `width:height`, stands in when the size is not known.
+ */
+export function orientationOf(
+    width = 0,
+    height = 0,
+    aspect_ratio = '',
+): 'portrait' | 'landscape' {
+    if (!width || !height) {
+        [width, height] = aspect_ratio.split(':').map(Number);
+    }
+    return height > width ? 'portrait' : 'landscape';
+}

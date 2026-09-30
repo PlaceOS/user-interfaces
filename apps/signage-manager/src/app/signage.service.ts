@@ -9,7 +9,7 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
 import {
     i18n,
     notifyError,
@@ -108,10 +108,7 @@ import {
     updateZone,
 } from '@placeos/ts-client';
 import { format } from 'date-fns';
-import type {
-    AiImageModalComponent,
-    AiImageModalData,
-} from './ai/ai-image-modal.component';
+import type { AiImageModalData } from './ai/ai-image-modal.component';
 import { errorStatus } from './ai/ai-image.util';
 import { displayZoneIds, type ZoneNode } from './displays/display-zones.util';
 import {
@@ -4343,12 +4340,12 @@ export class SignageService {
 
     /**
      * Create a media item from an image the backend already stored, without
-     * sending the bytes up a second time.
+     * sending the bytes up a second time. The caller adds it to a playlist, so
+     * a failure there leaves the created row in its hands to retry.
      */
     public async addMediaFromUpload(
         upload_id: string,
         media_item: Partial<SignageMedia> = {},
-        playlist_id = '',
     ) {
         if (
             !this._requirePermission(
@@ -4394,16 +4391,12 @@ export class SignageService {
                 media_uri: media_url,
                 media_type: 'image',
                 thumbnail_id,
-            } as any),
+            }),
         };
         for (const key in data) {
             if (!data[key]) delete data[key];
         }
-        const result = await this._addSignageMedia(data);
-        if (playlist_id && result?.id) {
-            await this.addMediaToPlaylist(playlist_id, result.id);
-        }
-        return result;
+        return this._addSignageMedia(data);
     }
 
     /** Remove a media row when the generated upload could not be claimed. */
@@ -4412,8 +4405,8 @@ export class SignageService {
         this._removeMediaFromList([id]);
     }
 
-    /** guards against a second modal while one is open */
-    private _ai_modal_ref: MatDialogRef<AiImageModalComponent> | null = null;
+    /** guards against a second modal while one is loading or open */
+    private _ai_modal_open = false;
 
     /** Open the AI image modal, either to create artwork or to change some. */
     public async generateMediaWithAI(options: AiImageModalData = {}) {
@@ -4433,21 +4426,23 @@ export class SignageService {
             )
         )
             return;
-        if (this._ai_modal_ref) return;
-        const { AiImageModalComponent } =
-            await import('./ai/ai-image-modal.component');
-        const ref = this._dialog.open(AiImageModalComponent, {
-            data: options,
-            panelClass: 'fullscreen-dialog',
-            autoFocus: false,
-        });
-        this._ai_modal_ref = ref;
+        if (this._ai_modal_open) return;
+        // set before the import, so a second click while it loads is ignored
+        this._ai_modal_open = true;
         try {
+            const { AiImageModalComponent } =
+                await import('./ai/ai-image-modal.component');
+            const ref = this._dialog.open(AiImageModalComponent, {
+                data: options,
+                panelClass: 'fullscreen-dialog',
+                autoFocus: false,
+                ariaLabelledBy: 'ai-image-modal-title',
+            });
             const result = await dialogClosed(ref);
             this.changed();
             return result;
         } finally {
-            this._ai_modal_ref = null;
+            this._ai_modal_open = false;
         }
     }
 

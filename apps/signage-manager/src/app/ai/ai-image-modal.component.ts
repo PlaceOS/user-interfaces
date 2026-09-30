@@ -30,8 +30,8 @@ import {
 import { SignageMedia } from '@placeos/ts-client';
 
 import { SignageService } from '../signage.service';
-import { AiImageService, isFinal } from './ai-image.service';
-import { errorMessage } from './ai-image.util';
+import { AiImageService, isFinal, MAX_JOB_WAIT_MS } from './ai-image.service';
+import { errorMessage, orientationOf } from './ai-image.util';
 import {
     AiLayerControlsComponent,
     newTextBlock,
@@ -42,13 +42,9 @@ import {
     AiEditRequest,
     AiGenerateRequest,
     AiJob,
-    AiJobImage,
     AiLayerState,
     AiReference,
 } from './ai.types';
-
-/** A provider that cannot finish an image in this time has stopped responding. */
-const MAX_JOB_WAIT_MS = 30 * 60 * 1000;
 
 export interface AiImageModalData {
     /** pre-set from the playlist a user opened this from */
@@ -67,7 +63,9 @@ interface Candidate {
     index: number;
     upload_id: string;
     url: string;
-    /** position in the refine chain, 1 for the first generation */
+    width?: number;
+    height?: number;
+    /** position in this session, 1 for the first job that produced images */
     version: number;
 }
 
@@ -78,7 +76,7 @@ interface Candidate {
             <header
                 class="border-base-content/10 bg-base-100 flex h-14 shrink-0 items-center justify-between border-b px-4"
             >
-                <h2 class="m-0 text-lg font-medium">
+                <h2 id="ai-image-modal-title" class="m-0 text-lg font-medium">
                     {{ heading() | translate }}
                 </h2>
                 <button icon mat-dialog-close [disabled]="saving()">
@@ -143,7 +141,7 @@ interface Candidate {
                         }
                     </div>
 
-                    <!-- every candidate of every version, oldest first -->
+                    <!-- every candidate of every job in this session, oldest first -->
                     @if (rail().length) {
                         <div class="flex shrink-0 flex-col gap-1">
                             <p
@@ -311,28 +309,6 @@ interface Candidate {
                                     </mat-slide-toggle>
                                 }
                             }
-
-                            <ai-references
-                                [items]="include_references()"
-                                [uploading]="uploading_references()"
-                                [max]="include_max()"
-                                title="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES"
-                                hint="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES_HINT"
-                                (picked)="addReferences($event, 'include')"
-                                (removed)="removeReference($event)"
-                            ></ai-references>
-
-                            <ai-references
-                                [items]="style_items()"
-                                [uploading]="uploading_references()"
-                                [max]="style_max()"
-                                [offset]="include_references().length"
-                                title="SIGNAGE_MANAGER.AI_STYLE_REFERENCE"
-                                hint="SIGNAGE_MANAGER.AI_STYLE_REFERENCE_HINT"
-                                add_label="SIGNAGE_MANAGER.AI_REFERENCE_ADD_ONE"
-                                (picked)="addReferences($event, 'style')"
-                                (removed)="removeReference($event)"
-                            ></ai-references>
                         } @else {
                             <!-- the brief has already been spent; from here the
                                  box asks for a change to what is on screen -->
@@ -384,29 +360,31 @@ interface Candidate {
                                     </button>
                                 </div>
                             }
+                        }
 
-                            <ai-references
-                                [items]="include_references()"
-                                [uploading]="uploading_references()"
-                                [max]="include_max()"
-                                title="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES"
-                                hint="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES_HINT"
-                                (picked)="addReferences($event, 'include')"
-                                (removed)="removeReference($event)"
-                            ></ai-references>
+                        <ai-references
+                            [items]="include_references()"
+                            [uploading]="uploading_references()"
+                            [max]="include_max()"
+                            title="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES"
+                            hint="SIGNAGE_MANAGER.AI_INCLUDE_IMAGES_HINT"
+                            (picked)="addReferences($event, 'include')"
+                            (removed)="removeReference($event)"
+                        ></ai-references>
 
-                            <ai-references
-                                [items]="style_items()"
-                                [uploading]="uploading_references()"
-                                [max]="style_max()"
-                                [offset]="include_references().length"
-                                title="SIGNAGE_MANAGER.AI_STYLE_REFERENCE"
-                                hint="SIGNAGE_MANAGER.AI_STYLE_REFERENCE_HINT"
-                                add_label="SIGNAGE_MANAGER.AI_REFERENCE_ADD_ONE"
-                                (picked)="addReferences($event, 'style')"
-                                (removed)="removeReference($event)"
-                            ></ai-references>
+                        <ai-references
+                            [items]="style_items()"
+                            [uploading]="uploading_references()"
+                            [max]="style_max()"
+                            [offset]="include_references().length"
+                            title="SIGNAGE_MANAGER.AI_STYLE_REFERENCE"
+                            hint="SIGNAGE_MANAGER.AI_STYLE_REFERENCE_HINT"
+                            add_label="SIGNAGE_MANAGER.AI_REFERENCE_ADD_ONE"
+                            (picked)="addReferences($event, 'style')"
+                            (removed)="removeReference($event)"
+                        ></ai-references>
 
+                        @if (rail().length) {
                             <div class="border-base-content/10 border-t pt-4">
                                 <p class="m-0 mb-2 text-sm font-medium">
                                     {{
@@ -557,8 +535,12 @@ export class AiImageModalComponent implements OnDestroy {
         logo_choice: 'auto',
     });
 
-    /** the newest job; the rail walks back from here through its parents */
-    public readonly current_job_id = signal('');
+    /** every job this modal started, oldest first */
+    public readonly job_ids = signal<string[]>([]);
+    /** the newest job, the one a cancel applies to */
+    public readonly current_job_id = computed(
+        () => this.job_ids().at(-1) || '',
+    );
     public readonly selected = signal<Candidate | null>(null);
     public readonly selected_object_url = signal('');
     public readonly logo_on_light = signal('');
@@ -612,7 +594,7 @@ export class AiImageModalComponent implements OnDestroy {
 
     public readonly is_edit = computed(() => !!this._data.source_upload_id);
     public readonly can_refine = computed(
-        () => this._service.hasFeature('ai-editing'),
+        () => this._service.hasFeature('ai-editing') && this._ai.can_edit(),
     );
 
     /** the image being changed, so the brief is not written blind */
@@ -644,32 +626,34 @@ export class AiImageModalComponent implements OnDestroy {
     );
 
     /**
-     * Every candidate of every job in the refine chain, oldest first: the first
-     * generation's options and each round of changes since.
+     * Every candidate of every job in this session, oldest first: the first
+     * generation's options and each round of changes since, whichever version
+     * each change was made from. Jobs only ever append, so a version keeps
+     * its number.
      */
     public readonly rail = computed<Candidate[]>(() => {
         const jobs = this._ai.jobs();
-        const chain: AiJob[] = [];
-        const seen = new Set<string>();
-        let id = this.current_job_id();
-        while (id && jobs[id] && !seen.has(id)) {
-            seen.add(id);
-            chain.unshift(jobs[id]);
-            id = jobs[id].parent_job_id || '';
-        }
         const rail: Candidate[] = [];
-        chain.forEach((job, version) => {
-            (job.images || []).forEach((image, index) => {
+        let version = 0;
+        for (const id of this.job_ids()) {
+            const images = jobs[id]?.images || [];
+            if (!images.some((image) => image?.upload_id)) continue;
+            version++;
+            images.forEach((image, index) => {
                 if (!image?.upload_id) return;
                 rail.push({
-                    job_id: job.id,
+                    job_id: id,
                     index,
-                    upload_id: image.upload_id as string,
-                    url: (image as AiJobImage).url as string,
-                    version: version + 1,
+                    upload_id: image.upload_id,
+                    url:
+                        image.url ||
+                        `/api/engine/v2/uploads/${encodeURIComponent(image.upload_id)}/url`,
+                    width: image.width,
+                    height: image.height,
+                    version,
                 });
             });
-        });
+        }
         return rail;
     });
 
@@ -690,18 +674,11 @@ export class AiImageModalComponent implements OnDestroy {
      * Which engine is behind the button.
      */
     public readonly engine_note = computed(() => {
-        const capabilities = this._ai.capabilities();
-        if (!capabilities?.enabled) return '';
-        const provider =
-            capabilities.providers.find(
-                (p) => p.id === capabilities.default_provider_id,
-            ) || capabilities.providers[0];
+        const provider = this._ai.default_provider();
         if (!provider) return '';
-        const model = provider.models?.find(
-            (m) => m.id === provider.default_model,
-        );
         return i18n('SIGNAGE_MANAGER.AI_ENGINE', {
-            model: model?.name || provider.default_model || '',
+            model:
+                this._ai.default_model()?.name || provider.default_model || '',
             provider: provider.name,
         });
     });
@@ -730,6 +707,7 @@ export class AiImageModalComponent implements OnDestroy {
         const brief = this.brief().trim();
         if (!brief) return;
         const prompt = this.withReferenceRoles(brief);
+        const token = ++this._job_token;
         this.state.set('generating');
         try {
             const common = {
@@ -762,9 +740,9 @@ export class AiImageModalComponent implements OnDestroy {
                     idempotency_key: this._ai.intentKey('generate', request),
                 });
             }
-            this.current_job_id.set(job.id);
-            this._awaitJob(job.id);
+            this._follow(job, token);
         } catch (error) {
+            if (token !== this._job_token) return;
             this.state.set('compose');
             notifyError(
                 errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
@@ -777,6 +755,7 @@ export class AiImageModalComponent implements OnDestroy {
         const source = this.selected();
         if (!instruction || !source) return;
         this.refinement.set('');
+        const token = ++this._job_token;
         this.state.set('generating');
         try {
             const request: AiEditRequest = {
@@ -794,9 +773,9 @@ export class AiImageModalComponent implements OnDestroy {
                 ...request,
                 idempotency_key: this._ai.intentKey('edit', request),
             });
-            this.current_job_id.set(job.id);
-            this._awaitJob(job.id);
+            this._follow(job, token);
         } catch (error) {
+            if (token !== this._job_token) return;
             this.state.set('review');
             notifyError(
                 errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
@@ -821,15 +800,25 @@ export class AiImageModalComponent implements OnDestroy {
         this.selected_object_url.set(url);
     }
 
+    /**
+     * Stop the running job. The old loop stops at once, so a job that still
+     * finishes later cannot take over the screen. If the server refuses, the
+     * job is still running and the modal keeps following it.
+     */
     public async cancel() {
+        this._stopAwaiting();
         const id = this.current_job_id();
-        if (id) await this._ai.cancel(id);
+        const job = this._ai.jobs()[id];
+        if (job && !isFinal(job) && !(await this._ai.cancel(id))) {
+            if (this._closed) return;
+            notifyError(i18n('SIGNAGE_MANAGER.AI_CANCEL_FAILED'));
+            this._awaitJob(id);
+            return;
+        }
         this.state.set(this.rail().length ? 'review' : 'compose');
     }
 
-    /**
-     * Keep a logo for the domain.
-     */
+    /** the attached image ids, in the order they are sent */
     public readonly reference_ids = computed(() =>
         this.references().map((item) => item.id),
     );
@@ -872,6 +861,11 @@ export class AiImageModalComponent implements OnDestroy {
         try {
             for (const file of kind === 'style' ? files.slice(0, 1) : files) {
                 const id = await this._ai.uploadReference(file);
+                // closed while this uploaded: nothing will send or clear it
+                if (this._closed) {
+                    this._ai.removeReference(id);
+                    return;
+                }
                 const item = {
                     id,
                     name: file.name,
@@ -911,7 +905,7 @@ export class AiImageModalComponent implements OnDestroy {
 
     public ngOnDestroy() {
         this._closed = true;
-        if (this._await_timer) clearTimeout(this._await_timer);
+        this._stopAwaiting();
 
         const running = this.state() === 'generating';
         for (const item of this.references()) {
@@ -943,9 +937,10 @@ export class AiImageModalComponent implements OnDestroy {
         const candidate = this.selected();
         if (!candidate) return;
 
-        // Take the composited image before the button swaps to a spinner.
+        // Take the composited image before the button swaps to a spinner. A
+        // retry reuses the row the last attempt made, so needs no image.
         const name = this._name();
-        const overlay = this.has_overlay();
+        const overlay = !this._pending && this.has_overlay();
         const blob = overlay ? await this._layer()?.toBlob() : undefined;
         if (overlay && !blob) {
             notifyError(i18n('SIGNAGE_MANAGER.AI_NO_IMAGE'));
@@ -953,99 +948,130 @@ export class AiImageModalComponent implements OnDestroy {
         }
 
         this.saving.set(true);
+        this._dialog_ref.disableClose = true;
         try {
-            let media: SignageMedia | undefined;
+            let pending = this._pending;
+            if (!pending) {
+                const media = blob
+                    ? await this._service.addMedia(
+                          new File([blob], `${name}.png`, {
+                              type: 'image/png',
+                          }),
+                          new SignageMedia({ name, tags: this._tags() }),
+                      )
+                    : await this._service.addMediaFromUpload(
+                          candidate.upload_id,
+                          {
+                              name,
+                              tags: this._tags(),
+                              orientation: orientationOf(
+                                  candidate.width,
+                                  candidate.height,
+                                  this.is_edit()
+                                      ? this._data.aspect_ratio
+                                      : this.aspect(),
+                              ),
+                          },
+                      );
+                if (!media?.id) {
+                    this._dialog_ref.close(media);
+                    return;
+                }
+                // a composited file is a fresh upload with nothing to claim
+                pending = { media, claimed: !!blob };
+                this._pending = pending;
+                this.claim_pending.set(true);
+            }
+            const media = pending.media;
 
-            if (blob) {
-                const file = new File([blob], `${name}.png`, {
-                    type: 'image/png',
-                });
-                media = await this._service.addMedia(
-                    file,
-                    new SignageMedia({
-                        name,
-                        tags: this._tags(candidate),
-                    }),
-                );
-            } else {
-                media =
-                    this._pending_media ||
-                    (await this._service.addMediaFromUpload(
-                        candidate.upload_id,
-                        {
-                            name,
-                            tags: this._tags(candidate),
-                            orientation:
-                                this.aspect() === '9:16'
-                                    ? 'portrait'
-                                    : 'landscape',
-                        },
-                        this._data.playlist_id,
-                    ));
-                this._pending_media = media;
-                if (media?.id) {
-                    this.claim_pending.set(true);
+            if (!pending.claimed) {
+                try {
                     await this._ai.claim(
                         candidate.job_id,
                         candidate.upload_id,
                         media.id,
                     );
-                    this.claim_pending.set(false);
-                    this._pending_media = undefined;
+                } catch (error) {
+                    // an unclaimed upload is swept up, which would leave the
+                    // row pointing at nothing
+                    await this._service
+                        .discardCreatedMedia(media.id)
+                        .then(() => (this._pending = undefined))
+                        .catch(() => null);
+                    throw error;
                 }
+                pending.claimed = true;
             }
 
-            if (blob && media?.id && this._data.playlist_id) {
+            if (this._data.playlist_id) {
                 await this._service.addMediaToPlaylist(
                     this._data.playlist_id,
                     media.id,
                 );
             }
+            this._pending = undefined;
 
-            if (media?.id) {
-                // the list paints as soon as the dialog closes; give the
-                // thumbnail a moment to become readable so the tile is not
-                // briefly empty
-                if (media.thumbnail_id) {
-                    await this._ai
-                        .loadImage(
-                            `/api/engine/v2/uploads/${media.thumbnail_id}/url`,
-                        )
-                        .catch(() => '');
-                }
+            // the list paints as soon as the dialog closes; give the
+            // thumbnail a moment to become readable so the tile is not
+            // briefly empty
+            if (media.thumbnail_id) {
+                await this._ai
+                    .loadImage(
+                        `/api/engine/v2/uploads/${media.thumbnail_id}/url`,
+                    )
+                    .catch(() => '');
             }
             this._dialog_ref.close(media);
         } catch (error) {
-            if (!blob && this._pending_media?.id) {
-                await this._service
-                    .discardCreatedMedia(this._pending_media.id)
-                    .then(() => {
-                        this._pending_media = undefined;
-                        this.claim_pending.set(false);
-                    })
-                    .catch(() => null);
-            }
             notifyError(
                 errorMessage(error, i18n('SIGNAGE_MANAGER.AI_JOB_FAILED')),
             );
         } finally {
-            if (!this._pending_media) this.claim_pending.set(false);
+            this.claim_pending.set(!!this._pending);
             this.saving.set(false);
+            this._dialog_ref.disableClose = false;
         }
     }
 
-    private _pending_media: SignageMedia | undefined;
+    /**
+     * The row an earlier Save made but could not finish, so Save again reuses
+     * it rather than making a second. While it is set the pick is locked.
+     */
+    private _pending: { media: SignageMedia; claimed: boolean } | undefined;
     private _await_timer: ReturnType<typeof setTimeout> | null = null;
+    /** bumped to stop whichever job the modal was following */
+    private _job_token = 0;
+    private _logo_defaulted = false;
+
+    /** follow a job the server accepted, unless it was cancelled on the way */
+    private _follow(job: AiJob, token: number) {
+        if (this._closed) return;
+        if (token !== this._job_token) {
+            this._ai.cancel(job.id);
+            return;
+        }
+        this.job_ids.update((ids) => [...ids, job.id]);
+        this._awaitJob(job.id);
+    }
+
+    private _stopAwaiting() {
+        this._job_token++;
+        if (this._await_timer) clearTimeout(this._await_timer);
+        this._await_timer = null;
+    }
 
     /** poll until the job reaches a final state, then move on */
     private _awaitJob(id: string) {
+        this._stopAwaiting();
+        const token = this._job_token;
         const deadline = Date.now() + MAX_JOB_WAIT_MS;
         const check = () => {
             this._await_timer = null;
-            if (this._closed) return;
+            if (this._closed || token !== this._job_token) return;
             const job = this._ai.jobs()[id];
             if (!job || !isFinal(job)) {
                 if (Date.now() >= deadline) {
+                    this._ai.unwatch(id);
                     this.state.set(this.rail().length ? 'review' : 'compose');
                     notifyError(i18n('SIGNAGE_MANAGER.AI_JOB_FAILED'));
                     return;
@@ -1080,7 +1106,10 @@ export class AiImageModalComponent implements OnDestroy {
         ]);
         this.logo_on_light.set(on_light);
         this.logo_on_dark.set(on_dark);
-        if ((on_light || on_dark) && this.include_logo()) {
+        // only the first time: after that the toggle is the person's choice
+        if (this._logo_defaulted || !(on_light || on_dark)) return;
+        this._logo_defaulted = true;
+        if (this.include_logo()) {
             this.layer_state.set({ ...this.layer_state(), logo: true });
         }
     }
@@ -1102,7 +1131,7 @@ export class AiImageModalComponent implements OnDestroy {
      * Tags are what the media library builds its folders from, so only a label
      * a person would want to browse by belongs here.
      */
-    private _tags(_candidate: Candidate) {
+    private _tags() {
         return ['ai-generated'];
     }
 }
