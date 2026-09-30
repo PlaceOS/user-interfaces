@@ -112,6 +112,13 @@ describe('MediaListHeaderComponent', () => {
         expect(add_from_link).not.toHaveBeenCalled();
     });
 
+    it('adds a bare origin link with a trailing slash', async () => {
+        const component = await make();
+        component.link.set('https://example.com');
+        await component.addFromLink();
+        expect(add_from_link).toHaveBeenCalledWith('https://example.com/');
+    });
+
     it('rejects a javascript link without calling the service', async () => {
         const component = await make();
         component.link.set('javascript:alert(1)');

@@ -9,7 +9,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { isWebPageUrl } from '../signage-url.util';
+import { normaliseWebPageUrl } from '../signage-url.util';
 import { SignageService } from '../signage.service';
 
 export interface MediaAddModalData {
@@ -106,8 +106,8 @@ export class MediaAddModalComponent {
 
     public async add() {
         if (this.mode === 'link') {
-            const link = this.link().trim();
-            if (!isWebPageUrl(link)) {
+            const link = normaliseWebPageUrl(this.link().trim());
+            if (!link) {
                 notifyError(i18n('SIGNAGE_MANAGER.URL_INVALID'));
                 return;
             }

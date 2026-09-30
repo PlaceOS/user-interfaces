@@ -15,6 +15,15 @@ export function parseWebUrl(url: string, base?: string): URL | null {
     }
 }
 
+/**
+ * Absolute http or https `url` in the parsed form, or null for other URLs.
+ * Save this form: the backend refuses an origin without a path, such as
+ * `https://example.com`, and parsing adds the trailing `/`.
+ */
+export function normaliseWebPageUrl(url: string): string | null {
+    return parseWebUrl(url)?.href ?? null;
+}
+
 /** True when `url` is an absolute http or https URL. Webpage media need one. */
 export function isWebPageUrl(url: string): boolean {
     return !!parseWebUrl(url);

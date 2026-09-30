@@ -16,7 +16,7 @@ import {
 import { AiImageService } from '../ai/ai-image.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';
-import { isWebPageUrl } from '../signage-url.util';
+import { normaliseWebPageUrl } from '../signage-url.util';
 import { SignageService } from '../signage.service';
 import {
     DEFAULT_MEDIA_VIEW,
@@ -504,11 +504,12 @@ export class MediaListHeaderComponent {
     public async addFromLink() {
         const link = this.link().trim();
         if (!link) return;
-        if (!isWebPageUrl(link)) {
+        const url = normaliseWebPageUrl(link);
+        if (!url) {
             notifyError(i18n('SIGNAGE_MANAGER.URL_INVALID'));
             return;
         }
-        await this._service.addMediaFromLink(link);
+        await this._service.addMediaFromLink(url);
         this.link.set('');
     }
 

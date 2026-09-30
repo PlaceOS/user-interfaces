@@ -105,6 +105,17 @@ describe('MediaAddModalComponent', () => {
         );
     });
 
+    it('adds a bare origin link with a trailing slash', async () => {
+        const component = await createComponent({ mode: 'link' });
+        component.link.set('https://example.com');
+
+        await component.add();
+
+        expect(service.addMediaFromLink).toHaveBeenCalledWith(
+            'https://example.com/',
+        );
+    });
+
     it('enables the add action once a plugin is selected', async () => {
         const plugin = {
             id: 'weather',

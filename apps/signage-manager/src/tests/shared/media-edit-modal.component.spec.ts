@@ -343,7 +343,7 @@ describe('MediaEditModalComponent', () => {
             expect(component.preview_url()).toBe('about:blank');
         });
 
-        it('refuses to save a non-web url', async () => {
+        it('refuses to save a non-web url and saves a normalised one', async () => {
             const component = TestBed.createComponent(
                 MediaEditModalComponent,
             ).componentInstance;
@@ -359,7 +359,9 @@ describe('MediaEditModalComponent', () => {
             }));
             await component.saveMedia();
 
-            expect(onEdit).toHaveBeenCalled();
+            expect(onEdit.mock.calls[0][1].media_uri).toBe(
+                'https://example.com/',
+            );
         });
     });
 });

@@ -1,5 +1,6 @@
 import {
     isWebPageUrl,
+    normaliseWebPageUrl,
     parseWebUrl,
     webPageFrameUrl,
 } from '../app/signage-url.util';
@@ -22,6 +23,13 @@ describe('signage url util', () => {
 
     it.each(unsafe_urls)('rejects %j as a webpage URL', (url) => {
         expect(isWebPageUrl(url)).toBe(false);
+    });
+
+    it('normalises web URLs to their parsed form', () => {
+        expect(normaliseWebPageUrl('https://example.com')).toBe(
+            'https://example.com/',
+        );
+        expect(normaliseWebPageUrl('javascript:alert(1)')).toBeNull();
     });
 
     it('rejects relative URLs without a base', () => {

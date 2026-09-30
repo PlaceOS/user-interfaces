@@ -61,7 +61,11 @@ import {
     pluginSchema,
     schemaDefaults,
 } from '../signage-plugin.util';
-import { isWebPageUrl, webPageFrameUrl } from '../signage-url.util';
+import {
+    isWebPageUrl,
+    normaliseWebPageUrl,
+    webPageFrameUrl,
+} from '../signage-url.util';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface MediaEditModalData {
@@ -727,6 +731,11 @@ export class MediaEditModalComponent implements OnDestroy {
                 ...this.item,
                 ...form_value,
             };
+            if (this.media_type === 'webpage') {
+                new_media.media_uri =
+                    normaliseWebPageUrl(form_value.media_uri) ??
+                    form_value.media_uri;
+            }
             if (this.plugin()) {
                 new_media.plugin_id = this.item.plugin_id || this.plugin().id;
             }
