@@ -104,4 +104,32 @@ describe('findTakeoverConflicts', () => {
             }),
         ).toEqual([]);
     });
+
+    describe('across a daylight saving change', () => {
+        const original_timezone = process.env.TZ;
+        // Pin the zone so the result does not depend on the machine
+        beforeAll(() => (process.env.TZ = 'Australia/Sydney'));
+        afterAll(() => {
+            if (original_timezone === undefined) delete process.env.TZ;
+            else process.env.TZ = original_timezone;
+        });
+
+        it('reports the clock time of the conflict', () => {
+            // Sydney clocks go forward one hour at 02:00 on 4 October 2026
+            const conflicts = findTakeoverConflicts({
+                displays: [lobby],
+                zones: [level],
+                playlists: [
+                    playlist('a', '0 9 4 10 *', 60),
+                    playlist('b', '0 9 4 10 *', 60),
+                ],
+                start: new Date(2026, 9, 3),
+                days: 2,
+            });
+
+            expect(conflicts).toHaveLength(1);
+            expect(conflicts[0].starts_at).toEqual(new Date(2026, 9, 4, 9));
+            expect(conflicts[0].ends_at).toEqual(new Date(2026, 9, 4, 10));
+        });
+    });
 });

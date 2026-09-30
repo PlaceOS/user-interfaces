@@ -1,5 +1,5 @@
 import { SignagePlaylist } from '@placeos/ts-client';
-import { addDays, addMinutes, startOfDay } from 'date-fns';
+import { addDays, startOfDay } from 'date-fns';
 import {
     buildDisplayScheduleAssignments,
     buildScheduleBlocks,
@@ -27,6 +27,17 @@ export interface TakeoverConflictOptions {
     /** First day to check. Defaults to today. */
     start?: Date;
     days?: number;
+}
+
+/**
+ * Date of a wall-clock minute offset from the first day. Blocks use clock
+ * minutes, so a day with a daylight saving change still starts its minutes
+ * at midnight.
+ */
+function wallClockDate(first_day: Date, minutes: number) {
+    const date = addDays(first_day, Math.floor(minutes / MINUTES_PER_DAY));
+    date.setHours(0, minutes % MINUTES_PER_DAY, 0, 0);
+    return date;
 }
 
 /**
@@ -99,8 +110,8 @@ export function findTakeoverConflicts({
                 conflicts.push({
                     display,
                     playlists: [first.playlist, second.playlist],
-                    starts_at: addMinutes(first_day, second.start),
-                    ends_at: addMinutes(
+                    starts_at: wallClockDate(first_day, second.start),
+                    ends_at: wallClockDate(
                         first_day,
                         Math.min(first.end, second.end),
                     ),
