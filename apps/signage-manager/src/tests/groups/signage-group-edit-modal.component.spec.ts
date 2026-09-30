@@ -13,11 +13,13 @@ describe('SignageGroupEditModalComponent', () => {
     const hotkey_listen = vi.fn();
     let hotkey_callback: () => void;
     const can_change_parent = vi.fn();
+    const load_group = vi.fn();
     const service_stub = {
         manageable_signage_groups,
         signage_groups,
         saveSignageGroup: save_signage_group,
         canChangeGroupParent: can_change_parent,
+        loadGroup: load_group,
     };
     let modal_data: { group: any };
 
@@ -50,6 +52,7 @@ describe('SignageGroupEditModalComponent', () => {
         dialog_ref.disableClose = false;
         can_change_parent.mockReturnValue(true);
         signage_groups.set([]);
+        load_group.mockRejectedValue(new Error('forbidden'));
         save_signage_group.mockResolvedValue({ id: 'group-1' });
         manageable_signage_groups.set([
             { id: 'group-1', name: 'Group 1' },
@@ -118,10 +121,25 @@ describe('SignageGroupEditModalComponent', () => {
         expect(component.model().parent_id).toBe('group-a');
     });
 
-    it('shows the current parent by ID when its details are not loaded', () => {
+    it('reads the current parent when it is not in the group lists', async () => {
+        load_group.mockResolvedValue({ id: 'hidden', name: 'Hidden parent' });
+        modal_data = { group: { id: 'group-1', parent_id: 'hidden' } };
+        const component = make();
+
+        expect(load_group).toHaveBeenCalledWith('hidden');
+        await vi.waitFor(() =>
+            expect(component.parent_groups()[0]).toEqual({
+                id: 'hidden',
+                name: 'Hidden parent',
+            }),
+        );
+    });
+
+    it('shows the current parent by ID when it cannot be read', async () => {
         can_change_parent.mockReturnValue(false);
         modal_data = { group: { id: 'group-1', parent_id: 'hidden' } };
         const component = make();
+        await new Promise((resolve) => setTimeout(resolve));
 
         expect(component.parent_groups()).toEqual([{ id: 'hidden', name: '' }]);
     });

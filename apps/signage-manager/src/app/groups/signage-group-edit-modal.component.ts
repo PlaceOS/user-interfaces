@@ -107,6 +107,9 @@ export class SignageGroupEditModalComponent {
 
     public readonly loading = signal(false);
     public readonly group = this._data.group || {};
+    /** Current parent read by ID, for a parent that is not in the user's
+     * group lists */
+    private readonly _loaded_parent = signal<PlaceGroup | null>(null);
     /** Groups the user can pick as the parent. Leaves out the group, its
      * children and groups the user cannot move it to. The current parent
      * always comes first, so keeping it is a choice even for users who do
@@ -122,14 +125,9 @@ export class SignageGroupEditModalComponent {
                     this._service.canChangeGroupParent(this.group, id),
             );
         if (!parent_id) return options;
-        const parent =
-            this._service
-                .signage_groups()
-                .find(({ group }) => group.id === parent_id)?.group ||
-            this._service
-                .manageable_signage_groups()
-                .find(({ id }) => id === parent_id);
-        return [parent || { id: parent_id, name: '' }, ...options];
+        const parent = this._knownGroup(parent_id) ||
+            this._loaded_parent() || { id: parent_id, name: '' };
+        return [parent, ...options];
     };
     /** Only system admins can move a group to the top level */
     public readonly can_remove_parent = () =>
@@ -149,6 +147,29 @@ export class SignageGroupEditModalComponent {
             this.save(),
         );
         inject(DestroyRef).onDestroy(() => save_hotkey?.unsubscribe());
+        this._loadParent();
+    }
+
+    private _knownGroup(group_id: string) {
+        return (
+            this._service
+                .signage_groups()
+                .find(({ group }) => group.id === group_id)?.group ||
+            this._service
+                .manageable_signage_groups()
+                .find(({ id }) => id === group_id)
+        );
+    }
+
+    // A failed read, such as for a parent the user cannot see, keeps the ID
+    // as the option label.
+    private async _loadParent() {
+        const parent_id = this.group.parent_id;
+        if (!parent_id || this._knownGroup(parent_id)) return;
+        const parent = await this._service
+            .loadGroup(parent_id)
+            .catch(() => null);
+        if (parent) this._loaded_parent.set(parent);
     }
 
     public async save() {
