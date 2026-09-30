@@ -120,32 +120,24 @@ export class ItemListModalComponent implements OnInit {
             this._settings.get('app.concierge_metadata_key') || 'concierge_app';
         this.loading.set(true);
         const items = this.item_list().filter((_) => _);
-        const metadata: any = await showMetadata(this._bld_id, metadata_key);
-        metadata.details.support_issue_types = items;
-        let resp = await updateMetadata(this._bld_id, {
-            name: metadata_key,
-            details: metadata.details,
-            description: metadata.description || '',
-        }).catch((_) => {
-            notifyError(`Failed to save issue types. ${_}`);
-        });
-        if (!resp) {
+        try {
+            // Write the list into each app's own metadata key.
+            for (const key of [metadata_key, concierge_key]) {
+                const metadata = await showMetadata(this._bld_id, key);
+                await updateMetadata(this._bld_id, {
+                    name: key,
+                    details: {
+                        ...(metadata.details || {}),
+                        support_issue_types: items,
+                    },
+                    description: metadata.description || '',
+                });
+            }
+            this._dialog_ref.close();
+        } catch (e) {
+            notifyError(`Failed to save issue types. ${e}`);
+        } finally {
             this.loading.set(false);
-            return;
         }
-        const concierge_metadata: any = await showMetadata(
-            this._bld_id,
-            metadata_key,
-        );
-        concierge_metadata.details.support_issue_types = items;
-        resp = await updateMetadata(this._bld_id, {
-            name: concierge_key,
-            details: concierge_metadata.details,
-            description: concierge_metadata.description || '',
-        }).catch((_) => {
-            notifyError(`Failed to save issue types. ${_}`);
-        });
-        this.loading.set(false);
-        if (resp) this._dialog_ref.close();
     }
 }

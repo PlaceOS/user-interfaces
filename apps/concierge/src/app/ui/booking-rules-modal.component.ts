@@ -342,7 +342,11 @@ import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rule
                                     <div
                                         class="border-base-300 flex items-center justify-center border-x border-b p-8 opacity-30"
                                     >
-                                        No rulesets configured
+                                        {{
+                                            load_failed()
+                                                ? 'Failed to load booking rulesets'
+                                                : 'No rulesets configured'
+                                        }}
                                     </div>
                                 }
                             </div>
@@ -422,6 +426,8 @@ export class BookingRulesModalComponent {
     public readonly activate_save = signal(false);
     public readonly selected = signal<BookingRuleset | null>(null);
     public readonly change = signal(0);
+    /** True when the stored rulesets could not be read. */
+    public readonly load_failed = signal(false);
     public readonly show_children = signal<Record<string, boolean>>({});
     private readonly _booking_rules = resource({
         params: () => ({
@@ -430,14 +436,20 @@ export class BookingRulesModalComponent {
         }),
         defaultValue: [] as BookingRuleset[],
         loader: async ({ params }) => {
+            this.load_failed.set(false);
             if (!params.building) return [];
-            const { details } = await showMetadata(
-                params.building,
-                `${this._data.type}_booking_rules`,
-            ).catch(() => ({ details: [] }) as any);
-            return details instanceof Array
-                ? this.normaliseRulesetIds(details)
-                : [];
+            try {
+                const { details } = await showMetadata(
+                    params.building,
+                    `${this._data.type}_booking_rules`,
+                );
+                return details instanceof Array
+                    ? this.normaliseRulesetIds(details)
+                    : [];
+            } catch {
+                this.load_failed.set(true);
+                return [];
+            }
         },
     });
     public readonly booking_rules = this._booking_rules.value;
@@ -501,6 +513,19 @@ export class BookingRulesModalComponent {
         return `${value}`;
     }
 
+    /**
+     * Writes replace the whole stored list, so only allow them when the
+     * displayed list is fully loaded. Otherwise a failed or in-progress
+     * load would write an empty list over the stored rulesets.
+     */
+    private _canWrite(): boolean {
+        if (!this.load_failed() && !this._booking_rules.isLoading()) {
+            return true;
+        }
+        notifyError('Booking rulesets are not loaded. Please try again.');
+        return false;
+    }
+
     public isExpanded(id: string): boolean {
         return !!this.show_children()[id];
     }
@@ -529,27 +554,31 @@ export class BookingRulesModalComponent {
             this._dialog,
         );
         if (result.reason !== 'done') return;
+        if (!this._canWrite()) return result.close();
         result.loading('Removing Ruleset...');
         const rules = [...this.booking_rules()];
         const index = rules.findIndex((_) => _.id === ruleset.id);
-        if (index >= 0) {
-            rules.splice(index, 1);
-            await updateMetadata(this._org.building.id, {
-                name: `${this.type}_booking_rules`,
-                description: `${this.type} Booking Rules`,
-                details: rules,
-            }).catch((_) => {
-                notifyError('Error removing booking rules.');
-                throw _;
-            });
-            this.change.set(Date.now());
+        try {
+            if (index >= 0) {
+                rules.splice(index, 1);
+                await updateMetadata(this._org.building.id, {
+                    name: `${this.type}_booking_rules`,
+                    description: `${this.type} Booking Rules`,
+                    details: rules,
+                });
+                this.change.set(Date.now());
+            }
+            notifySuccess('Successfully removed booking rules.');
+        } catch {
+            notifyError('Error removing booking rules.');
+        } finally {
+            result.close();
         }
-        notifySuccess('Successfully removed booking rules.');
-        result.close();
     }
 
     public async drop(event: CdkDragDrop<BookingRuleset[]>) {
         if (event.previousIndex === event.currentIndex) return;
+        if (!this._canWrite()) return;
         const rules = [...this.booking_rules()];
         moveItemInArray(rules, event.previousIndex, event.currentIndex);
         await updateMetadata(this._org.building.id, {
@@ -565,6 +594,7 @@ export class BookingRulesModalComponent {
     }
 
     public async save(new_ruleset?: BookingRuleset) {
+        if (!this._canWrite()) return;
         this.loading.set(true);
         const rules = [...this.booking_rules()];
         if (new_ruleset) {
@@ -581,18 +611,21 @@ export class BookingRulesModalComponent {
             }
         }
         const unique_rules = this.normaliseRulesetIds(rules);
-        await updateMetadata(this._org.building.id, {
-            name: `${this.type}_booking_rules`,
-            description: `${this.type} Booking Rules`,
-            details: unique_rules,
-        }).catch((_) => {
+        try {
+            await updateMetadata(this._org.building.id, {
+                name: `${this.type}_booking_rules`,
+                description: `${this.type} Booking Rules`,
+                details: unique_rules,
+            });
+        } catch (e) {
             notifyError(
-                i18n('APP.CONCIERGE.BOOKING_RULESET_ERROR', { error: _ }),
+                i18n('APP.CONCIERGE.BOOKING_RULESET_ERROR', { error: e }),
             );
-            throw _;
-        });
+            return;
+        } finally {
+            this.loading.set(false);
+        }
         this.change.update((value) => value + 1);
-        this.loading.set(false);
         this.view.set('list');
         notifySuccess(i18n('APP.CONCIERGE.BOOKING_RULESET_SUCCESS'));
     }

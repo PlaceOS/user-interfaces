@@ -1,10 +1,13 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
@@ -19,7 +22,10 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 /** Fake dialog refs that drive `openConfirmModal` through MatDialog */
 const makeConfirmRef = () => ({
-    componentInstance: { event: of({ reason: 'done' }), loading: { set: vi.fn() } },
+    componentInstance: {
+        event: of({ reason: 'done' }),
+        loading: { set: vi.fn() },
+    },
     afterClosed: () => of({ reason: 'done' }),
     close: vi.fn(),
 });
@@ -158,6 +164,40 @@ describe('EmailTemplatesStateService', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['success'] }),
         );
+    });
+
+    it('should write the new zone before removing a moved template from the old zone', async () => {
+        (ts_client.showMetadata as any).mockImplementation((zone) =>
+            Promise.resolve({
+                details:
+                    zone === 'bld-0'
+                        ? [{ id: 'template-1', zone_id: 'bld-0' }]
+                        : [],
+            }),
+        );
+
+        await spectator.service.saveTemplate(
+            { id: 'template-1', zone_id: 'bld-1' } as EmailTemplate,
+            'bld-0',
+        );
+
+        const zones = (ts_client.updateMetadata as any).mock.calls.map(
+            ([zone]) => zone,
+        );
+        expect(zones).toEqual(['bld-1', 'bld-0']);
+    });
+
+    it('should not write templates when the zone list cannot be read', async () => {
+        (ts_client.showMetadata as any).mockRejectedValue('offline');
+
+        await expect(
+            spectator.service.removeTemplate({
+                id: 'drop',
+                zone_id: 'bld-1',
+            } as EmailTemplate),
+        ).rejects.toBe('offline');
+
+        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
     });
 
     it('should keep the template when removal is cancelled', async () => {

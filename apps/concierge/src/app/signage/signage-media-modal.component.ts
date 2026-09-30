@@ -27,6 +27,8 @@ import {
 import { addYears, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-permissions-modal.component';
 
+import { webPageFrameUrl } from './signage.utilities';
+
 @Component({
     selector: 'signage-media-modal',
     template: `
@@ -54,7 +56,7 @@ import { UploadPermissionsModalComponent } from 'libs/components/src/lib/upload-
                         @if (media_type === 'webpage') {
                             <iframe
                                 class="h-screen w-full object-contain object-center"
-                                [src]="url | safe: 'resource'"
+                                [src]="web_url | safe: 'resource'"
                             ></iframe>
                         } @else {
                             <img
@@ -281,6 +283,10 @@ export class SignageMediaModalComponent implements OnDestroy {
                   ? 'image'
                   : '') || this.item.media_type
         );
+    }
+
+    public get web_url() {
+        return webPageFrameUrl(this.url);
     }
 
     public get url() {

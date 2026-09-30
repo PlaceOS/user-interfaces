@@ -97,7 +97,10 @@ export class RegionModalComponent extends AsyncHandler {
     public readonly model = signal({
         id: this._data?.id || '',
         display_name: this._data?.display_name || '',
-        timezone: Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone || '',
+        timezone:
+            this._data?.timezone ||
+            Intl?.DateTimeFormat()?.resolvedOptions()?.timeZone ||
+            '',
         parent_id: this._org.organisation.id,
     });
 
