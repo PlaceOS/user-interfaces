@@ -24,6 +24,7 @@ import {
 } from '@placeos/common';
 import { GlobalLoadingComponent } from '@placeos/components';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
+import { mocksInit } from '@placeos/mocks';
 import { invalidateToken, isMock, setToken, token } from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
 
@@ -69,6 +70,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
     });
 
     public readonly title = 'outlook-addin';
+    private _mocks_registered = false;
 
     public async ngOnInit() {
         console.info(`Initialising application...`);
@@ -139,6 +141,17 @@ export class AppComponent extends AsyncHandler implements OnInit {
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
+        // Same checks as `setupPlace`. Production builds replace the mocks
+        // library with an empty one.
+        const mock_enabled =
+            settings.mock ||
+            (!location.href.includes('mock=false') &&
+                (location.href.includes('mock=true') ||
+                    localStorage.getItem('mock') === 'true'));
+        if (mock_enabled && !this._mocks_registered) {
+            this._mocks_registered = true;
+            mocksInit();
+        }
         try {
             await setupPlace(settings);
             return true;

@@ -23,6 +23,13 @@ export const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
         children: [
             {
+                path: 'calendar',
+                loadComponent: () =>
+                    import('./calendar/calendar-pane.component').then(
+                        (m) => m.CalendarPaneComponent,
+                    ),
+            },
+            {
                 path: 'ms-auth',
                 loadComponent: () =>
                     import('./rooms/room-booking.component').then(
@@ -97,8 +104,8 @@ export const routes: Routes = [
                         (m) => m.UpcomingBookingsComponent,
                     ),
             },
-            { path: '**', redirectTo: 'book/meeting' },
+            { path: '**', redirectTo: 'calendar' },
         ],
     },
-    { path: '**', redirectTo: 'book/meeting', pathMatch: 'full' },
+    { path: '**', redirectTo: 'calendar', pathMatch: 'full' },
 ];

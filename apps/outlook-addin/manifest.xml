@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0" xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0" xsi:type="MailApp">
   <Id>28ff1819-77f1-476b-9cff-e59b3fecc655</Id>
-  <Version>1.0.1.0</Version>
+  <Version>1.1.0.0</Version>
   <ProviderName>PLACEOS</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
-  <DisplayName DefaultValue="PlaceOS | Book Meeting Plugin" />
-  <Description DefaultValue="This add-in allows you to book rooms in your building via the PlaceOS API" />
+  <DisplayName DefaultValue="PlaceOS" />
+  <Description DefaultValue="Add PlaceOS rooms and desks to your Outlook calendar events." />
   <IconUrl DefaultValue="https://s3.ap-southeast-2.amazonaws.com/os.place.tech/outlook-plugin-resources/16x16-01.png" />
   <HighResolutionIconUrl DefaultValue="https://s3.ap-southeast-2.amazonaws.com/os.place.tech/outlook-plugin-resources/80x80-01.png" />
   <SupportUrl DefaultValue="https://place.technology/contact" />
@@ -36,7 +36,7 @@
   <DisableEntityHighlighting>false</DisableEntityHighlighting>
   <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
     <Requirements>
-      <bt:Sets DefaultMinVersion="1.3">
+      <bt:Sets DefaultMinVersion="1.8">
         <bt:Set Name="Mailbox" />
       </bt:Sets>
     </Requirements>
@@ -45,7 +45,6 @@
         <DesktopFormFactor>
           <FunctionFile resid="functionFile" />
           <ExtensionPoint xsi:type="AppointmentOrganizerCommandSurface">
-            <!-- <ExtensionPoint xsi:type="MessageReadCommandSurface"> -->
             <OfficeTab id="TabDefault">
               <Group id="msgReadGroup">
                 <Label resid="GroupLabel" />
@@ -64,36 +63,6 @@
                     <SourceLocation resid="Taskpane.Url" />
                   </Action>
                 </Control>
-                <Control xsi:type="Button" id="RoomsButton">
-                  <Label resid="RoomsButton.Label" />
-                  <Supertip>
-                    <Title resid="RoomsButton.Label" />
-                    <Description resid="RoomsButton.Tooltip" />
-                  </Supertip>
-                  <Icon>
-                    <bt:Image size="16" resid="Icon.16x16" />
-                    <bt:Image size="32" resid="Icon.32x32" />
-                    <bt:Image size="80" resid="Icon.80x80" />
-                  </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <SourceLocation resid="RoomsButton.Url" />
-                  </Action>
-                </Control>
-                <Control xsi:type="Button" id="DesksButton">
-                  <Label resid="DesksButton.Label" />
-                  <Supertip>
-                    <Title resid="DesksButton.Label" />
-                    <Description resid="DesksButton.Tooltip" />
-                  </Supertip>
-                  <Icon>
-                    <bt:Image size="16" resid="Icon.16x16" />
-                    <bt:Image size="32" resid="Icon.32x32" />
-                    <bt:Image size="80" resid="Icon.80x80" />
-                  </Icon>
-                  <Action xsi:type="ShowTaskpane">
-                    <SourceLocation resid="DesksButton.Url" />
-                  </Action>
-                </Control>
               </Group>
             </OfficeTab>
           </ExtensionPoint>
@@ -108,20 +77,14 @@
       </bt:Images>
       <bt:Urls>
         <bt:Url id="functionFile" DefaultValue="https://microsoft.poc.placeos.com/outlook/function-file/function-file.html" />
-        <bt:Url id="Taskpane.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/book/meeting" />
-        <bt:Url id="RoomsButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/upcoming" />
-        <bt:Url id="DesksButton.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/book/desks" />
+        <bt:Url id="Taskpane.Url" DefaultValue="https://microsoft.poc.placeos.com/outlook/#/calendar" />
       </bt:Urls>
       <bt:ShortStrings>
-        <bt:String id="GroupLabel" DefaultValue="PlaceOS | Book Meeting" />
-        <bt:String id="TaskpaneButton.Label" DefaultValue="Book a meeting" />
-        <bt:String id="DesksButton.Label" DefaultValue="Book a Desk" />
-        <bt:String id="RoomsButton.Label" DefaultValue="Upcoming meetings" />
+        <bt:String id="GroupLabel" DefaultValue="PlaceOS" />
+        <bt:String id="TaskpaneButton.Label" DefaultValue="PlaceOS" />
       </bt:ShortStrings>
       <bt:LongStrings>
-        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
-        <bt:String id="DesksButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
-        <bt:String id="RoomsButton.Tooltip" DefaultValue="Opens a pane displaying all available properties." />
+        <bt:String id="TaskpaneButton.Tooltip" DefaultValue="Find and add a room or desk for this event." />
       </bt:LongStrings>
     </Resources>
     <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
