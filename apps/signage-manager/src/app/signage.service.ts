@@ -1864,7 +1864,9 @@ export class SignageService {
                 return next;
             });
             this._displays_next = page.next;
-            this._displays_total.set(page.total);
+            // Later pages can report an older total while the search index
+            // catches up, which would undo the count of a display just added
+            if (replace) this._displays_total.set(page.total);
             this._displays_has_more.set(
                 !!page.next && this._displays_loaded < page.total,
             );

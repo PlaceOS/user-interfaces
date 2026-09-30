@@ -250,6 +250,25 @@ describe('SignageService displays and zones', () => {
         });
     });
 
+    it('keeps the count of an added display when a later page has an older total', async () => {
+        const service = createService();
+        const page = (total: number) =>
+            Promise.resolve({
+                data: [new PlaceSystem({ id: `d${total}`, signage: true })],
+                total,
+                next: null,
+            });
+        const token = service['_displays_token'];
+        await service['_fetchDisplayPage'](page(206), token, true);
+        service['_displays_total'].update((total: number) => total + 1);
+
+        await service['_fetchDisplayPage'](page(206), token);
+        expect(service.displays_total()).toBe(207);
+
+        await service['_fetchDisplayPage'](page(210), token, true);
+        expect(service.displays_total()).toBe(210);
+    });
+
     it('counts added and removed displays in the total', async () => {
         const service = createService();
         service['_displays_total'].set(5);
