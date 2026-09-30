@@ -63,7 +63,6 @@ import {
 
 export type PlaylistScheduleType = 'play_at' | 'play_cron';
 type RecurringScheduleType =
-    | 'minutes'
     | 'hours'
     | 'daily'
     | 'weekdays'
@@ -87,7 +86,6 @@ export interface PlaylistScheduleFormModel {
     recurrence_time: string;
     recurrence_interval: number;
     recurrence_week_of_month: number[];
-    recurrence_day_of_week: number;
     recurrence_weekdays: number[];
     recurrence_day_of_month: number[];
     play_period: number;
@@ -221,7 +219,6 @@ function parseRecurringCron(value: string | null | undefined) {
         recurrence_time: time,
         recurrence_interval: 1,
         recurrence_week_of_month: [1],
-        recurrence_day_of_week: 1,
         recurrence_weekdays: [1],
         recurrence_day_of_month: [1],
     };
@@ -255,7 +252,6 @@ function parseRecurringCron(value: string | null | undefined) {
             ...custom,
             recurrence_type: 'monthly_weekday' as RecurringScheduleType,
             recurrence_week_of_month: parseCronWeeksOfMonth(day_part),
-            recurrence_day_of_week: weekdays[0],
             recurrence_weekdays: weekdays,
         };
     }
@@ -280,7 +276,7 @@ function parseRecurringCron(value: string | null | undefined) {
 function isIntervalRecurringType(
     value: RecurringScheduleType | null | undefined,
 ) {
-    return value === 'minutes' || value === 'hours';
+    return value === 'hours';
 }
 
 function buildRecurringCron(value: {
@@ -288,7 +284,6 @@ function buildRecurringCron(value: {
     recurrence_time?: string | null;
     recurrence_interval?: number | null;
     recurrence_week_of_month?: number[] | null;
-    recurrence_day_of_week?: number | null;
     recurrence_weekdays?: number[] | null;
     recurrence_day_of_month?: number[] | null;
     play_start?: number | null;
@@ -305,13 +300,6 @@ function buildRecurringCron(value: {
     const [hours, minutes] = recurrence_time.split(':').map((_) => +_ || 0);
     const minute = Math.max(0, Math.min(59, minutes));
     const hour = Math.max(0, Math.min(23, hours));
-    if (value.recurrence_type === 'minutes') {
-        const interval = Math.max(
-            1,
-            Math.min(59, value.recurrence_interval || 1),
-        );
-        return interval === 1 ? '* * * * *' : `*/${interval} * * * *`;
-    }
     if (value.recurrence_type === 'hours') {
         const interval = Math.max(
             1,
@@ -538,7 +526,6 @@ export function createPlaylistScheduleModel(
         recurrence_time: recurring_schedule.recurrence_time,
         recurrence_interval: recurring_schedule.recurrence_interval,
         recurrence_week_of_month: recurring_schedule.recurrence_week_of_month,
-        recurrence_day_of_week: recurring_schedule.recurrence_day_of_week,
         recurrence_weekdays: recurring_schedule.recurrence_weekdays,
         recurrence_day_of_month: recurring_schedule.recurrence_day_of_month,
         play_period: playlistPlayPeriod(source),
@@ -856,21 +843,13 @@ export function playlistSchedulePayload(
                                     <label class="m-0 min-w-40 flex-1">
                                         <div>
                                             {{
-                                                (value().recurrence_type ===
-                                                'minutes'
-                                                    ? 'SIGNAGE_MANAGER.MINUTES_BETWEEN_PLAYS'
-                                                    : 'SIGNAGE_MANAGER.HOURS_BETWEEN_PLAYS'
-                                                ) | translate
+                                                'SIGNAGE_MANAGER.HOURS_BETWEEN_PLAYS'
+                                                    | translate
                                             }}
                                         </div>
                                         <a-counter
                                             [min]="1"
-                                            [max]="
-                                                value().recurrence_type ===
-                                                'minutes'
-                                                    ? 59
-                                                    : 23
-                                            "
+                                            [max]="23"
                                             [formField]="
                                                 schedule().recurrence_interval
                                             "
@@ -1731,13 +1710,6 @@ export class PlaylistScheduleFormComponent {
         const period = value.play_period ?? DEFAULT_PLAY_PERIOD_MINUTES;
         const duration =
             formatMinutes(period) || i18n('SIGNAGE_MANAGER.ONE_PLAYLIST_PASS');
-        if (value.recurrence_type === 'minutes') {
-            return i18n(
-                'SIGNAGE_MANAGER.SUMMARY_EVERY_MINUTE',
-                { interval },
-                interval,
-            );
-        }
         if (value.recurrence_type === 'hours') {
             return i18n(
                 'SIGNAGE_MANAGER.SUMMARY_EVERY_HOUR',
