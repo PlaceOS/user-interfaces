@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { setNotifyOutlet } from '@placeos/common';
+import { i18n, setNotifyOutlet } from '@placeos/common';
 import { PlaceSystem, PlaceZone } from '@placeos/ts-client';
 import {
     DisplayEditModalComponent,
@@ -157,7 +157,7 @@ describe('DisplayEditModalComponent', () => {
         expect(dialog_ref.close).not.toHaveBeenCalled();
         expect(component.loading()).toBe(false);
         expect(notify_open).toHaveBeenCalledWith(
-            expect.stringContaining('SVC_DISPLAY_SAVE_ERROR'),
+            i18n('SIGNAGE_MANAGER.SVC_DISPLAY_SAVE_ERROR'),
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
