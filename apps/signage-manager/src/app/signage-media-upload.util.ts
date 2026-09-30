@@ -103,6 +103,16 @@ const MP4_CONTAINER_BOXES = new Set([
     'udta',
 ]);
 
+/**
+ * WebM codec IDs sit in the Tracks element, which comes before the first
+ * cluster of frames. 1 MB covers it with room to spare.
+ */
+const WEBM_HEADER_BYTES = 1024 * 1024;
+/** Largest MP4 box header: size, type and a 64-bit size */
+const MP4_BOX_HEADER_BYTES = 16;
+/** Most top-level MP4 boxes walked while looking for `moov` */
+const MAX_MP4_TOP_LEVEL_BOXES = 1000;
+
 const SUPPORTED_FORMATS_ERROR =
     'Supported image formats: PNG, JPEG, WEBP, SVG. Supported video formats: WEBM, MP4, and MOV.';
 const VIDEO_CODEC_ERROR =
@@ -184,15 +194,47 @@ export function getVideoContainer(file: File): VideoContainer | null {
     return null;
 }
 
+/**
+ * Check the codecs from the file headers only, so a large video is not read
+ * into memory. WebM reads its first 1 MB; MP4 and MOV read box headers and
+ * then the `moov` box, which can be at either end of the file.
+ */
 async function validateVideoCodecs(
     file: File,
     container: VideoContainer,
     options: SignageMediaValidationOptions,
 ) {
-    const data = await readFileAsArrayBuffer(file);
-    return container === 'webm'
-        ? validateWebmCodecs(data, options)
-        : validateMp4Codecs(data, options);
+    if (container === 'webm') {
+        const head = await readBlob(file.slice(0, WEBM_HEADER_BYTES));
+        return validateWebmCodecs(head, options);
+    }
+    const moov = await readMp4Moov(file);
+    return !!moov && validateMp4Codecs(moov, options);
+}
+
+/**
+ * Read the `moov` box of an MP4 or MOV file. Only the header of each
+ * top-level box is read until `moov` is found, so a large `mdat` before it
+ * is skipped. Null when there is no valid `moov` box.
+ */
+async function readMp4Moov(file: Blob) {
+    let offset = 0;
+    for (
+        let count = 0;
+        count < MAX_MP4_TOP_LEVEL_BOXES && offset + 8 <= file.size;
+        count++
+    ) {
+        const header = await readBlob(
+            file.slice(offset, offset + MP4_BOX_HEADER_BYTES),
+        );
+        const box = readMp4Box(new DataView(header), 0, file.size - offset);
+        if (!box) return null;
+        if (box.type === 'moov') {
+            return readBlob(file.slice(offset, offset + box.end));
+        }
+        offset += box.end;
+    }
+    return null;
 }
 
 function matchesAllowedType(
@@ -341,7 +383,7 @@ function containsAscii(bytes: Uint8Array, value: string) {
     return false;
 }
 
-function readFileAsArrayBuffer(file: File) {
+function readBlob(file: Blob) {
     if (typeof file.arrayBuffer === 'function') {
         return file.arrayBuffer();
     }
