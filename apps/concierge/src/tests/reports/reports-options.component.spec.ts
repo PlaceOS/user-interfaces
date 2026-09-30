@@ -101,10 +101,24 @@ describe('ReportsOptionsComponent', () => {
             expect.objectContaining({
                 queryParams: {
                     start: new Date('2026-04-06T00:00:00').valueOf(),
+                    end: spectator.component.end(),
                 },
                 queryParamsHandling: 'merge',
             }),
         );
+    });
+
+    it('should keep both dates when start and end change together', () => {
+        const start = new Date('2026-09-25T00:00:00').valueOf();
+
+        spectator.component.setStartDate(start);
+        spectator.component.setEndDate(start);
+
+        // Each URL update carries both dates, so the last one is complete.
+        expect(navigate.mock.calls.at(-1)[1].queryParams).toEqual({
+            start,
+            end: new Date('2026-09-25T23:59:59.999').valueOf(),
+        });
     });
 
     it('should snap the end date to the end of day', () => {
