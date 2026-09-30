@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["find-space-item.component.ts"],
+  "sourcesContent": ["\n            :host {\n                padding: 0 0.5rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA,EAAA;AACJ;",
+  "names": []
+}
