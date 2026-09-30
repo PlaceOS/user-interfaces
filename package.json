@@ -71,6 +71,7 @@
         "@angular/router": "22.1.5",
         "@angular/service-worker": "22.1.5",
         "@capacitor/core": "8.2.0",
+        "@microsoft/teams-js": "^2.57.0",
         "@nx/angular": "23.2.0",
         "@sentry/cli": "^2.28.6",
         "@types/google.maps": "^3.55.0",

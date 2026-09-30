@@ -1,0 +1,39 @@
+{
+    "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.30/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.30",
+    "version": "1.0.0",
+    "id": "{{APP_ID}}",
+    "developer": {
+        "name": "PlaceOS",
+        "websiteUrl": "https://place.technology/",
+        "privacyUrl": "https://place.technology/",
+        "termsOfUseUrl": "https://place.technology/"
+    },
+    "name": {
+        "short": "Workplace",
+        "full": "PlaceOS Workplace"
+    },
+    "description": {
+        "short": "Book spaces, desks and parking, and find people in your workplace.",
+        "full": "PlaceOS Workplace in Microsoft Teams, Outlook and the Microsoft 365 app. Book spaces, desks and parking, manage your bookings and find people in your workplace."
+    },
+    "icons": {
+        "color": "color.png",
+        "outline": "outline.png"
+    },
+    "accentColor": "#0F766E",
+    "staticTabs": [
+        {
+            "entityId": "workplace",
+            "name": "Workplace",
+            "contentUrl": "https://{{HOST}}{{PATH}}?host=teams",
+            "websiteUrl": "https://{{HOST}}{{PATH}}",
+            "scopes": ["personal"]
+        }
+    ],
+    "validDomains": ["{{HOST}}"],
+    "webApplicationInfo": {
+        "id": "{{CLIENT_ID}}",
+        "resource": "api://{{HOST}}/{{CLIENT_ID}}"
+    }
+}
