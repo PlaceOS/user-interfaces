@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["new-user-modal.component.ts"],
+  "sourcesContent": ["\n            main {\n                min-height: 20em !important;\n                width: 100%;\n            }\n\n            footer button {\n                min-width: 8em;\n            }\n        "],
+  "mappings": ";AACY;AACI,cAAA;AACA,SAAA;AACJ;AAEA,OAAA;AACI,aAAA;AACJ;",
+  "names": []
+}
