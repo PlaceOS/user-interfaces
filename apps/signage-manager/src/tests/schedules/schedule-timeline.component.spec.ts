@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { SignagePlaylist } from '@placeos/ts-client';
 import { ScheduleTimelineComponent } from '../../app/schedules/schedule-timeline.component';
 import {
     ScheduleTimelineRow,
@@ -62,8 +63,14 @@ describe('ScheduleTimelineComponent', () => {
                 lane_count: 3,
                 blocks: [
                     block({ lane: 0 }),
-                    block({ lane: 1, playlist: { id: 'b' } as any }),
-                    block({ lane: 2, playlist: { id: 'c' } as any }),
+                    block({
+                        lane: 1,
+                        playlist: new SignagePlaylist({ id: 'b' }),
+                    }),
+                    block({
+                        lane: 2,
+                        playlist: new SignagePlaylist({ id: 'c' }),
+                    }),
                 ],
             }),
         ]);
@@ -119,7 +126,10 @@ describe('ScheduleTimelineComponent', () => {
             row({
                 blocks: [
                     block(),
-                    block({ takeover: true, playlist: { id: 'b' } as any }),
+                    block({
+                        takeover: true,
+                        playlist: new SignagePlaylist({ id: 'b' }),
+                    }),
                 ],
             }),
         ]);
@@ -147,9 +157,7 @@ describe('ScheduleTimelineComponent', () => {
 
         expect(statuses.get('online')?.online).toBe(true);
         expect(statuses.get('offline')?.online).toBe(false);
-        expect(statuses.get('never')?.label).toBe(
-            'Offline · Never seen',
-        );
+        expect(statuses.get('never')?.label).toBe('Offline · Never seen');
         const status = fixture.nativeElement.querySelector('[row-status]');
         expect(status.getAttribute('tabindex')).toBe('0');
         expect(status.getAttribute('aria-label')).toBeTruthy();

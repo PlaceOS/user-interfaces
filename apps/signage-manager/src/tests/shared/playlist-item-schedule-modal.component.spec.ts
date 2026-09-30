@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { setNotifyOutlet } from '@placeos/common';
+import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
 import {
     PlaylistItemScheduleModalComponent,
     PlaylistItemScheduleModalData,
@@ -187,10 +188,15 @@ describe('PlaylistItemScheduleModalComponent', () => {
     });
 
     it('keeps each schedule form and the open schedule after a removal', async () => {
-        modal_data.item = {
+        const schedule = {
+            play_cron: '0 9 * * *',
+            play_period: 60,
+            play_takeover: false,
+        };
+        modal_data.item = new SignagePlaylistItemSchedule({
             item_id: 'item-1',
-            schedules: [{}, {}, {}],
-        } as any;
+            schedules: [schedule, schedule, schedule],
+        });
         const fixture = await renderComponent();
         const component = fixture.componentInstance;
         const forms = () =>

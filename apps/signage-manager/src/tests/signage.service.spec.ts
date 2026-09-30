@@ -1303,7 +1303,7 @@ describe('SignageService media uploads', () => {
                             id: `m${i}`,
                             name: `m${i}`,
                             valid_until: 1,
-                        } as any),
+                        }),
                 ),
             );
             let active = 0;
@@ -1312,9 +1312,12 @@ describe('SignageService media uploads', () => {
                 most_active = Math.max(most_active, ++active);
                 await new Promise((resolve) => setTimeout(resolve));
                 active--;
-                return {
-                    playlists: id === 'm0' ? [{ name: 'News' }] : [],
-                } as any;
+                return new SignageMedia({
+                    playlists:
+                        id === 'm0'
+                            ? [new SignagePlaylist({ name: 'News' })]
+                            : [],
+                });
             });
 
             const result = await test_service['_expiredMediaInPlaylists'](
@@ -1336,9 +1339,11 @@ describe('SignageService media uploads', () => {
                     name: id,
                     schedules: valid_until.map((end) => ({
                         play_cron: '0 9 * * *',
+                        play_period: 60,
+                        play_takeover: false,
                         valid_until: end,
                     })),
-                } as any);
+                });
             test_service['loadSignageInventory'] = vi.fn().mockResolvedValue({
                 displays: [
                     new PlaceSystem({
